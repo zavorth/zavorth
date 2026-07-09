@@ -9,6 +9,12 @@ import {
 import {
   SkillProvenanceService,
 } from './SkillProvenanceService.js';
+import {
+  SkillSourceRegistryService,
+  type SkillSourceRegistryEntry,
+} from '../services/SkillSourceRegistryService.js';
+import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
+
 import type {
   SkillImportAuditReference,
   SkillLicensePolicyDecision,
@@ -18,11 +24,8 @@ import type {
   SkillSupportFile,
   SkillSupportFileKind,
 } from './SkillCatalogContract.js';
-import {
-  SkillSourceRegistryService,
-  type SkillSourceRegistryEntry,
-} from '../services/SkillSourceRegistryService.js';
-import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
+
+
 import { LicensePolicyService } from './LicensePolicyService.js';
 import { SkillRiskScoringService } from './SkillRiskScoringService.js';
 import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';const BLOCKED_ROOT_SUPPORT_FILES = new Set([

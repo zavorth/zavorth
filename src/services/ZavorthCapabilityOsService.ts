@@ -1,18 +1,20 @@
-﻿import type {
+import {
+  getDefaultCapabilityRegistry,
+  type CapabilityRegistry,
+} from '../capabilities/CapabilityRegistry.js';
+import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';
+
+import type {
   CapabilityDefinition,
   CapabilityDispatchMode,
   CapabilityPolicy,
   CapabilitySummary,
   CapabilityType,
 } from '../contracts/CapabilityContract.js';
-import {
-  getDefaultCapabilityRegistry,
-  type CapabilityRegistry,
-} from '../capabilities/CapabilityRegistry.js';
-import { TrustPlanePolicyLedgerService } from './TrustPlanePolicyLedgerService.js';
+
 import type { TrustPlanePolicyLedgerEntry } from './TrustPlanePolicyLedgerService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type CapabilityRegistryLike = Pick<
   CapabilityRegistry,
   'findByCommand' | 'getAll' | 'getSummary' | 'matchImplicit'
@@ -567,12 +569,13 @@ export class ZavorthCapabilityOsService {
         reason: 'Decisao registrada no Trust Plane ledger com entrada redigida.',
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Capability Os] filesystem check failed', error);
     return {
         recorded: false,
         entryId: null,
         status: null,
-        reason: `Nao foi possivel registrar no ledger: ${error?.message || String(error)}`,
+        reason: `Nao foi possivel registrar no ledger: ${errorMessage(error)}`,
       };
   }
   }

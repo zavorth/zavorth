@@ -1,4 +1,5 @@
 import { asErrorLike } from '../../utils/errorLike';
+import { config } from '../../config/index.js';
 /**
  * Zavorth-native adapter for image generation through AI Gateway.
  * via AI Gateway.
@@ -27,7 +28,7 @@ import type {
   MediaGenerationRequest,
   AdapterGenerationOutput,
 } from '../../contracts/MediaGenerationContract.js';
-import { config } from '../../config/index.js';
+
 import { logger } from '../../logger.js';
 import { safeFetch } from '../../security/SafeFetchService.js';
 

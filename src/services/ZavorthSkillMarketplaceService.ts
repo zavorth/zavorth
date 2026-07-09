@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
 import { config } from '../config/index.js';
@@ -18,6 +19,7 @@ import type {
   ZavorthMarketplaceSortMode,
   ZavorthMarketplaceStats,
 } from '../contracts/ZavorthSkillMarketplaceContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type NativeSkillManifest = {
   id: string;
@@ -418,11 +420,12 @@ export class ZavorthSkillMarketplaceService {
       });
       return { installed: true, skillPath: path.relative(this.projectRoot, targetDir), warnings };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Skill Marketplace] operation failed', error);
     return {
         installed: false,
         skillPath: '',
-        warnings: [`Installation failed: ${error instanceof Error ? error.message : String(error)}`],
+        warnings: [`Installation failed: ${error instanceof Error ? err.message : String(error)}`],
       };
   }
   }

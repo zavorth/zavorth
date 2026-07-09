@@ -1,9 +1,9 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 type WikiIndex = {
   pages?: Array<{ id: string; path: string; title?: string; tags?: string[] }>;
 };
@@ -121,7 +121,7 @@ export class ZavorthMnemosFtsIndexService {
         safety: this.safety(),
       };
     } catch (error: unknown) {logger.warn('[Zavorth Mnemos Fts] creation failed', error);
-    return this.unavailable(generatedAt, dbPath, pages.length, String(error?.message || error || 'sqlite failed'));
+    return this.unavailable(generatedAt, dbPath, pages.length, String(errorMessage(error) || 'sqlite failed'));
   } finally {
       try {
         db?.close?.();

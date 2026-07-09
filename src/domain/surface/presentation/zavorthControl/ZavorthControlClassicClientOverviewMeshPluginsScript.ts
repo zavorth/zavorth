@@ -1,5 +1,7 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
 import type { ZavorthPluginRegistrySnapshot } from '../../../../services/ZavorthPluginRegistryService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 declare function escapeHtml(value: unknown): string;
 declare function showToast(msg: string, isError?: boolean): void;
 
@@ -88,7 +90,8 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         renderOperationsPlugins(payload.plugins || null);
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
       } catch (error: unknown) {
-        showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do plugin plane.');
+        const err = asErrorLike(error);
+        showToast(error instanceof Error ? err.message : 'Falha ao executar a acao do plugin plane.');
       }
     }
 

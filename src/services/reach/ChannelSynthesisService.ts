@@ -1,3 +1,4 @@
+import { createProtocolPack } from './ProtocolPackBase.js';
 /**
  * Tier C channel synthesis — generate a governed protocol pack draft from
  * a channel name + optional notes/docs. Never live-ready until doctor + proof.
@@ -12,7 +13,6 @@ import type {
   ReachChannelSynthesisDraft,
   ReachFabricReceipt,
 } from '../../contracts/UniversalReachFabricContract.js';
-import { createProtocolPack } from './ProtocolPackBase.js';
 
 export type ChannelSynthesisInput = {
   channelId?: string;

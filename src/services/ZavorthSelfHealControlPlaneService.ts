@@ -1,6 +1,8 @@
-﻿import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
+
+import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
 import type { OperationsHealthSnapshot, OperationsHealthService } from './OperationsHealthService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface AutoRepairRunInput {
   dryRun: boolean;
@@ -518,7 +520,8 @@ export class ZavorthSelfHealControlPlaneService {
         : this.operationsHealthService.readSnapshotFast();
       return { snapshot, error: null };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         snapshot: null,
         error: `Falha ao ler OperationsHealthService: ${message}`,

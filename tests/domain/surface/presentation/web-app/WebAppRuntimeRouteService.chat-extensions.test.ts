@@ -65,8 +65,8 @@ describe('WebAppRuntimeRouteService chat extensions', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/dashboard/chat-v1'),
-      '/api/web/dashboard/chat-v1',
+      new URL('http://localhost/api/web/zavorthControl/chat-v1'),
+      '/api/web/zavorthControl/chat-v1',
       deps,
     );
 
@@ -76,7 +76,7 @@ describe('WebAppRuntimeRouteService chat extensions', () => {
       source: 'zavorth-control',
       experienceProfile: 'developer',
       metadata: expect.objectContaining({
-        dashboardChat: true,
+        zavorthControlChat: true,
         composerSettings: { effort: 'deep' },
         experienceProfile: 'developer',
       }),
@@ -100,15 +100,15 @@ describe('WebAppRuntimeRouteService chat extensions', () => {
     const handled = await routeService.handleRequest(
       req,
       res,
-      new URL('http://localhost/api/web/dashboard/chat-v1'),
-      '/api/web/dashboard/chat-v1',
+      new URL('http://localhost/api/web/zavorthControl/chat-v1'),
+      '/api/web/zavorthControl/chat-v1',
       deps,
     );
 
     expect(handled).toBe(true);
     expect(deps.processChatSend).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
-        dashboardChat: true,
+        zavorthControlChat: true,
         workflowIntent: { kind: 'governed-workflow', command: '/go' },
         composerSettings: { effort: 'low' },
         experienceProfile: 'developer',

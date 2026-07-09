@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSettings } from "@/lib/db/settings";
 import { assertPublicHttpTargetAllowed } from "@/lib/security/egressGuard";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -23,7 +25,8 @@ async function resolveAllowedFaviconUrl(url: string): Promise<string | null> {
     });
     return parsedUrl.toString();
   } catch (error: unknown) {
-    console.error("Blocked invalid favicon URL:", error instanceof Error ? error.message : String(error));
+    const err = asErrorLike(error);
+    console.error("Blocked invalid favicon URL:", error instanceof Error ? err.message : String(error));
     return null;
   }
 }

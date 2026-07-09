@@ -5,11 +5,12 @@ import {
   preferFileTarget,
 } from '../src/thread/openFromChat';
 import { parsePlanFromText } from '../src/thread/planCard';
+import { sliceStreamingMessages } from '../src/thread/streamIsolation';
+
 import {
   DEFAULT_MESSAGE_WINDOW,
   windowMessages,
 } from '../src/thread/messageWindow';
-import { sliceStreamingMessages } from '../src/thread/streamIsolation';
 
 /**
  * Composition helpers that mirror ThreadView render path:

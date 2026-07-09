@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
 
 import {
   DEFAULT_VIDEO_REQUEST,
@@ -7,7 +8,6 @@ import {
   type ProcessedVideoContext,
   type VideoMetadata,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
-import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
 
 export class VideoHandlerContextSupport {
   public static buildPreparedMessage(

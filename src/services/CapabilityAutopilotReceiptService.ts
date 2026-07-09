@@ -12,6 +12,7 @@ import type {
   OriginalIntentEnvelope,
 } from '../contracts/CapabilityAutopilotContract.js';
 import { CapabilityAutopilotDiagnosisService } from './CapabilityAutopilotDiagnosisService.js';
+
 import { CapabilityAutopilotReadinessService } from './CapabilityAutopilotReadinessService.js';
 import { CapabilityAutopilotRepairPlannerService } from './CapabilityAutopilotRepairPlannerService.js';
 

@@ -19,6 +19,7 @@ import type {
   SystemOverlordRiskLevel,
 } from '../contracts/SystemOverlordContract.js';
 import { CapabilityPolicyService } from './CapabilityPolicyService.js';
+
 import { SupervisedExecutionGatewayService } from './SupervisedExecutionGatewayService.js';
 
 type GatewayFacade = Pick<

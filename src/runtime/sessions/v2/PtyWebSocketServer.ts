@@ -8,6 +8,7 @@ import {
   type SessionGarbageCollectorSweepResult,
 } from './SessionGarbageCollector.js';
 import { SessionManager } from './SessionManager.js';
+
 import type { AgentState, SessionEventMap } from './AgentState.js';
 import type { RegisterSessionOwnershipInput, SessionGarbageCollectorPolicy } from './SessionOwnershipContract.js';
 import type { SessionRegistryService } from './SessionRegistryService.js';type PtySessionController = {

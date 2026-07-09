@@ -2,6 +2,8 @@ import { logger } from '../../../../logger.js';
 import { Bot } from 'grammy';
 import { LogRepository } from '../../../../storage/LogRepository.js';
 import { TelegramMenuController } from '../../../../gateways/channels/telegram/controllers/TelegramMenuController.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type TelegramLifecycleControllerDeps = {
   logRepo: LogRepository;
   menuController: TelegramMenuController;
@@ -16,7 +18,8 @@ export class TelegramLifecycleController {
       await this.deps.menuController.registerTelegramMenu();
       this.deps.logRepo.log('info', 'BotGateway', 'Telegram command menu registered successfully.');
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       this.deps.logRepo.log(
         'warn',
         'BotGateway',

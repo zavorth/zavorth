@@ -29,7 +29,6 @@ import {
   safeResolve,
 } from './ZavorthRuntimeStateBusUtils.js';
 
-
 export const DEFAULT_CONNECTED_MODELS = ['zavorth:core', 'zavorth:governed'];
 
 export const DEFAULT_MODEL_SPECS: ZavorthRuntimeModelSpec[] = [

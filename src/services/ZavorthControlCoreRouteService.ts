@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { SalesPackBusinessModeService } from './SalesPackBusinessModeService.js';
 
 import * as http from 'http';
 import path from 'path';
@@ -36,7 +37,7 @@ import { OperationalMaturityService } from '../domain/platform-ecosystem/applica
 import {
   SalesPackMvpService,
 } from '../domain/platform-ecosystem/application/sales-pack/index.js';
-import { SalesPackBusinessModeService } from './SalesPackBusinessModeService.js';
+
 import { SalesPackChannelIoService } from './SalesPackChannelIoService.js';
 import type {
   ZavorthControlAuthenticatedIdentity,

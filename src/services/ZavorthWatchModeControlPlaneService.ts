@@ -1,4 +1,4 @@
-﻿import { config } from '../config/index.js';
+import { config } from '../config/index.js';
 import type { ComputerUseWatchModeService, WatchModeRunSnapshot, WatchModeSnapshot } from './ComputerUseWatchModeService.js';
 import { ComputerUseWatchModePolicyFileService } from './ComputerUseWatchModePolicyFileService.js';
 import { ComputerUseWatchModeStateFileService } from './ComputerUseWatchModeStateFileService.js';

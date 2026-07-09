@@ -6,6 +6,7 @@ import type {
   SystemOverlordCapabilityDecision,
 } from '../contracts/SystemOverlordContract.js';
 import { SupervisedBrowserControlAdapter } from '../adapters/overlord/SupervisedBrowserControlAdapter.js';
+
 import { SupervisedComputerUseAdapter } from '../adapters/overlord/SupervisedComputerUseAdapter.js';
 import { SupervisedDesktopAutomationAdapter } from '../adapters/overlord/SupervisedDesktopAutomationAdapter.js';
 import { SupervisedDockerExecAdapter } from '../adapters/overlord/SupervisedDockerExecAdapter.js';

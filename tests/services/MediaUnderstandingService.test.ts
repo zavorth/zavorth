@@ -1,13 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { MediaUnderstandingService } from '../../src/services/MediaUnderstandingService';
 
 import type {
   AdapterAnalysisInput,
   AdapterAnalysisOutput,
   IMediaUnderstandingAdapter,
 } from '../../src/contracts/MediaUnderstandingContract';
-import { MediaUnderstandingService } from '../../src/services/MediaUnderstandingService';
 
 describe('MediaUnderstandingService', () => {
   let artifactDir: string;

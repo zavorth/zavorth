@@ -19,6 +19,8 @@ import {
   type SecurityOperationalPresetInspection,
 } from './SecurityOperationalPreset.js';
 
+
+
 export type OperationalSecurityDoctorStatus = 'healthy' | 'attention' | 'blocked';
 export type OperationalSecurityDoctorCheckStatus = 'pass' | 'attention' | 'fail';
 export type OperationalSecurityDoctorSeverity = 'info' | 'warn' | 'critical';

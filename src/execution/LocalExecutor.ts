@@ -8,6 +8,7 @@ import {
   spawnShellCommand,
 } from '../core/CommandSpawn.js';
 import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
+
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SandboxExecutionService } from '../services/SandboxExecutionService.js';
 import { asErrorLike } from '../utils/errorLike';
@@ -210,7 +211,7 @@ export class LocalExecutor implements IExecutor {
             } catch (execErr: unknown) {
               const err = asErrorLike(execErr);
               const error = err;
-              const errMsg = execErr instanceof Error ? execErr.message : String(execErr || '');
+              const errMsg = execErr instanceof Error ? err.message : String(execErr || '');
 
               const missingModuleMatchPy = errMsg.match(/ModuleNotFoundError: No module named '([^']+)'/);
               if (missingModuleMatchPy && retries < maxRetries && (cmd.startsWith('python') || cmd.startsWith('py '))) {

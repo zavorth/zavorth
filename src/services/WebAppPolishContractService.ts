@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -11,7 +12,7 @@ import {
   type WebAppPolishRequirementSpec,
   type WebAppPolishSnapshot,
 } from '../contracts/WebAppPolishContract.js';
-import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+
 import { buildRuntimeShellScript } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellScript.js';
 import { buildRuntimeShellStyles } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellStyles.js';
 import { logger } from '../logger.js';

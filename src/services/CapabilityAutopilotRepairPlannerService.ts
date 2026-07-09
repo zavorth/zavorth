@@ -14,6 +14,7 @@ import type {
   OriginalIntentEnvelope,
 } from '../contracts/CapabilityAutopilotContract.js';
 import { CapabilityAutopilotDiagnosisService } from './CapabilityAutopilotDiagnosisService.js';
+
 import { CapabilityAutopilotReadinessService } from './CapabilityAutopilotReadinessService.js';
 
 type CapabilityAutopilotReadinessLike = Pick<

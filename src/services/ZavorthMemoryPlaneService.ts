@@ -1,4 +1,8 @@
-﻿import type { GatewaySessionSnapshot } from '../runtime/sessions/GatewaySessionService.js';
+import {
+  WorkspaceOperationalMemoryService,
+  type WorkspaceOperationalMemory,
+} from '../runtime/context/WorkspaceOperationalMemoryService.js';
+import type { GatewaySessionSnapshot } from '../runtime/sessions/GatewaySessionService.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
 import { MemoryService, type MemoryEntry } from './MemoryService.js';
 import { logger } from '../logger.js';
@@ -6,10 +10,6 @@ import type {
   SessionReplayArtifactSnapshot,
   SessionReplaySnapshot,
 } from '../runtime/context/SessionReplayService.js';
-import {
-  WorkspaceOperationalMemoryService,
-  type WorkspaceOperationalMemory,
-} from '../runtime/context/WorkspaceOperationalMemoryService.js';
 
 type GatewaySessionReadModelLike = Pick<GatewaySessionReadModelService, 'buildSnapshot' | 'buildSnapshotFast'>;
 type MemoryServiceLike =

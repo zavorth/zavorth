@@ -1,4 +1,4 @@
-﻿import path from 'path';
+import path from 'path';
 import { logger } from '../logger.js';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';

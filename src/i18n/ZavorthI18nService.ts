@@ -10,6 +10,7 @@ import yaml from 'js-yaml';import type {
   InterpolationVars,
 } from './types.js';
 import { DEFAULT_LOCALE, NAMESPACE_LIST } from './types.js';
+
 import { resolveLocale, normalizeLocale } from './localeDetector.js';
 import { interpolate } from './interpolation.js';
 

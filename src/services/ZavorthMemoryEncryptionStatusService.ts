@@ -1,9 +1,11 @@
-﻿import fs from 'node:fs';
+
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import type { MemoryKnowledgeRecord } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { SqliteVecMemoryBackend } from '../adapters/memory/SqliteVecMemoryBackend.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthMemoryEncryptionMode = 'off' | 'opportunistic' | 'required';
 export type ZavorthMemoryEncryptionAction = 'preview' | 'apply' | 'rollback';
@@ -132,8 +134,9 @@ export class ZavorthMemoryEncryptionStatusService {
     try {
       records = this.exportSourceRecords(store, dbPath, input).length;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Memory Encryption Status] path resolution failed', error);
-    return this.migrationReceipt('preview', 'failed', dbPath, backupPath, 0, false, error instanceof Error ? error.message : 'Memory source preview failed.');
+    return this.migrationReceipt('preview', 'failed', dbPath, backupPath, 0, false, error instanceof Error ? err.message : 'Memory source preview failed.');
   }
     let currentFullFileEncrypted = false;
     try {
@@ -159,8 +162,9 @@ export class ZavorthMemoryEncryptionStatusService {
     try {
       records = this.exportSourceRecords(store, dbPath, input);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Memory Encryption Status] path resolution failed', error);
-    return this.migrationReceipt('apply', 'failed', dbPath, null, 0, false, error instanceof Error ? error.message : 'Memory source export failed.');
+    return this.migrationReceipt('apply', 'failed', dbPath, null, 0, false, error instanceof Error ? err.message : 'Memory source export failed.');
   }
 
     const backupPath = input.backupPath || defaultBackupPath(store.path, this.now);
@@ -194,8 +198,9 @@ export class ZavorthMemoryEncryptionStatusService {
       removeFileFamily(tempPath);
       return this.migrationReceipt('apply', 'applied', dbPath, backupPath, records.length, true, 'Memory database migrated with verified full-file encryption.');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       removeFileFamily(tempPath);
-      return this.migrationReceipt('apply', 'failed', dbPath, backupPath, records.length, false, error instanceof Error ? error.message : 'Memory migration failed.');
+      return this.migrationReceipt('apply', 'failed', dbPath, backupPath, records.length, false, error instanceof Error ? err.message : 'Memory migration failed.');
     }
   }
 

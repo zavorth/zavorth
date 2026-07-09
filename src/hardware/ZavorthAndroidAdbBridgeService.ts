@@ -22,8 +22,10 @@ import {
   type ZavorthAndroidDeviceInfo,
   type ZavorthAndroidDeviceState,
 } from '../contracts/ZavorthAndroidAdbBridgeContract.js';
+
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import { ZavorthVisionControlPlaneService } from '@zavorth/services/ZavorthVisionControlPlaneService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 export type ZavorthAdbRunOptions = {
   binary?: string;
   timeoutMs?: number;
@@ -400,13 +402,14 @@ export class ZavorthAndroidAdbBridgeService {
         encoding: options.encoding || 'utf8',
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         ok: false,
         code: null,
         stdoutText: '',
         stderrText: '',
         stdoutBytes: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
     }
   }

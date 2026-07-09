@@ -3,6 +3,8 @@ import { getDbInstance } from "@/lib/db/core";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { safeParseIntBounded } from "@/shared/utils/safeParseInt";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 interface CacheEntry {
   id: string;
   signature: string;
@@ -71,6 +73,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -99,6 +102,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ error: "Provide signature or model parameter" }, { status: 400 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

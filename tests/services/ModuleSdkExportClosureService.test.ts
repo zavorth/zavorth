@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { ZAVORTH_MODULE_SDK_API_VERSION } from '../../src/sdk/version.js';
 
 import {
   createZavorthCapabilityBinding,
@@ -8,7 +9,7 @@ import {
   defineZavorthModule,
   normalizeZavorthModuleId,
 } from '../../src/sdk/module/index.js';
-import { ZAVORTH_MODULE_SDK_API_VERSION } from '../../src/sdk/version.js';
+
 import { ModuleSdkExportClosureService } from '../../src/services/ModuleSdkExportClosureService.js';
 import { PluginRegistryService } from '../../src/services/PluginRegistryService.js';
 

@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { ModelPickerContractService } from '../domain/providers/index.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ModelPickerContract, SelectedModelProfile } from '../contracts/ModelPickerContract.js';
@@ -16,7 +17,7 @@ import type {
   ZavorthFirstRunWorkspaceProfile,
   ZavorthWorkspaceIdentityProfileSnapshot,
 } from '../contracts/FirstRunWorkspaceBootstrapContract.js';
-import { ModelPickerContractService } from '../domain/providers/index.js';
+
 import { logger } from '../logger.js';
 
 type FileSystemLike = {

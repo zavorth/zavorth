@@ -7,6 +7,7 @@ import {
   validateEnvPath,
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows } from "./cliRuntimeProcess.ts";
+
 import { logger } from '../logger.js';
 import { asErrorLike } from '../../../../utils/errorLike';
 

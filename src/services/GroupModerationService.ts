@@ -1,6 +1,8 @@
-﻿import { Api } from 'grammy';
+
+import { Api } from 'grammy';
 import { AuditLogger } from '../monitoring/AuditLogger.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ModerationAction = 'ban' | 'kick' | 'mute' | 'unmute' | 'unban';
 
@@ -129,6 +131,7 @@ export class GroupModerationService {
 
       return { success: true, action, userId, chatId };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       await this.auditLogger.logEvent({
         timestamp: new Date().toISOString(),
         event_type: `group_moderation_${action}_failed`,
@@ -139,15 +142,15 @@ export class GroupModerationService {
         plan_id: null,
         risk_level: action === 'ban' || action === 'kick' ? 3 : 2,
         policy_decision: 'BLOCKED',
-        policy_violations: error.message,
+        policy_violations: err.message,
         operational_mode: 'WORKSPACE',
         executor: 'group_moderation',
         execution_success: false,
-        execution_summary: `Falha ao ${action} membro ${userId}: ${error.message}`,
-        metadata: { chatId: String(chatId), userId, performedBy, action, error: error.message },
+        execution_summary: `Falha ao ${action} membro ${userId}: ${err.message}`,
+        metadata: { chatId: String(chatId), userId, performedBy, action, error: err.message },
       });
 
-      return { success: false, action, userId, chatId, error: error.message };
+      return { success: false, action, userId, chatId, error: err.message };
     }
   }
 }

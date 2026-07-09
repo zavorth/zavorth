@@ -8,10 +8,12 @@ import {
   ANTHROPIC_COMPATIBLE_PREFIX,
 } from "@/shared/constants/providers";
 import { testSingleConnection } from "../[id]/test/route";
+
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { providersBatchTestSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 // Determine auth type group for a provider id
 function getAuthGroup(providerId) {
   if (FREE_PROVIDERS[providerId]) return "free";
@@ -126,6 +128,7 @@ export async function POST(request) {
           testedAt: data.testedAt || new Date().toISOString(),
         };
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[route] validation failed', error);
     return {
           provider: conn.provider,
@@ -134,8 +137,8 @@ export async function POST(request) {
           authType: conn.authType || getAuthGroup(conn.provider),
           valid: false,
           latencyMs: 0,
-          error: error.message,
-          diagnosis: { type: "network_error", source: "local", code: null, message: error.message },
+          error: err.message,
+          diagnosis: { type: "network_error", source: "local", code: null, message: err.message },
           statusCode: null,
           testedAt: new Date().toISOString(),
         };

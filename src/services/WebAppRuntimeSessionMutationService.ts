@@ -1,4 +1,4 @@
-﻿import * as http from 'http';
+import * as http from 'http';
 import { randomUUID } from 'crypto';
 import type { GatewayCanonicalStatePayload } from '../contracts/GatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from '../domain/surface/presentation/web-app/WebAppRuntimeRouteService.js';

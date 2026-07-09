@@ -9,6 +9,8 @@ import {
   type ZavorthBridgePromptStartResult,
 } from '../../../../services/ZavorthBridgePromptService.js';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
+import { TelegramZavorthBridgeControlService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeControlService.js';
+
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { CapabilityLifecycleService } from '../../../../services/CapabilityLifecycleService.js';
 import {
@@ -17,7 +19,7 @@ import {
   ZavorthBridgeWindowAutomatorLike,
   TelegramZavorthBridgeService,
 } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeService.js';
-import { TelegramZavorthBridgeControlService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeControlService.js';
+
 import { TelegramZavorthBridgePromptWorkflowService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgePromptWorkflowService.js';
 import { TelegramZavorthBridgeResearchService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeResearchService.js';
 import { TelegramZavorthBridgeTaskExecutionService } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTaskExecutionService.js';

@@ -7,13 +7,15 @@ import {
   type SkillSourceRegistryEntry,
 } from '../services/SkillSourceRegistryService.js';
 import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
+import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';
+
 import type { SkillOriginDocument } from './SkillCatalogContract.js';
 import {
   SkillImportPreviewService,
   type SkillImportDetailedPreview,
   type SkillImportDetailedPreviewEntry,
 } from './SkillImportPreviewService.js';
-import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';
+
 import { ImportAuditTrailService } from './ImportAuditTrailService.js';
 import type { SkillImportAuditReference } from './SkillCatalogContract.js';type SkillImportServiceRuntime = {
   now?: () => Date;

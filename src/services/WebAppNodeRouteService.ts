@@ -1,9 +1,10 @@
-﻿import * as http from 'http';
+import * as http from 'http';
 import { CompanionDistributionService } from '../nodes/companion/CompanionDistributionService.js';
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
 import { NodeOnboardingService } from './NodeOnboardingService.js';
 import type { SharedSurfaceRuntime } from './SurfaceRuntime.js';
+import { errorMessage } from '../utils/errorLike.js';
 type NodeRouteDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
@@ -145,7 +146,7 @@ export class WebAppNodeRouteService {
           res,
           {
             ok: false,
-            error: error?.message || 'Manifesto do companion indisponivel.',
+            error: errorMessage(error, 'Manifesto do companion indisponivel.'),
             actionHint: 'Rode npm run build antes de publicar o bundle oficial do companion.',
           },
           503,
@@ -167,7 +168,7 @@ export class WebAppNodeRouteService {
           res,
           {
             ok: false,
-            error: error?.message || 'Download do companion indisponivel.',
+            error: errorMessage(error, 'Download do companion indisponivel.'),
             actionHint: 'Rode npm run build antes de publicar o launcher oficial do companion.',
           },
           503,

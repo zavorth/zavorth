@@ -4,6 +4,7 @@ import {
   type SurfaceResponse,
 } from '../../../../domain/surface/application/surface-response/index.js';
 import { CommandCatalogEntry, TELEGRAM_COMMAND_CATALOG } from '../../../../gateways/channels/telegram/commandCatalog.js';
+
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 
 const TELEGRAM_NATIVE_MENU_LIMIT = 10;
@@ -29,7 +30,7 @@ const GROUP_NATIVE_MENU_ALLOWED = new Set([
   'unlock',
   'ban',
   'warn',
-  'regras',
+  'rules',
 ]);
 const PRIVATE_MENU_PRIORITY = [
   'help',
@@ -53,7 +54,7 @@ const GROUP_MENU_PRIORITY = [
   'unlock',
   'ban',
   'warn',
-  'regras',
+  'rules',
 ];
 
 export class TelegramMenuController {

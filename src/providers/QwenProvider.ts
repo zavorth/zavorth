@@ -11,6 +11,8 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export class QwenProvider implements ILlmProvider {
   public readonly name = 'qwen';
   private client: OpenAI;
@@ -62,7 +64,8 @@ export class QwenProvider implements ILlmProvider {
         finishReason: choice?.finish_reason || 'stop',
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
 
       if (/auth|token|unauthorized|forbidden|401|403/i.test(message)) {
         throw new Error(

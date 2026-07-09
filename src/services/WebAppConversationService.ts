@@ -1,4 +1,11 @@
-﻿import { ComposerActionService } from './ComposerActionService.js';
+import {
+  renderUniversalApprovalIntentDecisionResult,
+} from '../runtime/agent/index.js';
+import { config } from '../config/index.js';
+import { ZavorthEffortControlService } from './ZavorthEffortControlService.js';
+import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';
+
+import { ComposerActionService } from './ComposerActionService.js';
 import { ComposerCatalogService } from './ComposerCatalogService.js';
 import { ComposerContextService } from './ComposerContextService.js';
 import { ComposerPayloadService, type NormalizedComposerPayload } from './ComposerPayloadService.js';
@@ -24,10 +31,7 @@ import type {
   UniversalAgentExecutor,
   UniversalAgentRunResult,
 } from '../runtime/agent/index.js';
-import {
-  renderUniversalApprovalIntentDecisionResult,
-} from '../runtime/agent/index.js';
-import { config } from '../config/index.js';
+
 import { SurfaceOperationalIntentService } from './SurfaceOperationalIntentService.js';
 import { FileInspectionService } from './FileInspectionService.js';
 import { AttachmentIntelligenceService, type AttachmentTextProfile } from './AttachmentIntelligenceService.js';
@@ -41,7 +45,7 @@ import type {
   ExecutionEngineRouteOperation,
   ExecutionEngineRouterService,
 } from './ExecutionEngineRouterService.js';
-import { ZavorthEffortControlService } from './ZavorthEffortControlService.js';
+
 import { resolveComposerModelRouteOverride } from './WebAppComposerModelRoute.js';
 import {
   buildInlineDataFromAttachments,
@@ -49,13 +53,14 @@ import {
   getReadyMediaAttachments,
   resolveReadyMediaAttachment,
 } from './WebAppConversationInlineData.js';
-import { FirstRunPersonalizationService } from './FirstRunPersonalizationService.js';
+
 import { ZavorthFirstBootDetectionService } from './ZavorthFirstBootDetectionService.js';
 import { ZavorthConversationalSetupService } from './ZavorthConversationalSetupService.js';
 import { ZavorthContextualTipsService, CONTEXTUAL_TIP_FLAGS } from './ZavorthContextualTipsService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type RuntimeRecord = Record<string, unknown>;
 type ComposerCatalogOptions = NonNullable<ConstructorParameters<typeof ComposerCatalogService>[0]>;
@@ -593,7 +598,6 @@ export class WebAppConversationService {
     return value === 'lite' || value === 'velocity' || value === 'shield' ? value : null;
   }
 
-
   private async maybeResolveUniversalApprovalIntent(sessionId: string, message: string): Promise<boolean> {
     const agentGateway = this.deps.agentGateway || null;
     const text = String(message || '').trim();
@@ -877,6 +881,7 @@ export class WebAppConversationService {
         error: result.error?.message || null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Web App Conversation] string operation failed', error);
     return {
         ok: false,
@@ -884,7 +889,7 @@ export class WebAppConversationService {
         type: media.mimeType,
         summary: 'Media analysis could not run.',
         text: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

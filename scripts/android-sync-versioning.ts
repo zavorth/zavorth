@@ -1,5 +1,5 @@
 import { asErrorLike } from '../src/utils/errorLike';
-﻿// Android Sync Versioning script supports Zavorth repository automation.
+// Android Sync Versioning script supports Zavorth repository automation.
 import path from "node:path";
 import { syncAndroidVersioning } from "./lib/android-version.ts";
 import { parseVersionSyncArgs } from "./lib/version-script-args.ts";

@@ -6,6 +6,7 @@ import type {
   FinalAbsorptionEvidenceStatus,
 } from '../contracts/FinalAbsorptionCertificationContract.js';
 import { ZAVORTH_FINAL_ABSORPTION_CERTIFICATION_CONTRACT_VERSION } from '../contracts/FinalAbsorptionCertificationContract.js';
+
 import { CapabilityNormalizationService } from './CapabilityNormalizationService.js';
 import { CodexRuntimePlaneService } from './CodexRuntimePlaneService.js';
 import { ModuleSdkExportClosureService } from './ModuleSdkExportClosureService.js';

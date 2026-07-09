@@ -1,4 +1,4 @@
-﻿import { CapabilityAutopilotFallbackSelectionService } from './CapabilityAutopilotFallbackSelectionService.js';
+import { CapabilityAutopilotFallbackSelectionService } from './CapabilityAutopilotFallbackSelectionService.js';
 import { CapabilityAutopilotReadinessService } from './CapabilityAutopilotReadinessService.js';
 import { CapabilityAutopilotReceiptService } from './CapabilityAutopilotReceiptService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';

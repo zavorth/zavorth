@@ -2,10 +2,13 @@ import { CanonicalExecutionPipelineService } from '../../../services/CanonicalEx
 import { RuntimeArtifactMaintenanceService } from '../../../services/RuntimeArtifactMaintenanceService.js';
 import { RuntimeLogMaintenanceService } from '../../../services/RuntimeLogMaintenanceService.js';
 import { SelfModificationCommandService } from '../../../services/SelfModificationCommandService.js';
+import { errorMessage } from '../../../utils/errorLike.js';
 import {
   ArchitectureRefactorScorecardService,
   type ArchitectureRefactorSnapshot,
-} from '../../../observability/ArchitectureRefactorScorecardService.js';type MaintenanceAutomationPort = {
+} from '../../../observability/ArchitectureRefactorScorecardService.js';
+
+type MaintenanceAutomationPort = {
   triggerNow: (updatedBy?: string | null, note?: string | null) => { lastActionId?: string | null; note?: string | null };
 };
 
@@ -141,7 +144,7 @@ export class AutonomousHousekeepingAgentService {
           id: 'refactor-preview',
           label: 'Refactor Preview',
           status: 'skipped',
-          summary: error?.message || 'Preview de refactor indisponivel neste host.',
+          summary: errorMessage(error, 'Preview de refactor indisponivel neste host.'),
           command: 'npm run qa:selfmod-optimization',
           artifactId: null,
         });

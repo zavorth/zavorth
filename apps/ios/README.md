@@ -1,4 +1,4 @@
-﻿# Zavorth iOS (Super Alpha)
+# Zavorth iOS (Super Alpha)
 
 This iOS app is super-alpha and internal-use only. The first public App Store release targets iPhone and connects to an Zavorth Gateway as a `role: node`.
 

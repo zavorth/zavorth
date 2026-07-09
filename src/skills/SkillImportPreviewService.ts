@@ -5,6 +5,7 @@ import {
   type SkillSourceRegistryEntry,
 } from '../services/SkillSourceRegistryService.js';
 import { SkillTrustPolicyService } from '../services/SkillTrustPolicyService.js';
+
 import { SkillContentScannerService, type SkillContentScanIssue } from './SkillContentScannerService.js';
 import { SkillHubGuardService, type SkillHubGuardSnapshot } from './SkillHubGuardService.js';
 import { SkillLicenseClassifierService } from './SkillLicenseClassifierService.js';

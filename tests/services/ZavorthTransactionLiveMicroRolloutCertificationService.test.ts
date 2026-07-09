@@ -1,10 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 import {
   ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
@@ -15,6 +11,14 @@ import {
   ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
+
+import {
+  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
+} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+
+
+
+
 import { ZavorthTransactionLiveMicroRolloutCertificationService } from '../../src/services/ZavorthTransactionLiveMicroRolloutCertificationService.js';
 
 const now = new Date('2026-05-12T12:00:00.000Z');
@@ -69,7 +73,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('requires a dedicated micro-rollout owner review phrase', () => {
     const result = service.certify({
-      ...intent-model3ExecutedInput(),
+      ...intentModel3ExecutedInput(),
       useSafeMicroRolloutControls: true,
     });
 
@@ -85,7 +89,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('certifies final micro-rollout readiness without authorizing live execution', () => {
     const result = service.certify({
-      ...intent-model3ExecutedInput(),
+      ...intentModel3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       useSafeMicroRolloutControls: true,
@@ -116,7 +120,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('blocks oversized micro rollout limits', () => {
     const result = service.certify({
-      ...intent-model3ExecutedInput(),
+      ...intentModel3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       rolloutLimits: {
@@ -140,7 +144,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('fails final certification when an aggressive scenario fails', () => {
     const result = service.certify({
-      ...intent-model3ExecutedInput(),
+      ...intentModel3ExecutedInput(),
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
       useSafeMicroRolloutControls: true,
@@ -158,7 +162,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
 
   it('does not leak raw secrets from blocked final certification input', () => {
     const result = service.certify({
-      ...intent-model3ExecutedInput(),
+      ...intentModel3ExecutedInput(),
       text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
       microRolloutReviewConfirmed: true,
       microRolloutReviewIntent: ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
@@ -203,7 +207,7 @@ describe('ZavorthTransactionLiveMicroRolloutCertificationService', () => {
     };
   }
 
-  function intent-model3ExecutedInput() {
+  function intentModel3ExecutedInput() {
     return {
       ...baseReadyBeforeSandboxExecution(),
       sandboxExecutionConfirmed: true,

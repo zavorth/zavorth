@@ -5,6 +5,7 @@ import type {
   IntegrationRequirement,
 } from '../../../../contracts/IntegrationHubContract.js';
 import { config } from '../../../../config/index.js';
+
 import type { IntegrationInstallerService } from '../../../../services/IntegrationInstallerService.js';
 
 type IntegrationActionRuntimeBindingRuntime = {

@@ -1,6 +1,8 @@
-﻿import * as http from 'http';
+
+import * as http from 'http';
 import { config } from '../config/index.js';
 import { SnippetService } from './SnippetService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type WriteHtml = (res: http.ServerResponse, body: string, statusCode?: number) => void;
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
@@ -262,7 +264,8 @@ export class ZavorthControlLegacyRouteService {
         );
         deps.writeJson(res, { ok: true, snippet }, 200);
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -278,7 +281,8 @@ export class ZavorthControlLegacyRouteService {
         );
         deps.writeJson(res, { ok }, 200);
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         deps.writeJson(res, { ok: false, error: message }, 400);
       }
       return true;
@@ -306,7 +310,8 @@ export class ZavorthControlLegacyRouteService {
           200,
         );
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         deps.writeJson(res, { error: message }, 500);
       }
       return true;

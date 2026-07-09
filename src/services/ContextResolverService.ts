@@ -4,6 +4,7 @@ import {
   type WorkspaceProfile,
 } from './WorkspaceProfileService.js';
 import { logger } from '../logger.js';
+
 import { MccPathfinderService } from './MccPathfinderService.js';
 import {
 isMnemosAvailable,

@@ -1,6 +1,8 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface StreamChunk {
   id: string;
@@ -162,8 +164,9 @@ export class StreamingLLMService {
 
       return fullContent;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       session.status = 'error';
-      session.error = error instanceof Error ? error.message : String(error);
+      session.error = error instanceof Error ? err.message : String(error);
       options?.onError?.(session.error);
       return `Error: ${session.error}`;
     }

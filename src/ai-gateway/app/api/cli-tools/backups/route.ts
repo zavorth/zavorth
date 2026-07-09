@@ -1,12 +1,14 @@
+import { NextResponse } from "next/server";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { listBackups, restoreBackup, deleteBackup } from "@/shared/services/backupService";
 import { ensureCliConfigWriteAllowed } from "@/shared/services/cliRuntime";
 import { cliBackupMutationSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const VALID_TOOLS = ["claude", "codex", "droid", "external-executor", "cline", "kilo"];
 const LEGACY_TOOL_ALIASES: Record<string, string> = {};
@@ -67,7 +69,8 @@ export async function GET(request) {
     }
     return NextResponse.json({ backups: result });
   } catch (error: unknown) {
-    console.log("Error listing backups:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error listing backups:", err.message);
     return NextResponse.json({ error: "Failed to list backups" }, { status: 500 });
   }
 }
@@ -118,9 +121,10 @@ export async function POST(request) {
       ...result,
     });
   } catch (error: unknown) {
-    console.log("Error restoring backup:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error restoring backup:", err.message);
     return NextResponse.json(
-      { error: error.message || "Failed to restore backup" },
+      { error: err.message || "Failed to restore backup" },
       { status: 500 }
     );
   }
@@ -167,7 +171,8 @@ export async function DELETE(request) {
       ...result,
     });
   } catch (error: unknown) {
-    console.log("Error deleting backup:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error deleting backup:", err.message);
     return NextResponse.json({ error: "Failed to delete backup" }, { status: 500 });
   }
 }

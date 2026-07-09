@@ -3,6 +3,8 @@ import crypto from "crypto";
 import { execFile } from "child_process";
 import { execElevatedWindowsScript, execWithPassword } from "../dns/dnsConfig";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const IS_WIN = process.platform === "win32";
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
 const SYSTEM_KEYCHAIN = "/Library/Keychains/System.keychain";
@@ -114,7 +116,8 @@ async function installCertMac(sudoPassword, certPath) {
     );
     console.log(`Installed certificate to system keychain: ${certPath}`);
   } catch (error: unknown) {
-    const msg = error.message?.includes("canceled")
+    const err = asErrorLike(error);
+    const msg = err.message?.includes("canceled")
       ? "User canceled authorization"
       : "Certificate install failed";
     throw new Error(msg);

@@ -6,6 +6,8 @@ import {
   type SnapshotRequest,
   type SnapshotResult,
 } from '../../contracts/InternalBoundaryContract.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type InternalControlPlaneDescriptor = {
   id: string;
   label: string;
@@ -82,7 +84,8 @@ export class InternalControlPlaneApiService {
         },
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         ok: false,
         planeId: request.planeId,
@@ -155,7 +158,8 @@ export class InternalControlPlaneApiService {
         },
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         ok: false,
         planeId: request.planeId,

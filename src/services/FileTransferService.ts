@@ -1,17 +1,20 @@
-﻿import type {
+import { FILE_TRANSFER_CONTRACT_VERSION } from '../contracts/FileTransferContract.js';
+
+import type {
   FileTransferEndpoint,
   FileTransferPolicyDecision,
   FileTransferRequest,
   FileTransferResult,
   FileTransferStatus,
 } from '../contracts/FileTransferContract.js';
-import { FILE_TRANSFER_CONTRACT_VERSION } from '../contracts/FileTransferContract.js';
+
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { LocalFileTransferAdapter } from '../adapters/files/FileDocumentDiffLiveAdapters.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type FileTransferServiceOptions = {
   artifactDir?: string;
@@ -114,6 +117,7 @@ export class FileTransferService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[File Transfer] filesystem check failed', error);
     return {
         ok: false,
@@ -124,7 +128,7 @@ export class FileTransferService {
         policyDecision,
         receiptId: `${artifactId}.receipt`,
         processedAt,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

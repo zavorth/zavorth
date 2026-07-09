@@ -77,7 +77,7 @@ export class MicGateService extends EventEmitter {
         console.log(t('mic_off_log'));
         this.emit('mic:off');
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       // Silent failure — we don't want to crash the agent due to WMI errors
       // Assume active mic as safe fallback
       if (!this.isActive) {

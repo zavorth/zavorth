@@ -1,8 +1,10 @@
-﻿import fs from 'node:fs';
+
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthCloudSandboxProviderId =
   | 'local'
@@ -200,7 +202,8 @@ export class ZavorthCloudSandboxAdapterService {
           : `${descriptor.label} sandbox execution exited non-zero.`,
       });
     } catch (error: unknown) {
-      const message = redactSecrets(error instanceof Error ? error.message : String(error));
+      const err = asErrorLike(error);
+      const message = redactSecrets(error instanceof Error ? err.message : String(error));
       return this.result('blocked', provider, startedAt, limits, {
         stdout: '',
         stderr: '',
@@ -341,8 +344,9 @@ export class ZavorthCloudSandboxAdapterService {
     try {
       return await this.importer(moduleName);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const code = (error as NodeJS.ErrnoException)?.code;
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       if (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND' || /cannot find module/i.test(message)) {
         throw new Error(`SDK package "${moduleName}" is not installed. Install it with "${installCommand}" and configure the provider before retrying.`);
       }

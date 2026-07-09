@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ApprovalLeaseDecisionResult.ts
  *
  * Pure types for the controlled approval lease decision integration.

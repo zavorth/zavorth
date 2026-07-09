@@ -8,13 +8,23 @@ import {
   type WorkspaceTaskSubtype,
 } from '../services/WorkspaceTaskKind.js';
 import { resolveWorkspaceLlmStrategy } from '../services/WorkspaceLlmProfile.js';
+import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
+import {
+  ExecutionEscalationPolicy,
+  type ExecutionEscalationDecision,
+  type ExecutionEscalationInput,
+} from '../runtime/agent/ExecutionEscalationPolicy.js';
+import { EvidenceSearchRouter } from './EvidenceSearchRouter.js';
+import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
+import { ZavorthSubagentInvocationGatewayService } from '../services/ZavorthSubagentInvocationGatewayService.js';
+
 import { TELEGRAM_COMMAND_CATALOG } from '../gateways/channels/telegram/commandCatalog.js';
 import {
   CognitiveFirewall,
   type FirewallDecision,
   type ToolGatekeeperHintProfile,
 } from '../cognitive-firewall/index.js';
-import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
+
 import { ToolResultCache } from '../cognitive-firewall/ToolResultCache.js';
 import { ContextAwareInjector } from '../cognitive-firewall/ContextAwareInjector.js';
 import type { ContextEngine } from '../context-engine/ContextEngine.js';
@@ -23,26 +33,22 @@ import {
   createStructuredAgentRunAction,
   type AgentRunAction,
 } from '../contracts/runtime/StructuredAgentRunContract.js';
-import {
-  ExecutionEscalationPolicy,
-  type ExecutionEscalationDecision,
-  type ExecutionEscalationInput,
-} from '../runtime/agent/ExecutionEscalationPolicy.js';
-import { EvidenceSearchRouter } from './EvidenceSearchRouter.js';
+
 import {
   buildUntrustedContentFirewallInstruction,
   containsUntrustedContentMarker,
   wrapUntrustedContent,
   withUntrustedInputMetadata,
 } from '../security/UntrustedContent.js';
-import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
+
 import { ZavorthHallucinationMitigationService } from '../services/ZavorthHallucinationMitigationService.js';
 import {
   ZavorthSubagentAutoInvocationPolicyService,
   type ZavorthSubagentAutoInvocationInput,
 } from '../services/ZavorthSubagentAutoInvocationPolicyService.js';
-import { ZavorthSubagentInvocationGatewayService } from '../services/ZavorthSubagentInvocationGatewayService.js';
+
 import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ConversationalResponse = {
   text?: string;
@@ -273,8 +279,9 @@ export class ConversationalAgent {
             this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
           }
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[Conversational Agent] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
           toolResult = `Tool ${toolCall.name} failed: ${message}`;
   }
         rawToolResults.push(toolResult);
@@ -517,10 +524,11 @@ export class ConversationalAgent {
         llm,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (!decision.explicitSubagentRequest) {
         return null;
       }
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       const text = `I tried to start subagents for this task, but the runtime rejected execution: ${message}`;
       return {
         text,
@@ -761,7 +769,8 @@ export class ConversationalAgent {
         }),
       ].filter(Boolean).join('\n\n');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return [
         'Automatic web search failed for this recency-sensitive request.',
         `Error: ${message}`,

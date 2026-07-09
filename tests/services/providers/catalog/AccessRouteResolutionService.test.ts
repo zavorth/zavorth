@@ -9,6 +9,7 @@ import {
   AccessRouteResolutionService,
 } from '../../../../src/services/providers/catalog/AccessRouteResolutionService.js';
 
+
 describe('AccessRouteResolutionService', () => {
   it('marks an official configured route as ready without exposing the secret value', () => {
     const service = new AccessRouteResolutionService();

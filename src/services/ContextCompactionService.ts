@@ -5,6 +5,7 @@ import {
   type ZavorthMnemosCompactionMode,
 } from '../contracts/ZavorthMnemosMemoryOsContract.js';
 import { countTokens, countMessagesTokens } from '../utils/tokenCounter.js';
+
 import type { ILlmProvider } from '../providers/ILlmProvider.js';export type ContextCompactionMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
 export type ContextCompactionMessage = {

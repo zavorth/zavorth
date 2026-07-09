@@ -1,4 +1,6 @@
-﻿import fs from 'node:fs';
+import { AcpLiveSessionService } from './AcpLiveSessionService.js';
+
+import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
@@ -13,8 +15,9 @@ import {
   type ZavorthExternalAgentNetworkMode,
   type ZavorthExternalAgentProfile,
 } from '../contracts/ZavorthExternalAgentGatewayContract.js';
-import { AcpLiveSessionService } from './AcpLiveSessionService.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthExternalAgentRegisterInput = {
   id?: string | null;
@@ -532,6 +535,7 @@ export class ZavorthExternalAgentGatewayService {
         nextCommand: null,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth External Agent way] network request failed', error);
     return this.buildReceipt({
         kind: 'agent-invocation',
@@ -541,12 +545,12 @@ export class ZavorthExternalAgentGatewayService {
         prompt,
         approvalProvided: true,
         dryRun: false,
-        outputText: error instanceof Error ? error.message : String(error),
-        stderr: error instanceof Error ? error.message : String(error),
+        outputText: error instanceof Error ? err.message : String(error),
+        stderr: error instanceof Error ? err.message : String(error),
         adapterInvoked: true,
         endpoint: profile.endpoint,
         durationMs: Date.now() - started,
-        timedOut: error instanceof Error && error.name === 'AbortError',
+        timedOut: error instanceof Error && err.name === 'AbortError',
         liveExecutionPerformed: true,
         liveNetworkPerformed: true,
         nextLabel: 'Inspect network/endpoint configuration',

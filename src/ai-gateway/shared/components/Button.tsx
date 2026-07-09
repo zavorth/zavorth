@@ -1,6 +1,6 @@
+import { cn } from "@/shared/utils/cn";
 "use client";
 
-import { cn } from "@/shared/utils/cn";
 
 const variants = {
   primary: "bg-gradient-to-b from-primary to-primary-hover text-white shadow-sm",

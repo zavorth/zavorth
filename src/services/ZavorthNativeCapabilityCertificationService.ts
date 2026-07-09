@@ -1,4 +1,6 @@
-﻿import fs from 'node:fs';
+import { GoalLoopDaemonService } from './GoalLoopDaemonService.js';
+
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -6,7 +8,7 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRunResult,
 } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
-import { GoalLoopDaemonService } from './GoalLoopDaemonService.js';
+
 import { GoalLoopService } from './GoalLoopService.js';
 import { GoalLoopWorkerService, type GoalLoopAgentRunner } from './GoalLoopWorkerService.js';
 import { GoalPlaneService } from './GoalPlaneService.js';
@@ -14,6 +16,7 @@ import { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService } from './ZavorthOperationalStateDbService.js';
 import { ZavorthXaiRuntimeService, type ZavorthXaiDoctorSnapshot } from './ZavorthXaiRuntimeService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthNativeCapabilityCertificationStatus = 'ready' | 'partial' | 'missing';
 
@@ -419,6 +422,7 @@ export class ZavorthNativeCapabilityCertificationService {
         ],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Native Capability Certification] creation failed', error);
     return {
         id: 'goal-loop-long-session',
@@ -431,7 +435,7 @@ export class ZavorthNativeCapabilityCertificationService {
         receipts: 0,
         events: 0,
         stateDbBacked: true,
-        notes: [error instanceof Error ? error.message : String(error)],
+        notes: [error instanceof Error ? err.message : String(error)],
       };
   } finally {
       stateDb.close();

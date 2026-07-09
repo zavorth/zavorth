@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { BaseTool } from '../../tools/BaseTool.js';
@@ -6,6 +7,7 @@ import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { getBestProvider, getAvailableProviders, callVisionProvider, listProviders } from './MultimodalProviderSelector.js';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export class ZavorthVideoAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_video_analyzer';
@@ -85,7 +87,8 @@ export class ZavorthVideoAnalyzerService extends BaseTool {
       const analysis = await callVisionProvider(provider, base64, 'video/mp4', 'Analyze this video. Describe what happens, identify key scenes, objects, and any text visible.', apiKey);
       lines.push('', 'AI Analysis:', analysis);
     } catch (error: unknown) {
-      lines.push('', `Analysis error: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      lines.push('', `Analysis error: ${error instanceof Error ? err.message : String(error)}`);
     }
 
     return lines.join('\n');

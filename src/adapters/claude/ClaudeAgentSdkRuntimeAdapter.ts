@@ -5,8 +5,10 @@ import type {
   LlmRuntimeResult,
 } from '../../services/llm/LlmRuntimeService.js';
 import { buildChildProcessEnv } from '../../security/ChildProcessEnv.js';
+
 import { ToolPolicyService } from '../../services/ToolPolicyService.js';
 import type { ZavorthToolPolicyAction } from '../../contracts/ToolPolicyContract.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 export type ClaudeAgentSdkCredentialRoute =
   | 'api-key'
   | 'bedrock'
@@ -428,13 +430,14 @@ export class ClaudeAgentSdkRuntimeAdapter {
         } as unknown as Record<string, unknown> : {}),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       attempts.push({
         providerName: PROVIDER_NAME,
         modelName,
         status: 'failed',
         fallback: false,
         durationMs: Math.max(0, Date.now() - startedAt),
-        error: error instanceof Error ? error.message : String(error || 'erro desconhecido'),
+        error: error instanceof Error ? err.message : String(error || 'erro desconhecido'),
       });
       throw error;
     }

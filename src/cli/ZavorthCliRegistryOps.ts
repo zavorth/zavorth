@@ -19,28 +19,12 @@ import {
   listSecurityOperationalPresets,
 } from '../security/SecurityOperationalPreset.js';
 import { FirstRunOnboardingContractService } from '../services/FirstRunOnboardingContractService.js';
-import { WebsitePublicContractService } from '../services/WebsitePublicContractService.js';
-import { ZavorthProductizationContractService } from '../services/ZavorthProductizationContractService.js';
-import { ZavorthSandboxControlPlaneService } from '../services/ZavorthSandboxControlPlaneService.js';
-import {
-  buildCliOperationsCockpitSnapshot,
-  formatCliOperationsCockpitSnapshot,
-} from './ZavorthCliOperationsCockpit.js';
 import { formatZavorthProductizationContractSnapshot } from './ZavorthCliProductizationRenderer.js';
-import {
-  formatRunObservatorySnapshot,
-  resolveRunObservatoryCliQuery,
-} from './ZavorthCliRunObservatoryRenderer.js';
 import {
   formatNaturalCapabilityDiscoverySnapshot,
   resolveCapabilityDiscoveryCliText,
 } from './ZavorthCliCapabilityDiscoveryRenderer.js';
 import { NaturalCapabilityDiscoveryService } from '../runtime/agent/index.js';
-import {
-  buildUniversalPreviewCliSnapshot,
-  formatUniversalPreviewModeSnapshot,
-  resolveUniversalPreviewCliText,
-} from './ZavorthCliUniversalPreviewRenderer.js';
 import {
   buildSafetyNarrativeCliSnapshot,
   formatSafetyNarrativeSnapshot,
@@ -194,6 +178,54 @@ import {
   formatBlueprintCompletionSnapshot,
   resolveBlueprintCompletionCliText,
 } from './ZavorthCliBlueprintCompletionRenderer.js';
+import { logger } from '../logger.js';
+
+
+
+import { WebsitePublicContractService } from '../services/WebsitePublicContractService.js';
+import { ZavorthProductizationContractService } from '../services/ZavorthProductizationContractService.js';
+import { ZavorthSandboxControlPlaneService } from '../services/ZavorthSandboxControlPlaneService.js';
+import {
+  buildCliOperationsCockpitSnapshot,
+  formatCliOperationsCockpitSnapshot,
+} from './ZavorthCliOperationsCockpit.js';
+
+import {
+  formatRunObservatorySnapshot,
+  resolveRunObservatoryCliQuery,
+} from './ZavorthCliRunObservatoryRenderer.js';
+
+
+import {
+  buildUniversalPreviewCliSnapshot,
+  formatUniversalPreviewModeSnapshot,
+  resolveUniversalPreviewCliText,
+} from './ZavorthCliUniversalPreviewRenderer.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import * as cliNative from './ZavorthCliNativeRenderers.js';
 import * as surfaceHelpers from './ZavorthCliSurfaceHelpers.js';
 import { resolveOperationsIntent } from './ZavorthCliCommandHelpers.js';const {
@@ -224,7 +256,7 @@ import { resolveOperationsIntent } from './ZavorthCliCommandHelpers.js';const {
 
 const { formatGatewaySnapshot } = surfaceHelpers;
 
-import { logger } from '../logger.js';
+
 import {
 buildGatewayControlCliPayload,
   formatGatewayControlCliPayload,

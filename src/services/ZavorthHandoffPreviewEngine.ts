@@ -1,4 +1,5 @@
-﻿import * as fs from 'node:fs';
+import { ZavorthMnemosCompilerService } from './ZavorthMnemosCompilerService.js';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as crypto from 'node:crypto';
 import { config } from '../config/index.js';
@@ -11,7 +12,7 @@ import {
   type ZavorthHandoffEnvelopeSection,
   type ZavorthHandoffEnvelopeSectionId,
 } from '../contracts/ZavorthHandoffEnvelopeContract.js';
-import { ZavorthMnemosCompilerService } from './ZavorthMnemosCompilerService.js';
+
 import { logger } from '../logger.js';
 
 type HandoffFsRuntime = Pick<

@@ -6,6 +6,8 @@ import {
   isCloudEnabled,
 } from "@/models";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
+import { asErrorLike } from '../../../../../utils/errorLike';
+
 import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateProviderConnectionSchema } from "@/shared/validation/schemas";
@@ -15,7 +17,6 @@ import {
 AccessRouteResolutionService,
   type AccessRouteConnectionInput,
 } from "../../../../../services/providers/catalog/AccessRouteResolutionService.js";
-import { asErrorLike } from '../../../../../utils/errorLike';
 
 function toAccessRouteConnectionInput(connection: any): AccessRouteConnectionInput {
   const providerSpecificData =

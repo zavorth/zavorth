@@ -6,6 +6,7 @@ import {
   type ZavorthProviderCapabilityModality,
 } from './providers/catalog/zavorthProviderCapabilityInventory.js';
 import { ZAVORTH_PROVIDER_CAPABILITY_MANIFESTS } from './providers/catalog/manifests/zavorthProviderCapabilityProviders.js';
+
 import {
   ZAVORTH_PROVIDER_CAPABILITY_MATRIX_CONTRACT_VERSION,
   type ZavorthProviderCapabilityMatrixCredentialKind,

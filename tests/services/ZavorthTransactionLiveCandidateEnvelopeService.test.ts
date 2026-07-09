@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
 import {
   ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
-import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
+
 import { ZavorthTransactionLiveCandidateEnvelopeService } from '../../src/services/ZavorthTransactionLiveCandidateEnvelopeService.js';
 
 const now = new Date('2026-05-12T12:00:00.000Z');

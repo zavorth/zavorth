@@ -6,6 +6,8 @@ import type {
   ZavorthSpeculativeWorkspaceWrite,
   ZavorthSpeculativeWorkspacePatch,
 } from './ZavorthSpeculativeAutonomyService.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
@@ -65,7 +67,6 @@ function normalizeSandboxIsolation(value: unknown): 'container' | 'local-copy' |
   return 'auto';
 }
 
-
 export type WorkspaceCopyStats = {
   files: number;
   bytes: number;
@@ -88,7 +89,6 @@ function countOccurrences(value: string, search: string): number {
   }
   return count;
 }
-
 
 export function copyWorkspace(sourceRoot: string, targetRoot: string, maxCopyFiles: number, maxCopyBytes: number): WorkspaceCopyStats {
     const stats: WorkspaceCopyStats = { files: 0, bytes: 0, skipped: [] };
@@ -156,9 +156,10 @@ export function applyWrite(input: {
       fs.writeFileSync(targetPath, input.write.content, 'utf8');
       return { relativePath, blockedReason: null };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         relativePath: null,
-        blockedReason: error instanceof Error ? error.message : String(error),
+        blockedReason: error instanceof Error ? err.message : String(error),
       };
     }
   }
@@ -195,9 +196,10 @@ export function applyPatch(input: {
       fs.writeFileSync(targetPath, nextContent, 'utf8');
       return { relativePath, blockedReason: null };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         relativePath: null,
-        blockedReason: error instanceof Error ? error.message : String(error),
+        blockedReason: error instanceof Error ? err.message : String(error),
       };
     }
   }

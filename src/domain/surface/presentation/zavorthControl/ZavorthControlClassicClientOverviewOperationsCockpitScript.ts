@@ -1,4 +1,6 @@
 import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 declare function escapeHtml(value: unknown): string;
 declare function formatRelativeTime(value: unknown): string;
 declare function showToast(msg: string, isError?: boolean): void;
@@ -373,7 +375,8 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           loadMetrics();
         }, 1500);
       } catch (error: unknown) {
-        showToast(error instanceof Error ? error.message : 'Falha ao iniciar acao operacional.', true);
+        const err = asErrorLike(error);
+        showToast(error instanceof Error ? err.message : 'Falha ao iniciar acao operacional.', true);
       }
     }
 
@@ -397,7 +400,8 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
           loadMetrics();
         }, 1200);
       } catch (error: unknown) {
-        showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do Integration Hub.', true);
+        const err = asErrorLike(error);
+        showToast(error instanceof Error ? err.message : 'Falha ao executar a acao do Integration Hub.', true);
       }
     }
 }

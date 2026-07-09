@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ApprovalLeaseIntegrationPolicy.ts
  *
  * Documents and enforces the controlled integration invariants for

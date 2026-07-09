@@ -1,6 +1,8 @@
+import { useMemo } from "react";
+import { buildDateKey, createDateFormatter, DarkTooltip, CostTooltip } from "./shared";
 "use client";
 
-import { useMemo } from "react";
+
 import { useLocale } from "next-intl";
 import Card from "../../Card";
 import { getModelColor } from "@/shared/constants/colors";
@@ -17,7 +19,6 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { buildDateKey, createDateFormatter, DarkTooltip, CostTooltip } from "./shared";
 
 export function DailyTrendChart({ dailyTrend }) {
   const chartData = useMemo(() => {

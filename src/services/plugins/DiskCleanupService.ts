@@ -1,6 +1,8 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface CleanupRule {
   id: string;
@@ -118,7 +120,8 @@ export class DiskCleanupService {
               result.details.push({ path: file, size: stat.size, reason: `${rule.name}: ${Math.floor(age / 86400000)} days` });
             }
           } catch (error: unknown) {
-            result.errors.push(`${file}: ${error instanceof Error ? error.message : String(error)}`);
+            const err = asErrorLike(error);
+            result.errors.push(`${file}: ${error instanceof Error ? err.message : String(error)}`);
           }
         }
       }

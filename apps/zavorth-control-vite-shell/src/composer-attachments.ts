@@ -104,7 +104,7 @@ export async function readAttachmentFile(file: File): Promise<ComposerAttachment
     attachment.extraction = {
       kind: 'error',
       label: 'Extraction failed',
-      detail: error instanceof Error ? error.message : 'The file could not be read in the browser.',
+      detail: error instanceof Error ? err.message : 'The file could not be read in the browser.',
     };
   }
 

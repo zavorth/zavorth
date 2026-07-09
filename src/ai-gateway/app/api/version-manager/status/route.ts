@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server";
 "use server";
 
-import { NextResponse } from "next/server";
+
 import { getVersionManagerStatus } from "@/lib/versionManager";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 

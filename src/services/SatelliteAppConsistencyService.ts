@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION } from '../contracts/SatelliteAppConsistencyContract.js';
+import fs from 'fs';
 import path from 'path';
 import type {
   SatelliteAppCapabilityPrimitive,
@@ -8,7 +9,7 @@ import type {
   SatelliteAppConsistencyStatus,
   SatelliteAppConsistencySurface,
 } from '../contracts/SatelliteAppConsistencyContract.js';
-import { ZAVORTH_SATELLITE_APP_CONSISTENCY_CONTRACT_VERSION } from '../contracts/SatelliteAppConsistencyContract.js';
+
 import type { NodeMeshCapabilityId } from '../contracts/NodeMeshContract.js';
 import type { ZavorthPluginManifest, ZavorthPluginPermission } from '../contracts/PluginManifestContract.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION } from '../contracts/PluginManifestContract.js';

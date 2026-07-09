@@ -1,4 +1,5 @@
-﻿import {
+import { ConversationalAgencyPresenter } from './ConversationalAgencyPresenter.js';
+import {
   INTELLIGENCE_FABRIC_CONTRACT_VERSION,
   type IntelligenceCapabilityBuilderDraft,
   type IntelligenceCapabilityManifest,
@@ -27,7 +28,7 @@ import {
   IntelligenceTrustModePolicyService,
   type IntelligenceTrustModePolicySnapshot,
 } from './IntelligenceTrustModePolicyService.js';
-import { ConversationalAgencyPresenter } from './ConversationalAgencyPresenter.js';
+
 import { ZavorthCapabilityHubApiService } from './ZavorthCapabilityHubApiService.js';
 import { ModelPickerService, type ModelPickerServiceResult } from './providers/catalog/ModelPickerService.js';
 import { logger } from '../logger.js';

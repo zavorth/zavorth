@@ -1,3 +1,4 @@
+import { config } from '../../src/config/index';
 const { mockCreate, MockOpenAI } = (() => {
   const mockCreate = jest.fn();
   const MockOpenAI = jest.fn(function(this: any) {
@@ -11,7 +12,7 @@ jest.mock('openai', () => ({
   default: MockOpenAI,
 }));
 
-import { config } from '../../src/config/index';
+
 import { CerebrasProvider } from '../../src/providers/CerebrasProvider';
 
 describe('CerebrasProvider', () => {

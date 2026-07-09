@@ -1,4 +1,9 @@
-﻿import fs from 'node:fs';
+import {
+  SOURCE_AGENT_RUNTIME_PACKAGES,
+  ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION,
+} from '../contracts/SourceAgentRuntimeBridgeContract.js';
+import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { AcpxBridgeRuntimeAdapter } from '../adapters/claude/AcpxBridgeRuntimeAdapter.js';
 import { ClaudeCodeCliBridgeAdapter } from '../adapters/claude/ClaudeCodeCliBridgeAdapter.js';
@@ -10,11 +15,8 @@ import type {
   SourceAgentRuntimePackageName,
   SourceAgentRuntimeUsageKind,
 } from '../contracts/SourceAgentRuntimeBridgeContract.js';
-import {
-  SOURCE_AGENT_RUNTIME_PACKAGES,
-  ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION,
-} from '../contracts/SourceAgentRuntimeBridgeContract.js';
-import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+
+
 import { resolveZavorthSourceRoot } from './ZavorthSourceRootResolver.js';
 import { logger } from '../logger.js';
 

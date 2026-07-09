@@ -1,4 +1,6 @@
-﻿import crypto from 'crypto';
+import { DockerSandboxRuntime, type DockerSandboxStatus } from './sandbox/DockerSandboxRuntime.js';
+
+import crypto from 'crypto';
 import path from 'path';
 import { config } from '../config/index.js';
 import type {
@@ -6,12 +8,13 @@ import type {
   ZavorthMutationRiskLevel,
   ZavorthSandboxProfile,
 } from '../contracts/ZavorthMutationPlaneContract.js';
-import { DockerSandboxRuntime, type DockerSandboxStatus } from './sandbox/DockerSandboxRuntime.js';
+
 import { FirecrackerSandboxRuntime, type FirecrackerSandboxStatus } from './sandbox/FirecrackerSandboxRuntime.js';
 import type { SandboxLanguage, SandboxSecurityLevel } from './sandbox/ISandboxRuntime.js';
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
 import { WasmSandboxCapabilityService, type WasmSandboxStatus } from './WasmSandboxCapabilityService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type SandboxPosture = 'healthy' | 'attention' | 'critical';
 type SandboxProfileStatus = 'ready' | 'dormant' | 'disabled' | 'not_installed' | 'unsupported' | 'degraded';
@@ -723,6 +726,7 @@ export class ZavorthSandboxControlPlaneService {
     try {
       return this.dockerRuntime.getStatus(language);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.dockerSandboxEnabled,
@@ -738,7 +742,7 @@ export class ZavorthSandboxControlPlaneService {
         autoPullEnabled: config.dockerSandboxAutoPull,
         sandboxRuntime: config.dockerSandboxRuntime || 'runc',
         canRun: false,
-        detail: `Falha ao ler Docker sandbox: ${error instanceof Error ? error.message : String(error)}`,
+        detail: `Falha ao ler Docker sandbox: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -747,6 +751,7 @@ export class ZavorthSandboxControlPlaneService {
     try {
       return this.firecrackerRuntime.getStatus();
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.firecrackerEnabled,
@@ -756,7 +761,7 @@ export class ZavorthSandboxControlPlaneService {
         kernelPresent: false,
         rootfsPresent: false,
         canRun: false,
-        detail: `Falha ao ler Firecracker: ${error instanceof Error ? error.message : String(error)}`,
+        detail: `Falha ao ler Firecracker: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }
@@ -765,12 +770,13 @@ export class ZavorthSandboxControlPlaneService {
     try {
       return this.wasmCapability.getStatus('wasm');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.wasmSandboxEnabled,
         available: false,
         canRun: false,
-        detail: `Falha ao ler Wasm sandbox: ${error instanceof Error ? error.message : String(error)}`,
+        detail: `Falha ao ler Wasm sandbox: ${error instanceof Error ? err.message : String(error)}`,
         runtime: 'node-webassembly',
         supportedLanguages: ['wasm'],
         recommendedAction: 'npm run sandbox:wasm:smoke',

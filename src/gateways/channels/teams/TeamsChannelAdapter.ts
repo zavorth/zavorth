@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+
 import { logger } from '../../../logger.js';
 
 type TeamsChannelAdapterRuntime = {

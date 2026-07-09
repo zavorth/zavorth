@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ArchitectureRefactorScorecardService, type ArchitectureRefactorSnapshot } from '../observability/ArchitectureRefactorScorecardService.js';

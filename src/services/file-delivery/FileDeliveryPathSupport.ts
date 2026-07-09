@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { GENERATED_DIRECTORY_NAMES } from './FileDeliveryTypes.js';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { PolicyEngine } from '../../security/PolicyEngine.js';
@@ -8,7 +9,7 @@ import type {
   RootKey,
   SearchRoot,
 } from './FileDeliveryTypes.js';
-import { GENERATED_DIRECTORY_NAMES } from './FileDeliveryTypes.js';
+
 import { logger } from '../../logger.js';
 
 export class FileDeliveryPathSupport {

@@ -1,14 +1,3 @@
-﻿import fs from 'fs';
-import { config } from '../config/index.js';
-import { ProviderFactory } from '../providers/ProviderFactory.js';
-import { resolveWorkspaceLlmStrategy } from './WorkspaceLlmProfile.js';
-import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from './WorkspaceTaskKind.js';
-import type { AIGatewayProxyStatus } from './AIGatewayProxyService.js';
-import type {
-  ModelCapabilityKind,
-  ModelPickerContract,
-  SelectedModelProfile,
-} from '../contracts/ModelPickerContract.js';
 import {
   AccessRouteResolutionService,
   type AccessRouteHealthInput,
@@ -23,6 +12,21 @@ import {
   type ModelSelectionServiceResult,
 } from './providers/catalog/ModelSelectionService.js';
 import { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
+import fs from 'fs';
+import { config } from '../config/index.js';
+import { ProviderFactory } from '../providers/ProviderFactory.js';
+import { resolveWorkspaceLlmStrategy } from './WorkspaceLlmProfile.js';
+import type { WorkspaceTaskKind, WorkspaceTaskSubtype } from './WorkspaceTaskKind.js';
+import type { AIGatewayProxyStatus } from './AIGatewayProxyService.js';
+import type {
+  ModelCapabilityKind,
+  ModelPickerContract,
+  SelectedModelProfile,
+} from '../contracts/ModelPickerContract.js';
+
+
+
+
 import { logger } from '../logger.js';
 
 export type ProviderCatalogMode = 'cloud' | 'local' | 'hybrid' | 'alias';

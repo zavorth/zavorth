@@ -12,6 +12,7 @@ import {
   normalizeZavorthProductDetailMode,
 } from '../contracts/ZavorthProductModeContract.js';
 
+
 export type ZavorthExperienceProfileInput = {
   profile?: unknown;
   intent?: unknown;

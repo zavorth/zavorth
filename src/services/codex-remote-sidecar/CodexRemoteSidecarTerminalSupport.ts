@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { logger } from '../../logger.js';
 
 export class CodexRemoteSidecarTerminalSupport {

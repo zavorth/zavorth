@@ -1,6 +1,7 @@
+import { useState, useEffect, useRef, Fragment } from "react";
 "use client";
 
-import { useState, useEffect, useRef, Fragment } from "react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 /*  Types                                                              */

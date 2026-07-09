@@ -516,7 +516,7 @@
     "test:ci:list": "node scripts/run-jest-ci-groups.mjs --list",
     "test:ci:security": "node scripts/run-jest-ci-groups.mjs --group=security",
     "test:ci:api": "node scripts/run-jest-ci-groups.mjs --group=api",
-    "test:ci:ai-gateway": "node scripts/run-jest-ci-groups.mjs --group=ai-gateway",
+    "test:ci:ai-gateway": "node scripts/run-jest-ci-groups.mjs --group=zavorth-control",
     "test:ci:domain-zavorthControl": "node scripts/run-jest-ci-groups.mjs --group=domain-zavorthControl",
     "test:ci:domain-web": "node scripts/run-jest-ci-groups.mjs --group=domain-web",
     "test:ci:domain-shared": "node scripts/run-jest-ci-groups.mjs --group=domain-shared",

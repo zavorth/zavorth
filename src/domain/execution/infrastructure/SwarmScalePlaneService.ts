@@ -797,7 +797,7 @@ export class SwarmScalePlaneService {
         completedAt,
         output: null,
         summary: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
         digest: null,
       };
   }
@@ -934,7 +934,7 @@ export class SwarmScalePlaneService {
             role: 'tool',
             toolCallId: toolCall.id,
             toolName: toolCall.name,
-            content: `Tool failed: ${error instanceof Error ? error.message : String(error)}`,
+            content: `Tool failed: ${error instanceof Error ? err.message : String(error)}`,
           });
         }
       }

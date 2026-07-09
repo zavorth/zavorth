@@ -5,6 +5,7 @@ import type {
   AgentToolCapability,
 } from '../../security/AgentSecurityPolicyEngine.js';
 import { AGENT_SECURITY_DECISION_MATRIX } from '../../security/AgentSecurityPolicyEngine.js';
+
 import { resolveDefaultAgentToolSecurityDefinition } from '../../security/AgentToolSecurityCatalog.js';
 import type { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolRegistry } from '../../tools/ToolRegistry.js';

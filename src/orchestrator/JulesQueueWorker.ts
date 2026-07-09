@@ -3,6 +3,8 @@ import { Task } from '../contracts/TaskContract.js';
 import { JulesExecutor } from '../execution/JulesExecutor.js';
 import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
@@ -69,7 +71,8 @@ export class JulesQueueWorker {
 
       await this.pollTask(task);
     } catch (error: unknown) {
-      this.deps.log('error', 'JulesQueueWorker', error.message || 'Jules worker failed.');
+      const err = asErrorLike(error);
+      this.deps.log('error', 'JulesQueueWorker', err.message || 'Jules worker failed.');
     } finally {
       this.running = false;
     }
@@ -172,10 +175,11 @@ export class JulesQueueWorker {
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       task.metadata = {
         ...this.withQueueUnlocked(task.metadata),
         jules_delivery_retries: Number(task.metadata?.jules_delivery_retries || 0) + 1,
-        jules_last_delivery_error: error.message || 'Failed to deliver Jules response.',
+        jules_last_delivery_error: err.message || 'Failed to deliver Jules response.',
       };
       this.deps.taskManager.saveTask(task);
       if (task.status !== 'delivery_pending') {
@@ -183,7 +187,7 @@ export class JulesQueueWorker {
       }
       this.deps.log('warn', 'JulesQueueWorker', 'Jules delivery pending due to Telegram failure.', {
         taskId: task.task_id,
-        error: error.message || 'unknown',
+        error: err.message || 'unknown',
       });
     }
   }
@@ -207,9 +211,10 @@ export class JulesQueueWorker {
         ].filter(Boolean).join('\n'),
       );
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.deps.log('warn', 'JulesQueueWorker', 'Failed to deliver Jules error.', {
         taskId: task.task_id,
-        error: error.message || 'unknown',
+        error: err.message || 'unknown',
       });
     }
   }

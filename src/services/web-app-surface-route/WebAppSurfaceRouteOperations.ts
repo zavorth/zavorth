@@ -1,4 +1,5 @@
-﻿import * as http from 'http';
+
+import * as http from 'http';
 import { buildNaturalSetupMutationPlanner } from './WebAppSurfaceRouteActions.js';
 import {
   readBooleanSearchParam,
@@ -7,6 +8,7 @@ import {
 } from './WebAppSurfaceRouteParsing.js';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
 import { KanbanSQLiteDispatcherService } from '../plugins/KanbanSQLiteDispatcherService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export async function handleWebAppSurfaceOperationRoutes(
   req: http.IncomingMessage,
@@ -278,7 +280,8 @@ export async function handleWebAppSurfaceOperationRoutes(
         202,
       );
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Falha no action seguro de Natural Setup.';
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : 'Falha no action seguro de Natural Setup.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;
@@ -412,7 +415,8 @@ export async function handleWebAppSurfaceOperationRoutes(
         action.ok ? 200 : 409,
       );
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Falha ao agir no Hub + MCP.';
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : 'Falha ao agir no Hub + MCP.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
     return true;

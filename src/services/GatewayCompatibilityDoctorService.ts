@@ -1,9 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewayProxyService } from './AIGatewayProxyService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 export type AIGatewayCompatibilityDoctorReport = {
   ok: boolean;
   status: 'passed' | 'failed' | 'missing';
@@ -84,6 +85,7 @@ export class GatewayCompatibilityDoctorService {
         error: null,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[way Compatibility Doctor] network request failed', error);
     return this.persist({
         ok: false,
@@ -96,7 +98,7 @@ export class GatewayCompatibilityDoctorService {
         command: 'AIGateway doctor',
         checkedTarget,
         httpStatus: null,
-        error: error?.message || String(error),
+        error: errorMessage(error),
       });
   }
   }

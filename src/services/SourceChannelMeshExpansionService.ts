@@ -1,4 +1,9 @@
-﻿import fs from 'node:fs';
+import {
+  SOURCE_CHANNEL_MESH_PACKAGES,
+  ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION,
+} from '../contracts/SourceChannelMeshExpansionContract.js';
+import { SourceChannelSecretPolicyService } from './SourceChannelSecretPolicyService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { SlackChannelPack } from '../adapters/channels/SlackChannelPack.js';
 import { WhatsAppChannelPack } from '../adapters/channels/WhatsAppChannelPack.js';
@@ -13,11 +18,8 @@ import type {
   SourceChannelMeshExpansionSnapshot,
   SourceChannelMeshPackageName,
 } from '../contracts/SourceChannelMeshExpansionContract.js';
-import {
-  SOURCE_CHANNEL_MESH_PACKAGES,
-  ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION,
-} from '../contracts/SourceChannelMeshExpansionContract.js';
-import { SourceChannelSecretPolicyService } from './SourceChannelSecretPolicyService.js';
+
+
 import { SourceChannelSimulatorService } from './SourceChannelSimulatorService.js';
 import { resolveZavorthSourceRoot } from './ZavorthSourceRootResolver.js';
 import { logger } from '../logger.js';

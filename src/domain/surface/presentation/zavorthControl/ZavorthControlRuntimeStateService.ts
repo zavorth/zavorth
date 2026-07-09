@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { logger } from '../../../../logger';type WarnLogger = (message: string) => void;
+import { logger } from '../../../../logger';
+import { errorMessage } from '../../../../utils/errorLike.js';
+type WarnLogger = (message: string) => void;
 
 export type ZavorthControlRuntimeStateWriteInput = {
   filePath: string;
@@ -32,7 +34,7 @@ export class ZavorthControlRuntimeStateService {
         ),
         'utf8',
       );
-    } catch (error: unknown) {this.warn(`Nao consegui persistir o estado do zavorthControl: ${error?.message || error}`);
+    } catch (error: unknown) {this.warn(`Nao consegui persistir o estado do zavorthControl: ${errorMessage(error)}`);
     }
   }
 

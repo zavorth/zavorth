@@ -6,6 +6,7 @@ import {
 import {
   FirstRunWorkspaceBootstrapProfileService,
 } from '../../../services/FirstRunWorkspaceBootstrapProfileService.js';
+
 import type {
   ZavorthWorkspaceIdentityProfileSnapshot,
 } from '../../../contracts/FirstRunWorkspaceBootstrapContract.js';

@@ -7,6 +7,8 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { testComboSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 async function testComboModel(modelStr, internalUrl) {
   const startTime = Date.now();
   try {
@@ -78,11 +80,12 @@ async function testComboModel(modelStr, internalUrl) {
       latencyMs,
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     const latencyMs = Date.now() - startTime;
     return {
       model: modelStr,
       status: "error",
-      error: error.name === "AbortError" ? "Timeout (20s)" : error.message,
+      error: err.name === "AbortError" ? "Timeout (20s)" : err.message,
       latencyMs,
     };
   }

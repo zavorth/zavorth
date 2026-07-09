@@ -1,5 +1,6 @@
 import React from 'react';
 import { WorkspaceRuntimeReadinessIssue } from './WorkspaceRuntimeReadinessCard';
+import { SurfaceCard, RiskBadge, InlineAlert } from './ProductPolishComponents';
 
 export interface WorkspacePolicyPreviewData {
   providerId?: string;
@@ -16,7 +17,6 @@ export interface WorkspacePolicyPreviewData {
   warnings: WorkspaceRuntimeReadinessIssue[];
 }
 
-import { SurfaceCard, RiskBadge, InlineAlert } from './ProductPolishComponents';
 
 export const WorkspacePolicyPreview: React.FC<{ preview: WorkspacePolicyPreviewData | null }> = ({ preview }) => {
   if (!preview) {

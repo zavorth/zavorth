@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSuite } from "@/lib/evals/evalRunner";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function GET(request, { params }) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -14,7 +16,8 @@ export async function GET(request, { params }) {
     }
     return NextResponse.json(suite);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

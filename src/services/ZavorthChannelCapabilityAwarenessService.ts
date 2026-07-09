@@ -17,6 +17,7 @@ import {
 } from '../contracts/ChannelCapabilityContract.js';
 import { getSharedSurfaceCommandContract } from './SharedSurfaceCommandContract.js';
 
+
 type Runtime = {
   now?: () => Date;
 };

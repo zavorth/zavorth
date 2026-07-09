@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function GET(request: NextRequest) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -14,9 +16,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ preference });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
+      { error: error instanceof Error ? err.message : String(error) },
       { status: 500 }
     );
   }
@@ -49,9 +52,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : String(error) },
+      { error: error instanceof Error ? err.message : String(error) },
       { status: 500 }
     );
   }

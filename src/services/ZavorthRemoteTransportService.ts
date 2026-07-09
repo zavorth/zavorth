@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { config } from '../config/index.js';
 import { buildCapabilityManifests } from './capability-lifecycle/CapabilityLifecycleManifests.js';
 import type { ZavorthProfile } from '../config/configHelpers.js';

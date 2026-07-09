@@ -1,4 +1,4 @@
-﻿project: Zavorth.xcodeproj
+project: Zavorth.xcodeproj
 schemes:
   - Zavorth
 retain_codable_properties: true

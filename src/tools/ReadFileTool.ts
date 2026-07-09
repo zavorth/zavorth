@@ -1,7 +1,9 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import fs from 'fs';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 /**
  * Allows the agent to read a local text file.
@@ -55,7 +57,8 @@ export class ReadFileTool extends BaseTool {
 
       return content.trim();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       console.error('[ReadFile] Error while reading:', message);
       return `Error while reading file: ${message}`;
     }

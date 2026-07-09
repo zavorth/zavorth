@@ -7,13 +7,44 @@ import {
 import {
   SwarmScalePlaneService,
 } from '../../domain/execution/infrastructure/SwarmScalePlaneService.js';
+import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
+import {
+  AgentRunSteeringStream,
+  type AgentRunSteeringStreamAction,
+} from './AgentRunSteeringStream.js';
+import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
+import { AgentRunCorePipeline } from './AgentRunCorePipeline.js';
+import { promoteIntelligenceFabricDraftWorkspaceWrites } from './AgentRunIntelligenceFabricDraftPromotion.js';
+import {
+  AgentRunEvidencePipeline,
+  type AgentRunEvidenceCollectorId,
+  type AgentRunEvidencePipelineStep,
+  type AgentRunEvidenceWorker,
+} from './AgentRunEvidencePipeline.js';
+import { AgentRunEvidenceStore } from './AgentRunEvidenceStore.js';
+import {
+  FailureSemanticsRegistry,
+} from './FailureSemanticsRegistry.js';
+import { AgentRunFailureResultBuilder } from './AgentRunFailureResultBuilder.js';
+import {
+  CapabilityNegotiationService,
+  type CapabilityNegotiationSnapshot,
+} from './CapabilityNegotiationService.js';
+import {
+  ToolRehearsalService,
+  type ToolRehearsalSnapshot,
+} from './ToolRehearsalService.js';
+import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
+import { RunArtifactReceiptReplayService } from './RunArtifactReceiptReplayService.js';
+import { AgentRunAuditHooks } from './security/AgentRunAuditHooks.js';
+
 import type {
   SelfModificationCommandService,
 } from '../../services/SelfModificationCommandService.js';
 import type {
   ComputerUseWatchModeService,
 } from '../../services/ComputerUseWatchModeService.js';
-import { AgentRunCanonicalContextService } from './AgentRunCanonicalContextService.js';
+
 import { AgentRunFactory, type AgentRunModelPickerContractService } from './AgentRunFactory.js';
 import type { NaturalCapabilityDiscoveryService } from './NaturalCapabilityDiscoveryService.js';
 import { NaturalFirstApprovalSafetyService } from './NaturalFirstApprovalSafetyService.js';
@@ -24,55 +55,34 @@ import {
   AgentRunLlmRuntimeExecutor,
   type UniversalAgentLlmRuntime,
 } from './AgentRunLlmRuntimeExecutor.js';
-import {
-  AgentRunSteeringStream,
-  type AgentRunSteeringStreamAction,
-} from './AgentRunSteeringStream.js';
-import { applyAgentRunLlmRuntimeRouteReceipt } from './AgentRunLlmRouteReceipt.js';
+
 import {
   AgentRunEchoHandsExecutor,
   type UniversalAgentToolRuntime,
 } from './AgentRunEchoHandsExecutor.js';
-import { AgentRunCorePipeline } from './AgentRunCorePipeline.js';
+
 import {
   AgentRunIntelligenceFabricCanary,
   type AgentRunIntelligenceFabricMode,
 } from './AgentRunIntelligenceFabricCanary.js';
-import { promoteIntelligenceFabricDraftWorkspaceWrites } from './AgentRunIntelligenceFabricDraftPromotion.js';
+
 import { AgentRunExecutorBoundary } from './AgentRunExecutorBoundary.js';
 import {
   AgentRunMetadataEvidenceHelpers,
   type CoreDietBaselineDraft,
 } from './AgentRunMetadataEvidenceHelpers.js';
-import {
-  AgentRunEvidencePipeline,
-  type AgentRunEvidenceCollectorId,
-  type AgentRunEvidencePipelineStep,
-  type AgentRunEvidenceWorker,
-} from './AgentRunEvidencePipeline.js';
-import { AgentRunEvidenceStore } from './AgentRunEvidenceStore.js';
+
 import { installAgentRunSpecializedFlows } from './AgentRunSpecializedFlows.js';
 import { CapabilityLoopGovernanceService } from './CapabilityLoopGovernanceService.js';
 import { TrustSliderPolicyService } from '../uni/TrustSliderPolicyService.js';
 import type {
   TrustSliderPolicyDecision,
 } from '../uni/UniversalIntentContracts.js';
-import {
-  FailureSemanticsRegistry,
-} from './FailureSemanticsRegistry.js';
-import { AgentRunFailureResultBuilder } from './AgentRunFailureResultBuilder.js';
+
 import {
   ExecutionEscalationPolicy,
 } from './ExecutionEscalationPolicy.js';
-import {
-  CapabilityNegotiationService,
-  type CapabilityNegotiationSnapshot,
-} from './CapabilityNegotiationService.js';
-import {
-  ToolRehearsalService,
-  type ToolRehearsalSnapshot,
-} from './ToolRehearsalService.js';
-import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
+
 import { ProviderArenaService } from './ProviderArenaService.js';
 import { SelfingZavorthControlService } from './SelfingZavorthControlService.js';
 import { ArtifactMemoryService } from './ArtifactMemoryService.js';
@@ -90,7 +100,7 @@ import {
   UniversalIntentTrustEnforcementService,
   type UniversalIntentTrustEnforcementSnapshot,
 } from './UniversalIntentTrustEnforcementService.js';
-import { RunArtifactReceiptReplayService } from './RunArtifactReceiptReplayService.js';
+
 import { ProductizationEvidenceService } from './ProductizationEvidenceService.js';
 import { ProductEntryRuntimeService } from './ProductEntryRuntimeService.js';
 import { ReleaseInstallerRollbackPathService } from './ReleaseInstallerRollbackPathService.js';
@@ -116,7 +126,7 @@ import {
   CanonicalSessionContextAssembler,
   LightweightRunProfileClassifier,
 } from './context/index.js';
-import { AgentRunAuditHooks } from './security/AgentRunAuditHooks.js';
+
 import { AgentRunRiskHooks, type AgentRunRiskReviewStage } from './security/AgentRunRiskHooks.js';
 import type {
   UniversalAgentExecutor,
@@ -127,6 +137,7 @@ import type {
   UniversalAgentSteeringEntry,
   UniversalApprovalRequest,
 } from './UniversalAgentRuntimeTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 export type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
 export type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
 
@@ -1085,9 +1096,10 @@ export class AgentRunService {
       });
       executorResult = await this.execute(run, input, options);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       await this.publishRuntimeEvent(run, 'agent.execution.failed', {
         source: 'executor',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       });
       return this.buildFailureResult(run, error, 'executor');
     }
@@ -1601,8 +1613,9 @@ export class AgentRunService {
     try {
       await this.autoSkillInvocation.apply({ run, request });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const generatedAt = this.now().toISOString();
-      const reason = error instanceof Error ? error.message : String(error);
+      const reason = error instanceof Error ? err.message : String(error);
       run.metadata = {
         ...run.metadata,
         autoSkillInvocation: {
@@ -1850,7 +1863,8 @@ export class AgentRunService {
           await eventBus.emit(type, runtimePayload);
           delivered += 1;
         } catch (error: unknown) {
-          errors.push(error instanceof Error ? error.message : String(error));
+          const err = asErrorLike(error);
+          errors.push(error instanceof Error ? err.message : String(error));
         }
       }
       if (delivered === 0 && errors.length > 0) {
@@ -1864,10 +1878,11 @@ export class AgentRunService {
         error: errors.length > 0 ? errors.join('; ') : undefined,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.appendRuntimeEventReceipt(run, {
         ...receipt,
         delivery: 'failed',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       });
     }
   }
@@ -2185,12 +2200,13 @@ export class AgentRunService {
         },
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       run.metadata = {
         ...run.metadata,
         nativeAutonomySpine: {
           version: 'native-autonomy-spine/v1',
           status: 'attention',
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? err.message : String(error),
           rawSecretsSerialized: false,
         },
       };

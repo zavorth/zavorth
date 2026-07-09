@@ -7,6 +7,8 @@ import {
   IconLink,
 } from '@tabler/icons-react';
 import { asErrorLike } from '../lib/errors';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
+
 import { sanitizeSvgMarkup } from '../lib/safeHtml';
 
 interface EmbedRendererProps {

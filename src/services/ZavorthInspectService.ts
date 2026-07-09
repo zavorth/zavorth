@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { config as defaultConfig } from '../config/index.js';
 import { logger } from '../logger.js';

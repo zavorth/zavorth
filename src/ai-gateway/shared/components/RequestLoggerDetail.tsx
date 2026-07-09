@@ -1,12 +1,13 @@
+import { useState, useEffect } from "react";
+import { formatDuration, formatApiKeyLabel } from "@/shared/utils/formatting";
 "use client";
 
-import { useState, useEffect } from "react";
+
 import {
   PROTOCOL_COLORS,
   PROVIDER_COLORS,
   getHttpStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
-import { formatDuration, formatApiKeyLabel } from "@/shared/utils/formatting";
 
 function PayloadSection({ title, json, onCopy }) {
   const [copied, setCopied] = useState(false);

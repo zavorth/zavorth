@@ -1,4 +1,4 @@
-﻿name: Zavorth
+name: Zavorth
 options:
   bundleIdPrefix: dev.zavorthfoundation
   deploymentTarget:

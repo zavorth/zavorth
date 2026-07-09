@@ -5,6 +5,7 @@ import {
   type TerminalComposerInlineCardKind,
 } from './ZavorthCliTerminalComposer.js';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+
 import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { logger } from '../logger.js';export type TerminalShellMode = 'daily' | 'ops';

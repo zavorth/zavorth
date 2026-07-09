@@ -4,6 +4,7 @@ import {
   createResourceRef,
 } from '../../../src/runtime/effects/index.js';
 import { decideEffectPolicy } from '../../../src/security/EffectPolicyKernel.js';
+
 import { RehearsalRunner } from '../../../src/runtime/rehearsal/index.js';
 
 describe('RehearsalRunner', () => {

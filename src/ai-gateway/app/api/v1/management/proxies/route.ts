@@ -7,6 +7,7 @@ import {
   updateProxy,
 } from "@/lib/localDb";
 import { createProxyRegistrySchema, updateProxyRegistrySchema } from "@/shared/validation/schemas";
+
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { createErrorResponse, createErrorResponseFromUnknown } from "@/lib/api/errorResponse";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";

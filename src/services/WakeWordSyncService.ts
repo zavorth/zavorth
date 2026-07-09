@@ -1,4 +1,4 @@
-﻿/**
+/**
  * WakeWordSyncService — Synchronizes agent name with wake word configuration.
  *
  * When a user sets an agent name during onboarding, this service ensures

@@ -1,4 +1,4 @@
-﻿export const runtimeShellScriptPart6Seg2: string = [
+export const runtimeShellScriptPart6Seg2: string = [
     "          : '<strong>Instrucao principal:</strong> sem instrucao destacada para o foco atual.',",
     "        selectorRow",
     "          ? '<strong>Alternar foco:</strong> ' + selectorRow",
@@ -351,7 +351,7 @@
     "      officialRemoteAccess: payload.report,",
     "    });",
     "    setRemoteActionStatus(normalizeText(payload?.report?.summary) || 'Acao remota concluida.');",
-    "  } catch ($1: unknown) {",
+    "  } catch (error: unknown) {",
     "    setRemoteActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",
@@ -586,7 +586,7 @@
     "      officialRemoteAccess: payload.officialRemoteAccess,",
     "    });",
     "    setJourneyActionStatus('Host autorizado e estado local atualizado.');",
-    "  } catch ($1: unknown) {",
+    "  } catch (error: unknown) {",
     "    setJourneyActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",

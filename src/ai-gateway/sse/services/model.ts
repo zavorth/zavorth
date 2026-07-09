@@ -1,4 +1,5 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { getSettings } from "@/lib/localDb";
 // Zavorth model plane with localDb integration.
 import {
   getModelAliases,
@@ -8,7 +9,7 @@ import {
   getProviderConnections,
   getPricing,
 } from "@/lib/localDb";
-import { getSettings } from "@/lib/localDb";
+
 import { logger } from '@/shared/utils/logger';
 import {
 parseModel,

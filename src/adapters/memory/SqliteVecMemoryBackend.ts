@@ -329,7 +329,7 @@ export class SqliteVecMemoryBackend {
       }
       return db;
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const reason = error instanceof Error ? error.message : 'SQLite memory database open failed.';
+      const reason = error instanceof Error ? err.message : 'SQLite memory database open failed.';
       try {
         db?.close();
       } catch (error: unknown) { const err = asErrorLike(error); const e = err;
@@ -466,7 +466,7 @@ export class SqliteVecMemoryBackend {
         .map(normalizeRecord)
         .filter((record): record is MemoryKnowledgeRecord => Boolean(record));
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const reason = error instanceof Error ? error.message : 'Invalid JSON memory fallback.';
+      const reason = error instanceof Error ? err.message : 'Invalid JSON memory fallback.';
       throw new Error(`Unable to read encrypted JSON memory fallback: ${reason}`);
     }
   }

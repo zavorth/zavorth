@@ -8,6 +8,7 @@ import {
   resolveWebAppRuntimeCanonicalSessionCommand,
 } from './web-app-runtime-route/WebAppRuntimeRouteHelpers.js';
 import { config } from '../../../../config/index.js';
+
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
 import type { RemoteMeshNotebookMcpApplyToolName } from '../../../../contracts/RemoteMeshNotebookMcpProxyContract.js';
 import { RemoteMeshNotebookMcpProxyService } from '../../../../services/RemoteMeshNotebookMcpProxyService.js';
@@ -15,6 +16,7 @@ import type { SurfaceControllerContext } from '../../../../services/SurfaceRunti
 import { ZavorthMnemosQueryService } from '../../../../services/ZavorthMnemosQueryService.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 type LooseRecord = Record<string, unknown>;
 type LearningState = LooseRecord & {
   entries: Record<string, LooseRecord>;
@@ -98,7 +100,8 @@ export class WebAppRuntimeInteractionRouteService {
         const preview = deps.consoleAssets.readPreviewFile(targetPath);
         deps.writeJson(res, { ok: true, preview }, 200);
       } catch (error: unknown) {
-        deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar preview.' }, 400);
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao carregar preview.' }, 400);
       }
       return true;
     }
@@ -340,7 +343,8 @@ export class WebAppRuntimeInteractionRouteService {
       res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(asset.filename)}"`);
       res.end(asset.content);
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao carregar asset.' }, 400);
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao carregar asset.' }, 400);
     }
     return true;
   }
@@ -437,7 +441,8 @@ export class WebAppRuntimeInteractionRouteService {
       }).query({ query, topK });
       deps.writeJson(res, { ok: true, recall: snapshot }, 200);
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Mnemos recall failed.' }, 500);
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Mnemos recall failed.' }, 500);
     }
     return true;
   }
@@ -1008,9 +1013,10 @@ export class WebAppRuntimeInteractionRouteService {
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
         409,
       );
     }
@@ -1060,9 +1066,10 @@ export class WebAppRuntimeInteractionRouteService {
       const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
       deps.writeJson(res, { ok: true, snapshot }, 200);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
         409,
       );
     }
@@ -1146,9 +1153,10 @@ export class WebAppRuntimeInteractionRouteService {
         200,
       );
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? error.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
         409,
       );
     }
@@ -1240,9 +1248,10 @@ export class WebAppRuntimeInteractionRouteService {
         result.ok ? 200 : 409,
       );
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
         409,
       );
     }
@@ -1336,9 +1345,10 @@ export class WebAppRuntimeInteractionRouteService {
         result.ok ? 200 : 409,
       );
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? error.message : String(error)) || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },
         409,
       );
     }

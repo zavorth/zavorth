@@ -1,3 +1,4 @@
+
 /**
  * API: Webhook by ID
  * GET    — Get webhook details
@@ -11,6 +12,7 @@ import { getWebhook, updateWebhookRecord, deleteWebhook } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const updateWebhookSchema = z
   .object({
@@ -34,8 +36,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
     return NextResponse.json({ webhook });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -57,8 +60,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
     return NextResponse.json({ webhook });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -74,7 +78,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] delete operation failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

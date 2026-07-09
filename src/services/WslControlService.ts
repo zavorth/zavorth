@@ -1,5 +1,7 @@
-﻿import { execFile } from 'child_process';
+
+import { execFile } from 'child_process';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type WslDistroInfo = {
   name: string;
@@ -38,12 +40,13 @@ export class WslControlService {
 
       return { ok: true, action: 'status', distros, message, warnings: [] };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Wsl Control] parsing failed', error);
     return {
         ok: false,
         action: 'status',
         distros: [],
-        message: `Falha ao consultar WSL: ${error.message}`,
+        message: `Falha ao consultar WSL: ${err.message}`,
         warnings: [],
       };
   }
@@ -135,12 +138,13 @@ export class WslControlService {
         warnings,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Wsl Control] process execution failed', error);
     return {
         ok: false,
         action: 'start',
         distros: [],
-        message: `Falha ao iniciar WSL: ${error.message}`,
+        message: `Falha ao iniciar WSL: ${err.message}`,
         warnings: [],
       };
   }
@@ -176,12 +180,13 @@ export class WslControlService {
         warnings: [],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Wsl Control] filesystem check failed', error);
     return {
         ok: false,
         action: 'shutdown',
         distros: [],
-        message: `Falha ao desligar WSL: ${error.message}`,
+        message: `Falha ao desligar WSL: ${err.message}`,
         warnings: [],
       };
   }

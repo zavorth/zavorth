@@ -26,6 +26,9 @@ import {
   type MinimalSidecarSnapshot,
 } from './MinimalSidecarManager.js';
 
+
+
+
 export type MinimalCapabilityActivationMode =
   | 'already-active'
   | 'deferred-import'

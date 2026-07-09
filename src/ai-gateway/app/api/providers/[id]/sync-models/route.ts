@@ -10,12 +10,15 @@ import {
   usesManagedAvailableModels,
 } from "@/lib/providerModels/managedAvailableModels";
 import { saveCallLog } from "@/lib/usage/callLogs";
+import { getModelsByProviderId } from "@/shared/constants/models";
+
+
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import {
   buildModelSyncInternalHeaders,
   isModelSyncInternalRequest,
 } from "@/shared/services/modelSyncScheduler";
-import { getModelsByProviderId } from "@/shared/constants/models";
+
 import { logger } from '../logger.js';
 import { asErrorLike } from '../../../../../../utils/errorLike';
 
@@ -309,7 +312,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   } catch (error: unknown) {
     const err = asErrorLike(error);
-    const errorMessage = error instanceof Error ? error.message : "Sync failed";
+    const errorMessage = error instanceof Error ? err.message : "Sync failed";
 
     await saveCallLog({
       method: "POST",

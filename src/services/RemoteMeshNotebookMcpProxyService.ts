@@ -1,16 +1,19 @@
-﻿import type {
+import { ZAVORTH_REMOTE_MESH_NOTEBOOK_MCP_PROXY_VERSION } from '../contracts/RemoteMeshNotebookMcpProxyContract.js';
+
+import type {
   RemoteMeshNotebookMcpApplyToolName,
   RemoteMeshNotebookMcpProxyApplyRequest,
   RemoteMeshNotebookMcpProxyAuthHeaderName,
   RemoteMeshNotebookMcpProxyConfig,
   RemoteMeshNotebookMcpProxyResult,
 } from '../contracts/RemoteMeshNotebookMcpProxyContract.js';
-import { ZAVORTH_REMOTE_MESH_NOTEBOOK_MCP_PROXY_VERSION } from '../contracts/RemoteMeshNotebookMcpProxyContract.js';
+
 import type {
   RemoteMeshNotebookScopedMcpToolName,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
 import type { RemoteMeshJson } from '../contracts/RemoteMeshSandboxContract.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type RemoteMeshNotebookMcpProxyRuntime = {
   now?: () => Date;
@@ -105,12 +108,13 @@ export class RemoteMeshNotebookMcpProxyService {
         liveNetworkCallPerformed: true,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Remote Mesh Notebook Mcp] network request failed', error);
     return this.result({
         ok: false,
         status: 'failed',
         toolName,
-        error: error instanceof Error ? error.message : 'Unknown remote MCP proxy failure.',
+        error: error instanceof Error ? err.message : 'Unknown remote MCP proxy failure.',
         liveNetworkCallPerformed: true,
       });
   }

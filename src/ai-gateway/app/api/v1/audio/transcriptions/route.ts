@@ -2,18 +2,21 @@ import { CORS_ORIGIN } from "@/shared/utils/cors";// Allow large audio/video fi
 export const maxDuration = 300;
 import { handleAudioTranscription } from "@ZavorthGateway/open-sse/handlers/audioTranscription.ts";
 import {
-  getProviderCredentials,
-  clearRecoveredProviderState,
-  extractApiKey,
-  isValidApiKey,
-} from "@/sse/services/auth";
-import {
   parseTranscriptionModel,
   getTranscriptionProvider,
   buildDynamicAudioProvider,
   type ProviderNodeRow,
 } from "@ZavorthGateway/open-sse/config/audioRegistry.ts";
 import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+
+import {
+  getProviderCredentials,
+  clearRecoveredProviderState,
+  extractApiKey,
+  isValidApiKey,
+} from "@/sse/services/auth";
+
+
 import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { getProviderNodes } from "@/lib/localDb";

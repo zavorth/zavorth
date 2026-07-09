@@ -1,4 +1,7 @@
-﻿import { v4 as uuidv4 } from 'uuid';
+import { resolveGraphExecutionProfile } from './GraphRuntimeProfileResolver.js';
+import { buildWorkspaceStrategyMessage } from './GraphRuntimeWorkspaceStrategy.js';
+
+import { v4 as uuidv4 } from 'uuid';
 
 import { config } from '../../config/index.js';
 import {
@@ -19,7 +22,7 @@ import {
   buildGeneratorDirectives,
   selectToolDefinitionsForProfile,
 } from './GraphRuntimeDirectives.js';
-import { resolveGraphExecutionProfile } from './GraphRuntimeProfileResolver.js';
+
 import type {
   GraphExecutionProfile,
   GraphRuntimeResult,
@@ -27,8 +30,9 @@ import type {
   GraphRuntimeTaskContext,
   ToolRuntimeLike,
 } from './GraphRuntimeTypes.js';
-import { buildWorkspaceStrategyMessage } from './GraphRuntimeWorkspaceStrategy.js';
+
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export type {
   GraphExecutionProfile,
@@ -142,7 +146,8 @@ export class GraphRuntimeService {
 
       return runtimeResult;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       await this.telemetryRuntime.record({
         traceId,
         source: 'graph-runtime',

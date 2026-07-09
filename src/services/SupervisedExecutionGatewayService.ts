@@ -1,4 +1,6 @@
-﻿import crypto from 'crypto';
+import { CapabilityPolicyService } from './CapabilityPolicyService.js';
+
+import crypto from 'crypto';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
 import type { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import type {
@@ -14,12 +16,12 @@ import type {
   SystemOverlordKillSwitchState,
   SystemOverlordKillSwitchToggleRequest,
 } from '../contracts/SystemOverlordContract.js';
-import { CapabilityPolicyService } from './CapabilityPolicyService.js';
+
 import { HostActionLedgerService } from './HostActionLedgerService.js';
 import { SupervisedRuntimeAdapterRegistryService } from './SupervisedRuntimeAdapterRegistryService.js';
 import { SupervisedExecutionGatewayRecordBuilder } from './supervised-execution/SupervisedExecutionGatewayRecordBuilder.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type ExecutionRunner = (request: ExecutionRequest) => Promise<ExecutionResult>;
 type ActiveActionHandle = {
   actionId: string;
@@ -221,6 +223,7 @@ export class SupervisedExecutionGatewayService {
           },
         }));
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         if (this.isCancelled(actionId)) {
           return this.ledger.find(actionId) || this.recordBuilder.buildRecord({
             actionId,
@@ -243,7 +246,7 @@ export class SupervisedExecutionGatewayService {
           command,
           workspace,
           errorCode: 'adapter_exception',
-          errorMessage: error?.message || String(error),
+          errorMessage: errorMessage(error),
           metadata: {
             adapterId: adapter.id,
           },
@@ -330,6 +333,7 @@ export class SupervisedExecutionGatewayService {
         },
       }));
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Supervised Execution way] process execution failed', error);
     return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,
@@ -340,7 +344,7 @@ export class SupervisedExecutionGatewayService {
         command,
         workspace,
         errorCode: 'gateway_exception',
-        errorMessage: error?.message || String(error),
+        errorMessage: errorMessage(error),
       }));
   } finally {
       this.activeActions.delete(actionId);
@@ -661,7 +665,7 @@ export class SupervisedExecutionGatewayService {
             resolve({
               kind: 'timed_out',
               cancelResult: null,
-              cancelError: error?.message || String(error),
+              cancelError: errorMessage(error),
             });
           });
       }, timeoutMs);

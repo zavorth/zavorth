@@ -6,12 +6,14 @@ import {
   isCloudEnabled,
 } from "@/models";
 import { APIKEY_PROVIDERS } from "@/shared/constants/config";
+import { getConsistentMachineId } from "@/shared/utils/machineId";
+
 import {
   isClaudeCodeCompatibleProvider,
   isOpenAICompatibleProvider,
   isAnthropicCompatibleProvider,
 } from "@/shared/constants/providers";
-import { getConsistentMachineId } from "@/shared/utils/machineId";
+
 import { syncToCloud } from "@/lib/cloudSync";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { createProviderSchema } from "@/shared/validation/schemas";

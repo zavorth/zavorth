@@ -1,3 +1,4 @@
+import { config } from '../../src/config/index';
 
 
 const { mockGetGenerativeModel, MockGoogleGenerativeAI } = (() => {
@@ -21,7 +22,7 @@ jest.mock('@google/generative-ai', () => ({
   },
 }));
 
-import { config } from '../../src/config/index';
+
 import { GeminiProvider } from '../../src/providers/GeminiProvider';
 
 describe('GeminiProvider', () => {

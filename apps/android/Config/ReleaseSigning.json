@@ -1,4 +1,4 @@
-﻿{
+{
   "signingRepo": "git@github.com:zavorth/apps-signing.git",
   "signingBranch": "main",
   "assetPath": "android/zavorth",

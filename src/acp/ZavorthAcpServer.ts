@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Readable, Writable } from 'node:stream';
 import { asErrorLike } from '../utils/errorLike';
+import { ZAVORTH_ACP_SERVER_CONTRACT_VERSION, buildDefaultManifest } from './AcpServerManifest.js';
 
 import type {
   AcpServerManifest,
@@ -10,7 +11,6 @@ import type {
   AcpServerToolDef,
   AcpServerCapability,
 } from './AcpServerManifest.js';
-import { ZAVORTH_ACP_SERVER_CONTRACT_VERSION, buildDefaultManifest } from './AcpServerManifest.js';
 
 type AcpJsonRpcRequest = {
   jsonrpc: '2.0';
@@ -388,9 +388,8 @@ export class ZavorthAcpServer {
       const result = await this.executeToolCall(toolName, args, session);
       this.sendResult(id, { content: [{ type: 'text', text: result }], isError: false });
     } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const error = err instanceof Error ? err.message : 'Tool execution failed';
-      this.sendResult(id, { content: [{ type: 'text', text: error }], isError: true });
+      const err = asErrorLike(error); const errorText = err.message || 'Tool execution failed';
+      this.sendResult(id, { content: [{ type: 'text', text: errorText }], isError: true });
     }
   }
 
@@ -456,11 +455,11 @@ export class ZavorthAcpServer {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const durationMs = Date.now() - startTime;
-      const error = err instanceof Error ? err.message : 'Tool execution failed';
+      const errorText = err.message || 'Tool execution failed';
       session.toolCalls.push({
         name: toolName,
         approved: false,
-        result: `ERROR: ${error}`,
+        result: `ERROR: ${errorText}`,
         durationMs,
       });
 

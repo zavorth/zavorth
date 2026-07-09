@@ -1,4 +1,5 @@
-﻿import path from 'path';
+
+import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { Database } from '../../storage/Database.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -7,6 +8,7 @@ import { HostCommandApprovalService } from '../../services/HostCommandApprovalSe
 import { HostCommandRunnerService } from '../../services/HostCommandRunnerService.js';
 import { HostCommandPayloadCache } from '../../services/HostCommandPayloadCache.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export class HostCommandRunTool extends BaseTool {
   public readonly name = 'workspace.host_command.run';
@@ -184,10 +186,11 @@ export class HostCommandRunTool extends BaseTool {
         truncatedFlag: runResult.truncatedFlag
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Host Command Run] cache operation failed', error);
     return JSON.stringify({
         success: false,
-        error: `Host command execution failed: ${error.message || error}`
+        error: `Host command execution failed: ${err.message || error}`
       });
   }
   }

@@ -8,6 +8,8 @@ import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 /**
  * POST /api/oauth/kiro/import
  * Import and validate refresh token from Kiro IDE
@@ -79,8 +81,9 @@ export async function POST(request: any) {
       },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Kiro import token error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 

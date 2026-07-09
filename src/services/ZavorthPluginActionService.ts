@@ -3,6 +3,7 @@ import type {
   ZavorthPluginRegistrySnapshot,
 } from './ZavorthPluginRegistryService.js';
 import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';
+
 import { IntegrationHubService } from './IntegrationHubService.js';
 import { IntegrationInstallerService } from './IntegrationInstallerService.js';
 import { PluginStateService } from './PluginStateService.js';

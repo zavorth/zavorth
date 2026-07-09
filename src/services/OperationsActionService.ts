@@ -1,10 +1,11 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import type { ChildProcess } from 'child_process';
 import { config } from '../config/index.js';
 import { spawnCommand } from '../core/CommandSpawn.js';
 import { LogRepository } from '../storage/LogRepository.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type ActionPriority = 'high' | 'normal';
 
 type OperationActionDefinition = {
@@ -189,9 +190,10 @@ export class OperationsActionService {
       child.unref();
       this.closeSyncImpl(logFd);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Falha ao iniciar acao: ${error?.message || error}${lineBreak}`,
+        `[${this.now().toISOString()}] Falha ao iniciar acao: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);
@@ -204,7 +206,7 @@ export class OperationsActionService {
         pid: null,
         logFile,
         status: 'failed_to_start',
-        note: error?.message || String(error),
+        note: errorMessage(error),
       };
       this.persistRecord(failedRecord);
       this.logRepo.log('error', 'OperationsActionService', `Falha ao iniciar ${definition.id}: ${failedRecord.note}`);

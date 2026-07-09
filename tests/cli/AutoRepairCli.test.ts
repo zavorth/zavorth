@@ -1,3 +1,4 @@
+import { parseAutoRepairCliFlags, runAutoRepairCli } from '../../src/cli/AutoRepairCli';
 const runMock = jest.fn();
 
 jest.mock('../../src/services/AutoRepairService', () => {
@@ -8,7 +9,6 @@ jest.mock('../../src/services/AutoRepairService', () => {
   };
 });
 
-import { parseAutoRepairCliFlags, runAutoRepairCli } from '../../src/cli/AutoRepairCli';
 
 describe('AutoRepairCli', () => {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});

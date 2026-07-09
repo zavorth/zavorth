@@ -1,4 +1,4 @@
-﻿import { config } from '../config/index.js';
+import { config } from '../config/index.js';
 import { RuntimeAccessManifestService } from '../runtime/access/RuntimeAccessManifestService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';

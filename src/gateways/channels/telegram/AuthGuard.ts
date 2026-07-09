@@ -242,11 +242,12 @@ import {
     }
 
     if (
-      normalized === 'abrir zavorthBridge' ||
-      normalized === 'status do zavorthBridge' ||
-      normalized === 'status zavorthBridge' ||
-      normalized === 'reiniciar zavorthBridge' ||
-      normalized === 'reiniciar o zavorthBridge' ||
+      // `normalized` is already lowercased — keep phrases lowercase so matches work.
+      normalized === 'abrir zavorthbridge' ||
+      normalized === 'status do zavorthbridge' ||
+      normalized === 'status zavorthbridge' ||
+      normalized === 'reiniciar zavorthbridge' ||
+      normalized === 'reiniciar o zavorthbridge' ||
       normalized === 'ativar modo remoto' ||
       normalized === 'ativar o modo remoto' ||
       normalized === 'ligar modo remoto' ||

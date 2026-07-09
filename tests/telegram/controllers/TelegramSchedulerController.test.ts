@@ -64,7 +64,7 @@ describe('TelegramSchedulerController', () => {
         }),
       }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recurring report scheduled'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Recurring report scheduled');
   });
 
   it('creates automations from natural language through the automation action service', async () => {
@@ -96,7 +96,7 @@ describe('TelegramSchedulerController', () => {
       requestedBy: '99',
       sourceSurface: 'telegram',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Automacao criada com entrega no app.'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Automacao criada com entrega no app.');
   });
 
   it('runs maintenance actions through the automation action service', async () => {
@@ -127,6 +127,6 @@ describe('TelegramSchedulerController', () => {
       requestedBy: '99',
       sourceSurface: 'telegram',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Maintenance mode ativado.'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Maintenance mode ativado.');
   });
 });

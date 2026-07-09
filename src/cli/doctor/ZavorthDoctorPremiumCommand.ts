@@ -8,12 +8,14 @@ import {
   type ZavorthPremiumCliStatus,
 } from '../premium/index.js';
 import { buildZavorthDoctorPremiumSnapshot } from './ZavorthDoctorCheckRegistry.js';
+import { RuntimeBootstrapRepairService } from '../../runtime/access/RuntimeBootstrapRepairService.js';
+
 import type {
   ZavorthDoctorPremiumCheck,
   ZavorthDoctorPremiumSnapshot,
   ZavorthDoctorPremiumStatus,
 } from './ZavorthDoctorPremiumTypes.js';
-import { RuntimeBootstrapRepairService } from '../../runtime/access/RuntimeBootstrapRepairService.js';
+
 import { ZavorthControlAccessService } from '../../services/ZavorthControlAccessService.js';
 
 export type RunZavorthDoctorPremiumInput = {

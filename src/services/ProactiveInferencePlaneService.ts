@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { z } from 'zod';
 import type { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
 import type { ToolCategory } from '../echo/types/IZavorthTool.js';
@@ -10,7 +10,7 @@ import { EchoPendingExecutionStoreService } from '../domain/execution/infrastruc
 
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import type { EchoExecutionEntry } from '../echo/types/EchoTypes.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 type RecentExecutionLike = Pick<EchoExecutionEntry, 'prompt' | 'status' | 'toolCalls' | 'runContext' | 'metadata'>;
 
 type ProactiveHistoryRuntime =
@@ -212,7 +212,7 @@ export class ProactiveInferencePlaneService {
       return {
         ok: false,
         skipped: 'invalid_payload',
-        warnings: [error?.message || 'erro desconhecido'],
+        warnings: [errorMessage(error, 'erro desconhecido')],
       };
     }
   }

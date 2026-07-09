@@ -1,3 +1,5 @@
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 /**
  * Fetch Timeout — T-25
  *
@@ -36,7 +38,8 @@ export async function fetchWithTimeout(url: string | URL, options: FetchTimeoutO
     });
     return response;
   } catch (error: unknown) {
-    if (error.name === "AbortError") {
+    const err = asErrorLike(error);
+    if (err.name === "AbortError") {
       throw new FetchTimeoutError(
         `Request to ${url} timed out after ${timeoutMs}ms`,
         timeoutMs,

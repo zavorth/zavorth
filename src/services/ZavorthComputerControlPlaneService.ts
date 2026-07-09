@@ -1,10 +1,3 @@
-﻿import crypto from 'node:crypto';
-import {
-  createSurfaceResponse,
-  type SurfaceReceiptStatus,
-  type SurfaceResponse,
-  type SurfaceResponseAction,
-} from '../domain/surface/application/surface-response/index.js';
 import {
   ZAVORTH_COMPUTER_CONTROL_PLANE_CONTRACT_VERSION,
   type ZavorthComputerControlAction,
@@ -17,11 +10,21 @@ import {
   type ZavorthComputerRiskKind,
   type ZavorthComputerTargetKind,
 } from '../contracts/ZavorthComputerControlPlaneContract.js';
+
+import crypto from 'node:crypto';
+import {
+  createSurfaceResponse,
+  type SurfaceReceiptStatus,
+  type SurfaceResponse,
+  type SurfaceResponseAction,
+} from '../domain/surface/application/surface-response/index.js';
+
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import type { ComputerUseWatchModeService } from './ComputerUseWatchModeService.js';
 import type { WatchModeSnapshot } from './computer-use-watch-mode/ComputerUseWatchModeSharedTypes.js';
 import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type WatchModeLike = Pick<
   ComputerUseWatchModeService,
@@ -429,11 +432,12 @@ export class ZavorthComputerControlPlaneService {
         reason: `Watch Mode run ${run.runId} cancel requested.`,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Computer Control Plane] lifecycle operation failed', error);
     return {
         used: false,
         runId,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       };
   }
   }

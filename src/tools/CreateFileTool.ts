@@ -1,10 +1,12 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
 import { executionContextScope } from '../runtime/context/ExecutionContextScope.js';
 import { ZavorthGitLockTool } from './ZavorthGitLockTool.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 /**
  * Creates files on the local filesystem inside safe directories.
@@ -68,8 +70,9 @@ export class CreateFileTool extends BaseTool {
         },
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Create File] filesystem operation failed', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? err.message : String(error);
       return JSON.stringify({ error: `Failed to create file: ${errorMessage}` });
   }
   }

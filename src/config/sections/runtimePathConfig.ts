@@ -1,4 +1,5 @@
 import path from 'path';
+import { parseEnvInt } from '../envParsers';
 
 import {
   APPDATA_FALLBACK,
@@ -7,7 +8,7 @@ import {
   deriveExternalExecutorAgentId,
   parseList,
 } from '../configHelpers';
-import { parseEnvInt } from '../envParsers';
+
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 
 export function buildRuntimePathConfig(projectRoot: string, publicTunnelStateFileFallback: string) {

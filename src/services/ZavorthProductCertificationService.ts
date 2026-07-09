@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { buildZavorthCliRuntimeTuiSnapshot } from '../cli/hud/ZavorthCliRuntimeTuiProjection.js';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -7,7 +8,7 @@ import {
   type ZavorthProductCertificationSnapshot,
   type ZavorthProductCertificationStatus,
 } from '../contracts/ZavorthProductCertificationContract.js';
-import { buildZavorthCliRuntimeTuiSnapshot } from '../cli/hud/ZavorthCliRuntimeTuiProjection.js';
+
 import { ZavorthAgentKernelSnapshotService } from './ZavorthAgentKernelSnapshotService.js';
 import { ZavorthProductExcellenceService } from './ZavorthProductExcellenceService.js';
 import { ZavorthChannelLiveCanaryService } from './ZavorthChannelLiveCanaryService.js';

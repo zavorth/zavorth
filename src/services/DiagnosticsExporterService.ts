@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { Database } from '../storage/Database.js';
 import { LogRepository } from '../storage/LogRepository.js';

@@ -1,3 +1,4 @@
+import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 /**
  * GatewayIntegrationService — Bridges the commandless mode and
  * presentation adapter into the existing gateway infrastructure.
@@ -22,7 +23,7 @@ import {
   ZavorthPresentationAdapterService,
   type UniversalResponse,
 } from './ZavorthPresentationAdapterService.js';
-import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
+
 import { detectDeviceLocale, getLanguagePack, mergeLanguagePacks } from './ZavorthIntentI18n.js';
 
 export interface GatewayMessageInput {

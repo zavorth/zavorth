@@ -284,8 +284,9 @@ export class ZavorthBridgeUiCaptureService {
 
         lastError = `O provider ${providerName} respondeu, mas sem JSON interpretavel.`;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Zavorth Bridge Ui Capture] parsing failed', error);
-    lastError = `Falha no provider ${providerName}: ${error.message}`;
+    lastError = `Falha no provider ${providerName}: ${err.message}`;
   }
     }
 
@@ -336,7 +337,8 @@ export class ZavorthBridgeUiCaptureService {
 
           try {
             resolve(JSON.parse(stdout.trim()) as CaptureScriptResult);
-          } catch (parseError: unknown) {reject(new Error(`Falha ao interpretar a captura do ZavorthBridge: ${parseError.message}`));
+          } catch (parseError: unknown) {
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Falha ao interpretar a captura do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );
@@ -392,7 +394,8 @@ export class ZavorthBridgeUiCaptureService {
               uiDiagnostics:
                 parsed.diagnostics && typeof parsed.diagnostics === 'object' ? parsed.diagnostics : null,
             });
-          } catch (parseError: unknown) {reject(new Error(`Falha ao interpretar a leitura local da UI do ZavorthBridge: ${parseError.message}`));
+          } catch (parseError: unknown) {
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Falha ao interpretar a leitura local da UI do ZavorthBridge: ${parseErrorLike.message}`));
           }
         },
       );

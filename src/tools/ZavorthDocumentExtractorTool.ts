@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -143,7 +143,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
       }
 
       return output;
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] filesystem operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Extraction error: ${message}`;
@@ -207,7 +207,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         default:
           return { ...baseResult, error: `Extractor for "${ext}" is not implemented.` };
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] operation failed', error);
     return { ...baseResult, error: this.sanitizePath(error instanceof Error ? error.message : String(error)) };
   }
@@ -236,7 +236,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
             try {
               const part = execFileSync('pdftotext', ['-layout', '-f', String(page), '-l', String(page), filePath, '-'], { timeout: 10000 }).toString();
               if (part.trim()) parts.push(part.trim());
-            } catch ($1: unknown) { /* skip individual page errors */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
+            } catch (error: unknown) { /* skip individual page errors */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
           }
           text = parts.join('\n\n');
         }
@@ -247,14 +247,14 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         const info = execFileSync('pdfinfo', [filePath], { timeout: 5000 }).toString();
         const match = info.match(/Pages:\s*(\d+)/);
         if (match) pageCount = safeParseInt(match[1], 0) || undefined;
-      } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
+      } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
 
       let tables: string[][] | undefined;
       if (options.extractTables) {
         try {
           const tableData = execFileSync('pdftotext', ['-layout', filePath, '-'], { timeout: 30000 }).toString();
           tables = this.parseTablesFromText(tableData);
-        } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
+        } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] process execution failed', error); }
       }
 
       return {
@@ -265,7 +265,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         tables,
         metadata: { tool: 'pdftotext' },
       };
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : String(error);
       if (options.useOcr) {
         return this.ocrPdf(filePath, base, options.language);
@@ -311,7 +311,7 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
           const text = execFileSync('tesseract', [pagePath, 'stdout', '-l', language], { timeout: 30000 }).toString();
           texts.push(text.trim());
         } finally {
-          try { fs.unlinkSync(pagePath); } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+          try { fs.unlinkSync(pagePath); } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
         }
       }
 
@@ -322,16 +322,16 @@ export class ZavorthDocumentExtractorTool extends BaseTool {
         page_count: pages.length,
         metadata: { tool: 'tesseract', language },
       };
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] file cleanup failed', error);
     return { ...base, error: `OCR failed: ${this.sanitizePath(error instanceof Error ? error.message : String(error))}. Install tesseract-ocr.` };
   } finally {
       try {
         const remaining = fs.readdirSync(tmpDir).filter((f) => f.endsWith('.png'));
         for (const f of remaining) {
-          try { fs.unlinkSync(path.join(tmpDir, f)); } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+          try { fs.unlinkSync(path.join(tmpDir, f)); } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
         }
-      } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+      } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
     }
   }
 
@@ -361,9 +361,9 @@ print('\\n'.join(texts))`;
           metadata: { tool: 'python-docx-parse' },
         };
       } finally {
-        try { fs.unlinkSync(tmpScript); } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+        try { fs.unlinkSync(tmpScript); } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       try {
         const text = execFileSync('unzip', ['-p', filePath, 'word/document.xml'], { timeout: 15000 }).toString();
         return {
@@ -372,7 +372,7 @@ print('\\n'.join(texts))`;
           extracted_text: text.replace(/<[^>]*>/g, ' ').trim(),
           metadata: { tool: 'unzip-fallback' },
         };
-      } catch ($1: unknown) {
+      } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] process execution failed', error);
     return { ...base, error: `Error extracting DOCX: ${error instanceof Error ? error.message : String(error)}` };
   }
@@ -429,9 +429,9 @@ for name, spath in sheets:
           metadata: { tool: 'python-xlsx-parse' },
         };
       } finally {
-        try { fs.unlinkSync(tmpScript); } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+        try { fs.unlinkSync(tmpScript); } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] file cleanup failed', error);
     return { ...base, error: `Error extracting XLSX: ${error instanceof Error ? error.message : String(error)}` };
   }
@@ -465,9 +465,9 @@ for i, slide_path in enumerate(slides, 1):
           metadata: { tool: 'python-pptx-parse' },
         };
       } finally {
-        try { fs.unlinkSync(tmpScript); } catch ($1: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
+        try { fs.unlinkSync(tmpScript); } catch (error: unknown) { /* ignore */ logger.warn('[Zavorth Document Extractor] file cleanup failed', error); }
       }
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] file cleanup failed', error);
     return { ...base, error: `Error extracting PPTX: ${error instanceof Error ? error.message : String(error)}` };
   }
@@ -544,7 +544,7 @@ for i, slide_path in enumerate(slides, 1):
         extracted_text: text,
         metadata: { tool: 'json-parser', keys: typeof parsed === 'object' ? Object.keys(parsed).length : 0 },
       };
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Zavorth Document Extractor] JSON parse failed', error);
     return { ...base, success: true, extracted_text: content, metadata: { tool: 'raw-read' } };
   }

@@ -1,4 +1,4 @@
-﻿import { execCommandSync } from '../core/CommandSpawn.js';
+import { execCommandSync } from '../core/CommandSpawn.js';
 import {
   RuntimeBootstrapService,
   type RuntimeBootstrapAction,

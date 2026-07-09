@@ -36,6 +36,12 @@ import {
   type ExternalAgentSessionDescriptor,
 } from './contracts.js';
 
+
+
+
+
+
+
 export const EXTERNAL_AGENT_CANONICAL_FIXTURE_NOW = '2026-04-27T19:00:00.000Z';
 export const EXTERNAL_AGENT_CANONICAL_SOURCE_RUNTIME_NAME = 'ExternalExecutor';
 export const EXTERNAL_AGENT_CANONICAL_RUNTIME_ID = 'external-external-agent-v1-fixture-runtime';

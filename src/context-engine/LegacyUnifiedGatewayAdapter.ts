@@ -1,3 +1,4 @@
+
 /**
  * LegacyUnifiedGatewayAdapter
  *
@@ -9,6 +10,7 @@ import { randomUUID } from 'crypto';
 
 import { ContextEngine, type ContextEvent } from './ContextEngine.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface LegacyGatewayIncomingEvent {
   /** Origin surface */
@@ -155,7 +157,8 @@ export class LegacyUnifiedGatewayAdapter {
       const result = await this.agentCallback!(text, userId, chatId, surface, [], inlineData, metadata);
       return result.text || 'No response from the agent.';
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       console.error(`[LegacyUnifiedGatewayAdapter] Agent error: ${message}`);
       return `Error while processing your message: ${message}`;
     }

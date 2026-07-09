@@ -1,3 +1,4 @@
+import { getSettings } from "./localDb.ts";
 /**
  * Simple DI Container — Factory-pattern service locator
  *
@@ -23,7 +24,7 @@ import {
   encrypt,
   encryptConnectionFields,
 } from "./db/encryption.ts";
-import { getSettings } from "./localDb.ts";
+
 import { getCircuitBreaker } from "../shared/utils/circuitBreaker.ts";
 import { recordTelemetry, RequestTelemetry } from "../shared/utils/requestTelemetry.ts";
 

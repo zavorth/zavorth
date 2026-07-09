@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import type { ProductObservabilitySnapshot } from '../ProductObservabilityService.js';
 import type { ZavorthEvalHistorySnapshot } from '../ZavorthEvalHistoryFileService.js';
 import type { ZavorthTelemetryLedgerSnapshot } from '../ZavorthTelemetryLedgerService.js';

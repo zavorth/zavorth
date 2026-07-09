@@ -10,6 +10,8 @@ getAppLogRetentionDays,
   getCallLogsTableMaxRows,
   getProxyLogsTableMaxRows,
 } from "@/lib/logEnv";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 /**
  * GET /api/storage/health — Return database storage information.
  * Provides: driver, dbPath, sizeBytes, lastBackupAt, retentionDays
@@ -73,7 +75,8 @@ export async function GET(request: Request) {
       dataDir: dataDir.startsWith(homeDir) ? "~" + dataDir.slice(homeDir.length) : dataDir,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error getting storage health:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

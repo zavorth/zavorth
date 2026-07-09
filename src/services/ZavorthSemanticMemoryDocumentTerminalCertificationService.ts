@@ -9,6 +9,18 @@ import type {
   SourceMemoryDocumentTerminalPackageName,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { GovernedTerminalRuntime } from './GovernedTerminalRuntime.js';
+import { ZAVORTH_SEMANTIC_MEMORY_DOCUMENT_TERMINAL_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticMemoryDocumentTerminalCertificationContract.js';
+import {
+  packageStatus,
+  packagePriority,
+  packageEquivalent,
+  scenarioExpectedBehavior,
+  scenarioEquivalent,
+  countStatus,
+  countPriority,
+  slug,
+} from './ZavorthSemanticMemoryDocumentTerminalCertificationHelpers.js';
+
 import { ShellSafetyClassifier } from './ShellSafetyClassifier.js';
 import { SourceMemoryDocumentTerminalPackService } from './SourceMemoryDocumentTerminalPackService.js';
 import { SourceSearchFetchService } from './SourceSearchFetchService.js';
@@ -21,7 +33,6 @@ import type {
   ZavorthSemanticMemoryDocumentTerminalClaimStatus,
   ZavorthSemanticMemoryDocumentTerminalScenario,
 } from '../contracts/ZavorthSemanticMemoryDocumentTerminalCertificationContract.js';
-import { ZAVORTH_SEMANTIC_MEMORY_DOCUMENT_TERMINAL_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticMemoryDocumentTerminalCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;
@@ -677,13 +688,3 @@ export class ZavorthSemanticMemoryDocumentTerminalCertificationService {
   }
 }
 
-import {
-  packageStatus,
-  packagePriority,
-  packageEquivalent,
-  scenarioExpectedBehavior,
-  scenarioEquivalent,
-  countStatus,
-  countPriority,
-  slug,
-} from './ZavorthSemanticMemoryDocumentTerminalCertificationHelpers.js';

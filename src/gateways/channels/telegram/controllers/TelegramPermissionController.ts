@@ -6,6 +6,8 @@ import {
   PermissionStatus,
 } from '../../../../contracts/PermissionRequest.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
+import { TelegramPermissionCommandService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionCommandService.js';
+
 import type { ZavorthBridgeCompanionBridge } from '../../../../agents/ZavorthBridgeCompanionBridge.js';
 import { HostIdentityService } from '../../../../services/HostIdentityService.js';
 import { TelemetryRuntimeService } from '../../../../observability/telemetry/TelemetryRuntimeService.js';
@@ -16,7 +18,7 @@ import { TelegramZavorthBridgeController } from '../../../../gateways/channels/t
 import {
   TelegramPermissionDecisionService,
 } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionService.js';
-import { TelegramPermissionCommandService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionCommandService.js';
+
 import { TelegramPermissionInteractionService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionInteractionService.js';
 import { TelegramPermissionPolicyService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPolicyService.js';
 import { TelegramPermissionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPresentationService.js';
@@ -137,27 +139,41 @@ export class TelegramPermissionController {
       return;
     }
 
-    this.assertUserIsAdmin(ctx);
-    const [, action, taskId] = match;
-    if (action === 'approve') {
-      this.assertHostWritable();
-      if (this.taskApproval.requiresHighRiskConfirmation(taskId)) {
-        await ctx.answerCallbackQuery({ text: 'TOTP required.' }).catch(() => undefined);
-        await ctx.reply('This task is HIGH_RISK. Approve it with `/approve <task_id> <TOTP code>`.', {
-          parse_mode: 'Markdown',
-        }).catch(() => undefined);
-        return;
-      }
-      await ctx.answerCallbackQuery({ text: 'Approving task...' }).catch(() => undefined);
-      await this.taskApproval.handleApproval(ctx, taskId);
-    } else if (action === 'reject') {
-      this.assertHostWritable();
-      await ctx.answerCallbackQuery({ text: 'Rejecting task...' }).catch(() => undefined);
-      await this.taskApproval.handleRejection(ctx, taskId);
-    } else {
-      await ctx.answerCallbackQuery({ text: 'Unknown action.' }).catch(() => undefined);
+    try {
+      this.assertUserIsAdmin(ctx);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
+      await ctx.reply(message).catch(() => undefined);
+      return;
     }
-    await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
+
+    const [, action, taskId] = match;
+    try {
+      if (action === 'approve') {
+        this.assertHostWritable();
+        if (this.taskApproval.requiresHighRiskConfirmation(taskId)) {
+          await ctx.answerCallbackQuery({ text: 'TOTP required.' }).catch(() => undefined);
+          await ctx.reply('This task is HIGH_RISK. Approve it with `/approve <task_id> <TOTP code>`.', {
+            parse_mode: 'Markdown',
+          }).catch(() => undefined);
+          return;
+        }
+        await ctx.answerCallbackQuery({ text: 'Approving task...' }).catch(() => undefined);
+        await this.taskApproval.handleApproval(ctx, taskId);
+      } else if (action === 'reject') {
+        this.assertHostWritable();
+        await ctx.answerCallbackQuery({ text: 'Rejecting task...' }).catch(() => undefined);
+        await this.taskApproval.handleRejection(ctx, taskId);
+      } else {
+        await ctx.answerCallbackQuery({ text: 'Unknown action.' }).catch(() => undefined);
+      }
+      await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      await ctx.answerCallbackQuery({ text: message.slice(0, 180) }).catch(() => undefined);
+      await ctx.reply(message).catch(() => undefined);
+    }
   }
 
   public buildPermissionKeyboard(permission: PermissionRequest): InlineKeyboard {

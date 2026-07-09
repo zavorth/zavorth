@@ -1,4 +1,6 @@
-﻿import crypto from 'node:crypto';
+import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
+
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -10,7 +12,7 @@ import {
   type ZavorthBatchWorkloadSnapshot,
   type ZavorthBatchWorkloadStatus,
 } from '../contracts/ZavorthBatchWorkloadContract.js';
-import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -130,11 +132,12 @@ export class ZavorthBatchWorkloadService {
             finishedAt: this.now().toISOString(),
           };
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           results[index] = {
             ...item,
             status: 'failed',
             output: null,
-            error: clean(error instanceof Error ? error.message : String(error)),
+            error: clean(error instanceof Error ? err.message : String(error)),
             startedAt,
             finishedAt: this.now().toISOString(),
           };

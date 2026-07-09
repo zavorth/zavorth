@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { queryAuditEntries } from "@ZavorthGateway/open-sse/mcp-server/audit";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 function parseBooleanParam(value: string | null): boolean | undefined {
   if (value === "true" || value === "1") return true;
   if (value === "false" || value === "0") return false;
@@ -37,8 +39,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] parsing failed', error);
-    const message = error instanceof Error ? error.message : "Failed to load MCP audit log";
+    const message = error instanceof Error ? err.message : "Failed to load MCP audit log";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

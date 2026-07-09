@@ -1,4 +1,18 @@
-﻿import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+import {
+  ZAVORTH_REMOTE_MESH_R7_5_NOTEBOOK_SCOPED_MCP_SERVER_VERSION,
+  ZAVORTH_REMOTE_MESH_R8_NOTEBOOK_DOCKER_OBSERVABILITY_VERSION,
+  ZAVORTH_REMOTE_MESH_R9_NOTEBOOK_DOCKER_CONTROL_VERSION,
+  ZAVORTH_REMOTE_MESH_R10_NOTEBOOK_PROJECT_FILE_READ_VERSION,
+} from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
+import {
+  buildNotebookScopedMcpConfigSnapshot,
+  buildNotebookScopedMcpGuards,
+  hostForUrl,
+  resolveNotebookScopedMcpStatus,
+} from './RemoteMeshNotebookScopedMcpServerGuardHelpers.js';
+import { buildNotebookScopedMcpSelfTestReadiness } from './RemoteMeshNotebookScopedMcpSelfTestReadiness.js';
+
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { cpus, freemem, hostname, loadavg, platform, totalmem, uptime, arch } from 'node:os';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -26,12 +40,7 @@ import type {
   RemoteMeshNotebookScopedMcpToolName,
   RemoteMeshNotebookStatusPayload,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
-import {
-  ZAVORTH_REMOTE_MESH_R7_5_NOTEBOOK_SCOPED_MCP_SERVER_VERSION,
-  ZAVORTH_REMOTE_MESH_R8_NOTEBOOK_DOCKER_OBSERVABILITY_VERSION,
-  ZAVORTH_REMOTE_MESH_R9_NOTEBOOK_DOCKER_CONTROL_VERSION,
-  ZAVORTH_REMOTE_MESH_R10_NOTEBOOK_PROJECT_FILE_READ_VERSION,
-} from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
+
 import type { RemoteMeshJson } from '../contracts/RemoteMeshSandboxContract.js';
 import { RemoteMeshSandboxScopedMcpStatusTransportService } from './RemoteMeshSandboxScopedMcpStatusTransportService.js';
 import type { RemoteMeshSandboxReadinessSnapshot } from '../contracts/RemoteMeshSandboxReadinessContract.js';
@@ -68,15 +77,10 @@ import {
   toolResult,
   writeJson,
 } from './RemoteMeshNotebookScopedMcpServerHelpers.js';
-import {
-  buildNotebookScopedMcpConfigSnapshot,
-  buildNotebookScopedMcpGuards,
-  hostForUrl,
-  resolveNotebookScopedMcpStatus,
-} from './RemoteMeshNotebookScopedMcpServerGuardHelpers.js';
-import { buildNotebookScopedMcpSelfTestReadiness } from './RemoteMeshNotebookScopedMcpSelfTestReadiness.js';
+
 import { safeFetch } from '../security/SafeFetchService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type RemoteMeshNotebookDockerObservabilityProvider = {
   listContainers: () => Promise<{
@@ -573,13 +577,14 @@ export class RemoteMeshNotebookScopedMcpServerService {
         body: toolResult(id, payload),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
         body: toolErrorResult(id, {
           toolName: 'notebook.docker.list_containers',
           readOnly: true,
-          error: error instanceof Error ? error.message : 'Docker container listing failed.',
+          error: error instanceof Error ? err.message : 'Docker container listing failed.',
         }),
       };
   }
@@ -632,6 +637,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         body: toolResult(id, payload),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
@@ -640,7 +646,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
           container,
           requestedLines,
           readOnly: true,
-          error: error instanceof Error ? error.message : 'Docker logs read failed.',
+          error: error instanceof Error ? err.message : 'Docker logs read failed.',
         }),
       };
   }
@@ -1143,6 +1149,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1151,7 +1158,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         ...emptySelfTest(true),
         performed: true,
         endpointLabel: null,
-        errors: [error instanceof Error ? error.message : 'unknown self-test failure'],
+        errors: [error instanceof Error ? err.message : 'unknown self-test failure'],
         serverClosed,
         liveNetworkCallPerformed: true,
       };
@@ -1229,6 +1236,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1237,7 +1245,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         ...emptyDockerSelfTest(true),
         performed: true,
         endpointLabel: null,
-        errors: [error instanceof Error ? error.message : 'unknown docker self-test failure'],
+        errors: [error instanceof Error ? err.message : 'unknown docker self-test failure'],
         serverClosed,
         liveNetworkCallPerformed: true,
         remoteProcessSpawned,
@@ -1327,6 +1335,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1335,7 +1344,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         ...emptyDockerControlSelfTest(true),
         performed: true,
         endpointLabel: null,
-        errors: [error instanceof Error ? error.message : 'unknown docker control self-test failure'],
+        errors: [error instanceof Error ? err.message : 'unknown docker control self-test failure'],
         serverClosed,
         liveNetworkCallPerformed: true,
         remoteProcessSpawned,
@@ -1420,6 +1429,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1428,7 +1438,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         ...emptyProjectFileReadSelfTest(true),
         performed: true,
         endpointLabel: null,
-        errors: [error instanceof Error ? error.message : 'unknown project file read self-test failure'],
+        errors: [error instanceof Error ? err.message : 'unknown project file read self-test failure'],
         serverClosed,
         liveNetworkCallPerformed: true,
       };

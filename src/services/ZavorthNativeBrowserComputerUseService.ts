@@ -1,4 +1,6 @@
-﻿import crypto from 'node:crypto';
+import { RuntimeBrowserSidecarService, type RuntimeBrowserSidecarAction } from './RuntimeBrowserSidecarService.js';
+
+import crypto from 'node:crypto';
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import {
   ZAVORTH_NATIVE_BROWSER_COMPUTER_USE_CONTRACT_VERSION,
@@ -9,9 +11,10 @@ import {
   type ZavorthNativeBrowserComputerUseSnapshot,
   type ZavorthNativeBrowserComputerUseStatus,
 } from '../contracts/ZavorthNativeBrowserComputerUseContract.js';
-import { RuntimeBrowserSidecarService, type RuntimeBrowserSidecarAction } from './RuntimeBrowserSidecarService.js';
+
 import { ZavorthComputerControlPlaneService } from './ZavorthComputerControlPlaneService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type NativeBrowserComputerUseDeps = {
   sidecar?: Pick<RuntimeBrowserSidecarService, 'execute' | 'isConfigured'> | null;
@@ -204,10 +207,11 @@ export class ZavorthNativeBrowserComputerUseService {
       });
       return { used: true, error: null };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Native Browser Computer Use] process execution failed', error);
     return {
         used: false,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }
@@ -247,11 +251,12 @@ export class ZavorthNativeBrowserComputerUseService {
         blocked: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Native Browser Computer Use] network request failed', error);
     return {
         policy: 'blocked',
         decision: 'deny',
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
         origin: null,
         blocked: true,
       };

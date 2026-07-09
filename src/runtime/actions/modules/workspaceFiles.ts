@@ -10,6 +10,8 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const CAPABILITY_ID = 'workspace-files';
 const TEST_REFS = [
   'tests/runtime/actions/ZavorthActionHarness.test.ts',
@@ -106,7 +108,8 @@ async function workspaceReadFile(input: ZavorthActionHandlerInput): Promise<Zavo
       data: { filepath: normalizeRelative(resolved.root, resolved.absolutePath), content },
     });
   } catch (error: unknown) {
-    return block(input, 'Read blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Read blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -132,7 +135,8 @@ async function workspaceListDirectory(input: ZavorthActionHandlerInput): Promise
       data: { dirpath: normalizeRelative(resolved.root, resolved.absolutePath), entries: visible },
     });
   } catch (error: unknown) {
-    return block(input, 'List directory blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'List directory blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -180,7 +184,8 @@ async function workspaceSearchFiles(input: ZavorthActionHandlerInput): Promise<Z
       data: { query, matches },
     });
   } catch (error: unknown) {
-    return block(input, 'Search blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Search blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -217,7 +222,8 @@ async function workspaceCreateFile(input: ZavorthActionHandlerInput): Promise<Za
       data: { filepath: normalizeRelative(resolved.root, resolved.absolutePath), bytes: Buffer.byteLength(content, 'utf8') },
     });
   } catch (error: unknown) {
-    return block(input, 'Create file blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Create file blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -240,7 +246,8 @@ async function workspaceDiffFile(input: ZavorthActionHandlerInput): Promise<Zavo
       data: { filepath: relative, diff },
     });
   } catch (error: unknown) {
-    return block(input, 'Diff blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Diff blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -279,7 +286,8 @@ async function workspaceWriteFile(input: ZavorthActionHandlerInput): Promise<Zav
       data: { filepath: normalizeRelative(resolved.root, resolved.absolutePath), existed, overwrite },
     });
   } catch (error: unknown) {
-    return block(input, 'Write file blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Write file blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 
@@ -318,7 +326,8 @@ async function workspacePatchFile(input: ZavorthActionHandlerInput): Promise<Zav
       data: { filepath: relative },
     });
   } catch (error: unknown) {
-    return block(input, 'Patch file blocked by workspace policy.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Patch file blocked by workspace policy.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 

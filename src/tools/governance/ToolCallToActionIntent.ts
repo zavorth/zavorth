@@ -5,6 +5,7 @@ import {
   type ActionIntentSourceTrust,
 } from '../../runtime/effects/ActionIntent.js';
 import { createResourceRef, type ResourceRef } from '../../runtime/effects/EffectScope.js';
+
 import type { ToolEffectDescriptor } from './ToolEffectDescriptor.js';
 import { ToolEffectRegistry } from './ToolEffectRegistry.js';
 

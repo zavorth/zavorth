@@ -7,6 +7,7 @@ import {
   queryUniversalAgentRuns,
   type UniversalAgentRunObservatoryReceipt,
 } from './RunObservatory.js';
+
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
 
 export const PROVIDER_ARENA_CONTRACT_VERSION = '2026-05-03.provider-arena' as const;

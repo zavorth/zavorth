@@ -1,4 +1,5 @@
-﻿import type { GatewayDecision } from '../execution/ExecutionGateway.js';
+import { ZavorthScheduledTaskExecutionGatewayRuntimeService } from './ZavorthScheduledTaskExecutionGatewayRuntimeService.js';
+import type { GatewayDecision } from '../execution/ExecutionGateway.js';
 import type { Plan } from '../contracts/PlanContract.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { ScheduledTask } from '../storage/SchedulerRepository.js';
@@ -6,7 +7,7 @@ import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskRuntimeDescriptor,
 } from './SchedulerService.js';
-import { ZavorthScheduledTaskExecutionGatewayRuntimeService } from './ZavorthScheduledTaskExecutionGatewayRuntimeService.js';
+
 import { ZavorthScheduledTaskOperationalGuardService } from './ZavorthScheduledTaskOperationalGuardService.js';
 import {
   ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION,

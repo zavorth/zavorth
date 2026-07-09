@@ -5,8 +5,12 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { TeamsGraphBotClient } from '../../../adapters/channels/TeamsGraphBotClient.js';
-import { logger } from '../../../logger.js';export interface TeamsGatewayStubMessage {
+import { logger } from '../../../logger.js';
+import { errorMessage } from '../../../utils/errorLike.js';
+export interface TeamsGatewayStubMessage {
+
   userId: string;
+
   chatId: string;
   rawText: string;
   messageId?: string | null;
@@ -275,7 +279,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: unknown) {this.lastError = `Teams Graph live send failed: ${error?.message || error}`;
+      } catch (error: unknown) {this.lastError = `Teams Graph live send failed: ${errorMessage(error)}`;
         this.writeStatus();
         throw error;
       }
@@ -299,7 +303,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: unknown) {this.lastError = `Teams Graph live edit failed: ${error?.message || error}`;
+      } catch (error: unknown) {this.lastError = `Teams Graph live edit failed: ${errorMessage(error)}`;
         this.writeStatus();
         throw error;
       }

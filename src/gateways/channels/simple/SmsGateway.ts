@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 interface SmsWebhookPayload {
   from?: string;
   sender?: string;
@@ -143,7 +145,8 @@ export class SmsGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       this.recordError(`SMS send failed: ${message}`);
     }
   }

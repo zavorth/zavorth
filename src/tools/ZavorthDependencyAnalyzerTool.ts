@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -96,7 +96,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
         default:
           return `Error: Package manager "${resolved}" not supported for outdated check.`;
       }
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
   }
 
   private async auditVulnerabilities(args: Record<string, unknown>): Promise<string> {
@@ -122,7 +122,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
               `  Low: ${vulns.low || 0}`,
               `  Total: ${vulns.total || 0}`,
             ].join('\n');
-          } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
+          } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
         }
         case 'yarn':
           return `Yarn Audit:\n${await this.runCmd('yarn', ['audit'], dir)}`;
@@ -133,7 +133,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
         default:
           return `Error: Package manager "${resolved}" not supported for audit.`;
       }
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
   }
 
   private async checkLicenses(args: Record<string, unknown>): Promise<string> {
@@ -143,14 +143,14 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('npx', ['license-checker', '--summary', '--production'], { cwd: dir, timeout: 30000 }).toString();
       return `License summary:\n${result.trim().slice(0, 3000)}`;
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       try {
         const pkgPath = path.join(dir, 'package.json');
         if (!fs.existsSync(pkgPath)) return 'Error: No package.json found.';
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
         const deps = { ...pkg.dependencies };
         return `Dependencies (license check requires license-checker):\n${Object.keys(deps).join(', ')}`;
-      } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
+      } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
     }
   }
 
@@ -174,7 +174,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
       };
       walk(parsed.dependencies || {}, 0);
       return `Dependency tree (depth ${depth}):\n${lines.join('\n').slice(0, 5000)}`;
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
   }
 
   private async findUnused(args: Record<string, unknown>): Promise<string> {
@@ -193,7 +193,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
         `Missing dependencies (${missing.length}):`,
         ...missing.map((d: string) => `  - ${d}`),
       ].join('\n').slice(0, 3000);
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] parsing failed', error); return ''; }
   }
 
   private async analyzeSize(args: Record<string, unknown>): Promise<string> {
@@ -203,7 +203,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('npx', ['bundlephobia', dir], { timeout: 30000 }).toString();
       return `Bundle size analysis:\n${result.trim().slice(0, 2000)}`;
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       const nodeModulesPath = path.join(dir, 'node_modules');
       if (!fs.existsSync(nodeModulesPath)) return 'Error: node_modules not found.';
 
@@ -213,7 +213,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
           try {
             const stat = fs.statSync(path.join(nodeModulesPath, e));
             return { name: e, size: stat.size };
-          } catch ($1: unknown) {
+          } catch (error: unknown) {
     logger.warn('[Zavorth Dependency Analyzer] filesystem operation failed', error);
     return { name: e, size: 0 };
   }
@@ -244,7 +244,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
         `  Peer: ${peerDeps.length}`,
         `  Total: ${deps.length + devDeps.length + peerDeps.length}`,
       ].join('\n');
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] operation failed', error); return ''; }
   }
 
   private async fixVulnerabilities(args: Record<string, unknown>): Promise<string> {
@@ -258,7 +258,7 @@ export class ZavorthDependencyAnalyzerTool extends BaseTool {
         const removed = parsed.removed || 0;
         const changed = parsed.changed || 0;
         return `Vulnerability fix results:\n  Added: ${added}\n  Removed: ${removed}\n  Changed: ${changed}`;
-      } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
-    } catch ($1: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
+      } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
+    } catch (error: unknown) { logger.warn('[Zavorth Dependency Analyzer] JSON parse failed', error); return ''; }
   }
 }

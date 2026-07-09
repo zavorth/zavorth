@@ -10,17 +10,19 @@ import {
   renderZavorthSetupStudioSnapshot,
 } from './ZavorthSetupStudioFlow.js';
 import { renderZavorthSetupStudioInk } from './ZavorthSetupStudioInkRenderer.js';
+import {
+  renderZavorthProviderLiveValidationResult,
+  validateZavorthProviderLive,
+  writeZavorthProviderLiveValidationProof,
+} from '../ZavorthProviderLiveValidationService.js';
+
 import { ZavorthSetupStudioProgressStore } from './ZavorthSetupStudioProgressStore.js';
 import { normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
 import {
   renderZavorthChannelLiveValidationResult,
   validateZavorthChannelLive,
 } from './ZavorthChannelLiveValidationService.js';
-import {
-  renderZavorthProviderLiveValidationResult,
-  validateZavorthProviderLive,
-  writeZavorthProviderLiveValidationProof,
-} from '../ZavorthProviderLiveValidationService.js';
+
 import type { ZavorthSetupStudioSection, ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
 import picocolors from 'picocolors';
 import { ZavorthFirstBootDetectionService } from '../../services/ZavorthFirstBootDetectionService.js';

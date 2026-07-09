@@ -3,6 +3,8 @@ import { ZavorthBridgeWindowAutomator } from '../../../../agents/ZavorthBridgeWi
 import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type ZavorthBridgeCompanionBridgeLike = Pick<ZavorthBridgeCompanionBridge, 'readStatus' | 'isOnline'>;
 export type ZavorthBridgeWindowAutomatorLike = Pick<
   ZavorthBridgeWindowAutomator,
@@ -135,6 +137,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
@@ -157,6 +160,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }

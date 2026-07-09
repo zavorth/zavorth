@@ -8,6 +8,7 @@ import {
   RuntimeAdapterCapabilityProvider,
   type RuntimeAdapterCapabilityInventorySnapshot,
 } from './RuntimeAdapterCapabilityProvider.js';
+
 import type {
   RuntimeAdapterAdapter,
   RuntimeAdapterCapabilityDescriptor,

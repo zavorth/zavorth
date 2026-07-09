@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -7,6 +8,7 @@ import {
 ZavorthCloudSandboxAdapterService,
   type ZavorthCloudSandboxExecutionResult,
 } from '../services/ZavorthCloudSandboxAdapterService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type SandboxService = Pick<ZavorthCloudSandboxAdapterService, 'execute' | 'listProviders'>;
 
@@ -116,13 +118,14 @@ export class ZavorthSandboxCloudTool extends BaseTool {
       this.writeLog(id, result);
       return this.formatRunResult(id, result);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.sandboxes.set(id, {
         id,
         provider: requestedProvider || 'local-docker',
         status: 'failed',
         created_at: new Date().toISOString(),
       });
-      return `Sandbox execution failed: ${redactSecrets(error instanceof Error ? error.message : String(error))}`;
+      return `Sandbox execution failed: ${redactSecrets(error instanceof Error ? err.message : String(error))}`;
     }
   }
 

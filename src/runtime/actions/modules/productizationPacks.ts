@@ -9,12 +9,14 @@ import type {
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
 import { ZavorthExtensionPluginSdkService } from '../../../services/ZavorthExtensionPluginSdkService.js';
+
 import { ZavorthTerminalBackendsService } from '../../../services/ZavorthTerminalBackendsService.js';
 import { ZavorthSubagentRuntimeService } from '../../../services/ZavorthSubagentRuntimeService.js';
 import { HttpSpeechSynthesisLiveAdapter } from '../../../adapters/speech/SpeechVoiceLiveAdapters.js';
 import { SpeechRuntimeService } from '../../../services/SpeechRuntimeService.js';
 import { GeminiVoiceService } from '../../../providers/GeminiVoiceService.js';
 import { config } from '../../../config/index.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/runtime/actions/ZavorthProductizationPackActions.test.ts'];
@@ -349,7 +351,8 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
         data: { artifactPath, backend: 'edge', voice: voiceName, liveAudioGenerated: true, bytes: stat.size, rawSecretsSerialized: false },
       });
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       return block(input, `Edge TTS synthesis failed: ${msg}`, [
         'Ensure msedge-tts is installed: npm install msedge-tts',
         `Voice used: ${text(input.args.voice, 'pt-BR-FranciscaNeural')}`,
@@ -365,7 +368,8 @@ async function voiceBackends(input: ZavorthActionHandlerInput): Promise<ZavorthA
       if (!synthesized) return block(input, 'Gemini TTS did not return audio.', ['Check GEMINI_API_KEY and the configured Gemini voice model.']);
       return result({ ok: true, actionId: input.actionId, operation: input.operation, status: 'applied', summary: `Voice synthesized via Gemini (${synthesized.voiceName}).`, lines: [`Backend: gemini`, `Artifact: ${synthesized.filePath}`, `Size: ${synthesized.outputBytes} bytes`], data: { artifactPath: synthesized.filePath, backend: 'gemini', voice: synthesized.voiceName, liveAudioGenerated: true, bytes: synthesized.outputBytes, rawSecretsSerialized: false } });
     } catch (error: unknown) {
-      return block(input, `Gemini TTS synthesis failed: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      return block(input, `Gemini TTS synthesis failed: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 

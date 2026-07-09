@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+import { PermissionService } from './PermissionService.js';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -17,7 +18,7 @@ import {
   type ReplayLearningKind,
   type ReplayLearningRecord,
 } from './ZavorthReplayLearningRegistryService.js';
-import { PermissionService } from './PermissionService.js';
+
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
 import { logger } from '../logger.js';
 

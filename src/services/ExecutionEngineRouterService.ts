@@ -4,6 +4,7 @@ import type {
   TrustedWorkspaceState,
 } from '../contracts/ExecutionEngineContract';
 import { ExecutionEngineRegistryService } from './ExecutionEngineRegistryService';
+
 import { GlassBoxTraceService } from './GlassBoxTraceService';
 import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService';
 

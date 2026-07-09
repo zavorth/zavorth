@@ -1,6 +1,7 @@
+import { create } from "zustand";
 "use client";
 
-import { create } from "zustand";
+
 import { persist } from "zustand/middleware";
 import { THEME_CONFIG } from "@/shared/constants/config";
 

@@ -1,6 +1,6 @@
-﻿import type { CompiledPolicyRule, PolicyCompilerSnapshot } from '../contracts/PracticalAgencyContract.js';
+import type { CompiledPolicyRule, PolicyCompilerSnapshot } from '../contracts/PracticalAgencyContract.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export class ZavorthPolicyCompilerService {
   public compile(input: { source?: string | Record<string, unknown> | null } = {}): PolicyCompilerSnapshot {
     try {
@@ -21,7 +21,7 @@ export class ZavorthPolicyCompilerService {
         status: 'blocked',
         rules: [],
         hardBlocksPreserved: true,
-        error: redact(error?.message || 'Policy could not be compiled.'),
+        error: redact(errorMessage(error, 'Policy could not be compiled.')),
       };
   }
   }

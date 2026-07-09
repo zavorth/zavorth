@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { LegacySurfaceContainmentService } from './LegacySurfaceContainmentService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -8,7 +9,7 @@ import {
   type ZavorthProductHardeningSnapshot,
   type ZavorthProductHardeningStatus,
 } from '../contracts/ZavorthProductHardeningContract.js';
-import { LegacySurfaceContainmentService } from './LegacySurfaceContainmentService.js';
+
 import { logger } from '../logger.js';
 
 type ProductHardeningRuntime = {

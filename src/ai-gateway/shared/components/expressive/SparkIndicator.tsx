@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 "use client";
 
-import { useMemo } from "react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 /*  Types                                                              */

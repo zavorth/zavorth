@@ -16,13 +16,6 @@ import {
   isNaturalFirstLlmReplyRun,
 } from './NaturalFirstLlmFallbackService.js';
 import { sanitizeTrustPlaneText } from './security/index.js';
-import { ZavorthHallucinationMitigationService } from '../../services/ZavorthHallucinationMitigationService.js';
-import {
-  buildSpeculativeAutonomyReceipt,
-  type PrepareZavorthSpeculativeAutonomyInput,
-  type ZavorthSpeculativeAutonomyResult,
-  ZavorthSpeculativeAutonomyService,
-} from '../../services/ZavorthSpeculativeAutonomyService.js';
 import {
   resolveCanvasSessionServiceForRuntime,
   syncSpeculativeAutonomyToCanvas,
@@ -30,11 +23,21 @@ import {
   type CanvasSpeculativeAutonomySyncSnapshot,
 } from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthMutationPlaneService } from '../../services/ZavorthMutationPlaneService.js';
+
+import { ZavorthHallucinationMitigationService } from '../../services/ZavorthHallucinationMitigationService.js';
+import {
+  buildSpeculativeAutonomyReceipt,
+  type PrepareZavorthSpeculativeAutonomyInput,
+  type ZavorthSpeculativeAutonomyResult,
+  ZavorthSpeculativeAutonomyService,
+} from '../../services/ZavorthSpeculativeAutonomyService.js';
+
 import { AgentRunExecutorPipeline } from './AgentRunExecutorPipeline.js';
 import { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
 import { StructuredWorkspaceDraftParser, type StructuredWorkspaceDraft } from './StructuredWorkspaceDraftParser.js';
 import { AgentRunNativeToolLoopService } from './AgentRunNativeToolLoopService.js';
 import type { AgentRunSteeringStream, AgentRunSteeringStreamFrame } from './AgentRunSteeringStream.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 export type UniversalAgentLlmRuntime = {
   chatDetailed(
     messages: ChatMessage[],
@@ -761,7 +764,8 @@ export class AgentRunLlmRuntimeExecutor {
     try {
       return await this.speculativeAutonomy.prepare(input);
     } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const detail = error instanceof Error ? err.message : String(error);
       return {
         id: `failed-${run.id}`,
         status: 'failed',

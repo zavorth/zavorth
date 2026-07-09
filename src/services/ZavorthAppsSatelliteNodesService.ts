@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { NodePairingService } from './NodePairingService.js';
 
 import {
   ZAVORTH_APPS_SATELLITE_NODES_CONTRACT_VERSION,
@@ -18,7 +19,6 @@ import {
   type ZavorthAppsSatelliteSurface,
   type ZavorthAppsSatelliteDesktopTraySpec,
 } from '../contracts/ZavorthAppsSatelliteNodesContract.js';
-import { NodePairingService } from './NodePairingService.js';
 
 type AppsSatelliteDeps = {
   now?: () => Date;

@@ -10,11 +10,13 @@ import type {
   RemoteSandboxFeatureId,
 } from '../contracts/RemoteSandboxContract.js';
 import { ZAVORTH_REMOTE_SANDBOX_CONTRACT_VERSION } from '../contracts/RemoteSandboxContract.js';
+import { OpenShellSandboxLifecycleAdapter } from '../adapters/sandbox/OpenShellSandboxLifecycleAdapter.js';
+
 import {
   OpenShellConfigAdapter,
   type OpenShellConfigInput,
 } from '../adapters/sandbox/OpenShellConfigAdapter.js';
-import { OpenShellSandboxLifecycleAdapter } from '../adapters/sandbox/OpenShellSandboxLifecycleAdapter.js';
+
 import { OpenShellSshTransportAdapter } from '../adapters/sandbox/OpenShellSshTransportAdapter.js';
 import { CapabilityNormalizationService } from './CapabilityNormalizationService.js';
 import { OpenShellReadinessService } from './OpenShellReadinessService.js';

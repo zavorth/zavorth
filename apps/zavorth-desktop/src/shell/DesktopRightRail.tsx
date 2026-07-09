@@ -24,6 +24,8 @@ import {
   type TerminalTab,
 } from './terminalTabs';
 import { asErrorLike } from '../lib/errors';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
+
 
 export function DesktopRightRail(props: {
   activePanel: DesktopPanel;

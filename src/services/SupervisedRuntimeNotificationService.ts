@@ -1,8 +1,8 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export interface PendingSupervisedRuntimeNotification {
   chatId: string;
   message: string;
@@ -38,7 +38,7 @@ export class SupervisedRuntimeNotificationService {
       }
 
       const parsed = JSON.parse(raw) as PendingSupervisedRuntimeNotification;
-      if (!parsed?.chatId || !parsed?.message) {
+      if (!parsed?.chatId || !errorMessage(parsed)) {
         return null;
       }
 
@@ -58,11 +58,11 @@ export class SupervisedRuntimeNotificationService {
       await sendMessage(pending.chatId, pending.message);
       this.clearPending();
       return { delivered: true, skipped: false, notification: pending };
-    } catch (error: unknown) {this.persistFailure(pending, error?.message || String(error || 'Falha ao enviar notificacao pendente.'));
+    } catch (error: unknown) {this.persistFailure(pending, errorMessage(error) || String(error || 'Falha ao enviar notificacao pendente.'));
       return {
         delivered: false,
         skipped: false,
-        error: error?.message || String(error || 'Falha ao enviar notificacao pendente.'),
+        error: errorMessage(error) || String(error || 'Falha ao enviar notificacao pendente.'),
         notification: pending,
       };
     }

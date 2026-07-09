@@ -1,4 +1,4 @@
-﻿import { config } from '../config/index.js';
+import { config } from '../config/index.js';
 import { Database } from '../storage/Database.js';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
 import { ZavorthAutomationDeliveryService, type AutomationOutboxStatus } from './ZavorthAutomationDeliveryService.js';

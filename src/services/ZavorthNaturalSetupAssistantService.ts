@@ -14,16 +14,19 @@ import {
   type NaturalSetupSecretInput,
   type NaturalSetupSecretPlan,
 } from '../contracts/NaturalSetupAssistantContract.js';
-import type {
-  GovernanceRecipeExecutionReceipt,
-  GovernanceRecipePlan,
-} from '../contracts/GovernanceRecipeContract.js';
 import {
   ZavorthCapabilityHubApiService,
   type CapabilityHubApiInspectResult,
   type CapabilityHubApiListInput,
 } from './ZavorthCapabilityHubApiService.js';
 import { ZavorthGovernanceRecipeApiService } from './ZavorthGovernanceRecipeApiService.js';
+
+import type {
+  GovernanceRecipeExecutionReceipt,
+  GovernanceRecipePlan,
+} from '../contracts/GovernanceRecipeContract.js';
+
+
 import type { GovernanceRecipePlanInput } from './ZavorthGovernanceRecipeService.js';
 import type { ZavorthCapabilityHubRuntime } from './ZavorthCapabilityHubService.js';
 

@@ -14,11 +14,6 @@ import {
   type AgentPolicyDecision,
 } from '../security/AgentSecurityPolicyEngine.js';
 import { resolveDefaultAgentToolSecurityDefinition } from '../security/AgentToolSecurityCatalog.js';
-import { containsUntrustedContentMarker } from '../security/UntrustedContent.js';
-import {
-  extractToolSecurityApprovalEnvelope,
-  verifyToolSecurityApprovalEnvelope,
-} from '../security/ToolApprovalEnvelope.js';
 import {
   formatUserFacingSecurityApprovalMessage,
   resolveSecurityProfile,
@@ -35,6 +30,15 @@ import {
   type SensitiveDataFinding,
 } from '../security/SensitiveDataGuard.js';
 import { asErrorLike } from '../utils/errorLike';
+
+import { containsUntrustedContentMarker } from '../security/UntrustedContent.js';
+import {
+  extractToolSecurityApprovalEnvelope,
+  verifyToolSecurityApprovalEnvelope,
+} from '../security/ToolApprovalEnvelope.js';
+
+
+
 
 type ToolExecutorRuntime = {
   defaultWorkspace?: string | null;

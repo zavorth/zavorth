@@ -9,12 +9,51 @@ import {
 } from '../../src/security/ContinuousSecurityMonitor';
 
 const ROOT = path.resolve(__dirname, '..', '..');
+const PRESET_PATH = path.join(ROOT, 'config', 'security-operational-preset.json');
 
 function securityEnv(): Record<string, string> {
   return {
     ZAVORTH_SECURITY_PROFILE: 'professional',
     ZAVORTH_TOOL_APPROVAL_SIGNING_KEY: 'c'.repeat(64),
   };
+}
+
+function withAlignedProfessionalPreset<T>(run: () => T): T {
+  const hadPreset = fs.existsSync(PRESET_PATH);
+  const original = hadPreset ? fs.readFileSync(PRESET_PATH) : null;
+  fs.mkdirSync(path.dirname(PRESET_PATH), { recursive: true });
+  fs.writeFileSync(
+    PRESET_PATH,
+    `${JSON.stringify({
+      version: 1,
+      activePreset: 'professional',
+      appliedAt: '2026-05-09T12:00:00.000Z',
+      appliedBy: 'ContinuousSecurityMonitor.test',
+      securityProfile: 'professional',
+      mcpProfile: 'safe',
+      mcpAllowlist: [],
+      skillDefaultPolicy: 'deny',
+      skillAllowedSourceIds: ['zavorth-native', 'workspace-agents', 'workspace-library'],
+      continuousSecurity: {
+        strictByDefault: false,
+        requireBaseline: false,
+      },
+      receipt: {
+        id: 'security-preset:professional:continuous-test',
+        summary: 'Preset professional for deterministic continuous security tests.',
+      },
+    }, null, 2)}\n`,
+    'utf8',
+  );
+  try {
+    return run();
+  } finally {
+    if (original) {
+      fs.writeFileSync(PRESET_PATH, original);
+    } else if (hadPreset === false) {
+      fs.rmSync(PRESET_PATH, { force: true });
+    }
+  }
 }
 
 describe('ContinuousSecurityMonitor', () => {
@@ -29,31 +68,33 @@ describe('ContinuousSecurityMonitor', () => {
   });
 
   it('passes strict mode when doctor, commands, hooks, CI and baseline agree', () => {
-    const baselinePath = path.join(tempDir, 'security-continuous-baseline.json');
-    writeContinuousSecurityBaseline({
-      projectRoot: ROOT,
-      baselinePath,
-      now: () => new Date('2026-05-09T12:00:00.000Z'),
-    });
+    withAlignedProfessionalPreset(() => {
+      const baselinePath = path.join(tempDir, 'security-continuous-baseline.json');
+      writeContinuousSecurityBaseline({
+        projectRoot: ROOT,
+        baselinePath,
+        now: () => new Date('2026-05-09T12:00:00.000Z'),
+      });
 
-    const report = buildContinuousSecurityMonitorReport({
-      projectRoot: ROOT,
-      baselinePath,
-      strict: true,
-      env: securityEnv(),
-      now: () => new Date('2026-05-09T12:00:00.000Z'),
-    });
+      const report = buildContinuousSecurityMonitorReport({
+        projectRoot: ROOT,
+        baselinePath,
+        strict: true,
+        env: securityEnv(),
+        now: () => new Date('2026-05-09T12:00:00.000Z'),
+      });
 
-    expect(report.ok).toBe(true);
-    expect(report.status).toBe('healthy');
-    expect(report.summary.drift).toBe(0);
-    expect(report.checks).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'operational-security-doctor', status: 'pass' }),
-      expect.objectContaining({ id: 'security-baseline', status: 'pass' }),
-      expect.objectContaining({ id: 'security-command-catalog', status: 'pass' }),
-      expect.objectContaining({ id: 'security-package-scripts', status: 'pass' }),
-    ]));
-    expect(formatContinuousSecurityMonitorReport(report)).toContain('[zavorth-security] continuous security monitor');
+      expect(report.ok).toBe(true);
+      expect(report.status).toBe('healthy');
+      expect(report.summary.drift).toBe(0);
+      expect(report.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: 'operational-security-doctor', status: 'pass' }),
+        expect.objectContaining({ id: 'security-baseline', status: 'pass' }),
+        expect.objectContaining({ id: 'security-command-catalog', status: 'pass' }),
+        expect.objectContaining({ id: 'security-package-scripts', status: 'pass' }),
+      ]));
+      expect(formatContinuousSecurityMonitorReport(report)).toContain('[zavorth-security] continuous security monitor');
+    });
   });
 
   it('fails strict mode when a protected control drifts from the approved baseline', () => {
@@ -117,33 +158,35 @@ describe('ContinuousSecurityMonitor', () => {
   });
 
   it('does not block strict CI when the approval key is ready on demand', () => {
-    const baselinePath = path.join(tempDir, 'security-continuous-baseline.json');
-    const approvalKeyPath = path.join(tempDir, 'approval-signing-key');
-    writeContinuousSecurityBaseline({
-      projectRoot: ROOT,
-      baselinePath,
-      now: () => new Date('2026-05-09T12:00:00.000Z'),
-    });
+    withAlignedProfessionalPreset(() => {
+      const baselinePath = path.join(tempDir, 'security-continuous-baseline.json');
+      const approvalKeyPath = path.join(tempDir, 'approval-signing-key');
+      writeContinuousSecurityBaseline({
+        projectRoot: ROOT,
+        baselinePath,
+        now: () => new Date('2026-05-09T12:00:00.000Z'),
+      });
 
-    const report = buildContinuousSecurityMonitorReport({
-      projectRoot: ROOT,
-      baselinePath,
-      strict: true,
-      env: {
-        ZAVORTH_SECURITY_PROFILE: 'professional',
-        ZAVORTH_TOOL_APPROVAL_SIGNING_KEY_FILE: approvalKeyPath,
-      },
-      now: () => new Date('2026-05-09T12:00:00.000Z'),
-    });
+      const report = buildContinuousSecurityMonitorReport({
+        projectRoot: ROOT,
+        baselinePath,
+        strict: true,
+        env: {
+          ZAVORTH_SECURITY_PROFILE: 'professional',
+          ZAVORTH_TOOL_APPROVAL_SIGNING_KEY_FILE: approvalKeyPath,
+        },
+        now: () => new Date('2026-05-09T12:00:00.000Z'),
+      });
 
-    expect(report.ok).toBe(true);
-    expect(report.checks).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        id: 'operational-security-doctor',
-        status: 'pass',
-        evidence: expect.arrayContaining(['approval-signing-key=ready-on-demand']),
-      }),
-    ]));
-    expect(fs.existsSync(approvalKeyPath)).toBe(false);
+      expect(report.ok).toBe(true);
+      expect(report.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          id: 'operational-security-doctor',
+          status: 'pass',
+          evidence: expect.arrayContaining(['approval-signing-key=ready-on-demand']),
+        }),
+      ]));
+      expect(fs.existsSync(approvalKeyPath)).toBe(false);
+    });
   });
 });

@@ -1,4 +1,4 @@
-﻿import { logger } from '../../../logger.js';
+import { logger } from '../../../logger.js';
 const MAX_MODEL_ID_LENGTH = 256;
 const MAX_PROVIDER_ID_LENGTH = 128;
 const MAX_LABEL_LENGTH = 256;

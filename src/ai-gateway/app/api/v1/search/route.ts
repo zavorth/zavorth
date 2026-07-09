@@ -9,6 +9,8 @@ import {
   SEARCH_CREDENTIAL_FALLBACKS,
 } from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
 import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
+import { asErrorLike } from '../../../../../utils/errorLike';
+
 import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
 import * as log from "@/sse/utils/logger";
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
@@ -21,7 +23,6 @@ import {
   getOrCoalesce,
   SEARCH_CACHE_DEFAULT_TTL_MS,
 } from "@ZavorthGateway/open-sse/services/searchCache.ts";
-import { asErrorLike } from '../../../../../utils/errorLike';
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": CORS_ORIGIN,

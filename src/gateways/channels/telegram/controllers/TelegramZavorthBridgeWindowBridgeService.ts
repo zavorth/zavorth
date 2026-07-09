@@ -111,7 +111,8 @@ export class TelegramZavorthBridgeWindowBridgeService {
           logger.warn("[auto-fix] Empty catch block", err); }
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       await ctx.reply(`ZavorthBridge window automation failed: ${message}`);
     }
   }
@@ -135,7 +136,8 @@ export class TelegramZavorthBridgeWindowBridgeService {
         ].join('\n'),
       );
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       await ctx.reply(`I could not read the internal ZavorthBridge bridge state right now.\n\nReason: ${message}`);
     }
   }

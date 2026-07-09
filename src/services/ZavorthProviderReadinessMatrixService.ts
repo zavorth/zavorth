@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import http from 'http';
 import https from 'https';
 import { config } from '../config/index.js';
@@ -18,6 +19,7 @@ import {
 } from './ProviderControlPlaneService.js';
 import type { ZavorthProviderLiveProofStoreService } from './ZavorthProviderLiveProofStoreService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ProviderControlPlaneLike = Pick<
   ProviderControlPlaneService,
@@ -361,6 +363,7 @@ export class ZavorthProviderReadinessMatrixService {
           : `Live probe failed with HTTP ${response.status}.`,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const target = sanitizeProbeTarget(probe.url);
       return liveProbeResult({
         status: 'failed',
@@ -373,9 +376,9 @@ export class ZavorthProviderReadinessMatrixService {
           providerId: entry.id,
           status: 'failed',
           target,
-          errorName: error instanceof Error ? error.name : 'UnknownError',
+          errorName: error instanceof Error ? err.name : 'UnknownError',
         }),
-        summary: `Live probe failed: ${error instanceof Error ? error.name : 'UnknownError'}.`,
+        summary: `Live probe failed: ${error instanceof Error ? err.name : 'UnknownError'}.`,
       });
     }
   }

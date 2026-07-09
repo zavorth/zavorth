@@ -26,9 +26,9 @@ describe('TelegramFileDeliveryController', () => {
       'downloads relatorio',
       expect.objectContaining({ extraAllowedPaths: [] }),
     );
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Encontrei mais de uma opcao'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('1. relatorio.pdf'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('2. contrato.pdf'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei mais de uma opcao');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('1. relatorio.pdf');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('2. contrato.pdf');
   });
 
   it('envia o documento e limpa o arquivo temporario quando necessario', async () => {
@@ -71,8 +71,8 @@ describe('TelegramFileDeliveryController', () => {
 
     await controller.handleFreeForm(ctx, 'me envia a pasta evidencias', '42');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Envio pronto'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Encontrei o pacote pronto'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Envio pronto');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Encontrei o pacote pronto');
     expect(ctx.api.sendChatAction).toHaveBeenCalledWith(42, 'upload_document');
     expect(ctx.replyWithDocument).toHaveBeenCalledWith(expect.anything(), {
       caption: 'Arquivo pronto',
@@ -95,7 +95,7 @@ describe('TelegramFileDeliveryController', () => {
 
     await controller.handleCommand(ctx, 'downloads relatorio.pdf', '42');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('chat privado'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('private chat');
     expect(fileDeliveryService.prepare).not.toHaveBeenCalled();
   });
 

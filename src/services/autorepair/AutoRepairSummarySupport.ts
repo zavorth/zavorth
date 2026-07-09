@@ -1,4 +1,4 @@
-﻿import type { AutoRepairIncidentMemoryService } from '../AutoRepairIncidentMemoryService.js';
+import type { AutoRepairIncidentMemoryService } from '../AutoRepairIncidentMemoryService.js';
 import {
   collectAutoRepairSmokeValidationStats,
   describeAutoRepairValidationStatus,

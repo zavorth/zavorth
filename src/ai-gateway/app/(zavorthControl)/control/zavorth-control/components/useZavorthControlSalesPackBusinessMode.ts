@@ -1,7 +1,9 @@
+import { useEffect, useMemo, useState } from "react";
+
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
 
 const BUSINESS_MODE_STORAGE_KEY = "zavorth.zavorthControl.businessMode.enabled";
 
@@ -108,7 +110,8 @@ export function useZavorthControlSalesPackBusinessMode(
       const next = await fetchSalesPackSnapshot();
       setSnapshot(next);
     } catch (error: unknown) {
-      setMessage(error instanceof Error ? error.message : "Nao foi possivel carregar o Modo Business.");
+      const err = asErrorLike(error);
+      setMessage(error instanceof Error ? err.message : "Nao foi possivel carregar o Modo Business.");
     } finally {
       setLoading(false);
     }
@@ -123,10 +126,11 @@ export function useZavorthControlSalesPackBusinessMode(
       setMessage("Modo Business ativado para este perfil.");
       await refresh();
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       persistBusinessMode(storageKey, true);
       setEnabled(true);
       setMessage(error instanceof Error
-        ? `${error.message} Usando fallback local neste navegador.`
+        ? `${err.message} Usando fallback local neste navegador.`
         : "Nao foi possivel persistir no backend; usando fallback local.");
       await refresh();
     } finally {
@@ -142,10 +146,11 @@ export function useZavorthControlSalesPackBusinessMode(
       persistBusinessMode(storageKey, preference.enabled);
       setMessage("Modo Business oculto para este perfil. Atendimentos ativos ainda podem reaparecer como alerta.");
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       persistBusinessMode(storageKey, false);
       setEnabled(false);
       setMessage(error instanceof Error
-        ? `${error.message} Fallback local desativado neste navegador.`
+        ? `${err.message} Fallback local desativado neste navegador.`
         : "Nao foi possivel persistir no backend; fallback local desativado.");
     } finally {
       setLoading(false);
@@ -181,7 +186,8 @@ export function useZavorthControlSalesPackBusinessMode(
       setEnabled(preference.enabled);
       setMessage("Exemplo local criado sem envio externo.");
     } catch (error: unknown) {
-      setMessage(error instanceof Error ? error.message : "Falha ao criar exemplo local.");
+      const err = asErrorLike(error);
+      setMessage(error instanceof Error ? err.message : "Falha ao criar exemplo local.");
     } finally {
       setBusyActionId(null);
     }

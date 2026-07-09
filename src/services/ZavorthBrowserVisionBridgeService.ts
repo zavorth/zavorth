@@ -1,11 +1,3 @@
-﻿import crypto from 'node:crypto';
-import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
-import {
-  createSurfaceResponse,
-  type SurfaceReceiptStatus,
-  type SurfaceResponse,
-  type SurfaceResponseAction,
-} from '../domain/surface/application/surface-response/index.js';
 import {
   ZAVORTH_BROWSER_VISION_BRIDGE_CONTRACT_VERSION,
   type ZavorthBrowserEvidenceSource,
@@ -17,13 +9,25 @@ import {
   type ZavorthBrowserVisionReceipt,
   type ZavorthBrowserVisionStatus,
 } from '../contracts/ZavorthBrowserVisionBridgeContract.js';
+import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
+
+import crypto from 'node:crypto';
+import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
+import {
+  createSurfaceResponse,
+  type SurfaceReceiptStatus,
+  type SurfaceResponse,
+  type SurfaceResponseAction,
+} from '../domain/surface/application/surface-response/index.js';
+
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import {
   RuntimeBrowserSidecarService,
   type RuntimeBrowserSidecarResponse,
 } from './RuntimeBrowserSidecarService.js';
-import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type BrowserSidecarLike = Pick<RuntimeBrowserSidecarService, 'execute' | 'isConfigured'>;
 
@@ -299,12 +303,13 @@ export class ZavorthBrowserVisionBridgeService {
       const evidence = extractTextFromSidecar(dom) || JSON.stringify(unwrapSidecarPayload(dom));
       return { used: true, title, evidence, error: null };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Browser Vision Bridge] process execution failed', error);
     return {
         used: false,
         title: null,
         evidence: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }
@@ -321,11 +326,12 @@ export class ZavorthBrowserVisionBridgeService {
       const parsed = await this.egressGuard(value, allowPrivateEgress);
       return { status: 'allowed', url: parsed, reason: 'Public HTTP target allowed.' };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Browser Vision Bridge] network request failed', error);
     return {
         status: 'blocked',
         url: null,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       };
   }
   }

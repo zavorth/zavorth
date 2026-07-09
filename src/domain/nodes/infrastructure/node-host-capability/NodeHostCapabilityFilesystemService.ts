@@ -363,11 +363,12 @@ export class NodeHostCapabilityFilesystemService {
           });
         });
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         cleanupAndFinish({
           ok: false,
           resultSummary: `Falha ao iniciar observacao em ${targetPath}.`,
           stdout: null,
-          stderr: error instanceof Error ? error.message : String(error || 'watch failed'),
+          stderr: error instanceof Error ? err.message : String(error || 'watch failed'),
           exitCode: null,
           data: {
             path: targetPath,

@@ -1,9 +1,11 @@
-﻿import { execFileSync } from 'child_process';
+
+import { execFileSync } from 'child_process';
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type BackendType = 'local' | 'docker' | 'ssh' | 'wsl' | 'singularity' | 'modal';
 
@@ -122,8 +124,9 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
           return 'Modal connected.';
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Terminal Backends] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Error connecting to ${backend}: ${message}`;
   }
   }
@@ -217,7 +220,8 @@ export class ZavorthTerminalBackendsTool extends BaseTool {
       this.logExecution(backend, command, result);
       return result;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const result = this.errorResult(backend, message);
       result.duration_ms = Date.now() - startTime;
       this.logExecution(backend, command, result);

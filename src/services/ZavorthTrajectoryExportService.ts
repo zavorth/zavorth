@@ -1,4 +1,5 @@
-﻿import crypto from 'node:crypto';
+import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -11,7 +12,7 @@ import {
   type ZavorthTrajectoryExportSnapshot,
   type ZavorthTrajectoryExportStatus,
 } from '../contracts/ZavorthTrajectoryExportContract.js';
-import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
+
 import { logger } from '../logger.js';
 
 type Runtime = {

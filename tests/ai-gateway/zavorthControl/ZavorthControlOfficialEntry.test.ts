@@ -1,4 +1,4 @@
-﻿import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const appDir = join(process.cwd(), 'src/zavorth-control/app');

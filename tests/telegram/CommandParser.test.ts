@@ -127,17 +127,17 @@ describe('CommandParser', () => {
     expect(parsed.explicit_executor).toBeNull();
   });
 
-  it('maps /app to /dashboard as a top-level non-executor command', () => {
+  it('maps /app to /zavorthcontrol as a top-level non-executor command', () => {
     const parsed = parser.parse('/app');
 
-    expect(parsed.command_type).toBe('/dashboard');
+    expect(parsed.command_type).toBe('/zavorthcontrol');
     expect(parsed.explicit_executor).toBeNull();
   });
 
-  it('maps /miniapp to /dashboard for backwards compatibility', () => {
+  it('maps /miniapp to /zavorthcontrol for backwards compatibility', () => {
     const parsed = parser.parse('/miniapp');
 
-    expect(parsed.command_type).toBe('/dashboard');
+    expect(parsed.command_type).toBe('/zavorthcontrol');
     expect(parsed.explicit_executor).toBeNull();
   });
 
@@ -244,10 +244,10 @@ describe('CommandParser', () => {
     expect(parsed.references_last_task).toBe(true);
   });
 
-  it('maps /sendfile to /arquivo', () => {
+  it('maps /sendfile to /file', () => {
     const parsed = parser.parse('/sendfile downloads relatorio.pdf');
 
-    expect(parsed.command_type).toBe('/arquivo');
+    expect(parsed.command_type).toBe('/file');
     expect(parsed.command_args).toBe('downloads relatorio.pdf');
     expect(parsed.explicit_executor).toBeNull();
   });

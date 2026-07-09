@@ -4,6 +4,7 @@ import type {
   ZavorthCapabilityOsSnapshot,
 } from '../services/ZavorthCapabilityOsService.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
+
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 
 function compact(value: string | null | undefined, maxLength = 96): string {

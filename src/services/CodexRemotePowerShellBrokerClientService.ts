@@ -103,7 +103,8 @@ export class CodexRemotePowerShellBrokerClientService {
         workspaceRoot: String(input.workspaceRoot || '').trim() || null,
       }, 10000);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         available: false,
         brokerReady: false,

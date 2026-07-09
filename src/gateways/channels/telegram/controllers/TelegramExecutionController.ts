@@ -20,6 +20,8 @@ import { TelegramExecutionPlanningService } from '../../../../gateways/channels/
 import { TelegramExecutionResearchService } from '../../../../gateways/channels/telegram/controllers/TelegramExecutionResearchService.js';
 import { TelegramExecutionResultService } from '../../../../gateways/channels/telegram/controllers/TelegramExecutionResultService.js';
 import { isExternalCommand } from '../../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type PersistedPolicyApplier = (task: Task, executor: string) => Promise<void>;
 type PermissionKeyboardBuilder = (permission: PermissionRequest) => InlineKeyboard;
 type PermissionMessageFormatter = (permission: PermissionRequest) => string;
@@ -142,7 +144,8 @@ export class TelegramExecutionController {
         `Done. I attempted to undo task ${taskId}.\n\nRestored items:\n${restored.join('\n')}`,
       );
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       await SmartOutputService.reply(ctx, `I could not undo this task right now.\n\nReason: ${message}`);
     }
   }

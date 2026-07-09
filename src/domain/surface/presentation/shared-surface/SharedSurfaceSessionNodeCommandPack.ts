@@ -7,6 +7,8 @@ import type { NodeDeviceProfileService } from '../../../../services/NodeDevicePr
 import type { NodeInvokeService } from '../../../../services/NodeInvokeService.js';
 import type { NodePairingService } from '../../../../services/NodePairingService.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type SharedSurfaceSessionNodeCommandPackDeps = {
   sessionPlaneService?: Pick<
     ZavorthSessionPlaneService,
@@ -74,7 +76,8 @@ export class SharedSurfaceSessionNodeCommandPack {
         }),
       );
     } catch (error: unknown) {
-      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui montar o session plane agora.');
+      const err = asErrorLike(error);
+      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui montar o session plane agora.');
     }
   }
 
@@ -92,7 +95,8 @@ export class SharedSurfaceSessionNodeCommandPack {
         }),
       );
     } catch (error: unknown) {
-      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui ler o historico dessa sessao agora.');
+      const err = asErrorLike(error);
+      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui ler o historico dessa sessao agora.');
     }
   }
 
@@ -132,7 +136,8 @@ export class SharedSurfaceSessionNodeCommandPack {
         ].join('\n'),
       );
     } catch (error: unknown) {
-      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui despachar a mensagem para essa sessao agora.');
+      const err = asErrorLike(error);
+      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui despachar a mensagem para essa sessao agora.');
     }
   }
 
@@ -162,7 +167,8 @@ export class SharedSurfaceSessionNodeCommandPack {
         ].join('\n'),
       );
     } catch (error: unknown) {
-      await ctx.reply(error instanceof Error ? error.message : 'Nao consegui abrir a sessao derivada agora.');
+      const err = asErrorLike(error);
+      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui abrir a sessao derivada agora.');
     }
   }
 

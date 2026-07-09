@@ -33,7 +33,7 @@ describe('TelegramHubKeyboardService', () => {
     expect(callbacksFor('actions')).toEqual(expect.arrayContaining([
       'hub:action:status',
       'hub:action:models',
-      'hub:action:dashboard',
+      'hub:page:overview',
       'hub:action:permissions',
       'hub:action:mode',
       'hub:action:wsl',

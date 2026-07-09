@@ -1,4 +1,4 @@
-﻿import {
+import {
   CAPABILITY_HUB_CONTRACT_VERSION,
   type CapabilityHubActivation,
   type CapabilityHubGovernance,

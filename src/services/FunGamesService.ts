@@ -1,4 +1,4 @@
-﻿import { GeminiProvider } from '../providers/GeminiProvider.js';
+import { GeminiProvider } from '../providers/GeminiProvider.js';
 
 type JokeGenerator = () => Promise<string | null>;
 

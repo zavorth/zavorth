@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { isDraining, getActiveRequestCount, STARTUP_EPOCH } from "@/lib/gracefulShutdown";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function GET() {
   try {
     return NextResponse.json({
@@ -8,8 +10,9 @@ export async function GET() {
       epoch: STARTUP_EPOCH,
     });
   } catch (error: unknown) {
-    console.error("[Status API] Error handling request:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const err = asErrorLike(error);
+    console.error("[Status API] Error handling request:", err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 export const dynamic = "force-dynamic";

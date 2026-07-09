@@ -5,6 +5,8 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 interface CloudApiSendResult {
   messaging_product?: string;
   contacts?: Array<{ input: string; wa_id: string }>;
@@ -521,7 +523,8 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
           return { value, source: candidate };
         }
       } catch (error: unknown) {
-        this.lastError = `Could not read the WhatsApp QR from ${candidate}: ${error instanceof Error ? error.message : String(error)}`;
+        const err = asErrorLike(error);
+        this.lastError = `Could not read the WhatsApp QR from ${candidate}: ${error instanceof Error ? err.message : String(error)}`;
         return null;
       }
     }
@@ -562,13 +565,14 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         updatedAt: new Date().toISOString(),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Whats App way.stub] validation failed', error);
     return {
         ...status,
         state: 'error',
         dataUrl: null,
         updatedAt: new Date().toISOString(),
-        nextStep: `Failed to generate WhatsApp QR image: ${error instanceof Error ? error.message : String(error)}`,
+        nextStep: `Failed to generate WhatsApp QR image: ${error instanceof Error ? err.message : String(error)}`,
       };
   }
   }

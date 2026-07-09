@@ -5,6 +5,8 @@ import { getServerCredentials } from "../config/index";
 import { startLocalServer } from "../utils/server";
 import { generatePKCE } from "../utils/pkce";
 import { spinner as createSpinner } from "../utils/ui";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 /**
  * Codex (OpenAI) OAuth Service
  */
@@ -141,7 +143,8 @@ export class CodexService extends OAuthService {
       spinner.succeed("Codex connected successfully!");
       return true;
     } catch (error: unknown) {
-      spinner.fail(`Failed: ${error.message}`);
+      const err = asErrorLike(error);
+      spinner.fail(`Failed: ${err.message}`);
       throw error;
     }
   }

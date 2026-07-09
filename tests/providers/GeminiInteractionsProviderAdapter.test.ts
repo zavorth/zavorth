@@ -1,9 +1,9 @@
+import { config } from '../../src/config';
 
 import {
   GeminiInteractionsProviderAdapter,
   mapGeminiInteractionToReceipt,
 } from '../../src/providers/GeminiInteractionsProviderAdapter';
-import { config } from '../../src/config';
 
 describe('GeminiInteractionsProviderAdapter', () => {
   const originalEnabled = (config as any).geminiInteractionsEnabled;

@@ -1,4 +1,5 @@
-﻿import { randomUUID } from 'crypto';
+import { SalesPackMvpService } from '../domain/platform-ecosystem/application/sales-pack/index.js';
+import { randomUUID } from 'crypto';
 import type {
   SalesPackChannelIoEnvelope,
   SalesPackChannelIoEvent,
@@ -12,7 +13,7 @@ import type {
   SalesChannelPlatform,
   SalesPackMode,
 } from '../contracts/SalesPackContract.js';
-import { SalesPackMvpService } from '../domain/platform-ecosystem/application/sales-pack/index.js';
+
 import { logger } from '../logger.js';
 
 type SalesPackChannelIoRuntime = {

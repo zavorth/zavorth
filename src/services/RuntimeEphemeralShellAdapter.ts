@@ -1,4 +1,4 @@
-﻿import { execFile } from 'child_process';
+import { execFile } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';

@@ -1,4 +1,4 @@
-﻿import { ProviderInvocationService } from './ProviderInvocationService.js';
+import { ProviderInvocationService } from './ProviderInvocationService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { ProviderConfigService } from './ProviderConfigService.js';
 import { ErrorNormalizationService } from './ErrorNormalizationService.js';
@@ -63,8 +63,7 @@ export class ProviderFallbackPolicyService {
         fallbackUsed: false,
         budgetDecision: budget.decision,
       });
-    } catch ($1: unknown) { const error = originalError; const err = originalError; const e = originalError;
-      if (!request.allowFallback) {
+    } catch (originalError: unknown) {if (!request.allowFallback) {
         throw originalError;
       }
 
@@ -140,8 +139,7 @@ export class ProviderFallbackPolicyService {
             fallbackUsed: true,
             budgetDecision: budget.decision,
           });
-        } catch ($1: unknown) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
-          const fallbackNormalized = ErrorNormalizationService.getInstance().normalize(fallbackError);
+        } catch (fallbackError: unknown) {const fallbackNormalized = ErrorNormalizationService.getInstance().normalize(fallbackError);
           await logger.logWorkspaceEvent({
             event: 'provider_runtime_fallback_failed',
             workspaceId,
@@ -210,7 +208,7 @@ export class ProviderFallbackPolicyService {
         },
       });
       return result;
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
       const normalized = ErrorNormalizationService.getInstance().normalize(error);
       attempt.status = 'failed';
       attempt.durationMs = Date.now() - startedAt;

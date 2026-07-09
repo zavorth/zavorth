@@ -83,7 +83,9 @@ describe('TelegramConversationController autonomous gateway routing', () => {
 
     expect(graphRuntime.runAutonomousTask).not.toHaveBeenCalled();
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Trabalho autonomo ativado no runtime governado.'),
+      expect.stringMatching(
+        /Trabalho autonomo ativado no runtime governado\.|Autonomous work activated in the governed runtime\./i,
+      ),
       expect.anything(),
     );
     expect(ctx.reply).toHaveBeenCalledWith(

@@ -4,6 +4,7 @@ import {
 import {
   normalizeApprovalGrantContractFixture,
 } from './ExternalAgentApprovalGrantContract.js';
+
 import type {
   GovernedExecutorBoundary,
 } from '../agent/executors/GovernedExecutorAdapter.js';

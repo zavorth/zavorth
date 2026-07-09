@@ -1,4 +1,6 @@
-﻿import {
+import { ZavorthLiveCanaryApplyGateRollbackDrillService } from './ZavorthLiveCanaryApplyGateRollbackDrillService.js';
+
+import {
   ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
   type ZavorthLiveCanaryControlledExecutionResult,
   type ZavorthLiveCanaryControlledExecutorCheck,
@@ -10,9 +12,10 @@
   type ZavorthLiveCanaryExecutionRequest,
   type ZavorthLiveCanaryExecutorId,
 } from '../contracts/ZavorthLiveCanaryControlledExecutorContract.js';
-import { ZavorthLiveCanaryApplyGateRollbackDrillService } from './ZavorthLiveCanaryApplyGateRollbackDrillService.js';
+
 import { ZavorthProviderLiveCanaryService } from './ZavorthProviderLiveCanaryService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   now?: () => Date;
@@ -164,6 +167,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         providerCanary: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Live Canary Controlled Executor] process execution failed', error);
     return {
         executorId: request.executorId,
@@ -177,7 +181,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         workspaceMutationPerformed: false,
         upstreamRuntimeCodeExecuted: false,
         outputPreview: null,
-        error: redact(error instanceof Error ? error.message : String(error)),
+        error: redact(error instanceof Error ? err.message : String(error)),
         providerCanary: null,
       };
   }

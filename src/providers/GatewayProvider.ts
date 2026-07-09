@@ -6,8 +6,12 @@ import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
 import { ILlmProvider, ChatMessage, ToolDefinition, LlmResponse, ToolCall, ProviderChatOptions, LlmStreamEvent } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
-import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';export type GatewayProviderOptions = {
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
+import { errorMessage } from '../utils/errorLike.js';
+export type GatewayProviderOptions = {
+
   name?: string;
+
   apiKey?: string;
   baseURL?: string;
   modelName?: string | null;
@@ -56,7 +60,7 @@ export class GatewayProvider implements ILlmProvider {
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: unknown) {logger.error('[AIGateway] Request error:', error?.message || error);
+    } catch (error: unknown) {logger.error('[AIGateway] Request error:', errorMessage(error));
       throw error;
     }
   }
@@ -77,7 +81,7 @@ export class GatewayProvider implements ILlmProvider {
       } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
-    } catch (error: unknown) {logger.error('❌ [AIGateway] Streaming error:', error?.message || error);
+    } catch (error: unknown) {logger.error('❌ [AIGateway] Streaming error:', errorMessage(error));
       throw error;
     }
   }

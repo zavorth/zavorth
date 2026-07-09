@@ -1,3 +1,4 @@
+
 /**
  * API: Webhook Test Delivery
  * POST — Send a test ping event to a specific webhook
@@ -8,6 +9,7 @@ import { getWebhook, recordWebhookDelivery } from "@/lib/localDb";
 import { deliverWebhook } from "@/lib/webhookDispatcher";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authError = await requireManagementAuth(request);
@@ -42,7 +44,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       error: result.error || null,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -7,6 +7,28 @@ import type {
   ZavorthNativeRuntimeTarget,
 } from '../contracts/native/ZavorthNativeCompanionDeviceContract.js';
 import { ZavorthNativeCompanionDevicePackService } from './ZavorthNativeCompanionDevicePackService.js';
+import { ZAVORTH_SEMANTIC_NATIVE_COMPANION_DEVICE_CAPABILITY_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticNativeCompanionDeviceCapabilityCertificationContract.js';
+import {
+  allReceipts,
+  receiptsForCapability,
+  uniqueCapabilities,
+  requiredTarget,
+  targetStatus,
+  semanticCapabilityStatus,
+  combinedCapabilityStatus,
+  strongestPermission,
+  capabilityStatusCounts,
+  targetPriority,
+  capabilityPriority,
+  targetEquivalent,
+  capabilityBehavior,
+  scenarioBehavior,
+  scenarioEquivalent,
+  countStatus,
+  countPriority,
+  slug,
+} from './ZavorthSemanticNativeCompanionDeviceCapabilityCertificationHelpers.js';
+
 import type {
   ZavorthSemanticNativeCompanionDeviceCapabilityCertificationSnapshot,
   ZavorthSemanticNativeCompanionDeviceCapabilityCertificationStatus,
@@ -16,7 +38,6 @@ import type {
   ZavorthSemanticNativeCompanionDeviceCapabilityClaimStatus,
   ZavorthSemanticNativeCompanionDeviceCapabilityScenario,
 } from '../contracts/ZavorthSemanticNativeCompanionDeviceCapabilityCertificationContract.js';
-import { ZAVORTH_SEMANTIC_NATIVE_COMPANION_DEVICE_CAPABILITY_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticNativeCompanionDeviceCapabilityCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;
@@ -680,23 +701,3 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
   }
 }
 
-import {
-  allReceipts,
-  receiptsForCapability,
-  uniqueCapabilities,
-  requiredTarget,
-  targetStatus,
-  semanticCapabilityStatus,
-  combinedCapabilityStatus,
-  strongestPermission,
-  capabilityStatusCounts,
-  targetPriority,
-  capabilityPriority,
-  targetEquivalent,
-  capabilityBehavior,
-  scenarioBehavior,
-  scenarioEquivalent,
-  countStatus,
-  countPriority,
-  slug,
-} from './ZavorthSemanticNativeCompanionDeviceCapabilityCertificationHelpers.js';

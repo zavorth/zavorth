@@ -4,6 +4,7 @@ import type {
   ProviderP0ClosureStatus,
 } from '../contracts/ProviderP0ClosureContract.js';
 import { ZAVORTH_PROVIDER_P0_CLOSURE_CONTRACT_VERSION } from '../contracts/ProviderP0ClosureContract.js';
+
 import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 

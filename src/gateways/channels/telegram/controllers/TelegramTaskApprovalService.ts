@@ -8,6 +8,8 @@ import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { TaskSecurityPostureService } from '../../../../services/TaskSecurityPostureService.js';
 import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type TelegramTaskApprovalServiceDeps = {
   taskManager: TaskManager;
   persistTask: (task: Task) => void;
@@ -84,7 +86,8 @@ export class TelegramTaskApprovalService {
       });
       await this.resumeApprovedTaskOrWorkflow(ctx, task);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const task = this.deps.taskManager.getTask(taskId);
       if (task && task.status === 'running') {
         this.deps.taskManager.advanceState(task, 'failed');
@@ -116,7 +119,8 @@ export class TelegramTaskApprovalService {
       await this.recordTaskApprovalTelemetry(task, 'reject', 'rejected', userId);
       await ctx.reply(`Done. Task ${taskId} was rejected and I will not continue it.`);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       await this.recordTaskApprovalTelemetry(undefined, 'reject', 'failed', userId, {
         taskId,
         errorMessage: message,

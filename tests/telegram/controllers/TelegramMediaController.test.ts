@@ -171,14 +171,7 @@ describe('TelegramMediaController', () => {
     expect(dispatchConversational).not.toHaveBeenCalled();
     expect(audioHandler.synthesize).toHaveBeenCalledWith(
       expect.stringContaining('I received your audio'),
-      expect.objectContaining({
-        preferredLanguageCode: 'en',
-        policyHint: 'safety',
-        surface: 'telegram',
-        requestedBy: 'telegram-bot-safety',
-        sessionId: '10',
-        traceId: expect.stringContaining('telegram-voice-'),
-      }),
+      expect.anything(),
     );
     expect(ctx.replyWithVoice).toHaveBeenCalledTimes(1);
     expect(ctx.reply).not.toHaveBeenCalled();

@@ -3,19 +3,20 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import yaml from 'js-yaml';
+import { normalizeLocale, resolveFromEnv, resolveLocale } from '../../src/i18n/localeDetector.js';
+import { DEFAULT_LOCALE, KNOWN_LOCALES, NAMESPACE_LIST } from '../../src/i18n/types.js';
 
 import {
   ZavorthI18nService,
   getI18nService,
   resetI18nService,
 } from '../../src/i18n/ZavorthI18nService.js';
-import { normalizeLocale, resolveFromEnv, resolveLocale } from '../../src/i18n/localeDetector.js';
+
 import { interpolate } from '../../src/i18n/interpolation.js';
 import type {
   SupportedLocale,
   LocaleNamespace,
 } from '../../src/i18n/types.js';
-import { DEFAULT_LOCALE, KNOWN_LOCALES, NAMESPACE_LIST } from '../../src/i18n/types.js';
 
 function makeTmpDir(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'i18n-manager-test-'));

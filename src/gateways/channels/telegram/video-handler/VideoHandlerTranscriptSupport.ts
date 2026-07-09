@@ -5,6 +5,7 @@ import {
   type YouTubeTranscriptPayload,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
+
 import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
 import { logger } from '../../../../logger';export class VideoHandlerTranscriptSupport {
   public static extractYouTubePlayerResponse(html: string): YouTubePlayerResponse | null {

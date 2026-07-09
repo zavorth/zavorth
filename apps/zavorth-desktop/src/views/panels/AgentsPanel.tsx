@@ -1,4 +1,4 @@
-﻿import { useState, type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { PageFrame } from './panelPrimitives';
 import {
   IconPlus,

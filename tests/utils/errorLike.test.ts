@@ -15,7 +15,17 @@ describe('errorLike', () => {
 
   it('reads messages with fallback', () => {
     expect(errorMessage(new Error('nope'))).toBe('nope');
-    expect(errorMessage({}, 'fallback')).toBe('fallback');
+    // empty object normalizes to a guaranteed non-empty message
+    expect(errorMessage({})).toBe('Unexpected error');
+    expect(errorMessage({}, 'fallback')).toBe('Unexpected error');
     expect(errorMessage('direct')).toBe('direct');
+    expect(errorMessage(null, 'fallback')).toBe('Unexpected error');
+  });
+
+  it('always returns a string message from asErrorLike', () => {
+    expect(typeof asErrorLike(new Error('x')).message).toBe('string');
+    expect(typeof asErrorLike({}).message).toBe('string');
+    expect(typeof asErrorLike(undefined).message).toBe('string');
+    expect(asErrorLike(new Error('')).message.length).toBeGreaterThan(0);
   });
 });

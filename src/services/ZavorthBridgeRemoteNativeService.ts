@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { config } from '../config/index.js';
 import { ZavorthBridgeCompanionBridge } from '../agents/ZavorthBridgeCompanionBridge.js';
 import type { TerminalSidecarSnapshot } from './TerminalSidecarService.js';

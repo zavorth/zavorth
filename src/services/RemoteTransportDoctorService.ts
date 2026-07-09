@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
@@ -8,7 +9,7 @@ import {
 ZavorthRemoteTransportService,
   type ZavorthRemoteTransportEntry,
 } from './ZavorthRemoteTransportService.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 export type RemoteTransportDoctorItem = {
   transportId: string;
   label: string;
@@ -281,11 +282,12 @@ export class RemoteTransportDoctorService {
         detail: `Probe ativo confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Remote Transport Doctor] network request failed', error);
     return {
         status: 'failed',
         httpStatus: null,
-        detail: `Probe ativo falhou para ${endpoint}: ${error?.message || String(error)}`,
+        detail: `Probe ativo falhou para ${endpoint}: ${errorMessage(error)}`,
       };
   }
   }
@@ -305,7 +307,8 @@ export class RemoteTransportDoctorService {
       const sidecar = await this.aiGatewaySidecar.start();
       details.push(sidecar.message);
     } catch (error: unknown) {
-      details.push(`Tentativa de start do sidecar AIGateway falhou: ${error?.message || String(error)}`);
+      const err = asErrorLike(error);
+      details.push(`Tentativa de start do sidecar AIGateway falhou: ${errorMessage(error)}`);
       return details;
     }
 
@@ -313,7 +316,8 @@ export class RemoteTransportDoctorService {
       const gateway = await this.gatewayLauncher.ensureStarted();
       details.push(gateway.message || 'Gateway AIGateway reconciliado antes do probe.');
     } catch (error: unknown) {
-      details.push(`Tentativa de start do gateway AIGateway falhou: ${error?.message || String(error)}`);
+      const err = asErrorLike(error);
+      details.push(`Tentativa de start do gateway AIGateway falhou: ${errorMessage(error)}`);
     }
 
     return details;

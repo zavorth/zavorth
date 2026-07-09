@@ -1,11 +1,12 @@
 import { ApplicationCommandOptionType, Events } from 'discord.js';import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
 import { getDiscordSlashCommandManifest } from '../../../../services/SharedSurfaceCommandContract.js';
 import type {
+
   DiscordGatewayClientLike,
   DiscordGatewayInteractionLike,
   DiscordGatewayMessageLike,
 } from '../DiscordGatewayTypes.js';
-
+import { errorMessage } from '../../../../utils/errorLike.js';
 type DiscordGatewayLogLevel = 'info' | 'warn' | 'error';
 
 type DiscordGatewayLifecycleOptions = {
@@ -133,7 +134,7 @@ export class DiscordGatewayLifecycleService {
           registered = true;
         } catch (error: unknown) {this.log?.(
             'warn',
-            `Discord native gateway could not register guild slash commands for ${guildId}: ${error?.message || error}`,
+            `Discord native gateway could not register guild slash commands for ${guildId}: ${errorMessage(error)}`,
           );
         }
       }
@@ -194,7 +195,7 @@ export class DiscordGatewayLifecycleService {
     client.on(Events.MessageCreate, (message: unknown) => {
       void callbacks.onMessage(message as DiscordGatewayMessageLike).catch((error: unknown) => {
         callbacks.onRuntimeError(
-          error?.message || 'Discord native gateway failed while handling an inbound message.',
+          errorMessage(error, 'Discord native gateway failed while handling an inbound message.'),
         );
       });
     });
@@ -202,13 +203,13 @@ export class DiscordGatewayLifecycleService {
     client.on(Events.InteractionCreate, (interaction: unknown) => {
       void callbacks.onInteraction(interaction as DiscordGatewayInteractionLike).catch((error: unknown) => {
         callbacks.onRuntimeError(
-          error?.message || 'Discord native gateway failed while handling an interaction.',
+          errorMessage(error, 'Discord native gateway failed while handling an interaction.'),
         );
       });
     });
 
     client.on(Events.Error, (error: Error) => {
-      callbacks.onRuntimeError(error?.message || 'Discord native gateway runtime error.');
+      callbacks.onRuntimeError(errorMessage(error, 'Discord native gateway runtime error.'));
     });
 
     client.on(Events.Warn, (warning: string) => {

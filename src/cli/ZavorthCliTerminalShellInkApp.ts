@@ -21,7 +21,9 @@ import {
   type TerminalShellQueuedItem,
 } from './ZavorthCliTerminalShell.js';
 import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type InkModule = typeof import('ink');
 type ReactModule = typeof import('react');
 type InkKey = import('ink').Key;
@@ -175,8 +177,9 @@ export async function runZavorthCliTerminalShellInk(
     await instance.waitUntilExit();
     return { rendered: true, exitCode: actionState.exitCode };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     if (process.env.ZAVORTH_TERMINAL_INK_DEBUG === '1') {
-      console.error(error?.stack || error?.message || String(error));
+      console.error(asErrorLike(error).stack || errorMessage(error));
     }
     return { rendered: false, exitCode: 0 };
   }
@@ -283,8 +286,9 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
               }
               steerFailureNotice = result.notice;
             } catch (error: unknown) {
+              const err = asErrorLike(error);
               logger.warn('[Zavorth Cli Terminal Shell Ink App] filesystem check failed', error);
-    steerFailureNotice = `Live steering unavailable: ${error?.message || String(error)}`;
+    steerFailureNotice = `Live steering unavailable: ${errorMessage(error)}`;
   }
           }
           const queued = queueTerminalShellInput({
@@ -419,7 +423,8 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       ]);
       setNotice(result.ok ? 'Ready.' : 'Review the message above before continuing.');
     } catch (error: unknown) {
-      const message = error?.message || String(error);
+      const err = asErrorLike(error);
+      const message = errorMessage(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {
         kind: 'approval',
@@ -477,7 +482,8 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
       ]);
       setNotice(result.notice);
     } catch (error: unknown) {
-      const message = error?.message || String(error);
+      const err = asErrorLike(error);
+      const message = errorMessage(error);
       setMessages((current) => [...current.slice(-6), { role: 'system', text: message }]);
       setCards((current) => [...current.slice(-4), {
         kind: 'approval',

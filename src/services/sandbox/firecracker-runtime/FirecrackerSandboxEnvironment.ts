@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { execNativeCommandSync } from '../../../core/CommandSpawn.js';
 import { logger } from '../../../logger.js';
 

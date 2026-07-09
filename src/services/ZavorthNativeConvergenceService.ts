@@ -1,4 +1,6 @@
-﻿import fs from 'node:fs';
+import { ZavorthActionCatalog } from '../runtime/actions/ZavorthActionCatalog.js';
+
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -9,7 +11,7 @@ import {
   type ConvergenceReadinessStatus,
   ZAVORTH_NATIVE_CONVERGENCE_CONTRACT_VERSION,
 } from '../contracts/ConvergenceReadinessContract.js';
-import { ZavorthActionCatalog } from '../runtime/actions/ZavorthActionCatalog.js';
+
 import { buildZavorthCliRuntimeTuiSnapshot } from '../cli/hud/ZavorthCliRuntimeTuiProjection.js';
 import { ChannelLongTailActivationService } from './ChannelLongTailActivationService.js';
 import { ProviderLongTailActivationService } from './ProviderLongTailActivationService.js';
@@ -21,6 +23,7 @@ import { VoiceWakeRuntimeService } from './VoiceWakeRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import { SwarmScalePlaneService } from '../domain/execution/infrastructure/SwarmScalePlaneService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -447,7 +450,8 @@ export class ZavorthNativeConvergenceService {
         ...result,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         id,
         title,

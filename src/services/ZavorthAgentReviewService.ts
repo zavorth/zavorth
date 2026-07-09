@@ -1,4 +1,4 @@
-﻿import { execFile, spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { logger } from '../logger.js';

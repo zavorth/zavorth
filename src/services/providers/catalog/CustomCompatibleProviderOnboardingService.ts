@@ -1,9 +1,3 @@
-﻿import type {
-  ModelCapabilityKind,
-  ModelModality,
-  ProviderCredentialKind,
-  ProviderRouteKind,
-} from '../../../contracts/ModelPickerContract.js';
 import {
   createMinimalProviderIntegrationManifest,
   type ProviderIntegrationManifest,
@@ -13,6 +7,13 @@ import {
   type ProviderCompatibilityClassification,
   type ProviderCompatibilityKind,
 } from './ProviderCompatibilityClassifier.js';
+import type {
+  ModelCapabilityKind,
+  ModelModality,
+  ProviderCredentialKind,
+  ProviderRouteKind,
+} from '../../../contracts/ModelPickerContract.js';
+
 
 export type CustomCompatibleProviderOnboardingInput = {
   id: string;

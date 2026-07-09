@@ -1,4 +1,4 @@
-﻿import {
+import {
   ZAVORTH_AGENT_GATEWAY_HANDOFF_VERSION,
   type ZavorthAgentGatewayConvergenceChecklistItem,
   type ZavorthAgentGatewayHandoffContext,

@@ -83,10 +83,8 @@ describe('TelegramEchoApprovalController', () => {
       userId: '777',
       requestedBy: 'telegram:777',
     }));
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Echo approvals pendentes (1)'),
-      expect.objectContaining({ reply_markup: expect.any(Object) }),
-    );
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Pending Echo approvals (1)');
+      expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.objectContaining({ reply_markup: expect.any(Object) }));
     expect(ctx.reply.mock.calls[0][0]).toContain('run-telegram-echo');
   });
 
@@ -97,8 +95,11 @@ describe('TelegramEchoApprovalController', () => {
     await controller.handleEchoCallback(ctx, 'echo:approve:approval-echo-1');
 
     expect(resolvePermission).toHaveBeenCalledWith('approval-echo-1234567890', true);
-    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Approval Echo aprovado.' });
-    expect(ctx.editMessageText).toHaveBeenCalledWith(expect.stringContaining('Approval Echo aprovado.'));
+    const answerText = String(ctx.answerCallbackQuery.mock.calls[0]?.[0]?.text ?? '');
+    expect(answerText).toMatch(/Approval Echo aprovado\.?|Echo approval approved\.?/i);
+    expect(ctx.editMessageText).toHaveBeenCalledWith(
+      expect.stringMatching(/Approval Echo aprovado\.?|Echo approval approved\.?/i),
+    );
   });
 
   it('resolves a Echo approval from a text command', async () => {
@@ -108,6 +109,6 @@ describe('TelegramEchoApprovalController', () => {
     await controller.handleEchoCommand(ctx, 'reject approval-echo-1');
 
     expect(resolvePermission).toHaveBeenCalledWith('approval-echo-1234567890', false);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Approval Echo negado.'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Echo approval denied');
   });
 });

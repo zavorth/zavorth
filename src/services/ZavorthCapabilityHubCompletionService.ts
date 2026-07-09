@@ -1,4 +1,6 @@
-﻿import fs from 'node:fs';
+import { ZavorthCapabilityNaturalOperatorService } from './ZavorthCapabilityNaturalOperatorService.js';
+
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   CAPABILITY_HUB_COMPLETION_CONTRACT_VERSION,
@@ -7,11 +9,12 @@ import {
   type CapabilityHubCompletionSnapshot,
   type CapabilityHubCompletionStatus,
 } from '../contracts/CapabilityHubCompletionContract.js';
-import { ZavorthCapabilityNaturalOperatorService } from './ZavorthCapabilityNaturalOperatorService.js';
+
 import {
   ZavorthCapabilitySetupQueueService,
   type ZavorthCapabilitySetupQueueRuntime,
 } from './ZavorthCapabilitySetupQueueService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthCapabilityHubCompletionRuntime = ZavorthCapabilitySetupQueueRuntime & {
   rootDir?: string;
@@ -240,7 +243,8 @@ export class ZavorthCapabilityHubCompletionService {
         completedReadinessChecks: ['release-readiness-readiness', 'artifact-receipt-policy'],
       });
     } catch (error: unknown) {
-      if (!/already exists/i.test(error instanceof Error ? error.message : String(error))) {
+      const err = asErrorLike(error);
+      if (!/already exists/i.test(error instanceof Error ? err.message : String(error))) {
         throw error;
       }
     }

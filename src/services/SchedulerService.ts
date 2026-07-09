@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { safeParseInt } from '../utils/number.js';
 import { v4 as uuidv4 } from 'uuid';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';

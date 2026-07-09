@@ -624,15 +624,11 @@ export class CompanionControlService {
       `}`,
       `$orderedIds = $candidateIds.ToArray() | Sort-Object -Descending`,
       `foreach ($pid in $orderedIds) {`,
-      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch (error: unknown) {
-        const err = asErrorLike(error);
-        logger.warn("[auto-fix] Empty catch block", err); }`,
+      `  try { & taskkill.exe /PID $pid /T /F | Out-Null } catch {}`,
       `}`,
       `$leftovers = Get-CimInstance Win32_Process | Where-Object { (Test-DockerProcessPath ([string]$_.ExecutablePath)) -or ($dockerNames -contains $_.Name) }`,
       `foreach ($process in $leftovers) {`,
-      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch (error: unknown) {
-        const err = asErrorLike(error);
-        logger.warn("[auto-fix] Empty catch block", err); }`,
+      `  try { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue } catch {}`,
       `}`,
     ].join('; ');
     await this.exec('powershell.exe', ['-NoProfile', '-Command', script], { timeoutMs: 30_000 });

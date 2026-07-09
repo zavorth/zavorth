@@ -1,6 +1,8 @@
+import { NextResponse } from "next/server";
+import { createBackup } from "@/shared/services/backupService";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
@@ -9,12 +11,13 @@ import {
   getCliPrimaryConfigPath,
   getCliRuntimeStatus,
 } from "@/shared/services/cliRuntime";
-import { createBackup } from "@/shared/services/backupService";
+
 import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db/cliToolState";
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const getDroidSettingsPath = () => getCliPrimaryConfigPath("droid");
 const getDroidDir = () => path.dirname(getDroidSettingsPath());
@@ -26,7 +29,8 @@ const readSettings = async () => {
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
   } catch (error: unknown) {
-    if (error.code === "ENOENT") return null;
+    const err = asErrorLike(error);
+    if (err.code === "ENOENT") return null;
     throw error;
   }
 };
@@ -220,7 +224,8 @@ export async function DELETE(request: Request) {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
     } catch (error: unknown) {
-      if (error.code === "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code === "ENOENT") {
         return NextResponse.json({
           success: true,
           message: "No settings file to reset",

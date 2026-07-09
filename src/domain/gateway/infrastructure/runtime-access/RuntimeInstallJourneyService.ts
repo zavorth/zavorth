@@ -9,11 +9,14 @@ import {
   type RuntimeAccessManifest,
 } from './RuntimeAccessManifestService.js';
 import { RuntimeStartupService, type RuntimeStartupResult } from '../../../../services/RuntimeStartupService.js';
+import { config } from '../../../../config/index.js';
+
+
 import {
   ChannelInstallScaffoldService,
   type ChannelInstallReport,
 } from '../../../../services/ChannelInstallScaffoldService.js';
-import { config } from '../../../../config/index.js';
+
 import { buildZavorthProductModeSnapshot, type ZavorthProductModeSnapshot } from '../../../../services/ProductModeService.js';
 import { ProductChannelExperienceService } from '../../../../services/ProductChannelExperienceService.js';
 

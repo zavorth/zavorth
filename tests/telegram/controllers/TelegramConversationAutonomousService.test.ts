@@ -145,7 +145,9 @@ describe('TelegramConversationAutonomousService', () => {
       graphRuntimeServiceCalled: false,
     }));
     expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Trabalho autonomo ativado no runtime governado.'),
+      expect.stringMatching(
+        /Trabalho autonomo ativado no runtime governado\.|Autonomous work activated in the governed runtime\./,
+      ),
       expect.anything(),
     );
     expect(ctx.reply).toHaveBeenCalledWith(

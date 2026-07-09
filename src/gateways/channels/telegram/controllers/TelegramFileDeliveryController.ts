@@ -5,6 +5,8 @@ import { PermissionRequest } from '../../../../contracts/PermissionRequest.js';
 import { FinalResponseFormattingService } from '../../../../services/FinalResponseFormattingService.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { FileDeliveryPlan, FileDeliveryService } from '../../../../runtime/artifacts/FileDeliveryService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type TelegramFileDeliveryControllerDeps = {
   permissionService?: PermissionService;
   buildPermissionKeyboard?: (permission: PermissionRequest) => InlineKeyboard;
@@ -52,10 +54,11 @@ export class TelegramFileDeliveryController {
       });
       await this.deliverPlan(ctx, plan);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       await ctx.reply(
         this.formatter.compose('I could not prepare this delivery right now.', [
           {
-            lines: [`Reason: ${error instanceof Error ? error.message : String(error)}`],
+            lines: [`Reason: ${error instanceof Error ? err.message : String(error)}`],
           },
         ]),
       );
@@ -149,10 +152,11 @@ export class TelegramFileDeliveryController {
         caption: plan.caption,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       await ctx.reply(
         this.formatter.compose('I could not send this file right now.', [
           {
-            lines: [`Reason: ${error instanceof Error ? error.message : String(error)}`],
+            lines: [`Reason: ${error instanceof Error ? err.message : String(error)}`],
           },
         ]),
       );

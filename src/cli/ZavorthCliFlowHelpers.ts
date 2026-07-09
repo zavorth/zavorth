@@ -27,7 +27,6 @@ import { SurfaceOperationalIntentService } from '../services/SurfaceOperationalI
 import { resolveCliUniversalModelProfile } from './ZavorthCliModelPickerHelpers.js';
 import { createDefaultSessionId } from './ZavorthCliReplHistoryHelpers.js';
 import { ZavorthUserResponseRendererService } from '../services/ZavorthUserResponseRendererService.js';
-export { buildCliReplCompleter, createDefaultSessionId, loadCliReplHistory, persistCliReplHistory } from './ZavorthCliReplHistoryHelpers.js';
 import {
   formatCliChatAssistantMessage,
   formatCliChatCommandHint,
@@ -40,9 +39,12 @@ import {
   formatCliCuratorNotificationCard,
 } from './ZavorthCliEventCards.js';
 import { formatTerminalComposerPrompt } from './ZavorthCliTerminalComposer.js';
+
+export { buildCliReplCompleter, createDefaultSessionId, loadCliReplHistory, persistCliReplHistory } from './ZavorthCliReplHistoryHelpers.js';
+
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { Database } from '../storage/Database.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 
 export function defaultWriter(): CliWriter {
   return {
@@ -714,10 +716,11 @@ export async function executeCliTaskDispatch(
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     if (showSpinner) {
       globalSpinner.fail('Failed to dispatch the task');
     }
-    const message = `I could not dispatch this task through the CLI: ${error.message}`;
+    const message = `I could not dispatch this task through the CLI: ${err.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,
@@ -1323,10 +1326,11 @@ export async function executeCliUniversalAgentRuntime(
       error: result.ok ? null : result.run.summary,
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     if (showSpinner) {
       globalSpinner.fail('Runtime command failed');
     }
-    const message = `I could not process this request through the universal runtime: ${error.message}`;
+    const message = `I could not process this request through the universal runtime: ${err.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,
@@ -1582,7 +1586,8 @@ export async function executeCliLegacyUnifiedConversation(
       error: null,
     };
   } catch (error: unknown) {
-    const message = `Could not process this conversation through the unified CLI: ${error.message}`;
+    const err = asErrorLike(error);
+    const message = `Could not process this conversation through the unified CLI: ${err.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
         body: message,

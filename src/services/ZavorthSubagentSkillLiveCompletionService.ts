@@ -1,4 +1,5 @@
-﻿import type { SkillMetadata } from '../skills/SkillLoader.js';
+import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+import type { SkillMetadata } from '../skills/SkillLoader.js';
 import { SkillLoader } from '../skills/SkillLoader.js';
 import {
   ZAVORTH_SUBAGENT_SKILL_LIVE_COMPLETION_CONTRACT_VERSION,
@@ -7,7 +8,7 @@ import {
   type ZavorthSubagentSkillCompletionStatus,
   type ZavorthSubagentSkillLiveCompletionSnapshot,
 } from '../contracts/ZavorthSubagentSkillLiveCompletionContract.js';
-import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+
 import { ZavorthNaturalInvocationRouter } from './ZavorthNaturalInvocationRouter.js';
 import { logger } from '../logger.js';
 

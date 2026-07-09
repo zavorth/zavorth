@@ -1,5 +1,6 @@
-﻿import * as http from 'http';
 
+import * as http from 'http';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
 type EnsureAuthorized = (
@@ -61,7 +62,8 @@ export class ZavorthControlOperationsActionRouteService {
         execution.status === 'started' ? 202 : 500,
       );
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: error?.message || String(error) }, 400);
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: errorMessage(error) }, 400);
     }
 
     return true;

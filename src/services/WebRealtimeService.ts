@@ -1,4 +1,5 @@
-﻿import { randomUUID } from 'crypto';
+import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
+import { randomUUID } from 'crypto';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
@@ -16,7 +17,7 @@ import {
   type TaskManagerLike,
   type PermissionServiceLike,
 } from '../runtime/sessions/GatewaySessionService.js';
-import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
+
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
 import { GatewaySessionLedgerService } from './GatewaySessionLedgerService.js';
 import { config } from '../config/index.js';

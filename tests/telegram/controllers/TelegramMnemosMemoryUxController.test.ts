@@ -29,8 +29,8 @@ describe('TelegramMnemosMemoryUxController', () => {
 
     await controller.handleMnemos(ctx, 'query compaction', '42');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Mnemos query: ready'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('.zavorth/wiki/memory.md'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Mnemos query: ready');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('.zavorth/wiki/memory.md');
   });
 
   it('does not revoke procedural memory directly from Telegram text', async () => {
@@ -39,6 +39,6 @@ describe('TelegramMnemosMemoryUxController', () => {
 
     await controller.handleMnemos(ctx, 'revoke rule-1', '42');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('exige approval governado'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('requires governed approval');
   });
 });

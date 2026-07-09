@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface TranscriptionResult {
   success: boolean;
@@ -95,8 +97,9 @@ export class ZavorthSttTool extends BaseTool {
         default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Stt] async operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `STT error: ${message}`;
   }
   }
@@ -169,8 +172,9 @@ export class ZavorthSttTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Stt] operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Transcription error: ${message}`;
   }
   }
@@ -201,8 +205,9 @@ export class ZavorthSttTool extends BaseTool {
 
       return `Idioma detectado: ${result.language || 'desconhecido'}. Texto: "${result.text.slice(0, 100)}..."`;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Stt] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Language detection error: ${message}`;
   }
   }

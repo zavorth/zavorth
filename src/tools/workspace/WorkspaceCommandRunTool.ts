@@ -1,10 +1,12 @@
-﻿import path from 'path';
+
+import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspaceCommandRiskClassifier } from '../../services/WorkspaceCommandRiskClassifier.js';
 import { WorkspaceCommandApprovalService } from '../../services/WorkspaceCommandApprovalService.js';
 import { WorkspaceCommandRunnerService } from '../../services/WorkspaceCommandRunnerService.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export class WorkspaceCommandRunTool extends BaseTool {
   public readonly name = 'workspace.command.run';
@@ -127,10 +129,11 @@ export class WorkspaceCommandRunTool extends BaseTool {
         truncatedFlag: result.truncatedFlag
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Workspace Command Run] process execution failed', error);
     return JSON.stringify({
         success: false,
-        error: `Command execution failed: ${error.message || error}`
+        error: `Command execution failed: ${err.message || error}`
       });
   }
   }

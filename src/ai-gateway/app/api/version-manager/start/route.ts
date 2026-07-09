@@ -1,11 +1,13 @@
+import { NextResponse } from "next/server";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import { startTool } from "@/lib/versionManager";
 import { versionManagerToolSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 export async function POST(request: Request) {
   const authError = await requireStrictManagementAuth(request);
@@ -28,7 +30,8 @@ export async function POST(request: Request) {
     const result = await startTool(tool);
     return NextResponse.json({ success: true, ...result });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Failed to start";
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : "Failed to start";
     console.error("[version-manager] start error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }

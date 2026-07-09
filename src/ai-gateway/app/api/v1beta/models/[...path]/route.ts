@@ -4,6 +4,8 @@ import { initTranslators } from "@ZavorthGateway/open-sse/translator/index.ts";
 import { v1betaGeminiGenerateSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 let initialized = false;
 
 /**
@@ -89,8 +91,9 @@ export async function POST(request, { params }) {
 
     return await handleChat(newRequest, buildClientRawRequest(request, rawBody));
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Error handling Gemini request:", error);
-    return Response.json({ error: { message: error.message, code: 500 } }, { status: 500 });
+    return Response.json({ error: { message: err.message, code: 500 } }, { status: 500 });
   }
 }
 

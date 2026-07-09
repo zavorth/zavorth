@@ -3,6 +3,7 @@ import {
   type SkillManifest,
 } from '../../../context-engine/SkillScanner.js';
 import { wrapUntrustedContent } from '../../../security/UntrustedContent.js';
+
 import {
   SkillQuarantinePolicy,
   sanitizeTrustPlaneText,
@@ -12,6 +13,7 @@ import {
   type ImportedCapabilityTrustSummary,
 } from '../security/index.js';
 import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';
+import { asErrorLike, errorMessage } from '../../../utils/errorLike.js';
 export type SkillSnapshotScanner = Pick<SkillScanner, 'scan'>;
 export type SkillSnapshotQuarantinePolicy = Pick<SkillQuarantinePolicy, 'evaluate'>;
 
@@ -141,12 +143,13 @@ export class SkillSnapshotAssembler {
         metadata,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const metadata: Record<string, unknown> = {
         ...(input.metadata || {}),
         source: 'SkillScanner',
         directories,
         status: 'failed',
-        error: error?.message || String(error),
+        error: errorMessage(error),
         trustSummary: {
           trusted: 0,
           safe: 0,

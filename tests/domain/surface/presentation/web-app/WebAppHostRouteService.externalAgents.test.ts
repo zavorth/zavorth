@@ -93,7 +93,7 @@ describe('WebAppHostRouteService Zavorth runtime adapter dashboard routes', () =
       payload: expect.objectContaining({
         ok: true,
         snapshot: expect.objectContaining({
-          surface: 'external-agent-dashboard',
+          surface: 'external-agent-zavorthControl',
           summary: expect.objectContaining({ profiles: 0 }),
         }),
       }),

@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { ZavorthCapabilityPackCatalogService } from './ZavorthCapabilityPackCatalogService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -10,7 +11,7 @@ import {
   type ZavorthInnovationRadarSnapshot,
   type ZavorthInnovationRadarSourceReceipt,
 } from '../contracts/native/ZavorthInnovationRadarContract.js';
-import { ZavorthCapabilityPackCatalogService } from './ZavorthCapabilityPackCatalogService.js';
+
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';
 

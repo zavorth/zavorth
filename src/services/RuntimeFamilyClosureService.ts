@@ -10,6 +10,7 @@ import type {
   RuntimeFamilyProofStep,
 } from '../contracts/RuntimeFamilyClosureContract.js';
 import { ZAVORTH_RUNTIME_FAMILY_CLOSURE_CONTRACT_VERSION } from '../contracts/RuntimeFamilyClosureContract.js';
+
 import {
   CapabilityNormalizationService,
   DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES,

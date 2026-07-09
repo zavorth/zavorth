@@ -1,4 +1,5 @@
-﻿import { logger } from '../logger.js';
+import { renderSessionCommandMarkdown } from './WebAppRuntimeSessionCommandMarkdown.js';
+import { logger } from '../logger.js';
 import { randomUUID } from 'crypto';
 import * as http from 'http';
 import type { GatewayCanonicalStatePayload } from '../contracts/GatewayContract.js';
@@ -8,7 +9,7 @@ import type {
 import type {
   WebAppRuntimeSessionMutationHelpers,
 } from './WebAppRuntimeSessionMutationService.js';
-import { renderSessionCommandMarkdown } from './WebAppRuntimeSessionCommandMarkdown.js';
+
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 
 type RuntimeRecord = Record<string, unknown>;

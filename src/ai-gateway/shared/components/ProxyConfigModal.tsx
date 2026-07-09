@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
+import { asErrorLike } from '../../../utils/errorLike.js';
 "use client";
 
-import { useState, useEffect } from "react";
+
 import PropTypes from "prop-types";
 import Modal from "./Modal";
 import Button from "./Button";
@@ -246,8 +248,9 @@ export default function ProxyConfigModal({
       onSaved?.();
       onClose();
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error("Error saving proxy:", error);
-      setFormError(error.message || "Failed to save proxy configuration");
+      setFormError(err.message || "Failed to save proxy configuration");
     } finally {
       setSaving(false);
     }
@@ -283,8 +286,9 @@ export default function ProxyConfigModal({
       onSaved?.();
       onClose();
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       console.error("Error clearing proxy:", error);
-      setFormError(error.message || "Failed to clear proxy configuration");
+      setFormError(err.message || "Failed to clear proxy configuration");
     } finally {
       setSaving(false);
     }
@@ -348,8 +352,9 @@ export default function ProxyConfigModal({
       }
       setTestResult(data);
     } catch (error: unknown) {
-      setTestResult({ success: false, error: error.message });
-      setFormError(error.message || "Connection failed");
+      const err = asErrorLike(error);
+      setTestResult({ success: false, error: err.message });
+      setFormError(err.message || "Connection failed");
     } finally {
       setTesting(false);
     }

@@ -1,6 +1,7 @@
+import { useState, useCallback } from "react";
 "use client";
 
-import { useState, useCallback } from "react";
+
 import PropTypes from "prop-types";
 import OAuthModal from "./OAuthModal";
 import KiroAuthModal from "./KiroAuthModal";

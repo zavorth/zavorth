@@ -1,4 +1,5 @@
-﻿import crypto from 'node:crypto';
+import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -19,7 +20,7 @@ import {
   type ZavorthExtensionPluginSdkSnapshot,
   type ZavorthExtensionPluginSdkStatus,
 } from '../contracts/ZavorthExtensionPluginSdkContract.js';
-import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';
+
 import { PluginStateService } from './PluginStateService.js';
 import { logger } from '../logger.js';
 

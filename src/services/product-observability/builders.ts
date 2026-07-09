@@ -30,6 +30,7 @@ import {
   isRecoveredWorkflow,
 } from './readers.js';
 
+
 export function collectWorkspaceStats(tasks: Task[], workflowRuns: WorkflowRunSnapshot[]): WeightedCount[] {
   const buckets = new Map<string, WeightedCount>();
   for (const task of tasks) {

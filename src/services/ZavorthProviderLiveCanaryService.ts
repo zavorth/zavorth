@@ -1,15 +1,18 @@
-﻿import { config } from '../config/index.js';
+import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
+
+import { config } from '../config/index.js';
 import {
   ZAVORTH_PROVIDER_LIVE_CANARY_VERSION,
   type ZavorthProviderLiveCanaryProviderEntry,
   type ZavorthProviderLiveCanarySnapshot,
   type ZavorthProviderLiveCanaryStatus,
 } from '../contracts/ZavorthProviderLiveCanaryContract.js';
-import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
+
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type LlmRuntimeLike = Pick<LlmRuntimeService, 'isProviderAvailable' | 'getPreferredProviderName'>;
 type SubagentRuntimeLike = Pick<ZavorthSubagentRuntimeService, 'execute'>;
@@ -188,7 +191,8 @@ export class ZavorthProviderLiveCanaryService {
         ),
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         ...base,
         status: 'blocked',
@@ -239,10 +243,11 @@ export class ZavorthProviderLiveCanaryService {
       }
       return { status: 'passed', error: null };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth  Live Canary] filesystem check failed', error);
     return {
         status: 'failed',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   } finally {
       ProviderFactory.clearCache();
@@ -275,9 +280,10 @@ export class ZavorthProviderLiveCanaryService {
         available = this.llmRuntime.isProviderAvailable(providerName);
         reason = available ? 'credential or endpoint presence detected' : 'credential or endpoint not detected';
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Zavorth  Live Canary] array operation failed', error);
     available = false;
-        reason = error instanceof Error ? error.message : String(error);
+        reason = error instanceof Error ? err.message : String(error);
   }
       return {
         providerName,

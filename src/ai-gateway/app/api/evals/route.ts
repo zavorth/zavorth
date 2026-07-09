@@ -4,6 +4,8 @@ import { listSuites, runSuite } from "@/lib/evals/evalRunner";
 import { evalRunSuiteSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -12,8 +14,9 @@ export async function GET(request: Request) {
     const suites = listSuites();
     return NextResponse.json(suites);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -45,7 +48,8 @@ export async function POST(request) {
     const result = runSuite(suiteId, outputs);
     return NextResponse.json(result);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

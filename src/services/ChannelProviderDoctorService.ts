@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { logger } from '../logger.js';
+import fs from 'fs';
 import { config } from '../config/index.js';
 import {
   inspectDiscordChannel,
@@ -6,7 +7,7 @@ import {
   inspectTelegramChannel,
   inspectWhatsAppChannel,
 } from './channel-provider-doctor/ChannelProviderNativeInspectors.js';
-import { logger } from '../logger.js';
+
 import {
 inspectEmailChannel,
   inspectIMessageChannel,

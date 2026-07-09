@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { ZavorthProductCertificationService } from '../../src/services/ZavorthProductCertificationService.js';
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 import {
   ZAVORTH_PRODUCT_CERTIFICATION_VERSION,
 } from '../../src/contracts/ZavorthProductCertificationContract.js';
-import { ZavorthProductCertificationService } from '../../src/services/ZavorthProductCertificationService.js';
 
 describe('ZavorthProductCertificationService', () => {
   let root: string;

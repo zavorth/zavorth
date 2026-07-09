@@ -1,10 +1,10 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config as defaultConfig } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export type ZavorthManagedConfigStatus = 'ready' | 'attention' | 'blocked' | 'applied';
 
 export type ZavorthManagedConfigFinding = {
@@ -210,14 +210,14 @@ export class ZavorthManagedConfigService {
         }
         return { ok: true, raw: await response.text() };
       } catch (error: unknown) {logger.warn('[Zavorth Managed] network request failed', error);
-    return { ok: false, raw: null, error: String(error?.message || error) };
+    return { ok: false, raw: null, error: String(errorMessage(error)) };
   }
     }
     const fullPath = path.isAbsolute(sourceRef) ? sourceRef : path.join(this.projectRoot, sourceRef);
     try {
       return { ok: true, raw: fs.readFileSync(fullPath, 'utf8') };
     } catch (error: unknown) {logger.warn('[Zavorth Managed] filesystem operation failed', error);
-    return { ok: false, raw: null, error: String(error?.message || error) };
+    return { ok: false, raw: null, error: String(errorMessage(error)) };
   }
   }
 

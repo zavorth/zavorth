@@ -1,6 +1,8 @@
-﻿import { Worker } from 'worker_threads';
+
+import { Worker } from 'worker_threads';
 import { config } from '../../config/index.js';
 import type { ISandboxRuntime, SandboxRequest, SandboxResult } from './ISandboxRuntime.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export type WasmSandboxRequest = {
   moduleBase64: string;
@@ -72,9 +74,10 @@ function normalizeReturnValue(value) {
       stdout: normalized ? \`\${normalized}\\n\` : '',
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     parentPort.postMessage({
       ok: false,
-      error: error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? err.message : String(error),
     });
   }
 })();

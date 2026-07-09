@@ -1,9 +1,11 @@
+
 /**
  * Usage Fetcher - Get usage data from provider APIs
  */
 
 import { GITHUB_CONFIG, GEMINI_CONFIG, ZAVORTH_BRIDGE_CONFIG } from "@/lib/oauth/constants/oauth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 /**
  * Get usage data for a provider connection
@@ -100,7 +102,8 @@ async function getGitHubUsage(accessToken, providerSpecificData) {
 
     return { message: "GitHub Copilot connected. Unable to parse quota data." };
   } catch (error: unknown) {
-    throw new Error(`Failed to fetch GitHub usage: ${error.message}`);
+    const err = asErrorLike(error);
+    throw new Error(`Failed to fetch GitHub usage: ${err.message}`);
   }
 }
 
@@ -270,7 +273,8 @@ async function getKiroUsage(accessToken: string) {
       },
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[fetcher] connection failed', error);
-    return { message: `Unable to fetch Kiro credits: ${error.message}` };
+    return { message: `Unable to fetch Kiro credits: ${err.message}` };
   }
 }

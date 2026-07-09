@@ -1,4 +1,4 @@
-﻿# Zavorth iOS Changelog
+# Zavorth iOS Changelog
 
 ## 2026.6.10 - 2026-06-21
 

@@ -14,6 +14,7 @@ import {
   type EvidenceSearchDomain,
 } from '../agents/EvidenceDomainProfiles.js';
 import { logger } from '../logger.js';
+
 import {
 buildEvidenceSearchPlan,
   buildEvidenceTrackQueries,
@@ -155,7 +156,8 @@ export class WebSearchTool extends BaseTool {
       return `No results found for search: "${query}".`;
 
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       console.error(`❌ [WebSearchTool] Erro na busca:`, errorMessage);
       const fallbackResult = this.shouldUseNewsRssFallback(query)
         ? await this.searchNewsFallback(query, effectiveLimit)
@@ -264,7 +266,8 @@ export class WebSearchTool extends BaseTool {
           });
         });
       } catch (error: unknown) {
-        firstError ||= new Error(error instanceof Error ? error.message : String(error));
+        const err = asErrorLike(error);
+        firstError ||= new Error(error instanceof Error ? err.message : String(error));
       }
     }
 
@@ -423,7 +426,8 @@ export class WebSearchTool extends BaseTool {
       try {
         return await runSearch();
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         if (!/too quickly|anomaly|rate|429/i.test(message)) {
           throw error;
         }
@@ -639,8 +643,9 @@ export class WebSearchTool extends BaseTool {
       }
       return { title, excerpt, publishedAt };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Web Search] operation failed', error);
-    return { error: error instanceof Error ? (error.name === 'AbortError' ? 'timeout' : error.message) : String(error) };
+    return { error: error instanceof Error ? (err.name === 'AbortError' ? 'timeout' : err.message) : String(error) };
   } finally {
       clearTimeout(timeout);
     }
@@ -714,7 +719,7 @@ export class WebSearchTool extends BaseTool {
     } catch (fallbackError: unknown) {
       const err = asErrorLike(fallbackError);
       const error = err;
-      const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
       console.error(`[WebSearchTool] Fallback Google News falhou:`, errorMessage);
     }
 
@@ -723,7 +728,7 @@ export class WebSearchTool extends BaseTool {
     } catch (fallbackError: unknown) {
       const err = asErrorLike(fallbackError);
       const error = err;
-      const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+      const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
       console.error(`[WebSearchTool] Fallback Bing News falhou:`, errorMessage);
       return null;
     }
@@ -767,7 +772,7 @@ export class WebSearchTool extends BaseTool {
       } catch (fallbackError: unknown) {
         const err = asErrorLike(fallbackError);
         const error = err;
-        const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
         console.error(`[WebSearchTool] Fallback ${candidate.label} falhou:`, errorMessage);
       }
     }
@@ -811,7 +816,7 @@ export class WebSearchTool extends BaseTool {
       } catch (fallbackError: unknown) {
         const err = asErrorLike(fallbackError);
         const error = err;
-        const errorMessage = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
         console.error(`[WebSearchTool] Fallback politica global falhou:`, errorMessage);
       }
     }

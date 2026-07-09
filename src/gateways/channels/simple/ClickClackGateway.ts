@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 export class ClickClackGateway extends WebhookGateway {
   public readonly id = 'clickclack';
   public readonly name = 'ClickClack';
@@ -109,7 +111,8 @@ export class ClickClackGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       this.recordError(`ClickClack send failed: ${msg}`);
     }
   }

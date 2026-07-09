@@ -1,4 +1,4 @@
-﻿import type { IMemoryBackend } from './IMemoryBackend.js';
+import type { IMemoryBackend } from './IMemoryBackend.js';
 
 type Mem0ClientLike = {
   add(content: string, params?: { user_id?: string; [key: string]: any }): Promise<any>;

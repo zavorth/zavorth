@@ -1,7 +1,9 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import fs from 'fs';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 /**
  * Allows the agent to list files and folders in a local directory.
@@ -60,7 +62,8 @@ export class ListDirectoryTool extends BaseTool {
 
       return output.trim();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       console.error('[ListDirectory] Error while listing:', message);
       return `Error while reading directory: ${message}`;
     }

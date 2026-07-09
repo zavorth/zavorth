@@ -1,4 +1,4 @@
-﻿import { Database } from '../storage/Database.js';
+import { Database } from '../storage/Database.js';
 import * as crypto from 'crypto';
 
 export interface ProviderConfig {

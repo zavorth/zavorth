@@ -1,4 +1,4 @@
-﻿import path from 'node:path';
+import path from 'node:path';
 
 import type { TaskPlaneItem } from '../contracts/TaskPlaneContract.js';
 import type { GoalPlaneItem } from './GoalPlaneService.js';

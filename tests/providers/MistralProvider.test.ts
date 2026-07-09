@@ -1,3 +1,4 @@
+import { config } from '../../src/config/index';
 
 
 const { mockCreate, MockOpenAI } = (() => {
@@ -11,7 +12,7 @@ jest.mock('openai', () => ({
   default: MockOpenAI,
 }));
 
-import { config } from '../../src/config/index';
+
 import { MistralProvider } from '../../src/providers/MistralProvider';
 
 describe('MistralProvider', () => {

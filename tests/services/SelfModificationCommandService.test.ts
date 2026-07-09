@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { SelfModificationCommandService } from '../../src/services/SelfModificationCommandService';
 
 jest.mock('../../src/providers/ProviderFactory', () => ({
   ProviderFactory: {
@@ -8,7 +9,6 @@ jest.mock('../../src/providers/ProviderFactory', () => ({
   },
 }));
 
-import { SelfModificationCommandService } from '../../src/services/SelfModificationCommandService';
 
 describe('SelfModificationCommandService', () => {
   const projectRoot = path.join(process.cwd(), 'tmp', 'selfmod-command-service');

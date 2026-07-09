@@ -4,6 +4,8 @@ import {
   type ProductObservabilitySnapshot,
 } from '../../../../services/ProductObservabilityService.js';
 import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
+import { logger } from '../../../../logger';
+
 import { SkillLibraryPresentationService } from '../../../../services/SkillLibraryPresentationService.js';
 import { getDefaultCapabilityRegistry } from '../../../../capabilities/CapabilityRegistry.js';
 import {
@@ -11,7 +13,7 @@ import {
   renderPlainSurfaceResponse,
   type SurfaceResponse,
 } from '../../../../domain/surface/application/surface-response/index.js';
-import { logger } from '../../../../logger';
+
 import type {
 CapabilityApprovalRequest,
   CapabilityManifest,

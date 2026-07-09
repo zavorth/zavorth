@@ -11,6 +11,7 @@ import {
   type ZavorthTrustPolicy,
 } from '../trust/ZavorthTrustPolicy.js';
 
+
 export interface RegistryPackageMetadata {
   id: string;
   name: string;

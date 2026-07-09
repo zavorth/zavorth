@@ -96,7 +96,8 @@ export async function GET() {
 
     return Response.json({ models });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Error fetching models:", error);
-    return Response.json({ error: { message: error.message } }, { status: 500 });
+    return Response.json({ error: { message: err.message } }, { status: 500 });
   }
 }

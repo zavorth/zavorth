@@ -10,6 +10,7 @@ import {
   type ImportedCapabilityTrustState,
   type ImportedCapabilityTrustSummary,
 } from '../security/index.js';
+
 import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';export type McpSnapshotRuntime = Pick<McpRuntimeService, 'readSnapshot'>;
 export type McpSnapshotQuarantinePolicy = Pick<McpQuarantinePolicy, 'evaluate'>;
 

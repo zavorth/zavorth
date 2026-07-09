@@ -1,4 +1,4 @@
-﻿import { BaseTool } from './BaseTool.js';
+import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';
 
 /**

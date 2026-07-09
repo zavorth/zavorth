@@ -3,6 +3,23 @@ import type {
   UniversalMemorySignal,
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
+import {
+  normalizeText,
+  normalizeKey,
+  recordOrNull,
+  listRecords,
+  listStrings,
+  clampConfidence,
+  redactAndShorten,
+  normalizeMemoryLayer,
+  normalizeRisk,
+  sourceRefFromIdentityFile,
+  sectionFromIdentityFile,
+  titleFromIdentityFile,
+  cardActions,
+  uniqueCards,
+  type LooseRecord,
+} from './SelfingZavorthControlHelpers.js';
 
 export const SELFING_ZAVORTH_CONTROL_CONTRACT_VERSION = '2026-05-03.selfing-zavorthControl' as const;
 
@@ -123,23 +140,6 @@ export type SelfingZavorthControlInput = {
   generatedAt?: string | null;
 };
 
-import {
-  normalizeText,
-  normalizeKey,
-  recordOrNull,
-  listRecords,
-  listStrings,
-  clampConfidence,
-  redactAndShorten,
-  normalizeMemoryLayer,
-  normalizeRisk,
-  sourceRefFromIdentityFile,
-  sectionFromIdentityFile,
-  titleFromIdentityFile,
-  cardActions,
-  uniqueCards,
-  type LooseRecord,
-} from './SelfingZavorthControlHelpers.js';
 
 export class SelfingZavorthControlService {
   private readonly now: () => Date;

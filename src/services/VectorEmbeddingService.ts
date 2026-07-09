@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { config } from '../config/index.js';
 

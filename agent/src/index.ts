@@ -15,6 +15,8 @@ import type {
   EchoAgentSurfaceState,
 } from './EchoClientService.js';
 import { OverlayService } from './OverlayService.js';
+import { asErrorLike } from '../../src/utils/errorLike.js';
+
 import { SystrayService } from './SystrayService.js';
 import { TtsService } from './TtsService.js';
 import { VoiceRecorderService } from './VoiceRecorderService.js';

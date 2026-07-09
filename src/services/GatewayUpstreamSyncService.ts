@@ -1,4 +1,6 @@
-﻿import fs from 'fs';
+import { GatewayCompatibilityDoctorService, type AIGatewayCompatibilityDoctorReport } from './GatewayCompatibilityDoctorService.js';
+
+import fs from 'fs';
 import path from 'path';
 import { spawnCommand, spawnNativeCommand } from '../core/CommandSpawn.js';
 import { config } from '../config/index.js';
@@ -7,11 +9,11 @@ import type {
   VendorLicenseDecision,
   VendorReleaseIndexEntry,
 } from '../contracts/VendorPlaneContract.js';
-import { GatewayCompatibilityDoctorService, type AIGatewayCompatibilityDoctorReport } from './GatewayCompatibilityDoctorService.js';
+
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
 import { VendorReleaseIndexService } from './VendorReleaseIndexService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 export type AIGatewayUpstreamSyncReport = {
   ok: boolean;
   action: 'sync' | 'promote' | 'rollback';
@@ -166,6 +168,7 @@ export class GatewayUpstreamSyncService {
         error: compat && !compat.ok ? compat.error || compat.summary : null,
       }));
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[way Upstream] filesystem check failed', error);
     return this.persist(this.decorateVendorMetadata({
         ok: false,
@@ -183,7 +186,7 @@ export class GatewayUpstreamSyncService {
         vendorIndex: null,
         diffSummary: null,
         licenseDecision: null,
-        error: error?.message || String(error),
+        error: errorMessage(error),
       }));
   }
   }

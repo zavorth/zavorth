@@ -19,6 +19,7 @@ import {
   splitList,
 } from './ZavorthCliSharedHelpers.js';
 import { logger } from '../logger.js';
+
 import {
 redactCommand,
   runBackground,

@@ -26,6 +26,8 @@ import {
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
 import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createPowerFabricActionModule, createProductFabricActionModule, createProductizationPacksActionModule, createReachFabricActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
 function normalizeText(value: unknown, fallback = ''): string {
@@ -950,6 +952,7 @@ function memorySearchHandler(input: ZavorthActionHandlerInput): ZavorthActionRes
       data: { snapshot },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return result({
       ok: true,
       actionId: input.actionId,
@@ -957,7 +960,7 @@ function memorySearchHandler(input: ZavorthActionHandlerInput): ZavorthActionRes
       status: 'ok',
       summary: 'Memory search is empty or not indexed yet.',
       lines: ['No Mnemos wiki/index was available for this workspace.'],
-      data: { error: error instanceof Error ? error.message : String(error) },
+      data: { error: error instanceof Error ? err.message : String(error) },
     });
   }
 }
@@ -1219,13 +1222,14 @@ async function integrationConnectorsHandler(input: ZavorthActionHandlerInput): P
         data: { preview },
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return result({
         ok: false,
         actionId: input.actionId,
         operation: input.operation,
         status: 'blocked',
-        summary: error instanceof Error ? error.message : String(error),
-        lines: [error instanceof Error ? error.message : String(error)],
+        summary: error instanceof Error ? err.message : String(error),
+        lines: [error instanceof Error ? err.message : String(error)],
       });
     }
   }

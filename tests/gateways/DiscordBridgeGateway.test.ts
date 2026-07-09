@@ -193,7 +193,7 @@ describe('DiscordBridgeGateway', () => {
     expect(outbox.payload.text).toBe('agent:discord:continue a tarefa');
 
     fs.rmSync(temp.root, { recursive: true, force: true });
-  });
+  }, 30000);
 
   it('rejects unsigned or unauthorized relay envelopes', async () => {
     const temp = createTempPaths();

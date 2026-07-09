@@ -1,4 +1,6 @@
-﻿import { randomUUID } from 'node:crypto';
+import { ARTIFACT_DIFF_CONTRACT_VERSION } from '../contracts/ArtifactDiffContract.js';
+
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
@@ -9,8 +11,9 @@ import type {
   ArtifactDiffResult,
   ArtifactDiffSource,
 } from '../contracts/ArtifactDiffContract.js';
-import { ARTIFACT_DIFF_CONTRACT_VERSION } from '../contracts/ArtifactDiffContract.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ArtifactDiffServiceOptions = {
   artifactDir?: string;
@@ -96,6 +99,7 @@ export class ArtifactDiffService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Artifact Diff] operation failed', error);
     return {
         ok: false,
@@ -105,7 +109,7 @@ export class ArtifactDiffService {
         policyDecision,
         receiptId: `${artifactId}.receipt`,
         processedAt,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

@@ -52,7 +52,7 @@ describe('TrustedBoundary', () => {
       const cls = TrustedBoundary.classify('some content', 'unknown_weird_source_99');
       expect(cls.level).toBe('untrusted_content');
       expect(cls.can_generate_execution).toBe(false);
-      expect(cls.reason).toContain('desconhecida');
+      expect(cls.reason.toLowerCase()).toMatch(/unknown|desconhecida|untrusted/);
     });
   });
 

@@ -6,6 +6,7 @@ import {
 import {
   createResourceRef,
 } from '../../../src/runtime/effects/index.js';
+
 import type { CapabilityScope } from '../../../src/runtime/capabilities/index.js';
 
 describe('CapabilityToken contracts', () => {

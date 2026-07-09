@@ -7,6 +7,8 @@ import type {
 } from './MinimalCapabilityActivationPlanner.js';
 import type { MinimalCapabilityBootMode } from './MinimalCapabilityRegistry.js';
 import type { MinimalSidecarSnapshot } from './MinimalSidecarManager.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type MinimalCapabilityActivationOperation = 'plan' | 'activate' | 'replay' | 'rollback';
 
 export type MinimalCapabilityActivationReceipt = {
@@ -203,9 +205,10 @@ export class MinimalCapabilityActivationLedger {
         this.assertReceipt(parsed);
         receipts.push(parsed);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           line: index + 1,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     });

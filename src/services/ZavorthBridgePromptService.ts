@@ -1,29 +1,33 @@
-﻿import { Task } from '../contracts/TaskContract.js';
+import {
+  ZavorthBridgeControlResult,
+  ZavorthBridgeControlService,
+} from './ZavorthBridgeControlService.js';
+import { ZavorthBridgeCompanionBridge } from '../agents/ZavorthBridgeCompanionBridge.js';
+import { ZavorthBridgeWindowAutomator } from '../agents/ZavorthBridgeWindowAutomator.js';
+import {
+  ZavorthBridgePromptArtifactSupport,
+  type ZavorthBridgeArtifact,
+} from './zavorth-bridge-prompt/ZavorthBridgePromptArtifactSupport.js';
+import { ZavorthBridgePromptSurfaceSupport } from './zavorth-bridge-prompt/ZavorthBridgePromptSurfaceSupport.js';
+import { Task } from '../contracts/TaskContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { config } from '../config/index.js';
 import {
   AgentBridgeManager,
   PendingZavorthBridgeSession,
 } from '../orchestrator/AgentBridgeManager.js';
-import {
-  ZavorthBridgeControlResult,
-  ZavorthBridgeControlService,
-} from './ZavorthBridgeControlService.js';
-import { ZavorthBridgeCompanionBridge } from '../agents/ZavorthBridgeCompanionBridge.js';
+
+
 import {
   ZavorthBridgeUiCaptureService,
   ZavorthBridgeUiSnapshot,
 } from './ZavorthBridgeUiCaptureService.js';
-import { ZavorthBridgeWindowAutomator } from '../agents/ZavorthBridgeWindowAutomator.js';
+
 import {
   isZavorthBridgeUiResponseReadyForDelivery,
   isZavorthBridgeUiSurfaceReady,
 } from './ZavorthBridgeUiResponseHeuristics.js';
-import {
-  ZavorthBridgePromptArtifactSupport,
-  type ZavorthBridgeArtifact,
-} from './zavorth-bridge-prompt/ZavorthBridgePromptArtifactSupport.js';
-import { ZavorthBridgePromptSurfaceSupport } from './zavorth-bridge-prompt/ZavorthBridgePromptSurfaceSupport.js';
+
 
 export type ZavorthBridgePromptStartResult = {
   ok: boolean;

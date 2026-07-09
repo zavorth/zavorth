@@ -6,22 +6,23 @@ import type {
   CapabilitySourceMapping,
 } from '../contracts/CapabilityNormalizationContract.js';
 import { ZAVORTH_CAPABILITY_NORMALIZATION_CONTRACT_VERSION } from '../contracts/CapabilityNormalizationContract.js';
-import type {
-  ZavorthPluginManifest,
-} from '../contracts/PluginManifestContract.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION } from '../contracts/PluginManifestContract.js';
-
-type CapabilityNormalizationRuntime = {
-  now?: () => Date;
-  sourceModules?: string[];
-};
-
 import {
   DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES,
   GROUPS,
   PRIMITIVES,
   type SourceGroup,
 } from './CapabilityNormalizationCatalog.js';
+
+import type {
+  ZavorthPluginManifest,
+} from '../contracts/PluginManifestContract.js';
+
+type CapabilityNormalizationRuntime = {
+  now?: () => Date;
+  sourceModules?: string[];
+};
+
 
 export { DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationCatalog.js';
 

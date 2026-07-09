@@ -1,4 +1,5 @@
-﻿import type {
+
+import type {
   CapabilityEvidence,
   CapabilityReceipt,
   CapabilityRepairRunResult,
@@ -16,7 +17,7 @@ CapabilityAutopilotValidationResumeService,
   type CapabilityAutopilotPermissionGateStatus,
   type CapabilityAutopilotValidationResumeResult,
 } from './CapabilityAutopilotValidationResumeService.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type PermissionServiceLike = Pick<PermissionService, 'getRequest'>;
 type ValidationResumeLike = Pick<CapabilityAutopilotValidationResumeService, 'validateForResume'>;
 
@@ -244,10 +245,11 @@ export class CapabilityAutopilotRepairExecutionService {
         metadata: output.metadata || {},
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Capability Autopilot Repair Execution] lifecycle operation failed', error);
     return this.stepResult(input.step, 'failed', input.startedAt, this.now().toISOString(), {
         summary: 'Runner de repair falhou.',
-        detail: error?.message || String(error),
+        detail: errorMessage(error),
       });
   }
   }

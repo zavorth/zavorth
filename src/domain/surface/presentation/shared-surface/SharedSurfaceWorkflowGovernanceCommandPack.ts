@@ -23,7 +23,9 @@ import {
   renderSelfModificationUsage,
 } from './workflow-governance/workflowGovernanceRenderers.js';
 import { resolveRecentWorkflowRunIdFromTasks } from './workflow-governance/workflowGovernanceTaskResolution.js';
+
 import { canApplySelfModification, parseSelfModificationArgs } from './workflow-governance/workflowGovernanceSelfModification.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 export type SharedSurfaceWorkflowGovernanceCommandPackDeps = {
   permissionService: PermissionService | null;
   selfModificationCommandService: SelfModificationCommandService | null;
@@ -182,7 +184,8 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
       );
       await ctx.reply(formatPermissionListReply(permissions, status));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       await ctx.reply(`Falha na operacao de permissao: ${message}`);
     }
   }
@@ -196,7 +199,8 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
     try {
       await this.deps.workflowController.handleWorkflow(ctx, args);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o workflow agora.\n\nMotivo: ${message}`);
     }
   }
@@ -301,7 +305,8 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
       );
       await ctx.reply(formatSelfModificationRollbackReply(result));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o selfmod agora.\n\nMotivo: ${message}`);
     }
   }

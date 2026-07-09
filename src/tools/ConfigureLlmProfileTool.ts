@@ -1,4 +1,4 @@
-﻿import { BaseTool } from './BaseTool.js';
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { EnvFileService } from '../services/EnvFileService.js';
 import { config } from '../config/index.js';

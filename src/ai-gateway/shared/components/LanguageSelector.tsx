@@ -1,6 +1,7 @@
+import { useState, useRef, useEffect } from "react";
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+
 import { useRouter } from "next/navigation";
 import { LANGUAGES, LOCALE_COOKIE, SYSTEM_LOCALE } from "@/i18n/config";
 import type { Locale } from "@/i18n/config";

@@ -1,4 +1,13 @@
-﻿import * as http from 'http';
+import {
+  EchoExecuteRequestSchema,
+  EchoPermissionResolveRequestSchema,
+  EchoSpeechRequestSchema,
+  NexusExecuteRequestSchema,
+  parseZavorthControlRouteBody,
+  type EchoPermissionResolveRequestDto,
+} from './ZavorthControlEchoRouteSchemas.js';
+
+import * as http from 'http';
 import { EchoEdgeHardeningService } from '../domain/trust-governance/infrastructure/EchoEdgeHardeningService.js';
 import {
   EchoVoiceAssetStoreService,
@@ -11,15 +20,7 @@ import type {
   NormalizedInboundMessage,
   UniversalAgentRunResult,
 } from '../runtime/agent/index.js';
-import {
-  EchoExecuteRequestSchema,
-  EchoPermissionResolveRequestSchema,
-  EchoSpeechRequestSchema,
-  NexusExecuteRequestSchema,
-  parseZavorthControlRouteBody,
-  type EchoPermissionResolveRequestDto,
-} from './ZavorthControlEchoRouteSchemas.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 
 type ZavorthControlRouteSurface = 'echo' | 'nexus';
@@ -313,10 +314,9 @@ export class ZavorthControlEchoRouteService {
     }
     try {
       return JSON.parse(raw);
-    } catch (error: unknown) {
-      const error = new Error('Payload JSON invalido.') as RequestBodyTooLargeError;
-      error.statusCode = 400;
-      error.code = 'invalid_json';
+    } catch (error: unknown) { const err = asErrorLike(error); const errorMessage = new Error('Payload JSON invalido.') as RequestBodyTooLargeError;
+      Object.assign(error as object, { statusCode: 400 });
+      err.code = 'invalid_json';
       throw error;
     }
   }
@@ -346,7 +346,7 @@ export class ZavorthControlEchoRouteService {
           const error = new Error(
             `Payload Echo excede o limite seguro de ${this.edgeHardening.getMaxBodyBytes()} bytes.`,
           ) as RequestBodyTooLargeError;
-          error.statusCode = 413;
+          Object.assign(error as object, { statusCode: 413 });
           error.code = 'payload_too_large';
           reject(error);
           return;

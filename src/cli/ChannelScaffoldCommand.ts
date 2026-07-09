@@ -1,3 +1,4 @@
+import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
 /**
  * ChannelScaffoldCommand — Generates boilerplate for new channel adapters.
  *
@@ -50,7 +51,6 @@ import {
   buildOutboundChannelEnvelope,
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
-import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
 
 export class ${pascalName}ChannelAdapter implements GatewayChannelAdapter {
   id = '${name}';

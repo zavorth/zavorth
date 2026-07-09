@@ -1,4 +1,4 @@
-﻿import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
+import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
 import { logger } from '../logger.js';
 import type {
 SystemOverlordActionRequest,

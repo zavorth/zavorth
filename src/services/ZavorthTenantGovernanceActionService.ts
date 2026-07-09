@@ -26,6 +26,10 @@ import {
   type ZavorthTenantGovernanceSnapshot,
 } from './ZavorthTenantGovernanceService.js';
 
+
+
+
+
 type TenantGovernanceLike = Pick<ZavorthTenantGovernanceService, 'buildSnapshot'>;
 type TeamCatalogLike = Pick<ZavorthTeamCatalogService, 'buildSnapshot'>;
 type ChannelMeshLike = Pick<ZavorthChannelMeshService, 'buildSnapshot'>;

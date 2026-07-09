@@ -1,9 +1,9 @@
-import { asErrorLike } from '../utils/errorLike';
 import { execFile, type ExecException } from 'child_process';
 import crypto from 'crypto';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface HostCommandExecutionResult {
   exitCode: number;
@@ -89,7 +89,7 @@ export class HostCommandRunnerService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Host Command Runner] process execution failed', error);
-    exitCode = err.code !== undefined ? err.code : 1;
+    exitCode = (() => { const c = asErrorLike(err).code; return typeof c === 'number' ? c : 1; })();
       stderr = err.message || 'Unknown execution error';
   }
 

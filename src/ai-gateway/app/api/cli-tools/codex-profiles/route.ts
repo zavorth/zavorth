@@ -1,7 +1,8 @@
 import { asErrorLike } from '../../../../../utils/errorLike';
+import { NextResponse } from "next/server";
 "use server";
 
-import { NextResponse } from "next/server";
+
 import fs from "fs/promises";
 import path from "path";
 import { ensureCliConfigWriteAllowed, getCliConfigPaths } from "@/shared/services/cliRuntime";
@@ -91,7 +92,8 @@ export async function GET(request: Request) {
     profiles.sort((a, b) => a.name.localeCompare(b.name));
     return NextResponse.json({ profiles });
   } catch (error: unknown) {
-    console.log("Error listing codex profiles:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error listing codex profiles:", err.message);
     return NextResponse.json({ error: "Failed to list profiles" }, { status: 500 });
   }
 }
@@ -180,7 +182,8 @@ export async function POST(request) {
       profileId,
     });
   } catch (error: unknown) {
-    console.log("Error saving codex profile:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error saving codex profile:", err.message);
     return NextResponse.json({ error: "Failed to save profile" }, { status: 500 });
   }
 }
@@ -254,7 +257,8 @@ export async function PUT(request) {
       restoredAuth: !!profile.authJson,
     });
   } catch (error: unknown) {
-    console.log("Error activating codex profile:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error activating codex profile:", err.message);
     return NextResponse.json({ error: "Failed to activate profile" }, { status: 500 });
   }
 }
@@ -302,7 +306,8 @@ export async function DELETE(request) {
       message: `Profile "${profileId}" deleted`,
     });
   } catch (error: unknown) {
-    console.log("Error deleting codex profile:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error deleting codex profile:", err.message);
     return NextResponse.json({ error: "Failed to delete profile" }, { status: 500 });
   }
 }

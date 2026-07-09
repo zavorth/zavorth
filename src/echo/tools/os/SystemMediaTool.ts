@@ -3,6 +3,8 @@ import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const execAsync = promisify(exec);
 
 /**
@@ -37,10 +39,11 @@ export class SystemMediaTool implements IZavorthTool {
             return await this.executeViaPowerShell(params);
 
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[System Media] process execution failed', error);
     return {
                 success: false,
-                error: `Failed to control media: ${error.message}`,
+                error: `Failed to control media: ${err.message}`,
             };
   }
     }

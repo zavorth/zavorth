@@ -1,4 +1,6 @@
-﻿import os from 'os';
+import { WslControlService } from './WslControlService.js';
+
+import os from 'os';
 import { execFile } from 'child_process';
 import type {
   DesktopDockerDesktopSample,
@@ -6,8 +8,9 @@ import type {
   DesktopResourceProcessSample,
   DesktopResourceWslDistroSample,
 } from '../contracts/DesktopResourceContract.js';
-import { WslControlService } from './WslControlService.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ExecLike = (
   file: string,
@@ -197,10 +200,11 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
           : [],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         ok: false,
-        message: `Falha ao coletar WSL: ${error instanceof Error ? error.message : String(error)}`,
+        message: `Falha ao coletar WSL: ${error instanceof Error ? err.message : String(error)}`,
         warnings: [],
         distros: [],
       };
@@ -226,6 +230,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         warnings: [],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         detected: false,
@@ -234,7 +239,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         contextName: null,
         warnings: [
           error instanceof Error
-            ? error.message
+            ? err.message
             : String(error),
         ],
       };

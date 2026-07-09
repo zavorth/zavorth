@@ -1,4 +1,10 @@
 import { asErrorLike } from '../utils/errorLike';
+import {
+  BUILTIN_PROTOCOL_PACKS,
+  buildProtocolPackDoctor,
+  type ProtocolPackDescriptor,
+} from './reach/ProtocolPackBase.js';
+import { ChannelSynthesisService, type ChannelSynthesisInput } from './reach/ChannelSynthesisService.js';
 /**
  * Universal Reach Fabric Service
  *
@@ -24,12 +30,8 @@ import {
   type ReachNodeStatus,
   type ReachReadinessProof,
 } from '../contracts/UniversalReachFabricContract.js';
-import {
-  BUILTIN_PROTOCOL_PACKS,
-  buildProtocolPackDoctor,
-  type ProtocolPackDescriptor,
-} from './reach/ProtocolPackBase.js';
-import { ChannelSynthesisService, type ChannelSynthesisInput } from './reach/ChannelSynthesisService.js';
+
+
 import { NodeRegistryService } from './NodeRegistryService.js';
 import { NodeOnboardingService } from './NodeOnboardingService.js';
 import { NodePairingService } from './NodePairingService.js';
@@ -319,7 +321,7 @@ export class UniversalReachFabricService {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         allowed = false;
-        reason = error instanceof Error ? error.message : String(error);
+        reason = error instanceof Error ? err.message : String(error);
       }
     } else {
       const node = this.nodeRegistry.getNode?.(input.nodeId);

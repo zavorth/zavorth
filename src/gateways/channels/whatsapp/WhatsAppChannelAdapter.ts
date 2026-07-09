@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+
 import { SecurityAuditLogger } from '../../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
 import { logger } from '../../../logger.js';

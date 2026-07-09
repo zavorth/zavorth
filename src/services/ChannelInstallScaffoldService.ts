@@ -7,6 +7,7 @@ import type {
   PlatformReadiness,
 } from '../contracts/PlatformContract.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
+
 import { EnvFileService, type EnvFileEntry, type EnvFileWriteReport } from './EnvFileService.js';
 
 export type ChannelInstallMode =

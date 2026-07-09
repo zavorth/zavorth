@@ -1,4 +1,6 @@
-﻿import { randomUUID } from 'node:crypto';
+import { SPEECH_CONTRACT_VERSION } from '../contracts/SpeechContract.js';
+
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
@@ -12,13 +14,14 @@ import type {
   SpeechTranscribeRequest,
   SpeechTranscribeResult,
 } from '../contracts/SpeechContract.js';
-import { SPEECH_CONTRACT_VERSION } from '../contracts/SpeechContract.js';
+
 import { logger } from '../logger.js';
 import type {
 ISpeechSynthesisLiveAdapter,
   ISpeechTranscriptionLiveAdapter,
   SpeechSynthesisAdapterOutput,
 } from '../adapters/speech/SpeechVoiceLiveAdapters.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type SpeechRuntimeServiceOptions = {
   now?: () => Date;
@@ -130,8 +133,9 @@ export class SpeechRuntimeService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Speech Runtime] operation failed', error);
-    return this.transcribeError(error instanceof Error ? error.message : String(error), processedAt);
+    return this.transcribeError(error instanceof Error ? err.message : String(error), processedAt);
   }
   }
 
@@ -164,8 +168,9 @@ export class SpeechRuntimeService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Speech Runtime] operation failed', error);
-    return this.synthesizeError(error instanceof Error ? error.message : String(error), processedAt);
+    return this.synthesizeError(error instanceof Error ? err.message : String(error), processedAt);
   }
   }
 

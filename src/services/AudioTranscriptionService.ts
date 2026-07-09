@@ -1,7 +1,9 @@
-﻿import { config } from '../config/index.js';
+
+import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { LocalVoiceDictation } from '../voice/LocalVoiceDictation.js';
 import { MediaUnderstandingService } from './MediaUnderstandingService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type AudioTranscriptionProvider =
   | 'gemini'
@@ -141,7 +143,8 @@ export class AudioTranscriptionService {
         attempts.push(this.attempt(provider, readiness.model, 'succeeded', null, Date.now() - startedAt));
         return { text: validated, model: readiness.model };
       } catch (error: unknown) {
-        lastError = this.normalizeErrorReason(provider, error instanceof Error ? error.message : String(error));
+        const err = asErrorLike(error);
+        lastError = this.normalizeErrorReason(provider, error instanceof Error ? err.message : String(error));
         attempts.push(this.attempt(provider, readiness.model, 'failed', lastError, Date.now() - startedAt));
         if (!this.isTransientError(lastError)) {
           break;
@@ -287,7 +290,8 @@ export class AudioTranscriptionService {
         const payload = await response.json() as Record<string, unknown>;
         return String(payload?.text || payload?.transcript || '').trim() || null;
       } catch (error: unknown) {
-        lastError = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        lastError = error instanceof Error ? err.message : String(error);
         if (!this.isTransientError(lastError)) {
           throw new Error(lastError);
         }

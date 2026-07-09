@@ -1,13 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { MediaGenerationService } from '../../src/services/MediaGenerationService';
 
 import type {
   AdapterGenerationOutput,
   IMediaGenerationAdapter,
   MediaGenerationRequest,
 } from '../../src/contracts/MediaGenerationContract';
-import { MediaGenerationService } from '../../src/services/MediaGenerationService';
 
 describe('MediaGenerationService', () => {
   let artifactDir: string;

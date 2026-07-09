@@ -8,6 +8,7 @@ import {
   resolveLocale,
 } from '../../src/i18n/localeDetector';
 import { interpolate } from '../../src/i18n/interpolation';
+
 import {
   DEFAULT_LOCALE,
   KNOWN_LOCALES,

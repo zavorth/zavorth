@@ -11,6 +11,8 @@ import {
   ZavorthBridgeControlService,
 } from '@zavorth/services/ZavorthBridgeControlService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type TelegramZavorthBridgeControlServiceDeps = {
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'open' | 'restart' | 'status' | 'setModel'>;
   zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel' | 'setPreferredModel'>;
@@ -119,6 +121,7 @@ export class TelegramZavorthBridgeControlService {
 
       await ctx.reply(this.formatControlReply(result));
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (isCapabilityUnavailableError(error)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           error,
@@ -127,7 +130,7 @@ export class TelegramZavorthBridgeControlService {
         ));
         return;
       }
-      await ctx.reply(`ZavorthBridge control failed: ${error instanceof Error ? error.message : String(error)}`);
+      await ctx.reply(`ZavorthBridge control failed: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 

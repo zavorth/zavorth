@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { SkillWebScraper } from '../skills/marketplace/SkillWebScraper.js';
 /**
  * Universal Capability Fabric Service
  *
@@ -32,7 +33,7 @@ import {
   type CapabilityFabricSourceRef,
   type CapabilityFabricSummary,
 } from '../contracts/UniversalCapabilityFabricContract.js';
-import { SkillWebScraper } from '../skills/marketplace/SkillWebScraper.js';
+
 import { UniversalSkillTrustImportService } from '../skills/UniversalSkillTrustImportService.js';
 
 export type UniversalCapabilityFabricInput = {
@@ -315,7 +316,7 @@ export class UniversalCapabilityFabricService {
         issues.push({
           severity: 'blocked',
           code: 'source.remote_failed',
-          message: error instanceof Error ? error.message : String(error),
+          message: error instanceof Error ? err.message : String(error),
         });
         return {
           raw,
@@ -496,7 +497,7 @@ export class UniversalCapabilityFabricService {
       issues.push({
         severity: 'error',
         code: 'materialize.failed',
-        message: error instanceof Error ? error.message : String(error),
+        message: error instanceof Error ? err.message : String(error),
         candidateId: candidate.id,
       });
       return null;

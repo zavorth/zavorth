@@ -232,7 +232,7 @@ export class SkillWebScraper {
       return {
         success: false,
         skill: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
     }
   }

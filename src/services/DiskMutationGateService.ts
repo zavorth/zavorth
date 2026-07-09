@@ -1,4 +1,6 @@
-﻿import * as crypto from 'crypto';
+import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createTwoFilesPatch } from 'diff';
@@ -14,8 +16,9 @@ import {
   type DiskMutationGateRequestedOperation,
   type DiskMutationGateStatus,
 } from '../contracts/DiskMutationGateContract.js';
-import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 const MAX_CONTENT_BYTES = 1_000_000;
 
@@ -243,9 +246,10 @@ export class DiskMutationGateService {
         appliedOperations.push(this.receiptOperation(operation, this.inspectAppliedOperation(operation), 'applied'));
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.mutationPlane.markBlocked(
         preview.mutationPlanId,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? err.message : String(error),
       );
       throw error;
     }

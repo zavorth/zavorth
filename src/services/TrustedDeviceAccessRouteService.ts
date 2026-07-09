@@ -1,5 +1,7 @@
-﻿import * as http from 'http';
+
+import * as http from 'http';
 import { TrustedDeviceAccessService, type TrustedDeviceAccessScope } from './TrustedDeviceAccessService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type LocalAccessRouteDeps = {
   readJsonBody: (req: http.IncomingMessage) => Promise<Record<string, any>>;
@@ -62,9 +64,10 @@ export class TrustedDeviceAccessRouteService {
           receipt: draft.receipt,
         });
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         deps.writeJson(res, {
           ok: false,
-          error: error instanceof Error ? error.message : 'Invalid local access request',
+          error: error instanceof Error ? err.message : 'Invalid local access request',
         }, 400);
       }
       return true;

@@ -1,4 +1,5 @@
-﻿import type {
+
+import type {
   AgentOsImpactSimulation,
   AgentOsPermissionLease,
   AgentOsTransactionalCommitResult,
@@ -13,6 +14,7 @@ import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { AgentOsRollbackManagerService } from './AgentOsRollbackManagerService.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { agentOsHash, isAgentOsSensitivePath, looksLikeAgentOsSecret, truncateAgentOsText } from './AgentOsTextSafety.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type TransactionRuntime = {
   now?: () => Date;
@@ -146,8 +148,9 @@ export class TransactionalExecutionService {
           this.writeFileSync(target, write.content, 'utf8');
         }
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         this.rollbackManager.restore({ workspaceRoot, artifactPath: rollback.artifactPath });
-        const summary = `Falha no apply; rollback executado: ${error instanceof Error ? error.message : String(error)}`;
+        const summary = `Falha no apply; rollback executado: ${error instanceof Error ? err.message : String(error)}`;
         this.mutationPlane.markBlocked(plan.id, summary);
         return {
           source: 'TransactionalExecutionService',
@@ -182,7 +185,8 @@ export class TransactionalExecutionService {
         blockedReasons: [],
       };
     } catch (error: unknown) {
-      const summary = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const summary = error instanceof Error ? err.message : String(error);
       this.mutationPlane.markBlocked(plan.id, summary);
       return this.commitBlocked(plan.id, transactionId, summary, [summary]);
     }
@@ -256,7 +260,8 @@ export class TransactionalExecutionService {
       try {
         WorkspaceResolver.ensurePathInsideWorkspace(input.workspaceRoot, write.path);
       } catch (error: unknown) {
-        blockers.push(error instanceof Error ? error.message : String(error));
+        const err = asErrorLike(error);
+        blockers.push(error instanceof Error ? err.message : String(error));
       }
     }
     return blockers;

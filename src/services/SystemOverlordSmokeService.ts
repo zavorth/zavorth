@@ -21,6 +21,8 @@ import {
   writeSmokeReport,
 } from './system-overlord-smoke/smokeReport.js';
 import { runTunnelSmoke } from './system-overlord-smoke/tunnelSmoke.js';
+import { runWslSmoke } from './system-overlord-smoke/wslSmoke.js';
+
 import type {
   BrowserToolLike,
   ProbeServer,
@@ -29,7 +31,7 @@ import type {
   SystemOverlordSmokeReport,
   TunnelServiceLike,
 } from './system-overlord-smoke/smokeTypes.js';
-import { runWslSmoke } from './system-overlord-smoke/wslSmoke.js';
+
 import { logger } from '../logger.js';
 
 export type {

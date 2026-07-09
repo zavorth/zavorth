@@ -12,6 +12,7 @@ import {
 } from './providers/catalog/manifests/zavorthProviderCapabilityProviders.js';
 import { getDefaultProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
 
+
 export type ZavorthProviderCapabilityCatalogStatus = 'ready' | 'attention' | 'blocked';
 
 export type ZavorthProviderCapabilityCatalogSnapshot = {

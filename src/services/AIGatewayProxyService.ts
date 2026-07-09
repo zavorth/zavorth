@@ -276,7 +276,8 @@ export class AIGatewayProxyService {
       const status = this.buildStatus(true, response.ok, 'AIGateway local gateway forwarded the upstream response.');
       this.writeStatus(status);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
@@ -361,10 +362,11 @@ export class AIGatewayProxyService {
         body,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.sendWebSocketJson(ws, {
         id,
         type: 'chat.completions.error',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       });
     }
   }

@@ -5,6 +5,7 @@ import type {
   IntegrationManifest,
 } from '../../../../contracts/IntegrationHubContract.js';
 import { spawnCommand } from '../../../../core/CommandSpawn.js';
+
 import type { AIGatewaySidecarService } from '../../../../services/AIGatewaySidecarService.js';
 import type { ZavorthBridgeRemoteUpstreamSyncService } from '../../../../services/ZavorthBridgeRemoteUpstreamSyncService.js';
 import type { GatewayUpstreamSyncService } from '../../../../services/GatewayUpstreamSyncService.js';

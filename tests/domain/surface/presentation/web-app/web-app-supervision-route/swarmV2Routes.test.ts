@@ -49,7 +49,8 @@ describe('handleSwarmV2Routes swarm scale dynamic configuration', () => {
     expect(handled).toBe(true);
     expect(configureRun).toHaveBeenCalledWith({
       runId: 'swarm-run-1',
-      sourceSurface: 'dashboard',
+      // dashboard is an alias of the canonical zavorthControl control surface
+      sourceSurface: 'zavorthControl',
       actorId: 'operator',
       reason: 'Move queued workers to managed sandboxes.',
       persistState: true,

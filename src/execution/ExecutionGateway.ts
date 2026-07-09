@@ -36,7 +36,7 @@ import {
   buildExecutionGatewayOutcomeLifecycle,
 } from './execution-gateway/ExecutionGatewayLifecycle.js';
 import { buildExecutionGatewayRequest } from './execution-gateway/ExecutionGatewayRequestSupport.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 
 type ExecutionGatewayRuntime = {
   defaultWorkspace?: string | null;
@@ -449,11 +449,11 @@ export class ExecutionGateway {
           timing: result.timing,
         },
       );
-    } catch (error: unknown) { const workspace = resolveExecutionGatewayWorkspace(
+    } catch (error: unknown) { const err = asErrorLike(error); const workspace = resolveExecutionGatewayWorkspace(
         plan.workspace_recommendation || task.workspace || '',
         this.defaultWorkspace,
       );
-      const reason = `Execution error: ${e.message}`;
+      const reason = `Execution error: ${err.message}`;
       this.logRepo.log('error', 'ExecutionGateway', reason);
       await runExecutionGatewayRuntimeFailureHook(this.hookPipeline, workspace, {
         traceId,
@@ -466,7 +466,7 @@ export class ExecutionGateway {
         requiresApproval: plan.requires_approval,
         instructionCount: plan.steps.length,
         reason: 'gateway_exception',
-        errorMessage: e?.message || String(e),
+        errorMessage: errorMessage(error),
       });
       await recordExecutionGatewayTelemetry(
         this.telemetryRuntime,

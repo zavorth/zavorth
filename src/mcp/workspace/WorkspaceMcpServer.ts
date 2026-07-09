@@ -10,7 +10,7 @@ import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../storage/LogRepository.js';
 import { WorkspaceWriteApprovalService } from '../../services/WorkspaceWriteApprovalService.js';
 import { Database } from '../../storage/Database.js';
-import { asErrorLike } from '../../utils/errorLike';
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 
 const workspaceRootEnv = process.env.ZAVORTH_WORKSPACE_ROOT;
 const sessionId = process.env.ZAVORTH_WORKSPACE_SESSION_ID;
@@ -31,7 +31,7 @@ let pathGuard: WorkspacePathGuard;
 try {
   pathGuard = new WorkspacePathGuard(workspaceRoot);
 } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-  logger.error(`Failed to initialize path guard: ${e.message}`);
+  logger.error(`Failed to initialize path guard: ${err.message}`);
   process.exit(1);
 }
 
@@ -486,8 +486,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         let entries: fs.Dirent[];
         try {
           entries = fs.readdirSync(currentDir, { withFileTypes: true });
-        } catch ($1: unknown) { const error = readErr; const err = readErr; const e = readErr;
-          logger.warn(`Failed to read directory ${currentDir}: ${readErr}`);
+        } catch (readErr: unknown) {logger.warn(`Failed to read directory ${currentDir}: ${readErr}`);
           return;
         }
 
@@ -608,13 +607,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         fs.writeFileSync(tempFile, params.content, { flag: 'wx', encoding: 'utf8' });
         // Atomic rename
         fs.renameSync(tempFile, resolved);
-      } catch ($1: unknown) { const error = writeError; const err = writeError; const e = writeError;
-        // Cleanup temp file if it exists
+      } catch (writeError: unknown) {// Cleanup temp file if it exists
         if (fs.existsSync(tempFile)) {
           try {
             fs.unlinkSync(tempFile);
-          } catch ($1: unknown) { const error = cleanupError; const err = cleanupError; const e = cleanupError;
-            logger.warn(`Failed to cleanup temp file ${tempFile}: ${cleanupError.message}`);
+          } catch (cleanupError: unknown) {logger.warn(`Failed to cleanup temp file ${tempFile}: ${errorMessage(cleanupError)}`);
           }
         }
         throw writeError;
@@ -724,7 +721,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     throw new Error(`Unknown tool: ${toolName}`);
   } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-    let msg = error.message;
+    let msg = err.message;
     if (msg.includes('not a git repository')) {
       msg = 'Error: The workspace directory is not a Git repository.';
     }

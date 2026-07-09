@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+import { SecureStorageService } from './SecureStorageService.js';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -15,7 +16,7 @@ import type {
   NodeMeshStatus,
   NodeMeshTransport,
 } from '../contracts/NodeMeshContract.js';
-import { SecureStorageService } from './SecureStorageService.js';
+
 import { NodeCapabilityService } from './NodeCapabilityService.js';
 import { logger } from '../logger.js';
 

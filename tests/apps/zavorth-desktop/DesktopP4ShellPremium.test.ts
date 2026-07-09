@@ -15,6 +15,7 @@ import {
 } from '../../../apps/zavorth-desktop/src/command-center/commandCenter';
 import { buildSettingsModules } from '../../../apps/zavorth-desktop/src/settings/settingsModules';
 
+
 function readSource(relativePath: string): string {
   return fs.readFileSync(path.resolve(relativePath), 'utf8');
 }

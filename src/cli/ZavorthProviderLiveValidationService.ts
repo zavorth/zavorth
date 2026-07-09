@@ -7,7 +7,9 @@ import {
   type ZavorthSetupStudioProviderId,
 } from './ZavorthSetupStudioService.js';
 import { ProviderIntegrationRegistry } from '../services/providers/catalog/ProviderIntegrationRegistry.js';
+
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 export type ZavorthProviderLiveValidationStatus =
   | 'not-requested'
   | 'passed'
@@ -140,16 +142,17 @@ export async function validateZavorthProviderLive(
       responsePreview: responsePreview || 'ok',
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[Zavorth  Live Validation] health check failed', error);
     return result({
       input,
       checkedAt,
       proofPath,
       status: 'failed',
-      message: sanitizeMessage(error instanceof Error ? error.message : String(error), [secret]),
+      message: sanitizeMessage(error instanceof Error ? err.message : String(error), [secret]),
       networkCallPerformed: true,
       environmentRestored: true,
-      errorKind: error instanceof Error ? error.name : 'ProviderValidationError',
+      errorKind: error instanceof Error ? err.name : 'ProviderValidationError',
     });
   } finally {
     restoreEnv(envSnapshot);

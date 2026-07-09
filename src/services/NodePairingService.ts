@@ -10,6 +10,7 @@ import type {
   NodeMeshTransport,
 } from '../contracts/NodeMeshContract.js';
 import { NodeCapabilityService } from './NodeCapabilityService.js';
+
 import { NodeDeviceProfileService } from './NodeDeviceProfileService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
 

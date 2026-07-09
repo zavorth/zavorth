@@ -1,3 +1,10 @@
+import {
+  buildCloudflaredChildEnv,
+  extractCloudflaredErrorMessage,
+  extractTryCloudflareUrl,
+  getCloudflaredAssetSpec,
+  getDefaultCloudflaredCertEnv,
+} from "../../src/zavorth-control/lib/cloudflaredTunnel";
 jest.mock(
   "@ZavorthGateway/open-sse/utils/proxyFetch.ts",
   () => ({
@@ -7,13 +14,6 @@ jest.mock(
   { virtual: true }
 );
 
-import {
-  buildCloudflaredChildEnv,
-  extractCloudflaredErrorMessage,
-  extractTryCloudflareUrl,
-  getCloudflaredAssetSpec,
-  getDefaultCloudflaredCertEnv,
-} from "../../src/zavorth-control/lib/cloudflaredTunnel";
 
 describe("cloudflaredTunnel helpers", () => {
   it("extracts the public trycloudflare URL from logs", () => {

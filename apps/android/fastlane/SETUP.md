@@ -1,4 +1,4 @@
-﻿# fastlane setup (Zavorth Android)
+# fastlane setup (Zavorth Android)
 
 Install:
 

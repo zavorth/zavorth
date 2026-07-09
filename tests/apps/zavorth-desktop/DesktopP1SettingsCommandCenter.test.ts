@@ -1,5 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {
+  buildCommandCenterItems,
+  filterCommandCenterItems,
+  groupCommandCenterItems,
+} from '../../../apps/zavorth-desktop/src/command-center/commandCenter.js';
 
 import {
   buildSettingsModules,
@@ -7,11 +12,6 @@ import {
   flattenSettingsModules,
   resolveSettingsDeepLink,
 } from '../../../apps/zavorth-desktop/src/settings/settingsModules.js';
-import {
-  buildCommandCenterItems,
-  filterCommandCenterItems,
-  groupCommandCenterItems,
-} from '../../../apps/zavorth-desktop/src/command-center/commandCenter.js';
 
 describe('Desktop P1 settings and command center contract', () => {
   it('builds deep-linkable settings modules with real searchable status', () => {

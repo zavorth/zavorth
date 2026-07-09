@@ -1,4 +1,5 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { DockerSandboxRuntime } from '../services/sandbox/DockerSandboxRuntime.js';
 import { FirecrackerSandboxRuntime } from '../services/sandbox/FirecrackerSandboxRuntime.js';
@@ -8,6 +9,7 @@ import { SandboxPolicyService } from '../services/sandbox/SandboxPolicyService.j
 import { WasmSandboxRuntime } from '../services/sandbox/WasmSandboxRuntime.js';
 import { WasmSandboxCapabilityService } from '../services/WasmSandboxCapabilityService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type SandboxToolLanguage = SandboxLanguage | 'wasm';
 
@@ -222,8 +224,9 @@ export class SandboxExecutionTool extends BaseTool {
       }
       return { ok: true, value: numericArgs };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Sandbox Execution] parsing failed', error);
-    return { ok: false, error: `args_json invalido: ${error.message}` };
+    return { ok: false, error: `args_json invalido: ${err.message}` };
   }
   }
 }

@@ -32,6 +32,8 @@ import {
   type CapabilityStateSnapshot,
 } from './CapabilityLifecycleService.js';
 import { IntegrationInstallerService } from './IntegrationInstallerService.js';
+
+
 import { IntegrationProbeService } from './IntegrationProbeService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 

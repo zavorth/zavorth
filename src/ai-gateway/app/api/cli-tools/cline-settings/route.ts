@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import os from "os";
@@ -12,6 +13,7 @@ import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const CLINE_DATA_DIR = path.join(os.homedir(), ".cline", "data");
 const GLOBAL_STATE_PATH = path.join(CLINE_DATA_DIR, "globalState.json");
@@ -23,7 +25,8 @@ const readGlobalState = async () => {
     const content = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
     return JSON.parse(content);
   } catch (error: unknown) {
-    if (error.code === "ENOENT") return null;
+    const err = asErrorLike(error);
+    if (err.code === "ENOENT") return null;
     throw error;
   }
 };
@@ -34,7 +37,8 @@ const readSecrets = async () => {
     const content = await fs.readFile(SECRETS_PATH, "utf-8");
     return JSON.parse(content);
   } catch (error: unknown) {
-    if (error.code === "ENOENT") return {};
+    const err = asErrorLike(error);
+    if (err.code === "ENOENT") return {};
     throw error;
   }
 };
@@ -218,7 +222,8 @@ export async function DELETE(request: Request) {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
     } catch (error: unknown) {
-      if (error.code === "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code === "ENOENT") {
         return NextResponse.json({ success: true, message: "No settings file to reset" });
       }
       throw error;

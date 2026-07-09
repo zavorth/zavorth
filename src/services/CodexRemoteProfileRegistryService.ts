@@ -1,7 +1,9 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type CodexRemotePersistedProfile = {
   id: string;
@@ -607,7 +609,8 @@ export class CodexRemoteProfileRegistryService {
       this.mkdirSync(path.dirname(this.stateFilePath), { recursive: true });
       this.writeFileSync(this.stateFilePath, JSON.stringify(normalizedState, null, 2), 'utf8');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       throw new Error(`Falha ao persistir o registry de perfis do Codex Remote: ${message}`);
     }
   }

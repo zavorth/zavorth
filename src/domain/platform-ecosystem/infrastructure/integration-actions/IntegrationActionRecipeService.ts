@@ -6,6 +6,7 @@ import type {
   IntegrationManifest,
 } from '../../../../contracts/IntegrationHubContract.js';
 import { config } from '../../../../config/index.js';
+
 import { AIGatewaySidecarService } from '../../../../services/AIGatewaySidecarService.js';
 import { ZavorthBridgeRemoteUpstreamSyncService } from '../../../../services/ZavorthBridgeRemoteUpstreamSyncService.js';
 import { GatewayUpstreamSyncService } from '../../../../services/GatewayUpstreamSyncService.js';
@@ -14,6 +15,7 @@ import { IntegrationInstallerService } from '../../../../services/IntegrationIns
 import { IntegrationProbeService } from '../../../../services/IntegrationProbeService.js';
 import { TerminalSidecarService } from '../../../../services/TerminalSidecarService.js';
 import type { IntegrationActionLedgerService } from './IntegrationActionLedgerService.js';
+import { asErrorLike, errorMessage } from '../../../../utils/errorLike.js';
 type VendorUpstreamRecipeReport = {
   ok: boolean;
   action: string;
@@ -531,6 +533,7 @@ export class IntegrationActionRecipeService {
       this.ledgerService.persistRecord(record);
       return record;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -544,7 +547,7 @@ export class IntegrationActionRecipeService {
         pid: null,
         logFile: config.AIGatewaySidecarLogFile || '',
         status: 'failed',
-        note: error?.message || String(error),
+        note: errorMessage(error),
         doctor,
         appliedEnvKeys: [],
         exitCode: null,
@@ -586,6 +589,7 @@ export class IntegrationActionRecipeService {
       this.ledgerService.persistRecord(record);
       return record;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -599,7 +603,7 @@ export class IntegrationActionRecipeService {
         pid: null,
         logFile: config.ZavorthTerminalSidecarLogFile || '',
         status: 'failed',
-        note: error?.message || String(error),
+        note: errorMessage(error),
         doctor,
         appliedEnvKeys: [],
         exitCode: null,
@@ -645,6 +649,7 @@ export class IntegrationActionRecipeService {
       this.ledgerService.persistRecord(record);
       return record;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -658,7 +663,7 @@ export class IntegrationActionRecipeService {
         pid: null,
         logFile: '',
         status: 'failed',
-        note: error?.message || String(error),
+        note: errorMessage(error),
         doctor,
         appliedEnvKeys: [],
         exitCode: null,

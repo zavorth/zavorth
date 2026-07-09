@@ -1,14 +1,17 @@
-﻿import type {
+import { MIGRATION_CONTRACT_VERSION } from '../contracts/MigrationContract.js';
+
+import type {
   MigrationImportFinding,
   MigrationImportRequest,
   MigrationImportResult,
 } from '../contracts/MigrationContract.js';
-import { MIGRATION_CONTRACT_VERSION } from '../contracts/MigrationContract.js';
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type MigrationImportServiceOptions = {
   artifactDir?: string;
@@ -191,6 +194,7 @@ export class MigrationImportService {
         error: null,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Migration Import] creation failed', error);
     return this.result({
         ok: false,
@@ -200,12 +204,12 @@ export class MigrationImportService {
         findings: [{
           id: `migration.${sourceId}.failed`,
           severity: 'blocked',
-          summary: error instanceof Error ? error.message : String(error),
+          summary: error instanceof Error ? err.message : String(error),
           targetPrimitive: 'migration.import',
         }],
         generatedManifestIds: [],
         reportArtifactId: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       });
   }
   }

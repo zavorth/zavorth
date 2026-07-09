@@ -5,15 +5,7 @@ import type {
   ZavorthPlatformRegistrySnapshot,
 } from './ZavorthPlatformRegistryService.js';
 import { ZavorthPlatformRegistryService } from './ZavorthPlatformRegistryService.js';
-import {
-  ZavorthPluginActionService,
-  type ZavorthPluginActionExecution,
-} from './ZavorthPluginActionService.js';
 import { PluginStateService } from './PluginStateService.js';
-import {
-  ZavorthLearningPlaneService,
-  type LearningPlaneActionExecution,
-} from './ZavorthLearningPlaneService.js';
 import {
   finishLearningDelegatedPlatformAction,
   finishPlatformCollection,
@@ -29,6 +21,17 @@ import {
   normalizePlatformActionValue,
   supportsPlatformLocalLifecycle,
 } from './platform-action/PlatformActionSupport.js';
+
+import {
+  ZavorthPluginActionService,
+  type ZavorthPluginActionExecution,
+} from './ZavorthPluginActionService.js';
+
+import {
+  ZavorthLearningPlaneService,
+  type LearningPlaneActionExecution,
+} from './ZavorthLearningPlaneService.js';
+
 
 type ZavorthPlatformActionRuntime = {
   now?: () => Date;

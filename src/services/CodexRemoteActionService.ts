@@ -7,15 +7,17 @@ import {
   type CodexRemoteExecutionProfile,
 } from './CodexRemoteProfileRegistryService.js';
 import { PermissionService } from './PermissionService.js';
+import {
+  CodexRemoteSessionBrokerService,
+  type CodexRemoteBrokerSessionDetail,
+} from './CodexRemoteSessionBrokerService.js';
+
+
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import {
   GatewaySessionStoreService,
   type GatewaySessionSpawnSnapshot,
 } from '../runtime/sessions/GatewaySessionStoreService.js';
-import {
-  CodexRemoteSessionBrokerService,
-  type CodexRemoteBrokerSessionDetail,
-} from './CodexRemoteSessionBrokerService.js';
 
 type CodexRemoteActionId =
   | 'inspect'

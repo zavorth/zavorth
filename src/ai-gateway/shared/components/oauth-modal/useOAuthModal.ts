@@ -1,7 +1,9 @@
 import { asErrorLike } from '../../../../utils/errorLike';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { logger } from '@/shared/utils/logger';
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useCopyToClipboard } from "@/shared/hooks/useCopyToClipboard";
 import type {
   OAuthAuthorizationSession,
@@ -10,7 +12,7 @@ import type {
   OAuthModalProps,
   OAuthModalStep,
 } from "./oauthModalTypes";
-import { logger } from '@/shared/utils/logger';
+
 import {
 buildGoogleRedirectMismatchMessage,
   buildRedirectUri,
@@ -112,7 +114,7 @@ export function useOAuthModal({
         const err = asErrorLike(caughtError);
         const error = err;
         const message =
-          caughtError instanceof Error ? caughtError.message : "Exchange failed unexpectedly";
+          caughtError instanceof Error ? err.message : "Exchange failed unexpectedly";
         if (
           message.toLowerCase().includes("redirect_uri_mismatch") &&
           isGoogleOAuthProvider(provider)
@@ -170,7 +172,7 @@ export function useOAuthModal({
           const error = err;
           const message =
             caughtError instanceof Error
-              ? caughtError.message
+              ? err.message
               : "Authorization polling failed unexpectedly";
           setError(message);
           setStep("error");
@@ -307,7 +309,7 @@ export function useOAuthModal({
       const err = asErrorLike(caughtError);
       const error = err;
       const message =
-        caughtError instanceof Error ? caughtError.message : "OAuth flow failed unexpectedly";
+        caughtError instanceof Error ? err.message : "OAuth flow failed unexpectedly";
       setError(message);
       setStep("error");
     }
@@ -484,7 +486,7 @@ export function useOAuthModal({
       const err = asErrorLike(caughtError);
       const error = err;
       const message =
-        caughtError instanceof Error ? caughtError.message : "Manual callback handling failed";
+        caughtError instanceof Error ? err.message : "Manual callback handling failed";
       setError(message);
       setStep("error");
     }

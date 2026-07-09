@@ -1,4 +1,6 @@
-﻿import crypto from 'node:crypto';
+import { GlassBoxTraceService } from './GlassBoxTraceService';
+
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { applyPatch } from 'diff';
@@ -9,8 +11,9 @@ import type {
   InteractiveDiffAction,
   InteractiveDiffReview,
 } from '../contracts/ExecutionEngineContract';
-import { GlassBoxTraceService } from './GlassBoxTraceService';
+
 import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type InteractiveDiffReviewInput = {
   action: InteractiveDiffAction;
@@ -273,10 +276,11 @@ export class InteractiveDiffReviewService {
         events,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const event = this.trace.append({
         kind: 'diff',
         title: 'Interactive diff apply failed',
-        detail: error instanceof Error ? error.message : 'Unknown diff apply failure.',
+        detail: error instanceof Error ? err.message : 'Unknown diff apply failure.',
         engineId: input.engineId,
         status: 'blocked',
         metadata: { targetId: input.targetId, targetPath: review.targetPath },

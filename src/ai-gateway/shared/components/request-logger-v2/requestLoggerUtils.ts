@@ -6,6 +6,8 @@ import {
   REQUEST_LOGGER_LIMIT,
 } from "./requestLoggerConfig";
 import { logger } from '../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike';
+
 import type {
 ProviderNode,
   RequestLogEntry,
@@ -13,7 +15,6 @@ ProviderNode,
   RequestLoggerStats,
   RequestLoggerVisibleColumns,
 } from "./requestLoggerTypes";
-import { asErrorLike } from '../../../../utils/errorLike';
 
 export function getProviderDisplayLabel(
   provider: string | undefined,

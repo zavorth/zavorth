@@ -2,12 +2,17 @@ import { CommandParser } from '../../../../gateways/channels/telegram/CommandPar
 import { TelegramChannelContractService } from '../../../../gateways/channels/telegram/TelegramChannelContractService.js';
 import { EchoOutputStageService } from '../../../../services/EchoOutputStageService.js';
 import { BotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupport.js';
-import type { BotGatewaySupportRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
+import type {
+  BotGatewaySupportRuntime,
+  BotGatewaySupportState,
+} from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportTypes.js';
 
 export type BotGatewaySupportHost = Partial<BotGatewaySupportRuntime> & {
   botGatewaySupport?: BotGatewaySupport;
   audioHandler?: BotGatewaySupportRuntime['echoAudioHandler'];
   zavorthBridgePreferenceStore?: BotGatewaySupportRuntime['echoPreferenceStore'];
+  sharedSurfaceCommandService?: BotGatewaySupportState['sharedSurfaceCommandService'];
+  getSharedSurfaceCommandService?: () => BotGatewaySupportState['sharedSurfaceCommandService'];
 };
 
 export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): BotGatewaySupport {
@@ -74,7 +79,10 @@ export function getOrCreateBotGatewaySupport(gateway: BotGatewaySupportHost): Bo
       supervisedRuntimeNotificationFlushInFlight: false,
       zavorthControlSurfaceStarted: false,
     },
-    getSharedSurfaceCommandService: () => gateway.getSharedSurfaceCommandService?.() ?? null,
+    getSharedSurfaceCommandService: () =>
+      gateway.getSharedSurfaceCommandService?.()
+      ?? gateway.sharedSurfaceCommandService
+      ?? null,
   } as any);
 
   gateway.botGatewaySupport = created;

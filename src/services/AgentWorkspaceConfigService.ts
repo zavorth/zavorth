@@ -1,4 +1,4 @@
-﻿import { Database } from '../storage/Database.js';
+import { Database } from '../storage/Database.js';
 import { logger } from '../logger.js';
 
 export interface AgentWorkspaceConfig {

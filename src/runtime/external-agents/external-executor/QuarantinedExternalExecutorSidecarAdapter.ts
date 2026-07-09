@@ -7,6 +7,8 @@ import {
   normalizeExternalAgentCapabilityToZavorthContract,
 } from '../index.js';
 import { ExternalAgentSidecarActionGate } from '../ExternalAgentSidecarActionGate.js';
+import { ExternalAgentSidecarAdapter } from '../ExternalAgentSidecarAdapter.js';
+
 import type {
   ExternalAgentAdapter,
   ExternalAgentAdapterDiagnostics,
@@ -25,7 +27,7 @@ import type {
   ExternalAgentSessionDescriptor,
   ExternalAgentSessionEnvelope,
 } from '../contracts.js';
-import { ExternalAgentSidecarAdapter } from '../ExternalAgentSidecarAdapter.js';
+
 import type {
   NormalizedInboundMessage,
 } from '../../agent/contracts/index.js';

@@ -1,10 +1,12 @@
-﻿import { execFile } from 'child_process';
+
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -94,8 +96,9 @@ export class MultiBackendTerminalTool extends BaseTool {
 
       return this.executeWithBackend(command, backend, cwd, timeoutMs);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Multi Backend Terminal] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Failed to run command on backend "${backend}": ${message}`;
   }
   }

@@ -1,4 +1,6 @@
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 /**
  * Eval Runner — T-42
  *
@@ -145,13 +147,14 @@ export function evaluateCase(evalCase: any, actualOutput: string) {
       details,
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[eval Runner] lifecycle operation failed', error);
     return {
       caseId: evalCase.id,
       caseName: evalCase.name,
       passed: false,
       durationMs: Date.now() - start,
-      error: error.message,
+      error: err.message,
     };
   }
 }

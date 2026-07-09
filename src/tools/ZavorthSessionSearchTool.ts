@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface SearchResult {
   session_id: string;
@@ -121,8 +123,9 @@ export class ZavorthSessionSearchTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Session Search] operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Search error: ${message}`;
   }
   }

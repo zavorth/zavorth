@@ -1,4 +1,9 @@
-﻿import type { ChannelAdapterContract } from '../contracts/ChannelMeshContract.js';
+import { ModelPickerContractService } from '../domain/providers/index.js';
+import {
+  AIGatewayNativeConvergenceService,
+  type AIGatewayNativeConvergenceSnapshot,
+} from './AIGatewayNativeConvergenceService.js';
+import type { ChannelAdapterContract } from '../contracts/ChannelMeshContract.js';
 import type { ZavorthCapabilityCatalogService } from './ZavorthCapabilityCatalogService.js';
 import type { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import type { ZavorthGatewayService } from './ZavorthGatewayService.js';
@@ -38,15 +43,12 @@ import type {
   ZavorthAgentGatewaySnapshot,
   ZavorthAgentGatewaySnapshotOptions,
 } from '../runtime/agent/index.js';
-import { ModelPickerContractService } from '../domain/providers/index.js';
+
 import type {
   AIGatewayProxyService,
   AIGatewayProxyStatus,
 } from './AIGatewayProxyService.js';
-import {
-  AIGatewayNativeConvergenceService,
-  type AIGatewayNativeConvergenceSnapshot,
-} from './AIGatewayNativeConvergenceService.js';
+
 import type { ZavorthProductModeSnapshot } from './ProductModeService.js';
 import {
   ZavorthProductizationContractService,
@@ -62,7 +64,7 @@ import {
 import type { WebRealtimeBusSnapshot } from './WebRealtimeService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export type ZavorthGatewayRuntimeHealthSnapshot = {
   status: 'ready' | 'partial' | 'degraded';
   runtimeAttached: boolean;
@@ -755,7 +757,7 @@ export class ZavorthGatewayRuntimeService {
         localOnly: true,
         overlayFile: null,
         checkedAt: new Date().toISOString(),
-        message: `Falha ao ler status do AIGateway: ${error?.message || 'erro desconhecido'}.`,
+        message: `Falha ao ler status do AIGateway: ${errorMessage(error, 'erro desconhecido')}.`,
       };
   }
   }

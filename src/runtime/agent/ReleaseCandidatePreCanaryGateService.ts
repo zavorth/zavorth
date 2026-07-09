@@ -2,6 +2,16 @@ import type { CapabilityAutopilotReleaseCandidateSnapshot } from '../../services
 import type { IntegrationShowcasePartnerSurfaceSnapshot } from './IntegrationShowcasePartnerSurfaceService.js';
 import type { ReleaseAdoptionReadinessSnapshot } from './ReleaseAdoptionReadinessService.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+import {
+  arrayOrEmpty,
+  booleanFromRecord,
+  normalizeText,
+  numberOrZero,
+  recordOrNull,
+  resolveReleaseCandidateNextSafeAction,
+  statusLevel,
+  type LooseRecord,
+} from './ReleaseCandidatePreCanaryGateHelpers.js';
 
 export const RELEASE_CANDIDATE_PRE_CANARY_GATE_CONTRACT_VERSION = '2026-05-04.pre-canary' as const;
 export const RELEASE_CANDIDATE_PRE_CANARY_GATE_METADATA_KEY = 'releaseCandidatePreCanaryGate' as const;
@@ -175,16 +185,6 @@ type ReleaseCandidatePreCanaryGateRuntime = {
   now?: () => Date;
 };
 
-import {
-  arrayOrEmpty,
-  booleanFromRecord,
-  normalizeText,
-  numberOrZero,
-  recordOrNull,
-  resolveReleaseCandidateNextSafeAction,
-  statusLevel,
-  type LooseRecord,
-} from './ReleaseCandidatePreCanaryGateHelpers.js';
 
 export class ReleaseCandidatePreCanaryGateService {
   private readonly now: () => Date;

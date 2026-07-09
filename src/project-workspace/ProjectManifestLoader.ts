@@ -16,6 +16,8 @@ import {
   type ProjectManifestRestartPolicy,
   type ResolvedProjectManifest,
 } from './ProjectManifestContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type ProjectManifestLoaderOptions = {
   cwd?: string | null;
   manifestPath?: string | null;
@@ -52,7 +54,8 @@ export class ProjectManifestLoader {
     try {
       parsed = loadYaml(fs.readFileSync(resolvedManifestPath, 'utf8'));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       throw new ProjectManifestError([{
         path: resolvedManifestPath,
         message: `could not read or parse YAML (${message})`,

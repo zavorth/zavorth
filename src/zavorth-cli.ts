@@ -1,4 +1,13 @@
 #!/usr/bin/env node
+import {
+  formatZavorthCertificationHelp,
+  formatZavorthConsistencyPreparedNotice,
+  isZavorthConsistencyStubCommand,
+} from './cli/ZavorthCliCertificationCommands.js';
+import {
+  isZavorthLiveNamespaceCommand,
+  runZavorthLiveNamespaceCommand,
+} from './cli/ZavorthCliLiveNamespaces.js';
 import { asErrorLike } from './utils/errorLike';
 import { spawn } from 'child_process';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -9,15 +18,8 @@ import {
   resolveZavorthSimpleCommand,
   type ZavorthSimpleCommandPlan,
 } from './cli/SimpleCommandRouter.js';
-import {
-  formatZavorthCertificationHelp,
-  formatZavorthConsistencyPreparedNotice,
-  isZavorthConsistencyStubCommand,
-} from './cli/ZavorthCliCertificationCommands.js';
-import {
-  isZavorthLiveNamespaceCommand,
-  runZavorthLiveNamespaceCommand,
-} from './cli/ZavorthCliLiveNamespaces.js';
+
+
 import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutationGateContract.js';
 import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';

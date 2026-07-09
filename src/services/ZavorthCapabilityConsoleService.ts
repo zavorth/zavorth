@@ -24,6 +24,8 @@ import {
   type ZavorthCapabilitySetupExecutorRuntime,
 } from './ZavorthCapabilitySetupExecutorService.js';
 
+
+
 export type ZavorthCapabilityConsoleRuntime =
   ZavorthCapabilityHubRuntime
   & ZavorthCapabilityPackCatalogRuntime

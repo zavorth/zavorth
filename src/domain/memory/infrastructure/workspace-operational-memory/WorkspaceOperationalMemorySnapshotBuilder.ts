@@ -9,16 +9,6 @@ import type {
 } from './WorkspaceOperationalMemoryTypes.js';
 import { WorkspaceOperationalMemoryWorkflowAnalytics } from './WorkspaceOperationalMemoryWorkflowAnalytics.js';
 import {
-  aggregateFailures,
-  aggregateSuccessfulExecutors,
-  buildAutonomousModeRecommendations,
-  buildDirectResponseStyleRecommendations,
-  buildTaskKindLlmRecommendations,
-  buildTaskKindRecommendations,
-  buildTaskSubtypeLlmRecommendations,
-  buildTaskSubtypeRecommendations,
-} from './WorkspaceOperationalMemoryScoring.js';
-import {
   buildApprovalFrictionRecommendations,
   buildContinuityRecommendations,
   collectAutonomousOutcomes,
@@ -28,6 +18,18 @@ import {
   findLastSuccessfulTask,
 } from './WorkspaceOperationalMemoryInsights.js';
 import { buildWorkspaceOperationalMemorySummary } from './WorkspaceOperationalMemorySummary.js';
+
+import {
+  aggregateFailures,
+  aggregateSuccessfulExecutors,
+  buildAutonomousModeRecommendations,
+  buildDirectResponseStyleRecommendations,
+  buildTaskKindLlmRecommendations,
+  buildTaskKindRecommendations,
+  buildTaskSubtypeLlmRecommendations,
+  buildTaskSubtypeRecommendations,
+} from './WorkspaceOperationalMemoryScoring.js';
+
 
 type SnapshotInput = {
   workspace: string;

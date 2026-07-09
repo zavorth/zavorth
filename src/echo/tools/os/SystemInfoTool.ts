@@ -4,6 +4,8 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as os from 'os';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const execAsync = promisify(exec);
 
 /**
@@ -61,10 +63,11 @@ export class SystemInfoTool implements IZavorthTool {
                 data,
             };
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[System Info] creation failed', error);
     return {
                 success: false,
-                error: `Failed to get system information: ${error.message}`,
+                error: `Failed to get system information: ${err.message}`,
             };
   }
     }

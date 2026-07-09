@@ -1,3 +1,5 @@
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 /**
  * Request Telemetry — FASE-09 E2E Hardening (T-45)
  *
@@ -87,7 +89,8 @@ export class RequestTelemetry {
       this.endPhase();
       return result;
     } catch (error: unknown) {
-      this.endPhase({ error: error.message });
+      const err = asErrorLike(error);
+      this.endPhase({ error: err.message });
       throw error;
     }
   }

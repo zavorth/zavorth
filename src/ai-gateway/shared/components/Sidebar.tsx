@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 "use client";
 
-import { useState, useEffect } from "react";
+
 import PropTypes from "prop-types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

@@ -1,5 +1,6 @@
-type LooseRecord = any;
 import { ZavorthOperationalOverviewService } from '../../../../services/ZavorthOperationalOverviewService.js';
+type LooseRecord = any;
+
 import { ZavorthTrustOverviewService } from '../../../../services/ZavorthTrustOverviewService.js';
 import { ZavorthProductOverviewService } from '../../../../services/ZavorthProductOverviewService.js';
 import { InternalControlPlaneCatalogApiService } from '../../../../api/internal/InternalControlPlaneCatalogApiService.js';

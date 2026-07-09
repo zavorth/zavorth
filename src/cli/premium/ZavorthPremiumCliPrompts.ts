@@ -1,4 +1,4 @@
-﻿export type ZavorthPremiumPromptChoice<TValue extends string = string> = {
+export type ZavorthPremiumPromptChoice<TValue extends string = string> = {
   name: string;
   value: TValue;
   description?: string;

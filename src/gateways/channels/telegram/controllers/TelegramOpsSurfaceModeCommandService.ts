@@ -1,5 +1,6 @@
 import { Context } from 'grammy';
 import { t } from '../../../../gateways/channels/telegram/i18n.js';
+import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
 
 type ModeAction = 'activate' | 'deactivate' | 'status';
 
@@ -8,7 +9,7 @@ const MODE_ALIASES: Record<string, ModeAction> = {
   off: 'deactivate', desativar: 'deactivate', desligar: 'deactivate', disable: 'deactivate', deactivate: 'deactivate',
   status: 'status',
 };
-import { OperatorModeService } from '@zavorth/services/OperatorModeService.js';
+
 import { PresentationModeService } from '@zavorth/services/PresentationModeService.js';
 
 export type TelegramOpsSurfaceModeCommandServiceDeps = {

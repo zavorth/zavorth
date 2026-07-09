@@ -7,6 +7,8 @@ import {
 isBlockedSystemExecutable,
     isWhitelistedSystemExecutable,
 } from '../../security/WhitelistConfig';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const UNSAFE_ARGUMENT_PATTERN = /[\0\r\n"`|<>^]/;
 
 export class SystemOpenAppTool implements IZavorthTool {
@@ -53,10 +55,11 @@ export class SystemOpenAppTool implements IZavorthTool {
                 message: `Application ${safeAppName} opened successfully.`,
             };
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[System Open App] operation failed', error);
     return {
                 success: false,
-                error: `Failed to open ${safeAppName}: ${error.message}`,
+                error: `Failed to open ${safeAppName}: ${err.message}`,
             };
   }
     }

@@ -12,7 +12,10 @@ import {
   withUntrustedInputMetadata,
 } from '../../security/UntrustedContent.js';
 import { wrapToolOutputForLlm } from '../../security/ToolOutputTrust.js';
-import { logger } from '../../logger.js';export type SupervisorGraphStatus = 'approved' | 'max_iterations' | 'failed';
+
+import { logger } from '../../logger.js';
+import { errorMessage } from '../../utils/errorLike.js';
+export type SupervisorGraphStatus = 'approved' | 'max_iterations' | 'failed';
 
 export type SupervisorGraphResult = {
   messages: ChatMessage[];
@@ -337,7 +340,7 @@ async function executeToolCall(
   } catch (error: unknown) {logger.warn('[Supervisor Graph] load operation failed', error);
     return {
       role: 'tool',
-      content: wrapToolOutputForLlm(toolName, `TOOL EXECUTION ERROR: ${error?.message || error}`, {
+      content: wrapToolOutputForLlm(toolName, `TOOL EXECUTION ERROR: ${errorMessage(error)}`, {
         source: 'supervisor_graph_tool_result',
         tool_call_id: toolCallId,
       }),

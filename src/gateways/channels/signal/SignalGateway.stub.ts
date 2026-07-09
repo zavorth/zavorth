@@ -4,8 +4,12 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { SignalLiveClient } from '../../../adapters/channels/SignalLiveClient.js';
-import { logger } from '../../../logger.js';export interface SignalGatewayStubMessage {
+import { logger } from '../../../logger.js';
+import { errorMessage } from '../../../utils/errorLike.js';
+export interface SignalGatewayStubMessage {
+
   sender: string;
+
   text: string;
   messageId?: string | null;
   chatId?: string | null;
@@ -210,7 +214,7 @@ export class SignalGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: unknown) {this.lastError = `Signal live send failed: ${error?.message || error}`;
+      } catch (error: unknown) {this.lastError = `Signal live send failed: ${errorMessage(error)}`;
         this.writeStatus();
         throw error;
       }

@@ -1,8 +1,10 @@
-﻿import { config } from '../config/index.js';
+
+import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
 import { GeminiVideoAnalyzer } from '../gateways/channels/telegram/GeminiVideoAnalyzer.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ExternalAiRelayTask = 'chat' | 'youtube_transcription';
 type NormalizedRelayProvider = 'gemini' | 'openai' | 'deepseek' | 'qwen';
@@ -115,7 +117,8 @@ export class ExternalAiRelayService {
     try {
       analysis = await analyzer.transcribeYouTubeUrl(youtubeUrl, undefined, request.prompt);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       if (message.includes('input token count exceeds')) {
         throw new Error(
           'O proprio Gemini recusou a transcricao direta desse link por exceder o limite de contexto da API. Para videos longos, use o fluxo nativo de resumo/transcricao do Zavorth em vez do relay direto.'

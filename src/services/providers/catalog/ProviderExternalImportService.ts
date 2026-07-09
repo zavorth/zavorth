@@ -1,10 +1,12 @@
-﻿import { readFileSync, existsSync } from 'fs';
+
+import { readFileSync, existsSync } from 'fs';
 import { join, extname } from 'path';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel } from './ModelIdSanitizer.js';
 import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 export type ExternalProviderFormat = 'auto' | 'json' | 'yaml' | 'env' | 'external-json' | 'generic';
 
@@ -223,13 +225,14 @@ export class ProviderExternalImportService {
         content = readFileSync(filePath, 'utf-8');
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[External Import] filesystem operation failed', error);
     return {
         success: false,
         providers: [],
         manifests: [],
         warnings,
-        errors: [`Failed to read source: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        errors: [`Failed to read source: ${error instanceof Error ? err.message : 'Unknown error'}`],
       };
   }
 
@@ -250,7 +253,8 @@ export class ProviderExternalImportService {
           providers.push(...parseJsonConfig(content));
       }
     } catch (error: unknown) {
-      errors.push(`Parse error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const err = asErrorLike(error);
+      errors.push(`Parse error: ${error instanceof Error ? err.message : 'Unknown error'}`);
     }
 
     if (providers.length === 0) {
@@ -286,7 +290,8 @@ export class ProviderExternalImportService {
         }
       }
     } catch (error: unknown) {
-      errors.push(`Directory scan error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const err = asErrorLike(error);
+      errors.push(`Directory scan error: ${error instanceof Error ? err.message : 'Unknown error'}`);
     }
 
     const manifests = allProviders.map(configToManifest);

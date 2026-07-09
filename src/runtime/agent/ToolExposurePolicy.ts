@@ -6,6 +6,7 @@ import type {
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
 import { resolveToolGroupCatalogEntry } from './tools/ToolGroupCatalog.js';
+
 import { SecurityAuditLogger } from '../../services/SecurityAuditLogger.js';
 import { LogRepository } from '../../storage/LogRepository.js';
 

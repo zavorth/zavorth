@@ -1,4 +1,14 @@
 import { asErrorLike } from '../../../src/utils/errorLike';
+import { composerPresetSettings, composerSettingLabel, getComposePlaceholder, isComposerPresetActive, persistComposerSettings, readComposerSettings } from './composer-settings';
+import { escapeHtml, renderMarkdown, sanitizeRenderedHtml } from './html-utils';
+import {
+  getSlashCommandSuggestions,
+  parseSlashCommand,
+  renderSlashCommandHelp,
+  shouldQueueLocalSlashCommand,
+  SLASH_COMMANDS,
+} from './slash-commands';
+import { buildWorkflowSlashRequest } from './workflow-intent';
 /**
  * Zavorth Nexus --- Core Runtime Logic
  * Manages dock navigation, neural feed (chat), signals, and interactive behaviors.
@@ -17,7 +27,7 @@ import {
   setDiffReviewContent,
   getDiffReviewHunks,
 } from './diff-review-rail';
-import { composerPresetSettings, composerSettingLabel, getComposePlaceholder, isComposerPresetActive, persistComposerSettings, readComposerSettings } from './composer-settings';
+
 import { bindAttachmentTray, bindComposeInputEvents, bindComposerContextBar, bindComposerFileDrop, bindFileInputEvents, bindToolSheetActions, createHiddenFileInput } from './composer-event-wiring';
 import { exportConversation, getExportMenuHtml } from './conversation-export';
 import { createControlSheets } from './control-sheets';
@@ -32,7 +42,7 @@ import {
   resolveExperienceProfile,
   type ExperienceProfileUiContract,
 } from './experience-profile-ui';
-import { escapeHtml, renderMarkdown, sanitizeRenderedHtml } from './html-utils';
+
 import { createLocalPreviewResponses } from './local-preview-responses';
 import { bindNeuralFeedInteractions } from './neural-feed-interactions';
 import { createOverlayController } from './overlay-controller';
@@ -54,14 +64,7 @@ import {
   serializePromptQueueItem,
   writePromptQueueForSession,
 } from './prompt-queue';
-import {
-  getSlashCommandSuggestions,
-  parseSlashCommand,
-  renderSlashCommandHelp,
-  shouldQueueLocalSlashCommand,
-  SLASH_COMMANDS,
-} from './slash-commands';
-import { buildWorkflowSlashRequest } from './workflow-intent';
+
 
 const CHAT_EFFORT_LABELS = {
   low: 'Low',
@@ -4741,7 +4744,7 @@ ${current}` : skillPrompt;
       const err = asErrorLike(error);
 
       if (configStatus) {
-        configStatus.textContent = `Error: ${error.message}`;
+        configStatus.textContent = `Error: ${err.message}`;
         configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
       }
       if (configSaveBtn) configSaveBtn.disabled = true;
@@ -4786,7 +4789,7 @@ ${current}` : skillPrompt;
         const err = asErrorLike(error);
 
         if (configStatus) {
-          configStatus.textContent = `Failed to save: ${error.message}`;
+          configStatus.textContent = `Failed to save: ${err.message}`;
           configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--error';
         }
       }

@@ -1,4 +1,5 @@
 import { ZavorthNetworkTool } from '../../src/tools/ZavorthNetworkTool';
+import { asErrorLike } from '../../src/utils/errorLike';
 
 describe('ZavorthNetworkTool', () => {
   let tool: ZavorthNetworkTool;
@@ -57,6 +58,7 @@ describe('ZavorthNetworkTool', () => {
         const result = await tool.execute({ action: 'port_scan', host: '127.0.0.1' });
         expect(typeof result).toBe('string');
       } catch (e: unknown) {
+        const eLike = asErrorLike(e);
         expect(String(e)).toContain('dynamic import');
       }
     });
@@ -66,6 +68,7 @@ describe('ZavorthNetworkTool', () => {
         const result = await tool.execute({ action: 'port_scan', host: '127.0.0.1', ports: '80,443' });
         expect(typeof result).toBe('string');
       } catch (e: unknown) {
+        const eLike = asErrorLike(e);
         expect(String(e)).toContain('dynamic import');
       }
     });

@@ -5,16 +5,16 @@ describe('TelegramMenuController', () => {
     const controller = new TelegramMenuController({ api: {} } as any);
     const help = controller.getHelpText();
 
-    expect(help).toContain('Fale normal primeiro');
-    expect(help).toContain('O caminho normal continua sendo texto livre');
-    expect(help).toContain('quero conectar voce ao Discord');
-    expect(help).toContain('/setupagent <pedido>');
+    expect(help).toMatch(/Start with natural language|Fale normal primeiro/i);
+    expect(help).toMatch(/normal path remains free text|caminho normal continua sendo texto livre/i);
+    expect(help).toMatch(/connect me to Discord|quero conectar voce ao Discord/i);
+    expect(help).toMatch(/\/setupagent <request>|\/setupagent <pedido>/);
     expect(help).toContain('/perm list');
-    expect(help).toContain('/dashboard');
+    expect(help).toMatch(/\/zavorthControl|\/dashboard/);
     expect(help).not.toContain('/miniapp');
-    expect(help).toContain('/swarm <objetivo>');
+    expect(help).toMatch(/\/swarm <objective>|\/swarm <objetivo>/);
     expect(help).toContain('/channels');
-    expect(help).toContain('Use `/zavorth` como fallback manual');
+    expect(help).toMatch(/Use `\/zavorth` as a manual fallback|Use `\/zavorth` como fallback manual/);
     expect(help).not.toContain('Use `/zavorth` para abrir o hub com botoes');
   });
 
@@ -35,7 +35,7 @@ describe('TelegramMenuController', () => {
       expect.arrayContaining([
         expect.objectContaining({ command: 'status' }),
         expect.objectContaining({ command: 'commands' }),
-        expect.objectContaining({ command: 'dashboard' }),
+        expect.objectContaining({ command: 'zavorthControl' }),
         expect.objectContaining({ command: 'perm' }),
         expect.objectContaining({ command: 'echoapprovals' }),
         expect.objectContaining({ command: 'trust' }),
@@ -60,7 +60,7 @@ describe('TelegramMenuController', () => {
       expect.arrayContaining([
         expect.objectContaining({ command: 'ban' }),
         expect.objectContaining({ command: 'warn' }),
-        expect.objectContaining({ command: 'regras' }),
+        expect.objectContaining({ command: 'rules' }),
       ]),
     );
     expect(setMyCommands.mock.calls[2][0]).not.toEqual(
@@ -80,21 +80,25 @@ describe('TelegramMenuController', () => {
 
     await controller.renderHelpCard(ctx);
 
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Zavorth - Guia rapido'),
-      expect.objectContaining({
-        reply_markup: expect.objectContaining({
-          inline_keyboard: expect.any(Array),
-        }),
-      }),
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
+      /Zavorth - (Quick Guide|Guia rapido)/,
     );
-    expect(ctx.reply.mock.calls[0][0]).toContain('Fale normal primeiro');
+    expect(ctx.reply.mock.calls[0][0]).toMatch(/Start with natural language|Fale normal primeiro/i);
     expect(ctx.reply.mock.calls[0][1]).not.toHaveProperty('parse_mode');
     expect(ctx.reply.mock.calls[0][1].reply_markup.inline_keyboard.flat()).toEqual(expect.arrayContaining([
-      expect.objectContaining({ text: 'Guia rapido', callback_data: 'hub:page:quickstart' }),
-      expect.objectContaining({ text: 'Comandos', callback_data: '/commands' }),
+      expect.objectContaining({
+        text: expect.stringMatching(/Quick guide|Guia rapido/i),
+        callback_data: 'hub:page:quickstart',
+      }),
+      expect.objectContaining({
+        text: expect.stringMatching(/Commands|Comandos/i),
+        callback_data: '/commands',
+      }),
       expect.objectContaining({ text: 'Status', callback_data: 'hub:action:status' }),
-      expect.objectContaining({ text: 'Permissoes', callback_data: 'hub:page:permissions' }),
+      expect.objectContaining({
+        text: expect.stringMatching(/Permissions|Permissoes/i),
+        callback_data: 'hub:page:permissions',
+      }),
     ]));
   });
 });

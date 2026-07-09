@@ -13,7 +13,7 @@ describe('TelegramKnowledgeController', () => {
     await controller.handleSave(ctx, 'deploy npm run build', '42');
 
     expect(snippetService.save).toHaveBeenCalledWith('42', 'deploy', 'npm run build');
-    expect(ctx.reply).toHaveBeenCalledWith('Snippet "deploy" salvo.');
+    expect(ctx.reply).toHaveBeenCalledWith('Snippet "deploy" saved.');
   });
 
   it('lists memory entries using the memory service', async () => {
@@ -29,6 +29,6 @@ describe('TelegramKnowledgeController', () => {
 
     await controller.handleMemory(ctx, '42');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('[contexto] projeto: Zavorth'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('[contexto] projeto: Zavorth');
   });
 });

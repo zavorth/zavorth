@@ -12,11 +12,13 @@ import {
   extractDiscordAttachments,
   resolveDiscordThreadId,
 } from '../DiscordGatewayMessageHelpers.js';
+import { DiscordGatewayPersistence } from './DiscordGatewayPersistence.js';
+
 import type {
   DiscordGatewayInteractionLike,
   DiscordGatewayMessageLike,
 } from '../DiscordGatewayTypes.js';
-import { DiscordGatewayPersistence } from './DiscordGatewayPersistence.js';
+
 import { DiscordGatewayReplyService } from './DiscordGatewayReplyService.js';
 
 type DiscordGatewayInboundServiceOptions = {

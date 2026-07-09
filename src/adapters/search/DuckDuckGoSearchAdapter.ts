@@ -1,4 +1,5 @@
 import { asErrorLike } from '../../utils/errorLike';
+import { logger } from '../../logger.js';
 /**
  * DuckDuckGoSearchAdapter - Zavorth-native web search adapter for DuckDuckGo.
  *
@@ -29,7 +30,7 @@ import type {
   AdapterSearchOutput,
   AdapterSearchItem,
 } from '../../contracts/SearchQueryContract.js';
-import { logger } from '../../logger.js';
+
 import { safeFetch } from '../../security/SafeFetchService.js';
 
 let ddgQueue: Promise<void> = Promise.resolve();

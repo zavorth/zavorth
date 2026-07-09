@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface CalendarEvent {
   uid: string;
@@ -94,8 +96,9 @@ export class CalendarTool extends BaseTool {
           return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Calendar] delete operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Erro no calendario: ${message}`;
   }
   }

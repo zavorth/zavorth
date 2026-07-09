@@ -1,3 +1,4 @@
+
 /**
  * MoAWithFallback — Mixture of Agents with integrated fallback routing.
  *
@@ -20,6 +21,7 @@
 import { EventEmitter } from 'events';
 import { LLMRouterService } from '../services/plugins/LLMRouterService.js';
 import { ModelFallbackChain, type ModelCandidate, type FailureReason } from './ModelFallbackChain.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface MoAReferenceConfig {
   provider: string;
@@ -194,7 +196,8 @@ export class MoAWithFallback extends EventEmitter {
           success: true,
         };
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);
         chain.recordFailure(candidate, reason);
@@ -257,7 +260,8 @@ Instructions:
         chain.recordSuccess(candidate);
         return response;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);
         chain.recordFailure(candidate, reason);

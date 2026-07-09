@@ -1,5 +1,6 @@
 import React from '../../../apps/zavorth-desktop/node_modules/react';
 import { asErrorLike } from '../../../apps/zavorth-desktop/src/lib/errors';
+import { asErrorLike } from '../../../src/utils/errorLike';
 
 // Setup custom lightweight mock DOM to run React DOM rendering in Node without ESM-only JSDOM package dependencies
 class MockElement {

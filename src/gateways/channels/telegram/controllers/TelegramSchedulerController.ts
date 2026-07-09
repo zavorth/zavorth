@@ -10,6 +10,8 @@ import {
   mapBooleanReceiptStatus,
 } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type SchedulerResolver = () => SchedulerService | undefined;
 
 export class TelegramSchedulerController {
@@ -70,7 +72,8 @@ export class TelegramSchedulerController {
         result.ok ? 'done' : 'failed',
       );
     } catch (error: unknown) {
-      await ctx.reply(t('scheduler.create_failed', { error: error instanceof Error ? error.message : String(error) }));
+      const err = asErrorLike(error);
+      await ctx.reply(t('scheduler.create_failed', { error: error instanceof Error ? err.message : String(error) }));
     }
   }
 

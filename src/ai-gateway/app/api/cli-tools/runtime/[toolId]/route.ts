@@ -1,12 +1,13 @@
+import { NextResponse } from "next/server";
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 "use server";
 
-import { NextResponse } from "next/server";
+
 import {
   CLI_TOOL_IDS,
   getCliPrimaryConfigPath,
   getCliRuntimeStatus,
 } from "@/shared/services/cliRuntime";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 
 export async function GET(request, { params }) {
   const authError = await requireManagementAuth(request);

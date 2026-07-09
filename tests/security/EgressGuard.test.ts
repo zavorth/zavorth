@@ -31,7 +31,9 @@ describe('EgressGuard', () => {
     it('should allow public IPs', () => {
       expect(guard.isPrivateNetworkAddress('8.8.8.8')).toBe(false);
       expect(guard.isPrivateNetworkAddress('1.1.1.1')).toBe(false);
-      expect(guard.isPrivateNetworkAddress('203.0.113.1')).toBe(false);
+      // 203.0.113.0/24 is TEST-NET-3 and is intentionally treated as non-public.
+      expect(guard.isPrivateNetworkAddress('203.0.113.1')).toBe(true);
+      expect(guard.isPrivateNetworkAddress('93.184.216.34')).toBe(false);
     });
   });
 

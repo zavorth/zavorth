@@ -1,6 +1,8 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface BackupEntry {
   id: string;
@@ -86,13 +88,14 @@ export class BackupService {
 
       return `Backup "${name}" created: ${filesCount} files, ${(totalSize / 1024).toFixed(1)}KB`;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const entry: BackupEntry = {
         id, name, path: backupDir, size_bytes: 0,
         created_at: new Date().toISOString(), type, status: 'failed', files_count: 0,
       };
       this.backups.push(entry);
       this.scheduleFlush();
-      return `Backup failed: ${error instanceof Error ? error.message : String(error)}`;
+      return `Backup failed: ${error instanceof Error ? err.message : String(error)}`;
     }
   }
 

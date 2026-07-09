@@ -16,6 +16,8 @@ import type { ChannelAdapterStatus, ChannelFeatureSet } from '../contracts/Chann
 import type { PlatformReadiness, PlatformImplementationState, PlatformTransport, PlatformKey } from '../contracts/PlatformContract.js';
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
 export type WebhookGatewayStatusSnapshot = {
@@ -320,8 +322,9 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
           ? { ok: true, status: 'delivered', transport: this.mode, httpStatus: response.status }
           : { ok: false, status: 'failed', transport: this.mode, httpStatus: response.status, reason: `HTTP ${response.status}` };
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Webhook way] network request failed', error);
-    return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? error.message : String(error) };
+    return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? err.message : String(error) };
   }
     };
     const json = (url: string, body: Record<string, unknown>, headers: Record<string, string> = {}) => request(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });

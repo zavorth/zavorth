@@ -1,7 +1,8 @@
 import type {
   CodexRuntimeModelEntry,
 } from '../../contracts/CodexRuntimeContract.js';
-import { CodexAppServerRpcAdapter } from './CodexAppServerRpcAdapter.js';type CodexModelCatalogAdapterRuntime = {
+import { CodexAppServerRpcAdapter } from './CodexAppServerRpcAdapter.js';
+type CodexModelCatalogAdapterRuntime = {
   rpcAdapter?: Pick<CodexAppServerRpcAdapter, 'hasRequester' | 'listModels'>;
 };
 

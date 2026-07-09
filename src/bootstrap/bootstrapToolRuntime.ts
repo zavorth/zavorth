@@ -4,9 +4,10 @@ import { McpCapabilityControlPlaneService } from '../services/McpCapabilityContr
 import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
-import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';export function createBootstrapToolRuntime(logRepo: LogRepository) {
+import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
+import { logger } from '../logger.js';export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
-import { logger } from '../logger.js';
+
   const { ToolExecutor } = require('../execution/ToolExecutor.js');
   const { ToolCatalogService } = require('../services/tools/ToolCatalogService.js');
   const { UnifiedSearchTool } = require('../tools/UnifiedSearchTool.js');

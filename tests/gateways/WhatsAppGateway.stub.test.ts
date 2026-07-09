@@ -123,7 +123,7 @@ describe('WhatsAppGateway stub', () => {
     expect(status).toEqual(expect.objectContaining({
       mode: 'baileys',
       provider: 'baileys',
-      providerModeLabel: 'Bridge local Baileys',
+      providerModeLabel: 'Local Baileys bridge',
       started: true,
       linked: true,
       lifecycleState: 'awaiting_qr',
@@ -269,7 +269,7 @@ describe('WhatsAppGateway stub', () => {
         localBridge: null,
       }),
     );
-    expect(String(status.providerDecision || '')).toContain('Cloud API conectada');
+    expect(String(status.providerDecision || '')).toMatch(/Cloud API (conectada|connected)/i);
   });
 
   it('sends outbound messages through the WhatsApp Cloud API when the provider is enabled', async () => {

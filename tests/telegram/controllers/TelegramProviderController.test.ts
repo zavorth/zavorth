@@ -27,7 +27,7 @@ describe('TelegramProviderController', () => {
 
     expect(clearCache).toHaveBeenCalled();
     expect(config.llmProvider).toBe('qwen');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('**Qwen via Puter**'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('**Qwen via Puter**');
   });
 
   it('rejects unknown providers without changing config', async () => {
@@ -39,7 +39,9 @@ describe('TelegramProviderController', () => {
     await controller.handleModel(ctx, 'claude');
 
     expect(config.llmProvider).toBe(originalProvider);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Nao reconheci esse provider'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
+      /Nao reconheci esse provider|I did not recognize this provider/i,
+    );
   });
 
   it('shows usage when no provider name is supplied', async () => {
@@ -50,7 +52,7 @@ describe('TelegramProviderController', () => {
 
     await controller.handleModel(ctx, '');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/model <nome>'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/\/model\s*<nome>|\/model\s*<name>/i);
   });
 
   it('switches to Gemma 2 through the Gemini provider alias', async () => {
@@ -66,8 +68,10 @@ describe('TelegramProviderController', () => {
     expect(clearCache).toHaveBeenCalled();
     expect(config.llmProvider).toBe('gemini');
     expect(config.geminiModel).toBe('gemma-2-27b-it');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gemma 2'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Provider efetivo: `gemini`'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Gemma 2');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
+      /Provider efetivo: `gemini`|Effective provider: `gemini`/i,
+    );
   });
 
   it('accepts a direct Gemma model id and keeps the Gemini provider', async () => {
@@ -82,6 +86,8 @@ describe('TelegramProviderController', () => {
     expect(clearCache).toHaveBeenCalled();
     expect(config.llmProvider).toBe('gemini');
     expect(config.geminiModel).toBe('gemma-2-27b-it');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Modelo ativo: `gemma-2-27b-it`'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
+      /Modelo ativo: `gemma-2-27b-it`|Active model: `gemma-2-27b-it`/i,
+    );
   });
 });

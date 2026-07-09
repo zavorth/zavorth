@@ -9,6 +9,8 @@ import {
 sanitizeSqliteBackupFile,
   shouldIncludeSensitiveDatabaseExport,
 } from "@/lib/db/backupSanitizer";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 /**
  * GET /api/db-backups/export — Download the current database as a .sqlite file.
  *
@@ -59,7 +61,8 @@ export async function GET(request: Request) {
       },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error exporting database:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

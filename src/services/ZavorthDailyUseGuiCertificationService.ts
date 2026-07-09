@@ -1,4 +1,4 @@
-﻿import type { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
+import type { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
 import { logger } from '../logger.js';
 import type {
 ZavorthDailyUseGuiCapabilityCheck,

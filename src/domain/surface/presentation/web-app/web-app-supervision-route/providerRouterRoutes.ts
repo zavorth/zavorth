@@ -1,6 +1,8 @@
 import type { WebAppRuntimeRouteDeps } from '../WebAppRuntimeRouteService.js';
 import type { WebAppSupervisionRouteHandler } from './types.js';
 import { asNullableString, getRequestedBy } from './helpers.js';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 interface ProviderRouterService {
   buildSnapshot(): Record<string, unknown>;
   getLastReceipt(): Record<string, unknown> | null;
@@ -72,9 +74,10 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
       });
       deps.writeJson(res, { ok: true, receipt }, 200);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: error instanceof Error ? error.message : 'Falha ao rotear a requisicao.' },
+        { ok: false, error: error instanceof Error ? err.message : 'Falha ao rotear a requisicao.' },
         400,
       );
     }

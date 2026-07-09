@@ -11,6 +11,7 @@ import {
   type ZavorthActionReceipt,
 } from './ZavorthActionContracts.js';
 import { ZavorthActionCatalog } from './ZavorthActionCatalog.js';
+
 import type { GoalLoopLlmRuntime } from '../../services/GoalLoopService.js';
 import type { GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';type Runtime = {
   root?: string;

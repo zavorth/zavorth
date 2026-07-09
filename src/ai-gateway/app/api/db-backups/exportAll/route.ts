@@ -10,7 +10,9 @@ import {
   shouldIncludeSensitiveDatabaseExport,
 } from "@/lib/db/backupSanitizer";
 import { redactExportedLogValue } from "@/lib/logExportRedaction";
+
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 /**
  * GET /api/db-backups/exportAll
@@ -152,11 +154,12 @@ export async function GET(request: Request) {
       throw innerError;
     }
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[ExportAll] Error:", error);
     return NextResponse.json(
       {
         error: "Failed to create full export",
-        details: error instanceof Error ? error.message : String(error),
+        details: error instanceof Error ? err.message : String(error),
       },
       { status: 500 }
     );

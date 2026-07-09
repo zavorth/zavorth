@@ -5,6 +5,7 @@ import type {
   SelfmodResourceDelta,
 } from '../contracts/SelfmodOptimizationContract.js';
 import { SelfmodOptimizationCatalog } from './SelfmodOptimizationCatalog.js';
+
 import { SelfmodPatternMemory } from './SelfmodPatternMemory.js';
 import { SelfmodRuntimeGuard } from './SelfmodRuntimeGuard.js';
 

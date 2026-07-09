@@ -1,4 +1,4 @@
-﻿export * from './AgentMeshConsentContract.js';
+export * from './AgentMeshConsentContract.js';
 export * from './AgentMeshExecutionContract.js';
 export * from './AgentOsContract.js';
 export * from './AutonomousEngineeringPartnerContract.js';

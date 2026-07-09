@@ -1,4 +1,4 @@
-﻿import { config } from '../../config/index.js';
+import { config } from '../../config/index.js';
 import { ZavorthBridgeAccessLeaseService } from '../ZavorthBridgeAccessLeaseService.js';
 import { logger } from '../../logger.js';
 import type {

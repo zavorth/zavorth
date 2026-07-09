@@ -1,12 +1,3 @@
-﻿import fs from 'fs';
-import path from 'path';
-import { config } from '../config/index.js';
-import { getDefaultCapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
-import {
-  type ZavorthProfile,
-  normalizeZavorthProfile,
-  RuntimeProfileService,
-} from './RuntimeProfileService.js';
 import {
   type ZavorthProductMode,
   type ZavorthProductModeSnapshot,
@@ -17,6 +8,17 @@ import {
   resolveDefaultRuntimeProfileForProductMode,
 } from './ProductModeService.js';
 import { buildCapabilityManifests } from './capability-lifecycle/CapabilityLifecycleManifests.js';
+import fs from 'fs';
+import path from 'path';
+import { config } from '../config/index.js';
+import { getDefaultCapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
+import {
+  type ZavorthProfile,
+  normalizeZavorthProfile,
+  RuntimeProfileService,
+} from './RuntimeProfileService.js';
+
+
 import { logger } from '../logger.js';
 
 export type CapabilityLifecycleState =

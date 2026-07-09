@@ -15,6 +15,7 @@ import {
   markOnboardingComplete,
 } from './onboarding/desktopOnboarding';
 import { t } from './i18n';
+
 import { useEffect, useRef, useState } from 'react';
 import { playDingSound } from './lib/haptics';
 

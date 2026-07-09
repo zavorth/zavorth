@@ -1,3 +1,4 @@
+import { UniversalCapabilityFabricService } from './UniversalCapabilityFabricService.js';
 /**
  * Universal Product Fabric Service
  *
@@ -19,7 +20,7 @@ import {
   type ProductPublicCommand,
   type ProductReadinessLevel,
 } from '../contracts/UniversalProductFabricContract.js';
-import { UniversalCapabilityFabricService } from './UniversalCapabilityFabricService.js';
+
 import { UniversalWorkspaceImportService } from './UniversalWorkspaceImportService.js';
 import { UniversalReachFabricService } from './UniversalReachFabricService.js';
 import { ChannelSynthesisService } from './reach/ChannelSynthesisService.js';

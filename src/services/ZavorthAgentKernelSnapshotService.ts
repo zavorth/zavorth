@@ -1,4 +1,5 @@
-﻿import path from 'node:path';
+import { ZavorthProviderActivationService } from './ZavorthProviderActivationService.js';
+import path from 'node:path';
 
 import type { UniversalAgentModelProfile } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
 import {
@@ -20,7 +21,7 @@ import {
   ZavorthPerformanceMemoryService,
   type ZavorthPerformanceMemoryRuntime,
 } from './ZavorthPerformanceMemoryService.js';
-import { ZavorthProviderActivationService } from './ZavorthProviderActivationService.js';
+
 import { logger } from '../logger.js';
 
 type StateDbLike = ZavorthPerformanceMemoryRuntime['stateDb'];

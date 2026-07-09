@@ -10,6 +10,7 @@ import type {
   ZavorthSemanticClosureReleaseGate,
 } from '../contracts/ZavorthSemanticClosureConsolidationContract.js';
 import { ZAVORTH_SEMANTIC_CLOSURE_CONSOLIDATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticClosureConsolidationContract.js';
+
 import { ZavorthSemanticAgentRuntimeCertificationService } from './ZavorthSemanticAgentRuntimeCertificationService.js';
 import { ZavorthSemanticChannelMeshCertificationService } from './ZavorthSemanticChannelMeshCertificationService.js';
 import { ZavorthSemanticFunctionalClosureCertificationService } from './ZavorthSemanticFunctionalClosureCertificationService.js';

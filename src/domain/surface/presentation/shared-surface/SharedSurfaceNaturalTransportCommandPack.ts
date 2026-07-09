@@ -1,7 +1,11 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthRemoteTransportService } from '../../../../services/ZavorthRemoteTransportService.js';
-import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';type NaturalTransportIntent = {
+import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
+type NaturalTransportIntent = {
+
   transportId?: string;
+
   transportIds?: string[];
   actionId?: 'inspect' | 'prepare' | 'smoke' | 'repair';
   reason: 'inspect' | 'prepare' | 'smoke' | 'repair' | 'preview' | 'recommend';
@@ -115,7 +119,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     };
   }
 
-
   private parseContextualTransportIntent(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
     rawText: string,
@@ -182,7 +185,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     return null;
   }
 
-
   private async handleNaturalTransportIntent(
     ctx: IMessageContext,
     intent: NaturalTransportIntent,
@@ -224,10 +226,9 @@ export class SharedSurfaceNaturalTransportCommandPack {
         '',
         `Comandos uteis agora: /transports ${intent.transportId} | /transports prepare ${intent.transportId} | /transports repair ${intent.transportId}.`,
       ].join('\n'));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse transporte agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui abrir o fluxo guiado desse transporte agora.'));
     }
   }
-
 
   private buildNaturalTransportPreviewReply(compareTarget?: string): string {
     const options = this.getNaturalTransportPreviewOptions(compareTarget);
@@ -240,7 +241,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
       'Se quiser, me diga uma opcao, um transporte especifico ou "vai com o recomendado".',
     ].join('\n');
   }
-
 
   private buildNaturalTransportRecommendationReply(compareTarget?: string): string {
     const options = this.getNaturalTransportPreviewOptions(compareTarget);
@@ -272,7 +272,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
       'Se quiser, posso preparar esse transporte agora ou mostrar as outras opcoes.',
     ].join('\n');
   }
-
 
   private getNaturalTransportPreviewOptions(compareTarget?: string): TransportConversationOption[] {
     const snapshot = this.deps.remoteTransportService.buildSnapshot();
@@ -332,7 +331,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     }));
   }
 
-
   private rememberTransportConversation(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
     compareTarget?: string,
@@ -346,7 +344,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
       updatedAt: Date.now(),
     });
   }
-
 
   private readTransportConversation(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
@@ -363,7 +360,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     return entry;
   }
 
-
   private buildTransportConversationKey(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
   ): string {
@@ -375,12 +371,10 @@ export class SharedSurfaceNaturalTransportCommandPack {
     ].join('::');
   }
 
-
   private extractNaturalTransportCompareTarget(rawText: string): string | undefined {
     const match = String(rawText || '').match(/\b(?:para|pro|pra)\s+(.+)$/i);
     return match?.[1] ? String(match[1]).trim() : undefined;
   }
-
 
   private async handleNaturalTransportBatchPrepare(
     ctx: IMessageContext,
@@ -427,7 +421,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     await ctx.reply(lines.join('\n'));
   }
 
-
   private buildNaturalTransportIntro(intent: NaturalTransportIntent): string {
     const label = this.formatNaturalTransportLabel(String(intent.transportId || '').trim());
     switch (intent.reason) {
@@ -446,7 +439,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
         return `Entendi que voce quer inspecionar o transporte ${label}.`;
     }
   }
-
 
   private formatNaturalTransportLabel(transportId: string): string {
     const snapshot = this.deps.remoteTransportService.buildSnapshot({ selectedId: transportId });
@@ -468,7 +460,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     }
   }
 
-
   private resolveNaturalTransportId(normalized: string): string | null {
     const snapshot = this.deps.remoteTransportService.buildSnapshot();
     const manualAliases: Record<string, string[]> = {
@@ -484,7 +475,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
       })),
     );
   }
-
 
   private resolveNaturalEntryId(
     normalized: string,
@@ -509,7 +499,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     }
     return best?.id || null;
   }
-
 
   private extractNaturalTaskVariationPreviewSelection(normalized: string): number | null {
     const match = normalized.match(
@@ -542,7 +531,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     }
   }
 
-
   private extractImplicitTaskVariationPreviewSelection(normalized: string): number | null {
     const match = normalized.match(/\b(?:na verdade\s+)?(primeira|segunda|terceira|quarta|quinta|sexta|1|2|3|4|5|6)\b/);
     if (!match?.[1]) {
@@ -550,7 +538,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
     }
     return this.extractNaturalTaskVariationPreviewSelection(`abre a ${match[1]} opcao`);
   }
-
 
   private normalizeNaturalText(value: string | null | undefined): string {
     return String(value || '')
@@ -560,7 +547,6 @@ export class SharedSurfaceNaturalTransportCommandPack {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
   }
-
 
   private escapeRegex(value: string): string {
     return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

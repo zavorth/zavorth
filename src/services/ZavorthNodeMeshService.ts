@@ -8,6 +8,7 @@ import type {
   NodeInvocationRecord,
 } from '../contracts/NodeMeshContract.js';
 import { NodeCapabilityService } from './NodeCapabilityService.js';
+
 import { NodeDeviceProfileService } from './NodeDeviceProfileService.js';
 import { NodeInvokeService } from './NodeInvokeService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';

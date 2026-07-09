@@ -1,8 +1,11 @@
 import { t } from '../i18n';
 import { createLogger } from '../logger';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { isSecondaryPanel, PRIMARY_PANELS, SECONDARY_PANELS } from './navConfig';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 const logger = createLogger('shell');
-import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import type { DesktopPanel } from '../slashCommands';
 import {
   Channels,
@@ -41,7 +44,7 @@ import {
   sortSessionsForSidebar,
   type SessionChromeMap,
 } from '../session/sessionChrome';
-import { isSecondaryPanel, PRIMARY_PANELS, SECONDARY_PANELS } from './navConfig';
+
 import { asErrorLike } from '../lib/errors';
 
 type SidebarItem = {

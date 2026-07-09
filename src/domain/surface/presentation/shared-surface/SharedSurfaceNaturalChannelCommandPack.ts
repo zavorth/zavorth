@@ -5,6 +5,8 @@ import type { NaturalChannelSetupTurnService } from '../../../../services/Natura
 import type { IntegrationHubService } from '../../../../services/IntegrationHubService.js';
 import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
 import { logger } from '../../../../logger';
+import { errorMessage } from '../../../../utils/errorLike.js';
+
 import {
 buildNaturalChannelPreviewReply,
   buildNaturalChannelRecommendationReply,
@@ -15,7 +17,8 @@ buildNaturalChannelPreviewReply,
   normalizeNaturalChannelText,
   SharedSurfaceNaturalChannelConversation,
   type NaturalChannelIntent,
-} from './SharedSurfaceNaturalChannelLanguage.js';export type SharedSurfaceNaturalChannelCommandPackDeps = {
+} from './SharedSurfaceNaturalChannelLanguage.js';
+export type SharedSurfaceNaturalChannelCommandPackDeps = {
   channelInstallService: Pick<ChannelInstallScaffoldService, 'applyScaffold' | 'buildPlanForChannel'> | null;
   channelSetupAssistantService: Pick<ChannelSetupAssistantService, 'apply' | 'buildSession'> | null;
   naturalChannelSetupTurnService: Pick<NaturalChannelSetupTurnService, 'buildTurn'> | null;
@@ -166,7 +169,7 @@ export class SharedSurfaceNaturalChannelCommandPack {
       );
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse canal agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui abrir o fluxo guiado desse canal agora.'));
     }
   }
 

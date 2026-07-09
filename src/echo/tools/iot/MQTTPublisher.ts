@@ -3,6 +3,8 @@ import { createRequire } from 'module';
 import { IZavorthTool, ToolExecutionResult } from '../../types/IZavorthTool.js';
 import { isLocalNetworkHostname } from '../../security/WhitelistConfig.js';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const requireFromHere = createRequire(__filename);
 
 type MqttLifecycleStatus =
@@ -207,12 +209,13 @@ export class MQTTPublisher implements IZavorthTool {
                 });
             });
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           this.updateState({
                 status: 'failed',
-                lastError: `MQTT Publisher failure: ${error.message}`,
+                lastError: `MQTT Publisher failure: ${err.message}`,
             });
             return this.fail(
-                `MQTT Publisher failure: ${error.message}`,
+                `MQTT Publisher failure: ${err.message}`,
                 policy,
                 context,
                 'failed',

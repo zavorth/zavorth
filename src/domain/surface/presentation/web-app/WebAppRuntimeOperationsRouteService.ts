@@ -27,24 +27,33 @@ const VALID_PRESET_IDS: readonly IDECompanionPresetId[] = ['zavorthBridge', 'vsc
 
 function asCompanionId(value: string): CompanionId {
   const normalized = value.trim().toLowerCase();
-  if ((VALID_COMPANION_IDS as readonly string[]).includes(normalized)) {
-    return normalized as CompanionId;
+  const match = (VALID_COMPANION_IDS as readonly string[]).find(
+    (id) => id.toLowerCase() === normalized,
+  );
+  if (match) {
+    return match as CompanionId;
   }
   throw new Error(`Invalid companion id: ${normalized}`);
 }
 
 function asCompanionActionId(value: string): CompanionActionId {
   const normalized = value.trim().toLowerCase();
-  if ((VALID_ACTION_IDS as readonly string[]).includes(normalized)) {
-    return normalized as CompanionActionId;
+  const match = (VALID_ACTION_IDS as readonly string[]).find(
+    (id) => id.toLowerCase() === normalized,
+  );
+  if (match) {
+    return match as CompanionActionId;
   }
   throw new Error(`Invalid companion action id: ${normalized}`);
 }
 
 function asIDECompanionPresetId(value: string): IDECompanionPresetId {
   const normalized = value.trim().toLowerCase();
-  if ((VALID_PRESET_IDS as readonly string[]).includes(normalized)) {
-    return normalized as IDECompanionPresetId;
+  const match = (VALID_PRESET_IDS as readonly string[]).find(
+    (id) => id.toLowerCase() === normalized,
+  );
+  if (match) {
+    return match as IDECompanionPresetId;
   }
   throw new Error(`Invalid IDE companion preset id: ${normalized}`);
 }

@@ -12,6 +12,7 @@ import type {
   WebResearchLiveTargetId,
 } from '../contracts/WebResearchLivePlaneContract.js';
 import { ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION } from '../contracts/WebResearchLivePlaneContract.js';
+
 import { LiveReadinessService } from './LiveReadinessService.js';
 
 type WebResearchLivePlaneRuntime = {

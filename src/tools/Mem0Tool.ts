@@ -1,4 +1,4 @@
-﻿import { BaseTool } from './BaseTool.js';
+import { BaseTool } from './BaseTool.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { MemoryRuntimeService } from '../services/memory/MemoryRuntimeService.js';
 import { logger } from '../logger.js';

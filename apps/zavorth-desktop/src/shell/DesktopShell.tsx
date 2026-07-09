@@ -22,6 +22,8 @@ import type {
   ToolItem,
 } from '../apiClient';
 import { DesktopCommandBar } from '../composer/DesktopCommandBar';
+import { DesktopInspector } from '../panels/DesktopInspector';
+
 import {
   clearQueue,
   enqueuePrompt,
@@ -48,7 +50,7 @@ import {
   type RightRailState,
   type RightRailTab,
 } from './rightRail';
-import { DesktopInspector } from '../panels/DesktopInspector';
+
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';

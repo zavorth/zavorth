@@ -3,6 +3,7 @@ import {
   type ZavorthCapabilityActionSurfaceSnapshot,
 } from '../contracts/ZavorthCapabilityActionSurfaceContract.js';
 import { ZavorthActionCatalog, type ZavorthActionDefinition } from '../runtime/actions/index.js';
+
 import { ZavorthCapabilityActionExposureService } from './ZavorthCapabilityActionExposureService.js';
 
 type Runtime = {

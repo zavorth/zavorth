@@ -6,6 +6,7 @@ import {
   type ZavorthToolCatalogSnapshot,
 } from './ZavorthToolCatalogService.js';
 import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionToolsService.js';
+
 import { ZavorthHookPlaneService } from './ZavorthHookPlaneService.js';
 import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';
 import { ZavorthTeamCatalogService } from './ZavorthTeamCatalogService.js';

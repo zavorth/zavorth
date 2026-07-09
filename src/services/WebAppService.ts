@@ -1,4 +1,12 @@
-﻿import * as http from 'http';
+import {
+  createWebAppOperationsState,
+  createWebAppRuntimeServiceState,
+  type WebAppOperationsDeps,
+  type WebAppOperationsState,
+  type WebAppRuntimeServiceState,
+} from '../domain/surface/presentation/web-app/WebAppServiceState.js';
+import { ExecutionEngineRegistryService } from './ExecutionEngineRegistryService.js';
+import * as http from 'http';
 import { configureCanonicalPublicApi } from '../api/public/endpoints.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
 import { SharedSurfaceCommandService } from './SharedSurfaceCommandService.js';
@@ -11,21 +19,13 @@ import {
   createWebAppServiceComposition,
   type WebAppServiceComposition,
 } from '../domain/surface/presentation/web-app/WebAppServiceComposition.js';
-import {
-  createWebAppOperationsState,
-  createWebAppRuntimeServiceState,
-  type WebAppOperationsDeps,
-  type WebAppOperationsState,
-  type WebAppRuntimeServiceState,
-} from '../domain/surface/presentation/web-app/WebAppServiceState.js';
-import { ExecutionEngineRegistryService } from './ExecutionEngineRegistryService.js';
+
 import { ExecutionEngineRouterService } from './ExecutionEngineRouterService.js';
 import { GlassBoxTraceService } from './GlassBoxTraceService.js';
 import { TrustedWorkspacePolicyService } from './TrustedWorkspacePolicyService.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export type WebAppRuntime = SharedSurfaceRuntime;
 export type { WebAppOperationsDeps } from '../domain/surface/presentation/web-app/WebAppServiceState.js';
-
 export type WebAppServiceOptions = {
   agentGateway?: ZavorthAgentGateway | null;
   toolRuntime?: UniversalAgentToolRuntime | null;
@@ -420,7 +420,7 @@ export class WebAppService {
       ) {
         return true;
       }
-    } catch (error: unknown) {const message = error?.message || 'Falha interna ao processar a rota web.';
+    } catch (error: unknown) {const message = errorMessage(error, 'Falha interna ao processar a rota web.');
       if (!res.headersSent) {
         this.composition.runtimeContextBridge.writeJson(res, { ok: false, error: message }, 500);
         return true;

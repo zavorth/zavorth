@@ -26,7 +26,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Access Restricted'),
+    expect.stringContaining('Restricted Access'),
     expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
@@ -145,7 +145,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Access Restricted'),
+    expect.stringContaining('Restricted Access'),
     expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
@@ -167,7 +167,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Access Restricted'),
+    expect.stringContaining('Restricted Access'),
     expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
@@ -189,7 +189,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Access Restricted'),
+    expect.stringContaining('Restricted Access'),
     expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Access Restricted'),
+    expect.stringContaining('Restricted Access'),
     expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();

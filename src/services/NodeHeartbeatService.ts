@@ -7,6 +7,7 @@ import type {
   NodeMeshStatus,
 } from '../contracts/NodeMeshContract.js';
 import { NodeInvokeService } from './NodeInvokeService.js';
+
 import { NodePairingService } from './NodePairingService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';
 import { globalLiveNodeRegistry, LiveNodeRegistryService } from './LiveNodeRegistryService.js';

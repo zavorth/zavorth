@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -17,7 +18,7 @@ import type {
   ZavorthInnovationRadarCandidate,
   ZavorthInnovationRadarSnapshot,
 } from '../contracts/native/ZavorthInnovationRadarContract.js';
-import { ZavorthHomePathService } from './ZavorthHomePathService.js';
+
 import { logger } from '../logger.js';
 
 type Runtime = {

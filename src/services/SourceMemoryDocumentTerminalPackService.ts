@@ -1,4 +1,9 @@
-﻿import fs from 'node:fs';
+import {
+  SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES,
+  ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION,
+} from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
+import { GovernedTerminalRuntime } from './GovernedTerminalRuntime.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { SqliteVecMemoryBackend } from '../adapters/memory/SqliteVecMemoryBackend.js';
 import type {
@@ -7,11 +12,8 @@ import type {
   SourceStage5Decision,
   Stage5PackageEvidence,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
-import {
-  SOURCE_MEMORY_DOCUMENT_TERMINAL_PACKAGES,
-  ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION,
-} from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
-import { GovernedTerminalRuntime } from './GovernedTerminalRuntime.js';
+
+
 import { SourceDocumentExtractionService } from './SourceDocumentExtractionService.js';
 import { SourceSearchFetchService } from './SourceSearchFetchService.js';
 import { ShellSafetyClassifier } from './ShellSafetyClassifier.js';

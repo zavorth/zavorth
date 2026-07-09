@@ -1,13 +1,14 @@
+import { useEffect } from "react";
+import { formatDuration as formatLatency } from "@/shared/utils/formatting";
 "use client";
 
-import { useEffect } from "react";
+
 import {
   TYPE_COLORS,
   LEVEL_COLORS,
   PROVIDER_COLORS,
   getProxyStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
-import { formatDuration as formatLatency } from "@/shared/utils/formatting";
 
 /**
  * Proxy log detail modal - shows full proxy event metadata, error info, and config.

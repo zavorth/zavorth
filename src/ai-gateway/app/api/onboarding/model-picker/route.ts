@@ -1,6 +1,8 @@
 import type { ModelCapabilityKind } from "../../../../../services/providers/catalog/ProviderCatalogContracts.js";
 import { ProviderMeshOnboardingProductService } from "../../../../../services/providers/catalog/ProviderMeshOnboardingProductService.js";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 function readFlag(value: string | null): boolean {
   return String(value || "").trim().toLowerCase() === "true";
 }
@@ -25,11 +27,12 @@ export async function GET(request: Request) {
       providerMeshOnboarding: product.providerMeshOnboarding,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] search failed', error);
     return Response.json(
       {
         error: {
-          message: error instanceof Error ? error.message : "Model picker failed",
+          message: error instanceof Error ? err.message : "Model picker failed",
           type: "model_picker_failed",
         },
       },

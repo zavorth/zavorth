@@ -180,8 +180,17 @@ export class BotGateway extends BotGatewayState implements LiveChannelBroadcastG
     this.zavorthControlService.attachChannelBroadcastGateways(gateways);
   }
 
+  public getSharedSurfaceCommandService(): SurfaceCommandBoundary | null {
+    return this.sharedSurfaceCommandService;
+  }
+
   public attachSharedSurfaceCommandService(service: SurfaceCommandBoundary): void {
     this.sharedSurfaceCommandService = service;
+    try {
+      this.getBotGatewaySupportInstance().attachSharedSurfaceCommandService(service);
+    } catch {
+      // Support may not be initialized yet; field is still set for later reads.
+    }
   }
 
   public attachChannelIngressGateways(gateways: ChannelIngressGateways): void {

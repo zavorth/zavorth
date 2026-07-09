@@ -1,7 +1,7 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { useTranslations } from "next-intl";
 "use client";
 
-import { useTranslations } from "next-intl";
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";

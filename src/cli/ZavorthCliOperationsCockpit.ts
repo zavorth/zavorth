@@ -10,8 +10,10 @@ import {
   readCliCockpitSnapshot,
 } from './ZavorthCliNativeRenderers.runtime.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
+
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import { logger } from '../logger.js';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type CliStage25DoctorSnapshot = Awaited<ReturnType<typeof buildCliOperationsDoctorSnapshot>>;
 
 type CliStage25MemorySummary = {
@@ -375,8 +377,9 @@ export async function buildCliOperationsCockpitSnapshot(
       const report = runtime.runtimeAccessReadinessService.inspect(probeInput);
       doctor = await buildCliOperationsDoctorSnapshot(report, runtime, flags);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Cli Operations] creation failed', error);
-    doctorError = error?.message || String(error);
+    doctorError = errorMessage(error);
   }
   }
 

@@ -1,9 +1,11 @@
-﻿import path from 'node:path';
+
+import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import { GoalLoopWorkerService, type GoalLoopWorkerDrainSnapshot } from './GoalLoopWorkerService.js';
 import type { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService, type ZavorthOperationalReceipt } from './ZavorthOperationalStateDbService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type GoalLoopDaemonStatus = 'idle' | 'running' | 'stopped';
 
@@ -144,6 +146,7 @@ export class GoalLoopDaemonService {
       this.state.status = this.timer ? 'running' : 'idle';
       return this.buildSnapshot(daemonId, config, receipt);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.state.consecutiveFailures += 1;
       this.state.backoffMs = Math.min(
         config.maxBackoffMs,
@@ -151,11 +154,11 @@ export class GoalLoopDaemonService {
       );
       this.state.nextRunAfter = new Date(this.now().getTime() + this.state.backoffMs).toISOString();
       const receipt = this.recordReceipt(daemonId, 'failed', 'Goal Loop daemon tick failed.', {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
         backoffMs: this.state.backoffMs,
       });
       this.recordEvent('goal.loop.daemon.failed', daemonId, {
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
         backoffMs: this.state.backoffMs,
       });
       this.state.status = this.timer ? 'running' : 'idle';

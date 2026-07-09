@@ -41,6 +41,8 @@ import {
   createDefaultAgentWorkflowQueueStore,
 } from '../runtime/agent/index.js';
 import { MemoryService } from '../services/MemoryService.js';
+import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
+
 import { TaskLedgerService } from '../services/TaskLedgerService.js';
 import { PermissionScopeLedgerService } from '../services/PermissionScopeLedgerService.js';
 import { PermissionService } from '../services/PermissionService.js';
@@ -60,7 +62,7 @@ import {
   normalizeCliCommandName,
   normalizeCliInput,
 } from './ZavorthCliFlowHelpers.js';
-import { normalizeTerminalComposerInput } from './ZavorthCliTerminalComposer.js';
+
 import { normalizeZavorthHeadlessArgs } from './headless/ZavorthHeadlessCommand.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime, ZavorthCliServiceOverrides } from './ZavorthCliContract.js';
 

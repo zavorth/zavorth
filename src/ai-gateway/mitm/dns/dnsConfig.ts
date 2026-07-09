@@ -2,6 +2,8 @@ import { execFile } from "child_process";
 import fs from "fs";
 import path from "path";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const TARGET_HOST = "daily-cloudcode-pa.googleapis.com";
 const IS_WIN = process.platform === "win32";
 const HOSTS_FILE = IS_WIN
@@ -164,7 +166,8 @@ if (-not $exists) {
     }
     console.log(`Added DNS entry: ${entry}`);
   } catch (error: unknown) {
-    throw new Error(`Failed to add DNS entry: ${error.message}`);
+    const err = asErrorLike(error);
+    throw new Error(`Failed to add DNS entry: ${err.message}`);
   }
 }
 
@@ -200,6 +203,7 @@ Set-Content -LiteralPath $hostsPath -Value $next -Encoding ASCII
     }
     console.log(`Removed DNS entry for ${TARGET_HOST}`);
   } catch (error: unknown) {
-    throw new Error(`Failed to remove DNS entry: ${error.message}`);
+    const err = asErrorLike(error);
+    throw new Error(`Failed to remove DNS entry: ${err.message}`);
   }
 }

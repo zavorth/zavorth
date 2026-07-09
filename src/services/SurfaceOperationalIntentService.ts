@@ -1,4 +1,6 @@
-﻿import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
+import { createZavorthResponseArtifactPolicy } from '../contracts/ZavorthResponseDecisionContract.js';
+import { AiFirstOwnerControlledDefaultActivationService } from './AiFirstOwnerControlledDefaultActivationService.js';
+import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
 import type {
   ZavorthResponseDecision,
   ZavorthResponseDecisionConfidence,
@@ -6,13 +8,13 @@ import type {
   ZavorthResponseDecisionPath,
   ZavorthResponseDecisionTarget,
 } from '../contracts/ZavorthResponseDecisionContract.js';
-import { createZavorthResponseArtifactPolicy } from '../contracts/ZavorthResponseDecisionContract.js';
+
 import { inferUniversalAgentRequestedTools } from '../runtime/agent/index.js';
 import {
   UniversalIntentService,
   type UniversalIntentDecision,
 } from '../runtime/uni/index.js';
-import { AiFirstOwnerControlledDefaultActivationService } from './AiFirstOwnerControlledDefaultActivationService.js';
+
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';

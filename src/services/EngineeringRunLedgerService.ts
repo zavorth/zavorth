@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';

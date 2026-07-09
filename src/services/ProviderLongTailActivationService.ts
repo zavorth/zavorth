@@ -1,4 +1,6 @@
-﻿import {
+import { ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ProviderLongTailActivationContract.js';
+
+import {
   ProviderLongTailCompatibleLiveClient,
   ProviderLongTailEmbeddingLiveClient,
 } from '../adapters/providers/ProviderLongTailLiveClients.js';
@@ -14,11 +16,12 @@ import type {
   ProviderLongTailConfiguredDoctorReceipt,
   ProviderLongTailStagingLiveReceipt,
 } from '../contracts/ProviderLongTailActivationContract.js';
-import { ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ProviderLongTailActivationContract.js';
+
 import type { LiveReadinessEntry, LiveReadinessStatus } from '../contracts/LiveReadinessContract.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ProviderLongTailActivationRuntime = {
   now?: () => Date;
@@ -305,6 +308,7 @@ export class ProviderLongTailActivationService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Long Tail Activation] filesystem check failed', error);
     return {
         id,
@@ -312,7 +316,7 @@ export class ProviderLongTailActivationService {
         family: descriptor.adapterFamily,
         status: 'blocked',
         confirmed: true,
-        blockedReason: error instanceof Error ? error.message : String(error),
+        blockedReason: error instanceof Error ? err.message : String(error),
         doctor,
         smokeReceipt: null,
         liveIoPerformed: false,

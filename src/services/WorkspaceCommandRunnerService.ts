@@ -1,4 +1,3 @@
-import { asErrorLike } from '../utils/errorLike';
 import { execFile, ExecException } from 'child_process';
 import crypto from 'crypto';
 import path from 'path';
@@ -6,6 +5,7 @@ import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface CommandExecutionResult {
   exitCode: number;
@@ -106,7 +106,7 @@ export class WorkspaceCommandRunnerService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Workspace Command Runner] process execution failed', error);
-    exitCode = err.code !== undefined ? err.code : 1;
+    exitCode = (() => { const c = asErrorLike(err).code; return typeof c === 'number' ? c : 1; })();
       stderr = err.message || 'Unknown execution error';
   }
 

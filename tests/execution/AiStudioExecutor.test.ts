@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 jest.mock('@google/generative-ai', () => ({
   GoogleGenerativeAI: jest.fn(),
   SchemaType: {
@@ -6,7 +7,7 @@ jest.mock('@google/generative-ai', () => ({
   },
 }));
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+
 import { AiStudioExecutor } from '../../src/execution/AiStudioExecutor';
 import { config } from '../../src/config/index';
 

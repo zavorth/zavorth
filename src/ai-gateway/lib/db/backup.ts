@@ -1,4 +1,5 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { resetAllDbModuleState } from "./stateReset";
 /**
  * db/backup.js — Database backup/restore operations.
  */
@@ -15,7 +16,7 @@ import {
   DB_BACKUPS_DIR,
   DATA_DIR,
 } from "./core";
-import { resetAllDbModuleState } from "./stateReset";
+
 import { logger } from '@/shared/utils/logger';
 
 type CountRow = { cnt?: number };

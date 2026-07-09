@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'node:crypto';
 import { config } from '../config/index.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike } from '../utils/errorLike.js';
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -213,7 +213,7 @@ export class Database {
     try {
       this.db.prepare(sql).run(...params);
     } catch (error: unknown) { const err = asErrorLike(error); logger.error('SQL Error (RUN):', err, '\\nSQL:', sql);
-      throw e;
+      throw error;
     }
   }
 
@@ -221,7 +221,7 @@ export class Database {
     try {
       return this.db.prepare(sql).get(...params) as T | undefined;
     } catch (error: unknown) { const err = asErrorLike(error); logger.error('SQL Error (GET):', err, '\\nSQL:', sql);
-      throw e;
+      throw error;
     }
   }
 
@@ -229,7 +229,7 @@ export class Database {
     try {
       return this.db.prepare(sql).all(...params) as T[];
     } catch (error: unknown) { const err = asErrorLike(error); logger.error('SQL Error (ALL):', err, '\\nSQL:', sql);
-      throw e;
+      throw error;
     }
   }
 

@@ -6,6 +6,7 @@ import {
   ProjectHookPolicy,
   type ProjectHookPolicyDecision,
 } from './ProjectHookPolicy.js';
+
 import type {
   ProjectManifestHook,
   ProjectManifestMode,

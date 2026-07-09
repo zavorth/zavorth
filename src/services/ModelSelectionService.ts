@@ -1,4 +1,4 @@
-﻿import { ProviderConfig, ProviderConfigService } from './ProviderConfigService.js';
+import { ProviderConfig, ProviderConfigService } from './ProviderConfigService.js';
 import { ProviderCapability, ProviderModelRegistry } from './ProviderModelRegistry.js';
 import type { ResilientRoutePolicy } from './ResilientRoutePolicyService.js';
 import { logger } from '../logger.js';

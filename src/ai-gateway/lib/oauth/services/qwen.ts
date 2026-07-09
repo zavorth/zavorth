@@ -3,6 +3,8 @@ import { QWEN_CONFIG } from "../constants/oauth";
 import { getServerCredentials } from "../config/index";
 import { generatePKCE } from "../utils/pkce";
 import { spinner as createSpinner } from "../utils/ui";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 /**
  * Qwen OAuth Service
  * Uses Device Code Flow with PKCE
@@ -163,7 +165,8 @@ export class QwenService {
       spinner.succeed("Qwen connected successfully!");
       return true;
     } catch (error: unknown) {
-      spinner.fail(`Failed: ${error.message}`);
+      const err = asErrorLike(error);
+      spinner.fail(`Failed: ${err.message}`);
       throw error;
     }
   }

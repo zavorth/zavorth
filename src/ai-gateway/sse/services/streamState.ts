@@ -1,3 +1,4 @@
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 /**
  * Stream State Machine — FASE-09 E2E Flow Hardening
  *
@@ -174,7 +175,6 @@ export class StreamTracker {
   }
 }
 
-import { safeParseInt } from "../shared/utils/safeParseInt.js";
 
 // ─── Active Stream Registry ─────────────────
 

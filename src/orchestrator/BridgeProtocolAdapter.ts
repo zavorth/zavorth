@@ -15,7 +15,7 @@ import { config } from '../config/index.js';
 import { MailboxProtocol, MailboxEnvelope } from './MailboxProtocol.js';
 import { logger } from '../logger.js';
 import type {
-BridgeAgent,
+  BridgeAgent,
   BridgeAction,
   BridgePriority,
   BridgeRequestEnvelope,
@@ -23,6 +23,7 @@ BridgeAgent,
   BridgeResponseStatus,
   BridgeResponsePayload,
 } from '../contracts/BridgeProtocolSchema.js';
+import { errorMessage } from '../utils/errorLike.js';
 
 const PROTOCOL_VERSION = 'ZAVORTH_BRIDGE_V2' as const;
 const DEFAULT_TTL_SECONDS = 600; // 10 minutes
@@ -254,7 +255,7 @@ export class BridgeProtocolAdapter {
         }
         return { accepted: true, envelope: parsed, originalVersion: 'V2' };
       } catch (error: unknown) { logger.warn('[Bridge Protocol Adapter] JSON parse failed', error);
-    return { accepted: false, reason: `JSON parse error: ${e.message}` };
+    return { accepted: false, reason: `JSON parse error: ${errorMessage(error)}` };
   }
     }
 

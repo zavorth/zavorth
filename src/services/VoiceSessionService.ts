@@ -3,6 +3,7 @@ import type {
   VoiceSessionResult,
 } from '../contracts/VoiceSessionContract.js';
 import { VOICE_SESSION_CONTRACT_VERSION } from '../contracts/VoiceSessionContract.js';
+
 import type { SpeechArtifactRef, SpeechProviderEvidence } from '../contracts/SpeechContract.js';
 import { SpeechRuntimeService } from './SpeechRuntimeService.js';
 

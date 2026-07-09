@@ -1,14 +1,14 @@
-﻿import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
+
+import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
 import { RecentTaskResolver } from './RecentTaskResolver.js';
 import type { WebSessionSnapshot } from './WebRealtimeService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type WebContext = Record<string, unknown>;
-
-
 
 type PermissionControllerLike = {
   resolvePermissionReference(ref: string): Promise<PermissionRequest>;
@@ -138,10 +138,11 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Composer Action] path resolution failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? error.message : 'Falha ao aprovar a permissao selecionada.',
+        error instanceof Error ? err.message : 'Falha ao aprovar a permissao selecionada.',
         null,
         actionMention,
       );
@@ -223,10 +224,11 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Composer Action] load operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? error.message : 'Falha ao retomar o workflow selecionado.',
+        error instanceof Error ? err.message : 'Falha ao retomar o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -267,10 +269,11 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Composer Action] lifecycle operation failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? error.message : 'Falha ao reiniciar a etapa do workflow selecionado.',
+        error instanceof Error ? err.message : 'Falha ao reiniciar a etapa do workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -310,10 +313,11 @@ export class ComposerActionService {
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Composer Action] resource cleanup failed', error);
     return this.finishWithError(
         sessionId,
-        error instanceof Error ? error.message : 'Falha ao encerrar o workflow selecionado.',
+        error instanceof Error ? err.message : 'Falha ao encerrar o workflow selecionado.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );

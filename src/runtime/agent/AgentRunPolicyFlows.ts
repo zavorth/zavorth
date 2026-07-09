@@ -7,6 +7,8 @@ import { CoreDietBaselineDraft } from './AgentRunMetadataEvidenceHelpers.js';
 import { UniversalIntentTrustEnforcementSnapshot } from './UniversalIntentTrustEnforcementService.js';
 import { TrustSliderPolicyDecision } from '../uni/UniversalIntentContracts.js';
 import { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export class AgentRunPolicyFlows {
   constructor(private service: AgentRunService) {}
 
@@ -60,7 +62,6 @@ export class AgentRunPolicyFlows {
     });
   }
 
-
   public applyUniversalIntentTrustEnforcement(
     run: UniversalAgentRun,
     request?: UniversalAgentRequest | null,
@@ -78,7 +79,6 @@ export class AgentRunPolicyFlows {
     };
     return snapshot;
   }
-
 
   public applyCapabilityLoopGovernance(
     run: UniversalAgentRun,
@@ -122,7 +122,6 @@ export class AgentRunPolicyFlows {
     this.applyEvidenceSnapshotChainOnce(run, input, generatedAt);
   }
 
-
   public applySafetyNarrative(
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.service.now().toISOString(),
@@ -138,7 +137,6 @@ export class AgentRunPolicyFlows {
     this.applyEvidenceSnapshotChainOnce(run, null, generatedAt);
     return narrative;
   }
-
 
   public applyEvidenceSnapshotChainOnce(
     run: UniversalAgentRun,
@@ -156,7 +154,6 @@ export class AgentRunPolicyFlows {
       generatedAt,
     });
   }
-
 
   public applyMemoryWithReceipts(
     run: UniversalAgentRun,
@@ -176,7 +173,6 @@ export class AgentRunPolicyFlows {
     return snapshot;
   }
 
-
   public async applyAutomaticSkillInvocationIfNeeded(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
@@ -191,8 +187,9 @@ export class AgentRunPolicyFlows {
     try {
       await this.service.autoSkillInvocation.apply({ run, request });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const generatedAt = this.service.now().toISOString();
-      const reason = error instanceof Error ? error.message : String(error);
+      const reason = error instanceof Error ? err.message : String(error);
       run.metadata = {
         ...run.metadata,
         autoSkillInvocation: {
@@ -230,7 +227,6 @@ export class AgentRunPolicyFlows {
     }
   }
 
-
   public applySkillMcpQuarantine(
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.service.now().toISOString(),
@@ -248,7 +244,6 @@ export class AgentRunPolicyFlows {
     };
     return snapshot;
   }
-
 
   public applyCapabilityNegotiation(
     run: UniversalAgentRun,
@@ -278,7 +273,6 @@ export class AgentRunPolicyFlows {
     };
     return snapshot;
   }
-
 
   public markCapabilityNegotiationApprovedIfNeeded(
     run: UniversalAgentRun,
@@ -314,7 +308,6 @@ export class AgentRunPolicyFlows {
     };
   }
 
-
   public applyToolRehearsal(
     run: UniversalAgentRun,
     request?: UniversalAgentRequest,
@@ -340,7 +333,6 @@ export class AgentRunPolicyFlows {
     };
     return snapshot;
   }
-
 
   public markToolRehearsalApprovedIfNeeded(
     run: UniversalAgentRun,
@@ -376,7 +368,6 @@ export class AgentRunPolicyFlows {
     };
   }
 
-
   public applyIntelligenceFabricCanary(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
@@ -388,7 +379,6 @@ export class AgentRunPolicyFlows {
       canOrientModel: !options.executor && !this.service.executor && this.service.llmRuntimeExecutor.isAvailable(),
     });
   }
-
 
   public applyIntelligenceFabricDraftGuidanceIfRequested(
     run: UniversalAgentRun,
@@ -426,7 +416,6 @@ export class AgentRunPolicyFlows {
     return this.service.replyPipeline.buildResult({ run, text: result.summary });
   }
 
-
   public applyDefenseReview(
     run: UniversalAgentRun,
     phase: AgentRunRiskReviewStage,
@@ -447,7 +436,6 @@ export class AgentRunPolicyFlows {
     }));
   }
 
-
   public defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
     if (phase === 'pre-executor') {
       return 'preExecutor';
@@ -457,7 +445,6 @@ export class AgentRunPolicyFlows {
     }
     return phase;
   }
-
 
   public applyLlmBrainMaturity(
     run: UniversalAgentRun,
@@ -493,6 +480,5 @@ export class AgentRunPolicyFlows {
     });
     return snapshot;
   }
-
 
 }

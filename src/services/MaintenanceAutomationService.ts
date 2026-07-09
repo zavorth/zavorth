@@ -1,11 +1,12 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { OperationsActionService } from './OperationsActionService.js';
 import { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type MaintenanceAutomationRuntime = {
   now?: () => Date;
   setIntervalImpl?: typeof setInterval;
@@ -198,18 +199,19 @@ export class MaintenanceAutomationService {
         { actionId: action.id, logFile: action.logFile, pid: action.pid },
       );
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.state = {
         ...this.state,
         running: false,
         updatedAt: now.toISOString(),
         updatedBy: updatedBy || this.state.updatedBy,
-        note: error?.message || String(error),
+        note: errorMessage(error),
       };
       this.persist();
       this.logRepo.log(
         'error',
         'MaintenanceAutomationService',
-        `Falha ao disparar ${isRecurringMaintenance ? 'manutencao recorrente' : priorityActionLabel.toLowerCase()}: ${error?.message || error}`,
+        `Falha ao disparar ${isRecurringMaintenance ? 'manutencao recorrente' : priorityActionLabel.toLowerCase()}: ${errorMessage(error)}`,
       );
     }
   }

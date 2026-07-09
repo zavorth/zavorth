@@ -9,6 +9,7 @@ import {
 } from './CapabilityAutopilotMemoryRecallService.js';
 import { CapabilityAutopilotReadinessService } from './CapabilityAutopilotReadinessService.js';
 
+
 type ReadinessLike = Pick<CapabilityAutopilotReadinessService, 'buildReadinessSnapshot'>;
 type RecallLike = Pick<CapabilityAutopilotMemoryRecallService, 'buildQueryFromReceipt' | 'recall'>;
 

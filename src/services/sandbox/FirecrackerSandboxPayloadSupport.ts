@@ -1,9 +1,11 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { execNativeCommandSync } from '../../core/CommandSpawn.js';
 import type { SandboxLanguage } from './ISandboxRuntime.js';
 import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 type FirecrackerPayloadHost = {
   getCodeFilename(language: SandboxLanguage): string;
@@ -55,7 +57,8 @@ export class FirecrackerSandboxPayloadSupport {
         '-F', '-q', '-d', payloadStaging, drivePath,
       ], { timeout: 5000 });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       throw new Error(
         `[FirecrackerSandbox] Falha ao construir payload drive: ${message}. ` +
         'Verifique se e2fsprogs esta instalado (apt install e2fsprogs).',

@@ -1,6 +1,6 @@
+import { cn } from "@/shared/utils/cn";
 "use client";
 
-import { cn } from "@/shared/utils/cn";
 
 interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   children?: React.ReactNode;

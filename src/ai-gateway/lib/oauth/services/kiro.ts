@@ -1,5 +1,7 @@
 import { KIRO_CONFIG } from "../constants/oauth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 /**
  * Kiro OAuth Service
  * Supports multiple authentication methods:
@@ -259,7 +261,8 @@ export class KiroService {
         authMethod: "imported",
       };
     } catch (error: unknown) {
-      throw new Error(`Token validation failed: ${error.message}`);
+      const err = asErrorLike(error);
+      throw new Error(`Token validation failed: ${err.message}`);
     }
   }
 

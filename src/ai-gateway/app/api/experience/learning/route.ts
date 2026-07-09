@@ -1,6 +1,8 @@
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { ZavorthLearningPlaneService } from "../../../../../services/ZavorthLearningPlaneService";
 import { getExperienceCoreService, readExperienceQuery } from "../experienceRouteSupport";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -17,6 +19,7 @@ export async function GET(request: Request) {
       learning: snapshot.learning,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     const learningPlane = new ZavorthLearningPlaneService();
     const snapshot = learningPlane.buildSnapshot({
       workspace: query.workspace,
@@ -31,7 +34,7 @@ export async function GET(request: Request) {
       },
       fallback: {
         source: "learning-plane",
-        reason: error instanceof Error ? error.message : "Experience Core unavailable",
+        reason: error instanceof Error ? err.message : "Experience Core unavailable",
       },
     });
   }

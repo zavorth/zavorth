@@ -93,13 +93,14 @@ export class SystemCleanupService {
 
       return { ok: true, killed, skipped, wslShutdown, message, warnings };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[System Cleanup] operation failed', error);
     return {
         ok: false,
         killed,
         skipped,
         wslShutdown: false,
-        message: `Erro na limpeza: ${error.message}`,
+        message: `Erro na limpeza: ${err.message}`,
         warnings,
       };
   }

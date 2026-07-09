@@ -1,4 +1,6 @@
-﻿export type A2UIPropValue = string | number | boolean | null | A2UIPropValueArray | A2UIPropObject;
+import { asErrorLike } from '../utils/errorLike.js';
+
+export type A2UIPropValue = string | number | boolean | null | A2UIPropValueArray | A2UIPropObject;
 export interface A2UIPropValueArray extends Array<A2UIPropValue> {}
 export interface A2UIPropObject {
   [key: string]: A2UIPropValue;
@@ -312,7 +314,8 @@ export class ZavorthA2UIService {
         data: handlerResult ? this.clone(handlerResult) : null,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const event = this.appendEvent(surfaceId, 'action_blocked', {
         actionId,
         reason: message || 'unknown_error',

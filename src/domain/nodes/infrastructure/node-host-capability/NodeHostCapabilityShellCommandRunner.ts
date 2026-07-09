@@ -5,6 +5,7 @@ import type {
   NodeHostCommandRunner,
 } from './NodeHostCapabilityTypes.js';
 import { normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
+
 import { logger } from '../../../../logger.js';
 import { asErrorLike } from '../../../../utils/errorLike';
 

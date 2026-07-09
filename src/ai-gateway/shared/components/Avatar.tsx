@@ -1,6 +1,6 @@
+import { cn } from "@/shared/utils/cn";
 "use client";
 
-import { cn } from "@/shared/utils/cn";
 
 export default function Avatar({ src, alt = "Avatar", name, size = "md", className }) {
   const sizes = {

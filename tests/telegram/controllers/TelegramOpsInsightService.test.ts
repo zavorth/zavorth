@@ -95,14 +95,12 @@ describe('TelegramOpsInsightService', () => {
 
     await service.handleModels(ctx);
 
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Modelos e providers do Zavorth'),
-      expect.objectContaining({
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth Models And Providers');
+    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.objectContaining({
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.any(Array),
         }),
-      }),
-    );
+      }));
     const options = ctx.reply.mock.calls[0][1];
     const buttons = options.reply_markup.inline_keyboard.flat();
     expect(buttons).toEqual(expect.arrayContaining([
@@ -120,21 +118,19 @@ describe('TelegramOpsInsightService', () => {
 
     await service.handleStatus(ctx);
 
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Panorama do Zavorth'),
-      expect.objectContaining({
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Panorama do Zavorth');
+    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.objectContaining({
         reply_markup: expect.objectContaining({
           inline_keyboard: expect.any(Array),
         }),
-      }),
-    );
+      }));
     const text = ctx.reply.mock.calls[0][0];
     const buttons = ctx.reply.mock.calls[0][1].reply_markup.inline_keyboard.flat();
     expect(text).toContain('Runtime, sidecars, tarefas e superficies');
     expect(text).toContain('Processos ativos');
     expect(buttons).toEqual(expect.arrayContaining([
       expect.objectContaining({ text: 'Hub', callback_data: 'hub:page:overview' }),
-      expect.objectContaining({ text: 'Dashboard', callback_data: '/dashboard' }),
+      expect.objectContaining({ text: 'ZavorthControl', callback_data: '/zavorthControl' }),
       expect.objectContaining({ text: 'Permissoes', callback_data: '/perm list' }),
     ]));
   });

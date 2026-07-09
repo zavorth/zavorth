@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../utils/errorLike.js';
+
 type JsonObject = Record<string, unknown>;
 
 export type MinimalDesktopResourceHistoryCompactionPolicy = {
@@ -135,12 +137,13 @@ export class MinimalDesktopResourceHistoryCompactor {
         reason: 'desktop-resource-history-compacted',
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         ...prepared.plan,
         status: 'skipped',
         wouldMutate: false,
         message: 'Desktop resource history compaction failed; original file was left unchanged.',
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       };
     }
   }
@@ -259,9 +262,10 @@ export class MinimalDesktopResourceHistoryCompactor {
       try {
         objects.push(JSON.parse(trimmed));
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           line: index + 1,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     });

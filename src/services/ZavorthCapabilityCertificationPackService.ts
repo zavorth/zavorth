@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
 
 import {
   ZAVORTH_CAPABILITY_CERTIFICATION_PACK_CONTRACT_VERSION,
@@ -10,7 +11,7 @@ import {
   type ZavorthCapabilityCertificationSnapshot,
   type ZavorthCapabilityCertificationStatus,
 } from '../contracts/ZavorthCapabilityCertificationPackContract.js';
-import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
+
 import { ZavorthCliTuiPolishService } from './ZavorthCliTuiPolishService.js';
 import { ZavorthControlVisualQaService } from './ZavorthControlVisualQaService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';

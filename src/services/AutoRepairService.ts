@@ -1,29 +1,5 @@
-﻿import fs from 'fs';
-import path from 'path';
-import { config } from '../config/index.js';
-import { execCommandSync } from '../core/CommandSpawn.js';
-import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
-import { ProviderFactory } from '../providers/ProviderFactory.js';
-import type { ILlmProvider } from '../providers/ILlmProvider.js';
-import {
-  RuntimeBootstrapRepairService,
-  type RuntimeBootstrapRepairReport,
-} from '../runtime/access/RuntimeBootstrapRepairService.js';
 import { RuntimeBootstrapService } from '../runtime/access/RuntimeBootstrapService.js';
-import { SafeModificationService } from './SafeModificationService.js';
-import { SelfModificationService } from './SelfModificationService.js';
-import {
-  SupervisedRuntimeService,
-  type SupervisedReloadRequestResult,
-} from './SupervisedRuntimeService.js';
 import { AutoRepairIncidentMemoryService } from './AutoRepairIncidentMemoryService.js';
-import { AutoRepairValidationService } from './autorepair/AutoRepairValidationService.js';
-import { ExternalServiceSmokeService } from './ExternalServiceSmokeService.js';
-import { AutoRepairCodeAttemptRunner } from './autorepair/AutoRepairCodeAttemptRunner.js';
-import {
-  buildAutoRepairPlannerMessages,
-  parseAutoRepairPlannerResponse,
-} from './autorepair/AutoRepairPlannerSupport.js';
 import {
   buildAutoRepairRunSummary,
   describeAutoRepairIncidentMemoryStatus,
@@ -34,6 +10,35 @@ import {
   readOptionalAutoRepairText,
 } from './autorepair/AutoRepairTextUtils.js';
 import { logger } from '../logger.js';
+import fs from 'fs';
+import path from 'path';
+import { config } from '../config/index.js';
+import { execCommandSync } from '../core/CommandSpawn.js';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { ProviderFactory } from '../providers/ProviderFactory.js';
+import type { ILlmProvider } from '../providers/ILlmProvider.js';
+import {
+  RuntimeBootstrapRepairService,
+  type RuntimeBootstrapRepairReport,
+} from '../runtime/access/RuntimeBootstrapRepairService.js';
+
+import { SafeModificationService } from './SafeModificationService.js';
+import { SelfModificationService } from './SelfModificationService.js';
+import {
+  SupervisedRuntimeService,
+  type SupervisedReloadRequestResult,
+} from './SupervisedRuntimeService.js';
+
+import { AutoRepairValidationService } from './autorepair/AutoRepairValidationService.js';
+import { ExternalServiceSmokeService } from './ExternalServiceSmokeService.js';
+import { AutoRepairCodeAttemptRunner } from './autorepair/AutoRepairCodeAttemptRunner.js';
+import {
+  buildAutoRepairPlannerMessages,
+  parseAutoRepairPlannerResponse,
+} from './autorepair/AutoRepairPlannerSupport.js';
+
+
+
 import type {
 AutoRepairAttempt,
   AutoRepairGoal,

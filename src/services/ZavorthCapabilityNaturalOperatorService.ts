@@ -1,4 +1,6 @@
-﻿import {
+import { ZavorthCapabilitySetupQueueService } from './ZavorthCapabilitySetupQueueService.js';
+
+import {
   CAPABILITY_NATURAL_OPERATOR_CONTRACT_VERSION,
   type CapabilityNaturalOperatorAction,
   type CapabilityNaturalOperatorDecision,
@@ -12,8 +14,9 @@ import {
   ZavorthCapabilityConsoleService,
   type ZavorthCapabilityConsoleRuntime,
 } from './ZavorthCapabilityConsoleService.js';
-import { ZavorthCapabilitySetupQueueService } from './ZavorthCapabilitySetupQueueService.js';
+
 import { ZavorthCapabilitySetupExecutorService } from './ZavorthCapabilitySetupExecutorService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthCapabilityNaturalOperatorRuntime = ZavorthCapabilityConsoleRuntime;
 
@@ -131,7 +134,8 @@ export class ZavorthCapabilityNaturalOperatorService {
     try {
       return this.queue.createTicket(input);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const existingId = /already exists:\s*([^\s]+)/i.exec(message)?.[1] || null;
       if (existingId) {
         const existing = this.queue.getTicket(existingId);

@@ -1,4 +1,4 @@
-﻿export * from './AcpGenericChannelAdapterContract.js';
+export * from './AcpGenericChannelAdapterContract.js';
 export * from './AcpLiveBridgeContract.js';
 export * from './AiFirstFinalActivationGateContract.js';
 export * from './AiFirstHistoricalReplayGateContract.js';

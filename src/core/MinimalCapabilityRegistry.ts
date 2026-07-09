@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type MinimalCapabilityKind =
   | 'core'
   | 'channel'
@@ -188,9 +190,10 @@ export class MinimalCapabilityRegistry {
             manifests.push(this.normalizeManifest(item, filePath, 'manifest'));
           }
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           invalidManifests.push({
             filePath,
-            reason: error instanceof Error ? error.message : String(error),
+            reason: error instanceof Error ? err.message : String(error),
           });
         }
       }

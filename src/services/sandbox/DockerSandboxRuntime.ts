@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { logger } from '../../logger.js';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,7 +10,7 @@ import {
   spawnCommand,
   spawnNativeCommand,
 } from '../../core/CommandSpawn.js';
-import { logger } from '../../logger.js';
+
 import type {
 ISandboxRuntime,
   SandboxLanguage,

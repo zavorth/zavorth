@@ -6,6 +6,7 @@ import type {
   ResolvedProjectManifest,
 } from './ProjectManifestContract.js';
 import { ProjectProcessSupervisorError, redactCommand } from './ProjectProcessSupervisor.js';
+
 import { SessionManager, type SessionManagerOptions, type SessionManagerProfile } from '../runtime/sessions/v2/SessionManager.js';
 import type { RegisterSessionOwnershipInput } from '../runtime/sessions/v2/SessionOwnershipContract.js';
 

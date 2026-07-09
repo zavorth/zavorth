@@ -1,4 +1,4 @@
-﻿import { Bot, Context } from 'grammy';
+import { Bot, Context } from 'grammy';
 import { logger } from '../logger.js';
 
 export type ClearResult = {

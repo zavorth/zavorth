@@ -15,13 +15,15 @@ import {
   collectWorkflowResumeStages,
 } from './product-observability/builders.js';
 import { buildInsights } from './product-observability/narrative.js';
+import { isSince, normalizeOptionalString } from './product-observability/shared.js';
+
 import {
   isHighRiskTask,
   matchesPermissionScope,
   matchesTaskScope,
   matchesWorkflowScope,
 } from './product-observability/readers.js';
-import { isSince, normalizeOptionalString } from './product-observability/shared.js';
+
 import type {
   PermissionServiceLike,
   ProductObservabilityBuildInput,

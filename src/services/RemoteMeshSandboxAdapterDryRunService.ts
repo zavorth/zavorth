@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto';
+import { ZAVORTH_REMOTE_MESH_SANDBOX_R3_ADAPTER_VERSION } from '../contracts/RemoteMeshSandboxAdapterContract.js';
+import { RemoteMeshSandboxPolicyService } from './RemoteMeshSandboxPolicyService.js';
 
 import type {
   RemoteExecutionReceipt,
@@ -13,7 +15,7 @@ import type {
   RemoteMeshAdapterDryRunStatus,
   RemoteMeshSandboxAdapterSnapshot,
 } from '../contracts/RemoteMeshSandboxAdapterContract.js';
-import { ZAVORTH_REMOTE_MESH_SANDBOX_R3_ADAPTER_VERSION } from '../contracts/RemoteMeshSandboxAdapterContract.js';
+
 import type {
   RemoteMeshCommandTemplate,
   RemoteMeshMcpBinding,
@@ -21,7 +23,6 @@ import type {
   RemoteMeshPolicyEvaluation,
   RemoteMeshSandboxPolicySnapshot,
 } from '../contracts/RemoteMeshSandboxPolicyContract.js';
-import { RemoteMeshSandboxPolicyService } from './RemoteMeshSandboxPolicyService.js';
 
 type RemoteMeshSandboxAdapterDryRunRuntime = {
   now?: () => Date;

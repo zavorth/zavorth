@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 "use client";
 
-import { useMemo } from "react";
+
 import Card from "../../Card";
 import { getModelColor } from "@/shared/constants/colors";
 import { fmtCompact as fmt, formatApiKeyLabel as maskApiKeyLabel, fmtCost } from "@/shared/utils/formatting";

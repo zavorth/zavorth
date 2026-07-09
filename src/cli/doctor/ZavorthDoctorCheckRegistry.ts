@@ -6,12 +6,14 @@ import type {
   ZavorthDoctorPremiumStatus,
 } from './ZavorthDoctorPremiumTypes.js';
 import { logger } from '../../logger.js';
+
 import {
 fileExists,
   parseMajor,
   readEnvFile,
   redactValue,
 } from './checks/ZavorthDoctorCheckUtils.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 export type BuildZavorthDoctorPremiumInput = {
   projectRoot: string;
   now?: () => Date;
@@ -93,8 +95,9 @@ function checkSqliteIntegrity(projectRoot: string): ZavorthDoctorPremiumCheck {
     });
     return { id: 'sqlite-integrity', title: 'SQLite integrity', status: failures.length ? 'fail' : 'pass', summary: failures.length ? `Integrity check failed: ${failures.join(', ')}.` : `${databases.length} SQLite database(s) passed integrity_check.`, impact: failures.length ? 'Local state may be corrupted and should be restored from a known-good backup.' : 'Local agent state is structurally readable.', fixCommand: failures.length ? 'Restore the affected database from backup before using governed writes.' : null, canAutoFix: false, evidence: databases.map((databasePath) => `database=${path.basename(databasePath)}`) };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[Zavorth Doctor Check Registry] filesystem check failed', error);
-    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'warn', summary: 'SQLite integrity check could not run.', impact: 'Database health is not verified until the SQLite driver is available.', fixCommand: 'npm install, then rerun zavorth doctor.', canAutoFix: false, evidence: [`reason=${error instanceof Error ? error.message.slice(0, 96) : 'unknown'}`] };
+    return { id: 'sqlite-integrity', title: 'SQLite integrity', status: 'warn', summary: 'SQLite integrity check could not run.', impact: 'Database health is not verified until the SQLite driver is available.', fixCommand: 'npm install, then rerun zavorth doctor.', canAutoFix: false, evidence: [`reason=${error instanceof Error ? err.message.slice(0, 96) : 'unknown'}`] };
   }
 }
 

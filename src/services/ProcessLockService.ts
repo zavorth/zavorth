@@ -1,7 +1,7 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 type LockPayload = {
   pid: number;
   owner: string;
@@ -55,7 +55,7 @@ export class ProcessLockService {
         flag: 'wx',
       });
       this.acquired = true;
-    } catch (error: unknown) {if (error?.code !== 'EEXIST') {
+    } catch (error: unknown) {if (asErrorLike(error).code !== 'EEXIST') {
         throw error;
       }
 
@@ -137,7 +137,7 @@ export class ProcessLockService {
     try {
       fs.rmSync(this.lockFilePath, { force: true });
       return true;
-    } catch (error: unknown) {if (error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (asErrorLike(error).code !== 'EPERM') {
         throw error;
       }
     }
@@ -151,7 +151,7 @@ export class ProcessLockService {
     try {
       fs.rmSync(this.lockFilePath, { force: true });
       return true;
-    } catch (error: unknown) {if (error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (asErrorLike(error).code !== 'EPERM') {
         throw error;
       }
     }
@@ -182,6 +182,6 @@ export class ProcessLockService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: unknown) {logger.warn('[Process Lock] JSON parse failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Process Lock] JSON parse failed', error); return asErrorLike(error).code !== 'ESRCH'; }
   }
 }

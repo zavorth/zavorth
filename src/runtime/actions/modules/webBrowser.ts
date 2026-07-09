@@ -146,13 +146,14 @@ async function webSearchHandler(input: ZavorthActionHandlerInput): Promise<Zavor
       }
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return result({
       ok: false,
       actionId: input.actionId,
       operation: input.operation,
       status: 'blocked',
       summary: 'Web search threw an error.',
-      lines: [error instanceof Error ? error.message : String(error)],
+      lines: [error instanceof Error ? err.message : String(error)],
     });
   }
 }
@@ -231,8 +232,9 @@ async function webFetchUrlHandler(input: ZavorthActionHandlerInput): Promise<Zav
       data: { content: wrapped, url }
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return block(input, 'Failed to fetch URL or target blocked by network policy.', [
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? err.message : String(error)
     ], { url });
   }
 }
@@ -311,8 +313,9 @@ async function browserOpenHandler(input: ZavorthActionHandlerInput): Promise<Zav
       data: { opened: response }
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return block(input, 'Browser open action failed.', [
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? err.message : String(error)
     ], { url });
   }
 }
@@ -382,8 +385,9 @@ async function browserScreenshotHandler(input: ZavorthActionHandlerInput): Promi
       }
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return block(input, 'Browser screenshot action failed.', [
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? err.message : String(error)
     ]);
   }
 }
@@ -450,8 +454,9 @@ async function browserExtractHandler(input: ZavorthActionHandlerInput): Promise<
       data: { content: wrapped, truncated: response.truncated }
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     return block(input, 'Browser extract action failed.', [
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? err.message : String(error)
     ]);
   }
 }

@@ -23,8 +23,10 @@ import {
   resolveAllowedPath as resolveNodeHostAllowedPath,
 } from './NodeHostCapabilityPathPolicy.js';
 import { inferImageMimeType, normalizeTimeout } from './NodeHostCapabilityExecutionHelpers.js';
+
 import { ShellNodeHostCommandRunner } from './NodeHostCapabilityShellCommandRunner.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 export class NodeHostCapabilityHostSurfaceService {
   private readonly now: () => Date;
   private readonly platform: NodeJS.Platform;
@@ -357,12 +359,13 @@ export class NodeHostCapabilityHostSurfaceService {
       try {
         parsedFile = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
     return {
           ok: false,
           resultSummary: 'location.read nao conseguiu ler o arquivo de localizacao informado.',
           stdout: null,
-          stderr: error instanceof Error ? error.message : String(error || 'invalid location file'),
+          stderr: error instanceof Error ? err.message : String(error || 'invalid location file'),
           exitCode: null,
           data: {
             sourcePath,

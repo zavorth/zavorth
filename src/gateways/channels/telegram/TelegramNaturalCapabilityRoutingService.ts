@@ -65,6 +65,16 @@ export class TelegramNaturalCapabilityRoutingService {
       return true;
     }
 
+    // Prefer explicit natural research detection over structural fast-chat classification.
+    // Product-style prompts like "pesquise artigos..." should still reach research.
+    const route = this.naturalRouter.route(trimmed);
+    const isResearchIntent =
+      route.intentCategory === 'research' || this.looksLikeResearchIntent(trimmed);
+    if (isResearchIntent && this.deps.researchController) {
+      await this.deps.researchController.handleResearch(ctx, trimmed);
+      return true;
+    }
+
     const structuralIntent = this.surfaceOperationalIntentService.classify({
       surface: 'telegram',
       text: trimmed,
@@ -75,12 +85,6 @@ export class TelegramNaturalCapabilityRoutingService {
     );
     if (responseDecision.responsePath === 'fast-chat') {
       return false;
-    }
-
-    const route = this.naturalRouter.route(trimmed);
-    if (route.intentCategory === 'research' && this.deps.researchController) {
-      await this.deps.researchController.handleResearch(ctx, trimmed);
-      return true;
     }
 
     return false;
@@ -100,6 +104,20 @@ export class TelegramNaturalCapabilityRoutingService {
       /\b(hoje|amanha|depois de amanha|todo dia|todos os dias|diariamente|toda semana|todas as semanas|semanalmente|todo mes|mensalmente|a cada|cada \d+\s*(min|mins|minuto|minutos|h|hora|horas|dia|dias|semana|semanas)|daqui a \d+|em \d+\s*(min|mins|minuto|minutos|h|hora|horas|dia|dias|semana|semanas)|as \d{1,2}(?::\d{2})?)\b/.test(normalized);
 
     return hasAutomationNoun || (hasReminderVerb && hasTimeOrRecurrence);
+  }
+
+  private looksLikeResearchIntent(text: string): boolean {
+    const normalized = this.normalizeText(text);
+    if (!normalized) {
+      return false;
+    }
+
+    const hasResearchVerb =
+      /\b(pesquise|pesquisar|pesquisa|investigue|investigar|pesquisa sobre|research|investigate|look up|search for)\b/.test(normalized);
+    const hasResearchObject =
+      /\b(artigos?|papers?|estudo|estudos|fontes?|literatura|benchmarks?|artigos recentes|recent articles)\b/.test(normalized);
+
+    return hasResearchVerb && hasResearchObject;
   }
 
   private normalizeText(text: string): string {

@@ -3,6 +3,8 @@ import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentR
 import { SkillRouter } from '../../skills/SkillRouter.js';
 import { SkillLoader } from '../../skills/SkillLoader.js';
 import { UniversalSkillBridgeRuntimeService } from '../../skills/UniversalSkillBridgeRuntimeService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type AgentRunAutomaticSkillInvocationSnapshot = {
   contractVersion: 'agent-run-automatic-skill-invocation/1';
   source: 'AgentRunAutomaticSkillInvocationService';
@@ -134,6 +136,7 @@ export class AgentRunAutomaticSkillInvocationService {
         skillCount: skills.length,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return this.finalizeSnapshot({
         run: input.run,
         generatedAt,
@@ -143,7 +146,7 @@ export class AgentRunAutomaticSkillInvocationService {
         bridgeStatus: 'error',
         receiptIds: [],
         promptEnvelopeText: null,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
         skillCount: skills.length,
       });
     }

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bun
+#!/usr/bin/env bun
 /**
  * Android release helper that builds signed release artifacts from the pinned
  * version metadata, verifies signatures, and writes SHA-256 checksum files.

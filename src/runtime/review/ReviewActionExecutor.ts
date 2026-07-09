@@ -16,6 +16,8 @@ import type {
   GovernedReviewRequestedActions,
   GovernedReviewResult,
 } from './GovernedReviewTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type GovernedReviewActionExecution = {
   execution: GovernedReviewExecutionSummary;
   receipts: GovernedReviewReceipt[];
@@ -162,6 +164,7 @@ export class ReviewActionExecutor {
         }),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         liveAgentSnapshot: {
           status: 'failed',
@@ -173,8 +176,8 @@ export class ReviewActionExecutor {
           outputPreview: '',
         },
         outcome: this.outcome('launch-live-agents', 'failed', true, approvalId, {
-          summary: `Live review agents failed: ${error instanceof Error ? error.message : String(error)}`,
-          metadata: { error: error instanceof Error ? error.message : String(error) },
+          summary: `Live review agents failed: ${error instanceof Error ? err.message : String(error)}`,
+          metadata: { error: error instanceof Error ? err.message : String(error) },
         }),
       };
     }

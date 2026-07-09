@@ -12,6 +12,7 @@ import {
 } from './WorkspaceOperationalMemoryTaskUtilities.js';
 import { classifyWorkspaceMemoryTaskProfile } from './WorkspaceOperationalMemoryTaskUtilities.js';
 
+
 function isActiveWorkspaceMemoryTask(task: Task): boolean {
   return ['pending', 'parsed', 'planned', 'waiting_approval', 'approved', 'running', 'validating', 'delivery_pending']
     .includes(String(task.status || '').trim());

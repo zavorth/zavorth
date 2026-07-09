@@ -9,9 +9,11 @@ import {
   type ZavorthBridgePromptStartResult,
 } from '@zavorth/services/ZavorthBridgePromptService.js';
 import { PermissionService } from '@zavorth/services/PermissionService.js';
+
 import { SmartOutputService } from '@zavorth/services/SmartOutputService.js';
 import { TenantContextService } from '@zavorth/services/TenantContextService.js';
 import { ZavorthBridgeWindowAutomatorLike } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 type BotApiLike = Api;
 
 // Bridge interface that matches SmartOutputService.send's expected botApi shape
@@ -116,7 +118,8 @@ export class TelegramZavorthBridgePromptWorkflowService {
 
       void this.finishPrompt(task, startResult);
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMsg = error instanceof Error ? err.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');
@@ -194,7 +197,8 @@ export class TelegramZavorthBridgePromptWorkflowService {
         this.formatPromptCompletion(task, completion),
       );
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMsg = error instanceof Error ? err.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);
       this.deps.taskManager.advanceState(task, 'failed');

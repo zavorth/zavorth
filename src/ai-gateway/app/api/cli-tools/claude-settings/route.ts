@@ -1,6 +1,8 @@
+import { NextResponse } from "next/server";
+import { createBackup } from "@/shared/services/backupService";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
@@ -9,12 +11,13 @@ import {
   getCliPrimaryConfigPath,
   getCliRuntimeStatus,
 } from "@/shared/services/cliRuntime";
-import { createBackup } from "@/shared/services/backupService";
+
 import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db/cliToolState";
 import { cliSettingsEnvSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 // Get claude settings path based on OS
 const getClaudeSettingsPath = () => getCliPrimaryConfigPath("claude");
@@ -26,7 +29,8 @@ const readSettings = async () => {
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
   } catch (error: unknown) {
-    if (error.code === "ENOENT") {
+    const err = asErrorLike(error);
+    if (err.code === "ENOENT") {
       return null;
     }
     throw error;
@@ -155,7 +159,8 @@ export async function POST(request: Request) {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);
     } catch (error: unknown) {
-      if (error.code !== "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code !== "ENOENT") {
         throw error;
       }
     }
@@ -222,7 +227,8 @@ export async function DELETE(request: Request) {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);
     } catch (error: unknown) {
-      if (error.code === "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code === "ENOENT") {
         return NextResponse.json({
           success: true,
           message: "No settings file to reset",

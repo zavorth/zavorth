@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -14,7 +15,7 @@ import {
   type ReleaseUxWizardSnapshot,
   type ReleaseUxWizardStep,
 } from '../contracts/ReleaseUxWizardContract.js';
-import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+
 import { logger } from '../logger.js';
 import {
 ZavorthReleasePresenceControlPlaneService,

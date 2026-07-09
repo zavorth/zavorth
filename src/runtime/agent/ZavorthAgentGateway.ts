@@ -6,19 +6,10 @@ import {
 } from './AgentRunService.js';
 import { MemoryAgentRunStore, type AgentRunStore } from './AgentRunStore.js';
 import {
-  resolveAgentGatewayTraceId,
-  withAgentGatewayTraceMetadata,
-} from './AgentGatewayTelemetry.js';
-import {
   queryUniversalAgentRuns,
   type UniversalAgentRunObservatoryQuery,
   type UniversalAgentRunObservatorySnapshot,
 } from './RunObservatory.js';
-import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
-import {
-  RuntimePromotionGovernanceService,
-  type RuntimePromotionGovernanceSnapshot,
-} from './RuntimePromotionGovernanceService.js';
 import {
   UniversalApprovalIntentResolver,
   type UniversalApprovalIntentDecisionResult,
@@ -29,7 +20,21 @@ import {
   type AgentWorkflowQueueStore,
   type AgentWorkflowQueueStoreDescriptor,
 } from './AgentWorkflowQueueStore.js';
+import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';
+
+import {
+  resolveAgentGatewayTraceId,
+  withAgentGatewayTraceMetadata,
+} from './AgentGatewayTelemetry.js';
+
+import type { StrongCapabilityLoopSnapshot } from './CapabilityLoopGovernanceService.js';
+import {
+  RuntimePromotionGovernanceService,
+  type RuntimePromotionGovernanceSnapshot,
+} from './RuntimePromotionGovernanceService.js';
+
 import type {
+
   UniversalAgentApprovalDecisionResult,
   UniversalAgentRequest,
   UniversalAgentRun,
@@ -39,7 +44,8 @@ import type {
   UniversalApprovalRequest,
   UniversalReplyPacket,
 } from './UniversalAgentRuntimeTypes.js';
-import { hookMiddleware } from '../../services/ZavorthMiddlewareHook.js';export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
+import { errorMessage } from '../../utils/errorLike.js';
+export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
   workflowQueueStore?: AgentWorkflowQueueStore | null;
   workflowWorkerId?: string;
@@ -760,7 +766,7 @@ export class ZavorthAgentGateway {
       this.persistWorkflowJob(job);
       return result;
     } catch (error: unknown) {const failedAt = this.nowIso();
-      const message = normalizeText(error?.message, 'Executor duravel falhou ao retomar a execucao.');
+      const message = normalizeText(errorMessage(error), 'Executor duravel falhou ao retomar a execucao.');
       this.applyWorkflowFailure(job, run, message, failedAt);
       const retryScheduled = String(job.status) === 'queued';
       run.updatedAt = failedAt;

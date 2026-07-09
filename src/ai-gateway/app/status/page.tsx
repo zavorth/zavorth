@@ -1,6 +1,7 @@
+import { useEffect, useMemo, useState } from "react";
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+
 import Link from "next/link";
 import { Spinner } from "@/shared/components/Loading";
 

@@ -9,6 +9,7 @@ import type {
   ZavorthHostLiveRequirement,
 } from '../contracts/ZavorthHostLiveCertificationContract.js';
 import { ZAVORTH_HOST_LIVE_CERTIFICATION_VERSION } from '../contracts/ZavorthHostLiveCertificationContract.js';
+
 import { ChannelExperienceCertificationService } from './ChannelExperienceCertificationService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 

@@ -1,12 +1,3 @@
-﻿import { randomUUID } from 'crypto';
-import * as http from 'http';
-import os from 'os';
-import type { Duplex } from 'stream';
-import { WebSocket, WebSocketServer, type RawData } from 'ws';
-import {
-  getDefaultCapabilityRegistry,
-  type CapabilityRegistry,
-} from '../capabilities/CapabilityRegistry.js';
 import {
   SATELLITE_WS_PATH,
   validateSatelliteEnvelope,
@@ -24,7 +15,19 @@ import {
   type SatelliteStatusPayload,
 } from '../contracts/SatelliteContract.js';
 import { logger } from '../logger.js';
+
+import { randomUUID } from 'crypto';
+import * as http from 'http';
+import os from 'os';
+import type { Duplex } from 'stream';
+import { WebSocket, WebSocketServer, type RawData } from 'ws';
+import {
+  getDefaultCapabilityRegistry,
+  type CapabilityRegistry,
+} from '../capabilities/CapabilityRegistry.js';
+
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface SatelliteSession {
   sessionId: string;
@@ -227,9 +230,10 @@ export class SatelliteTransportService {
     try {
       await handler(session, envelope);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(
         `[SatelliteTransport] Handler error (${envelope.type}): ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? err.message : String(error)
         }`,
       );
       this.sendError(session, 'HANDLER_ERROR', 'Erro interno ao processar mensagem.', envelope.messageId);
@@ -439,9 +443,10 @@ export class SatelliteTransportService {
     try {
       session.send(envelope);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.error(
         `[SatelliteTransport] Send failed to ${session.sessionId}: ${
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? err.message : String(error)
         }`,
       );
     }

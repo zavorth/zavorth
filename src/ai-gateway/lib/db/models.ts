@@ -1,3 +1,4 @@
+import { getKeyValue, type JsonRecord } from "./models/modelRowUtils";
 /**
  * db/models.js — Model aliases, MITM aliases, and custom models.
  */
@@ -15,7 +16,7 @@ import {
   type CompatByProtocolMap,
   type ModelCompatPerProtocol,
 } from "./models/modelCompat";
-import { getKeyValue, type JsonRecord } from "./models/modelRowUtils";
+
 import { logger } from '@/shared/utils/logger';
 
 interface CustomModelRecord {
