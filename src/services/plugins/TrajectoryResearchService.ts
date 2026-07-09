@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -65,14 +65,14 @@ export class TrajectoryResearchService {
       try {
         const data = JSON.parse(fs.readFileSync(trajPath, 'utf-8'));
         this.trajectories = new Map(Object.entries(data));
-      } catch (error) { /* ignore */ logger.warn('[Trajectory Research] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Trajectory Research] JSON parse failed', error); }
     }
 
     if (fs.existsSync(reportsPath)) {
       try {
         const data = JSON.parse(fs.readFileSync(reportsPath, 'utf-8'));
         this.reports = new Map(Object.entries(data));
-      } catch (error) { /* ignore */ logger.warn('[Trajectory Research] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Trajectory Research] JSON parse failed', error); }
     }
   }
 

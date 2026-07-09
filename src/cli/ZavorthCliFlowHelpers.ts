@@ -37,9 +37,12 @@ import {
   formatCliChatReplyEventCard,
   formatCliRecoverableErrorEventCard,
   formatCliSuccessEventCard,
+  formatCliCuratorNotificationCard,
 } from './ZavorthCliEventCards.js';
 import { formatTerminalComposerPrompt } from './ZavorthCliTerminalComposer.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { Database } from '../storage/Database.js';
+
 
 export function defaultWriter(): CliWriter {
   return {
@@ -710,7 +713,7 @@ export async function executeCliTaskDispatch(
     );
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (showSpinner) {
       globalSpinner.fail('Failed to dispatch the task');
     }
@@ -1312,13 +1315,14 @@ export async function executeCliUniversalAgentRuntime(
         });
 
     writer.line(body);
+    await showCurationNotifications(runtime, writer);
     return {
       ok: result.ok,
       handled: true,
       output: [body],
       error: result.ok ? null : result.run.summary,
     };
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (showSpinner) {
       globalSpinner.fail('Runtime command failed');
     }
@@ -1577,7 +1581,7 @@ export async function executeCliLegacyUnifiedConversation(
       output: [body],
       error: null,
     };
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     const message = `Could not process this conversation through the unified CLI: ${error.message}`;
     if (flags.repl) {
       const body = formatCliRecoverableErrorEventCard({
@@ -1610,3 +1614,46 @@ function resolveCliLegacyUnifiedGateway(
   }
   return runtime.legacyUnifiedGateway || null;
 }
+
+export async function showCurationNotifications(
+  runtime: ZavorthCliRuntime,
+  writer: CliWriter,
+): Promise<void> {
+  // 1. Check for memory consolidation
+  try {
+    const db = await Database.getInstance();
+    const recentEpisode = db.get<{ key: string; value: string; created_at: string }>(
+      `SELECT key, value, created_at FROM user_memory WHERE category = 'episode' AND created_at >= datetime('now', '-15 seconds') ORDER BY created_at DESC LIMIT 1`
+    );
+    if (recentEpisode) {
+      const card = formatCliCuratorNotificationCard(
+        `Consolidação de memória: Fatos recentes foram unificados em 1 conhecimento persistente (${recentEpisode.key}).`
+      );
+      writer.line('\n' + card);
+    }
+  } catch (error) {
+    // ignore
+  }
+
+  // 2. Check for newly auto-generated skills (learning candidates)
+  try {
+    if (runtime.learningPlaneService) {
+      const snapshot = runtime.learningPlaneService.buildSnapshot();
+      const now = new Date();
+      const recentCandidates = snapshot.candidates.filter((c) => {
+        if (!c.updatedAt) return false;
+        const diffSeconds = (now.getTime() - new Date(c.updatedAt).getTime()) / 1000;
+        return diffSeconds >= 0 && diffSeconds <= 15;
+      });
+      for (const candidate of recentCandidates) {
+        const card = formatCliCuratorNotificationCard(
+          `Nova skill auto-gerada a partir de sua última tarefa: "${candidate.title}" (Confiança: ${Math.round(candidate.score * 100)}%).`
+        );
+        writer.line('\n' + card);
+      }
+    }
+  } catch (error) {
+    // ignore
+  }
+}
+

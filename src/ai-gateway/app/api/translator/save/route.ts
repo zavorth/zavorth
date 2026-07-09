@@ -13,7 +13,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
@@ -57,7 +57,7 @@ export async function POST(request) {
     fs.writeFileSync(filePath, content, "utf-8");
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error saving file:", error);
     return NextResponse.json({ success: false, error: "Failed to save file" }, { status: 500 });
   }

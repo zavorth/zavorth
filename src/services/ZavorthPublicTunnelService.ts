@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { spawnNativeCommand } from '../core/CommandSpawn.js';
@@ -71,7 +71,7 @@ export class ZavorthPublicTunnelService {
         ...fallback,
         ...parsed,
       };
-    } catch (error) { logger.warn('[Zavorth Public Tunnel] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Zavorth Public Tunnel] JSON parse failed', error); return fallback; }
   }
 
   public async ensureStarted(input: { targetUrl?: string } = {}): Promise<ZavorthPublicTunnelStatus & { started: boolean }> {
@@ -247,7 +247,7 @@ export class ZavorthPublicTunnelService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error) { logger.warn('[Zavorth Public Tunnel] filesystem operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth Public Tunnel] filesystem operation failed', error); return false; }
   }
 
   private tryKill(pid: number | null): void {
@@ -256,6 +256,9 @@ export class ZavorthPublicTunnelService {
     }
     try {
       process.kill(pid);
-    } catch (error) { // Ignore stale or already-dead pids. logger.warn('[Zavorth Public Tunnel] operation failed', error); }
+    } catch (error: any) {
+      // Ignore stale or already-dead pids.
+      logger.warn('[Zavorth Public Tunnel] operation failed', error);
+    }
   }
 }

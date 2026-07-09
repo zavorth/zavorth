@@ -306,7 +306,7 @@ export class MailboxProtocol {
 
     try {
       return Buffer.from(value, 'base64').toString('utf8').trim();
-    } catch (error) { logger.warn('[Mailbox Protocol] encoding failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Mailbox Protocol] encoding failed', error); return null; }
   }
 
   private safeCompare(left: string, right: string): boolean {

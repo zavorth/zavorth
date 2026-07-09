@@ -137,7 +137,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.instagramStatusFile, 'utf8')) as InstagramGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Instagram way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Instagram way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -397,7 +397,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: InstagramApiResponse | null = null;
     try {
       responsePayload = await response.json() as InstagramApiResponse;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Instagram way.stub] load operation failed', error);
     responsePayload = null;
   }

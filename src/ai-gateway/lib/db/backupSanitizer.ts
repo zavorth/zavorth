@@ -204,7 +204,10 @@ function redactMaybeJsonString(value: string): string {
   if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
     try {
       return JSON.stringify(redactSensitiveData(redactExportedLogValue(JSON.parse(value))));
-    } catch (error) { // Fall through to text redaction. logger.warn('[backup Sanitizer] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Fall through to text redaction.
+      logger.warn('[backup Sanitizer] JSON parse failed', error);
+    }
   }
   return redactSensitiveText(value);
 }

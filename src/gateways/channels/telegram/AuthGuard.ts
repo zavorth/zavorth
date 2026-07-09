@@ -145,7 +145,10 @@ export class AuthGuard {
                 await next();
                 return;
               }
-            } catch (error) { // Deny access if verification fails. logger.warn('[Auth Guard] operation failed', error); }
+            } catch (error: any) { const err = error; const e = error;
+      // Deny access if verification fails.
+      logger.warn('[Auth Guard] operation failed', error);
+    }
             await ctx.reply('Only group administrators can use this command.', { reply_to_message_id: ctx.message?.message_id });
             return;
           }
@@ -162,7 +165,10 @@ export class AuthGuard {
             ];
             const response = sarcasms[Math.floor(Math.random() * sarcasms.length)];
             await ctx.reply(response, { reply_to_message_id: ctx.message?.message_id });
-          } catch (error) { // ignore reply errors for unauthorized group noise logger.warn('[Auth Guard] operation failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // ignore reply errors for unauthorized group noise
+      logger.warn('[Auth Guard] operation failed', error);
+    }
         }
         return;
       }
@@ -194,7 +200,10 @@ export class AuthGuard {
   private static logSecurityBlock(userId: string, command: string) {
     try {
       logger.warn(`[Security] Non-admin role blocked while trying to execute: ${command}`);
-    } catch (error) { // ignore logging failures logger.warn('[Auth Guard] process execution failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // ignore logging failures
+      logger.warn('[Auth Guard] process execution failed', error);
+    }
   }
 
   private static isGroupServiceMessage(ctx: Context): boolean {

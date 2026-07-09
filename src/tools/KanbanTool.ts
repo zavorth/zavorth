@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
@@ -107,7 +107,7 @@ export class KanbanTool extends BaseTool {
         default:
           return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Kanban] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro no Kanban: ${message}`;

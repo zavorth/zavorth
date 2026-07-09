@@ -44,7 +44,7 @@ export class TelegramSecurityController {
       }
 
       await ctx.reply(reply);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(t('security.cleanup_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -62,7 +62,7 @@ export class TelegramSecurityController {
       await ctx.reply(t('security.clear_deleting', { count: String(tracked) }));
       const result = await this.chatCleanup.clearChat(this.bot, chatId);
       await ctx.reply(result.message);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(t('security.clear_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -94,7 +94,7 @@ export class TelegramSecurityController {
       await ctx.reply(
         `${t('security.lock_success', { lockedAt: state.lockedAt || '' })}`,
       );
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(t('security.lock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -120,12 +120,15 @@ export class TelegramSecurityController {
         setTimeout(async () => {
           try {
             await this.bot.api.deleteMessage(ctx.chat!.id, reply.message_id);
-          } catch (error) { // Ignore follow-up deletion failures. logger.warn('[Telegram Security] delete operation failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // Ignore follow-up deletion failures.
+      logger.warn('[Telegram Security] delete operation failed', error);
+    }
         }, 5000);
       } else {
         await ctx.reply(t('security.wrong_password'));
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(t('security.unlock_error', { error: error instanceof Error ? error.message : String(error) }));
     }
   }
@@ -213,6 +216,9 @@ export class TelegramSecurityController {
       if (ctx.chat && ctx.message) {
         await this.bot.api.deleteMessage(ctx.chat.id, ctx.message.message_id);
       }
-    } catch (error) { // Ignore missing permissions or messages already removed. logger.warn('[Telegram Security] delete operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore missing permissions or messages already removed.
+      logger.warn('[Telegram Security] delete operation failed', error);
+    }
   }
 }

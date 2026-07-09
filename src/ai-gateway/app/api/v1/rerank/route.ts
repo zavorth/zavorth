@@ -64,7 +64,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
@@ -93,15 +93,18 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch (error) { logger.warn('[route] operation failed', error); return false; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => {
         try {
           return buildDynamicRerankProvider(n);
-        } catch (error) { logger.warn('[route] creation failed', error); return null; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[route] creation failed', error); return null; }
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
-  } catch (error) { // Non-critical — continue with cloud providers only logger.warn('[route] creation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical — continue with cloud providers only
+      logger.warn('[route] creation failed', error);
+    }
 
   // Try cloud registry first
   const { provider, model: modelId } = parseRerankModel(body.model);
@@ -172,7 +175,7 @@ export async function POST(request) {
         return Response.json(data, {
           headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
         });
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return errorResponse(500, `Rerank request failed: ${err.message}`);
   }

@@ -52,7 +52,7 @@ async function buildRuntimeOverlay(resolveRuntime?: () => Promise<ZavorthCliRunt
       .map((receipt: any) => String(receipt?.id || receipt || ''))
       .filter(Boolean);
     return { pendingApprovals, receiptIds };
-  } catch (error) { logger.warn('[Zavorth Inspect Command] filesystem check failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Inspect Command] filesystem check failed', error); return null; }
 }
 
 function renderInspectSnapshot(snapshot: ZavorthInspectSnapshot, options: { live: boolean }): string {

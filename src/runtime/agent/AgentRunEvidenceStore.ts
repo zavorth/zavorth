@@ -209,7 +209,7 @@ export class AgentRunEvidenceStore {
   private cloneSnapshot(snapshot: Record<string, unknown>): Record<string, unknown> {
     try {
       return structuredClone(snapshot) as Record<string, unknown>;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return { ...snapshot };
     }
   }

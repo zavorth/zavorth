@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       certExists: status.certExists || false,
       hasCachedPassword: !!getCachedPassword(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error getting MITM status:", error.message);
     return NextResponse.json({ error: "Failed to get MITM status" }, { status: 500 });
   }
@@ -37,7 +37,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] lifecycle operation failed', error);
     return NextResponse.json(
       {
@@ -75,7 +75,7 @@ export async function POST(request) {
       running: result.running,
       pid: result.pid,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error starting MITM:", error.message);
     return NextResponse.json(
       { error: error.message || "Failed to start MITM proxy" },
@@ -92,7 +92,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
@@ -123,7 +123,7 @@ export async function DELETE(request) {
     if (!isWin && sudoPassword) setCachedPassword(sudoPassword);
 
     return NextResponse.json({ success: true, running: false });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error stopping MITM:", error.message);
     return NextResponse.json(
       { error: error.message || "Failed to stop MITM proxy" },

@@ -182,7 +182,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         Number.isFinite(limit) ? limit : 10,
       );
       await ctx.reply(formatPermissionListReply(permissions, status));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       await ctx.reply(`Falha na operacao de permissao: ${message}`);
     }
@@ -196,7 +196,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
 
     try {
       await this.deps.workflowController.handleWorkflow(ctx, args);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o workflow agora.\n\nMotivo: ${message}`);
     }
@@ -301,7 +301,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
         requestedBy,
       );
       await ctx.reply(formatSelfModificationRollbackReply(result));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o selfmod agora.\n\nMotivo: ${message}`);
     }

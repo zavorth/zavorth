@@ -112,7 +112,7 @@ export class MultiAgentPipeline {
       const run = this.workflowRuns.createRun(workflow, objective, workspace, phases, workspaceContext, options);
       await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, phases, run, workspaceContext));
       await this.runner.continueWorkflow(ctx, run, phases, 0, [], workspaceContext);
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       await ctx.reply(`Workflow interrompido.\n\nMotivo: ${e.message}`);
     }
   }

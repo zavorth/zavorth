@@ -376,7 +376,7 @@ function stateDir(root: string): string {
 function readJson(file: string, fallback: unknown): unknown {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
-  } catch (error) { logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return fallback; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return fallback; }
 }
 
 function readArray(file: string): unknown[] {
@@ -387,7 +387,7 @@ function readArray(file: string): unknown[] {
 function listJsonFiles(dir: string): string[] {
   try {
     return fs.readdirSync(dir).filter((file) => file.endsWith('.json')).sort();
-  } catch (error) { logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Runtime Tui Projection] JSON parse failed', error); return []; }
 }
 
 function redact(value: string): string {

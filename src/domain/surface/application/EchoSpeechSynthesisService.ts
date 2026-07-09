@@ -181,7 +181,7 @@ export class EchoSpeechSynthesisService {
         outputBytes: detailed.outputBytes,
         traceId,
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await this.recordVoiceFailure({
         traceId,
         surface,

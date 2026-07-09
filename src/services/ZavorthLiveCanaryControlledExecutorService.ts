@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
   type ZavorthLiveCanaryControlledExecutionResult,
   type ZavorthLiveCanaryControlledExecutorCheck,
@@ -163,7 +163,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
         error: null,
         providerCanary: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Live Canary Controlled Executor] process execution failed', error);
     return {
         executorId: request.executorId,

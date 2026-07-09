@@ -72,7 +72,7 @@ export function isProcessRunning(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error) { logger.warn('[process Manager] lifecycle operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[process Manager] lifecycle operation failed', error); return false; }
 }
 
 export function stopProcess(pid: number): Promise<void> {
@@ -84,7 +84,7 @@ export function stopProcess(pid: number): Promise<void> {
 
     try {
       process.kill(pid, "SIGTERM");
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       resolve();
       return;
     }
@@ -92,7 +92,7 @@ export function stopProcess(pid: number): Promise<void> {
     const timer = setTimeout(() => {
       try {
         process.kill(pid, "SIGKILL");
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       clearInterval(check);
       resolve();
     }, GRACEFUL_TIMEOUT_MS);
@@ -148,7 +148,7 @@ export async function getProcessInfo(pid: number): Promise<{
       }
     }
     return { pid, alive: true };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[process Manager] process execution failed', error);
     return { pid, alive: true };
   }

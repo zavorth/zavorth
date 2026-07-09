@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type {
   MemoryArtifactEvidence,
@@ -480,6 +480,6 @@ export class MemoryArtifactConsistencyService {
     const absolutePath = path.join(rootDir, SOURCE_FILE_NAMES[key]);
     try {
       return fs.readFileSync(absolutePath, 'utf8');
-    } catch (error) { logger.warn('[Memory Artifact Consistency] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Memory Artifact Consistency] filesystem operation failed', error); return ''; }
   }
 }

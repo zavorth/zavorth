@@ -120,7 +120,7 @@ export class AuditLogger {
 
     try {
       this.trailService.append(event);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.trailService.recordFailure(error);
     }
   }

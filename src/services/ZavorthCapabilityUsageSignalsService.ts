@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -250,7 +250,7 @@ export class ZavorthCapabilityUsageSignalsService {
         updatedAt: normalizeDate(parsed.updatedAt || this.timestamp()),
         events: Array.isArray(parsed.events) ? parsed.events.map(normalizeEvent).filter(isEvent).slice(-MAX_EVENTS) : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Usage Signals] JSON parse failed', error);
     return this.emptyStore();
   }

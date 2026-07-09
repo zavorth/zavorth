@@ -16,7 +16,7 @@ export async function GET(
     const { connectionId } = await params;
     const { usage } = await fetchAndPersistProviderLimits(connectionId, "manual");
     return Response.json(usage);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const status =
       typeof (error as { status?: unknown })?.status === "number"
         ? (error as { status: number }).status

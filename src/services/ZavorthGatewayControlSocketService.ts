@@ -1,4 +1,4 @@
-import type * as http from 'http';
+﻿import type * as http from 'http';
 import type { Duplex } from 'stream';
 import { WebSocketServer, type WebSocket } from 'ws';
 import { handleGatewayControlSocketMessage } from './zavorth-gateway-control-socket/controlSocketDispatch.js';
@@ -69,7 +69,10 @@ export class ZavorthGatewayControlSocketService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (error) { // Ignore close failures while shutting down the gateway. logger.warn('[Zavorth way Control Socket] resource cleanup failed', error); }
+      } catch (error: any) {
+      // Ignore close failures while shutting down the gateway.
+      logger.warn('[Zavorth way Control Socket] resource cleanup failed', error);
+    }
     });
     this.wss?.close();
     this.wss = null;

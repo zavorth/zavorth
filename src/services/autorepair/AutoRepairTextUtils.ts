@@ -1,4 +1,4 @@
-import { logger } from '../../logger.js';
+﻿import { logger } from '../../logger.js';
 export const MAX_LOG_EXCERPT_CHARACTERS = 5_000;
 export const MAX_OUTPUT_CHARACTERS = 4_000;
 
@@ -43,7 +43,10 @@ export function tryParseAutoRepairJson(rawText: string): any | null {
   for (const candidate of candidates) {
     try {
       return JSON.parse(candidate);
-    } catch (error) { // Keep trying. logger.warn('[Auto Repair Text Utils] JSON parse failed', error); }
+    } catch (error: any) {
+      // Keep trying.
+      logger.warn('[Auto Repair Text Utils] JSON parse failed', error);
+    }
   }
 
   return null;
@@ -83,5 +86,5 @@ export function readOptionalAutoRepairText(
 
   try {
     return trimAutoRepairOutput(readText(filePath), MAX_LOG_EXCERPT_CHARACTERS);
-  } catch (error) { logger.warn('[Auto Repair Text Utils] filesystem operation failed', error); return ''; }
+  } catch (error: any) { logger.warn('[Auto Repair Text Utils] filesystem operation failed', error); return ''; }
 }

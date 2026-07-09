@@ -34,7 +34,7 @@ function stringifyContent(value: unknown): string {
   if (typeof value === "string") return value;
   try {
     return JSON.stringify(value);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[zavorth Context] parsing failed', error);
     return String(value ?? "");
   }

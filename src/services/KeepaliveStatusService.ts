@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -83,7 +83,7 @@ export class KeepaliveStatusService {
         },
         processes,
       };
-    } catch (error) { logger.warn('[Keepalive Status] health check failed', error); return null; }
+    } catch (error: any) { logger.warn('[Keepalive Status] health check failed', error); return null; }
   }
 
   private normalizeProcess(name: string, raw: unknown): KeepaliveProcessSnapshot {

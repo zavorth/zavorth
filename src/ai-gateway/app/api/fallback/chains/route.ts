@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const chains = getAllFallbackChains();
     return NextResponse.json(chains);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching fallback chains:", error);
     return NextResponse.json({ error: "Failed to fetch fallback chains" }, { status: 500 });
   }
@@ -25,7 +25,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -47,7 +47,7 @@ export async function POST(request) {
 
     registerFallback(model, chain);
     return NextResponse.json({ success: true, model });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error registering fallback chain:", error);
     return NextResponse.json({ error: "Failed to register fallback chain" }, { status: 500 });
   }
@@ -60,7 +60,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
@@ -81,7 +81,7 @@ export async function DELETE(request) {
     const { model } = validation.data;
     const removed = removeFallback(model);
     return NextResponse.json({ success: true, removed });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error removing fallback chain:", error);
     return NextResponse.json({ error: "Failed to remove fallback chain" }, { status: 500 });
   }

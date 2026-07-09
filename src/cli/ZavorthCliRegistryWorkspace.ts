@@ -373,7 +373,7 @@ function loadWorkspaceManifest(command: WorkspaceCliCommand): (
         manifestPath: command.manifestPath || undefined,
       }),
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Registry Workspace] load operation failed', error);
     return {
       ok: false,
@@ -665,7 +665,7 @@ function validateWorkspaceExamples(): Record<string, unknown> {
           ok: true,
           error: null,
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Registry Workspace] filesystem operation failed', error);
     return {
           id: entry.name,

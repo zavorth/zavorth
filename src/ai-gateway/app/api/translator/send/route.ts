@@ -27,7 +27,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
@@ -97,7 +97,7 @@ export async function POST(request) {
     // Send request to provider
     try {
       await assertProviderRequestTargetAllowed(url);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : "Provider URL blocked by egress policy";
       return NextResponse.json(
         { success: false, error: message },
@@ -158,7 +158,7 @@ export async function POST(request) {
         Connection: "keep-alive",
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error sending request:", error);
     return NextResponse.json({ success: false, error: "Failed to send request" }, { status: 500 });
   }

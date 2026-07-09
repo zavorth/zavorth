@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     const accessRoutes = resolveZavorthControlAccessRoutes(connections.map(toAccessRouteConnectionInput));
 
     return NextResponse.json({ connections: safeConnections, accessRoutes });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching providers:", error);
     return NextResponse.json({ error: "Failed to fetch providers" }, { status: 500 });
   }
@@ -216,7 +216,7 @@ export async function POST(request: Request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ connection: result }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error creating provider:", error);
     return NextResponse.json({ error: "Failed to create provider" }, { status: 500 });
   }
@@ -232,7 +232,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing providers to cloud:", error);
   }
 }

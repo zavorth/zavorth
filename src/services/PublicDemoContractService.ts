@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -357,7 +357,7 @@ export class PublicDemoContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error) { logger.warn('[Public Demo Contract] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Public Demo Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -383,7 +383,7 @@ export class PublicDemoContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch (error) { logger.warn('[Public Demo Contract] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Public Demo Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

@@ -126,7 +126,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                             error: `Navigation blocked by file policy: ${resolvedTargetPolicy.filePath}`,
                         };
                     }
-                } catch (error: unknown) {
+                } catch (error: any) { const err = error; const e = error;
                     const errorMessage = error instanceof Error ? error.message : 'URL blocked by browser policy.';
                     return {
                         success: false,
@@ -199,7 +199,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 this.readSelfHealing(extraData?.selfHealing),
             );
             return await this.buildResponse(sessionId, page, actionMessage, extraData);
-        } catch (error: unknown) {
+        } catch (error: any) { const err = error; const e = error;
             const errorMessage = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
@@ -366,7 +366,7 @@ export class PlaywrightActionTool implements IZavorthTool {
                 extraData: direct.extraData,
                 selfHealing: null,
             };
-        } catch (directError: unknown) {
+        } catch (directError: any) { const error = directError; const err = directError; const e = directError;
             const heuristicCandidates = await this.buildRepairCandidates(
                 input.page,
                 input.selector,
@@ -554,7 +554,7 @@ export class PlaywrightActionTool implements IZavorthTool {
         for (const attempt of attempts) {
             try {
                 return await attempt();
-            } catch (error) {
+            } catch (error: any) { const err = error; const e = error;
     logger.warn('[Playwright Action] async operation failed', error);
     lastError = error;
   }
@@ -607,7 +607,10 @@ export class PlaywrightActionTool implements IZavorthTool {
                         providerName: meta.providerName,
                     },
                 };
-            } catch (error) { // Try the next fallback candidate. logger.warn('[Playwright Action] operation failed', error); }
+            } catch (error: any) { const err = error; const e = error;
+      // Try the next fallback candidate.
+      logger.warn('[Playwright Action] operation failed', error);
+    }
         }
 
         return null;
@@ -752,6 +755,6 @@ export class PlaywrightActionTool implements IZavorthTool {
         try {
             const currentUrl = String(page.url() || '').trim();
             return currentUrl.length > 0 ? currentUrl : null;
-        } catch (error) { logger.warn('[Playwright Action] code compilation failed', error); return null; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[Playwright Action] code compilation failed', error); return null; }
     }
 }

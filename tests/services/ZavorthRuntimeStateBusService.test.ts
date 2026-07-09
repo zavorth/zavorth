@@ -64,6 +64,73 @@ describe('ZavorthRuntimeStateBusService', () => {
     expect(restored.projections.lifecycle.everyImportantActionRequiresReceipt).toBe(true);
   });
 
+  it('accepts desktop workboard-sync and projects tasks', () => {
+    const root = makeRoot();
+    const service = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-07-09T12:00:00.000Z'),
+    });
+
+    const created = service.dispatch({
+      type: 'workboard-sync',
+      approved: true,
+      source: 'zavorth-desktop-workboard',
+      sessionId: 'desktop-main',
+      payload: {
+        operation: 'upsert-card',
+        board: {
+          id: 'board-daily',
+          name: 'Daily delivery',
+          description: 'Local board',
+          columns: [
+            { id: 'todo', name: 'To Do', order: 0 },
+            { id: 'doing', name: 'In Progress', order: 1 },
+          ],
+        },
+        card: {
+          taskId: 'card-1',
+          sessionId: 'desktop-main',
+          parentTaskId: null,
+          title: 'Ship workboard sync',
+          status: 'queued',
+          risk: 'low',
+          claimedBy: null,
+          heartbeatAt: null,
+          blockedReason: null,
+          summary: 'Mirror desktop card into runtime',
+          createdAt: '2026-07-09T11:00:00.000Z',
+          updatedAt: '2026-07-09T11:00:00.000Z',
+        },
+        metadata: {
+          trustedDesktopBridge: true,
+          localFirst: true,
+        },
+      },
+    });
+
+    expect(created.ok).toBe(true);
+    expect(created.applied).toBe(true);
+    expect(created.snapshot.state.workboard.tasks).toHaveLength(1);
+    expect(created.snapshot.state.workboard.tasks[0].title).toBe('Ship workboard sync');
+    expect(created.snapshot.projections.workboard.tasks[0].taskId).toBe('card-1');
+    expect(created.snapshot.projections.workboard.summary.queued).toBe(1);
+    expect(created.snapshot.state.workboard.boards[0].id).toBe('board-daily');
+
+    const deleted = service.dispatch({
+      type: 'workboard-sync',
+      approved: true,
+      source: 'zavorth-desktop-workboard',
+      sessionId: 'desktop-main',
+      payload: {
+        operation: 'delete-card',
+        board: { id: 'board-daily', name: 'Daily delivery', columns: [] },
+        card: { taskId: 'card-1', title: 'Ship workboard sync', sessionId: 'desktop-main', status: 'queued' },
+      },
+    });
+    expect(deleted.ok).toBe(true);
+    expect(deleted.snapshot.state.workboard.tasks).toHaveLength(0);
+  });
+
   it('blocks disconnected models before mutating state', () => {
     const root = makeRoot();
     const service = new ZavorthRuntimeStateBusService({

@@ -1,4 +1,4 @@
-import * as crypto from 'crypto';
+﻿import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../logger.js';
@@ -140,7 +140,10 @@ export class SecurityLockService {
           this.passwordHash = content;
         }
       }
-    } catch (error) { // Silencioso — sem hash configurado logger.warn('[Security Lock] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Silencioso — sem hash configurado
+      logger.warn('[Security Lock] filesystem operation failed', error);
+    }
   }
 
   /**
@@ -153,6 +156,9 @@ export class SecurityLockService {
         fs.mkdirSync(dir, { recursive: true });
       }
       fs.writeFileSync(this.hashFilePath, this.passwordHash || '', 'utf-8');
-    } catch (error) { // Silencioso logger.warn('[Security Lock] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Silencioso
+      logger.warn('[Security Lock] filesystem operation failed', error);
+    }
   }
 }

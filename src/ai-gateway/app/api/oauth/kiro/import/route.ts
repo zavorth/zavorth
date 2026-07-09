@@ -20,7 +20,7 @@ export async function POST(request: any) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -80,7 +80,7 @@ export async function POST(request: any) {
         email: connection.email,
       },
     });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Kiro import token error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -96,7 +96,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing to cloud after Kiro import:", error);
   }
 }

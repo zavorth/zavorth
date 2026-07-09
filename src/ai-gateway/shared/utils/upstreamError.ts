@@ -38,7 +38,7 @@ export function toJsonErrorPayload(rawError, fallbackMessage = "Upstream provide
     try {
       const parsed = JSON.parse(trimmed);
       return toJsonErrorPayload(parsed, fallbackMessage);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[upstream Error] JSON parse failed', error);
     return {
         error: {

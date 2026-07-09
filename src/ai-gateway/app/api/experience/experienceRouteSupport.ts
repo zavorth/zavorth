@@ -63,7 +63,7 @@ export async function readJsonBody(request: Request): Promise<Record<string, unk
   try {
     const body = await request.json();
     return body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
-  } catch (error) { logger.warn('[experience] process execution failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[experience] process execution failed', error); return {}; }
 }
 
 function parseResponseProfileText(value: unknown): ExperienceCommand["responseProfile"] {

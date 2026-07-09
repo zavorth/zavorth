@@ -1334,7 +1334,7 @@ export class ZavorthEnsembleService {
         },
       } satisfies LlmRuntimeChatOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: this.getErrorMessage(error).slice(0, 240),
       });
@@ -1407,7 +1407,7 @@ export class ZavorthEnsembleService {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch (error) { logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1519,12 +1519,12 @@ export class ZavorthEnsembleService {
     if (!text) return null;
     try {
       return JSON.parse(text);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch (error) { logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
     }
   }
 
@@ -1677,7 +1677,10 @@ export class ZavorthEnsembleService {
       if (Array.isArray(parsed)) {
         return parsed.map((entry: unknown) => this.normalizeRoleLibraryEntry(entry as Record<string, unknown>)).filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
       }
-    } catch (error) { // fall through to defaults logger.warn('[Zavorth Ensemble] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // fall through to defaults
+      logger.warn('[Zavorth Ensemble] JSON parse failed', error);
+    }
     const seeded = this.defaultRoleLibrary();
     this.writeRoleLibrary(seeded);
     return seeded;

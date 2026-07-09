@@ -445,6 +445,8 @@ export type ExperienceSnapshot = {
     summary: string;
     warnings: string[];
   };
+  /** Runtime workboard projection for Desktop hybrid sync (cold start / home refresh). */
+  workboard?: Record<string, unknown> | null;
   raw?: Record<string, unknown>;
 };
 

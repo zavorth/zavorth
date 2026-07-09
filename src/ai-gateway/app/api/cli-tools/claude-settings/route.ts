@@ -25,7 +25,7 @@ const readSettings = async () => {
     const settingsPath = getClaudeSettingsPath();
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.code === "ENOENT") {
       return null;
     }
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGateway,
       settingsPath: getClaudeSettingsPath(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error checking claude settings:", error);
     return NextResponse.json({ error: "Failed to check claude settings" }, { status: 500 });
   }
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -137,7 +137,10 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           env.ANTHROPIC_AUTH_TOKEN = keyRecord.key as string;
         }
-      } catch (error) { // Non-critical: fall back to whatever value was in env (e.g. sk_ZavorthGateway) logger.warn('[route] operation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Non-critical: fall back to whatever value was in env (e.g. sk_ZavorthGateway)
+      logger.warn('[route] operation failed', error);
+    }
     }
 
     const settingsPath = getClaudeSettingsPath();
@@ -154,7 +157,7 @@ export async function POST(request: Request) {
     try {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code !== "ENOENT") {
         throw error;
       }
@@ -182,13 +185,13 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("claude");
-    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Settings updated successfully",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating claude settings:", error);
     return NextResponse.json({ error: "Failed to update claude settings" }, { status: 500 });
   }
@@ -222,7 +225,7 @@ export async function DELETE(request: Request) {
     try {
       const content = await fs.readFile(settingsPath, "utf-8");
       currentSettings = JSON.parse(content);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code === "ENOENT") {
         return NextResponse.json({
           success: true,
@@ -253,13 +256,13 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("claude");
-    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Settings reset successfully",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error resetting claude settings:", error);
     return NextResponse.json({ error: "Failed to reset claude settings" }, { status: 500 });
   }

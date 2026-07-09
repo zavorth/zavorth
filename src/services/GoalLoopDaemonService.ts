@@ -1,4 +1,4 @@
-import path from 'node:path';
+﻿import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import { GoalLoopWorkerService, type GoalLoopWorkerDrainSnapshot } from './GoalLoopWorkerService.js';
@@ -143,7 +143,7 @@ export class GoalLoopDaemonService {
       this.heartbeat(daemonId, config, 'tick.completed');
       this.state.status = this.timer ? 'running' : 'idle';
       return this.buildSnapshot(daemonId, config, receipt);
-    } catch (error) {
+    } catch (error: any) {
       this.state.consecutiveFailures += 1;
       this.state.backoffMs = Math.min(
         config.maxBackoffMs,

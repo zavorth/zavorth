@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+﻿import * as fs from 'fs';
 import * as path from 'path';
 
 interface SemanticChunk {
@@ -29,7 +29,7 @@ function isBinaryFile(filePath: string): boolean {
         return true;
       }
     }
-  } catch {
+  } catch (error: any) {
     return true;
   }
   return false;
@@ -56,7 +56,7 @@ export class VectorSemanticStore {
       if (fs.existsSync(this.indexPath)) {
         this.chunks = JSON.parse(fs.readFileSync(this.indexPath, 'utf8'));
       }
-    } catch {
+    } catch (error: any) {
       this.chunks = [];
     }
   }
@@ -64,7 +64,7 @@ export class VectorSemanticStore {
   private saveIndex() {
     try {
       fs.writeFileSync(this.indexPath, JSON.stringify(this.chunks, null, 2), 'utf8');
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.error('Failed to save semantic index:', err);
     }
   }
@@ -126,7 +126,7 @@ export class VectorSemanticStore {
       // Filter out old chunks for this file
       this.chunks = this.chunks.filter(c => c.sourceFile !== relativePath).concat(newChunks);
       this.saveIndex();
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.error(`Failed to index file ${filePath}:`, err);
     }
   }

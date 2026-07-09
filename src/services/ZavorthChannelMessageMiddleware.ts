@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ChannelMessageMiddleware — Plugs into any gateway's message pipeline
  * to add commandless mode and adaptive formatting.
  *
@@ -25,6 +25,7 @@ import { ZavorthCommandlessModeService, type CommandlessInput } from './ZavorthC
 import { ZavorthPresentationAdapterService, type UniversalResponse } from './ZavorthPresentationAdapterService.js';
 import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 import { detectDeviceLocale } from './ZavorthIntentI18n.js';
+import { getChannelPairingService } from './ZavorthChannelPairingService.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -82,6 +83,38 @@ export class ZavorthChannelMessageMiddleware {
   public async processIncoming(input: MiddlewareInput): Promise<MiddlewareResult> {
     const locale = input.locale ?? detectDeviceLocale();
 
+    const isLocalChannel = input.channelId === 'cli' || input.channelId === 'web';
+    if (!isLocalChannel && input.userId) {
+      const pairingService = getChannelPairingService();
+      if (!pairingService.isUserPaired(input.channelId, input.userId)) {
+        const potentialCode = input.text.trim().toUpperCase();
+        const success = pairingService.pairUser(input.channelId, input.userId, potentialCode);
+        if (success) {
+          return {
+            handled: true,
+            response: {
+              text: '✅ Channel paired successfully! Welcome to Zavorth.',
+            },
+            action: 'pairing_success',
+            confidence: 1.0,
+            requiresApproval: false,
+            locale,
+          };
+        } else {
+          return {
+            handled: true,
+            response: {
+              text: '🔒 Access Denied. To link this channel with Zavorth, please enter the single-use pairing code shown in your server console.',
+            },
+            action: 'pairing_required',
+            confidence: 1.0,
+            requiresApproval: false,
+            locale,
+          };
+        }
+      }
+    }
+
     try {
       const commandlessInput: CommandlessInput = {
         message: input.text,
@@ -104,7 +137,7 @@ export class ZavorthChannelMessageMiddleware {
         requiresApproval: result.requiresApproval,
         locale: result.detectedLanguage,
       };
-    } catch (error) {
+    } catch (error: any) {
       // Graceful degradation: if middleware fails, let the gateway handle it
       return {
         handled: false,

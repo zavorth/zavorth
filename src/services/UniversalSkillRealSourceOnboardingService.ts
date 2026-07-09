@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -508,7 +508,7 @@ export class UniversalSkillRealSourceOnboardingService {
       return Array.isArray(parsed.entries)
         ? parsed.entries.filter(isHistoryEntry)
         : [];
-    } catch (error) { logger.warn('[Universal Skill Real Source Onboarding] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Universal Skill Real Source Onboarding] JSON parse failed', error); return []; }
   }
 
   private persistHistory(historyPath: string, history: HistoryFile): void {

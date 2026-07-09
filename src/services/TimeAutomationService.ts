@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -196,7 +196,7 @@ export class TimeAutomationService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error) { logger.warn('[Time Automation] filesystem operation failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Time Automation] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

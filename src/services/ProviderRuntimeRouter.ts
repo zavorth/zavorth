@@ -41,7 +41,7 @@ export class ProviderRuntimeRouter {
     let resolved: ResolvedProviderRuntime;
     try {
       resolved = await selector.selectProvider(effectiveRequest);
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       if (e.message === 'missing_key' || e.message === 'provider_not_found' || e.message === 'capability_not_supported') {
         throw e;
       }

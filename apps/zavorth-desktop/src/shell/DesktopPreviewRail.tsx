@@ -64,8 +64,11 @@ export function DesktopPreviewRail(props: {
             <Folder aria-hidden="true" size={16} stroke={1.8} />
             <strong>Files</strong>
           </div>
-          {workspacePath && props.onAttachFile ? (
-            <FileExplorer onAttachFile={props.onAttachFile} />
+          {workspacePath ? (
+            <FileExplorer
+              workspacePath={workspacePath}
+              onAttachFile={props.onAttachFile}
+            />
           ) : (
             <p>Select a trusted folder to browse files and attach references to chat.</p>
           )}

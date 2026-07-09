@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
@@ -24,6 +24,9 @@ import {
   type ZavorthRuntimeStateSkill,
   type ZavorthRuntimeStateStatus,
   type ZavorthRuntimeStateWorkspace,
+  type ZavorthRuntimeWorkboardState,
+  type ZavorthRuntimeWorkboardTask,
+  type ZavorthRuntimeWorkboardTaskStatus,
 } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { ZavorthEffortControlService } from './ZavorthEffortControlService.js';
 import { logger } from '../logger.js';
@@ -600,6 +603,27 @@ export class ZavorthRuntimeStateBusService {
       return { ok: true, pathValidated: false, error: null };
     }
 
+    if (input.type === 'workboard-sync') {
+      const next = applyWorkboardSync(state.workboard, payload, {
+        sessionId: clean(input.sessionId) || 'desktop-main',
+        source: source || 'zavorth-desktop-workboard',
+        now,
+        receiptId: this.idFactory('workboard-receipt'),
+      });
+      if (!next.ok || !next.workboard) {
+        return { ok: false, pathValidated: false, error: next.error || 'workboard_sync_failed' };
+      }
+      state.workboard = next.workboard;
+      state.agents = {
+        ...state.agents,
+        status: next.workboard.summary.blocked > 0 ? 'attention' : 'ready',
+        summary: `Workboard synced: ${next.workboard.summary.queued} queued, ${next.workboard.summary.running} running, ${next.workboard.summary.completed} completed.`,
+        updatedAt: now,
+        actionIds: uniqueStrings([...state.agents.actionIds, 'runtime.workboard.sync']).slice(-10),
+      };
+      return { ok: true, pathValidated: false, error: null };
+    }
+
     if (input.type === 'operate-domain') {
       const operation = normalizeDomainOperation(record(payload.domain)?.operation || record(payload.domain)?.action);
       const targetDomain = normalizeDomain(record(payload.domain)?.domain);
@@ -747,11 +771,14 @@ export class ZavorthRuntimeStateBusService {
       || input.type === 'set-workspace-knowledge'
       || input.type === 'recover-scheduled-jobs'
       || input.type === 'resume-stream'
+      || input.type === 'workboard-sync'
     ) {
       return {
         mutation: input.type.replace(/-/g, ' '),
         requiresApproval: false,
-        reason: 'Best-of runtime operation is receipt-backed and does not bypass governance.',
+        reason: input.type === 'workboard-sync'
+          ? 'Desktop workboard mutations are local-first and mirrored as governed runtime tasks.'
+          : 'Best-of runtime operation is receipt-backed and does not bypass governance.',
         blockedReason: null,
         pathValidated: false,
       };
@@ -866,6 +893,7 @@ export class ZavorthRuntimeStateBusService {
         mcpTrust: store.state.mcpTrust,
         skillHistory: store.state.skillHistory,
         streamSession: store.state.streamSession,
+        workboard: store.state.workboard,
       },
       receipts: store.receipts.slice(0, 20),
       replay: {
@@ -893,7 +921,10 @@ export class ZavorthRuntimeStateBusService {
           };
         }
       }
-    } catch (error) { // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it. logger.warn('[Zavorth Runtime State Bus] parsing failed', error); }
+    } catch (error: any) {
+      // Corrupt state falls back to a clean in-memory state; the next dispatch rewrites it.
+      logger.warn('[Zavorth Runtime State Bus] parsing failed', error);
+    }
     return {
       contractVersion: ZAVORTH_RUNTIME_STATE_BUS_CONTRACT_VERSION,
       updatedAt: this.now().toISOString(),
@@ -1001,6 +1032,7 @@ export class ZavorthRuntimeStateBusService {
           : fallback.skillHistory.entries,
       },
       streamSession: coerceStreamSession(current.streamSession, fallback.streamSession),
+      workboard: coerceWorkboardState(current.workboard, fallback.workboard),
     };
   }
 
@@ -1096,6 +1128,7 @@ export class ZavorthRuntimeStateBusService {
         updatedAt: now,
         resumable: true,
       },
+      workboard: defaultWorkboardState(now),
     };
   }
 
@@ -1399,6 +1432,7 @@ function domainForAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRunti
   if (input.type === 'resume-stream') return 'session';
   if (input.type === 'set-permission') return 'gateway';
   if (input.type === 'skill-lifecycle') return 'skills';
+  if (input.type === 'workboard-sync') return 'agents';
   if (input.type === 'sync-command') return 'session';
   const domain = normalizeDomain(record(input.payload?.domain)?.domain);
   return domain || 'gateway';
@@ -2000,7 +2034,7 @@ function evaluateNetworkTarget(providerId: string, targetUrl: string | null): {
       return { ok: false, targetHost: host, localLoopback: false };
     }
     return { ok: true, targetHost: host, localLoopback: false };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Zavorth Runtime State Bus] lifecycle operation failed', error);
     return { ok: false, targetHost: null, localLoopback: false };
   }
@@ -2205,10 +2239,10 @@ function safeResolve(value: unknown): string | null {
 function safeRealPath(value: string): string | null {
   try {
     return fs.realpathSync.native(value);
-  } catch {
+  } catch (error: any) {
     try {
       return fs.realpathSync(value);
-    } catch (error) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Runtime State Bus] operation failed', error); return null; }
   }
 }
 
@@ -2273,4 +2307,291 @@ function redact(value: string): string {
     .replace(/\b(sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9_]{8,}|AIza[A-Za-z0-9_-]{12,})\b/g, '[redacted-secret]')
     .replace(/"((?:token|secret|password|api[_-]?key))"\s*:\s*"[^"]*"/gi, '"$1":"[redacted]"')
     .replace(/\b(token|secret|password|api[_-]?key)\s*[:=]\s*[^,\s"}]+/gi, '$1=[redacted]');
+}
+
+function defaultWorkboardState(now: string): ZavorthRuntimeWorkboardState {
+  return {
+    updatedAt: now,
+    source: null,
+    selectedTaskId: null,
+    selectedTask: null,
+    sessions: [],
+    tasks: [],
+    workers: [],
+    receipts: [],
+    boards: [],
+    summary: {
+      sessions: 0,
+      queued: 0,
+      running: 0,
+      completed: 0,
+      blocked: 0,
+    },
+    safety: {
+      sqliteDurable: true,
+      mutationRequiresApproval: true,
+      retryBounded: true,
+      spawnDepthBounded: true,
+    },
+  };
+}
+
+function coerceWorkboardState(value: unknown, fallback: ZavorthRuntimeWorkboardState): ZavorthRuntimeWorkboardState {
+  const raw = record(value);
+  if (!raw) return fallback;
+  const tasks = Array.isArray(raw.tasks)
+    ? raw.tasks.map((entry) => coerceWorkboardTask(entry)).filter((entry): entry is ZavorthRuntimeWorkboardTask => Boolean(entry))
+    : fallback.tasks;
+  const sessions = Array.isArray(raw.sessions)
+    ? raw.sessions.map((entry) => {
+      const item = record(entry) || {};
+      const sessionId = clean(item.sessionId) || clean(item.id);
+      if (!sessionId) return null;
+      return {
+        sessionId,
+        objective: clean(item.objective) || 'Desktop workboard session',
+        status: clean(item.status) || 'running',
+        maxDepth: Math.max(1, Number(item.maxDepth || 3) || 3),
+        maxChildren: Math.max(1, Number(item.maxChildren || 8) || 8),
+      };
+    }).filter((entry): entry is ZavorthRuntimeWorkboardState['sessions'][number] => Boolean(entry))
+    : fallback.sessions;
+  return {
+    updatedAt: clean(raw.updatedAt) || fallback.updatedAt,
+    source: clean(raw.source),
+    selectedTaskId: clean(raw.selectedTaskId),
+    selectedTask: coerceWorkboardTask(raw.selectedTask),
+    sessions,
+    tasks,
+    workers: Array.isArray(raw.workers)
+      ? raw.workers.map((entry) => {
+        const item = record(entry) || {};
+        const workerId = clean(item.workerId) || clean(item.id);
+        if (!workerId) return null;
+        const status = clean(item.status);
+        return {
+          workerId,
+          status: status === 'busy' || status === 'expired' ? status : 'idle',
+          currentTaskId: clean(item.currentTaskId),
+        };
+      }).filter((entry): entry is ZavorthRuntimeWorkboardState['workers'][number] => Boolean(entry))
+      : fallback.workers,
+    receipts: Array.isArray(raw.receipts)
+      ? raw.receipts.map((entry) => {
+        const item = record(entry) || {};
+        const receiptId = clean(item.receiptId) || clean(item.id);
+        if (!receiptId) return null;
+        return {
+          receiptId,
+          action: clean(item.action) || 'workboard-sync',
+          taskId: clean(item.taskId),
+          workerId: clean(item.workerId),
+          status: clean(item.status) || 'applied',
+        };
+      }).filter((entry): entry is ZavorthRuntimeWorkboardState['receipts'][number] => Boolean(entry)).slice(0, 40)
+      : fallback.receipts,
+    boards: Array.isArray(raw.boards)
+      ? raw.boards.map((entry) => {
+        const item = record(entry) || {};
+        const id = clean(item.id);
+        const name = clean(item.name);
+        if (!id || !name) return null;
+        return {
+          id,
+          name,
+          description: clean(item.description),
+          columns: Array.isArray(item.columns)
+            ? item.columns.map((column, order) => {
+              const col = record(column) || {};
+              const columnId = clean(col.id);
+              const columnName = clean(col.name);
+              if (!columnId || !columnName) return null;
+              return {
+                id: columnId,
+                name: columnName,
+                order: Number(col.order ?? order) || order,
+                color: clean(col.color) || undefined,
+              };
+            }).filter((column): column is ZavorthRuntimeWorkboardState['boards'][number]['columns'][number] => Boolean(column))
+            : [],
+        };
+      }).filter((entry): entry is ZavorthRuntimeWorkboardState['boards'][number] => Boolean(entry))
+      : fallback.boards,
+    summary: summarizeWorkboardTasks(tasks, sessions.length),
+    safety: {
+      sqliteDurable: true,
+      mutationRequiresApproval: true,
+      retryBounded: true,
+      spawnDepthBounded: true,
+    },
+  };
+}
+
+function coerceWorkboardTask(value: unknown): ZavorthRuntimeWorkboardTask | null {
+  const raw = record(value);
+  if (!raw) return null;
+  const taskId = clean(raw.taskId) || clean(raw.id);
+  const title = clean(raw.title) || clean(raw.name);
+  if (!taskId || !title) return null;
+  return {
+    taskId,
+    sessionId: clean(raw.sessionId) || 'desktop-main',
+    parentTaskId: clean(raw.parentTaskId),
+    title,
+    status: normalizeWorkboardTaskStatus(raw.status),
+    risk: clean(raw.risk),
+    claimedBy: clean(raw.claimedBy),
+    heartbeatAt: clean(raw.heartbeatAt),
+    blockedReason: clean(raw.blockedReason),
+    summary: clean(raw.summary) || clean(raw.description),
+    createdAt: clean(raw.createdAt),
+    updatedAt: clean(raw.updatedAt),
+  };
+}
+
+function normalizeWorkboardTaskStatus(value: unknown): ZavorthRuntimeWorkboardTaskStatus {
+  const status = String(value || '').trim().toLowerCase();
+  if (status.includes('block')) return 'blocked';
+  if (status.includes('fail')) return 'failed';
+  if (status.includes('cancel')) return 'cancelled';
+  if (status.includes('complete') || status.includes('done')) return 'completed';
+  if (status.includes('claim') || status.includes('review')) return 'claimed';
+  if (status.includes('run') || status.includes('doing') || status.includes('progress')) return 'running';
+  return 'queued';
+}
+
+function summarizeWorkboardTasks(tasks: ZavorthRuntimeWorkboardTask[], sessions: number): ZavorthRuntimeWorkboardState['summary'] {
+  return {
+    sessions,
+    queued: tasks.filter((task) => task.status === 'queued').length,
+    running: tasks.filter((task) => task.status === 'running' || task.status === 'claimed').length,
+    completed: tasks.filter((task) => task.status === 'completed').length,
+    blocked: tasks.filter((task) => task.status === 'blocked' || task.status === 'failed').length,
+  };
+}
+
+function applyWorkboardSync(
+  current: ZavorthRuntimeWorkboardState,
+  payload: RuntimeRecord,
+  meta: { sessionId: string; source: string; now: string; receiptId: string },
+): { ok: boolean; workboard?: ZavorthRuntimeWorkboardState; error?: string } {
+  const operation = clean(payload.operation) || 'sync-board';
+  if (!['upsert-card', 'delete-card', 'sync-board'].includes(operation)) {
+    return { ok: false, error: `workboard_operation_unsupported:${operation}` };
+  }
+
+  const boardRaw = record(payload.board);
+  const boardId = clean(boardRaw?.id) || 'desktop-board';
+  const boardName = clean(boardRaw?.name) || 'Desktop Workboard';
+  const boardDescription = clean(boardRaw?.description);
+  const boardColumns = Array.isArray(boardRaw?.columns)
+    ? boardRaw!.columns.map((column, order) => {
+      const col = record(column) || {};
+      const id = clean(col.id);
+      const name = clean(col.name);
+      if (!id || !name) return null;
+      return {
+        id,
+        name,
+        order: Number(col.order ?? order) || order,
+        color: clean(col.color) || undefined,
+      };
+    }).filter((column): column is ZavorthRuntimeWorkboardState['boards'][number]['columns'][number] => Boolean(column))
+    : (current.boards.find((board) => board.id === boardId)?.columns || []);
+
+  let tasks = [...current.tasks];
+  const card = coerceWorkboardTask(payload.card);
+
+  if (operation === 'upsert-card') {
+    if (!card) return { ok: false, error: 'workboard_card_required' };
+    const nextCard: ZavorthRuntimeWorkboardTask = {
+      ...card,
+      sessionId: card.sessionId || meta.sessionId,
+      updatedAt: meta.now,
+      createdAt: card.createdAt || meta.now,
+    };
+    const existingIndex = tasks.findIndex((task) => task.taskId === nextCard.taskId);
+    if (existingIndex >= 0) {
+      tasks[existingIndex] = { ...tasks[existingIndex], ...nextCard };
+    } else {
+      tasks.push(nextCard);
+    }
+  } else if (operation === 'delete-card') {
+    const taskId = card?.taskId || clean(record(payload.card)?.taskId) || clean(record(payload.card)?.id);
+    if (!taskId) return { ok: false, error: 'workboard_card_id_required' };
+    tasks = tasks.filter((task) => task.taskId !== taskId);
+  } else if (operation === 'sync-board' && card) {
+    // Full board sync may still include an optional focus card.
+    const nextCard: ZavorthRuntimeWorkboardTask = {
+      ...card,
+      sessionId: card.sessionId || meta.sessionId,
+      updatedAt: meta.now,
+      createdAt: card.createdAt || meta.now,
+    };
+    const existingIndex = tasks.findIndex((task) => task.taskId === nextCard.taskId);
+    if (existingIndex >= 0) {
+      tasks[existingIndex] = { ...tasks[existingIndex], ...nextCard };
+    } else {
+      tasks.push(nextCard);
+    }
+  }
+
+  const sessions = (() => {
+    const existing = current.sessions.find((session) => session.sessionId === meta.sessionId);
+    const nextSession = {
+      sessionId: meta.sessionId,
+      objective: boardName,
+      status: 'running',
+      maxDepth: existing?.maxDepth || 3,
+      maxChildren: existing?.maxChildren || 8,
+    };
+    return [nextSession, ...current.sessions.filter((session) => session.sessionId !== meta.sessionId)].slice(0, 12);
+  })();
+
+  const boards = [
+    {
+      id: boardId,
+      name: boardName,
+      description: boardDescription,
+      columns: boardColumns,
+    },
+    ...current.boards.filter((board) => board.id !== boardId),
+  ].slice(0, 12);
+
+  const selectedTaskId = card?.taskId || current.selectedTaskId;
+  const selectedTask = selectedTaskId
+    ? tasks.find((task) => task.taskId === selectedTaskId) || null
+    : null;
+
+  const receipts = [
+    {
+      receiptId: meta.receiptId,
+      action: `workboard-${operation}`,
+      taskId: card?.taskId || null,
+      workerId: null,
+      status: 'applied',
+    },
+    ...current.receipts,
+  ].slice(0, 40);
+
+  const workboard: ZavorthRuntimeWorkboardState = {
+    updatedAt: meta.now,
+    source: meta.source,
+    selectedTaskId,
+    selectedTask,
+    sessions,
+    tasks: tasks.slice(0, 200),
+    workers: current.workers,
+    receipts,
+    boards,
+    summary: summarizeWorkboardTasks(tasks, sessions.length),
+    safety: {
+      sqliteDurable: true,
+      mutationRequiresApproval: true,
+      retryBounded: true,
+      spawnDepthBounded: true,
+    },
+  };
+
+  return { ok: true, workboard };
 }

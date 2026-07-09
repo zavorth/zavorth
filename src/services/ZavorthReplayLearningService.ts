@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -611,7 +611,10 @@ export class ZavorthReplayLearningService {
       if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
         return parsed.text;
       }
-    } catch (error) { // plain transcript line logger.warn('[Zavorth Replay Learning] JSON parse failed', error); }
+    } catch (error: any) {
+      // plain transcript line
+      logger.warn('[Zavorth Replay Learning] JSON parse failed', error);
+    }
     return trimmed;
   }
 

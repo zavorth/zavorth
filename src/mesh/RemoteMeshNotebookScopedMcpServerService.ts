@@ -571,7 +571,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -629,7 +629,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         httpStatus: 200,
         body: toolErrorResult(id, {
@@ -1139,7 +1139,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1225,7 +1225,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1323,7 +1323,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1416,7 +1416,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;

@@ -63,6 +63,18 @@ describe('MigrationUXService', () => {
     expect(detection!.type).toBe('cursor');
   });
 
+  it('detects community-agent workspace by structural patterns (SOUL.md + skills/ + memories/)', () => {
+    const agentDir = path.join(dir, 'my-community-agent');
+    fs.mkdirSync(agentDir);
+    fs.writeFileSync(path.join(agentDir, 'SOUL.md'), 'identity content');
+    fs.writeFileSync(path.join(agentDir, 'achievements.yml'), 'xp: 0');
+    fs.mkdirSync(path.join(agentDir, 'skills'));
+    fs.mkdirSync(path.join(agentDir, 'memories'));
+    const detection = svc.detectAgent(agentDir);
+    expect(detection).toBeTruthy();
+    expect(detection!.type).toBe('community-agent');
+  });
+
   it('returns null for non-existent path', () => {
     expect(svc.detectAgent('/nonexistent')).toBeNull();
   });

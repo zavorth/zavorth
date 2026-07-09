@@ -32,7 +32,10 @@ export async function GET(request: Request) {
                 .get(fallbackId)
             : null;
         if (cred || fallbackCred) status = "active";
-      } catch (error) { // DB error — report as no_credentials logger.warn('[route] connection failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // DB error — report as no_credentials
+      logger.warn('[route] connection failed', error);
+    }
       return {
         id: p.id,
         name: p.name,
@@ -42,7 +45,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ providers });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json({ error: "Failed to list providers" }, { status: 500 });
   }

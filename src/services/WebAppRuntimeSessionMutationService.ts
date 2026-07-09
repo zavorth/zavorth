@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import { randomUUID } from 'crypto';
 import type { GatewayCanonicalStatePayload } from '../contracts/GatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from '../domain/surface/presentation/web-app/WebAppRuntimeRouteService.js';
@@ -223,7 +223,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalChatSend(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {
+    } catch (error: any) {
       deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao enviar mensagem.') }, 400);
     }
     return true;
@@ -239,7 +239,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalSpawn(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {
+    } catch (error: any) {
       deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao abrir sessao derivada.') }, 400);
     }
     return true;
@@ -255,7 +255,7 @@ export class WebAppRuntimeSessionMutationService {
       const body = await deps.readJsonBody(req);
       const payload = await this.executeCanonicalCompact(body, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {
+    } catch (error: any) {
       deps.writeJson(res, { ok: false, error: errorMessage(error, 'Falha ao compactar sessao.') }, 500);
     }
     return true;

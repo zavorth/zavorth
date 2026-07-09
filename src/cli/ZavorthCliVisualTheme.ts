@@ -11,8 +11,8 @@ export type CliVisualTone =
   | 'danger';
 
 const ANSI_PATTERN = /\u001B\[[0-9;]*m/g;
-const ZAVORTH_CYAN = '\u001b[38;2;6;182;212m';
-const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;34;211;238m';
+const ZAVORTH_CYAN = '\u001b[38;2;255;122;24m';
+const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;255;191;105m';
 const ANSI_RESET = '\u001b[0m';
 
 export function isCliColorEnabled(): boolean {
@@ -86,6 +86,8 @@ export function renderCliWordmark(label = 'ZAVORTH'): string {
 
 export const ANSI_COLORS = {
   CYAN: ZAVORTH_CYAN,
+  ORANGE: ZAVORTH_CYAN,
+  ORANGE_BRIGHT: ZAVORTH_CYAN_BRIGHT,
   CYAN_BRIGHT: ZAVORTH_CYAN_BRIGHT,
   RESET: ANSI_RESET,
 } as const;

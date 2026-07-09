@@ -129,7 +129,7 @@ export class LineGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.recordError(`LINE reply failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -161,7 +161,7 @@ export class LineGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.recordError(`LINE push failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

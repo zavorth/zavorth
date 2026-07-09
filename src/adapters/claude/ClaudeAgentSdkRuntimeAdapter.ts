@@ -5,6 +5,8 @@ import type {
   LlmRuntimeResult,
 } from '../../services/llm/LlmRuntimeService.js';
 import { buildChildProcessEnv } from '../../security/ChildProcessEnv.js';
+import { ToolPolicyService } from '../../services/ToolPolicyService.js';
+import type { ZavorthToolPolicyAction } from '../../contracts/ToolPolicyContract.js';
 
 export type ClaudeAgentSdkCredentialRoute =
   | 'api-key'
@@ -426,7 +428,7 @@ export class ClaudeAgentSdkRuntimeAdapter {
           sessionId,
         } as unknown as Record<string, unknown> : {}),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       attempts.push({
         providerName: PROVIDER_NAME,
         modelName,
@@ -609,13 +611,32 @@ export class ClaudeAgentSdkRuntimeAdapter {
     permissionDecisions: Array<Record<string, unknown>>,
   ): CanUseTool {
     const allowed = new Set(effectiveAllowedTools.map((tool) => tool.toLowerCase()));
+    const toolPolicyService = new ToolPolicyService();
+
     return async (toolName, input, permissionOptions): Promise<PermissionResult> => {
       const normalizedToolName = toolName.toLowerCase();
-      if (allowed.has(normalizedToolName)) {
+      const targetPath = (input?.path || input?.filePath || input?.file_path || input?.target || input?.dest) as string | undefined;
+      const action = this.mapToolToPolicyAction(toolName);
+
+      let isAllowed = allowed.has(normalizedToolName);
+      let decisionReason = 'allowed-by-zavorth-policy';
+
+      if (!isAllowed && action) {
+        const policyRes = toolPolicyService.checkPermission(action, { targetPath });
+        if (policyRes.level === 'allow') {
+          isAllowed = true;
+          decisionReason = `allowed-by-dynamic-tool-policy-with-context (${policyRes.level})`;
+        } else if (policyRes.level === 'deny') {
+          isAllowed = false;
+          decisionReason = `explicitly-denied-by-tool-policy`;
+        }
+      }
+
+      if (isAllowed) {
         permissionDecisions.push(this.buildPermissionDecisionReceipt({
           toolName,
           allowed: true,
-          reason: 'allowed-by-zavorth-policy',
+          reason: decisionReason,
           toolUseID: permissionOptions.toolUseID,
           toolPolicy,
         }));
@@ -626,10 +647,11 @@ export class ClaudeAgentSdkRuntimeAdapter {
           decisionClassification: 'user_temporary',
         };
       }
+
       permissionDecisions.push(this.buildPermissionDecisionReceipt({
         toolName,
         allowed: false,
-        reason: 'blocked-by-zavorth-policy',
+        reason: decisionReason === 'allowed-by-zavorth-policy' ? 'blocked-by-zavorth-policy' : decisionReason,
         toolUseID: permissionOptions.toolUseID,
         toolPolicy,
       }));
@@ -641,6 +663,17 @@ export class ClaudeAgentSdkRuntimeAdapter {
         decisionClassification: 'user_reject',
       };
     };
+  }
+
+  private mapToolToPolicyAction(toolName: string): ZavorthToolPolicyAction | null {
+    const norm = toolName.toLowerCase();
+    if (['read', 'glob', 'grep', 'ls', 'view_file', 'list_dir', 'grep_search'].includes(norm)) return 'file.read';
+    if (['write', 'edit', 'multiedit', 'notebookedit', 'write_to_file', 'replace_file_content', 'multi_replace_file_content'].includes(norm)) return 'file.write';
+    if (['bash', 'shell', 'exec', 'run_command', 'shell.execute'].includes(norm)) return 'shell.execute';
+    if (['fetch', 'curl', 'wget', 'network.fetch', 'read_url', 'read_browser_page', 'search_web'].includes(norm)) return 'network.fetch';
+    if (['delegate', 'subagent', 'subagent.delegate', 'invoke_subagent', 'send_message'].includes(norm)) return 'subagent.delegate';
+    if (norm.includes('mcp')) return 'mcp.execute';
+    return null;
   }
 
   private buildPermissionDecisionReceipt(input: {

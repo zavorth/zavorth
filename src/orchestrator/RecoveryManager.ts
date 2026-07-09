@@ -111,7 +111,7 @@ export class RecoveryManager {
         'Recovery',
         `Recovery complete. Failed zombies: ${zombiesCount}. Preserved ZavorthBridge tasks: ${preservedZavorthBridgeCount}. Reconciled ZavorthBridge tasks: ${reconciledZavorthBridgeCount}. Closed pending permissions: ${closedPendingPermissionCount}. Tasks waiting for approval: ${waitingCount}`,
       );
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       this.logRepo.log('error', 'Recovery', `Failed to run recovery flow: ${err.message}`);
     }
   }
@@ -213,7 +213,7 @@ export class RecoveryManager {
         pendingDeliverySummary?: string | null;
         lastDeliveryError?: string | null;
       };
-    } catch (error) { logger.warn('[Recovery Manager] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Recovery Manager] JSON parse failed', error); return null; }
   }
 
   private closeZavorthBridgeTracking(task: any, reason: string): void {
@@ -230,7 +230,10 @@ export class RecoveryManager {
         tracking.lastDeliveryError = tracking.lastDeliveryError || reason;
       }
       fs.writeFileSync(trackingFile, JSON.stringify(tracking, null, 2), 'utf8');
-    } catch (error) { // Ignore tracking cleanup failures during boot recovery. logger.warn('[Recovery Manager] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore tracking cleanup failures during boot recovery.
+      logger.warn('[Recovery Manager] filesystem operation failed', error);
+    }
   }
 
   private isZavorthBridgeTask(task: any): boolean {

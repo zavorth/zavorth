@@ -217,7 +217,7 @@ export class TelegramTaskAutoRouteService {
           );
           return;
         }
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : String(error || 'unknown error');
         await ctx.reply(`Could not prepare this video link right now.\n\nReason: ${message}`);
         return;

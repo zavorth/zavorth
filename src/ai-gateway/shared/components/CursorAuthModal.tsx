@@ -38,7 +38,7 @@ export default function CursorAuthModal({ isOpen, onSuccess, onClose }) {
         } else {
           setError(data.error || "Could not auto-detect tokens");
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         setError("Failed to auto-detect tokens");
       } finally {
         setAutoDetecting(false);
@@ -81,7 +81,7 @@ export default function CursorAuthModal({ isOpen, onSuccess, onClose }) {
       // Success - close modal and trigger refresh
       onSuccess?.();
       onClose();
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       setError(err.message);
     } finally {
       setImporting(false);

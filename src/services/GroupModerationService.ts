@@ -1,4 +1,4 @@
-import { Api } from 'grammy';
+﻿import { Api } from 'grammy';
 import { AuditLogger } from '../monitoring/AuditLogger.js';
 import { logger } from '../logger.js';
 
@@ -88,7 +88,7 @@ export class GroupModerationService {
     try {
       await this.botApi.deleteMessage(chatId, messageId);
       return true;
-    } catch (error) { logger.warn('[Group Moderation] process execution failed', error); return false; }
+    } catch (error: any) { logger.warn('[Group Moderation] process execution failed', error); return false; }
   }
 
   public async isBotAdmin(chatId: number | string): Promise<boolean> {
@@ -96,7 +96,7 @@ export class GroupModerationService {
       const me = await this.botApi.getMe();
       const member = await this.botApi.getChatMember(chatId, me.id);
       return member.status === 'administrator' || member.status === 'creator';
-    } catch (error) { logger.warn('[Group Moderation] delete operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Group Moderation] delete operation failed', error); return false; }
   }
 
   private async executeAction(

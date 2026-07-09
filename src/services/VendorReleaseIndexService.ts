@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { config } from '../config/index.js';
@@ -307,7 +307,7 @@ export class VendorReleaseIndexService {
       const parsed = new URL(normalizedBaseUrl);
       const port = parsed.port ? safeParseInt(parsed.port, parsed.protocol === 'https:' ? 443 : 80) : (parsed.protocol === 'https:' ? 443 : 80);
       return Number.isFinite(port) && port > 0 ? port : fallback;
-    } catch (error) { logger.warn('[Vendor Release] network request failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Vendor Release] network request failed', error); return fallback; }
   }
 
   private normalizeSyncStatus(value: unknown): VendorReleaseIndexEntry['syncStatus'] {
@@ -325,7 +325,7 @@ export class VendorReleaseIndexService {
     }
     try {
       return this.normalizeNullableString(this.runGitImpl(['rev-parse', 'HEAD'], normalized));
-    } catch (error) { logger.warn('[Vendor Release] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Vendor Release] parsing failed', error); return null; }
   }
 
   private existsGitRepo(repoPath: string | null | undefined): boolean {
@@ -342,7 +342,7 @@ export class VendorReleaseIndexService {
         return fallback;
       }
       return JSON.parse(this.readFileSyncImpl(filePath, 'utf8')) as T;
-    } catch (error) { logger.warn('[Vendor Release] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Vendor Release] JSON parse failed', error); return fallback; }
   }
 
   private resolveProjectPath(relativeOrAbsolutePath: string): string {

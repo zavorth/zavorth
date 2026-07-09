@@ -158,7 +158,7 @@ export function resolveBrowserTargetPolicy(
     let parsed: URL;
     try {
         parsed = new URL(candidate);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
         throw new Error(`SandboxBlock: URL '${candidate}' invalida para navegacao Playwright.`);
     }
 

@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { PtySessionService } from '../../services/PtySessionService.js';
@@ -62,7 +62,7 @@ export class PtyWriteTool extends BaseTool {
     try {
       await this.ptySessionService.write(sessionId, workspaceId, input);
       return JSON.stringify({ success: true });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Pty Write] serialization failed', error);
     return JSON.stringify({ success: false, error: err.message });
   }

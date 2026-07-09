@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import { logger } from '../logger.js';
 import type {
 ProxyRoutingPolicyReceipt,
@@ -87,7 +87,7 @@ export class SourceSearchFetchService {
         liveNetworkPerformed: true,
         reason: `HTTP ${response.status}`,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Source Search] network request failed', error);
     return this.fetchReceipt({
         status: 'failed',

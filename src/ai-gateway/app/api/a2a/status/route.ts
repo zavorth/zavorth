@@ -12,7 +12,7 @@ export async function GET() {
       const agentModule = await import("@/app/.well-known/agent.json/route");
       const cardResponse = await agentModule.GET();
       agentCard = await cardResponse.json();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     agentCard = null;
   }
@@ -31,7 +31,7 @@ export async function GET() {
       capabilities: agentCard?.capabilities || null,
       skills: Array.isArray(agentCard?.skills) ? agentCard.skills : [],
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     const message = error instanceof Error ? error.message : "Failed to load A2A status";
     return NextResponse.json({ error: message }, { status: 500 });

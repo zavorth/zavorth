@@ -51,7 +51,7 @@ async function runTest() {
         }
 
         console.log('\n[EXECUTION LOG]:', JSON.stringify(orchestrator.getExecutionLog(), null, 2));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
         console.error('\n[X] Test failed:');
         if (error.message.includes('fetch failed') || error.message.includes('ECONNREFUSED')) {
             console.error('  -> The local Llama/Ollama server is not running.');

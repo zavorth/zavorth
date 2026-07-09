@@ -1,4 +1,4 @@
-import type { ScheduledTask } from '../storage/SchedulerRepository.js';
+﻿import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskRuntimeDescriptor,
@@ -323,7 +323,7 @@ function readGuardrails(task: ScheduledTask): Record<string, any> {
   try {
     const parsed = JSON.parse(String(task.guardrail_json || '{}'));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch (error) { logger.warn('[Zavorth Scheduled Task Operational Guard] JSON parse failed', error); return {}; }
+  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Operational Guard] JSON parse failed', error); return {}; }
 }
 
 function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTaskMetadata | null {

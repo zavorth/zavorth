@@ -98,7 +98,7 @@ export class SwarmExecutor implements IExecutor {
       const snapshot = await orchestrator.execute();
       success = snapshot.status === 'completed';
       outputSummary = snapshot.synthesizedOutput || 'Synthesis not generated due to internal failure.';
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       outputSummary = `Critical failure during Swarm Orchestrator execution: ${err.message || err}`;
       errorCode = 'SWARM_ORCHESTRATOR_FAULT';
     }

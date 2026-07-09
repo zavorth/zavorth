@@ -96,15 +96,15 @@ interface RealZavorthBridgeWatcherHost {
   bridgeManager: BridgeManager;
   logRepo: LogRepo;
   broadcaster: Broadcaster;
-  uiCaptureService: UiCaptureService;
+  uiCaptureService: any;
   responseDir: string;
   logsDir: string;
-  isZavorthBridgeTask(task: BridgeTask): boolean;
+  isZavorthBridgeTask(task: any): boolean;
   isSessionActive(session: PendingZavorthBridgeSession): boolean;
   isTrackingFileCompleted(filePath: string): boolean;
   clearPendingPermissionMetadata(task: BridgeTask): void;
   getTask(taskId: string): BridgeTask | null;
-  isTaskTerminal(task: BridgeTask | null): boolean;
+  isTaskTerminal(task: any): boolean;
   queueSessionDelivery(
     session: PendingZavorthBridgeSession,
     message: string,
@@ -128,54 +128,24 @@ interface RealZavorthBridgeWatcherHost {
     artifact: BridgeArtifact,
   ): string;
   humanizeArtifactType(type: string): string;
-  notifyPermissionRequest(
-    session: PendingZavorthBridgeSession,
-    permission: PermissionRequest,
-  ): Promise<void>;
-  wasPermissionRecentlyNotified(
-    session: PendingZavorthBridgeSession,
-    permissionId: string,
-    notifiedAt: string | null,
-  ): boolean;
-  tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean>;
-  resolveScopedCompanionUiTarget(
-    session: PendingZavorthBridgeSession,
-  ): Promise<{ targetProcessId: string }>;
-  canCaptureScopedSessionUi(target: { targetProcessId: string }): boolean;
-  sanitizeVisibleResponse(responseText: string, prompt: string): string;
-  isVisibleResponseCaptureReady(
-    snapshot: { ok: boolean; responseText: string; hasPermissionPrompt: boolean; confidence: number },
-    visibleResponse: string,
-    prompt: string,
-  ): boolean;
-  normalizeVisibleResponse(response: string): string;
-  sendDeliveryToOriginChat(
-    session: PendingZavorthBridgeSession,
-    message: string,
-  ): Promise<void>;
-  markTaskDelivered(taskId: string, summary: string | null): Promise<void>;
-  collectRecentLogEvents(): Promise<LogEvent[]>;
-  maybeHandlePermissionPrompt(
-    session: PendingZavorthBridgeSession,
-    task: BridgeTask | null,
-    source: string,
-    snapshot?: { ok: boolean; responseText: string; hasPermissionPrompt: boolean; confidence: number },
-  ): Promise<boolean>;
-  isAutomationTriggerLogLine(line: string): boolean;
-  tryAutomationRescue(
-    session: PendingZavorthBridgeSession,
-    reason: string,
-  ): Promise<void>;
-  tryQueueLocalDirectoryFallback(
-    session: PendingZavorthBridgeSession,
-    task: BridgeTask | null,
-  ): Promise<boolean>;
-  failStalledSession(
-    session: PendingZavorthBridgeSession,
-    liveStatus: unknown,
-  ): Promise<void>;
-  resolveCompanionTargetInstanceId(session: PendingZavorthBridgeSession): string;
-  getLiveCompanionStatus(instanceId: string): Promise<unknown>;
+  notifyPermissionRequest: any;
+  wasPermissionRecentlyNotified: any;
+  tryQueuePromptContractDelivery: any;
+  resolveScopedCompanionUiTarget: any;
+  canCaptureScopedSessionUi: any;
+  sanitizeVisibleResponse: any;
+  isVisibleResponseCaptureReady: any;
+  normalizeVisibleResponse: any;
+  sendDeliveryToOriginChat: any;
+  markTaskDelivered: any;
+  collectRecentLogEvents: any;
+  maybeHandlePermissionPrompt: any;
+  isAutomationTriggerLogLine: any;
+  tryAutomationRescue: any;
+  tryQueueLocalDirectoryFallback: any;
+  failStalledSession: any;
+  resolveCompanionTargetInstanceId: any;
+  getLiveCompanionStatus: any;
 }
 
 export class RealZavorthBridgeWatcherTickHandlers {
@@ -471,7 +441,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
           pendingPermissionNotificationError: null,
         };
         this.host.deps.taskManager?.saveTask(task);
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const errorMessage = error instanceof Error ? error.message : String(error);
         task.metadata = {
           ...(task.metadata || {}),
@@ -616,7 +586,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         session.pendingDeliveryMessage = null;
         session.pendingDeliverySummary = null;
         await this.host.bridgeManager.saveSession(session);
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         session.deliveryState = 'failed';
         session.lastDeliveryError = error instanceof Error ? error.message : 'Falha desconhecida ao entregar resposta ao Telegram.';
         const task = this.host.getTask(session.taskId);
@@ -662,7 +632,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
       const task = this.host.getTask(session.taskId);
       const launchedAtMs = new Date(session.launchedAt).getTime();
       const lastDeliveredMs = session.lastDeliveredLogAt ? Date.parse(session.lastDeliveredLogAt) : launchedAtMs - 1;
-      const relevantEvents = events.filter((event) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
+      const relevantEvents = events.filter((event: any) => event.timestampMs > lastDeliveredMs && event.timestampMs >= launchedAtMs);
       if (relevantEvents.length === 0) {
         continue;
       }
@@ -687,7 +657,7 @@ export class RealZavorthBridgeWatcherTickHandlers {
         task?.status !== 'waiting_approval' &&
         session.automationEnabled !== false &&
         session.sessionKind !== 'prompt-panel' &&
-        relevantEvents.some((event) => this.host.isAutomationTriggerLogLine(event.line))
+        relevantEvents.some((event: any) => this.host.isAutomationTriggerLogLine(event.line))
       ) {
         await this.host.tryAutomationRescue(session, 'log_error');
       }

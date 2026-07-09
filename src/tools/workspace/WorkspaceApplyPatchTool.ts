@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { applyPatch, createTwoFilesPatch } from 'diff';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
@@ -89,7 +89,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Workspace Apply Patch] serialization failed', error);
     return JSON.stringify({
           success: false,
@@ -115,7 +115,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveApplyPatchPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveApplyPatchPath(filepath);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Workspace Apply Patch] serialization failed', error);
     return JSON.stringify({
         success: false,
@@ -140,7 +140,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
     let proposedContent: string | false;
     try {
       proposedContent = applyPatch(currentContent, patch);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Workspace Apply Patch] filesystem operation failed', error);
     proposedContent = false;
   }

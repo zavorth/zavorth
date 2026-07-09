@@ -70,7 +70,7 @@ export async function GET(request: Request) {
         lastCallTool: lastCall?.toolName || null,
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP status";
     return NextResponse.json({ error: message }, { status: 500 });

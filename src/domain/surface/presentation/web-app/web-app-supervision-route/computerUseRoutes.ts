@@ -91,7 +91,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
           },
           200,
         );
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : 'Falha ao iniciar o Computer Use experimental.';
         const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
         deps.writeJson(res, { ok: false, error: message }, statusCode);

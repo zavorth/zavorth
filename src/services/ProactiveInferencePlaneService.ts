@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import { z } from 'zod';
 import type { ZavorthEchoOrchestrator } from '../echo/orchestrator/ZavorthEchoOrchestrator.js';
 import type { ToolCategory } from '../echo/types/IZavorthTool.js';
@@ -269,7 +269,7 @@ ${executionHistoryText}
 
     try {
       return ProactiveInferenceSchema.safeParse(JSON.parse(rawMatch[0]));
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Proactive Inference Plane] JSON parse failed', error);
     return ProactiveInferenceSchema.safeParse(null);
   }

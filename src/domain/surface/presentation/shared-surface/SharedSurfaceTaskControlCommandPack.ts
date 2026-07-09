@@ -112,7 +112,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleApproval(surfaceCtx, args);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(
         `Nao consegui aprovar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
@@ -142,7 +142,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleRejection(surfaceCtx, taskId);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(
         `Nao consegui rejeitar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );
@@ -177,7 +177,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskExecutionController.handleUndo(surfaceCtx, task.task_id);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(
         `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
       );

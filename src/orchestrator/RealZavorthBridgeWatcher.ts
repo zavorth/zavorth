@@ -186,7 +186,7 @@ export class RealZavorthBridgeWatcher {
     return this.tickHandlers.processVisibleResponses();
   }
 
-  private async processPendingDeliveries(): Promise<void> {
+  public async processPendingDeliveries(): Promise<void> {
     return this.tickHandlers.processPendingDeliveries();
   }
 
@@ -273,11 +273,11 @@ export class RealZavorthBridgeWatcher {
     return method.apply(this.workflow, args);
   }
 
-  private collectArtifacts(): Promise<ZavorthBridgeArtifact[]> {
+  public collectArtifacts(): Promise<ZavorthBridgeArtifact[]> {
     return this.callWorkflow('collectArtifacts', []);
   }
 
-  private collectRecentLogEvents(): Promise<ZavorthBridgeLogEvent[]> {
+  public collectRecentLogEvents(): Promise<ZavorthBridgeLogEvent[]> {
     return this.callWorkflow('collectRecentLogEvents', []);
   }
 
@@ -293,7 +293,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isInterestingLogLine', [line]);
   }
 
-    private isAutomationTriggerLogLine(line: string): boolean {
+    public isAutomationTriggerLogLine(line: string): boolean {
     return this.callWorkflow('isAutomationTriggerLogLine', [line]);
   }
 
@@ -301,7 +301,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('resolveArtifactContentPath', [dirPath, baseName]);
   }
 
-  private findBestArtifactForSession(
+  public findBestArtifactForSession(
     session: PendingZavorthBridgeSession,
     artifacts: ZavorthBridgeArtifact[],
   ): ZavorthBridgeArtifact | null {
@@ -316,23 +316,23 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isSessionActive', [session]);
   }
 
-    private tryAutomationRescue(session: PendingZavorthBridgeSession, reason: 'stalled' | 'log_error'): Promise<void> {
+    public tryAutomationRescue(session: PendingZavorthBridgeSession, reason: 'stalled' | 'log_error'): Promise<void> {
     return this.callWorkflow('tryAutomationRescue', [session, reason]);
   }
 
-    private getLiveCompanionStatus(targetInstanceId?: string): Promise<CompanionStatus | null> {
+    public getLiveCompanionStatus(targetInstanceId?: string): Promise<CompanionStatus | null> {
     return this.callWorkflow('getLiveCompanionStatus', [targetInstanceId]);
   }
 
-    private resolveScopedCompanionUiTarget(session: PendingZavorthBridgeSession): Promise<ScopedCompanionUiTarget> {
+    public resolveScopedCompanionUiTarget(session: PendingZavorthBridgeSession): Promise<ScopedCompanionUiTarget> {
     return this.callWorkflow('resolveScopedCompanionUiTarget', [session]);
   }
 
-    private canCaptureScopedSessionUi(target: ScopedCompanionUiTarget): boolean {
+    public canCaptureScopedSessionUi(target: ScopedCompanionUiTarget): boolean {
     return this.callWorkflow('canCaptureScopedSessionUi', [target]);
   }
 
-    private resolveCompanionTargetInstanceId(session: PendingZavorthBridgeSession): string | undefined {
+    public resolveCompanionTargetInstanceId(session: PendingZavorthBridgeSession): string | undefined {
     return this.callWorkflow('resolveCompanionTargetInstanceId', [session]);
   }
 
@@ -362,7 +362,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isTaskTerminal', [task || null]);
   }
 
-    private markTaskDelivered(taskId: string, summary: string | null): Promise<void> {
+    public markTaskDelivered(taskId: string, summary: string | null): Promise<void> {
     return this.callWorkflow('markTaskDelivered', [taskId, summary]);
   }
 
@@ -383,11 +383,11 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('queueSessionDelivery', [session, message, summary, source]);
   }
 
-    private failStalledSession(session: PendingZavorthBridgeSession, errorReason: string): Promise<void> {
+    public failStalledSession(session: PendingZavorthBridgeSession, errorReason: string): Promise<void> {
     return this.callWorkflow('failStalledSession', [session, errorReason]);
   }
 
-    private tryQueueLocalDirectoryFallback(session: PendingZavorthBridgeSession, workspace: string): Promise<boolean> {
+    public tryQueueLocalDirectoryFallback(session: PendingZavorthBridgeSession, workspace: string): Promise<boolean> {
     return this.callWorkflow('tryQueueLocalDirectoryFallback', [session, workspace]);
   }
 
@@ -442,19 +442,19 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('safeReadDirectory', [candidate]);
   }
 
-    private normalizeVisibleResponse(value: string | null | undefined): string {
+    public normalizeVisibleResponse(value: string | null | undefined): string {
     return this.callWorkflow('normalizeVisibleResponse', [value]);
   }
 
-    private sanitizeVisibleResponse(value: string | null | undefined, promptText: string | null | undefined): string {
+    public sanitizeVisibleResponse(value: string | null | undefined, promptText: string | null | undefined): string {
     return this.callWorkflow('sanitizeVisibleResponse', [value, promptText]);
   }
 
-    private isVisibleResponseCaptureReady(promptText: string, visibleResponse: string | null | undefined): boolean {
+    public isVisibleResponseCaptureReady(promptText: string, visibleResponse: string | null | undefined): boolean {
     return this.callWorkflow('isVisibleResponseCaptureReady', [promptText, visibleResponse]);
   }
 
-    private tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean> {
+    public tryQueuePromptContractDelivery(session: PendingZavorthBridgeSession): Promise<boolean> {
     return this.callWorkflow('tryQueuePromptContractDelivery', [session]);
   }
 
@@ -481,11 +481,11 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('isZavorthBridgeTask', [task]);
   }
 
-    private wasPermissionRecentlyNotified(permissionId: string, minAgeMs: number): boolean {
+    public wasPermissionRecentlyNotified(permissionId: string, minAgeMs: number): boolean {
     return this.callWorkflow('wasPermissionRecentlyNotified', [permissionId, minAgeMs]);
   }
 
-    private maybeHandlePermissionPrompt(session: PendingZavorthBridgeSession, trackingFile: string): Promise<boolean> {
+    public maybeHandlePermissionPrompt(session: PendingZavorthBridgeSession, trackingFile: string): Promise<boolean> {
     return this.callWorkflow('maybeHandlePermissionPrompt', [session, trackingFile]);
   }
 
@@ -501,7 +501,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('buildZavorthBridgePermissionReason', [snapshot]);
   }
 
-    private notifyPermissionRequest(permission: PermissionRequest, reason: string): Promise<void> {
+    public notifyPermissionRequest(permission: PermissionRequest, reason: string): Promise<void> {
     return this.callWorkflow('notifyPermissionRequest', [permission, reason]);
   }
 
@@ -517,15 +517,15 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('formatFinalResponseBroadcast', [session, finalResponseText, source]);
   }
 
-    private formatArtifactCompletion(session: PendingZavorthBridgeSession, artifact: ZavorthBridgeArtifact): string {
+    public formatArtifactCompletion(session: PendingZavorthBridgeSession, artifact: ZavorthBridgeArtifact): string {
     return this.callWorkflow('formatArtifactCompletion', [session, artifact]);
   }
 
-    private humanizeArtifactType(artifactType: string): string {
+    public humanizeArtifactType(artifactType: string): string {
     return this.callWorkflow('humanizeArtifactType', [artifactType]);
   }
 
-    private truncate(content: string, maxLength: number): string {
+    public truncate(content: string, maxLength: number): string {
     return this.callWorkflow('truncate', [content, maxLength]);
   }
 
@@ -561,7 +561,7 @@ export class RealZavorthBridgeWatcher {
     return this.callWorkflow('normalizeTelegramFriendlyText', [value]);
   }
 
-    private sendDeliveryToOriginChat(session: PendingZavorthBridgeSession, message: string): Promise<void> {
+    public sendDeliveryToOriginChat(session: PendingZavorthBridgeSession, message: string): Promise<void> {
     return this.callWorkflow('sendDeliveryToOriginChat', [session, message]);
   }
 

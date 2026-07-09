@@ -69,7 +69,7 @@ export default function ConsoleLogViewer() {
       setLogs(data);
       setLastUpdated(new Date());
       setError(null);
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       setError(err.message || "Failed to fetch logs");
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export default function ConsoleLogViewer() {
         second: "2-digit",
         fractionalSecondDigits: 3,
       });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return ts;
     }
   };

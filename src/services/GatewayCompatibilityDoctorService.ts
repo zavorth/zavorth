@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewayProxyService } from './AIGatewayProxyService.js';
@@ -43,7 +43,7 @@ export class GatewayCompatibilityDoctorService {
         ...fallback,
         ...parsed,
       };
-    } catch (error) { logger.warn('[way Compatibility Doctor] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[way Compatibility Doctor] JSON parse failed', error); return fallback; }
   }
 
   public async run(): Promise<AIGatewayCompatibilityDoctorReport> {
@@ -83,7 +83,7 @@ export class GatewayCompatibilityDoctorService {
         httpStatus: response.status,
         error: null,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[way Compatibility Doctor] network request failed', error);
     return this.persist({
         ok: false,

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { execCommandSync } from '../core/CommandSpawn.js';
@@ -375,7 +375,7 @@ export class SupervisedRuntimeService {
         untrackedFiles,
         recentCommits,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Supervised Runtime] parsing failed', error);
     return {
         gitAvailable: false,
@@ -462,7 +462,7 @@ export class SupervisedRuntimeService {
     try {
       const parsed = JSON.parse(this.readFileSync(jsonPath, 'utf8')) as Record<string, unknown>;
       return this.getDependencyFingerprintFromObject(parsed);
-    } catch (error) { logger.warn('[Supervised Runtime] JSON parse failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Supervised Runtime] JSON parse failed', error); return ''; }
   }
 
   private getPackageLockDependencyFingerprint(jsonPath: string): string {
@@ -473,7 +473,7 @@ export class SupervisedRuntimeService {
     try {
       const parsed = JSON.parse(this.readFileSync(jsonPath, 'utf8')) as Record<string, unknown>;
       return this.getDependencyFingerprintFromObject(this.getPackageLockRootObject(parsed));
-    } catch (error) { logger.warn('[Supervised Runtime] JSON parse failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Supervised Runtime] JSON parse failed', error); return ''; }
   }
 
   private getPackageLockRootObject(input: Record<string, any>): Record<string, unknown> | null {
@@ -584,7 +584,7 @@ export class SupervisedRuntimeService {
         startedAt: typeof parsed.startedAt === 'string' ? parsed.startedAt : null,
         alive: pid ? this.isProcessAlive(pid) : false,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Supervised Runtime] filesystem operation failed', error);
     return {
         active: true,
@@ -600,7 +600,7 @@ export class SupervisedRuntimeService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error) { logger.warn('[Supervised Runtime] parsing failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: any) { logger.warn('[Supervised Runtime] parsing failed', error); return error?.code !== 'ESRCH'; }
   }
 
   private readLastReloadReport(): ReloadReport | null {
@@ -611,6 +611,6 @@ export class SupervisedRuntimeService {
 
     try {
       return JSON.parse(this.readFileSync(reportPath, 'utf8')) as ReloadReport;
-    } catch (error) { logger.warn('[Supervised Runtime] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Supervised Runtime] JSON parse failed', error); return null; }
   }
 }

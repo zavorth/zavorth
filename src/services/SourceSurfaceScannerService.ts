@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 import type {
@@ -439,7 +439,7 @@ function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true })
       .sort((left, right) => left.name.localeCompare(right.name));
-  } catch (error) { logger.warn('[Source Surface Scanner] filesystem operation failed', error); return []; }
+  } catch (error: any) { logger.warn('[Source Surface Scanner] filesystem operation failed', error); return []; }
 }
 
 function dedupeSurfaces(surfaces: SourceDiscoveredSurface[]): SourceDiscoveredSurface[] {

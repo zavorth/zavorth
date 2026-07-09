@@ -111,7 +111,7 @@ export class WeComGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       this.recordError(`WeCom send failed: ${msg}`);
     }

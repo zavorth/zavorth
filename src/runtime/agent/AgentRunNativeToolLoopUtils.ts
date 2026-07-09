@@ -109,7 +109,7 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

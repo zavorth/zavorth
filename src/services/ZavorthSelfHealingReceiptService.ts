@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import type { ExperienceReceipt } from './experience/ExperienceContracts.js';
@@ -110,11 +110,11 @@ export class ZavorthSelfHealingReceiptService {
         .map((line) => {
           try {
             return JSON.parse(line) as ZavorthSelfHealingReceipt;
-          } catch (error) { logger.warn('[Zavorth Self Healing Receipt] JSON parse failed', error); return null; }
+          } catch (error: any) { logger.warn('[Zavorth Self Healing Receipt] JSON parse failed', error); return null; }
         })
         .filter((entry): entry is ZavorthSelfHealingReceipt => Boolean(entry))
         .reverse();
-    } catch (error) { logger.warn('[Zavorth Self Healing Receipt] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Self Healing Receipt] JSON parse failed', error); return []; }
   }
 
   public toExperienceReceipts(limit = 6): ExperienceReceipt[] {
@@ -135,7 +135,10 @@ export class ZavorthSelfHealingReceiptService {
         encoding: 'utf8',
         mode: 0o600,
       });
-    } catch (error) { // Receipts must never break the user flow; failed receipt writes are surfaced by normal runtime checks. logger.warn('[Zavorth Self Healing Receipt] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Receipts must never break the user flow; failed receipt writes are surfaced by normal runtime checks.
+      logger.warn('[Zavorth Self Healing Receipt] filesystem operation failed', error);
+    }
   }
 
   private title(receipt: ZavorthSelfHealingReceipt): string {

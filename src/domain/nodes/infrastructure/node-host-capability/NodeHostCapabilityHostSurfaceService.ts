@@ -149,7 +149,7 @@ export class NodeHostCapabilityHostSurfaceService {
         now: this.now,
         resolveAllowedPath: (targetPath, capabilityId) => this.resolveAllowedPath(targetPath, capabilityId),
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'screen.capture',
@@ -213,7 +213,7 @@ export class NodeHostCapabilityHostSurfaceService {
         capabilityId: 'camera.capture',
         prefix: 'camera',
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'camera.capture',
@@ -269,7 +269,7 @@ export class NodeHostCapabilityHostSurfaceService {
     let sourcePath: string;
     try {
       sourcePath = this.resolveAllowedPath(rawSourcePath, 'camera.capture');
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'camera.capture',
@@ -334,7 +334,7 @@ export class NodeHostCapabilityHostSurfaceService {
       let sourcePath: string;
       try {
         sourcePath = this.resolveAllowedPath(rawSourcePath, 'location.read');
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Host Surface] load operation failed', error);
     return buildScopeViolationResult({
           capabilityId: 'location.read',
@@ -361,7 +361,7 @@ export class NodeHostCapabilityHostSurfaceService {
       let parsedFile: Record<string, unknown> | null = null;
       try {
         parsedFile = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Host Surface] JSON parse failed', error);
     return {
           ok: false,

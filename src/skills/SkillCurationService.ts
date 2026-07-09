@@ -204,7 +204,7 @@ export class SkillCurationService {
       try {
         await this.archiveSkill(row.skill_id);
         archivedCount++;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.error(`[SkillCurationService] Falha ao arquivar automaticamente a skill "${row.skill_id}":`, error);
       }
     }
@@ -271,7 +271,7 @@ export class SkillCurationService {
       if (fs.existsSync(manifestPath)) {
         return parseArchiveManifest(JSON.parse(fs.readFileSync(manifestPath, 'utf8')));
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
     return null;

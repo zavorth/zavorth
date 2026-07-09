@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import type {
@@ -129,6 +129,6 @@ export class QaSmokeMatrixService {
     if (!fs.existsSync(packagePath)) return null;
     try {
       return JSON.parse(fs.readFileSync(packagePath, 'utf8')) as PackageLike;
-    } catch (error) { logger.warn('[Qa Smoke Matrix] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Qa Smoke Matrix] JSON parse failed', error); return null; }
   }
 }

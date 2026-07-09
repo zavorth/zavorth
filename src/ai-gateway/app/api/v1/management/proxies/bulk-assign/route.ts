@@ -13,7 +13,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return createErrorResponse({
       status: 400,
@@ -45,7 +45,7 @@ export async function PUT(request: Request) {
       updated: result.updated,
       failed: result.failed,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to run bulk assignment");
   }

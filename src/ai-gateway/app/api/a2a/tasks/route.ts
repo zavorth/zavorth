@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       limit,
       offset,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     const message = error instanceof Error ? error.message : "Failed to list A2A tasks";
     return NextResponse.json({ error: message }, { status: 500 });

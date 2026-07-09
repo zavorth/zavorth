@@ -32,7 +32,7 @@ export class CodexModelCatalogAdapter {
         if (liveModels.length > 0) {
           return liveModels;
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return this.fallbackCatalog();
       }
     }

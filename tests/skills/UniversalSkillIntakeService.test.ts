@@ -159,7 +159,7 @@ describe('UniversalSkillIntakeService Intent model', () => {
     expect(preview.status).toBe('fail');
     expect(preview.summary.candidates).toBe(1);
     expect(preview.summary.blockedCandidates).toBe(1);
-    expect(preview.candidates[0]?.blockedReason).toContain('Chunk oversized-pack excedeu');
+    expect(preview.candidates[0]?.blockedReason).toContain('exceeded the');
     expect(JSON.stringify(preview)).toContain('zip-entry-limit');
     expect(preview.summary.importPerformed).toBe(false);
     expect(preview.summary.executionPerformed).toBe(false);
@@ -178,7 +178,7 @@ describe('UniversalSkillIntakeService Intent model', () => {
 
     expect(preview.status).toBe('pass');
     expect(preview.summary.blockedCandidates).toBe(0);
-    expect(JSON.stringify(preview)).not.toContain('Padrao explicito de exfiltracao');
+    expect(JSON.stringify(preview)).not.toContain('Explicit credential exfiltration');
   });
 
   it('still blocks explicit credential exfiltration instructions', async () => {
@@ -195,7 +195,7 @@ describe('UniversalSkillIntakeService Intent model', () => {
 
     expect(preview.status).toBe('fail');
     expect(preview.summary.blockedCandidates).toBe(1);
-    expect(preview.candidates[0]?.blockedReason).toContain('exfiltrar credenciais');
+    expect(preview.candidates[0]?.blockedReason).toContain('exfiltrate credentials');
   });
 
   it('scans large zip libraries in per-skill chunks without truncating safe entries', async () => {

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { execCommandSync } from '../../core/CommandSpawn.js';
 import type { SafeModificationService } from '../SafeModificationService.js';

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
@@ -68,7 +68,7 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
         const apiKey = process.env[provider.apiKeyEnv]!;
         const transcription = await callAudioProvider(provider, audioPath, 'auto', apiKey);
         lines.push('', 'Transcription:', transcription.slice(0, 1000));
-      } catch (error: unknown) {
+      } catch (error: any) {
         lines.push('', `Transcription error: ${error instanceof Error ? error.message : String(error)}`);
       }
     } else {
@@ -90,7 +90,7 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
     try {
       const apiKey = process.env[provider.apiKeyEnv]!;
       return await callAudioProvider(provider, audioPath, language, apiKey);
-    } catch (error) { logger.warn('[Zavorth Audio Analyzer] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Audio Analyzer] operation failed', error); return ''; }
   }
 
   private async detectSpeakers(audioPath: string): Promise<string> {

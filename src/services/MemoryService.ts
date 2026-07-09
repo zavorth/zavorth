@@ -71,6 +71,30 @@ export class MemoryService {
     this.ensureColumn('user_memory_history', 'archived_at', "TEXT NOT NULL DEFAULT (datetime('now'))");
     this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_history_user_key ON user_memory_history(user_id, key)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_history_archived_at ON user_memory_history(archived_at DESC)');
+    
+    // Nexo Cognitivo - MCC Schema
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS mcc_nodes (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        content TEXT NOT NULL,
+        embedding TEXT,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS mcc_edges (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        source_node_id TEXT NOT NULL,
+        target_node_id TEXT NOT NULL,
+        relation_type TEXT NOT NULL,
+        UNIQUE(source_node_id, target_node_id, relation_type)
+      )
+    `);
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_mcc_edges_source ON mcc_edges(source_node_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_mcc_edges_target ON mcc_edges(target_node_id)');
+
     this.initialized = true;
   }
 
@@ -459,7 +483,7 @@ export class MemoryService {
 
     try {
       return await this.embeddingService.generate(text);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Memory] creation failed', error);
     return this.buildEmbedding(text);
   }
@@ -485,7 +509,7 @@ export class MemoryService {
         .map((item) => Number(item))
         .filter((item) => Number.isFinite(item));
       return vector.length === VECTOR_DIMENSIONS ? vector : null;
-    } catch (error) { logger.warn('[Memory] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Memory] JSON parse failed', error); return null; }
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

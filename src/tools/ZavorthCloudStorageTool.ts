@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -101,7 +101,7 @@ export class ZavorthCloudStorageTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Cloud Storage] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Cloud Storage] process execution failed', error); return ''; }
   }
 
   private buildS3Uri(bucket: string, key: string): string {

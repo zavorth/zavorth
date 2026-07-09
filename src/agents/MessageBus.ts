@@ -408,7 +408,7 @@ export class MessageBus extends EventEmitter {
           this.log.error(`[MessageBus] Callback error for message ${message.id}: ${err}`);
         });
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       this.log.error(`[MessageBus] Callback error for message ${message.id}: ${err}`);
     }
   }

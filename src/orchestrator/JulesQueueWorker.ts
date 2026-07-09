@@ -69,7 +69,7 @@ export class JulesQueueWorker {
       }
 
       await this.pollTask(task);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.deps.log('error', 'JulesQueueWorker', error.message || 'Jules worker failed.');
     } finally {
       this.running = false;
@@ -172,7 +172,7 @@ export class JulesQueueWorker {
       };
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       task.metadata = {
         ...this.withQueueUnlocked(task.metadata),
         jules_delivery_retries: Number(task.metadata?.jules_delivery_retries || 0) + 1,
@@ -207,7 +207,7 @@ export class JulesQueueWorker {
           `Reason: ${task.error_summary || 'Unknown error.'}`,
         ].filter(Boolean).join('\n'),
       );
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.deps.log('warn', 'JulesQueueWorker', 'Failed to deliver Jules error.', {
         taskId: task.task_id,
         error: error.message || 'unknown',

@@ -184,7 +184,7 @@ export async function saveRequestUsage(entry: any) {
       entry.errorCode || null,
       timestamp
     );
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Failed to save usage stats:", error);
   }
 }
@@ -433,7 +433,7 @@ export async function getRecentLogs(limit = 200) {
       const status = typeof row.status === "number" ? row.status : String(row.status || "-");
       return `${timestamp} | ${model} | ${provider} | ${account} | ${tokensIn} | ${tokensOut} | ${status}`;
     });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[usageDb] Failed to read recent call logs:", error.message);
     return [];
   }

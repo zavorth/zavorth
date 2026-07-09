@@ -58,7 +58,7 @@ export class RuntimeOfficialRemoteAccessStateStore {
         ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE,
         ...(parsed as Partial<RuntimeOfficialRemotePersistedState>),
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Runtime Official Remote Access State Store] JSON parse failed', error);
     return { ...EMPTY_RUNTIME_OFFICIAL_REMOTE_STATE };
   }

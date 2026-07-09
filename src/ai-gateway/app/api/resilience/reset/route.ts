@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       resetCount,
       message: `Reset ${resetCount} circuit breaker(s)`,
     });
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     const message = err instanceof Error ? err.message : "Failed to reset resilience state";
     console.error("[API] POST /api/resilience/reset error:", err);
     return NextResponse.json({ error: message }, { status: 500 });

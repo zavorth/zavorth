@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { TenantBoundary, TenantContext } from './TenantContextService.js';
@@ -166,7 +166,7 @@ export class TenantRegistryService {
           }, {})
           : {},
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Tenant Registry] parsing failed', error);
     return { tenants: {} };
   }

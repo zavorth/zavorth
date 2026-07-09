@@ -31,7 +31,7 @@ export async function GET() {
 
     await jwtVerify(token, SECRET);
     return authJson({ authenticated: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] string operation failed', error);
     return authJson({ authenticated: false });
   }

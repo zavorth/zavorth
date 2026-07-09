@@ -31,7 +31,10 @@ export async function GET(request: Request) {
           const alias = PROVIDER_ID_TO_ALIAS[pId];
           if (alias) activeProviders.add(alias);
         }
-      } catch (error) { // If DB unavailable, show all models logger.warn('[route] operation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // If DB unavailable, show all models
+      logger.warn('[route] operation failed', error);
+    }
     }
 
     const models = AI_MODELS.map((m: any) => {
@@ -46,7 +49,7 @@ export async function GET(request: Request) {
     }).filter((m: any) => showAll || m.available);
 
     return NextResponse.json({ models });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching models:", error);
     return NextResponse.json({ error: "Failed to fetch models" }, { status: 500 });
   }
@@ -60,7 +63,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -95,7 +98,7 @@ export async function PUT(request) {
     await setModelAlias(model, alias);
 
     return NextResponse.json({ success: true, model, alias });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating alias:", error);
     return NextResponse.json({ error: "Failed to update alias" }, { status: 500 });
   }

@@ -78,7 +78,7 @@ export class InternalSurfaceApiService {
           approved: Boolean(request.approved),
         },
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (!swallowErrors) {
         throw error;
       }

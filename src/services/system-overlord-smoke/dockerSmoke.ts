@@ -204,7 +204,7 @@ export async function runDockerSmoke(input: {
       if (containerProvisionedBySmoke) {
         try {
           await removeDockerProbeContainer(container, input.executeSmokeAction);
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       }
     }
 
@@ -228,7 +228,7 @@ export async function runDockerSmoke(input: {
         if (!hasContainers) {
           await input.stopDockerDesktop();
         }
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
     }
   }
 }

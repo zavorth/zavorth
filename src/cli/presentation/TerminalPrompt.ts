@@ -14,7 +14,7 @@ export class TerminalPrompt {
         initial,
       });
       return response.value;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Terminal Prompt] filesystem check failed', error);
     // In case of Ctrl+C
       return false;
@@ -30,7 +30,7 @@ export class TerminalPrompt {
         initial,
       });
       return response.value;
-    } catch (error) { logger.warn('[Terminal Prompt] filesystem check failed', error); return ''; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Terminal Prompt] filesystem check failed', error); return ''; }
   }
 
   static async select<T extends string>(message: string, choices: T[]): Promise<T | null> {
@@ -42,6 +42,6 @@ export class TerminalPrompt {
         choices: choices as unknown as string[],
       });
       return response.value;
-    } catch (error) { logger.warn('[Terminal Prompt] filesystem check failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Terminal Prompt] filesystem check failed', error); return null; }
   }
 }

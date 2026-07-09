@@ -34,7 +34,7 @@ export async function POST(request) {
       message: "Cloud sync initialized successfully",
       modelSyncEnabled: true,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error initializing cloud sync:", error);
     return NextResponse.json(
       {

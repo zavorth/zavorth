@@ -176,7 +176,7 @@ export class ZavorthBridgeCliAdapter {
       try {
         await this.windowAutomator.switchModel(preferredModel, 1500, targetPid);
         await this.windowAutomator.verifyModel(preferredModel, 500, targetPid);
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         // Fallback once if model switch failed
         await this.companionBridge.executeCommand('workbench.action.closeAllEditors', [], undefined, 5000, targetInstanceId).catch(() => undefined);
         await this.companionBridge.executeCommand('zavorthBridge.openAgent', [], undefined, 5000, targetInstanceId).catch(() => undefined);

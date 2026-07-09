@@ -73,7 +73,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       expiresAt,
       refreshedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[T12] Token refresh failed:", error);
     return NextResponse.json(
       { error: "Token refresh failed", details: (error as Error).message },

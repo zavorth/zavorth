@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const status = await getCloudflaredTunnelStatus();
     return NextResponse.json(status);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       action: parsed.action,
       status,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return NextResponse.json(
       {

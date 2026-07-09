@@ -41,7 +41,7 @@ function getOrCreateFileKey(): string | null {
       return generated;
     }
     return fs.readFileSync(keyFile, 'utf8').trim() || null;
-  } catch (error: unknown) {
+  } catch (error: any) {
     logger.error(`Failed to read or create database key file: ${getErrorMessage(error)}`);
     return null;
   }
@@ -70,7 +70,7 @@ function resolveSqliteConstructor(mode: string, driverPackages: string[]): {
           reason: `loaded ${packageName}`,
         };
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       logger.debug(`Failed to load SQLite driver ${packageName}: ${getErrorMessage(error)}`);
     }
   }
@@ -127,11 +127,11 @@ export class Database {
         // Test query to verify key is correct and DB can be read
         dbInstance.prepare("PRAGMA user_version").get();
         openedWithKey = true;
-      } catch (error: unknown) {
+      } catch (error: any) {
         if (existedBefore && dbInstance) {
           try {
             dbInstance.close();
-          } catch (closeError: unknown) {
+          } catch (closeError: any) { const error = closeError; const err = closeError; const e = closeError;
             logger.error(`Failed to close database during migration failure: ${getErrorMessage(closeError)}`);
           }
         }
@@ -154,9 +154,9 @@ export class Database {
             applySqlCipherPragmas(dbInstance, key);
             dbInstance.prepare("PRAGMA user_version").get();
             openedWithKey = true;
-          } catch (migrationError: unknown) {
+          } catch (migrationError: any) { const error = migrationError; const err = migrationError; const e = migrationError;
             if (dbInstance) {
-              try { dbInstance.close(); } catch (closeError: unknown) {
+              try { dbInstance.close(); } catch (closeError: any) { const error = closeError; const err = closeError; const e = closeError;
                 logger.error(`Failed to close database during migration failure: ${getErrorMessage(closeError)}`);
               }
               dbInstance = null;
@@ -211,7 +211,7 @@ export class Database {
   public run(sql: string, params: unknown[] = []): void {
     try {
       this.db.prepare(sql).run(...params);
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       logger.error('SQL Error (RUN):', e, '\\nSQL:', sql);
       throw e;
     }
@@ -220,7 +220,7 @@ export class Database {
   public get<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T | undefined {
     try {
       return this.db.prepare(sql).get(...params) as T | undefined;
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       logger.error('SQL Error (GET):', e, '\\nSQL:', sql);
       throw e;
     }
@@ -229,7 +229,7 @@ export class Database {
   public all<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T[] {
     try {
       return this.db.prepare(sql).all(...params) as T[];
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       logger.error('SQL Error (ALL):', e, '\\nSQL:', sql);
       throw e;
     }
@@ -547,16 +547,28 @@ export class Database {
         updated_at TEXT NOT NULL
       )
     `);
+
+    this.run(`
+      CREATE TABLE IF NOT EXISTS git_file_locks (
+        filepath TEXT PRIMARY KEY,
+        subagent_id TEXT,
+        locked_at INTEGER,
+        expires_at INTEGER
+      )
+    `);
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName) || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(columnName)) {
+      throw new Error(`Invalid identifier in ensureColumn: ${tableName}.${columnName}`);
+    }
     const columns = this.all<{ name: string }>(`PRAGMA table_info(${tableName})`);
     if (columns.some((entry) => String(entry?.name || '').trim() === columnName)) {
       return;
     }
     try {
       this.run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = getErrorMessage(error).toLowerCase();
       if (message.includes('duplicate column name')) {
         return;
@@ -593,11 +605,11 @@ export class Database {
       // 4. Test integrity/access with the new key (the connection is already rekeyed)
       this.db.prepare('PRAGMA user_version').get();
       this.db.prepare('SELECT count(*) FROM snippets').get();
-    } catch (error: unknown) {
+    } catch (error: any) {
       // If rekey failed, restore journal mode and throw
       try {
         this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-      } catch (restoreError: unknown) {
+      } catch (restoreError: any) { const error = restoreError; const err = restoreError; const e = restoreError;
         logger.error(`Failed to restore journal mode after rekey failure: ${getErrorMessage(restoreError)}`);
       }
       throw new Error(`Failed to rotate database encryption key: ${getErrorMessage(error)}`);
@@ -606,7 +618,7 @@ export class Database {
     // 5. Restore the journal mode (typically WAL)
     try {
       this.db.pragma(`journal_mode = ${currentJournalMode || 'WAL'}`);
-    } catch (restoreError: unknown) {
+    } catch (restoreError: any) { const error = restoreError; const err = restoreError; const e = restoreError;
       logger.error(`Failed to restore journal mode after rekey: ${getErrorMessage(restoreError)}`);
     }
 
@@ -617,7 +629,7 @@ export class Database {
       try {
         fs.mkdirSync(path.dirname(keyFile), { recursive: true });
         fs.writeFileSync(keyFile, newKey, 'utf8');
-      } catch (fileError: unknown) {
+      } catch (fileError: any) { const error = fileError; const err = fileError; const e = fileError;
         logger.error(`Warning: Key rotated in database but failed to write to dbEncryptionKeyFile: ${getErrorMessage(fileError)}`);
       }
     }

@@ -63,7 +63,7 @@ export class RemoteModeManager {
           try {
             const parsed = JSON.parse(stdout.trim()) as RemoteModeResult;
             resolve(parsed);
-          } catch (parseError: any) {
+          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
             reject(new Error(`Failed to parse remote mode result: ${parseError.message}`));
           }
         },

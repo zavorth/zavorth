@@ -22,7 +22,7 @@ const readGlobalState = async () => {
   try {
     const content = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -33,7 +33,7 @@ const readSecrets = async () => {
   try {
     const content = await fs.readFile(SECRETS_PATH, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.code === "ENOENT") return {};
     throw error;
   }
@@ -98,7 +98,7 @@ export async function GET(request: Request) {
       globalStatePath: GLOBAL_STATE_PATH,
       secretsPath: SECRETS_PATH,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error checking cline settings:", error);
     return NextResponse.json({ error: "Failed to check cline settings" }, { status: 500 });
   }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       try {
         const keyRecord = await getApiKeyById(keyId);
         if (keyRecord?.key) apiKey = keyRecord.key as string;
-      } catch (error) { /* non-critical */ logger.warn('[route] validation failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] validation failed', error); }
     }
 
     // Ensure directory exists
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     try {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
-    } catch (error) { /* No existing config */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* No existing config */ logger.warn('[route] JSON parse failed', error); }
 
     // Normalize baseUrl - Cline expects the base without /v1
     const normalizedBaseUrl = baseUrl.endsWith("/v1") ? baseUrl.slice(0, -3) : baseUrl;
@@ -178,7 +178,7 @@ export async function POST(request: Request) {
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);
-    } catch (error) { /* No existing secrets */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* No existing secrets */ logger.warn('[route] JSON parse failed', error); }
 
     secrets.openAiApiKey = apiKey || "sk_ZavorthGateway";
 
@@ -187,14 +187,14 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("cline");
-    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Cline settings applied successfully!",
       globalStatePath: GLOBAL_STATE_PATH,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating cline settings:", error);
     return NextResponse.json({ error: "Failed to update cline settings" }, { status: 500 });
   }
@@ -220,7 +220,7 @@ export async function DELETE(request: Request) {
     try {
       const existing = await fs.readFile(GLOBAL_STATE_PATH, "utf-8");
       globalState = JSON.parse(existing);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code === "ENOENT") {
         return NextResponse.json({ success: true, message: "No settings file to reset" });
       }
@@ -244,7 +244,7 @@ export async function DELETE(request: Request) {
     try {
       const existing = await fs.readFile(SECRETS_PATH, "utf-8");
       secrets = JSON.parse(existing);
-    } catch (error) { /* ignore */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] JSON parse failed', error); }
 
     delete secrets.openAiApiKey;
     await fs.writeFile(SECRETS_PATH, JSON.stringify(secrets, null, 2));
@@ -252,13 +252,13 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("cline");
-    } catch (error) { /* non-critical */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] JSON parse failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed from Cline",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error resetting cline settings:", error);
     return NextResponse.json({ error: "Failed to reset cline settings" }, { status: 500 });
   }

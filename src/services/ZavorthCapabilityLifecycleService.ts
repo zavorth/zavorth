@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -238,7 +238,7 @@ export class ZavorthCapabilityLifecycleService {
         decisions: Array.isArray(parsed.decisions) ? parsed.decisions.map(normalizeDecision).filter(isDecision).slice(-MAX_DECISIONS) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Lifecycle] parsing failed', error);
     return this.emptyStore();
   }

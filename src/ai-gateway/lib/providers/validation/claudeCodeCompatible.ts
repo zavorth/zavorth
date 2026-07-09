@@ -46,7 +46,10 @@ export async function validateClaudeCodeCompatibleProvider({
     if (modelsRes.status === 401 || modelsRes.status === 403) {
       return invalidApiKey();
     }
-  } catch (error) { // Fall through to bridge request validation. logger.warn('[claude Code Compatible] network request failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Fall through to bridge request validation.
+      logger.warn('[claude Code Compatible] network request failed', error);
+    }
 
   const payload = buildClaudeCodeCompatibleValidationPayload(
     providerSpecificData?.validationModelId || "claude-sonnet-4-6"
@@ -92,7 +95,7 @@ export async function validateClaudeCodeCompatibleProvider({
       error: messagesRes.ok ? null : `Validation failed: ${messagesRes.status}`,
       method: "cc_bridge_request",
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[claude Code Compatible] load operation failed', error);
     return connectionFailed(error.message || "Connection failed");
   }

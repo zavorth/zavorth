@@ -166,7 +166,10 @@ export class GeminiVoiceService {
       if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error) { // ignore logger.warn('[Gemini Voice] file cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // ignore
+      logger.warn('[Gemini Voice] file cleanup failed', error);
+    }
   }
 }
 

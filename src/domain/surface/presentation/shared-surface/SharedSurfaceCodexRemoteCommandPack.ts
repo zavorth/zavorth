@@ -312,7 +312,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
         await ctx.reply(lines.join('\n'));
         return;
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${message}`);
     }
@@ -611,7 +611,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
           codexHome: String(parsed.codexHome || '').trim() || null,
           workspaceRoot: String(parsed.workspaceRoot || '').trim() || null,
         };
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : 'JSON invalido';
         throw new Error(`Payload de perfil invalido: ${message}.`);
       }

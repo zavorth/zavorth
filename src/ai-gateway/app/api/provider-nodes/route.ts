@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       nodes,
       ccCompatibleProviderEnabled: isCcCompatibleProviderEnabled(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching provider nodes:", error);
     return NextResponse.json({ error: "Failed to fetch provider nodes" }, { status: 500 });
   }
@@ -59,7 +59,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -124,7 +124,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ error: "Invalid provider node type" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error creating provider node:", error);
     return NextResponse.json({ error: "Failed to create provider node" }, { status: 500 });
   }

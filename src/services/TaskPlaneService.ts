@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -216,7 +216,7 @@ export class TaskPlaneService {
     try {
       const parsed = JSON.parse(fs.readFileSync(this.storePath, 'utf8')) as { items?: TaskPlaneItem[] };
       return { items: Array.isArray(parsed.items) ? parsed.items : [] };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Task Plane] JSON parse failed', error);
     return { items: [] };
   }

@@ -50,7 +50,7 @@ export class ShellNodeHostCommandRunner implements NodeHostCommandRunner {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
         finalize({
           ok: false,

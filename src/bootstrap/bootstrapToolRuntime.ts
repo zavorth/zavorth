@@ -3,6 +3,8 @@ import { TelemetryRuntimeService } from '../observability/telemetry/TelemetryRun
 import { McpCapabilityControlPlaneService } from '../services/McpCapabilityControlPlaneService.js';
 import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
+import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
+import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
 
 export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
@@ -87,10 +89,12 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   // ── Innovative tools ──
   const { ZavorthMcpMarketplaceTool } = require('../tools/ZavorthMcpMarketplaceTool.js');
+  const { ZavorthSkillMarketplaceTool } = require('../tools/ZavorthSkillMarketplaceTool.js');
   const { ZavorthAgentGovernanceTool } = require('../tools/ZavorthAgentGovernanceTool.js');
   const { ZavorthRagBuilderTool } = require('../tools/ZavorthRagBuilderTool.js');
   const { ZavorthAgentEvalTool } = require('../tools/ZavorthAgentEvalTool.js');
   const { ZavorthPrivacyVaultTool } = require('../tools/ZavorthPrivacyVaultTool.js');
+  const { ZavorthGitLockTool } = require('../tools/ZavorthGitLockTool.js');
 
   // ── Medium priority tools ──
   const { ZavorthMultiRepoTool } = require('../tools/ZavorthMultiRepoTool.js');
@@ -255,10 +259,12 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   toolRegistry.register(new ZavorthWebhookReceiverTool());
 
   toolRegistry.register(new ZavorthMcpMarketplaceTool());
+  toolRegistry.register(new ZavorthSkillMarketplaceTool());
   toolRegistry.register(new ZavorthAgentGovernanceTool());
   toolRegistry.register(new ZavorthRagBuilderTool());
   toolRegistry.register(new ZavorthAgentEvalTool());
   toolRegistry.register(new ZavorthPrivacyVaultTool());
+  toolRegistry.register(new ZavorthGitLockTool());
   toolRegistry.register(new ZavorthMultiRepoTool());
   toolRegistry.register(new ZavorthDocProviderTool());
   toolRegistry.register(new ZavorthPromptLibraryTool());
@@ -291,7 +297,13 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
 
   console.log('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
   const telemetryRuntime = new TelemetryRuntimeService();
-  const toolExecutor = new ToolExecutor(toolRegistry, logRepo, telemetryRuntime);
+  const hookPipelineService = new ToolHookPipelineService();
+  const memoryConsolidator = new ZavorthMemoryConsolidator(hookPipelineService);
+  memoryConsolidator.register();
+
+  const toolExecutor = new ToolExecutor(toolRegistry, logRepo, telemetryRuntime, {
+    hookPipelineService,
+  });
   const runtimeComposition = new RuntimeCompositionService({
     toolRegistry,
     toolExecutor,
@@ -353,7 +365,7 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   console.log('[BOOT] plugins-ready (55 services + 10 tools)');
 
   const dispose = () => {
-    try { kanbanDispatcher.close(); } catch { /* ignore */ }
+    try { kanbanDispatcher.close(); } catch (error: any) { const err = error; const e = error; /* ignore */ }
   };
 
   return {

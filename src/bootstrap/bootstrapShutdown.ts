@@ -12,7 +12,7 @@ export function registerShutdownHandlers(
   surfaceRuntime: BootstrapSurfaceRuntime,
   supervisor: BootstrapSupervisor,
 ): void {
-  const shutdown = async () => {
+  const shutdown = async (signal?: string) => {
     foundation.logRepo.log('info', 'System', 'Encerrando Zavorth V2...');
     supervisor.clear();
     foundation.stopRuntimeMaintenance();
@@ -61,8 +61,19 @@ export function registerShutdownHandlers(
     process.exit(0);
   };
 
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
+  // Re-entrancy guard to prevent double-shutdown on rapid Ctrl+C
+  let shutdownInProgress = false;
+  const guardedShutdown = async (signal: string) => {
+    if (shutdownInProgress) {
+      console.log(`\n${signal} received again — forcing exit.`);
+      process.exit(1);
+    }
+    shutdownInProgress = true;
+    await shutdown(signal);
+  };
+
+  process.on('SIGINT', (sig) => guardedShutdown(sig));
+  process.on('SIGTERM', (sig) => guardedShutdown(sig));
 }
 
 function describeError(error: unknown): string {

@@ -134,7 +134,7 @@ export class AgentRunAutomaticSkillInvocationService {
           : `Auto-selected governed skill "${selectedSkill.name}" em modo dry-run.`,
         skillCount: skills.length,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return this.finalizeSnapshot({
         run: input.run,
         generatedAt,

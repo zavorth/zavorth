@@ -5,6 +5,12 @@ import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { browseHistoryBack, browseHistoryForward, pushToHistory } from '../store/composer';
 import { ModelPickerDialog } from '../components/ModelPickerDialog';
 import { AtCompletions } from '../components/AtCompletions';
+import { t } from '../i18n';
+import { canSubmitNow, type QueuedPrompt } from './composerQueue';
+import { clearDraft, getDraft, saveDraft } from './composerDrafts';
+import { ComposerStatusStack } from './ComposerStatusStack';
+import { ContextMeterBar } from './ContextMeterBar';
+import { ComposerQueuePanel } from './ComposerQueuePanel';
 
 const effortOptions = [
   { value: 'low', label: 'Low', description: 'Fast answers, lower cost.' },
@@ -12,6 +18,14 @@ const effortOptions = [
   { value: 'high', label: 'High', description: 'More reasoning for difficult tasks.' },
   { value: 'ultra', label: 'Very High', description: 'Maximum depth when extra cost is worthwhile.' },
 ];
+
+function storageOrNull(): Storage | null {
+  try {
+    return typeof localStorage !== 'undefined' ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
 
 export function DesktopCommandBar(props: {
   busy: boolean;
@@ -29,8 +43,23 @@ export function DesktopCommandBar(props: {
   onStop(): void;
   onSubmit(value?: string): void | Promise<void>;
   onVoice?(): void;
+  voiceListening?: boolean;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
+  /** Context meter + status */
+  messages?: Array<{ content?: string }>;
+  pendingApprovals?: number;
+  activeToolCount?: number;
+  streamingAssistant?: boolean;
+  lastError?: string | null;
+  justCompleted?: boolean;
+  /** Queue when agent is busy */
+  queue?: QueuedPrompt[];
+  onQueuePrompt?(text: string): void;
+  onQueueRemove?(id: string): void;
+  onQueueClear?(): void;
+  /** Per-session drafts */
+  sessionId?: string;
 }) {
   const [modelOpen, setModelOpen] = useState(false);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
@@ -38,18 +67,38 @@ export function DesktopCommandBar(props: {
   const modelMenuRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const workspaceMenuRef = useRef<HTMLDivElement>(null);
-  const activeModel = useMemo(
-    () => props.modelOptions.find(model => model.id === props.selectedModel) || props.modelOptions[0],
-    [props.modelOptions, props.selectedModel],
-  );
+  const lastSessionIdRef = useRef<string | undefined>(undefined);
+  const skipDraftSaveRef = useRef(false);
+
+  const messages = props.messages ?? [];
+  const pendingApprovals = props.pendingApprovals ?? 0;
+  const queue = props.queue ?? [];
+
+  const activeModel = useMemo(() => {
+    return (props.modelOptions || []).find(model => model.id === props.selectedModel) || props.modelOptions?.[0];
+  }, [props.modelOptions, props.selectedModel]);
   const activeEffort = effortOptions.find(option => option.value === props.effort) || effortOptions[1];
   const modelFamilies = useMemo(() => {
     const groups = new Map<string, ModelOption[]>();
-    for (const model of props.modelOptions) {
+    for (const model of props.modelOptions || []) {
       groups.set(model.family, [...(groups.get(model.family) || []), model]);
     }
     return Array.from(groups.entries());
   }, [props.modelOptions]);
+
+  // Load draft when session changes
+  useEffect(() => {
+    const sid = props.sessionId ? String(props.sessionId).trim() : '';
+    if (!sid) {
+      lastSessionIdRef.current = undefined;
+      return;
+    }
+    if (lastSessionIdRef.current === sid) return;
+    lastSessionIdRef.current = sid;
+    const draft = getDraft(storageOrNull(), sid);
+    skipDraftSaveRef.current = true;
+    props.onChange(draft);
+  }, [props.sessionId, props.onChange]);
 
   useEffect(() => {
     if (!modelOpen && !workspaceOpen) {
@@ -81,13 +130,50 @@ export function DesktopCommandBar(props: {
       document.removeEventListener('keydown', closeOnEscape);
     };
   }, [modelOpen, workspaceOpen]);
+
+  function handleChange(next: string) {
+    props.onChange(next);
+    if (skipDraftSaveRef.current) {
+      skipDraftSaveRef.current = false;
+      return;
+    }
+    const sid = props.sessionId ? String(props.sessionId).trim() : '';
+    if (sid) {
+      saveDraft(storageOrNull(), sid, next);
+    }
+  }
+
+  function clearDraftForSession() {
+    const sid = props.sessionId ? String(props.sessionId).trim() : '';
+    if (sid) {
+      clearDraft(storageOrNull(), sid);
+    }
+  }
+
+  function trySendOrQueue() {
+    const value = props.value.trim();
+    if (!value) return;
+
+    if (props.busy) {
+      if (!props.onQueuePrompt) return;
+      const mode = canSubmitNow(true, queue.length);
+      if (mode === 'blocked') return;
+      pushToHistory(value);
+      props.onQueuePrompt(value);
+      skipDraftSaveRef.current = true;
+      props.onChange('');
+      clearDraftForSession();
+      return;
+    }
+
+    pushToHistory(value);
+    clearDraftForSession();
+    void props.onSubmit(value);
+  }
+
   function submit(event: FormEvent) {
     event.preventDefault();
-    const value = props.value.trim();
-    if (!props.busy && value) {
-      pushToHistory(value);
-      void props.onSubmit(value);
-    }
+    trySendOrQueue();
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -97,24 +183,20 @@ export function DesktopCommandBar(props: {
     }
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      const value = props.value.trim();
-      if (!props.busy && value) {
-        pushToHistory(value);
-        void props.onSubmit(value);
-      }
+      trySendOrQueue();
     }
     if (event.key === 'ArrowUp' && event.currentTarget.selectionStart === 0) {
       const prev = browseHistoryBack();
       if (prev !== null) {
         event.preventDefault();
-        props.onChange(prev);
+        handleChange(prev);
       }
     }
     if (event.key === 'ArrowDown' && event.currentTarget.selectionStart === props.value.length) {
       const next = browseHistoryForward();
       if (next !== null) {
         event.preventDefault();
-        props.onChange(next);
+        handleChange(next);
       }
     }
   }
@@ -136,7 +218,7 @@ export function DesktopCommandBar(props: {
           if (dataUrl) {
             const currentInput = props.value;
             const newRef = `@image:"${dataUrl}"`;
-            props.onChange(currentInput ? `${currentInput} ${newRef}` : newRef);
+            handleChange(currentInput ? `${currentInput} ${newRef}` : newRef);
           }
         };
         reader.readAsDataURL(file);
@@ -148,9 +230,24 @@ export function DesktopCommandBar(props: {
 
   return (
     <form className="zvd-composer-shell" onSubmit={submit} aria-label="Chat composer">
+      <ComposerStatusStack
+        busy={props.busy}
+        pendingApprovals={pendingApprovals}
+        activeToolCount={props.activeToolCount}
+        streamingAssistant={props.streamingAssistant}
+        lastError={props.lastError}
+        justCompleted={props.justCompleted}
+      />
+
+      <ComposerQueuePanel
+        queue={queue}
+        onRemove={id => props.onQueueRemove?.(id)}
+        onClear={() => props.onQueueClear?.()}
+      />
+
       <AtCompletions
         value={props.value}
-        onChange={props.onChange}
+        onChange={handleChange}
         textareaRef={textareaRef}
         workspacePath={props.workspaceScope.path}
         workspaceId={props.workspaceScope.id}
@@ -158,8 +255,8 @@ export function DesktopCommandBar(props: {
       <textarea
         ref={textareaRef}
         value={props.value}
-        onChange={event => props.onChange(event.target.value)}
-        placeholder="Ask anything"
+        onChange={event => handleChange(event.target.value)}
+        placeholder={t('composer.placeholder')}
         rows={2}
         onKeyDown={onKeyDown}
         onPaste={onPaste}
@@ -182,6 +279,8 @@ export function DesktopCommandBar(props: {
             Custom
             <ChevronDown aria-hidden="true" size={14} stroke={2} />
           </button>
+
+          <ContextMeterBar messages={messages} />
         </div>
 
         <div className="zvd-composer-controls-right">
@@ -214,9 +313,10 @@ export function DesktopCommandBar(props: {
 
           <button
             type="button"
-            className="zvd-composer-icon-btn"
-            aria-label="Voice input"
-            title="Voice input"
+            className={`zvd-btn zvd-btn-icon zvd-btn-ghost zvd-composer-icon-btn ${props.voiceListening ? 'is-listening' : ''}`}
+            aria-label={props.voiceListening ? t('composer.voiceStop') : t('composer.voice')}
+            title={props.voiceListening ? t('composer.voiceStop') : t('composer.voice')}
+            aria-pressed={Boolean(props.voiceListening)}
             onClick={props.onVoice}
           >
             <Mic aria-hidden="true" size={17} stroke={1.75} />
@@ -226,9 +326,9 @@ export function DesktopCommandBar(props: {
             type={props.busy ? 'button' : 'submit'}
             onClick={props.busy ? props.onStop : undefined}
             disabled={!props.busy && !canSend}
-            className={`zvd-composer-send-btn ${props.busy ? 'is-stop' : ''}`}
-            aria-label={props.busy ? 'Stop response' : 'Send message'}
-            title={props.busy ? 'Stop response' : 'Send message'}
+            className={`zvd-btn zvd-btn-icon zvd-composer-send-btn ${props.busy ? 'is-stop zvd-btn-destructive' : 'zvd-btn-default'}`}
+            aria-label={props.busy ? t('composer.stop') : t('composer.send')}
+            title={props.busy ? t('composer.stop') : t('composer.send')}
           >
             {props.busy ? <Stop aria-hidden="true" size={18} stroke={2} /> : <Send aria-hidden="true" size={18} stroke={2} />}
           </button>

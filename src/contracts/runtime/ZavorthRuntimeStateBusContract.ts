@@ -38,7 +38,78 @@ export type ZavorthRuntimeStateActionType =
   | 'register-personal-connector'
   | 'set-mcp-trust'
   | 'recover-scheduled-jobs'
-  | 'resume-stream';
+  | 'resume-stream'
+  | 'workboard-sync';
+
+export type ZavorthRuntimeWorkboardTaskStatus =
+  | 'queued'
+  | 'claimed'
+  | 'running'
+  | 'blocked'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+export type ZavorthRuntimeWorkboardTask = {
+  taskId: string;
+  sessionId: string;
+  parentTaskId: string | null;
+  title: string;
+  status: ZavorthRuntimeWorkboardTaskStatus;
+  risk: string | null;
+  claimedBy: string | null;
+  heartbeatAt: string | null;
+  blockedReason: string | null;
+  summary: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export type ZavorthRuntimeWorkboardState = {
+  updatedAt: string;
+  source: string | null;
+  selectedTaskId: string | null;
+  selectedTask: ZavorthRuntimeWorkboardTask | null;
+  sessions: Array<{
+    sessionId: string;
+    objective: string;
+    status: string;
+    maxDepth: number;
+    maxChildren: number;
+  }>;
+  tasks: ZavorthRuntimeWorkboardTask[];
+  workers: Array<{
+    workerId: string;
+    status: 'busy' | 'idle' | 'expired';
+    currentTaskId: string | null;
+  }>;
+  receipts: Array<{
+    receiptId: string;
+    action: string;
+    taskId: string | null;
+    workerId: string | null;
+    status: string;
+  }>;
+  boards: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    columns: Array<{ id: string; name: string; order?: number; color?: string }>;
+  }>;
+  summary: {
+    sessions: number;
+    queued: number;
+    running: number;
+    completed: number;
+    blocked: number;
+  };
+  safety: {
+    sqliteDurable: true;
+    mutationRequiresApproval: true;
+    retryBounded: true;
+    spawnDepthBounded: true;
+  };
+};
 
 export type ZavorthRuntimeStateReceiptStatus =
   | 'preview'
@@ -284,6 +355,7 @@ export type ZavorthRuntimeStateBusState = {
     entries: ZavorthRuntimeSkillHistoryEntry[];
   };
   streamSession: ZavorthRuntimeStreamSession;
+  workboard: ZavorthRuntimeWorkboardState;
 };
 
 export type ZavorthRuntimeStateBusProjection = {
@@ -333,6 +405,7 @@ export type ZavorthRuntimeStateBusProjection = {
     entries: ZavorthRuntimeSkillHistoryEntry[];
   };
   streamSession: ZavorthRuntimeStreamSession;
+  workboard: ZavorthRuntimeWorkboardState;
 };
 
 export type ZavorthRuntimeStateBusSnapshot = {
@@ -374,6 +447,10 @@ export type ZavorthRuntimeStateBusActionInput = {
     mcpTrust?: unknown;
     scheduledJobs?: unknown;
     streamSession?: unknown;
+    workboard?: unknown;
+    operation?: unknown;
+    board?: unknown;
+    card?: unknown;
     metadata?: unknown;
   } | null;
 };

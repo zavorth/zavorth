@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -247,7 +247,7 @@ export class SkinEngineService {
       try {
         const skin = JSON.parse(fs.readFileSync(path.join(skinsDir, file), 'utf-8'));
         this.userSkins.set(skin.id, skin);
-      } catch (error) { /* ignore */ logger.warn('[Skin Engine] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Skin Engine] JSON parse failed', error); }
     }
   }
 
@@ -257,7 +257,7 @@ export class SkinEngineService {
       try {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
         this.activeSkinId = config.active_skin || 'default';
-      } catch (error) { /* ignore */ logger.warn('[Skin Engine] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Skin Engine] JSON parse failed', error); }
     }
   }
 
@@ -311,7 +311,7 @@ export class SkinEngineService {
     let skin: SkinDefinition;
     try {
       skin = JSON.parse(skinJson);
-    } catch (error) { logger.warn('[Skin Engine] JSON parse failed', error); return 'Error: invalid skin JSON.'; }
+    } catch (error: any) { logger.warn('[Skin Engine] JSON parse failed', error); return 'Error: invalid skin JSON.'; }
 
     if (!skin.id || !skin.name) {
       return 'Error: skin must have "id" and "name".';

@@ -77,7 +77,7 @@ export class TelegramIntentClassifier {
       }
 
       return { type: 'unknown' };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Telegram  Classifier] parsing failed', error);
     return { type: 'unknown' };
   }
@@ -88,7 +88,7 @@ export class TelegramIntentClassifier {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) return null;
       return JSON.parse(jsonMatch[0]);
-    } catch (error) { logger.warn('[Telegram  Classifier] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Telegram  Classifier] JSON parse failed', error); return null; }
   }
 
   private isValidIntent(intent: unknown): intent is ClassifiedIntent {

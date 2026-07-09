@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ metrics });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[providers/metrics] Error:", error);
     return NextResponse.json({ metrics: {} });
   }

@@ -124,7 +124,7 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
@@ -212,7 +212,7 @@ export class EchoVisionAnalysisService {
         rawResponse: result.response.content || null,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
@@ -272,7 +272,7 @@ export class EchoVisionAnalysisService {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch (error) { logger.warn('[Vision Analysis] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Vision Analysis] JSON parse failed', error); return null; }
   }
 
   private normalizeConfidence(value: unknown): number {

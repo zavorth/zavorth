@@ -105,7 +105,7 @@ export function decrypt(ciphertext: string | null | undefined): string | null | 
     let decrypted = decipher.update(encryptedHex, "hex", "utf8");
     decrypted += decipher.final("utf8");
     return decrypted;
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     const message = err instanceof Error ? err.message : String(err);
     console.error("[Encryption] Decryption failed:", message);
     return ciphertext;

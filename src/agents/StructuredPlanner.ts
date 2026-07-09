@@ -103,7 +103,7 @@ export class StructuredPlanner {
           fallbackUsed: providerName !== providerDecision.providerName,
           decisionTrace,
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Structured Planner] validation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
@@ -190,7 +190,7 @@ export class StructuredPlanner {
         return JSON.parse(match[0]);
       }
       return JSON.parse(cleanText);
-    } catch (error) { logger.warn('[Structured Planner] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Structured Planner] JSON parse failed', error); return null; }
   }
 
   private isProviderAvailable(name: string): boolean {

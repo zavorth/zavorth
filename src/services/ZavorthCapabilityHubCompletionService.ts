@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import {
   CAPABILITY_HUB_COMPLETION_CONTRACT_VERSION,
@@ -239,7 +239,7 @@ export class ZavorthCapabilityHubCompletionService {
         completedManualSteps: ['review scope and approval budget'],
         completedReadinessChecks: ['release-readiness-readiness', 'artifact-receipt-policy'],
       });
-    } catch (error) {
+    } catch (error: any) {
       if (!/already exists/i.test(error instanceof Error ? error.message : String(error))) {
         throw error;
       }

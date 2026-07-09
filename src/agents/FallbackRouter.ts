@@ -11,7 +11,7 @@ export class FallbackRouter {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         return await planner.generatePlan(task);
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         logRepo.log(
           'warn',
           'FallbackRouter',

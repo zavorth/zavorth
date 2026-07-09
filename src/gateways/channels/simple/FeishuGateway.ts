@@ -100,7 +100,7 @@ export class FeishuGateway extends WebhookGateway {
     try {
       const parsed = JSON.parse(content);
       rawText = String(parsed.text || '').trim();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       rawText = String(
         message?.content
         || payload.text
@@ -155,7 +155,7 @@ export class FeishuGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.recordError(`Feishu send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

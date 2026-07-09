@@ -139,7 +139,7 @@ export class ZaloGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.recordError(`Zalo send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

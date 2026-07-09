@@ -44,7 +44,7 @@ export async function getUsageStats() {
   try {
     const loadedConnections = await getProviderConnections();
     allConnections = Array.isArray(loadedConnections) ? loadedConnections : [];
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
   const connectionMap: Record<string, string> = {};
   for (const connRaw of allConnections) {

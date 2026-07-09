@@ -18,7 +18,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
@@ -45,7 +45,7 @@ export async function POST(request) {
       success: true,
       format,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error detecting format:", error);
     return NextResponse.json({ success: false, error: "Failed to detect format" }, { status: 500 });
   }

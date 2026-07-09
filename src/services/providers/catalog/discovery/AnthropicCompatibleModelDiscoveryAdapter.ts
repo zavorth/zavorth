@@ -1,4 +1,4 @@
-import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
+﻿import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
 import { assertProviderRequestTargetAllowed } from '../../../../ai-gateway/lib/security/egressGuard.js';
 import { logger } from '../../../../logger';
 
@@ -46,7 +46,7 @@ export class AnthropicCompatibleModelDiscoveryAdapter {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Anthropic Compatible Model Discovery Adapter] network request failed', error);
     return {
         source: 'fallback_catalog',

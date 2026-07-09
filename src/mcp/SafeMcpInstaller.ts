@@ -357,7 +357,7 @@ export class SafeMcpInstaller {
       });
       this.runtime.manifestStore.save(nextManifest);
       this.runtime.policyStore.save(nextPolicy);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return this.failed(serverId, risk, discovery, `Audit or persistence failed: ${sanitizeMcpInstallText(error instanceof Error ? error.message : String(error))}.`);
     }
 

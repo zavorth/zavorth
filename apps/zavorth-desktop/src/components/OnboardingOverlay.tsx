@@ -1,30 +1,93 @@
 import { useState, useEffect } from 'react';
-import { IconSparkles, IconCheck, IconServer, IconChevronRight, IconLoader2, IconAlertCircle } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconServer,
+  IconChevronRight,
+  IconChevronLeft,
+  IconLoader2,
+  IconAlertCircle,
+  IconShieldCheck,
+  IconBroadcast,
+  IconMessageCircle,
+} from '@tabler/icons-react';
 import { ProviderSecretInput } from './ProviderSecretInput';
+import { apiRequest } from '../apiClient';
+import { t } from '../i18n';
+import {
+  DESKTOP_ONBOARDING_TRAIL,
+  DESKTOP_ONBOARDING_STARTER_ASK,
+  DESKTOP_TRUST_MODE_KEY,
+  buildProviderConnectionRequest,
+  buildModelRoutingRequest,
+  normalizeSelectableModels,
+  markOnboardingComplete,
+  isOnboardingComplete,
+  setTrustedOperatorHint,
+  getTrustedOperatorHint,
+  markOnboardingCelebration,
+  type DesktopOnboardingProvider,
+  type DesktopOnboardingStepId,
+} from '../onboarding/desktopOnboarding';
 
 interface OnboardingOverlayProps {
   isOpen: boolean;
-  onCompleted: () => void;
+  onCompleted: (notice?: string) => void;
+  onSkip?: () => void;
+  onStartWithSuggestion?(text: string): void;
+  onEnableTrustedOperator?(enabled: boolean): void;
 }
 
-type ProviderType = 'openai' | 'anthropic' | 'google' | 'openrouter' | 'ollama';
+type ProviderType = DesktopOnboardingProvider;
+type ProviderPhase = 'pick' | 'credentials' | 'model';
 
-export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProps) {
-  const [step, setStep] = useState(1);
+function errorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error && err.message) return err.message;
+  if (typeof err === 'string' && err.trim()) return err;
+  return fallback;
+}
+
+function trailLabel(id: DesktopOnboardingStepId): string {
+  switch (id) {
+    case 'provider':
+      return t('onboarding.stepProvider');
+    case 'trust':
+      return t('onboarding.stepTrust');
+    case 'channel':
+      return t('onboarding.stepChannel');
+    case 'first-ask':
+      return t('onboarding.stepFirstAsk');
+    default:
+      return id;
+  }
+}
+
+export function OnboardingOverlay({
+  isOpen,
+  onCompleted,
+  onSkip,
+  onStartWithSuggestion,
+  onEnableTrustedOperator,
+}: OnboardingOverlayProps) {
+  const [trailIndex, setTrailIndex] = useState(0);
+  const [providerPhase, setProviderPhase] = useState<ProviderPhase>('pick');
   const [providerType, setProviderType] = useState<ProviderType>('openai');
   const [apiKey, setApiKey] = useState('');
   const [baseUrl, setBaseUrl] = useState('https://api.openai.com/v1');
   const [displayName, setDisplayName] = useState('OpenAI');
-  
+
   const [loading, setLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [testing, setTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [models, setModels] = useState<any[]>([]);
+  const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
+  const [trustedOperator, setTrustedOperator] = useState(() => getTrustedOperatorHint());
+
+  const trailStep = DESKTOP_ONBOARDING_TRAIL[trailIndex] ?? DESKTOP_ONBOARDING_TRAIL[0];
+  const starterAsk = t('onboarding.firstAskStarter') || DESKTOP_ONBOARDING_STARTER_ASK;
 
   useEffect(() => {
-    if (localStorage.getItem('zvd:onboarded') === 'true') {
+    if (isOnboardingComplete()) {
       onCompleted();
     }
   }, [onCompleted]);
@@ -60,13 +123,13 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
     try {
       const res = await window.zavorthDesktop?.connectGooglePersonalOps();
       if (res?.ok) {
-        setTestResult({ ok: true, message: 'Google Personal Ops conectado!' });
-        setStep(3);
+        setTestResult({ ok: true, message: t('onboarding.providerConnected') });
+        setProviderPhase('model');
       } else {
         throw new Error(res?.error || 'Connection failed.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Google authentication error.');
+    } catch (err: unknown) {
+      setError(errorMessage(err, t('onboarding.providerAuthError')));
     } finally {
       setLoading(false);
     }
@@ -77,484 +140,487 @@ export function OnboardingOverlay({ isOpen, onCompleted }: OnboardingOverlayProp
     setTestResult(null);
     setError(null);
     try {
-      const res = await fetch('/api/v2/providers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: providerType,
-          displayName,
-          baseUrl,
-          requiresApiKey: providerType !== 'ollama',
-          apiKey: providerType !== 'ollama' ? apiKey : undefined,
-          enabled: true,
-        }),
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error);
-
-      const providerId = data.data?.providerId;
-      if (!providerId) throw new Error('Falha ao obter ID do provider.');
-
-      const testRes = await fetch('/api/v2/providers/test-connection', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerId }),
-      });
-      const testData = await testRes.json();
-      
-      if (testData.ok && testData.data?.ok) {
-        setTestResult({ ok: true, message: 'Conectado com sucesso!' });
-        
-        const capRes = await fetch('/api/runtime/capabilities');
-        const capData = await capRes.json();
-        if (capData.ok && capData.data?.providers?.selectableModelIds) {
-          const mIds: string[] = capData.data.providers.selectableModelIds;
-          const filtered = mIds.filter(id => id.startsWith(providerType));
-          setModels(filtered);
-          if (filtered.length > 0) {
-            setSelectedModel(filtered[0]);
-          }
-        }
-        
-        setTimeout(() => setStep(3), 1000);
-      } else {
-        throw new Error(testData.data?.message || testData.error || 'Connection failed.');
+      if (!window.zavorthDesktop?.apiRequest) {
+        throw new Error(t('onboarding.bridgeUnavailable'));
       }
-    } catch (err: any) {
-      setError(err.message || 'Falha ao salvar ou testar.');
-      setTestResult({ ok: false, message: err.message });
+
+      const providerRequest = buildProviderConnectionRequest({
+        type: providerType,
+        displayName,
+        baseUrl,
+        apiKey: providerType !== 'ollama' ? apiKey : undefined,
+      });
+      const createResult = await apiRequest<{ providerId?: string; data?: { providerId?: string } }>(providerRequest);
+      if (!createResult.ok) {
+        throw new Error(createResult.error || t('onboarding.providerSaveFailed'));
+      }
+
+      const created = createResult.data as { providerId?: string; data?: { providerId?: string } } | null;
+      const providerId = String(created?.providerId || created?.data?.providerId || '').trim();
+      if (!providerId) {
+        throw new Error(t('onboarding.providerIdFailed'));
+      }
+
+      const testResultApi = await apiRequest<{ ok?: boolean; message?: string; data?: { ok?: boolean; message?: string } }>({
+        method: 'POST',
+        path: '/api/v2/providers/test-connection',
+        body: { providerId },
+        timeoutMs: 30000,
+      });
+      const testPayload = testResultApi.data as { ok?: boolean; message?: string; data?: { ok?: boolean; message?: string } } | null;
+      const testOk = Boolean(testResultApi.ok && (testPayload?.ok || testPayload?.data?.ok || testPayload?.data === undefined));
+      if (!testOk && testResultApi.ok === false) {
+        throw new Error(testResultApi.error || testPayload?.message || testPayload?.data?.message || 'Connection failed.');
+      }
+
+      setTestResult({
+        ok: true,
+        message: testPayload?.message || testPayload?.data?.message || t('onboarding.providerConnected'),
+      });
+
+      const capResult = await apiRequest<{ providers?: { selectableModelIds?: string[] }; data?: unknown }>({
+        method: 'GET',
+        path: '/api/runtime/capabilities',
+        timeoutMs: 15000,
+      });
+      const filtered = normalizeSelectableModels(capResult.data, providerType);
+      const rawIds = Array.isArray((capResult.data as { providers?: { selectableModelIds?: unknown } } | null)?.providers?.selectableModelIds)
+        ? ((capResult.data as { providers: { selectableModelIds: unknown[] } }).providers.selectableModelIds as unknown[])
+            .filter((id): id is string => typeof id === 'string')
+        : filtered;
+      const resolvedModels = filtered.length > 0
+        ? filtered
+        : rawIds.filter(id => id.includes(providerType) || id.startsWith(`${providerType}:`));
+      setModels(resolvedModels);
+      if (resolvedModels.length > 0) {
+        setSelectedModel(resolvedModels[0]);
+      }
+
+      setTimeout(() => setProviderPhase('model'), 500);
+    } catch (err: unknown) {
+      const message = errorMessage(err, t('onboarding.providerTestFailed'));
+      setError(message);
+      setTestResult({ ok: false, message });
     } finally {
       setTesting(false);
     }
   };
 
-  const handleFinish = async () => {
+  const applyTrustedOperator = (enabled: boolean) => {
+    setTrustedOperator(enabled);
+    setTrustedOperatorHint(enabled);
+    onEnableTrustedOperator?.(enabled);
+  };
+
+  const advanceTrail = () => {
+    setError(null);
+    setTrailIndex(prev => Math.min(prev + 1, DESKTOP_ONBOARDING_TRAIL.length - 1));
+  };
+
+  const goBack = () => {
+    setError(null);
+    if (trailStep.id === 'provider') {
+      if (providerPhase === 'model') {
+        setProviderPhase('credentials');
+        return;
+      }
+      if (providerPhase === 'credentials') {
+        setProviderPhase('pick');
+        return;
+      }
+      return;
+    }
+    setTrailIndex(prev => Math.max(prev - 1, 0));
+  };
+
+  const finishOnboarding = async (opts?: { startWithSuggestion?: boolean }) => {
     setLoading(true);
+    setError(null);
     try {
       if (selectedModel) {
-        await fetch('/api/experience/runtime-state/action', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'route-model',
-            approved: true,
-            sessionId: 'desktop-main',
-            source: 'zavorth-desktop-onboarding',
-            payload: {
-              dynamicRouting: {
-                modelId: selectedModel,
-                providerId: providerType,
-                intent: 'onboarding-picker',
-                reason: 'Onboarding selection',
-                fallbackModelIds: models.filter(id => id !== selectedModel),
-                risk: 'low',
-              },
-            },
-          }),
+        const routeRequest = buildModelRoutingRequest({
+          selectedModel,
+          providerType,
+          fallbackModelIds: models.filter(id => id !== selectedModel),
         });
+        const routeResult = await apiRequest(routeRequest);
+        if (!routeResult.ok) {
+          throw new Error(routeResult.error || t('onboarding.modelRouteFailed'));
+        }
       }
-      localStorage.setItem('zvd:onboarded', 'true');
-      onCompleted();
-    } catch (err: any) {
-      setError(err.message || 'Falha ao concluir onboarding.');
+
+      // Persist trust hint as last-known preference
+      setTrustedOperatorHint(trustedOperator);
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(DESKTOP_TRUST_MODE_KEY, trustedOperator ? 'true' : 'false');
+      }
+      onEnableTrustedOperator?.(trustedOperator);
+
+      markOnboardingComplete();
+      markOnboardingCelebration();
+
+      const notice = t('onboarding.celebration');
+      onCompleted(notice);
+
+      if (opts?.startWithSuggestion && onStartWithSuggestion) {
+        onStartWithSuggestion(starterAsk);
+      }
+    } catch (err: unknown) {
+      setError(errorMessage(err, t('onboarding.finishFailed')));
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSkip = () => {
+    if (onSkip) {
+      onSkip();
+      return;
+    }
+    markOnboardingComplete();
+    onCompleted(t('onboarding.celebration'));
+  };
+
+  const canGoBack =
+    trailIndex > 0 || (trailStep.id === 'provider' && providerPhase !== 'pick');
+
+  const providerNames: Record<ProviderType, string> = {
+    openai: 'OpenAI',
+    anthropic: 'Anthropic',
+    google: 'Google Gemini',
+    openrouter: 'OpenRouter',
+    ollama: 'Ollama (Local)',
+  };
+
   return (
-    <div className="zvd-onboarding-overlay">
-      <style>{`
-        .zvd-onboarding-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background: #0f0f10;
-          z-index: 999999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #f5f5f7;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          animation: zvdFadeIn 300ms ease;
-        }
-        .zvd-onboarding-card {
-          background: #18181a;
-          border: 1px solid #27272a;
-          border-radius: 20px;
-          width: 90%;
-          max-width: 580px;
-          min-height: 480px;
-          display: flex;
-          flex-direction: column;
-          box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-          overflow: hidden;
-          animation: zvdPopUp 400ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .zvd-onboarding-header {
-          padding: 30px 40px;
-          border-bottom: 1px solid #27272a;
-          text-align: center;
-        }
-        .zvd-onboarding-header h1 {
-          margin: 0;
-          font-size: 26px;
-          font-weight: 700;
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-        .zvd-onboarding-header h1 span {
-          color: var(--zvd-accent, #d86b2a);
-        }
-        .zvd-onboarding-header p {
-          margin: 8px 0 0;
-          font-size: 14px;
-          color: #a1a1aa;
-        }
-        .zvd-onboarding-body {
-          padding: 30px 40px;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .zvd-onboarding-footer {
-          padding: 20px 40px;
-          background: #121214;
-          border-top: 1px solid #27272a;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .zvd-onboarding-dots {
-          display: flex;
-          gap: 8px;
-        }
-        .zvd-onboarding-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #3f3f46;
-          transition: background 250ms ease;
-        }
-        .zvd-onboarding-dot--active {
-          background: var(--zvd-accent, #d86b2a);
-        }
-        .zvd-onboarding-button {
-          background: var(--zvd-accent, #d86b2a);
-          border: none;
-          color: #fff;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          transition: opacity 150ms ease;
-        }
-        .zvd-onboarding-button:hover:not(:disabled) {
-          opacity: 0.9;
-        }
-        .zvd-onboarding-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        .zvd-onboarding-button--secondary {
-          background: transparent;
-          border: 1px solid #3f3f46;
-          color: #d4d4d8;
-        }
-        .zvd-onboarding-providers-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-          margin-bottom: 20px;
-        }
-        .zvd-onboarding-provider-card {
-          background: #202022;
-          border: 1px solid #27272a;
-          border-radius: 12px;
-          padding: 18px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-          transition: all 200ms ease;
-        }
-        .zvd-onboarding-provider-card:hover {
-          border-color: #3f3f46;
-          background: #242426;
-        }
-        .zvd-onboarding-provider-card--active {
-          border-color: var(--zvd-accent, #d86b2a);
-          background: rgba(216, 107, 42, 0.05);
-        }
-        .zvd-onboarding-provider-card h3 {
-          margin: 0;
-          font-size: 15px;
-          font-weight: 600;
-        }
-        .zvd-onboarding-form {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-        .zvd-onboarding-form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .zvd-onboarding-form-group label {
-          font-size: 12px;
-          font-weight: 650;
-          color: #a1a1aa;
-        }
-        .zvd-onboarding-input {
-          background: #202022;
-          border: 1px solid #27272a;
-          border-radius: 8px;
-          padding: 10px 14px;
-          color: #fff;
-          font-size: 14px;
-          outline: none;
-        }
-        .zvd-onboarding-input:focus {
-          border-color: var(--zvd-accent, #d86b2a);
-        }
-        .zvd-onboarding-test-status {
-          padding: 12px;
-          border-radius: 8px;
-          font-size: 13px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 10px;
-        }
-        .zvd-onboarding-test-status--success {
-          background: rgba(16, 185, 129, 0.1);
-          color: #10b981;
-          border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        .zvd-onboarding-test-status--error {
-          background: rgba(239, 68, 68, 0.1);
-          color: #ef4444;
-          border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-        .zvd-onboarding-model-select {
-          background: #202022;
-          border: 1px solid #27272a;
-          border-radius: 8px;
-          padding: 12px;
-          color: #fff;
-          font-size: 14px;
-          outline: none;
-          cursor: pointer;
-        }
-        .zvd-onboarding-model-select:focus {
-          border-color: var(--zvd-accent, #d86b2a);
-        }
-        @keyframes zvdFadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes zvdPopUp {
-          from { transform: scale(0.95) translateY(10px); opacity: 0; }
-          to { transform: scale(1) translateY(0); opacity: 1; }
-        }
-      `}</style>
+    <div className="zvd-onboarding-overlay" role="dialog" aria-modal="true" aria-labelledby="zvd-onboarding-title">
       <div className="zvd-onboarding-card">
         <div className="zvd-onboarding-header">
-          <h1>Zavorth<span>Desktop</span></h1>
-          <p>
-            {step === 1 && 'Welcome. Let us configure your first artificial intelligence provider.'}
-            {step === 2 && 'Insira suas credenciais para conectar.'}
-            {step === 3 && 'Escolha o modelo principal e comece a produzir.'}
+          <div className="zvd-onboarding-brand">
+            <img src="./zavorth-mascot.svg" alt="" width={36} height={36} className="zvd-onboarding-kael" />
+            <h1 id="zvd-onboarding-title">
+              Zavorth<span>Desktop</span>
+            </h1>
+          </div>
+          <p className="zvd-onboarding-welcome">
+            {trailStep.id === 'provider' && t('onboarding.welcomeBody')}
+            {trailStep.id === 'trust' && t('onboarding.trustExplain')}
+            {trailStep.id === 'channel' && t('onboarding.channelExplain')}
+            {trailStep.id === 'first-ask' && t('onboarding.firstAskBody')}
           </p>
+
+          <nav className="zvd-onboarding-trail" aria-label={t('onboarding.trailAria')}>
+            {DESKTOP_ONBOARDING_TRAIL.map((step, index) => {
+              const active = index === trailIndex;
+              const done = index < trailIndex;
+              return (
+                <div
+                  key={step.id}
+                  className={[
+                    'zvd-onboarding-trail-step',
+                    active ? 'is-active' : '',
+                    done ? 'is-done' : '',
+                    step.optional ? 'is-optional' : '',
+                  ].filter(Boolean).join(' ')}
+                  aria-current={active ? 'step' : undefined}
+                >
+                  <span className="zvd-onboarding-trail-dot" aria-hidden="true">
+                    {done ? <IconCheck size={12} stroke={2.5} /> : index + 1}
+                  </span>
+                  <span className="zvd-onboarding-trail-label">
+                    {trailLabel(step.id)}
+                    {step.optional ? (
+                      <span className="zvd-onboarding-optional-tag"> · {t('onboarding.optional')}</span>
+                    ) : null}
+                  </span>
+                </div>
+              );
+            })}
+          </nav>
+          <div className="zvd-onboarding-dots" aria-hidden="true">
+            {DESKTOP_ONBOARDING_TRAIL.map((step, index) => (
+              <span
+                key={step.id}
+                className={`zvd-onboarding-dot ${index === trailIndex ? 'zvd-onboarding-dot--active' : ''} ${index < trailIndex ? 'zvd-onboarding-dot--done' : ''}`}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="zvd-onboarding-body">
           {error && (
-            <div className="zvd-onboarding-test-status zvd-onboarding-test-status--error mb-4">
+            <div className="zvd-onboarding-test-status zvd-onboarding-test-status--error">
               <IconAlertCircle size={16} />
               <span>{error}</span>
             </div>
           )}
 
-          {step === 1 && (
-            <div className="flex-1 flex flex-col justify-between">
-              <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-3">Escolha um Provedor</label>
-                <div className="zvd-onboarding-providers-grid">
-                  {(['openai', 'anthropic', 'google', 'openrouter', 'ollama'] as ProviderType[]).map(type => (
-                    <div
-                      key={type}
-                      className={`zvd-onboarding-provider-card ${providerType === type ? 'zvd-onboarding-provider-card--active' : ''}`}
-                      onClick={() => handleProviderSelect(type)}
-                    >
-                      <IconServer size={24} className="text-gray-400" />
-                      <h3>
-                        {type === 'openai' && 'OpenAI'}
-                        {type === 'anthropic' && 'Anthropic'}
-                        {type === 'google' && 'Google Gemini'}
-                        {type === 'openrouter' && 'OpenRouter'}
-                        {type === 'ollama' && 'Ollama (Local)'}
-                      </h3>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="zvd-onboarding-form">
-              <div className="zvd-onboarding-form-group">
-                <label>Nome do Provedor</label>
-                <input
-                  type="text"
-                  className="zvd-onboarding-input"
-                  value={displayName}
-                  onChange={e => setDisplayName(e.target.value)}
-                />
-              </div>
-
-              {providerType !== 'ollama' ? (
-                <div className="zvd-onboarding-form-group">
-                  <label>Chave de API</label>
-                  <ProviderSecretInput
-                    value={apiKey}
-                    onChange={setApiKey}
-                    hasExistingSecret={false}
-                  />
-                  {providerType === 'google' && (
-                    <div className="mt-3">
-                      <span className="text-xs text-gray-400 block mb-2">Ou conecte sua conta Google:</span>
+          {trailStep.id === 'provider' && (
+            <>
+              {providerPhase === 'pick' && (
+                <div className="zvd-onboarding-step-panel">
+                  <h2 className="zvd-onboarding-step-title">{t('onboarding.welcomeTitle')}</h2>
+                  <p className="zvd-onboarding-step-copy">{t('onboarding.providerPickBody')}</p>
+                  <label className="zvd-onboarding-field-label">{t('onboarding.chooseProvider')}</label>
+                  <div className="zvd-onboarding-providers-grid">
+                    {(['openai', 'anthropic', 'google', 'openrouter', 'ollama'] as ProviderType[]).map(type => (
                       <button
+                        key={type}
                         type="button"
-                        onClick={handleOAuthConnect}
-                        className="zvd-onboarding-button zvd-onboarding-button--secondary text-xs"
-                        disabled={loading}
+                        className={`zvd-onboarding-provider-card ${providerType === type ? 'zvd-onboarding-provider-card--active' : ''}`}
+                        onClick={() => handleProviderSelect(type)}
                       >
-                        {loading ? 'Conectando...' : 'Autenticar com Google'}
+                        <IconServer size={22} aria-hidden="true" />
+                        <h3>{providerNames[type]}</h3>
                       </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {providerPhase === 'credentials' && (
+                <div className="zvd-onboarding-form">
+                  <h2 className="zvd-onboarding-step-title">{t('onboarding.providerCredentialsTitle')}</h2>
+                  <div className="zvd-onboarding-form-group">
+                    <label htmlFor="zvd-onboarding-display-name">{t('onboarding.providerName')}</label>
+                    <input
+                      id="zvd-onboarding-display-name"
+                      type="text"
+                      className="zvd-onboarding-input"
+                      value={displayName}
+                      onChange={e => setDisplayName(e.target.value)}
+                    />
+                  </div>
+
+                  {providerType !== 'ollama' ? (
+                    <div className="zvd-onboarding-form-group">
+                      <label>{t('onboarding.apiKey')}</label>
+                      <ProviderSecretInput
+                        value={apiKey}
+                        onChange={setApiKey}
+                        hasExistingSecret={false}
+                      />
+                      {providerType === 'google' && (
+                        <div className="zvd-onboarding-oauth">
+                          <span className="zvd-onboarding-muted">{t('onboarding.orGoogle')}</span>
+                          <button
+                            type="button"
+                            onClick={handleOAuthConnect}
+                            className="zvd-btn zvd-btn-secondary zvd-btn-sm"
+                            disabled={loading}
+                          >
+                            {loading ? t('onboarding.connecting') : t('onboarding.authGoogle')}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="zvd-onboarding-form-group">
+                      <label htmlFor="zvd-onboarding-base-url">{t('onboarding.ollamaUrl')}</label>
+                      <input
+                        id="zvd-onboarding-base-url"
+                        type="url"
+                        className="zvd-onboarding-input"
+                        value={baseUrl}
+                        onChange={e => setBaseUrl(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  {testResult && (
+                    <div className={`zvd-onboarding-test-status zvd-onboarding-test-status--${testResult.ok ? 'success' : 'error'}`}>
+                      {testResult.ok ? <IconCheck size={16} /> : <IconAlertCircle size={16} />}
+                      <span>{testResult.message}</span>
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="zvd-onboarding-form-group">
-                  <label>Ollama Base URL</label>
-                  <input
-                    type="url"
-                    className="zvd-onboarding-input"
-                    value={baseUrl}
-                    onChange={e => setBaseUrl(e.target.value)}
-                  />
-                </div>
               )}
 
-              {testResult && (
-                <div className={`zvd-onboarding-test-status zvd-onboarding-test-status--${testResult.ok ? 'success' : 'error'}`}>
-                  {testResult.ok ? <IconCheck size={16} /> : <IconAlertCircle size={16} />}
-                  <span>{testResult.message}</span>
+              {providerPhase === 'model' && (
+                <div className="zvd-onboarding-form">
+                  <h2 className="zvd-onboarding-step-title">{t('onboarding.chooseModel')}</h2>
+                  <p className="zvd-onboarding-step-copy">{t('onboarding.modelBody')}</p>
+                  <div className="zvd-onboarding-form-group">
+                    <label htmlFor="zvd-onboarding-model">{t('onboarding.defaultModel')}</label>
+                    {models.length > 0 ? (
+                      <select
+                        id="zvd-onboarding-model"
+                        className="zvd-onboarding-model-select"
+                        value={selectedModel}
+                        onChange={e => setSelectedModel(e.target.value)}
+                      >
+                        {models.map(id => (
+                          <option key={id} value={id}>
+                            {id.split(':')[1] || id}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <p className="zvd-onboarding-muted zvd-onboarding-italic">
+                        {t('onboarding.noModelDetected')}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
+            </>
+          )}
+
+          {trailStep.id === 'trust' && (
+            <div className="zvd-onboarding-step-panel">
+              <div className="zvd-onboarding-icon-badge" aria-hidden="true">
+                <IconShieldCheck size={28} />
+              </div>
+              <h2 className="zvd-onboarding-step-title">{t('onboarding.stepTrust')}</h2>
+              <p className="zvd-onboarding-step-copy">{t('onboarding.trustExplain')}</p>
+              <ul className="zvd-onboarding-bullets">
+                <li>{t('onboarding.trustReviewBullet')}</li>
+                <li>{t('onboarding.trustProofBullet')}</li>
+                <li>{t('onboarding.trustRedLaneBullet')}</li>
+              </ul>
+              <label className="zvd-onboarding-toggle">
+                <input
+                  type="checkbox"
+                  checked={trustedOperator}
+                  onChange={e => applyTrustedOperator(e.target.checked)}
+                />
+                <span>
+                  <strong>{t('onboarding.trustToggle')}</strong>
+                  <span className="zvd-onboarding-muted">{t('onboarding.trustToggleHint')}</span>
+                </span>
+              </label>
             </div>
           )}
 
-          {step === 3 && (
-            <div className="zvd-onboarding-form">
-              <div className="zvd-onboarding-form-group">
-                <label>Default Model</label>
-                {models.length > 0 ? (
-                  <select
-                    className="zvd-onboarding-model-select"
-                    value={selectedModel}
-                    onChange={e => setSelectedModel(e.target.value)}
-                  >
-                    {models.map(id => (
-                      <option key={id} value={id}>
-                        {id.split(':')[1] || id}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="text-sm text-gray-400 italic">
-                    No model detected. Zavorth will configure a default intelligence model for you automatically.
-                  </div>
-                )}
+          {trailStep.id === 'channel' && (
+            <div className="zvd-onboarding-step-panel">
+              <div className="zvd-onboarding-icon-badge" aria-hidden="true">
+                <IconBroadcast size={28} />
               </div>
+              <h2 className="zvd-onboarding-step-title">{t('onboarding.stepChannel')}</h2>
+              <p className="zvd-onboarding-step-copy">{t('onboarding.channelExplain')}</p>
+              <p className="zvd-onboarding-muted">{t('onboarding.channelTip')}</p>
+            </div>
+          )}
+
+          {trailStep.id === 'first-ask' && (
+            <div className="zvd-onboarding-step-panel">
+              <div className="zvd-onboarding-icon-badge" aria-hidden="true">
+                <IconMessageCircle size={28} />
+              </div>
+              <h2 className="zvd-onboarding-step-title">{t('onboarding.stepFirstAsk')}</h2>
+              <p className="zvd-onboarding-step-copy">{t('onboarding.firstAskBody')}</p>
+              <blockquote className="zvd-onboarding-starter">
+                “{starterAsk}”
+              </blockquote>
             </div>
           )}
         </div>
 
         <div className="zvd-onboarding-footer">
-          <div className="zvd-onboarding-dots">
-            {[1, 2, 3].map(i => (
-              <span
-                key={i}
-                className={`zvd-onboarding-dot ${step === i ? 'zvd-onboarding-dot--active' : ''}`}
-              />
-            ))}
-          </div>
+          <button
+            type="button"
+            className="zvd-btn zvd-btn-ghost zvd-btn-sm"
+            onClick={handleSkip}
+            title={t('onboarding.skip')}
+          >
+            {t('onboarding.skip')}
+          </button>
 
-          <div className="flex gap-2">
-            {step > 1 && (
+          <div className="zvd-onboarding-footer-actions">
+            {canGoBack && (
               <button
                 type="button"
-                className="zvd-onboarding-button zvd-onboarding-button--secondary"
-                onClick={() => setStep(prev => prev - 1)}
+                className="zvd-btn zvd-btn-secondary"
+                onClick={goBack}
               >
-                Voltar
+                <IconChevronLeft size={16} aria-hidden="true" />
+                {t('onboarding.back')}
               </button>
             )}
 
-            {step === 1 && (
+            {trailStep.id === 'provider' && providerPhase === 'pick' && (
               <button
                 type="button"
-                className="zvd-onboarding-button"
-                onClick={() => setStep(2)}
+                className="zvd-btn zvd-btn-primary"
+                onClick={() => setProviderPhase('credentials')}
               >
-                Continuar
-                <IconChevronRight size={16} />
+                {t('onboarding.next')}
+                <IconChevronRight size={16} aria-hidden="true" />
               </button>
             )}
 
-            {step === 2 && (
+            {trailStep.id === 'provider' && providerPhase === 'credentials' && (
               <button
                 type="button"
-                className="zvd-onboarding-button"
+                className="zvd-btn zvd-btn-primary"
                 disabled={testing || (providerType !== 'ollama' && !apiKey)}
                 onClick={handleSaveAndTest}
               >
                 {testing ? (
                   <>
                     <IconLoader2 size={16} className="animate-spin" />
-                    Testando...
+                    {t('onboarding.testing')}
                   </>
                 ) : (
                   <>
-                    Salvar e Testar
-                    <IconChevronRight size={16} />
+                    {t('onboarding.saveAndTest')}
+                    <IconChevronRight size={16} aria-hidden="true" />
                   </>
                 )}
               </button>
             )}
 
-            {step === 3 && (
+            {trailStep.id === 'provider' && providerPhase === 'model' && (
               <button
                 type="button"
-                className="zvd-onboarding-button"
-                disabled={loading}
-                onClick={handleFinish}
+                className="zvd-btn zvd-btn-primary"
+                onClick={advanceTrail}
               >
-                {loading ? 'Finalizando...' : 'Entrar no Zavorth'}
+                {t('onboarding.next')}
+                <IconChevronRight size={16} aria-hidden="true" />
+              </button>
+            )}
+
+            {trailStep.id === 'trust' && (
+              <button
+                type="button"
+                className="zvd-btn zvd-btn-primary"
+                onClick={advanceTrail}
+              >
+                {t('onboarding.next')}
+                <IconChevronRight size={16} aria-hidden="true" />
+              </button>
+            )}
+
+            {trailStep.id === 'channel' && (
+              <>
+                <button
+                  type="button"
+                  className="zvd-btn zvd-btn-secondary"
+                  onClick={advanceTrail}
+                >
+                  {t('onboarding.openChannelsLater')}
+                </button>
+                <button
+                  type="button"
+                  className="zvd-btn zvd-btn-primary"
+                  onClick={advanceTrail}
+                >
+                  {t('onboarding.skip')}
+                  <IconChevronRight size={16} aria-hidden="true" />
+                </button>
+              </>
+            )}
+
+            {trailStep.id === 'first-ask' && (
+              <button
+                type="button"
+                className="zvd-btn zvd-btn-primary"
+                disabled={loading}
+                onClick={() => void finishOnboarding({ startWithSuggestion: true })}
+              >
+                {loading ? t('onboarding.finishing') : t('onboarding.firstAskCta')}
               </button>
             )}
           </div>

@@ -33,7 +33,7 @@ export function normalizeCorsOrigin(value: unknown): string {
       return "";
     }
     return parsed.origin;
-  } catch (error) { logger.warn('[cors] network request failed', error); return ''; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cors] network request failed', error); return ''; }
 }
 
 export const CORS_ORIGIN = normalizeCorsOrigin(CONFIGURED_CORS_ORIGIN);

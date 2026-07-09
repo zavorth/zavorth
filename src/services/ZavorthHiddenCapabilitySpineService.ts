@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 
@@ -412,7 +412,7 @@ export class ZavorthHiddenCapabilitySpineService {
           if (id) ids.add(id);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read capability manifests:', error);
       return ids;
     }
@@ -424,7 +424,7 @@ function readPackageScripts(root: string): Record<string, string> {
   try {
     const parsed = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
     return parsed.scripts || {};
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[ZavorthHiddenCapabilitySpineService] Failed to read package.json scripts:', error);
     return {};
   }

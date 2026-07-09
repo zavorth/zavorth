@@ -164,7 +164,7 @@ export class WorkspaceIdentityContextAssembler {
     }
     try {
       return this.firstRunProfileReader.buildWorkspaceIdentitySnapshot();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

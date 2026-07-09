@@ -86,7 +86,7 @@ export class RequestTelemetry {
       const result = await fn();
       this.endPhase();
       return result;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.endPhase({ error: error.message });
       throw error;
     }

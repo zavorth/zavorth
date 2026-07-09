@@ -48,7 +48,7 @@ export class JsonAgentRunStore implements AgentRunStore {
           && typeof (run as { id?: unknown }).id === 'string'
         ))
         .slice(0, this.maxRuns);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }

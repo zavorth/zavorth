@@ -428,7 +428,7 @@ export class BrowserCaptureWebExtractLiveAdapter implements IWebExtractLiveAdapt
 async function readJson(response: Response): Promise<unknown> {
   try {
     return await response.json();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }
@@ -499,7 +499,7 @@ function extractLinks(html: string, baseUrl: string): string[] {
     .map((match) => {
       try {
         return new URL(match[1] || '', baseUrl).toString();
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return '';
       }
     })

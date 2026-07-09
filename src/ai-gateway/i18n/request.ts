@@ -7,7 +7,7 @@ import { logger } from '@/shared/utils/logger';
 function normalizeLocale(value: string): string {
   try {
     return Intl.getCanonicalLocales(value.trim().replace(/_/g, "-"))[0] || value.trim();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[request] string operation failed', error);
     return value.trim();
   }

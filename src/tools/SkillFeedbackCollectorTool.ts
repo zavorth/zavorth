@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
@@ -86,7 +86,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
         default:
           return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Skill Feedback Collector] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro no skill feedback: ${message}`;

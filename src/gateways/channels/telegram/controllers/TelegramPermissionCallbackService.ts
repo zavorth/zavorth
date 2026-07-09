@@ -52,7 +52,7 @@ export class TelegramPermissionCallbackService {
       }
 
       await (ctx as any).editMessageReplyMarkup({ reply_markup: undefined }).catch(() => undefined);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'Failed to process the permission.';
       if (!callbackAnswered) {
         await ctx.answerCallbackQuery({ text: message });

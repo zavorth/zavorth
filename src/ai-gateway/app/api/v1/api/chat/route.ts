@@ -32,7 +32,7 @@ export async function POST(request) {
   try {
     const body = await clonedReq.json();
     modelName = body.model || "llama3.2";
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
   const response = await handleChat(request);
   return transformToOllama(response, modelName);

@@ -34,7 +34,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[Codex Auth Export] Failed:", error);
     return toErrorResponse(error);
   }

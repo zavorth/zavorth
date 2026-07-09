@@ -46,7 +46,7 @@ function redactUrl(value: string): string {
     if (url.searchParams.has('api_key')) url.searchParams.set('api_key', '***');
     if (url.searchParams.has('token')) url.searchParams.set('token', '***');
     return url.toString();
-  } catch (error) { logger.warn('[Zavorth Cli Message Namespace] search failed', error); return value; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Message Namespace] search failed', error); return value; }
 }
 
 function redactMessageRecord(value: unknown): JsonObject {
@@ -127,7 +127,10 @@ async function resolveAttachments(files: string[]): Promise<Array<{ file: string
       const hashVal = sha256(content);
       const contentBase64 = stats.size < 5 * 1024 * 1024 ? content.toString('base64') : undefined;
       results.push({ file, bytes: stats.size, sha256: hashVal, contentBase64 });
-    } catch (error) { // Ignore file read errors for optional attachments. logger.warn('[Zavorth Cli Message Namespace] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore file read errors for optional attachments.
+      logger.warn('[Zavorth Cli Message Namespace] filesystem operation failed', error);
+    }
   }
   return results;
 }

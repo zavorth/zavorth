@@ -18,7 +18,7 @@ export async function GET(request) {
     const summary = getCostSummary(apiKeyId);
     const budgetCheck = checkBudget(apiKeyId);
     return NextResponse.json({ ...summary, budgetCheck });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching budget summary:", error);
     return NextResponse.json({ error: "Failed to fetch budget summary" }, { status: 500 });
   }
@@ -31,7 +31,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -53,7 +53,7 @@ export async function POST(request) {
 
     setBudget(apiKeyId, { dailyLimitUsd, monthlyLimitUsd, warningThreshold });
     return NextResponse.json({ success: true, apiKeyId, dailyLimitUsd });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error setting budget:", error);
     return NextResponse.json({ error: "Failed to set budget" }, { status: 500 });
   }

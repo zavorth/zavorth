@@ -82,7 +82,7 @@ export class SharedSurfaceLearningCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui montar o learning plane agora.');
     }
   }

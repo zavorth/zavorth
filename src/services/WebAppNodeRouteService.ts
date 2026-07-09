@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import { CompanionDistributionService } from '../nodes/companion/CompanionDistributionService.js';
 import { NodeMeshRecoveryService } from './NodeMeshRecoveryService.js';
 import { NodeMeshTransportRouteService } from './NodeMeshTransportRouteService.js';
@@ -141,7 +141,7 @@ export class WebAppNodeRouteService {
           },
           200,
         );
-      } catch (error: NodeRouteDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           {
@@ -164,7 +164,7 @@ export class WebAppNodeRouteService {
           'X-Zavorth-Companion-SHA256': download.bundle.manifest.sha256,
         });
         res.end(download.body);
-      } catch (error: NodeRouteDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           {

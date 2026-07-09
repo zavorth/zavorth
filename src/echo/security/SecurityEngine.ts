@@ -28,7 +28,7 @@ export class SecurityEngine {
   public static validateToolSchema(tool: IZavorthTool, params: any): any {
     try {
       return tool.schema.parse(params);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (error instanceof z.ZodError) {
         const issues = error.issues
           .map((entry) => `${entry.path.join('.')}: ${entry.message}`)
@@ -146,7 +146,7 @@ export class SecurityEngine {
     let hostname = '';
     try {
       hostname = new URL(broker).hostname;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       throw new Error(
         `SandboxBlock: MQTT broker '${broker}' possui URL invalida.`,
       );

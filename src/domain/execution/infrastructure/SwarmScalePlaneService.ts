@@ -595,7 +595,7 @@ export class SwarmScalePlaneService {
           instruction: `${template.instruction}\nShard: ${index + 1}/${input.desiredAgents}.`,
         });
       });
-    } catch (error) { logger.warn('[Swarm Scale Plane] creation failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm Scale Plane] creation failed', error); return []; }
   }
 
   private normalizePlannerTasks(
@@ -788,7 +788,7 @@ export class SwarmScalePlaneService {
           ...(result.metadata || {}),
         },
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Swarm Scale Plane] filesystem check failed', error);
     return {
         ...task,
@@ -927,7 +927,7 @@ export class SwarmScalePlaneService {
             toolName: toolCall.name,
             content: clampText(toolOutput, 6000),
           });
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           this.completeStep(toolStep, 'failed', `${toolCall.name} failed.`, null);
           toolMessages.push({
             role: 'tool',
@@ -1202,7 +1202,7 @@ export class SwarmScalePlaneService {
       return {
         runs: Array.isArray(parsed?.runs) ? parsed.runs : [],
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Swarm Scale Plane] JSON parse failed', error);
     return { runs: [] };
   }
@@ -1240,12 +1240,12 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
   if (!trimmed) return null;
   try {
     return JSON.parse(trimmed);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     const match = trimmed.match(/\{[\s\S]*\}/);
     if (!match) return null;
     try {
       return JSON.parse(match[0]);
-    } catch (error) { logger.warn('[Swarm Scale Plane] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm Scale Plane] JSON parse failed', error); return null; }
   }
 }
 

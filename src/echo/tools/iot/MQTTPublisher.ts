@@ -109,7 +109,7 @@ export class MQTTPublisher implements IZavorthTool {
             let mqtt: any;
             try {
                 mqtt = this.loadMqttModule();
-            } catch {
+            } catch (error: any) { const err = error; const e = error;
                 this.updateState({
                     status: 'failed',
                     lastError: 'Package "mqtt" not found. Run: npm install mqtt',
@@ -208,7 +208,7 @@ export class MQTTPublisher implements IZavorthTool {
                     ));
                 });
             });
-        } catch (error: any) {
+        } catch (error: any) { const err = error; const e = error;
             this.updateState({
                 status: 'failed',
                 lastError: `MQTT Publisher failure: ${error.message}`,
@@ -249,7 +249,7 @@ export class MQTTPublisher implements IZavorthTool {
                 port,
                 transport: 'mqtt',
             };
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[M Q T T Publisher] string operation failed', error);
     return {
                 scope: 'blocked',

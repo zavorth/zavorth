@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+﻿import { execFile } from 'child_process';
 import crypto from 'crypto';
 import { promisify } from 'util';
 import { RuntimeEphemeralShellAdapter } from '../services/RuntimeEphemeralShellAdapter.js';
@@ -198,7 +198,7 @@ export class RemoteShellTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: unknown) {
+    } catch (error: any) {
       const execError = error as {
         code?: unknown;
         stdout?: unknown;

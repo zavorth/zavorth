@@ -91,7 +91,7 @@ export class AiGatewayImageGenerationAdapter implements IMediaGenerationAdapter 
         serviceName: 'AI Gateway image generation',
         allowLoopback: true,
       });
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       const message = err instanceof Error ? err.message : String(err);
       logger.error(`[AiGatewayImageGenerationAdapter] Network error: ${message}`);
       throw new MediaAdapterNetworkError(this.adapterId, message);

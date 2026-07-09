@@ -63,7 +63,7 @@ export class TelegramZavorthBridgeTaskExecutionService {
           'I only come back here if it finishes, fails, or requests your approval.',
         ].join('\n'),
       );
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const fallbackApplied = await this.deps.tryResearchFallback(ctx, task, prompt, error);
       if (fallbackApplied) {
         return;

@@ -1038,7 +1038,7 @@ export class ZavorthHardwareActionPlaneService {
       return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
         .filter((entry) => entry.domain === 'hardware' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
         .slice(0, limit);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }
@@ -1114,7 +1114,7 @@ export class ZavorthHardwareActionPlaneService {
     try {
       const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<HardwareActionPlaneState>;
       return this.normalizeState(parsed);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return this.defaultState();
     }
   }
@@ -1307,7 +1307,7 @@ export class ZavorthHardwareActionPlaneService {
         },
         result: input.summary,
       });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // The ledger must not block emergency stop or local blocking.
     }
   }

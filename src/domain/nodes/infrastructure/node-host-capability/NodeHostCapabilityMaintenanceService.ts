@@ -129,7 +129,7 @@ export class NodeHostCapabilityMaintenanceService {
         pendingResults: validEntries,
         invalidCount: rawEntries.length - validEntries.length,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Maintenance] JSON parse failed', error);
     return {
         pendingResults: [],

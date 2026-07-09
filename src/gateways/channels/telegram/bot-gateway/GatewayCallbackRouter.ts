@@ -28,7 +28,10 @@ export class GatewayCallbackRouter {
           if (ctx.msg?.message_id) {
             await ctx.deleteMessage();
           }
-        } catch (error) { // Delete callbacks should still acknowledge stale messages. logger.warn('[way Callback r] delete operation failed', error); }
+        } catch (error: any) { const err = error; const e = error;
+      // Delete callbacks should still acknowledge stale messages.
+      logger.warn('[way Callback r] delete operation failed', error);
+    }
 
         await ctx.answerCallbackQuery();
         return;
@@ -79,6 +82,61 @@ export class GatewayCallbackRouter {
         return;
       }
 
+      if (data.startsWith('kanban:')) {
+        const parts = data.split(':');
+        const action = parts[1];
+        const cardId = parts[2];
+        const { KanbanSQLiteDispatcherService } = await import('../../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const kanban = new KanbanSQLiteDispatcherService();
+        try {
+          if (action === 'add_prompt') {
+            await ctx.reply('Para adicionar um novo card ao Kanban, digite:\n`/triage <titulo da task>`', { parse_mode: 'Markdown' });
+            await ctx.answerCallbackQuery();
+          } else if (action === 'view') {
+            const card = (kanban as any).db.prepare('SELECT * FROM cards WHERE id = ?').get(cardId) as any;
+            if (!card) {
+              await ctx.answerCallbackQuery({ text: 'Task nao encontrada.' });
+              return;
+            }
+            const comments = kanban.getComments(cardId);
+            const commentsStr = comments.map((c: any) => `• ${c.author}: ${c.content}`).join('\n') || 'Sem comentarios.';
+            const details = `📋 *Task:* ${card.title}\n` +
+                            `*ID:* \`${card.id}\`\n` +
+                            `*Status:* ${card.column_name}\n` +
+                            `*Prioridade:* ${card.priority}\n` +
+                            `*Descricao:* ${card.description || 'Sem descricao'}\n\n` +
+                            `💬 *Comentarios/Logs:*\n${commentsStr}`;
+            
+            const { InlineKeyboard } = await import('grammy');
+            const inlineKeyboard = new InlineKeyboard();
+            const cols = ['todo', 'in_progress', 'review', 'done'];
+            cols.forEach(col => {
+              if (col !== card.column_name) {
+                inlineKeyboard.text(`Move ${col}`, `kanban:move:${cardId}:${col}`);
+              }
+            });
+            inlineKeyboard.row().text('🗑️ Fechar', 'action:delete');
+
+            await ctx.reply(details, {
+              parse_mode: 'Markdown',
+              reply_markup: inlineKeyboard,
+            });
+            await ctx.answerCallbackQuery();
+          } else if (action === 'move') {
+            const destCol = parts[3];
+            const result = kanban.moveCard('default_board', cardId, destCol, 'Moved via Telegram Bot');
+            await ctx.answerCallbackQuery({ text: result.startsWith('Error:') ? result : 'Status atualizado!' });
+            
+            if (!result.startsWith('Error:')) {
+              await ctx.reply(`🔄 Task *${cardId}* movida para *${destCol}*!`, { parse_mode: 'Markdown' });
+            }
+          }
+        } finally {
+          kanban.close();
+        }
+        return;
+      }
+
       switch (data) {
         case 'menu_status':
           await ctx.answerCallbackQuery();
@@ -103,7 +161,7 @@ export class GatewayCallbackRouter {
         default:
           await ctx.answerCallbackQuery({ text: 'Comando nao reconhecido.' });
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       this.deps.logError?.(message);
       await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });

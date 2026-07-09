@@ -63,7 +63,7 @@ export async function GET(request: Request) {
       lockouts,
       cacheStats,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/rate-limits GET:", error);
     return NextResponse.json({ error: "Failed to get rate limit status" }, { status: 500 });
   }
@@ -80,7 +80,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
@@ -113,7 +113,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ success: true, connectionId, enabled: !!enabled });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/rate-limits POST:", error);
     return NextResponse.json({ error: "Failed to toggle rate limit" }, { status: 500 });
   }

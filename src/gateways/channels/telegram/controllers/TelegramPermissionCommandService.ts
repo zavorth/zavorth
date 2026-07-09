@@ -100,7 +100,7 @@ export class TelegramPermissionCommandService {
         default:
           await ctx.reply('Unknown subcommand. Use: /perm [list|show|approve|reject|edit]');
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       logger.error(`[TelegramPermission] Permission operation failed (${subcommand}): ${msg}`, error);
       await ctx.reply(`Permission operation failed: ${msg}`);

@@ -42,7 +42,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.read',
@@ -110,7 +110,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.write',
@@ -256,7 +256,7 @@ export class NodeHostCapabilityFilesystemService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Node Host Capability Filesystem] load operation failed', error);
     return buildScopeViolationResult({
         capabilityId: 'files.watch',
@@ -296,7 +296,7 @@ export class NodeHostCapabilityFilesystemService {
         settled = true;
         try {
           watcher?.close();
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
         resolve(result);
       };
 
@@ -362,7 +362,7 @@ export class NodeHostCapabilityFilesystemService {
             },
           });
         });
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         cleanupAndFinish({
           ok: false,
           resultSummary: `Falha ao iniciar observacao em ${targetPath}.`,

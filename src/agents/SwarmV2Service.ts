@@ -1356,7 +1356,7 @@ export class SwarmV2Service {
         },
       } satisfies LlmRunOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: String(error instanceof Error ? error.message : String(error ?? 'unknown')).slice(0, 240),
       });
@@ -1429,7 +1429,7 @@ export class SwarmV2Service {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch (error) { logger.warn('[Swarm V2] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm V2] parsing failed', error); return fallback; }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1541,12 +1541,12 @@ export class SwarmV2Service {
     if (!text) return null;
     try {
       return JSON.parse(text);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       const match = text.match(/\{[\s\S]*\}/);
       if (!match) return null;
       try {
         return JSON.parse(match[0]);
-      } catch (error) { logger.warn('[Swarm V2] JSON parse failed', error); return null; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Swarm V2] JSON parse failed', error); return null; }
     }
   }
 
@@ -1590,6 +1590,7 @@ export class SwarmV2Service {
           receiptId: `swarm-isolation:${input.swarmId}:${id}`,
           description: `Official Swarm v2 worker for ${id}.`,
         },
+        delegationPolicy: role.delegationPolicy,
       };
     });
   }
@@ -1699,7 +1700,10 @@ export class SwarmV2Service {
       if (Array.isArray(parsed)) {
         return parsed.map((entry) => this.normalizeRoleLibraryEntry(entry)).filter(Boolean) as SwarmV2RoleLibraryEntry[];
       }
-    } catch (error) { // fall through to defaults logger.warn('[Swarm V2] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // fall through to defaults
+      logger.warn('[Swarm V2] JSON parse failed', error);
+    }
     const seeded = this.defaultRoleLibrary();
     this.writeRoleLibrary(seeded);
     return seeded;
@@ -1888,22 +1892,30 @@ export class SwarmV2Service {
           outputBytes,
         },
       });
+      const allowedTools = role.delegationPolicy?.allowedTools ?? this.resolveRoleTools(role);
+      const requiresApproval = role.delegationPolicy?.requiresApprovalTools
+        ? role.delegationPolicy.requiresApprovalTools.length > 0
+        : true;
+
       const scope = seed?.scope || createSubagentCapabilityScope({
         roleId: role.id,
         mode: 'tool_limited',
-        allowedTools: this.resolveRoleTools(role),
+        allowedTools,
         allowedPaths: [],
-        requiresApproval: true,
+        requiresApproval,
         metadata: {
           objective: input.objective,
           swarmRoleLabel: role.label,
           command: role.command || null,
+          delegationPolicy: role.delegationPolicy ? JSON.stringify(role.delegationPolicy) : null,
         },
       });
       const approvalBoundary = seed?.approvalBoundary || createSubagentApprovalBoundary({
         scope,
         budget,
-        risk: role.command ? 'attention' : 'unknown',
+        risk: role.delegationPolicy?.requiresApprovalTools && role.delegationPolicy.requiresApprovalTools.length === 0
+          ? 'unknown'
+          : (role.command ? 'attention' : 'unknown'),
         approvalReason: 'SwarmV2 records the approval boundary before subagent execution.',
         metadata: {
           objective: input.objective,
@@ -1911,6 +1923,9 @@ export class SwarmV2Service {
           swarmId: input.snapshot?.swarmId || null,
         },
       });
+      if (role.delegationPolicy?.requiresApprovalTools && role.delegationPolicy.requiresApprovalTools.length === 0) {
+        approvalBoundary.requiresApproval = false;
+      }
       const budgetDecision = evaluateSubagentBudget(budget);
       const status = budgetDecision.ok
         ? this.mapSubagentStatus(result, input.snapshot)

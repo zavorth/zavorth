@@ -55,7 +55,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         | { c: number }
         | undefined;
       hasData = Boolean(count && count.c > 0);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[core Runtime] resource cleanup failed', error);
     hasData = false;
   }
@@ -67,7 +67,7 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
       try {
         fixDb.exec("DROP TABLE IF EXISTS schema_migrations");
         fixDb.pragma("wal_checkpoint(TRUNCATE)");
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         console.warn("[DB] Could not clean up old schema table:", getErrorMessage(error));
       } finally {
         fixDb.close();
@@ -85,13 +85,19 @@ function prepareExistingSqliteFile(sqliteFile: string): void {
         if (fs.existsSync(sqliteFile + ext)) {
           fs.unlinkSync(sqliteFile + ext);
         }
-      } catch (error) { // Ignore stale sidecar cleanup failures. logger.warn('[core Runtime] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore stale sidecar cleanup failures.
+      logger.warn('[core Runtime] file cleanup failed', error);
     }
-  } catch (error: unknown) {
+    }
+  } catch (error: any) { const err = error; const e = error;
     console.warn("[DB] Could not probe existing DB, will create fresh:", getErrorMessage(error));
     try {
       fs.unlinkSync(sqliteFile);
-    } catch (error) { // Ignore best-effort cleanup failures. logger.warn('[core Runtime] file cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore best-effort cleanup failures.
+      logger.warn('[core Runtime] file cleanup failed', error);
+    }
   }
 }
 

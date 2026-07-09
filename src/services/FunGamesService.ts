@@ -1,4 +1,4 @@
-import { GeminiProvider } from '../providers/GeminiProvider.js';
+﻿import { GeminiProvider } from '../providers/GeminiProvider.js';
 
 type JokeGenerator = () => Promise<string | null>;
 
@@ -95,7 +95,7 @@ export class FunGamesService {
 
     try {
       this.llm = new GeminiProvider();
-    } catch {
+    } catch (error: any) {
       this.llm = null;
     }
 

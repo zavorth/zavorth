@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { ArtifactPipelineService } from '../../runtime/artifacts/ArtifactPipelineService.js';
@@ -384,7 +384,7 @@ export class WorkflowRunSupport {
     for (const userId of recipients) {
       try {
         await SmartOutputService.send(this.runtime.botApi!, userId, message);
-      } catch (error: unknown) {
+      } catch (error: any) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar broadcast: ${errorMessage}`);
       }
@@ -394,7 +394,7 @@ export class WorkflowRunSupport {
   public async sendToChat(chatId: string, message: string): Promise<void> {
     try {
       await SmartOutputService.send(this.runtime.botApi!, chatId, message);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar mensagem direta para ${chatId}: ${errorMessage}`);
       throw error;
@@ -636,7 +636,7 @@ export class WorkflowRunSupport {
     if (this.runtime.persistEnabled) {
       try {
         run.externalized_state = this.runtime.externalizedState.persist(run, event);
-      } catch {
+      } catch (error: any) {
         run.externalized_state = run.externalized_state || this.runtime.externalizedState.describe(run.workflow_run_id);
       }
     } else {
@@ -656,7 +656,7 @@ export class WorkflowRunSupport {
       .map((run) => {
         try {
           return this.normalizeRun(run as WorkflowRunSnapshot);
-        } catch (error) { logger.warn('[Workflow Run] filesystem operation failed', error); return null; }
+        } catch (error: any) { logger.warn('[Workflow Run] filesystem operation failed', error); return null; }
       })
       .filter((run): run is WorkflowRunSnapshot => Boolean(run));
 

@@ -28,7 +28,6 @@ function formatTimeLeft(expiresAt: string): string {
 }
 
 /**
- * Fase 21E-B — Temporary Directory Trust Status
  *
  * Displays active Temporary Directory/External Trusts in the sidebar with a revoke button.
  */

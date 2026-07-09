@@ -116,7 +116,7 @@ export class GeminiProvider implements ILlmProvider {
         }
         this.currentClientIndex = clientIndex;
         break;
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
@@ -288,7 +288,7 @@ export class GeminiProvider implements ILlmProvider {
           },
         };
         return;
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
@@ -384,7 +384,7 @@ export class GeminiProvider implements ILlmProvider {
 
         this.currentClientIndex = keyIndex;
         return this.parseGatewayResponse(responseBody);
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         lastError = error;
         logger.warn(
           `[Gemini via Cloudflare AI Gateway] Erro usando a chave ${keyIndex + 1}: ${getErrorMessage(error)}`,
@@ -483,7 +483,7 @@ export class GeminiProvider implements ILlmProvider {
           ...(this.buildProviderNativeMetadata(candidate, fallback.options) || {}),
         },
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Gemini] creation failed', error);
     return {
         content: fallback.accumulated || null,

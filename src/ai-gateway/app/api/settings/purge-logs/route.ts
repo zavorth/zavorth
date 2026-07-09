@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const cutoff = new Date(Date.now() - retentionMs).toISOString();
     const result = db.prepare("DELETE FROM call_logs WHERE timestamp < ?").run(cutoff);
     return NextResponse.json({ deleted: result.changes });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

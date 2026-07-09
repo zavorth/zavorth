@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { DockerSandboxRuntime } from '../services/sandbox/DockerSandboxRuntime.js';
 import { FirecrackerSandboxRuntime } from '../services/sandbox/FirecrackerSandboxRuntime.js';
@@ -113,7 +113,7 @@ export class SandboxExecutionTool extends BaseTool {
       }
 
       return out;
-    } catch (error) { logger.warn('[Sandbox Execution] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Sandbox Execution] process execution failed', error); return ''; }
   }
 
   private async executeWasmModule(
@@ -221,7 +221,7 @@ export class SandboxExecutionTool extends BaseTool {
         return { ok: false, error: 'args_json aceita apenas numeros finitos.' };
       }
       return { ok: true, value: numericArgs };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Sandbox Execution] parsing failed', error);
     return { ok: false, error: `args_json invalido: ${error.message}` };
   }

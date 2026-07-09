@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       picker: product.picker,
       providerMeshOnboarding: product.providerMeshOnboarding,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] search failed', error);
     return Response.json(
       {

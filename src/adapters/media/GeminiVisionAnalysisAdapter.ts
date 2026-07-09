@@ -47,7 +47,7 @@ export class GeminiVisionAnalysisAdapter implements IMediaUnderstandingAdapter {
     for (const key of keys) {
       try {
         return await this.analyzeWithKey(key, input);
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn(`[GeminiVisionAnalysisAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     }

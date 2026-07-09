@@ -1,4 +1,4 @@
-import { ComposerActionService } from './ComposerActionService.js';
+﻿import { ComposerActionService } from './ComposerActionService.js';
 import { ComposerCatalogService } from './ComposerCatalogService.js';
 import { ComposerContextService } from './ComposerContextService.js';
 import { ComposerPayloadService, type NormalizedComposerPayload } from './ComposerPayloadService.js';
@@ -876,7 +876,7 @@ export class WebAppConversationService {
         text: String(analysisText || '').trim() || null,
         error: result.error?.message || null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Web App Conversation] string operation failed', error);
     return {
         ok: false,
@@ -1067,7 +1067,7 @@ export class WebAppConversationService {
         }),
       ]);
       return result;
-    } catch (error) { logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
+    } catch (error: any) { logger.warn('[Web App Conversation] cache operation failed', error); return null; } finally {
       if (timeoutHandle) {
         clearTimeout(timeoutHandle);
       }

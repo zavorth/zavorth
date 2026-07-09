@@ -49,7 +49,7 @@ export class LangfuseObservability {
         '[Observability] Langfuse OpenTelemetry is active and recording generator/critic conversations with cost tracking enabled.',
       );
       return this.handler;
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       console.warn(`[Observability] Failed to instantiate Langfuse: ${err.message}`);
       return null;
     }

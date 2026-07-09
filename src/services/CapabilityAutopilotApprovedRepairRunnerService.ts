@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   CapabilityEvidence,
   CapabilityRepairRunResult,
   CapabilityRepairRunStatus,
@@ -218,7 +218,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         evidence: execution.evidence,
         metadata: execution.metadata,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Capability Autopilot Approved Repair Runner] process execution failed', error);
     return this.stepResult({
         step: input.step,

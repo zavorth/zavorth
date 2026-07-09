@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const { tool } = validation.data;
     await stopTool(tool);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : "Failed to stop";
     console.error("[version-manager] stop error:", message);
     return NextResponse.json({ error: message }, { status: 500 });

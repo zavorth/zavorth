@@ -1,4 +1,4 @@
-import { ProviderConfig, ProviderConfigService } from './ProviderConfigService.js';
+﻿import { ProviderConfig, ProviderConfigService } from './ProviderConfigService.js';
 import { ProviderCapability, ProviderModelRegistry } from './ProviderModelRegistry.js';
 import type { ResilientRoutePolicy } from './ResilientRoutePolicyService.js';
 import { logger } from '../logger.js';
@@ -64,7 +64,10 @@ export class ModelSelectionService {
         if (resolved.runtimeReady) {
           return resolved;
         }
-      } catch (error) { // Ignore capability mismatches when searching for a default logger.warn('[Model Selection] operation failed', error); }
+      } catch (error: any) {
+      // Ignore capability mismatches when searching for a default
+      logger.warn('[Model Selection] operation failed', error);
+    }
     }
 
     throw new Error('no_suitable_provider_found');

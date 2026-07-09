@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { logger } from '../logger.js';
@@ -58,7 +58,7 @@ export class BatchTrajectoryTool extends BaseTool {
       } else {
         return 'Erro: "trajectories" deve ser um array JSON ou string JSON.';
       }
-    } catch (error) { logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Erro: JSON de trajectories invalido.'; }
+    } catch (error: any) { logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Erro: JSON de trajectories invalido.'; }
 
     if (!Array.isArray(trajectories) || trajectories.length === 0) {
       return 'Erro: pelo menos uma trajetoria e necessaria.';
@@ -91,7 +91,7 @@ export class BatchTrajectoryTool extends BaseTool {
       const results = await this.executeTrajectories(trajectories, maxConcurrent);
       this.scoreResults(results, comparisonMetric);
       return this.formatComparison(results, comparisonMetric);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Batch Trajectory] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Batch execution error: ${message}`;
@@ -140,7 +140,7 @@ export class BatchTrajectoryTool extends BaseTool {
         execution_time_ms: executionTime,
         status: 'success',
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Batch Trajectory] process execution failed', error);
     return {
         index,

@@ -680,7 +680,7 @@ export class CanonicalPublicApiService {
         summary: 'Mission cancellation was applied by the supervised runtime.',
         nextAction: 'Review the cancellation receipt and runtime events.',
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return this.buildGovernedActionResult({
         action: 'mission.cancel',
         target: missionId,

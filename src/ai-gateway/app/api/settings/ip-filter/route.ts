@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(getIPFilterConfig());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error getting IP filter config:", error);
     return NextResponse.json({ error: "Failed to get IP filter config" }, { status: 500 });
   }
@@ -33,7 +33,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -75,7 +75,7 @@ export async function PUT(request) {
     if (body.removeBan) removeTempBan(body.removeBan);
 
     return NextResponse.json(getIPFilterConfig());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating IP filter config:", error);
     return NextResponse.json({ error: "Failed to update IP filter config" }, { status: 500 });
   }

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   try {
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching pricing:", error);
     return NextResponse.json({ error: "Failed to fetch pricing" }, { status: 500 });
   }
@@ -34,7 +34,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
       {
@@ -56,7 +56,7 @@ export async function PATCH(request) {
 
     const updatedPricing = await updatePricing(body);
     return NextResponse.json(updatedPricing);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating pricing:", error);
     return NextResponse.json({ error: "Failed to update pricing" }, { status: 500 });
   }
@@ -89,7 +89,7 @@ export async function DELETE(request) {
 
     const pricing = await getPricing();
     return NextResponse.json(pricing);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error resetting pricing:", error);
     return NextResponse.json({ error: "Failed to reset pricing" }, { status: 500 });
   }

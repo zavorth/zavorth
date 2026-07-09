@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 import type {
@@ -110,7 +110,7 @@ export class ZavorthIntelligenceFabricLearningService {
       .map((line) => {
         try {
           return JSON.parse(line) as IntelligenceFabricEvalRecord;
-        } catch (error) { logger.warn('[Zavorth Intelligence Fabric Learning] JSON parse failed', error); return null; }
+        } catch (error: any) { logger.warn('[Zavorth Intelligence Fabric Learning] JSON parse failed', error); return null; }
       })
       .filter((record): record is IntelligenceFabricEvalRecord => Boolean(record));
   }

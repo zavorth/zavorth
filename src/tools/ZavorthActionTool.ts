@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import {
   type ZavorthActionOperation,
@@ -30,7 +30,7 @@ function parseArgsJson(value: unknown): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch {
+  } catch (error: any) {
     throw new Error('argsJson must be valid JSON object text.');
   }
 }

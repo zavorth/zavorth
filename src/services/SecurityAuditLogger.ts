@@ -97,7 +97,7 @@ export class SecurityAuditLogger {
   private safePersist(event: string, metadata: AuditMetadata): void {
     try {
       this.logRepo.log('security', 'security_audit', event, metadata);
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       // Minimal safe warning to stderr without leaking any sensitive metadata/payload.
       logger.error(`[SecurityAuditLogger] Failed to persist security audit event: DB error.`);
     }

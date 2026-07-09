@@ -18,7 +18,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ message: "No changes since last backup (throttled)" });
     }
     return NextResponse.json({ created: true, ...result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error creating manual backup:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   try {
     const backups = await listDbBackups();
     return NextResponse.json({ backups });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error listing DB backups:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -51,7 +51,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -73,7 +73,7 @@ export async function POST(request) {
 
     const result = await restoreDbBackup(backupId);
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error restoring DB backup:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

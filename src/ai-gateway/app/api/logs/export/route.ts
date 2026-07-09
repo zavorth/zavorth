@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return Response.json(
       { error: { message: (error as Error).message, type: "server_error" } },

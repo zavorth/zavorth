@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
               ? "CLI detected but not runnable"
               : "CLI not detected",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error checking CLI runtime:", error);
     return NextResponse.json({ error: "Failed to check CLI runtime" }, { status: 500 });
   }

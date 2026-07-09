@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil((countRow?.total || 0) / limit),
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -99,7 +99,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Provide signature or model parameter" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

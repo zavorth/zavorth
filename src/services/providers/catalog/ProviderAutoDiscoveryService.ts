@@ -1,4 +1,4 @@
-import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
+﻿import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { OpenAiCompatibleModelDiscoveryAdapter } from './discovery/OpenAiCompatibleModelDiscoveryAdapter.js';
@@ -248,7 +248,7 @@ export class ProviderAutoDiscoveryService {
           timeoutMs: input.timeoutMs,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       const msg = error instanceof Error ? error.message : 'Discovery failed unexpectedly';
       errors.push(msg);
       return this.buildErrorResult(id, label, sanitizedUrl, errors);

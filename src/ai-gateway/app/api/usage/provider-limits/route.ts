@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       intervalMinutes: getProviderLimitsSyncIntervalMinutes(),
       lastAutoSyncAt: await getLastProviderLimitsAutoSyncTime(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] GET /api/usage/provider-limits error:", error);
     return NextResponse.json({ error: "Failed to fetch cached provider limits" }, { status: 500 });
   }
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       intervalMinutes: getProviderLimitsSyncIntervalMinutes(),
       lastAutoSyncAt: await getLastProviderLimitsAutoSyncTime(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] POST /api/usage/provider-limits error:", error);
     return NextResponse.json({ error: "Failed to refresh provider limits" }, { status: 500 });
   }

@@ -624,7 +624,7 @@ export class TelegramOpsInsightPresentationService {
       TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot =
         this.skillLibraryPresentationService.buildSnapshot();
       return TelegramOpsInsightPresentationService.cachedSkillPlaneSnapshot;
-    } catch (error) { logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Telegram Ops Insight Presentation] cache operation failed', error); return null; }
   }
 
   private describeRuntimeTaskStatus(status: string): string {

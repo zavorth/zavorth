@@ -126,7 +126,7 @@ export function createAgentChainActionModule(externalAgentGateway: ZavorthExtern
         lines: summary.split('\n'),
         data: { execution },
       });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       logger.error(`[AgentChainAction] Chain execution failed: ${errorMsg}`);
       return result({

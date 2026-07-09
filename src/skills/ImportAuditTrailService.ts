@@ -175,7 +175,7 @@ export class ImportAuditTrailService {
           : null,
         events: Array.isArray(parsed.events) ? parsed.events as SkillImportAuditEvent[] : [],
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return {
         version: 1,
         updatedAt: null,

@@ -126,7 +126,7 @@ export class TelegramZavorthBridgeSessionBridgeService {
         'Previous ZavorthBridge session terminated by /agreset to open a clean conversation.',
       );
       await ctx.reply('Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.');
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${message}`);
     }

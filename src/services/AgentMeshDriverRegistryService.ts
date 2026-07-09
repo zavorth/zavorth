@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+﻿import { spawn } from 'child_process';
 import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import type { AgentMeshDynamicCapabilities, AgentMeshProtocol } from '../contracts/AgentMeshConsentContract.js';
@@ -257,7 +257,7 @@ function postJson(urlValue: string | null, payload: unknown, timeoutMs: number):
         }
         try {
           resolve(text ? JSON.parse(text) : {});
-        } catch {
+        } catch (error: any) {
           reject(new Error('Agent Mesh webhook returned invalid JSON.'));
         }
       });
@@ -320,7 +320,7 @@ function runAgentMeshCommand(
 function parseJsonOutput(output: string): any {
   try {
     return JSON.parse(output || '{}');
-  } catch {
+  } catch (error: any) {
     throw new Error('Agent Mesh driver returned invalid JSON.');
   }
 }

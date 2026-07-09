@@ -35,6 +35,11 @@ export interface SwarmRole {
     receiptId?: string;
     description?: string;
   };
+  delegationPolicy?: {
+    allowedTools?: string[];
+    requiresApprovalTools?: string[];
+    sandboxInheritance?: boolean;
+  };
 }
 
 export type SwarmStatus = 'idle' | 'running' | 'completed' | 'failed' | 'cancelled' | 'timed_out';
@@ -335,7 +340,7 @@ ${rawOutput}
 Synthesize these results into a single cohesive, high-quality answer focused on resolving the original objective. Remove shell noise, merge discovered facts and produced code, and explain any reported failures with likely causes. Return a properly formatted Markdown response.`;
       const result = await this.options.llmRuntime.chat([{ role: 'user', content: prompt }]);
       return result.content?.trim() || rawOutput;
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       // Fallback in case of LLM failure
       return `[LLM summarization failed; showing raw log]:\n\n${rawOutput}`;
     }

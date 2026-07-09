@@ -47,7 +47,7 @@ export function migrateFromJson(
         );
       }
     }
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[DB] Migration from db.json failed:", getErrorMessage(error));
   }
 }

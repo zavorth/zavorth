@@ -381,7 +381,7 @@ export class LocalCliSpeechSynthesisLiveAdapter implements ISpeechSynthesisLiveA
       const timer = setTimeout(() => {
         try {
           child.kill();
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // noop
         }
         reject(new Error(`${this.adapterId} local TTS command timed out.`));
@@ -422,7 +422,7 @@ export class LocalCliSpeechSynthesisLiveAdapter implements ISpeechSynthesisLiveA
 async function readJson(response: Response): Promise<unknown> {
   try {
     return await response.json();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

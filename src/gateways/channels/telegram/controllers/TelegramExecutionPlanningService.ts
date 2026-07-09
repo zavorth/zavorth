@@ -94,7 +94,7 @@ export class TelegramExecutionPlanningService {
       });
 
       await SmartOutputService.reply(ctx, userFacingText);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.deps.taskManager.advanceState(task, 'failed');
       const message = error instanceof Error ? error.message : String(error);
       task.error_summary = message;

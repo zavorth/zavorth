@@ -82,7 +82,7 @@ export class ZavorthExtensionFacade {
         previousFingerprint: existing?.fingerprint,
         effectiveAllowed: status === 'registered_unapproved',
       });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       // If native validation in logger fails, fail clearly
       throw new Error(`Audit logging failed: ${err.message}`);
     }

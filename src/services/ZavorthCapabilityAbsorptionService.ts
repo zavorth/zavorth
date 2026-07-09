@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 import {
@@ -340,13 +340,13 @@ export class ZavorthCapabilityAbsorptionService {
   private read(file: string): string {
     try {
       return fs.readFileSync(path.join(this.root, file), 'utf8');
-    } catch (error) { logger.warn('[Zavorth Capability Absorption] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Capability Absorption] filesystem operation failed', error); return ''; }
   }
 
   private readJson(file: string): PackageJsonLike | null {
     try {
       return JSON.parse(this.read(file)) as PackageJsonLike;
-    } catch (error) { logger.warn('[Zavorth Capability Absorption] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Capability Absorption] JSON parse failed', error); return null; }
   }
 }
 

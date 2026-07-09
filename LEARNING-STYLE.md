@@ -30,3 +30,4 @@ What does not belong here:
 ## Maintenance rule
 
 When learning preferences change, update this file.
+- **Preferred learning style:** examples-first

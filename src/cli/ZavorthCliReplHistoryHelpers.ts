@@ -24,7 +24,7 @@ export function loadCliReplHistory(): string[] {
       .filter(Boolean)
       .slice(-CLI_REPL_HISTORY_LIMIT)
       .reverse();
-  } catch (error) { logger.warn('[Zavorth Cli Repl History Helpers] filesystem operation failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Repl History Helpers] filesystem operation failed', error); return []; }
 }
 
 export function persistCliReplHistory(rawLine: string): void {
@@ -44,7 +44,10 @@ export function persistCliReplHistory(rawLine: string): void {
     const next = [...existing.filter((entry) => entry !== normalized), normalized].slice(-CLI_REPL_HISTORY_LIMIT);
     fs.mkdirSync(path.dirname(CLI_REPL_HISTORY_FILE), { recursive: true });
     fs.writeFileSync(CLI_REPL_HISTORY_FILE, `${next.join('\n')}\n`, 'utf8');
-  } catch (error) { // REPL history should never break the CLI. logger.warn('[Zavorth Cli Repl History Helpers] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // REPL history should never break the CLI.
+      logger.warn('[Zavorth Cli Repl History Helpers] filesystem operation failed', error);
+    }
 }
 
 export function buildCliReplCompleter(line: string): [string[], string] {

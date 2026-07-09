@@ -89,7 +89,7 @@ export class SharedSurfaceMemoryCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui montar o memory plane agora.');
     }
   }
@@ -162,7 +162,7 @@ export class SharedSurfaceMemoryCommandPack {
         `Episodica: ${status.summary.episodic} | semantica: ${status.summary.semantic} | procedural: ${status.summary.procedural}.`,
         `Budget por camada: ${status.budgets.perLayer}.`,
       ].join('\n'));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (mode === 'status' && this.deps.memoryPlaneService) {
         await this.handleMemoryPlane(ctx);
         return;

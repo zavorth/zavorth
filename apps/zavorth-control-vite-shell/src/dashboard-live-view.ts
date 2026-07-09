@@ -1,3 +1,6 @@
+import { renderSessionTrustScore } from './session-trust-score';
+import { updateWorkboardLite } from './workboard-lite';
+
 type DashboardTraceEvent = {
   type?: string;
   title?: string;
@@ -72,6 +75,7 @@ function getLiveRuntimeSnapshot() {
 declare global {
   interface Window {
     ZavorthRuntimeBridge?: any;
+    emitSignal?: (type: string, title: string, message?: string) => void;
   }
 }
 
@@ -135,12 +139,12 @@ export function createDashboardLiveView({
       timeline.innerHTML = `
         <div class="zavorth-gantt-empty">
           <span class="zavorth-gantt-empty-dot"></span>
-          <span>Waiting for execution stream...</span>
+          <span>No trace yet.</span>
         </div>
       `;
       return;
     }
-    
+
     timeline.innerHTML = `
       <div class="zavorth-gantt-chart">
         <div class="zavorth-gantt-grid">
@@ -148,11 +152,9 @@ export function createDashboardLiveView({
             const kind = traceEventClass(event.type);
             const label = traceEventLabel(event.type);
             const title = event.title || 'Checkpoint';
-            
-            // Generate sequence offsets
             const startPercent = Math.min(80, index * 22);
             const durationPercent = 20;
-            
+
             return `
               <div class="zavorth-gantt-row zavorth-gantt-row--${kind}">
                 <div class="zavorth-gantt-label">
@@ -174,15 +176,171 @@ export function createDashboardLiveView({
     `;
   };
 
+  const collectPendingApprovals = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const pending: Array<{ id: string; title: string; detail: string }> = [];
+    const runs = Array.isArray(snapshot.liveSnapshot.runs) ? snapshot.liveSnapshot.runs : [];
+    runs.forEach((run: any) => {
+      const approvals = Array.isArray(run?.approvals) ? run.approvals : [];
+      approvals.forEach((approval: any) => {
+        if (String(approval?.status || 'pending') !== 'pending') return;
+        pending.push({
+          id: String(approval?.id || run?.id || 'approval'),
+          title: String(approval?.title || approval?.action || run?.title || 'Approval needed'),
+          detail: String(approval?.summary || approval?.risk || run?.summary || 'Decision required'),
+        });
+      });
+    });
+    return pending;
+  };
+
+  const updateAttentionList = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const nodes = document.querySelectorAll<HTMLElement>('[data-attention-list]');
+    if (!nodes.length) return;
+
+    const items: string[] = [];
+    if (snapshot.activeApprovals > 0) {
+      items.push(`
+        <article class="daily-attention-item daily-attention-item--warn">
+          <div>
+            <strong>${snapshot.activeApprovals} approval${snapshot.activeApprovals === 1 ? '' : 's'}</strong>
+            <small>Pending decision</small>
+          </div>
+          <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
+        </article>
+      `);
+    }
+    if (snapshot.errorEvents > 0) {
+      items.push(`
+        <article class="daily-attention-item daily-attention-item--danger">
+          <div>
+            <strong>${snapshot.errorEvents} error${snapshot.errorEvents === 1 ? '' : 's'}</strong>
+            <small>In recent trace</small>
+          </div>
+          <button class="daily-button" type="button" data-dashboard-sector="instances">Receipts</button>
+        </article>
+      `);
+    }
+    if (snapshot.thinking || snapshot.liveSnapshot.active) {
+      const title = compactTraceText(
+        snapshot.liveSnapshot.activeRun?.title
+          || snapshot.liveSnapshot.activeRun?.summary
+          || snapshot.lastEvent?.title
+          || 'Task running',
+        48,
+      );
+      items.push(`
+        <article class="daily-attention-item">
+          <div>
+            <strong>${escapeHtml(title || 'Task running')}</strong>
+            <small>${snapshot.thinking ? 'Working' : 'Active'}</small>
+          </div>
+          <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+        </article>
+      `);
+    }
+
+    const html = items.length
+      ? items.join('')
+      : '<p class="daily-muted">Nothing needs you</p>';
+    nodes.forEach((node) => {
+      node.innerHTML = html;
+    });
+  };
+
+  const updateApprovalsQueue = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const queue = document.querySelector<HTMLElement>('[data-approvals-queue]');
+    if (!queue) return;
+    if (queue.querySelector('.zavorth-approval-card')) return;
+
+    const pending = collectPendingApprovals(snapshot);
+    if (pending.length === 0 && snapshot.activeApprovals <= 0) {
+      queue.innerHTML = `
+        <p class="daily-muted" data-dashboard-approval-text>Nothing pending.</p>
+        <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+      `;
+      return;
+    }
+
+    if (pending.length === 0) {
+      queue.innerHTML = `
+        <article class="daily-attention-item daily-attention-item--warn">
+          <div>
+            <strong>${snapshot.activeApprovals} pending</strong>
+            <small>Open chat to decide</small>
+          </div>
+          <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
+        </article>
+      `;
+      return;
+    }
+
+    queue.innerHTML = pending.slice(0, 8).map((item) => `
+      <article class="daily-attention-item daily-attention-item--warn" data-approval-id="${escapeHtml(item.id)}">
+        <div>
+          <strong>${escapeHtml(compactTraceText(item.title, 64))}</strong>
+          <small>${escapeHtml(compactTraceText(item.detail, 80))}</small>
+        </div>
+        <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
+      </article>
+    `).join('');
+  };
+
+  const applySessionSearchFilter = () => {
+    const section = document.getElementById('sector-sessions');
+    if (!section) return;
+    const input = section.querySelector<HTMLInputElement>('[data-session-search]');
+    if (!input) return;
+    const query = String(input.value || '').trim().toLowerCase();
+    section.querySelectorAll('tbody tr').forEach((row) => {
+      if (!(row instanceof HTMLElement)) return;
+      const haystack = String(row.textContent || '').toLowerCase();
+      row.hidden = Boolean(query) && !haystack.includes(query);
+    });
+  };
+
+  const bindSessionSearch = () => {
+    if (document.documentElement.dataset.zavorthSessionSearchBound === '1') return;
+    document.documentElement.dataset.zavorthSessionSearchBound = '1';
+    document.addEventListener('input', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.matches?.('[data-session-search]')) return;
+      applySessionSearchFilter();
+    });
+  };
+
+  const shortRuntimeText = (
+    snapshot: ReturnType<typeof getDashboardSnapshot>,
+    hasActiveRun: boolean,
+    activeRun: any,
+  ) => {
+    if (snapshot.thinking) return 'Working…';
+    if (hasActiveRun) {
+      const status = dashboardStatusText(activeRun?.status || activeRun?.nextAction || activeRun?.summary, 'running');
+      return compactTraceText(status, 72) || 'Running.';
+    }
+    if (snapshot.activeApprovals > 0) return `${snapshot.activeApprovals} approval${snapshot.activeApprovals === 1 ? '' : 's'} pending.`;
+    if (snapshot.errorEvents > 0) return `${snapshot.errorEvents} error${snapshot.errorEvents === 1 ? '' : 's'} in trace.`;
+    return 'Ready.';
+  };
+
   const updateDashboardGlass = () => {
-    const root = document.querySelector('.dashboard-glass');
-    if (!root) return;
+    const hasHooks = document.querySelector(
+      '.dashboard-glass, [data-zavorth-premium-dashboard-v2], [data-dashboard-runtime-text], [data-live-runtime-state], [data-attention-list]',
+    );
+    if (!hasHooks) return;
+
+    bindSessionSearch();
+
     const snapshot = getDashboardSnapshot();
     const activeRun = snapshot.liveSnapshot.activeRun;
     const hasActiveRun = snapshot.liveSnapshot.active;
     setLiveStrip(
-      snapshot.thinking ? 'Working' : hasActiveRun ? 'Task running' : snapshot.activeApprovals > 0 ? 'Decision needed' : 'Runtime ready',
-      hasActiveRun ? dashboardStatusText(activeRun?.status || activeRun?.title, 'active task') : snapshot.lastEvent ? dashboardStatusText(snapshot.lastEvent.title, 'runtime updated') : 'Waiting for your request',
+      snapshot.thinking ? 'Working' : hasActiveRun ? 'Task running' : snapshot.activeApprovals > 0 ? 'Decision needed' : 'Ready',
+      hasActiveRun
+        ? dashboardStatusText(activeRun?.status || activeRun?.title, 'active')
+        : snapshot.lastEvent
+          ? dashboardStatusText(snapshot.lastEvent.title, 'updated')
+          : 'Idle',
       snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || 'Gateway',
       snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel(),
       snapshot.lastEvent ? snapshot.lastEvent.time || 'Just now' : 'Just now',
@@ -193,59 +351,80 @@ export function createDashboardLiveView({
       : hasActiveRun
         ? compactTraceText(activeRun?.title || activeRun?.summary || activeRun?.id, 80)
         : 'No task running';
-    const runtimeText = hasActiveRun
-      ? compactTraceText(`${activeRun?.status || 'running'} - ${activeRun?.summary || activeRun?.nextAction || 'Zavorth is working on the current request.'}`, 180)
-      : 'Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.';
+    const runtimeText = shortRuntimeText(snapshot, hasActiveRun, activeRun);
     setDashboardText('[data-dashboard-runtime-title]', runtimeTitle);
     setDashboardText('[data-dashboard-runtime-text]', runtimeText);
 
     setDashboardText('[data-dashboard-approval-title]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`
-      : 'No pending approvals');
+      ? `${snapshot.activeApprovals} pending`
+      : 'Nothing needs you');
     setDashboardText('[data-dashboard-approval-text]', snapshot.activeApprovals > 0
-      ? 'Review before allowing changes or tool access.'
-      : 'When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.');
+      ? 'Review pending decisions.'
+      : 'Nothing pending.');
 
     const approvalBanner = document.getElementById('approval-context-banner');
     if (approvalBanner) approvalBanner.hidden = snapshot.activeApprovals <= 0;
     setDashboardText('[data-inbox-approval-title]', snapshot.activeApprovals > 0
-      ? `${snapshot.activeApprovals} pending approval${snapshot.activeApprovals === 1 ? '' : 's'}`
+      ? `${snapshot.activeApprovals} pending`
       : 'No pending approvals');
     setDashboardText('[data-inbox-approval-text]', snapshot.activeApprovals > 0
-      ? 'Review before Zavorth changes files, tools, or external state.'
-      : 'Risky actions appear here before Zavorth acts.');
+      ? 'Review pending decisions.'
+      : 'Nothing pending.');
 
     setDashboardText('[data-dashboard-remote="mcp"]', snapshot.pendingRemoteMesh > 0
-      ? `${snapshot.pendingRemoteMesh} pending approval`
+      ? `${snapshot.pendingRemoteMesh} pending`
       : snapshot.receiptEvents > 0
-        ? 'receipt recorded'
-        : 'token protected');
-    setDashboardText('[data-dashboard-remote="docker"]', snapshot.pendingRemoteMesh > 0 ? 'waiting for approval' : 'approval required');
-    setDashboardText('[data-dashboard-remote="files"]', snapshot.artifactCount > 0 ? 'artifact scoped' : 'read scoped');
+        ? 'receipt ok'
+        : 'protected');
+    setDashboardText('[data-dashboard-remote="docker"]', snapshot.pendingRemoteMesh > 0 ? 'waiting' : 'gated');
+    setDashboardText('[data-dashboard-remote="files"]', snapshot.artifactCount > 0 ? 'scoped' : 'read');
 
     setDashboardText('[data-dashboard-strip="status"]', snapshot.thinking ? 'running' : 'online');
     setDashboardText('[data-dashboard-strip-detail="status"]', snapshot.lastEvent
-      ? dashboardStatusText(snapshot.lastEvent.title, 'runtime updated')
-      : 'local runtime available');
+      ? dashboardStatusText(snapshot.lastEvent.title, 'updated')
+      : 'local');
     setDashboardText('[data-dashboard-strip="model"]', snapshot.modelLabel);
     setDashboardText('[data-dashboard-strip-detail="model"]', getCurrentModelRouteLabel());
-    setDashboardText('[data-dashboard-strip="budget"]', snapshot.totalEvents > 0 ? `${snapshot.totalEvents} evt` : 'per mission');
-    setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} trace error(s)` : 'local trace in real time');
+    setDashboardText('[data-dashboard-strip="budget"]', snapshot.totalEvents > 0 ? `${snapshot.totalEvents} evt` : '0 evt');
+    setDashboardText('[data-dashboard-strip-detail="budget"]', snapshot.errorEvents > 0 ? `${snapshot.errorEvents} error(s)` : 'ok');
     setDashboardText('[data-dashboard-strip="security"]', snapshot.activeApprovals > 0 ? 'approval' : 'active');
-    setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending decision' : 'policy, preview and receipt');
+    setDashboardText('[data-dashboard-strip-detail="security"]', snapshot.activeApprovals > 0 ? 'pending' : 'ok');
     setDashboardText('[data-inbox-metric="approvals"]', String(snapshot.activeApprovals || 0));
-    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.receiptEvents || 0));
+    setDashboardText('[data-inbox-metric="receipts"]', String(snapshot.artifactCount || snapshot.receiptEvents || 0));
+    setDashboardText('[data-dashboard-metric="receipts"]', String(snapshot.artifactCount || snapshot.receiptEvents || 0));
+    setDashboardText('[data-dashboard-metric="errors"]', String(snapshot.errorEvents || 0));
     setDashboardText('[data-sales-os-metric="approvals"]', String(snapshot.activeApprovals || 0));
-    setDashboardText('[data-sales-os-meta="approvals"]', snapshot.activeApprovals > 0 ? 'waiting for your decision' : 'no pending approval');
+    setDashboardText('[data-sales-os-meta="approvals"]', snapshot.activeApprovals > 0 ? 'Pending' : 'None');
     setDashboardText('[data-provider-picker="active"]', getCurrentModelRouteLabel());
     setDashboardText('[data-provider-picker="fallbacks"]', snapshot.modelLabel || 'configured');
-    setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'redacted proof');
+    setDashboardText('[data-provider-picker="proof"]', snapshot.errorEvents > 0 ? 'needs review' : 'sanitized');
 
-    // Feature 7: Live Connectivity Map Styling
+    updateAttentionList(snapshot);
+    updateApprovalsQueue(snapshot);
+    applySessionSearchFilter();
+
+    renderSessionTrustScore({
+      pendingApprovals: snapshot.pendingApprovals,
+      activeApprovals: snapshot.activeApprovals,
+      errorEvents: snapshot.errorEvents,
+      receiptEvents: snapshot.receiptEvents,
+      gatedActions: snapshot.activeApprovals,
+    });
+
+    updateWorkboardLite(
+      (Array.isArray(snapshot.liveSnapshot.runs) ? snapshot.liveSnapshot.runs : []).map((run: any) => ({
+        id: run?.id,
+        title: run?.title || run?.summary || run?.id,
+        summary: run?.summary,
+        status: run?.status,
+        nextAction: run?.nextAction,
+      })),
+    );
+
     const pathLlm = document.getElementById('path-bridge-llm');
     const nodeLlm = document.getElementById('node-llm');
-    const mapContainer = document.querySelector('.zavorth-connectivity-map');
-    
+    const mapContainer = document.querySelector<HTMLElement>('.zavorth-connectivity-map');
+
     if (snapshot.errorEvents > 0) {
       pathLlm?.classList.add('is-warning');
       pathLlm?.classList.remove('is-active');
@@ -257,24 +436,23 @@ export function createDashboardLiveView({
       nodeLlm?.classList.remove('is-warning');
       nodeLlm?.classList.add('is-active');
     }
-    
-    // Bind click handlers to connectivity map nodes
+
     if (mapContainer && !mapContainer.dataset.connectivityBound) {
-      mapContainer.setAttribute('data-connectivity-bound', '1');
+      mapContainer.dataset.connectivityBound = '1';
       const nodeMessages: Record<string, string> = {
-        'node-user': 'Operator channel: Secured. Zero-trust command approval policy active.',
-        'node-dash': 'Zavorth Control Shell: Operational. Telemetry pipeline running at 60fps.',
-        'node-gate': 'Gateway Daemon: Connected. WebSocket secure tunnels established.',
-        'node-bridge': 'Runtime Bridge: Connected. JSON-RPC local loopback online.',
-        'node-llm': `Active LLM Route: ${snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel()} (${snapshot.liveSnapshot.modelLabel || snapshot.modelLabel || 'Gateway Model'})`
+        'node-user': 'Operator channel ready.',
+        'node-dash': 'Control shell online.',
+        'node-gate': 'Gateway connected.',
+        'node-bridge': 'Runtime bridge online.',
+        'node-llm': `Route: ${snapshot.liveSnapshot.routeLabel || getCurrentModelRouteLabel()}`,
       };
-      
-      mapContainer.querySelectorAll('.zavorth-conn-node').forEach((node) => {
+
+      mapContainer.querySelectorAll<HTMLElement>('.zavorth-conn-node').forEach((node) => {
         node.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           const id = node.id;
-          const msg = nodeMessages[id] || 'Zavorth runtime node is operational and safe.';
+          const msg = nodeMessages[id] || 'Runtime node online.';
           window.emitSignal?.('info', node.querySelector('.node-label')?.textContent || 'Runtime node', msg);
         });
       });

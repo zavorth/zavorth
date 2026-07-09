@@ -165,7 +165,7 @@ export class SkillSourceRegistryService {
         return DEFAULT_SOURCE_REGISTRY;
       }
       return JSON.parse(this.readFileSyncImpl(this.configFile, 'utf8')) as SkillSourceRegistryRawDocument;
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('Failed to read skill source registry config, falling back to defaults', {
         err,
         configFile: this.configFile,

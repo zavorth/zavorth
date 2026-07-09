@@ -5,3 +5,6 @@ export * from './nativePowerPacks.js';
 export * from './productizationPacks.js';
 export * from './workspaceFiles.js';
 export * from './webBrowser.js';
+export * from './reachFabric.js';
+export * from './powerFabric.js';
+export * from './productFabric.js';

@@ -539,7 +539,7 @@ export function createWebAppServiceComposition(
     getConversationService: () => {
       try {
         return options.getConversationService();
-      } catch (error) { logger.warn('[Web App  Composition] operation failed', error); return null; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Web App  Composition] operation failed', error); return null; }
     },
     getRealtime: () => options.getRealtime(),
     getChannelActions: () => options.operations.channelActions,

@@ -206,7 +206,7 @@ export class MultiAgentPipelineRunner {
     try {
       const decision = await this.deps.executionGateway.submit(task, plan, false);
       return this.handleDecision(ctx, decision, stage, run, task);
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       task.error_summary = err.message;
       task.result_summary = null;
       this.deps.taskManager?.advanceState(task, 'failed', {

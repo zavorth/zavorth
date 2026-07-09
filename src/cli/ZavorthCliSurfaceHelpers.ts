@@ -179,6 +179,22 @@ export type CliStatusSnapshot = {
     summary: string | null;
     recommendedAction: string | null;
   } | null;
+  llm?: {
+    provider: string;
+    model: string;
+  } | null;
+  memoryMetrics?: {
+    total: number;
+    episodic: number;
+    semantic: number;
+    procedural: number;
+    pressure: string;
+  } | null;
+  taskOs?: {
+    total: number;
+    active: number;
+    awaitingPermission: number;
+  } | null;
 };
 
 const CLI_HELP_TOPIC_ALIASES: Record<string, CliHelpTopic> = {

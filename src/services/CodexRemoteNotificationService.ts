@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import type { CodexRemoteSessionRecord } from './CodexRemoteSessionStoreService.js';
 import { logger } from '../logger.js';
 
@@ -86,7 +86,7 @@ export class CodexRemoteNotificationService {
         targetChatId,
         reason: response.ok ? 'delivered' : `http-${response.status}`,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Codex Remote Notification] network request failed', error);
     return {
         delivered: false,

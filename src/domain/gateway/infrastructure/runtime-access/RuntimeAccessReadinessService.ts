@@ -259,7 +259,7 @@ export class RuntimeAccessReadinessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const fallbackProbe = await this.probeLocalSurfaceViaNodeHttp(targetUrl);
       if (fallbackProbe) {
         return fallbackProbe;
@@ -316,7 +316,7 @@ export class RuntimeAccessReadinessService {
         });
         request.end();
       });
-    } catch (error) { logger.warn('[Runtime Access Readiness] resource cleanup failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness] resource cleanup failed', error); return null; }
   }
 
   private normalizeUrl(rawValue: string): string {

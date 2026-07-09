@@ -119,7 +119,7 @@ export class TelegramZavorthBridgeControlService {
       }
 
       await ctx.reply(this.formatControlReply(result));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       if (isCapabilityUnavailableError(error)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
           error,

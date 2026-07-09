@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return createErrorResponse({
       status: 400,
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
         });
       }
       proxyUrl = normalizedProxyUrl;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return createErrorResponse({
         status: 400,
@@ -161,7 +161,7 @@ export async function POST(request: Request) {
         } else {
           parsed = { ip: String(parsedJson) };
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] JSON parse failed', error);
     parsed = { ip: responseText.trim() };
   }
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
         latencyMs: Date.now() - startTime,
         proxyUrl: publicProxyUrl,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return Response.json({
         success: false,
@@ -186,7 +186,7 @@ export async function POST(request: Request) {
   } finally {
       clearTimeout(timeout);
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return createErrorResponseFromUnknown(error, "Unexpected server error");
   }

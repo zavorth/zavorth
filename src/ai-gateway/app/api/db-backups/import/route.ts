@@ -112,7 +112,7 @@ export async function POST(request: Request) {
 
       testDb.close();
       testDb = null;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] resource cleanup failed', error);
     if (testDb) testDb.close();
       return NextResponse.json({ error: `Invalid database file: ${e.message}` }, { status: 400 });
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
       comboCount,
       apiKeyCount: keyCount,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error importing database:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   } finally {
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     if (tmpPath && fs.existsSync(tmpPath)) {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error) { /* best effort */ logger.warn('[route] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[route] file cleanup failed', error); }
     }
   }
 }

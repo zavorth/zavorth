@@ -37,13 +37,30 @@
 
 ## What Zavorth Is
 
-Zavorth is an **MIT-licensed**, local-first AI agent runtime that actually does things - safely. The main browser surface is Zavorth Control at `/control` (with `/dashboard` kept as a compatibility route in current builds), while a lightweight desktop agent acts as a companion.
+Zavorth is an **MIT-licensed**, local-first AI agent runtime that actually does things — safely.
 
 You describe what you want in plain language. Zavorth plans the work, shows you what it's about to do, waits for your approval on anything risky, and then executes. Afterward, you get a receipt: a clear, auditable record of what happened.
 
 No silent takeovers. No surprise commands. No "trust me."
 
 **Think of it as:** your personal AI operator that works with local control, explicit trust, and visible receipts.
+
+### Product thesis
+
+| Plane | What it means |
+| --- | --- |
+| **Capability Fabric** | Acquire skills / plugins / MCP on demand (path, archive, HTTPS) under quarantine — not a static storefront |
+| **Reach Fabric** | Honest channel tiers + node mesh; catalog is never live; synthesize new channel packs when needed |
+| **Power Fabric** | Elastic backends, Trusted Operator Mode, yellow learning promote, generic harnesses, context budget |
+| **Product Fabric** | First-run trail, public CLI surface, hermetic certification (`zavorth product certify`) |
+
+```bash
+zavorth product          # daily readiness
+zavorth product certify  # hermetic fabric matrix
+zavorth absorb ./pack --preview
+zavorth reach
+zavorth power
+```
 
 ---
 
@@ -132,11 +149,11 @@ Learns what matters. Forgets what doesn't. Scoped to your workspace.
 </td>
 <td width="50%">
 
-### Multi-Channel
-Telegram, Discord, WhatsApp, Slack, and 25+ more.
+### Multi-Channel (honest readiness)
+First-class channels plus protocol packs and on-demand synthesis. Catalog ≠ live.
 
-### Skills
-88+ built-in skills. Install from marketplace. Custom skills welcome.
+### Skills & capabilities on demand
+Absorb from path/URL under quarantine. Import any workspace home by structure.
 
 ### Voice
 Talk to it. It listens, thinks, and responds.
@@ -173,18 +190,21 @@ Controlled self-evolution with approval gates.
 |---------|-------------|
 | `zavorth setup` | Guided setup for providers, channels, and safety |
 | `zavorth start` | Start the local runtime |
-| `zavorth open` | Open the Dashboard |
+| `zavorth open` | Open Zavorth Control |
 | `zavorth chat` | Terminal chat session |
 | `zavorth ask "..."` | One-shot governed request |
+| `zavorth product` | Product readiness + first-run trail |
+| `zavorth product certify` | Hermetic certification of all fabrics |
+| `zavorth absorb <source>` | Absorb skill/plugin/MCP (preview first) |
+| `zavorth import-workspace <path>` | Structural import from any agent home |
+| `zavorth reach` | Channel tiers + node inventory |
+| `zavorth power` | Elastic backends, trusted mode, learning |
 | `zavorth providers` | Show provider readiness |
-| `zavorth providers add` | Add a new provider with guided wizard |
-| `zavorth channels telegram` | Connect Telegram |
-| `zavorth channels discord` | Connect Discord |
-| `zavorth skills` | Browse available skills |
-| `zavorth marketplace list` | Browse skill marketplace |
-| `zavorth trajectory --stats` | Export training data stats |
+| `zavorth channels telegram` | Connect a first-class channel |
 | `zavorth trust` | Inspect approval posture |
 | `zavorth doctor` | Diagnose issues |
+
+Full public catalog: `zavorth product commands`
 
 ---
 

@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       trend,
       idempotency: idempotencyStats,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
   }
@@ -90,7 +90,7 @@ export async function DELETE(req: NextRequest) {
     clearCache();
     const expiredRemoved = cleanExpiredEntries();
     return NextResponse.json({ ok: true, expiredRemoved, scope: "all" });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: errorMessage(error) }, { status: 500 });
   }

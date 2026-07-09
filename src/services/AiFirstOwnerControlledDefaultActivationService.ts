@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { findProjectRoot } from '../config/configHelpers.js';
@@ -462,7 +462,7 @@ export class AiFirstOwnerControlledDefaultActivationService {
           throw new Error('Invalid receipt shape.');
         }
         receipts.push(parsed);
-      } catch (error) {
+      } catch (error: any) {
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

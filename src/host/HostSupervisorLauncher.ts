@@ -90,7 +90,7 @@ export function startExternalLauncherReload(
       accepted: true,
       summary: 'Launcher supervisionado externo preparado com sucesso.',
     };
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     return {
       accepted: false,
       summary: error?.message || String(error),

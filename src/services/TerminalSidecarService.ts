@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -143,6 +143,16 @@ export class TerminalSidecarService {
       this.spawnedByZavorth = false;
       const snapshot = this.buildSnapshot(false, false, null, sourceDir, message);
       this.writeStatus(snapshot);
+
+      // Auto-restart on unexpected crash (not SIGTERM or clean exit)
+      if (code !== 0 && signal !== 'SIGTERM') {
+        this.log('warn', 'Terminal sidecar crashed unexpectedly. Auto-restarting in 5 seconds...');
+        setTimeout(() => {
+          this.spawn(sourceDir).catch((err) => {
+            this.log('error', `Auto-restart failed: ${err instanceof Error ? err.message : String(err)}`);
+          });
+        }, 5000);
+      }
     });
 
     this.log('info', `Subindo Zavorth Remote Terminal Sidecar de ${sourceDir}...`);
@@ -168,7 +178,7 @@ export class TerminalSidecarService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch (error) { logger.warn('[Terminal Sidecar] network request failed', error); return false; }
+    } catch (error: any) { logger.warn('[Terminal Sidecar] network request failed', error); return false; }
   }
 
   private buildHealthUrl(): string {
@@ -181,7 +191,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 4747;
-    } catch (error) { logger.warn('[Terminal Sidecar] parsing failed', error); return 4747; }
+    } catch (error: any) { logger.warn('[Terminal Sidecar] parsing failed', error); return 4747; }
   }
 
   private resolveLocalUrl(): string {
@@ -189,7 +199,7 @@ export class TerminalSidecarService {
       const parsed = new URL(this.baseUrl);
       const port = parsed.port || '4747';
       return `http://${this.getLocalIp()}:${port}`;
-    } catch (error) { logger.warn('[Terminal Sidecar] network request failed', error); return this.baseUrl; }
+    } catch (error: any) { logger.warn('[Terminal Sidecar] network request failed', error); return this.baseUrl; }
   }
 
   private getLocalIp(): string {
@@ -271,7 +281,7 @@ export class TerminalSidecarService {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 
@@ -289,7 +299,7 @@ export class TerminalSidecarService {
 
       try {
         child.kill('SIGTERM');
-      } catch {
+      } catch (error: any) {
         clearTimeout(timeout);
         finalize();
       }

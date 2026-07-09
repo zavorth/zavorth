@@ -77,7 +77,7 @@ export class StreamTracker {
         }
         try {
           data = JSON.parse(payload);
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[stream Tracker] JSON parse failed', error);
     data = null;
   }

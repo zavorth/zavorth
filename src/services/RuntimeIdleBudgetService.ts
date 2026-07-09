@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -273,7 +273,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return this.desktopResourcePlane.readLatest();
-    } catch (error) { logger.warn('[Runtime Idle Budget] operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Runtime Idle Budget] operation failed', error); return null; }
   }
 
   private readPackageJson(): PackageLike | null {
@@ -286,7 +286,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private readAlphaBudget(): AlphaBudgetLike | null {
@@ -299,7 +299,7 @@ export class RuntimeIdleBudgetService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as AlphaBudgetLike;
-    } catch (error) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Runtime Idle Budget] JSON parse failed', error); return null; }
   }
 
   private check(

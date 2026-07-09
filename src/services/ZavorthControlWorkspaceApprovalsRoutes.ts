@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import path from 'path';
 import fs from 'fs';
 import { Database } from '../storage/Database.js';
@@ -33,7 +33,7 @@ function validateWorkspaceSession(workspaceId: string): boolean {
     if (path.normalize(activeReal).toLowerCase() === path.normalize(candidateReal).toLowerCase()) {
       return true;
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn("[workspace-approvals] Workspace session validation failed (primary check):", err);
   }
 
@@ -48,7 +48,7 @@ function validateWorkspaceSession(workspaceId: string): boolean {
         return true;
       }
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn("[workspace-approvals] Workspace session validation failed (alias check):", err);
   }
 
@@ -100,7 +100,7 @@ export async function handleWorkspaceApprovalsRequest(
         });
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -170,7 +170,7 @@ export async function handleWorkspaceApprovalsRequest(
       let resolvedPath: string;
       try {
         resolvedPath = pathGuard.resolveForWrite(relativePath);
-      } catch (pathErr: unknown) {
+      } catch (pathErr: any) { const error = pathErr; const err = pathErr; const e = pathErr;
         deps.writeJson(res, { ok: false, error: `Unsafe relative path: ${getErrorMessage(pathErr)}` }, 403);
         return true;
       }
@@ -189,7 +189,7 @@ export async function handleWorkspaceApprovalsRequest(
           currentContent = buffer.toString('utf8');
           currentContentExists = true;
         }
-      } catch (readErr: unknown) {
+      } catch (readErr: any) { const error = readErr; const err = readErr; const e = readErr;
         deps.writeJson(res, { ok: false, error: `Failed to read current file: ${getErrorMessage(readErr)}` }, 403);
         return true;
       }
@@ -223,7 +223,7 @@ export async function handleWorkspaceApprovalsRequest(
           currentContentExists,
         }
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -257,7 +257,7 @@ export async function handleWorkspaceApprovalsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -310,7 +310,7 @@ export async function handleWorkspaceApprovalsRequest(
           allowNetwork: grant.allowNetwork,
         }
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -337,7 +337,7 @@ export async function handleWorkspaceApprovalsRequest(
         developerModeActive: active,
         grant
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -370,7 +370,7 @@ export async function handleWorkspaceApprovalsRequest(
         trusted: entry !== null && entry.trusted,
         entry
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -394,7 +394,7 @@ export async function handleWorkspaceApprovalsRequest(
       let resolvedPath: string;
       try {
         resolvedPath = fs.realpathSync(path.resolve(rootPath));
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth Control Workspace Approvals s] parsing failed', error);
     resolvedPath = path.resolve(rootPath);
   }
@@ -402,7 +402,7 @@ export async function handleWorkspaceApprovalsRequest(
       let activeWorkspace: string;
       try {
         activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth Control Workspace Approvals s] path resolution failed', error);
     activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
   }
@@ -433,7 +433,7 @@ export async function handleWorkspaceApprovalsRequest(
         });
         deps.writeJson(res, { ok: true, trusted: true, entry });
       }
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -478,7 +478,7 @@ export async function handleWorkspaceApprovalsRequest(
           targetDirectories: relativeTargets
         }
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -523,7 +523,7 @@ export async function handleWorkspaceApprovalsRequest(
           targetDirectories: relativeTargets
         }
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -552,7 +552,7 @@ export async function handleWorkspaceApprovalsRequest(
       const resolved = mandateService.resolveMandate(workspaceId, !!approved);
 
       deps.writeJson(res, { ok: true, resolved: resolved ? { mandateId: resolved.mandateId, expiresAt: resolved.expiresAt } : null });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -581,7 +581,7 @@ export async function handleWorkspaceApprovalsRequest(
       mandateService.revokeMandate(workspaceId);
 
       deps.writeJson(res, { ok: true });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -623,7 +623,7 @@ export async function handleWorkspaceApprovalsRequest(
             }
           : null,
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -663,7 +663,7 @@ export async function handleWorkspaceApprovalsRequest(
           createdAt: t.createdAt,
         })),
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -704,7 +704,7 @@ export async function handleWorkspaceApprovalsRequest(
             }
           : null,
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -733,7 +733,7 @@ export async function handleWorkspaceApprovalsRequest(
       trustService.revokeTrust(workspaceId, trustId);
 
       deps.writeJson(res, { ok: true });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -772,7 +772,7 @@ export async function handleWorkspaceApprovalsRequest(
       }));
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -817,7 +817,7 @@ export async function handleWorkspaceApprovalsRequest(
           expiresAt: entry.expires_at
         }
       });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;
@@ -848,7 +848,7 @@ export async function handleWorkspaceApprovalsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: getErrorMessage(err) }, 500);
     }
     return true;

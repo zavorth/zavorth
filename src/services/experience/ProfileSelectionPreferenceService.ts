@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import type { ExperienceSurface } from './ExperienceContracts.js';
 import { logger } from '../../logger.js';
@@ -79,7 +79,10 @@ export class ProfileSelectionPreferenceService {
       if (parsed?.contractVersion === 'ExperienceProfileSelectionPreferences/v1' && parsed.preferences && typeof parsed.preferences === 'object') {
         return parsed;
       }
-    } catch (error) { // Missing or invalid state should not block profile selection. logger.warn('[Profile Selection Preference] JSON parse failed', error); }
+    } catch (error: any) {
+      // Missing or invalid state should not block profile selection.
+      logger.warn('[Profile Selection Preference] JSON parse failed', error);
+    }
     return {
       contractVersion: 'ExperienceProfileSelectionPreferences/v1',
       updatedAt: this.now().toISOString(),

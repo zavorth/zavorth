@@ -21,7 +21,7 @@ export async function GET() {
     const hasPassword = !!settings.password || !!process.env.INITIAL_PASSWORD;
     const setupComplete = !!settings.setupComplete;
     return NextResponse.json({ requireLogin, hasPassword, setupComplete, ...nodeInfo });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error fetching require-login settings:", error);
     return NextResponse.json(
       { requireLogin: true, hasPassword: true, setupComplete: true, ...nodeInfo },
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
 
     await updateSettings(updates);
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error updating require-login settings:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to update settings" },

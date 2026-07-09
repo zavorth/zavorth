@@ -22,7 +22,7 @@ getAppLogRetentionDays,
 function getDb() {
   try {
     return getDbInstance();
-  } catch (error) { logger.warn('[index] module import failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[index] module import failed', error); return null; }
 }
 
 /**
@@ -79,7 +79,10 @@ export function logAuditEvent(entry: {
       typeof entry.details === "object" ? JSON.stringify(entry.details) : entry.details || null,
       entry.ipAddress || null
     );
-  } catch (error) { // Silently fail — audit logging should never break the main flow logger.warn('[index] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Silently fail — audit logging should never break the main flow
+      logger.warn('[index] operation failed', error);
+    }
 }
 
 /**
@@ -163,7 +166,7 @@ function ensureNoLogColumn(db: import("better-sqlite3").Database) {
   try {
     const columns = db.prepare("PRAGMA table_info(api_keys)").all() as Array<{ name: string }>;
     hasNoLogColumn = columns.some((column) => column.name === "no_log");
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[index] cache operation failed', error);
     hasNoLogColumn = false;
   }
@@ -189,7 +192,7 @@ function readNoLogFromDb(apiKeyId: string): boolean {
     const value = Boolean(row && Number(row.no_log) === 1);
     noLogDbCache.set(apiKeyId, { value, timestamp: Date.now() });
     return value;
-  } catch (error) { logger.warn('[index] cache operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[index] cache operation failed', error); return false; }
 }
 
 /**
@@ -279,32 +282,32 @@ export function cleanupExpiredLogs() {
   try {
     const r1 = db.prepare("DELETE FROM usage_history WHERE timestamp < ?").run(callCutoff);
     deletedUsage = r1.changes;
-  } catch (error) { /* table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
     const r2 = db.prepare("DELETE FROM call_logs WHERE timestamp < ?").run(callCutoff);
     deletedCallLogs = r2.changes;
-  } catch (error) { /* table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
     const r3 = db.prepare("DELETE FROM proxy_logs WHERE timestamp < ?").run(callCutoff);
     deletedProxyLogs = r3.changes;
-  } catch (error) { /* table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
     const r4 = db.prepare("DELETE FROM request_detail_logs WHERE timestamp < ?").run(callCutoff);
     deletedRequestDetailLogs = r4.changes;
-  } catch (error) { /* legacy table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* legacy table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
     const r5 = db.prepare("DELETE FROM audit_log WHERE timestamp < ?").run(appCutoff);
     deletedAuditLogs = r5.changes;
-  } catch (error) { /* table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   try {
     const r6 = db.prepare("DELETE FROM mcp_tool_audit WHERE created_at < ?").run(appCutoff);
     deletedMcpAuditLogs = r6.changes;
-  } catch (error) { /* table may not exist */ logger.warn('[index] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error; /* table may not exist */ logger.warn('[index] delete operation failed', error); }
 
   // Enforce row count limits to prevent unbounded DB growth (batched to avoid long locks)
   const BATCH_SIZE = 5000;
@@ -326,7 +329,7 @@ export function cleanupExpiredLogs() {
         currentCount.cnt -= trimmed.changes;
         if (trimmed.changes === 0) break;
       }
-    } catch (error) { /* best effort */ logger.warn('[index] delete operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[index] delete operation failed', error); }
   }
 
   if (proxyLogsMaxRows > 0) {
@@ -347,7 +350,7 @@ export function cleanupExpiredLogs() {
         currentProxyCount.cnt -= trimmed.changes;
         if (trimmed.changes === 0) break;
       }
-    } catch (error) { /* best effort */ logger.warn('[index] delete operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[index] delete operation failed', error); }
   }
 
   logAuditEvent({

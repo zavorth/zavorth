@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   CanvasSessionSnapshot,
   ExecutionEngineId,
 } from '../contracts/ExecutionEngineContract.js';
@@ -56,7 +56,7 @@ export async function syncSpeculativeAutonomyToCanvas(input: {
       status: result.status,
       error: null,
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Canvas Runtime] creation failed', error);
     return {
       ok: false,

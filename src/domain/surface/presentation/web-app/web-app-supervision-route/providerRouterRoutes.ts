@@ -72,7 +72,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
         budgetPreference: asNullableString(body.budgetPreference) || 'auto',
       });
       deps.writeJson(res, { ok: true, receipt }, 200);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       deps.writeJson(
         res,
         { ok: false, error: error instanceof Error ? error.message : 'Falha ao rotear a requisicao.' },

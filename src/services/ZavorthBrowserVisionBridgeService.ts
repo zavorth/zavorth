@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import {
   createSurfaceResponse,
@@ -298,7 +298,7 @@ export class ZavorthBrowserVisionBridgeService {
       });
       const evidence = extractTextFromSidecar(dom) || JSON.stringify(unwrapSidecarPayload(dom));
       return { used: true, title, evidence, error: null };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Browser Vision Bridge] process execution failed', error);
     return {
         used: false,
@@ -320,7 +320,7 @@ export class ZavorthBrowserVisionBridgeService {
     try {
       const parsed = await this.egressGuard(value, allowPrivateEgress);
       return { status: 'allowed', url: parsed, reason: 'Public HTTP target allowed.' };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Browser Vision Bridge] network request failed', error);
     return {
         status: 'blocked',
@@ -678,7 +678,7 @@ function redactUrl(value: string | null): string | null {
     parsed.username = parsed.username ? '[redacted]' : '';
     parsed.password = parsed.password ? '[redacted]' : '';
     return parsed.toString();
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error);
     return safePreview(value, 160);
   }
@@ -687,7 +687,7 @@ function redactUrl(value: string | null): string | null {
 function safeOrigin(value: string | null | undefined): string | null {
   try {
     return new URL(String(value || '')).origin;
-  } catch (error) { logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Browser Vision Bridge] parsing failed', error); return null; }
 }
 
 function makePlanId(input: ZavorthBrowserVisionInput, steps: ZavorthBrowserVisionPlanStep[]): string {

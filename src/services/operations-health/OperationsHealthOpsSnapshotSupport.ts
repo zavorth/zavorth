@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { SystemLog } from '../../storage/LogRepository.js';
@@ -93,7 +93,7 @@ export class OperationsHealthOpsSnapshotSupport {
         withSoak: parsed.withSoak === true,
         withPublish: parsed.withPublish === true,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Operations  Ops Snapshot] parsing failed', error);
     return {
         available: false,
@@ -118,7 +118,7 @@ export class OperationsHealthOpsSnapshotSupport {
       const blockSize = Number(stats.bsize || 0);
       totalBytes = Number(stats.blocks || 0) * blockSize;
       freeBytes = Number(stats.bavail || 0) * blockSize;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Operations  Ops Snapshot] filesystem check failed', error);
     totalBytes = 0;
       freeBytes = 0;
@@ -271,7 +271,7 @@ export class OperationsHealthOpsSnapshotSupport {
         smokeTest: typeof parsed.smokeTest === 'string' ? parsed.smokeTest : null,
         history: this.readPublishHistory(),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Operations  Ops Snapshot] parsing failed', error);
     return {
         available: false,
@@ -324,7 +324,7 @@ export class OperationsHealthOpsSnapshotSupport {
           sourceArchiveId: typeof entry.sourceArchiveId === 'string' ? entry.sourceArchiveId : null,
         };
       });
-    } catch (error) { logger.warn('[Operations  Ops Snapshot] operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Operations  Ops Snapshot] operation failed', error); return []; }
   }
 
   public readMaintenanceAutomationSnapshot(): MaintenanceAutomationSnapshot {
@@ -380,7 +380,7 @@ export class OperationsHealthOpsSnapshotSupport {
           config.maintenanceAutomationMinute,
         );
       }
-    } catch {
+    } catch (error: any) {
       state = {
         ...fallback,
         nextPlannedAt: this.computeNextMaintenanceAutomationAt(
@@ -401,7 +401,10 @@ export class OperationsHealthOpsSnapshotSupport {
           lastReportStepCount: Array.isArray(report.steps) ? report.steps.length : 0,
         };
       }
-    } catch (error) { // Ignore report parsing failures and preserve state snapshot. logger.warn('[Operations  Ops Snapshot] JSON parse failed', error); }
+    } catch (error: any) {
+      // Ignore report parsing failures and preserve state snapshot.
+      logger.warn('[Operations  Ops Snapshot] JSON parse failed', error);
+    }
 
     return state;
   }
@@ -464,7 +467,7 @@ export class OperationsHealthOpsSnapshotSupport {
         total += this.safeDirectorySize(path.join(targetPath, entry.name));
       }
       return total;
-    } catch (error) { logger.warn('[Operations  Ops Snapshot] filesystem operation failed', error); return 0; }
+    } catch (error: any) { logger.warn('[Operations  Ops Snapshot] filesystem operation failed', error); return 0; }
   }
 
   public shouldIgnoreOperationalWarning(entry: SystemLog): boolean {
@@ -527,7 +530,7 @@ export class OperationsHealthOpsSnapshotSupport {
         ok: typeof parsed.ok === 'boolean' ? parsed.ok : null,
         summary: typeof parsed.summary === 'string' ? parsed.summary : null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Operations  Ops Snapshot] JSON parse failed', error);
     return {
         available: false,

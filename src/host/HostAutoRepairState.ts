@@ -27,7 +27,7 @@ export function persistAutoRepairTriggerState(
       ),
       'utf-8',
     );
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     deps.log(`Failed to persist autorepair trigger state: ${error.message}`);
   }
 }
@@ -37,7 +37,7 @@ export function clearAutoRepairTriggerState(stateFilePath: string): void {
     if (fs.existsSync(stateFilePath)) {
       fs.unlinkSync(stateFilePath);
     }
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     // Ignore cleanup failures; cooldown will naturally expire.
   }
 }
@@ -65,7 +65,7 @@ export function readAutoRepairCooldownState(input: {
       active: remainingMs > 0,
       remainingMs: Math.max(0, remainingMs),
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return { active: false, remainingMs: 0 };
   }
 }

@@ -11,7 +11,7 @@ export class TokenCounter {
       const encoding = getEncoding('cl100k_base');
       const tokens = encoding.encode(text);
       return tokens.length;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return Math.ceil(text.length / 4);
     }
   }

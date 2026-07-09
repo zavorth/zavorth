@@ -1,4 +1,4 @@
-/**
+﻿/**
  * WakeWordSyncService — Synchronizes agent name with wake word configuration.
  *
  * When a user sets an agent name during onboarding, this service ensures
@@ -108,7 +108,10 @@ export class WakeWordSyncService {
           updatedAt: data.updatedAt ?? new Date().toISOString(),
         };
       }
-    } catch (error) { // Ignore errors, return defaults logger.warn('[Wake Word] JSON parse failed', error); }
+    } catch (error: any) {
+      // Ignore errors, return defaults
+      logger.warn('[Wake Word] JSON parse failed', error);
+    }
 
     return {
       wakeWords: ['zavorth'],

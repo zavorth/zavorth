@@ -19,8 +19,8 @@ configuration, policy, approval and receipts.
 | SSH | Configurable | Remote shell envelope. Requires `ZAVORTH_SSH_HOST`. |
 | WSL | Configurable / on-demand on Windows | Linux runtime through `wsl.exe`. Presence can be detected without starting the Linux runtime; readiness probe is deferred until a task asks for it. |
 | Vercel Sandbox | Configurable | Managed cloud sandbox. Requires `VERCEL_TOKEN` and explicit opt-in. |
-| Modal | Planned | Tracked as future adapter; no live claim today. |
-| Daytona | Planned | Tracked as future adapter; no live claim today. |
+| Modal | Configurable (elastic) | Cloud function backend. Configure tokens/CLI; plan → approval → live flag → receipt. See [Power Fabric](./power-fabric.md). |
+| Daytona | Configurable (elastic) | Cloud workspace backend. Configure API key + workspace; same governed envelope. See [Power Fabric](./power-fabric.md). |
 
 ## Commands
 
@@ -77,7 +77,7 @@ isolated executor.
 - No backend is live by default.
 - Docker and WSL can be available on demand without being kept live in the background.
 - Docker, SSH, WSL and Vercel Sandbox must be configured before live execution.
-- Modal and Daytona are explicit future adapters, not fake live integrations.
+- Modal and Daytona are configurable elastic backends (not planned-only), but still never live by catalog alone.
 - stdout/stderr previews are redacted before serialization.
 - Commands are represented as structured executable/args envelopes.
 - Network/install commands and workspace mutation commands require approval.

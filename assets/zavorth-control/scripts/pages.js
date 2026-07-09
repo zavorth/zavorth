@@ -7,15 +7,26 @@
 
   populate('sector-overview', `
     <div class="premium-page premium-page--platform platform-page--operator dashboard-glass" data-zavorth-premium-dashboard-v2>
-      <section class="premium-hero premium-hero--platform platform-hero--operator" aria-label="Operations overview">
+      <section class="premium-hero premium-hero--platform platform-hero--operator premium-hero--compact" aria-label="Operations overview">
         <div>
           <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>Overview</span>
-          <h1 class="premium-title">Today in Zavorth.</h1>
-          <p class="premium-subtitle">Ask for the outcome, see what is ready, approve real risk, and keep the work understandable.</p>
+          <h1 class="premium-title">Work</h1>
+          <span class="dashboard-pill dashboard-pill--safe" data-dashboard-strip="status">live</span>
+          <span hidden data-dashboard-runtime-title>Waiting for a mission</span>
+          <span hidden data-dashboard-runtime-text></span>
         </div>
-        <div class="premium-hero__actions">
-          <button class="operator-primary-action" type="button" data-dashboard-prompt="Run Zavorth Ready To Go and summarize the result in simple language.">Ready check</button>
-          <button class="operator-secondary-action" type="button" data-dashboard-sector="terminal">Ask Zavorth</button>
+        <div class="premium-hero__actions" aria-label="Primary actions">
+          <button class="operator-primary-action" type="button" data-dashboard-sector="terminal">New chat</button>
+          <button class="operator-secondary-action" type="button" data-dashboard-sector="sales-os">Review approvals</button>
+          <button class="operator-secondary-action" type="button" data-dashboard-sector="instances">Receipts</button>
+          <button class="operator-secondary-action" type="button" data-dashboard-prompt="Run Zavorth Ready To Go and summarize the result in simple language.">Ready check</button>
+        </div>
+      </section>
+
+      <section class="platform-main" aria-label="Attention">
+        <div class="platform-section-title">Attention</div>
+        <div class="platform-action-list" data-attention-list aria-label="Items needing attention">
+          <div class="premium-status premium-status--ok"><span>Nothing needs you</span><strong>clear</strong></div>
         </div>
       </section>
 
@@ -28,43 +39,19 @@
 
       <section class="platform-workspace platform-workspace--operator">
         <div class="platform-main">
-          <div class="platform-section-title">Next best action</div>
-          <button class="platform-command-row platform-command-row--primary" type="button" data-dashboard-sector="terminal">
-            <span>
-              <strong data-dashboard-runtime-title>Waiting for a mission</strong>
-              <small data-dashboard-runtime-text>Ask in plain language. Zavorth chooses tools, previews risky work, and shows the result clearly.</small>
-            </span>
-            <em>Open chat</em>
-          </button>
-          <div class="platform-process platform-process--quiet" aria-label="Governed flow">
-            ${premiumStep('1', 'Ask', 'plain language')}
-            ${premiumStep('2', 'Preview', 'risk and tools')}
-            ${premiumStep('3', 'Approve', 'scope and TTL')}
-            ${premiumStep('4', 'Result', 'proof and replay')}
-          </div>
-          <div class="platform-timeline platform-timeline--quiet" data-dashboard-timeline hidden>
-            <div class="platform-section-title">Recent activity</div>
-          </div>
-          <div class="platform-action-list" aria-label="Common actions">
-            <button type="button" data-dashboard-sector="terminal"><strong>Ask Zavorth</strong><span>Start with a normal request.</span></button>
-            <button type="button" data-dashboard-sector="sales-os"><strong>Review approvals</strong><span>Accept, reject or scope permissions.</span></button>
-            <button type="button" data-dashboard-sector="instances"><strong>Review results</strong><span>See what happened and why.</span></button>
-          </div>
-          <div class="operator-checklist" aria-label="Setup checklist">
-            ${setupStep('Provider', 'ready', 'Choose model and fallback before deep work.')}
-            ${setupStep('Inbox', 'ready', 'Chat first; real decisions appear when needed.')}
-            ${setupStep('Approvals', 'gated', 'Human decisions stay scoped and reversible.')}
-            ${setupStep('History', 'on', 'Every completed action stays explainable.')}
+          <div class="platform-timeline platform-timeline--quiet" data-dashboard-timeline>
+            <div class="platform-section-title">Live trail</div>
+            <div class="premium-status premium-status--info"><span>No events yet</span><strong>—</strong></div>
           </div>
         </div>
 
         <aside class="platform-side">
           <div class="platform-section-title">Readiness</div>
           <div class="premium-status-list">
-            ${premiumStatus('Web dashboard', 'ready', 'ok')}
-            ${premiumStatus('CLI/TUI', 'ready', 'ok')}
-            ${premiumStatus('Telegram', 'configurable', 'info')}
-            ${premiumStatus('Mutable work', 'approval gated', 'ok')}
+            ${premiumStatus('Web', 'ready', 'ok')}
+            ${premiumStatus('CLI', 'ready', 'ok')}
+            ${premiumStatus('Telegram', 'opt-in', 'info')}
+            ${premiumStatus('Mutations', 'gated', 'ok')}
           </div>
           <button class="operator-secondary-action" type="button" data-dashboard-sector="channels">Open channels</button>
         </aside>

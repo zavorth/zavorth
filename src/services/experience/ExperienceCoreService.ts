@@ -1,4 +1,4 @@
-import { logger } from '../../logger.js';
+﻿import { logger } from '../../logger.js';
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
   EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
@@ -184,7 +184,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       timeZoneName: 'short',
     }).format(now);
     return `Agora em ${timeZone} é ${formatted}.`;
-  } catch (error) {
+  } catch (error: any) {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
     return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
   }
@@ -469,6 +469,8 @@ export class ExperienceCoreService {
       agentMaturity,
       nextActions,
       health,
+      // Stable cold-start surface for Desktop workboard hybrid sync.
+      workboard: this.workboardProjectionFromRuntimeState(runtimeState),
       raw: {
         agentGateway: agentSnapshot
           ? {
@@ -480,6 +482,7 @@ export class ExperienceCoreService {
           : null,
         nativeAutonomySpine,
         runtimeState,
+        workboard: this.workboardProjectionFromRuntimeState(runtimeState),
       },
     };
   }
@@ -746,7 +749,7 @@ export class ExperienceCoreService {
   public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeSecureIntegration?.dispatch(input) || this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
       return null;
     }
@@ -761,7 +764,7 @@ export class ExperienceCoreService {
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       }).buildSnapshot();
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
       return null;
     }
@@ -772,7 +775,7 @@ export class ExperienceCoreService {
   ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
     try {
       return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
       return null;
     }
@@ -1018,7 +1021,7 @@ export class ExperienceCoreService {
   private safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
       return null;
     }
@@ -1027,7 +1030,7 @@ export class ExperienceCoreService {
   private safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
     try {
       return this.agentGateway?.buildSnapshot(input) || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
       return null;
     }
@@ -1125,7 +1128,7 @@ export class ExperienceCoreService {
           confidence: 0.7,
         }];
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] buildMemorySignals memoryPlane fallback failed:', error);
     }
     return [];
@@ -1171,10 +1174,27 @@ export class ExperienceCoreService {
   private safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
     try {
       return this.runtimeStateBus?.buildSnapshot() || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] safeRuntimeStateSnapshot failed:', error);
       return null;
     }
+  }
+
+  private workboardProjectionFromRuntimeState(
+    runtimeState: ZavorthRuntimeStateBusSnapshot | null,
+  ): Record<string, unknown> | null {
+    if (!runtimeState) return null;
+    const fromProjection = runtimeState.projections?.workboard || null;
+    const fromState = runtimeState.state?.workboard || null;
+    const workboard = fromProjection || fromState;
+    if (!workboard) return null;
+    // Only surface when there is something useful to render (tasks, sessions, or boards).
+    const hasContent = Boolean(
+      (Array.isArray(workboard.tasks) && workboard.tasks.length > 0)
+      || (Array.isArray(workboard.sessions) && workboard.sessions.length > 0)
+      || (Array.isArray(workboard.boards) && workboard.boards.length > 0),
+    );
+    return hasContent ? (workboard as unknown as Record<string, unknown>) : null;
   }
 
   private safeRuntimeStateSync(command: ExperienceCommand): ZavorthRuntimeStateBusSnapshot | null {
@@ -1188,7 +1208,7 @@ export class ExperienceCoreService {
         responseProfile: command.responseProfile || null,
         metadata: command.metadata || {},
       }) || null;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] safeRuntimeStateSync failed, falling back to snapshot:', error);
       return this.safeRuntimeStateSnapshot();
     }
@@ -1682,7 +1702,7 @@ export class ExperienceCoreService {
           : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
       });
       return retryResult.ok ? retryResult : firstResult;
-    } catch (error) {
+    } catch (error: any) {
       this.selfHealingReceipts.append({
         projection,
         action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
@@ -1934,7 +1954,7 @@ export class ExperienceCoreService {
         probe: false,
         live: false,
       });
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ExperienceCore] safeProviderReadinessMatrix failed:', error);
       return null;
     }

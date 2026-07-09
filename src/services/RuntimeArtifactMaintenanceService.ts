@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -104,6 +104,6 @@ export class RuntimeArtifactMaintenanceService {
     try {
       fs.rmSync(targetPath, { recursive: true, force: true });
       return true;
-    } catch (error) { logger.warn('[Runtime Artifact Maintenance] filesystem operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Runtime Artifact Maintenance] filesystem operation failed', error); return false; }
   }
 }

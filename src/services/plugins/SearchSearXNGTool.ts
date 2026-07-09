@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
@@ -124,7 +124,7 @@ export class SearchSearXNGTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error) { logger.warn('[Search Sear X N G] parsing failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Search Sear X N G] parsing failed', error); return ''; }
   }
 
   private listInstances(): string {

@@ -87,7 +87,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
           storedServerSide: Boolean(config.geminiManagedAgentsStore),
         },
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       result.error_code = 'GEMINI_MANAGED_AGENT_API_ERROR';
       result.error_message = `Gemini Managed Agent API error: ${(error as Error)?.message || String(error)}`;
     }

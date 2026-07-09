@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import { ZavorthBridgeRemoteDoctorService } from './ZavorthBridgeRemoteDoctorService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';
 

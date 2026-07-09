@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import path from 'path';
 import { config } from '../config/index.js';
 import type {
@@ -722,7 +722,7 @@ export class ZavorthSandboxControlPlaneService {
   private safeDockerStatus(language: SandboxLanguage): DockerSandboxStatus {
     try {
       return this.dockerRuntime.getStatus(language);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.dockerSandboxEnabled,
@@ -746,7 +746,7 @@ export class ZavorthSandboxControlPlaneService {
   private safeFirecrackerStatus(): FirecrackerSandboxStatus {
     try {
       return this.firecrackerRuntime.getStatus();
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.firecrackerEnabled,
@@ -764,7 +764,7 @@ export class ZavorthSandboxControlPlaneService {
   private safeWasmStatus(): WasmSandboxStatus {
     try {
       return this.wasmCapability.getStatus('wasm');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Sandbox Control Plane] filesystem check failed', error);
     return {
         enabled: config.wasmSandboxEnabled,

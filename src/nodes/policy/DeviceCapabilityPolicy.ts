@@ -184,7 +184,7 @@ export class DeviceCapabilityPolicy {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         policies: parsed.policies as Record<string, DevicePolicy>,
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return DEFAULT_POLICY_STATE();
     }
   }

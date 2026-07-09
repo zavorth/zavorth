@@ -178,23 +178,39 @@ export function renderZavorthSetupAppliedSummary(snapshot: ZavorthSetupStudioSna
   backupFile?: string | null;
   removedKeys?: string[];
 }): string {
+  const provider = snapshot.plan.provider.id === 'deferred'
+    ? 'not configured yet'
+    : `${snapshot.plan.provider.id} / ${snapshot.plan.provider.modelId}`;
+  const channels = [
+    snapshot.plan.channels.telegram !== 'skip' ? 'Telegram' : null,
+    snapshot.plan.channels.discord !== 'skip' ? 'Discord' : null,
+    snapshot.plan.channels.slack !== 'skip' ? 'Slack' : null,
+    snapshot.plan.channels.email !== 'skip' ? 'Email' : null,
+  ].filter(Boolean).join(', ') || 'none';
+
+  const providerStatus = snapshot.plan.provider.id !== 'deferred'
+    ? `\u001b[32m\u2713\u001b[0m ${provider}`
+    : `\u001b[33m\u25cb\u001b[0m ${provider}`;
+  const channelStatus = channels !== 'none'
+    ? `\u001b[32m\u2713\u001b[0m ${channels}`
+    : `\u001b[33m\u25cb\u001b[0m none configured`;
+
   const lines = [
-    result.written
-      ? `Updated ${result.keys.length} key(s) in ${result.envFile}`
-      : 'No .env updates were needed.',
-    result.backupFile ? `Backup: ${result.backupFile}` : null,
-    result.removedKeys && result.removedKeys.length > 0
-      ? `Reset removed ${result.removedKeys.length} managed key(s).`
-      : null,
-    `Home: ${snapshot.home.root}`,
-    snapshot.plan.hooks.enabled
-      ? `Automation templates prepared in .zavorth/hooks (${snapshot.plan.hooks.templates.length}).`
-      : 'Automation templates skipped.',
     '',
-    'Next commands:',
-    ...snapshot.plan.nextCommands.map((command) => `- ${command}`),
+    `  ${orange('Configuration')}`,
+    `    Provider:   ${providerStatus}`,
+    channels !== 'none' ? `    Channels:   ${channelStatus}` : null,
+    `    Governance: ${snapshot.plan.skillGovernance.mode}`,
+    `    Memory:     ${snapshot.plan.memory.mode}`,
+    '',
+    `  ${orange('Next steps')}`,
+    `    ${warm('zavorth chat')}          Start talking to your agent`,
+    snapshot.plan.provider.id === 'deferred' ? `    ${warm('zavorth providers')}     Set up a model provider first` : null,
+    channels === 'none' ? `    ${warm('zavorth channels')}      Connect messaging platforms` : null,
+    `    ${warm('zavorth doctor')}        Check system health`,
+    '',
   ].filter((line): line is string => Boolean(line));
-  return compactSection('First Light complete', lines);
+  return compactSection('Setup complete', lines);
 }
 
 export function renderZavorthOnboardingWordmark(): string {
@@ -211,10 +227,7 @@ export function renderZavorthOnboardingBrandLine(): string {
 }
 
 export function renderZavorthOnboardingPrelude(): string {
-  return [
-    `${orange('🦊 Zavorth')} ${soft('1.1.0')} ${muted('(local)')}`,
-    `  ${warm('Trust boundaries exist because capable agents deserve clear consent.')}`,
-  ].join('\n');
+  return `${orange('🦊 Zavorth')} ${soft('1.1.0')} ${muted('(local)')}`;
 }
 
 export function renderZavorthSetupSecurityNotice(): string {
@@ -229,38 +242,18 @@ export function renderZavorthSetupSecurityNotice(): string {
 function setupSecurityNoticeLines(options: { compact?: boolean } = {}): string[] {
   if (options.compact) {
     return [
-      'Security warning - please read.',
-      '',
-      'Zavorth can route natural language into models, channels and local tools.',
-      'Sensitive work stays behind preview, policy, approval, sandbox and evidence.',
-      'Remote channels should be paired or allowlisted before they can reach tools.',
-      '',
-      'Baseline:',
-      '- Keep secrets out of prompts, logs, screenshots and reachable files.',
-      '- Use sandbox and least-privilege tools for mutations.',
+      'Zavorth routes natural language into models, channels and local tools.',
+      'Sensitive work stays behind policy, approval and sandbox.',
+      'Keep secrets out of prompts and logs.',
     ];
   }
   return [
-    'Security warning - please read.',
+    'Zavorth is a local-first AI agent with governed tools.',
+    'Sensitive actions require your approval before execution.',
+    'Remote channels should be paired before they can reach tools.',
     '',
-    'Zavorth is a local-first AI agent and still needs explicit trust boundaries.',
-    'By default, Zavorth is a personal operator boundary: one trusted user, one local workspace, governed tools.',
-    'If channels or shared inboxes are enabled, unknown senders should be paired or allowlisted before they can reach tools.',
-    '',
-    'Zavorth can read files, call models, route channel messages and prepare local actions when abilities are enabled.',
-    'Sensitive work stays behind preview, policy, approval, sandbox and evidence.',
-    'A bad prompt or misconfigured channel can still attempt unsafe actions if you enable broad abilities.',
-    '',
-    'Recommended baseline:',
-    '- Pairing/allowlists for every remote channel.',
-    '- Separate trust boundaries for shared or multi-user use.',
-    '- Sandbox and least-privilege tools for mutations.',
-    '- Keep secrets out of prompts, logs, screenshots and reachable files.',
-    '- Use the strongest available model for tool-enabled or untrusted inboxes.',
-    '',
-    'Run regularly:',
-    'zavorth security audit',
-    'zavorth certify',
+    'Keep secrets out of prompts, logs and reachable files.',
+    'Run "zavorth security audit" regularly.',
   ];
 }
 
@@ -324,7 +317,7 @@ function visibleLength(value: string): number {
 function orange(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
-  return `\u001b[38;2;6;182;212m${value}\u001b[0m`;
+  return `\u001b[38;2;255;122;24m${value}\u001b[0m`;
 }
 
 function warm(value: string): string {
@@ -349,8 +342,8 @@ function paintBannerLine(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
   return Array.from(value).map((char) => {
-    if (char === '█') return `\u001b[38;2;6;182;212m${char}\u001b[0m`;
-    if ('╗╔╝╚║═'.includes(char)) return `\u001b[38;2;8;145;178m${char}\u001b[0m`;
+    if (char === '█') return `\u001b[38;2;255;122;24m${char}\u001b[0m`;
+    if ('╗╔╝╚║═'.includes(char)) return `\u001b[38;2;200;90;18m${char}\u001b[0m`;
     return char;
   }).join('');
 }

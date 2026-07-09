@@ -254,7 +254,7 @@ export function readSecurityOperationalPresetState(
         summary: typeof parsed.receipt?.summary === 'string' ? parsed.receipt.summary : preset.summary,
       },
     };
-  } catch (error) { logger.warn('[Security Operational Preset] parsing failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Security Operational Preset] parsing failed', error); return null; }
 }
 
 export function inspectSecurityOperationalPreset(
@@ -507,7 +507,7 @@ function readJsonFile(
     }
     const parsed = JSON.parse(readFileSyncImpl(filePath, 'utf8') as string);
     return parsed && typeof parsed === 'object' ? parsed : null;
-  } catch (error) { logger.warn('[Security Operational Preset] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Security Operational Preset] JSON parse failed', error); return null; }
 }
 
 function sameStringSet(actual: unknown, expected: string[]): boolean {

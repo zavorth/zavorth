@@ -49,7 +49,7 @@ export class GitHubService extends OAuthService {
     try {
       const open = (await import("open")).default;
       await open(verificationUri);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.log("Could not open browser automatically. Please visit the URL above manually.");
     }
 
@@ -177,7 +177,7 @@ export class GitHubService extends OAuthService {
         },
         copilotTokenInfo: copilotToken,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       throw new Error(`GitHub authentication failed: ${error.message}`);
     }
   }
@@ -218,7 +218,7 @@ export class GitHubService extends OAuthService {
 
       spinner.succeed("GitHub Copilot connected successfully!");
       console.log(`\nConnected as: ${authResult.userInfo.login}`);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const { error: showError } = await import("../utils/ui");
       showError(`GitHub connection failed: ${error.message}`);
       throw error;

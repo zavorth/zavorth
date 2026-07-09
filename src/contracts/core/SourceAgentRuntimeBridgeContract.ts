@@ -132,7 +132,7 @@ export type SourceAgentRuntimeToolPolicyDoctorSnapshot = {
   };
   policy: {
     noFreeToolExecution: true;
-    writesAndShellRequireApproval: true;
+    writesAndShellRequireApproval: boolean;
     deniedToolsRemainDeniedInCanUseTool: true;
     artifactFirstReceipts: true;
   };

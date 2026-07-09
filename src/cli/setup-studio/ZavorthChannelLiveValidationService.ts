@@ -74,7 +74,7 @@ export async function validateZavorthChannelLive(
       return result(input, channelId, 'passed', 'SMTP host accepted a TCP connection. No email was sent.', true);
     }
     return result(input, channelId, 'unsupported', `${channelId || 'unknown'} does not have a live setup test yet.`, false);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Channel Live Validation] connection failed', error);
     return result(
       input,

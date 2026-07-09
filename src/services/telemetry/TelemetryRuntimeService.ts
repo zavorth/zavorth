@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import { redactSensitiveText } from '../../security/SensitiveDataGuard.js';
@@ -70,13 +70,16 @@ export class TelemetryRuntimeService {
         }
       }
       await fs.promises.rename(this.outputFile, `${this.outputFile}.1`).catch(() => undefined);
-    } catch (error) { // Telemetria nao pode derrubar o runtime principal. logger.warn('[Telemetry Runtime] operation failed', error); }
+    } catch (error: any) {
+      // Telemetria nao pode derrubar o runtime principal.
+      logger.warn('[Telemetry Runtime] operation failed', error);
+    }
   }
 
   private async exists(filePath: string): Promise<boolean> {
     try {
       await fs.promises.access(filePath);
       return true;
-    } catch (error) { logger.warn('[Telemetry Runtime] filesystem check failed', error); return false; }
+    } catch (error: any) { logger.warn('[Telemetry Runtime] filesystem check failed', error); return false; }
   }
 }

@@ -1,4 +1,12 @@
 import type { DesktopApiRequest, DesktopApiResult, RuntimeStatus } from './global';
+import {
+  normalizeSessionCreateInput,
+  resolveCreatedSessionId,
+  type DesktopSessionCreateInput,
+  type DesktopSessionCreateResult,
+} from './session/sessionHelpers';
+
+export type { DesktopSessionCreateInput, DesktopSessionCreateResult };
 
 export type ChatMessage = {
   id: string;
@@ -112,26 +120,82 @@ export type ControlMemorySnapshot = {
   stats?: Record<string, unknown>;
 };
 
+export type ChannelSetupOption = {
+  channelId?: string;
+  label?: string;
+  configured?: boolean;
+  readiness?: string;
+  summary?: string;
+  setupMode?: string;
+  recommendedMode?: string;
+  missingEnvKeys?: string[];
+  [key: string]: unknown;
+};
+
 export type ChannelSetupSnapshot = {
   ok?: boolean;
   contractVersion?: string;
   assistant?: {
     status?: string;
-    selected?: Record<string, any> | null;
-    options?: Array<Record<string, any>>;
+    selected?: Record<string, unknown> | null;
+    options?: ChannelSetupOption[];
     naturalReply?: string;
-    nextActions?: Array<Record<string, any>>;
+    nextActions?: Array<Record<string, unknown>>;
   };
   channels?: unknown;
 };
 
 export type GatewayResilienceSnapshot = {
   ok?: boolean;
-  policy?: Record<string, any>;
-  providers?: Array<Record<string, any>>;
-  budget?: Record<string, any>;
-  receipts?: Array<Record<string, any>>;
-  health?: Record<string, any>;
+  policy?: Record<string, unknown>;
+  providers?: Array<Record<string, unknown>>;
+  budget?: Record<string, unknown>;
+  receipts?: Array<Record<string, unknown>>;
+  health?: Record<string, unknown>;
+};
+
+export type WorkspaceWriteApprovalItem = {
+  operationId?: string;
+  operation_id?: string;
+  id?: string;
+  title?: string;
+  summary?: string;
+  path?: string;
+  risk?: string;
+  status?: string;
+  [key: string]: unknown;
+};
+
+export type TaskMandate = {
+  id?: string;
+  title?: string;
+  summary?: string;
+  status?: string;
+  workspaceId?: string;
+  [key: string]: unknown;
+};
+
+export type HostCommandItem = {
+  operation_id?: string;
+  operationId?: string;
+  title?: string;
+  command?: string;
+  risk?: string;
+  status?: string;
+  strongConfirmationPhrase?: string;
+  [key: string]: unknown;
+};
+
+export type PtyOutputChunk = {
+  seq: number;
+  chunk: string;
+  [key: string]: unknown;
+};
+
+export type MutationReceipt = {
+  receiptId?: string;
+  status?: string;
+  [key: string]: unknown;
 };
 
 export type MemoryEncryptionStatus = {
@@ -366,6 +430,74 @@ export async function repairAccess(): Promise<RuntimeStatus> {
   return bridge().repairAccess();
 }
 
+export async function createDesktopSession(
+  input: DesktopSessionCreateInput = {},
+): Promise<DesktopSessionCreateResult> {
+  const { sessionId, label, surface, workspaceId } = normalizeSessionCreateInput(input);
+
+  if (window.zavorthDesktop && 'createSession' in window.zavorthDesktop && typeof (window.zavorthDesktop as { createSession?: unknown }).createSession === 'function') {
+    const result = await (window.zavorthDesktop as {
+      createSession(input: DesktopSessionCreateInput): Promise<DesktopApiResult<DesktopSessionCreateResult>>;
+    }).createSession({ sessionId, label, surface, workspaceId });
+    if (result.ok && result.data?.sessionId) {
+      return {
+        sessionId: String(result.data.sessionId),
+        label: result.data.label || label,
+        surface: result.data.surface || surface,
+      };
+    }
+  }
+
+  const createResult = await apiRequest<DesktopSessionCreateResult | { data?: DesktopSessionCreateResult }>({
+    method: 'POST',
+    path: '/api/experience/sessions',
+    body: { sessionId, label, surface, workspaceId },
+    timeoutMs: 12000,
+  });
+
+  if (createResult.ok) {
+    return {
+      sessionId: resolveCreatedSessionId(createResult.data, sessionId),
+      label,
+      surface,
+    };
+  }
+
+  // Lazy-create fallback: switch to a fresh id (runtime may create on first home/ask).
+  const switchResult = await apiRequest({
+    method: 'POST',
+    path: '/api/experience/sessions/switch',
+    body: { sessionId, label, surface },
+    timeoutMs: 8000,
+  });
+  if (!switchResult.ok) {
+    // Still return the local id so the UI can start a clean thread.
+    return { sessionId, label, surface };
+  }
+  return { sessionId, label, surface };
+}
+
+export async function switchDesktopSession(sessionId: string): Promise<void> {
+  const id = String(sessionId || '').trim();
+  if (!id) {
+    throw new Error('Session id is required.');
+  }
+  if (window.zavorthDesktop?.switchSession) {
+    const result = await window.zavorthDesktop.switchSession(id);
+    if (!result.ok) {
+      throw new Error(result.error || 'Could not switch session.');
+    }
+    return;
+  }
+  const result = await apiRequest({
+    method: 'POST',
+    path: '/api/experience/sessions/switch',
+    body: { sessionId: id },
+    timeoutMs: 8000,
+  });
+  requireOk(result, 'Could not switch session.');
+}
+
 export async function loadHome(sessionId?: string, responseProfile?: string): Promise<ExperienceSnapshot> {
   const result = await apiRequest<ExperienceSnapshot>({
     method: 'GET',
@@ -529,8 +661,8 @@ export async function mutateControlMemory(input: {
   content?: string;
   query?: string;
   type?: string;
-}): Promise<any> {
-  const result = await apiRequest({
+}): Promise<{ receipt?: MutationReceipt; result?: unknown; [key: string]: unknown }> {
+  const result = await apiRequest<{ receipt?: MutationReceipt; result?: unknown; [key: string]: unknown }>({
     method: 'POST',
     path: '/api/web/zavorthControl/memory',
     body: input,
@@ -558,8 +690,13 @@ export async function mutateChannelSetup(input: {
   channelId?: string | null;
   mode?: string | null;
   extraEntries?: Array<{ key: string; value: string }>;
-}): Promise<any> {
-  const result = await apiRequest({
+}): Promise<{ action?: string; receipt?: MutationReceipt; result?: { assistant?: ChannelSetupSnapshot['assistant'] }; [key: string]: unknown }> {
+  const result = await apiRequest<{
+    action?: string;
+    receipt?: MutationReceipt;
+    result?: { assistant?: ChannelSetupSnapshot['assistant'] };
+    [key: string]: unknown;
+  }>({
     method: 'POST',
     path: '/api/web/zavorthControl/channels/setup',
     body: input,
@@ -576,8 +713,18 @@ export async function loadGatewayResilience(): Promise<GatewayResilienceSnapshot
   return result.ok ? result.data || null : null;
 }
 
-export async function mutateGatewayResilience(input: Record<string, unknown>): Promise<any> {
-  const result = await apiRequest({
+export async function mutateGatewayResilience(input: Record<string, unknown>): Promise<{
+  resilience?: GatewayResilienceSnapshot;
+  receipt?: MutationReceipt;
+  status?: string;
+  [key: string]: unknown;
+}> {
+  const result = await apiRequest<{
+    resilience?: GatewayResilienceSnapshot;
+    receipt?: MutationReceipt;
+    status?: string;
+    [key: string]: unknown;
+  }>({
     method: 'POST',
     path: '/api/gateway-control/resilience',
     body: input,
@@ -695,26 +842,27 @@ export async function loadDesktopPanelsData(): Promise<DesktopPanelsData> {
   };
 }
 
-export async function loadWorkspaceWriteApprovals(sessionId?: string): Promise<any[]> {
-  const result = await apiRequest<{ data: any[] }>({
+export async function loadWorkspaceWriteApprovals(sessionId?: string): Promise<WorkspaceWriteApprovalItem[]> {
+  const result = await apiRequest<{ data?: WorkspaceWriteApprovalItem[] } | WorkspaceWriteApprovalItem[]>({
     method: 'GET',
     path: '/api/v2/workspace/approvals/pending',
     query: sessionId ? { sessionId } : {},
   });
   const data = requireOk(result, 'Could not load workspace write approvals.');
-  return data.data || [];
+  if (Array.isArray(data)) return data;
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
 export async function loadWorkspaceWriteApprovalPayload(
   operationId: string,
   sessionId?: string,
   workspacePath?: string,
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const query: Record<string, string> = { operationId };
   if (sessionId) query.sessionId = sessionId;
   if (workspacePath) query.workspacePath = workspacePath;
 
-  const result = await apiRequest<any>({
+  const result = await apiRequest<Record<string, unknown>>({
     method: 'GET',
     path: '/api/v2/workspace/approvals/payload',
     query,
@@ -767,8 +915,8 @@ export async function resolveWorkspaceTrust(payload: {
   allowRiskUpTo?: 'LOW' | 'MEDIUM';
   allowPackageInstall?: boolean;
   allowNetwork?: boolean;
-}): Promise<any> {
-  const result = await apiRequest<any>({
+}): Promise<WorkspaceTrustStatus> {
+  const result = await apiRequest<WorkspaceTrustStatus>({
     method: 'POST',
     path: '/api/v2/workspace/trust/resolve',
     body: payload,
@@ -776,26 +924,32 @@ export async function resolveWorkspaceTrust(payload: {
   return requireOk(result, 'Could not resolve workspace trust.');
 }
 
-export async function loadProposedMandate(workspaceId: string): Promise<any> {
-  const result = await apiRequest<any>({
+export async function loadProposedMandate(workspaceId: string): Promise<TaskMandate | null> {
+  const result = await apiRequest<{ proposed?: TaskMandate | null }>({
     method: 'GET',
     path: '/api/v2/workspace/task-mandates/pending',
     query: { workspaceId },
   });
-  return requireOk(result, 'Could not load proposed task mandate.').proposed;
+  if (!result.ok) return null;
+  const data = result.data;
+  if (!data || typeof data !== 'object') return null;
+  return data.proposed ?? null;
 }
 
-export async function loadActiveMandate(workspaceId: string): Promise<any> {
-  const result = await apiRequest<any>({
+export async function loadActiveMandate(workspaceId: string): Promise<TaskMandate | null> {
+  const result = await apiRequest<{ active?: TaskMandate | null }>({
     method: 'GET',
     path: '/api/v2/workspace/task-mandates/active',
     query: { workspaceId },
   });
-  return requireOk(result, 'Could not load active task mandate.').active;
+  if (!result.ok) return null;
+  const data = result.data;
+  if (!data || typeof data !== 'object') return null;
+  return data.active ?? null;
 }
 
-export async function resolveProposedMandate(workspaceId: string, approved: boolean): Promise<any> {
-  const result = await apiRequest<any>({
+export async function resolveProposedMandate(workspaceId: string, approved: boolean): Promise<MutationReceipt | Record<string, unknown>> {
+  const result = await apiRequest<MutationReceipt | Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/task-mandates/resolve',
     body: { workspaceId, approved },
@@ -803,8 +957,8 @@ export async function resolveProposedMandate(workspaceId: string, approved: bool
   return requireOk(result, 'Could not resolve task mandate.');
 }
 
-export async function revokeActiveMandate(workspaceId: string): Promise<any> {
-  const result = await apiRequest<any>({
+export async function revokeActiveMandate(workspaceId: string): Promise<MutationReceipt | Record<string, unknown>> {
+  const result = await apiRequest<MutationReceipt | Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/task-mandates/revoke',
     body: { workspaceId },
@@ -813,7 +967,7 @@ export async function revokeActiveMandate(workspaceId: string): Promise<any> {
 }
 
 export async function getHostPowerStatus(workspaceId: string): Promise<{ enabled: boolean; timeLeftSeconds: number }> {
-  const result = await apiRequest<any>({
+  const result = await apiRequest<{ enabled: boolean; timeLeftSeconds: number }>({
     method: 'GET',
     path: '/api/v2/workspace/host-power/status',
     query: { workspaceId },
@@ -822,7 +976,7 @@ export async function getHostPowerStatus(workspaceId: string): Promise<{ enabled
 }
 
 export async function enableHostPower(workspaceId: string, durationMinutes: number): Promise<void> {
-  const result = await apiRequest<any>({
+  const result = await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/host-power/enable',
     body: { workspaceId, durationMinutes },
@@ -831,7 +985,7 @@ export async function enableHostPower(workspaceId: string, durationMinutes: numb
 }
 
 export async function disableHostPower(workspaceId: string): Promise<void> {
-  const result = await apiRequest<any>({
+  const result = await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/host-power/disable',
     body: { workspaceId },
@@ -839,18 +993,19 @@ export async function disableHostPower(workspaceId: string): Promise<void> {
   requireOk(result, 'Could not disable host power mode.');
 }
 
-export async function getPendingHostCommands(workspaceId: string): Promise<any[]> {
-  const result = await apiRequest<any>({
+export async function getPendingHostCommands(workspaceId: string): Promise<HostCommandItem[]> {
+  const result = await apiRequest<{ data?: HostCommandItem[] } | HostCommandItem[]>({
     method: 'GET',
     path: '/api/v2/workspace/host-commands/pending',
     query: { workspaceId },
   });
   const data = requireOk(result, 'Could not get pending host commands.');
-  return data.data || [];
+  if (Array.isArray(data)) return data;
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
 export async function resolveHostCommand(operationId: string, decision: 'approve' | 'deny', strongConfirmationInput?: string): Promise<void> {
-  const result = await apiRequest<any>({
+  const result = await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/host-commands/resolve',
     body: { operationId, decision, strongConfirmationInput },
@@ -858,8 +1013,8 @@ export async function resolveHostCommand(operationId: string, decision: 'approve
   requireOk(result, 'Could not resolve host command.');
 }
 
-export async function executeHostCommand(workspaceId: string, operationId: string): Promise<any> {
-  const result = await apiRequest<any>({
+export async function executeHostCommand(workspaceId: string, operationId: string): Promise<Record<string, unknown>> {
+  const result = await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/host-commands/execute',
     body: { workspaceId, operationId },
@@ -867,18 +1022,19 @@ export async function executeHostCommand(workspaceId: string, operationId: strin
   return requireOk(result, 'Could not execute host command.');
 }
 
-export async function getPtyOutput(workspaceId: string, sessionId: string, afterSeq: number): Promise<any[]> {
-  const result = await apiRequest<any>({
+export async function getPtyOutput(workspaceId: string, sessionId: string, afterSeq: number): Promise<PtyOutputChunk[]> {
+  const result = await apiRequest<{ data?: PtyOutputChunk[] } | PtyOutputChunk[]>({
     method: 'GET',
     path: '/api/v2/workspace/pty/output',
     query: { workspaceId, sessionId, afterSeq: afterSeq.toString() },
   });
   const data = requireOk(result, 'Could not get PTY output.');
-  return data.data || [];
+  if (Array.isArray(data)) return data;
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
 export async function sendPtyInput(workspaceId: string, sessionId: string, data: string): Promise<void> {
-  await apiRequest<any>({
+  await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/pty/input',
     body: { workspaceId, sessionId, data },

@@ -116,7 +116,7 @@ export function readCompatList(providerId: string): ModelCompatOverride[] {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed : [];
-  } catch (error) { logger.warn('[model Compat] JSON parse failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[model Compat] JSON parse failed', error); return []; }
 }
 
 export function writeCompatList(providerId: string, list: ModelCompatOverride[]) {

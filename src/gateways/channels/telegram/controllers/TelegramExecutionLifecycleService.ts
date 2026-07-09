@@ -85,7 +85,7 @@ export class TelegramExecutionLifecycleService {
 
       await SmartOutputService.reply(ctx, output, { includeDeleteAction: false });
       await this.deps.sendTaskArtifacts(ctx, task);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }

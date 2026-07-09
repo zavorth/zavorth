@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { logger } from '../../logger.js';
@@ -215,7 +215,7 @@ function realpathIfExists(target: string): string | null {
       return null;
     }
     return normalizePath(fs.realpathSync.native(target));
-  } catch (error) { logger.warn('[Workspace Fs] filesystem operation failed', error); return null; }
+  } catch (error: any) { logger.warn('[Workspace Fs] filesystem operation failed', error); return null; }
 }
 
 function findNearestExistingAncestor(startDir: string): string {

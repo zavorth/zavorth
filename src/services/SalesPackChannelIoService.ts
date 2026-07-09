@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+﻿import { randomUUID } from 'crypto';
 import type {
   SalesPackChannelIoEnvelope,
   SalesPackChannelIoEvent,
@@ -362,7 +362,7 @@ function parseRawJson(rawBody: unknown): Record<string, unknown> | null {
   if (!raw) return null;
   try {
     return JSON.parse(raw) as Record<string, unknown>;
-  } catch (error) { logger.warn('[Sales Pack Channel Io] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Sales Pack Channel Io] JSON parse failed', error); return null; }
 }
 
 function firstRecord(values: unknown[]): Record<string, unknown> | null {

@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       },
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching combo defaults:", error);
     return NextResponse.json({ error: "Failed to fetch combo defaults" }, { status: 500 });
   }
@@ -49,7 +49,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -83,7 +83,7 @@ export async function PATCH(request) {
       comboDefaults: settings.comboDefaults || {},
       providerOverrides: settings.providerOverrides || {},
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating combo defaults:", error);
     return NextResponse.json({ error: "Failed to update combo defaults" }, { status: 500 });
   }

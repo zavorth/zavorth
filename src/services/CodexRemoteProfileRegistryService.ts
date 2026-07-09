@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -493,7 +493,7 @@ export class CodexRemoteProfileRegistryService {
         stateFileExists,
         rawActiveProfileId,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Codex Remote Profile Registry] parsing failed', error);
     return {
         state: { ...EMPTY_STATE },
@@ -607,7 +607,7 @@ export class CodexRemoteProfileRegistryService {
     try {
       this.mkdirSync(path.dirname(this.stateFilePath), { recursive: true });
       this.writeFileSync(this.stateFilePath, JSON.stringify(normalizedState, null, 2), 'utf8');
-    } catch (error) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       throw new Error(`Falha ao persistir o registry de perfis do Codex Remote: ${message}`);
     }

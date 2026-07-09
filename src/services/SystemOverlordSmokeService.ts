@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import { SupervisedBrowserControlAdapter } from '../adapters/overlord/SupervisedBrowserControlAdapter.js';
 import { SupervisedDockerExecAdapter } from '../adapters/overlord/SupervisedDockerExecAdapter.js';
@@ -155,14 +155,14 @@ export class SystemOverlordSmokeService {
       if (tunnelStartedBySmoke) {
         try {
           await this.publicTunnelService.stop();
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       }
       try {
         await probeServer?.close();
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       try {
         await this.browserTool.shutdown();
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
     }
   }
 

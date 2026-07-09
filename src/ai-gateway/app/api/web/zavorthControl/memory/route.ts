@@ -79,7 +79,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(await listZavorthControlMemoryFacts(request));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,
@@ -288,5 +288,8 @@ async function logMemoryMutationReceipt(receipt: ReturnType<typeof buildMemoryMu
         action: receipt.action,
       },
     });
-  } catch (error) { // Audit logging is best-effort here; the API response remains the proof. logger.warn('[route] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Audit logging is best-effort here; the API response remains the proof.
+      logger.warn('[route] operation failed', error);
+    }
 }

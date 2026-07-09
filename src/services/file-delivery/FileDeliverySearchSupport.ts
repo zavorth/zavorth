@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { FileDeliveryEntry, RequestDescriptor, SearchRoot } from './FileDeliveryTypes.js';
 import { MAX_PENDING_CHOICES, MAX_SCAN_ENTRIES } from './FileDeliveryTypes.js';
@@ -64,7 +64,7 @@ export class FileDeliverySearchSupport {
         let entries: fs.Dirent[];
         try {
           entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-        } catch {
+        } catch (error: any) {
           continue;
         }
 
@@ -81,7 +81,7 @@ export class FileDeliverySearchSupport {
           let stats: fs.Stats;
           try {
             stats = await fs.promises.stat(absolutePath);
-          } catch {
+          } catch (error: any) {
             continue;
           }
 

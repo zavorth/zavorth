@@ -235,7 +235,7 @@ export async function fetchModelsDev(): Promise<ModelsDevData> {
     cachedData = data;
     cacheTime = Date.now();
     return data;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`models.dev returned invalid JSON (${text.slice(0, 100)}...)`);
   }
 }
@@ -355,7 +355,7 @@ export function getModelsDevPricing(): PricingByProvider {
     if (!key || rawValue === null) continue;
     try {
       synced[key] = JSON.parse(rawValue) as PricingModels;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       console.warn(`[MODELS_DEV] Corrupted pricing data for provider "${key}", skipping`);
     }
   }
@@ -594,7 +594,7 @@ export async function syncModelsDev(opts?: {
       dryRun,
       ...(dryRun ? { data: { pricing, capabilities } } : {}),
     };
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     const message = err instanceof Error ? err.message : String(err);
     console.warn("[MODELS_DEV] Sync failed:", message);
     return {

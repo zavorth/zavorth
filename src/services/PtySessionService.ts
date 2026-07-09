@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import { HostPowerModeService } from './HostPowerModeService';
 import { PtySessionApprovalService } from './PtySessionApprovalService';
 import { SecurityAuditLogger } from './SecurityAuditLogger';
@@ -51,7 +51,7 @@ export class PtySessionService {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       this.ptyModule = require('node-pty') as IPtyModule;
       this.isAvailable = true;
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       logger.warn('node-pty is not available. PTY tools will fail-closed.');
       this.isAvailable = false;
     }
@@ -113,7 +113,7 @@ export class PtySessionService {
     let finalCwd = '';
     try {
       finalCwd = fs.realpathSync(pendingData.cwd);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       throw new Error(`Invalid PTY CWD: path does not exist or cannot be resolved.`);
     }
 
@@ -217,7 +217,10 @@ export class PtySessionService {
     if (ptyProcess) {
       try {
         ptyProcess.kill();
-      } catch (error) { // ignore kill errors logger.warn('[Pty Session] operation failed', error); }
+      } catch (error: any) {
+      // ignore kill errors
+      logger.warn('[Pty Session] operation failed', error);
+    }
       this.activeSessions.delete(sessionId);
     }
     this.sessionOutputBuffers.delete(sessionId);

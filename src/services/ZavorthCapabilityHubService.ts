@@ -1,4 +1,4 @@
-import {
+﻿import {
   CAPABILITY_HUB_CONTRACT_VERSION,
   type CapabilityHubActivation,
   type CapabilityHubGovernance,
@@ -171,13 +171,13 @@ export class ZavorthCapabilityHubService {
   private safeChannelEntries(): GatewayChannelRegistryEntry[] {
     try {
       return this.channelRegistryService.buildSnapshot().channels;
-    } catch (error) { logger.warn('[Zavorth Capability Hub] creation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Capability Hub] creation failed', error); return []; }
   }
 
   private safeIntegrationSnapshot(): IntegrationCatalogSnapshot {
     try {
       return this.integrationHubService.buildCatalogSnapshot();
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Hub] creation failed', error);
     return {
         generatedAt: this.now().toISOString(),
@@ -240,7 +240,7 @@ export class ZavorthCapabilityHubService {
   private safeImportedItems(): CapabilityHubItem[] {
     try {
       return this.capabilityImportService.listCapabilityHubItems();
-    } catch (error) { logger.warn('[Zavorth Capability Hub] module import failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Capability Hub] module import failed', error); return []; }
   }
 
   private fromRuntimeCapability(entry: CapabilityDefinition): CapabilityHubItem {

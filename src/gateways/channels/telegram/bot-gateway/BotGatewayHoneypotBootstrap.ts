@@ -11,7 +11,7 @@ export function createTelegramHoneypotMonitor(gateway: any): HoneypotMonitor {
           await gateway.bot.api.sendMessage(trimmed, msg, {
             parse_mode: "Markdown",
           });
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           logger.error(
             `Falha ao alertar admin ${trimmed} sobre honeypot:`,
             error,

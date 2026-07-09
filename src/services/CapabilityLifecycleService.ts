@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { getDefaultCapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
@@ -590,7 +590,10 @@ export class CapabilityLifecycleService {
           fs.unlinkSync(absolutePath);
         }
         removed.push(relative.replace(/\\/g, '/'));
-      } catch (error) { // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo. logger.warn('[Capability Lifecycle] file cleanup failed', error); }
+      } catch (error: any) {
+      // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
+      logger.warn('[Capability Lifecycle] file cleanup failed', error);
+    }
     }
     return removed;
   }
@@ -610,7 +613,10 @@ export class CapabilityLifecycleService {
           capabilities: parsed.capabilities && typeof parsed.capabilities === 'object' ? parsed.capabilities : {},
         };
       }
-    } catch (error) { // Se o estado estiver corrompido, o Zavorth volta para o baseline leve. logger.warn('[Capability Lifecycle] parsing failed', error); }
+    } catch (error: any) {
+      // Se o estado estiver corrompido, o Zavorth volta para o baseline leve.
+      logger.warn('[Capability Lifecycle] parsing failed', error);
+    }
 
     return {
       version: 2,

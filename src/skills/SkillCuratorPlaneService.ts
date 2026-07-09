@@ -699,7 +699,7 @@ export class SkillCuratorPlaneService {
         ],
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         ...this.emptyLlmReview('failed'),
         providerName: this.llmProviderName || null,
@@ -815,7 +815,7 @@ export class SkillCuratorPlaneService {
         enabled: this.enabled,
         skillStates: parsed.skillStates && typeof parsed.skillStates === 'object' ? parsed.skillStates : {},
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw error;
       }

@@ -1,4 +1,4 @@
-import { logger } from '../../logger.js';
+﻿import { logger } from '../../logger.js';
 import type {
 NodeMeshSmokeSnapshot,
   ChannelProviderDoctorSnapshot,
@@ -90,7 +90,7 @@ export class OperationsHealthDoctorSnapshotSupport {
         maxAgeMs: this.nodeMeshSmokeMaxAgeMs,
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
       };
-    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 
   public readChannelProviderDoctorSnapshot(): ChannelProviderDoctorSnapshot {
@@ -167,7 +167,7 @@ export class OperationsHealthDoctorSnapshotSupport {
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
         items: items as DoctorItem[],
       };
-    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 
   public readRemoteTransportDoctorSnapshot(): RemoteTransportDoctorSnapshot {
@@ -223,6 +223,6 @@ export class OperationsHealthDoctorSnapshotSupport {
         recommendedAction: status === 'passed' && !stale ? null : (String(parsed.command || fallback.command).trim() || fallback.command),
         items: items as TransportDoctorItem[],
       };
-    } catch (error) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Doctor Snapshot] parsing failed', error); return fallback; }
   }
 }

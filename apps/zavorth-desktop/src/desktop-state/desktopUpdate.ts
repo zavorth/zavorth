@@ -15,10 +15,14 @@ export type DesktopUpdateStatus = {
   currentVersion: string;
   latestVersion: string;
   channel: string;
+  source: 'github' | 'manifest' | 'none';
+  githubRepo: string | null;
+  releaseUrl: string | null;
   releaseNotes: string[];
   providerConfigured: boolean;
   canDownloadLater: boolean;
   canInstallNow: boolean;
+  canOpenGithub: boolean;
   canRollback: boolean;
   deferredUntil?: string | null;
   rollbackVersion?: string | null;
@@ -30,6 +34,9 @@ export type DesktopUpdateInput = {
   currentVersion: string;
   latestVersion?: string | null;
   channel?: string | null;
+  source?: string | null;
+  githubRepo?: string | null;
+  releaseUrl?: string | null;
   releaseNotes?: string[] | string | null;
   providerConfigured?: boolean;
   downloaded?: boolean;
@@ -42,10 +49,16 @@ export type DesktopUpdateInput = {
 export function buildDesktopUpdateStatus(input: DesktopUpdateInput): DesktopUpdateStatus {
   const currentVersion = normalizeVersion(input.currentVersion || '0.0.0');
   const latestVersion = normalizeVersion(input.latestVersion || currentVersion);
-  const providerConfigured = Boolean(input.providerConfigured);
+  const source = normalizeUpdateSource(input.source || input.channel, input.providerConfigured);
+  // GitHub is the default product channel when no custom site/CDN exists.
+  const providerConfigured = Boolean(input.providerConfigured) || source === 'github';
   const releaseNotes = normalizeReleaseNotes(input.releaseNotes);
   const hasUpdate = compareSemver(latestVersion, currentVersion) > 0;
   const canRollback = Boolean(input.rollbackVersion);
+  const githubRepo = input.githubRepo ? String(input.githubRepo) : (source === 'github' ? 'zavorth/zavorth' : null);
+  const releaseUrl = input.releaseUrl
+    ? String(input.releaseUrl)
+    : (githubRepo ? `https://github.com/${githubRepo}/releases` : null);
 
   let state: DesktopUpdateState = 'up-to-date';
   if (input.error) {
@@ -69,11 +82,16 @@ export function buildDesktopUpdateStatus(input: DesktopUpdateInput): DesktopUpda
     state,
     currentVersion,
     latestVersion,
-    channel: String(input.channel || 'stable'),
+    channel: String(input.channel || (source === 'github' ? 'github' : 'stable')),
+    source,
+    githubRepo,
+    releaseUrl,
     releaseNotes,
     providerConfigured,
-    canDownloadLater: providerConfigured && hasUpdate && state !== 'installing',
-    canInstallNow: providerConfigured && hasUpdate && (input.downloaded || state === 'available' || state === 'ready-to-install'),
+    // Open GitHub / package whenever there is a release URL (even if versions match).
+    canDownloadLater: providerConfigured && state !== 'installing',
+    canInstallNow: true,
+    canOpenGithub: Boolean(releaseUrl || source === 'github'),
     canRollback,
     deferredUntil: input.deferredUntil || null,
     rollbackVersion: input.rollbackVersion || null,
@@ -82,11 +100,23 @@ export function buildDesktopUpdateStatus(input: DesktopUpdateInput): DesktopUpda
       currentVersion,
       latestVersion,
       providerConfigured,
+      source,
+      githubRepo,
       error: input.error,
       deferredUntil: input.deferredUntil || null,
       rollbackVersion: input.rollbackVersion || null,
     }),
   };
+}
+
+function normalizeUpdateSource(value: unknown, providerConfigured?: boolean): DesktopUpdateStatus['source'] {
+  const text = String(value || '').trim().toLowerCase();
+  if (text === 'github' || text.includes('github')) return 'github';
+  if (text === 'manifest') return 'manifest';
+  if (text === 'none' || text === 'manual') return 'none';
+  // Default product channel is GitHub Releases unless caller explicitly disables provider.
+  if (!text) return providerConfigured === false ? 'none' : 'github';
+  return 'none';
 }
 
 export function compareSemver(a: string, b: string): number {
@@ -122,6 +152,8 @@ function updateMessage(input: {
   currentVersion: string;
   latestVersion: string;
   providerConfigured: boolean;
+  source?: DesktopUpdateStatus['source'];
+  githubRepo?: string | null;
   error?: string | null;
   deferredUntil?: string | null;
   rollbackVersion?: string | null;
@@ -129,23 +161,28 @@ function updateMessage(input: {
   if (input.error) {
     return input.error;
   }
+  const repo = input.githubRepo || 'zavorth/zavorth';
   switch (input.state) {
     case 'unconfigured':
-      return 'Auto-update channel is not configured in this build; the desktop shows release notes and guides manual installation.';
+      return 'No update channel is configured. Open GitHub Releases or Setup to upgrade manually.';
     case 'available':
-      return `Version ${input.latestVersion} available.`;
+      return input.source === 'github'
+        ? `GitHub release ${input.latestVersion} is available (Desktop ${input.currentVersion}). Open Releases to upgrade.`
+        : `Version ${input.latestVersion} available.`;
     case 'deferred':
-      return `Atualizacao adiada ate ${input.deferredUntil || 'mais tarde'}.`;
+      return `Update deferred until ${input.deferredUntil || 'later'}.`;
     case 'ready-to-install':
-      return `Versao ${input.latestVersion} pronta para instalar.`;
+      return `Version ${input.latestVersion} ready — install from GitHub package/Setup.`;
     case 'installing':
-      return 'Instalacao da atualizacao em andamento.';
+      return 'Update install in progress.';
     case 'rollback-available':
-      return `Basic rollback available for ${input.rollbackVersion}.`;
+      return `Rollback reference available for ${input.rollbackVersion}.`;
     case 'error':
-      return 'Falha ao verificar atualizacoes.';
+      return 'Failed to check updates.';
     default:
-      return `Zavorth Desktop ${input.currentVersion} esta atualizado.`;
+      return input.source === 'github'
+        ? `Desktop ${input.currentVersion} — channel github.com/${repo}. Open Releases to review tags anytime.`
+        : `Zavorth Desktop ${input.currentVersion} is up to date.`;
   }
 }
 

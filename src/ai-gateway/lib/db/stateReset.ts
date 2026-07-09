@@ -23,7 +23,7 @@ export function resetAllDbModuleState() {
   for (const resetter of resetters) {
     try {
       resetter();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.warn("[DB] Failed to reset module state:", error);
     }
   }

@@ -7,6 +7,8 @@ import type {
 } from '../contracts/SourceAgentRuntimeBridgeContract.js';
 import { ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION } from '../contracts/SourceAgentRuntimeBridgeContract.js';
 import { ToolExposurePolicy } from '../runtime/agent/ToolExposurePolicy.js';
+import { ToolPolicyService } from './ToolPolicyService.js';
+import type { ZavorthToolPolicyAction, ZavorthToolPolicyLevel } from '../contracts/ToolPolicyContract.js';
 
 export type SourceAgentRuntimeToolPolicyInput = {
   mode?: SourceAgentRuntimeToolPolicyMode;
@@ -37,13 +39,26 @@ const CLAUDE_TOOL_ALIASES: Record<string, string[]> = {
   todowrite: ['TodoWrite', 'todowrite', 'task.write'],
 };
 
+function mapToolToPolicyAction(toolName: string): ZavorthToolPolicyAction | null {
+  const norm = toolName.toLowerCase();
+  if (['read', 'glob', 'grep', 'ls', 'view_file', 'list_dir', 'grep_search'].includes(norm)) return 'file.read';
+  if (['write', 'edit', 'multiedit', 'notebookedit', 'write_to_file', 'replace_file_content', 'multi_replace_file_content'].includes(norm)) return 'file.write';
+  if (['bash', 'shell', 'exec', 'run_command', 'shell.execute'].includes(norm)) return 'shell.execute';
+  if (['fetch', 'curl', 'wget', 'network.fetch', 'read_url', 'read_browser_page', 'search_web'].includes(norm)) return 'network.fetch';
+  if (['delegate', 'subagent', 'subagent.delegate', 'invoke_subagent', 'send_message'].includes(norm)) return 'subagent.delegate';
+  if (norm.includes('mcp')) return 'mcp.execute';
+  return null;
+}
+
 export class SourceAgentRuntimeToolPolicyService {
   private readonly now: () => Date;
   private readonly toolExposurePolicy: ToolExposurePolicy;
+  private readonly toolPolicyService: ToolPolicyService;
 
   constructor(runtime: Runtime = {}) {
     this.now = runtime.now || (() => new Date());
     this.toolExposurePolicy = runtime.toolExposurePolicy || new ToolExposurePolicy();
+    this.toolPolicyService = new ToolPolicyService();
   }
 
   public buildDoctor(input: SourceAgentRuntimeToolPolicyInput = {}): SourceAgentRuntimeToolPolicyDoctorSnapshot {
@@ -55,7 +70,7 @@ export class SourceAgentRuntimeToolPolicyService {
     const profile = this.toolExposurePolicy.buildProfile({
       requestedTools,
       allowedTools,
-      requireApprovalFor: ['Write', 'Edit', 'MultiEdit', 'NotebookEdit', 'Bash', 'shell.exec', 'filesystem.write'],
+      requireApprovalFor: [], // Handled dynamically per-tool using ToolPolicyService below
     });
 
     const decisions = requestedTools.map((toolName) => {
@@ -65,14 +80,32 @@ export class SourceAgentRuntimeToolPolicyService {
         approvedToolIds.map((tool) => tool.toLowerCase()).includes(alias.toLowerCase()),
       );
       const risk = normalizeRisk(exposed?.risk);
-      const approvalRequired = Boolean(exposed?.requiresApproval) || risk === 'danger' || risk === 'attention';
-      const decision = decideTool({
+
+      const action = mapToolToPolicyAction(toolName);
+      let approvalRequired = Boolean(exposed?.requiresApproval) || risk === 'danger' || risk === 'attention';
+      let policyLevel: ZavorthToolPolicyLevel | undefined;
+
+      if (action) {
+        const policyRes = this.toolPolicyService.checkPermission(action);
+        policyLevel = policyRes.level;
+        if (policyRes.level === 'allow') {
+          approvalRequired = false;
+        } else if (policyRes.level === 'ask') {
+          approvalRequired = true;
+        }
+      }
+
+      let decision = decideTool({
         mode,
         exposed: Boolean(exposed),
         approvalRequired,
         approved,
         risk,
       });
+
+      if (policyLevel === 'deny') {
+        decision = 'deny';
+      }
 
       return {
         toolName,
@@ -81,7 +114,9 @@ export class SourceAgentRuntimeToolPolicyService {
         decision,
         approvalRequired,
         approvalGranted: approved,
-        reason: reasonForDecision(mode, toolName, decision, risk, approvalRequired, approved),
+        reason: policyLevel === 'deny'
+          ? `${toolName} is explicitly denied by your TOOL-POLICY.md config.`
+          : reasonForDecision(mode, toolName, decision, risk, approvalRequired, approved),
       };
     });
 
@@ -110,7 +145,8 @@ export class SourceAgentRuntimeToolPolicyService {
       },
       policy: {
         noFreeToolExecution: true,
-        writesAndShellRequireApproval: true,
+        writesAndShellRequireApproval: this.toolPolicyService.checkPermission('file.write').level === 'ask' ||
+                                       this.toolPolicyService.checkPermission('shell.execute').level === 'ask',
         deniedToolsRemainDeniedInCanUseTool: true,
         artifactFirstReceipts: true,
       },

@@ -73,7 +73,7 @@ export function parseApiKey(
     let expectedCrc;
     try {
       expectedCrc = generateCrc(machineId, keyId);
-    } catch (error) { logger.warn('[api Key] lifecycle operation failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[api Key] lifecycle operation failed', error); return null; }
     if (crc !== expectedCrc) return null;
 
     return { machineId, keyId, isNewFormat: true };

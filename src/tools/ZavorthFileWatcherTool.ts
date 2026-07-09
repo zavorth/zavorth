@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -106,7 +106,7 @@ export class ZavorthFileWatcherTool extends BaseTool {
       });
 
       return `File watcher started:\n  ID: ${id}\n  Directory: ${resolved}\n  Pattern: ${pattern}\n  Recursive: ${recursive}`;
-    } catch (error) { logger.warn('[Zavorth File Watcher] lifecycle operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth File Watcher] lifecycle operation failed', error); return ''; }
   }
 
   private stopWatcher(args: Record<string, unknown>): string {

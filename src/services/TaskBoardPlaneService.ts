@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -265,7 +265,7 @@ export class TaskBoardPlaneService {
           ? parsed.boards.map(normalizeBoard).filter((entry): entry is TaskBoard => Boolean(entry))
           : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Task Board Plane] JSON parse failed', error);
     return { boards: [] };
   }

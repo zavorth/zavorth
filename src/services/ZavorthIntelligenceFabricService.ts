@@ -1,4 +1,4 @@
-import {
+﻿import {
   INTELLIGENCE_FABRIC_CONTRACT_VERSION,
   type IntelligenceCapabilityBuilderDraft,
   type IntelligenceCapabilityManifest,
@@ -506,7 +506,7 @@ export class ZavorthIntelligenceFabricService {
 function safeBuildPicker(modelPicker: Pick<ModelPickerService, 'buildPicker'>): ModelPickerServiceResult | null {
   try {
     return modelPicker.buildPicker({ includeAdvanced: true });
-  } catch (error) { logger.warn('[Zavorth Intelligence Fabric] creation failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Intelligence Fabric] creation failed', error); return null; }
 }
 
 function redactText(text: string): string {

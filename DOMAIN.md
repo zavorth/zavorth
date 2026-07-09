@@ -6,7 +6,7 @@ and communication style.
 
 ## Current Domain
 
-- **Primary domain:** General
+- **Primary domain:** general
 - **Sub-domains:** (none configured)
 - **Experience level:** (not set)
 

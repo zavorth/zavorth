@@ -13,8 +13,21 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
   getNotificationPermission: () => ipcRenderer.invoke('zavorth:notification:permission'),
   listSessions: () => ipcRenderer.invoke('zavorth:sessions:list'),
   switchSession: sessionId => ipcRenderer.invoke('zavorth:sessions:switch', sessionId),
+  createSession: input => ipcRenderer.invoke('zavorth:sessions:create', input),
   readFileTree: rootPath => ipcRenderer.invoke('zavorth:files:read-tree', rootPath),
   checkUpdates: () => ipcRenderer.invoke('zavorth:check-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('zavorth:updates:download'),
+  deferUpdate: (input) => ipcRenderer.invoke('zavorth:updates:defer', input),
+  installUpdate: () => ipcRenderer.invoke('zavorth:updates:install'),
+  rollbackUpdate: () => ipcRenderer.invoke('zavorth:updates:rollback'),
+  openGithubReleases: () => ipcRenderer.invoke('zavorth:updates:open-github'),
+  getVoiceAgentStatus: () => ipcRenderer.invoke('zavorth:voice-agent:status'),
+  startVoiceAgent: () => ipcRenderer.invoke('zavorth:voice-agent:start'),
+  onVoiceHotkey: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on('zavorth:voice:hotkey', listener);
+    return () => ipcRenderer.removeListener('zavorth:voice:hotkey', listener);
+  },
   openWindow: () => ipcRenderer.invoke('zavorth:open-window'),
   onDeepLink: (callback) => {
     const listener = (_event, url) => callback(url);

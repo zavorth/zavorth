@@ -52,7 +52,7 @@ function makeBackupName(originalPath: string) {
 export async function createBackup(toolId: string, filePath: string) {
   try {
     await fs.access(filePath);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[backup] creation failed', error);
     // Source file doesn't exist — nothing to back up
     return null;
@@ -104,7 +104,7 @@ export async function listBackups(toolId: string) {
   let entries;
   try {
     entries = await fs.readdir(dir);
-  } catch (error) { logger.warn('[backup] filesystem operation failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[backup] filesystem operation failed', error); return []; }
 
   const metaFiles = entries.filter((e) => e.endsWith(".meta.json"));
   const backups: any[] = [];
@@ -122,7 +122,7 @@ export async function listBackups(toolId: string) {
       try {
         const stat = await fs.stat(backupPath);
         size = stat.size;
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Backup file missing — skip
         continue;
       }
@@ -134,7 +134,10 @@ export async function listBackups(toolId: string) {
         createdAt: meta.createdAt,
         size,
       });
-    } catch (error) { // Corrupt meta — skip logger.warn('[backup] creation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Corrupt meta — skip
+      logger.warn('[backup] creation failed', error);
+    }
   }
 
   // Sort newest first
@@ -156,14 +159,14 @@ export async function restoreBackup(toolId: string, backupId: string) {
   try {
     const raw = await fs.readFile(metaPath, "utf-8");
     meta = JSON.parse(raw);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`Backup metadata not found: ${backupId}`);
   }
 
   // Verify actual backup file exists
   try {
     await fs.access(backupPath);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`Backup file not found: ${backupId}`);
   }
 
@@ -192,10 +195,16 @@ export async function deleteBackup(toolId: string, backupId: string) {
 
   try {
     await fs.unlink(backupPath);
-  } catch (error) { // Already gone logger.warn('[backup] file cleanup failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Already gone
+      logger.warn('[backup] file cleanup failed', error);
+    }
   try {
     await fs.unlink(metaPath);
-  } catch (error) { // Already gone logger.warn('[backup] file cleanup failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Already gone
+      logger.warn('[backup] file cleanup failed', error);
+    }
 
   return { deleted: true, backupId };
 }

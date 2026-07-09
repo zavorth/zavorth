@@ -98,7 +98,7 @@ function isSameOriginZavorthControlRequest(req: NextRequest): boolean {
 
   try {
     return new URL(origin).origin === new URL(req.url).origin;
-  } catch (error) { logger.warn('[route] operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
 }
 
 async function authenticate(req: NextRequest): Promise<boolean> {
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
   let body: any;
   try {
     body = await req.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return jsonRpcError(null, -32700, "Parse error: invalid JSON");
   }
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
           artifacts: result.artifacts,
           metadata: result.metadata,
         });
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         const msg = err instanceof Error ? err.message : String(err);
         tm.updateTask(task.id, "failed", [{ type: "error", content: msg }], msg);
         return jsonRpcError(id, -32603, `Skill execution failed: ${msg}`);
@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
       try {
         const task = tm.cancelTask(taskId);
         return jsonRpcResult(id, { task: { id: task.id, state: task.state } });
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     const msg = err instanceof Error ? err.message : String(err);
         return jsonRpcError(id, -32603, msg);

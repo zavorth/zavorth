@@ -67,7 +67,7 @@ async function checkSidecarHealth(client: MinimalBrowserSidecarClient): Promise<
   try {
     const res = await client.health();
     return res.ok === true;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return false;
   }
 }
@@ -145,7 +145,7 @@ async function webSearchHandler(input: ZavorthActionHandlerInput): Promise<Zavor
         }))
       }
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return result({
       ok: false,
       actionId: input.actionId,
@@ -168,7 +168,7 @@ async function webFetchUrlHandler(input: ZavorthActionHandlerInput): Promise<Zav
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
       return block(input, 'Invalid scheme. Only http and https URLs are allowed.', [`Scheme: ${parsed.protocol}`], { url });
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     return block(input, 'Invalid URL format.', [err instanceof Error ? err.message : String(err)], { url });
   }
 
@@ -229,7 +229,7 @@ async function webFetchUrlHandler(input: ZavorthActionHandlerInput): Promise<Zav
       ],
       data: { content: wrapped, url }
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return block(input, 'Failed to fetch URL or target blocked by network policy.', [
       error instanceof Error ? error.message : String(error)
     ], { url });
@@ -247,7 +247,7 @@ async function browserOpenHandler(input: ZavorthActionHandlerInput): Promise<Zav
     if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
       return block(input, 'Invalid scheme. Only http and https URLs are allowed in browser.', [`Scheme: ${parsed.protocol}`], { url });
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     return block(input, 'Invalid URL format.', [err instanceof Error ? err.message : String(err)], { url });
   }
 
@@ -308,7 +308,7 @@ async function browserOpenHandler(input: ZavorthActionHandlerInput): Promise<Zav
       ],
       data: { opened: response }
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return block(input, 'Browser open action failed.', [
       error instanceof Error ? error.message : String(error)
     ], { url });
@@ -379,7 +379,7 @@ async function browserScreenshotHandler(input: ZavorthActionHandlerInput): Promi
         }
       }
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return block(input, 'Browser screenshot action failed.', [
       error instanceof Error ? error.message : String(error)
     ]);
@@ -447,7 +447,7 @@ async function browserExtractHandler(input: ZavorthActionHandlerInput): Promise<
       ],
       data: { content: wrapped, truncated: response.truncated }
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return block(input, 'Browser extract action failed.', [
       error instanceof Error ? error.message : String(error)
     ]);

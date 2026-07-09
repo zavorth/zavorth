@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
@@ -90,7 +90,7 @@ export class ZavorthVisionService extends BaseTool {
     try {
       const apiKey = process.env[provider.apiKeyEnv]!;
       return await callVisionProvider(provider, base64, mimeType, `${prompt} Detail level: ${detailLevel}`, apiKey);
-    } catch (error) { logger.warn('[Zavorth Vision] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Vision] operation failed', error); return ''; }
   }
 
   private async ocrImage(args: Record<string, unknown>): Promise<string> {
@@ -104,7 +104,7 @@ export class ZavorthVisionService extends BaseTool {
         maxBuffer: 5 * 1024 * 1024,
       }).toString();
       return `OCR result:\n${result}`;
-    } catch (error) { logger.warn('[Zavorth Vision] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Vision] process execution failed', error); return ''; }
   }
 
   private async describeImage(args: Record<string, unknown>): Promise<string> {

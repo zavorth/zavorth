@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -418,7 +418,7 @@ export class ZavorthNativeCapabilityCertificationService {
           `Daemon heartbeat recorded: ${result.safety.heartbeatRecorded ? 'yes' : 'no'}.`,
         ],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Native Capability Certification] creation failed', error);
     return {
         id: 'goal-loop-long-session',

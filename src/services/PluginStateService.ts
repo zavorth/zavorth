@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -227,7 +227,7 @@ export class PluginStateService {
         return fallback;
       }
       return JSON.parse(this.readFileSyncImpl(this.stateFile, 'utf8')) as T;
-    } catch (error) { logger.warn('[Plugin State] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Plugin State] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(state: PluginRegistryState): void {

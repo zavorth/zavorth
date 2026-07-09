@@ -68,7 +68,7 @@ export class EmailGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.emailStatusFile, 'utf8')) as EmailGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Email way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Email way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {

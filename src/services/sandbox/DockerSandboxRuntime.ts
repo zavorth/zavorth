@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
@@ -86,6 +86,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
   private readonly imageReadyCache = new Set<string>();
   private readonly now: () => number;
   private versionProbeCache: DockerProbeCacheEntry | null = null;
+  private static garbageCollected = false;
 
   constructor(options: DockerSandboxRuntimeOptions = {}) {
     this.syncRunner = options.syncRunner || this.defaultSyncRunner;
@@ -93,6 +94,11 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     this.tempBasePath =
       options.tempBasePath || path.join(os.tmpdir(), 'zavorth_docker_jails');
     this.now = options.now || (() => Date.now());
+
+    if (!DockerSandboxRuntime.garbageCollected) {
+      DockerSandboxRuntime.garbageCollected = true;
+      setTimeout(() => this.cleanupOrphanedJails().catch(() => undefined), 1000);
+    }
   }
 
   private usesWslDockerWrapper(): boolean {
@@ -138,7 +144,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         },
       );
       return result.status === 0;
-    } catch (error) { logger.warn('[Docker Sandbox Runtime] lifecycle operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Docker Sandbox Runtime] lifecycle operation failed', error); return false; }
   }
 
   /**
@@ -430,7 +436,10 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(tempDir, { recursive: true, force: true });
-      } catch (error) { // ignore cleanup failures for ephemeral docker sandboxes logger.warn('[Docker Sandbox Runtime] process execution failed', error); }
+      } catch (error: any) {
+      // ignore cleanup failures for ephemeral docker sandboxes
+      logger.warn('[Docker Sandbox Runtime] process execution failed', error);
+    }
     }
   }
 
@@ -564,7 +573,7 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         stdout: String(output || ''),
         stderr: '',
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       const execError = error as DockerExecError;
       return {
         status: typeof execError?.status === 'number' ? execError.status : null,
@@ -604,7 +613,10 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (error) { // ignore timeout kill failures logger.warn('[Docker Sandbox Runtime] operation failed', error); }
+        } catch (error: any) {
+      // ignore timeout kill failures
+      logger.warn('[Docker Sandbox Runtime] operation failed', error);
+    }
 
         resolve({
           stdout,
@@ -627,5 +639,38 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
         });
       });
     });
+  }
+
+  private async cleanupOrphanedJails(): Promise<number> {
+    let cleaned = 0;
+    try {
+      if (!fs.existsSync(this.tempBasePath)) {
+        return 0;
+      }
+      const entries = fs.readdirSync(this.tempBasePath);
+      const now = Date.now();
+      const maxAgeMs = 5 * 60 * 1000; // 5 minutes
+
+      for (const entry of entries) {
+        if (entry.startsWith('ctr_')) {
+          const fullPath = path.join(this.tempBasePath, entry);
+          try {
+            const stats = fs.statSync(fullPath);
+            if (now - stats.mtimeMs > maxAgeMs) {
+              fs.rmSync(fullPath, { recursive: true, force: true });
+              cleaned++;
+            }
+          } catch (err) {
+            // ignore stat or delete errors for specific folders
+          }
+        }
+      }
+      if (cleaned > 0) {
+        logger.info(`[DockerSandboxRuntime] GC: cleaned ${cleaned} orphaned temp jail(s) from ${this.tempBasePath}`);
+      }
+    } catch (error) {
+      logger.warn('[DockerSandboxRuntime] Failed to run garbage collection on temp jails:', error);
+    }
+    return cleaned;
   }
 }

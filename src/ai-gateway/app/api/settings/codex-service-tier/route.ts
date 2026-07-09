@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       enabled: typeof persisted?.enabled === "boolean" ? persisted.enabled : false,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/codex-service-tier GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
@@ -33,7 +33,7 @@ export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -57,7 +57,7 @@ export async function PUT(request: Request) {
     setDefaultFastServiceTierEnabled(config.enabled);
 
     return NextResponse.json(config);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/codex-service-tier PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }

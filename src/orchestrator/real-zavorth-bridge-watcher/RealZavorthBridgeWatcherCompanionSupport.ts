@@ -84,7 +84,7 @@ export class RealZavorthBridgeWatcherCompanionSupport {
         reason,
         action: session.lastAutomationAction,
       });
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.host.logRepo.log('warn', 'RealZavorthBridgeWatcher', `ZavorthBridge window automation failed: ${error.message}`, {
         taskId: session.taskId,
         reason,

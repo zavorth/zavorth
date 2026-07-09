@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const suites = listSuites();
     return NextResponse.json(suites);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -25,7 +25,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -46,7 +46,7 @@ export async function POST(request) {
     const { suiteId, outputs } = validation.data;
     const result = runSuite(suiteId, outputs);
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

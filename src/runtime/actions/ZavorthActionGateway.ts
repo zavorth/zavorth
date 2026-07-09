@@ -53,7 +53,7 @@ async function readJsonArray(file: string): Promise<unknown[]> {
   try {
     const parsed = JSON.parse(await fsp.readFile(file, 'utf8'));
     return Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }

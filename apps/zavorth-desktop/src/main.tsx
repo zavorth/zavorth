@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { KaelOverlayApp } from './kael-overlay/KaelOverlayApp';
 import './styles.css';
+import './styles/design-system.css';
+import './styles/right-rail.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

@@ -1,4 +1,4 @@
-import type { ComputerUseAgent } from '../agents/ComputerUseAgent.js';
+﻿import type { ComputerUseAgent } from '../agents/ComputerUseAgent.js';
 import { ComputerUseWatchModePolicyFileService } from './ComputerUseWatchModePolicyFileService.js';
 import { ComputerUseWatchModeStateFileService } from './ComputerUseWatchModeStateFileService.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
@@ -318,7 +318,7 @@ export class ComputerUseWatchModeService {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
+    } catch (error: any) { logger.warn('[Computer Use Watch Mode] network request failed', error); return null; }
   }
 
   private normalizeOptional(value: unknown): string | null {

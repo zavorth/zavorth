@@ -213,7 +213,10 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch (error) { // Gateway construction failed; skip silently logger.warn('[Channel way Factory] creation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Gateway construction failed; skip silently
+      logger.warn('[Channel way Factory] creation failed', error);
+    }
     }
 
     return registry;
@@ -230,7 +233,10 @@ export class ChannelGatewayFactory {
       try {
         const gateway = new registration.GatewayClass(baseOptions);
         registry.registerGateway(gateway);
-      } catch (error) { // Gateway construction failed; skip silently logger.warn('[Channel way Factory] creation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Gateway construction failed; skip silently
+      logger.warn('[Channel way Factory] creation failed', error);
+    }
     }
 
     return registry;

@@ -211,7 +211,7 @@ export function setQuotaCache(
           window_duration_ms: entry.windowDurationMs ?? null,
           raw_data: null,
         });
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         console.error("[quotaCache] Failed to save snapshot:", error);
       }
     }
@@ -330,7 +330,7 @@ async function refreshEntry(entry: QuotaCacheEntry) {
     if (usage?.quotas) {
       setQuotaCache(entry.connectionId, entry.provider, usage.quotas);
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.warn(
       `[QuotaCache] Refresh failed for ${entry.connectionId.slice(0, 8)}:`,
       (err as any)?.message || err

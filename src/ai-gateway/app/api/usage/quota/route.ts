@@ -171,7 +171,7 @@ export async function GET(request: Request) {
     );
 
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] GET /api/usage/quota error:", error);
     return NextResponse.json({ error: "Failed to fetch quota data" }, { status: 500 });
   }

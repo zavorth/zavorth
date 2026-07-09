@@ -5,11 +5,21 @@
   "main": "electron/main.cjs",
   "description": "Zavorth Desktop native shell for the local runtime.",
   "scripts": {
-    "dev": "npm run build --silent && npx --yes --package electron electron electron/main.cjs",
+    "dev": "node scripts/desktop-dev.mjs",
+    "dev:static": "npm run build --silent && npx --yes --package electron electron electron/main.cjs",
     "build": "vite build",
     "check": "vite build --mode production",
     "check:shell": "node scripts/desktop-shell-check.mjs",
+    "check:quality": "node scripts/desktop-quality-check.mjs",
     "check:electron": "node scripts/desktop-electron-smoke.mjs",
+    "check:visual": "node scripts/desktop-visual-check.mjs",
+    "check:a11y": "node scripts/desktop-a11y-check.mjs",
+    "check:all": "npm run check && npm run check:shell && npm run check:quality && npm run test",
+    "check:ci": "npm run check:all && npm run check:visual && npm run check:a11y",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:electron-unit": "node --test electron/*.test.cjs",
+    "test:all": "npm run test && npm run test:electron-unit",
     "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir"
   },
   "dependencies": {
@@ -29,14 +39,31 @@
     "vite": "^8.0.14"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "axe-core": "^4.12.1",
     "electron": "^39.2.7",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "pixelmatch": "^7.2.0",
+    "playwright": "^1.61.1",
+    "pngjs": "^7.0.0",
+    "vitest": "^3.2.7"
   },
   "build": {
     "appId": "app.zavorth.desktop",
     "productName": "Zavorth",
     "artifactName": "Zavorth-${version}-${os}-${arch}.${ext}",
     "asar": true,
+    "extraResources": [
+      {
+        "from": "../../dist-standalone",
+        "to": "dist-standalone",
+        "filter": [
+          "zavorth.exe",
+          "zavorth",
+          "native/**/*"
+        ]
+      }
+    ],
     "files": [
       "dist/**",
       "electron/**",

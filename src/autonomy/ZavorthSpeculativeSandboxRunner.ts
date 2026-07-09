@@ -310,7 +310,7 @@ export function safeDockerStatus(dockerRuntime: Pick<DockerSandboxRuntime, 'getS
     }
     try {
       return dockerRuntime.getStatus('javascript');
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }
@@ -415,7 +415,7 @@ export function defaultDockerValidationRunner(
         windowsHide: true,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       finish({
         command: input.originalCommand,
         status: 'failed',

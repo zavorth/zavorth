@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import os from 'os';
 import { config } from '../config/index.js';
 import type {
@@ -965,7 +965,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   private async safeDistributedRuntimeSnapshot(): Promise<ZavorthDistributedRuntimeSnapshot | null> {
     try {
       return await this.distributedRuntimeService.buildSnapshot();
-    } catch (error) { logger.warn('[Zavorth Federated Mesh Control Plane] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Federated Mesh Control Plane] creation failed', error); return null; }
   }
 
   private buildActions(

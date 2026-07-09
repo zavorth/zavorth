@@ -1,4 +1,4 @@
-import crypto, { randomUUID } from 'node:crypto';
+﻿import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -228,7 +228,7 @@ export class ZavorthCapabilityPrototypeSandboxService {
         prototypes: Array.isArray(parsed.prototypes) ? parsed.prototypes.map(normalizePrototype).filter(isPrototype) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Prototype Sandbox] parsing failed', error);
     return this.emptyStore();
   }

@@ -59,7 +59,7 @@ export class StorageMaintenance {
           summary.deletedFiles += 1;
           summary.freedBytes += stats.size;
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.warn(`[StorageMaintenance] Falha ao limpar ${fullPath}: ${error}`);
       }
     }
@@ -89,7 +89,7 @@ export class StorageMaintenance {
         fs.unlinkSync(file.filePath);
         summary.deletedFiles += 1;
         summary.freedBytes += file.stats.size;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.warn(`[StorageMaintenance] Falha ao remover contexto antigo ${file.filePath}: ${error}`);
       }
     }
@@ -100,7 +100,7 @@ export class StorageMaintenance {
       if (fs.existsSync(directoryPath) && fs.readdirSync(directoryPath).length === 0) {
         fs.rmdirSync(directoryPath);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`[StorageMaintenance] Falha ao remover pasta vazia ${directoryPath}: ${error}`);
     }
   }
@@ -132,7 +132,7 @@ export class StorageMaintenance {
         fs.unlinkSync(fullPath);
         summary.deletedFiles += 1;
         summary.freedBytes += stats.size;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.warn(`[StorageMaintenance] Falha ao podar ${fullPath}: ${error}`);
       }
     }
@@ -156,7 +156,7 @@ export class StorageMaintenance {
         fs.unlinkSync(fullPath);
         summary.deletedFiles += 1;
         summary.freedBytes += stats.size;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.warn(`[StorageMaintenance] Falha ao remover ${fullPath}: ${error}`);
       }
     }

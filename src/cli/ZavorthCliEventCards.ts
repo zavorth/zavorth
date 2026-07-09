@@ -158,3 +158,12 @@ export function formatCliChatReplyEventCard(reply: string): string | null {
 
   return null;
 }
+
+export function formatCliCuratorNotificationCard(message: string): string {
+  return formatCliEventCard({
+    tone: 'info',
+    title: 'Curator',
+    body: message,
+  });
+}
+

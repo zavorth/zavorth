@@ -75,7 +75,7 @@ export class SignalGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.signalStatusFile, 'utf8')) as SignalGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Signal way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Signal way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {
@@ -212,7 +212,7 @@ export class SignalGateway implements LiveChannelBroadcastGatewayContract {
         this.lastError = null;
         this.writeStatus();
         return;
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         this.lastError = `Signal live send failed: ${error?.message || error}`;
         this.writeStatus();
         throw error;

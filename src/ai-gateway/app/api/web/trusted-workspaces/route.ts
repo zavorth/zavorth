@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       label: typeof body.label === "string" ? body.label : undefined,
       state: isTrustedWorkspaceState(body.state) ? body.state : "trusted",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({
       ok: false,

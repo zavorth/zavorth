@@ -1,4 +1,4 @@
-import { execFile, type ExecException } from 'child_process';
+﻿import { execFile, type ExecException } from 'child_process';
 import crypto from 'crypto';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -85,7 +85,7 @@ export class HostCommandRunnerService {
       stdout = res.stdout;
       stderr = res.stderr;
       exitCode = res.code !== null ? res.code : 0;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Host Command Runner] process execution failed', error);
     exitCode = err.code !== undefined ? err.code : 1;
       stderr = err.message || 'Unknown execution error';

@@ -56,7 +56,7 @@ export function parseAccessSchedule(value: unknown): AccessSchedule | null {
       days,
       tz: obj["tz"],
     };
-  } catch (error) { logger.warn('[api Key Parsing] operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[api Key Parsing] operation failed', error); return null; }
 }
 
 function parseStringArrayJson(value: unknown): string[] {
@@ -68,5 +68,5 @@ function parseStringArrayJson(value: unknown): string[] {
     return Array.isArray(parsed)
       ? parsed.filter((entry): entry is string => typeof entry === "string")
       : [];
-  } catch (error) { logger.warn('[api Key Parsing] JSON parse failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[api Key Parsing] JSON parse failed', error); return []; }
 }

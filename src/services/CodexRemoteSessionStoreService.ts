@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { config } from '../config/index.js';
@@ -294,7 +294,7 @@ export class CodexRemoteSessionStoreService {
             events: Array.isArray(entry.events) ? entry.events.slice(-40) : [],
           })),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Codex Remote Session Store] parsing failed', error);
     return { ...EMPTY_STATE };
   }

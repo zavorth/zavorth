@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -232,7 +232,7 @@ export class CodeIntelligenceService {
             results.push({ file: path.relative(directory, file), line: i + 1, content: lines[i].trim() });
           }
         }
-      } catch (error) { /* ignore */ logger.warn('[Code Intelligence] filesystem operation failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Code Intelligence] filesystem operation failed', error); }
     }
 
     if (results.length === 0) return `No results found for "${query}".`;
@@ -300,7 +300,7 @@ export class CodeIntelligenceService {
           files.push(fullPath);
         }
       }
-    } catch (error) { /* ignore */ logger.warn('[Code Intelligence] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Code Intelligence] filesystem operation failed', error); }
     return files;
   }
 }

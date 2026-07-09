@@ -249,14 +249,14 @@ export class ZavorthControlOperationalSnapshotService {
     try {
       const tasks = deps.taskManager?.getRecentTasks?.(50, deps.continuityUserId);
       return Array.isArray(tasks) ? tasks : [];
-    } catch (error) { logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
   private safeReadHostActions(deps: ZavorthControlOperationalSnapshotDeps): SystemOverlordActionRecord[] {
     try {
       const actions = deps.hostActions?.listActions?.(50);
       return Array.isArray(actions) ? actions : [];
-    } catch (error) { logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Control Operational Snapshot] operation failed', error); return []; }
   }
 
   private readTaskId(task: unknown): string | null {

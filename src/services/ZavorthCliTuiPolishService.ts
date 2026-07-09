@@ -1,4 +1,4 @@
-import figlet from 'figlet';
+﻿import figlet from 'figlet';
 
 import {
   paintCliBadge,
@@ -450,7 +450,7 @@ function safeFiglet(value: string): string {
       verticalLayout: 'default',
       width: 80,
     });
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Zavorth Cli Tui Polish] string operation failed', error);
     return value.toUpperCase();
   }

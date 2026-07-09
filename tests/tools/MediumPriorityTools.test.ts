@@ -121,7 +121,7 @@ describe('ZavorthTokenBudgetTool', () => {
   let tool: ZavorthTokenBudgetTool;
   let tempDir: string;
   beforeEach(() => { tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-')); tool = new ZavorthTokenBudgetTool({ storageDir: tempDir }); });
-  afterEach(() => { fs.rmSync(tempDir, { recursive: true, force: true }); });
+  afterEach(() => { tool.close(); fs.rmSync(tempDir, { recursive: true, force: true }); });
 
   it('exposes correct name', () => { expect(tool.name).toBe('zavorth_token_budget'); });
   it('returns error without action', async () => { expect(await tool.execute({})).toContain('Error'); });

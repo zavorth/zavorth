@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { config } from '../config/index.js';
@@ -174,7 +174,7 @@ export class ApprovalDecisionCacheService {
         schemaVersion: 1,
         entries: Array.isArray(parsed.entries) ? parsed.entries.map(normalizeEntry).filter(Boolean) as ApprovalDecisionCacheEntry[] : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Approval Decision Cache] JSON parse failed', error);
     return { schemaVersion: 1, entries: [] };
   }

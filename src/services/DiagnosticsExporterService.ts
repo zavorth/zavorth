@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { Database } from '../storage/Database.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -93,7 +93,10 @@ export class DiagnosticsExporterService {
             }
           }
         }
-      } catch (error) { // Fallback or ignore logger.warn('[Diagnostics Exporter] operation failed', error); }
+      } catch (error: any) {
+      // Fallback or ignore
+      logger.warn('[Diagnostics Exporter] operation failed', error);
+    }
     }
 
     // 2. Read from process.env (Zavorth related only)

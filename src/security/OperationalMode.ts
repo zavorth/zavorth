@@ -141,7 +141,7 @@ export class ModeManager {
       return this.isOperationalMode(persistedMode)
         ? (persistedMode as OperationalMode)
         : fallbackMode;
-    } catch (error) { logger.warn('[Operational Mode] JSON parse failed', error); return fallbackMode; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Operational Mode] JSON parse failed', error); return fallbackMode; }
   }
 
   private persistMode(): void {
@@ -163,7 +163,10 @@ export class ModeManager {
         ),
         'utf8',
       );
-    } catch (error) { // Ignore persistence failures and keep the in-memory mode active. logger.warn('[Operational Mode] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore persistence failures and keep the in-memory mode active.
+      logger.warn('[Operational Mode] filesystem operation failed', error);
+    }
   }
 
   private isOperationalMode(value: string): value is OperationalMode {

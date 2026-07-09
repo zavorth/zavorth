@@ -1,4 +1,4 @@
-import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
+﻿import type { AutoRepairReport, AutoRepairRunResult, AutoRepairService } from './AutoRepairService.js';
 import type { OperationsHealthSnapshot, OperationsHealthService } from './OperationsHealthService.js';
 import { logger } from '../logger.js';
 
@@ -517,7 +517,7 @@ export class ZavorthSelfHealControlPlaneService {
         ? this.operationsHealthService.readSnapshotLive()
         : this.operationsHealthService.readSnapshotFast();
       return { snapshot, error: null };
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         snapshot: null,
@@ -532,7 +532,7 @@ export class ZavorthSelfHealControlPlaneService {
     }
     try {
       return this.autoRepairService.readLastReport();
-    } catch (error) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return null; }
   }
 
   private buildProbes(
@@ -1170,7 +1170,7 @@ export class ZavorthSelfHealControlPlaneService {
   private snapshotText(snapshot: Partial<OperationsHealthSnapshot>): string {
     try {
       return JSON.stringify(snapshot).slice(0, 20_000);
-    } catch (error) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Self Heal Control Plane] health check failed', error); return ''; }
   }
 
   private compact(value: string | null | undefined, maxLength = 120): string {

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ZavorthMutationPlan } from '../contracts/ZavorthMutationPlaneContract.js';
@@ -574,7 +574,7 @@ export class CompanionWorkspaceOptimizerService {
     try {
       const parsed = JSON.parse(await this.readFile(settingsFilePath, 'utf8')) as Record<string, unknown>;
       return this.normalizeObject(parsed);
-    } catch (error) { logger.warn('[Companion Workspace Optimizer] JSON parse failed', error); return {}; }
+    } catch (error: any) { logger.warn('[Companion Workspace Optimizer] JSON parse failed', error); return {}; }
   }
 
   private mergeSettings(currentSettings: Record<string, unknown>, preset: IDECompanionPreset): Record<string, unknown> {
@@ -641,7 +641,7 @@ export class CompanionWorkspaceOptimizerService {
         updatedAt: String(parsed.updatedAt || this.now().toISOString()),
         workspaces: Array.isArray(parsed.workspaces) ? parsed.workspaces : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Companion Workspace Optimizer] JSON parse failed', error);
     return {
         updatedAt: this.now().toISOString(),

@@ -17,7 +17,7 @@ export async function GET(request) {
     const { events, total } = getTranslationEvents(limit ? Number(limit) : undefined);
 
     return NextResponse.json({ success: true, events, total });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching history:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

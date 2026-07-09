@@ -230,7 +230,7 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         attempted: true,
@@ -268,7 +268,7 @@ export class RuntimeOfficialAccessService {
         statusCode: response.status,
         error: response.ok ? null : `status ${response.status}`,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error ?? 'network failure');
       return {
         ok: false,

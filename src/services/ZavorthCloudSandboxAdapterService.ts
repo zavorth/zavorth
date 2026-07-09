@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -199,7 +199,7 @@ export class ZavorthCloudSandboxAdapterService {
           ? `${descriptor.label} sandbox execution completed.`
           : `${descriptor.label} sandbox execution exited non-zero.`,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = redactSecrets(error instanceof Error ? error.message : String(error));
       return this.result('blocked', provider, startedAt, limits, {
         stdout: '',
@@ -340,7 +340,7 @@ export class ZavorthCloudSandboxAdapterService {
   private async importSdk(moduleName: string, installCommand: string): Promise<any> {
     try {
       return await this.importer(moduleName);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const code = (error as NodeJS.ErrnoException)?.code;
       const message = error instanceof Error ? error.message : String(error);
       if (code === 'ERR_MODULE_NOT_FOUND' || code === 'MODULE_NOT_FOUND' || /cannot find module/i.test(message)) {
@@ -540,7 +540,7 @@ function validateExternalSandboxEndpoint(endpoint: string): void {
   let url: URL;
   try {
     url = new URL(endpoint);
-  } catch {
+  } catch (error: any) {
     throw new Error('External sandbox endpoint must be a valid URL.');
   }
 
@@ -616,7 +616,10 @@ async function defaultLocalExecutor(
   } finally {
     try {
       fs.unlinkSync(scriptFile);
-    } catch (error) { // ignore cleanup failures for temporary sandbox files logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error); }
+    } catch (error: any) {
+      // ignore cleanup failures for temporary sandbox files
+      logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error);
+    }
   }
 }
 
@@ -652,7 +655,10 @@ async function defaultLocalDockerExecutor(
   } finally {
     try {
       fs.unlinkSync(scriptFile);
-    } catch (error) { // ignore cleanup failures for temporary sandbox files logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error); }
+    } catch (error: any) {
+      // ignore cleanup failures for temporary sandbox files
+      logger.warn('[Zavorth Cloud Sandbox Adapter] file cleanup failed', error);
+    }
   }
 }
 

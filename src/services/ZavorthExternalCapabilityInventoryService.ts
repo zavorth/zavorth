@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import {
   ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
@@ -649,7 +649,7 @@ export class ZavorthExternalCapabilityInventoryService {
         dirs: entries.filter((entry) => entry.isDirectory()).length,
         names,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth External Capability Inventory] filesystem operation failed', error);
     return { files: 0, dirs: 0, names: [] };
   }

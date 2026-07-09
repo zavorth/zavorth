@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../../logger.js';
 import type {
@@ -88,7 +88,10 @@ export class ResponseProfilePreferenceService {
       if (parsed?.contractVersion === 'ExperienceResponseProfilePreferences/v1' && parsed.preferences && typeof parsed.preferences === 'object') {
         return parsed;
       }
-    } catch (error) { // Missing or invalid state should not block Experience Core. logger.warn('[Response Profile Preference] JSON parse failed', error); }
+    } catch (error: any) {
+      // Missing or invalid state should not block Experience Core.
+      logger.warn('[Response Profile Preference] JSON parse failed', error);
+    }
     return {
       contractVersion: 'ExperienceResponseProfilePreferences/v1',
       updatedAt: this.now().toISOString(),

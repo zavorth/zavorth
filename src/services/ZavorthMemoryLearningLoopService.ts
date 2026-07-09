@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import DatabaseLib, { type Database as SQLiteDatabase } from 'better-sqlite3';
 import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
@@ -497,7 +497,7 @@ export class ZavorthMemoryLearningLoopService {
     let metadata: Record<string, unknown> = {};
     try {
       metadata = JSON.parse(String(row.metadata_json || '{}'));
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Memory Learning Loop] JSON parse failed', error);
     metadata = {};
   }

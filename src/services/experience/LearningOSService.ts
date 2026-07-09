@@ -1,4 +1,4 @@
-import {
+﻿import {
   LEARNING_CANDIDATE_CONTRACT_VERSION,
   type ExperienceLearningCandidate,
   type ExperienceLearningCandidateState,
@@ -191,7 +191,7 @@ export class LearningOSService {
     }
     try {
       return this.learningPlane.buildSnapshot({ workspace: input.workspace || null });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Learning O S] creation failed', error);
     return {
         generatedAt: this.now().toISOString(),

@@ -154,7 +154,7 @@ export class LegacyUnifiedGatewayAdapter {
     try {
       const result = await this.agentCallback!(text, userId, chatId, surface, [], inlineData, metadata);
       return result.text || 'No response from the agent.';
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[LegacyUnifiedGatewayAdapter] Agent error: ${message}`);
       return `Error while processing your message: ${message}`;

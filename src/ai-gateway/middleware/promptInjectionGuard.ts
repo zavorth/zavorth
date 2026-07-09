@@ -205,7 +205,10 @@ export function withInjectionGuard(handler: any, options: any = {}) {
           request.headers.set("X-Injection-Detections", String(result.detections.length));
         }
       }
-    } catch (error) { // Don't block on guard errors — fail open logger.warn('[prompt Injection Guard] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Don't block on guard errors — fail open
+      logger.warn('[prompt Injection Guard] operation failed', error);
+    }
 
     return handler(request, context);
   };

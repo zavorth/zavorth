@@ -202,11 +202,11 @@ export function pathTokensRoughlyMatch(left: string, right: string): boolean {
 export function isExistingDirectory(candidate: string): boolean {
   try {
     return fs.existsSync(candidate) && fs.statSync(candidate).isDirectory();
-  } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return false; }
 }
 
 export function safeReadDirectory(candidate: string): fs.Dirent[] {
   try {
     return fs.readdirSync(candidate, { withFileTypes: true });
-  } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Directory Helpers] filesystem operation failed', error); return []; }
 }

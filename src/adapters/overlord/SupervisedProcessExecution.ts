@@ -31,7 +31,7 @@ export async function executeSupervisedProcess(input: {
     });
     try {
       input.onSpawn?.(child);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Best-effort hook for supervised cancelation handles.
     }
 

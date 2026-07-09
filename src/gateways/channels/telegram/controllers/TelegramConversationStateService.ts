@@ -93,7 +93,7 @@ export class TelegramConversationStateService {
 
     try {
       this.persistDirectTerminalState(task, 'direct_response_completed');
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       // best-effort persistence for workspace learning
       logger.warn('[TelegramConversationState] persistDirectTerminalState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
@@ -260,7 +260,7 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -427,7 +427,7 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -458,7 +458,7 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[TelegramConversationState] advanceState to completed failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }
@@ -510,7 +510,7 @@ export class TelegramConversationStateService {
         });
       }
       this.deps.taskManager.saveTask(task);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[TelegramConversationState] advanceState failed, falling back to saveTask', { error: err instanceof Error ? err.message : String(err) });
       this.deps.taskManager.saveTask(task);
     }

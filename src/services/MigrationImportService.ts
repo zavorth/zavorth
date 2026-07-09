@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   MigrationImportFinding,
   MigrationImportRequest,
   MigrationImportResult,
@@ -190,7 +190,7 @@ export class MigrationImportService {
         reportArtifactId,
         error: null,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Migration Import] creation failed', error);
     return this.result({
         ok: false,
@@ -253,7 +253,7 @@ export class MigrationImportService {
       try {
         redactedData = this.redactSecrets(JSON.parse(raw));
         kind = 'json';
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Migration Import] JSON parse failed', error);
     redactedData = this.redactText(raw);
   }

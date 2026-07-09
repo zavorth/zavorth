@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ZavorthRuntimePersonalConnector,
   ZavorthRuntimeStateBusDispatchResult,
   ZavorthRuntimeStateBusSnapshot,
@@ -432,7 +432,7 @@ export class ZavorthPersonalOpsRuntimeService {
         profile,
         error: null,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Personal Ops Runtime] connection failed', error);
     return this.operationResult({
         operation: input.operation,

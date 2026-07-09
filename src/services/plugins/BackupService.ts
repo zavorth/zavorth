@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -30,7 +30,7 @@ export class BackupService {
     if (!fs.existsSync(p)) return;
     try {
       this.backups = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error) { /* ignore */ logger.warn('[Backup] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Backup] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -85,7 +85,7 @@ export class BackupService {
       this.scheduleFlush();
 
       return `Backup "${name}" created: ${filesCount} files, ${(totalSize / 1024).toFixed(1)}KB`;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const entry: BackupEntry = {
         id, name, path: backupDir, size_bytes: 0,
         created_at: new Date().toISOString(), type, status: 'failed', files_count: 0,
@@ -112,7 +112,7 @@ export class BackupService {
         fs.copyFileSync(file, destPath);
       }
       return `Backup "${backup.name}" restored to "${targetPath}" (${files.length} files)`;
-    } catch (error) { logger.warn('[Backup] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Backup] filesystem operation failed', error); return ''; }
   }
 
   public deleteBackup(backupId: string): string {
@@ -121,7 +121,7 @@ export class BackupService {
     const backup = this.backups[index];
     try {
       if (fs.existsSync(backup.path)) fs.rmSync(backup.path, { recursive: true, force: true });
-    } catch (error) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
     this.backups.splice(index, 1);
     this.scheduleFlush();
     return `Backup "${backup.name}" deleted.`;
@@ -160,7 +160,7 @@ export class BackupService {
           files.push(fullPath);
         }
       }
-    } catch (error) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Backup] filesystem operation failed', error); }
     return files;
   }
 }

@@ -155,7 +155,7 @@ function zavorthControlClassicClientCore() {
             <small>Heartbeat ON</small>
           </div>
         `;
-      } catch (_e) { console.warn("[auto-fix] Empty catch block", _e); }
+      } catch (_e: any) { const error = _e; const err = _e; const e = _e; console.warn("[auto-fix] Empty catch block", _e); }
     }
 
     function formatBytes(bytes: unknown) {

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
@@ -129,7 +129,7 @@ export class SpeechRuntimeService {
         processedAt,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Speech Runtime] operation failed', error);
     return this.transcribeError(error instanceof Error ? error.message : String(error), processedAt);
   }
@@ -163,7 +163,7 @@ export class SpeechRuntimeService {
         processedAt,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Speech Runtime] operation failed', error);
     return this.synthesizeError(error instanceof Error ? error.message : String(error), processedAt);
   }

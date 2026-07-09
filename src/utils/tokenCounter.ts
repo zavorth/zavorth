@@ -18,7 +18,7 @@ export function countTokens(text: string): number {
   }
   try {
     return getEncodingInstance().encode(text).length;
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     // Fallback to rough estimation in case of error
     return Math.ceil(text.length / 4);
   }

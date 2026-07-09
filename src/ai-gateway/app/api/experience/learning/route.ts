@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       generatedAt: snapshot.generatedAt,
       learning: snapshot.learning,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const learningPlane = new ZavorthLearningPlaneService();
     const snapshot = learningPlane.buildSnapshot({
       workspace: query.workspace,

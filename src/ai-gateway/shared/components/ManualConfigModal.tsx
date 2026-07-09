@@ -31,7 +31,7 @@ export default function ManualConfigModal({
       }
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.log("Failed to copy:", err);
     }
   };

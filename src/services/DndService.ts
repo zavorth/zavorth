@@ -107,11 +107,18 @@ export class DndService {
           const combined = "🔇 **Resumo do Modo Não Perturbe** (Janela Cheia Detectada)\n\n" + messages.map((m, i) => `🔹 [Notificação ${i+1}]\n${m}`).join("\n\n---\n");
           try {
             await this.botApiAccessor.sendMessage(chatId, combined.substring(0, 3900));
-          } catch(e) {
+          } catch (e: any) { const error = e; const err = e;
              logger.warn("Falha ao flushar DND buffer: ", e);
           }
         }
       }, 15000);
+    }
+  }
+
+  public static stopWatcher(): void {
+    if (this.watcher) {
+      clearInterval(this.watcher);
+      this.watcher = null;
     }
   }
 }

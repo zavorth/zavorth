@@ -76,7 +76,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         ageMs,
         maxAgeMs: this.options.nodeMeshSmokeMaxAgeMs,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readSystemOverlordSmokeSnapshot(): RuntimeAccessSystemOverlordSmokeSnapshot {
@@ -172,7 +172,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.systemOverlordSmokeMaxAgeMs,
         items,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readChannelProviderDoctorSnapshot(): RuntimeAccessChannelProviderDoctorSnapshot {
@@ -282,7 +282,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
         maxAgeMs: this.options.channelProviderDoctorMaxAgeMs,
         items,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readRemoteTransportDoctorSnapshot(): RuntimeAccessRemoteTransportDoctorSnapshot {
@@ -385,7 +385,7 @@ export class RuntimeAccessReadinessSmokeSnapshotReader {
               fallback.command,
         items,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Smoke Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   private calculateAgeMs(checkedAt: string | null): number | null {

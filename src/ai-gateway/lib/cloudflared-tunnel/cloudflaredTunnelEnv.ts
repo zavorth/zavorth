@@ -17,7 +17,7 @@ export function extractTryCloudflareUrl(text: string) {
   try {
     const hostname = new URL(match[0]).hostname.toLowerCase();
     if (hostname === "api.trycloudflare.com") return null;
-  } catch (error) { logger.warn('[cloudflared Tunnel Env] network request failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel Env] network request failed', error); return null; }
 
   return match[0];
 }

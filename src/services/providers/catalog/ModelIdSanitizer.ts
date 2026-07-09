@@ -1,4 +1,4 @@
-import { logger } from '../../../logger.js';
+﻿import { logger } from '../../../logger.js';
 const MAX_MODEL_ID_LENGTH = 256;
 const MAX_PROVIDER_ID_LENGTH = 128;
 const MAX_LABEL_LENGTH = 256;
@@ -106,7 +106,7 @@ export function sanitizeBaseUrl(raw: string): string {
     }
 
     return url.toString();
-  } catch (error) { logger.warn('[Model Id Sanitizer] network request failed', error); return ''; }
+  } catch (error: any) { logger.warn('[Model Id Sanitizer] network request failed', error); return ''; }
 }
 
 export function validateModelId(id: string): { valid: boolean; error?: string } {

@@ -3,9 +3,10 @@
  *
  * The classifier is intentionally conservative: it suggests routing/tool groups,
  * but it never authorizes execution and never replaces runtime policy or LLM
- * reasoning. A single ambiguous verb such as "cria", "abre", "salva",
- * "lembra" or "roda" is treated as weak evidence unless paired with a concrete
- * technical object.
+ * reasoning. A single ambiguous verb like "create", "open", "save", "remember"
+ * or "run" is treated as weak evidence unless paired with a concrete technical object.
+ *
+ * English-only patterns. Non-English messages fall through to LLM classification.
  */
 
 export type IntentCategory =
@@ -40,31 +41,41 @@ export interface IntentSecondPassReview {
   signals: string[];
 }
 
-const TRIVIAL_CHAT_PATTERNS = /^(oi|ola|bom dia|boa tarde|boa noite|e ai|fala|salve|hey|hi|hello|good morning|good afternoon|good evening|obrigad[oa]|valeu|thanks|vlw|blz|beleza|ok|certo|entendi|show|massa|otimo|perfeito|ta bom|tudo bem|como vai|tudo certo|haha|kkk|rs|lol|sim|nao|s|n|\?\?|\!\!|tchau|bye|flw|falou|ate mais|merci|danke|gracias|arigatou|감사합니다|شكرا|ありがとう)[\?\!\.\,]?$/i;
+// Trivial chat: greetings, acknowledgments, farewells (English + common loanwords)
+const TRIVIAL_CHAT_PATTERNS = /^(hey|hi|hello|good\s+morning|good\s+afternoon|good\s+evening|thanks|thank\s+you|ok|okay|sure|right|got\s+it|understood|nice|great|perfect|awesome|cool|yes|no|y|n|\?\?|\!\!|bye|see\s+ya|cheers|lol|haha|hey|yo|sup|howdy|greetings|welcome|cheers|ta|ty|thx|tyvm|np|yw|roger|copy|affirmative|negative)[\?\!\.\,]?$/i;
 
-const FILE_PATTERNS = /\b(arquivo|file|pasta|diretorio|directory|folder|criar|crie|create|ler|leia|read|abrir|abra|open|salvar|salva|salve|save|escrever|escreva|write|listar|liste|list|deletar|delete|renomear|rename|mover|move|copiar|copy)\b/i;
-const FILE_OBJECT_PATTERNS = /\b(arquivo|file|pasta|diretorio|directory|folder|readme|package\.json|tsconfig|src\/|src\\|[\w.-]+\.(ts|tsx|js|json|md))\b/i;
-const FILE_ACTION_PATTERNS = /\b(criar|crie|create|ler|leia|read|abrir|abra|open|salvar|salva|salve|save|escrever|escreva|write|listar|liste|list|deletar|delete|renomear|rename|mover|move|copiar|copy)\b/i;
-const FILE_CONVERSATION_NEGATIVE_PATTERNS = /\b(cria\s+(um\s+)?resumo|crie\s+(um\s+)?resumo|abre\s+a\s+cabeca|abr[ae]\s+a\s+mente|me\s+salva\s+dessa|salva\s+essa|salvou\s+meu\s+dia)\b/i;
+// File operations
+const FILE_PATTERNS = /\b(file|directory|folder|create|read|open|save|write|list|delete|rename|move|copy|mkdir|rmdir|touch|cat|ls|dir|find|grep)\b/i;
+const FILE_OBJECT_PATTERNS = /\b(file|directory|folder|readme|package\.json|tsconfig|src\/|src\\|[\w.-]+\.(ts|tsx|js|json|md|py|rs|go|java|cpp|c|h))\b/i;
+const FILE_ACTION_PATTERNS = /\b(create|read|open|save|write|list|delete|rename|move|copy|mkdir|rmdir|touch|cat|ls|dir|find|grep)\b/i;
+const FILE_CONVERSATION_NEGATIVE_PATTERNS = /\b(create\s+a\s+summary|open\s+my\s+mind|save\s+me\s+from|saved\s+my\s+day)\b/i;
 
-const WORKSPACE_REFERENCE_PATTERNS = /\b(readme|package\.json|tsconfig|src\/|src\\|\.ts\b|\.tsx\b|\.js\b|\.json\b|\.md\b|repo|repositorio|repository|workspace|projeto|caminho|path)\b/i;
+// Workspace references
+const WORKSPACE_REFERENCE_PATTERNS = /\b(readme|package\.json|tsconfig|src\/|src\\|\.ts\b|\.tsx\b|\.js\b|\.json\b|\.md\b|repo|repository|workspace|project|path|codebase)\b/i;
 
-const EXECUTION_PATTERNS = /\b(rodar?|rode|executar?|execute|run|exec|shell|terminal|comando|command|script|npm|node|python|pip|git|docker|compilar|build|instalar|install)\b/i;
-const EXECUTION_CONCRETE_PATTERNS = /\b((rodar?|rode|executar?|execute|run|exec)\s+(os\s+)?(testes?|tests?|comandos?|commands?|scripts?|npm|node|python|pip|git|docker|build|compilacao)|shell|terminal|comando|command|script|npm|node|python|pip|git|docker|compilar|build|instalar|install)\b/i;
-const EXECUTION_CONVERSATION_NEGATIVE_PATTERNS = /\b(roda\s+ess[ea]\s+(raciocinio|ideia|pensamento)|rodar\s+ess[ea]\s+(raciocinio|ideia|pensamento)|executa\s+ess[ea]\s+(raciocinio|ideia|pensamento))\b/i;
+// Execution
+const EXECUTION_PATTERNS = /\b(run|execute|exec|shell|terminal|command|script|npm|node|python|pip|git|docker|build|install|compile|test|lint|format|deploy)\b/i;
+const EXECUTION_CONCRETE_PATTERNS = /\b((run|execute|exec)\s+(the\s+)?(tests?|commands?|scripts?|npm|node|python|pip|git|docker|build)|shell|terminal|command|script|npm|node|python|pip|git|docker|build|install|compile|test|lint|format|deploy)\b/i;
+const EXECUTION_CONVERSATION_NEGATIVE_PATTERNS = /\b(run\s+this\s+(reasoning|idea|thought)|execute\s+this\s+(reasoning|idea|thought))\b/i;
 
-const WEB_SEARCH_PATTERNS = /\b(busca|buscar|busque|pesquisa|pesquisar|pesquise|procura|procurar|procure|encontre|ache|levante|mapeie|verifique|confira|consulte|search|look\s+up|find|research|noticias?|news|clima|weather|preco|price|cotacao|placar|score|resultado|result|internet|online|site|url|links?|fontes?|referencias?|google)\b/i;
-const TEMPORAL_PATTERNS = /\b(hoje|agora|atual|atuais|recente|recentes|ultima|ultimo|ultimas|ultimos|novas|novos|descobertas?|tempo.real|now|today|current|latest|recent)\b/i;
+// Web search / information
+const WEB_SEARCH_PATTERNS = /\b(search|look\s+up|find|research|news|weather|price|score|result|internet|online|site|url|links?|sources?|references?|google|browse|fetch|scrape|crawl)\b/i;
+const TEMPORAL_PATTERNS = /\b(now|today|current|latest|recent|real.time|breaking|live|update)\b/i;
 
-const CONFIG_PATTERNS = /\b(modelo|model|provider|configurar?|config|trocar|mudar|switch|llm|gemini|openai|gpt|claude|perfil|profile)\b/i;
-const CONFIG_CONCRETE_PATTERNS = /\b((configurar?|config|trocar|mudar|switch).*(modelo|model|provider|llm|gemini|openai|gpt|claude|perfil|profile)|(modelo|model|provider|llm|gemini|openai|gpt|claude|perfil|profile))\b/i;
+// Configuration
+const CONFIG_PATTERNS = /\b(model|provider|config|configure|settings|switch|llm|gemini|openai|gpt|claude|profile|preference|option)\b/i;
+const CONFIG_CONCRETE_PATTERNS = /\b((config|configure|settings|switch|change).*(model|provider|llm|gemini|openai|gpt|claude|profile|preference)|(model|provider|llm|gemini|openai|gpt|claude|profile|preference))\b/i;
 
-const MEMORY_PATTERNS = /\b(lembrar?|remember|esquecer?|forget|memoria|memory|anotar?|note|guardar?|save|recall|snippet)\b/i;
-const MEMORY_CONCRETE_PATTERNS = /\b((lembre|lembrar|remember|anote|anotar|note|guarde|guardar|save)\s+(isso|que|aqui|minha|meu|esta|este|essa|esse|preferencia|memoria|memory|snippet)|(?:esqueca|esquecer|forget)\s+(isso|que|aqui|minha|meu|esta|este|essa|esse|preferencia|memoria|memory|snippet)|\b(memoria|memory|recall|snippet)\b)\b/i;
-const MEMORY_CONVERSATION_NEGATIVE_PATTERNS = /\b(lembra\s+(daquele|daquela|daquilo|de\s+quando|que\s+eu\s+te\s+falei)|voce\s+lembra|vc\s+lembra)\b/i;
+// Memory
+const MEMORY_PATTERNS = /\b(remember|forget|memory|note|save|recall|snippet|store|retain|memorize)\b/i;
+const MEMORY_CONCRETE_PATTERNS = /\b((remember|note|save|store|retain|memorize)\s+(this|that|it|my|the|a|an|preference|memory|snippet)|(?:forget|remove)\s+(this|that|it|my|the|a|an|preference|memory|snippet)|\b(memory|recall|snippet)\b)\b/i;
+const MEMORY_CONVERSATION_NEGATIVE_PATTERNS = /\b(remember\s+(that\s+time|when\s+I|what\s+I\s+told)|do\s+you\s+remember)\b/i;
 
-const DESKTOP_PATTERNS = /\b(desktop|tela|screen|mouse|click|janela|window|abrir.programa|automatizar?|automat)\b/i;
-const RESEARCH_PATTERNS = /\b(pesquisa.profunda|deep.?research|analise.detalhada|investigar?|aprofundar?|estudos?|artigos?|papers?|paper|doi|pubmed|scielo|arxiv|cientific[oa]s?|academicos?|literatura|revisao|jurisprudencia|acordaos?|decisoes?|precedentes?|casos?|case\s+law|legal\s+cases?|medicina|saude|clinical\s+trials?|ensaios?\s+clinicos?|relatorio|report)\b/i;
+// Desktop automation
+const DESKTOP_PATTERNS = /\b(desktop|screen|mouse|click|window|automate|automation|browser|tab|scroll|type|keyboard|shortcut|hotkey)\b/i;
+
+// Research
+const RESEARCH_PATTERNS = /\b(deep\s+research|detailed\s+analysis|investigate|in-depth|studies|articles|papers?|doi|pubmed|arxiv|scientific|academic|literature|review|jurisprudence|case\s+law|clinical\s+trials?|report|analysis|thesis|survey|meta.analysis)\b/i;
 
 type ClassificationDraft = Omit<IntentClassification, 'isHardDecision' | 'downgradedBy' | 'secondPass'> & {
   downgradedBy?: string[];
@@ -122,7 +133,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'configuration',
         confidence: 0.78,
-        reason: 'Hint de configuracao tecnica detectado.',
+        reason: 'Technical configuration hint detected.',
         isTrivialChat: false,
       }));
     }
@@ -131,7 +142,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'research',
         confidence: 0.82,
-        reason: 'Hint de pesquisa aprofundada detectado.',
+        reason: 'Deep research hint detected.',
         isTrivialChat: false,
       }));
     }
@@ -140,7 +151,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'desktop',
         confidence: 0.78,
-        reason: 'Hint de automacao de desktop detectado.',
+        reason: 'Desktop automation hint detected.',
         isTrivialChat: false,
       }));
     }
@@ -149,7 +160,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'memory',
         confidence: 0.78,
-        reason: 'Hint concreto de memoria/recall detectado.',
+        reason: 'Concrete memory/recall hint detected.',
         isTrivialChat: false,
       }));
     }
@@ -158,7 +169,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'information',
         confidence: 0.74,
-        reason: 'Hint de busca de informacao/dados atuais detectado.',
+        reason: 'Web search/current data hint detected.',
         isTrivialChat: false,
       }));
     }
@@ -168,7 +179,7 @@ export class IntentClassifier {
       return this.reviewSecondPass(trimmed, this.decision({
         category: 'full_toolset',
         confidence: 0.45,
-        reason: 'Sinais tecnicos fracos/ambiguos; deixar runtime/LLM decidir sem hard gate.',
+        reason: 'Weak/ambiguous technical signals; let runtime/LLM decide without hard gate.',
         isTrivialChat: false,
         downgradedBy: weakToolSignals,
       }));
@@ -186,7 +197,7 @@ export class IntentClassifier {
     return this.reviewSecondPass(trimmed, this.decision({
       category: 'full_toolset',
       confidence: 0.3,
-      reason: 'Intencao ambigua; runtime/LLM deve decidir com policy final.',
+      reason: 'Ambiguous intent; runtime/LLM should decide with final policy.',
       isTrivialChat: false,
     }));
   }
@@ -238,7 +249,7 @@ export class IntentClassifier {
       category: finalCategory,
       confidence,
       reason: verdict === 'downgraded'
-        ? `${classification.reason} Segundo pass contextual rebaixou o hint.`
+        ? `${classification.reason} Second-pass contextual downgrade applied.`
         : classification.reason,
       downgradedBy: Array.from(new Set(downgradedBy)),
       secondPass: {
@@ -271,7 +282,7 @@ export class IntentClassifier {
 
     if (hasToolReference && !ignoreToolReferences) return false;
 
-    const isQuestion = /^(o que|por que|como|quando|onde|quem|qual|quantos?|explain|what|why|how|when|where|who|which)/i.test(text);
+    const isQuestion = /^(what|why|how|when|where|who|which|explain|tell|describe|can\s+you|could\s+you|would\s+you|do\s+you|is\s+there|are\s+there)/i.test(text);
     if (isQuestion && text.length < 200) return true;
     if (text.length < 100) return true;
 
@@ -297,7 +308,7 @@ export class IntentClassifier {
 
   private collectSecondPassSignals(text: string, classification: IntentClassification): string[] {
     return [
-      /\b(nao|não|sem|so|só|apenas)\b.*\b(abra|abrir|leia|ler|rode|rodar|execute|executar|salve|salvar|edite|editar|tool|ferramenta|arquivo|comando)\b/i.test(text)
+      /\b(no|not|without|don't|skip|avoid|ignore)\b.*\b(open|read|run|execute|save|edit|tool|file|command)\b/i.test(text)
         ? 'explicit-no-tool-request'
         : '',
       FILE_OBJECT_PATTERNS.test(text) ? 'concrete-code-or-file-target' : '',

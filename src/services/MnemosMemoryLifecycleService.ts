@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -163,7 +163,7 @@ export class MnemosMemoryLifecycleService {
   private safeRead(file: string): string {
     try {
       return String(this.readFileSync(file, 'utf8') || '');
-    } catch (error) { logger.warn('[Mnemos Memory Lifecycle] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Mnemos Memory Lifecycle] filesystem operation failed', error); return ''; }
   }
 }
 

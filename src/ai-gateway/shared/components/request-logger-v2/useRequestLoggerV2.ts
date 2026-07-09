@@ -54,7 +54,7 @@ export function useRequestLoggerV2() {
           const data = (await response.json()) as RequestLogEntry[];
           setLogs(data);
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         console.error("Failed to fetch call logs:", error);
       } finally {
         if (showLoading) {
@@ -142,7 +142,7 @@ export function useRequestLoggerV2() {
       if (response.ok) {
         setDetailData((await response.json()) as Record<string, unknown>);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("Failed to fetch log detail:", error);
     } finally {
       setDetailLoading(false);
@@ -170,7 +170,7 @@ export function useRequestLoggerV2() {
       }
 
       setDetailLoggingEnabled(nextEnabled);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("Failed to toggle pipeline logging:", error);
     } finally {
       setDetailLoggingLoading(false);

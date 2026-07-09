@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -264,7 +264,7 @@ export class SddFeatureWorkspaceService {
         lastActor: String(parsed.lastActor || '').trim() || 'system',
         note: parsed.note ? String(parsed.note) : null,
       };
-    } catch (error) { logger.warn('[Sdd Feature Workspace] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Sdd Feature Workspace] parsing failed', error); return null; }
   }
 
   private parseTasks(content: string): SddFeatureTask[] {

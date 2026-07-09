@@ -44,7 +44,10 @@ function ensureCacheMetricsTable() {
     db.prepare(
       `INSERT OR IGNORE INTO cache_metrics (key, value) VALUES ('hits', 0), ('misses', 0), ('tokens_saved', 0)`
     ).run();
-  } catch (error) { // DB not available logger.warn('[semantic Cache] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB not available
+      logger.warn('[semantic Cache] cache operation failed', error);
+    }
 }
 
 function incrementMetric(metric: "hits" | "misses" | "tokens_saved", amount = 1) {
@@ -53,7 +56,10 @@ function incrementMetric(metric: "hits" | "misses" | "tokens_saved", amount = 1)
     db.prepare(
       `UPDATE cache_metrics SET value = value + ?, updated_at = datetime('now') WHERE key = ?`
     ).run(amount, metric);
-  } catch (error) { // DB not available — fall back to in-memory logger.warn('[semantic Cache] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB not available — fall back to in-memory
+      logger.warn('[semantic Cache] cache operation failed', error);
+    }
 }
 
 function getMetricValue(metric: string): number {
@@ -61,7 +67,7 @@ function getMetricValue(metric: string): number {
     const db = getDbInstance();
     const row = db.prepare(`SELECT value FROM cache_metrics WHERE key = ?`).get(metric);
     return row ? toNumber(asRecord(row).value, 0) : 0;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return 0; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return 0; }
 }
 
 // ─── Singleton ─────────────────
@@ -161,7 +167,10 @@ export function getCachedResponse(signature) {
       incrementMetric("tokens_saved", tokensSaved);
       return parsed;
     }
-  } catch (error) { // DB not available — fail open logger.warn('[semantic Cache] parsing failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB not available — fail open
+      logger.warn('[semantic Cache] parsing failed', error);
+    }
 
   incrementMetric("misses");
   return null;
@@ -193,7 +202,10 @@ export function setCachedResponse(signature, model, response, tokensSaved = 0, t
       `INSERT OR REPLACE INTO semantic_cache (id, signature, model, prompt_hash, response, tokens_saved, hit_count, created_at, expires_at)
        VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)`
     ).run(id, signature, model, promptHash, JSON.stringify(response), tokensSaved, now, expiresAt);
-  } catch (error) { // DB write failed — cache still in memory logger.warn('[semantic Cache] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB write failed — cache still in memory
+      logger.warn('[semantic Cache] cache operation failed', error);
+    }
 }
 
 // ─── Maintenance ─────────────────
@@ -209,7 +221,7 @@ export function cleanExpiredEntries() {
       .prepare("DELETE FROM semantic_cache WHERE expires_at <= datetime('now')")
       .run();
     return result.changes;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return 0; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return 0; }
 }
 
 /**
@@ -224,7 +236,7 @@ export function invalidateByModel(model: string): number {
     const db = getDbInstance();
     const result = db.prepare("DELETE FROM semantic_cache WHERE model = ?").run(model);
     return result.changes || 0;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return 0; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return 0; }
 }
 
 /**
@@ -238,7 +250,7 @@ export function invalidateBySignature(signature: string): boolean {
     const db = getDbInstance();
     const result = db.prepare("DELETE FROM semantic_cache WHERE signature = ?").run(signature);
     return (result.changes || 0) > 0;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return false; }
 }
 
 /**
@@ -253,7 +265,7 @@ export function invalidateStale(maxAgeMs: number): number {
     const cutoff = new Date(Date.now() - maxAgeMs).toISOString();
     const result = db.prepare("DELETE FROM semantic_cache WHERE created_at < ?").run(cutoff);
     return result.changes || 0;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return 0; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return 0; }
 }
 
 // ── Auto-cleanup timer ──
@@ -293,7 +305,7 @@ export function cleanOldMetrics(retentionDays = 90): number {
     const cutoff = new Date(Date.now() - retentionDays * 86400000).toISOString();
     const result = db.prepare("DELETE FROM semantic_cache WHERE created_at < ?").run(cutoff);
     return result.changes || 0;
-  } catch (error) { logger.warn('[semantic Cache] cache operation failed', error); return 0; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[semantic Cache] cache operation failed', error); return 0; }
 }
 
 /**
@@ -305,7 +317,10 @@ export function clearCache() {
     const db = getDbInstance();
     db.prepare("DELETE FROM semantic_cache").run();
     db.prepare("UPDATE cache_metrics SET value = 0").run();
-  } catch (error) { // DB not available logger.warn('[semantic Cache] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB not available
+      logger.warn('[semantic Cache] cache operation failed', error);
+    }
 }
 
 export function getCacheStats() {
@@ -317,7 +332,10 @@ export function getCacheStats() {
       .prepare("SELECT COUNT(*) as count FROM semantic_cache WHERE expires_at > datetime('now')")
       .get();
     dbSize = toNumber(asRecord(row).count, 0);
-  } catch (error) { // DB not available logger.warn('[semantic Cache] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB not available
+      logger.warn('[semantic Cache] cache operation failed', error);
+    }
 
   const hits = getMetricValue("hits");
   const misses = getMetricValue("misses");

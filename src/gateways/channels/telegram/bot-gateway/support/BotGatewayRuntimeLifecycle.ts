@@ -56,7 +56,7 @@ export async function broadcast(
   for (const userId of recipients) {
     try {
       await SmartOutputService.send(runtime.bot.api as TelegramApi, userId, message);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message_ = error instanceof Error ? error.message : String(error);
       runtime.logRepo.log(
         'error',
@@ -74,7 +74,7 @@ export async function sendToChat(
 ): Promise<void> {
   try {
     await SmartOutputService.send(runtime.bot.api as TelegramApi, chatId, message);
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message_ = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',
@@ -100,7 +100,7 @@ export async function startZavorthControlSurface(
       'ZavorthControlService',
       `ZavorthControl web online em ${runtime.zavorthControlService.getUrl()}`,
     );
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const errMsg = error instanceof Error ? error.message : String(error);
     runtime.logRepo.log(
       'error',

@@ -239,7 +239,7 @@ export class TelegramTaskOrchestrationController {
         surfaceForceApproval,
       });
       return task;
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${errorMessage}`);
       if (!StateMachine.isTerminal(task.status)) {

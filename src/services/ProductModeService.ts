@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { readZavorthEnv } from '../config/configHelpers.js';
 import { config } from '../config/index.js';
 import type { ZavorthProfile } from './RuntimeProfileService.js';
@@ -122,7 +122,7 @@ export function resolvePersistedProductMode(stateFilePath?: string | null): Zavo
       return null;
     }
     return normalizeZavorthProductMode(parsed.productMode, parsed.profile);
-  } catch (error) { logger.warn('[Product Mode] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Product Mode] JSON parse failed', error); return null; }
 }
 
 export function resolveBootstrapProductMode(

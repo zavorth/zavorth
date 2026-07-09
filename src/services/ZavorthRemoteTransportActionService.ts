@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type {
   ZavorthRemoteTransportEntry,
@@ -377,7 +377,7 @@ export class ZavorthRemoteTransportActionService {
           requestedBy: String(entry.requestedBy || '').trim() || null,
         }))
         .filter((entry) => Boolean(entry.occurredAt && entry.transportId && entry.summary));
-    } catch (error) { logger.warn('[Zavorth Remote Transport Action] process execution failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Remote Transport Action] process execution failed', error); return []; }
   }
 
   private normalizeActionId(value: string | null | undefined): ZavorthRemoteTransportActionExecution['actionId'] | '' {

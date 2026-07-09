@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -310,7 +310,7 @@ export class MaintenanceAutomationService {
       }
 
       return null;
-    } catch (error) { logger.warn('[Maintenance Automation] validation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Maintenance Automation] validation failed', error); return null; }
   }
 
   private describePriorityAction(actionId: string): string {
@@ -382,7 +382,7 @@ export class MaintenanceAutomationService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Maintenance Automation] parsing failed', error);
     return {
         enabled: config.maintenanceAutomationEnabled,
@@ -404,6 +404,9 @@ export class MaintenanceAutomationService {
     try {
       this.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       this.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch (error) { // Ignore persistence failures and keep the in-memory state. logger.warn('[Maintenance Automation] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Ignore persistence failures and keep the in-memory state.
+      logger.warn('[Maintenance Automation] filesystem operation failed', error);
+    }
   }
 }

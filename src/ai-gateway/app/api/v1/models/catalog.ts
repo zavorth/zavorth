@@ -174,7 +174,7 @@ export async function getUnifiedModelsResponse(
     let settings: Record<string, unknown> = {};
     try {
       settings = await getSettings();
-    } catch (e) { console.warn('[catalog] Failed to fetch settings for auth check:', e); }
+    } catch (e: any) { const error = e; const err = e; console.warn('[catalog] Failed to fetch settings for auth check:', e); }
     if (settings.requireAuthForModels === true) {
       if (!(await isAuthenticated(request))) {
         return Response.json(
@@ -205,7 +205,7 @@ export async function getUnifiedModelsResponse(
       totalConnectionCount = connections.length;
       // Filter to only active connections
       connections = connections.filter((c) => c.isActive !== false);
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       // If database not available, show no provider models (safe default)
       console.log("[catalog] Could not fetch providers:", e);
     }
@@ -214,7 +214,7 @@ export async function getUnifiedModelsResponse(
     let providerNodes = [];
     try {
       providerNodes = await getProviderNodes();
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("Could not fetch provider nodes");
     }
 
@@ -234,7 +234,7 @@ export async function getUnifiedModelsResponse(
     let combos = [];
     try {
       combos = await getCombos();
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("Could not fetch combos");
     }
 
@@ -326,7 +326,7 @@ export async function getUnifiedModelsResponse(
                 return modelType === "audio" ? [baseModel, { ...baseModel, subtype: "speech" }] : [baseModel];
               }),
           });
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           console.error("[catalog] Error fetching synced Gemini models:", err);
         }
       }
@@ -455,7 +455,7 @@ export async function getUnifiedModelsResponse(
               }),
           });
         }
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         console.log("Could not fetch custom models");
       }
 
@@ -611,7 +611,7 @@ export async function getUnifiedModelsResponse(
             });
           }
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         console.error("[catalog] Error fetching synced Gemini models:", err);
       }
     }
@@ -809,7 +809,7 @@ export async function getUnifiedModelsResponse(
           }
         }
       }
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("Could not fetch custom models");
     }
 
@@ -887,7 +887,7 @@ export async function getUnifiedModelsResponse(
         headers: corsHeaders,
       }
     );
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching models:", error);
     return Response.json(
       { error: { message: error instanceof Error ? error.message : "Unknown error", type: "server_error" } },

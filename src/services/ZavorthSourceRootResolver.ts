@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 
@@ -31,7 +31,7 @@ function readLedgerSourceRoot(input: ResolveSourceRootInput): string | null {
     return typeof parsed.sourceRoot === 'string' && parsed.sourceRoot.trim()
       ? parsed.sourceRoot
       : null;
-  } catch (error) { logger.warn('[Zavorth Source Root Resolver] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Source Root Resolver] JSON parse failed', error); return null; }
 }
 
 function readEnv(...names: string[]): string | null {

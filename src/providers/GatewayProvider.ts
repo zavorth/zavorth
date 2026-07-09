@@ -58,7 +58,7 @@ export class GatewayProvider implements ILlmProvider {
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[AIGateway] Request error:', error?.message || error);
       throw error;
     }
@@ -80,7 +80,7 @@ export class GatewayProvider implements ILlmProvider {
       } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('❌ [AIGateway] Streaming error:', error?.message || error);
       throw error;
     }

@@ -48,7 +48,7 @@ export class TelegramOutputHandler {
       } else {
         await this.sendText(ctx, result.text);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error(`[OutputHandler] Erro ao enviar resposta: ${error}`);
       await this.sendError(ctx, 'Falha ao enviar resposta. Tente novamente.');
     }
@@ -80,7 +80,7 @@ export class TelegramOutputHandler {
       await ctx.replyWithDocument(new InputFile(filePath, fileName), {
         caption: `Documento gerado: ${fileName}`,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error(`[OutputHandler] Erro ao enviar arquivo: ${error}`);
       await this.sendText(ctx, `Nao consegui gerar o arquivo. Conteudo em texto:\n\n${content}`);
     } finally {
@@ -100,7 +100,7 @@ export class TelegramOutputHandler {
       let audioPath: string | null = null;
       try {
         audioPath = await this.audioHandler.synthesize(text);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         if (isCapabilityUnavailableError(error)) {
           await this.sendText(
             ctx,
@@ -121,7 +121,7 @@ export class TelegramOutputHandler {
 
       logger.warn('[OutputHandler] TTS falhou, enviando como texto.');
       await this.sendText(ctx, text);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error(`[OutputHandler] Erro no envio de audio: ${error}`);
       await this.sendText(ctx, `Falha ao gerar audio. Resposta em texto:\n\n${text}`);
     }
@@ -183,7 +183,7 @@ export class TelegramOutputHandler {
   private async safeSend(ctx: Context, text: string): Promise<void> {
     try {
       await ctx.reply(text);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const telegramError = error as TelegramApiError;
       if (telegramError?.error_code === 429) {
         const retryAfter = telegramError?.parameters?.retry_after || 5;

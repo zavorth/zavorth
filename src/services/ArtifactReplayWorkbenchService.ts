@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -423,7 +423,7 @@ export class ArtifactReplayWorkbenchService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error) { logger.warn('[Artifact Replay Workbench] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Artifact Replay Workbench] JSON parse failed', error); return null; }
   }
 
   private check(

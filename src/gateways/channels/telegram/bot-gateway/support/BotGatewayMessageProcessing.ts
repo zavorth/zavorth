@@ -464,7 +464,7 @@ export async function canUseInteractiveGroupAi(
   try {
     const member = await ctx.api.getChatMember(ctx.chat.id, ctx.from.id);
     return member.status === 'administrator' || member.status === 'creator';
-  } catch (error) { logger.warn('[Bot way Message Processing] filesystem check failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Bot way Message Processing] filesystem check failed', error); return false; }
 }
 
 export function buildSharedSurfaceTelegramContext(
@@ -596,5 +596,8 @@ export async function recordIncomingMessageTelemetry(
         isCommand: String(text || '').trim().startsWith('/'),
       },
     });
-  } catch (error) { // telemetry should not block message handling logger.warn('[Bot way Message Processing] lifecycle operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // telemetry should not block message handling
+      logger.warn('[Bot way Message Processing] lifecycle operation failed', error);
+    }
 }

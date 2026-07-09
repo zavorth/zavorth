@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     }
 
     return NextResponse.json({ key: key.key });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error revealing key:", error);
     return NextResponse.json({ error: "Failed to reveal key" }, { status: 500 });
   }

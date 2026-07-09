@@ -97,7 +97,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     delete result.idToken;
 
     return NextResponse.json({ connection: result, accessRoute: resolveAccessRouteForConnection(connection) });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching connection:", error);
     return NextResponse.json({ error: "Failed to fetch connection" }, { status: 500 });
   }
@@ -111,7 +111,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -207,7 +207,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ connection: result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating connection:", error);
     return NextResponse.json({ error: "Failed to update connection" }, { status: 500 });
   }
@@ -237,7 +237,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       try {
         const { deleteSyncedAvailableModelsForConnection } = await import("@/lib/db/models");
         await deleteSyncedAvailableModelsForConnection("gemini", id);
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         console.error("Failed to clean up synced models for deleted gemini connection:", e);
       }
     }
@@ -246,7 +246,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ message: "Connection deleted successfully" });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error deleting connection:", error);
     return NextResponse.json({ error: "Failed to delete connection" }, { status: 500 });
   }
@@ -262,7 +262,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing providers to cloud:", error);
   }
 }

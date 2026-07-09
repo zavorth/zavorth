@@ -305,7 +305,10 @@ export function normalizeTelegramFriendlyText(value: string): string {
       if (decoded && decoded.includes(' ') && !decoded.includes('\u00c3')) {
         normalized = decoded;
       }
-    } catch (error) { // Ignore decode failures and keep original text. logger.warn('[Real Zavorth Bridge Watcher Formatting Helpers] encoding failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore decode failures and keep original text.
+      logger.warn('[Real Zavorth Bridge Watcher Formatting Helpers] encoding failed', error);
+    }
   }
 
   return normalized;

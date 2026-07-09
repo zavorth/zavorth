@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     let customModelsMap: Record<string, unknown> = {};
     try {
       customModelsMap = asRecord(await getAllCustomModels());
-    } catch (error) { /* DB may not be ready */ logger.warn('[route] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerId, rawModels] of Object.entries(customModelsMap)) {
       const models = asModelArray(rawModels);
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
     let pricingData: Record<string, any> = {};
     try {
       pricingData = await getPricing();
-    } catch (error) { /* DB may not be ready */ logger.warn('[route] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* DB may not be ready */ logger.warn('[route] operation failed', error); }
 
     for (const [providerAlias, models] of Object.entries(pricingData)) {
       if (!catalog[providerAlias]) {
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(catalog);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching model catalog:", error);
     return NextResponse.json({ error: "Failed to fetch model catalog" }, { status: 500 });
   }

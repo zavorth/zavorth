@@ -140,7 +140,7 @@ export async function validateZavorthProviderLive(
       environmentRestored: true,
       responsePreview: responsePreview || 'ok',
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth  Live Validation] health check failed', error);
     return result({
       input,
@@ -271,7 +271,7 @@ function readProofFile(proofPath: string): {
     return {
       results: Array.isArray(parsed.results) ? parsed.results : [],
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth  Live Validation] JSON parse failed', error);
     return { results: [] };
   }

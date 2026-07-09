@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import type {
@@ -71,7 +71,7 @@ export class IntentExampleSimilarityService {
         .filter((entry: IntentExampleRecord | null): entry is IntentExampleRecord => Boolean(entry));
       this.cache = normalized;
       return this.cache;
-    } catch {
+    } catch (error: any) {
       this.cache = [];
       return this.cache;
     }

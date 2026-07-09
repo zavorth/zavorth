@@ -197,7 +197,10 @@ export class AgentCostTracker {
     try {
       fs.mkdirSync(path.dirname(this.entriesFile), { recursive: true });
       fs.appendFileSync(this.entriesFile, JSON.stringify(entry) + '\n', 'utf-8');
-    } catch (error) { // silent fail logger.warn('[Agent Cost Tracker] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // silent fail
+      logger.warn('[Agent Cost Tracker] filesystem operation failed', error);
+    }
   }
 
   private readEntries(): AgentCostEntry[] {
@@ -207,8 +210,8 @@ export class AgentCostTracker {
       return content.split('\n').filter(Boolean).map((line) => {
         try {
           return JSON.parse(line) as AgentCostEntry;
-        } catch (error) { logger.warn('[Agent Cost Tracker] JSON parse failed', error); return null; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Cost Tracker] JSON parse failed', error); return null; }
       }).filter(Boolean) as AgentCostEntry[];
-    } catch (error) { logger.warn('[Agent Cost Tracker] JSON parse failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Cost Tracker] JSON parse failed', error); return []; }
   }
 }

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { logger } from '../logger.js';
 import { execFile } from 'child_process';
 import fs from 'fs';
@@ -556,7 +556,7 @@ export class MemoryArtifactsRuntimeLiveService {
         return fallback;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch (error) { logger.warn('[Memory  Runtime Live] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Memory  Runtime Live] JSON parse failed', error); return fallback; }
   }
 
   private sha256(value: string): string {

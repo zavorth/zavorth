@@ -129,7 +129,7 @@ export class HomeAssistantGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       this.recordError(`Home Assistant send failed: ${msg}`);
     }

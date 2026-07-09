@@ -1,4 +1,4 @@
-import * as crypto from 'node:crypto';
+﻿import * as crypto from 'node:crypto';
 import * as http from 'node:http';
 import { logger } from '../logger.js';
 
@@ -118,7 +118,10 @@ export class ZavorthMobileSupervisionService {
     if (existing && !existing.writableEnded) {
       try {
         existing.end();
-      } catch (error) { // noop – client may already be dead logger.warn('[Zavorth Mobile Supervision] network request failed', error); }
+      } catch (error: any) {
+      // noop – client may already be dead
+      logger.warn('[Zavorth Mobile Supervision] network request failed', error);
+    }
     }
     this.clients.set(clientId, res);
 
@@ -132,7 +135,10 @@ export class ZavorthMobileSupervisionService {
     if (res && !res.writableEnded) {
       try {
         res.end();
-      } catch (error) { // noop logger.warn('[Zavorth Mobile Supervision] resource cleanup failed', error); }
+      } catch (error: any) {
+      // noop
+      logger.warn('[Zavorth Mobile Supervision] resource cleanup failed', error);
+    }
     }
     this.clients.delete(clientId);
   }
@@ -168,7 +174,7 @@ export class ZavorthMobileSupervisionService {
       }
       try {
         res.write(payload);
-      } catch {
+      } catch (error: any) {
         this.clients.delete(clientId);
       }
     }

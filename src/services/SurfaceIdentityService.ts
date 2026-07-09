@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { MessageChannel } from '../contracts/PlatformContract.js';
@@ -202,7 +202,7 @@ export class SurfaceIdentityService {
       return {
         links: parsed.links && typeof parsed.links === 'object' ? parsed.links : {},
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Surface Identity] JSON parse failed', error);
     return { links: {} };
   }

@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   try {
     const executions = skillExecutor.listExecutions();
     return NextResponse.json({ executions });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] process execution failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       sessionId,
     });
     return NextResponse.json({ execution });
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     const error = err instanceof Error ? err.message : String(err);
     if (error.includes("disabled")) {
       return NextResponse.json({ error }, { status: 503 });

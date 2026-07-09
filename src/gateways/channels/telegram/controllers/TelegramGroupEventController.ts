@@ -61,7 +61,7 @@ export class TelegramGroupEventController {
       });
       try {
         await ctx.reply(rendered);
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         logger.error('[GroupEvent] Failed to send welcome message:', e);
       }
     }
@@ -96,7 +96,7 @@ export class TelegramGroupEventController {
 
     try {
       await ctx.reply(rendered);
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       logger.error('[GroupEvent] Failed to send goodbye message:', e);
     }
 
@@ -134,11 +134,11 @@ export class TelegramGroupEventController {
           setTimeout(async () => {
             try {
               await this.moderationService.deleteMessage(chatId, warnMsg.message_id);
-            } catch (err) {
+            } catch (err: any) { const error = err; const e = err;
               logger.warn('[auto-fix] Empty catch block', err);
             }
           }, 5000);
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -155,7 +155,7 @@ export class TelegramGroupEventController {
         }
         try {
           await ctx.reply(msg);
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -168,7 +168,7 @@ export class TelegramGroupEventController {
         }
         try {
           await ctx.reply(`${ctx.from?.first_name} was muted for 5 minutes. Reason: ${result.reason}`);
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;
@@ -177,7 +177,7 @@ export class TelegramGroupEventController {
         await this.moderationService.banUser(ctx.chat!.id, ctx.from!.id, 'anti-spam');
         try {
           await ctx.reply(`${ctx.from?.first_name} was banned automatically. Reason: ${result.reason}`);
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn('[auto-fix] Empty catch block', err);
         }
         return true;

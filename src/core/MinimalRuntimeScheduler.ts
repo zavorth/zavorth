@@ -175,7 +175,7 @@ export class MinimalRuntimeScheduler {
     }
     try {
       await task.run(event);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       task.failures += 1;
     }
   }

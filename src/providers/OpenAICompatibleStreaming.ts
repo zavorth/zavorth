@@ -156,7 +156,7 @@ function parseToolArguments(rawValue: string): Record<string, unknown> {
       return parsed as Record<string, unknown>;
     }
     return { value: parsed };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Open A I Compatible Streaming] JSON parse failed', error);
     return { raw: normalized };
   }

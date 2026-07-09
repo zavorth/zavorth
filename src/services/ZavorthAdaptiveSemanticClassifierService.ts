@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ZavorthAdaptiveSemanticClassification,
   ZavorthAdaptiveSemanticClassifier,
   ZavorthAdaptiveSemanticClassifierInput,
@@ -161,7 +161,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
         };
       }
       return this.providerClassification(parsed, local);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Adaptive Semantic Classifier] parsing failed', error);
     return {
         ...local,
@@ -261,7 +261,7 @@ export class ZavorthAdaptiveSemanticClassifierService implements ZavorthAdaptive
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch (error) { logger.warn('[Zavorth Adaptive Semantic Classifier] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Adaptive Semantic Classifier] JSON parse failed', error); return null; }
   }
 
   private validLane(value: unknown): ZavorthAdaptiveLearningLaneId | null {

@@ -1,4 +1,4 @@
-import os from 'os';
+﻿import os from 'os';
 import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -111,7 +111,7 @@ export class TemporaryDirectoryTrustProposeTool extends BaseTool {
           note: 'Awaiting user approval via desktop modal.',
         },
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Temporary Directory Trust Propose] creation failed', error);
     return JSON.stringify({
         success: false,

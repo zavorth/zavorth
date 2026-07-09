@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { BaseTool } from './BaseTool.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentAdapterKind } from '../contracts/ZavorthExternalAgentGatewayContract.js';
@@ -220,7 +220,7 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`URL provided: ${target}`],
         });
         return { found: true, candidates, suggestion: null };
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Agent Manager] network request failed', error);
     return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
   }
@@ -278,7 +278,10 @@ export class AgentManagerTool extends BaseTool {
             evidence: [`Found in package.json bin: ${binName}`],
           });
         }
-      } catch (error) { // ignore logger.warn('[Agent Manager] search failed', error); }
+      } catch (error: any) {
+      // ignore
+      logger.warn('[Agent Manager] search failed', error);
+    }
     }
 
     const indicatorFiles = [
@@ -324,7 +327,7 @@ export class AgentManagerTool extends BaseTool {
 
     for (const cmd of variations) {
       try {
-        execSync(`${cmd} --version`, { stdio: 'ignore', timeout: 3000 });
+        execFileSync(cmd, ['--version'], { stdio: 'ignore', timeout: 3000 });
         candidates.push({
           id: cmd,
           label: cmd.charAt(0).toUpperCase() + cmd.slice(1),
@@ -335,7 +338,10 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`Command "${cmd}" found in PATH`],
         });
         break;
-      } catch (error) { // not found, try next logger.warn('[Agent Manager] process execution failed', error); }
+      } catch (error: any) {
+      // not found, try next
+      logger.warn('[Agent Manager] process execution failed', error);
+    }
     }
 
     return candidates;
@@ -357,7 +363,7 @@ export class AgentManagerTool extends BaseTool {
     for (const pattern of patterns) {
       if (pattern.regex.test(lower)) {
         try {
-          execSync(`${pattern.command} --version`, { stdio: 'ignore', timeout: 3000 });
+          execFileSync(pattern.command, ['--version'], { stdio: 'ignore', timeout: 3000 });
           candidates.push({
             id: pattern.command,
             label: pattern.label,
@@ -365,18 +371,10 @@ export class AgentManagerTool extends BaseTool {
             command: pattern.command,
             endpoint: null,
             root: null,
-            evidence: [`Matched natural language pattern: "${target}" -> command "${pattern.command}"`],
+            evidence: [`Command "${pattern.command}" found in PATH (regex matched)`],
           });
-        } catch {
-          candidates.push({
-            id: pattern.command,
-            label: pattern.label,
-            adapter: 'cli',
-            command: pattern.command,
-            endpoint: null,
-            root: null,
-            evidence: [`Matched pattern but command not found in PATH`],
-          });
+          break;
+        } catch (error: any) {
         }
         break;
       }

@@ -4,7 +4,7 @@ describe('NaturalLanguageRouter honest command contract', () => {
   const router = new NaturalLanguageRouter();
 
   it('does not pretend every natural intent maps to an internal slash command', () => {
-    const route = router.route('liste a pasta src');
+    const route = router.route('list the src directory');
 
     expect(route.classified).toBe(true);
     expect(route.intentCategory).toBe('file_operation');
@@ -23,7 +23,7 @@ describe('NaturalLanguageRouter honest command contract', () => {
   });
 
   it('keeps trivial chat fast without suggesting a hidden command', () => {
-    const route = router.route('oi');
+    const route = router.route('hi');
 
     expect(route.intentCategory).toBe('conversation');
     expect(route.isTrivialChat).toBe(true);

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import type { SafeModificationService } from '../SafeModificationService.js';
@@ -136,7 +136,7 @@ export class SelfModificationPreviewSupport {
         ),
         validationPlan: this.options.defaultValidationPlan([relativePath]),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,
@@ -302,7 +302,7 @@ export class SelfModificationPreviewSupport {
         resourceImpact: this.options.formatResourceImpact(plan.resourceImpact),
         optimizationAnalysis,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,

@@ -75,7 +75,10 @@ export class DiscordGateway implements PlatformGatewayContract {
         `${createdAt.replace(/[:.]/g, '-')}-${envelope.id}.json`,
       );
       fs.writeFileSync(targetFile, JSON.stringify(envelope, null, 2), 'utf8');
-    } catch (error) { // ignore write errors in pure stub logger.warn('[Discord way.stub] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // ignore write errors in pure stub
+      logger.warn('[Discord way.stub] filesystem operation failed', error);
+    }
   }
 
   public async broadcast(message: string): Promise<void> {

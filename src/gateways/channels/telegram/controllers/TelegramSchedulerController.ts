@@ -70,7 +70,7 @@ export class TelegramSchedulerController {
         },
         result.ok ? 'done' : 'failed',
       );
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(t('scheduler.create_failed', { error: error instanceof Error ? error.message : String(error) }));
     }
   }

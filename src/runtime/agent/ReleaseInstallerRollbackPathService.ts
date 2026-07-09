@@ -161,7 +161,7 @@ function normalizeReleaseBundleStatus(value: unknown): ReleaseInstallerRollbackP
 function safeCall<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

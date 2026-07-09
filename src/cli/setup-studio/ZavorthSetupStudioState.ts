@@ -477,7 +477,7 @@ function readEnv(envPath: string): Record<string, string> {
 function readJson(filePath: string): unknown {
   try {
     return fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf8')) : null;
-  } catch (error) { logger.warn('[Zavorth Setup Studio State] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Setup Studio State] JSON parse failed', error); return null; }
 }
 
 function countTypeScriptFiles(dir: string): number {

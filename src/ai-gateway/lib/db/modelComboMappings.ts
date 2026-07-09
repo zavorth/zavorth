@@ -240,7 +240,7 @@ export async function resolveComboForModel(
     if (regex.test(modelStr)) {
       try {
         return JSON.parse(row.combo_data);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Corrupted combo data — skip
         continue;
       }

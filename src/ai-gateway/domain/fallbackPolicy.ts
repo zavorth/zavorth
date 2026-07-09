@@ -42,7 +42,10 @@ function ensureLoaded() {
     for (const [model, chain] of Object.entries(all)) {
       fallbackChains.set(model, chain);
     }
-  } catch (error) { // DB may not be ready yet (build phase), that's ok logger.warn('[fallback] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB may not be ready yet (build phase), that's ok
+      logger.warn('[fallback] cache operation failed', error);
+    }
   _loaded = true;
 }
 
@@ -65,7 +68,10 @@ export function registerFallback(model, chain) {
   fallbackChains.set(model, sorted);
   try {
     saveFallbackChain(model, sorted);
-  } catch (error) { // Non-critical: in-memory still works logger.warn('[fallback] load operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical: in-memory still works
+      logger.warn('[fallback] load operation failed', error);
+    }
 }
 
 /**
@@ -121,7 +127,10 @@ export function removeFallback(model) {
   if (removed) {
     try {
       deleteFallbackChain(model);
-    } catch (error) { // Non-critical logger.warn('[fallback] delete operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[fallback] delete operation failed', error);
+    }
   }
   return removed;
 }
@@ -149,5 +158,8 @@ export function resetAllFallbacks() {
   _loaded = false;
   try {
     deleteAllFallbackChains();
-  } catch (error) { // Non-critical logger.warn('[fallback] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[fallback] delete operation failed', error);
+    }
 }

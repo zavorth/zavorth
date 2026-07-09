@@ -385,6 +385,62 @@ export class TelegramCommandRoutingService {
       case '/echo':
         await this.handleEchoCommand(ctx, parsed.command_args);
         return true;
+      case '/board': {
+        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const kanban = new KanbanSQLiteDispatcherService();
+        try {
+          kanban.createBoard('Default Board');
+          const boardStr = kanban.getBoard('default_board');
+          
+          const { InlineKeyboard } = await import('grammy');
+          const inlineKeyboard = new InlineKeyboard()
+            .text('📝 Adicionar Task', 'kanban:add_prompt')
+            .row()
+            .text('🗑️ Fechar', 'action:delete');
+
+          await ctx.reply(boardStr, {
+            reply_markup: inlineKeyboard,
+          });
+        } finally {
+          kanban.close();
+        }
+        return true;
+      }
+      case '/triage': {
+        const args = parsed.command_args || '';
+        if (!args.trim()) {
+          await ctx.reply('Uso: /triage <titulo da task>');
+          return true;
+        }
+        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const kanban = new KanbanSQLiteDispatcherService();
+        try {
+          kanban.createBoard('Default Board');
+          const result = kanban.addCard('default_board', args, { column: 'todo' });
+          await ctx.reply(result);
+        } finally {
+          kanban.close();
+        }
+        return true;
+      }
+      case '/move': {
+        const args = (parsed.command_args || '').trim().split(/\s+/);
+        const cardId = args[0];
+        const destCol = args[1];
+        if (!cardId || !destCol) {
+          await ctx.reply('Uso: /move <card_id> <coluna_destino>\nExemplo: /move card_123 in_progress');
+          return true;
+        }
+        const { KanbanSQLiteDispatcherService } = await import('../../../services/plugins/KanbanSQLiteDispatcherService.js');
+        const kanban = new KanbanSQLiteDispatcherService();
+        try {
+          const result = kanban.moveCard('default_board', cardId, destCol, 'Moved via Telegram Command');
+          await ctx.reply(result);
+        } finally {
+          kanban.close();
+        }
+        return true;
+      }
     }
 
     if (await this.permissionBroker.dispatchPrivateCommand(ctx, parsed)) {

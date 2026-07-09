@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -61,7 +61,7 @@ export class KanbanDispatcherService {
       const data = JSON.parse(fs.readFileSync(this.dbPath, 'utf-8'));
       const sanitized = this.sanitizeParsedData(data) as Record<string, KanbanBoard>;
       this.boards = new Map(Object.entries(sanitized));
-    } catch (error) { /* ignore */ logger.warn('[Kanban Dispatcher] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Kanban Dispatcher] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

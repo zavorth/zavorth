@@ -1,4 +1,4 @@
-import * as crypto from 'node:crypto';
+﻿import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { config } from '../config/index.js';
@@ -75,7 +75,7 @@ export class ZavorthMnemosCompilerService {
     try {
       const parsed = JSON.parse(String(this.fsRuntime.readFileSync(filePath, 'utf8') || '{}'));
       return Array.isArray(parsed?.events) ? parsed.events as MnemosSessionEvent[] : [];
-    } catch (error) { logger.warn('[Zavorth Mnemos Compiler] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Mnemos Compiler] JSON parse failed', error); return []; }
   }
 
   public clearEvents(workspaceRoot: string): void {

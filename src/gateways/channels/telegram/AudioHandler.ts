@@ -230,7 +230,7 @@ export class AudioHandler {
             this.rememberTtsCache(cacheKey, edgePath, '.mp3');
             return edgePath;
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           if (isCapabilityUnavailableError(error)) {
             capabilityError = error;
             logger.warn('[AudioHandler] edge-tts indisponivel. Tentando proximo provider...');
@@ -253,7 +253,7 @@ export class AudioHandler {
             this.rememberTtsCache(cacheKey, geminiPath, path.extname(geminiPath) || '.wav');
             return geminiPath;
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           lastGeminiError = error instanceof Error ? error : new Error(String(error));
           logger.error(`[AudioHandler] Erro no Gemini TTS: ${error}`);
         }
@@ -776,7 +776,7 @@ export class AudioHandler {
   private async safeReadResponseText(response: Response): Promise<string> {
     try {
       return (await response.text()).slice(0, 500);
-    } catch (error) { logger.warn('[Audio] string operation failed', error); return response.statusText || 'sem corpo de erro'; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Audio] string operation failed', error); return response.statusText || 'sem corpo de erro'; }
   }
 
   private buildTtsCacheKey(
@@ -820,7 +820,10 @@ export class AudioHandler {
         extension: extension || '.mp3',
         expiresAt: Date.now() + audioConfig.ttsCacheTtlMs,
       });
-    } catch (error) { // cache is an optimization only logger.warn('[Audio] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // cache is an optimization only
+      logger.warn('[Audio] filesystem operation failed', error);
+    }
   }
 
   private cleanTextForTTS(text: string): string {
@@ -855,7 +858,7 @@ export class AudioHandler {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`[AudioHandler] Falha ao remover temporario: ${error}`);
     }
     this.geminiVoiceService.cleanup(filePath);
@@ -864,13 +867,19 @@ export class AudioHandler {
   private async recordVoiceSuccess(input: Parameters<Pick<EchoVoiceTelemetryService, 'recordSuccess'>['recordSuccess']>[0]): Promise<void> {
     try {
       await this.voiceTelemetryService.recordSuccess(input);
-    } catch (error) { // observability should not break telegram audio delivery logger.warn('[Audio] delete operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // observability should not break telegram audio delivery
+      logger.warn('[Audio] delete operation failed', error);
+    }
   }
 
   private async recordVoiceFailure(input: Parameters<Pick<EchoVoiceTelemetryService, 'recordFailure'>['recordFailure']>[0]): Promise<void> {
     try {
       await this.voiceTelemetryService.recordFailure(input);
-    } catch (error) { // observability should not break telegram audio delivery logger.warn('[Audio] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // observability should not break telegram audio delivery
+      logger.warn('[Audio] operation failed', error);
+    }
   }
 }
 

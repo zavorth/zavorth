@@ -1,0 +1,166 @@
+welcome:
+  title: "Bienvenido a Zavorth"
+  subtitle: "Configuremos todo."
+  banner_line1: "Runtime de agente IA"
+  banner_line2: "Gobernado. Local. Tuyo."
+
+security:
+  short: "Zavorth enruta lenguaje natural a modelos, canales y herramientas locales. Las acciones sensibles requieren su aprobación."
+  confirm_first_run: "¡Bienvenido! ¿Listo para configurar Zavorth?"
+  confirm_reconfigure: "¿Reconfigurar su instalación existente de Zavorth?"
+
+existing_config:
+  title: "Configuración existente detectada"
+  provider: "Proveedor: {value}"
+  model: "Modelo: {value}"
+  channels: "Canales: {value}"
+  home: "Inicio: {value}"
+
+config_issues:
+  title: "Problemas de configuración"
+  no_api_keys: "No se encontraron claves API en .env"
+  env_not_found: "Archivo .env no encontrado — necesita configurar el proveedor"
+  env_unreadable: "El archivo .env existe pero no se puede leer"
+  run_doctor: "¿Ejecutar zavorth doctor para solucionar problemas?"
+  doctor_hint: "Ejecute \"zavorth doctor\" en otra terminal."
+
+mode:
+  prompt_first_run: "¿Cómo desea configurar?"
+  prompt_reconfigure: "¿Cómo desea reconfigurar?"
+  complete: "Configuración completa"
+  complete_hint: "todos los pasos — proveedor, canales, habilidades, memoria"
+  quickstart: "Inicio rápido"
+  quickstart_hint: "rápido — solo proveedor, el resto después"
+  safe: "Modo seguro"
+  safe_hint: "aprobaciones estrictas, valores predeterminados locales"
+  blank: "Página en blanco"
+  blank_hint: "mínimo — active cada función por separado"
+
+home:
+  prompt: "¿Dónde almacenar esta instancia?"
+  keep_current: "Mantener ZAVORTH_HOME actual"
+  use_isolated: "Carpeta aislada junto al proyecto"
+  choose_custom: "Elegir ruta personalizada"
+  path_prompt: "Ruta ZAVORTH_HOME"
+
+config_handling:
+  prompt: "¿Cómo manejar la configuración existente?"
+  keep: "Mantener valores actuales"
+  review: "Revisar y actualizar"
+  reset: "Restablecer antes de configurar"
+
+skill_governance:
+  prompt: "¿Cómo manejar habilidades importadas?"
+  casual: "Casual"
+  casual_hint: "recomendado para uso personal; importación rápida"
+  governed: "Gobernado"
+  governed_hint: "revisión empresarial más estricta para riesgo, licencia, auditoría"
+
+wake_detector:
+  prompt: "¿Activar configuración de palabra de activación Echo?"
+  default_local: "Detector local predeterminado"
+  custom_command: "Comando de detector personalizado"
+  disabled: "Mantener desactivado"
+  command_prompt: "Comando del detector de activación"
+  args_prompt: "Argumentos del detector de activación"
+
+migration:
+  prompt: "¿Migrar configuración de otro agente IA?"
+  path_prompt: "Ruta de la carpeta del agente:"
+  complete: "Migración completada. Revise la configuración importada."
+  skipped: "Migración omitida o fallida. Ejecutar después: zavorth migrate"
+
+provider:
+  auto_detected: "Clave API para {provider} encontrada."
+  auto_selected: "Usando {provider} con modelo {model}."
+  none_found: "No se encontró clave API de proveedor LLM en variables de entorno."
+  select_prompt: "¿Qué proveedor desea usar?"
+  all_providers: "Todas las rutas nativas de proveedores"
+  api_key_prompt: "Pegue su clave API de {provider} (deje vacío para omitir):"
+  testing: "Probando clave API..."
+  verified: "Clave API verificada."
+  test_failed: "Prueba de clave API fallida. Corrija después con: zavorth providers"
+  skip: "Omitir por ahora"
+  skip_hint: "configurar después con zavorth providers"
+  more: "Más proveedores..."
+  models_prompt: "Seleccione un modelo para {provider}:"
+  manual_prompt: "Nombre del proveedor (ej: openai, anthropic)"
+
+channels:
+  title: "Superficies de comunicación"
+  telegram_token: "Token del bot de Telegram"
+  telegram_users: "IDs de usuario permitidos en Telegram, separados por coma"
+  discord_token: "Token del bot de Discord, deje vacío para configurar después"
+  slack_token: "Token del bot de Slack, deje vacío para configurar después"
+  email_smtp: "URL SMTP de email, deje vacío para configurar después"
+
+search:
+  title: "Búsqueda web"
+  prompt: "¿Qué proveedor de búsqueda?"
+  local: "Local (sin clave API)"
+  brave: "Brave Search"
+  google: "Google Search"
+  skip: "Omitir por ahora"
+
+hooks:
+  title: "Automatización"
+  prompt: "¿Preparar plantillas de automatización?"
+  hint: "desactivado hasta que revise y active"
+
+memory:
+  title: "Memoria"
+  prompt: "¿Modo de memoria?"
+  local_metadata: "Metadatos locales (preferencias, aprobaciones, señales de uso)"
+  local_summary: "Resúmenes locales (resúmenes cortos de proyecto/contexto)"
+  off: "Apagado (no usar memoria durante configuración)"
+  vault_scope: "¿Alcance del escaneo de memoria?"
+  skip: "Omitir por ahora"
+  documents: "Documentos"
+  downloads: "Descargas"
+  custom: "Ruta personalizada"
+  whole_pc: "PC completo"
+
+gateway:
+  title: "Servicio de runtime"
+  installed: "Servicio de runtime ya instalado"
+  not_installed: "Servicio de runtime"
+  start_cmd: "Mostrar comando de inicio"
+  reinstall: "Mostrar comando de reinstalación"
+  skip: "Omitir por ahora"
+
+hatch:
+  title: "Iniciar agente"
+  prompt: "¿Cómo desea iniciar su agente después de la configuración?"
+  terminal: "Iniciar en Terminal"
+  browser: "Iniciar en ZavorthControl"
+  later: "Iniciar después"
+
+summary:
+  title: "Configuración completa"
+  provider: "Proveedor: {value}"
+  model: "Modelo: {value}"
+  channels_label: "Canales: {value}"
+  governance: "Gobernanza de habilidades: {value}"
+  memory_label: "Memoria: {value}"
+  env_updated: ".env actualizado ({count} claves)"
+  backup: "Copia de seguridad: {value}"
+  next_steps: "Siguientes pasos:"
+  step_chat: "  zavorth chat          Comience a hablar con su agente"
+  step_channels: "  zavorth channels      Conecte plataformas de mensajería"
+  step_doctor: "  zavorth doctor        Verifique la salud del sistema"
+  step_providers: "  zavorth providers     Cambie o agregue proveedores"
+
+section:
+  title: "Configuración — {section}"
+
+headless:
+  message: "La configuración requiere un terminal interactivo (TTY)."
+  non_interactive: "Opciones no interactivas:"
+  cmd_apply: "  zavorth setup --non-interactive --apply    Aplicar valores predeterminados"
+  cmd_json: "  zavorth setup --json                       Salida en formato JSON"
+  cmd_dry: "  zavorth setup --dry-run                    Vista previa sin escribir"
+  or_run: "O ejecute la configuración desde una sesión interactiva:"
+  ssh_hint: "  SSH con TTY:  ssh -t user@host"
+  docker_hint: "  Docker:       docker run -it zavorth setup"
+
+cancelled: "Configuración cancelada. No se realizaron cambios."

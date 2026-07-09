@@ -6,7 +6,7 @@ function isLocalZavorthControlRequest(request: Request): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch (error) { logger.warn('[require Management Auth] creation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[require Management Auth] creation failed', error); return false; }
 }
 
 export async function requireManagementAuth(request: Request): Promise<Response | null> {

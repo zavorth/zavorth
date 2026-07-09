@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZAVORTH_AGENT_GATEWAY_HANDOFF_VERSION,
   type ZavorthAgentGatewayConvergenceChecklistItem,
   type ZavorthAgentGatewayHandoffContext,
@@ -113,7 +113,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         blockers.push(...health.issues);
       }
       return health;
-    } catch (error) {
+    } catch (error: any) {
       blockers.push(`Unable to read gateway runtime health: ${this.errorMessage(error)}`);
       return null;
     }
@@ -135,7 +135,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
         workspaceHint: context.workspaceHint,
         hydrated: context.hydrated,
       });
-    } catch (error) {
+    } catch (error: any) {
       blockers.push(`Unable to read canonical gateway runtime snapshot: ${this.errorMessage(error)}`);
       return null;
     }
@@ -168,7 +168,7 @@ export class ZavorthGatewayAgentHandoffAdapterService {
       }
 
       return fallback;
-    } catch (error) {
+    } catch (error: any) {
       blockers.push(`Unable to read gateway snapshot: ${this.errorMessage(error)}`);
       return fallback;
     }

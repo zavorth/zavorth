@@ -329,11 +329,11 @@ export function createTerminalShellHistoryStore(
       if (!existsSync(filePath)) {
         return [];
       }
-    } catch (error) { logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     let lines: string[];
     try {
       lines = readFileSync(filePath, 'utf8').split(/\r?\n/);
-    } catch (error) { logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Terminal Shell] filesystem operation failed', error); return []; }
     const entries: string[] = [];
     for (const line of lines) {
       const parsed = parseTerminalHistoryLine(line);
@@ -385,7 +385,7 @@ function parseTerminalHistoryLine(line: string): string | null {
   try {
     const parsed = JSON.parse(trimmed) as { text?: unknown };
     return normalizeTerminalHistoryEntry(parsed.text);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Terminal Shell] JSON parse failed', error);
     return normalizeTerminalHistoryEntry(trimmed);
   }

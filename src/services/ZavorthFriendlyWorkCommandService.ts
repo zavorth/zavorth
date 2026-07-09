@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneSnapshot } from '../contracts/TaskPlaneContract.js';
@@ -242,7 +242,7 @@ export class ZavorthFriendlyWorkCommandService {
     try {
       const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
       return Array.isArray(parsed) ? parsed.filter(isFriendlyCronRecord) : [];
-    } catch (error) { logger.warn('[Zavorth Friendly Work Command] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Friendly Work Command] JSON parse failed', error); return []; }
   }
 
   private writeScheduled(file: string, records: FriendlyCronRecord[]): void {

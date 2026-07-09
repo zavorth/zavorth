@@ -200,7 +200,7 @@ export class SkillLoader {
           if (!quiet) {
             logger.info(`Skill loaded: ${metadata.name}`);
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           if (!quiet) {
             logger.warn(`Failed to load skill "${skillName}": ${error}`);
           }
@@ -270,7 +270,7 @@ export class SkillLoader {
       let entries: fs.Dirent[];
       try {
         entries = fs.readdirSync(dir, { withFileTypes: true });
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return;
       }
       for (const entry of entries) {
@@ -485,7 +485,7 @@ export class SkillLoader {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // fallback abaixo para frontmatters mais permissivos
     }
 

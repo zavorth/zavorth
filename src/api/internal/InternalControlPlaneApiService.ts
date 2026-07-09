@@ -82,7 +82,7 @@ export class InternalControlPlaneApiService {
           label: plane.label,
         },
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return {
         ok: false,
@@ -155,7 +155,7 @@ export class InternalControlPlaneApiService {
           ...(result.metadata || {}),
         },
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return {
         ok: false,

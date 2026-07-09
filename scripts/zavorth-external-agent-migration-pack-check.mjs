@@ -238,6 +238,11 @@ function read(file) {
 
 function parseJson(text) {
   try {
+    const startIndex = text.indexOf('{');
+    const endIndex = text.lastIndexOf('}');
+    if (startIndex !== -1 && endIndex !== -1) {
+      return JSON.parse(text.substring(startIndex, endIndex + 1));
+    }
     return JSON.parse(text);
   } catch {
     return null;

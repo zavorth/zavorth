@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import { ZavorthDistributedRuntimeControlPlaneService } from './ZavorthDistributedRuntimeControlPlaneService.js';
 import { ZavorthQaControlPlaneService, type ZavorthQaProfile } from './ZavorthQaControlPlaneService.js';
@@ -584,7 +584,7 @@ export class ZavorthRolloutReadinessControlPlaneService {
         return null;
       }
       return JSON.parse(this.readFileSync(this.maintenanceReportFilePath, 'utf8')) as Record<string, RolloutDynamic>;
-    } catch (error) { logger.warn('[Zavorth Rollout Readiness Control Plane] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Rollout Readiness Control Plane] JSON parse failed', error); return null; }
   }
 
   private isMaintenanceStale(timestamp: string | null): boolean {

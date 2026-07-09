@@ -96,7 +96,7 @@ export async function GET(request: Request) {
         });
       }
     }
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
   return new Response(JSON.stringify({ object: "list", data }), {
     headers: { "Content-Type": "application/json" },
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     log.warn("IMAGE", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
         }
         if (provider) break;
       }
-    } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+    } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
   }
 
   if (!provider) {

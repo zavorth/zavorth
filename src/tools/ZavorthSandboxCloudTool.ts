@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -115,7 +115,7 @@ export class ZavorthSandboxCloudTool extends BaseTool {
       });
       this.writeLog(id, result);
       return this.formatRunResult(id, result);
-    } catch (error: unknown) {
+    } catch (error: any) {
       this.sandboxes.set(id, {
         id,
         provider: requestedProvider || 'local-docker',
@@ -256,5 +256,5 @@ function parseEnvVars(value: unknown): Record<string, string> {
       Object.entries(parsed as Record<string, unknown>)
         .map(([key, entry]) => [key, String(entry ?? '')]),
     );
-  } catch (error) { logger.warn('[Zavorth Sandbox Cloud] JSON parse failed', error); return {}; }
+  } catch (error: any) { logger.warn('[Zavorth Sandbox Cloud] JSON parse failed', error); return {}; }
 }

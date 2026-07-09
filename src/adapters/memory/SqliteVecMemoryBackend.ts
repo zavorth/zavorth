@@ -327,11 +327,11 @@ export class SqliteVecMemoryBackend {
         }
       }
       return db;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const reason = error instanceof Error ? error.message : 'SQLite memory database open failed.';
       try {
         db?.close();
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Best effort cleanup only.
       }
       if (this.fullFileEncryption.mode !== 'off') {
@@ -346,7 +346,7 @@ export class SqliteVecMemoryBackend {
         for (const candidate of [dbPath, `${dbPath}-shm`, `${dbPath}-wal`]) {
           try {
             fs.rmSync(candidate, { force: true });
-          } catch {
+          } catch (error: any) { const err = error; const e = error;
             // Best effort cleanup only.
           }
         }
@@ -464,7 +464,7 @@ export class SqliteVecMemoryBackend {
       return (JSON.parse(payload) as MemoryKnowledgeRecord[])
         .map(normalizeRecord)
         .filter((record): record is MemoryKnowledgeRecord => Boolean(record));
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const reason = error instanceof Error ? error.message : 'Invalid JSON memory fallback.';
       throw new Error(`Unable to read encrypted JSON memory fallback: ${reason}`);
     }
@@ -629,7 +629,7 @@ function parseObject(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value) as unknown;
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }
@@ -638,7 +638,7 @@ function parseStringArray(value: string): string[] {
   try {
     const parsed = JSON.parse(value) as unknown;
     return Array.isArray(parsed) ? parsed.map(String) : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }
@@ -647,7 +647,7 @@ function parseNumberArray(value: string): number[] {
   try {
     const parsed = JSON.parse(value) as unknown;
     return Array.isArray(parsed) ? parsed.map(Number).filter(Number.isFinite) : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }
@@ -676,7 +676,7 @@ function resolveAtRestEncryptionKey(input: {
     fs.writeFileSync(keyPath, crypto.randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600 });
     try {
       fs.chmodSync(keyPath, 0o600);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Windows does not consistently honor POSIX file modes.
     }
   }
@@ -786,7 +786,7 @@ function resolveFullFileEncryptionKey(input: {
     fs.writeFileSync(keyPath, crypto.randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600 });
     try {
       fs.chmodSync(keyPath, 0o600);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Windows does not consistently honor POSIX file modes.
     }
   }
@@ -824,7 +824,7 @@ function resolveOsProtectedKey(keyPath: string, required: boolean): Buffer | nul
     fs.mkdirSync(path.dirname(protectedPath), { recursive: true });
     fs.writeFileSync(protectedPath, encrypted.trim(), { encoding: 'utf8', mode: 0o600 });
     return normalizeAtRestKey(key);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     if (required) {
       return null;
     }
@@ -873,7 +873,7 @@ function resolveSqliteConstructor(state: FullFileEncryptionState): {
         driverPackage: packageName,
         reason: `loaded ${packageName}`,
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Try the next optional driver.
     }
   }
@@ -916,7 +916,7 @@ function verifyFullFileEncryptionProof(dbPath: string): FullFileEncryptionState[
       unkeyedOpenBlocked: false,
       reason: 'unkeyed sqlite open succeeded',
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {
       unkeyedOpenBlocked: true,
       reason: 'unkeyed sqlite open was blocked',
@@ -936,7 +936,7 @@ function normalizeAtRestKey(value: string | Buffer): Buffer {
       if (decoded.length === 32) {
         return decoded;
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Fall through to a stable key derivation hash.
     }
   }

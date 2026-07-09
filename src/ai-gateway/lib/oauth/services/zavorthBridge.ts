@@ -332,7 +332,7 @@ export class ZavorthBridgeService {
         `ZavorthBridge connected successfully! (${userInfo.email}, Project: ${finalProjectId})`
       );
       return true;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

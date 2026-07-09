@@ -126,7 +126,7 @@ export class ZavorthI18nService {
       try {
         const content = fs.readFileSync(fp, 'utf-8');
         dict = (yaml.load(content) as NestedDict) ?? {};
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         dict = {};
       }
     }

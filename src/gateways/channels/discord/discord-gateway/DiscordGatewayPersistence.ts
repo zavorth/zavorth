@@ -73,7 +73,7 @@ export class DiscordGatewayPersistence {
 
     try {
       return JSON.parse(fs.readFileSync(this.statusFilePath, 'utf8')) as DiscordGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Discord way Persistence] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Discord way Persistence] JSON parse failed', error); return null; }
   }
 
   public readState(): DiscordGatewayState {
@@ -105,7 +105,7 @@ export class DiscordGatewayPersistence {
             .filter((entry) => entry.channelId)
           : [],
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Discord way Persistence] array operation failed', error);
     return createEmptyState();
   }

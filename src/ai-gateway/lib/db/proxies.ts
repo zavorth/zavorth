@@ -109,7 +109,7 @@ function coerceProxyPayload(value: unknown, fallbackName: string): ProxyPayload 
         password: parsed.password ? decodeURIComponent(parsed.password) : "",
         status: "active",
       };
-    } catch (error) { logger.warn('[proxies] network request failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[proxies] network request failed', error); return null; }
   }
 
   if (typeof value !== "object" || Array.isArray(value)) return null;
@@ -447,7 +447,10 @@ export async function migrateLegacyProxyConfigToRegistry(options?: { force?: boo
     if (!row?.key || typeof row.value !== "string") continue;
     try {
       raw[row.key as keyof LegacyProxyConfig] = JSON.parse(row.value);
-    } catch (error) { // ignore malformed legacy entry logger.warn('[proxies] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // ignore malformed legacy entry
+      logger.warn('[proxies] JSON parse failed', error);
+    }
   }
 
   let migrated = 0;
@@ -573,7 +576,7 @@ export async function bulkAssignProxyToScope(
     try {
       await assignProxyToScope(scope, scopeId, proxyId);
       updated++;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       failed.push({
         scopeId,
         reason: error instanceof Error ? error.message : "Unknown error",

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const count = getActiveSessionCount();
     const byApiKey = getAllActiveSessionCountsByKey();
     return NextResponse.json({ count, sessions, byApiKey });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       status: 201,
       headers: { "Access-Control-Allow-Origin": CORS_ORIGIN },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     return Response.json(
       { error: { message: error?.message || "Failed to store file", type: "invalid_request_error" } },

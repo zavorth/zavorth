@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
@@ -271,7 +271,7 @@ export class GatewaySessionLedgerService {
         return null;
       }
       return parsed;
-    } catch (error) { logger.warn('[way Session Ledger] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[way Session Ledger] JSON parse failed', error); return null; }
   }
 
   private writeRecord(target: ReturnType<GatewaySessionLedgerService['normalizeTarget']>, record: GatewaySessionLedgerRecord): void {

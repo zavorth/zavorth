@@ -135,7 +135,7 @@ export async function renderZavorthSetupStudioInk(
       snapshot: actionState.snapshot,
       channelId: actionState.channelId,
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Setup Studio Ink Renderer] filesystem check failed', error);
     return {
       rendered: false,

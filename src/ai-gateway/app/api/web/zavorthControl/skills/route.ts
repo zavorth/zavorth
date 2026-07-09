@@ -114,7 +114,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(await buildUnifiedSkillsResponse());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
       skillId,
       data: await buildUnifiedSkillsResponse(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,

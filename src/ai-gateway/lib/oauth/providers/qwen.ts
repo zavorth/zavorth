@@ -55,7 +55,10 @@ export const qwen = {
         const decoded = decodeJwt(tokens.id_token);
         email = decoded.email || decoded.preferred_username || null;
         displayName = decoded.name || email;
-      } catch (error) { // Ignore logger.warn('[qwen] encoding failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[qwen] encoding failed', error);
+    }
     }
 
     if (!email && tokens.access_token) {
@@ -63,7 +66,10 @@ export const qwen = {
         const decodedToken = decodeJwt(tokens.access_token);
         email = decodedToken.email || decodedToken.preferred_username || decodedToken.sub || null;
         displayName = decodedToken.name || email;
-      } catch (error) { // Ignore logger.warn('[qwen] encoding failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[qwen] encoding failed', error);
+    }
     }
 
     return {

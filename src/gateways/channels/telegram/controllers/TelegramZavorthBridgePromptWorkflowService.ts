@@ -116,7 +116,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
       );
 
       void this.finishPrompt(task, startResult);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);
@@ -194,7 +194,7 @@ export class TelegramZavorthBridgePromptWorkflowService {
         task.chat_id,
         this.formatPromptCompletion(task, completion),
       );
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       task.error_summary = errorMsg;
       this.deps.persistTask(task);

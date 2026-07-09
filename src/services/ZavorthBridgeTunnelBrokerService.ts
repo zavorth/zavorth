@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import type { ZavorthBridgeRemoteNativeStatus } from './ZavorthBridgeRemoteNativeService.js';
 import { logger } from '../logger.js';
 import {
@@ -101,6 +101,6 @@ export class ZavorthBridgeTunnelBrokerService {
     }
     try {
       return this.publicTunnelService.readStatus();
-    } catch (error) { logger.warn('[Zavorth Bridge Tunnel Broker] filesystem check failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Bridge Tunnel Broker] filesystem check failed', error); return null; }
   }
 }

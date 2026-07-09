@@ -25,7 +25,7 @@ async function loadKeytar(): Promise<KeytarModule | null> {
   try {
     const mod = (await import("keytar")) as { default?: KeytarModule } & KeytarModule;
     return mod.default ?? mod;
-  } catch (error) { logger.warn('[keychain-reader] load operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[keychain-reader] load operation failed', error); return null; }
 }
 
 export interface ZedCredential {
@@ -130,7 +130,7 @@ export async function discoverZedCredentials(): Promise<ZedCredential[]> {
           token: cred.password,
         });
       }
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       console.debug(`No credentials found for ${pattern}:`, error?.message || error);
       // Continue to next pattern
     }
@@ -184,7 +184,7 @@ export async function getZedCredential(provider: string): Promise<ZedCredential 
           };
         }
       }
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       console.debug(`Failed to get credential for ${pattern}:`, error?.message || error);
     }
   }

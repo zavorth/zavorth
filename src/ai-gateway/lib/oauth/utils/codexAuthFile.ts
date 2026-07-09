@@ -107,7 +107,7 @@ function decodeJwtPayload(jwt: string): JsonRecord | null {
     if (parts.length !== 3) return null;
     const payload = Buffer.from(parts[1], "base64url").toString("utf8");
     return toRecord(JSON.parse(payload));
-  } catch (error) { logger.warn('[codex Auth File] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[codex Auth File] JSON parse failed', error); return null; }
 }
 
 function extractCodexAccountId(idToken: string, providerSpecificData: unknown): string | null {
@@ -315,7 +315,10 @@ export async function writeCodexAuthFileToLocalCli(connectionId: string) {
 
   try {
     await fs.chmod(authPath, 0o600);
-  } catch (error) { // Best effort on platforms that ignore chmod semantics. logger.warn('[codex Auth File] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Best effort on platforms that ignore chmod semantics.
+      logger.warn('[codex Auth File] filesystem operation failed', error);
+    }
 
   return {
     ...built,

@@ -41,7 +41,7 @@ export default function ModelSelectModal({
       if (!res.ok) throw new Error(`Failed to fetch combos: ${res.status}`);
       const data = await res.json();
       setCombos(data.combos || []);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("Error fetching combos:", error);
       setCombos([]);
     }
@@ -57,7 +57,7 @@ export default function ModelSelectModal({
       if (!res.ok) throw new Error(`Failed to fetch provider nodes: ${res.status}`);
       const data = await res.json();
       setProviderNodes(data.nodes || []);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("Error fetching provider nodes:", error);
       setProviderNodes([]);
     }
@@ -73,7 +73,7 @@ export default function ModelSelectModal({
       if (!res.ok) throw new Error(`Failed to fetch custom models: ${res.status}`);
       const data = await res.json();
       setCustomModels(data.models || {});
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("Error fetching custom models:", error);
       setCustomModels({});
     }

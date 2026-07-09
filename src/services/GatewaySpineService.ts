@@ -1,4 +1,4 @@
-import {
+﻿import {
   GATEWAY_SPINE_CONTRACT_VERSION,
   type GatewaySpineChannel,
   type GatewaySpineCommand,
@@ -228,7 +228,7 @@ export class GatewaySpineService {
 function readRuntimeSnapshot(source?: RuntimeSnapshotSource): unknown {
   try {
     return source && typeof source.buildSnapshot === 'function' ? source.buildSnapshot() : null;
-  } catch (error) { logger.warn('[way Spine] creation failed', error); return null; }
+  } catch (error: any) { logger.warn('[way Spine] creation failed', error); return null; }
 }
 
 function readChannelRegistrySnapshot(
@@ -236,7 +236,7 @@ function readChannelRegistrySnapshot(
 ): GatewayChannelRegistrySnapshot | null {
   try {
     return source && typeof source.buildSnapshot === 'function' ? source.buildSnapshot() : null;
-  } catch (error) { logger.warn('[way Spine] creation failed', error); return null; }
+  } catch (error: any) { logger.warn('[way Spine] creation failed', error); return null; }
 }
 
 function normalizeGatewayRuntime(runtimeSnapshot: unknown): GatewaySpineSnapshot['gatewayRuntime'] {

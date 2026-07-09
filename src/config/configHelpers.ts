@@ -36,7 +36,7 @@ export function parseStringMap(rawValue: string): Record<string, string> {
 
     const entries = Object.entries(parsed).filter(([key, value]) => key && value !== undefined && value !== null);
     return Object.fromEntries(entries.map(([key, value]) => [String(key), String(value)]));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.warn(
       `[config] Ignorando mapa JSON invalido no .env: ${error instanceof Error ? error.message : String(error)}`,
     );
@@ -71,7 +71,7 @@ export function readJsonStringField(filePath: string, fieldNames: string[]): str
         return value;
       }
     }
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return '';
   }
 

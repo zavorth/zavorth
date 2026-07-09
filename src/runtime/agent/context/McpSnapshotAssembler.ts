@@ -112,7 +112,7 @@ export class McpSnapshotAssembler {
     try {
       const snapshot = input.snapshot || input.runtime?.readSnapshot() || null;
       return this.fromRuntimeSnapshot(snapshot, input.metadata);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       return this.failedSnapshot(error, input.metadata);
     }
   }

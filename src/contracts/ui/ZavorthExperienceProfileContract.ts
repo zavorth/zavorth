@@ -14,6 +14,7 @@ export const ZAVORTH_EXPERIENCE_PROFILE_IDS = [
 export type ZavorthExperienceProfileId = typeof ZAVORTH_EXPERIENCE_PROFILE_IDS[number];
 
 export type ZavorthExperienceAutonomyLevel =
+  | 'full'
   | 'conservative'
   | 'balanced'
   | 'advanced'

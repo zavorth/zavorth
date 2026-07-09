@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { spawnNativeCommand } from '../core/CommandSpawn.js';
@@ -313,7 +313,7 @@ export class ZavorthControlAccessService {
       }
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return token || null;
-    } catch (error) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return null; }
   }
 
   private openUrl(url: string): boolean {
@@ -321,7 +321,7 @@ export class ZavorthControlAccessService {
       const child = this.spawnImpl(...this.buildOpenCommand(url));
       child.unref?.();
       return true;
-    } catch (error) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth Control Access] filesystem operation failed', error); return false; }
   }
 
   private buildOpenCommand(url: string): Parameters<typeof spawnNativeCommand> {

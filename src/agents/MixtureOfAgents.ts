@@ -175,7 +175,7 @@ export class MixtureOfAgents {
         latencyMs: Date.now() - startTime,
         success: true,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return {
         provider: ref.provider,

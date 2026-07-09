@@ -29,7 +29,7 @@ export class TerminalMarkdown {
     try {
       const parsed = marked.parse(markdownText) as string;
       return parsed.trim();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Terminal Markdown] parsing failed', error);
     // Fallback to raw text if parsing fails
       return markdownText;

@@ -48,6 +48,7 @@ Rules are organized by context and have severity levels:
 
 - **strict**: Always preview before sending emails or messages
 - **strict**: Confirm before destructive or irreversible actions
+- **prefer**: File writes inside the trusted workspace may proceed without per-action approval when TOOL-POLICY and runtime permissions allow it
 - **prefer**: Show the exact content that will be sent
 - **suggest**: Include rollback plan for risky operations
 

@@ -1,4 +1,4 @@
-import { CapabilityAutopilotFallbackSelectionService } from './CapabilityAutopilotFallbackSelectionService.js';
+﻿import { CapabilityAutopilotFallbackSelectionService } from './CapabilityAutopilotFallbackSelectionService.js';
 import { CapabilityAutopilotReadinessService } from './CapabilityAutopilotReadinessService.js';
 import { CapabilityAutopilotReceiptService } from './CapabilityAutopilotReceiptService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
@@ -203,7 +203,7 @@ export class CapabilityAutopilotProviderExpansionService {
   ): Promise<CapabilityReceipt | null> {
     try {
       return await this.receiptService.buildCapabilityReceipt(id, { surface, audience });
-    } catch (error) { logger.warn('[Capability Autopilot  Expansion] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Capability Autopilot  Expansion] creation failed', error); return null; }
   }
 
   private findManifestForCapability(

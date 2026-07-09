@@ -1112,11 +1112,11 @@
 
     const runtimeTitle = document.querySelector('[data-dashboard-runtime-title]');
     const runtimeText = document.querySelector('[data-dashboard-runtime-text]');
-    if (runtimeTitle) runtimeTitle.textContent = activeRun ? text(activeRun.title || activeRun.summary, activeRun.id) : 'Waiting for a mission';
+    if (runtimeTitle) runtimeTitle.textContent = activeRun ? text(activeRun.title || activeRun.summary, activeRun.id) : 'No task running';
     if (runtimeText) {
       runtimeText.textContent = activeRun
-        ? `${text(activeRun.status, 'running')} - ${deriveNextRunAction(activeRun)}`
-        : 'Ask in plain language. Zavorth chooses tools, previews risky work, and shows the result clearly.';
+        ? `${text(activeRun.status, 'running')} — ${deriveNextRunAction(activeRun)}`
+        : 'Ready.';
     }
 
     updatePremiumStatus('Web dashboard', state.auth?.webReady ? 'ready' : 'local', state.auth?.webReady ? 'ok' : 'info');

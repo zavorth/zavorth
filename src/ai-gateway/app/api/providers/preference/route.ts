@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const preference = await service.readPreference();
 
     return NextResponse.json({ preference });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },

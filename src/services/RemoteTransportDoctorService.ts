@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { AIGatewaySidecarService } from './AIGatewaySidecarService.js';
@@ -120,7 +120,7 @@ export class RemoteTransportDoctorService {
         status: this.resolveStatus(items),
         items,
       };
-    } catch (error) { logger.warn('[Remote Transport Doctor] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Remote Transport Doctor] parsing failed', error); return null; }
   }
 
   private async inspectEntry(entry: ZavorthRemoteTransportEntry): Promise<RemoteTransportDoctorItem> {
@@ -280,7 +280,7 @@ export class RemoteTransportDoctorService {
         httpStatus: response.status,
         detail: `Probe ativo confirmou reachability em ${endpoint} (HTTP ${response.status}).`,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Remote Transport Doctor] network request failed', error);
     return {
         status: 'failed',

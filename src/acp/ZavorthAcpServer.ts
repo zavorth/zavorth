@@ -141,7 +141,7 @@ export class ZavorthAcpServer {
       this.pendingRequests.set(id, { resolve, reject });
       try {
         this.stdout.write(JSON.stringify(request) + '\n');
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         this.pendingRequests.delete(id);
         reject(err instanceof Error ? err : new Error(String(err)));
       }
@@ -160,7 +160,7 @@ export class ZavorthAcpServer {
         metadata,
       });
       return response && response.approved === true;
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       this.log(`Elevated approval request failed: ${err instanceof Error ? err.message : String(err)}`);
       return false;
     }
@@ -199,7 +199,7 @@ export class ZavorthAcpServer {
       let msg: any;
       try {
         msg = JSON.parse(trimmed);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         this.sendError(null, JSONRPC_PARSE_ERROR, 'Parse error');
         continue;
       }
@@ -345,7 +345,7 @@ export class ZavorthAcpServer {
       });
 
       this.sendResult(id, { sessionId, status: 'completed' });
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       session.status = 'failed';
       session.error = err instanceof Error ? err.message : 'Unknown error';
       this.sendError(id, JSONRPC_INTERNAL_ERROR, session.error);
@@ -384,7 +384,7 @@ export class ZavorthAcpServer {
     try {
       const result = await this.executeToolCall(toolName, args, session);
       this.sendResult(id, { content: [{ type: 'text', text: result }], isError: false });
-    } catch (err) {
+    } catch (err: any) { const e = err;
       const error = err instanceof Error ? err.message : 'Tool execution failed';
       this.sendResult(id, { content: [{ type: 'text', text: error }], isError: true });
     }
@@ -397,7 +397,7 @@ export class ZavorthAcpServer {
       let args: Record<string, unknown> = {};
       try {
         args = JSON.parse(toolCallMatch[2]);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         args = { input: toolCallMatch[2] };
       }
       return this.executeToolCall(toolName, args, session);
@@ -450,7 +450,7 @@ export class ZavorthAcpServer {
       });
 
       return result;
-    } catch (err) {
+    } catch (err: any) { const e = err;
       const durationMs = Date.now() - startTime;
       const error = err instanceof Error ? err.message : 'Tool execution failed';
       session.toolCalls.push({
@@ -595,7 +595,7 @@ export class ZavorthAcpServer {
   private send(response: AcpJsonRpcResponse): void {
     try {
       this.stdout.write(JSON.stringify(response) + '\n');
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       this.log(`Failed to write response: ${err instanceof Error ? err.message : 'unknown error'}`);
     }
   }
@@ -603,7 +603,7 @@ export class ZavorthAcpServer {
   private log(message: string): void {
     try {
       this.stderr.write(`[ACP] ${message}\n`);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // ignore
     }
   }

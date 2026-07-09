@@ -120,7 +120,7 @@ export class ApprovalLeaseDecisionAdapter {
     // Step 1: Validate context does not carry secrets
     try {
       validateNoSecrets(context as unknown as Record<string, unknown>);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       const errMsg = err instanceof Error ? err.message : 'unknown error';
       const reason = 'Context validation failed: ' + errMsg;
       return this.emitAndResult({ eventType: 'lease_fail_closed', context, status: 'fail_closed', reason, evaluatedAt, leaseConsidered: false, upstreamGatesConfirmed: false });
@@ -282,7 +282,7 @@ export class ApprovalLeaseDecisionAdapter {
           console.error('[SECURITY-AUDIT-ERROR] Async audit logging failed: ', asyncErr);
         });
       }
-    } catch (auditErr) {
+    } catch (auditErr: any) { const error = auditErr; const err = auditErr; const e = auditErr;
       const auditErrMsg = auditErr instanceof Error ? auditErr.message : 'unknown audit error';
       const failReason = 'Audit sink threw during ' + params.eventType + ': ' + auditErrMsg + '. Failing closed.';
       return buildFailClosedResult(failReason, params.context, params.evaluatedAt, params.upstreamGatesConfirmed);

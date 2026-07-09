@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash, randomUUID } from 'crypto';
@@ -201,7 +201,7 @@ export class AgentMeshOrchestrationService {
           driverStatus: 'available',
         };
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Agent Mesh Orchestration] filesystem check failed', error);
     return createFallbackCapabilities(bridge.primaryProtocol, 'failed');
   }
@@ -227,7 +227,7 @@ export class AgentMeshOrchestrationService {
             }
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         logger.error('Failed to load Agent Mesh registry:', error);
       }
     }
@@ -243,7 +243,7 @@ export class AgentMeshOrchestrationService {
             }
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         logger.error('Failed to load Agent Mesh consents:', error);
       }
     }
@@ -258,7 +258,7 @@ export class AgentMeshOrchestrationService {
       const registryDir = path.dirname(this.registryPath);
       if (!fs.existsSync(registryDir)) fs.mkdirSync(registryDir, { recursive: true });
       fs.writeFileSync(this.registryPath, JSON.stringify(Array.from(this.bridges.values()), null, 2));
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Failed to save Agent Mesh state:', error);
     }
   }
@@ -376,7 +376,10 @@ function redactConnection(raw: string, kind: AgentMeshConnectionKind): string {
     url.search = '';
     url.hash = '';
     return url.toString();
-  } catch (error) { // Non-URL values are reduced to a basename-like display value. logger.warn('[Agent Mesh Orchestration] connection failed', error); }
+  } catch (error: any) {
+      // Non-URL values are reduced to a basename-like display value.
+      logger.warn('[Agent Mesh Orchestration] connection failed', error);
+    }
   const basename = raw.replace(/\\/g, '/').split('/').filter(Boolean).pop() || 'runtime-adapter';
   return `${kind}:${basename}`;
 }

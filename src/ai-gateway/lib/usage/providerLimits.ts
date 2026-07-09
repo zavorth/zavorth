@@ -82,7 +82,7 @@ async function syncToCloudIfEnabled() {
     const machineId = await getMachineId();
     if (!machineId) return;
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[ProviderLimits] Error syncing refreshed credentials to cloud:", error);
   }
 }
@@ -180,7 +180,7 @@ async function syncExpiredStatusIfNeeded(connection: ProviderConnectionLike, usa
       lastErrorType: "token_expired",
       lastErrorAt: new Date().toISOString(),
     });
-  } catch (dbError) {
+  } catch (dbError: any) { const error = dbError; const err = dbError; const e = dbError;
     console.error("[ProviderLimits] Failed to sync expired status to DB:", dbError);
   }
 }
@@ -199,7 +199,7 @@ export async function getLastProviderLimitsAutoSyncTime(): Promise<string | null
     const settings = await getSettings();
     const value = settings[PROVIDER_LIMITS_AUTO_SYNC_SETTING_KEY];
     return typeof value === "string" && value.trim() ? value : null;
-  } catch (error) { logger.warn('[provider] operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[provider] operation failed', error); return null; }
 }
 
 async function setLastProviderLimitsAutoSyncTime(timestamp: string): Promise<void> {
@@ -257,7 +257,7 @@ export async function fetchLiveProviderLimits(connectionId: string): Promise<{
 
   try {
     result = await fetchUsageWithContext(proxyConfig);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     const isThrownNetworkError =
       error?.message === "fetch failed" ||
       error?.code === "PROXY_UNREACHABLE" ||

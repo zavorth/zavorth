@@ -45,6 +45,19 @@ export async function bootstrapGateway(env: NodeJS.ProcessEnv): Promise<GatewayR
   const { runtime } = await buildGatewayCore(env);
   await runtime.start();
   console.log('[Bootstrap] Gateway Running. Ready for events.');
+
+  try {
+    const { getChannelPairingService } = await import('../services/ZavorthChannelPairingService.js');
+    const pairingService = getChannelPairingService();
+    const code = pairingService.generateCode();
+    console.log(`\n==================================================`);
+    console.log(`🔑 Zavorth Channel Pairing Code: ${code}`);
+    console.log(`Use this code to pair Telegram/WhatsApp/Discord.`);
+    console.log(`==================================================\n`);
+  } catch (err) {
+    console.error('[Bootstrap] Failed to generate pairing code:', err);
+  }
+
   return runtime;
 }
 
@@ -63,6 +76,19 @@ export async function startGatewayHost(
   });
   const url = await host.start();
   console.log(`[Bootstrap] Gateway Host listening on ${url}`);
+
+  try {
+    const { getChannelPairingService } = await import('../services/ZavorthChannelPairingService.js');
+    const pairingService = getChannelPairingService();
+    const code = pairingService.generateCode();
+    console.log(`\n==================================================`);
+    console.log(`🔑 Zavorth Channel Pairing Code: ${code}`);
+    console.log(`Use this code to pair Telegram/WhatsApp/Discord.`);
+    console.log(`==================================================\n`);
+  } catch (err) {
+    console.error('[Bootstrap] Failed to generate pairing code:', err);
+  }
+
   return { runtime, host, url };
 }
 

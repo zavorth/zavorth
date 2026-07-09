@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import type { ComputerUseWatchModeService, WatchModeRunSnapshot, WatchModeSnapshot } from './ComputerUseWatchModeService.js';
 import { ComputerUseWatchModePolicyFileService } from './ComputerUseWatchModePolicyFileService.js';
 import { ComputerUseWatchModeStateFileService } from './ComputerUseWatchModeStateFileService.js';
@@ -440,7 +440,7 @@ export class ZavorthWatchModeControlPlaneService {
     try {
       const target = raw.match(/^https?:\/\//i) ? raw : `https://${raw}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error) { logger.warn('[Zavorth Watch Mode Control Plane] network request failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Watch Mode Control Plane] network request failed', error); return null; }
   }
 
   private text(value: unknown, fallback = ''): string {

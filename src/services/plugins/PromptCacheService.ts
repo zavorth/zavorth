@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -47,7 +47,7 @@ export class PromptCacheService {
       for (const [key, value] of Object.entries(data)) {
         this.cache.set(key, value as CachedPrompt);
       }
-    } catch (error) { /* ignore */ logger.warn('[Prompt Cache] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Prompt Cache] JSON parse failed', error); }
   }
 
   private saveCache(): void {

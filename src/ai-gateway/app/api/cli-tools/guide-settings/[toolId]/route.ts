@@ -23,7 +23,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] encoding failed', error);
     return NextResponse.json(
       {
@@ -57,7 +57,7 @@ export async function POST(request, { params }) {
           { status: 400 }
         );
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] encoding failed', error);
     return NextResponse.json({ error: (error as any).message }, { status: 500 });
   }
@@ -80,7 +80,10 @@ async function saveContinueConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch (error) { // No existing config or invalid JSON — start fresh logger.warn('[route] JSON parse failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // No existing config or invalid JSON — start fresh
+      logger.warn('[route] JSON parse failed', error);
+    }
 
   // Build the ZavorthGateway model entry
   const normalizedBaseUrl = String(baseUrl || "")
@@ -160,7 +163,10 @@ async function saveOpenCodeConfig({ baseUrl, apiKey, model }) {
   try {
     const raw = await fs.readFile(configPath, "utf-8");
     existingConfig = JSON.parse(raw);
-  } catch (error) { // File doesn't exist or invalid JSON — start fresh logger.warn('[route] JSON parse failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // File doesn't exist or invalid JSON — start fresh
+      logger.warn('[route] JSON parse failed', error);
+    }
 
   const nextConfig = mergeOpenCodeConfig(existingConfig, {
     baseUrl: normalizedBaseUrl,

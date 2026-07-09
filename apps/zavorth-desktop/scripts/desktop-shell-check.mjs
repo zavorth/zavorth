@@ -22,6 +22,11 @@ const requiredFiles = [
   'src/primitives/desktopPrimitives.tsx',
   'src/modelCatalog.ts',
   'src/workspaceScopes.ts',
+  'src/i18n.ts',
+  'src/components/FileExplorer.tsx',
+  'src/lib/haptics.ts',
+  'src/styles/design-system.css',
+  'src/themePresets.ts',
 ];
 
 function readIfExists(relativePath) {
@@ -63,6 +68,8 @@ const requiredCssMarkers = [
   '.zvd-workspace-popover',
   '.zvd-suggestion-stack',
   '.zvd-ambient-field',
+  '.zvd-message__role',
+  '.zvd-command-group button.is-selected',
   '.theme-dark.zvd-app',
 ];
 
@@ -70,18 +77,22 @@ const requiredSkinMarkers = [
   'Zavorth',
   'New Chat',
   'Search',
-  'Local projects',
-  'Chats',
+  'Projects',
+  'Conversations',
   'What should we work on?',
   'Plan, review, or deliver a task with local runtime',
-  'Custom',
-  'Intelligence',
-  'Add more providers',
-  'Select folder...',
-  'Model',
-  'GPT-5',
-  'Claude Sonnet',
+  'Ask anything',
+  'Completion sounds',
+  'workspacePath',
+  'listSessions',
+  'stickToBottomRef',
+  'zvd:sounds-enabled',
   'Zavorth Core',
+  '#00e88f',
+  'density-compact',
+  'zvd-empty-kael',
+  'prefers-reduced-motion',
+  'zvd-skip-link',
 ];
 
 const requiredRuntimeInstrumentMarkers = [

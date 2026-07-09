@@ -271,7 +271,7 @@ export class ExecutionGateway {
         WorkspaceResolver.validate(plan.workspace_recommendation);
       }
       return null;
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       return `Workspace invalido: ${e.message}`;
     }
   }
@@ -449,7 +449,7 @@ export class ExecutionGateway {
           timing: result.timing,
         },
       );
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       const workspace = resolveExecutionGatewayWorkspace(
         plan.workspace_recommendation || task.workspace || '',
         this.defaultWorkspace,
@@ -690,7 +690,7 @@ export class ExecutionGateway {
         this.healer = new SelfHealingService();
       }
       return await this.healer.analyzeAndProposeFix(request, result);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

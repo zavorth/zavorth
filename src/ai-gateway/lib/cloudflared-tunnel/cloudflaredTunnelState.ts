@@ -13,7 +13,7 @@ export async function readStateFile(): Promise<PersistedTunnelState> {
   try {
     const content = await fs.readFile(getStateFilePath(), "utf8");
     return JSON.parse(content) as PersistedTunnelState;
-  } catch (error) { logger.warn('[cloudflared Tunnel State] JSON parse failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel State] JSON parse failed', error); return {}; }
 }
 
 export async function writeStateFile(state: PersistedTunnelState) {
@@ -29,7 +29,10 @@ export async function updateStateFile(patch: PersistedTunnelState) {
 export async function clearPidFile() {
   try {
     await fs.unlink(getPidFilePath());
-  } catch (error) { // Ignore missing/stale pid files. logger.warn('[cloudflared Tunnel State] file cleanup failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Ignore missing/stale pid files.
+      logger.warn('[cloudflared Tunnel State] file cleanup failed', error);
+    }
 }
 
 export async function writePidFile(pid: number) {
@@ -42,7 +45,7 @@ export async function readPidFile() {
     const content = await fs.readFile(getPidFilePath(), "utf8");
     const pid = Number.parseInt(content.trim(), 10);
     return Number.isFinite(pid) ? pid : null;
-  } catch (error) { logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return null; }
 }
 
 export function isProcessAlive(pid: number | null) {
@@ -50,7 +53,7 @@ export function isProcessAlive(pid: number | null) {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error) { logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel State] filesystem operation failed', error); return false; }
 }
 
 export async function appendTunnelLog(source: "stdout" | "stderr", message: string) {

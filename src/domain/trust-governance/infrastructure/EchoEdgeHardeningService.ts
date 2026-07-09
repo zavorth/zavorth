@@ -159,7 +159,7 @@ export class EchoEdgeHardeningService {
 
     try {
       return fs.readFileSync(tokenFile, 'utf8').trim();
-    } catch (error) { logger.warn('[Edge Hardening] filesystem operation failed', error); return ''; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Edge Hardening] filesystem operation failed', error); return ''; }
   }
 
   private resolveRoutePolicy(pathname: string, method: string): EchoRoutePolicy | null {

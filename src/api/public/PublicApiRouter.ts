@@ -84,7 +84,7 @@ export class PublicApiRouter {
       }
 
       throw new NotFoundError(`Route ${method} ${url.pathname} not found`);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.handleError(error, res);
     }
   }
@@ -177,7 +177,7 @@ export class PublicApiRouter {
       }
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return isWeakZavorthControlToken(token) ? '' : token;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return '';
     }
   }

@@ -142,7 +142,7 @@ export class TelegramExecutionController {
         ctx,
         `Done. I attempted to undo task ${taskId}.\n\nRestored items:\n${restored.join('\n')}`,
       );
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       await SmartOutputService.reply(ctx, `I could not undo this task right now.\n\nReason: ${message}`);
     }

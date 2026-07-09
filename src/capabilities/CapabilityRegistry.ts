@@ -190,7 +190,7 @@ export class CapabilityRegistry {
             ),
           );
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Ignore malformed plugin manifests to avoid breaking the runtime.
       }
     }
@@ -272,7 +272,7 @@ export class CapabilityRegistry {
       const matchedPatterns = patterns.filter((pattern) => {
         try {
           return new RegExp(pattern, 'i').test(normalizedText);
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           return false;
         }
       });

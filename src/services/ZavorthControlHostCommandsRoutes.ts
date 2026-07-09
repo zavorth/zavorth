@@ -63,7 +63,7 @@ export async function handleHostCommandsRequest(
       }));
 
       deps.writeJson(res, { ok: true, data });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -94,7 +94,7 @@ export async function handleHostCommandsRequest(
       }
 
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -201,7 +201,7 @@ export async function handleHostCommandsRequest(
         ok: true,
         data: runResult
       });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -224,7 +224,7 @@ export async function handleHostCommandsRequest(
       db.run('DELETE FROM workspace_host_command_proposals WHERE operation_id = ?', [operationId]);
       HostCommandPayloadCache.getInstance().delete(operationId);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;

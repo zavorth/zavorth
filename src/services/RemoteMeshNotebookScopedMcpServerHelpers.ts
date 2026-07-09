@@ -1,4 +1,4 @@
-import { execFile } from 'node:child_process';
+﻿import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
@@ -143,7 +143,7 @@ export function parseJsonRpc(rawBody: string): { ok: true; request: JsonRpcReque
   try {
     const parsed = JSON.parse(rawBody) as JsonRpcRequest;
     return { ok: true, request: parsed };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] JSON parse failed', error);
     return { ok: false, error: 'Invalid JSON body.' };
   }
@@ -543,5 +543,5 @@ export function parseDockerContainerLine(line: string): RemoteMeshNotebookDocker
       status: String(parsed.Status || ''),
       ports: parsed.Ports ? String(parsed.Ports) : null,
     };
-  } catch (error) { logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] parsing failed', error); return null; }
+  } catch (error: any) { logger.warn('[Remote Mesh Notebook Scoped Mcp Server Helpers] parsing failed', error); return null; }
 }

@@ -192,7 +192,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         completedAt?: string | null;
       };
       return Boolean(tracking.completedAt);
-    } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Permission] JSON parse failed', error); return false; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Permission] JSON parse failed', error); return false; }
   }
 
   public isZavorthBridgeTask(task: Task | null | undefined): boolean {
@@ -316,7 +316,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
             pendingPermissionNotificationError: null,
           };
           this.deps.taskManager?.saveTask(task);
-        } catch (error: any) {
+        } catch (error: any) { const err = error; const e = error;
           task.metadata = {
             ...(task.metadata || {}),
             pendingPermissionNotificationError: error.message,
@@ -448,7 +448,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
           pendingPermissionNotificationError: null,
         };
         this.deps.taskManager?.saveTask(task);
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         task.metadata = {
           ...(task.metadata || {}),
           pendingPermissionId: permission.permission_id,
@@ -556,7 +556,7 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         session.lastNotifiedPermissionId = permission.permission_id;
         await this.bridgeManager.saveSession(session);
         return;
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',

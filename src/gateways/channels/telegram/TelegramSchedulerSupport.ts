@@ -53,7 +53,7 @@ export class TelegramSchedulerBootstrap {
       schedulerService.start(async (command: string, userId: string) => {
         await this.dispatchScheduledCommand(command, userId);
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.logger.error('Erro ao inicializar SchedulerService:', error);
     }
   }
@@ -61,7 +61,7 @@ export class TelegramSchedulerBootstrap {
   private async dispatchScheduledCommand(command: string, userId: string): Promise<void> {
     try {
       await this.deps.processTextMessage(this.createScheduledContext(userId), command);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.logger.error('Falha ao processar task agendada:', error);
     }
   }
@@ -80,7 +80,7 @@ export class TelegramSchedulerBootstrap {
               parse_mode: 'Markdown',
             });
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           this.logger.error('Falha ao enviar resposta de task agendada', error);
         }
       },
@@ -90,7 +90,7 @@ export class TelegramSchedulerBootstrap {
           if (targetId && typeof this.deps.botApi.sendDocument === 'function') {
             await this.deps.botApi.sendDocument(targetId, document, options);
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           this.logger.error('Falha ao enviar documento de task agendada', error);
         }
       },

@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 export type AttachmentIntelligenceInput = {
   name?: string | null;
   type?: string | null;
@@ -328,7 +328,7 @@ export class AttachmentIntelligenceService {
     try {
       const decoded = decodeURIComponent(value);
       return decoded !== value ? decoded : null;
-    } catch (error) { logger.warn('[Attachment Intelligence] encoding failed', error); return null; }
+    } catch (error: any) { logger.warn('[Attachment Intelligence] encoding failed', error); return null; }
   }
 
   private looksHashLike(value: string): boolean {

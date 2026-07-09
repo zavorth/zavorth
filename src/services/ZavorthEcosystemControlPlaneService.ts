@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ZavorthPlatformRegistryService } from './ZavorthPlatformRegistryService.js';
@@ -517,7 +517,7 @@ export class ZavorthEcosystemControlPlaneService {
         signature: this.nullableText(parsed.signature),
         validationWarnings: warnings,
       };
-    } catch (error) { logger.warn('[Zavorth Ecosystem Control Plane] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Ecosystem Control Plane] parsing failed', error); return null; }
   }
 
   private summarizeFileReadiness(files: Array<{ path: string; exists: boolean }>): FileReadinessSummary {

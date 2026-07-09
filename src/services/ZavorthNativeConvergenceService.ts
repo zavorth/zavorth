@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -446,7 +446,7 @@ export class ZavorthNativeConvergenceService {
         title,
         ...result,
       };
-    } catch (error) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         id,
@@ -475,7 +475,7 @@ export class ZavorthNativeConvergenceService {
     try {
       const parsed = JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8')) as PackageJson;
       return parsed.scripts || {};
-    } catch (error) { logger.warn('[Zavorth Native Convergence] JSON parse failed', error); return {}; }
+    } catch (error: any) { logger.warn('[Zavorth Native Convergence] JSON parse failed', error); return {}; }
   }
 
   public static requiredPillars(): ConvergencePillarId[] {

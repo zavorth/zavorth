@@ -1,4 +1,4 @@
-import {
+﻿import {
   HYBRID_MEMORY_CONTRACT_VERSION,
   HYBRID_MEMORY_DEFAULT_CONTEXT_TOKEN_BUDGET,
   HYBRID_MEMORY_DEFAULT_TOP_K,
@@ -153,7 +153,7 @@ export class HybridMemoryService {
     if (vectorStore) {
       try {
         vectorCount = Number(vectorStore.count()) || 0;
-      } catch (error: unknown) {
+      } catch (error: any) {
         const message = error instanceof Error ? error.message : 'erro desconhecido';
         warnings.push(`Vector store indisponivel para contagem: ${message}.`);
       }
@@ -199,7 +199,7 @@ export class HybridMemoryService {
         for (const entry of Array.isArray(result?.data) ? result.data : []) {
           sources.push(this.fromLayeredMemory(entry));
         }
-      } catch (error: unknown) {
+      } catch (error: any) {
         const message = error instanceof Error ? error.message : 'erro desconhecido';
         warnings.push(`Layered memory indisponivel: ${message}.`);
       }
@@ -227,7 +227,7 @@ export class HybridMemoryService {
       try {
         queryEmbedding = await embeddingService.generate(query);
         embeddingStatus = 'ready';
-      } catch (error: unknown) {
+      } catch (error: any) {
         embeddingStatus = 'failed';
         const message = error instanceof Error ? error.message : 'erro desconhecido';
         warnings.push(`Embeddings indisponiveis; usando recall por palavras-chave: ${message}.`);
@@ -250,7 +250,7 @@ export class HybridMemoryService {
         embeddingStatus,
         sources: chunks.map((chunk) => this.fromMemoryChunk(chunk, query)),
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       warnings.push(`Falha ao consultar MemoryVectorStore: ${message}.`);
       return { embeddingStatus, sources: [] };
@@ -273,7 +273,7 @@ export class HybridMemoryService {
         sourceUserId: input.sessionId || null,
         workspaceHint: input.workspaceHint || null,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       warnings.push(`Memory plane indisponivel: ${message}.`);
       return null;
@@ -477,7 +477,7 @@ export class HybridMemoryService {
     try {
       this.lazyVectorStore = this.createVectorStore();
       return this.lazyVectorStore;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : 'erro desconhecido';
       warnings.push(`MemoryVectorStore nao inicializou: ${message}.`);
       this.lazyVectorStore = null;

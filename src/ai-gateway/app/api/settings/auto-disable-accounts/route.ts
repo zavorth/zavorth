@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error reading auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to read auto-disable accounts config" },
@@ -31,7 +31,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -61,7 +61,7 @@ export async function PUT(request: Request) {
       enabled: settings.autoDisableBannedAccounts ?? false,
       threshold: settings.autoDisableBannedThreshold ?? 3,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating auto-disable accounts config:", error);
     return NextResponse.json(
       { error: "Failed to update auto-disable accounts config" },

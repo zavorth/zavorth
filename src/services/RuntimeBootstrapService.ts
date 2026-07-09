@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ModelPickerContract, SelectedModelProfile } from '../contracts/ModelPickerContract.js';
@@ -238,7 +238,7 @@ export class RuntimeBootstrapService {
             }
           });
         }
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Runtime] filesystem operation failed', error);
     skillSourcesValid = false;
   }

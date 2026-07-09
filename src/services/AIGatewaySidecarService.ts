@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execFile, type ChildProcess } from 'child_process';
@@ -25,6 +25,7 @@ export type AIGatewaySidecarSnapshot = {
 export class AIGatewaySidecarService {
   private child: ChildProcess | null = null;
   private spawnedByZavorth = false;
+  private autoRestartEnabled = true;
   private readonly upstreamBaseUrl = config.AIGatewayUpstreamBaseUrl;
 
   constructor(private readonly logRepo?: LogRepository) {}
@@ -90,7 +91,7 @@ export class AIGatewaySidecarService {
         ...fallback,
         ...parsed,
       };
-    } catch (error) { logger.warn('[A I way Sidecar] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[A I way Sidecar] JSON parse failed', error); return fallback; }
   }
 
   private resolveSourceDir(): string | null {
@@ -155,6 +156,16 @@ export class AIGatewaySidecarService {
       this.spawnedByZavorth = false;
       const snapshot = this.buildSnapshot(false, false, null, sourceDir, message);
       this.writeStatus(snapshot);
+
+      // Auto-restart on unexpected crash (not SIGTERM or clean exit)
+      if (code !== 0 && signal !== 'SIGTERM' && this.autoRestartEnabled) {
+        this.log('warn', 'AIGateway crashed unexpectedly. Auto-restarting in 5 seconds...');
+        setTimeout(() => {
+          this.spawn(sourceDir).catch((err) => {
+            this.log('error', `Auto-restart failed: ${err instanceof Error ? err.message : String(err)}`);
+          });
+        }, 5000);
+      }
     });
 
     this.log('info', `Subindo AIGateway de ${sourceDir}...`);
@@ -181,7 +192,7 @@ export class AIGatewaySidecarService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (error) { logger.warn('[A I way Sidecar] network request failed', error); return false; }
+    } catch (error: any) { logger.warn('[A I way Sidecar] network request failed', error); return false; }
   }
 
   private buildModelsUrl(): string {
@@ -194,7 +205,7 @@ export class AIGatewaySidecarService {
       const parsed = new URL(this.upstreamBaseUrl);
       const port = parsed.port ? Number(parsed.port) : 80;
       return Number.isFinite(port) && port > 0 ? port : 20128;
-    } catch (error) { logger.warn('[A I way Sidecar] parsing failed', error); return 20128; }
+    } catch (error: any) { logger.warn('[A I way Sidecar] parsing failed', error); return 20128; }
   }
 
   private buildSnapshot(
@@ -270,7 +281,7 @@ export class AIGatewaySidecarService {
       const timeout = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
         finalize();
       }, 5000);
 
@@ -288,7 +299,7 @@ export class AIGatewaySidecarService {
 
       try {
         child.kill('SIGTERM');
-      } catch {
+      } catch (error: any) {
         clearTimeout(timeout);
         finalize();
       }
@@ -304,7 +315,7 @@ export class AIGatewaySidecarService {
 
       try {
         process.kill(pid, 'SIGTERM');
-      } catch {
+      } catch (error: any) {
         resolve();
         return;
       }

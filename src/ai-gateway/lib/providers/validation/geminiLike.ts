@@ -58,7 +58,7 @@ export async function validateGeminiLikeProvider({
       if (response.status === 401 || response.status === 403) {
         return invalidApiKey();
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       if (response.status === 401 || response.status === 403) {
         return invalidApiKey();
       }

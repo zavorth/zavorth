@@ -197,7 +197,7 @@ export class AgentSharedMemory {
     try {
       if (!fs.existsSync(this.memoryFile)) return [];
       return JSON.parse(fs.readFileSync(this.memoryFile, 'utf-8')) as SharedMemoryEntry[];
-    } catch (error) { logger.warn('[Agent Shared Memory] JSON parse failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Shared Memory] JSON parse failed', error); return []; }
   }
 
   private writeEntries(entries: SharedMemoryEntry[]): void {

@@ -18,6 +18,8 @@ import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
 import { ToolResultCache } from '../cognitive-firewall/ToolResultCache.js';
 import { ContextAwareInjector } from '../cognitive-firewall/ContextAwareInjector.js';
 import { EpisodicMemoryBridge } from './EpisodicMemoryBridge.js';
+import { AdaptivePersonaEngine, type PersonaResolution } from './AdaptivePersonaEngine.js';
+
 import { sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 
 export interface ContextEvent {
@@ -69,6 +71,12 @@ export interface ContextEngineDecision {
   intentCategory: string;
   /** Session ID used for predictive loading and injection tracking. */
   sessionId: string;
+  /** Resolved persona type (executor, creative, analytical, conversational, researcher). */
+  personaType?: string;
+  /** Confidence score for the resolved persona. */
+  personaConfidence?: number;
+  /** Whether the intent was ambiguous and fallback was used. */
+  personaIsAmbiguous?: boolean;
 }
 
 const MAX_WINDOW_EVENTS = 12;
@@ -99,10 +107,12 @@ export class ContextEngine {
   private readonly usageTracker: ToolUsageTracker;
   private readonly cache: ToolResultCache;
   private readonly injector: ContextAwareInjector;
+  private readonly personaEngine: AdaptivePersonaEngine;
   private readonly now: () => Date;
   private readonly sessionTtlMs: number;
   private readonly maxSessions: number;
   private episodicBridge: EpisodicMemoryBridge | null = null;
+
   /**
    * Event buffer by session. Production deployments can persist this in
    * SQLite or Redis; this in-memory buffer keeps the default runtime light.
@@ -129,6 +139,7 @@ export class ContextEngine {
       usageTracker: this.usageTracker,
       // sessionId is set per-evaluation in prepare()
     });
+    this.personaEngine = new AdaptivePersonaEngine();
   }
 
   /**
@@ -185,10 +196,17 @@ export class ContextEngine {
   ): ContextEngineDecision {
     const key = this.sessionKey(chatId, userId);
     const firewallDecision = this.firewall.evaluate(userMessage, allTools, { sessionId: key });
+
+    // Adaptive Persona Engine - Dynamic persona resolution based on intent
+    const personaResolution = this.personaEngine.resolve(firewallDecision.classification);
+    const adaptivePersonaPrompt = this.personaEngine.buildPrompt(personaResolution);
+    console.log(`[ContextEngine] Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
+    const enrichedSystemInstruction = systemInstruction + '\n' + adaptivePersonaPrompt;
+
     const window = this.getContextWindow(key, workspaceContext);
     const messages: ChatMessage[] = [];
 
-    messages.push({ role: 'system', content: systemInstruction });
+    messages.push({ role: 'system', content: enrichedSystemInstruction });
     if (window.workspaceContext) {
       messages.push({
         role: 'system',
@@ -256,6 +274,9 @@ export class ContextEngine {
       firewallStats: firewallDecision.stats,
       intentCategory: firewallDecision.classification.category,
       sessionId: key,
+      personaType: personaResolution.persona.type,
+      personaConfidence: personaResolution.confidence,
+      personaIsAmbiguous: personaResolution.isAmbiguous,
     };
   }
 
@@ -464,8 +485,8 @@ export class ContextEngine {
   }
 
   /**
-   * Async prepare() variant that includes long-term memory recall.
-   * Use this variant when EpisodicMemoryBridge is connected.
+   * Async prepare() variant with LLM-based classification and long-term memory recall.
+   * Builds the full message array (same as prepare()) but uses async firewall + episodic recall.
    */
   public async prepareAsync(
     userMessage: string,
@@ -477,32 +498,101 @@ export class ContextEngine {
     workspaceContext?: string | null,
     inlineData?: ContextEvent['inlineData'],
   ): Promise<ContextEngineDecision> {
-    // Use synchronous prepare() as the base.
-    const decision = this.prepare(
-      userMessage, userId, chatId, surface,
-      allTools, systemInstruction, workspaceContext, inlineData,
-    );
+    const key = this.sessionKey(chatId, userId);
+    const firewallDecision = await this.firewall.evaluateAsync(userMessage, allTools, { sessionId: key });
 
-    // Auto-recall from long-term memory.
+    // Adaptive Persona Engine - Dynamic persona resolution based on intent
+    const personaResolution = this.personaEngine.resolve(firewallDecision.classification);
+    const adaptivePersonaPrompt = this.personaEngine.buildPrompt(personaResolution);
+    console.log(`[ContextEngine] Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
+    const enrichedSystemInstruction = systemInstruction + '\n' + adaptivePersonaPrompt;
+
+    const window = this.getContextWindow(key, workspaceContext);
+    const messages: ChatMessage[] = [];
+
+    messages.push({ role: 'system', content: enrichedSystemInstruction });
+    if (window.workspaceContext) {
+      messages.push({
+        role: 'system',
+        content: this.buildTrustBoundedSystemContext(
+          'CONTEXTO DE WORKSPACE:',
+          window.workspaceContext,
+          'workspace_context',
+        ),
+      });
+    }
+    if (window.compactedSummary) {
+      messages.push({
+        role: 'system',
+        content: this.buildTrustBoundedSystemContext(
+          'CONTEXTO DA CONVERSA ANTERIOR:',
+          window.compactedSummary,
+          'compacted_conversation_summary',
+        ),
+      });
+    }
+
+    // Auto-recall from long-term memory (injected before user message).
     if (this.episodicBridge) {
       const recall = await this.episodicBridge.recall(userMessage, userId);
       if (recall.contextBlock) {
-        // Inject recalled memories before the user message.
-        const userMsgIndex = decision.messages.findIndex(
-          (m, i) => m.role === 'user' && i === decision.messages.length - 1,
-        );
-        if (userMsgIndex > 0) {
-          decision.messages.splice(userMsgIndex, 0, {
-            role: 'system',
-            content: recall.contextBlock,
-          });
-        }
+        messages.push({
+          role: 'system',
+          content: recall.contextBlock,
+        });
       }
     }
 
-    decision.messages = this.mergeConsecutiveMessages(decision.messages);
+    // Add recent conversation events (excluding the current user message to avoid duplication).
+    const recentEvents = window.recentEvents.filter((event, index, events) => {
+      const isLast = index === events.length - 1;
+      return !(
+        isLast &&
+        event.role === 'user' &&
+        event.chatId === chatId &&
+        event.userId === userId &&
+        event.content === userMessage
+      );
+    });
 
-    return decision;
+    for (const event of recentEvents) {
+      if (event.role === 'user') {
+        messages.push({
+          role: 'user',
+          content: event.content,
+          inlineData: event.inlineData,
+        });
+      } else if (event.role === 'assistant') {
+        messages.push({
+          role: 'assistant',
+          content: event.content,
+          toolCalls: event.toolCalls?.map((tc) => ({
+            id: `tc_${tc.name}`,
+            name: tc.name,
+            arguments: (tc.arguments || {}) as Record<string, unknown>,
+          })),
+        });
+      }
+    }
+
+    messages.push({ role: 'user', content: userMessage, inlineData });
+
+    const merged = this.mergeConsecutiveMessages(messages);
+
+    return {
+      messages: merged,
+      tools: firewallDecision.tools,
+      toolHintProfile: firewallDecision.toolHintProfile,
+      recommendedToolNames: firewallDecision.recommendedToolNames,
+      toolExposureGatedByCognitiveFirewall: firewallDecision.toolExposureGatedByCognitiveFirewall,
+      useFastModel: firewallDecision.useFastModel,
+      firewallStats: firewallDecision.stats,
+      intentCategory: firewallDecision.classification.category,
+      sessionId: key,
+      personaType: personaResolution.persona.type,
+      personaConfidence: personaResolution.confidence,
+      personaIsAmbiguous: personaResolution.isAmbiguous,
+    };
   }
 
   private mergeConsecutiveMessages(messages: ChatMessage[]): ChatMessage[] {

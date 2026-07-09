@@ -41,7 +41,7 @@ export default function ProxyLogDetail({ log, onClose }) {
       return (
         d.toLocaleDateString("en-US") + ", " + d.toLocaleTimeString("en-US", { hour12: false })
       );
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return iso;
     }
   };

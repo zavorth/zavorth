@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { HostCommandApprovalService } from '../../services/HostCommandApprovalService.js';
@@ -80,7 +80,7 @@ export class HostCommandProposeTool extends BaseTool {
         status: 'HOST_COMMAND_APPROVAL_REQUIRED',
         message: 'Operator approval is required to execute host commands.'
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Host Command Propose] process execution failed', error);
     return JSON.stringify({
         success: false,

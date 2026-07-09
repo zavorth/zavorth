@@ -66,7 +66,7 @@ function migrateProxyEntry(value: unknown): JsonRecord | null {
       username: url.username ? decodeURIComponent(url.username) : "",
       password: url.password ? decodeURIComponent(url.password) : "",
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     const parts = value.split(":");
     return {
       type: "http",
@@ -192,7 +192,10 @@ export async function resolveProxyForConnection(connectionId: string) {
             if (usesProvider) {
               return { proxy: config.combos[comboId], level: "combo", levelId: comboId };
             }
-          } catch (error) { // Ignore malformed combo records during proxy resolution. logger.warn('[proxy] JSON parse failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // Ignore malformed combo records during proxy resolution.
+      logger.warn('[proxy] JSON parse failed', error);
+    }
         }
       }
     }

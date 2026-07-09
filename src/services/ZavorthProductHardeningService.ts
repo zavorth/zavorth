@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -402,7 +402,7 @@ export class ZavorthProductHardeningService {
     try {
       const packageJson = JSON.parse(this.read('package.json')) as PackageJson;
       return packageJson.scripts || {};
-    } catch (error) { logger.warn('[Zavorth Product Hardening] JSON parse failed', error); return {}; }
+    } catch (error: any) { logger.warn('[Zavorth Product Hardening] JSON parse failed', error); return {}; }
   }
 
   private hasMarker(file: string, marker: string): boolean {

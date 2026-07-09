@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
 import type {
@@ -153,7 +153,7 @@ export class SelfmodPatternMemory {
 
     try {
       return JSON.parse(fs.readFileSync(this.filePath, 'utf8')) as SelfmodPatternMemorySnapshot;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Selfmod Pattern Memory] JSON parse failed', error);
     return {
         updatedAt: new Date().toISOString(),

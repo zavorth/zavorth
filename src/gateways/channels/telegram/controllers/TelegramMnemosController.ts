@@ -40,14 +40,17 @@ export class TelegramMnemosController {
   private async answerCallback(ctx: Context): Promise<void> {
     try {
       await ctx.answerCallbackQuery();
-    } catch (error) { // Telegram may reject stale callbacks; the user-facing response still matters. logger.warn('[Telegram Mnemos] connection failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Telegram may reject stale callbacks; the user-facing response still matters.
+      logger.warn('[Telegram Mnemos] connection failed', error);
+    }
   }
 
   private async respond(ctx: Context, text: string): Promise<void> {
     try {
       await ctx.editMessageText(text);
       return;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(text);
     }
   }

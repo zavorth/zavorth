@@ -1,4 +1,4 @@
-import { DomainRegistry, type DomainRegistrySnapshot, type DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
+﻿import { DomainRegistry, type DomainRegistrySnapshot, type DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
 import { ArtifactsFacade } from '../domain/artifacts/ArtifactsFacade.js';
 import { ChannelsFacade } from '../domain/channels/ChannelsFacade.js';
 import { ExecutionFacade } from '../domain/execution/ExecutionFacade.js';
@@ -503,7 +503,7 @@ export class ZavorthGatewayService {
   private safeBuildGoalLoopStatus(): GoalLoopStatusProjection | null {
     try {
       return this.goalLoopStatus?.buildSnapshot() || null;
-    } catch (error) { logger.warn('[Zavorth way] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth way] creation failed', error); return null; }
   }
 
   private buildControlPlane(input: {

@@ -340,7 +340,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         }
         await navigator.clipboard.writeText(node.textContent || '');
         showToast('Relatorio consolidado copiado.', false);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         showToast('Nao foi possivel copiar o relatorio consolidado.', true);
       }
     }
@@ -352,7 +352,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         }
         await navigator.clipboard.writeText(String(value || ''));
         showToast(successMessage || 'Conteudo copiado.', false);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         showToast('Nao foi possivel copiar o conteudo.', true);
       }
     }
@@ -375,7 +375,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         setTimeout(() => {
           loadMetrics();
         }, 1500);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         showToast(error instanceof Error ? error.message : 'Falha ao iniciar acao operacional.', true);
       }
     }
@@ -399,7 +399,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         setTimeout(() => {
           loadMetrics();
         }, 1200);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do Integration Hub.', true);
       }
     }

@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 
@@ -126,7 +126,7 @@ export class ZavorthMnemosUnifiedMemoryService {
           body,
           hash: hash(body),
         }];
-      } catch (error) { logger.warn('[Zavorth Mnemos Unified Memory] operation failed', error); return []; }
+      } catch (error: any) { logger.warn('[Zavorth Mnemos Unified Memory] operation failed', error); return []; }
     });
   }
 

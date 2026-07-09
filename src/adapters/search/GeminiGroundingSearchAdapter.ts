@@ -49,7 +49,7 @@ export class GeminiGroundingSearchAdapter implements ISearchQueryAdapter {
     for (const key of keys) {
       try {
         return await this.executeGroundedSearch(key, query);
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn(`[GeminiGroundingSearchAdapter] Key failed: ${err instanceof Error ? err.message : String(err)}`);
       }
     }

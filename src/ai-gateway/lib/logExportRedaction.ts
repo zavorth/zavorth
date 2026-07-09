@@ -53,7 +53,10 @@ function redactString(value: string, seen: WeakSet<object>): string {
     try {
       const parsed = JSON.parse(value);
       return JSON.stringify(redactSensitiveData(redactValue(parsed, seen)));
-    } catch (error) { // Fall through to text redaction. logger.warn('[log Export Redaction] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Fall through to text redaction.
+      logger.warn('[log Export Redaction] JSON parse failed', error);
+    }
   }
   return redactSensitiveText(value);
 }

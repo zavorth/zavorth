@@ -60,7 +60,7 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       minute: "2-digit",
       hour12: false,
     }).format(now);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[api Key] filesystem check failed', error);
     // Invalid timezone — fail open (don't block)
     return true;
@@ -78,7 +78,7 @@ function isWithinSchedule(schedule: AccessSchedule): boolean {
       timeZone: schedule.tz,
       weekday: "short",
     }).format(now);
-  } catch (error) { logger.warn('[api Key] operation failed', error); return true; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[api Key] operation failed', error); return true; }
 
   const dayMap: Record<string, number> = {
     Sun: 0,
@@ -183,7 +183,7 @@ function normalizeRequestHostname(value: string | null | undefined): string {
       .hostname.toLowerCase()
       .replace(/^\[/, "")
       .replace(/\]$/, "");
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[api Key] network request failed', error);
     return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
   }
@@ -204,7 +204,7 @@ function isLoopbackGatewayRequest(request: Request): boolean {
     (() => {
       try {
         return new URL(request.url).hostname;
-      } catch (error) { logger.warn('[api Key] operation failed', error); return ''; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[api Key] operation failed', error); return ''; }
     })(),
     request.headers.get("host"),
     request.headers.get("x-forwarded-host"),
@@ -258,7 +258,7 @@ export async function enforceApiKeyPolicy(
   let apiKeyInfo: ApiKeyMetadata | null = null;
   try {
     apiKeyInfo = await getApiKeyMetadata(apiKey);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     // Fail-closed: if policy backend fails, reject the request
     log.error("API_POLICY", "Failed to fetch API key metadata. Request blocked.", { error });
     return {
@@ -331,7 +331,7 @@ export async function enforceApiKeyPolicy(
           ),
         };
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       // Fail-closed: budget backend error should block request
       log.error("API_POLICY", "Budget check failed. Request blocked.", { error });
       return {

@@ -47,7 +47,7 @@ function readJson<T>(filePath: string, fallback: T): T {
   try {
     if (!fs.existsSync(filePath)) return fallback;
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
-  } catch (error) { logger.warn('[route] JSON parse failed', error); return fallback; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[route] JSON parse failed', error); return fallback; }
 }
 
 function readLearningState(root: string): LearningState {

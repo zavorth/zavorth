@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: `Task not found: ${id}` }, { status: 404 });
     }
     return NextResponse.json({ task });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     const message = error instanceof Error ? error.message : "Failed to load A2A task";
     return NextResponse.json({ error: message }, { status: 500 });

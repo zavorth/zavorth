@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -107,7 +107,7 @@ export class CompanionAndroidService {
             for (const [id, t] of Object.entries(data as Record<string, QuickSettingsTile>)) this.tiles.set(id, t);
             break;
         }
-      } catch (error) { /* ignore */ logger.warn('[Companion Android] operation failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Companion Android] operation failed', error); }
     }
   }
 

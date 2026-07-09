@@ -34,7 +34,7 @@ export class VideoHandlerFetchSupport {
       }
 
       return [{ mimeType: "image/jpeg", data: buffer.toString("base64") }];
-    } catch (error) { logger.warn('[Video] network request failed', error); return undefined; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Video] network request failed', error); return undefined; }
   }
 
   public static async buildInlineData(
@@ -202,7 +202,7 @@ export class VideoHandlerFetchSupport {
 
     try {
       return JSON.parse(sanitized);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       const preview = sanitized.slice(0, 180).replace(/\s+/g, " ");
       throw new Error(

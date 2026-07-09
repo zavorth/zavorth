@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const { tool } = validation.data;
     const result = await restartTool(tool);
     return NextResponse.json({ success: true, ...result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : "Failed to restart";
     console.error("[version-manager] restart error:", message);
     return NextResponse.json({ error: message }, { status: 500 });

@@ -1,4 +1,4 @@
-import { normalizeGatewayControlReplayMode } from './controlSocketProtocol.js';
+﻿import { normalizeGatewayControlReplayMode } from './controlSocketProtocol.js';
 import type {
   GatewayConnectionState,
   GatewayControlReplayMode,
@@ -45,7 +45,7 @@ export async function handleGatewayControlSocketMessage(input: {
   let request: GatewayControlSocketRequest;
   try {
     request = parseGatewayControlSocketRequest(input.rawMessage);
-  } catch {
+  } catch (error: any) {
     input.sendError(null, 'invalid_json', 'A mensagem do gateway precisa ser JSON valido.');
     return;
   }
@@ -371,7 +371,7 @@ export async function handleGatewayControlSocketMessage(input: {
       'unknown_method',
       `Metodo ${method || '(vazio)'} ainda nao existe neste gateway.`,
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : 'Falha ao executar o metodo do gateway.';
     input.sendError(
       requestId,

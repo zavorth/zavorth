@@ -40,22 +40,44 @@ export const PRIMARY_DASHBOARD_SURFACE = {
   note: 'Daily dashboard surface for chat, runtime, memory, tools, models, settings, canvas, and runtime adapters.',
 } as const;
 
+/** Primary dock order (≤5 sectors; "More" is UI-only, not a sector). */
+export const PRIMARY_DASHBOARD_SECTOR_IDS: DashboardSectorId[] = [
+  'terminal',
+  'overview',
+  'sales-os',
+  'instances',
+  'config',
+];
+
+/** Command Center / More dock targets — stay in DOM, not primary dock items. */
+export const MORE_DASHBOARD_SECTOR_IDS: DashboardSectorId[] = [
+  'channels',
+  'nodes',
+  'dreams',
+  'skills',
+  'agents',
+  'usage',
+  'canvas',
+  'cron',
+  'sessions',
+];
+
 export const DASHBOARD_SECTORS: DashboardSector[] = [
   { id: 'terminal', label: 'Inbox', visible: true, summary: 'Chat, prompt queue, slash commands, steering, exports, files, and approvals.' },
   { id: 'overview', label: 'Work', visible: true, summary: 'Current run, trace, Gantt, replay, lifecycle events, and decisions.' },
-  { id: 'nodes', label: 'Memory', visible: true, summary: 'Mnemos recall, fact vault, provenance, trusted folders, and forget/promote/correct.' },
-  { id: 'dreams', label: 'Learning', visible: true, summary: 'Session hooks, learning candidates, consolidation, and review before promotion.' },
-  { id: 'canvas', label: 'Canvas', visible: true, summary: 'A2UI renderer, sandbox preview, mutation gate, diffs, and receipts.' },
-  { id: 'skills', label: 'Tools', visible: true, summary: 'Tool library, git/review commands, constitution importer, and governed actions.' },
-  { id: 'agents', label: 'Agents', visible: true, summary: 'Runtime adapters, ACP adapter, sandbox posture, execution preview, and receipts.' },
-  { id: 'usage', label: 'Models', visible: true, summary: 'Provider routes, model readiness, streaming proof, usage, and fallback state.' },
+  { id: 'nodes', label: 'Memory', visible: false, summary: 'Mnemos recall, fact vault, provenance, trusted folders, and forget/promote/correct.' },
+  { id: 'dreams', label: 'Learning', visible: false, summary: 'Session hooks, learning candidates, consolidation, and review before promotion.' },
+  { id: 'canvas', label: 'Canvas', visible: false, summary: 'A2UI renderer, sandbox preview, mutation gate, diffs, and receipts.' },
+  { id: 'skills', label: 'Tools', visible: false, summary: 'Tool library, git/review commands, constitution importer, and governed actions.' },
+  { id: 'agents', label: 'Agents', visible: false, summary: 'Runtime adapters, ACP adapter, sandbox posture, execution preview, and receipts.' },
+  { id: 'usage', label: 'Models', visible: false, summary: 'Provider routes, model readiness, streaming proof, usage, and fallback state.' },
   { id: 'config', label: 'Settings', visible: true, summary: 'Language, engines, trusted folders, provider diagnostics, and advanced JSON.' },
-  { id: 'channels', label: 'Channels', visible: true, summary: 'Web, CLI, remote, and team channels.' },
-  { id: 'sales-os', label: 'Approvals', visible: true, summary: 'Approval scopes, receipts, revocation, and break-glass policy.' },
-  { id: 'instances', label: 'History', visible: false, summary: 'Past work, receipts, decisions, and rollback guidance.' },
+  { id: 'channels', label: 'Channels', visible: false, summary: 'Web, CLI, remote, and team channels.' },
+  { id: 'sales-os', label: 'Review', visible: true, summary: 'Approval scopes, receipts, revocation, and break-glass policy.' },
+  { id: 'instances', label: 'Proof', visible: true, summary: 'Past work, receipts, decisions, and rollback guidance.' },
   { id: 'sessions', label: 'Sessions', visible: false, summary: 'Session timeline and handoff context.' },
   { id: 'docs', label: 'Docs', visible: false, summary: 'Short references for setup, models, memory, tools, and safe execution.' },
-  { id: 'cron', label: 'Schedule', visible: false, summary: 'Scheduled work, monitors, and reminders.' },
+  { id: 'cron', label: 'Cron', visible: false, summary: 'Scheduled work, monitors, and reminders.' },
 ];
 
 export const DASHBOARD_CAPABILITY_PLACEMENTS: DashboardCapabilityPlacement[] = [
@@ -97,4 +119,20 @@ export function sectorCapabilities(id: string) {
 
 export function visibleDashboardSectors() {
   return DASHBOARD_SECTORS.filter((sector) => sector.visible);
+}
+
+export function primaryDashboardSectors() {
+  return PRIMARY_DASHBOARD_SECTOR_IDS
+    .map((id) => DASHBOARD_SECTORS.find((sector) => sector.id === id))
+    .filter((sector): sector is DashboardSector => Boolean(sector));
+}
+
+export function moreDashboardSectors() {
+  return MORE_DASHBOARD_SECTOR_IDS
+    .map((id) => DASHBOARD_SECTORS.find((sector) => sector.id === id))
+    .filter((sector): sector is DashboardSector => Boolean(sector));
+}
+
+export function isPrimaryDashboardSector(id: string) {
+  return (PRIMARY_DASHBOARD_SECTOR_IDS as string[]).includes(id);
 }

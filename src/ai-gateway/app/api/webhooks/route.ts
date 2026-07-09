@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       secret: w.secret ? `${w.secret.slice(0, 10)}...` : null,
     }));
     return NextResponse.json({ webhooks: masked });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] array operation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to list webhooks" },
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ webhook }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to create webhook" },

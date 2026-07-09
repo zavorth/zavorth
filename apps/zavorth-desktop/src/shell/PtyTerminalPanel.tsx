@@ -8,6 +8,14 @@ import { logger } from '../logger.js';
 
 interface PtyTerminalPanelProps {
   workspaceId: string;
+  /** floating = self-managed dock button; embedded = parent controls open state */
+  mode?: 'floating' | 'embedded' | 'rail';
+  open?: boolean;
+  /** Per-tab session key (shell/agent tabs); used for identity until multi-PTY is fully wired. */
+  sessionKey?: string;
+  compact?: boolean;
+  trustLabel?: string;
+  className?: string;
 }
 
 const TERMINAL_THEME = {
@@ -34,9 +42,17 @@ const TERMINAL_THEME = {
   brightWhite: '#f0f6fc',
 };
 
-export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [activeSession, setActiveSession] = useState<any | null>(null);
+export function PtyTerminalPanel({
+  workspaceId,
+  mode = 'floating',
+  open,
+  sessionKey,
+  compact,
+  trustLabel,
+  className,
+}: PtyTerminalPanelProps) {
+  const [sessions, setSessions] = useState<Array<{ sessionId: string; cwd?: string }>>([]);
+  const [activeSession, setActiveSession] = useState<{ sessionId: string; cwd?: string } | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const termRef = useRef<Terminal | null>(null);
@@ -45,13 +61,17 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
   const afterSeqRef = useRef<number>(0);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const embeddedLike = mode === 'embedded' || mode === 'rail';
+  const effectiveOpen = embeddedLike ? (open === undefined ? true : Boolean(open)) : isPanelOpen;
+  const sessionIdentity = sessionKey || `shell:${workspaceId}`;
+
   const initTerminal = useCallback(() => {
     if (termRef.current || !containerRef.current) return;
 
     const term = new Terminal({
       theme: TERMINAL_THEME,
       fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", Menlo, monospace',
-      fontSize: 14,
+      fontSize: 13,
       lineHeight: 1.2,
       cursorBlink: true,
       cursorStyle: 'bar',
@@ -78,7 +98,9 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
 
     term.onData((data) => {
       if (activeSession) {
-        sendPtyInput(workspaceId, activeSession.sessionId, data).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+        sendPtyInput(workspaceId, activeSession.sessionId, data).catch((err) => {
+          logger.warn('[pty] send input failed', err);
+        });
       }
     });
 
@@ -96,14 +118,14 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
   }, [workspaceId, activeSession]);
 
   useEffect(() => {
-    if (isPanelOpen) {
+    if (effectiveOpen) {
       const cleanup = initTerminal();
       return cleanup;
     }
-  }, [isPanelOpen, initTerminal]);
+  }, [effectiveOpen, initTerminal]);
 
   useEffect(() => {
-    if (!activeSession || !isPanelOpen || !termRef.current) return;
+    if (!activeSession || !effectiveOpen || !termRef.current) return;
 
     const term = termRef.current;
     afterSeqRef.current = 0;
@@ -119,8 +141,8 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
           }
           afterSeqRef.current = maxSeq;
         }
-      } catch (e) {
-        // silent
+      } catch {
+        // silent poll failures
       }
     }, 200);
 
@@ -130,13 +152,43 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
         pollingRef.current = null;
       }
     };
-  }, [workspaceId, activeSession, isPanelOpen]);
+  }, [workspaceId, activeSession, effectiveOpen]);
 
   useEffect(() => {
-    if (fitAddonRef.current && isPanelOpen) {
+    if (fitAddonRef.current && effectiveOpen) {
       setTimeout(() => fitAddonRef.current?.fit(), 50);
     }
-  }, [isPanelOpen, isMaximized]);
+  }, [effectiveOpen, isMaximized]);
+
+  // Silence unused until PTY session list API is wired.
+  void sessions;
+  void setSessions;
+  void setActiveSession;
+
+  if (embeddedLike) {
+    if (!effectiveOpen) return null;
+    return (
+      <div
+        className={[
+          'zvd-pty-embedded',
+          compact ? 'is-compact' : '',
+          mode === 'rail' ? 'is-rail' : '',
+          className || '',
+        ].filter(Boolean).join(' ')}
+        data-session-key={sessionIdentity}
+      >
+        <div className="zvd-pty-embedded__meta">
+          <span className="zvd-pty-dot" aria-hidden="true" />
+          <span>
+            PTY {activeSession ? `— ${activeSession.sessionId.slice(0, 8)}` : '— No session yet'}
+          </span>
+          {trustLabel ? <span className="zvd-pty-trust">│ {trustLabel}</span> : null}
+          {activeSession?.cwd ? <span className="zvd-pty-cwd">│ {activeSession.cwd}</span> : null}
+        </div>
+        <div ref={containerRef} className="zvd-pty-embedded__term" />
+      </div>
+    );
+  }
 
   if (!isPanelOpen) {
     return (
@@ -172,6 +224,7 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
             onClick={() => setIsMaximized(!isMaximized)}
             className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
             title={isMaximized ? 'Restore' : 'Maximize'}
+            type="button"
           >
             {isMaximized ? '❐' : '□'}
           </button>
@@ -179,6 +232,7 @@ export function PtyTerminalPanel({ workspaceId }: PtyTerminalPanelProps) {
             onClick={() => { setIsPanelOpen(false); setIsMaximized(false); }}
             className="hover:text-white px-1.5 py-0.5 rounded hover:bg-slate-700"
             title="Close"
+            type="button"
           >
             ✕
           </button>

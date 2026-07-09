@@ -196,7 +196,10 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                     if (parsed.tool_calls) {
                         toolCalls = parsed.tool_calls;
                     }
-                } catch (error) { // Not valid JSON or does not contain tool_calls. logger.warn('[Local Llama] JSON parse failed', error); }
+                } catch (error: any) { const err = error; const e = error;
+      // Not valid JSON or does not contain tool_calls.
+      logger.warn('[Local Llama] JSON parse failed', error);
+    }
             }
 
             return {
@@ -204,7 +207,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 toolCalls,
                 finishReason: choice.finish_reason || 'stop'
             };
-        } catch (error: unknown) {
+        } catch (error: any) { const err = error; const e = error;
              const message = error instanceof Error ? error.message : String(error);
              throw new Error(`Failure in local llama.cpp provider (${this.baseUrl}): ${message}`);
         }
@@ -226,7 +229,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 windowsHide: true,
             });
             child.unref();
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[Local Llama] process execution failed', error);
     return;
   }
@@ -253,7 +256,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 allowLoopback: true,
             });
             return response.ok;
-        } catch (error) { logger.warn('[Local Llama] network request failed', error); return false; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[Local Llama] network request failed', error); return false; }
     }
 
     private isLocalOllamaUrl(): boolean {
@@ -261,7 +264,7 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
             const url = new URL(this.baseUrl);
             const host = url.hostname.toLowerCase();
             return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-        } catch (error) { logger.warn('[Local Llama] operation failed', error); return false; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[Local Llama] operation failed', error); return false; }
     }
 
     private getNativeOllamaBaseUrl(): string {

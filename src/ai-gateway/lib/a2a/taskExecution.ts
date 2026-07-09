@@ -26,11 +26,14 @@ export async function executeA2ATaskWithState(
     const result = await handler(task);
     tm.updateTask(task.id, "completed", result.artifacts);
     return result;
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     const msg = err instanceof Error ? err.message : String(err);
     try {
       tm.updateTask(task.id, "failed", [{ type: "error", content: msg }], msg);
-    } catch (error) { // Task may already be terminal (e.g., cancelled). Preserve original error. logger.warn('[task Execution] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Task may already be terminal (e.g., cancelled). Preserve original error.
+      logger.warn('[task Execution] operation failed', error);
+    }
     throw err;
   }
 }

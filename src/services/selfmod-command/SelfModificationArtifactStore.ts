@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 import type {
@@ -77,7 +77,10 @@ export class SelfModificationArtifactStore {
   public tryDeletePreviewArtifact(previewId: string, kind: 'file' | 'goal'): void {
     try {
       this.deletePreviewArtifact(previewId, kind);
-    } catch (error) { // Artefato residual nao deve invalidar o sucesso do apply. logger.warn('[Self Modification Artifact Store] file cleanup failed', error); }
+    } catch (error: any) {
+      // Artefato residual nao deve invalidar o sucesso do apply.
+      logger.warn('[Self Modification Artifact Store] file cleanup failed', error);
+    }
   }
 
   public getPreviewArtifactPath(previewId: string, kind: 'file' | 'goal'): string {

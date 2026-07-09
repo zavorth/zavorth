@@ -30,7 +30,7 @@ export class AgentResponseWatcher {
       this.processing = true;
       try {
         await this.processPendingResponses();
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         this.logRepo.log('error', 'AgentResponseWatcher', error.message);
       } finally {
         this.processing = false;

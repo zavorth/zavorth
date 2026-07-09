@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import { Database } from '../storage/Database.js';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
 import { ZavorthAutomationDeliveryService, type AutomationOutboxStatus } from './ZavorthAutomationDeliveryService.js';
@@ -406,7 +406,10 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof scheduler.describeTaskRuntime === 'function') {
         return scheduler.describeTaskRuntime(task);
       }
-    } catch (error) { // Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado. logger.warn('[Zavorth Automation Control Plane] search failed', error); }
+    } catch (error: any) {
+      // Snapshot deve continuar legivel mesmo se a task antiga tiver JSON quebrado.
+      logger.warn('[Zavorth Automation Control Plane] search failed', error);
+    }
     return this.defaultTaskRuntime(task);
   }
 
@@ -468,7 +471,10 @@ export class ZavorthAutomationControlPlaneService {
       if (typeof this.deliveryService.readOutboxStatus === 'function') {
         return this.deliveryService.readOutboxStatus();
       }
-    } catch (error) { // fallback abaixo logger.warn('[Zavorth Automation Control Plane] creation failed', error); }
+    } catch (error: any) {
+      // fallback abaixo
+      logger.warn('[Zavorth Automation Control Plane] creation failed', error);
+    }
     return {
       deliveryReportFile: config.automationDeliveryReportFile,
       webhookOutboxFile: config.automationWebhookOutboxFile,
@@ -498,7 +504,7 @@ export class ZavorthAutomationControlPlaneService {
     try {
       const parsed = JSON.parse(String(value || '{}'));
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-    } catch (error) { logger.warn('[Zavorth Automation Control Plane] JSON parse failed', error); return {}; }
+    } catch (error: any) { logger.warn('[Zavorth Automation Control Plane] JSON parse failed', error); return {}; }
   }
 
   private toNumber(value: unknown, fallback: number): number {

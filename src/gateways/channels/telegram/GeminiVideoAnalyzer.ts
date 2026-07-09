@@ -543,7 +543,7 @@ export class GeminiVideoAnalyzer {
       }, {
         serviceName: 'Gemini video file cleanup',
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`[GeminiVideoAnalyzer] Falha ao remover arquivo temporario do Gemini: ${error}`);
     }
   }

@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import type {
   ZavorthBoundaryCorrelation,
 } from '../contracts/InternalBoundaryContract.js';
@@ -269,7 +269,7 @@ export class EchoExecutionLoop {
           telemetry: this.buildTelemetry(input),
         });
         finalResponse = finalLlmResponse.content || finalResponse;
-      } catch (error: unknown) {
+      } catch (error: any) {
         const message = error instanceof Error ? error.message : String(error);
         logger.warn('[Echo] ReAct loop failed, falling back to tool output', message);
       }

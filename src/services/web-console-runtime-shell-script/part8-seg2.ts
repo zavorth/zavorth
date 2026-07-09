@@ -1,4 +1,4 @@
-export const runtimeShellScriptPart8Seg2: string = [
+﻿export const runtimeShellScriptPart8Seg2: string = [
     "    memoryLayeredQuery.addEventListener('keydown', (event) => {",
     "      if (event.key !== 'Enter') {",
     "        return;",
@@ -378,7 +378,7 @@ export const runtimeShellScriptPart8Seg2: string = [
     "    setText(nodeCountDetail, nodeCount);",
     "    setText(transportCountDetail, transportCount);",
     "    renderOperatorCockpit();",
-    "  } catch {",
+    "  } catch (error: any) {",
     "    publicShellSnapshot = {",
     "      gatewayLabel: 'Indisponivel',",
     "      initializedDomains: 'Indisponivel',",
@@ -456,7 +456,7 @@ export const runtimeShellScriptPart8Seg2: string = [
     "      'Node-host: ' + summarizeProcess(nodeHost) + ' (ultimo ready ' + formatClock(nodeHost?.lastReadyAt) + ')',",
     "    ]);",
     "    renderOperatorCockpit();",
-    "  } catch {",
+    "  } catch (error: any) {",
     "    setText(opsKeepaliveState, 'Indisponivel');",
     "    setText(opsKeepaliveSummary, 'Snapshot local nao encontrado.');",
     "    setText(opsKeepaliveStatus, 'Rode o keepalive para habilitar este painel.');",

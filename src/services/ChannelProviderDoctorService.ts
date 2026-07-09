@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import {
   inspectDiscordChannel,
@@ -185,7 +185,7 @@ export class ChannelProviderDoctorService {
         return null;
       }
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as Record<string, any>;
-    } catch (error) { logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Channel  Doctor] JSON parse failed', error); return null; }
   }
 
   private readCapabilityLifecycleHint(capabilityId: string): ChannelCapabilityLifecycleHint {

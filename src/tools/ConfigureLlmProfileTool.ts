@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { EnvFileService } from '../services/EnvFileService.js';
 import { config } from '../config/index.js';
@@ -308,7 +308,7 @@ Use "set" to save the change.`,
         enabled: missing.length === 0,
         requirement: missing.join(' + ') || 'ok',
       };
-    } catch (error) { logger.warn('[ure Llm Profile] module import failed', error); return null; }
+    } catch (error: any) { logger.warn('[ure Llm Profile] module import failed', error); return null; }
   }
 
   private buildShortNotice(provider: string, status: 'ready' | 'prepared' | 'blocked', requirement: string): string {

@@ -267,7 +267,7 @@ export class MinimalSidecarManager {
         ready,
         message: ready ? `Healthcheck respondeu em ${snapshot.healthUrl}.` : snapshot.message,
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return snapshot;
     }
   }
@@ -288,7 +288,7 @@ export class MinimalSidecarManager {
         return {};
       }
       return JSON.parse(fs.readFileSync(statusFile, 'utf8')) as PersistedSidecarStatus;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return {};
     }
   }
@@ -305,7 +305,7 @@ export class MinimalSidecarManager {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       return error?.code !== 'ESRCH';
     }
   }

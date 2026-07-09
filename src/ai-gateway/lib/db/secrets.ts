@@ -12,7 +12,7 @@ export function getPersistedSecret(key: string): string | null {
       .prepare("SELECT value FROM key_value WHERE namespace = 'secrets' AND key = ?")
       .get(key) as SecretRow | undefined;
     return typeof row?.value === "string" ? JSON.parse(row.value) : null;
-  } catch (error) { logger.warn('[secrets] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[secrets] JSON parse failed', error); return null; }
 }
 
 export function persistSecret(key: string, value: string): void {
@@ -21,5 +21,8 @@ export function persistSecret(key: string, value: string): void {
     db.prepare(
       "INSERT OR IGNORE INTO key_value (namespace, key, value) VALUES ('secrets', ?, ?)"
     ).run(key, JSON.stringify(value));
-  } catch (error) { // Non-fatal: secrets still work for the current process if persistence fails. logger.warn('[secrets] JSON parse failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-fatal: secrets still work for the current process if persistence fails.
+      logger.warn('[secrets] JSON parse failed', error);
+    }
 }

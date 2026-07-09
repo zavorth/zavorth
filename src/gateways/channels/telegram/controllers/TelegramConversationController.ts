@@ -279,7 +279,7 @@ export class TelegramConversationController {
           chatId,
         });
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error || 'unknown error');
       const failureMessage = `I could not answer this right now.\n\nReason: ${message}`;
       await ctx.reply(failureMessage);

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const cache = getPromptCache();
     const stats = (cache as any).getStats();
     return NextResponse.json(stats);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: (error as any).message }, { status: 500 });
   }
@@ -25,7 +25,7 @@ export async function DELETE(req: NextRequest) {
     const cache = getPromptCache();
     (cache as any).clear();
     return NextResponse.json({ success: true, message: "Cache cleared" });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: (error as any).message }, { status: 500 });
   }

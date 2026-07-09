@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -185,7 +185,7 @@ export class GoalPlaneService {
           ? parsed.goals.map(normalizeGoal).filter((entry): entry is GoalPlaneItem => Boolean(entry))
           : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Goal Plane] JSON parse failed', error);
     return { goals: [] };
   }

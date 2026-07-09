@@ -108,5 +108,5 @@ export function writeSmokeReport(
   try {
     input.mkdirSync(path.dirname(input.reportFile), { recursive: true });
     input.writeFileSync(input.reportFile, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 }

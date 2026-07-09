@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { spawnCommand, spawnNativeCommand } from '../core/CommandSpawn.js';
 import { config } from '../config/index.js';
@@ -65,7 +65,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         ...fallback,
         ...parsed,
       };
-    } catch (error) { logger.warn('[Zavorth Bridge Remote Upstream] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Zavorth Bridge Remote Upstream] JSON parse failed', error); return fallback; }
   }
 
   public async sync(): Promise<ZavorthBridgeRemoteUpstreamSyncReport> {
@@ -164,7 +164,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         error: doctor && !doctor.readyAfter ? doctor.summary : null,
         ...this.buildMetadata(),
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
     return this.persist({
         ok: false,

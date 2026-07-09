@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
@@ -318,7 +318,7 @@ export class ZavorthPersistentApprovalPolicyService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         policies: Array.isArray(parsed.policies) ? parsed.policies.map(normalizePolicy).filter(Boolean) as ZavorthPersistentApprovalPolicy[] : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Persistent Approval] parsing failed', error);
     return {
         contractVersion: ZAVORTH_PERSISTENT_APPROVAL_POLICY_CONTRACT_VERSION,

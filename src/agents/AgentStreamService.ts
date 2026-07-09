@@ -86,7 +86,7 @@ export class AgentStreamService extends EventEmitter {
       yield endEvent;
       this.emit('end', endEvent);
       options.onEnd?.(fullOutput);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       const errorEvent: StreamEvent = {
         type: 'error',

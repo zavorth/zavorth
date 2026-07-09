@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MediaUnderstandingService - Zavorth-native media analysis and understanding service.
  *
  * This service is the center of the `media.understand` capability. It orchestrates:
@@ -129,7 +129,7 @@ export class MediaUnderstandingService {
     let resolved: ResolvedMediaSource;
     try {
       resolved = await this.resolveSource(request);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       const message = err instanceof Error ? err.message : String(err);
       return this.buildErrorResult(
         { code: 'INVALID_SOURCE', message },
@@ -180,7 +180,7 @@ export class MediaUnderstandingService {
         providerHints: request.providerHints,
       };
       adapterOutput = await adapter.analyze(adapterInput);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Media Understanding] path resolution failed', error);
     return this.buildAdapterErrorResult(err, analysisType, modality, policyDecision, processedAt);
   }

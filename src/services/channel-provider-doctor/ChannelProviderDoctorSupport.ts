@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { ChannelProviderDoctorItem, ChannelProviderDoctorReport } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';
@@ -334,7 +334,7 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
 export async function safeReadChannelProviderDoctorJson(response: Response): Promise<Record<string, any> | null> {
   try {
     return await response.json() as Record<string, any>;
-  } catch (error) { logger.warn('[Channel  Doctor] operation failed', error); return null; }
+  } catch (error: any) { logger.warn('[Channel  Doctor] operation failed', error); return null; }
 }
 
 export async function writeChannelProviderDoctorReport(

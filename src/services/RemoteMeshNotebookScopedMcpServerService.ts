@@ -1,4 +1,4 @@
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
+﻿import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { cpus, freemem, hostname, loadavg, platform, totalmem, uptime, arch } from 'node:os';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -572,7 +572,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
@@ -631,7 +631,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         httpStatus: 200,
         body: toolResult(id, payload),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Remote Mesh Notebook Scoped Mcp Server] network request failed', error);
     return {
         httpStatus: 200,
@@ -1142,7 +1142,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1228,7 +1228,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1326,7 +1326,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;
@@ -1419,7 +1419,7 @@ export class RemoteMeshNotebookScopedMcpServerService {
         rawCommandSerialized: false,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
       if (server) {
         await closeServer(server).catch(() => undefined);
         serverClosed = true;

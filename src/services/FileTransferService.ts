@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   FileTransferEndpoint,
   FileTransferPolicyDecision,
   FileTransferRequest,
@@ -113,7 +113,7 @@ export class FileTransferService {
         processedAt,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[File Transfer] filesystem check failed', error);
     return {
         ok: false,

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import type { RuntimeAccessDiscordBridgeSnapshot } from '../runtime/access/RuntimeAccessReadinessService.js';
 import { logger } from '../logger.js';
@@ -106,7 +106,7 @@ export class DiscordGatewayRepairFlowService {
         dormant: capability.state === 'dormant',
         notes: typeof capability.notes === 'string' ? capability.notes : null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Discord way Repair Flow] filesystem check failed', error);
     return { dormant: false, notes: null };
   }

@@ -143,7 +143,7 @@ export class SmsGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       this.recordError(`SMS send failed: ${message}`);
     }

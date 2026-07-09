@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import { TrustedDeviceAccessService, type TrustedDeviceAccessScope } from './TrustedDeviceAccessService.js';
 
 type LocalAccessRouteDeps = {
@@ -61,7 +61,7 @@ export class TrustedDeviceAccessRouteService {
           },
           receipt: draft.receipt,
         });
-      } catch (error) {
+      } catch (error: any) {
         deps.writeJson(res, {
           ok: false,
           error: error instanceof Error ? error.message : 'Invalid local access request',

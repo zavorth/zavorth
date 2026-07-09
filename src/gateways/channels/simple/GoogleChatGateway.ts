@@ -130,7 +130,7 @@ export class GoogleChatGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.recordError(`Google Chat send failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

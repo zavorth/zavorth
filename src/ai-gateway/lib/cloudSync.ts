@@ -67,7 +67,7 @@ export async function syncToCloud(machineId, createdKey = null) {
         apiKeys,
       }),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[cloud] network request failed', error);
     const isTimeout = error?.name === "AbortError";
     return { error: isTimeout ? "Cloud sync timeout" : "Cloud sync request failed" };

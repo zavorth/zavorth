@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 
 import {
   buildZavorthTransactionLiveExecutorGateContractSnapshot,
@@ -528,7 +528,7 @@ function endpointHostFromManifest(manifest: ZavorthTransactionLiveExecutorAdapte
   }
   try {
     return new URL(url).host;
-  } catch (error) { logger.warn('[Zavorth Transaction Live Executor] process execution failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Transaction Live Executor] process execution failed', error); return null; }
 }
 
 function buildResultId(text: string, now: Date): string {

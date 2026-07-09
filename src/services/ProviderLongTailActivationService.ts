@@ -1,4 +1,4 @@
-import {
+﻿import {
   ProviderLongTailCompatibleLiveClient,
   ProviderLongTailEmbeddingLiveClient,
 } from '../adapters/providers/ProviderLongTailLiveClients.js';
@@ -304,7 +304,7 @@ export class ProviderLongTailActivationService {
         liveIoPerformed: true,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Long Tail Activation] filesystem check failed', error);
     return {
         id,

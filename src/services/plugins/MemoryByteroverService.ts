@@ -64,7 +64,7 @@ export class MemoryByteroverService {
         for (const [id, mem] of Object.entries(data as Record<string, ByteroverMemory>)) {
           this.memories.set(id, mem);
         }
-      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
 
     if (fs.existsSync(entitiesPath)) {
@@ -73,13 +73,13 @@ export class MemoryByteroverService {
         for (const [name, ent] of Object.entries(data as Record<string, ByteroverEntity>)) {
           this.entities.set(name, ent);
         }
-      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
 
     if (fs.existsSync(relationsPath)) {
       try {
         this.relations = JSON.parse(fs.readFileSync(relationsPath, 'utf-8'));
-      } catch (error) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
+      } catch (error: any) { /* ignore */ logger.warn('[Memory Byterover] JSON parse failed', error); }
     }
   }
 
@@ -237,7 +237,19 @@ export class MemoryByteroverService {
   }
 
   public delete(memoryId: string): string {
-    if (!this.memories.has(memoryId)) return `Error: memory "${memoryId}" not found.`;
+    const memory = this.memories.get(memoryId);
+    if (!memory) return `Error: memory "${memoryId}" not found.`;
+
+    // Clean up entities associated with this memory
+    for (const entity of memory.entities) {
+      this.entities.delete(entity);
+    }
+
+    // Clean up relations involving this memory
+    this.relations = this.relations.filter(
+      (r) => r.source !== memoryId && r.target !== memoryId,
+    );
+
     this.memories.delete(memoryId);
     this.scheduleFlush();
     return `Memory "${memoryId}" deleted.`;

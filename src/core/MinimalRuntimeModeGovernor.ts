@@ -516,7 +516,7 @@ export class MinimalRuntimeModeGovernor {
         const parsed = JSON.parse(line) as MinimalRuntimeModeLease;
         this.assertLease(parsed);
         leases.push(parsed);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

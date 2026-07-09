@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import { EchoEdgeHardeningService } from '../domain/trust-governance/infrastructure/EchoEdgeHardeningService.js';
 import {
   EchoVoiceAssetStoreService,
@@ -316,7 +316,7 @@ export class ZavorthControlEchoRouteService {
     }
     try {
       return JSON.parse(raw);
-    } catch {
+    } catch (err: any) { const e = err;
       const error = new Error('Payload JSON invalido.') as RequestBodyTooLargeError;
       error.statusCode = 400;
       error.code = 'invalid_json';

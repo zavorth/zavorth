@@ -11,7 +11,7 @@ function persistLocale(code: Locale | typeof SYSTEM_LOCALE) {
   document.cookie = `${LOCALE_COOKIE}=${code};path=/;max-age=${365 * 24 * 60 * 60};samesite=lax`;
   try {
     localStorage.setItem(LOCALE_COOKIE, code);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     // Ignore
   }
 }
@@ -30,7 +30,7 @@ export default function LanguageSelector() {
   useEffect(() => {
     try {
       setPreference(localStorage.getItem(LOCALE_COOKIE) || locale);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       setPreference(locale);
     }
   }, [locale]);

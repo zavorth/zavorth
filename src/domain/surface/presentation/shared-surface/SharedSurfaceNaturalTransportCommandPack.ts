@@ -226,7 +226,7 @@ export class SharedSurfaceNaturalTransportCommandPack {
         '',
         `Comandos uteis agora: /transports ${intent.transportId} | /transports prepare ${intent.transportId} | /transports repair ${intent.transportId}.`,
       ].join('\n'));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse transporte agora.');
     }
   }

@@ -89,7 +89,7 @@ export class MailboxWatcher {
         this.processing = true;
         try {
           await this.processInbox();
-        } catch (error: any) {
+        } catch (error: any) { const err = error; const e = error;
           this.logRepo.log('error', 'MailboxWatcher', error.message);
         } finally {
           this.processing = false;
@@ -223,7 +223,7 @@ export class MailboxWatcher {
           ? 'Query task finished.'
           : 'Plan analyzed and marked as completed (no executable instruction identified).',
       );
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[MailboxWatcher] Critical failure:', error.message);
       task.error_summary = error.message;
       this.taskManager.advanceState(task, 'failed');
@@ -371,7 +371,7 @@ export class MailboxWatcher {
       });
       await this.bridgeAdapter.writeResponse(response);
       this.logRepo.log('info', 'MailboxWatcher', `[V2] Response written for correlationId=${requestEnvelope.correlationId}`);
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       this.logRepo.log('warn', 'MailboxWatcher', `Failed to write BridgeResponse V2: ${e.message}`);
     }
   }

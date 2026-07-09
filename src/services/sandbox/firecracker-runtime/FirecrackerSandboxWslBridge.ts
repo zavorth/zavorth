@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+﻿import { v4 as uuidv4 } from 'uuid';
 import type { ChildProcess } from 'child_process';
 import { config } from '../../../config/index.js';
 import { execNativeCommandSync, spawnNativeCommand } from '../../../core/CommandSpawn.js';
@@ -82,7 +82,7 @@ export function getWslStatus(wslProjectRoot: string | null): FirecrackerSandboxS
       };
       return status;
     }
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
     return buildWslUnavailableStatus(`[FirecrackerSandbox] Ponte WSL indisponivel: ${error.message}`);
   }
@@ -121,7 +121,7 @@ export async function executeViaWsl(
     }
 
     throw new Error('A ponte WSL retornou um payload invalido.');
-  } catch (error) {
+  } catch (error: any) {
     wslStatusCache = null;
     throw error;
   }
@@ -362,11 +362,17 @@ function resetWslBridgeIdleTimer(): void {
 
     try {
       current.child.stdin?.end();
-    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error); }
+    } catch (error: any) {
+      // ignore
+      logger.warn('[Firecracker Sandbox Wsl Bridge] cache operation failed', error);
+    }
 
     try {
       current.child.kill('SIGTERM');
-    } catch (error) { // ignore logger.warn('[Firecracker Sandbox Wsl Bridge] operation failed', error); }
+    } catch (error: any) {
+      // ignore
+      logger.warn('[Firecracker Sandbox Wsl Bridge] operation failed', error);
+    }
 
     wslBridge = null;
   }, config.firecrackerWslBridgeIdleMs);

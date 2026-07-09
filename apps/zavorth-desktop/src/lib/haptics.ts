@@ -1,14 +1,26 @@
+const SOUNDS_STORAGE_KEY = 'zvd:sounds-enabled';
+
 let audioCtx: AudioContext | null = null;
 
 function getAudioContext() {
   if (!audioCtx) {
-    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   }
   return audioCtx;
 }
 
+export function isCompletionSoundEnabled(): boolean {
+  if (typeof localStorage === 'undefined') return true;
+  return localStorage.getItem(SOUNDS_STORAGE_KEY) !== 'false';
+}
+
+export function setCompletionSoundEnabled(enabled: boolean): void {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.setItem(SOUNDS_STORAGE_KEY, enabled ? 'true' : 'false');
+}
+
 export function playTapSound() {
-  if (localStorage.getItem('zvd:sounds-enabled') === 'false') return;
+  if (!isCompletionSoundEnabled()) return;
   try {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
@@ -26,11 +38,13 @@ export function playTapSound() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch {
+    // Audio may be blocked until user gesture.
+  }
 }
 
 export function playDingSound() {
-  if (localStorage.getItem('zvd:sounds-enabled') === 'false') return;
+  if (!isCompletionSoundEnabled()) return;
   try {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
@@ -48,5 +62,7 @@ export function playDingSound() {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.5);
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch {
+    // Audio may be blocked until user gesture.
+  }
 }

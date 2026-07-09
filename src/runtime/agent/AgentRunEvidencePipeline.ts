@@ -378,7 +378,7 @@ export class AgentRunEvidencePipeline {
         deferred: true,
         executionMode: 'scheduled',
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       this.appendWorkerReceipt(context, {
         jobId: job.id,
         phase,
@@ -405,7 +405,7 @@ export class AgentRunEvidencePipeline {
         collectorId: job.collectorId,
         status: 'fallback-inline',
       });
-    } catch (fallbackError) {
+    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
       this.appendWorkerReceipt(context, {
         jobId: job.id,
         phase: job.phase,

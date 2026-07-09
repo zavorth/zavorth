@@ -199,7 +199,7 @@ export async function markAccountUnavailable(
             `Auto-disabled ${connectionId.slice(0, 8)} - permanent ban detected (autoDisableBannedAccounts=true)`
           );
         }
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         log.info("AUTH", `Auto-disable check failed (non-fatal): ${e}`);
       }
     }

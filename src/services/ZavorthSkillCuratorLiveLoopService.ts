@@ -651,7 +651,7 @@ function findSkillFiles(root: string): string[] {
     let entries: fs.Dirent[];
     try {
       entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[SkillCuratorLiveLoop] findSkillFiles: falha ao ler diretorio', { dir, error: (err as Error).message });
       return;
     }
@@ -681,7 +681,7 @@ function readText(filePath: string, maxBytes = MAX_SKILL_FILE_BYTES): string {
     } finally {
       fs.closeSync(fd);
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn('[SkillCuratorLiveLoop] readText: falha ao ler arquivo', { filePath, error: (err as Error).message });
     return '';
   }
@@ -721,7 +721,7 @@ function countReferences(dir: string): number {
   if (!fs.existsSync(references)) return 0;
   try {
     return fs.readdirSync(references, { withFileTypes: true }).filter((entry) => entry.isFile()).length;
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn('[SkillCuratorLiveLoop] countReferences: falha ao ler diretorio de referencias', { references, error: (err as Error).message });
     return 0;
   }
@@ -965,7 +965,7 @@ function visitUsageRoot(dir: string, results: string[], depth: number): void {
   let entries: fs.Dirent[];
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn('[SkillCuratorLiveLoop] visitUsageRoot: falha ao ler diretorio de uso', { dir, error: (err as Error).message });
     return;
   }
@@ -1061,7 +1061,7 @@ function timestampFromPathOrStat(filePath: string): string | null {
   if (fromName) return fromName;
   try {
     return fs.statSync(filePath).mtime.toISOString();
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logger.warn('[SkillCuratorLiveLoop] timestampFromPathOrStat: falha ao obter stat do arquivo', { filePath, error: (err as Error).message });
     return null;
   }

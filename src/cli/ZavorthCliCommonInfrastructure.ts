@@ -67,7 +67,7 @@ export function readPackageVersion(): string {
   try {
     const parsed = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8')) as { version?: string };
     return String(parsed.version || 'local');
-  } catch (error) { logger.warn('[Zavorth Cli Common Infrastructure] JSON parse failed', error); return 'local'; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Common Infrastructure] JSON parse failed', error); return 'local'; }
 }
 
 export function readNumberFlag(argv: string[], name: string): number | null {

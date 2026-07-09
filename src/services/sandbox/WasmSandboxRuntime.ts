@@ -1,6 +1,6 @@
-import { Worker } from 'worker_threads';
+﻿import { Worker } from 'worker_threads';
 import { config } from '../../config/index.js';
-import type { SandboxResult } from './ISandboxRuntime.js';
+import type { ISandboxRuntime, SandboxRequest, SandboxResult } from './ISandboxRuntime.js';
 
 export type WasmSandboxRequest = {
   moduleBase64: string;
@@ -71,7 +71,7 @@ function normalizeReturnValue(value) {
       returnValue: normalized,
       stdout: normalized ? \`\${normalized}\\n\` : '',
     });
-  } catch (error) {
+  } catch (error: any) {
     parentPort.postMessage({
       ok: false,
       error: error instanceof Error ? error.message : String(error),
@@ -80,7 +80,7 @@ function normalizeReturnValue(value) {
 })();
 `;
 
-export class WasmSandboxRuntime {
+export class WasmSandboxRuntime implements ISandboxRuntime {
   public readonly securityLevel = 'wasm' as const;
 
   public isAvailable(): boolean {
@@ -91,7 +91,7 @@ export class WasmSandboxRuntime {
       && typeof WebAssembly.compile === 'function';
   }
 
-  public async execute(request: WasmSandboxRequest): Promise<WasmSandboxResult> {
+  public async execute(request: SandboxRequest | WasmSandboxRequest): Promise<WasmSandboxResult> {
     const timeoutMs = Number.isFinite(Number(request.timeoutMs)) && Number(request.timeoutMs) > 0
       ? Number(request.timeoutMs)
       : config.wasmSandboxMaxExecutionMs;
@@ -125,7 +125,8 @@ export class WasmSandboxRuntime {
       });
     }
 
-    const encoded = String(request.moduleBase64 || '').trim();
+    const moduleBase64 = 'moduleBase64' in request ? request.moduleBase64 : request.code;
+    const encoded = String(moduleBase64 || '').trim();
     const normalizedBase64 = encoded.replace(/^data:application\/wasm;base64,/i, '').replace(/\s+/g, '');
     if (!normalizedBase64) {
       return finish({
@@ -148,13 +149,16 @@ export class WasmSandboxRuntime {
       });
     }
 
+    const requestExportName = 'exportName' in request ? request.exportName : undefined;
+    const requestArgs = 'args' in request ? request.args : undefined;
+
     return new Promise((resolve) => {
       const worker = new Worker(WORKER_SOURCE, {
         eval: true,
         workerData: {
           moduleBase64: normalizedBase64,
-          exportName: request.exportName || null,
-          args: Array.isArray(request.args) ? request.args : [],
+          exportName: requestExportName || null,
+          args: Array.isArray(requestArgs) ? requestArgs : [],
         },
       });
       let settled = false;
@@ -174,7 +178,7 @@ export class WasmSandboxRuntime {
           stdout: '',
           stderr: `[WasmSandbox] Timeout apos ${timeoutMs}ms.`,
           exitCode: null,
-          selectedExport: String(request.exportName || '').trim() || null,
+          selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
         });
       }, timeoutMs);
@@ -198,7 +202,7 @@ export class WasmSandboxRuntime {
           stdout: '',
           stderr: `[WasmSandbox] ${String(payload.error || 'Falha desconhecida no worker Wasm.')}`,
           exitCode: -1,
-          selectedExport: String(request.exportName || '').trim() || null,
+          selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
         });
       });
@@ -208,7 +212,7 @@ export class WasmSandboxRuntime {
           stdout: '',
           stderr: `[WasmSandbox] Falha ao iniciar worker: ${error.message}`,
           exitCode: -1,
-          selectedExport: String(request.exportName || '').trim() || null,
+          selectedExport: String(requestExportName || '').trim() || null,
           returnValue: null,
         });
       });
@@ -219,7 +223,7 @@ export class WasmSandboxRuntime {
             stdout: '',
             stderr: `[WasmSandbox] Worker encerrado com codigo ${code}.`,
             exitCode: typeof code === 'number' ? code : -1,
-            selectedExport: String(request.exportName || '').trim() || null,
+            selectedExport: String(requestExportName || '').trim() || null,
             returnValue: null,
           });
         }

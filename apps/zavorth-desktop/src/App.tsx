@@ -9,6 +9,12 @@ import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 import { DropOverlay } from './components/DropOverlay';
 import { OnboardingOverlay } from './components/OnboardingOverlay';
 import { SettingsOverlay } from './components/SettingsOverlay';
+import {
+  DESKTOP_ONBOARDING_STORAGE_KEY,
+  shouldOpenDesktopOnboarding,
+  markOnboardingComplete,
+} from './onboarding/desktopOnboarding';
+import { t } from './i18n';
 import { useEffect, useRef, useState } from 'react';
 import { playDingSound } from './lib/haptics';
 
@@ -34,10 +40,12 @@ export function App() {
     input,
     busy,
     notice,
+    setNotice,
     selectedModel,
     sidebarCollapsed,
     theme,
     accent,
+    density,
     workspaceScopes,
     workspaceWriteApprovals,
     showTrustPrompt,
@@ -53,9 +61,9 @@ export function App() {
     kaelActive,
     handleToggleKael,
     setAccent,
+    setDensity,
     setCommandPaletteOpen,
     setInput,
-    setMessages,
     setActivePanel,
     setExperienceProfile,
     setSidebarCollapsed,
@@ -84,11 +92,65 @@ export function App() {
     handleActiveMandateRevoke,
     handleHostCommandResolve,
     handleSwitchSession,
-    dispatchRuntimeStateAction,
+    handleNewSession,
+    subagents,
+    onAddSubagent,
+    onDeleteSubagent,
+    onTriggerSubagentTask,
+    customProfiles,
+    allProfiles,
+    onAddCustomProfile,
+    onDeleteCustomProfile,
+    scheduledTasks,
+    onAddScheduledTask,
+    onDeleteScheduledTask,
+    onToggleScheduledTask,
+    onRunScheduledTask,
+    loadScheduledTaskLogs,
+    boards,
+    runtimeWorkboard,
+    marketplacePlugins,
+    onBoardSelect,
+    onCardCreate,
+    onCardUpdate,
+    onCardDelete,
+    onColumnCreate,
+    onColumnUpdate,
+    onColumnDelete,
+    onOpenCardInChat,
+    onInstallPlugin,
+    onUninstallPlugin,
+    onUpdatePlugin,
+    onAttachFile,
+    refreshMarketplace,
+    receipts,
+    clearReceipts,
+    updateStatus,
+    checkDesktopUpdates,
+    downloadDesktopUpdate,
+    installDesktopUpdate,
+    deferDesktopUpdate,
+    rollbackDesktopUpdate,
+    openGithubReleases,
+    voiceAgentStatus,
+    refreshVoiceAgentStatus,
+    startVoiceAgent,
+    openSetup,
+    openLogs,
+    workboardSync,
+    workboardSyncBusy,
+    onSyncWorkboard,
   } = useDesktopAppState();
 
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(() =>
+    shouldOpenDesktopOnboarding({
+      storedOnboarded: typeof localStorage !== 'undefined'
+        ? localStorage.getItem(DESKTOP_ONBOARDING_STORAGE_KEY)
+        : null,
+    }),
+  );
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [commandCenterOpen, setCommandCenterOpen] = useState(false);
 
   const prevBusyRef = useRef(busy);
   useEffect(() => {
@@ -98,9 +160,39 @@ export function App() {
     prevBusyRef.current = busy;
   }, [busy]);
 
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key === ',') {
+        event.preventDefault();
+        setSettingsOpen(true);
+      }
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandCenterOpen(true);
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   return (
     <>
-      <OnboardingOverlay isOpen={onboardingOpen} onCompleted={() => setOnboardingOpen(false)} />
+      <OnboardingOverlay
+        isOpen={onboardingOpen}
+        onCompleted={(notice) => {
+          setOnboardingOpen(false);
+          setNotice(notice || t('onboarding.celebration'));
+        }}
+        onSkip={() => {
+          markOnboardingComplete();
+          setOnboardingOpen(false);
+          setNotice(t('onboarding.celebration'));
+        }}
+        onStartWithSuggestion={(text) => {
+          setOnboardingOpen(false);
+          void sendMessage(text);
+        }}
+      />
       <SettingsOverlay
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
@@ -137,8 +229,10 @@ export function App() {
           channels={channelItems}
           channelSetup={channelSetup}
           commandPaletteOpen={commandPaletteOpen}
+          commandCenterOpen={commandCenterOpen}
           effort={effort}
           accent={accent}
+          density={density}
           encryptionReceipt={memoryEncryptionReceipt}
           encryptionStatus={memoryEncryptionStatus}
           events={events}
@@ -151,6 +245,7 @@ export function App() {
           messages={messages}
           nexusStatus={nexusStatus}
           notice={notice}
+          onNotice={setNotice}
           profile={experienceProfile}
           runtimeMessage={status.message}
           runtimeCapabilities={runtimeCapabilities}
@@ -169,7 +264,9 @@ export function App() {
           onSwitchSession={handleSwitchSession}
           onAccessRepair={requestAccessRepair}
           onAccent={setAccent}
+          onDensity={setDensity}
           onCommandPalette={setCommandPaletteOpen}
+          onCommandCenter={setCommandCenterOpen}
           onEffort={handleEffortSelection}
           onEncryptionAction={handleMemoryEncryptionAction}
           onInput={setInput}
@@ -178,17 +275,11 @@ export function App() {
           onChannelSetupAction={handleChannelSetupAction}
           onGatewayResilienceAction={handleGatewayResilienceAction}
           onModel={handleModelSelection}
-          onNewSession={() => {
-            setMessages([]);
-            setInput('');
-            setActivePanel('chat');
-          }}
+          onNewSession={() => void handleNewSession()}
+          onNewSessionWithWorkspace={(workspaceId) => void handleNewSession(workspaceId)}
+          onOpenSettingsOverlay={() => setSettingsOpen(true)}
           onPanel={(panel) => {
-            if (panel === 'settings') {
-              setSettingsOpen(true);
-            } else {
-              setActivePanel(panel);
-            }
+            setActivePanel(panel);
           }}
           onProfile={setExperienceProfile}
           onRefresh={async () => {
@@ -206,6 +297,56 @@ export function App() {
           onWorkspaceScope={handleWorkspaceScopeSelection}
           activeMandate={activeMandate}
           onRevokeMandate={handleActiveMandateRevoke}
+          subagents={subagents}
+          onAddSubagent={onAddSubagent}
+          onDeleteSubagent={onDeleteSubagent}
+          onTriggerSubagentTask={onTriggerSubagentTask}
+          customProfiles={customProfiles}
+          allProfiles={allProfiles}
+          onAddCustomProfile={onAddCustomProfile}
+          onDeleteCustomProfile={onDeleteCustomProfile}
+          scheduledTasks={scheduledTasks}
+          onAddScheduledTask={onAddScheduledTask}
+          onDeleteScheduledTask={onDeleteScheduledTask}
+          onToggleScheduledTask={onToggleScheduledTask}
+          onRunScheduledTask={onRunScheduledTask}
+          loadScheduledTaskLogs={loadScheduledTaskLogs}
+          boards={boards}
+          runtimeWorkboard={runtimeWorkboard}
+          marketplacePlugins={marketplacePlugins}
+          onBoardSelect={onBoardSelect}
+          onCardCreate={onCardCreate}
+          onCardUpdate={onCardUpdate}
+          onCardDelete={onCardDelete}
+          onColumnCreate={onColumnCreate}
+          onColumnUpdate={onColumnUpdate}
+          onColumnDelete={onColumnDelete}
+          onOpenCardInChat={onOpenCardInChat}
+          onInstallPlugin={onInstallPlugin}
+          onUninstallPlugin={onUninstallPlugin}
+          onUpdatePlugin={onUpdatePlugin}
+          onAttachFile={onAttachFile}
+          onRefreshMarketplace={refreshMarketplace}
+          receipts={receipts}
+          onClearReceipts={clearReceipts}
+          updateStatusMessage={updateStatus?.message || null}
+          updateStatus={updateStatus}
+          voiceAgentStatus={voiceAgentStatus}
+          workboardSyncLabel={workboardSync?.label || null}
+          workboardSyncDetail={workboardSync?.detail || null}
+          workboardSyncBusy={workboardSyncBusy}
+          onSyncWorkboard={onSyncWorkboard}
+          onCheckUpdates={checkDesktopUpdates}
+          // workboard sync labels also flow into Workboard panel via shell
+          onDownloadUpdate={downloadDesktopUpdate}
+          onInstallUpdate={installDesktopUpdate}
+          onDeferUpdate={deferDesktopUpdate}
+          onRollbackUpdate={rollbackDesktopUpdate}
+          onOpenGithub={openGithubReleases}
+          onOpenSetup={openSetup}
+          onOpenLogs={openLogs}
+          onStartVoiceAgent={startVoiceAgent}
+          onRefreshVoiceAgent={refreshVoiceAgentStatus}
         />
       </ZavorthPaneShell>
       <WorkspaceWriteApprovalModal

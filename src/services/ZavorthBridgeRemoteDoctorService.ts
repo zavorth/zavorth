@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ZavorthBridgeAppLauncherService, type ZavorthBridgeAppLaunchResult } from './ZavorthBridgeAppLauncherService.js';
@@ -103,7 +103,7 @@ export class ZavorthBridgeRemoteDoctorService {
         return null;
       }
       return JSON.parse(fs.readFileSync(this.reportFilePath, 'utf8')) as ZavorthBridgeRemoteDoctorReport;
-    } catch (error) { logger.warn('[Zavorth Bridge Remote Doctor] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Bridge Remote Doctor] JSON parse failed', error); return null; }
   }
 
   public async run(repairRequested = false, forceRepair = false): Promise<ZavorthBridgeRemoteDoctorReport> {
@@ -193,7 +193,7 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ok),
         message: result.pid ? `${result.message} PID=${result.pid}` : result.message,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
     return {
         key: 'launch-zavorth-bridge-app',
@@ -215,7 +215,7 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ready),
         message: result.message,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Remote Doctor] lifecycle operation failed', error);
     return {
         key: 'start-sidecar',
@@ -237,7 +237,7 @@ export class ZavorthBridgeRemoteDoctorService {
         ok: Boolean(result.ok && result.active),
         message: result.message,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Remote Doctor] operation failed', error);
     return {
         key: 'activate-remote-mode',

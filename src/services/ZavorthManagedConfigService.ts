@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config as defaultConfig } from '../config/index.js';
@@ -86,7 +86,7 @@ export class ZavorthManagedConfigService {
     } else {
       try {
         document = JSON.parse((loaded.raw || '{}').replace(/^\uFEFF/, '')) as ManagedDocument;
-      } catch {
+      } catch (error: any) {
         findings.push({ id: 'invalid-json', severity: 'high', message: 'Managed config is not valid JSON.' });
       }
     }
@@ -210,7 +210,7 @@ export class ZavorthManagedConfigService {
           return { ok: false, raw: null, error: `HTTP ${response.status} while reading managed config.` };
         }
         return { ok: true, raw: await response.text() };
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth Managed] network request failed', error);
     return { ok: false, raw: null, error: String(error?.message || error) };
   }
@@ -218,7 +218,7 @@ export class ZavorthManagedConfigService {
     const fullPath = path.isAbsolute(sourceRef) ? sourceRef : path.join(this.projectRoot, sourceRef);
     try {
       return { ok: true, raw: fs.readFileSync(fullPath, 'utf8') };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Managed] filesystem operation failed', error);
     return { ok: false, raw: null, error: String(error?.message || error) };
   }

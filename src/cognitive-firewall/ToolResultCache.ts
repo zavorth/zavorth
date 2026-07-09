@@ -3,9 +3,12 @@
  *
  * Uses a SHA-256 hash of (toolName + sortedArgs) as cache key.
  * Enforces TTL expiration, LRU eviction, and blocks caching for side-effect tools.
+ * Optionally persists to disk for cross-session continuity.
  */
 
 import { createHash } from 'node:crypto';
+import fs from 'fs';
+import path from 'path';
 
 export interface CacheEntry {
   key: string;
@@ -22,6 +25,8 @@ export interface ToolResultCacheOptions {
   maxEntries?: number;
   /** Default TTL in milliseconds. Default: 300_000 (5 minutes) */
   defaultTtlMs?: number;
+  /** Directory to persist cache. Default: null (in-memory only) */
+  persistDir?: string;
 }
 
 export interface ToolResultCacheStats {
@@ -40,17 +45,29 @@ const NON_CACHEABLE_TOOLS = new Set([
   'run_command',
 ]);
 
+const CACHE_FILE = 'tool-result-cache.json';
+
 export class ToolResultCache {
   private readonly cache: Map<string, CacheEntry> = new Map();
   private readonly maxEntries: number;
   private readonly defaultTtlMs: number;
+  private readonly persistDir: string | null;
   private hits = 0;
   private misses = 0;
   private evictions = 0;
+  private dirty = false;
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly FLUSH_DELAY_MS = 5000; // Debounce 5 seconds
 
   constructor(options?: ToolResultCacheOptions) {
     this.maxEntries = Math.max(1, options?.maxEntries ?? 500);
     this.defaultTtlMs = Math.max(1_000, options?.defaultTtlMs ?? 300_000);
+    this.persistDir = options?.persistDir ?? null;
+
+    // Load from disk if persistence is enabled
+    if (this.persistDir) {
+      this.loadFromDisk();
+    }
   }
 
   /**
@@ -109,16 +126,21 @@ export class ToolResultCache {
     });
 
     this.evictIfNeeded();
+
+    // Schedule debounced persist to disk
+    this.scheduleSaveToDisk();
   }
 
   /**
-   * Checks if a result exists in cache (without hitting it).
+   * Checks if a result exists in cache (refreshes lastAccessedAt for LRU consistency).
    */
   has(toolName: string, args: Record<string, unknown>): boolean {
     if (this.isNonCacheable(toolName)) return false;
     const key = this.buildKey(toolName, args);
     const entry = this.cache.get(key);
-    return entry !== undefined && !this.isExpired(entry);
+    if (!entry || this.isExpired(entry)) return false;
+    entry.lastAccessedAt = Date.now();
+    return true;
   }
 
   /**
@@ -175,14 +197,18 @@ export class ToolResultCache {
   }
 
   /**
-   * Recursively sorts object keys for deterministic serialization.
+   * Recursively sorts object keys and filters out undefined values
+   * for deterministic serialization.
    */
   private sortObject(obj: unknown): unknown {
     if (obj === null || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map((item) => this.sortObject(item));
     const sorted: Record<string, unknown> = {};
     for (const key of Object.keys(obj as Record<string, unknown>).sort()) {
-      sorted[key] = this.sortObject((obj as Record<string, unknown>)[key]);
+      const value = (obj as Record<string, unknown>)[key];
+      // Skip undefined values to prevent key collisions
+      if (value === undefined) continue;
+      sorted[key] = this.sortObject(value);
     }
     return sorted;
   }
@@ -216,5 +242,86 @@ export class ToolResultCache {
         break;
       }
     }
+  }
+
+  /**
+   * Marks cache as dirty and schedules a debounced write to disk.
+   */
+  private scheduleSaveToDisk(): void {
+    if (!this.persistDir) return;
+    this.dirty = true;
+
+    if (this.flushTimer) return; // Already scheduled
+
+    this.flushTimer = setTimeout(() => {
+      this.flushTimer = null;
+      this.flushToDisk();
+    }, this.FLUSH_DELAY_MS);
+  }
+
+  /**
+   * Immediately writes cache to disk (called by debounced timer).
+   */
+  private flushToDisk(): void {
+    if (!this.persistDir || !this.dirty) return;
+
+    try {
+      if (!fs.existsSync(this.persistDir)) {
+        fs.mkdirSync(this.persistDir, { recursive: true });
+      }
+
+      const entries = Array.from(this.cache.values());
+      const filePath = path.join(this.persistDir, CACHE_FILE);
+      fs.writeFileSync(filePath, JSON.stringify(entries, null, 2), 'utf-8');
+      this.dirty = false;
+    } catch (err) {
+      console.warn('[ToolResultCache] Failed to persist cache:', err instanceof Error ? err.message : err);
+    }
+  }
+
+  /**
+   * Loads cache from disk.
+   */
+  private loadFromDisk(): void {
+    if (!this.persistDir) return;
+
+    try {
+      const filePath = path.join(this.persistDir, CACHE_FILE);
+      if (!fs.existsSync(filePath)) return;
+
+      const data = fs.readFileSync(filePath, 'utf-8');
+      const parsed = JSON.parse(data);
+
+      if (!Array.isArray(parsed)) return;
+
+      for (const entry of parsed) {
+        // Validate entry shape before accepting
+        if (!this.isValidCacheEntry(entry)) continue;
+        if (this.isExpired(entry)) continue;
+
+        // Verify key integrity — re-hash and compare
+        const expectedKey = this.buildKey(entry.toolName, { __hash: entry.key });
+        // We can't fully verify without original args, so trust entries with valid structure
+        this.cache.set(entry.key, entry);
+      }
+    } catch (err) {
+      console.warn('[ToolResultCache] Failed to load cache from disk:', err instanceof Error ? err.message : err);
+    }
+  }
+
+  private isValidCacheEntry(entry: unknown): entry is CacheEntry {
+    if (typeof entry !== 'object' || entry === null) return false;
+    const e = entry as Record<string, unknown>;
+    return (
+      typeof e.key === 'string' &&
+      typeof e.toolName === 'string' &&
+      typeof e.result === 'string' &&
+      typeof e.createdAt === 'number' &&
+      typeof e.lastAccessedAt === 'number' &&
+      typeof e.hitCount === 'number' &&
+      typeof e.ttlMs === 'number' &&
+      e.key.length > 0 &&
+      e.toolName.length > 0
+    );
   }
 }

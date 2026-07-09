@@ -206,7 +206,7 @@ export class LocalExecutor implements IExecutor {
               result.stderr = (result.stderr || '') + stderr;
               result.actions_executed.push(`Ran shell: ${executionCommand}`);
               success = true;
-            } catch (execErr: unknown) {
+            } catch (execErr: any) { const error = execErr; const err = execErr; const e = execErr;
               const errMsg = execErr instanceof Error ? execErr.message : String(execErr || '');
 
               const missingModuleMatchPy = errMsg.match(/ModuleNotFoundError: No module named '([^']+)'/);
@@ -247,7 +247,7 @@ export class LocalExecutor implements IExecutor {
           }
         }
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const executionError = error as { message?: unknown; code?: unknown };
       result.success = false;
       result.error_message = String(executionError.message || error || 'Execution failed');
@@ -322,7 +322,7 @@ export class LocalExecutor implements IExecutor {
           } else {
             child.kill('SIGKILL');
           }
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // ignore timeout kill errors
         }
         reject(new Error(`Command timed out after ${timeoutMs}ms: ${originalCommand}`));
@@ -376,7 +376,7 @@ export class LocalExecutor implements IExecutor {
           } else {
             child.kill('SIGKILL');
           }
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // ignore timeout kill errors
         }
         reject(new Error(`Command timed out after ${timeoutMs}ms: ${displayCommand}`));

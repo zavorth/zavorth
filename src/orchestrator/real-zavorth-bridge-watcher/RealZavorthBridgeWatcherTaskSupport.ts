@@ -217,7 +217,7 @@ export class RealZavorthBridgeWatcherTaskSupport {
     let entries: fs.Dirent[] = [];
     try {
       entries = await fs.promises.readdir(directoryPath, { withFileTypes: true });
-    } catch (error) { logger.warn('[Real Zavorth Bridge Watcher Task] filesystem operation failed', error); return false; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Real Zavorth Bridge Watcher Task] filesystem operation failed', error); return false; }
 
     const folders = entries
       .filter((entry) => entry.isDirectory())

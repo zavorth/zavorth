@@ -61,7 +61,7 @@ function argsToMessage(args: unknown[]): string {
       if (typeof arg === "object" && arg !== null) {
         try {
           return JSON.stringify(arg);
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[console Interceptor] serialization failed', error);
     return String(arg);
   }
@@ -84,7 +84,10 @@ function writeEntry(level: string, args: unknown[]) {
       message,
     };
     appendFileSync(logFilePath, JSON.stringify(entry) + "\n");
-  } catch (error) { // Silently fail — never break the app over log writing logger.warn('[console Interceptor] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Silently fail — never break the app over log writing
+      logger.warn('[console Interceptor] operation failed', error);
+    }
 }
 
 /**
@@ -99,7 +102,7 @@ export function initConsoleInterceptor(): void {
 
   try {
     ensureDir();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[console Interceptor] operation failed', error);
     // Can't create log dir — skip interception
     return;

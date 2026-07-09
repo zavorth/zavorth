@@ -264,4 +264,15 @@ export class TelegramGatewayHandlerRegistrar {
       await this.dependencies.callbackController.handleCallback(ctx, ctx.callbackQuery.data);
     });
   }
+
+  /**
+   * Removes all registered handlers to prevent listener leaks on restart.
+   */
+  public unregisterHandlers(): void {
+    const bot = this.dependencies.bot as any;
+    bot.off('message:new_chat_members');
+    bot.off('message:left_chat_member');
+    bot.off('message:text');
+    bot.off('callback_query:data');
+  }
 }

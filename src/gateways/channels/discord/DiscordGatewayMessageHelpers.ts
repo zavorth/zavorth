@@ -71,7 +71,7 @@ export function toDiscordAttachmentValues(rawAttachments: unknown): unknown[] {
     if (typeof candidate.values === 'function') {
       try {
         return Array.from(candidate.values());
-      } catch (error) { logger.warn('[Discord way Message Helpers] operation failed', error); return []; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Discord way Message Helpers] operation failed', error); return []; }
     }
     if ('url' in candidate || 'name' in candidate || 'contentType' in candidate) {
       return [candidate];

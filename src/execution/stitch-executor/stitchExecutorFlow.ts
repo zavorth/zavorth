@@ -159,7 +159,7 @@ export async function executeStitchSdkRoute(
       downloadedImagePath: persisted.downloadedImage?.path || null,
       downloadedHtmlPath: persisted.downloadedHtml?.path || null,
     });
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const classified = input.classifyError(error);
     input.result.error_code = classified.code;
     input.result.error_message = classified.message;
@@ -201,7 +201,7 @@ export async function probeStitchSdkConnection(
       ok: true,
       message: 'SDK carregado e autenticacao validada com o Stitch.',
     };
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const classified = input.classifyError(error);
     return {
       ok: false,
@@ -224,7 +224,7 @@ export async function generateStitchScreenWithRetry(
 
   try {
     return await input.client.callTool('generate_screen_from_text', primaryPayload);
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     if (!input.isRetriableGenerationError(error)) {
       throw error;
     }

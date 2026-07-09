@@ -1,3 +1,5 @@
+import { ZavorthPredictiveCostService } from '../ZavorthPredictiveCostService.js';
+
 export interface ModelProfile {
   id: string;
   provider: string;
@@ -94,10 +96,17 @@ export class LLMRouterService {
     exclude_providers?: string[];
     context_tokens_needed?: number;
   }): RoutingDecision {
+    const predictiveService = new ZavorthPredictiveCostService();
+    const prediction = predictiveService.predictCost(taskType);
+
     const rule = this.routingRules.get(taskType) || this.routingRules.get('chat')!;
+    const preferredModel = options?.prefer_speed ? 'gpt-4o-mini' : 
+                           (options?.prefer_quality ? 'claude-4' : 
+                           (prediction.recommendedModelId || rule.preferred_model));
+
     const excludeSet = new Set(options?.exclude_providers || []);
 
-    let candidates = [rule.preferred_model, ...rule.fallback_models]
+    let candidates = [preferredModel, ...rule.fallback_models.filter(m => m !== preferredModel)]
       .filter((id) => {
         const profile = this.modelProfiles.get(id);
         if (!profile) return false;
@@ -127,9 +136,11 @@ export class LLMRouterService {
       });
     }
 
-    const selected = candidates[0] || rule.preferred_model;
+    const selected = candidates[0] || preferredModel;
     const profile = this.modelProfiles.get(selected)!;
-    const estimatedCost = (rule.max_tokens / 1000) * profile.cost_per_1k_output;
+    
+    const estimatedOutputTokens = prediction.historyCount > 0 ? prediction.avgOutputTokens : rule.max_tokens;
+    const estimatedCost = (estimatedOutputTokens / 1000) * profile.cost_per_1k_output;
 
     const stats = this.usageStats.get(selected) || { calls: 0, tokens: 0, cost: 0, errors: 0 };
     stats.calls++;
@@ -145,7 +156,7 @@ export class LLMRouterService {
       temperature: rule.temperature,
       reasoning_effort: rule.reasoning_effort,
       estimated_cost: estimatedCost,
-      reason: `Task "${taskType}" routed to ${profile.model} (${profile.quality_tier}, ${profile.latency_tier} latency)`,
+      reason: `Task "${taskType}" routed to ${profile.model} (${profile.quality_tier}, ${profile.latency_tier} latency) based on predictive cost analysis`,
       fallback_chain: candidates.slice(1),
     };
   }

@@ -34,7 +34,7 @@ interface KeyValueRow {
 function parseJsonValue(raw: string): unknown {
   try {
     return JSON.parse(raw) as unknown;
-  } catch (error) { logger.warn('[cli  State] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cli  State] JSON parse failed', error); return null; }
 }
 
 function toRecord(value: unknown): JsonRecord | null {

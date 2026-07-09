@@ -761,7 +761,7 @@ export class AgentRunLlmRuntimeExecutor {
 
     try {
       return await this.speculativeAutonomy.prepare(input);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const detail = error instanceof Error ? error.message : String(error);
       return {
         id: `failed-${run.id}`,

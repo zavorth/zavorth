@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   try {
     const stats = await getUsageStats();
     return NextResponse.json(stats);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching usage stats:", error);
     return NextResponse.json({ error: "Failed to fetch usage stats" }, { status: 500 });
   }

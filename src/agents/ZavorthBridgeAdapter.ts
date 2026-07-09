@@ -29,7 +29,7 @@ export class ZavorthBridgeAdapter {
       }
 
       return result.plan;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (this.logRepo) {
         this.logRepo.log('error', 'ZavorthBridgeAdapter', `Erro no planner: ${error.message}`);
       }

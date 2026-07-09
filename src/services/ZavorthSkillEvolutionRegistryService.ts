@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -90,7 +90,7 @@ export class ZavorthSkillEvolutionRegistryService {
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
         records: Array.isArray(parsed.records) ? parsed.records.map((entry) => this.normalizeRecord(entry)) : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Skill Evolution Registry] JSON parse failed', error);
     return { version: 1, updatedAt: null, records: [] };
   }

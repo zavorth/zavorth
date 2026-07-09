@@ -41,7 +41,7 @@ export const github = {
     let data;
     try {
       data = await response.json();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[github] encoding failed', error);
     const text = await response.text();
       data = { error: "invalid_response", error_description: text };

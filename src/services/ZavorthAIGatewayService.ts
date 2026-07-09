@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';
@@ -109,7 +109,7 @@ export class ZavorthGatewayService {
     ZavorthGatewayService.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
     });
     ZavorthGatewayService.wss?.close();
     ZavorthGatewayService.wss = null;
@@ -136,7 +136,7 @@ export class ZavorthGatewayService {
         ...fallback,
         ...parsed,
       };
-    } catch (error) { logger.warn('[Zavorth A I way] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Zavorth A I way] JSON parse failed', error); return fallback; }
   }
 
   private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
@@ -205,7 +205,7 @@ export class ZavorthGatewayService {
       res.end(bodyBuffer);
       const status = this.buildStatus(true, response.ok || response.status < 500, 'AIGateway own gateway responded to upstream.');
       this.writeStatus(status);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
@@ -250,7 +250,7 @@ export class ZavorthGatewayService {
     let message: GatewayWebSocketMessage;
     try {
       message = JSON.parse(Buffer.isBuffer(raw) ? raw.toString('utf8') : raw.toString());
-    } catch {
+    } catch (error: any) {
       this.sendWebSocketJson(ws, { type: 'error', error: 'Expected JSON message.' });
       return;
     }
@@ -288,7 +288,7 @@ export class ZavorthGatewayService {
         ok: response.ok,
         body,
       });
-    } catch (error: unknown) {
+    } catch (error: any) {
       this.sendWebSocketJson(ws, {
         id,
         type: 'chat.completions.error',
@@ -316,7 +316,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.ok;
-    } catch (error) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private async isUpstreamHealthy(): Promise<boolean> {
@@ -336,7 +336,7 @@ export class ZavorthGatewayService {
         allowLoopback: true,
       });
       return response.status > 0 && response.status < 500;
-    } catch (error) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth A I way] network request failed', error); return false; }
   }
 
   private readOverlay(): GatewayOverlay {
@@ -345,7 +345,7 @@ export class ZavorthGatewayService {
         return {};
       }
       return JSON.parse(fs.readFileSync(config.AIGatewayOverlayFile, 'utf8')) as GatewayOverlay;
-    } catch (error) { logger.warn('[Zavorth A I way] JSON parse failed', error); return {}; }
+    } catch (error: any) { logger.warn('[Zavorth A I way] JSON parse failed', error); return {}; }
   }
 
   private buildStatus(running: boolean, ready: boolean, message: string): ZavorthGatewayStatus {

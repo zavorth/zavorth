@@ -2200,7 +2200,7 @@ export class WebAppRuntimeStateRouteService {
           }))
           .filter((fact) => fact.content),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Web App Runtime State] creation failed', error);
     return { facts: [] };
   }
@@ -2281,5 +2281,5 @@ function safeTokenEquals(provided: string, expected: string): boolean {
   if (left.length !== right.length) return false;
   try {
     return timingSafeEqual(left, right);
-  } catch (error) { logger.warn('[Web App Runtime State] operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Web App Runtime State] operation failed', error); return false; }
 }

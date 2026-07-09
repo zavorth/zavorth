@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { execCommandSync } from '../core/CommandSpawn.js';
@@ -181,7 +181,7 @@ export class AutoRepairService {
 
     try {
       return JSON.parse(this.readFileSync(config.autoRepairReportFile, 'utf8')) as AutoRepairReport;
-    } catch (error) { logger.warn('[Auto Repair] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Auto Repair] JSON parse failed', error); return null; }
   }
 
   public summarizeLastRun(): string {
@@ -458,7 +458,7 @@ export class AutoRepairService {
 
       const response = await this.getProvider().chat(messages);
       return parseAutoRepairPlannerResponse(response.content || '');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Auto Repair] parsing failed', error);
     return {
         needsCodeChange: false,
@@ -489,7 +489,10 @@ export class AutoRepairService {
     this.persistReport(report);
     try {
       this.incidentMemoryService.recordRun(report, this.collectIncidentDomains(report));
-    } catch (error) { // A memoria operacional nao deve impedir o fluxo principal do autorepair. logger.warn('[Auto Repair] filesystem operation failed', error); }
+    } catch (error: any) {
+      // A memoria operacional nao deve impedir o fluxo principal do autorepair.
+      logger.warn('[Auto Repair] filesystem operation failed', error);
+    }
   }
 
   private collectIncidentDomains(report: AutoRepairReport): string[] {

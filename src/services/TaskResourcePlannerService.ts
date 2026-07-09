@@ -1,4 +1,4 @@
-import type { CompanionActionId, CompanionId } from '../contracts/CompanionControlContract.js';
+﻿import type { CompanionActionId, CompanionId } from '../contracts/CompanionControlContract.js';
 import type { DesktopResourcePlaneService } from './DesktopResourcePlaneService.js';
 import type { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
 import type {
@@ -291,7 +291,7 @@ export class TaskResourcePlannerService {
     try {
       const snapshot = await this.desktopResources.inspectLive?.({ preferCachedWithinMs });
       return snapshot?.host?.pressure || null;
-    } catch (error) { logger.warn('[Task Resource Planner] cache operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Task Resource Planner] cache operation failed', error); return null; }
   }
 
   private maxExposure(

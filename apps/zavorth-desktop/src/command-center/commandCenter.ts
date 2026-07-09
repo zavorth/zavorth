@@ -2,23 +2,16 @@ import type { DesktopPanel } from '../slashCommands';
 import type { SettingsModule, SettingsModuleGroup, SettingsModuleId } from '../settings/settingsModules';
 import { flattenSettingsModules } from '../settings/settingsModules';
 import type { RightRailTab } from '../shell/rightRail';
+import { slashCommands } from '../slashCommands';
 
+/** User-facing command center groups aligned with product IA. */
 export type CommandCenterCategory =
-  | 'Settings'
+  | 'Daily'
+  | 'Trust'
+  | 'Reach'
+  | 'Power'
   | 'Workspace'
-  | 'Providers'
-  | 'MCP'
-  | 'Automations'
-  | 'Sessions'
-  | 'Profiles'
-  | 'Preview'
-  | 'Terminal'
-  | 'Git'
-  | 'Logs'
-  | 'Themes'
-  | 'Runtime'
-  | 'Recovery'
-  | 'Quick Actions'
+  | 'Settings'
   | 'Slash Commands';
 
 export type CommandCenterAction =
@@ -59,24 +52,18 @@ export type CommandCenterInput = {
   rightRailTab?: RightRailTab;
 };
 
-const categoryOrder: CommandCenterCategory[] = [
-  'Settings',
+/** Product IA order used by the Command Center overlay and grouping. */
+export const COMMAND_CENTER_CATEGORY_ORDER: CommandCenterCategory[] = [
+  'Daily',
+  'Trust',
+  'Reach',
+  'Power',
   'Workspace',
-  'Providers',
-  'MCP',
-  'Automations',
-  'Sessions',
-  'Profiles',
-  'Preview',
-  'Terminal',
-  'Git',
-  'Logs',
-  'Themes',
-  'Runtime',
-  'Recovery',
-  'Quick Actions',
+  'Settings',
   'Slash Commands',
 ];
+
+const categoryOrder = COMMAND_CENTER_CATEGORY_ORDER;
 
 const preferredSettings: SettingsModuleId[] = [
   'identity',
@@ -93,6 +80,118 @@ const preferredSettings: SettingsModuleId[] = [
   'diagnostics',
 ];
 
+type PanelCommandDef = {
+  panel: DesktopPanel;
+  category: CommandCenterCategory;
+  title: string;
+  subtitle: string;
+  keywords: string[];
+  statusLabel?: string;
+};
+
+const panelCommands: PanelCommandDef[] = [
+  {
+    panel: 'chat',
+    category: 'Daily',
+    title: 'Open chat',
+    subtitle: 'Start or continue a local conversation',
+    keywords: ['chat', 'session', 'thread', 'conversation', 'daily'],
+  },
+  {
+    panel: 'approvals',
+    category: 'Trust',
+    title: 'Open Review',
+    subtitle: 'Approve pending actions before they run',
+    keywords: ['approvals', 'review', 'trust', 'pending', 'permission'],
+    statusLabel: 'Review',
+  },
+  {
+    panel: 'receipts',
+    category: 'Trust',
+    title: 'Open Proof',
+    subtitle: 'Inspect receipts of what actually ran',
+    keywords: ['receipts', 'proof', 'audit', 'ledger', 'trust', 'history'],
+    statusLabel: 'Proof',
+  },
+  {
+    panel: 'files',
+    category: 'Workspace',
+    title: 'Open files',
+    subtitle: 'Browse workspace files and attach references',
+    keywords: ['files', 'explorer', 'folder', 'workspace', 'project'],
+  },
+  {
+    panel: 'workboard',
+    category: 'Workspace',
+    title: 'Open workboard',
+    subtitle: 'Track missions, steps, and delivery state',
+    keywords: ['workboard', 'missions', 'tasks', 'board', 'workspace'],
+  },
+  {
+    panel: 'memory',
+    category: 'Workspace',
+    title: 'Open memory',
+    subtitle: 'Absorb durable context and review learned candidates',
+    keywords: ['memory', 'absorb', 'learn', 'candidates', 'context'],
+  },
+  {
+    panel: 'skills',
+    category: 'Power',
+    title: 'Open skills',
+    subtitle: 'Browse local skills and tools ready to use',
+    keywords: ['skills', 'tools', 'plugins', 'capabilities', 'power'],
+  },
+  {
+    panel: 'marketplace',
+    category: 'Power',
+    title: 'Open marketplace',
+    subtitle: 'Discover and install skills for this workspace',
+    keywords: ['marketplace', 'store', 'plugins', 'install', 'skills'],
+  },
+  {
+    panel: 'channels',
+    category: 'Reach',
+    title: 'Open channels',
+    subtitle: 'Check channel readiness and connect surfaces',
+    keywords: ['channels', 'reach', 'telegram', 'discord', 'readiness', 'surface'],
+  },
+  {
+    panel: 'agents',
+    category: 'Reach',
+    title: 'Open agents',
+    subtitle: 'Coordinate subagents and multi-agent work',
+    keywords: ['agents', 'subagents', 'reach', 'team', 'delegate'],
+  },
+  {
+    panel: 'profiles',
+    category: 'Settings',
+    title: 'Open profiles',
+    subtitle: 'Switch experience profiles and identity presets',
+    keywords: ['profiles', 'identity', 'persona', 'preset', 'experience'],
+  },
+  {
+    panel: 'automations',
+    category: 'Power',
+    title: 'Open automations',
+    subtitle: 'Schedule recurring local work with clear receipts',
+    keywords: ['automations', 'scheduler', 'cron', 'recurring', 'tasks'],
+  },
+  {
+    panel: 'analytics',
+    category: 'Power',
+    title: 'Open analytics',
+    subtitle: 'Usage, readiness, and local runtime signals',
+    keywords: ['analytics', 'usage', 'readiness', 'metrics', 'runtime'],
+  },
+  {
+    panel: 'settings',
+    category: 'Settings',
+    title: 'Open settings',
+    subtitle: 'Runtime, trust, providers, and desktop preferences',
+    keywords: ['settings', 'configuration', 'preferences', 'runtime'],
+  },
+];
+
 export function buildCommandCenterItems(input: CommandCenterInput): CommandCenterItem[] {
   const settingsModules = flattenSettingsModules(input.settingsGroups);
   const settingsItems = preferredSettings
@@ -100,12 +199,33 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     .filter((module): module is SettingsModule => Boolean(module))
     .map(module => settingsModuleToCommand(module));
 
+  const panelItems = panelCommands.map(def => ({
+    id: `panel:${def.panel}`,
+    category: def.category,
+    title: def.title,
+    subtitle: def.subtitle,
+    keywords: def.keywords,
+    statusLabel: def.statusLabel,
+    action: { type: 'panel' as const, panel: def.panel },
+  }));
+
+  const slashItems = slashCommands.map(command => ({
+    id: `slash:${command.name}`,
+    category: 'Slash Commands' as const,
+    title: command.name,
+    subtitle: command.description,
+    keywords: [command.name, command.usage, ...(command.aliases || [])],
+    statusLabel: 'Slash',
+    action: { type: 'insert' as const, value: command.usage },
+  }));
+
   return [
+    ...panelItems,
     ...settingsItems,
     {
       id: 'workspace:files',
       category: 'Workspace',
-      title: 'Open workspace files',
+      title: 'Open workspace files rail',
       subtitle: input.workspaceLabel ? `Browse ${input.workspaceLabel} in the side rail` : 'Browse the active workspace in the side rail',
       keywords: ['workspace', 'files', 'file', 'explorer', 'project', 'side rail'],
       statusLabel: 'Rail',
@@ -116,13 +236,13 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
       category: 'Workspace',
       title: 'Open workspace activity',
       subtitle: 'See approvals, runtime state, recent messages and shell context',
-      keywords: ['workspace', 'atividade', 'activity', 'approvals', 'runtime'],
+      keywords: ['workspace', 'atividade', 'activity', 'approvals', 'runtime', 'readiness'],
       statusLabel: input.rightRailOpen && input.rightRailTab === 'activity' ? 'Open' : 'Rail',
       action: { type: 'rail', tab: 'activity' },
     },
     {
       id: 'providers:add',
-      category: 'Providers',
+      category: 'Power',
       title: input.providerCount ? 'Manage providers' : 'Add provider',
       subtitle: input.providerCount ? `${input.providerCount} provider(s) connected` : 'Connect OpenAI, local or compatible providers',
       keywords: ['provider', 'modelo', 'api key', 'llm', 'openai', 'local'],
@@ -131,43 +251,43 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     },
     {
       id: 'mcp:trust',
-      category: 'MCP',
+      category: 'Trust',
       title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
       subtitle: input.mcpServerCount ? `${input.mcpServerCount} MCP server(s) detected` : 'Add tools and review server permissions',
-      keywords: ['mcp', 'tool', 'trust', 'server', 'permission'],
+      keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
       statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
       action: { type: 'settings', tab: 'mcp' },
     },
     {
       id: 'automations:create',
-      category: 'Automations',
+      category: 'Power',
       title: 'Create scheduled task',
-      subtitle: input.automationCount ? `${input.automationCount} automation(s) active` : 'Schedule recurring local work',
-      keywords: ['automation', 'scheduler', 'cron', 'recurring', 'task'],
+      subtitle: input.automationCount ? `${input.automationCount} automation(s) active` : 'Schedule recurring local work with clear receipts',
+      keywords: ['automation', 'scheduler', 'cron', 'recurring', 'task', 'receipts'],
       statusLabel: input.automationCount ? 'Active' : 'New',
       action: { type: 'panel', panel: 'automations' },
     },
     {
       id: 'sessions:new',
-      category: 'Sessions',
+      category: 'Daily',
       title: 'New session',
       subtitle: input.sessionCount ? `${input.sessionCount} recent session(s)` : 'Start a clean local conversation',
-      keywords: ['session', 'thread', 'chat', 'new'],
+      keywords: ['session', 'thread', 'chat', 'new', 'daily'],
       statusLabel: 'Local',
       action: { type: 'panel', panel: 'chat' },
     },
     {
       id: 'profiles:identity',
-      category: 'Profiles',
+      category: 'Settings',
       title: 'Apply Identity Studio to this session',
       subtitle: input.customProfileCount ? `${input.customProfileCount} custom profile(s) available` : 'Use voice, rules and memory presets',
-      keywords: ['identity studio', 'perfil', 'persona', 'voz', 'regras'],
+      keywords: ['identity studio', 'perfil', 'persona', 'voz', 'regras', 'absorb'],
       statusLabel: 'Session preset',
       action: { type: 'settings', tab: 'identity' },
     },
     {
       id: 'preview:open-rail',
-      category: 'Preview',
+      category: 'Workspace',
       title: 'Open Web Preview',
       subtitle: 'Detect local dev servers, reload, inspect console state and open externally',
       keywords: ['preview', 'web', 'browser', 'dev server', 'localhost', 'live reload'],
@@ -176,7 +296,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     },
     {
       id: 'terminal:open-rail',
-      category: 'Terminal',
+      category: 'Workspace',
       title: 'Open workspace terminal',
       subtitle: 'Persistent terminal session for this workspace with search, copy and trust state',
       keywords: ['terminal', 'shell', 'pty', 'workspace', 'command', 'session'],
@@ -185,7 +305,7 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     },
     {
       id: 'git:open-rail',
-      category: 'Git',
+      category: 'Workspace',
       title: 'Open Git status',
       subtitle: 'Inspect branch, workspace state and quick Git context',
       keywords: ['git', 'status', 'branch', 'diff', 'commit', 'workspace'],
@@ -194,16 +314,16 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     },
     {
       id: 'logs:open',
-      category: 'Logs',
+      category: 'Power',
       title: 'Open runtime logs',
-      subtitle: 'View local runtime events in the side rail',
-      keywords: ['logs', 'diagnostico', 'erro', 'runtime', 'console'],
+      subtitle: 'View local runtime events and readiness signals in the side rail',
+      keywords: ['logs', 'diagnostico', 'erro', 'runtime', 'console', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Runtime online' : 'Runtime offline',
       action: { type: 'rail', tab: 'logs' },
     },
     {
       id: 'themes:studio',
-      category: 'Themes',
+      category: 'Settings',
       title: 'Open Theme Studio',
       subtitle: 'Adjust premium themes, translucency and profile persistence',
       keywords: ['tema', 'theme', 'appearance', 'premium', 'translucency'],
@@ -212,40 +332,41 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     },
     {
       id: 'runtime:start',
-      category: 'Runtime',
+      category: 'Power',
       title: input.runtimeRunning ? 'Refresh runtime' : 'Start runtime',
-      subtitle: input.runtimeRunning ? 'Sync runtime health and capabilities' : 'Start local services and repair readiness',
-      keywords: ['runtime', 'start', 'sync', 'health', 'local', 'reparar'],
+      subtitle: input.runtimeRunning ? 'Sync runtime health, readiness and capabilities' : 'Start local services and repair readiness',
+      keywords: ['runtime', 'start', 'sync', 'health', 'local', 'reparar', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Online' : 'Offline',
       action: { type: 'run', value: '/usage' },
     },
     {
       id: 'recovery:open',
-      category: 'Recovery',
+      category: 'Trust',
       title: 'Open recovery diagnostics',
       subtitle: 'Review fallback state, runtime recovery and repair actions',
-      keywords: ['recovery', 'recuperacao', 'diagnostics', 'repair', 'erro', 'fallback'],
+      keywords: ['recovery', 'recuperacao', 'diagnostics', 'repair', 'erro', 'fallback', 'trust'],
       statusLabel: 'Diagnostics',
       action: { type: 'settings', tab: 'diagnostics' },
     },
     {
       id: 'quick:start-runtime',
-      category: 'Quick Actions',
+      category: 'Daily',
       title: input.runtimeRunning ? 'Refresh runtime status' : 'Start runtime',
       subtitle: input.runtimeRunning ? 'Sync desktop readiness' : 'Runtime offline, start local services',
-      keywords: ['runtime offline', 'start', 'repair', 'sync', 'local'],
+      keywords: ['runtime offline', 'start', 'repair', 'sync', 'local', 'readiness'],
       statusLabel: input.runtimeRunning ? 'Online' : 'Runtime offline',
       action: { type: 'run', value: '/usage' },
     },
     {
       id: 'quick:toggle-kael',
-      category: 'Quick Actions',
+      category: 'Daily',
       title: input.kaelActive ? 'Hide Kael' : 'Show Kael',
       subtitle: 'Toggle the desktop mascot overlay',
       keywords: ['kael', 'mascote', 'pet', 'overlay', 'discreto'],
       statusLabel: input.kaelActive ? 'Visible' : 'Hidden',
       action: { type: 'settings', tab: 'pets' },
     },
+    ...slashItems,
   ];
 }
 

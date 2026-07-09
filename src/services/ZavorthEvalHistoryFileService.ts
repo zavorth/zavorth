@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
@@ -283,14 +283,17 @@ export class ZavorthEvalHistoryFileService {
           } as StoredEvalHistoryEntry;
         })
         .filter((entry) => Boolean(entry.generatedAt));
-    } catch (error) { logger.warn('[Zavorth Eval History File] creation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Eval History File] creation failed', error); return []; }
   }
 
   private writeEntries(entries: StoredEvalHistoryEntry[]): void {
     try {
       this.mkdirSync(path.dirname(this.filePath), { recursive: true });
       this.writeFileSync(this.filePath, JSON.stringify(entries, null, 2), 'utf8');
-    } catch (error) { // Keep history best-effort only. logger.warn('[Zavorth Eval History File] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Keep history best-effort only.
+      logger.warn('[Zavorth Eval History File] filesystem operation failed', error);
+    }
   }
 
   private toStoredEntry(snapshot: EvalSnapshotLike): StoredEvalHistoryEntry {

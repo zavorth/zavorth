@@ -293,7 +293,7 @@ export class ZavorthDocumentationRepoFinalService {
   private read(relativePath: string): string | null {
     try {
       return fs.readFileSync(path.join(this.root, relativePath), 'utf8');
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn(`[DocumentationRepoFinal] Falha ao ler arquivo: ${relativePath}`, { error: (err as Error).message });
       return null;
     }
@@ -308,14 +308,14 @@ export class ZavorthDocumentationRepoFinalService {
   private parseJson<T>(text: string): T | null {
     try {
       return JSON.parse(text) as T;
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON direto, tentando extrair objeto.', { error: (err as Error).message });
       const start = text.indexOf('{');
       const end = text.lastIndexOf('}');
       if (start >= 0 && end > start) {
         try {
           return JSON.parse(text.slice(start, end + 1)) as T;
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn('[DocumentationRepoFinal] Falha ao parsear JSON extraído do texto.', { error: (err as Error).message });
           return null;
         }

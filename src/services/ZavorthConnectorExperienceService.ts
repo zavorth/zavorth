@@ -1,4 +1,4 @@
-import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
+﻿import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
 import {
   ChannelSetupAssistantService,
   type ChannelSetupAssistantApplyResult,
@@ -168,7 +168,7 @@ export class ZavorthConnectorExperienceService {
     if (this.providerDoctor && (!selectedId || selectedId === 'telegram' || selectedId === 'discord')) {
       try {
         providerDoctor = await this.providerDoctor.run({ localOnly: input.localOnly === true });
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth Connector Experience] connection failed', error);
     providerDoctor = null;
   }

@@ -52,7 +52,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
@@ -215,7 +215,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ success: true, result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error translating:", error);
     return NextResponse.json(
       { success: false, error: "Failed to translate request" },

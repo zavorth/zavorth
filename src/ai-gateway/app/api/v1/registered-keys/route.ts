@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   try {
     const keys = listRegisteredKeys({ provider, accountId });
     return NextResponse.json({ keys, total: keys.length });
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[registered-keys] GET failed:", err);
     return NextResponse.json({ error: "Failed to list registered keys" }, { status: 500 });
   }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
         { status: 429 }
       );
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[registered-keys] quota check failed:", err);
     return NextResponse.json({ error: "Quota check failed" }, { status: 500 });
   }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[registered-keys] issue failed:", err);
     return NextResponse.json({ error: "Failed to issue key" }, { status: 500 });
   }

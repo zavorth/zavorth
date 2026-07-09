@@ -5,6 +5,13 @@ that are unique to a specific operator or host.
 
 Do not store secrets here.
 
+## Host environment
+
+- **OS:** Windows 10/11 native (primary)
+- **WSL2:** optional — use only if Docker sandbox or Linux shell isolation is needed
+- **Workspace root:** this repository (`Zavorth`)
+- **Approval posture:** personal dev profile — writes inside workspace are allowed; shell and network still require approval
+
 ## What Goes Here
 
 - camera names and locations;

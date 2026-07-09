@@ -24,7 +24,7 @@ function ensureProviderConnectionsColumns(db: SqliteDatabase): void {
       db.exec('ALTER TABLE provider_connections ADD COLUMN "group" TEXT');
       console.log('[DB] Added provider_connections."group" column');
     }
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.warn("[DB] Failed to verify provider_connections schema:", message);
   }
@@ -49,7 +49,7 @@ function ensureUsageHistoryColumns(db: SqliteDatabase): void {
       db.exec("ALTER TABLE usage_history ADD COLUMN error_code TEXT");
       console.log("[DB] Added usage_history.error_code column");
     }
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.warn("[DB] Failed to verify usage_history schema:", message);
   }
@@ -66,7 +66,7 @@ function ensureCallLogsColumns(db: SqliteDatabase): void {
       db.exec("ALTER TABLE call_logs ADD COLUMN has_pipeline_details INTEGER DEFAULT 0");
       console.log("[DB] Added call_logs.has_pipeline_details column");
     }
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.warn("[DB] Failed to verify call_logs schema:", message);
   }

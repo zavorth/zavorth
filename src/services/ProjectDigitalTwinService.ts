@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { AgentOsProjectTwinSnapshot } from '../contracts/AgentOsContract.js';
 import { logger } from '../logger.js';
@@ -108,13 +108,13 @@ export class ProjectDigitalTwinService {
   private safeReadDir(dir: string): string[] {
     try {
       return this.readdirSync(dir);
-    } catch (error) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return []; }
   }
 
   private safeStat(target: string): fs.Stats | null {
     try {
       return this.statSync(target);
-    } catch (error) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Project Digital Twin] filesystem operation failed', error); return null; }
   }
 
   private readPackageSummary(root: string): AgentOsProjectTwinSnapshot['packageSummary'] {
@@ -131,7 +131,7 @@ export class ProjectDigitalTwinService {
         dependencies: Object.keys(parsed.dependencies || {}).slice(0, 40).map((entry) => truncateAgentOsText(entry, 80)),
         devDependencies: Object.keys(parsed.devDependencies || {}).slice(0, 40).map((entry) => truncateAgentOsText(entry, 80)),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Project Digital Twin] parsing failed', error);
     return { scripts: [], dependencies: [], devDependencies: [] };
   }

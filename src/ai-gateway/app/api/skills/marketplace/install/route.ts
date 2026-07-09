@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, id: skill.id });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] string operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

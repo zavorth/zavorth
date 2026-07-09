@@ -65,7 +65,10 @@ export class TelegramPermissionDecisionLifecycleService {
 
     try {
       await this.deps.auditLogger.logPermissionDecision(permission, action, userId, details);
-    } catch (error) { // audit should never block permission handling logger.warn('[Telegram Permission Decision Lifecycle] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // audit should never block permission handling
+      logger.warn('[Telegram Permission Decision Lifecycle] operation failed', error);
+    }
   }
 
   private async tryResumeWorkflowExecution(ctx: Context, task: Task): Promise<boolean> {

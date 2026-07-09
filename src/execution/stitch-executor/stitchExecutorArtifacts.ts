@@ -205,7 +205,7 @@ export function resolveStitchArtifactExtension(mimeType: string, artifactUrl: st
   const pathname = (() => {
     try {
       return new URL(artifactUrl).pathname;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return '';
     }
   })();

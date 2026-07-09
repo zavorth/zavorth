@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       cloudUrl,
       machineId,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error getting settings:", error);
     return NextResponse.json({ error: "Failed to load settings" }, { status: 500 });
   }
@@ -184,7 +184,7 @@ export async function PATCH(request) {
 
     const { password, ...safeSettings } = settings;
     return NextResponse.json(safeSettings);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating settings:", error);
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
   }

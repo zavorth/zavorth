@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import {
   AI_FIRST_RUNTIME_RECEIPT_LEDGER_CONTRACT_VERSION,
@@ -273,7 +273,7 @@ export class AiFirstRuntimeReceiptLedgerService {
         entriesWritten: input.entries.length,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Ai First Runtime Receipt Ledger] filesystem operation failed', error);
     return {
         mode: 'jsonl-file',

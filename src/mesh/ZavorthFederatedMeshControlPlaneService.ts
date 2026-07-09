@@ -963,7 +963,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   private async safeDistributedRuntimeSnapshot(): Promise<ZavorthDistributedRuntimeSnapshot | null> {
     try {
       return await this.distributedRuntimeService.buildSnapshot();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

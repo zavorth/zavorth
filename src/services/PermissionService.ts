@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+﻿import { v4 as uuidv4 } from 'uuid';
 import {
   PermissionAccessLevel,
   PermissionCommandMatchType,
@@ -429,7 +429,10 @@ export class PermissionService {
           decidedBy: permission.decided_by,
         },
       });
-    } catch (error) { // telemetry should never break permission flow logger.warn('[Permission] process execution failed', error); }
+    } catch (error: any) {
+      // telemetry should never break permission flow
+      logger.warn('[Permission] process execution failed', error);
+    }
   }
 
   private resolveTraceId(permission: PermissionRequest): string {

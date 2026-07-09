@@ -1,6 +1,7 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
+import { logger } from '../logger.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 
 export class ZavorthDataScienceTool extends BaseTool {
@@ -92,7 +93,7 @@ export class ZavorthDataScienceTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Data Science] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Data Science] process execution failed', error); return ''; }
   }
 
   private loadScript(filePath: string, additional: string): string {
@@ -119,7 +120,6 @@ export class ZavorthDataScienceTool extends BaseTool {
     return `import pandas as pd
 import numpy as np
 import json
-import { logger } from '../logger.js';
 ${loader}
 ${additional}`;
   }

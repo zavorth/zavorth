@@ -45,7 +45,7 @@ export class TelegramOpsAdministrationService {
       const modeManager = this.deps.executionGateway.getModeManager();
       lines.push('', `Current operational mode: ${modeManager.getMode()}`);
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       await ctx.reply(`I could not read the audit log right now.\n\nReason: ${msg}`);
     }

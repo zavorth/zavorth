@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
 import type { WebhookGateway } from '../gateways/WebhookGateway.js';
@@ -35,7 +35,10 @@ export class OutboxRetryService {
       if (!this.running) return;
       try {
         await this.processOutbox();
-      } catch (error) { // Skip error logging in production daemon logger.warn('[Outbox Retry] lifecycle operation failed', error); }
+      } catch (error: any) {
+      // Skip error logging in production daemon
+      logger.warn('[Outbox Retry] lifecycle operation failed', error);
+    }
       if (this.running) {
         this.timer = setTimeout(tick, intervalMs);
         if (this.timer && typeof this.timer.unref === 'function') {
@@ -75,7 +78,7 @@ export class OutboxRetryService {
       let files: string[];
       try {
         files = fs.readdirSync(outboxDir).filter(f => f.endsWith('.json'));
-      } catch {
+      } catch (error: any) {
         continue;
       }
 
@@ -134,7 +137,10 @@ export class OutboxRetryService {
               }, null, 2), 'utf8');
             }
           }
-        } catch (error) { // ignore parsing/reading errors for individual files logger.warn('[Outbox Retry] filesystem operation failed', error); }
+        } catch (error: any) {
+      // ignore parsing/reading errors for individual files
+      logger.warn('[Outbox Retry] filesystem operation failed', error);
+    }
       }
     }
   }

@@ -434,7 +434,7 @@ export class CoreOrchestrator implements IMessageBroker {
           surfaceTaskDispatcherDeferred: shouldBridgeToSurfaceDispatcher,
         },
       }, executor ? { executor } : {});
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.logRepo.log(
         'warn',
         'CoreOrchestrator',

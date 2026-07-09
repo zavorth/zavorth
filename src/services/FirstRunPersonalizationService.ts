@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { WakeWordSyncService } from './WakeWordSyncService.js';
@@ -454,7 +454,7 @@ export class FirstRunPersonalizationService {
         return fallback;
       }
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error) { logger.warn('[First Run Personalization] filesystem operation failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[First Run Personalization] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

@@ -7,6 +7,15 @@ import { initDockNavigation } from './shell-navigation';
 import { attachmentKindLabel, attachmentReadyLabel, readAttachmentFile } from './composer-attachments';
 import { buildConversationStateCard, buildEchoDividerHtml, buildEchoGroupHtml, buildThinkingStateHtml } from './chat-renderer';
 import { createChatSurfaceRenderers, removeRemoteMeshApprovalCard as removeRemoteMeshApprovalCardNode } from './chat-surface-renderers';
+import {
+  clearDiffReview,
+  hideDiffReviewRail,
+  initDiffReviewRail,
+  looksLikeUnifiedDiff,
+  parseUnifiedDiff,
+  setDiffReviewContent,
+  getDiffReviewHunks,
+} from './diff-review-rail';
 import { composerPresetSettings, composerSettingLabel, getComposePlaceholder, isComposerPresetActive, persistComposerSettings, readComposerSettings } from './composer-settings';
 import { bindAttachmentTray, bindComposeInputEvents, bindComposerContextBar, bindComposerFileDrop, bindFileInputEvents, bindToolSheetActions, createHiddenFileInput } from './composer-event-wiring';
 import { exportConversation, getExportMenuHtml } from './conversation-export';
@@ -3788,11 +3797,24 @@ ${current}` : skillPrompt;
   const {
     openApprovalScopeEditor,
     openArtifactPane,
+    openDiffInTrustRail,
+    maybeOpenArtifactDiffRail,
     renderApprovals,
     renderArtifacts,
     renderRemoteMeshApprovals,
   } = chatSurfaces;
   const removeRemoteMeshApprovalCard = (card) => removeRemoteMeshApprovalCardNode(card, updateDashboardGlass);
+
+  initDiffReviewRail();
+  window.ZavorthDiffReview = {
+    initDiffReviewRail,
+    setDiffReviewContent,
+    clearDiffReview,
+    hideDiffReviewRail,
+    getDiffReviewHunks,
+    parseUnifiedDiff,
+    looksLikeUnifiedDiff,
+  };
 
   window.ZavorthControlChat = {
     appendEcho,
@@ -3800,6 +3822,10 @@ ${current}` : skillPrompt;
     removeThinkingState,
     setComposerRunState,
     openArtifactPane,
+    openDiffInTrustRail,
+    maybeOpenArtifactDiffRail,
+    setDiffReviewContent,
+    clearDiffReview,
     renderApprovals,
     renderRemoteMeshApprovals,
     renderArtifacts,
@@ -3882,6 +3908,7 @@ ${current}` : skillPrompt;
   if (artifactClose) {
     artifactClose.addEventListener('click', () => {
       artifactPane.classList.add('hidden');
+      hideDiffReviewRail();
     });
   }
 
@@ -3953,9 +3980,231 @@ ${current}` : skillPrompt;
     node.addEventListener('click', () => overlays.syncDrawerActive(node.dataset.sector));
   });
 
+  const cmdPalette = document.getElementById('cmd-palette');
+  const cmdInput = document.getElementById('cmd-input') as HTMLInputElement | null;
+  const cmdResults = document.getElementById('cmd-palette-results');
+
+  function activateDashboardSector(sectorId: string) {
+    const dockNode = document.querySelector(`.dock-node[data-sector="${sectorId}"]`) as HTMLElement | null;
+    if (dockNode) {
+      dockNode.click();
+      overlays.syncDrawerActive(sectorId);
+      return;
+    }
+    document.querySelector(`[data-sector="${sectorId}"]`)?.dispatchEvent(new Event('click', { bubbles: true }));
+  }
+
+  function formatReadyCheckSummary(payload: any) {
+    const ready = payload?.readyToGo || payload || {};
+    const summary = ready.summary || {};
+    const headline = String(ready.headline || ready.status || 'checked').trim();
+    const lines = [
+      'Ready check',
+      '',
+      `Status: \`${String(ready.status || 'unknown')}\``,
+      headline ? `Headline: ${headline}` : '',
+      summary.runtimeStatus ? `Runtime: \`${summary.runtimeStatus}\`` : '',
+      summary.providerReady != null ? `Providers: \`${summary.providerReady ? 'ready' : 'needs attention'}\` (${summary.providerDefaultRoutes ?? 0} routes)` : '',
+      summary.zavorthControlReady != null ? `Dashboard: \`${summary.zavorthControlReady ? 'ready' : 'blocked'}\`` : '',
+      summary.approvalsReady != null ? `Approvals: \`${summary.approvalsReady ? 'ready' : 'blocked'}\`` : '',
+      summary.telegramReady != null ? `Telegram: \`${summary.telegramReady ? 'ready' : 'attention'}\`` : '',
+      Number(summary.blockingFixes) > 0 ? `Blockers: \`${summary.blockingFixes}\`` : '',
+      Number(summary.attentionFixes) > 0 ? `Warnings: \`${summary.attentionFixes}\`` : '',
+      ready.actions?.primary ? `\n${ready.actions.primary}` : '',
+    ].filter(Boolean);
+    return lines.join('\n');
+  }
+
+  async function runDoctorReadyCheck() {
+    activateDashboardSector('terminal');
+    window.emitSignal?.('info', 'Ready check', 'Running readiness…');
+    recordTraceEvent({
+      type: 'step',
+      title: 'Ready check / Doctor',
+      detail: 'Running local readiness snapshot.',
+      meta: 'doctor',
+      status: 'running',
+    });
+    try {
+      const headers: Record<string, string> = {};
+      try {
+        const token = sessionStorage.getItem('zavorth.zavorthControl.webToken')
+          || localStorage.getItem('zavorth.zavorthControl.webToken')
+          || '';
+        if (token) headers.Authorization = `Bearer ${token}`;
+      } catch {
+        // ignore storage access errors
+      }
+      const response = await fetch('/api/runtime/ready-to-go', { headers });
+      if (response.ok) {
+        const payload = await response.json();
+        const summary = formatReadyCheckSummary(payload);
+        appendEcho('core', summary);
+        recordTraceEvent({
+          type: 'receipt',
+          title: 'Ready check complete',
+          detail: String(payload?.readyToGo?.status || payload?.status || 'ok'),
+          meta: 'doctor',
+          status: 'done',
+        });
+        window.emitSignal?.('success', 'Ready check', String(payload?.readyToGo?.status || 'done'));
+        return;
+      }
+    } catch {
+      // fall through to /status
+    }
+    try {
+      await runBackendSessionCommand('status', '', () => renderStatusSummary());
+      recordTraceEvent({
+        type: 'receipt',
+        title: 'Ready check fallback',
+        detail: 'Used /status after ready-to-go was unavailable.',
+        meta: 'doctor',
+        status: 'done',
+      });
+      window.emitSignal?.('info', 'Ready check', 'Used session status summary.');
+    } catch (error: any) {
+      appendEcho('core', `Ready check failed: ${error?.message || String(error)}`);
+      window.emitSignal?.('error', 'Ready check failed', error?.message || 'Could not run readiness.');
+    }
+  }
+
+  function runPaletteAction(action: string) {
+    const normalized = String(action || '').trim().toLowerCase();
+    if (!normalized) return;
+    dismissOverlays();
+    if (normalized === 'new-chat' || normalized === 'inbox') {
+      activateDashboardSector('terminal');
+      startNewLocalSession();
+      window.emitSignal?.('info', 'Inbox', 'New chat ready.');
+      return;
+    }
+    if (normalized === 'approvals') {
+      activateDashboardSector('sales-os');
+      return;
+    }
+    if (normalized === 'receipts') {
+      activateDashboardSector('instances');
+      return;
+    }
+    if (normalized === 'channels') {
+      activateDashboardSector('channels');
+      return;
+    }
+    if (normalized === 'models') {
+      activateDashboardSector('usage');
+      return;
+    }
+    if (normalized === 'doctor' || normalized === 'ready' || normalized === 'ready-check') {
+      runDoctorReadyCheck().catch(() => undefined);
+      return;
+    }
+    if (normalized === 'export') {
+      openExportMenu();
+      return;
+    }
+  }
+
+  function visiblePaletteItems() {
+    return Array.from(cmdResults?.querySelectorAll<HTMLElement>('.cmd-palette__item') || [])
+      .filter((item) => item.style.display !== 'none');
+  }
+
+  function selectPaletteItem(index: number) {
+    const items = visiblePaletteItems();
+    if (items.length === 0) return;
+    const next = ((index % items.length) + items.length) % items.length;
+    items.forEach((item, i) => item.classList.toggle('selected', i === next));
+    items[next]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function selectedPaletteIndex() {
+    const items = visiblePaletteItems();
+    const current = items.findIndex((item) => item.classList.contains('selected'));
+    return current >= 0 ? current : 0;
+  }
+
+  function filterPaletteResults(query = '') {
+    const needle = String(query || '').trim().toLowerCase();
+    const items = Array.from(cmdResults?.querySelectorAll<HTMLElement>('.cmd-palette__item') || []);
+    items.forEach((item) => {
+      const label = (item.textContent || '').toLowerCase();
+      const action = String(item.getAttribute('data-cmd-action') || '').toLowerCase();
+      const sector = String(item.getAttribute('data-dashboard-sector') || '').toLowerCase();
+      const match = !needle || label.includes(needle) || action.includes(needle) || sector.includes(needle);
+      item.style.display = match ? '' : 'none';
+      item.classList.remove('selected');
+    });
+    const visible = visiblePaletteItems();
+    if (visible[0]) visible[0].classList.add('selected');
+  }
+
+  function bindCommandPalette() {
+    if (!cmdPalette || document.documentElement.dataset.zavorthCmdPaletteBound === '1') return;
+    document.documentElement.dataset.zavorthCmdPaletteBound = '1';
+
+    cmdResults?.addEventListener('click', (event) => {
+      const item = (event.target as HTMLElement | null)?.closest?.('.cmd-palette__item') as HTMLElement | null;
+      if (!item) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const action = item.getAttribute('data-cmd-action') || '';
+      const sector = item.getAttribute('data-dashboard-sector') || '';
+      if (action) {
+        runPaletteAction(action);
+        return;
+      }
+      if (sector) {
+        dismissOverlays();
+        activateDashboardSector(sector);
+      }
+    });
+
+    cmdInput?.addEventListener('input', () => {
+      filterPaletteResults(cmdInput.value || '');
+    });
+
+    cmdInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        selectPaletteItem(selectedPaletteIndex() + 1);
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        selectPaletteItem(selectedPaletteIndex() - 1);
+        return;
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const items = visiblePaletteItems();
+        const selected = items[selectedPaletteIndex()] || items[0];
+        if (!selected) return;
+        const action = selected.getAttribute('data-cmd-action') || '';
+        const sector = selected.getAttribute('data-dashboard-sector') || '';
+        if (action) runPaletteAction(action);
+        else if (sector) {
+          dismissOverlays();
+          activateDashboardSector(sector);
+        }
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      const doctorBtn = (event.target as HTMLElement | null)?.closest?.('[data-dashboard-doctor]');
+      if (!doctorBtn) return;
+      event.preventDefault();
+      runDoctorReadyCheck().catch(() => undefined);
+    });
+  }
+
+  bindCommandPalette();
+
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
+      if (cmdInput) cmdInput.value = '';
+      filterPaletteResults('');
       overlays.openPalette();
     }
     if (e.key === 'Escape') {

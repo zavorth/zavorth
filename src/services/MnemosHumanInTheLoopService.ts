@@ -1,4 +1,4 @@
-import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
+﻿import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
 import { logger } from '../logger.js';
 
@@ -168,7 +168,7 @@ export class MnemosHumanInTheLoopService {
     let filePath: string;
     try {
       filePath = Buffer.from(encodedPath, 'base64url').toString('utf-8');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Mnemos Human In The Loop] encoding failed', error);
     return {
         handled: true,
@@ -211,7 +211,7 @@ export class MnemosHumanInTheLoopService {
     let toolResult: string;
     try {
       toolResult = await this.toolInvoker.execute('index_file', { file_path: filePath });
-    } catch (error) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       this.logRepo.log('error', 'Mnemos', `Falha ao indexar ${fileName}: ${message}`);
       return {
@@ -270,7 +270,7 @@ export class MnemosHumanInTheLoopService {
         error: null,
         chunksIndexed: typeof parsed.chunks_indexed === 'number' ? parsed.chunks_indexed : null,
       };
-    } catch {
+    } catch (error: any) {
       if (/error executing tool|erro/i.test(text)) {
         return { error: text, chunksIndexed: null };
       }

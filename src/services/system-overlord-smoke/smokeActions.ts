@@ -1,4 +1,4 @@
-import { config } from '../../config/index.js';
+﻿import { config } from '../../config/index.js';
 import type { SystemOverlordActionRecord } from '../../contracts/SystemOverlordContract.js';
 import { logger } from '../../logger.js';
 import type {
@@ -108,5 +108,5 @@ export function parseSmokeJson(rawValue: string | null): Record<string, unknown>
   }
   try {
     return JSON.parse(normalized) as Record<string, unknown>;
-  } catch (error) { logger.warn('[smoke Actions] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[smoke Actions] JSON parse failed', error); return null; }
 }

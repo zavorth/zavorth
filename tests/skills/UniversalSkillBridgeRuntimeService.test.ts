@@ -377,7 +377,7 @@ describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
 
     expect(snapshot.status).toBe('denied');
     expect(snapshot.summary.imported).toBe(false);
-    expect(snapshot.decision.reasons.join(' ')).toContain('somente skills importadas');
+    expect(snapshot.decision.reasons.join(' ')).toContain('only imported skills');
     expect(snapshot.promptEnvelope).toBeNull();
   });
 
@@ -468,6 +468,6 @@ describe('UniversalSkillBridgeRuntimeService Approval gate', () => {
 
     expect(snapshot.status).toBe('denied');
     expect(snapshot.decision.licenseRuntimeAllowed).toBe(false);
-    expect(snapshot.decision.reasons.join(' ')).toContain('nao permite uso runtime');
+    expect(snapshot.decision.reasons.join(' ')).toContain('does not allow runtime use');
   });
 });

@@ -84,7 +84,7 @@ export class TelegramTaskApprovalService {
         requiredHighRiskPin,
       });
       await this.resumeApprovedTaskOrWorkflow(ctx, task);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       const task = this.deps.taskManager.getTask(taskId);
       if (task && task.status === 'running') {
@@ -116,7 +116,7 @@ export class TelegramTaskApprovalService {
       this.syncWorkflowApprovalDecision(task, 'reject', 'Approval rejected by the operator.');
       await this.recordTaskApprovalTelemetry(task, 'reject', 'rejected', userId);
       await ctx.reply(`Done. Task ${taskId} was rejected and I will not continue it.`);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       await this.recordTaskApprovalTelemetry(undefined, 'reject', 'failed', userId, {
         taskId,
@@ -170,7 +170,10 @@ export class TelegramTaskApprovalService {
           ...payload,
         },
       });
-    } catch (error) { // telemetry should never block approval handling logger.warn('[Telegram Task Approval] load operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // telemetry should never block approval handling
+      logger.warn('[Telegram Task Approval] load operation failed', error);
+    }
   }
 
   private async recordTaskApprovalAudit(
@@ -185,7 +188,10 @@ export class TelegramTaskApprovalService {
 
     try {
       await this.deps.auditLogger.logApprovalDecision(task, action, userId, details);
-    } catch (error) { // audit should never block approval handling logger.warn('[Telegram Task Approval] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // audit should never block approval handling
+      logger.warn('[Telegram Task Approval] operation failed', error);
+    }
   }
 
   private async resumeApprovedTaskOrWorkflow(ctx: Context, task: Task): Promise<void> {

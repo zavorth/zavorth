@@ -123,7 +123,7 @@ export function getAvailableLocales(localesDir: string): string[] {
         }
       }
     }
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     // ignore
   }
   return locales.sort();

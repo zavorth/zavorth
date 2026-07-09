@@ -66,7 +66,7 @@ export async function GET(request) {
       result[t] = await listBackupsForTool(t);
     }
     return NextResponse.json({ backups: result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error listing backups:", error.message);
     return NextResponse.json({ error: "Failed to list backups" }, { status: 500 });
   }
@@ -80,7 +80,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -118,7 +118,7 @@ export async function POST(request) {
       message: `Backup restored for ${normalizedTool}`,
       ...result,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error restoring backup:", error.message);
     return NextResponse.json(
       { error: error.message || "Failed to restore backup" },
@@ -135,7 +135,7 @@ export async function DELETE(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     return NextResponse.json(
       {
@@ -168,7 +168,7 @@ export async function DELETE(request) {
       message: `Backup deleted for ${normalizedTool}`,
       ...result,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error deleting backup:", error.message);
     return NextResponse.json({ error: "Failed to delete backup" }, { status: 500 });
   }

@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: `Suite not found: ${suiteId}` }, { status: 404 });
     }
     return NextResponse.json(suite);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

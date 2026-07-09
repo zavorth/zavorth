@@ -71,7 +71,7 @@ function serializeLayer(value: unknown): string {
 
   try {
     return JSON.stringify(value);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return String(value);
   }
 }

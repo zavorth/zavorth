@@ -86,7 +86,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.slackStatusFile, 'utf8')) as SlackGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Slack way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Slack way.stub] JSON parse failed', error); return null; }
   }
 
   public async simulateIncomingMessage(message: SlackGatewayStubMessage): Promise<void> {
@@ -422,7 +422,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: Record<string, unknown> | null = null;
     try {
       responsePayload = (await response.json()) as Record<string, unknown>;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Slack way.stub] network request failed', error);
     responsePayload = null;
   }

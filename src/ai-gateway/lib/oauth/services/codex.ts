@@ -141,7 +141,7 @@ export class CodexService extends OAuthService {
 
       spinner.succeed("Codex connected successfully!");
       return true;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

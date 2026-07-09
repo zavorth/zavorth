@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   try {
     const mappings = await getModelComboMappings();
     return NextResponse.json({ mappings });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to list model-combo mappings" },
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ mapping }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
       { error: error.message || "Failed to create model-combo mapping" },

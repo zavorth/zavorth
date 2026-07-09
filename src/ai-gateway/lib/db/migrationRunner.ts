@@ -33,7 +33,10 @@ function resolveMigrationsDir(): string {
       const __filename = fileURLToPath(metaUrl);
       return path.join(path.dirname(__filename), "migrations");
     }
-  } catch (error) { // fileURLToPath failed (e.g. Windows global install) — use fallback logger.warn('[migration Runner] lifecycle operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // fileURLToPath failed (e.g. Windows global install) — use fallback
+      logger.warn('[migration Runner] lifecycle operation failed', error);
+    }
   // Fallback: resolve relative to cwd (works for both dev and global installs)
   return path.join(process.cwd(), "src", "lib", "db", "migrations");
 }
@@ -98,7 +101,7 @@ export function runMigrations(db: Database.Database): number {
       applyMigration();
       count++;
       console.log(`[Migration] Applied: ${migration.version}_${migration.name}`);
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[Migration] FAILED: ${migration.version}_${migration.name} — ${message}`);
       throw err; // Re-throw to prevent DB from starting in inconsistent state

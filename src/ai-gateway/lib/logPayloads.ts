@@ -48,7 +48,7 @@ export function normalizePayloadForLog(payload: unknown): unknown {
 
   try {
     return JSON.parse(trimmed);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[log Payloads] JSON parse failed', error);
     return { _rawText: payload };
   }
@@ -120,7 +120,7 @@ export function parseStoredPayload(value: unknown): unknown | null {
   if (typeof value !== "string" || value.trim().length === 0) return null;
   try {
     return JSON.parse(value);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[log Payloads] JSON parse failed', error);
     return { _rawText: value };
   }

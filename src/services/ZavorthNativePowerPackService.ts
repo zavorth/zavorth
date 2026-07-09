@@ -191,7 +191,7 @@ export class ZavorthNativePowerPackService {
       return {
         ok: false,
         status: 'blocked',
-        summary: resolved.reason,
+        summary: (resolved as any).reason,
         file: '',
         bytes: 0,
         textPreview: '',
@@ -295,7 +295,7 @@ export class ZavorthNativePowerPackService {
       return {
         ok: false,
         status: 'blocked',
-        summary: resolved.reason,
+        summary: (resolved as any).reason,
         file: '',
         bytes: 0,
         mimeType: 'application/octet-stream',

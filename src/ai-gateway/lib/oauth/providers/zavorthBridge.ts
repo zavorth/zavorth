@@ -84,7 +84,7 @@ export const zavorthBridge = {
           }
         }
       }
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("Failed to load code assist:", e);
     }
 
@@ -111,7 +111,7 @@ export const zavorthBridge = {
           }
           await new Promise((resolve) => setTimeout(resolve, 5000));
         }
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         console.log("Failed to onboard user:", e);
       }
     }

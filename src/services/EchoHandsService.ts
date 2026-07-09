@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+﻿import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { AutomaticBrowserTool } from '../mcp/tools/AutomaticBrowserTool.js';
@@ -96,7 +96,7 @@ export class EchoHandsService {
       const result = await this.executeAllowed(request, risk, trusted);
       this.log('info', request, result);
       return result;
-    } catch (error) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       const result = this.result(false, action, message, { risk }, false);
       this.log('error', request, result);

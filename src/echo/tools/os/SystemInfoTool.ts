@@ -61,7 +61,7 @@ export class SystemInfoTool implements IZavorthTool {
                 message: summary,
                 data,
             };
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Info] creation failed', error);
     return {
                 success: false,
@@ -119,7 +119,7 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const drives = JSON.parse(stdout.trim());
             return Array.isArray(drives) ? drives : [drives];
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not get disk information.' }];
   }
@@ -144,7 +144,7 @@ export class SystemInfoTool implements IZavorthTool {
                 charge_percent: charge,
                 status: statusMap[parsed.BatteryStatus] || 'unknown',
             };
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Info] parsing failed', error);
     return { charge_percent: null, status: 'no battery detected' };
   }
@@ -160,7 +160,7 @@ export class SystemInfoTool implements IZavorthTool {
             );
             const procs = JSON.parse(stdout.trim());
             return Array.isArray(procs) ? procs : [procs];
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Info] JSON parse failed', error);
     return [{ error: 'Could not list processes.' }];
   }

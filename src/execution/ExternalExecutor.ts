@@ -252,7 +252,7 @@ export class ExternalExecutor implements IExecutor {
           };
         }
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const executionError = this.normalizeProcessError(error);
       result.success = false;
       result.stdout = this.cleanOutput(executionError.stdout) || null;
@@ -281,7 +281,7 @@ export class ExternalExecutor implements IExecutor {
       }
 
       return true;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }
@@ -493,7 +493,7 @@ export class ExternalExecutor implements IExecutor {
         ok: combined.includes('RPC probe: ok'),
         detail: combined || 'gateway_status_empty',
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const executionError = this.normalizeProcessError(error);
       return {
         ok: false,
@@ -527,7 +527,7 @@ export class ExternalExecutor implements IExecutor {
         }
       }
       return false;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }
@@ -556,7 +556,7 @@ export class ExternalExecutor implements IExecutor {
     try {
       const result = await runOnce();
       return { ...result, recoveredGateway: false };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       if (!this.shouldRecoverGateway(error)) {
         throw error;
       }
@@ -689,7 +689,7 @@ export class ExternalExecutor implements IExecutor {
         this.resolvedWslDistro = name;
         return name;
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       this.resolvedWslDistro = null;
       return undefined;
     }

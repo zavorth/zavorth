@@ -41,7 +41,7 @@ export async function GET(request) {
     const content = fs.readFileSync(filePath, "utf-8");
 
     return NextResponse.json({ success: true, content });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error loading file:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

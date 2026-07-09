@@ -37,7 +37,7 @@ export class SystemMediaTool implements IZavorthTool {
             }
             return await this.executeViaPowerShell(params);
 
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Media] process execution failed', error);
     return {
                 success: false,
@@ -162,6 +162,6 @@ export class SystemMediaTool implements IZavorthTool {
         try {
             await execAsync('where nircmd.exe');
             return true;
-        } catch (error) { logger.warn('[System Media] process execution failed', error); return false; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[System Media] process execution failed', error); return false; }
     }
 }

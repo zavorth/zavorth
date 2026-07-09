@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 
 import type {
   RemoteExecutionReceipt,
@@ -143,7 +143,7 @@ export class RemoteMeshSandboxLiveProbeExecutorService {
           status = 'failed';
           reason = 'Low-risk live probe transport reported failure.';
         }
-      } catch (error) {
+      } catch (error: any) {
         result = this.failedTransportResult(error);
         guards = [
           ...guards,
