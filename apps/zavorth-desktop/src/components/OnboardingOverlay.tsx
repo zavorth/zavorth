@@ -294,7 +294,7 @@ export function OnboardingOverlay({
   };
 
   return (
-    <div className="zvd-onboarding-overlay" role="dialog" aria-modal="true" aria-labelledby="zvd-onboarding-title">
+    <div className="zvd-onboarding-overlay zvd-onboarding-shell" role="dialog" aria-modal="true" aria-labelledby="zvd-onboarding-title">
       <div className="zvd-onboarding-card">
         <div className="zvd-onboarding-header">
           <div className="zvd-onboarding-brand">
