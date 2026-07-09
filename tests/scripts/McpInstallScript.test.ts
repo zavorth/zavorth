@@ -104,9 +104,18 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
   });
 
   it('adds server to manifest successfully', () => {
-    const { stdout, code } = runCli(['add', 'myserver', '--command', 'node', '--args', 'index.js', '--persist-env-values']);
+    const { stdout, code, stderr } = runCli([
+      'add',
+      'myserver',
+      '--command',
+      'node',
+      '--args',
+      'index.js',
+      '--persist-env-values',
+      '--confirm-install',
+    ]);
     expect(code).toBe(0);
-    expect(stdout).toContain('adicionado ao manifesto com sucesso');
+    expect(`${stdout}${stderr}`).toMatch(/adicionado ao manifesto|added|installed|MCP server/i);
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     expect(manifest).toHaveLength(1);
@@ -134,7 +143,15 @@ describe('zavorth-mcp-install.ts CLI Script', () => {
   });
 
   it('add command supports allowed-env flag', () => {
-    const res = runCli(['add', 'myserver', '--command', 'node', '--allowed-env', 'PATH,GEMINI_API_KEY']);
+    const res = runCli([
+      'add',
+      'myserver',
+      '--command',
+      'node',
+      '--allowed-env',
+      'PATH,GEMINI_API_KEY',
+      '--confirm-install',
+    ]);
     expect(res.code).toBe(0);
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));

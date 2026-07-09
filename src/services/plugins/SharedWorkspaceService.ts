@@ -42,9 +42,15 @@ export class SharedWorkspaceService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
         fs.writeFileSync(path.join(this.storageDir, 'workspaces.json'), JSON.stringify(Array.from(this.workspaces.values()), null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[DeferredFlush] deferred flush failed', error);
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {

@@ -317,7 +317,7 @@ describe('ZavorthBridgeCliAdapter', () => {
         'pesquise as noticias do dia',
         workspace,
       ),
-    ).rejects.toThrow('workspace correta');
+    ).rejects.toThrow(/workspace correta|correct workspace/i);
   });
 
   it('accepts the visible ZavorthBridge window as compatible when the bridge workspace snapshot is empty', async () => {

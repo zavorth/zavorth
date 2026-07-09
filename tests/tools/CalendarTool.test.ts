@@ -151,7 +151,7 @@ describe('CalendarTool', () => {
 
   it('returns error when deleting non-existent event', async () => {
     const result = await tool.execute({ action: 'delete', title: 'NonExistent' });
-    expect(result).toContain('Erro');
-    expect(result).toContain('nao encontrado');
+    expect(result).toContain('Error');
+    expect(result).toContain('not found');
   });
 });

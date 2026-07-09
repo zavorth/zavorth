@@ -1,42 +1,42 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-27T23:02:51.889Z",
+  "updatedAt": "2026-07-09T22:20:07.795Z",
   "snapshot": {
     "controls": [
       {
         "id": "security/AgentSecurityPolicyEngine",
         "relativePath": "src/security/AgentSecurityPolicyEngine.ts",
-        "sha256": "5f4c209a89a3c14eefd7ee4965512919a39a9367d5ca81ad23a3eea6f988a9ee",
+        "sha256": "b38e8d11ff70c106916c37af9ecf1986f7a03cbf2f03feb9c425d32fad1fa185",
         "present": true
       },
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "4d8093b2be4bc5780a847f604c1b3f192149f98ef643a3e4f6f74ecb34be394b",
+        "sha256": "a9deddb2ed0fb7895c93205d4db85414715d0d0ae652331e4d0be8696b4d9b03",
         "present": true
       },
       {
         "id": "security/ApprovalSigningKeyService",
         "relativePath": "src/security/ApprovalSigningKeyService.ts",
-        "sha256": "220932395652b027bd4cac72f1a197d1c0d9e79378c8b8b468f7f02f0e655a9d",
+        "sha256": "19de8b5f658b2cb6eb293bc59ed82b20dcdd0507ba5bc1d4187f7321e3b3d6ac",
         "present": true
       },
       {
         "id": "security/ContinuousSecurityMonitor",
         "relativePath": "src/security/ContinuousSecurityMonitor.ts",
-        "sha256": "24af693a5114a0d77daab1f0e182202f869338ce0d702769058c330e0b371dbd",
+        "sha256": "6009f68518b2990518de9b94ea3f86d15cc0ec96deda0613d22d7284b09f4ab4",
         "present": true
       },
       {
         "id": "security/LlmEgressGuard",
         "relativePath": "src/security/LlmEgressGuard.ts",
-        "sha256": "33ea48d3ddc39b18676f933305e8b3f0afc196590f307e75b0cdc6e9500669f9",
+        "sha256": "9eb251bcd099be68fe6f8b166b4b23cede34bccd337d761ffede4c1797e2fa37",
         "present": true
       },
       {
         "id": "security/SafeFetchService",
         "relativePath": "src/security/SafeFetchService.ts",
-        "sha256": "9a5c5647432212e2fc2b9f0ea523b800f7c3dca490a21ecb7581c43cde9567dc",
+        "sha256": "85335db16efe908df6a4799deee2fa94d62e61c5ebea24a069ea54d1d33393e8",
         "present": true
       },
       {
@@ -48,7 +48,7 @@
       {
         "id": "security/SecurityOperationalPreset",
         "relativePath": "src/security/SecurityOperationalPreset.ts",
-        "sha256": "fddd588e22e687b8fd966192785d6a723f6d2cc8b904bc0f4a2dc1d75fac2a28",
+        "sha256": "a738fda78bbdcebe72e7c4d6e7e6443afc0bd4dd2c5aedb934fa53c995a89f35",
         "present": true
       },
       {
@@ -66,7 +66,7 @@
       {
         "id": "security/ToolApprovalEnvelope",
         "relativePath": "src/security/ToolApprovalEnvelope.ts",
-        "sha256": "04ef427b6d315bec37435804ad509a4b018a31f08b4bcfc065e2cd6d69ba8110",
+        "sha256": "737ad77e96b60578f1dce788a31edf5f89bf27078b5a3b9b4ca39277ee592dc5",
         "present": true
       },
       {
@@ -152,19 +152,19 @@
       {
         "id": "tests/security/SecurityOperationalPreset.test.ts",
         "relativePath": "tests/security/SecurityOperationalPreset.test.ts",
-        "sha256": "002ee9ec6861efda934f6a0c520d9b1322ca78fe3bddd66031e10d174bf2097a",
+        "sha256": "ed2f85ba305e9fbac125d2b2bc7bfb99d976fd5ca0b0327791091c78a14b1e4b",
         "present": true
       },
       {
         "id": "tests/security/OperationalSecurityDoctor.test.ts",
         "relativePath": "tests/security/OperationalSecurityDoctor.test.ts",
-        "sha256": "8844e68334e220b9373485c5a37889813009edc09f0f7ee174147a7866f56952",
+        "sha256": "9433ff4df71a6b5674d6ca93a145bca7b152091d0a2123b6c052e26047a197e1",
         "present": true
       },
       {
         "id": "tests/security/ContinuousSecurityMonitor.test.ts",
         "relativePath": "tests/security/ContinuousSecurityMonitor.test.ts",
-        "sha256": "0fe13df0a46bb4812b5831e277891f33c2fb76b65251c5d75ec54bcd2ce4a415",
+        "sha256": "9f209a2bf985b1df47aaf2ab6396c2105eb2621a52eedd212a1b89b9d8deb33e",
         "present": true
       },
       {
@@ -216,7 +216,7 @@
       {
         "id": "scripts/command-catalog.json",
         "relativePath": "scripts/command-catalog.json",
-        "sha256": "dfcb94330dd4e2544db4fc815c46787e6a29a80f10a6820756f35db6124d3a6b",
+        "sha256": "af6273213de116d0fced456b95645b567ba267a20fc6a730db38a4b27df1a654",
         "present": true
       }
     ],

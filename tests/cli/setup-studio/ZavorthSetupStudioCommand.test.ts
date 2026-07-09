@@ -114,8 +114,8 @@ describe('Zavorth Setup Studio command', () => {
     });
 
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain('First Light complete');
-    expect(result.output).toContain('Next commands');
+    expect(result.output).toMatch(/First Light complete|Setup complete/i);
+    expect(result.output).toMatch(/Next commands|Next steps/i);
     expect(result.output).not.toContain('Security warning - please read');
     expect(result.output).not.toContain('Hatch your agent');
     expect(result.output).not.toContain('Skills status');

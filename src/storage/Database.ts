@@ -554,6 +554,8 @@ export class Database {
         expires_at INTEGER
       )
     `);
+    // Legacy DBs created the table without TTL support; CREATE IF NOT EXISTS will not alter them.
+    this.ensureColumn('git_file_locks', 'expires_at', 'INTEGER');
   }
 
   private ensureColumn(tableName: string, columnName: string, definition: string): void {

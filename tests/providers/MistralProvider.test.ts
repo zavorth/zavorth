@@ -82,7 +82,7 @@ describe('MistralProvider', () => {
     const provider = new MistralProvider();
     const response = await provider.chat([{ role: 'user', content: 'Hi' }]);
 
-    expect(response.content).toBe('Sem resposta do modelo.');
+    expect(response.content).toBe('No model response.');
     expect(response.finishReason).toBe('error');
   });
 

@@ -786,7 +786,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(workflowController.handleWorkflow).toHaveBeenCalledWith(
-      ctx,
+      expect.objectContaining({
+        userId: 'telegram-user',
+        chatId: 'telegram:chat-1',
+        platform: 'telegram',
+      }),
       'research channel mesh',
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('workflow research'));
@@ -844,7 +848,11 @@ describe('SharedSurfaceCommandService', () => {
     expect(handled).toBe(true);
     expect(taskManager.getRecentTasks).toHaveBeenCalledWith(50, 'telegram-user');
     expect(workflowController.handleWorkflow).toHaveBeenCalledWith(
-      ctx,
+      expect.objectContaining({
+        userId: 'telegram-user',
+        chatId: 'telegram:chat-1',
+        platform: 'telegram',
+      }),
       'resume wf-onboarding-2',
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('retomar o workflow mais relacionado a onboarding discord'));
@@ -897,7 +905,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(workflowController.handleWorkflow).toHaveBeenCalledWith(
-      ctx,
+      expect.objectContaining({
+        userId: 'telegram-user',
+        chatId: 'telegram:chat-1',
+        platform: 'telegram',
+      }),
       'resume wf-onboarding-2 stage-review',
     );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('retomar a tarefa mais relacionada a onboarding discord'));
@@ -927,7 +939,11 @@ describe('SharedSurfaceCommandService', () => {
 
     expect(handled).toBe(true);
     expect(workflowController.handleWorkflow).toHaveBeenCalledWith(
-      ctx,
+      expect.objectContaining({
+        userId: 'telegram-user',
+        chatId: 'telegram:chat-1',
+        platform: 'telegram',
+      }),
       'review fechar onboarding do discord',
     );
   });

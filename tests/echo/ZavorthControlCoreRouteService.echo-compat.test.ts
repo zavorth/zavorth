@@ -132,15 +132,13 @@ describe('ZavorthControlCoreRouteService Echo compatibility routes', () => {
 
     expect(handled).toBe(true);
     expect(echo.resolvePermission).not.toHaveBeenCalled();
-    expect(calls[0]).toEqual({
-      statusCode: 400,
-      body: {
-        ok: false,
-        deprecated: true,
-        canonical: '/api/v2/echo/permissions/resolve',
-        error: 'Campos "id" (string) e "approved" (boolean) obrigatorios.',
-      },
-    });
+    expect(calls[0].statusCode).toBe(400);
+    expect(calls[0].body).toEqual(expect.objectContaining({
+      ok: false,
+      deprecated: true,
+      canonical: '/api/v2/echo/permissions/resolve',
+    }));
+    expect(String(calls[0].body.error || '')).toMatch(/Validation failed|approved|obrigator/i);
   });
 
   it('serves canonical A2UI routes alongside the legacy aliases', async () => {

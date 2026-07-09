@@ -69,11 +69,21 @@ export class KanbanDispatcherService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        const dir = path.dirname(this.dbPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
         fs.writeFileSync(this.dbPath, JSON.stringify(Object.fromEntries(this.boards), null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[Kanban Dispatcher] deferred flush failed', error);
       }
     }, 1000);
+    if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
+      (this.flushTimer as NodeJS.Timeout).unref();
+    }
   }
 
   public createBoard(name: string, columns?: string[]): string {

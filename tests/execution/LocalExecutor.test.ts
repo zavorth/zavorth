@@ -70,7 +70,7 @@ describe('LocalExecutor', () => {
     expect(result.commands_executed).toEqual(['git status']);
     expect(result.actions_executed).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('[SANDBOX-FALLBACK] Docker indisponivel'),
+        expect.stringContaining('[SANDBOX-FALLBACK] Docker unavailable'),
       ]),
     );
     expect(result.metadata?.sandbox_fallback).toEqual(
@@ -103,7 +103,7 @@ describe('LocalExecutor', () => {
 
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('SANDBOX_REQUIRED_DOCKER_UNAVAILABLE');
-    expect(result.error_message).toContain('Docker sandbox requerido');
+    expect(result.error_message).toContain('Docker sandbox is required');
     expect(shellRunner).not.toHaveBeenCalled();
   });
 

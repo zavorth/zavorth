@@ -1,6 +1,6 @@
 import readline from 'readline/promises';
 import { runZavorthMockGatewayCommand } from '../../src/cli/ZavorthMockGatewayCommand.js';
-import { SlackGateway } from '../../src/gateways/SlackGateway.stub.js';
+import { SlackGateway } from '../../src/gateways/channels/slack/SlackGateway.stub.js';
 
 jest.mock('../../src/cli/ZavorthCliCommandHelpers.js', () => ({
   buildCliRuntimeFromOverrides: jest.fn().mockResolvedValue({

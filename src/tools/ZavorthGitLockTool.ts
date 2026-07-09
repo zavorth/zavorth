@@ -45,7 +45,24 @@ export class ZavorthGitLockTool extends BaseTool {
         expires_at INTEGER
       )
     `);
+    // Defensive migration for processes that opened the DB before expires_at existed.
+    ZavorthGitLockTool.ensureExpiresAtColumn(db);
     return db;
+  }
+
+  private static ensureExpiresAtColumn(db: Database): void {
+    const columns = db.all<{ name: string }>('PRAGMA table_info(git_file_locks)');
+    if (columns.some((entry) => String(entry?.name || '').trim() === 'expires_at')) {
+      return;
+    }
+    try {
+      db.run('ALTER TABLE git_file_locks ADD COLUMN expires_at INTEGER');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+      if (!message.includes('duplicate column name')) {
+        throw error;
+      }
+    }
   }
 
   private static getCanonicalPath(filepath: string): string {

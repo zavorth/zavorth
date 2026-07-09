@@ -53,10 +53,16 @@ export class VersionControlService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
         const data = Array.from(this.versions.entries());
         fs.writeFileSync(path.join(this.storageDir, 'versions.json'), JSON.stringify(data, null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[Version Control] deferred flush failed', error);
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {

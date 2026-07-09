@@ -82,6 +82,7 @@ export class KanbanSQLiteDispatcherService {
   }
 
   private initSchema(): void {
+    // Create base tables first. Existing installations may have older column sets.
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS boards (
         id TEXT PRIMARY KEY,
@@ -129,7 +130,16 @@ export class KanbanSQLiteDispatcherService {
         reason TEXT,
         timestamp TEXT NOT NULL DEFAULT (datetime('now'))
       );
+    `);
 
+    // Migrate legacy cards tables that predate subagent_id BEFORE index creation.
+    try {
+      this.db.exec('ALTER TABLE cards ADD COLUMN subagent_id TEXT;');
+    } catch (error: unknown) {
+      // Ignore when the column already exists.
+    }
+
+    this.db.exec(`
       CREATE INDEX IF NOT EXISTS idx_cards_board ON cards(board_id);
       CREATE INDEX IF NOT EXISTS idx_cards_column ON cards(board_id, column_name);
       CREATE INDEX IF NOT EXISTS idx_cards_priority ON cards(board_id, priority);
@@ -140,13 +150,6 @@ export class KanbanSQLiteDispatcherService {
       CREATE INDEX IF NOT EXISTS idx_dispatch_card ON dispatch_log(card_id);
       CREATE INDEX IF NOT EXISTS idx_comments_card ON card_comments(card_id);
     `);
-
-    // Migração de coluna dinâmica se a tabela cards já existia sem subagent_id
-    try {
-      this.db.exec('ALTER TABLE cards ADD COLUMN subagent_id TEXT;');
-    } catch (error: unknown) {
-      // Ignora se a coluna já existia
-    }
   }
 
   public createBoard(name: string, columns?: string[]): string {

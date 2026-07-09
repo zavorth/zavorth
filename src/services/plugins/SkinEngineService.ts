@@ -279,10 +279,20 @@ export class SkinEngineService {
   }
 
   private getActiveSkinDefinition(): SkinDefinition {
-    return this.builtinSkins.get(this.activeSkinId) || this.userSkins.get(this.activeSkinId) || this.builtinSkins.get('default')!;
+    return (
+      this.builtinSkins.get(this.activeSkinId)
+      || this.userSkins.get(this.activeSkinId)
+      || this.builtinSkins.get('default')!
+    );
   }
 
-  public getActiveSkin(): string {
+  /** Returns the resolved active skin definition (product default: `default`). */
+  public getActiveSkin(): SkinDefinition {
+    return this.getActiveSkinDefinition();
+  }
+
+  /** Human-readable summary of the active skin. */
+  public describeActiveSkin(): string {
     const skin = this.getActiveSkinDefinition();
     return `Active skin: ${skin.name} (${skin.id}) - ${skin.description}`;
   }

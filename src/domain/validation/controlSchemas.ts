@@ -115,9 +115,24 @@ export const revokeHostCommandSchema = z.object({
   operationId: z.string().min(1),
 });
 
+/** Coerce legacy form/query string booleans ("true"/"false") for resolve routes. */
+const coerceBoolean = z.preprocess((value) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true' || normalized === '1' || normalized === 'yes') return true;
+    if (normalized === 'false' || normalized === '0' || normalized === 'no') return false;
+  }
+  if (typeof value === 'number') {
+    if (value === 1) return true;
+    if (value === 0) return false;
+  }
+  return value;
+}, z.boolean());
+
 export const resolvePermissionSchema = z.object({
   id: z.string().min(1),
-  approved: z.boolean(),
+  approved: coerceBoolean,
   sessionId: z.string().optional(),
   surface: z.string().optional(),
   requestedBy: z.string().optional(),

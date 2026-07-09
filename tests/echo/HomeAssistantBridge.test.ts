@@ -99,7 +99,7 @@ describe('HomeAssistantBridge', () => {
       mode: 'event-bridge',
       status: 'disabled',
       connected: false,
-      lastError: 'HOME_ASSISTANT_TOKEN nao configurado.',
+      lastError: 'HOME_ASSISTANT_TOKEN is not configured.',
     }));
   });
 
@@ -114,7 +114,7 @@ describe('HomeAssistantBridge', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/rede privada/);
+    expect(result.error).toMatch(/private.*network|rede privada/i);
     expect(fetchSpy).not.toHaveBeenCalled();
     expect(result.data).toEqual(expect.objectContaining({
       lifecycle: expect.objectContaining({

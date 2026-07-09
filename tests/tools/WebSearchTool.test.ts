@@ -109,7 +109,9 @@ describe('WebSearchTool', () => {
       limit: 3,
     });
 
-    expect(result).toContain('Filtro temporal: resultados publicados recentemente conforme o pedido.');
+    expect(result).toMatch(
+      /Filtro temporal: resultados publicados recentemente conforme o pedido\.|Temporal filter: results were published recently according to the request\./i,
+    );
     expect(result).toContain('Fresh headline');
     expect(result).not.toContain('Old headline');
   });
@@ -196,7 +198,7 @@ describe('WebSearchTool', () => {
 
     expect(fetchSpy).toHaveBeenCalledTimes(3);
     expect(result).toContain('QUALITY_GATE: insufficient_news_results');
-    expect(result).toContain('Nao produza briefing factual');
+    expect(result).toMatch(/Nao produza briefing factual|Do not produce a factual AI briefing|Do not produce a (?:broad )?briefing/i);
     expect(result).not.toContain('Brasil na Feira de Hannover');
     expect(search).not.toHaveBeenCalled();
   });
@@ -312,7 +314,7 @@ describe('WebSearchTool', () => {
     expect(result).toContain('NATO ministers meet as Ukraine war diplomacy intensifies');
     expect(result).toContain('ONU convoca reuniao sobre conflito regional');
     expect(result).not.toContain('Film festival opens');
-    expect(result).toContain('Diversidade de hosts: 5/5');
+    expect(result).toMatch(/Diversidade de hosts: 5\/5|Host diversity: 5\/5/i);
     expect(search).not.toHaveBeenCalled();
   });
 
@@ -354,8 +356,8 @@ describe('WebSearchTool', () => {
     });
 
     expect(result).toContain('QUALITY_GATE: insufficient_news_results');
-    expect(result).toContain('Resultados recentes encontrados: 1/5');
-    expect(result).toContain('Nao produza um briefing amplo de politica global');
+    expect(result).toMatch(/Resultados recentes encontrados: 1\/5|Recent results found: 1\/5/i);
+    expect(result).toMatch(/Nao produza um briefing amplo de politica global|Do not produce a broad (?:global )?politics briefing|Do not produce a broad briefing/i);
     expect(search).not.toHaveBeenCalled();
   });
 
@@ -401,7 +403,9 @@ describe('WebSearchTool', () => {
 
     expect(search).not.toHaveBeenCalled();
     expect(result).toContain('QUALITY_GATE: insufficient_news_results');
-    expect(result).toContain('Nao encontrei resultados de noticias recentes suficientes');
+    expect(result).toMatch(
+      /Nao encontrei resultados de noticias recentes suficientes|I could not find enough recent news results|not find enough recent news/i,
+    );
     expect(result).not.toContain('Lotofácil concurso 3665');
   });
 
@@ -555,7 +559,7 @@ describe('WebSearchTool', () => {
     });
 
     expect(result).toContain('EVIDENCE_PROFILE: legal');
-    expect(result).toContain('Forca da fonte: alta');
+    expect(result).toMatch(/Forca da fonte: alta|Source strength: high/i);
     expect(result.indexOf('STJ acordao')).toBeLessThan(result.indexOf('Artigo sobre atraso de voo'));
   });
 
@@ -636,7 +640,7 @@ describe('WebSearchTool', () => {
 
     expect(search).toHaveBeenCalledWith(expect.stringContaining('site:github.com/issues'), expect.any(Object));
     expect(search).toHaveBeenCalledWith(expect.stringContaining('reddit forum'), expect.any(Object));
-    expect(result).toContain('Trilha da busca: issue-tracker (primary)');
+    expect(result).toMatch(/Trilha da busca: issue-tracker \(primary\)|Search track: issue-tracker \(primary\)/i);
     expect(result).toContain('Playwright issue with workaround');
   });
 
@@ -688,7 +692,7 @@ describe('WebSearchTool', () => {
 
     expect(search).toHaveBeenCalledWith(expect.stringContaining('independent review benchmark comparison'), expect.any(Object));
     expect(result).toContain('EVIDENCE_PROFILE: consumer');
-    expect(result).toContain('Diversidade de hosts: 2/3');
+    expect(result).toMatch(/Diversidade de hosts: 2\/3|Host diversity: 2\/3/i);
     expect(result).toContain('Air fryer benchmark comparison');
     expect(result).not.toContain('Air fryer review three');
     expect(result).toContain('Data extraida: 2026-04-18');

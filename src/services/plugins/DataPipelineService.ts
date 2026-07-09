@@ -50,13 +50,48 @@ export class DataPipelineService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
-        fs.writeFileSync(path.join(this.storageDir, 'pipelines.json'), JSON.stringify(Array.from(this.pipelines.values()), null, 2), 'utf-8');
+      if (!this.dirty) {
+        return;
+      }
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
+        fs.writeFileSync(
+          path.join(this.storageDir, 'pipelines.json'),
+          JSON.stringify(Array.from(this.pipelines.values()), null, 2),
+          'utf-8',
+        );
+      } catch (error: unknown) {
+        // Temp test roots may be deleted before the deferred flush fires.
+        logger.warn('[Data Pipeline] deferred flush failed', error);
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {
       (this.flushTimer as NodeJS.Timeout).unref();
+    }
+  }
+
+  public dispose(): void {
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
+    if (this.dirty) {
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          return;
+        }
+        fs.writeFileSync(
+          path.join(this.storageDir, 'pipelines.json'),
+          JSON.stringify(Array.from(this.pipelines.values()), null, 2),
+          'utf-8',
+        );
+      } catch (error: unknown) {
+        logger.warn('[Data Pipeline] dispose flush failed', error);
+      }
     }
   }
 

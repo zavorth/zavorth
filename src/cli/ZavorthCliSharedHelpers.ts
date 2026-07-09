@@ -150,10 +150,10 @@ export function sha256(value: Buffer): string {
 }
 
 export function runProcess(command: string, args: string[], cwd: string, timeoutMs: number): Promise<{ exitCode: number; output: string; durationMs: number; timedOut: boolean }> {
-  const { execFile } = require('child_process');
+  const { exec, execFile } = require('child_process');
   return new Promise((resolve) => {
     const start = Date.now();
-    const child = execFile(command, args, { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 }, (error: any, stdout: string, stderr: string) => {
+    const finish = (error: any, stdout: string, stderr: string) => {
       const durationMs = Date.now() - start;
       const timedOut = error && error.killed && error.signal === 'SIGTERM';
       const output = `${stdout || ''}${stderr || ''}`;
@@ -163,7 +163,17 @@ export function runProcess(command: string, args: string[], cwd: string, timeout
         durationMs,
         timedOut: !!timedOut,
       });
-    });
+    };
+
+    // Full shell command strings (e.g. `node -e "..."`) must use exec; execFile treats the
+    // entire string as an executable path and fails with ENOENT on Windows.
+    const needsShell = !Array.isArray(args) || args.length === 0;
+    if (needsShell) {
+      exec(String(command || ''), { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024, windowsHide: true }, finish);
+      return;
+    }
+
+    execFile(command, args, { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024, windowsHide: true }, finish);
   });
 }
 

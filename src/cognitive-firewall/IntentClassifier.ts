@@ -59,8 +59,8 @@ const EXECUTION_CONCRETE_PATTERNS = /\b((run|execute|exec)\s+(the\s+)?(tests?|co
 const EXECUTION_CONVERSATION_NEGATIVE_PATTERNS = /\b(run\s+this\s+(reasoning|idea|thought)|execute\s+this\s+(reasoning|idea|thought))\b/i;
 
 // Web search / information
-const WEB_SEARCH_PATTERNS = /\b(search|look\s+up|find|research|news|weather|price|score|result|internet|online|site|url|links?|sources?|references?|google|browse|fetch|scrape|crawl)\b/i;
-const TEMPORAL_PATTERNS = /\b(now|today|current|latest|recent|real.time|breaking|live|update)\b/i;
+const WEB_SEARCH_PATTERNS = /\b(search|look\s+up|find|research|news|weather|price|score|result|internet|online|site|url|links?|sources?|references?|google|browse|fetch|scrape|crawl|pesquis|busc|fontes?|noticias?|notícias?)\b/i;
+const TEMPORAL_PATTERNS = /\b(now|today|current|latest|recent|real.time|breaking|live|update|agora|hoje|atual|ultim[oa]s?|últim[oa]s?|recente)\b/i;
 
 // Configuration
 const CONFIG_PATTERNS = /\b(model|provider|config|configure|settings|switch|llm|gemini|openai|gpt|claude|profile|preference|option)\b/i;
@@ -75,7 +75,7 @@ const MEMORY_CONVERSATION_NEGATIVE_PATTERNS = /\b(remember\s+(that\s+time|when\s
 const DESKTOP_PATTERNS = /\b(desktop|screen|mouse|click|window|automate|automation|browser|tab|scroll|type|keyboard|shortcut|hotkey)\b/i;
 
 // Research
-const RESEARCH_PATTERNS = /\b(deep\s+research|detailed\s+analysis|investigate|in-depth|studies|articles|papers?|doi|pubmed|arxiv|scientific|academic|literature|review|jurisprudence|case\s+law|clinical\s+trials?|report|analysis|thesis|survey|meta.analysis)\b/i;
+const RESEARCH_PATTERNS = /\b(deep\s+research|detailed\s+analysis|investigate|in-depth|studies|articles|papers?|doi|pubmed|arxiv|scientific|academic|literature|review|jurisprudence|case\s+law|clinical\s+trials?|report|analysis|thesis|survey|meta.analysis|relat[oó]rio|pesquisa|analise|análise|artigos?|tend[eê]ncias?|montar\s+(um\s+)?relat[oó]rio)\b/i;
 
 type ClassificationDraft = Omit<IntentClassification, 'isHardDecision' | 'downgradedBy' | 'secondPass'> & {
   downgradedBy?: string[];

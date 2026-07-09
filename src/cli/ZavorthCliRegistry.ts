@@ -529,7 +529,8 @@ async function executeZavorthCliCommandInner(params: {
   }
 
   if (commandName === 'setup' || commandName === 'init') {
-    const { runZavorthSetupStudioCommand } = await import('./setup-studio/ZavorthSetupStudioCommand.js');
+    // Static import path: dynamic import() fails under Jest without --experimental-vm-modules.
+    const { runZavorthSetupStudioCommand } = require('./setup-studio/ZavorthSetupStudioCommand.js') as typeof import('./setup-studio/ZavorthSetupStudioCommand.js');
     const result = await runZavorthSetupStudioCommand({
       projectRoot: process.cwd(),
       args: args.trim() ? args.trim().split(/\s+/) : [],

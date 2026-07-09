@@ -55,10 +55,16 @@ export class RoleBasedAccessService {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
       this.flushTimer = null;
-      if (this.dirty) {
-        this.dirty = false;
+      if (!this.dirty) return;
+      this.dirty = false;
+      try {
+        if (!fs.existsSync(this.storageDir)) {
+          fs.mkdirSync(this.storageDir, { recursive: true });
+        }
         fs.writeFileSync(path.join(this.storageDir, 'roles.json'), JSON.stringify(Array.from(this.roles.values()), null, 2), 'utf-8');
         fs.writeFileSync(path.join(this.storageDir, 'policies.json'), JSON.stringify(Array.from(this.policies.values()), null, 2), 'utf-8');
+      } catch (error: unknown) {
+        logger.warn('[DeferredFlush] deferred flush failed', error);
       }
     }, 2000);
     if (this.flushTimer && typeof this.flushTimer === 'object' && 'unref' in this.flushTimer) {

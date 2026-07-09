@@ -117,8 +117,8 @@ describe('AiStudioExecutor', () => {
     const result = await executor.execute(buildRequest() as any);
 
     expect(result.success).toBe(true);
-    expect(result.stdout).toContain('Google AI Studio concluiu a tarefa.');
-    expect(result.stdout).toContain('Modelo: gemini-2.5-pro');
+    expect(result.stdout).toContain('Google AI Studio completed the task.');
+    expect(result.stdout).toContain('Model: gemini-2.5-pro');
     expect(result.stdout).toContain('Resumo final do Zavorth.');
     expect(result.stdout).toContain('Zavorth Docs');
     expect(result.metadata).toEqual(
@@ -234,6 +234,6 @@ describe('AiStudioExecutor', () => {
         supported_tools: ['google_search', 'code_execution'],
       }),
     );
-    expect(result.error_message).toContain('suporta apenas tools nativas');
+    expect(result.error_message).toContain('supports only native Gemini API tools');
   });
 });
