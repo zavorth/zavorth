@@ -6,6 +6,7 @@ import {
   type ZavorthMnemosMemoryUxSurface,
 } from '../contracts/ZavorthMnemosMemoryUxContract.js';
 import { ZavorthMnemosLintService } from './ZavorthMnemosLintService.js';
+
 import { ZavorthMnemosProceduralMemoryService } from './ZavorthMnemosProceduralMemoryService.js';
 
 type MemoryUxRuntime = {

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { ZavorthBridgeAdapter } from '../../src/agents/ZavorthBridgeAdapter';
 
 jest.mock('../../src/agents/ZavorthBridgeAdapter', () => ({
   ZavorthBridgeAdapter: jest.fn().mockImplementation(() => ({
@@ -14,7 +15,7 @@ jest.mock('../../src/agents/ZavorthBridgeAdapter', () => ({
   })),
 }));
 
-import { ZavorthBridgeAdapter } from '../../src/agents/ZavorthBridgeAdapter';
+
 import { MailboxProtocol } from '../../src/orchestrator/MailboxProtocol';
 import { MailboxWatcher } from '../../src/orchestrator/MailboxWatcher';
 import { createTestLogRepo } from '../helpers/testLogRepoUtils.js';

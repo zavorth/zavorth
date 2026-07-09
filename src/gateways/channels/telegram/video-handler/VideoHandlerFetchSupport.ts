@@ -14,7 +14,9 @@ import {
   type DownloadedFile,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFormatSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFormatSupport.js";
+
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 
 export class VideoHandlerFetchSupport {
   public static async fetchThumbnailInlineData(
@@ -202,7 +204,8 @@ export class VideoHandlerFetchSupport {
     try {
       return JSON.parse(sanitized);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const preview = sanitized.slice(0, 180).replace(/\s+/g, " ");
       throw new Error(
         `Falha ao interpretar JSON de ${sourceLabel}: ${message}. Preview: ${preview}`,

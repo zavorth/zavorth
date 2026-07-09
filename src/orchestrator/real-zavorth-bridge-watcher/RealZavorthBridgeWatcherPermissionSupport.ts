@@ -14,6 +14,8 @@ import type {
 RealZavorthBridgeWatcherDeps,
   ScopedCompanionUiTarget,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 const PERMISSION_NOTIFICATION_COOLDOWN_MS = 60_000;
 
 type RealZavorthBridgeWatcherPermissionSupportOptions = {
@@ -316,9 +318,10 @@ export class RealZavorthBridgeWatcherPermissionSupport {
           };
           this.deps.taskManager?.saveTask(task);
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           task.metadata = {
             ...(task.metadata || {}),
-            pendingPermissionNotificationError: error.message,
+            pendingPermissionNotificationError: err.message,
           };
           this.deps.taskManager?.saveTask(task);
         }
@@ -448,17 +451,18 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         };
         this.deps.taskManager?.saveTask(task);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         task.metadata = {
           ...(task.metadata || {}),
           pendingPermissionId: permission.permission_id,
           pendingPermissionNotifiedAt: null,
-          pendingPermissionNotificationError: error.message,
+          pendingPermissionNotificationError: err.message,
         };
         this.deps.taskManager?.saveTask(task);
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Failed to notify ZavorthBridge permission request: ${error.message}`,
+          `Failed to notify ZavorthBridge permission request: ${err.message}`,
           {
             taskId: session.taskId,
             permissionId: permission.permission_id,
@@ -556,10 +560,11 @@ export class RealZavorthBridgeWatcherPermissionSupport {
         await this.bridgeManager.saveSession(session);
         return;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Failed to send inline permission request to ${session.chatId}: ${error.message}`,
+          `Failed to send inline permission request to ${session.chatId}: ${err.message}`,
           {
             taskId: session.taskId,
             permissionId: permission.permission_id,

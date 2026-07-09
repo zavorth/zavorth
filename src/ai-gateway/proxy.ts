@@ -161,7 +161,7 @@ export async function proxy(request: any) {
             const err = asErrorLike(refreshErr);
             const error = err;
             // Refresh failed — continue with existing valid token
-            console.error("[Middleware] JWT auto-refresh failed:", refreshErr.message);
+            console.error("[Middleware] JWT auto-refresh failed:", err.message);
           }
         }
 

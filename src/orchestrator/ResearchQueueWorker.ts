@@ -3,6 +3,8 @@ import { Task } from '../contracts/TaskContract.js';
 import { DeepSearchService } from '../services/DeepSearchService.js';
 import { SmartOutputService } from '../services/SmartOutputService.js';
 import { TaskManager } from './TaskManager.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: { parse_mode?: 'Markdown' | 'HTML' }): Promise<unknown>;
 };
@@ -62,7 +64,8 @@ export class ResearchQueueWorker {
 
       await this.execute(task);
     } catch (error: unknown) {
-      this.deps.log('error', 'ResearchQueueWorker', error.message || 'Research worker failed.');
+      const err = asErrorLike(error);
+      this.deps.log('error', 'ResearchQueueWorker', err.message || 'Research worker failed.');
     } finally {
       this.running = false;
     }
@@ -96,7 +99,8 @@ export class ResearchQueueWorker {
       this.deps.taskManager.advanceState(task, 'delivery_pending');
       await this.deliver(task, false);
     } catch (error: unknown) {
-      task.error_summary = error.message || 'Failed to execute queued research.';
+      const err = asErrorLike(error);
+      task.error_summary = err.message || 'Failed to execute queued research.';
       task.metadata = {
         ...(task.metadata || {}),
         queue_lock: null,
@@ -142,12 +146,13 @@ export class ResearchQueueWorker {
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       task.metadata = {
         ...(task.metadata || {}),
         async_queue: {
           ...(task.metadata?.async_queue || {}),
           delivery_retries: Number(task.metadata?.async_queue?.delivery_retries || 0) + 1,
-          last_delivery_error: error.message || 'Failed to deliver response.',
+          last_delivery_error: err.message || 'Failed to deliver response.',
         },
       };
       this.deps.taskManager.saveTask(task);
@@ -156,7 +161,7 @@ export class ResearchQueueWorker {
       }
       this.deps.log('warn', 'ResearchQueueWorker', 'Delivery pending due to Telegram failure.', {
         taskId: task.task_id,
-        error: error.message || 'unknown',
+        error: err.message || 'unknown',
       });
     }
   }

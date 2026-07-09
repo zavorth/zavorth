@@ -1,11 +1,11 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { TerminalSidecarSnapshot } from './TerminalSidecarService.js';
 import type { AIGatewaySidecarSnapshot } from './AIGatewaySidecarService.js';
 import type { AIGatewayProxyStatus } from './AIGatewayProxyService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 export type SidecarStatusCard = {
   id: 'AIGateway' | 'zavorth-terminal' | 'runtime-shell-sidecar' | 'browser-sidecar';
   name: string;
@@ -277,6 +277,6 @@ export class SidecarStatusService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: unknown) {logger.warn('[Sidecar Status] filesystem check failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Sidecar Status] filesystem check failed', error); return asErrorLike(error).code !== 'ESRCH'; }
   }
 }

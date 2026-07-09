@@ -1,6 +1,8 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface PipelineStep {
   id: string;
@@ -98,8 +100,9 @@ export class DataPipelineService {
         step.status = 'completed';
         step.result = currentData;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         step.status = 'failed';
-        step.error = error instanceof Error ? error.message : String(error);
+        step.error = error instanceof Error ? err.message : String(error);
         pipeline.status = 'failed';
         this.scheduleFlush();
         return `Pipeline failed at step "${step.type}": ${step.error}`;

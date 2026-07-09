@@ -1,12 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { MediaGenerationService } from '../../src/services/MediaGenerationService.js';
 
 import {
   AsyncMediaJobGenerationLiveAdapter,
   DirectImageGenerationLiveAdapter,
 } from '../../src/adapters/media/MediaGenerationLiveAdapters.js';
-import { MediaGenerationService } from '../../src/services/MediaGenerationService.js';
+
 import { MediaGenerationLivePlaneService } from '../../src/services/MediaGenerationLivePlaneService.js';
 
 const response = (payload: Record<string, unknown>, init: { status?: number } = {}) =>

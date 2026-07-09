@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { HostPowerModeService } from './HostPowerModeService';
 import { PtySessionApprovalService } from './PtySessionApprovalService';
 import { SecurityAuditLogger } from './SecurityAuditLogger';

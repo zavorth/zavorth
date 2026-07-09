@@ -6,6 +6,7 @@ import type {
   PreCanaryGoNoGoAlignmentStatus,
 } from '../contracts/PreCanaryGoNoGoAlignmentContract.js';
 import { ZAVORTH_PRE_CANARY_GO_NO_GO_ALIGNMENT_CONTRACT_VERSION } from '../contracts/PreCanaryGoNoGoAlignmentContract.js';
+
 import { ReleaseCandidateDistributionRehearsalService } from './ReleaseCandidateDistributionRehearsalService.js';
 
 type PreCanaryGoNoGoAlignmentRuntime = {

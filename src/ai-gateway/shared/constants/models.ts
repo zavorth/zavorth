@@ -1,3 +1,9 @@
+import {
+  AI_PROVIDERS,
+  isAnthropicCompatibleProvider,
+  isOpenAICompatibleProvider,
+} from "./providers";
+import { PROVIDER_MODELS as MODELS } from "@ZavorthGateway/open-sse/config/providerModels.ts";
 // Import directly from file to avoid pulling in server-side dependencies via index.js
 export {
   PROVIDER_MODELS,
@@ -10,12 +16,7 @@ export {
   getModelsByProviderId,
 } from "@ZavorthGateway/open-sse/config/providerModels.ts";
 
-import {
-  AI_PROVIDERS,
-  isAnthropicCompatibleProvider,
-  isOpenAICompatibleProvider,
-} from "./providers";
-import { PROVIDER_MODELS as MODELS } from "@ZavorthGateway/open-sse/config/providerModels.ts";
+
 
 // Providers that accept any model (passthrough)
 const PASSTHROUGH_PROVIDERS = new Set(

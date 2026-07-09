@@ -1,3 +1,4 @@
+
 /**
  * API: Webhooks
  * GET  — List all webhooks
@@ -10,6 +11,7 @@ import { getWebhooks, createWebhook } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 
 const createWebhookSchema = z.object({
   url: z.string().url("Invalid URL format").max(2000),
@@ -31,9 +33,10 @@ export async function GET(request: Request) {
     }));
     return NextResponse.json({ webhooks: masked });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] array operation failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to list webhooks" },
+      { error: err.message || "Failed to list webhooks" },
       { status: 500 }
     );
   }
@@ -60,9 +63,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ webhook }, { status: 201 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to create webhook" },
+      { error: err.message || "Failed to create webhook" },
       { status: 500 }
     );
   }

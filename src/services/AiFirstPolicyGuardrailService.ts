@@ -11,14 +11,6 @@ import {
   type AiFirstPolicyGuardrailSnapshot,
   type AiFirstPolicyGuardrailStatus,
 } from '../contracts/AiFirstPolicyGuardrailContract.js';
-import type { AiFirstShadowRouterSnapshot } from '../contracts/AiFirstShadowRouterContract.js';
-import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisionContract.js';
-import type {
-  UniversalAgentChannel,
-  UniversalToolExposure,
-  UniversalToolExposureProfile,
-  UniversalToolRiskLevel,
-} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
 import {
   UniversalPreviewModeService,
   type UniversalPreviewModeSnapshot,
@@ -34,6 +26,18 @@ import {
   redactSensitiveText,
 } from './AiFirstRoutePlanContractService.js';
 import { AiFirstShadowRouterService } from './AiFirstShadowRouterService.js';
+
+import type { AiFirstShadowRouterSnapshot } from '../contracts/AiFirstShadowRouterContract.js';
+import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisionContract.js';
+import type {
+  UniversalAgentChannel,
+  UniversalToolExposure,
+  UniversalToolExposureProfile,
+  UniversalToolRiskLevel,
+} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
+
+
+
 
 type AiFirstPolicyGuardrailRuntime = {
   now?: () => Date;

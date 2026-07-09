@@ -1,3 +1,4 @@
+
 /**
  * API: OpenAPI "Try It" Proxy
  * POST — forwards a request to a local endpoint and returns the result
@@ -8,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const tryRequestSchema = z.object({
   method: z
@@ -100,13 +102,14 @@ export async function POST(request: NextRequest) {
       contentType,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
         status: 0,
         statusText: "Network Error",
         headers: {},
-        body: { error: error.message || "Request failed" },
+        body: { error: err.message || "Request failed" },
         latencyMs: 0,
         contentType: "application/json",
       },

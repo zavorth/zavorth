@@ -1,6 +1,6 @@
+import { useTranslations } from "next-intl";
 "use client";
 
-import { useTranslations } from "next-intl";
 
 /**
  * Forgot Password Page — ZavorthControl controls.2

@@ -1,8 +1,10 @@
-﻿import path from 'path';
+
+import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface ApiResponse {
   success: boolean;
@@ -148,8 +150,9 @@ export class ZavorthApiClientTool extends BaseTool {
       const result = await this.executeRequest(parsedUrl, method, args);
       return this.formatResponse(result);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Api Client] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `HTTP request error: ${message}`;
   }
   }
@@ -306,6 +309,7 @@ export class ZavorthApiClientTool extends BaseTool {
         duration_ms: Date.now() - startTime,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Api Client] filesystem operation failed', error);
     return {
         success: false,
@@ -315,7 +319,7 @@ export class ZavorthApiClientTool extends BaseTool {
         body: '',
         body_json: null,
         duration_ms: Date.now() - startTime,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   } finally {
       if (tmpBodyFile) {

@@ -1,4 +1,5 @@
-﻿import { normalizeGatewayControlReplayMode } from './controlSocketProtocol.js';
+
+import { normalizeGatewayControlReplayMode } from './controlSocketProtocol.js';
 import type {
   GatewayConnectionState,
   GatewayControlReplayMode,
@@ -8,6 +9,7 @@ import type {
   GatewayControlSocketSendResponse,
 } from './controlSocketTypes.js';
 import type { ZavorthGatewayRuntimeSnapshot } from '../ZavorthGatewayRuntimeService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 function parseGatewayControlSocketRequest(rawMessage: string): GatewayControlSocketRequest {
   return JSON.parse(rawMessage);
@@ -371,7 +373,8 @@ export async function handleGatewayControlSocketMessage(input: {
       `Metodo ${method || '(vazio)'} ainda nao existe neste gateway.`,
     );
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Falha ao executar o metodo do gateway.';
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : 'Falha ao executar o metodo do gateway.';
     input.sendError(
       requestId,
       'request_failed',

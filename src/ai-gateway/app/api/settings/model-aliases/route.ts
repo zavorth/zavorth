@@ -9,12 +9,14 @@ import {
   removeCustomAlias,
 } from "@ZavorthGateway/open-sse/services/modelDeprecation.ts";
 import { getSettings, updateSettings } from "@/lib/db/settings";
+import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+
 import {
   addModelAliasSchema,
   removeModelAliasSchema,
   updateModelAliasesSchema,
 } from "@/shared/validation/schemas";
-import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+
 import { logger } from '@/shared/utils/logger';/**
  * GET /api/settings/model-aliases
  * Returns the full alias map, separated into built-in and custom.

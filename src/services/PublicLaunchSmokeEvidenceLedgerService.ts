@@ -6,6 +6,7 @@ import type {
   PublicLaunchSmokeEvidenceReceipt,
 } from '../contracts/PublicLaunchSmokeEvidenceLedgerContract.js';
 import { ZAVORTH_PUBLIC_LAUNCH_SMOKE_EVIDENCE_LEDGER_CONTRACT_VERSION } from '../contracts/PublicLaunchSmokeEvidenceLedgerContract.js';
+
 import { ReleaseCertificationProfileHardeningService } from './ReleaseCertificationProfileHardeningService.js';
 
 type PublicLaunchSmokeEvidenceLedgerRuntime = {

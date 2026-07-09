@@ -1,3 +1,4 @@
+import { ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION } from '../contracts/index';
 export {
   ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_NOW,
   ZAVORTH_CONTROL_NATIVE_FIRST_RUNTIME_PROJECTION_VERSION,
@@ -12,7 +13,6 @@ export {
   mapProviderCockpit,
 } from './zavorthAgentGatewayRuntimeProjection';
 
-import { ZAVORTH_ZAVORTH_CONTROL_ASSIMILATION_VERSION } from '../contracts/index';
 
 type AnyRecord = Record<string, any>;
 

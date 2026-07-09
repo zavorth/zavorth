@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { ZavorthA2UIService } from './ZavorthA2UIService.js';
 
 import { config } from '../config/index.js';
 import {
@@ -10,7 +11,7 @@ import {
   type ZavorthOperationalRefinementSnapshot,
   type ZavorthOperationalRefinementStatus,
 } from '../contracts/ZavorthOperationalRefinementContract.js';
-import { ZavorthA2UIService } from './ZavorthA2UIService.js';
+
 import { ZavorthMnemosUnifiedMemoryService } from './ZavorthMnemosUnifiedMemoryService.js';
 import { ZavorthSatelliteApprovalDailyService } from './ZavorthSatelliteApprovalDailyService.js';
 import { VoiceWakeDetectorSetupService } from './VoiceWakeDetectorSetupService.js';

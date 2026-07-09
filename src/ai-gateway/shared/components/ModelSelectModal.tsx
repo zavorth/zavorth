@@ -1,6 +1,7 @@
+import { useState, useMemo, useEffect } from "react";
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+
 import PropTypes from "prop-types";
 import Modal from "./Modal";
 import { getModelsByProviderId, PROVIDER_ID_TO_ALIAS } from "@/shared/constants/models";

@@ -6,14 +6,17 @@ import {
   joinClaudeCodeCompatibleUrl,
 } from "@ZavorthGateway/open-sse/services/claudeCodeCompatible.ts";
 import { assertProviderValidationTargetAllowed } from "../../security/egressGuard.ts";
+import { normalizeClaudeCodeCompatibleBaseUrl } from "./validationFamilies.ts";
+
 import { applyCustomUserAgent } from "../validationHttpSupport.ts";
 import {
   connectionFailed,
   invalidApiKey,
   validationSuccess,
 } from "./validationResult.ts";
-import { normalizeClaudeCodeCompatibleBaseUrl } from "./validationFamilies.ts";
+
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 export async function validateClaudeCodeCompatibleProvider({
   apiKey,
   providerSpecificData = {},
@@ -94,7 +97,8 @@ export async function validateClaudeCodeCompatibleProvider({
       method: "cc_bridge_request",
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[claude Code Compatible] load operation failed', error);
-    return connectionFailed(error.message || "Connection failed");
+    return connectionFailed(err.message || "Connection failed");
   }
 }

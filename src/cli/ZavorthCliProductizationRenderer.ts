@@ -3,6 +3,7 @@ import type {
   ZavorthProductizationStatus,
 } from '../services/ZavorthProductizationContractService.js';
 import { formatCliValue } from './ZavorthCliText.js';
+
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 
 const PRODUCTIZATION_CLI_COMMAND = 'zavorth productization --json';

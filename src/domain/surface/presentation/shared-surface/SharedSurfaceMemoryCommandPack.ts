@@ -1,7 +1,11 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthLayeredMemoryService } from '../../../../services/ZavorthLayeredMemoryService.js';
-import type { ZavorthMemoryPlaneService } from '../../../../services/ZavorthMemoryPlaneService.js';export type NaturalMemoryCommandIntent = {
+import type { ZavorthMemoryPlaneService } from '../../../../services/ZavorthMemoryPlaneService.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
+export type NaturalMemoryCommandIntent = {
+
   command: 'memory' | 'memoryplane';
+
   args: string;
   intro: string;
 };
@@ -87,7 +91,7 @@ export class SharedSurfaceMemoryCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui montar o memory plane agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui montar o memory plane agora.'));
     }
   }
 
@@ -163,7 +167,7 @@ export class SharedSurfaceMemoryCommandPack {
         await this.handleMemoryPlane(ctx);
         return;
       }
-      await ctx.reply(error?.message || 'Nao consegui consultar a layered memory agora.');
+      await ctx.reply(errorMessage(error, 'Nao consegui consultar a layered memory agora.'));
     }
   }
 }

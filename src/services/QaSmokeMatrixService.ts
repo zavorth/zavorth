@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { QA_SMOKE_MATRIX_CONTRACT_VERSION } from '../contracts/QaSmokeMatrixContract.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import type {
@@ -7,7 +8,7 @@ import type {
   QaSmokeMatrixSnapshot,
   QaSmokeMatrixStatus,
 } from '../contracts/QaSmokeMatrixContract.js';
-import { QA_SMOKE_MATRIX_CONTRACT_VERSION } from '../contracts/QaSmokeMatrixContract.js';
+
 import { logger } from '../logger.js';
 
 type PackageLike = {

@@ -9,6 +9,7 @@ import {
   isSecondaryPanel,
 } from '../src/navigation/navConfig';
 import { classifyReadiness } from '../src/desktop-state/readiness';
+
 import { desktopDesignTokens, loadDesktopDensity, DENSITY_STORAGE_KEY } from '../src/designSystem/desktopTokens';
 
 const root = resolve(__dirname, '..');

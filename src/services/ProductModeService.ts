@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { readZavorthEnv } from '../config/configHelpers.js';
 import { config } from '../config/index.js';
 import type { ZavorthProfile } from './RuntimeProfileService.js';

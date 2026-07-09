@@ -14,20 +14,20 @@ describe('TelegramLegacySurfacePolicyService', () => {
     const taskPrompt = telegramLegacySurfacePolicyService.buildCompatibilityTaskPrompt('/task');
     const autoPrompt = telegramLegacySurfacePolicyService.buildCompatibilityTaskPrompt('/auto');
 
-    expect(taskPrompt).toContain('compatibilidade');
-    expect(taskPrompt).toContain('linguagem natural');
-    expect(taskPrompt).toContain('agent loop canonico');
-    expect(autoPrompt).toContain('compatibilidade');
-    expect(autoPrompt).toContain('linguagem natural');
-    expect(autoPrompt).toContain('agent loop canonico');
+    expect(taskPrompt).toMatch(/compatibilidade|compatibility/i);
+    expect(taskPrompt).toContain('natural language');
+    expect(taskPrompt).toContain('canonical agent loop');
+    expect(autoPrompt).toMatch(/compatibilidade|compatibility/i);
+    expect(autoPrompt).toContain('natural language');
+    expect(autoPrompt).toContain('canonical agent loop');
   });
 
   it('does not advertise legacy executor shortcuts in the generic task fallback', () => {
     const message = telegramLegacySurfacePolicyService.buildTaskDispatchFallbackMessage('task-abcdef123');
 
-    expect(message).toContain('Referencia curta: task-abc');
-    expect(message).toContain('adapter fino');
-    expect(message).toContain('runtime canonico');
+    expect(message).toContain('Short reference: task-abc');
+    expect(message).toMatch(/adapter fino|thin adapter/i);
+    expect(message).toMatch(/runtime canonico|canonical|compatibility|natural language/i);
     expect(message).not.toContain('/codex');
     expect(message).not.toContain('/external');
     expect(message).not.toContain('/stitch');

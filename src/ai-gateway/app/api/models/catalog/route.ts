@@ -8,6 +8,7 @@ import {
   type ModelCatalogProviderInput,
 } from "../../../../../services/providers/catalog/ModelCatalogAggregationService.js";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+
 import { logger } from '@/shared/utils/logger';/**
  * GET /api/models/catalog
  * Returns all models grouped by provider, with metadata (type, custom flag)

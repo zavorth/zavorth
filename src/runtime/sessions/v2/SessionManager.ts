@@ -8,6 +8,7 @@ import type { RegisterSessionOwnershipInput } from './SessionOwnershipContract.j
 import type { SessionRegistryService } from './SessionRegistryService.js';
 import { buildChildProcessEnv } from '../../../security/ChildProcessEnv.js';
 import { redactSensitiveText } from '../../../security/SensitiveDataGuard.js';
+import { asErrorLike, errorMessage } from '../../../utils/errorLike.js';
 type NodePtyProcess = {
   write(data: string): void;
   kill(signal?: string): void;
@@ -204,7 +205,8 @@ export class SessionManager {
     try {
       this.childProcess.stdin.write(input);
     } catch (error: unknown) {
-      const output = error?.message || String(error);
+      const err = asErrorLike(error);
+      const output = errorMessage(error);
       this.appendLog(`[stdin:error] ${output}`);
       this.events.emit('pty:error', output);
       this.setStatus('ERROR');
@@ -275,11 +277,13 @@ export class SessionManager {
     });
 
     processHandle.onExit((event) => {
-      const code = typeof event === 'number'
+      const rawCode = typeof event === 'number'
         ? event
-        : event?.exitCode ?? event?.code ?? null;
-      this.events.emit('pty:exit', code);
-      this.setStatus(code === 0 ? 'IDLE' : 'ERROR');
+        : event?.exitCode ?? asErrorLike(event).code ?? null;
+      const code = typeof rawCode === 'number' ? rawCode : rawCode == null ? null : Number(rawCode);
+      const exitCode = Number.isFinite(code as number) ? (code as number) : null;
+      this.events.emit('pty:exit', exitCode);
+      this.setStatus(exitCode === 0 ? 'IDLE' : 'ERROR');
       this.ptyProcess = null;
     });
   }

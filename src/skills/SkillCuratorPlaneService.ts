@@ -6,6 +6,7 @@ import {
   type ZavorthSkillCuratorSnapshot,
 } from '../services/ZavorthSkillCuratorLiveLoopService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
+
 import { redactSensitiveText } from '../security/SensitiveDataGuard.js';
 import { Database } from '../storage/Database.js';
 import type {
@@ -16,6 +17,7 @@ import type {
 import type { SkillCatalogEntry } from './SkillCatalogContract.js';
 import { SkillCatalogService } from './SkillCatalogService.js';
 import { SkillCurationService } from './SkillCurationService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type SkillCuratorLifecycleState = 'active' | 'stale' | 'archived';
 
@@ -699,11 +701,12 @@ export class SkillCuratorPlaneService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         ...this.emptyLlmReview('failed'),
         providerName: this.llmProviderName || null,
         modelName: this.llmModelName || null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
     }
   }

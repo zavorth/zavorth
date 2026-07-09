@@ -202,7 +202,7 @@ export class AutomaticBrowserTool {
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       return this.errorResponse(
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? err.message : String(error),
       );
     }
   }
@@ -273,7 +273,7 @@ export class AutomaticBrowserTool {
           ],
         };
       } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-        const message = error instanceof Error ? error.message : String(error);
+        const message = error instanceof Error ? err.message : String(error);
         return {
           checkedAt,
           ok: false,
@@ -285,7 +285,7 @@ export class AutomaticBrowserTool {
         };
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         checkedAt,
         ok: false,
@@ -681,8 +681,7 @@ export class AutomaticBrowserTool {
         moduleName: 'playwright-core',
         playwright: require('playwright-core') as PlaywrightModuleLike,
       };
-    } catch ($1: unknown) { const error = coreError; const err = coreError; const e = coreError;
-      try {
+    } catch (coreError: unknown) {try {
         return {
           moduleName: 'playwright',
           playwright: require('playwright') as PlaywrightModuleLike,

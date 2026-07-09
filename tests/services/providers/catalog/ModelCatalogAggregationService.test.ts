@@ -3,6 +3,7 @@ import {
   ModelCatalogAggregationService,
 } from '../../../../src/services/providers/catalog/ModelCatalogAggregationService.js';
 import { OpenAiCompatibleModelDiscoveryAdapter } from '../../../../src/services/providers/catalog/discovery/OpenAiCompatibleModelDiscoveryAdapter.js';
+
 import { AnthropicCompatibleModelDiscoveryAdapter } from '../../../../src/services/providers/catalog/discovery/AnthropicCompatibleModelDiscoveryAdapter.js';
 
 describe('ModelCatalogAggregationService', () => {

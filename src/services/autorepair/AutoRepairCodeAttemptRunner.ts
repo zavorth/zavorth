@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import { config } from '../../config/index.js';
 import type { SelfModificationPreviewResult, SelfModificationService } from '../SelfModificationService.js';
 import type { SafeModificationService } from '../SafeModificationService.js';

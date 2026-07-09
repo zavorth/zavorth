@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isUnsafeCrossSiteMutation, readJsonBody } from "../../runtime-engine-state";
+
 // Importações relativas robustas para referenciar o módulo de skills fora da pasta do next
 import { SkillCurationService } from "../../../../../../skills/SkillCurationService.js";
 import { SkillCuratorPlaneService } from "../../../../../../skills/SkillCuratorPlaneService.js";
 import { SkillCatalogService } from "../../../../../../skills/SkillCatalogService.js";
 import { Database } from "../../../../../../storage/Database.js";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
 
 export const runtime = "nodejs";
 
@@ -114,10 +116,11 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await buildUnifiedSkillsResponse());
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "failed to fetch skills list",
+      error: error instanceof Error ? err.message : "failed to fetch skills list",
     }, { status: 500 });
   }
 }
@@ -220,10 +223,11 @@ export async function POST(request: Request) {
       data: await buildUnifiedSkillsResponse(),
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "action failed",
+      error: error instanceof Error ? err.message : "action failed",
     }, { status: 500 });
   }
 }

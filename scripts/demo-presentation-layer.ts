@@ -1,5 +1,5 @@
 import { asErrorLike } from '../src/utils/errorLike';
-﻿import { TerminalTheme } from '../src/cli/presentation/TerminalTheme.js';
+import { TerminalTheme } from '../src/cli/presentation/TerminalTheme.js';
 import { TerminalSpinner } from '../src/cli/presentation/TerminalSpinner.js';
 import { TerminalPanel } from '../src/cli/presentation/TerminalPanel.js';
 import { TerminalMarkdown } from '../src/cli/presentation/TerminalMarkdown.js';

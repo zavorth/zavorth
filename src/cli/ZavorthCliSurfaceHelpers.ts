@@ -1,5 +1,7 @@
 import * as path from 'path';
 import { config } from '../config/index.js';
+import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
+import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
 // /zavorthControl
 // Open ZavorthControl.
 import type { ZavorthCliFlags } from './ZavorthCliContract.js';
@@ -14,14 +16,14 @@ import type { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemo
 import type {
   ZavorthPlatformRegistrySnapshot,
 } from '../services/ZavorthPlatformRegistryService.js';
-import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
+
 import { CLI_REPL_HISTORY_FILE } from './ZavorthCliReplConfig.js';
 import { formatAdditionalCount, formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import {
   ZAVORTH_CLI_BRAND_NAME,
 } from './ZavorthCliMascot.js';
-import { padCliVisualText, paintCliTone, stripCliAnsi } from './ZavorthCliVisualTheme.js';
+
 import {
   formatZavorthCertificationHelp,
   getZavorthPublicCommandRows,

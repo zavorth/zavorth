@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'node:crypto';
 
@@ -13,6 +14,7 @@ ChannelProgressCapability,
   ChannelProgressStage,
   ChannelProgressTransport,
 } from '../contracts/ChannelProgressContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ChannelProgressSender = {
   sendMessage(input: {
@@ -268,7 +270,8 @@ export class ChannelProgressSurfaceService {
       this.record(receipt);
       return receipt;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const session = this.upsertSession(event, text, current?.anchorMessageId ?? event.messageId ?? null, current?.transport || 'send', message);
       const receipt = this.receipt(event, session.transport, 'failed', session.anchorMessageId, message);
       this.record(receipt);

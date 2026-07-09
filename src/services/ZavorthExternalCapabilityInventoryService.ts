@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { logger } from '../logger.js';
+import fs from 'fs';
 import path from 'path';
 import {
   ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
@@ -8,7 +9,7 @@ import {
   type ZavorthExternalRuntimeNaturalFirstRoute,
   type ZavorthExternalRuntimeSourceRuntimeId,
 } from '../contracts/ZavorthExternalRuntimeBridgeContract.js';
-import { logger } from '../logger.js';
+
 import {
 ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
   type ZavorthExternalCapabilityInventoryItem,

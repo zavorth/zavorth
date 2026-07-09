@@ -559,7 +559,7 @@ export class SkillBrowserService {
         const err = asErrorLike(error);
         sourcesFailed.push({
           sourceId: source.id,
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? err.message : String(error),
         });
         return [];
       }

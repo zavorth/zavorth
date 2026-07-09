@@ -7,6 +7,8 @@ import type {
   SourceChannelMeshPackageName,
 } from '../contracts/SourceChannelMeshExpansionContract.js';
 import { SourceChannelMeshExpansionService } from './SourceChannelMeshExpansionService.js';
+import { ZAVORTH_SEMANTIC_CHANNEL_MESH_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticChannelMeshCertificationContract.js';
+
 import { SourceChannelSecretPolicyService } from './SourceChannelSecretPolicyService.js';
 import type {
   ZavorthSemanticChannelMeshCertificationSnapshot,
@@ -17,7 +19,6 @@ import type {
   ZavorthSemanticChannelMeshClaimStatus,
   ZavorthSemanticChannelSecretScenario,
 } from '../contracts/ZavorthSemanticChannelMeshCertificationContract.js';
-import { ZAVORTH_SEMANTIC_CHANNEL_MESH_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticChannelMeshCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

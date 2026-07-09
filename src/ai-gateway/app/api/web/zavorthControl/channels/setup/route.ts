@@ -5,8 +5,10 @@ import {
   readJsonBody,
 } from "../../../runtime-engine-state";
 import { ChannelProviderDoctorService } from "../../../../../../../services/ChannelProviderDoctorService.js";
+
 import { ChannelSetupAssistantService } from "../../../../../../../services/ChannelSetupAssistantService.js";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../../utils/errorLike.js';
 export const runtime = "nodejs";
 
 function createService() {
@@ -35,10 +37,11 @@ export async function GET(request: Request) {
       channels: assistant.channels,
     }));
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] load operation failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "channel setup unavailable",
+      error: error instanceof Error ? err.message : "channel setup unavailable",
     }, { status: 500 });
   }
 }
@@ -117,10 +120,11 @@ export async function POST(request: Request) {
       allowedActions: ["applyScaffold", "doctor", "testConnection"],
     }, { status: 400 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] connection failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "channel setup action failed",
+      error: error instanceof Error ? err.message : "channel setup action failed",
     }, { status: 400 });
   }
 }

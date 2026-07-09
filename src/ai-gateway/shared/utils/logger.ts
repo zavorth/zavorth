@@ -125,8 +125,7 @@ function buildLogger(): pino.Logger {
             { stream: fileDestination, level: logLevel as pino.Level },
           ])
         );
-      } catch ($1: unknown) { const error = fallbackErr; const err = fallbackErr; const e = fallbackErr;
-        try {
+      } catch (fallbackErr: unknown) {try {
           process.stderr.write(
             `[logger] Sync fallback also failed, falling back to console only: ${(fallbackErr as Error)?.message || fallbackErr}\n`
           );

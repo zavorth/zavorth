@@ -1,4 +1,5 @@
-﻿/**
+
+/**
  * McpOAuthManagerTool — Tool wrapper for MCP OAuth token management.
  *
  * Exposes McpOAuthManager functionality through the tool registry,
@@ -10,6 +11,7 @@
 import { BaseTool } from './BaseTool.js';
 import { McpOAuthManager } from '../mcp/McpOAuthManager.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export class McpOAuthManagerTool extends BaseTool {
   public readonly name = 'mcp_oauth_manager';
@@ -89,8 +91,9 @@ export class McpOAuthManagerTool extends BaseTool {
           const expiresIn = Math.round((token.expiresAt - Date.now()) / 1000);
           return `Token obtained. Expires in ${expiresIn}s. Type: ${token.tokenType}`;
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[Mcp O Auth Manager] filesystem check failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
           return `Error obtaining token: ${message}`;
   }
       }

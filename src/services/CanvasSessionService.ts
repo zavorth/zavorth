@@ -1,4 +1,5 @@
-﻿import { randomUUID } from 'node:crypto';
+import { CanvasPreviewServer } from './CanvasPreviewServer';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
@@ -9,7 +10,7 @@ import type {
   CanvasSessionSnapshot,
   ExecutionEngineId,
 } from '../contracts/ExecutionEngineContract';
-import { CanvasPreviewServer } from './CanvasPreviewServer';
+
 import { GlassBoxTraceService } from './GlassBoxTraceService';
 import { logger } from '../logger.js';
 import type {

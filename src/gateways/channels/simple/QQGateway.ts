@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 interface QQWebhookPayload {
   author?: {
     id?: string;
@@ -156,7 +158,8 @@ export class QQGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      this.recordError(`QQ send failed: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      this.recordError(`QQ send failed: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 }

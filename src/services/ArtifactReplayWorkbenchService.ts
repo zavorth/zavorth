@@ -1,4 +1,6 @@
-﻿import fs from 'fs';
+import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import { logger } from '../logger.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -15,12 +17,12 @@ import {
   type ArtifactReplayWorkbenchSnapshot,
   type ArtifactReplayWorkbenchSource,
 } from '../contracts/ArtifactReplayWorkbenchContract.js';
-import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+
 import {
   ZavorthReplayLearningControlPlaneService,
   type ZavorthReplayLearningControlPlaneSnapshot,
 } from './ZavorthReplayLearningControlPlaneService.js';
-import { logger } from '../logger.js';
+
 import {
 ZavorthReplayLearningService,
   type ZavorthReplayLearningSnapshot,

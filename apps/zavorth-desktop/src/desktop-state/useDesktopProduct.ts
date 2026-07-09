@@ -24,6 +24,8 @@ import {
   upsertCard,
 } from './productData';
 import { asErrorLike } from '../lib/errors';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
+
 
 export function useDesktopProduct(input: {
   tools: ToolItem[];
@@ -95,7 +97,7 @@ export function useDesktopProduct(input: {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       setLastPushOk(false);
-      setLastPushError(error instanceof Error ? error.message : 'Runtime workboard push failed.');
+      setLastPushError(error instanceof Error ? err.message : 'Runtime workboard push failed.');
       return false;
     }
   }, [input.sessionId]);
@@ -253,7 +255,7 @@ export function useDesktopProduct(input: {
         ? { ...item, status: 'installed' }
         : item));
       input.setNotice(error instanceof Error
-        ? `${error.message} (marked installed locally if the skill is already present).`
+        ? `${err.message} (marked installed locally if the skill is already present).`
         : 'Could not install skill.');
     }
   }, [input, marketplacePlugins, refreshMarketplace]);
@@ -276,7 +278,7 @@ export function useDesktopProduct(input: {
       setMarketplacePlugins(current => current.map(item => item.id === pluginId
         ? { ...item, status: 'available' }
         : item));
-      input.setNotice(error instanceof Error ? error.message : 'Could not uninstall skill.');
+      input.setNotice(error instanceof Error ? err.message : 'Could not uninstall skill.');
     }
   }, [input, refreshMarketplace]);
 

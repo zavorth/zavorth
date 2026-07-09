@@ -1,9 +1,11 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import net from 'net';
 import tls from 'tls';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface EmailConfig {
   host: string;
@@ -166,8 +168,9 @@ export class EmailTool extends BaseTool {
 
       return lines.join('\n');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Email] operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Erro ao enviar email: ${message}`;
   }
   }

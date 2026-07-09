@@ -1,4 +1,16 @@
 import { asErrorLike } from '../utils/errorLike';
+import {
+  DuckDuckGoSearchAdapter,
+  SearchAdapterError,
+} from '../adapters/search/DuckDuckGoSearchAdapter.js';
+import {
+  GeminiGroundingSearchAdapter,
+  GroundingAdapterError,
+} from '../adapters/search/GeminiGroundingSearchAdapter.js';
+import {
+  SearchProviderLiveAdapter,
+} from '../adapters/web/WebResearchLiveAdapters.js';
+import { safeFetch } from '../security/SafeFetchService.js';
 /**
  * SearchQueryService — Serviço Zavorth-nativo de orquestração de busca web unificada.
  *
@@ -49,18 +61,10 @@ import type {
   ISearchQueryAdapter,
   AdapterSearchOutput,
 } from '../contracts/SearchQueryContract.js';
-import {
-  DuckDuckGoSearchAdapter,
-  SearchAdapterError,
-} from '../adapters/search/DuckDuckGoSearchAdapter.js';
-import {
-  GeminiGroundingSearchAdapter,
-  GroundingAdapterError,
-} from '../adapters/search/GeminiGroundingSearchAdapter.js';
-import {
-  SearchProviderLiveAdapter,
-} from '../adapters/web/WebResearchLiveAdapters.js';
-import { safeFetch } from '../security/SafeFetchService.js';
+
+
+
+
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
 
 const MAX_RESULTS = 10;

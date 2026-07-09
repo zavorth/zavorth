@@ -5,6 +5,8 @@ import {
   normalizeSystemOverlordCapability,
 } from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const { req, res, pathname, deps } = ctx;
   const service = deps.engineeringCore;
@@ -59,7 +61,8 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       try {
         deps.writeJson(res, { ok: true, replay: service.getReplay(replayRunId) }, 200);
       } catch (error: unknown) {
-        deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Replay indisponivel.' }, 404);
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Replay indisponivel.' }, 404);
       }
       return true;
     }
@@ -182,7 +185,8 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       );
       return true;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Falha ao operar o run de engenharia.';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'Falha ao operar o run de engenharia.';
       deps.writeJson(res, { ok: false, error: message }, message.includes('nao encontrado') ? 404 : 409);
     }
   }

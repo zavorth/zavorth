@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { randomUUID } from 'node:crypto';
 import type { CanvasEgressEvent } from '../contracts/ExecutionEngineContract';
 

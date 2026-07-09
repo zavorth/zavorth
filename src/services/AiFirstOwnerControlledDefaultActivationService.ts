@@ -1,4 +1,10 @@
-﻿import crypto from 'node:crypto';
+import {
+  AI_FIRST_FINAL_ACTIVATION_GATE_CONTRACT_VERSION,
+  type AiFirstFinalActivationGateSnapshot,
+} from '../contracts/AiFirstFinalActivationGateContract.js';
+import { redactSensitiveText } from './AiFirstRoutePlanContractService.js';
+
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { findProjectRoot } from '../config/configHelpers.js';
@@ -13,11 +19,7 @@ import {
   type AiFirstOwnerControlledDefaultRouter,
   type AiFirstOwnerControlledDefaultState,
 } from '../contracts/AiFirstOwnerControlledDefaultActivationContract.js';
-import {
-  AI_FIRST_FINAL_ACTIVATION_GATE_CONTRACT_VERSION,
-  type AiFirstFinalActivationGateSnapshot,
-} from '../contracts/AiFirstFinalActivationGateContract.js';
-import { redactSensitiveText } from './AiFirstRoutePlanContractService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   now?: () => Date;
@@ -463,9 +465,10 @@ export class AiFirstOwnerControlledDefaultActivationService {
         }
         receipts.push(parsed);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           line: index + 1,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     });

@@ -32,6 +32,7 @@ import {
   type CanvasSpeculativeAutonomySyncSnapshot,
 } from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthTerminalBackendsService } from '../../services/ZavorthTerminalBackendsService.js';
+
 import { ProviderNativeCapabilityMatrixService } from '../../services/llm/ProviderNativeCapabilityMatrixService.js';
 import {
   clampText,
@@ -49,6 +50,7 @@ import {
   truthy,
   uniqueToolDefinitions,
 } from './AgentRunNativeToolLoopUtils.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 export type NativeToolLoopStats = {
   requested: number;
   executed: number;
@@ -446,11 +448,12 @@ export class AgentRunNativeToolLoopService {
                 : {}),
             }));
           } catch (error: unknown) {
+            const err = asErrorLike(error);
             stats.failed += 1;
             if (isTransientToolError(error)) {
               stats.retriedToolCalls += 1;
             }
-            const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
+            const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? err.message : String(error)}`;
             evidenceTexts.push(`${toolCall.name}:\n${message}`);
             toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
             events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {

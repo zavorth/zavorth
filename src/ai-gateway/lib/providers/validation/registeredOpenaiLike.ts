@@ -7,6 +7,8 @@ connectionFailed,
   providerUnavailable,
   validationSuccess,
 } from "./validationResult.ts";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export async function validateRegisteredOpenAILikeProvider({
   provider,
   apiKey,
@@ -137,7 +139,8 @@ export async function validateRegisteredOpenAILikeProvider({
 
     return providerUnavailable(pingRes.status);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[registered Openai Like] network request failed', error);
-    return connectionFailed(error.message || "Connection failed");
+    return connectionFailed(err.message || "Connection failed");
   }
 }

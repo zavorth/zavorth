@@ -1,4 +1,5 @@
 import path from 'path';
+import { parseEnvInt, parseEnvFloat } from '../envParsers';
 
 import {
   readZavorthEnv,
@@ -6,7 +7,6 @@ import {
   ZavorthProfile,
   resolveDefaultHostMemoryMb,
 } from '../configHelpers';
-import { parseEnvInt, parseEnvFloat } from '../envParsers';
 
 export function buildExecutionHostConfig(
   projectRoot: string,

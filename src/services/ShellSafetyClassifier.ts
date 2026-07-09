@@ -1,4 +1,4 @@
-﻿import path from 'node:path';
+import path from 'node:path';
 import { logger } from '../logger.js';
 import type {
 ShellSafetyReceipt,
@@ -103,11 +103,11 @@ function hasTreeSitter(): boolean {
   try {
     require.resolve('tree-sitter-bash');
     return true;
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     try {
       require.resolve('web-tree-sitter');
       return true;
-    } catch ($1: unknown) { logger.warn('[Shell Safety Classifier] lifecycle operation failed', error); return false; }
+    } catch (error: unknown) { logger.warn('[Shell Safety Classifier] lifecycle operation failed', error); return false; }
   }
 }
 

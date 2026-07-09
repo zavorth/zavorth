@@ -3,6 +3,7 @@ import type {
   NodeMeshRegistryEntry,
 } from '../contracts/NodeMeshContract.js';
 import { NodeCapabilityService } from './NodeCapabilityService.js';
+
 import { NodeRegistryService } from './NodeRegistryService.js';
 import type { LiveNodeCapabilityDelta } from './LiveNodeRegistryService.js';
 

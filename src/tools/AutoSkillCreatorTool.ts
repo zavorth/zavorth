@@ -1,9 +1,11 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
 import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ValidatedSkillArgs =
   | {
@@ -82,8 +84,9 @@ export class AutoSkillCreatorTool extends BaseTool {
       try {
         parsedTools = JSON.parse(toolsJson);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Auto Skill Creator] JSON parse failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
         return `Error: invalid toolsJson. It must be a valid JSON string containing an array. Detail: ${message}`;
   }
 
@@ -204,7 +207,8 @@ export class AutoSkillCreatorTool extends BaseTool {
         'Materialization into a live skill requires explicit approval, an approved wrapper, and non-destructive smoke checks.',
       ].join('\n');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       console.error('[AutoSkillCreator] Failed to create skill draft:', message);
       return `Failed to create governed skill draft: ${message}`;
     }

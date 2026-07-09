@@ -1,14 +1,16 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 import {
   ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
+
+import {
+  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
+} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+
+
 import { ZavorthTransactionSandboxAdapterCertificationService } from '../../src/services/ZavorthTransactionSandboxAdapterCertificationService.js';
 
 const now = new Date('2026-05-12T12:00:00.000Z');
@@ -68,7 +70,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   it('requires an adapter manifest after Intent model1 is ready', () => {
     const result = service.certify({
-      ...intent-model1ReadyInput(),
+      ...intentModel1ReadyInput(),
     });
 
     expect(result.status).toBe('adapter-manifest-required');
@@ -79,7 +81,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   it('certifies a safe sandbox adapter without authorizing sandbox or live execution', () => {
     const result = service.certify({
-      ...intent-model1ReadyInput(),
+      ...intentModel1ReadyInput(),
       useSafeSandboxAdapter: true,
     });
 
@@ -113,7 +115,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   it('blocks live adapter endpoints and live-capable manifests', () => {
     const result = service.certify({
-      ...intent-model1ReadyInput(),
+      ...intentModel1ReadyInput(),
       adapterManifest: {
         id: 'dangerous-live-adapter',
         connectorId: 'zavorth.connector.exchange.typed',
@@ -147,7 +149,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
 
   it('redacts raw adapter secrets and blocks certification before packet creation', () => {
     const result = service.certify({
-      ...intent-model1ReadyInput(),
+      ...intentModel1ReadyInput(),
       adapterManifest: {
         id: 'secret-bearing-adapter',
         connectorId: 'zavorth.connector.exchange.typed',
@@ -173,7 +175,7 @@ describe('ZavorthTransactionSandboxAdapterCertificationService', () => {
     expect(result.certificationPacket).toBeUndefined();
   });
 
-  function intent-model1ReadyInput() {
+  function intentModel1ReadyInput() {
     return {
       text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
       surface: 'api' as const,

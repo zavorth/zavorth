@@ -21,6 +21,7 @@ import {
   WhatsAppGateway,
 } from '../adapters/channels/index.js';
 import { ZavorthGatewayService } from '../services/ZavorthGatewayService.js';
+
 import { GoalLoopStatusProjectionService } from '../services/GoalLoopStatusProjectionService.js';
 import type { BroadcastCapableGateway } from '../services/ZavorthChannelActionService.js';
 import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';

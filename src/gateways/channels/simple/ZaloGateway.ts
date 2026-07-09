@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 interface ZaloWebhookPayload extends Record<string, unknown> {
   userId?: unknown;
   chatId?: unknown;
@@ -139,7 +141,8 @@ export class ZaloGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      this.recordError(`Zalo send failed: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      this.recordError(`Zalo send failed: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 }

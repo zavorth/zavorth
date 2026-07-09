@@ -38,6 +38,8 @@ import {
   STOP_TIMEOUT_MS,
   type CloudflaredTunnelStatus,
 } from "./cloudflared-tunnel/cloudflaredTunnelTypes";
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type { CloudflaredTunnelStatus } from "./cloudflared-tunnel/cloudflaredTunnelTypes";
 export { getCloudflaredRuntimeDirs } from "./cloudflared-tunnel/cloudflaredTunnelPaths";
 export {
@@ -283,11 +285,12 @@ export async function startCloudflaredTunnel(): Promise<CloudflaredTunnelStatus>
   try {
     return await startPromise;
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     const currentState = await readStateFile();
     const message = isSpecificCloudflaredError(currentState.lastError)
       ? currentState.lastError
       : error instanceof Error
-        ? error.message
+        ? err.message
         : "Failed to start cloudflared tunnel";
 
     await updateStateFile({

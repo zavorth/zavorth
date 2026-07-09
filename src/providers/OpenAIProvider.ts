@@ -13,9 +13,14 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+
 import { buildProviderRequestOptions, isProviderAbortError } from './ProviderAbort.js';
-import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';export class OpenAIProvider implements ILlmProvider {
+import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
+import { errorMessage } from '../utils/errorLike.js';
+export class OpenAIProvider implements ILlmProvider {
+
   public readonly name = 'openai';
+
   private clients: OpenAI[];
   private currentClientIndex = 0;
 
@@ -71,7 +76,7 @@ import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js
           throw error;
         }
         lastError = error;
-        logger.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+        logger.warn(`[OpenAI] Request failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
       }
     }
 
@@ -111,7 +116,7 @@ import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js
           throw error;
         }
         lastError = error;
-        logger.warn(`[OpenAI] Streaming request failed with key ${clientIndex + 1}: ${error?.message || error}`);
+        logger.warn(`[OpenAI] Streaming request failed with key ${clientIndex + 1}: ${errorMessage(error)}`);
       }
     }
 

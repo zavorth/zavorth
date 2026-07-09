@@ -1,6 +1,8 @@
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from './SecurityPolicyBroker.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 interface ReadableStreamLike {
   getReader(): ReadableStreamDefaultReader<Uint8Array>;
 }
@@ -134,7 +136,8 @@ async function assertSafeHttpTargetAllowed(
     });
     return parsed;
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : String(error);
     const decision = decideSecurityPolicy({
       surface: 'web-fetch',
       operation: 'public_egress',

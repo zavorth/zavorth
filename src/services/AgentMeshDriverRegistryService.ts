@@ -1,4 +1,4 @@
-﻿import { spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import type { AgentMeshDynamicCapabilities, AgentMeshProtocol } from '../contracts/AgentMeshConsentContract.js';

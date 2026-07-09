@@ -1,4 +1,4 @@
-﻿import type { CapabilityApprovalScope, CapabilityLifecycleService } from '../CapabilityLifecycleService.js';
+import type { CapabilityApprovalScope, CapabilityLifecycleService } from '../CapabilityLifecycleService.js';
 import type { ZavorthMutationPlaneService } from '../ZavorthMutationPlaneService.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
 import type { PermissionService } from '../PermissionService.js';

@@ -10,6 +10,7 @@ import type {
   IntegrationProbeSnapshot,
 } from '../contracts/IntegrationHubContract.js';
 import { IntegrationInstallerService } from './IntegrationInstallerService.js';
+
 import { IntegrationProbeService } from './IntegrationProbeService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';

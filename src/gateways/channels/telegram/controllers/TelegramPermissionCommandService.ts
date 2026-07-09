@@ -9,6 +9,8 @@ import { TelegramPermissionPresentationService } from '../../../../gateways/chan
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import { logger } from '../../../../logger.js';
 import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type TelegramPermissionCommandServiceDeps = {
   permissionService: PermissionService;
   permissionPolicy: TelegramPermissionPolicyService;
@@ -100,7 +102,8 @@ export class TelegramPermissionCommandService {
           await ctx.reply('Unknown subcommand. Use: /perm [list|show|approve|reject|edit]');
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       logger.error(`[TelegramPermission] Permission operation failed (${subcommand}): ${msg}`, error);
       await ctx.reply(`Permission operation failed: ${msg}`);
     }

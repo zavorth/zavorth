@@ -9,6 +9,7 @@ import {
   isValidApiKey,
 } from "@/sse/services/auth";
 import { handleEmbedding } from "@ZavorthGateway/open-sse/handlers/embeddings.ts";
+
 import * as log from "@/sse/utils/logger";
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { v1EmbeddingsSchema } from "@/shared/validation/schemas";

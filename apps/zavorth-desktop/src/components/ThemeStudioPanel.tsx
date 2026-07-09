@@ -3,6 +3,7 @@ import type { PremiumTheme } from '../theme/premiumThemes';
 import { exportPremiumThemeState, premiumThemeFonts, premiumThemeMarketplace, type PremiumThemeState } from '../theme/premiumThemes';
 import { t } from '../i18n';
 import { asErrorLike } from '../lib/errors';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type AccentPreset = 'orange' | 'purple' | 'navy';
@@ -60,7 +61,7 @@ export function ThemeStudioPanel(props: {
         props.onPremiumThemePreview(imported.id);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        setImportError(error instanceof Error ? error.message : t('invalidTheme'));
+        setImportError(error instanceof Error ? err.message : t('invalidTheme'));
       } finally {
         event.target.value = '';
       }

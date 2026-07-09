@@ -286,7 +286,8 @@ export class ApprovalLeaseDecisionAdapter {
         });
       }
     } catch (auditErr: unknown) {
-      const auditErrMsg = auditErr instanceof Error ? auditErr.message : 'unknown audit error';
+      const auditErrLike = asErrorLike(auditErr);
+      const auditErrMsg = auditErr instanceof Error ? auditErrLike.message : 'unknown audit error';
       const failReason = 'Audit sink threw during ' + params.eventType + ': ' + auditErrMsg + '. Failing closed.';
       return buildFailClosedResult(failReason, params.context, params.evaluatedAt, params.upstreamGatesConfirmed);
     }

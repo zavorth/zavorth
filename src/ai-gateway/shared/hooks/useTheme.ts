@@ -1,6 +1,7 @@
+import { useEffect, useState, useSyncExternalStore } from "react";
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+
 import useThemeStore from "@/store/themeStore";
 
 // Subscribe to system theme changes

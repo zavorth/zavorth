@@ -10,13 +10,15 @@ import type {
   LiveReadinessStatus,
 } from '../contracts/LiveReadinessContract.js';
 import { ZAVORTH_LIVE_READINESS_CONTRACT_VERSION } from '../contracts/LiveReadinessContract.js';
+import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+
 import type { ProviderMeshReadinessProviderEntry } from '../contracts/ProviderMeshReadinessContract.js';
 import type { RuntimeFamilyClosureEntry } from '../contracts/RuntimeFamilyClosureContract.js';
 import {
   CapabilityNormalizationService,
   DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES,
 } from './CapabilityNormalizationService.js';
-import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
+
 import { ProviderMeshReadinessService } from './ProviderMeshReadinessService.js';
 import { RuntimeFamilyClosureService } from './RuntimeFamilyClosureService.js';
 

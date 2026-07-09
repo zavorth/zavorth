@@ -1,3 +1,4 @@
+import { apiClient } from '../../../apps/zavorth-desktop/src/apiClient';
 /** @jest-environment jsdom */
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -13,7 +14,6 @@ jest.mock('../../../apps/zavorth-desktop/src/apiClient', () => ({
   }
 }));
 
-import { apiClient } from '../../../apps/zavorth-desktop/src/apiClient';
 
 describe('ProviderSettingsPanel', () => {
   beforeEach(() => {

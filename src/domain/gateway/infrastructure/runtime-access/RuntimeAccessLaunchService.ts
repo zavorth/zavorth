@@ -1,4 +1,6 @@
 import { spawn } from 'child_process';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type RuntimeAccessLaunchPreference = 'local' | 'remote' | 'best';
 
 export type RuntimeAccessLaunchSelection = {
@@ -167,7 +169,8 @@ export class RuntimeAccessLaunchService {
         error: null,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error ?? 'failed to open surface');
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error ?? 'failed to open surface');
       return {
         attempted: true,
         ok: false,

@@ -1,9 +1,10 @@
+import { search } from 'duck-duck-scrape';
 jest.mock('duck-duck-scrape', () => ({
   search: jest.fn(),
   SafeSearchType: { OFF: 'off' },
 }));
 
-import { search } from 'duck-duck-scrape';
+
 import { DeepSearchService } from '../../src/services/DeepSearchService';
 import { config } from '../../src/config/index';
 

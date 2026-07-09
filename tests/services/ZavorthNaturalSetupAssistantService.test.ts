@@ -5,6 +5,7 @@ import type {
   GovernanceRecipePlan,
 } from '../../src/contracts/GovernanceRecipeContract';
 import { NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION } from '../../src/contracts/NaturalSetupAssistantContract';
+
 import type { CapabilityHubApiListInput } from '../../src/services/ZavorthCapabilityHubApiService';
 import type { GovernanceRecipePlanInput } from '../../src/services/ZavorthGovernanceRecipeService';
 import { ZavorthNaturalSetupAssistantApiService } from '../../src/services/ZavorthNaturalSetupAssistantApiService';

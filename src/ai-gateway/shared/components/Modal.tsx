@@ -1,6 +1,7 @@
+import { useEffect, useRef, useId } from "react";
 "use client";
 
-import { useEffect, useRef, useId } from "react";
+
 import { cn } from "@/shared/utils/cn";
 import Button from "./Button";
 

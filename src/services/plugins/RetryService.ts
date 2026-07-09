@@ -1,6 +1,8 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export interface RetryConfig {
   maxRetries: number;
@@ -92,6 +94,7 @@ export class RetryService {
         }
         return result;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         lastError = error instanceof Error ? error : new Error(String(error));
         const errorMsg = lastError.message;
 

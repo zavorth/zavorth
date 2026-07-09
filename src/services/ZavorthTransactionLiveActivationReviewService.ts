@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import {
+  ZavorthTransactionLiveCandidateEnvelopeService,
+} from './ZavorthTransactionLiveCandidateEnvelopeService.js';
 
 import {
   buildZavorthTransactionLiveActivationReviewContractSnapshot,
@@ -19,9 +22,6 @@ import {
 import type {
   ZavorthTransactionLiveCandidateEnvelope,
 } from '../contracts/ZavorthTransactionLiveCandidateContract.js';
-import {
-  ZavorthTransactionLiveCandidateEnvelopeService,
-} from './ZavorthTransactionLiveCandidateEnvelopeService.js';
 
 type LiveActivationReviewDeps = {
   now?: () => Date;

@@ -4,6 +4,7 @@ import {
 import {
   normalizeApprovedMutationExecutionHarnessFixture,
 } from './ExternalAgentApprovedMutationExecutionHarness.js';
+
 import type {
   GovernedExecutorBoundary,
 } from '../agent/executors/GovernedExecutorAdapter.js';

@@ -1,4 +1,4 @@
-﻿export type ZavorthCliHomeStatus = 'ready' | 'warning' | 'blocked' | 'offline';
+export type ZavorthCliHomeStatus = 'ready' | 'warning' | 'blocked' | 'offline';
 
 export type ZavorthCliHomeSnapshot = {
   contractVersion: 'zavorth-cli-home/1';

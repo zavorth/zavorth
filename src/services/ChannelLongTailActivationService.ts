@@ -1,4 +1,6 @@
-﻿import {
+import { ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLongTailActivationContract.js';
+
+import {
   BotHttpChannelLiveClient,
   LocalBridgeChannelLiveClient,
   WebhookChannelLiveClient,
@@ -15,10 +17,11 @@ import type {
   ChannelLongTailConfiguredDoctorReceipt,
   ChannelLongTailStagingLiveReceipt,
 } from '../contracts/ChannelLongTailActivationContract.js';
-import { ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLongTailActivationContract.js';
+
 import type { LiveReadinessEntry } from '../contracts/LiveReadinessContract.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ChannelLongTailActivationRuntime = {
   now?: () => Date;
@@ -252,6 +255,7 @@ export class ChannelLongTailActivationService {
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Channel Long Tail Activation] filesystem check failed', error);
     return {
         id,
@@ -259,7 +263,7 @@ export class ChannelLongTailActivationService {
         family: descriptor.family,
         status: 'blocked',
         confirmed: true,
-        blockedReason: error instanceof Error ? error.message : String(error),
+        blockedReason: error instanceof Error ? err.message : String(error),
         doctor,
         sendReceipt: null,
         liveIoPerformed: false,

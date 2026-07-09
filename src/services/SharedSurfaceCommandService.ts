@@ -22,6 +22,8 @@ import {
 } from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
 import { ZavorthSmartCommandSurfaceService } from './ZavorthSmartCommandSurfaceService.js';
 
+
+
 export class SharedSurfaceCommandService {
   private readonly parser!: SharedSurfaceCommandServiceComposition['parser'];
   private channelActionService!: SharedSurfaceCommandServiceComposition['channelActionService'];

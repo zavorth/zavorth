@@ -16,6 +16,7 @@ import {
   unavailableResponse,
 } from "../compat/openSseCompat";
 import { withZavorthSessionHeader } from "../transportPlane";
+
 import { resolveProxyForConnection } from "@/lib/localDb";
 import { getCircuitBreaker, CircuitBreakerOpenError } from "../../shared/utils/circuitBreaker";
 import { isModelAvailable } from "../../domain/modelAvailability";
@@ -171,7 +172,7 @@ export async function executeChatWithBreaker({
     const err = asErrorLike(cbErr);
     const error = err;
     if (cbErr instanceof CircuitBreakerOpenError) {
-      log.warn("CIRCUIT", `${provider} circuit open during retry: ${cbErr.message}`);
+      log.warn("CIRCUIT", `${provider} circuit open during retry: ${err.message}`);
       return {
         result: {
           success: false,
@@ -238,7 +239,8 @@ export function handleNoCredentials(
 export async function safeResolveProxy(connectionId: string) {
   try {
     return await resolveProxyForConnection(connectionId);
-  } catch (proxyErr: unknown) {log.debug("PROXY", `Failed to resolve proxy: ${proxyErr.message}`);
+  } catch (proxyErr: unknown) {
+  const proxyErrLike = asErrorLike(proxyErr);log.debug("PROXY", `Failed to resolve proxy: ${proxyErrLike.message}`);
     return null;
   }
 }

@@ -1,4 +1,5 @@
-﻿import path from 'path';
+import { ShellNodeHostCommandRunner } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityShellCommandRunner.js';
+import path from 'path';
 import type { NodeMeshCapabilityId } from '../contracts/NodeMeshContract.js';
 import { NODE_HOST_SUPPORTED_CAPABILITY_IDS } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityCatalog.js';
 import { buildExecutionResult, normalizeTimeout } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityExecutionHelpers.js';
@@ -10,7 +11,7 @@ import {
   resolveAllowedPath,
   uniqueNormalizedPaths,
 } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityPathPolicy.js';
-import { ShellNodeHostCommandRunner } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityShellCommandRunner.js';
+
 import { detectSensitiveData, redactSensitiveText } from '../security/SensitiveDataGuard.js';
 import { logger } from '../logger.js';
 import type {

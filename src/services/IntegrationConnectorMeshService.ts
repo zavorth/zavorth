@@ -1,4 +1,5 @@
-﻿import { logger } from '../logger.js';
+
+import { logger } from '../logger.js';
 import type {
 IntegrationConnectorDoctor,
   IntegrationConnectorExecutePreview,
@@ -6,6 +7,7 @@ IntegrationConnectorDoctor,
   IntegrationConnectorManifest,
   IntegrationConnectorSnapshot,
 } from '../contracts/IntegrationConnectorMeshContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type ConnectorFetch = typeof fetch;
 
@@ -498,7 +500,8 @@ export class IntegrationConnectorMeshService {
         nextAction: 'Review connector API key, scopes, base URL and account status.',
       });
     } catch (error: unknown) {
-      const aborted = error instanceof Error && error.name === 'AbortError';
+      const err = asErrorLike(error);
+      const aborted = error instanceof Error && err.name === 'AbortError';
       return this.doctorSnapshot(manifest, {
         status: 'failed',
         configured: true,
@@ -508,7 +511,7 @@ export class IntegrationConnectorMeshService {
         latencyMs: Math.max(1, Date.now() - startedAt),
         summary: aborted
           ? `${manifest.label} probe timed out.`
-          : `${manifest.label} probe failed: ${error instanceof Error ? error.message : String(error)}`,
+          : `${manifest.label} probe failed: ${error instanceof Error ? err.message : String(error)}`,
         nextAction: 'Review connector network access and configured base URL.',
       });
     } finally {

@@ -1,7 +1,9 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface TrajectoryInput {
   prompt: string;
@@ -92,8 +94,9 @@ export class BatchTrajectoryTool extends BaseTool {
       this.scoreResults(results, comparisonMetric);
       return this.formatComparison(results, comparisonMetric);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Batch Trajectory] process execution failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Batch execution error: ${message}`;
   }
   }
@@ -141,6 +144,7 @@ export class BatchTrajectoryTool extends BaseTool {
         status: 'success',
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Batch Trajectory] process execution failed', error);
     return {
         index,
@@ -151,7 +155,7 @@ export class BatchTrajectoryTool extends BaseTool {
         score: 0,
         execution_time_ms: Date.now() - startTime,
         status: 'error',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

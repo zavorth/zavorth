@@ -13,9 +13,11 @@ import {
   getProviderBaseUrl,
 } from "./providerModelsContext";
 import { jsonError } from "./providerModelsResponse";
+
 import { assertProviderValidationTargetAllowed } from "@/lib/security/egressGuard";
 import { OpenAiCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/OpenAiCompatibleModelDiscoveryAdapter.js";
 import { AnthropicCompatibleModelDiscoveryAdapter } from "../../../../../../services/providers/catalog/discovery/AnthropicCompatibleModelDiscoveryAdapter.js";
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
 export async function fetchOpenAiCompatibleModels(
   context: ProviderModelsHandlerContext
 ) {
@@ -138,7 +140,8 @@ export async function fetchGeminiCliModels(context: ProviderModelsHandlerContext
 
     return buildResponse({ provider, connectionId, models });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : String(error);
     console.log("[models] Gemini CLI model fetch error:", message);
     return jsonError("Failed to fetch Gemini CLI models", 500);
   }

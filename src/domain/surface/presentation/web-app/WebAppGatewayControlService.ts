@@ -1,10 +1,13 @@
+import { HYBRID_MEMORY_CONTRACT_VERSION } from '../../../../contracts/HybridMemoryContract.js';
+import { WebAppGatewaySelfmodSupport } from './web-app-gateway-control/WebAppGatewaySelfmodSupport.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
 type LooseRecord = any;
 import type {
   HybridMemoryRecallInput,
   HybridMemoryRecallResult,
   HybridMemorySourcesResult,
 } from '../../../../contracts/HybridMemoryContract.js';
-import { HYBRID_MEMORY_CONTRACT_VERSION } from '../../../../contracts/HybridMemoryContract.js';
+
 import { shouldPersistZavorthArtifacts } from '../../../../contracts/ZavorthResponseDecisionContract.js';
 import type { SurfaceControllerContext } from '../../../../services/SurfaceRuntime.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
@@ -15,9 +18,8 @@ import {
   planTouchesSession,
   resolveMutationPlanIdFromPermission,
 } from './web-app-gateway-control/WebAppGatewayControlHelpers.js';
-import { WebAppGatewaySelfmodSupport } from './web-app-gateway-control/WebAppGatewaySelfmodSupport.js';
-import { logger } from '../../../../logger';
 
+import { logger } from '../../../../logger';
 export class WebAppGatewayControlService {
   private readonly capabilitySupport = new WebAppGatewayCapabilitySupport();
   private readonly selfmodSupport = new WebAppGatewaySelfmodSupport();
@@ -46,7 +48,7 @@ export class WebAppGatewayControlService {
       });
     } catch (error: unknown) {logger.warn('[Web App way Control] search failed', error);
     return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
-        `Hybrid Memory indisponivel no momento: ${error?.message || 'erro desconhecido'}.`,
+        `Hybrid Memory indisponivel no momento: ${errorMessage(error, 'erro desconhecido')}.`,
       ]);
   }
   }
@@ -82,7 +84,7 @@ export class WebAppGatewayControlService {
         generatedAt: new Date().toISOString(),
         sessionId,
         sources: [],
-        warnings: [`Hybrid Memory indisponivel no momento: ${error?.message || 'erro desconhecido'}.`],
+        warnings: [`Hybrid Memory indisponivel no momento: ${errorMessage(error, 'erro desconhecido')}.`],
       };
   }
   }

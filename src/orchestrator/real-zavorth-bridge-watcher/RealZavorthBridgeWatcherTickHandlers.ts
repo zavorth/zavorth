@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { PendingZavorthBridgeSession } from '../AgentBridgeManager.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 interface BridgeTaskMetadata {
   pendingPermissionId?: string | null;
   pendingPermissionNotifiedAt?: string | null;
@@ -441,7 +443,8 @@ export class RealZavorthBridgeWatcherTickHandlers {
         };
         this.host.deps.taskManager?.saveTask(task);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const errorMessage = error instanceof Error ? err.message : String(error);
         task.metadata = {
           ...(task.metadata || {}),
           pendingPermissionNotificationError: errorMessage,
@@ -586,8 +589,9 @@ export class RealZavorthBridgeWatcherTickHandlers {
         session.pendingDeliverySummary = null;
         await this.host.bridgeManager.saveSession(session);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         session.deliveryState = 'failed';
-        session.lastDeliveryError = error instanceof Error ? error.message : 'Falha desconhecida ao entregar resposta ao Telegram.';
+        session.lastDeliveryError = error instanceof Error ? err.message : 'Falha desconhecida ao entregar resposta ao Telegram.';
         const task = this.host.getTask(session.taskId);
         if (task && !this.host.isTaskTerminal(task)) {
           task.metadata = {

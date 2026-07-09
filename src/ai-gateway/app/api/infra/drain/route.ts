@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { STARTUP_EPOCH } from "@/lib/gracefulShutdown";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -29,7 +31,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: "Draining shutdown initiated." });
   } catch (error: unknown) {
-    console.error("[Drain API] Error processing request:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const err = asErrorLike(error);
+    console.error("[Drain API] Error processing request:", err.message);
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }

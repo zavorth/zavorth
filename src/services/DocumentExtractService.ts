@@ -1,9 +1,11 @@
-﻿import type {
+import { DOCUMENT_EXTRACT_CONTRACT_VERSION } from '../contracts/DocumentExtractContract.js';
+
+import type {
   DocumentExtractRequest,
   DocumentExtractResult,
   DocumentExtractTable,
 } from '../contracts/DocumentExtractContract.js';
-import { DOCUMENT_EXTRACT_CONTRACT_VERSION } from '../contracts/DocumentExtractContract.js';
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -11,6 +13,7 @@ import JSZip from 'jszip';
 import { config } from '../config/index.js';
 import { LocalDocumentTextExtractionAdapter } from '../adapters/files/FileDocumentDiffLiveAdapters.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type DocumentExtractServiceOptions = {
   artifactDir?: string;
@@ -157,6 +160,7 @@ export class DocumentExtractService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Document Extract] operation failed', error);
     return {
         ok: false,
@@ -171,7 +175,7 @@ export class DocumentExtractService {
         policyDecision,
         receiptId: `document.extract.${sourceId}.receipt`,
         processedAt,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

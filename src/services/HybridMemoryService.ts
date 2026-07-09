@@ -1,4 +1,6 @@
-﻿import {
+import { VectorEmbeddingService } from './VectorEmbeddingService.js';
+
+import {
   HYBRID_MEMORY_CONTRACT_VERSION,
   HYBRID_MEMORY_DEFAULT_CONTEXT_TOKEN_BUDGET,
   HYBRID_MEMORY_DEFAULT_TOP_K,
@@ -17,9 +19,10 @@ import type {
   ZavorthMemoryPlaneService,
   ZavorthMemoryPlaneSnapshot,
 } from './ZavorthMemoryPlaneService.js';
-import { VectorEmbeddingService } from './VectorEmbeddingService.js';
+
 import { MemoryVectorStore } from '../storage/MemoryVectorStore.js';
 import type { MemoryChunk } from '../runtime/sessions/v2/InfiniteMemoryCompressor.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type LayeredMemoryLike = Pick<ZavorthLayeredMemoryService, 'search' | 'readProcedures'>;
 type MemoryPlaneLike = Pick<ZavorthMemoryPlaneService, 'buildSnapshot'>;
@@ -154,7 +157,8 @@ export class HybridMemoryService {
       try {
         vectorCount = Number(vectorStore.count()) || 0;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : 'erro desconhecido';
         warnings.push(`Vector store indisponivel para contagem: ${message}.`);
       }
     }
@@ -200,7 +204,8 @@ export class HybridMemoryService {
           sources.push(this.fromLayeredMemory(entry));
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : 'erro desconhecido';
         warnings.push(`Layered memory indisponivel: ${message}.`);
       }
     }
@@ -228,8 +233,9 @@ export class HybridMemoryService {
         queryEmbedding = await embeddingService.generate(query);
         embeddingStatus = 'ready';
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         embeddingStatus = 'failed';
-        const message = error instanceof Error ? error.message : 'erro desconhecido';
+        const message = error instanceof Error ? err.message : 'erro desconhecido';
         warnings.push(`Embeddings indisponiveis; usando recall por palavras-chave: ${message}.`);
       }
     }
@@ -251,7 +257,8 @@ export class HybridMemoryService {
         sources: chunks.map((chunk) => this.fromMemoryChunk(chunk, query)),
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       warnings.push(`Falha ao consultar MemoryVectorStore: ${message}.`);
       return { embeddingStatus, sources: [] };
     }
@@ -274,7 +281,8 @@ export class HybridMemoryService {
         workspaceHint: input.workspaceHint || null,
       });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       warnings.push(`Memory plane indisponivel: ${message}.`);
       return null;
     }
@@ -478,7 +486,8 @@ export class HybridMemoryService {
       this.lazyVectorStore = this.createVectorStore();
       return this.lazyVectorStore;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       warnings.push(`MemoryVectorStore nao inicializou: ${message}.`);
       this.lazyVectorStore = null;
       return null;

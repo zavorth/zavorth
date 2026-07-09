@@ -12,6 +12,7 @@ import type {
   MemoryArtifactsRuntimeLiveTargetId,
 } from '../contracts/MemoryArtifactsRuntimeLiveClosureContract.js';
 import { ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION } from '../contracts/MemoryArtifactsRuntimeLiveClosureContract.js';
+
 import { LiveReadinessService } from './LiveReadinessService.js';
 
 type MemoryArtifactsRuntimeLiveClosureRuntime = {

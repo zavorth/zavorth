@@ -11,6 +11,8 @@ import {
   type Schema,
 } from '@google/generative-ai';
 import { config } from '../config/index.js';
+import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
+
 import {
   ChatMessage,
   ILlmProvider,
@@ -20,7 +22,7 @@ import {
   ToolCall,
   ToolDefinition,
 } from './ILlmProvider.js';
-import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
+
 import { isProviderAbortError } from './ProviderAbort.js';interface GeminiGroundingChunk {
   web?: { uri?: string; title?: string };
 }

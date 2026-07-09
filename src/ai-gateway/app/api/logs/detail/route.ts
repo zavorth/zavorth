@@ -1,3 +1,4 @@
+import { updateSettings } from "@/lib/db/settings";
 /**
  * GET  /api/logs/detail  — List legacy detailed request logs + current enabled flag
  * POST /api/logs/detail — Enable/disable pipeline capture for unified call log artifacts
@@ -9,7 +10,7 @@ import {
   getRequestDetailLogCount,
   isDetailedLoggingEnabled,
 } from "@/lib/db/detailedLogs";
-import { updateSettings } from "@/lib/db/settings";
+
 import { redactExportedLogRows } from "@/lib/logExportRedaction";
 
 export const dynamic = "force-dynamic";

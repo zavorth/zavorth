@@ -21,6 +21,7 @@ import {
   type CapabilityAutopilotValidationResumeResult,
 } from './CapabilityAutopilotValidationResumeService.js';
 
+
 type ValidationResumeLike = Pick<CapabilityAutopilotValidationResumeService, 'validateForResume'>;
 type PermissionRequestLike = Pick<CapabilityAutopilotPermissionService, 'createPermissionRequests'>;
 

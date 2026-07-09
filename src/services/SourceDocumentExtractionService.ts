@@ -3,6 +3,7 @@ import type {
   DocumentExtractionReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { PdfExtractionAdapter } from '../adapters/documents/PdfExtractionAdapter.js';
+
 import { ReadabilityExtractionAdapter } from '../adapters/documents/ReadabilityExtractionAdapter.js';
 
 type Runtime = {

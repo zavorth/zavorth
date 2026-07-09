@@ -1,4 +1,4 @@
-﻿import crypto, { randomUUID } from 'node:crypto';
+import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -17,7 +17,7 @@ import type { ZavorthCapabilityAdapterVerificationRecord } from '../contracts/Za
 import { ZavorthCapabilityAdapterVerificationService } from './ZavorthCapabilityAdapterVerificationService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 type Runtime = {
   projectRoot?: string;
   env?: Record<string, string | undefined>;
@@ -276,7 +276,7 @@ export class ZavorthCapabilityActionExposureService {
         exposures: Array.isArray(parsed.exposures) ? parsed.exposures.map(normalizeExposure).filter(isExposure) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error: unknown) {if (error?.code !== 'ENOENT') {
+    } catch (error: unknown) {if (asErrorLike(error).code !== 'ENOENT') {
       logger.warn('[Zavorth Capability Action Exposure] parsing failed', error);
     }
     return this.emptyStore();

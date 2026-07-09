@@ -12,6 +12,8 @@ import {
   type UniversalAgentToolRuntime,
 } from '../../../../runtime/agent/index.js';
 import { RuntimeAccessManifestService } from '../../../../runtime/access/RuntimeAccessManifestService.js';
+import { SessionV2Service } from '../../../../services/SessionV2Service.js';
+
 import { RuntimeAccessReadinessService } from '../../../../runtime/access/RuntimeAccessReadinessService.js';
 import { RuntimeInstallJourneyService } from '../../../../runtime/access/RuntimeInstallJourneyService.js';
 import { RuntimeOfficialRemoteAccessService } from '../../../../runtime/access/RuntimeOfficialRemoteAccessService.js';
@@ -46,7 +48,7 @@ import type {
   SatelliteChatSendPayload,
   SatelliteHeartbeatPingPayload,
 } from '../../../../contracts/SatelliteContract.js';
-import { SessionV2Service } from '../../../../services/SessionV2Service.js';
+
 import { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
 import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurfaceConsistencyService.js';
 import { SkillCatalogApiService } from '../../../../services/SkillCatalogApiService.js';

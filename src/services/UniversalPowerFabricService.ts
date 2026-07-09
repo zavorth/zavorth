@@ -1,3 +1,4 @@
+import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
 /**
  * Universal Power Fabric — elastic backends, trusted operator, learning promote,
  * external harness registry, context discipline.
@@ -15,7 +16,7 @@ import {
   type PowerFabricReceipt,
   type PowerFabricSnapshot,
 } from '../contracts/UniversalPowerFabricContract.js';
-import { ZavorthTerminalBackendsService } from './ZavorthTerminalBackendsService.js';
+
 import { TrustedOperatorModeService } from './power/TrustedOperatorModeService.js';
 import { LearningPromoteService } from './power/LearningPromoteService.js';
 import { ExternalHarnessRegistryService } from './power/ExternalHarnessRegistryService.js';

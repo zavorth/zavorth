@@ -1,4 +1,4 @@
-﻿export type ZavorthDoctorPremiumStatus = 'pass' | 'warn' | 'fail';
+export type ZavorthDoctorPremiumStatus = 'pass' | 'warn' | 'fail';
 
 export type ZavorthDoctorPremiumCheck = {
   id: string;

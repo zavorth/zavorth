@@ -1,4 +1,5 @@
-﻿import { logger } from '../logger.js';
+import { sanitizeReceiptText } from './AgentMeshExecutionService.js';
+import { logger } from '../logger.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { config } from '../config/index.js';
@@ -6,7 +7,6 @@ import type {
   AgentMeshExecutionReceipt,
   AgentMeshLedgerSnapshot,
 } from '../contracts/AgentMeshExecutionContract.js';
-import { sanitizeReceiptText } from './AgentMeshExecutionService.js';
 
 export class AgentMeshLedgerService {
   private readonly ledgerPath: string;

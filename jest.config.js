@@ -16,6 +16,16 @@ module.exports = {
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
     '^@zavorth/(.*)$': '<rootDir>/src/$1',
     '/presentation/(TerminalSpinner|TerminalPanel|TerminalMarkdown|TerminalDiff|TerminalPrompt|TerminalTimeline)\\.js$': '<rootDir>/tests/cli/mocks/$1.mock.ts',
+    // Telegram moved under gateways/channels; keep legacy test/src import paths working.
+    '^.*src/telegram/(.*)\\.js$': '<rootDir>/src/gateways/channels/telegram/$1',
+    '^.*src/telegram/(.*)$': '<rootDir>/src/gateways/channels/telegram/$1',
+    // Channel adapters moved under gateways/channels/<channel>/
+    '^.*src/channels/adapters/SlackChannelAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/slack/SlackChannelAdapter',
+    '^.*src/channels/adapters/WhatsAppChannelAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/whatsapp/WhatsAppChannelAdapter',
+    '^.*src/channels/adapters/SignalChannelAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/signal/SignalChannelAdapter',
+    '^.*src/channels/adapters/IMessageMacBridgeAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/imessage/IMessageMacBridgeAdapter',
+    '^.*src/channels/adapters/TeamsChannelAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/teams/TeamsChannelAdapter',
+    '^.*src/channels/adapters/EmailChannelAdapter(\\.js)?$': '<rootDir>/src/gateways/channels/email/EmailChannelAdapter',
     '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboard/.*\\.js$': '<rootDir>/tests/zavorth-control/dashboard/commandCenterLegacyFacade.ts',
     '^.*src/zavorth-control/app/\\(dashboard\\)/dashboard/dashboardPageClient\\.utils$': '<rootDir>/src/zavorth-control/app/(dashboard)/control/controlPageClient.utils.ts',
     '^.*src/zavorth-control/app/\\(zavorthControl\\)/control/zavorth-control/.*\\.js$': '<rootDir>/src/ai-gateway/app/(zavorthControl)/control/zavorth-control/',

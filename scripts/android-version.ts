@@ -1,5 +1,5 @@
 import { asErrorLike } from '../src/utils/errorLike';
-﻿// Android Version script supports Zavorth repository automation.
+// Android Version script supports Zavorth repository automation.
 import { resolveAndroidVersion } from "./lib/android-version.ts";
 import { parseVersionQueryArgs } from "./lib/version-script-args.ts";
 

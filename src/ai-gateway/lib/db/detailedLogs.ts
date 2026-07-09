@@ -1,3 +1,4 @@
+import { compactStructuredStreamPayload } from "@ZavorthGateway/open-sse/utils/streamPayloadCollector.ts";
 /**
  * Detailed Request Logs DB Layer (#378)
  *
@@ -14,7 +15,7 @@ import {
   serializePayloadForStorage,
   parseStoredPayload,
 } from "../logPayloads";
-import { compactStructuredStreamPayload } from "@ZavorthGateway/open-sse/utils/streamPayloadCollector.ts";
+
 import { logger } from '@/shared/utils/logger';
 
 export interface RequestDetailLog {

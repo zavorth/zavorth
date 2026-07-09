@@ -32,6 +32,8 @@ import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
 import type { ExperienceCoreService } from '@zavorth/services/experience/ExperienceCoreService.js';
 import type { ChatMessage } from '@zavorth/providers/ILlmProvider.js';
 import type { TaskManagerLike, PermissionServiceLike } from '@zavorth/services/GatewaySessionService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
 type TelegramExperienceCore = Pick<ExperienceCoreService, 'buildHome' | 'executeCommand'>;
@@ -133,7 +135,7 @@ export class TelegramConversationController {
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
     }
 
-    const ConversationalModule = require('../../agents/ConversationalAgent.js').ConversationalAgent;
+    const ConversationalModule = require('../../../../agents/ConversationalAgent.js').ConversationalAgent;
     const convAgent = new ConversationalModule({
       toolRuntime: this.toolRuntime,
     });
@@ -279,7 +281,8 @@ export class TelegramConversationController {
         });
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error || 'unknown error');
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error || 'unknown error');
       const failureMessage = `I could not answer this right now.\n\nReason: ${message}`;
       await ctx.reply(failureMessage);
       this.recordLedgerMessage(canonicalTarget, {

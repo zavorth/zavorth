@@ -6,6 +6,7 @@ import type {
   LearningItem,
 } from '../../apiClient';
 import { itemId, panelLabels } from '../../primitives/desktopPrimitives';
+
 import { DetailRows, PageFrame, SearchBox, TextTabs } from './panelPrimitives';
 
 function sanitizeText(text: string): string {

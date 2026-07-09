@@ -4,6 +4,7 @@ import type {
   IntegrationManifest,
 } from '../contracts/IntegrationHubContract.js';
 import { IntegrationHealthService } from './IntegrationHealthService.js';
+
 import { IntegrationInstallerService } from './IntegrationInstallerService.js';
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 import { VendorLicenseGuardService } from './VendorLicenseGuardService.js';

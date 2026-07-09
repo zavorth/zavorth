@@ -1,4 +1,4 @@
-﻿import { Database } from '../storage/Database.js';
+import { Database } from '../storage/Database.js';
 import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
 import { ProviderConfigService } from './ProviderConfigService.js';

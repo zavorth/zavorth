@@ -8,6 +8,7 @@ import {
   ExternalAgentCapabilityProvider,
   type ExternalAgentCapabilityInventorySnapshot,
 } from './ExternalAgentCapabilityProvider.js';
+
 import type {
   ExternalAgentAdapter,
   ExternalAgentCapabilityDescriptor,

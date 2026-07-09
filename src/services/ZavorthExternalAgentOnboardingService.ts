@@ -1,4 +1,8 @@
-﻿import fs from 'node:fs';
+import {
+  type ZavorthExternalAgentGatewayReceipt,
+} from '../contracts/ZavorthExternalAgentGatewayContract.js';
+import { ZavorthExternalAgentGatewayService } from './ZavorthExternalAgentGatewayService.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { config } from '../config/index.js';
@@ -12,10 +16,8 @@ import {
   type ZavorthExternalAgentOnboardingSnapshot,
   type ZavorthExternalAgentOnboardingStatus,
 } from '../contracts/ZavorthExternalAgentOnboardingContract.js';
-import {
-  type ZavorthExternalAgentGatewayReceipt,
-} from '../contracts/ZavorthExternalAgentGatewayContract.js';
-import { ZavorthExternalAgentGatewayService } from './ZavorthExternalAgentGatewayService.js';
+
+
 import { logger } from '../logger.js';
 
 export type ZavorthExternalAgentOnboardingInput = {

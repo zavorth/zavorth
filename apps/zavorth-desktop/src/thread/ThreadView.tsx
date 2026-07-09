@@ -7,6 +7,8 @@ import {
   DESKTOP_ONBOARDING_COMPLETE_EVENT,
 } from '../onboarding/desktopOnboarding';
 import { InlineActivityStrip } from './InlineActivityStrip';
+import { parsePlanFromText } from './planCard';
+
 import { MarkdownContent } from '../lib/markdownRenderer';
 import { ToolCallBlock } from './ToolCallBlock';
 import { ScrollToBottomButton } from './ScrollToBottomButton';
@@ -16,7 +18,7 @@ import {
   nextMessageWindow,
   windowMessages,
 } from './messageWindow';
-import { parsePlanFromText } from './planCard';
+
 import { PlanCardView } from './PlanCardView';
 import { sliceStreamingMessages } from './streamIsolation';
 import { HunkReviewCard } from './HunkReviewCard';

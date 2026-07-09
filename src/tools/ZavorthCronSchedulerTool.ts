@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface CronJob {
   id: string;
@@ -107,8 +109,9 @@ export class ZavorthCronSchedulerTool extends BaseTool {
         default: return `Error: action "${action}" not implemented.`;
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Cron] delete operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `CronScheduler error: ${message}`;
   }
   }

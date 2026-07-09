@@ -6,6 +6,7 @@ import type {
   CanaryMonitoringRollbackReceipt,
 } from '../contracts/CanaryMonitoringRollbackGateContract.js';
 import { ZAVORTH_CANARY_MONITORING_ROLLBACK_GATE_CONTRACT_VERSION } from '../contracts/CanaryMonitoringRollbackGateContract.js';
+
 import { CanaryLaunchRehearsalService } from './CanaryLaunchRehearsalService.js';
 
 type CanaryMonitoringRollbackGateRuntime = {

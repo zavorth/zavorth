@@ -4,6 +4,8 @@ import { homedir } from "os";
 import { join } from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 /**
  * GET /api/oauth/kiro/auto-import
  * Auto-detect and extract Kiro refresh token from AWS SSO cache.
@@ -81,7 +83,8 @@ export async function GET(request: Request) {
       source: foundFile,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Kiro auto-import error:", error);
-    return NextResponse.json({ found: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ found: false, error: err.message }, { status: 500 });
   }
 }

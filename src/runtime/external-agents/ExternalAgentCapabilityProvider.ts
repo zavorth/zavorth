@@ -16,6 +16,7 @@ import {
   normalizeExternalAgentCapabilitiesToZavorthProviderContract,
   normalizeExternalAgentCapabilityToZavorthContract,
 } from './ExternalAgentSidecarAdapter.js';
+
 import type {
   ExternalAgentAdapter,
   ExternalAgentCapabilityDescriptor,

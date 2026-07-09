@@ -7,6 +7,14 @@ import {
 } from "../services/auth";
 import { getModelInfo, getComboForModel } from "../services/model";
 import {
+  isZavorthContextRelaySkipped,
+  isZavorthInternalContextHandoffRequest,
+} from "../transportPlane";
+import { asErrorLike } from '../../../utils/errorLike';
+import { markAccountExhaustedFrom429 } from "../../domain/quotaCache";
+import { applyZavorthContextCompression } from "@/lib/zavorthContextCompression";
+
+import {
   applyTaskAwareRouting,
   checkSessionLimit,
   errorResponse,
@@ -29,10 +37,7 @@ import {
   shouldUseFallback,
   touchSession,
 } from "../compat/openSseCompat";
-import {
-  isZavorthContextRelaySkipped,
-  isZavorthInternalContextHandoffRequest,
-} from "../transportPlane";
+
 import * as log from "../utils/logger";
 import { checkAndRefreshToken } from "../services/tokenRefresh";
 import { deleteHandoff, getHandoff } from "@/lib/db/contextHandoffs";
@@ -47,7 +52,6 @@ import {
   safeLogEvents,
   withSessionHeader,
 } from "./chatHelpers";
-import { asErrorLike } from '../../../utils/errorLike';
 
 /** Chat completion request body (OpenAI-compatible format). */
 interface ChatBody {
@@ -132,7 +136,7 @@ import {
   markModelAsProblematic,
   clearModelUnavailability,
 } from "../../domain/modelAvailability";
-import { markAccountExhaustedFrom429 } from "../../domain/quotaCache";
+
 import { RequestTelemetry, recordTelemetry } from "../../shared/utils/requestTelemetry";
 import { generateRequestId } from "../../shared/utils/requestId";
 import { logAuditEvent } from "../../lib/compliance/index";
@@ -144,7 +148,7 @@ import {
   isCacheable,
   setCachedResponse,
 } from "@/lib/semanticCache";
-import { applyZavorthContextCompression } from "@/lib/zavorthContextCompression";
+
 import { logger } from '@/shared/utils/logger';
 // Register Codex quota fetcher at module load (once per server start).
 // This hooks into the quotaPreflight + quotaMonitor systems so that combos

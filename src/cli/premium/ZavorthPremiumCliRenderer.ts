@@ -1,13 +1,3 @@
-﻿import { renderPremiumBrand, renderPremiumCompactBrand } from './ZavorthPremiumCliBrand.js';
-import {
-  renderPremiumActions,
-  renderPremiumInlineNotice,
-  renderPremiumPanel,
-  renderPremiumStatusRows,
-  type ZavorthPremiumCliAction,
-  type ZavorthPremiumCliPanel,
-  type ZavorthPremiumCliStatusRow,
-} from './ZavorthPremiumCliPanels.js';
 import {
   renderPremiumProgressRail,
   type ZavorthPremiumCliStep,
@@ -17,6 +7,17 @@ import {
   paintPremiumAccent,
   type ZavorthPremiumCliTheme,
 } from './ZavorthPremiumCliTheme.js';
+import { renderPremiumBrand, renderPremiumCompactBrand } from './ZavorthPremiumCliBrand.js';
+import {
+  renderPremiumActions,
+  renderPremiumInlineNotice,
+  renderPremiumPanel,
+  renderPremiumStatusRows,
+  type ZavorthPremiumCliAction,
+  type ZavorthPremiumCliPanel,
+  type ZavorthPremiumCliStatusRow,
+} from './ZavorthPremiumCliPanels.js';
+
 
 export type ZavorthPremiumCliScreen = {
   title: string;

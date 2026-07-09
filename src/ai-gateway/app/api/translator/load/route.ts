@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export async function GET(request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -41,7 +43,8 @@ export async function GET(request) {
 
     return NextResponse.json({ success: true, content });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("Error loading file:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

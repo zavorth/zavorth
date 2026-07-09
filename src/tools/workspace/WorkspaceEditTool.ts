@@ -7,8 +7,12 @@ import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
 import { logger } from '../../logger.js';
 import { executionContextScope } from '../../runtime/context/ExecutionContextScope.js';
-import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';function readString(value: unknown): string {
+import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';
+import { errorMessage } from '../../utils/errorLike.js';
+function readString(value: unknown): string {
+
   return String(value ?? '').trim();
+
 }
 
 function buildDiff(filePath: string, before: string, after: string): string {
@@ -99,7 +103,7 @@ export class WorkspaceEditTool extends BaseTool {
           success: false,
           applied: false,
           approvalRequired: true,
-          error: error?.message || 'Falha ao aplicar preview pelo Disk Mutation Gate.',
+          error: errorMessage(error, 'Falha ao aplicar preview pelo Disk Mutation Gate.'),
         });
   }
     }

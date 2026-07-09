@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { createTwoFilesPatch, diffLines } from 'diff';
 import { config } from '../config/index.js';

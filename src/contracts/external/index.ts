@@ -1,4 +1,4 @@
-﻿export * from './CompanionControlContract.js';
+export * from './CompanionControlContract.js';
 export * from './DesktopResourceContract.js';
 export * from './ExternalDocsContract.js';
 export * from './SatelliteAppConsistencyContract.js';

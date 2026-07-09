@@ -6,7 +6,10 @@ import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import type { ZavorthAgentGateway } from '../../../runtime/agent/index.js';
 import { LogRepository } from '../../../storage/LogRepository.js';
-import { logger } from '../../../logger.js';const DISCORD_BRIDGE_PROTOCOL = 'ZAVORTH_DISCORD_BRIDGE_V1' as const;
+import { logger } from '../../../logger.js';
+import { errorMessage } from '../../../utils/errorLike.js';
+const DISCORD_BRIDGE_PROTOCOL = 'ZAVORTH_DISCORD_BRIDGE_V1' as const;
+
 const MAX_PROCESSED_MESSAGE_IDS = 300;
 
 export interface DiscordBridgeInboundEnvelope {
@@ -391,7 +394,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       }));
       this.writeStatus();
       return { accepted: true, chatId };
-    } catch (error: unknown) {const reason = error?.message || 'Discord bridge failed while delegating to the broker.';
+    } catch (error: unknown) {const reason = errorMessage(error, 'Discord bridge failed while delegating to the broker.');
       this.patchState((state) => ({
         ...state,
         rejectedCount: state.rejectedCount + 1,
@@ -435,7 +438,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       outcome = await this.ingestEnvelope(envelope);
     } catch (error: unknown) {outcome = {
         accepted: false,
-        reason: error?.message || 'Discord bridge failed while parsing the inbox envelope.',
+        reason: errorMessage(error, 'Discord bridge failed while parsing the inbox envelope.'),
       };
     }
 

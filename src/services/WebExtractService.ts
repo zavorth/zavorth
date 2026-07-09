@@ -1,8 +1,10 @@
-﻿import { randomUUID } from 'node:crypto';
+
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type WebExtractMode = 'fetch' | 'readability' | 'crawl' | 'browser-capture';
 
@@ -185,13 +187,14 @@ export class WebExtractService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Web Extract] operation failed', error);
     return this.errorResult(
         mode,
         target,
         policyDecision,
         processedAt,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? err.message : String(error),
       );
   }
   }

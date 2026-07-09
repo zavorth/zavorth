@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
 import { LlmRuntimeService, type LlmRuntimeResult } from './llm/LlmRuntimeService.js';
 import type {
@@ -14,6 +15,7 @@ import {
 decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,
 } from '../security/SecurityPolicyBroker.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type LlmRuntimeLike = Pick<LlmRuntimeService, 'chatDetailed' | 'getPreferredProviderName'>;
 type SubagentToolRuntimeLike = {
@@ -112,6 +114,7 @@ export class ZavorthLiveSubagentExecutionService {
           maxToolCalls: input.maxToolCalls,
         });
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         const completedAt = this.now().toISOString();
         return {
           workerId,
@@ -124,7 +127,7 @@ export class ZavorthLiveSubagentExecutionService {
           modelName: input.modelName || null,
           summary: `Worker ${profile.id} failed before producing a governed answer.`,
           output: '',
-          error: error instanceof Error ? error.message : String(error),
+          error: error instanceof Error ? err.message : String(error),
           receiptId: null,
           metadata: {
             channel: input.channel,
@@ -271,8 +274,9 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
           toolResult = await this.toolRuntime.executeTool(toolCall.name, toolCall.arguments);
           toolStats.executed += 1;
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
-    toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
+    toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? err.message : String(error)}`;
   }
         toolMessages.push({
           role: 'tool',

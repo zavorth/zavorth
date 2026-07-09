@@ -1,13 +1,14 @@
 import { createHash } from 'node:crypto';
+import {
+  ZAVORTH_TRANSACTION_CRITICAL_VALUE_MOVEMENT_ACTIONS,
+  ZAVORTH_TRANSACTION_REAL_MONEY_ACTIONS,
+} from '../contracts/ZavorthTransactionPlaneContract.js';
 
 import type {
   ZavorthTransactionActionKind,
   ZavorthTransactionRiskLevel,
 } from '../contracts/ZavorthTransactionPlaneContract.js';
-import {
-  ZAVORTH_TRANSACTION_CRITICAL_VALUE_MOVEMENT_ACTIONS,
-  ZAVORTH_TRANSACTION_REAL_MONEY_ACTIONS,
-} from '../contracts/ZavorthTransactionPlaneContract.js';
+
 import type { ZavorthTransactionIntent } from '../contracts/ZavorthTransactionIntentContract.js';
 import { ZavorthTransactionIntentService } from './ZavorthTransactionIntentService.js';
 import {

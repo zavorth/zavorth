@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { SearchQueryService } from '../../src/services/SearchQueryService.js';
 
 import {
   BrowserCaptureWebExtractLiveAdapter,
@@ -8,7 +9,7 @@ import {
   ReadabilityWebExtractLiveAdapter,
   SearchProviderLiveAdapter,
 } from '../../src/adapters/web/WebResearchLiveAdapters.js';
-import { SearchQueryService } from '../../src/services/SearchQueryService.js';
+
 import { WebExtractService } from '../../src/services/WebExtractService.js';
 import { WebResearchLivePlaneService } from '../../src/services/WebResearchLivePlaneService.js';
 

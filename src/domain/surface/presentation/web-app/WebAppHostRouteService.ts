@@ -20,6 +20,8 @@ import type {
   ZavorthExternalAgentNetworkMode,
 } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
 import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type InstallJourneyActionBody = Record<string, unknown> & {
   timeoutMs?: unknown;
   pollIntervalMs?: unknown;
@@ -387,12 +389,13 @@ export class WebAppHostRouteService {
         );
         return true;
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         deps.writeJson(
           res,
           {
             ok: false,
             reason: 'falha ao ler snapshot',
-            detail: error instanceof Error ? error.message : String(error),
+            detail: error instanceof Error ? err.message : String(error),
           },
           500,
         );

@@ -10,6 +10,7 @@ import {
   getModelIsHidden,
 } from "@/lib/localDb";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
+
 import { enforceApiKeyPolicy } from "@/shared/utils/apiKeyPolicy";
 import { getAllEmbeddingModels } from "@ZavorthGateway/open-sse/config/embeddingRegistry.ts";
 import { getAllImageModels } from "@ZavorthGateway/open-sse/config/imageRegistry.ts";
@@ -886,9 +887,10 @@ export async function getUnifiedModelsResponse(
       }
     );
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Error fetching models:", error);
     return Response.json(
-      { error: { message: error instanceof Error ? error.message : "Unknown error", type: "server_error" } },
+      { error: { message: error instanceof Error ? err.message : "Unknown error", type: "server_error" } },
       { status: 500 }
     );
   }

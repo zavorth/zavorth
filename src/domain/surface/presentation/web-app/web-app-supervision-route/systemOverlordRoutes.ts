@@ -6,6 +6,8 @@ import {
   normalizeSystemOverlordAutonomyLevel,
 } from './helpers.js';
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (ctx) => {
   const { req, res, url, pathname, deps } = ctx;
 
@@ -58,7 +60,8 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       });
       deps.writeJson(res, { ok: true, ...result }, 200);
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Falha ao decidir approval do Overlord.' }, 409);
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Falha ao decidir approval do Overlord.' }, 409);
     }
     return true;
   }
@@ -143,7 +146,8 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
         });
       deps.writeJson(res, { ok: true, ...result }, 200);
     } catch (error: unknown) {
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Acao supervisionada indisponivel.' }, 400);
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Acao supervisionada indisponivel.' }, 400);
     }
     return true;
   }

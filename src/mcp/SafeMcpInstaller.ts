@@ -5,6 +5,8 @@ import path from 'path';
 import { McpSecurityGuard, type McpRiskAssessment, type McpSecurityInput } from './McpSecurityGuard.js';
 import type { McpServerManifestEntry } from './McpManifest.js';
 import type { McpToolPolicyDocument } from './McpToolPolicy.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type McpDiscoveredToolRisk = 'safe' | 'attention' | 'high' | 'critical' | 'unknown';
 
 export type McpDiscoveredTool = {
@@ -357,7 +359,8 @@ export class SafeMcpInstaller {
       this.runtime.manifestStore.save(nextManifest);
       this.runtime.policyStore.save(nextPolicy);
     } catch (error: unknown) {
-      return this.failed(serverId, risk, discovery, `Audit or persistence failed: ${sanitizeMcpInstallText(error instanceof Error ? error.message : String(error))}.`);
+      const err = asErrorLike(error);
+      return this.failed(serverId, risk, discovery, `Audit or persistence failed: ${sanitizeMcpInstallText(error instanceof Error ? err.message : String(error))}.`);
     }
 
     return sanitizeRecord({

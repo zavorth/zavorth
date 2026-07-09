@@ -8,6 +8,7 @@ import {
   GATEWAY_CONTRACT_VERSION,
   GATEWAY_WS_PROTOCOL_VERSION,
 } from '../../contracts/GatewayContract.js';
+
 import type { DesktopResourceSnapshot } from '../../contracts/DesktopResourceContract.js';
 import type { ZavorthGatewayRuntimeSnapshot } from '../ZavorthGatewayRuntimeService.js';
 import type { WebRealtimeEvent } from '../WebRealtimeService.js';

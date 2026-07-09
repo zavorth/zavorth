@@ -20,6 +20,7 @@ import {
   type SubagentResultStatus,
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../services/CanonicalExecutionPipelineService.js';
+
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike';
 
@@ -1359,7 +1360,7 @@ export class SwarmV2Service {
       return response.content?.trim() || deterministic;
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
-        error: String(error instanceof Error ? error.message : String(error ?? 'unknown')).slice(0, 240),
+        error: String(error instanceof Error ? err.message : String(error ?? 'unknown')).slice(0, 240),
       });
       state.synthesisMode = 'deterministic';
       return deterministic;

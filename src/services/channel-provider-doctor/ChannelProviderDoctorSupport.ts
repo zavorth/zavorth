@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import type { ChannelProviderDoctorItem, ChannelProviderDoctorReport } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';

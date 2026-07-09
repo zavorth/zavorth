@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import type { ComputerUseAction, ComputerUseAgent, ComputerUseConfig, ComputerUseSnapshot } from '../../agents/ComputerUseAgent.js';
 import type { CapabilityLifecycleService } from '../CapabilityLifecycleService.js';
@@ -6,7 +6,7 @@ import type { ZavorthRuntimeStabilityControlPlaneService } from '../ZavorthRunti
 import type { TrustDecisionService } from '../TrustDecisionService.js';
 import { logger } from '../../logger.js';
 import type {
-ComputerUseWatchModeState,
+  ComputerUseWatchModeState,
   InternalWatchModeRun,
   StartWatchModeRunInput,
   WatchModeArtifactEntry,
@@ -22,6 +22,7 @@ ComputerUseWatchModeState,
   WatchModeTimelineType,
   WatchModeRiskLevel,
 } from './ComputerUseWatchModeSharedTypes.js';
+import { errorMessage } from '../../utils/errorLike.js';
 
 type ComputerUseWatchModeLifecycleSupportDeps = {
   state: ComputerUseWatchModeState;
@@ -357,7 +358,7 @@ export class ComputerUseWatchModeLifecycleSupport {
         run.status = 'failed';
         run.finishedAt = new Date().toISOString();
         run.updatedAt = run.finishedAt;
-        run.lastError = error?.message || 'Falha ao executar Watch Mode.';
+        run.lastError = errorMessage(error, 'Falha ao executar Watch Mode.');
         this.pushTimeline(run, {
           type: 'failed',
           summary: run.lastError || 'Falha ao executar Watch Mode.',

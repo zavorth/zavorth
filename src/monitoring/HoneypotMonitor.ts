@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SecurityLockService } from '../services/SecurityLockService.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 /**
  * HoneypotMonitor - creates and watches canary decoy files.
  *
@@ -135,7 +137,8 @@ export class HoneypotMonitor {
       await this.botAlertCallback(alertMessage);
       console.warn('Honeypot: canary file access detected (alert only, no lock).');
     } catch (error: unknown) {
-      console.error('Failed to process honeypot alert:', error.message);
+      const err = asErrorLike(error);
+      console.error('Failed to process honeypot alert:', err.message);
     }
   }
 }

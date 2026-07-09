@@ -1,4 +1,6 @@
-﻿import { createHash, randomUUID } from 'node:crypto';
+import { AcpLiveBridgeService } from './AcpLiveBridgeService.js';
+
+import { createHash, randomUUID } from 'node:crypto';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative as relativePath, resolve } from 'node:path';
@@ -13,9 +15,10 @@ import {
   type AcpLiveSessionToolDecision,
   type AcpLiveSessionTransportKind,
 } from '../contracts/AcpLiveBridgeContract.js';
-import { AcpLiveBridgeService } from './AcpLiveBridgeService.js';
+
 import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface AcpElevatedApprovalRequest {
   id: string | number | null;
@@ -340,8 +343,9 @@ export class AcpLiveSessionService {
       await transport.request(jsonRpc('session/end', { sessionId }));
       push('session-end', 'ACP session ended.');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       status = 'failed';
-      outputText = error instanceof Error ? error.message : String(error);
+      outputText = error instanceof Error ? err.message : String(error);
       push('error', outputText);
     } finally {
       await transport.close().catch(() => undefined);
@@ -536,8 +540,9 @@ export class AcpLiveSessionService {
       });
       params.push('session-end', 'ACP SDK session ended.', { stopReason: response.stopReason });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       status = 'failed';
-      outputText = error instanceof Error ? error.message : String(error);
+      outputText = error instanceof Error ? err.message : String(error);
       params.push('error', outputText, stderr ? { stderr: sanitizeText(stderr) } : undefined);
     } finally {
       child.kill();

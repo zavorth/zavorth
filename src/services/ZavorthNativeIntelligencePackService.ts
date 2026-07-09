@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { SkillCatalogService } from '../skills/SkillCatalogService.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -10,7 +11,7 @@ import {
   type ZavorthNativeSkillPreset,
   type ZavorthNativeSkillPresetId,
 } from '../contracts/native/ZavorthNativeIntelligencePackContract.js';
-import { SkillCatalogService } from '../skills/SkillCatalogService.js';
+
 import { SkillLoader } from '../skills/SkillLoader.js';
 import { SkillSourceRegistryService } from './SkillSourceRegistryService.js';
 import { SkillTrustPolicyService } from './SkillTrustPolicyService.js';

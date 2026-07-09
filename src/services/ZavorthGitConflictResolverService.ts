@@ -1,7 +1,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface MergeResult {
   success: boolean;
@@ -37,7 +37,8 @@ export class ZavorthGitConflictResolverService {
       logger.info(`[Git Conflict Resolver] Merge completed successfully (no conflicts).`);
       return { success: true, conflictFiles: [], output: stdout };
     } catch (error: unknown) {
-      const output = error.stdout?.toString() || error.message || '';
+      const err = asErrorLike(error);
+      const output = asErrorLike(error).stdout?.toString() || err.message || '';
       logger.warn(`[Git Conflict Resolver] Merge failed or encountered conflicts: ${output}`);
 
       // 2. Identify unmerged (conflicting) files

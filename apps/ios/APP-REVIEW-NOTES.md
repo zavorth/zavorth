@@ -1,4 +1,4 @@
-﻿# App Review Notes
+# App Review Notes
 
 Use these steps to exercise the live Zavorth iOS App Review Gateway.
 

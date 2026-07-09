@@ -1,5 +1,7 @@
-﻿import { SidecarExecutionReceiptService } from './SidecarExecutionReceiptService.js';
+
+import { SidecarExecutionReceiptService } from './SidecarExecutionReceiptService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type RuntimeBrowserSidecarAction =
   | 'browser_navigate'
@@ -115,13 +117,14 @@ export class RuntimeBrowserSidecarService {
       });
       return output;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.recordBrowserReceipt({
         action: request.action,
         args: request.args,
         auditId,
         status: 'failed',
         durationMs: Date.now() - startedAt,
-        summary: error instanceof Error ? error.message : String(error),
+        summary: error instanceof Error ? err.message : String(error),
       });
       throw error;
     } finally {

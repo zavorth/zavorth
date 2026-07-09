@@ -6,6 +6,7 @@ import type {
   CanaryLaunchRehearsalStep,
 } from '../contracts/CanaryLaunchRehearsalContract.js';
 import { ZAVORTH_CANARY_LAUNCH_REHEARSAL_CONTRACT_VERSION } from '../contracts/CanaryLaunchRehearsalContract.js';
+
 import { CanaryExecutionApprovalLedgerService } from './CanaryExecutionApprovalLedgerService.js';
 
 type CanaryLaunchRehearsalRuntime = {

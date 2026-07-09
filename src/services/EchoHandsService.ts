@@ -1,8 +1,10 @@
-﻿import { spawn } from 'child_process';
+
+import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { AutomaticBrowserTool } from '../mcp/tools/AutomaticBrowserTool.js';
 import type { LogRepository } from '../storage/LogRepository.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type EchoHandsAction = 'open_app' | 'browser_search' | 'open_url' | 'protocol_run';
 export type EchoHandsRisk = 'low' | 'medium' | 'high';
@@ -97,7 +99,8 @@ export class EchoHandsService {
       this.log('info', request, result);
       return result;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       const result = this.result(false, action, message, { risk }, false);
       this.log('error', request, result);
       return result;

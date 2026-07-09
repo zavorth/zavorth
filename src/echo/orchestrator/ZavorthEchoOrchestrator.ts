@@ -14,6 +14,8 @@ import type { ToolDefinition } from '../../providers/ILlmProvider';
 import type { EchoExecutionEntry, EchoToolCall } from '../types/EchoTypes';
 import { EchoCompatibilityExecutionLogService } from '../../domain/execution/infrastructure/EchoCompatibilityExecutionLogService.js';
 import type { ZavorthActionGateway } from '../../runtime/actions/ZavorthActionGateway.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 type ZavorthEchoOrchestratorOptions = {
     capturePipelineHistory?: boolean;
     compatibilityLog?: Pick<EchoCompatibilityExecutionLogService, 'append' | 'list'>;
@@ -55,7 +57,8 @@ export class ZavorthEchoOrchestrator {
                 this.registerTool(tool);
             }
         } catch (error: unknown) {
-          console.warn('[EchoOrchestrator] Failed to register web Action Harness tools:', error instanceof Error ? error.message : String(error));
+          const err = asErrorLike(error);
+          console.warn('[EchoOrchestrator] Failed to register web Action Harness tools:', error instanceof Error ? err.message : String(error));
         }
     }
 
@@ -159,11 +162,12 @@ export class ZavorthEchoOrchestrator {
             this.logExecution(originalPrompt, [toolCall], 'error', startTime);
             return { response: `TOOL FAILURE: ${result.error}`, data: result.data };
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           toolCall.securityDecision = 'blocked';
-            toolCall.result = error.message;
+            toolCall.result = err.message;
             toolCall.durationMs = Date.now() - startTime;
             this.logExecution(originalPrompt, [toolCall], 'blocked', startTime);
-            return { response: `SECURITY BLOCK. Respond to the user with this justification: ${error.message}` };
+            return { response: `SECURITY BLOCK. Respond to the user with this justification: ${err.message}` };
         }
     }
 

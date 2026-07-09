@@ -9,6 +9,8 @@ import {
 isUnsafeCrossSiteMutation,
   readJsonBody,
 } from "../../runtime-engine-state";
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 export const runtime = "nodejs";
 
 function normalizeLimit(value: string | null): number {
@@ -79,10 +81,11 @@ export async function GET(request: Request) {
   try {
     return NextResponse.json(await listZavorthControlMemoryFacts(request));
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "memory facts unavailable",
+      error: error instanceof Error ? err.message : "memory facts unavailable",
     }, { status: 500 });
   }
 }

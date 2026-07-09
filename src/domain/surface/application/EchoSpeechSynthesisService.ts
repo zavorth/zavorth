@@ -1,8 +1,10 @@
-import fs from 'fs';import {
-  type EchoSpeechCostEstimator,
-  type EchoSpeechSynthesisProvider,
-  type EchoVoiceTelemetryInput,
-  type EchoVoiceTelemetryRecorder,
+import fs from 'fs';
+import { errorMessage } from '../../../utils/errorLike.js';
+import type {
+  EchoSpeechCostEstimator,
+  EchoSpeechSynthesisProvider,
+  EchoVoiceTelemetryInput,
+  EchoVoiceTelemetryRecorder,
 } from '../domain/EchoSpeechSynthesisPorts.js';
 
 export const DEFAULT_ECHO_GEMINI_TTS_MODEL = 'gemini-2.5-flash';
@@ -190,12 +192,12 @@ export class EchoSpeechSynthesisService {
         latencyMs: 0,
         requestedBy,
         sessionId,
-        error: String(error?.message || error || 'Falha ao sintetizar audio.'),
+        error: String(errorMessage(error) || 'Falha ao sintetizar audio.'),
       });
       return {
         ok: false,
         statusCode: 502,
-        error: error?.message || 'Falha ao sintetizar audio.',
+        error: errorMessage(error, 'Falha ao sintetizar audio.'),
         traceId,
       };
     } finally {

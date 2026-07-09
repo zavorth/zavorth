@@ -1,7 +1,11 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthPluginRegistryService } from '../../../../services/ZavorthPluginRegistryService.js';
-import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';type NaturalPluginIntent = {
+import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegrationCommandPack.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
+type NaturalPluginIntent = {
+
   pluginId?: string;
+
   pluginIds?: string[];
   actionId?: 'open' | 'doctor' | 'trust' | 'review' | 'install' | 'update' | 'remove';
   reason: 'open' | 'doctor' | 'trust' | 'review' | 'install' | 'update' | 'remove' | 'preview' | 'recommend';
@@ -120,7 +124,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     };
   }
 
-
   private parseContextualPluginIntent(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
     rawText: string,
@@ -187,7 +190,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     return null;
   }
 
-
   private async handleNaturalPluginIntent(
     ctx: IMessageContext,
     intent: NaturalPluginIntent,
@@ -229,10 +231,9 @@ export class SharedSurfaceNaturalPluginCommandPack {
         '',
         `Comandos uteis agora: /plugins ${intent.pluginId} | /plugins doctor ${intent.pluginId} | /plugins open ${intent.pluginId}.`,
       ].join('\n'));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui abrir o fluxo guiado desse plugin agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui abrir o fluxo guiado desse plugin agora.'));
     }
   }
-
 
   private buildNaturalPluginIntro(intent: NaturalPluginIntent): string {
     const label = String(intent.pluginId || '').trim();
@@ -259,7 +260,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     }
   }
 
-
   private buildNaturalPluginPreviewReply(compareTarget?: string): string {
     const options = this.getNaturalPluginPreviewOptions(compareTarget);
     return [
@@ -271,7 +271,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
       'Se quiser, me diga uma opcao, um plugin especifico ou "vai com o recomendado".',
     ].join('\n');
   }
-
 
   private buildNaturalPluginRecommendationReply(compareTarget?: string): string {
     const options = this.getNaturalPluginPreviewOptions(compareTarget);
@@ -300,7 +299,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
       'Se quiser, posso instalar esse plugin agora ou mostrar as outras opcoes.',
     ].join('\n');
   }
-
 
   private getNaturalPluginPreviewOptions(compareTarget?: string): PluginConversationOption[] {
     const snapshot = this.deps.pluginRegistryService.buildSnapshot();
@@ -348,7 +346,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     }));
   }
 
-
   private rememberPluginConversation(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
     compareTarget?: string,
@@ -362,7 +359,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
       updatedAt: Date.now(),
     });
   }
-
 
   private readPluginConversation(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
@@ -379,7 +375,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     return entry;
   }
 
-
   private buildPluginConversationKey(
     ctx: Pick<IMessageContext, 'platform' | 'chatId' | 'userId'>,
   ): string {
@@ -391,12 +386,10 @@ export class SharedSurfaceNaturalPluginCommandPack {
     ].join('::');
   }
 
-
   private extractNaturalPluginCompareTarget(rawText: string): string | undefined {
     const match = String(rawText || '').match(/\b(?:para|pro|pra)\s+(.+)$/i);
     return match?.[1] ? String(match[1]).trim() : undefined;
   }
-
 
   private async handleNaturalPluginBatchInstall(
     ctx: IMessageContext,
@@ -433,7 +426,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     await ctx.reply(lines.join('\n'));
   }
 
-
   private resolveNaturalPluginId(normalized: string): string | null {
     const snapshot = this.deps.pluginRegistryService.buildSnapshot();
     return this.resolveNaturalEntryId(
@@ -444,7 +436,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
       })),
     );
   }
-
 
   private resolveNaturalEntryId(
     normalized: string,
@@ -469,7 +460,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     }
     return best?.id || null;
   }
-
 
   private extractNaturalTaskVariationPreviewSelection(normalized: string): number | null {
     const match = normalized.match(
@@ -502,7 +492,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     }
   }
 
-
   private extractImplicitTaskVariationPreviewSelection(normalized: string): number | null {
     const match = normalized.match(/\b(?:na verdade\s+)?(primeira|segunda|terceira|quarta|quinta|sexta|1|2|3|4|5|6)\b/);
     if (!match?.[1]) {
@@ -510,7 +499,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
     }
     return this.extractNaturalTaskVariationPreviewSelection(`abre a ${match[1]} opcao`);
   }
-
 
   private normalizeNaturalText(value: string | null | undefined): string {
     return String(value || '')
@@ -520,7 +508,6 @@ export class SharedSurfaceNaturalPluginCommandPack {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
   }
-
 
   private escapeRegex(value: string): string {
     return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

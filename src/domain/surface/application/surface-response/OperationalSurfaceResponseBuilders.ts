@@ -7,6 +7,7 @@ import type {
   SurfaceResponseTone,
 } from './SurfaceResponseContract.js';
 import { createSurfaceResponse } from './SurfaceResponseContract.js';
+
 import { compactSurfaceLine } from './SurfaceResponseUtils.js';
 
 export type OperationalSurfaceReceiptInput = {

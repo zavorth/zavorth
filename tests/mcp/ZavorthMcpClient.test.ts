@@ -1,3 +1,4 @@
+import { ZavorthMcpClient, type McpServerRegistration } from '../../src/mcp/ZavorthMcpClient.js';
 const listToolsMock = jest.fn();
 const connectMock = jest.fn(async () => undefined);
 const closeMock = jest.fn(async () => undefined);
@@ -16,7 +17,7 @@ jest.mock('@modelcontextprotocol/sdk/client/stdio.js', () => ({
   StdioClientTransport: jest.fn().mockImplementation((config: any) => ({ config })),
 }));
 
-import { ZavorthMcpClient, type McpServerRegistration } from '../../src/mcp/ZavorthMcpClient.js';
+
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
 describe('ZavorthMcpClient', () => {

@@ -4,8 +4,12 @@ import type { ZavorthChannelMeshService } from '../../../../services/ZavorthChan
 import type { ZavorthSessionPlaneSnapshot } from '../../../../services/ZavorthSessionPlaneService.js';
 import type { ZavorthTeamCatalogService } from '../../../../services/ZavorthTeamCatalogService.js';
 import type { ZavorthTenantGovernanceActionService } from '../../../../services/ZavorthTenantGovernanceActionService.js';
-import type { ZavorthTenantGovernanceService } from '../../../../services/ZavorthTenantGovernanceService.js';type SharedSurfaceTenantGovernanceCommandPackDeps = {
+import type { ZavorthTenantGovernanceService } from '../../../../services/ZavorthTenantGovernanceService.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
+type SharedSurfaceTenantGovernanceCommandPackDeps = {
+
   teamCatalogService: Pick<ZavorthTeamCatalogService, 'buildSnapshot'>;
+
   tenantGovernanceService: Pick<ZavorthTenantGovernanceService, 'buildSnapshot'>;
   tenantGovernanceActionService: Pick<ZavorthTenantGovernanceActionService, 'execute'>;
   channelMeshService: Pick<ZavorthChannelMeshService, 'renderReport'>;
@@ -265,7 +269,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         workspace: process.cwd(),
       });
       await ctx.reply(this.buildTenantActionReply(tenantId, actionId, result));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui executar a acao guiada do tenant agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui executar a acao guiada do tenant agora.'));
     }
   }
 
@@ -387,6 +391,5 @@ export class SharedSurfaceTenantGovernanceCommandPack {
 
     return lines.join('\n');
   }
-
 
 }

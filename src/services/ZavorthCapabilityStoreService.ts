@@ -14,6 +14,7 @@ import {
   type CapabilityHubApiListInput,
 } from './ZavorthCapabilityHubApiService.js';
 
+
 export type ZavorthCapabilityStoreInput = {
   query?: unknown;
   category?: unknown;

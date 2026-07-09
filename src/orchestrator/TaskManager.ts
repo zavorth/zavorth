@@ -1,4 +1,4 @@
-﻿import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { ApprovalStatus, Task, TaskStatus } from '../contracts/TaskContract.js';
 import { TelegramResponse } from '../contracts/TelegramResponse.js';
 import { TaskRepository } from '../storage/TaskRepository.js';

@@ -5,6 +5,7 @@ import {
   type YouTubeOEmbedResponse,
 } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerTypes.js";
 import { VideoHandlerFetchSupport } from "../../../../gateways/channels/telegram/video-handler/VideoHandlerFetchSupport.js";
+
 import { logger } from '../../../../logger';
 
 export class VideoHandlerUrlSupport {

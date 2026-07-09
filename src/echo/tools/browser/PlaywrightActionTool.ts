@@ -128,7 +128,8 @@ export class PlaywrightActionTool implements IZavorthTool {
                         };
                     }
                 } catch (error: unknown) {
-                  const errorMessage = error instanceof Error ? error.message : 'URL blocked by browser policy.';
+                  const err = asErrorLike(error);
+                  const errorMessage = error instanceof Error ? err.message : 'URL blocked by browser policy.';
                     return {
                         success: false,
                         error: errorMessage,
@@ -201,7 +202,8 @@ export class PlaywrightActionTool implements IZavorthTool {
             );
             return await this.buildResponse(sessionId, page, actionMessage, extraData);
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const err = asErrorLike(error);
+          const errorMessage = error instanceof Error ? err.message : String(error);
             return {
                 success: false,
                 message: `Error interacting with the site: ${errorMessage}`,
@@ -438,7 +440,7 @@ export class PlaywrightActionTool implements IZavorthTool {
 
             return {
                 ok: false,
-                error: directError instanceof Error ? directError.message : String(directError),
+                error: directError instanceof Error ? err.message : String(directError),
                 data: {
                     selfHealing: {
                         attemptedAt: new Date().toISOString(),

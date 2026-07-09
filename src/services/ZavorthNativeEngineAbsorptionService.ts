@@ -1,4 +1,4 @@
-﻿import {
+import {
   ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION,
   type ZavorthErrorRecoveryCategory,
   type ZavorthErrorRecoveryReceipt,

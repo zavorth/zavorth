@@ -1,13 +1,14 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { execCommandSync } from '../core/CommandSpawn.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 import {
 RuntimeAccessReadinessService,
   type RuntimeAccessReadinessReport,
 } from '../runtime/access/RuntimeAccessReadinessService.js';
-
 type LockSnapshot = {
   active: boolean;
   pid: number | null;
@@ -598,7 +599,7 @@ export class SupervisedRuntimeService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: unknown) {logger.warn('[Supervised Runtime] parsing failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Supervised Runtime] parsing failed', error); return asErrorLike(error).code !== 'ESRCH'; }
   }
 
   private readLastReloadReport(): ReloadReport | null {

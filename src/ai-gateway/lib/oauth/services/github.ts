@@ -1,6 +1,8 @@
 import { OAuthService } from "./oauth";
 import { GITHUB_CONFIG } from "../constants/oauth";
 import { spinner as createSpinner } from "../utils/ui";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 /**
  * GitHub Copilot OAuth Service
  * Uses Device Code Flow for authentication
@@ -176,7 +178,8 @@ export class GitHubService extends OAuthService {
         copilotTokenInfo: copilotToken,
       };
     } catch (error: unknown) {
-      throw new Error(`GitHub authentication failed: ${error.message}`);
+      const err = asErrorLike(error);
+      throw new Error(`GitHub authentication failed: ${err.message}`);
     }
   }
 
@@ -217,8 +220,9 @@ export class GitHubService extends OAuthService {
       spinner.succeed("GitHub Copilot connected successfully!");
       console.log(`\nConnected as: ${authResult.userInfo.login}`);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const { error: showError } = await import("../utils/ui");
-      showError(`GitHub connection failed: ${error.message}`);
+      showError(`GitHub connection failed: ${err.message}`);
       throw error;
     }
   }

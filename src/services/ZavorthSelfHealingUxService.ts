@@ -1,4 +1,4 @@
-﻿import {
+import {
   ZAVORTH_SELF_HEALING_UX_CONTRACT_VERSION,
   type ZavorthSelfHealingAction,
   type ZavorthSelfHealingBuildInput,

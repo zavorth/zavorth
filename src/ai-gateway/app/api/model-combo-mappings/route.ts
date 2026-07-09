@@ -1,3 +1,4 @@
+
 /**
  * API: Model-Combo Mappings (#563)
  * GET  — List all mappings
@@ -10,6 +11,7 @@ import { getModelComboMappings, createModelComboMapping } from "@/lib/localDb";
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 
 const createMappingSchema = z.object({
   pattern: z.string().min(1, "Pattern is required").max(500),
@@ -27,9 +29,10 @@ export async function GET(request: Request) {
     const mappings = await getModelComboMappings();
     return NextResponse.json({ mappings });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to list model-combo mappings" },
+      { error: err.message || "Failed to list model-combo mappings" },
       { status: 500 }
     );
   }
@@ -57,9 +60,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ mapping }, { status: 201 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to create model-combo mapping" },
+      { error: err.message || "Failed to create model-combo mapping" },
       { status: 500 }
     );
   }

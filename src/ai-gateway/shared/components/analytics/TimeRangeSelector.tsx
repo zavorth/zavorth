@@ -1,6 +1,7 @@
+import { cn } from "@/shared/utils/cn";
 "use client";
 
-import { cn } from "@/shared/utils/cn";
+
 import type { UtilizationTimeRange } from "@/shared/types/utilization";
 
 interface TimeRangeSelectorProps {

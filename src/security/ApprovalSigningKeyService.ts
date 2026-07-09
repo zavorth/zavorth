@@ -2,8 +2,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { logger } from '../logger.js';export type ApprovalSigningKeyResolution = {
+import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+export type ApprovalSigningKeyResolution = {
+
   key: string;
+
   source: 'env' | 'local-file';
   envVar: string | null;
   filePath: string | null;
@@ -221,7 +225,7 @@ function writeGeneratedKey(filePath: string, key: string): void {
     }
   try {
     fs.writeFileSync(filePath, `${key}\n`, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
-  } catch (error: unknown) {if (error?.code === 'EEXIST') {
+  } catch (error: unknown) {if (asErrorLike(error).code === 'EEXIST') {
       const existing = readExistingGeneratedKey(filePath);
       if (existing) {
         return;

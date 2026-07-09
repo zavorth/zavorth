@@ -1,4 +1,5 @@
-﻿import crypto, { randomUUID } from 'node:crypto';
+import { CapabilityLabService } from './CapabilityLabService.js';
+import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -19,7 +20,7 @@ import type {
   ZavorthCapabilityPrototypeRecord,
   ZavorthCapabilityPrototypeSandboxSnapshot,
 } from '../contracts/ZavorthCapabilityPrototypeSandboxContract.js';
-import { CapabilityLabService } from './CapabilityLabService.js';
+
 import { ZavorthCapabilityPrototypeSandboxService } from './ZavorthCapabilityPrototypeSandboxService.js';
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';

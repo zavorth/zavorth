@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import { buildChannelConfig, buildDiscordBridgeConfig } from './channelConfig';
 
 import {
   findProjectRoot,
@@ -7,7 +8,7 @@ import {
   resolveDefaultZavorthProductMode,
   resolveDefaultZavorthProfile,
 } from '../configHelpers';
-import { buildChannelConfig, buildDiscordBridgeConfig } from './channelConfig';
+
 import { buildExecutionHostConfig } from './executionHostConfig';
 import { buildProviderConfig } from './providerConfig';
 import { buildRuntimePathConfig } from './runtimePathConfig';

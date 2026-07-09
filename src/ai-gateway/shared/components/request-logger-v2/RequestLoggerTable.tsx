@@ -6,6 +6,7 @@ import {
   getHttpStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
 import { formatApiKeyLabel, formatDuration, formatTime, maskAccount } from "@/shared/utils/formatting";
+
 import { getProviderDisplayLabel } from "./requestLoggerUtils";
 import type { ProviderNode, RequestLogEntry, RequestLoggerVisibleColumns } from "./requestLoggerTypes";
 

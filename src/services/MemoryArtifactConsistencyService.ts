@@ -1,4 +1,6 @@
-﻿import fs from 'fs';
+import { ZAVORTH_MEMORY_ARTIFACT_CONSISTENCY_CONTRACT_VERSION } from '../contracts/MemoryArtifactConsistencyContract.js';
+import { logger } from '../logger.js';
+import fs from 'fs';
 import path from 'path';
 import type {
   MemoryArtifactEvidence,
@@ -10,7 +12,7 @@ import type {
   MemoryArtifactPrimitive,
   MemoryArtifactSourceModuleMapping,
 } from '../contracts/MemoryArtifactConsistencyContract.js';
-import { ZAVORTH_MEMORY_ARTIFACT_CONSISTENCY_CONTRACT_VERSION } from '../contracts/MemoryArtifactConsistencyContract.js';
+
 import type { ZavorthPluginManifest, ZavorthPluginPermission } from '../contracts/PluginManifestContract.js';
 import { ZAVORTH_PLUGIN_OS_API_VERSION } from '../contracts/PluginManifestContract.js';
 import { ArtifactMemoryService } from '../runtime/agent/ArtifactMemoryService.js';
@@ -24,7 +26,7 @@ type MemoryArtifactConsistencyRuntime = {
   files?: Partial<Record<MemoryArtifactSourceFileKey, string>>;
 };
 
-import { logger } from '../logger.js';
+
 import {
 SOURCE_FILE_NAMES,
   SPECS,

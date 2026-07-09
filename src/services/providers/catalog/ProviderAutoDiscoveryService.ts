@@ -1,4 +1,5 @@
-﻿import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
+
+import type { ModelCapabilityKind, ModelModality } from './ProviderCatalogContracts.js';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { OpenAiCompatibleModelDiscoveryAdapter } from './discovery/OpenAiCompatibleModelDiscoveryAdapter.js';
@@ -6,6 +7,7 @@ import { AnthropicCompatibleModelDiscoveryAdapter } from './discovery/AnthropicC
 import { sanitizeModelId, sanitizeProviderId, sanitizeLabel, sanitizeBaseUrl, validateProviderId, validateModelId } from './ModelIdSanitizer.js';
 import { DiscoveryRateLimiter, type RateLimitConfig } from './DiscoveryRateLimiter.js';
 import { DiscoveryCache, type CacheConfig } from './DiscoveryCache.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 export type ProviderAutoDiscoveryKind = 'openai_compatible' | 'anthropic_compatible';
 
@@ -249,7 +251,8 @@ export class ProviderAutoDiscoveryService {
         });
       }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Discovery failed unexpectedly';
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : 'Discovery failed unexpectedly';
       errors.push(msg);
       return this.buildErrorResult(id, label, sanitizedUrl, errors);
     }

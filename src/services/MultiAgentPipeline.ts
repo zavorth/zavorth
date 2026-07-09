@@ -7,6 +7,8 @@ import {
   type WorkflowWorkspaceContext,
 } from './WorkflowRunService.js';
 import { createMultiAgentExecutionGateway } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelineGateway.js';
+import { MultiAgentWorkflowPlannerService } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentWorkflowPlannerService.js';
+
 import { MultiAgentPipelinePresentation } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelinePresentation.js';
 import { MultiAgentPipelineRunner } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelineRunner.js';
 import { MultiAgentPipelineTaskSupport } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelineTaskSupport.js';
@@ -15,7 +17,7 @@ import type {
   PipelineRuntime,
   WorkflowStage,
 } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentPipelineTypes.js';
-import { MultiAgentWorkflowPlannerService } from '../domain/execution/infrastructure/multi-agent-pipeline/MultiAgentWorkflowPlannerService.js';
+
 import { asErrorLike } from '../utils/errorLike';
 
 export class MultiAgentPipeline {

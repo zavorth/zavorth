@@ -178,7 +178,7 @@ export class UniversalWorkspaceImportService {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         item.status = 'error';
-        item.reason = error instanceof Error ? error.message : String(error);
+        item.reason = error instanceof Error ? err.message : String(error);
         denied += 1;
         receipts.push(this.receipt('deny', item, item.reason));
       }

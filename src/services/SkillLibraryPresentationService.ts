@@ -4,15 +4,18 @@ import type {
 } from '../skills/SkillCatalogContract.js';
 import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import {
-  SkillCatalogApiService,
-  type SkillCatalogApiQuery,
-  type SkillCatalogApiSnapshot,
-} from './SkillCatalogApiService.js';
-import {
   SkillMcpSidecarService,
   type SkillMcpSidecarSnapshot,
 } from './SkillMcpSidecarService.js';
 import { VendorReleaseIndexService } from './VendorReleaseIndexService.js';
+
+import {
+  SkillCatalogApiService,
+  type SkillCatalogApiQuery,
+  type SkillCatalogApiSnapshot,
+} from './SkillCatalogApiService.js';
+
+
 import type {
   VendorLicenseDecision,
   VendorReleaseIndexEntry,

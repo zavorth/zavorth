@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type StreamEvent = {
   type: 'start' | 'chunk' | 'end' | 'error';
   agentId: string;
@@ -86,7 +88,8 @@ export class AgentStreamService extends EventEmitter {
       this.emit('end', endEvent);
       options.onEnd?.(fullOutput);
     } catch (error: unknown) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMsg = error instanceof Error ? err.message : String(error);
       const errorEvent: StreamEvent = {
         type: 'error',
         agentId: options.agentId,

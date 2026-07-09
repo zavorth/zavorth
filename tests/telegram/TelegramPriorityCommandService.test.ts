@@ -40,9 +40,7 @@ describe('TelegramPriorityCommandService', () => {
     const handled = await service.handle(ctx, '/mode remote on');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('Zavorth locked'),
-    );
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth locked');
     expect(deps.opsController.handleRemoteMode).not.toHaveBeenCalled();
   });
 

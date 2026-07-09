@@ -92,6 +92,9 @@ export function createBotGatewaySupport(
       supervisedRuntimeNotificationFlushInFlight: false,
       zavorthControlSurfaceStarted: false,
     },
-    getSharedSurfaceCommandService: () => gateway.getSharedSurfaceCommandService?.() ?? null,
+    getSharedSurfaceCommandService: () =>
+      gateway.getSharedSurfaceCommandService?.()
+      ?? (gateway as { sharedSurfaceCommandService?: unknown }).sharedSurfaceCommandService as any
+      ?? null,
   } as any);
 }

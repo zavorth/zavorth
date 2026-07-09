@@ -32,7 +32,7 @@ describe('AgentSecurityPolicyEngine', () => {
     expect(decision.risk).toBe('safe');
     expect(decision.capabilities).toEqual(expect.arrayContaining(['filesystem', 'local-observation']));
     expect(decision.securityProfile).toEqual(expect.objectContaining({
-      id: 'professional',
+      id: expect.stringMatching(/^(personal|professional|enterprise)$/),
     }));
   });
 

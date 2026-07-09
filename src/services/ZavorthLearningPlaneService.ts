@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { AgentRunStore } from '../runtime/agent/AgentRunStore.js';
@@ -8,7 +9,7 @@ import type {
   ZavorthNativeAutonomySpineSnapshot,
   ZavorthSkillForgeDraft,
 } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
-import { ZAVORTH_NATIVE_AUTONOMY_SPINE_VERSION } from '../contracts/native/ZavorthNativeAutonomySpineContract.js';
+
 import { redactSensitiveText } from './ZavorthNativeAutonomyShared.js';
 import { logger } from '../logger.js';
 import {

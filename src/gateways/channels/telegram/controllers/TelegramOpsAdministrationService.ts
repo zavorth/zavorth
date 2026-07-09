@@ -4,6 +4,8 @@ import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { OperationalMode } from '../../../../security/OperationalMode.js';
 import { logger } from '../../../../logger.js';
 import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 const VALID_OPERATIONAL_MODES = Object.values(OperationalMode);
 
 export type TelegramOpsAdministrationServiceDeps = {
@@ -45,7 +47,8 @@ export class TelegramOpsAdministrationService {
       lines.push('', `Current operational mode: ${modeManager.getMode()}`);
       await ctx.reply(lines.join('\n'));
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       await ctx.reply(`I could not read the audit log right now.\n\nReason: ${msg}`);
     }
   }

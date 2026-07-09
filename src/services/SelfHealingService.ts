@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import { GeminiProvider } from '../providers/GeminiProvider.js';
 import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';

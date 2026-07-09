@@ -10,7 +10,7 @@ import { MessageBus } from '../../src/agents/MessageBus';
 import { AgentCommunicator } from '../../src/agents/AgentCommunicator';
 import { ToolVersionRegistry } from '../../src/tools/ToolVersionRegistry';
 import { SupplyChainVerifier } from '../../src/security/SupplyChainVerifier';
-import { SessionAnalyticsDashboard } from '../../src/services/SessionAnalyticsDashboard';
+import { SessionAnalyticsZavorthControl as SessionAnalyticsDashboard } from '../../src/services/SessionAnalyticsZavorthControl';
 import { ModelFallbackChain } from '../../src/agents/ModelFallbackChain';
 import { ZavorthI18nService } from '../../src/i18n/ZavorthI18nService';
 

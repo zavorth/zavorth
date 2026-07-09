@@ -7,6 +7,7 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { t } from '../i18n';
+
 import {
   extractOpenTargets,
   preferDiffTarget,

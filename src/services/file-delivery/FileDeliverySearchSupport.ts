@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import type { FileDeliveryEntry, RequestDescriptor, SearchRoot } from './FileDeliveryTypes.js';
 import { MAX_PENDING_CHOICES, MAX_SCAN_ENTRIES } from './FileDeliveryTypes.js';

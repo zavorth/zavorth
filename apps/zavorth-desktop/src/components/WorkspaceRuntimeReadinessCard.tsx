@@ -1,4 +1,5 @@
 import React from 'react';
+import { StatusBadge, SurfaceCard } from './ProductPolishComponents';
 
 export interface WorkspaceRuntimeReadinessIssue {
   code: string;
@@ -16,7 +17,6 @@ export interface WorkspaceRuntimeReadiness {
   issues: WorkspaceRuntimeReadinessIssue[];
 }
 
-import { StatusBadge, SurfaceCard } from './ProductPolishComponents';
 
 export const WorkspaceRuntimeReadinessCard: React.FC<{ readiness: WorkspaceRuntimeReadiness | null }> = ({ readiness }) => {
   if (!readiness) {

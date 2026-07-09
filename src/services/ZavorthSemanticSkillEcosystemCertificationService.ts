@@ -10,6 +10,8 @@ import type {
   ZavorthSkillSmokeResult,
 } from '../contracts/ZavorthSkillEcosystemPackContract.js';
 import { ZavorthSkillEcosystemPackService } from './ZavorthSkillEcosystemPackService.js';
+import { ZAVORTH_SEMANTIC_SKILL_ECOSYSTEM_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticSkillEcosystemCertificationContract.js';
+
 import type {
   ZavorthSemanticSkillEcosystemCertificationSnapshot,
   ZavorthSemanticSkillEcosystemCertificationStatus,
@@ -19,7 +21,6 @@ import type {
   ZavorthSemanticSkillEcosystemClaimStatus,
   ZavorthSemanticSkillEcosystemScenario,
 } from '../contracts/ZavorthSemanticSkillEcosystemCertificationContract.js';
-import { ZAVORTH_SEMANTIC_SKILL_ECOSYSTEM_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticSkillEcosystemCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

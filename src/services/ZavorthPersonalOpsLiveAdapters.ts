@@ -1,9 +1,10 @@
-﻿import { SecureStorageService } from './SecureStorageService.js';
+import { logger } from '../logger.js';
+import { SecureStorageService } from './SecureStorageService.js';
 import {
   ZavorthPersonalOpsOAuthService,
   type ZavorthPersonalOpsOAuthProvider,
 } from './ZavorthPersonalOpsOAuthService.js';
-import { logger } from '../logger.js';
+
 import type {
 ZavorthPersonalOpsAdapter,
   ZavorthPersonalOpsAdapterInput,

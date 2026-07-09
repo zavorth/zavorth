@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { SandboxExecutionService } from './SandboxExecutionService.js';
 import { SidecarExecutionReceiptService } from './SidecarExecutionReceiptService.js';
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';

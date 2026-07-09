@@ -1,6 +1,6 @@
+import { useTranslations } from "next-intl";
 "use client";
 
-import { useTranslations } from "next-intl";
 
 /**
  * 403 Forbidden Page — ZavorthControl controls.1

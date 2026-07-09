@@ -8,6 +8,7 @@ import type {
   NodeMeshRegistryEntry,
 } from '../contracts/NodeMeshContract.js';
 import { DeviceCapabilityPolicy } from '../nodes/policy/DeviceCapabilityPolicy.js';
+
 import { NodeCapabilityService } from './NodeCapabilityService.js';
 import { NodeInvocationStoreService } from './NodeInvocationStoreService.js';
 import { NodeRegistryService } from './NodeRegistryService.js';

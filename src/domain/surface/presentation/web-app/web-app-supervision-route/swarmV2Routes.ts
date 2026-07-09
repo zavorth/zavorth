@@ -456,8 +456,18 @@ function normalizeRoleLibraryScope(value: unknown): SwarmV2RoleLibraryEntry['sco
 }
 
 function normalizeSwarmScaleSurface(value: unknown): string {
-  const normalized = String(value || '').trim().toLowerCase();
-  return ['cli', 'tui', 'desktop', 'zavorthControl', 'api', 'agent', 'system'].includes(normalized)
-    ? normalized
-    : 'api';
+  const raw = String(value || '').trim();
+  const normalized = raw.toLowerCase().replace(/[\s_-]+/g, '');
+  const aliases: Record<string, string> = {
+    cli: 'cli',
+    tui: 'tui',
+    desktop: 'desktop',
+    zavorthcontrol: 'zavorthControl',
+    dashboard: 'zavorthControl',
+    web: 'zavorthControl',
+    api: 'api',
+    agent: 'agent',
+    system: 'system',
+  };
+  return aliases[normalized] || 'api';
 }

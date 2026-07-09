@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { ComputerUseAgent } from '../../src/agents/ComputerUseAgent.js';
 
 const mockDesktopExecute = jest.fn();
 
@@ -10,7 +11,6 @@ jest.mock('../../src/tools/DesktopAutomationTool.js', () => ({
   })),
 }));
 
-import { ComputerUseAgent } from '../../src/agents/ComputerUseAgent.js';
 
 describe('ComputerUseAgent', () => {
   const originalEnabled = process.env.ZAVORTH_COMPUTER_USE_ENABLED;

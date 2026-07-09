@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { executeViaWsl, getWslStatus } from './firecracker-runtime/FirecrackerSandboxWslBridge.js';
+import fs from 'fs';
 import http from 'http';
 import os from 'os';
 import path from 'path';
@@ -19,7 +20,7 @@ import {
   checkKvmAccess,
   type FirecrackerSandboxStatus,
 } from './firecracker-runtime/FirecrackerSandboxEnvironment.js';
-import { executeViaWsl, getWslStatus } from './firecracker-runtime/FirecrackerSandboxWslBridge.js';
+
 import type {
   ISandboxRuntime,
   SandboxLanguage,

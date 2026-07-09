@@ -14,6 +14,9 @@ import {
     getDefaultEchoVoiceAssetStore,
 } from '../../../domain/surface/infrastructure/EchoVoiceAssetStoreService.js';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike';
+
+
 import type {
 HomeAssistantBridgeRuntime,
     HomeAssistantBridgeState,
@@ -21,7 +24,6 @@ HomeAssistantBridgeRuntime,
     HomeAssistantLifecycleStatus,
     HomeAssistantPhysicalEvent,
 } from './HomeAssistantBridgeTypes.js';
-import { asErrorLike } from '../../../utils/errorLike';
 
 interface HomeAssistantEntityState {
     state: string;
@@ -370,7 +372,8 @@ export class HomeAssistantBridge implements IZavorthTool {
                 },
             };
         } catch (error: unknown) {
-          const errMessage = error instanceof Error ? error.message : String(error);
+          const err = asErrorLike(error);
+          const errMessage = error instanceof Error ? err.message : String(error);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',
                 lastError: errMessage || 'unknown error',
@@ -536,7 +539,8 @@ export class HomeAssistantBridge implements IZavorthTool {
                 },
             };
         } catch (error: unknown) {
-          const errMessage = error instanceof Error ? error.message : String(error);
+          const err = asErrorLike(error);
+          const errMessage = error instanceof Error ? err.message : String(error);
             this.voiceAssetStore.remove(asset.id);
             this.updateState({
                 status: this.listening ? 'degraded' : 'idle',

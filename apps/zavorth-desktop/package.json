@@ -30,6 +30,7 @@
     "@xterm/addon-unicode11": "^0.8.0",
     "@xterm/xterm": "^5.5.0",
     "highlight.js": "^11.11.1",
+    "isomorphic-dompurify": "^3.18.0",
     "katex": "^0.17.0",
     "marked": "^18.0.5",
     "nanostores": "^1.4.0",

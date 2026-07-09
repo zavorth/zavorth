@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { GET, PUT } from "../memory/route";
 
 vi.mock("../../../../shared/utils/apiAuth", () => ({
   isAuthenticated: vi.fn(),
@@ -17,7 +18,7 @@ vi.mock("../../../../lib/memory/settings", async () => {
   };
 });
 
-import { GET, PUT } from "../memory/route";
+
 import { isAuthenticated } from "../../../../shared/utils/apiAuth";
 import { getSettings, updateSettings } from "../../../../lib/localDb";
 import { invalidateMemorySettingsCache } from "../../../../lib/memory/settings";

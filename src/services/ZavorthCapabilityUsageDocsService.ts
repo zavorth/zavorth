@@ -1,10 +1,10 @@
 import path from 'node:path';
+import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
 
 import {
   ZAVORTH_CAPABILITY_USAGE_DOCS_CONTRACT_VERSION,
   type ZavorthCapabilityUsageDocsSnapshot,
 } from '../contracts/ZavorthCapabilityUsageDocsContract.js';
-import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
 
 type Runtime = {
   projectRoot?: string;

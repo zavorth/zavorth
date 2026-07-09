@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+import { detectPromptInjectionIndicators } from '../security/UntrustedContent.js';
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   ZAVORTH_MNEMOS_LINT_VERSION,
@@ -8,7 +9,6 @@ import {
   type ZavorthMnemosLintSnapshot,
   type ZavorthMnemosLintStatus,
 } from '../contracts/ZavorthMnemosLintContract.js';
-import { detectPromptInjectionIndicators } from '../security/UntrustedContent.js';
 
 type ZavorthMnemosLintRuntime = {
   now?: () => Date;

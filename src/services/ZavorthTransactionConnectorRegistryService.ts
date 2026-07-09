@@ -1,17 +1,7 @@
 import { createHash } from 'node:crypto';
-
-import type {
-  ZavorthTransactionActionKind,
-} from '../contracts/ZavorthTransactionPlaneContract.js';
 import {
   ZAVORTH_TRANSACTION_REAL_MONEY_ACTIONS,
 } from '../contracts/ZavorthTransactionPlaneContract.js';
-import type {
-  ZavorthTransactionApprovalLedgerEntry,
-} from '../contracts/ZavorthTransactionApprovalContract.js';
-import type {
-  ZavorthTransactionPreview,
-} from '../contracts/ZavorthTransactionPreviewContract.js';
 import {
   buildZavorthTransactionConnectorContractSnapshot,
   ZAVORTH_TRANSACTION_CONNECTOR_CONTRACT_VERSION,
@@ -25,6 +15,18 @@ import {
   type ZavorthTransactionTypedConnectorDefinition,
 } from '../contracts/ZavorthTransactionConnectorContract.js';
 import { isAllowedZavorthTransactionCredentialRef } from './ZavorthTransactionCredentialRefService.js';
+
+import type {
+  ZavorthTransactionActionKind,
+} from '../contracts/ZavorthTransactionPlaneContract.js';
+
+import type {
+  ZavorthTransactionApprovalLedgerEntry,
+} from '../contracts/ZavorthTransactionApprovalContract.js';
+import type {
+  ZavorthTransactionPreview,
+} from '../contracts/ZavorthTransactionPreviewContract.js';
+
 
 const DEFAULT_CONNECTORS: readonly ZavorthTransactionTypedConnectorDefinition[] = [
   {

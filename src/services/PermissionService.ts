@@ -1,4 +1,5 @@
-﻿import { v4 as uuidv4 } from 'uuid';
+import { ConfigVersioningService } from './ConfigVersioningService.js';
+import { v4 as uuidv4 } from 'uuid';
 import {
   PermissionAccessLevel,
   PermissionCommandMatchType,
@@ -6,7 +7,7 @@ import {
   PermissionScope,
   PermissionStatus,
 } from '../contracts/PermissionRequest.js';
-import { ConfigVersioningService } from './ConfigVersioningService.js';
+
 import { PermissionRepository } from '../storage/PermissionRepository.js';
 import { TelemetryRuntimeService } from './telemetry/TelemetryRuntimeService.js';
 import { logger } from '../logger.js';

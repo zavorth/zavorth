@@ -16,7 +16,7 @@ import { RuntimeAccessReadinessSmokeSnapshotReader } from "./RuntimeAccessReadin
 import { isWeakZavorthControlToken } from "../../../../services/ZavorthControlTokenService.js";
 import { logger } from '../../../../logger';
 import type {
-RuntimeAccessAuthStatus,
+  RuntimeAccessAuthStatus,
   RuntimeAccessChannelProviderDoctorSnapshot,
   RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessDiscordBridgeSnapshot,
@@ -30,7 +30,10 @@ RuntimeAccessAuthStatus,
   RuntimeAccessRemoteTransportDoctorSnapshot,
   RuntimeAccessSystemOverlordSmokeSnapshot,
   RuntimeAccessTenantSnapshot,
-} from "./RuntimeAccessReadinessTypes.js";export type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
+} from "./RuntimeAccessReadinessTypes.js";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
+export type { RuntimeAccessReadinessSnapshotReaderOptions } from "./RuntimeAccessReadinessSnapshotReaderTypes.js";
 
 export class RuntimeAccessReadinessSnapshotReader {
   private readonly smokeSnapshotReader: RuntimeAccessReadinessSmokeSnapshotReader;
@@ -387,6 +390,6 @@ export class RuntimeAccessReadinessSnapshotReader {
     try {
       this.options.kill(pid, 0);
       return true;
-    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return error?.code !== "ESRCH"; }
+    } catch (error: unknown) {logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return asErrorLike(error).code !== "ESRCH"; }
   }
 }

@@ -1,3 +1,4 @@
+
 /**
  * SupplyChainVerifier — Cryptographic verification for imported skills.
  *
@@ -17,6 +18,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface SupplyChainVerifierOptions {
   trustedKeysPath?: string;
@@ -80,7 +82,8 @@ export class SupplyChainVerifier {
     try {
       hash = await this.calculateHash(skillPath);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         verified: false,
         hash: '',

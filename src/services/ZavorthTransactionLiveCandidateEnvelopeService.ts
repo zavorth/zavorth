@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { ZavorthTransactionApprovalLedgerService } from './ZavorthTransactionApprovalLedgerService.js';
 
 import {
   buildZavorthTransactionLiveCandidateContractSnapshot,
@@ -17,7 +18,7 @@ import {
 import type {
   ZavorthTransactionZavorthControlProjection,
 } from '../contracts/ZavorthTransactionZavorthControlContract.js';
-import { ZavorthTransactionApprovalLedgerService } from './ZavorthTransactionApprovalLedgerService.js';
+
 import { ZavorthTransactionCertificationService } from './ZavorthTransactionCertificationService.js';
 import { ZavorthTransactionZavorthControlProjectionService } from './ZavorthTransactionZavorthControlProjectionService.js';
 import { ZavorthTransactionConnectorRegistryService } from './ZavorthTransactionConnectorRegistryService.js';

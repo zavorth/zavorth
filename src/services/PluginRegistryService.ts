@@ -14,6 +14,7 @@ import {
 } from '../contracts/PluginManifestContract.js';
 import { PluginSandboxPolicyService } from './PluginSandboxPolicyService.js';
 
+
 export type PluginInvocationRequest = {
   pluginId: string;
   capabilityId: string;

@@ -1,6 +1,8 @@
 import type { Context } from 'grammy';
 import { normalizeSharedSurfaceCommandCallback } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type GatewayCallbackRouterDeps = {
   handleHubCallback: (ctx: Context, data: string) => Promise<void>;
   handlePermissionCallback: (ctx: Context, data: string) => Promise<void>;
@@ -160,7 +162,8 @@ export class GatewayCallbackRouter {
           await ctx.answerCallbackQuery({ text: 'Comando nao reconhecido.' });
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       this.deps.logError?.(message);
       await ctx.answerCallbackQuery({ text: 'Erro ao processar.' });
     }

@@ -8,6 +8,8 @@ getCloudflaredTunnelStatus,
   startCloudflaredTunnel,
   stopCloudflaredTunnel,
 } from "@/lib/cloudflaredTunnel";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export const dynamic = "force-dynamic";
 
 const actionSchema = z.object({
@@ -22,10 +24,11 @@ export async function GET(request: NextRequest) {
     const status = await getCloudflaredTunnelStatus();
     return NextResponse.json(status);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Failed to load cloudflared tunnel status",
+        error: error instanceof Error ? err.message : "Failed to load cloudflared tunnel status",
       },
       { status: 500 }
     );
@@ -60,10 +63,11 @@ export async function POST(request: NextRequest) {
       status,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] parsing failed', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Failed to update cloudflared tunnel",
+        error: error instanceof Error ? err.message : "Failed to update cloudflared tunnel",
       },
       { status: 500 }
     );

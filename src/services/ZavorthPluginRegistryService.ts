@@ -5,6 +5,7 @@ import {
   type ZavorthPlatformCatalogEntry,
 } from './ZavorthPlatformCatalogSourceService.js';
 import { PluginStateService, type PluginTrustState } from './PluginStateService.js';
+
 import { WorkspaceExtensionRegistryService, type WorkspaceExtensionEntry } from './WorkspaceExtensionRegistryService.js';
 
 type ZavorthPluginRegistryRuntime = {

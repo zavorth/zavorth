@@ -11,8 +11,9 @@ import {
   type ResolvedProjectManifest,
 } from '../../../../project-workspace/index.js';
 import { logger } from '../../../../logger';
+
 import {
-DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
+  DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
   type DeveloperWorkspaceSurfaceActionInput,
   type DeveloperWorkspaceSurfaceActionResult,
   type DeveloperWorkspaceSurfaceAgent,
@@ -23,7 +24,10 @@ DEVELOPER_WORKSPACE_SURFACE_CONTRACT_VERSION,
   type DeveloperWorkspaceSurfaceOperationContract,
   type DeveloperWorkspaceSurfaceProcess,
   type DeveloperWorkspaceSurfaceSnapshot,
-} from './DeveloperWorkspaceSurfaceContract.js';export type DeveloperWorkspaceSurfaceOptions = {
+} from './DeveloperWorkspaceSurfaceContract.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
+export type DeveloperWorkspaceSurfaceOptions = {
   loader?: ProjectManifestLoader;
   workspaceService?: ProjectWorkspaceService;
   processSupervisor?: ProjectProcessSupervisor;
@@ -299,7 +303,8 @@ export class DeveloperWorkspaceSurfaceService {
           manifestPath: input.manifestPath || undefined,
         }),
       };
-    } catch (error: unknown) {logger.warn('[Developer Workspace Surface] load operation failed', error);
+    } catch (error: unknown) {
+  const err = asErrorLike(error);logger.warn('[Developer Workspace Surface] load operation failed', error);
     return {
         ok: false,
         error: error instanceof Error ? error : new Error(String(error || 'unknown manifest error')),

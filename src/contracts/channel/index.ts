@@ -1,4 +1,4 @@
-﻿export * from './ChannelCapabilityContract.js';
+export * from './ChannelCapabilityContract.js';
 export * from './ChannelConnectionPlaybookContract.js';
 export * from './ChannelExperienceCertificationContract.js';
 export * from './ChannelGovernanceContract.js';

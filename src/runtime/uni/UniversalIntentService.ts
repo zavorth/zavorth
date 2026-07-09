@@ -11,6 +11,7 @@ import type {
   UserAbstractionProfile,
 } from './UniversalIntentContracts.js';
 import { ConversationalPermissionService } from './ConversationalPermissionService.js';
+
 import { IntentSafetyClassifier } from './IntentSafetyClassifier.js';
 import { NaturalClarificationPolicyService } from './NaturalClarificationPolicyService.js';
 import { PermissionNarrativeService } from './PermissionNarrativeService.js';

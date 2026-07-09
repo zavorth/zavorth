@@ -6,6 +6,7 @@ import type {
   FinalCanaryReleaseClosureStatus,
 } from '../contracts/FinalCanaryReleaseClosureContract.js';
 import { ZAVORTH_FINAL_CANARY_RELEASE_CLOSURE_CONTRACT_VERSION } from '../contracts/FinalCanaryReleaseClosureContract.js';
+
 import { CanaryPromotionDecisionLedgerService } from './CanaryPromotionDecisionLedgerService.js';
 
 type FinalCanaryReleaseClosureRuntime = {

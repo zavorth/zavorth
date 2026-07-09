@@ -1,14 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-
-import {
-  DEFAULT_IDENTITY_STUDIO_PROFILE,
-  buildIdentityStudioPrompt,
-  identityStudioStorageKey,
-  loadIdentityStudioProfile,
-  sanitizeIdentityStudioProfile,
-  saveIdentityStudioProfile,
-} from '../../../apps/zavorth-desktop/src/identity/identityStudio.js';
 import {
   DEFAULT_KAEL_BEHAVIOR_SETTINGS,
   KAEL_SCALE_LAYOUTS,
@@ -19,6 +10,15 @@ import {
   sanitizeKaelBehaviorSettings,
   saveKaelBehaviorSettings,
 } from '../../../apps/zavorth-desktop/src/kael-overlay/kaelPetConfig.js';
+
+import {
+  DEFAULT_IDENTITY_STUDIO_PROFILE,
+  buildIdentityStudioPrompt,
+  identityStudioStorageKey,
+  loadIdentityStudioProfile,
+  sanitizeIdentityStudioProfile,
+  saveIdentityStudioProfile,
+} from '../../../apps/zavorth-desktop/src/identity/identityStudio.js';
 
 class MemoryStorage implements Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> {
   private values = new Map<string, string>();

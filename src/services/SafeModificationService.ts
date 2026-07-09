@@ -1,4 +1,3 @@
-import { asErrorLike } from '../utils/errorLike';
 /**
  * SafeModificationService - Guarded Self-Modification
  *
@@ -13,6 +12,7 @@ import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execCommandSync } from '../core/CommandSpawn.js';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 
 export interface ModificationResult {
   success: boolean;
@@ -88,10 +88,11 @@ export class SafeModificationService {
         JSON.parse(newContent);
         return { passes: true, output: '' };
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Safe Modification] JSON parse failed', error);
     return {
           passes: false,
-          output: `JSON invalido: ${error.message}`,
+          output: `JSON invalido: ${err.message}`,
         };
   }
     }
@@ -220,7 +221,7 @@ export class SafeModificationService {
       } catch (error: unknown) {logger.warn('[Safe Modification] validation failed', error);
     return {
           passes: false,
-          output: String(error?.stdout || error?.stderr || error?.message || '').trim() || 'Falha desconhecida ao validar o script PowerShell.',
+          output: String(asErrorLike(error).stdout || asErrorLike(error).stderr || errorMessage(error, '')).trim() || 'Falha desconhecida ao validar o script PowerShell.',
         };
   }
     } finally {

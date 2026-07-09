@@ -29,7 +29,7 @@ describe('TelegramSecurityController', () => {
 
     expect(securityLock.setPassword).toHaveBeenCalledWith('segredo-forte');
     expect(bot.api.deleteMessage).toHaveBeenCalledWith(42, 9);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Password configured successfully'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Password configured successfully');
   });
 
   it('clears the chat using the cleanup service when messages are tracked', async () => {
@@ -107,9 +107,9 @@ describe('TelegramSecurityController', () => {
 
     await controller.handleHostAuth(ctx, 'status');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Host access status:'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Dashboard: http://127.0.0.1:33333/dashboard'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Trust host: Run /hostauth trust.'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host access status:');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Dashboard: http://127.0.0.1:33333/dashboard');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Trust host: Run /hostauth trust.');
   });
 
   it('shows refreshed guidance after trusting the host', async () => {
@@ -164,9 +164,9 @@ describe('TelegramSecurityController', () => {
     await controller.handleHostAuth(ctx, 'trust');
 
     expect(hostIdentityService.authorizeCurrentHost).toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Host reautorizado.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth pronto para uso local e remoto.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('npm run ops:remote'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Host reautorizado.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth pronto para uso local e remoto.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('npm run ops:remote');
   });
 });
 

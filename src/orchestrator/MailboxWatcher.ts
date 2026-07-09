@@ -91,7 +91,8 @@ export class MailboxWatcher {
         try {
           await this.processInbox();
         } catch (error: unknown) {
-          this.logRepo.log('error', 'MailboxWatcher', error.message);
+          const err = asErrorLike(error);
+          this.logRepo.log('error', 'MailboxWatcher', err.message);
         } finally {
           this.processing = false;
         }
@@ -225,12 +226,13 @@ export class MailboxWatcher {
           : 'Plan analyzed and marked as completed (no executable instruction identified).',
       );
     } catch (error: unknown) {
-      logger.error('[MailboxWatcher] Critical failure:', error.message);
-      task.error_summary = error.message;
+      const err = asErrorLike(error);
+      logger.error('[MailboxWatcher] Critical failure:', err.message);
+      task.error_summary = err.message;
       this.taskManager.advanceState(task, 'failed');
       this.taskManager.saveTask(task);
       await this.writeBridgeResponse(envelope, task, 'FAILED');
-      await this.broadcaster.broadcast(`Autonomous engine failed:\n${error.message}`);
+      await this.broadcaster.broadcast(`Autonomous engine failed:\n${err.message}`);
     }
   }
 

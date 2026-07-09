@@ -6,6 +6,7 @@ import type {
   ZavorthNativeIntegrationStatus,
 } from '../contracts/native/ZavorthNativeIntegrationContract.js';
 import { ZAVORTH_NATIVE_INTEGRATION_CONTRACT_VERSION } from '../contracts/native/ZavorthNativeIntegrationContract.js';
+
 import { GROUPS, PRIMITIVES } from './CapabilityNormalizationCatalog.js';
 import { ChannelLongTailActivationService } from './ChannelLongTailActivationService.js';
 import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';

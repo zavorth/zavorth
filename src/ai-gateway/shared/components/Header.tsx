@@ -1,7 +1,9 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { usePathname, useRouter } from "next/navigation";
+import { useIsElectron } from "@/shared/hooks/useElectron";
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+
 import Link from "next/link";
 import Image from "next/image";
 import PropTypes from "prop-types";
@@ -19,7 +21,6 @@ import {
   OPENAI_COMPATIBLE_PREFIX,
   ANTHROPIC_COMPATIBLE_PREFIX,
 } from "@/shared/constants/providers";
-import { useIsElectron } from "@/shared/hooks/useElectron";
 
 const isE2EMode = process.env.NEXT_PUBLIC_ZavorthGateway_E2E_MODE === "1";
 

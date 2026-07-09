@@ -16,6 +16,7 @@ import {
   normalizeRuntimeAdapterCapabilitiesToZavorthProviderContract,
   normalizeRuntimeAdapterCapabilityToZavorthContract,
 } from './RuntimeAdapterSidecarAdapter.js';
+
 import type {
   RuntimeAdapterAdapter,
   RuntimeAdapterCapabilityDescriptor,

@@ -160,10 +160,11 @@ export class WorkspaceCommandProposeTool extends BaseTool {
         reason
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Workspace Command Propose] serialization failed', error);
     return JSON.stringify({
         success: false,
-        error: `Failed to propose command: ${error.message || error}`
+        error: `Failed to propose command: ${err.message || error}`
       });
   }
   }

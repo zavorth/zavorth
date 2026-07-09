@@ -1,4 +1,5 @@
-﻿import { DomainRegistry, type DomainRegistrySnapshot, type DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
+import { ZavorthHookPlaneService } from './ZavorthHookPlaneService.js';
+import { DomainRegistry, type DomainRegistrySnapshot, type DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
 import { ArtifactsFacade } from '../domain/artifacts/ArtifactsFacade.js';
 import { ChannelsFacade } from '../domain/channels/ChannelsFacade.js';
 import { ExecutionFacade } from '../domain/execution/ExecutionFacade.js';
@@ -20,7 +21,7 @@ import {
   GatewayChannelRegistryService,
   type GatewayChannelRegistryEntry,
 } from './GatewayChannelRegistryService.js';
-import { ZavorthHookPlaneService } from './ZavorthHookPlaneService.js';
+
 import { ZavorthMemoryPlaneService } from './ZavorthMemoryPlaneService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import { ZavorthPluginRegistryService } from './ZavorthPluginRegistryService.js';

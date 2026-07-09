@@ -1,5 +1,7 @@
 import net from 'net';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type ZavorthChannelLiveValidationStatus = 'not-requested' | 'passed' | 'failed' | 'unsupported';
 
 export type ZavorthChannelLiveValidationInput = {
@@ -74,12 +76,13 @@ export async function validateZavorthChannelLive(
     }
     return result(input, channelId, 'unsupported', `${channelId || 'unknown'} does not have a live setup test yet.`, false);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[Zavorth Channel Live Validation] connection failed', error);
     return result(
       input,
       channelId,
       'failed',
-      sanitizeMessage(error instanceof Error ? error.message : String(error), [input.token, input.smtpUrl]),
+      sanitizeMessage(error instanceof Error ? err.message : String(error), [input.token, input.smtpUrl]),
       true,
     );
   }

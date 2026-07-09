@@ -1,4 +1,4 @@
-﻿import type { ProviderRuntimeRequest } from './ModelSelectionService.js';
+import type { ProviderRuntimeRequest } from './ModelSelectionService.js';
 import { ZavorthModelCostGuardService } from './ZavorthModelCostGuardService.js';
 import { logger } from '../logger.js';
 

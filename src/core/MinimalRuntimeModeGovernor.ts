@@ -7,6 +7,8 @@ import {
   type MinimalCapabilityActivationPlan,
 } from './MinimalCapabilityActivationPlanner.js';
 import { MinimalRuntimeProfileRegistry } from './MinimalRuntimeProfileRegistry.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type MinimalRuntimeModeLeaseStatus = 'dry-run' | 'active' | 'released' | 'expired' | 'blocked';
 export type MinimalRuntimeModeLeaseOperation = 'plan' | 'elevate' | 'release' | 'expire';
 export type MinimalRuntimeModePlanStatus = 'ready' | 'noop' | 'blocked' | 'missing' | 'manual';
@@ -516,9 +518,10 @@ export class MinimalRuntimeModeGovernor {
         this.assertLease(parsed);
         leases.push(parsed);
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           line: index + 1,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     });

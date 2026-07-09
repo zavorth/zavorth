@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import { ProviderRuntimeRouter } from './ProviderRuntimeRouter.js';
 import { ProviderRuntimeClientFactory, ProviderInvocationResult } from './ProviderRuntimeClientFactory.js';
 import { ProviderRuntimeRequest, ResolvedProviderRuntime } from './ModelSelectionService.js';

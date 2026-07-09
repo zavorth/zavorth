@@ -13,6 +13,7 @@ import {
   type GatewaySchedulerCommandRouterDeps,
 } from '../../../gateways/channels/telegram/bot-gateway/GatewaySchedulerCommandRouter.js';
 
+
 type FunCommand = '/roll' | '/coinflip' | '/8ball' | '/joke' | '/roulette';
 type GroupAdminCommand =
   | '/ban'
@@ -49,6 +50,7 @@ type GroupSafeCommand =
   | '/mnemos'
   | '/fixes'
   | '/zavorthControl'
+  | '/dashboard'
   | '/demo'
   | '/echo'
   | '/echoapprovals';
@@ -75,6 +77,7 @@ export type TelegramCommandRoutingServiceDeps = {
     handleIntegrations: (ctx: Context, args: string) => Promise<void>;
     handleDemo: (ctx: Context, args: string) => Promise<void>;
     handleZavorthControl: (ctx: Context) => Promise<void>;
+    handleDashboard: (ctx: Context) => Promise<void>;
     handleAccess: (ctx: Context, args: string) => Promise<void>;
     handleBootstrap: (ctx: Context) => Promise<void>;
     handleWslCommand: (ctx: Context, args: string) => Promise<void>;
@@ -264,6 +267,9 @@ export class TelegramCommandRoutingService {
         return true;
       case '/zavorthControl':
         await this.deps.opsController.handleZavorthControl(ctx);
+        return true;
+      case '/dashboard':
+        await this.deps.opsController.handleDashboard(ctx);
         return true;
       case '/wsl':
         await this.deps.opsController.handleWslCommand(ctx, parsed.command_args);
@@ -603,6 +609,9 @@ export class TelegramCommandRoutingService {
         case '/zavorthControl':
           await this.deps.opsController.handleZavorthControl(ctx);
           return true;
+        case '/dashboard':
+          await this.deps.opsController.handleDashboard(ctx);
+          return true;
       }
     }
 
@@ -652,6 +661,7 @@ export class TelegramCommandRoutingService {
       '/externalagent',
       '/fixes',
       '/zavorthControl',
+      '/dashboard',
       '/demo',
       '/echo',
       '/echoapprovals',

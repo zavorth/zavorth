@@ -10,6 +10,8 @@ import {
   VideoTranscriptionPipeline,
   type VideoTranscriptResult,
 } from '../../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export class VideoYtDlpTranscriptSupport {
   public constructor(
     private readonly ytDlpFallback: YtDlpFallback,
@@ -37,14 +39,15 @@ export class VideoYtDlpTranscriptSupport {
         warnings: ['Encontrei legendas via yt-dlp e evitei baixar o audio completo do video.'],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',
           source: 'yt-dlp captions indisponivel',
-          warnings: [error.message],
+          warnings: [err.message],
         };
       }
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       logger.warn(`[VideoHandler] yt-dlp captions falhou: ${errorMessage}`);
       return {
         transcript: '',
@@ -87,7 +90,8 @@ export class VideoYtDlpTranscriptSupport {
             warnings,
           };
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const err = asErrorLike(error);
+          const errorMessage = error instanceof Error ? err.message : String(error);
           warnings.push(`O fallback de transcricao literal com OpenAI falhou: ${errorMessage}`);
         }
       } else {
@@ -148,14 +152,15 @@ export class VideoYtDlpTranscriptSupport {
           : ['O fallback com yt-dlp conseguiu extrair o audio, mas nenhuma etapa posterior produziu conteudo textual util.'],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',
           source: 'yt-dlp indisponivel',
-          warnings: [error.message],
+          warnings: [err.message],
         };
       }
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       logger.warn(`[VideoHandler] yt-dlp fallback falhou: ${errorMessage}`);
       return {
         transcript: '',

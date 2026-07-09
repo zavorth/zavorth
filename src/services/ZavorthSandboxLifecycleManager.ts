@@ -11,6 +11,8 @@ import {
   type ZavorthSandboxLifecycleStatus,
 } from '../contracts/ZavorthSandboxLifecycleContract.js';
 import { ZavorthSandboxControlPlaneService } from './ZavorthSandboxControlPlaneService.js';
+import { config } from '../config/index.js';
+
 import type { ZavorthSandboxRuntimeProfile } from './ZavorthSandboxControlPlaneService.js';
 import {
   decideSecurityPolicy,
@@ -18,7 +20,6 @@ import {
   type SecurityPolicyBrokerDecision,
   type SecurityPolicyBrokerRequest,
 } from '../security/SecurityPolicyBroker.js';
-import { config } from '../config/index.js';
 
 type DecidePolicy = (
   request: SecurityPolicyBrokerRequest,

@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { LogRepository } from '../storage/LogRepository.js';
 import { config } from '../config/index.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 type BroadcastClient = {
   broadcast(message: string): Promise<void>;
 };
@@ -30,7 +32,8 @@ export class AgentResponseWatcher {
       try {
         await this.processPendingResponses();
       } catch (error: unknown) {
-        this.logRepo.log('error', 'AgentResponseWatcher', error.message);
+        const err = asErrorLike(error);
+        this.logRepo.log('error', 'AgentResponseWatcher', err.message);
       } finally {
         this.processing = false;
       }

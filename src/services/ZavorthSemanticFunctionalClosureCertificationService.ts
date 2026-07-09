@@ -7,6 +7,8 @@ import type {
   ZavorthFunctionalClosureSnapshot,
 } from '../contracts/native/ZavorthFunctionalClosureContract.js';
 import { ZavorthFunctionalClosureService } from './ZavorthFunctionalClosureService.js';
+import { ZAVORTH_SEMANTIC_FUNCTIONAL_CLOSURE_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticFunctionalClosureCertificationContract.js';
+
 import type {
   ZavorthSemanticFunctionalClosureCertificationSnapshot,
   ZavorthSemanticFunctionalClosureCertificationStatus,
@@ -16,7 +18,6 @@ import type {
   ZavorthSemanticFunctionalClosureClaimStatus,
   ZavorthSemanticFunctionalClosureScenario,
 } from '../contracts/ZavorthSemanticFunctionalClosureCertificationContract.js';
-import { ZAVORTH_SEMANTIC_FUNCTIONAL_CLOSURE_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticFunctionalClosureCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

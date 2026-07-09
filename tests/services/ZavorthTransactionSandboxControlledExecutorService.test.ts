@@ -1,10 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 import {
   ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
@@ -12,6 +8,13 @@ import {
   ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
 } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
+
+import {
+  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
+} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+
+
+
 import { ZavorthTransactionSandboxControlledExecutorService } from '../../src/services/ZavorthTransactionSandboxControlledExecutorService.js';
 
 const now = new Date('2026-05-12T12:00:00.000Z');
@@ -73,7 +76,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('requires a dedicated sandbox execution phrase after Intent model2 certification', () => {
     const result = service.execute({
-      ...intent-model2ReadyInput(),
+      ...intentModel2ReadyInput(),
     });
 
     expect(result.status).toBe('sandbox-operator-approval-required');
@@ -89,7 +92,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('emits a local sandbox execution receipt without external or live effects', () => {
     const result = service.execute({
-      ...intent-model2ReadyInput(),
+      ...intentModel2ReadyInput(),
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
       sandboxRunId: 'intent-model3-sandbox-run',
@@ -123,7 +126,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('blocks controlled sandbox execution when kill switch is forced', () => {
     const result = service.execute({
-      ...intent-model2ReadyInput(),
+      ...intentModel2ReadyInput(),
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
       forceKillSwitch: true,
@@ -140,7 +143,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('blocks controlled sandbox execution when local simulation fails', () => {
     const result = service.execute({
-      ...intent-model2ReadyInput(),
+      ...intentModel2ReadyInput(),
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
       simulateSandboxFailure: true,
@@ -157,7 +160,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('does not leak raw secrets from blocked sandbox execution input', () => {
     const result = service.execute({
-      ...intent-model2ReadyInput(),
+      ...intentModel2ReadyInput(),
       text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
@@ -168,7 +171,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
     expect(result.executionReceipt).toBeUndefined();
   });
 
-  function intent-model2ReadyInput() {
+  function intentModel2ReadyInput() {
     return {
       text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
       surface: 'api' as const,

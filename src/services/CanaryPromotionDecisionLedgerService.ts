@@ -6,6 +6,7 @@ import type {
   CanaryPromotionDecisionReceipt,
 } from '../contracts/CanaryPromotionDecisionLedgerContract.js';
 import { ZAVORTH_CANARY_PROMOTION_DECISION_LEDGER_CONTRACT_VERSION } from '../contracts/CanaryPromotionDecisionLedgerContract.js';
+
 import { CanaryMonitoringRollbackGateService } from './CanaryMonitoringRollbackGateService.js';
 
 type CanaryPromotionDecisionLedgerRuntime = {

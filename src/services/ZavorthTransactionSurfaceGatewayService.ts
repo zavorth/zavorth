@@ -1,4 +1,9 @@
 import { createHash } from 'node:crypto';
+import {
+  NaturalFirstRunClassifier,
+  type NaturalFirstRunClassification,
+} from '../runtime/agent/NaturalFirstRunClassifier.js';
+import { ZavorthTransactionRuntimeOrchestratorService } from './ZavorthTransactionRuntimeOrchestratorService.js';
 
 import {
   buildZavorthTransactionSurfaceContractSnapshot,
@@ -18,11 +23,7 @@ import type {
 import type {
   UniversalAgentChannel,
 } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
-import {
-  NaturalFirstRunClassifier,
-  type NaturalFirstRunClassification,
-} from '../runtime/agent/NaturalFirstRunClassifier.js';
-import { ZavorthTransactionRuntimeOrchestratorService } from './ZavorthTransactionRuntimeOrchestratorService.js';
+
 
 type SurfaceGatewayDeps = {
   now?: () => Date;

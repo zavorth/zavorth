@@ -95,8 +95,7 @@ export async function withDegradation<T>(
     };
     updateRegistry(feature, status);
     return { result, status };
-  } catch ($1: unknown) { const error = primaryError; const err = primaryError; const e = primaryError;
-    // Primary failed, try fallback
+  } catch (primaryError: unknown) {// Primary failed, try fallback
     try {
       const result = await fallback();
       const status: DegradationStatus = {
@@ -109,8 +108,7 @@ export async function withDegradation<T>(
       updateRegistry(feature, status);
       options?.onDegrade?.(status);
       return { result, status };
-    } catch ($1: unknown) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
-      // Both failed, return safe default
+    } catch (fallbackError: unknown) {// Both failed, return safe default
       const reason = [
         primaryError instanceof Error ? primaryError.message : String(primaryError),
         fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
@@ -158,8 +156,7 @@ export function withDegradationSync<T>(
     };
     updateRegistry(feature, status);
     return { result, status };
-  } catch ($1: unknown) { const error = primaryError; const err = primaryError; const e = primaryError;
-    try {
+  } catch (primaryError: unknown) {try {
       const result = fallback();
       const status: DegradationStatus = {
         level: "reduced",
@@ -171,8 +168,7 @@ export function withDegradationSync<T>(
       updateRegistry(feature, status);
       options?.onDegrade?.(status);
       return { result, status };
-    } catch ($1: unknown) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
-      const status: DegradationStatus = {
+    } catch (fallbackError: unknown) {const status: DegradationStatus = {
         level: "default",
         feature,
         capability: options?.defaultCapability ?? "Safe default",

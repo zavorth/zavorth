@@ -9,6 +9,7 @@ import {
   type GatewaySessionSnapshot,
 } from '../runtime/sessions/GatewaySessionService.js';
 import { GatewaySessionStoreService } from '../runtime/sessions/GatewaySessionStoreService.js';
+
 import { ToolHookPipelineService } from './ToolHookPipelineService.js';
 
 type GatewaySessionToolsRuntime = {

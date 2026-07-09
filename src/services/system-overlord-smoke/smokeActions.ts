@@ -1,4 +1,4 @@
-﻿import { config } from '../../config/index.js';
+import { config } from '../../config/index.js';
 import type { SystemOverlordActionRecord } from '../../contracts/SystemOverlordContract.js';
 import { logger } from '../../logger.js';
 import type {

@@ -1,4 +1,7 @@
-﻿import fs from 'fs';
+import { WorkflowExternalizedStateService } from '../WorkflowExternalizedStateService.js';
+import { SmartOutputService } from '../SmartOutputService.js';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { ArtifactPipelineService } from '../../runtime/artifacts/ArtifactPipelineService.js';
@@ -7,7 +10,7 @@ import {
   type ZavorthExecutionLifecycleStatus,
   type ExecutionLifecycleRecord,
 } from '../../contracts/ExecutionLifecycleContract.js';
-import { WorkflowExternalizedStateService } from '../WorkflowExternalizedStateService.js';
+
 import type {
   WorkflowKind,
   WorkflowRunActionableStageSnapshot,
@@ -19,10 +22,11 @@ import type {
   WorkflowStageStatus,
   WorkflowWorkspaceContext,
 } from '../WorkflowRunService.js';
-import { SmartOutputService } from '../SmartOutputService.js';
+
 import { WorkflowRunLifecycleSupport } from './WorkflowRunLifecycleSupport.js';
 import { WorkflowRunStageStateSupport } from './WorkflowRunStageStateSupport.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 type BotApiLike = {
   sendMessage(chatId: string | number, text: string, options?: Record<string, unknown>): Promise<unknown>;
@@ -385,7 +389,8 @@ export class WorkflowRunSupport {
       try {
         await SmartOutputService.send(this.runtime.botApi!, userId, message);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const errorMessage = error instanceof Error ? err.message : String(error);
         this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar broadcast: ${errorMessage}`);
       }
     }
@@ -395,7 +400,8 @@ export class WorkflowRunSupport {
     try {
       await SmartOutputService.send(this.runtime.botApi!, chatId, message);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       this.runtime.logRepo?.log('error', 'BotGateway', `Erro ao enviar mensagem direta para ${chatId}: ${errorMessage}`);
       throw error;
     }

@@ -1,4 +1,4 @@
-﻿import path from 'node:path';
+import path from 'node:path';
 
 import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
 import type { TaskPlaneItem } from '../contracts/TaskPlaneContract.js';
@@ -209,7 +209,7 @@ export class GoalLoopService {
           });
         }
         this.recordParseFailure(goal, result.response.content || '');
-      } catch ($1: unknown) {
+      } catch (error: unknown) {
         this.recordParseFailure(goal, error instanceof Error ? error.message : String(error));
       }
     }
@@ -462,7 +462,7 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     const match = text.match(/\{[\s\S]*\}/u);
     if (!match) return null;
     try {
@@ -470,6 +470,6 @@ function parseJsonObject(value: string): Record<string, unknown> | null {
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed as Record<string, unknown>
         : null;
-    } catch ($1: unknown) { logger.warn('[Goal Loop] JSON parse failed', error); return null; }
+    } catch (error: unknown) { logger.warn('[Goal Loop] JSON parse failed', error); return null; }
   }
 }

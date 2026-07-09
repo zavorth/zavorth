@@ -16,6 +16,8 @@ import {
   resolveProxyForProvider,
 } from "@/models";
 import { getConsistentMachineId } from "@/shared/utils/machineId";
+import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+
 import { syncToCloud } from "@/lib/cloudSync";
 import { startLocalServer } from "@/lib/oauth/utils/server";
 import { runWithProxyContext } from "@ZavorthGateway/open-sse/utils/proxyFetch.ts";
@@ -24,9 +26,10 @@ import {
   oauthExchangeSchema,
   oauthPollSchema,
 } from "@/shared/validation/schemas";
-import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
+
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
 // Shared interfaces for OAuth flow data in this route
 
 interface OAuthTokenData {
@@ -234,8 +237,9 @@ export async function GET(
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("OAuth GET error:", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -299,8 +303,9 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       serverPort: port,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] resource cleanup failed', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -665,8 +670,9 @@ export async function POST(
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("OAuth POST error:", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
 

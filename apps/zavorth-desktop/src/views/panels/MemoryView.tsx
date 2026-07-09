@@ -6,6 +6,7 @@ import type {
   MemoryItem,
 } from '../../apiClient';
 import { itemId, panelLabels } from '../../primitives/desktopPrimitives';
+
 import { DetailRows, PageFrame, SearchBox, TextTabs } from '../panelChrome';
 
 export function MemoryView(props: {

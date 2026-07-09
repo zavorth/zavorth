@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 export type AttachmentIntelligenceInput = {
   name?: string | null;
   type?: string | null;

@@ -19,7 +19,8 @@ import {
   isInside,
   ensureDir,
   sha256
-} from '../ZavorthCliSharedHelpers.js';import { logger } from '../../logger.js';
+} from '../ZavorthCliSharedHelpers.js';
+import { logger } from '../../logger.js';
 import {
 type ChannelAdapterMode,
   type ChannelAdapter,

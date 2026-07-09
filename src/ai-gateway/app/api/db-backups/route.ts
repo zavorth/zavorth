@@ -4,6 +4,8 @@ import { listDbBackups, restoreDbBackup, backupDbFile } from "@/lib/localDb";
 import { dbBackupRestoreSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 /**
  * PUT /api/db-backups — Trigger a manual backup snapshot.
  */
@@ -18,8 +20,9 @@ export async function PUT(request: Request) {
     }
     return NextResponse.json({ created: true, ...result });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error creating manual backup:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -34,8 +37,9 @@ export async function GET(request: Request) {
     const backups = await listDbBackups();
     return NextResponse.json({ backups });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error listing DB backups:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -72,7 +76,8 @@ export async function POST(request) {
     const result = await restoreDbBackup(backupId);
     return NextResponse.json(result);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error restoring DB backup:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

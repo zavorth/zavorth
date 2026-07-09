@@ -57,21 +57,7 @@ import {
   runtimeStateState,
 } from './appRuntimeState';
 import { modelOptions } from './modelCatalog';
-import { parseSlashCommand, slashCommands } from './slashCommands';
-import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
-import { createLogger } from './logger.js';
-
-const logger = createLogger('shell');
 import { useDesktopAutomations } from './desktop-state/useDesktopAutomations';
-import {
-  loadSubagents,
-  persistSubagents,
-  createSubagent,
-  appendSubagentTask,
-  completeSubagentTask,
-  deleteSubagent,
-  type ActiveSubagent,
-} from './desktop-state/subagents';
 import {
   loadCustomProfiles,
   persistCustomProfiles,
@@ -82,22 +68,7 @@ import {
   type AgentProfile,
 } from './desktop-state/agentProfiles';
 import { useDesktopProduct } from './desktop-state/useDesktopProduct';
-import {
-  appendReceipt,
-  extractReceiptsFromSnapshot,
-  loadReceipts,
-  persistReceipts,
-  type DesktopReceipt,
-} from './desktop-state/receiptsLedger';
 import { trackDesktopEvent } from './desktop-state/localTelemetry';
-import { buildDesktopUpdateStatus, type DesktopUpdateStatus } from './desktop-state/desktopUpdate';
-import { sendDesktopNotification } from './components/DesktopNotificationService';
-import { asErrorLike } from './lib/errors';
-
-export type { ActiveSubagent } from './desktop-state/subagents';
-export type { AgentProfile } from './desktop-state/agentProfiles';
-export type { ScheduledTask } from './desktop-state/useDesktopAutomations';
-
 import {
   $status, setStatus,
   $snapshot, setSnapshot,
@@ -143,6 +114,41 @@ import {
   $gatewayResilience, setGatewayResilience,
   $runtimeCapabilities, setRuntimeCapabilities,
 } from './store';
+import { asErrorLike } from '../../../src/utils/errorLike.js';
+
+import { parseSlashCommand, slashCommands } from './slashCommands';
+import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
+import { createLogger } from './logger.js';
+
+const logger = createLogger('shell');
+
+import {
+  loadSubagents,
+  persistSubagents,
+  createSubagent,
+  appendSubagentTask,
+  completeSubagentTask,
+  deleteSubagent,
+  type ActiveSubagent,
+} from './desktop-state/subagents';
+
+
+import {
+  appendReceipt,
+  extractReceiptsFromSnapshot,
+  loadReceipts,
+  persistReceipts,
+  type DesktopReceipt,
+} from './desktop-state/receiptsLedger';
+
+import { buildDesktopUpdateStatus, type DesktopUpdateStatus } from './desktop-state/desktopUpdate';
+import { sendDesktopNotification } from './components/DesktopNotificationService';
+import { asErrorLike } from './lib/errors';
+
+export type { ActiveSubagent } from './desktop-state/subagents';
+export type { AgentProfile } from './desktop-state/agentProfiles';
+export type { ScheduledTask } from './desktop-state/useDesktopAutomations';
+
 
 export function useDesktopAppState() {
   const status = useStore($status);
@@ -405,7 +411,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not reach the local runtime.');
+      setNotice(error instanceof Error ? err.message : 'Could not reach the local runtime.');
       return null;
     }
   }, [responseProfile, sessionId, applyRuntimeStateProjection]);
@@ -560,7 +566,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not resolve approval.');
+      setNotice(error instanceof Error ? err.message : 'Could not resolve approval.');
     } finally {
       setBusy(false);
     }
@@ -575,7 +581,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not resolve learning candidate.');
+      setNotice(error instanceof Error ? err.message : 'Could not resolve learning candidate.');
     } finally {
       setBusy(false);
     }
@@ -598,7 +604,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not update memory protection.');
+      setNotice(error instanceof Error ? err.message : 'Could not update memory protection.');
     } finally {
       setBusy(false);
       void refreshPanels();
@@ -618,7 +624,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not update memory.');
+      setNotice(error instanceof Error ? err.message : 'Could not update memory.');
     } finally {
       setBusy(false);
     }
@@ -641,7 +647,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not run channel setup.');
+      setNotice(error instanceof Error ? err.message : 'Could not run channel setup.');
     } finally {
       setBusy(false);
     }
@@ -659,7 +665,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not update gateway resilience.');
+      setNotice(error instanceof Error ? err.message : 'Could not update gateway resilience.');
     } finally {
       setBusy(false);
     }
@@ -766,12 +772,12 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not send message.');
+      setNotice(error instanceof Error ? err.message : 'Could not send message.');
       appendLocalMessage(setMessages, 'system', 'The message could not be delivered to the local runtime.');
       recordReceipt({
         kind: 'chat',
         title: 'Chat delivery failed',
-        summary: error instanceof Error ? error.message : 'Could not send message.',
+        summary: error instanceof Error ? err.message : 'Could not send message.',
         status: 'failed',
         sessionId,
         source: 'zavorth-desktop',
@@ -825,7 +831,7 @@ export function useDesktopAppState() {
       const status = buildDesktopUpdateStatus({
         currentVersion: '0.1.0',
         providerConfigured: false,
-        error: error instanceof Error ? error.message : 'Update check failed.',
+        error: error instanceof Error ? err.message : 'Update check failed.',
       });
       setUpdateStatus(status);
       return status;
@@ -963,7 +969,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not start runtime.');
+      setNotice(error instanceof Error ? err.message : 'Could not start runtime.');
     } finally {
       setBusy(false);
     }
@@ -978,7 +984,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not repair access.');
+      setNotice(error instanceof Error ? err.message : 'Could not repair access.');
     } finally {
       setBusy(false);
     }
@@ -1003,7 +1009,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not update runtime control.');
+      setNotice(error instanceof Error ? err.message : 'Could not update runtime control.');
     }
   }, [refreshHome, refreshPanels, sessionId]);
 
@@ -1032,7 +1038,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not persist runtime selection.');
+      setNotice(error instanceof Error ? err.message : 'Could not persist runtime selection.');
     }
   }, [refreshHome, refreshPanels, sessionId]);
 
@@ -1106,7 +1112,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not resolve workspace write approval.');
+      setNotice(error instanceof Error ? err.message : 'Could not resolve workspace write approval.');
     } finally {
       setBusy(false);
     }
@@ -1125,7 +1131,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not resolve task mandate.');
+      setNotice(error instanceof Error ? err.message : 'Could not resolve task mandate.');
     } finally {
       setBusy(false);
     }
@@ -1142,7 +1148,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not revoke task mandate.');
+      setNotice(error instanceof Error ? err.message : 'Could not revoke task mandate.');
     } finally {
       setBusy(false);
     }
@@ -1157,7 +1163,7 @@ export function useDesktopAppState() {
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
-      setNotice(error instanceof Error ? error.message : 'Could not resolve host command proposal.');
+      setNotice(error instanceof Error ? err.message : 'Could not resolve host command proposal.');
     } finally {
       setBusy(false);
     }

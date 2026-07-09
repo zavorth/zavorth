@@ -1,6 +1,8 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface PolicyRule {
   id: string;
@@ -210,8 +212,9 @@ export class ZavorthPolicyEnforcerTool extends BaseTool {
       }
       return 'Internal error.';
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth  Enforcer] delete operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `PolicyEnforcer error: ${message}`;
   }
   }

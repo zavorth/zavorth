@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import type { ExperienceSurface } from './ExperienceContracts.js';
 import { logger } from '../../logger.js';

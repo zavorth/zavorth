@@ -4,6 +4,8 @@ import type {
   RuntimeCapabilitiesSnapshot,
 } from '../../apiClient';
 import { connectGooglePersonalOps } from '../../apiClient';
+import { asErrorLike } from '../../../../../src/utils/errorLike.js';
+
 import type { BootEvent, RuntimeStatus } from '../../global';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../../primitives/desktopPrimitives';
 import { ProviderSettingsPanel } from '../../panels/ProviderSettingsPanel.js';
@@ -80,7 +82,7 @@ export function SettingsView(props: {
         : 'Google account connected.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setPersonalConnectStatus(error instanceof Error ? error.message : 'Google authorization failed.');
+      setPersonalConnectStatus(error instanceof Error ? err.message : 'Google authorization failed.');
     }
   };
   const experienceRows = [

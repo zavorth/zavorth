@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { Database } from '../storage/Database.js';
@@ -7,6 +8,7 @@ import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { WorkspaceTaskMandateService } from './WorkspaceTaskMandateService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface TrustedWorkspaceEntry {
   workspaceId: string;
@@ -230,10 +232,11 @@ export class TrustedWorkspaceService {
 
       return entry;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.auditLogger.logWorkspaceEvent({
         event: 'workspace_trust_rejected',
         workspaceId,
-        reason: `failed to resolve current root path: ${error.message}`,
+        reason: `failed to resolve current root path: ${err.message}`,
       });
       return null;
     }

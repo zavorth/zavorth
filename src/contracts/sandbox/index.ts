@@ -1,4 +1,4 @@
-﻿export * from './RemoteMeshNotebookApprovalUxContract.js';
+export * from './RemoteMeshNotebookApprovalUxContract.js';
 export * from './RemoteMeshNotebookMcpProxyContract.js';
 export * from './RemoteMeshNotebookScopedMcpServerContract.js';
 export * from './RemoteMeshSandboxAdapterContract.js';

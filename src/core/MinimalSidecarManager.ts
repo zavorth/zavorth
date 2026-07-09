@@ -7,7 +7,9 @@ import type {
   MinimalCapabilitySidecarSpec,
 } from './MinimalCapabilityRegistry.js';
 import type { MinimalRuntimeProfile } from './MinimalRuntimeProfileRegistry.js';
-import { safeFetch } from '../security/SafeFetchService.js';export type MinimalSidecarState = 'disabled' | 'planned' | 'stopped' | 'starting' | 'running' | 'ready' | 'failed';
+import { safeFetch } from '../security/SafeFetchService.js';
+import { asErrorLike } from '../utils/errorLike.js';
+export type MinimalSidecarState = 'disabled' | 'planned' | 'stopped' | 'starting' | 'running' | 'ready' | 'failed';
 
 export type MinimalSidecarSnapshot = {
   id: string;
@@ -301,7 +303,7 @@ export class MinimalSidecarManager {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error: unknown) {return error?.code !== 'ESRCH';
+    } catch (error: unknown) {return asErrorLike(error).code !== 'ESRCH';
     }
   }
 }

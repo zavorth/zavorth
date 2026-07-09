@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { resolveDataDir } from "../../dataPaths";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export const isCloud = typeof globalThis.caches === "object" && globalThis.caches !== null;
 export const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
 
@@ -16,7 +18,8 @@ function ensureDataDirectory(): void {
 
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
-  } catch (error: unknown) { const message = error instanceof Error ? error.message : String(error);
+  } catch (error: unknown) {
+ const err = asErrorLike(error); const message = error instanceof Error ? err.message : String(error);
     console.warn(
         `[DB] Cannot create data directory '${DATA_DIR}': ${message}\n` +
         "[DB] Set the DATA_DIR environment variable to a writable path, e.g.:\n" +

@@ -36,6 +36,12 @@ import {
   type RuntimeAdapterSessionDescriptor,
 } from './contracts.js';
 
+
+
+
+
+
+
 export const RUNTIME_ADAPTER_CANONICAL_FIXTURE_NOW = '2026-04-27T19:00:00.000Z';
 export const RUNTIME_ADAPTER_CANONICAL_SOURCE_RUNTIME_NAME = 'ExternalExecutor';
 export const RUNTIME_ADAPTER_CANONICAL_RUNTIME_ID = 'external-runtime-adapter-v1-fixture-runtime';

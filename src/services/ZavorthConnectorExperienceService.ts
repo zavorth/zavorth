@@ -1,4 +1,4 @@
-﻿import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
+import { ChannelProviderDoctorService, type ChannelProviderDoctorReport } from './ChannelProviderDoctorService.js';
 import {
   ChannelSetupAssistantService,
   type ChannelSetupAssistantApplyResult,

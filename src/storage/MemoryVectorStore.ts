@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import type { MemoryChunk } from '../runtime/sessions/v2/InfiniteMemoryCompressor.js';
 import type { VectorEmbeddingService } from '../services/VectorEmbeddingService.js';

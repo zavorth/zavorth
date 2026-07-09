@@ -6,6 +6,7 @@ import {
   getTargetFormat,
 } from "@ZavorthGateway/open-sse/services/provider.ts";
 import { getProviderConnections } from "@/lib/localDb";
+
 import { toJsonErrorPayload } from "@/shared/utils/upstreamError";
 import { logTranslationEvent } from "@/lib/translatorEvents";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
@@ -13,6 +14,7 @@ import { translatorSendSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { assertProviderRequestTargetAllowed } from "@/lib/security/egressGuard";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 function getProviderBaseUrl(providerSpecificData: unknown): string | undefined {
   if (!providerSpecificData || typeof providerSpecificData !== "object") return undefined;
   const baseUrl = (providerSpecificData as Record<string, unknown>).baseUrl;
@@ -96,7 +98,8 @@ export async function POST(request) {
     try {
       await assertProviderRequestTargetAllowed(url);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Provider URL blocked by egress policy";
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : "Provider URL blocked by egress policy";
       return NextResponse.json(
         { success: false, error: message },
         { status: 400 }

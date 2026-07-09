@@ -7,6 +7,8 @@ import type {
   SourceAgentRuntimeToolPolicyDoctorSnapshot,
 } from '../contracts/SourceAgentRuntimeBridgeContract.js';
 import { SourceAgentRuntimeBridgeService } from './SourceAgentRuntimeBridgeService.js';
+import { ZAVORTH_SEMANTIC_AGENT_RUNTIME_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticAgentRuntimeCertificationContract.js';
+
 import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
 import type {
   ZavorthSemanticAgentRuntimeCertificationSnapshot,
@@ -17,7 +19,6 @@ import type {
   ZavorthSemanticAgentRuntimeClaimStatus,
   ZavorthSemanticAgentRuntimePolicyScenario,
 } from '../contracts/ZavorthSemanticAgentRuntimeCertificationContract.js';
-import { ZAVORTH_SEMANTIC_AGENT_RUNTIME_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticAgentRuntimeCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

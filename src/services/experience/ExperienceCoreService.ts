@@ -1,4 +1,22 @@
-﻿import { logger } from '../../logger.js';
+import { ActionCardService } from './ActionCardService.js';
+import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../ZavorthSpeculativeAutonomyService.js';
+import {
+  ZavorthRuntimeStateBusService,
+} from '../ZavorthRuntimeStateBusService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
+import {
+  ZavorthRuntimeSecureIntegrationService,
+} from '../ZavorthRuntimeSecureIntegrationService.js';
+
+import { logger } from '../../logger.js';
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
   EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
@@ -18,7 +36,7 @@ import {
   type ExperienceSurface,
   type ExperienceTimelineItem,
 } from './ExperienceContracts.js';
-import { ActionCardService } from './ActionCardService.js';
+
 import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
 import { ContextRecoveryService } from './ContextRecoveryService.js';
 import { PulseBriefService } from './PulseBriefService.js';
@@ -41,7 +59,7 @@ import type {
   ZavorthAgentGatewaySnapshot,
   ZavorthAgentGatewaySnapshotOptions,
 } from '../../runtime/agent/ZavorthAgentGateway.js';
-import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../ZavorthSpeculativeAutonomyService.js';
+
 import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
 import {
@@ -61,27 +79,13 @@ import {
   ZavorthAgentMaturityService,
   type ZavorthAgentMaturitySnapshot,
 } from '../ZavorthAgentMaturityService.js';
-import {
-  ZavorthRuntimeStateBusService,
-} from '../ZavorthRuntimeStateBusService.js';
-import {
-  ZavorthRuntimeCapabilitiesService,
-  type ZavorthRuntimeCapabilitiesSnapshot,
-} from '../ZavorthRuntimeCapabilitiesService.js';
-import {
-  ZavorthRuntimeOperationalSpineService,
-  type ZavorthRuntimeOperationalSpineSyncInput,
-  type ZavorthRuntimeOperationalSpineSyncResult,
-} from '../ZavorthRuntimeOperationalSpineService.js';
-import {
-  ZavorthRuntimeSecureIntegrationService,
-} from '../ZavorthRuntimeSecureIntegrationService.js';
+
 import type {
   ZavorthRuntimeStateBusActionInput,
   ZavorthRuntimeStateBusDispatchResult,
   ZavorthRuntimeStateBusSnapshot,
 } from '../../contracts/ZavorthRuntimeStateBusContract.js';
-
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type AgentGatewayLike = Pick<
   ZavorthAgentGateway,
   'handle' | 'buildSnapshot' | 'approve' | 'reject'
@@ -722,7 +726,7 @@ export class ExperienceCoreService {
         error: runResult?.ok === false ? snapshot.agent.summary : null,
       });
     } catch (error: unknown) {const snapshot = this.buildHome(command);
-      const message = `Experience Core failed: ${error?.message || 'unknown error'}.`;
+      const message = `Experience Core failed: ${errorMessage(error, 'unknown error')}.`;
       return this.finalizeCommandResult(command, {
         ok: false,
         handled: true,
@@ -1693,13 +1697,14 @@ export class ExperienceCoreService {
       });
       return retryResult.ok ? retryResult : firstResult;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.selfHealingReceipts.append({
         projection,
         action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
         status: 'failed',
         applied: true,
         fallbackProvider,
-        summary: `Provider fallback through ${fallbackProvider} failed: ${error instanceof Error ? error.message : String(error || 'unknown error')}.`,
+        summary: `Provider fallback through ${fallbackProvider} failed: ${error instanceof Error ? err.message : String(error || 'unknown error')}.`,
       });
       return firstResult;
     }

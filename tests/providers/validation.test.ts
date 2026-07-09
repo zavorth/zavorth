@@ -1,3 +1,7 @@
+import {
+  validateClaudeCodeCompatibleProvider,
+  validateProviderApiKey,
+} from "../../src/zavorth-control/lib/providers/validation";
 
 jest.mock(
   "@ZavorthGateway/open-sse/config/providerRegistry.ts",
@@ -43,10 +47,6 @@ jest.mock(
   { virtual: true }
 );
 
-import {
-  validateClaudeCodeCompatibleProvider,
-  validateProviderApiKey,
-} from "../../src/zavorth-control/lib/providers/validation";
 
 describe("zavorth-control provider validation barrel", () => {
   const originalFetch = global.fetch;

@@ -1,4 +1,8 @@
-﻿import fs from 'fs';
+import {
+  UniversalSkillExpansionQaService,
+  type UniversalSkillExpansionQaInput,
+} from './UniversalSkillExpansionQaService.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -14,10 +18,7 @@ import type {
   ZavorthUniversalSkillExpansionPresetId,
   ZavorthUniversalSkillExpansionSourceInput,
 } from '../contracts/ZavorthUniversalSkillExpansionContract.js';
-import {
-  UniversalSkillExpansionQaService,
-  type UniversalSkillExpansionQaInput,
-} from './UniversalSkillExpansionQaService.js';
+
 import type { ZavorthUniversalSkillExpansionQaSnapshot } from '../contracts/ZavorthUniversalSkillExpansionQaContract.js';
 import { logger } from '../logger.js';
 

@@ -4,6 +4,7 @@ import {
   SEARCH_CREDENTIAL_FALLBACKS,
 } from "@ZavorthGateway/open-sse/config/searchRegistry.ts";
 import { getDbInstance } from "@/lib/db/core";
+
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { logger } from '@/shared/utils/logger';export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {

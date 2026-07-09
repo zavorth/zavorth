@@ -21,7 +21,9 @@ import {
   VideoTranscriptionPipeline,
 } from '../../../gateways/channels/telegram/video-handler/VideoTranscriptionPipeline.js';
 import { VideoYtDlpTranscriptSupport } from '../../../gateways/channels/telegram/video-handler/VideoYtDlpTranscriptSupport.js';
+
 import { VideoHandlerHelpers } from '../../../gateways/channels/telegram/video-handler/VideoHandlerHelpers.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 const SUPPORTED_VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.webm', '.m4v', '.mkv']);
 const MAX_NATIVE_YOUTUBE_GEMINI_DURATION_SECONDS = 30 * 60;
 
@@ -299,7 +301,8 @@ export class VideoHandler {
         });
         transcriptSource = 'OpenAI transcription';
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const errorMessage = error instanceof Error ? err.message : String(error);
         warnings.push(`Nao consegui transcrever o audio do video: ${errorMessage}`);
       }
     } else if (!transcript) {

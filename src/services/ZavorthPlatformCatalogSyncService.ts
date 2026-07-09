@@ -1,9 +1,9 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 export type ZavorthPlatformCatalogSyncStatusKind =
   | 'disabled'
   | 'never-synced'
@@ -258,7 +258,7 @@ export class ZavorthPlatformCatalogSyncService {
         ok: true,
         ...this.readStatus(),
       };
-    } catch (error: unknown) {const failed = this.persistFailure(error?.message || 'Falha ao sincronizar o registry remoto.');
+    } catch (error: unknown) {const failed = this.persistFailure(errorMessage(error, 'Falha ao sincronizar o registry remoto.'));
       return {
         ok: false,
         ...failed,

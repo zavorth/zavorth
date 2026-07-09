@@ -18,6 +18,7 @@ import type {
   IntegrationActionExecutionContext,
   IntegrationActionManifestResolver,
 } from './IntegrationActionTypes.js';
+import { asErrorLike, errorMessage } from '../../../../utils/errorLike.js';
 type IntegrationActionExecutionSupportRuntime = {
   now: () => Date;
   spawn: typeof spawnCommand;
@@ -233,9 +234,10 @@ export class IntegrationActionExecutionSupport {
       this.monitorSupport.trackBackgroundAction(record, child, context);
       return record;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.writeFileSyncImpl(
         logFd,
-        `[${this.now().toISOString()}] Falha ao iniciar acao: ${error?.message || error}${lineBreak}`,
+        `[${this.now().toISOString()}] Falha ao iniciar acao: ${errorMessage(error)}${lineBreak}`,
         'utf8',
       );
       this.closeSyncImpl(logFd);
@@ -249,7 +251,7 @@ export class IntegrationActionExecutionSupport {
         pid: null,
         logFile,
         status: 'failed_to_start',
-        note: error?.message || String(error),
+        note: errorMessage(error),
       };
       this.ledgerService.persistRecord(record);
       return record;

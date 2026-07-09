@@ -41,19 +41,7 @@ import {
   type SecurityPolicyBrokerDecision,
   type SecurityPolicyBrokerRequest,
 } from '../security/SecurityPolicyBroker.js';
-import type { SecurityProfileId } from '../security/SecurityProfile.js';
-import {
-  createSubagentApprovalBoundary,
-  createSubagentBudget,
-  createSubagentCapabilityScope,
-  createSubagentResultReceipt,
-  type SubagentResultReceipt,
-} from '../runtime/agent/subagents/index.js';
 import { ZavorthGovernedSubagentService } from '../services/ZavorthGovernedSubagentService.js';
-import {
-  ZavorthLiveSubagentExecutionService,
-  type ZavorthLiveSubagentExecutionResult,
-} from '../services/ZavorthLiveSubagentExecutionService.js';
 import {
   buildAutoInvocationZavorthControlProjection,
   normalizeAutoInvocation,
@@ -63,12 +51,30 @@ import {
   formatSubagentRuntimeSnapshotText,
 } from '../services/ZavorthSubagentRuntimePresenter.js';
 import { buildSubagentIdentity } from '../services/ZavorthSubagentIdentityService.js';
+import { logger } from '../logger.js';
+
+import type { SecurityProfileId } from '../security/SecurityProfile.js';
+import {
+  createSubagentApprovalBoundary,
+  createSubagentBudget,
+  createSubagentCapabilityScope,
+  createSubagentResultReceipt,
+  type SubagentResultReceipt,
+} from '../runtime/agent/subagents/index.js';
+
+import {
+  ZavorthLiveSubagentExecutionService,
+  type ZavorthLiveSubagentExecutionResult,
+} from '../services/ZavorthLiveSubagentExecutionService.js';
+
+
+
 import {
   compareSubagentRunsByActivity,
   compareSubagentSessionsByActivity,
   isLatestSubagentReference,
 } from '../services/ZavorthSubagentRuntimeStateSelectors.js';
-import { logger } from '../logger.js';
+
 import {
 ZavorthSubagentBoardService,
   type ZavorthSubagentBoardSnapshot,

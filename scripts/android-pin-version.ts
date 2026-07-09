@@ -1,5 +1,5 @@
 import { asErrorLike } from '../src/utils/errorLike';
-﻿// Android Pin Version script supports Zavorth repository automation.
+// Android Pin Version script supports Zavorth repository automation.
 import path from "node:path";
 import {
   canonicalAndroidVersionCode,

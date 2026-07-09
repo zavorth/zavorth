@@ -1,4 +1,7 @@
-﻿import fs from 'fs';
+import { ZavorthAutomationControlPlaneService } from './ZavorthAutomationControlPlaneService.js';
+import { logger } from '../logger.js';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type {
@@ -6,7 +9,7 @@ import type {
   ZavorthMutationRiskLevel,
   ZavorthReadinessGate,
 } from '../contracts/ZavorthMutationPlaneContract.js';
-import { ZavorthAutomationControlPlaneService } from './ZavorthAutomationControlPlaneService.js';
+
 import { ZavorthFederatedMeshControlPlaneService } from './ZavorthFederatedMeshControlPlaneService.js';
 import { ZavorthHardwareActionPlaneService } from './ZavorthHardwareActionPlaneService.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
@@ -35,7 +38,7 @@ import type {
   ZavorthAutonomyBudget,
   ZavorthAutonomyLevel,
 } from '../contracts/AutonomousEngineeringPartnerContract.js';
-import { logger } from '../logger.js';
+
 import {
 AUTONOMY_LEVELS,
   buildAuditId,
@@ -60,6 +63,7 @@ AUTONOMY_LEVELS,
   riskRank,
   statusFromPosture,
 } from './autonomous-partner/AutonomousPartnerUtils.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type {
   AutonomousMissionCheckpoint,
@@ -676,10 +680,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
     try {
       return await Promise.resolve(service.buildSnapshot(input));
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
     return {
         unavailable: true,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

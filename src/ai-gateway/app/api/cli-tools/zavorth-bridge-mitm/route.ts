@@ -1,12 +1,14 @@
+import { NextResponse } from "next/server";
+
 // Node.js-only route: uses child_process, fs, path via mitm/manager
 // Dynamic imports prevent Turbopack from statically resolving native modules
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
 import { requireManagementAuth, requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
 import { cliMitmStartSchema, cliMitmStopSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 // GET - Check MITM status
 export async function GET(request: Request) {
@@ -24,7 +26,8 @@ export async function GET(request: Request) {
       hasCachedPassword: !!getCachedPassword(),
     });
   } catch (error: unknown) {
-    console.log("Error getting MITM status:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error getting MITM status:", err.message);
     return NextResponse.json({ error: "Failed to get MITM status" }, { status: 500 });
   }
 }
@@ -75,9 +78,10 @@ export async function POST(request) {
       pid: result.pid,
     });
   } catch (error: unknown) {
-    console.log("Error starting MITM:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error starting MITM:", err.message);
     return NextResponse.json(
-      { error: error.message || "Failed to start MITM proxy" },
+      { error: err.message || "Failed to start MITM proxy" },
       { status: 500 }
     );
   }
@@ -122,9 +126,10 @@ export async function DELETE(request) {
 
     return NextResponse.json({ success: true, running: false });
   } catch (error: unknown) {
-    console.log("Error stopping MITM:", error.message);
+    const err = asErrorLike(error);
+    console.log("Error stopping MITM:", err.message);
     return NextResponse.json(
-      { error: error.message || "Failed to stop MITM proxy" },
+      { error: err.message || "Failed to stop MITM proxy" },
       { status: 500 }
     );
   }

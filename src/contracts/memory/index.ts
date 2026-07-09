@@ -1,4 +1,4 @@
-﻿export * from './DocumentExtractContract.js';
+export * from './DocumentExtractContract.js';
 export * from './FileDocumentDiffLivePlaneContract.js';
 export * from './HybridMemoryContract.js';
 export * from './KnowledgeInjectionContract.js';

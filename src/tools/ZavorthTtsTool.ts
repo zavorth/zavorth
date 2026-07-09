@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 function xmlEscape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
@@ -99,8 +101,9 @@ export class ZavorthTtsTool extends BaseTool {
         default: return `Error: action "${action}" is not implemented.`;
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Tts] async operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `TTS error: ${message}`;
   }
   }
@@ -157,8 +160,9 @@ export class ZavorthTtsTool extends BaseTool {
       ];
       return lines.join('\n');
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Tts] creation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `Audio generation error: ${message}`;
   }
   }

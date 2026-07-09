@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { config } from '../config/index.js';
@@ -9,7 +9,7 @@ import { TenantRegistryService, type TenantRegistrySummary } from './TenantRegis
 import { LogRepository, type SystemLog } from '../storage/LogRepository.js';
 import type { Task } from '../contracts/TaskContract.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike } from '../utils/errorLike.js';
 type RuntimeDiagnosticsRuntime = {
   hostLockFilePath?: string;
   workerLockFilePath?: string;
@@ -245,7 +245,7 @@ export class RuntimeDiagnosticsService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error: unknown) {logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: unknown) {logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return asErrorLike(error).code !== 'ESRCH'; }
   }
 
   private readBridgeSnapshot(filePath: string): BridgeSnapshot {

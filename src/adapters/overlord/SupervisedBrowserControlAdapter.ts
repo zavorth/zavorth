@@ -7,7 +7,8 @@ import type {
   SystemOverlordActionRequest,
   SystemOverlordCapabilityDecision,
 } from '../../contracts/SystemOverlordContract.js';
-import { readStructuredInput, stringField } from './SupervisedAdapterInput.js';type BrowserToolLike = Pick<AutomaticBrowserTool, 'handleToolCall'>;
+import { readStructuredInput, stringField } from './SupervisedAdapterInput.js';
+type BrowserToolLike = Pick<AutomaticBrowserTool, 'handleToolCall'>;
 
 const BROWSER_ACTION_TO_TOOL: Record<string, string> = {
   navigate: 'browser_navigate',

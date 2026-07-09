@@ -11,7 +11,9 @@ import {
   createZavorthSettingsBackupFilename,
   redactZavorthSettingsBackupSecrets,
 } from "@/lib/db/jsonBackupAdapters";
-import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";/**
+import { requireStrictManagementAuth } from "@/lib/api/requireManagementAuth";
+
+/**
  * GET /api/settings/export-json
  * Exports a Zavorth settings backup JSON that can be re-imported by the
  * current gateway storage layer.

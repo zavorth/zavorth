@@ -12,6 +12,7 @@ import type {
   DiagnosticsQaMigrationLiveTargetId,
 } from '../contracts/DiagnosticsQaMigrationLivePlaneContract.js';
 import { ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION } from '../contracts/DiagnosticsQaMigrationLivePlaneContract.js';
+
 import { LiveReadinessService } from './LiveReadinessService.js';
 
 type DiagnosticsQaMigrationLivePlaneRuntime = {

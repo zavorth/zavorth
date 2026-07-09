@@ -5,6 +5,8 @@ import {
   type BuildZavorthSetupStudioPlanInput,
 } from '../ZavorthSetupStudioService.js';
 import { INTEGRATION_CHANNEL_MANIFESTS } from '../../domain/platform-ecosystem/infrastructure/integration-registry/IntegrationRegistryCatalogChannels.js';
+import { buildZavorthSetupStudioSteps } from './steps/ZavorthSetupStudioSteps.js';
+
 import { ChannelLongTailActivationService } from '../../services/ChannelLongTailActivationService.js';
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 import { ZavorthCapabilityActionSurfaceService } from '../../services/ZavorthCapabilityActionSurfaceService.js';
@@ -23,7 +25,7 @@ import type {
   ZavorthSetupStudioSkillReadiness,
   ZavorthSetupStudioWebSearchReadiness,
 } from './ZavorthSetupStudioSchema.js';
-import { buildZavorthSetupStudioSteps } from './steps/ZavorthSetupStudioSteps.js';
+
 import { buildZavorthSetupWizardContract, normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
 import { logger } from '../../logger.js';export type BuildZavorthSetupStudioSnapshotInput = Partial<BuildZavorthSetupStudioPlanInput> & {
   projectRoot: string;

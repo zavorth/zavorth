@@ -9,6 +9,8 @@ import { cloudSyncActionSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 /**
  * GET /api/sync/cloud
  * Returns current cloud sync status for sidebar indicator
@@ -55,8 +57,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ enabled: true, connected: false });
   }
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] connection failed', error);
-    return NextResponse.json({ enabled: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ enabled: false, error: err.message }, { status: 500 });
   }
 }
 
@@ -119,8 +122,9 @@ export async function POST(request: any) {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Cloud sync error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
@@ -179,8 +183,9 @@ async function syncAndVerify(machineId: string, createdKey: any, existingKeys: a
       }
       lastVerifyError = `Ping failed: ${pingResponse.status}`;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[route] health check failed', error);
-    lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : error.message;
+    lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : err.message;
   }
 
     // Wait before retry (except on last attempt)
@@ -251,7 +256,8 @@ async function updateClaudeSettingsToLocal(machineId: string, host: string) {
       const content = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(content);
     } catch (error: unknown) {
-      if (error.code === "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code === "ENOENT") {
         return; // No settings file, nothing to update
       }
       throw error;
@@ -268,6 +274,7 @@ async function updateClaudeSettingsToLocal(machineId: string, host: string) {
     await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
     console.log(`Updated Claude CLI settings: ${cloudUrl} → ${localUrl}`);
   } catch (error: unknown) {
-    console.log("Failed to update Claude CLI settings:", error.message);
+    const err = asErrorLike(error);
+    console.log("Failed to update Claude CLI settings:", err.message);
   }
 }

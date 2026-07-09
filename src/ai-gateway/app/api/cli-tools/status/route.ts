@@ -1,16 +1,19 @@
+import { NextResponse } from "next/server";
+import { getAllCliToolLastConfigured } from "@/lib/db/cliToolState";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import {
   getCliRuntimeStatus,
   CLI_TOOL_IDS,
   getCliPrimaryConfigPath,
 } from "@/shared/services/cliRuntime";
-import { getAllCliToolLastConfigured } from "@/lib/db/cliToolState";
+
 import { getRuntimePorts } from "@/lib/runtime/ports";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const { apiPort } = getRuntimePorts();
 
@@ -87,10 +90,11 @@ export async function GET(request: Request) {
             reason: runtime.reason || null,
           };
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           statuses[toolId] = {
             installed: false,
             runnable: false,
-            reason: error.message || "Check failed",
+            reason: err.message || "Check failed",
           };
         }
       })

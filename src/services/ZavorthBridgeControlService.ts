@@ -1,4 +1,5 @@
-﻿import { logger } from '../logger.js';
+
+import { logger } from '../logger.js';
 import fs from 'fs';
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';
@@ -9,6 +10,7 @@ import type { AutomationDiagnostics } from '../agents/ZavorthBridgeWindowAutomat
 import { RemoteModeManager } from './RemoteModeManager.js';
 import { loadOptionalDependency } from './OptionalCapabilityGuard.js';
 import { WindowsSessionService, type WindowsSessionStatus } from './WindowsSessionService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type SqlJsModule = {
   default: () => Promise<{
@@ -283,6 +285,7 @@ export class ZavorthBridgeControlService {
     try {
       await this.focusInteractiveWindow(effectiveResult.processId ?? preferredProcessId ?? undefined);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Control] operation failed', error);
     return {
         ok: false,
@@ -299,7 +302,7 @@ export class ZavorthBridgeControlService {
           focusFailed: true,
         },
         errorCode: 'window_focus_failed',
-        errorMessage: error instanceof Error ? error.message : 'A janela do ZavorthBridge nao respondeu ao foco.',
+        errorMessage: error instanceof Error ? err.message : 'A janela do ZavorthBridge nao respondeu ao foco.',
         message: 'O ZavorthBridge foi encontrado, mas o Zavorth nao conseguiu trazer a janela para uma superficie operavel.',
       };
   }
@@ -588,7 +591,8 @@ export class ZavorthBridgeControlService {
 
           try {
             resolve(this.parseJsonPayload(stdout, 'ZavorthBridge UI result'));
-          } catch (parseError: unknown) {reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+          } catch (parseError: unknown) {
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failed to parse ZavorthBridge UI result: ${parseError instanceof Error ? parseErrorLike.message : String(parseError)}`));
           }
         },
       );
@@ -651,7 +655,8 @@ export class ZavorthBridgeControlService {
           try {
             const parsed = this.parseJsonPayload<ZavorthBridgeControlResult>(stdout, 'ZavorthBridge control result');
             resolve(parsed);
-          } catch (parseError: unknown) {reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+          } catch (parseError: unknown) {
+  const parseErrorLike = asErrorLike(parseError);reject(new Error(`Failed to parse ZavorthBridge control result: ${parseError instanceof Error ? parseErrorLike.message : String(parseError)}`));
           }
         },
       );

@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface TrajectoryTurn {
   role: 'user' | 'assistant' | 'tool' | 'system';
@@ -132,8 +134,9 @@ export class ZavorthTrajectoryExportTool extends BaseTool {
       }
       return 'Internal error.';
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Trajectory Export] filesystem check failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `TrajectoryExport error: ${message}`;
   }
   }

@@ -7,6 +7,8 @@ import type {
   ZavorthQaSecurityReleaseSeverity,
 } from '../contracts/ZavorthQaSecurityReleaseCertificationContract.js';
 import { ZavorthQaSecurityReleaseCertificationPackService } from './ZavorthQaSecurityReleaseCertificationPackService.js';
+import { ZAVORTH_SEMANTIC_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticQaSecurityReleaseCertificationContract.js';
+
 import type {
   ZavorthSemanticQaSecurityReleaseCertificationSnapshot,
   ZavorthSemanticQaSecurityReleaseCertificationStatus,
@@ -16,7 +18,6 @@ import type {
   ZavorthSemanticQaSecurityReleaseClaimStatus,
   ZavorthSemanticQaSecurityReleaseScenario,
 } from '../contracts/ZavorthSemanticQaSecurityReleaseCertificationContract.js';
-import { ZAVORTH_SEMANTIC_QA_SECURITY_RELEASE_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticQaSecurityReleaseCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

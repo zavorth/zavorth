@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { spawnCommand, spawnNativeCommand } from '../core/CommandSpawn.js';
 import { config } from '../config/index.js';
@@ -7,10 +8,11 @@ import { TerminalSidecarService } from './TerminalSidecarService.js';
 import { VendorReleaseIndexService } from './VendorReleaseIndexService.js';
 import { logger } from '../logger.js';
 import type {
-VendorDiffSummary,
+  VendorDiffSummary,
   VendorLicenseDecision,
   VendorReleaseIndexEntry,
 } from '../contracts/VendorPlaneContract.js';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 
 export type ZavorthBridgeRemoteUpstreamSyncReport = {
   ok: boolean;
@@ -165,6 +167,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         ...this.buildMetadata(),
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Remote Upstream] creation failed', error);
     return this.persist({
         ok: false,
@@ -179,7 +182,7 @@ export class ZavorthBridgeRemoteUpstreamSyncService {
         rollbackApplied,
         statusFile: config.ZavorthTerminalSyncStatusFile,
         doctorFile: config.zavorthBridgeRemoteDoctorReportFile,
-        error: error?.message || String(error),
+        error: errorMessage(error),
         ...this.buildMetadata(),
       });
   }

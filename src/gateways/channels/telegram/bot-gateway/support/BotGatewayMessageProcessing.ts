@@ -170,18 +170,7 @@ export async function processTextMessage(
     return;
   }
 
-  // Commandless mode: try to handle via middleware before agent gateway
-  const middlewareResult = await hookMiddleware({
-    text: effectiveText,
-    channelId: 'telegram',
-    userId,
-    locale: ingressMetadata?.preferredLanguageCode ?? undefined,
-  });
-  if (middlewareResult.handled && middlewareResult.response) {
-    await ctx.reply(middlewareResult.response);
-    return;
-  }
-
+  // Canonical agent gateway owns natural Telegram conversation when available.
   if (await tryHandleNaturalConversationThroughAgentGateway(
     runtime,
     ctx,
@@ -196,6 +185,7 @@ export async function processTextMessage(
     return;
   }
 
+  // Legacy unified conversation is the explicit AgentGateway-absent fallback.
   if (await tryHandleNaturalConversationThroughLegacyUnifiedGateway(
     runtime,
     ctx,
@@ -207,6 +197,18 @@ export async function processTextMessage(
     inlineData,
     ingressMetadata,
   )) {
+    return;
+  }
+
+  // Commandless middleware only after governed gateway fallbacks are exhausted.
+  const middlewareResult = await hookMiddleware({
+    text: effectiveText,
+    channelId: 'telegram',
+    userId,
+    locale: ingressMetadata?.preferredLanguageCode ?? undefined,
+  });
+  if (middlewareResult.handled && middlewareResult.response) {
+    await ctx.reply(middlewareResult.response);
     return;
   }
 
@@ -376,14 +378,13 @@ async function tryHandleNaturalConversationThroughLegacyUnifiedGateway(
   }
 
   const hasExecutionAttachment = hasExecutionAttachmentPayload(inlineData, ingressMetadata);
+  // When AgentGateway is absent, LegacyUnifiedGateway is the conversation fallback for all
+  // non-slash natural ingress (including voice). Keep decideResponse for diagnostics only.
   const responseDecision = await resolveSurfaceOperationalIntentService(runtime).decideResponse({
     surface: 'telegram',
     text: effectiveText,
     hasAttachments: hasExecutionAttachment,
   });
-  if (responseDecision.responsePath !== 'fast-chat') {
-    return false;
-  }
 
   const surfaceContext = buildSharedSurfaceTelegramContext(
     runtime,

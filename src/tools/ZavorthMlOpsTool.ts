@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';

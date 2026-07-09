@@ -1,4 +1,4 @@
-﻿import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
+import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
 import { assertProviderRequestTargetAllowed } from '../../../../ai-gateway/lib/security/egressGuard.js';
 import { logger } from '../../../../logger';
 

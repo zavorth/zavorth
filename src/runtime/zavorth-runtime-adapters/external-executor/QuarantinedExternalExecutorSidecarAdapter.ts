@@ -7,6 +7,8 @@ import {
   normalizeRuntimeAdapterCapabilityToZavorthContract,
 } from '../index.js';
 import { RuntimeAdapterSidecarActionGate } from '../RuntimeAdapterSidecarActionGate.js';
+import { RuntimeAdapterSidecarAdapter } from '../RuntimeAdapterSidecarAdapter.js';
+
 import type {
   RuntimeAdapterAdapter,
   RuntimeAdapterAdapterDiagnostics,
@@ -25,7 +27,7 @@ import type {
   RuntimeAdapterSessionDescriptor,
   RuntimeAdapterSessionEnvelope,
 } from '../contracts.js';
-import { RuntimeAdapterSidecarAdapter } from '../RuntimeAdapterSidecarAdapter.js';
+
 import type {
   NormalizedInboundMessage,
 } from '../../agent/contracts/index.js';

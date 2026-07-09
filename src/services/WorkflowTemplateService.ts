@@ -1,11 +1,12 @@
-﻿import fs from 'fs';
+import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type {
   ZavorthWorkflowTemplate,
   ZavorthWorkflowStep,
 } from '../contracts/WorkflowTemplateContract.js';
-import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
+
 import { logger } from '../logger.js';
 
 type FileSystemLike = {

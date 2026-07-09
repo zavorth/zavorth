@@ -1,4 +1,6 @@
-﻿import { logger } from '../logger.js';
+import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
+
+import { logger } from '../logger.js';
 import type {
   ZavorthBoundaryCorrelation,
 } from '../contracts/InternalBoundaryContract.js';
@@ -26,7 +28,7 @@ import {
   containsUntrustedContentMarker,
   withUntrustedInputMetadata,
 } from '../security/UntrustedContent.js';
-import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type EchoExecutionLoopResult = {
   response: string;
@@ -270,7 +272,8 @@ export class EchoExecutionLoop {
         });
         finalResponse = finalLlmResponse.content || finalResponse;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         logger.warn('[Echo] ReAct loop failed, falling back to tool output', message);
       }
     }

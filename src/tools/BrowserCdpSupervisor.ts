@@ -1,4 +1,4 @@
-﻿/**
+/**
  * BrowserCdpSupervisor — Persistent WebSocket for browser control.
  *
  * Maintains active CDP (Chrome DevTools Protocol) connection with browser,

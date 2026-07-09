@@ -1,3 +1,5 @@
+import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
+
 /**
  * API: Model-Combo Mapping by ID (#563)
  * PUT    — Update a mapping
@@ -11,9 +13,10 @@ import {
   deleteModelComboMapping,
   getModelComboMappingById,
 } from "@/lib/localDb";
-import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
+
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const updateMappingSchema = z.object({
   pattern: z.string().min(1).max(500).optional(),
@@ -35,8 +38,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
     return NextResponse.json({ mapping });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
-    return NextResponse.json({ error: error.message || "Failed to get mapping" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to get mapping" }, { status: 500 });
   }
 }
 
@@ -60,9 +64,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({ mapping });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to update mapping" },
+      { error: err.message || "Failed to update mapping" },
       { status: 500 }
     );
   }
@@ -82,9 +87,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] health check failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to delete mapping" },
+      { error: err.message || "Failed to delete mapping" },
       { status: 500 }
     );
   }

@@ -3,6 +3,8 @@ import type { PermissionRequest } from '../../../../contracts/PermissionRequest.
 import type { ZavorthSessionPlaneService } from '../../../../services/ZavorthSessionPlaneService.js';
 import type { CodexRemoteActionService } from '../../../../services/CodexRemoteActionService.js';
 import type { CodexRemoteControlPlaneService } from '../../../../services/CodexRemoteControlPlaneService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type CodexRemoteActionResult = Awaited<ReturnType<CodexRemoteActionService['execute']>>;
 
 type CodexRemoteControlPlaneLike = Pick<CodexRemoteControlPlaneService, 'buildSnapshot'>;
@@ -312,11 +314,11 @@ export class SharedSurfaceCodexRemoteCommandPack {
         return;
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'erro desconhecido';
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : 'erro desconhecido';
       await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${message}`);
     }
   }
-
 
   private parseCodexRemoteRequest(rawArgs: string): {
     mode: 'status' | 'help' | 'profiles' | 'profile' | 'profile-create' | 'profile-update' | 'profile-delete' | 'approvals' | 'approve' | 'reject' | 'start' | 'sessions' | 'inspect' | 'tail' | 'resume' | 'stop' | 'web';
@@ -611,7 +613,8 @@ export class SharedSurfaceCodexRemoteCommandPack {
           workspaceRoot: String(parsed.workspaceRoot || '').trim() || null,
         };
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'JSON invalido';
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : 'JSON invalido';
         throw new Error(`Payload de perfil invalido: ${message}.`);
       }
     }
@@ -620,6 +623,5 @@ export class SharedSurfaceCodexRemoteCommandPack {
       profileLabel: normalized,
     };
   }
-
 
 }

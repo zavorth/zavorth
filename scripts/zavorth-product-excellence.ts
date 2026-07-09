@@ -1,4 +1,4 @@
-﻿import { ZavorthProductExcellenceService } from '../src/services/ZavorthProductExcellenceService.js';
+import { ZavorthProductExcellenceService } from '../src/services/ZavorthProductExcellenceService.js';
 
 const json = process.argv.includes('--json');
 const strict = process.argv.includes('--strict') || process.argv.includes('--require-ready');

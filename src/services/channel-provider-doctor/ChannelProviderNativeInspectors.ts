@@ -1,7 +1,8 @@
-﻿import { config } from '../../config/index.js';
+
+import { config } from '../../config/index.js';
 import type { ChannelProviderDoctorItem } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';
-
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type ChannelCapabilityLifecycleHint = {
   dormant: boolean;
   notes: string | null;
@@ -87,7 +88,8 @@ export async function inspectTelegramChannel(
         `Operadores permitidos: ${config.allowedUserIds.length}.`,
       ],
     };
-  } catch (error: unknown) { logger.warn('[Channel  Native Inspectors] load operation failed', error);
+  } catch (error: unknown) {
+ const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'telegram',
       mode: 'native',
@@ -95,7 +97,7 @@ export async function inspectTelegramChannel(
       configured: true,
       status: 'failed',
       summary: 'Telegram nativo falhou no probe remoto do Bot API.',
-      error: error?.message || String(error),
+      error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o bot token e a reachability da Telegram Bot API.'],
     };
@@ -236,7 +238,8 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
         `Guilds permitidas: ${config.discordAllowedGuildIds.length}.`,
       ],
     };
-  } catch (error: unknown) { logger.warn('[Channel  Native Inspectors] load operation failed', error);
+  } catch (error: unknown) {
+ const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'discord',
       mode,
@@ -244,7 +247,7 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       configured: true,
       status: 'failed',
       summary: 'Discord nativo falhou no probe remoto da Discord API.',
-      error: error?.message || String(error),
+      error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise token, guild allowlist e reachability da Discord API.'],
     };
@@ -428,7 +431,8 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
         `Canais permitidos: ${config.slackAllowedChannelIds.length}.`,
       ],
     };
-  } catch (error: unknown) { logger.warn('[Channel  Native Inspectors] validation failed', error);
+  } catch (error: unknown) {
+ const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'slack',
       mode,
@@ -436,7 +440,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       configured: true,
       status: 'failed',
       summary: 'Slack nativo falhou no probe remoto da Web API.',
-      error: error?.message || String(error),
+      error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise token, signing secret e reachability da Slack Web API.'],
     };
@@ -690,11 +694,11 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
     );
     const payload = await deps.safeReadJson(response);
     if (!response.ok || String(payload?.id || '').trim() !== phoneNumberId) {
-      const errorMessage =
+      const message =
         typeof payload?.error?.message === 'string'
           ? payload.error.message
           : `HTTP ${response.status}`;
-      throw new Error(errorMessage);
+      throw new Error(message);
     }
 
     return {
@@ -711,7 +715,8 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         `Chats permitidos: ${config.whatsappAllowedChatIds.length}.`,
       ],
     };
-  } catch (error: unknown) { logger.warn('[Channel  Native Inspectors] validation failed', error);
+  } catch (error: unknown) {
+ const err = asErrorLike(error); logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'whatsapp',
       mode,
@@ -719,7 +724,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       configured: true,
       status: 'failed',
       summary: 'WhatsApp Cloud API falhou no probe remoto do Graph API.',
-      error: error?.message || String(error),
+      error: errorMessage(error),
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise token, phone number id e reachability do Graph API.'],
     };

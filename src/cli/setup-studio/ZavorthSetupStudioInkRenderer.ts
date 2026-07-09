@@ -1,4 +1,8 @@
 import { createElement } from 'react';
+
+import { ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS } from '../ZavorthSetupStudioService.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 // Premium gradient palette for the minimalist logo
 const GRADIENT_COLORS = [
   '#c084fc', // purple/violet
@@ -8,9 +12,6 @@ const GRADIENT_COLORS = [
   '#fbbf24', // amber
 ];
 
-
-
-import { ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS } from '../ZavorthSetupStudioService.js';
 import { buildZavorthSetupStudioSnapshot } from './ZavorthSetupStudioState.js';
 import { ZavorthSetupStudioProgressStore } from './ZavorthSetupStudioProgressStore.js';
 import { logger } from '../../logger.js';
@@ -135,10 +136,11 @@ export async function renderZavorthSetupStudioInk(
       channelId: actionState.channelId,
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[Zavorth Setup Studio Ink Renderer] filesystem check failed', error);
     return {
       rendered: false,
-      output: `Ink setup renderer unavailable: ${error instanceof Error ? error.message : String(error)}\n`,
+      output: `Ink setup renderer unavailable: ${error instanceof Error ? err.message : String(error)}\n`,
       action: 'none',
       snapshot,
     };

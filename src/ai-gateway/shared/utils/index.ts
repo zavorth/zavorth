@@ -1,9 +1,9 @@
+import { v4 as uuidv4 } from "uuid";
 // Shared Utils - Export all
 export { cn } from "./cn";
 export * as api from "./api";
 export { safeParseInt, safeParseIntBounded } from "./safeParseInt";
 
-import { v4 as uuidv4 } from "uuid";
 
 /**
  * Generate unique ID (UUID v4)

@@ -13,6 +13,8 @@ import {
   type ZavorthExecutionLifecycleStatus,
   type ExecutionLifecycleRecord,
 } from '../../contracts/ExecutionLifecycleContract.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 type InternalExecutionApiDeps = {
   decideExecution?: (intent: ExecutionIntent) => Partial<ExecutionDecision> | Promise<Partial<ExecutionDecision>>;
   executeExecution?: (intent: ExecutionIntent) => Partial<ExecutionOutcome> | Promise<Partial<ExecutionOutcome>>;
@@ -58,7 +60,8 @@ export class InternalExecutionApiService {
         },
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         ok: false,
         decision: 'blocked',
@@ -97,7 +100,8 @@ export class InternalExecutionApiService {
         },
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         ok: false,
         status: 'failed',

@@ -1,4 +1,4 @@
-﻿import { config } from '../config/index.js';
+import { config } from '../config/index.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import { ZavorthRemoteTransportService } from './ZavorthRemoteTransportService.js';
 import { KeepaliveStatusService, type KeepaliveStatusSnapshot } from './KeepaliveStatusService.js';

@@ -15,6 +15,7 @@ import {
   runZavorthLiveNamespaceCommand,
 } from '../ZavorthCliLiveNamespaces.js';
 import { runDiskMutationGateCommand } from '../disk/ZavorthCliDiskMutationNamespace.js';
+
 import { runProjectConstitutionCommand } from '../constitution/ZavorthCliConstitutionNamespace.js';
 // Shared infrastructure imports
 import {
@@ -38,9 +39,8 @@ import {
 // Types
 import type { DiskMutationGateRequestedOperation } from '../../contracts/DiskMutationGateContract.js';
 import { logger } from '../../logger.js';
-
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type JsonObject = Record<string, unknown>;
-
 
 export async function runRuntimeResourceDoctor(rawArgs: string[], strict: boolean): Promise<number> {
   const { RuntimeResourceBudgetService } = await import('../../services/RuntimeResourceBudgetService.js');
@@ -144,7 +144,8 @@ export async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
     }
     return 0;
   } catch (error: unknown) {
-    await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
+    const err = asErrorLike(error);
+    await logCliError(`Failed to export diagnostics: ${errorMessage(error)}`, 'Export Failed');
     return 1;
   }
 }
@@ -511,7 +512,6 @@ export async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> 
   process.stdout.write(result.output);
   return result.exitCode;
 }
-
 
 export async function runGitWorkflowCommand(
   action: 'status' | 'branch' | 'commit' | 'pr',

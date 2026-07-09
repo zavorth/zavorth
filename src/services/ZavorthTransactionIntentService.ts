@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { ZavorthTransactionPlanePolicyService } from './ZavorthTransactionPlanePolicyService.js';
 
 import {
   buildZavorthTransactionIntentContractSnapshot,
@@ -22,7 +23,6 @@ import type {
   ZavorthTransactionExecutionMode,
   ZavorthTransactionPlaneSafetyInput,
 } from '../contracts/ZavorthTransactionPlaneContract.js';
-import { ZavorthTransactionPlanePolicyService } from './ZavorthTransactionPlanePolicyService.js';
 
 type IntentRule = {
   kind: ZavorthTransactionIntentKind;

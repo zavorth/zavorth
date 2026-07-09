@@ -1,4 +1,5 @@
-﻿import { logger } from '../logger.js';
+import { AgentMeshPolicyService } from './AgentMeshPolicyService.js';
+import { logger } from '../logger.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash, randomUUID } from 'crypto';
@@ -12,7 +13,7 @@ import type {
   AgentMeshProtocol,
   AgentMeshUserConsent,
 } from '../contracts/AgentMeshConsentContract.js';
-import { AgentMeshPolicyService } from './AgentMeshPolicyService.js';
+
 import {
   AgentMeshDriverRegistryService,
   type AgentMeshDriverContext,

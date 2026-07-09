@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';

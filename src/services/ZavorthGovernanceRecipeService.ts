@@ -19,6 +19,7 @@ import {
   ZavorthCapabilityHubApiService,
   type CapabilityHubApiListInput,
 } from './ZavorthCapabilityHubApiService.js';
+
 import type { ZavorthCapabilityHubRuntime } from './ZavorthCapabilityHubService.js';
 
 export type GovernanceRecipePlanInput = {

@@ -1,3 +1,4 @@
+
 /**
  * Usage History — extracted from usageDb.js (T-15)
  *
@@ -16,6 +17,7 @@ import {
   getPromptCacheReadTokens,
   getReasoningTokens,
 } from "./tokenAccounting";
+import { asErrorLike } from '../../../utils/errorLike.js';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -433,7 +435,8 @@ export async function getRecentLogs(limit = 200) {
       return `${timestamp} | ${model} | ${provider} | ${account} | ${tokensIn} | ${tokensOut} | ${status}`;
     });
   } catch (error: unknown) {
-    console.error("[usageDb] Failed to read recent call logs:", error.message);
+    const err = asErrorLike(error);
+    console.error("[usageDb] Failed to read recent call logs:", err.message);
     return [];
   }
 }

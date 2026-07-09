@@ -344,7 +344,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch (error: unknown) { const err = asErrorLike(error); logger.warn("[auto-fix] Empty catch block", err); }
+    }catch(e){}
   }
 
   function prependEvent(e){

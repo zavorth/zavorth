@@ -1,8 +1,7 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { logger } from '../../logger.js';
-
 export interface BrowserPage {
   url: string;
   title: string;
@@ -102,7 +101,7 @@ export class BrowserPlaywrightService {
         if (parsed.error) return `Playwright error: ${parsed.error}`;
         return `Pagina carregada: "${parsed.title}" (${parsed.load_time_ms}ms)\nURL: ${parsed.url}\nScreenshot: ${parsed.screenshot}\nConteudo: ${parsed.content_length} characters`;
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
-        throw e;
+        throw error;
       }
     } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
@@ -152,7 +151,7 @@ export class BrowserPlaywrightService {
         if (parsed.error) return `Error: ${parsed.error}`;
         return `Screenshot salvo: ${parsed.screenshot}`;
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
-        throw e;
+        throw error;
       }
     } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }
@@ -210,7 +209,7 @@ export class BrowserPlaywrightService {
         }
         return lines.join('\n');
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
-        throw e;
+        throw error;
       }
     } catch (error: unknown) {logger.warn('[Browser Playwright] parsing failed', error); return ''; }
   }
@@ -252,7 +251,7 @@ export class BrowserPlaywrightService {
         if (parsed.error) return `Error: ${parsed.error}`;
         return `PDF gerado: ${parsed.pdf}`;
       } catch (error: unknown) { this.cleanupTempScript(tmpScript);
-        throw e;
+        throw error;
       }
     } catch (error: unknown) {logger.warn('[Browser Playwright] JSON parse failed', error); return ''; }
   }

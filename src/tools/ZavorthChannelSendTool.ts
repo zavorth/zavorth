@@ -1,6 +1,8 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface ChannelTarget {
   channel: string;
@@ -93,8 +95,9 @@ export class ZavorthChannelSendTool extends BaseTool {
         thread_id: typeof args.thread_id === 'string' ? args.thread_id : undefined,
       }, args);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Channel Send] validation failed', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? err.message : String(error);
       return `Error sending to ${channel}: ${errorMessage}`;
   }
   }
@@ -123,7 +126,8 @@ export class ZavorthChannelSendTool extends BaseTool {
         results.push(`✅ ${target.channel}:${target.recipient} — ${result}`);
         successCount++;
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const errorMessage = error instanceof Error ? err.message : String(error);
         results.push(`❌ ${target.channel}:${target.recipient} — ${errorMessage}`);
         failCount++;
       }

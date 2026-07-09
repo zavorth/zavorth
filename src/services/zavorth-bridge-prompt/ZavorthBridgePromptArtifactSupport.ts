@@ -1,8 +1,10 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { PendingZavorthBridgeSession } from '../../orchestrator/AgentBridgeManager.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export type ZavorthBridgeArtifact = {
   artifactType: string;
@@ -158,7 +160,8 @@ export class ZavorthBridgePromptArtifactSupport {
             updatedAtMs,
           });
         } catch (error: unknown) {
-          this.host.logRepo.log('warn', 'ZavorthBridgePromptService', `Falha ao ler artefato do ZavorthBridge: ${error.message}`);
+          const err = asErrorLike(error);
+          this.host.logRepo.log('warn', 'ZavorthBridgePromptService', `Falha ao ler artefato do ZavorthBridge: ${err.message}`);
         }
       }
     }

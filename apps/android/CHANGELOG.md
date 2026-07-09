@@ -1,4 +1,4 @@
-﻿# Zavorth Android Changelog
+# Zavorth Android Changelog
 
 ## Unreleased
 

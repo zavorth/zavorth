@@ -14,6 +14,7 @@ import {
   type ZavorthVisualReceiptsV2Input,
 } from './ZavorthVisualReceiptsV2Service.js';
 
+
 export type ZavorthSatelliteApprovalCompanionInput = ZavorthApprovalActionCardsUxInput & ZavorthVisualReceiptsV2Input & {
   user?: string | null;
   missionId?: string | null;

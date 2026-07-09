@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { getInstanceName, resolveInstanceHome } from './ZavorthInstanceService.js';
 
 import type {
   ZavorthHomeMigrationEntry,
@@ -7,7 +8,6 @@ import type {
   ZavorthHomeSnapshot,
   ZavorthHomeSource,
 } from '../contracts/ZavorthHomeContract.js';
-import { getInstanceName, resolveInstanceHome } from './ZavorthInstanceService.js';
 
 type ZavorthHomePathServiceOptions = {
   projectRoot: string;

@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';

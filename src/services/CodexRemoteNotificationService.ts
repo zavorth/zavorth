@@ -1,7 +1,7 @@
-﻿import { config } from '../config/index.js';
+import { config } from '../config/index.js';
 import type { CodexRemoteSessionRecord } from './CodexRemoteSessionStoreService.js';
 import { logger } from '../logger.js';
-
+import { errorMessage } from '../utils/errorLike.js';
 type CodexRemoteNotificationRuntime = {
   fetchImpl?: typeof fetch;
 };
@@ -90,7 +90,7 @@ export class CodexRemoteNotificationService {
     return {
         delivered: false,
         targetChatId,
-        reason: error?.message || 'notification-failed',
+        reason: errorMessage(error, 'notification-failed'),
       };
   }
   }

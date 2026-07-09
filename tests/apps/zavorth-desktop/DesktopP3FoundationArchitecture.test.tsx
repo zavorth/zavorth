@@ -1,17 +1,3 @@
-/** @jest-environment jsdom */
-import React from 'react';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import {
-  addCustomProfile,
-  createCustomProfile,
-  deleteCustomProfile,
-  defaultProfiles,
-  loadCustomProfiles,
-  persistCustomProfiles,
-} from '../../../apps/zavorth-desktop/src/desktop-state/agentProfiles';
 import {
   appendSubagentTask,
   completeSubagentTask,
@@ -26,6 +12,23 @@ import {
   shouldRefreshRuntimeForEvent,
 } from '../../../apps/zavorth-desktop/src/desktop-state/runtimeRecovery';
 import { riskLabel } from '../../../apps/zavorth-desktop/src/desktop-state/desktopLabels';
+/** @jest-environment jsdom */
+import React from 'react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fireEvent, render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import {
+  addCustomProfile,
+  createCustomProfile,
+  deleteCustomProfile,
+  defaultProfiles,
+  loadCustomProfiles,
+  persistCustomProfiles,
+} from '../../../apps/zavorth-desktop/src/desktop-state/agentProfiles';
+
+
+
 import { DesktopRecoveryBoundary } from '../../../apps/zavorth-desktop/src/components/DesktopRecoveryBoundary';
 import { RiskBadge } from '../../../apps/zavorth-desktop/src/components/ProductPolishComponents';
 

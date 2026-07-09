@@ -1,3 +1,4 @@
+import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 /**
  * CommandlessModeService — Natural language entry point.
  *
@@ -18,7 +19,7 @@ import {
   type UniversalResponse,
   type ResponseContentType,
 } from './ZavorthPresentationAdapterService.js';
-import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
+
 import {
   type IntentKeywordSet,
   type IntentLanguagePack,

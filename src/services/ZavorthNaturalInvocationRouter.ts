@@ -1,4 +1,13 @@
-﻿import crypto from 'crypto';
+import {
+  ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
+  type ZavorthInvocationReceipt,
+} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
+import {
+  ZavorthSubagentRuntimeService,
+  type ZavorthSubagentRuntimeCommandInput,
+} from './ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentAutoInvocationPolicyService } from './ZavorthSubagentAutoInvocationPolicyService.js';
+import crypto from 'crypto';
 import {
   ZAVORTH_NATURAL_INVOCATION_CONTRACT_VERSION,
   type ZavorthNaturalInvocationAction,
@@ -7,10 +16,7 @@ import {
   type ZavorthNaturalInvocationStatus,
   type ZavorthNaturalInvocationSurfaceCommand,
 } from '../contracts/ZavorthNaturalInvocationContract.js';
-import {
-  ZAVORTH_INVOCATION_RECEIPT_CONTRACT_VERSION,
-  type ZavorthInvocationReceipt,
-} from '../contracts/runtime/ZavorthInvocationReceiptContract.js';
+
 import type {
   ZavorthSubagentAutoInvocationDecision,
   ZavorthSubagentAutoInvocationTelemetry,
@@ -28,11 +34,8 @@ import {
   UniversalSkillBridgeRuntimeService,
   type UniversalSkillBridgeRuntimeInput,
 } from '../skills/UniversalSkillBridgeRuntimeService.js';
-import {
-  ZavorthSubagentRuntimeService,
-  type ZavorthSubagentRuntimeCommandInput,
-} from './ZavorthSubagentRuntimeService.js';
-import { ZavorthSubagentAutoInvocationPolicyService } from './ZavorthSubagentAutoInvocationPolicyService.js';
+
+
 import { ZavorthSandboxLifecycleManager } from './ZavorthSandboxLifecycleManager.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';

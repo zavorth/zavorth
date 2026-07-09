@@ -6,6 +6,7 @@ import type {
   IntegrationManifest,
 } from '../contracts/IntegrationHubContract.js';
 import { config } from '../config/index.js';
+
 import { spawnCommand } from '../core/CommandSpawn.js';
 import { IntegrationHealthService } from './IntegrationHealthService.js';
 import { IntegrationInstallerService } from './IntegrationInstallerService.js';

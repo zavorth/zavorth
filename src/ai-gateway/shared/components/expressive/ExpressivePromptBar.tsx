@@ -1,6 +1,7 @@
+import { useCallback, useEffect, useRef, useState } from "react";
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 /*  Types                                                              */

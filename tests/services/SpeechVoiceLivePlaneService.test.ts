@@ -2,13 +2,14 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { SpeechRuntimeService } from '../../src/services/SpeechRuntimeService.js';
 
 import {
   HttpSpeechSynthesisLiveAdapter,
   HttpSpeechTranscriptionLiveAdapter,
   LocalCliSpeechSynthesisLiveAdapter,
 } from '../../src/adapters/speech/SpeechVoiceLiveAdapters.js';
-import { SpeechRuntimeService } from '../../src/services/SpeechRuntimeService.js';
+
 import { SpeechVoiceLivePlaneService } from '../../src/services/SpeechVoiceLivePlaneService.js';
 import { VoiceSessionService } from '../../src/services/VoiceSessionService.js';
 

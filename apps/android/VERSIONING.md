@@ -1,4 +1,4 @@
-﻿# Zavorth Android Versioning
+# Zavorth Android Versioning
 
 Android release builds use pinned app metadata instead of auto-bumping `build.gradle.kts`.
 

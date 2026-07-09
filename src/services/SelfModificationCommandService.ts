@@ -19,6 +19,7 @@ import {
   type StagedValidationChange,
 } from './selfmod-command/SelfModificationCommandTypes.js';
 import { SelfModificationApplySupport } from './selfmod-command/SelfModificationApplySupport.js';
+
 import { SelfModificationArtifactStore } from './selfmod-command/SelfModificationArtifactStore.js';
 import { SelfModificationGoalPlanner } from './selfmod-command/SelfModificationGoalPlanner.js';
 import { SelfModificationPreviewSupport } from './selfmod-command/SelfModificationPreviewSupport.js';

@@ -6,6 +6,7 @@ import type {
   ShellSafetyReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
 import { ShellSafetyClassifier } from './ShellSafetyClassifier.js';
+
 import { logger } from '../logger.js';
 
 type Runtime = {
@@ -101,7 +102,7 @@ export class GovernedTerminalRuntime {
           ? 'Governed terminal command executed with explicit policy allowance.'
           : 'Governed terminal command executed but returned a non-zero exit.',
       });
-    } catch ($1: unknown) {
+    } catch (error: unknown) {
     logger.warn('[Governed Terminal Runtime] process execution failed', error);
     return this.receipt({
         status: 'failed',
@@ -226,11 +227,11 @@ function hasPty(): boolean {
   try {
     require.resolve('node-pty');
     return true;
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     try {
       require.resolve('@lydell/node-pty');
       return true;
-    } catch ($1: unknown) { logger.warn('[Governed Terminal Runtime] module import failed', error); return false; }
+    } catch (error: unknown) { logger.warn('[Governed Terminal Runtime] module import failed', error); return false; }
   }
 }
 

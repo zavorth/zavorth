@@ -10,6 +10,7 @@ import type {
   ZavorthFunctionalClosureRiskLevel,
 } from '../contracts/native/ZavorthFunctionalClosureContract.js';
 import { ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION } from '../contracts/native/ZavorthFunctionalClosureContract.js';
+
 import { FinalAbsorptionCertificationService } from './FinalAbsorptionCertificationService.js';
 import { SourceAgentRuntimeBridgeService } from './SourceAgentRuntimeBridgeService.js';
 import { SourceChannelMeshExpansionService } from './SourceChannelMeshExpansionService.js';

@@ -3,6 +3,8 @@ import { CommandParser } from '../../../../gateways/channels/telegram/CommandPar
 import { MemoryService } from '../../../../services/MemoryService.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
 import { SnippetService } from '../../../../services/SnippetService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type ChainArtifact = {
   index: number;
   alias: string | null;
@@ -110,7 +112,8 @@ export class TelegramChainController {
           }`,
         );
       } catch (error: unknown) {
-        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error instanceof Error ? error.message : String(error)}`);
+        const err = asErrorLike(error);
+        summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error instanceof Error ? err.message : String(error)}`);
         previousOutput = '';
       }
     }

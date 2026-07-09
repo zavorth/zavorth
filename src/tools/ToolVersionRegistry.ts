@@ -1,4 +1,4 @@
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 /**
  * ToolVersionRegistry — Versioned tool registry with independent updates.
  *

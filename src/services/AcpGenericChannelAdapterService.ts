@@ -1,4 +1,13 @@
-﻿import fs from 'node:fs';
+import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+import {
+  normalizeRuntimeAdapterGatewayHandshake,
+} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
+import {
+  normalizeRuntimeAdapterGatewayProtocolFrame,
+  type RuntimeAdapterGatewayProtocolFrame,
+} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayProtocolBoundary.js';
+
+import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { config } from '../config/index.js';
@@ -10,17 +19,11 @@ import {
   type AcpGenericChannelEnvelope,
   type AcpGenericChannelFrameKind,
 } from '../contracts/AcpGenericChannelAdapterContract.js';
-import { SourceAgentRuntimeToolPolicyService } from './SourceAgentRuntimeToolPolicyService.js';
+
 import type {
   RuntimeAdapterApprovalEnvelope,
 } from '../runtime/zavorth-runtime-adapters/contracts.js';
-import {
-  normalizeRuntimeAdapterGatewayHandshake,
-} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayHandshakeBoundary.js';
-import {
-  normalizeRuntimeAdapterGatewayProtocolFrame,
-  type RuntimeAdapterGatewayProtocolFrame,
-} from '../runtime/zavorth-runtime-adapters/RuntimeAdapterGatewayProtocolBoundary.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   now?: () => Date;
@@ -166,6 +169,7 @@ export class AcpGenericChannelAdapterService {
       this.record(receipt, options.receiptPath);
       return receipt;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const receipt = this.buildReceipt({
         status: 'failed',
         envelope: {},
@@ -180,7 +184,7 @@ export class AcpGenericChannelAdapterService {
         nativeContract: 'ZavorthStructuredGatewayError/v1',
         reachesExecutor: false,
         gatewayEventEmitted: false,
-        outputText: error instanceof Error ? error.message : String(error),
+        outputText: error instanceof Error ? err.message : String(error),
       });
       this.record(receipt, options.receiptPath);
       return receipt;

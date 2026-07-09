@@ -13,6 +13,8 @@ import {
   type RuntimeInstallJourneyReport,
 } from './RuntimeInstallJourneyService.js';
 import { isWeakZavorthControlToken } from '../../../../services/ZavorthControlTokenService.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type AccessProbe = {
   ok: boolean;
   targetUrl: string;
@@ -230,7 +232,8 @@ export class RuntimeOfficialAccessService {
         error: response.ok ? null : `status ${response.status}`,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error ?? 'network failure');
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error ?? 'network failure');
       return {
         attempted: true,
         applied: false,
@@ -268,7 +271,8 @@ export class RuntimeOfficialAccessService {
         error: response.ok ? null : `status ${response.status}`,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error ?? 'network failure');
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error ?? 'network failure');
       return {
         ok: false,
         targetUrl,

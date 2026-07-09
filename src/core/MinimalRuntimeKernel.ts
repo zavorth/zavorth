@@ -29,6 +29,8 @@ import {
   MinimalRuntimeScheduler,
   type MinimalRuntimeSchedulerSnapshot,
 } from './MinimalRuntimeScheduler.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type MinimalRuntimeKernelSnapshot = {
   version: 1;
   generatedAt: string;
@@ -228,7 +230,8 @@ export class MinimalRuntimeKernel {
       try {
         await this.stop(signal);
       } catch (error: unknown) {
-        this.writer.error(error instanceof Error ? error.message : String(error));
+        const err = asErrorLike(error);
+        this.writer.error(error instanceof Error ? err.message : String(error));
       } finally {
         process.exit(0);
       }

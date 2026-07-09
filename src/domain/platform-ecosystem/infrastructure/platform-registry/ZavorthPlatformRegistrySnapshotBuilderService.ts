@@ -7,6 +7,14 @@ import {
   type ZavorthPlatformCatalogEntry,
 } from '../../../../services/ZavorthPlatformCatalogSourceService.js';
 import { ZavorthPluginRegistryService } from '../../../../services/ZavorthPluginRegistryService.js';
+import {
+  buildPlatformRegistryStatusNarrative,
+  buildPlatformRegistrySummary,
+  buildPlatformRegistrySummaryNarrative,
+} from './ZavorthPlatformRegistrySummaryBuilders.js';
+import { ZavorthPlatformRegistryCollectionRecipeMapper } from './ZavorthPlatformRegistryCollectionRecipeMappers.js';
+import { logger } from '../../../../logger';
+
 import { PluginStateService } from '../../../../services/PluginStateService.js';
 import { SkillSourceRegistryService } from '../../../../services/SkillSourceRegistryService.js';
 import { ZavorthLearningPlaneService } from '../../../../services/ZavorthLearningPlaneService.js';
@@ -15,12 +23,8 @@ import {
   buildPlatformRegistryFeaturedIds,
   buildPlatformRegistryFeaturedRecipeIds,
 } from './ZavorthPlatformRegistryEntryHelpers.js';
-import {
-  buildPlatformRegistryStatusNarrative,
-  buildPlatformRegistrySummary,
-  buildPlatformRegistrySummaryNarrative,
-} from './ZavorthPlatformRegistrySummaryBuilders.js';
-import { ZavorthPlatformRegistryCollectionRecipeMapper } from './ZavorthPlatformRegistryCollectionRecipeMappers.js';
+
+
 import { ZavorthPlatformRegistryEntryMapper } from './ZavorthPlatformRegistryEntryMappers.js';
 import {
   normalizePlatformValue,
@@ -33,7 +37,7 @@ import type {
   PlatformRegistryCatalogState,
   PlatformRegistryResolvedGraph,
 } from './ZavorthPlatformRegistrySnapshotBuilderTypes.js';
-import { logger } from '../../../../logger';
+
 import type {
 ZavorthPlatformRegistryEntry,
   ZavorthPlatformRegistrySnapshot,

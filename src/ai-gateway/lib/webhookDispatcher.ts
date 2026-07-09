@@ -1,3 +1,4 @@
+
 /**
  * Webhook Dispatcher
  * Dispatches events to registered webhooks with HMAC-SHA256 signing and retries
@@ -6,6 +7,7 @@
 import crypto from "crypto";
 import { assertPublicHttpTargetAllowed } from "./security/egressGuard.ts";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export type WebhookEvent =
   | "request.completed"
@@ -70,11 +72,12 @@ export async function deliverWebhook(
   try {
     await assertWebhookTargetAllowed(url);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[webhook Dispatcher] network request failed', error);
     return {
       success: false,
       status: 0,
-      error: error instanceof Error ? error.message : "Webhook target is not allowed",
+      error: error instanceof Error ? err.message : "Webhook target is not allowed",
     };
   }
 
@@ -116,8 +119,9 @@ export async function deliverWebhook(
         await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (attempt === maxRetries) {
-        return { success: false, status: 0, error: error.message || "Network error" };
+        return { success: false, status: 0, error: err.message || "Network error" };
       }
       await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
     }

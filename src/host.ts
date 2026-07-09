@@ -7,16 +7,20 @@ import {
   readAutoRepairCooldownState,
 } from './host/HostAutoRepairState.js';
 import { HostBackupStore } from './host/HostBackupStore.js';
-import { sanitizeWindowsEnv } from './host/HostEnvironment.js';
-import {
-  startExternalLauncherReload,
-  type ExternalLauncherReloadInput,
-} from './host/HostSupervisorLauncher.js';
 import {
   ZAVORTH_PROCESS_LOCK_CONFLICT_EXIT_CODE,
   ZavorthProcessLockConflictError,
   ProcessLockService,
-} from './services/ProcessLockService.js';const DEFAULT_WORKER_EXTENSION = path.extname(__filename) === '.ts' ? '.ts' : '.js';
+} from './services/ProcessLockService.js';
+
+import { sanitizeWindowsEnv } from './host/HostEnvironment.js';
+import { asErrorLike } from './utils/errorLike.js';
+import {
+  startExternalLauncherReload,
+  type ExternalLauncherReloadInput,
+} from './host/HostSupervisorLauncher.js';
+
+const DEFAULT_WORKER_EXTENSION = path.extname(__filename) === '.ts' ? '.ts' : '.js';
 const DEFAULT_WORKER_SCRIPT = path.resolve(__dirname, `index${DEFAULT_WORKER_EXTENSION}`);
 const DEFAULT_BACKUPS_DIR = path.resolve(__dirname, '..', 'data', 'self-heal', 'backups');
 const DEFAULT_MANIFEST_PATH = path.resolve(DEFAULT_BACKUPS_DIR, 'manifest.json');
@@ -28,7 +32,6 @@ const DEFAULT_RESTART_DELAY_MS = 3_000;
 const MAX_BACKUPS_PER_FILE = 3;
 
 export type { BackupManifest } from './host/HostBackupStore.js';
-
 type HostRuntime = {
   forkImpl?: typeof fork;
   spawnImpl?: typeof spawn;
@@ -166,8 +169,8 @@ export class ZavorthHost {
     try {
       this.hostLock.acquire(this.hostLockOwner);
       this.hostLock.ensure(this.hostLockOwner);
-    } catch (error: unknown) {if (error instanceof ZavorthProcessLockConflictError || error?.code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
-        this.log(`Another Zavorth host supervisor is already active (PID ${error.existingPid}). Exiting duplicate host.`);
+    } catch (error: unknown) {if (error instanceof ZavorthProcessLockConflictError || asErrorLike(error).code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
+        this.log(`Another Zavorth host supervisor is already active (PID ${(asErrorLike(error).existingPid as number | undefined)}). Exiting duplicate host.`);
         this.exitImpl(0);
         return;
       }
@@ -212,7 +215,7 @@ export class ZavorthHost {
         stdio: ['pipe', 'inherit', 'inherit', 'ipc'],
         env: workerEnv,
       });
-    } catch (error: unknown) {if (process.platform !== 'win32' || error?.code !== 'EPERM') {
+    } catch (error: unknown) {if (process.platform !== 'win32' || asErrorLike(error).code !== 'EPERM') {
         throw error;
       }
 

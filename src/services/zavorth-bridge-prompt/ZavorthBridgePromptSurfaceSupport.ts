@@ -1,4 +1,5 @@
-﻿import { config } from '../../config/index.js';
+
+import { config } from '../../config/index.js';
 import type { ZavorthBridgeCompanionBridge } from '../../agents/ZavorthBridgeCompanionBridge.js';
 import type { ZavorthBridgeUiSnapshot } from '../ZavorthBridgeUiCaptureService.js';
 import {
@@ -7,6 +8,7 @@ import {
 } from '../ZavorthBridgeUiResponseHeuristics.js';
 import type { ZavorthBridgePromptStartResult } from '../ZavorthBridgePromptService.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export class ZavorthBridgePromptSurfaceSupport {
   constructor(private readonly host: any) {}
@@ -22,10 +24,11 @@ export class ZavorthBridgePromptSurfaceSupport {
         expectedModel: start.selectedModel,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.host.logRepo.log(
         'warn',
         'ZavorthBridgePromptService',
-        `Falha ao capturar a UI do ZavorthBridge para ${start.taskId}: ${error.message}`,
+        `Falha ao capturar a UI do ZavorthBridge para ${start.taskId}: ${err.message}`,
       );
       return null;
     }
@@ -161,12 +164,13 @@ export class ZavorthBridgePromptSurfaceSupport {
         },
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,
-        message: error.message,
+        message: err.message,
         diagnostics: {
-          probeError: error.message,
+          probeError: err.message,
         },
       };
   }
@@ -201,12 +205,13 @@ export class ZavorthBridgePromptSurfaceSupport {
         },
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,
-        message: error.message,
+        message: err.message,
         diagnostics: {
-          recoveryError: error.message,
+          recoveryError: err.message,
         },
       };
   }

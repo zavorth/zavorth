@@ -13,14 +13,16 @@ import {
 } from './CapabilityLifecycleService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import {
+  NaturalChannelSetupTurnService,
+  type NaturalChannelSetupTurnResult,
+} from './NaturalChannelSetupTurnService.js';
+
+
+import {
   ChannelSetupAssistantService,
   type ChannelSetupAssistantOption,
   type ChannelSetupAssistantSession,
 } from './ChannelSetupAssistantService.js';
-import {
-  NaturalChannelSetupTurnService,
-  type NaturalChannelSetupTurnResult,
-} from './NaturalChannelSetupTurnService.js';
 
 type NaturalSetupPosture = 'healthy' | 'attention' | 'critical';
 type NaturalSetupSeverity = 'info' | 'warn' | 'critical';

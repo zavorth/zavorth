@@ -12,6 +12,8 @@ import {
   type RuntimeOfficialRemoteRolloutCandidateId,
 } from '@zavorth/runtime/access/RuntimeOfficialRemoteAccessService.js';
 import { SidecarStatusService } from '@zavorth/services/SidecarStatusService.js';
+import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+
 import { AutoRepairService } from '@zavorth/services/AutoRepairService.js';
 import { SupervisedRuntimeService } from '@zavorth/services/SupervisedRuntimeService.js';
 import { WslControlResult, WslControlService } from '@zavorth/services/WslControlService.js';
@@ -20,7 +22,8 @@ import {
   mapBooleanReceiptStatus,
   type SurfaceReceiptStatus,
 } from '@zavorth/domain/surface/application/surface-response/index.js';
-import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type TelegramOpsRuntimeMaintenanceCommand = {
   action: 'changes' | 'reload' | 'autorepair';
   force: boolean;
@@ -414,7 +417,8 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(this.formatRemoteModeReply(result, mode));
     } catch (error: unknown) {
-      await ctx.reply(`I could not adjust remote mode right now.\n\nReason: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      await ctx.reply(`I could not adjust remote mode right now.\n\nReason: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 
@@ -480,7 +484,8 @@ export class TelegramOpsRuntimeCommandService {
 
       await ctx.reply(lines.join('\n'), { parse_mode: 'Markdown' });
     } catch (error: unknown) {
-      await ctx.reply(`Failed to start ZavorthControl: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      await ctx.reply(`Failed to start ZavorthControl: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 
@@ -508,7 +513,8 @@ export class TelegramOpsRuntimeCommandService {
       const result = await this.deps.wslControl.status();
       await this.replyWslSurface(ctx, result);
     } catch (error: unknown) {
-      await ctx.reply(`Error accessing WSL: ${error instanceof Error ? error.message : String(error)}`);
+      const err = asErrorLike(error);
+      await ctx.reply(`Error accessing WSL: ${error instanceof Error ? err.message : String(error)}`);
     }
   }
 

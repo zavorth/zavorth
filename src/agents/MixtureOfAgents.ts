@@ -1,3 +1,5 @@
+import { asErrorLike } from '../utils/errorLike.js';
+
 /**
  * MixtureOfAgents - multi-model orchestration for consensus.
  *
@@ -174,7 +176,8 @@ export class MixtureOfAgents {
         success: true,
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         provider: ref.provider,
         model: ref.model,

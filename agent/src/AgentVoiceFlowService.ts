@@ -3,6 +3,7 @@ import type {
   EchoAgentResult,
   EchoAgentSurfaceState,
 } from './EchoClientService.js';
+import { asErrorLike } from '../../src/utils/errorLike.js';
 function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
   if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
   if (typeof error === 'string' && error.trim()) return { message: error };

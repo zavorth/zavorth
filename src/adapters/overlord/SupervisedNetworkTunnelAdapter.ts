@@ -16,6 +16,7 @@ import {
   type ZavorthPublicTunnelStatus,
 } from '../../services/ZavorthPublicTunnelService.js';
 
+
 type TunnelAction = 'inspect' | 'start' | 'stop' | 'restart';
 type TunnelService = Pick<
   ZavorthPublicTunnelService,

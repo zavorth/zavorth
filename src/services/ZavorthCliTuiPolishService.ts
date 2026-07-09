@@ -1,4 +1,5 @@
-﻿import figlet from 'figlet';
+import { ZavorthReadyToGoService, type ZavorthReadyToGoSnapshot } from './ZavorthReadyToGoService.js';
+import figlet from 'figlet';
 
 import {
   paintCliBadge,
@@ -6,7 +7,7 @@ import {
   paintCliTone,
   stripCliAnsi,
 } from '../cli/ZavorthCliVisualTheme.js';
-import { ZavorthReadyToGoService, type ZavorthReadyToGoSnapshot } from './ZavorthReadyToGoService.js';
+
 import { ZavorthRuntimeReadinessService, type ZavorthRuntimeReadinessSnapshot } from './ZavorthRuntimeReadinessService.js';
 import { ZavorthRuntimeGuidedFixesService, type ZavorthRuntimeGuidedFix } from './ZavorthRuntimeGuidedFixesService.js';
 import { logger } from '../logger.js';

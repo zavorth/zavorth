@@ -1,4 +1,4 @@
-﻿import { logger } from '../../logger.js';
+import { logger } from '../../logger.js';
 export const MAX_LOG_EXCERPT_CHARACTERS = 5_000;
 export const MAX_OUTPUT_CHARACTERS = 4_000;
 

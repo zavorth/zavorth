@@ -13,6 +13,15 @@ import { ChannelPolicyManager } from '../../src/channels/policies/ChannelPolicyM
 describe('Channel Mesh adapters', () => {
   const tempDirs: string[] = [];
 
+  function createIsolatedPolicyManager(env: Record<string, string> = {}) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-channel-policy-'));
+    tempDirs.push(root);
+    return new ChannelPolicyManager({
+      policyFile: path.join(root, 'channel-policies.json'),
+      env: env as NodeJS.ProcessEnv,
+    });
+  }
+
   afterEach(() => {
     while (tempDirs.length > 0) {
       const target = tempDirs.pop();
@@ -23,10 +32,8 @@ describe('Channel Mesh adapters', () => {
   });
 
   it('blocks unauthorized WhatsApp payloads before they reach the event bus', async () => {
-    const policyManager = new ChannelPolicyManager({
-      env: {
-        ZAVORTH_CHANNEL_POLICY_WHATSAPP_ALLOWED: '+5511999999999',
-      } as NodeJS.ProcessEnv,
+    const policyManager = createIsolatedPolicyManager({
+      ZAVORTH_CHANNEL_POLICY_WHATSAPP_ALLOWED: '+5511999999999',
     });
     await policyManager.loadPolicies();
     const eventBus = new GatewayEventBus();
@@ -42,10 +49,8 @@ describe('Channel Mesh adapters', () => {
   });
 
   it('emits canonical events for allowed Slack messages', async () => {
-    const policyManager = new ChannelPolicyManager({
-      env: {
-        ZAVORTH_CHANNEL_POLICY_SLACK_OPEN: 'true',
-      } as NodeJS.ProcessEnv,
+    const policyManager = createIsolatedPolicyManager({
+      ZAVORTH_CHANNEL_POLICY_SLACK_OPEN: 'true',
     });
     await policyManager.loadPolicies();
     const eventBus = new GatewayEventBus();

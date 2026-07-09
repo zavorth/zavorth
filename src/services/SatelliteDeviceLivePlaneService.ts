@@ -12,6 +12,7 @@ import type {
   SatelliteDeviceLiveTargetId,
 } from '../contracts/SatelliteDeviceLivePlaneContract.js';
 import { ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION } from '../contracts/SatelliteDeviceLivePlaneContract.js';
+
 import { LiveReadinessService } from './LiveReadinessService.js';
 
 type SatelliteDeviceLivePlaneRuntime = {

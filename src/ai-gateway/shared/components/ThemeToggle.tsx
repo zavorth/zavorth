@@ -1,6 +1,7 @@
+import { useTheme } from "@/shared/hooks/useTheme";
 "use client";
 
-import { useTheme } from "@/shared/hooks/useTheme";
+
 import { cn } from "@/shared/utils/cn";
 
 export default function ThemeToggle({

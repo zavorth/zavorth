@@ -1,4 +1,4 @@
-﻿export * from './CanaryExecutionApprovalLedgerContract.js';
+export * from './CanaryExecutionApprovalLedgerContract.js';
 export * from './CanaryLaunchRehearsalContract.js';
 export * from './CanaryMonitoringRollbackGateContract.js';
 export * from './CanaryPlanDryRunHoldContract.js';

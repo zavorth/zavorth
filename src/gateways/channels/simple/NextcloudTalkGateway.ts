@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 interface NextcloudTalkWebhookPayload {
   user_id?: string;
   actorId?: string;
@@ -130,7 +132,8 @@ export class NextcloudTalkGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       this.recordError(`Nextcloud Talk send failed: ${errorMessage}`);
     }
   }

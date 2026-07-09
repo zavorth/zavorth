@@ -1,11 +1,12 @@
-﻿import {
+import { SkillCatalogService } from '../skills/SkillCatalogService.js';
+import {
   ZAVORTH_SMART_COMMAND_SURFACE_CONTRACT_VERSION,
   type ZavorthSmartCommandId,
   type ZavorthSmartCommandResolution,
   type ZavorthSmartCommandSnapshot,
   type ZavorthSmartCommandStatus,
 } from '../contracts/ZavorthSmartCommandSurfaceContract.js';
-import { SkillCatalogService } from '../skills/SkillCatalogService.js';
+
 import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import type { ZavorthProviderModelCatalogSnapshot } from '../contracts/ZavorthProviderModelCatalogContract.js';

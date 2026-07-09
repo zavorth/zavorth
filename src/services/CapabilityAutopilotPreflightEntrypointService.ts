@@ -5,13 +5,14 @@ import type {
   OriginalIntentEnvelope,
 } from '../contracts/CapabilityAutopilotContract.js';
 import { CapabilityAutopilotMemoryReplayService } from './CapabilityAutopilotMemoryReplayService.js';
+import { CapabilityAutopilotReceiptService } from './CapabilityAutopilotReceiptService.js';
+
 import type { CapabilityPreflightHintResult } from './CapabilityAutopilotPreflightHintService.js';
 import { CapabilityAutopilotPreflightHintService } from './CapabilityAutopilotPreflightHintService.js';
 import {
   CapabilityAutopilotPreflightSurfaceService,
   type CapabilityPreflightSurfacePayload,
 } from './CapabilityAutopilotPreflightSurfaceService.js';
-import { CapabilityAutopilotReceiptService } from './CapabilityAutopilotReceiptService.js';
 
 export type CapabilityAutopilotPreflightCheck = {
   id: string;

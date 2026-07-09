@@ -1,4 +1,5 @@
-﻿import { createHash } from 'node:crypto';
+import { ZavorthTransactionLiveActivationReviewService } from './ZavorthTransactionLiveActivationReviewService.js';
+import { createHash } from 'node:crypto';
 
 import {
   buildZavorthTransactionSandboxAdapterCertificationContractSnapshot,
@@ -19,7 +20,7 @@ import type {
 import type {
   ZavorthTransactionLiveActivationReviewResult,
 } from '../contracts/ZavorthTransactionLiveActivationReviewContract.js';
-import { ZavorthTransactionLiveActivationReviewService } from './ZavorthTransactionLiveActivationReviewService.js';
+
 import { logger } from '../logger.js';
 
 type SandboxCertificationDeps = {

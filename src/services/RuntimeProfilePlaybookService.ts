@@ -6,6 +6,7 @@ import {
   type RuntimeProfilePlaybookStep,
 } from '../contracts/RuntimeProfilePlaybookContract.js';
 import { MinimalRuntimeProfileRegistry } from '../core/MinimalRuntimeProfileRegistry.js';
+
 import type { RuntimeBudgetProfile } from './RuntimeResourceBudgetService.js';
 
 type RuntimeProfilePlaybookDeps = {

@@ -1,4 +1,4 @@
-﻿import { mkdtempSync, writeFileSync } from 'fs';
+import { mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import crypto from 'crypto';

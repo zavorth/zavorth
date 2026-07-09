@@ -1,4 +1,5 @@
-﻿import type { CompanionActionId, CompanionId } from '../contracts/CompanionControlContract.js';
+import { CapabilityImpactEstimatorService } from './CapabilityImpactEstimatorService.js';
+import type { CompanionActionId, CompanionId } from '../contracts/CompanionControlContract.js';
 import type { DesktopResourcePlaneService } from './DesktopResourcePlaneService.js';
 import type { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
 import type {
@@ -7,7 +8,7 @@ import type {
   CompanionImpactEstimate,
   TaskResourceImpact,
 } from '../contracts/TaskResourcePlannerContract.js';
-import { CapabilityImpactEstimatorService } from './CapabilityImpactEstimatorService.js';
+
 import { CompanionImpactEstimatorService } from './CompanionImpactEstimatorService.js';
 import { logger } from '../logger.js';
 

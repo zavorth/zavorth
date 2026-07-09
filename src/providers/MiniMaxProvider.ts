@@ -12,8 +12,13 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
-import { buildProviderRequestOptions } from './ProviderAbort.js';export class MiniMaxProvider implements ILlmProvider {
+
+import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { errorMessage } from '../utils/errorLike.js';
+export class MiniMaxProvider implements ILlmProvider {
+
   public readonly name = 'minimax';
+
   private client: OpenAI;
 
   constructor() {
@@ -58,7 +63,7 @@ import { buildProviderRequestOptions } from './ProviderAbort.js';export class M
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: unknown) {logger.error('[MiniMax] Request error:', error?.message || error);
+    } catch (error: unknown) {logger.error('[MiniMax] Request error:', errorMessage(error));
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-﻿import type { ZavorthRuntimeProviderConnection } from '../contracts/ZavorthRuntimeStateBusContract.js';
+import type { ZavorthRuntimeProviderConnection } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { logger } from '../logger.js';
 
 export type ZavorthProviderSetupInput = {

@@ -12,10 +12,15 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
+
 import { buildProviderRequestOptions } from './ProviderAbort.js';
 import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
-import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';export class OpenRouterProvider implements ILlmProvider {
+import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
+import { errorMessage } from '../utils/errorLike.js';
+export class OpenRouterProvider implements ILlmProvider {
+
   public readonly name = 'openrouter';
+
   private client: OpenAI;
 
   constructor() {
@@ -65,7 +70,7 @@ import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';expo
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: unknown) {logger.error('[OpenRouter] Request error:', error?.message || error);
+    } catch (error: unknown) {logger.error('[OpenRouter] Request error:', errorMessage(error));
       throw error;
     }
   }
@@ -94,7 +99,7 @@ import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';expo
       } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
-    } catch (error: unknown) {logger.error('[OpenRouter] Streaming error:', error?.message || error);
+    } catch (error: unknown) {logger.error('[OpenRouter] Streaming error:', errorMessage(error));
       throw error;
     }
   }

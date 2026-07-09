@@ -5,6 +5,7 @@ import {
   type OperationsHealthSnapshot,
 } from '../observability/OperationsHealthService.js';
 import { OperationsCockpitSnapshotComposer } from '../domain/observability/infrastructure/operations-cockpit/OperationsCockpitSnapshotComposer.js';
+
 import type {
   OperationsCockpitRuntime,
   OperationsCockpitSnapshot,

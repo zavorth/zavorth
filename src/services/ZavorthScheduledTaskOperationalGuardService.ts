@@ -1,9 +1,10 @@
-﻿import type { ScheduledTask } from '../storage/SchedulerRepository.js';
+import { logger } from '../logger.js';
+import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskRuntimeDescriptor,
 } from './SchedulerService.js';
-import { logger } from '../logger.js';
+
 import {
 ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION,
   type ZavorthScheduledTaskOperationalGuardInput,

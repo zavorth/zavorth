@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { applyPatch, createTwoFilesPatch } from 'diff';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
@@ -6,7 +6,7 @@ import { DiskMutationGateService } from '../../services/DiskMutationGateService.
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
 import { logger } from '../../logger.js';
-
+import { errorMessage } from '../../utils/errorLike.js';
 type WorkspacePatchAudit = {
   changed: boolean;
   diffPatch: string;
@@ -94,7 +94,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
           success: false,
           applied: false,
           approvalRequired: true,
-          error: error?.message || 'Falha ao aplicar preview pelo Disk Mutation Gate.',
+          error: errorMessage(error, 'Falha ao aplicar preview pelo Disk Mutation Gate.'),
         });
   }
     }

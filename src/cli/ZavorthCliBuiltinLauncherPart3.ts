@@ -21,6 +21,7 @@ import {
   runZavorthEchoWakeCommand
 } from './ZavorthCliPremiumHandlers.js';
 
+
 export async function runBuiltinLauncherPart3(command: string, restArgs: string[], rawArgs: string[]): Promise<number | null> {
   if (command === 'doctor' && ['retention', 'runtime-retention'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
     const { MinimalRuntimeRetentionService } = await import('../core/MinimalRuntimeRetentionService.js');

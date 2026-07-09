@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export class ZavorthSandboxDebuggerService {
   /**
@@ -42,7 +42,8 @@ export class ZavorthSandboxDebuggerService {
           stdio: 'pipe',
           timeout: 60000,
         });
-      } catch (tscError: unknown) {const errorOutput = tscError.stdout?.toString() || tscError.stderr?.toString() || tscError.message;
+      } catch (tscError: unknown) {
+  const tscErrorLike = asErrorLike(tscError);const errorOutput = asErrorLike(tscError).stdout?.toString() || asErrorLike(tscError).stderr?.toString() || tscErrorLike.message;
         logger.warn(`[Sandbox Debugger] Compilation check failed. Output:\n${errorOutput}`);
         logger.warn(`[Sandbox Debugger] Rolling back changes...`);
         fs.writeFileSync(filePath, originalContent, 'utf-8');

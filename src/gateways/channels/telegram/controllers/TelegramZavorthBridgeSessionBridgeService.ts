@@ -8,6 +8,7 @@ import {
   ZavorthBridgeWindowAutomator,
 } from '../../../../agents/ZavorthBridgeWindowAutomator.js';
 import { ZavorthBridgeCompanionBridge } from '../../../../agents/ZavorthBridgeCompanionBridge.js';
+
 import { PermissionService } from '@zavorth/services/PermissionService.js';
 import { TaskManager } from '../../../../orchestrator/TaskManager.js';
 import { AgentBridgeManager } from '../../../../orchestrator/AgentBridgeManager.js';
@@ -17,6 +18,7 @@ import {
   ZavorthBridgeWindowAutomatorLike,
   LiveBridgeSnapshot,
 } from '../../../../gateways/channels/telegram/controllers/TelegramZavorthBridgeTypes.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 type TelegramZavorthBridgeSessionBridgeServiceDeps = {
   taskManager: Pick<TaskManager, 'advanceState' | 'getTask'>;
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'restart'>;
@@ -126,7 +128,8 @@ export class TelegramZavorthBridgeSessionBridgeService {
       );
       await ctx.reply('Done. Restarted the visible ZavorthBridge conversation and confirmed the reset in the real UI.');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       await ctx.reply(`Could not clean or restart ZavorthBridge right now.\n\nReason: ${message}`);
     }
   }

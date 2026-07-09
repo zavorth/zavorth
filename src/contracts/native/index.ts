@@ -1,4 +1,4 @@
-﻿export * from './IntelligenceFabricContract.js';
+export * from './IntelligenceFabricContract.js';
 export * from './ModuleSdkExportContract.js';
 export * from './NativeCapabilityClosureContract.js';
 export * from './ZavorthAdaptiveLearningOsContract.js';

@@ -1,4 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
+import { logger } from '../logger.js';
 /**
  * MediaUnderstandingService - Zavorth-native media analysis and understanding service.
  *
@@ -40,7 +41,7 @@ import type {
   AdapterAnalysisInput,
   AdapterAnalysisOutput,
 } from '../contracts/MediaUnderstandingContract.js';
-import { logger } from '../logger.js';
+
 import {
 GeminiVisionAnalysisAdapter,
   VisionAdapterError,

@@ -1,8 +1,8 @@
 import React from 'react';
 import { createLogger } from '../logger';
+import { RecoveryOverlay } from './ProductPolishComponents';
 
 const logger = createLogger('shell');
-import { RecoveryOverlay } from './ProductPolishComponents';
 
 type DesktopRecoveryBoundaryProps = {
   children: React.ReactNode;

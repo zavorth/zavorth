@@ -1,6 +1,8 @@
 import { SCHEMA_SQL } from "./coreSchema";
 import type { SqliteColumnInfo, SqliteDatabase } from "./coreTypes";
 import { ensureZavorthMigrationLedger, recordZavorthMigration } from "../storagePlane";
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 function getColumnNames(db: SqliteDatabase, tableName: string): Set<string> {
   const columns = db.prepare(`PRAGMA table_info(${tableName})`).all() as SqliteColumnInfo[];
   return new Set(columns.map((column) => String(column.name ?? "")));
@@ -24,7 +26,8 @@ function ensureProviderConnectionsColumns(db: SqliteDatabase): void {
       console.log('[DB] Added provider_connections."group" column');
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : String(error);
     console.warn("[DB] Failed to verify provider_connections schema:", message);
   }
 }
@@ -49,7 +52,8 @@ function ensureUsageHistoryColumns(db: SqliteDatabase): void {
       console.log("[DB] Added usage_history.error_code column");
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : String(error);
     console.warn("[DB] Failed to verify usage_history schema:", message);
   }
 }
@@ -66,7 +70,8 @@ function ensureCallLogsColumns(db: SqliteDatabase): void {
       console.log("[DB] Added call_logs.has_pipeline_details column");
     }
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const err = asErrorLike(error);
+    const message = error instanceof Error ? err.message : String(error);
     console.warn("[DB] Failed to verify call_logs schema:", message);
   }
 }

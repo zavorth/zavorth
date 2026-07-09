@@ -1,4 +1,5 @@
-﻿import { execFile } from 'node:child_process';
+import { logger } from '../logger.js';
+import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readFile, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
@@ -22,7 +23,7 @@ import type {
   RemoteMeshNotebookScopedMcpServerStatus,
   RemoteMeshNotebookScopedMcpToolName,
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
-import { logger } from '../logger.js';
+
 import type {
 JsonRpcRequest,
   RemoteMeshNotebookDockerObservabilityProvider,

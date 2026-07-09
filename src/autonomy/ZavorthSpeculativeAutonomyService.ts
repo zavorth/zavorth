@@ -28,7 +28,6 @@ import {
   findUnsafeOriginalPath,
   safeReadWorkspaceTextFile
 } from './ZavorthSpeculativeWorkspaceOperations.js';
-
 import {
   runValidationCommands,
   buildValidationEnv,
@@ -40,6 +39,7 @@ import {
   defaultCommandRunner,
   defaultDockerValidationRunner
 } from './ZavorthSpeculativeSandboxRunner.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export {
   buildSpeculativeDockerValidationArgs,
@@ -601,7 +601,6 @@ export class ZavorthSpeculativeAutonomyService {
     });
   }
 
-
   private async runAttempt(input: {
     id: string;
     workspaceRoot: string;
@@ -625,7 +624,8 @@ export class ZavorthSpeculativeAutonomyService {
     try {
       copyStats = this.copyWorkspace(input.workspaceRoot, sandboxWorkspace);
     } catch (error: unknown) {
-      const reason = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const reason = error instanceof Error ? err.message : String(error);
       return this.blockedAttempt({
         id: input.id,
         workspaceRoot: input.workspaceRoot,
@@ -1401,7 +1401,6 @@ export class ZavorthSpeculativeAutonomyService {
   }
 
 }
-
 
 export function buildSpeculativeAutonomyReceipt(input: ZavorthSpeculativeAutonomyResult): Record<string, unknown> {
   return {

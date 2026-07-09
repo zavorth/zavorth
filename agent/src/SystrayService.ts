@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import SysTray from 'systray2';
 import { t, getLanguages } from './i18n.js';
+import { asErrorLike } from '../../src/utils/errorLike.js';
 function asErrorLike(error: unknown): { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown } {
   if (error && typeof error === 'object') return error as { message?: string; stack?: string; name?: string; code?: string | number; [key: string]: unknown };
   if (typeof error === 'string' && error.trim()) return { message: error };

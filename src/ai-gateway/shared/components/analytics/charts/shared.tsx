@@ -1,6 +1,6 @@
+import { fmtCompact as fmt, fmtCost } from "@/shared/utils/formatting";
 "use client";
 
-import { fmtCompact as fmt, fmtCost } from "@/shared/utils/formatting";
 
 export function createDateFormatter(locale: string, options: Intl.DateTimeFormatOptions) {
   try {

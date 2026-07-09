@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MiddlewareHook — Optional hook for gateways to enable
  * commandless mode and adaptive formatting.
  *
@@ -101,7 +101,7 @@ export async function hookMiddleware(input: HookInput): Promise<HookResult> {
     }
 
     return { handled: false };
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     // Graceful degradation: don't break the gateway
     return {
       handled: false,

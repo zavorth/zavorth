@@ -7,7 +7,8 @@ import {
   CapabilityMatcher,
   CapabilitySummary,
 } from '../contracts/CapabilityContract.js';
-import { BUILTIN_CAPABILITIES } from './BuiltinCapabilities.js';type RegistryOptions = {
+import { BUILTIN_CAPABILITIES } from './BuiltinCapabilities.js';
+type RegistryOptions = {
   pluginDir?: string;
   builtins?: CapabilityDefinition[];
 };

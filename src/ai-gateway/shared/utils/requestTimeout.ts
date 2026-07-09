@@ -1,3 +1,5 @@
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 /**
  * Request Timeout Utility — FASE-04 Observability
  *
@@ -34,7 +36,8 @@ export async function fetchWithTimeout(url: string, options: RequestInit & Timeo
     });
     return response;
   } catch (error: unknown) {
-    if (error.name === "AbortError" || controller.signal.aborted) {
+    const err = asErrorLike(error);
+    if (err.name === "AbortError" || controller.signal.aborted) {
       const timeoutError: any = new Error(`${label} timed out after ${timeoutMs}ms`);
       timeoutError.name = "TimeoutError";
       timeoutError.originalUrl = url;

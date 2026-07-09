@@ -6,12 +6,13 @@ import {
   isSafePath,
 } from "./cliRuntimePathSecurity.ts";
 import { isWindows, runProcess } from "./cliRuntimeProcess.ts";
+import { asErrorLike } from '../../../../utils/errorLike';
+
 import { logger } from '../logger.js';
 import {
 EXPECTED_PARENT_PATHS,
   getKnownToolPaths,
 } from "./cliRuntimeTools.ts";
-import { asErrorLike } from '../../../../utils/errorLike';
 
 export const checkExplicitPath = async (commandPath: string) => {
   if (!isSafePath(commandPath)) {

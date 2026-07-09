@@ -27,6 +27,13 @@ import {
   normalizeRuntimeAdapterProviderWebSearchFetchContracts,
 } from './RuntimeAdapterProviderWebSearchFetchBoundary.js';
 
+
+
+
+
+
+
+
 export const RUNTIME_ADAPTER_CANONICAL_PROVIDER_FIXTURE_NOW = '2026-04-27T20:00:00.000Z';
 export const RUNTIME_ADAPTER_CANONICAL_PROVIDER_RUNTIME_ID = 'external-runtime-adapter-v1-provider-fixture-runtime';
 export const RUNTIME_ADAPTER_CANONICAL_PROVIDER_SOURCE_RUNTIME_NAME = 'ExternalExecutor';

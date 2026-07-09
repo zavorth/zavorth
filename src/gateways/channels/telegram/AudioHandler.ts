@@ -9,16 +9,19 @@ import {
   EchoVoiceTelemetryService,
 } from '../../../domain/observability/infrastructure/EchoVoiceTelemetryService.js';
 import { GeminiVoiceService } from '../../../providers/GeminiVoiceService.js';
+import { logEchoTrace } from '../../../gateways/channels/telegram/EchoTrace.js';
+
 import { GeminiVideoAnalyzer } from '../../../gateways/channels/telegram/GeminiVideoAnalyzer.js';
 import {
   CapabilityUnavailableError,
   isCapabilityUnavailableError,
   loadOptionalDependency,
 } from '../../../services/OptionalCapabilityGuard.js';
-import { logEchoTrace } from '../../../gateways/channels/telegram/EchoTrace.js';
+
 import { LocalVoiceDictation } from '../../../voice/LocalVoiceDictation.js';
 import { AudioTranscriptionService } from '../../../services/AudioTranscriptionService.js';
 import type { AudioTranscriptionResult as SharedAudioTranscriptionResult } from '../../../services/AudioTranscriptionService.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
 const TELEGRAM_TRANSCRIPTION_TITLE = 'audio do Telegram';
 const TELEGRAM_TRANSCRIPTION_INSTRUCTION = [
   'Transcribe only the audible words as plain text.',
@@ -252,6 +255,7 @@ export class AudioHandler {
             return geminiPath;
           }
         } catch (error: unknown) {
+          const err = asErrorLike(error);
           lastGeminiError = error instanceof Error ? error : new Error(String(error));
           logger.error(`[AudioHandler] Erro no Gemini TTS: ${error}`);
         }

@@ -4,6 +4,7 @@ import type {
   RemainingRuntimeDecisionStatus,
 } from '../contracts/RemainingRuntimeDecisionsContract.js';
 import { ZAVORTH_REMAINING_RUNTIME_DECISIONS_CONTRACT_VERSION } from '../contracts/RemainingRuntimeDecisionsContract.js';
+
 import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';
 import { MemoryArtifactConsistencyService } from './MemoryArtifactConsistencyService.js';
 import { ReleaseCertificationService } from './ReleaseCertificationService.js';

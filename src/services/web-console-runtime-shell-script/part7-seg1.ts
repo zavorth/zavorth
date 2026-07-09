@@ -1,4 +1,4 @@
-﻿export const runtimeShellScriptPart7Seg1: string = [
+export const runtimeShellScriptPart7Seg1: string = [
     "    return;",
     "  }",
     "",
@@ -11,7 +11,7 @@
     "    setJourneyActionStatus('Atualizando manifesto, journey e remoto deste host...');",
     "    await refreshProtectedShellState(token);",
     "    setJourneyActionStatus('Host atualizado com sucesso.');",
-    "  } catch ($1: unknown) {",
+    "  } catch (error: unknown) {",
     "    setJourneyActionStatus(error instanceof Error ? error.message : String(error));",
     "  } finally {",
     "    for (const button of buttons) {",
@@ -430,7 +430,7 @@
     "",
     "    await refreshProtectedShellState(token);",
     "    setText(authCopy, 'Token validado. Manifesto, journey e acesso remoto oficial carregados.');",
-    "  } catch ($1: unknown) {",
+    "  } catch (error: unknown) {",
     "    writeStoredToken('');",
     "    protectedShellUnlocked = false;",
     "    closeGatewayControlSocket('Token necessario');",

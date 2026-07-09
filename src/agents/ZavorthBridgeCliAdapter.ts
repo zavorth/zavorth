@@ -36,7 +36,9 @@ import {
   resolveWindowStrategyFlag as resolveWindowStrategyFlagSupport,
   waitForCompatibleBridgeStatus as waitForCompatibleBridgeStatusSupport,
 } from './zavorth-bridge-cli/ZavorthBridgeCliWorkspaceSupport.js';
-import { spawnCommand } from '../core/CommandSpawn.js';export class ZavorthBridgeCliAdapter {
+import { spawnCommand } from '../core/CommandSpawn.js';
+
+export class ZavorthBridgeCliAdapter {
   private bridgeManager: AgentBridgeManager;
   private windowAutomator: ZavorthBridgeWindowAutomator;
   private companionBridge: ZavorthBridgeCompanionBridge;

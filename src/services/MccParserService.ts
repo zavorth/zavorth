@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { Database } from '../storage/Database.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export interface MccNode {
   id: string; // Caminho relativo ou id do bloco
   name: string;
@@ -60,7 +62,8 @@ export class MccParserService {
 
       logger.info(`[MCC Parser] Indexação do workspace concluída com sucesso.`);
     } catch (error: unknown) {
-      logger.error(`[MCC Parser] Falha ao indexar o workspace: ${error.message}`);
+      const err = asErrorLike(error);
+      logger.error(`[MCC Parser] Falha ao indexar o workspace: ${err.message}`);
     }
   }
 

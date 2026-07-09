@@ -9,7 +9,9 @@ import {
   type TelegramEchoPermission,
   type TelegramEchoSurfaceContext,
 } from '../../../../gateways/channels/telegram/TelegramEchoSurfaceClient.js';
-import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';export type TelegramEchoApprovalClient = Pick<
+import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
+
+export type TelegramEchoApprovalClient = Pick<
   TelegramEchoSurfaceClient,
   'getSurfaceContext' | 'readPendingPermissions' | 'resolvePermission'
 >;

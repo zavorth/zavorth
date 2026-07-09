@@ -49,6 +49,9 @@ const STATIC_COMMAND_ALIASES: Record<string, string> = {
   '/sessions_spawn': '/agents',
   '/invocar': '/invoke',
   '/aigateway': '/AIGateway',
+  // Legacy web-surface aliases still resolve to /dashboard (ops handleDashboard).
+  '/app': '/dashboard',
+  '/miniapp': '/dashboard',
   [LEGACY_EXTERNAL_COMMAND]: EXTERNAL_EXECUTOR_COMMAND,
   [LEGACY_EXTERNAL_SHORT_COMMAND]: EXTERNAL_EXECUTOR_COMMAND,
   [EXTERNAL_REVIEW_DASH_COMMAND]: EXTERNAL_REVIEW_COMMAND,
@@ -79,6 +82,7 @@ const CAPABILITY_COMMAND_CATALOG: CommandCatalogEntry[] = capabilityRegistry
 const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
   { command: 'start', description: 'Starts Zavorth and opens the hub.', section: 'entry', usage: '[tour|recipes|security|settings]', privateMenu: false, groupMenu: false },
   { command: 'zavorth', description: 'Interactive hub with dashboard, actions, and settings.', section: 'entry', privateMenu: true, groupMenu: true },
+  { command: 'dashboard', description: 'Legacy alias for the web control surface.', section: 'entry', privateMenu: false, groupMenu: false, hidden: true },
   { command: 'help', description: 'Complete command guide.', section: 'entry', privateMenu: true, groupMenu: true },
   { command: 'commands', description: 'Paginated command catalog by channel.', section: 'entry', usage: '[filter|page N]', privateMenu: true, groupMenu: true },
   { command: 'plan', description: 'Plans before executing any action.', section: 'execution', usage: '<task>', privateMenu: true, groupMenu: true },

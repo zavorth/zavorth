@@ -9,6 +9,7 @@ import type {
   ChannelMeshSnapshotEntry,
 } from '../contracts/ChannelMeshContract.js';
 import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
+
 import { GatewayChannelAdapterRegistryService } from './GatewayChannelAdapterRegistryService.js';
 
 type ChannelPolicyControlPlane = Pick<ChannelPolicyManager, 'describePolicy' | 'reloadPolicies'>;

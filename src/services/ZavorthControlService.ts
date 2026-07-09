@@ -1,5 +1,9 @@
 import * as http from 'http';
 import type { Socket } from 'net';
+import {
+  type OperationsReportOverviewReaders,
+} from '../observability/OperationsReportService.js';
+import { initializeZavorthControlService } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceComposition.js';
 
 import { config } from '../config/index.js';
 import { LogRepository } from '../storage/LogRepository.js';
@@ -10,9 +14,7 @@ import type {
   TeamsWebhookGatewayLike,
   WhatsAppWebhookGatewayLike,
 } from './ZavorthControlCoreRouteService.js';
-import {
-  type OperationsReportOverviewReaders,
-} from '../observability/OperationsReportService.js';
+
 import type { WebAppRuntime } from './WebAppService.js';
 import {
   attachChatRuntime as attachChatRuntimeHelper,
@@ -25,7 +27,7 @@ import {
   type ZavorthControlGatewayMapCompat,
   type ZavorthControlRuntimeCompat,
 } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceHelpers.js';
-import { initializeZavorthControlService } from '../domain/surface/presentation/zavorthControl/zavorthControl-service/ZavorthControlServiceComposition.js';
+
 import {
   startZavorthControlService,
   stopZavorthControlService,

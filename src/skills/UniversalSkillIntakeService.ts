@@ -17,7 +17,8 @@ import {
   type ZavorthUniversalSkillSourceProfile,
   type ZavorthUniversalSkillSourceProfileId,
 } from '../contracts/ZavorthUniversalSkillIntakeContract.js';
-import { SkillSourceProfileRegistry } from './SkillSourceProfileRegistry.js';type Runtime = {
+import { SkillSourceProfileRegistry } from './SkillSourceProfileRegistry.js';
+type Runtime = {
   now?: () => Date;
   profileRegistry?: Pick<SkillSourceProfileRegistry, 'listProfiles'>;
   existsSync?: typeof fs.existsSync;

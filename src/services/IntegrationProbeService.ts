@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -16,7 +17,7 @@ import { IntegrationConnectorMeshService } from './IntegrationConnectorMeshServi
 import { IntegrationRegistryService } from './IntegrationRegistryService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type ProbeFetch = typeof fetch;
 
 type IntegrationProbeRuntime = {
@@ -382,12 +383,13 @@ export class IntegrationProbeService {
         latencyMs,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Integration Probe] network request failed', error);
     return this.createSnapshot(manifest, {
         status: 'failed',
         transport: 'cli',
         summary: 'Probe real do external runner falhou',
-        detail: `Falha ao verificar a CLI do external runner: ${error?.message || String(error)}`,
+        detail: `Falha ao verificar a CLI do external runner: ${errorMessage(error)}`,
         checkedTarget: this.resolveExternalExecutorTarget(),
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),
@@ -537,7 +539,8 @@ export class IntegrationProbeService {
         latencyMs,
       };
     } catch (error: unknown) {
-      const aborted = error?.name === 'AbortError';
+      const err = asErrorLike(error);
+      const aborted = asErrorLike(error).name === 'AbortError';
       return {
         generatedAt: this.now().toISOString(),
         integrationId: input.integrationId,
@@ -547,7 +550,7 @@ export class IntegrationProbeService {
         summary: aborted ? 'Probe real expirou' : 'Probe real falhou',
         detail: aborted
           ? `O endpoint nao respondeu dentro de ${this.timeoutMs} ms.`
-          : `Falha ao contactar o endpoint: ${error?.message || String(error)}`,
+          : `Falha ao contactar o endpoint: ${errorMessage(error)}`,
         checkedTarget: input.checkedTarget,
         httpStatus: null,
         latencyMs: Math.max(1, Date.now() - startedAt),

@@ -1,7 +1,9 @@
-﻿import path from 'path';
+
+import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 interface ScreenshotResult {
   success: boolean;
@@ -114,8 +116,9 @@ export class ZavorthComputerUseTool extends BaseTool {
         default: return `Error: action "${action}" not implemented.`;
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Computer Use] async operation failed', error);
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? err.message : String(error);
       return `ComputerUse error: ${message}`;
   }
   }
@@ -301,8 +304,9 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: false, action_performed: command, error: `Command "${command}" not supported on macOS.` };
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Computer Use] string operation failed', error);
-    return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
+    return { success: false, action_performed: command, error: error instanceof Error ? err.message : String(error) };
   }
   }
 
@@ -373,8 +377,9 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: false, action_performed: command, error: `Command "${command}" not supported on Windows.` };
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Computer Use] process execution failed', error);
-    return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
+    return { success: false, action_performed: command, error: error instanceof Error ? err.message : String(error) };
   }
   }
 
@@ -431,8 +436,9 @@ export class ZavorthComputerUseTool extends BaseTool {
           return { success: false, action_performed: command, error: `Command "${command}" not supported on Linux.` };
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Computer Use] process execution failed', error);
-    return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
+    return { success: false, action_performed: command, error: error instanceof Error ? err.message : String(error) };
   }
   }
 }

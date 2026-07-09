@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { SidecarStatusService, type SidecarStatusCard } from './SidecarStatusService.js';
+import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { config } from '../config/index.js';
@@ -9,7 +10,7 @@ import type {
   VendorReleaseIndexEntry,
   VendorReleaseIndexSnapshot,
 } from '../contracts/VendorPlaneContract.js';
-import { SidecarStatusService, type SidecarStatusCard } from './SidecarStatusService.js';
+
 import { VendorDiffSummaryService } from './VendorDiffSummaryService.js';
 import { VendorLicenseGuardService } from './VendorLicenseGuardService.js';
 import { logger } from '../logger.js';

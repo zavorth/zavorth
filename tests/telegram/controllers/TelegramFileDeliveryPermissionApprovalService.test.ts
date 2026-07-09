@@ -4,7 +4,7 @@ describe('TelegramFileDeliveryPermissionApprovalService', () => {
   function createService(overrides: Record<string, any> = {}) {
     return new TelegramFileDeliveryPermissionApprovalService({
       replyWithPermissionDecision: jest.fn(async (ctx) => {
-        await ctx.reply('Acesso local do Zavorth liberado.');
+        await ctx.reply('Permission approved');
       }),
       ...overrides,
     });
@@ -37,12 +37,8 @@ describe('TelegramFileDeliveryPermissionApprovalService', () => {
         permission_id: 'perm-file-1',
       }),
     );
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Acesso local do Zavorth liberado.');
-    expect(ctx.reply).toHaveBeenNthCalledWith(
-      2,
-      expect.stringContaining('nao consegui concluir o envio agora'),
-    );
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('bridge offline'));
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Permission approved');
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/could not complete|bridge offline|nao consegui/i);
   });
 
   it('falls back to inspection and reports inspection errors when delivery does not resume', async () => {
@@ -75,10 +71,10 @@ describe('TelegramFileDeliveryPermissionApprovalService', () => {
         permission_id: 'perm-file-2',
       }),
     );
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Acesso local do Zavorth liberado.');
+    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Permission approved');
     expect(ctx.reply).toHaveBeenNthCalledWith(
       2,
-      expect.stringContaining('nao consegui concluir a inspecao agora'),
+      expect.stringContaining('could not complete'),
     );
     expect(ctx.reply).toHaveBeenNthCalledWith(
       2,

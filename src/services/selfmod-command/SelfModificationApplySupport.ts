@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import fs from 'fs';
 import type { SafeModificationService } from '../SafeModificationService.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
@@ -13,6 +14,7 @@ PREVIEW_TTL_MS,
   type SelfModificationApplyResult,
   type SelfModificationRollbackResult,
 } from './SelfModificationCommandTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 type SelfModificationApplySupportOptions = {
   safeModificationService: Pick<SafeModificationService, 'safeApply' | 'validateCandidate'>;
@@ -70,12 +72,13 @@ export class SelfModificationApplySupport {
 
       return this.applyGoalPreview(artifact, requestedBy);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Self Modification Apply] operation failed', error);
     return {
         success: false,
         mode: 'file',
         previewId,
-        summary: `Nao consegui aplicar esse preview.\n\nMotivo: ${error.message}`,
+        summary: `Nao consegui aplicar esse preview.\n\nMotivo: ${err.message}`,
       };
   }
   }
@@ -142,12 +145,13 @@ export class SelfModificationApplySupport {
         summary: `Rollback concluido para ${restoredFiles} arquivo(s).`,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Self Modification Apply] array operation failed', error);
     return {
         success: false,
         changeId,
         restoredFiles: 0,
-        summary: `Nao consegui concluir o rollback.\n\nMotivo: ${error.message || error}`,
+        summary: `Nao consegui concluir o rollback.\n\nMotivo: ${err.message || error}`,
       };
   }
   }
@@ -339,12 +343,13 @@ export class SelfModificationApplySupport {
           .join('\n\n'),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       await this.rollbackPartialApply(applied);
       return {
         success: false,
         mode: 'goal',
         previewId: artifact.previewId,
-        summary: `Falha ao aplicar o changeset. Rollback automatico executado.\n\nMotivo: ${error.message || error}`,
+        summary: `Falha ao aplicar o changeset. Rollback automatico executado.\n\nMotivo: ${err.message || error}`,
       };
     }
   }

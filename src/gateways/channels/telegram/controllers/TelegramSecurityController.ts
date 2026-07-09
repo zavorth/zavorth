@@ -6,9 +6,11 @@ import {
   type RuntimeAccessManifest,
 } from '@zavorth/runtime/access/RuntimeAccessManifestService.js';
 import { SecurityLockService } from '@zavorth/services/SecurityLockService.js';
+
 import { SystemCleanupService } from '@zavorth/services/SystemCleanupService.js';
 import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { logger } from '../../../../logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 export class TelegramSecurityController {
   constructor(
     private bot: Bot,
@@ -44,7 +46,8 @@ export class TelegramSecurityController {
 
       await ctx.reply(reply);
     } catch (error: unknown) {
-      await ctx.reply(t('security.cleanup_error', { error: error instanceof Error ? error.message : String(error) }));
+      const err = asErrorLike(error);
+      await ctx.reply(t('security.cleanup_error', { error: error instanceof Error ? err.message : String(error) }));
     }
   }
 
@@ -62,7 +65,8 @@ export class TelegramSecurityController {
       const result = await this.chatCleanup.clearChat(this.bot, chatId);
       await ctx.reply(result.message);
     } catch (error: unknown) {
-      await ctx.reply(t('security.clear_error', { error: error instanceof Error ? error.message : String(error) }));
+      const err = asErrorLike(error);
+      await ctx.reply(t('security.clear_error', { error: error instanceof Error ? err.message : String(error) }));
     }
   }
 
@@ -94,7 +98,8 @@ export class TelegramSecurityController {
         `${t('security.lock_success', { lockedAt: state.lockedAt || '' })}`,
       );
     } catch (error: unknown) {
-      await ctx.reply(t('security.lock_error', { error: error instanceof Error ? error.message : String(error) }));
+      const err = asErrorLike(error);
+      await ctx.reply(t('security.lock_error', { error: error instanceof Error ? err.message : String(error) }));
     }
   }
 
@@ -127,7 +132,8 @@ export class TelegramSecurityController {
         await ctx.reply(t('security.wrong_password'));
       }
     } catch (error: unknown) {
-      await ctx.reply(t('security.unlock_error', { error: error instanceof Error ? error.message : String(error) }));
+      const err = asErrorLike(error);
+      await ctx.reply(t('security.unlock_error', { error: error instanceof Error ? err.message : String(error) }));
     }
   }
 

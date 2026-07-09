@@ -1,4 +1,6 @@
-﻿import { randomUUID } from 'crypto';
+import { sanitizeAgentMeshText } from './AgentMeshRedactionService.js';
+
+import { randomUUID } from 'crypto';
 import type {
   AgentMeshExecutionRequest,
   AgentMeshExecutionReceipt,
@@ -13,7 +15,7 @@ import {
   AgentMeshDriverRegistryService,
   AgentMeshDriverUnavailableException,
 } from './AgentMeshDriverRegistryService.js';
-import { sanitizeAgentMeshText } from './AgentMeshRedactionService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export class ConsentRequiredException extends Error {
   constructor(agentId: string) {
@@ -131,9 +133,10 @@ export class AgentMeshExecutionService {
         }
       }
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       if (error instanceof AgentMeshDriverUnavailableException) {
         finalStatus = 'failed_driver_unavailable';
-        finalSummary = sanitizeReceiptText(error.message);
+        finalSummary = sanitizeReceiptText(err.message);
       } else if (isTimeoutLikeDriverError(error)) {
         finalStatus = 'interrupted_timeout';
         finalSummary = 'Execution was interrupted because the protocol driver exceeded the time budget.';
@@ -144,11 +147,11 @@ export class AgentMeshExecutionService {
         if (finalStatus !== 'blocked_by_policy') {
           finalStatus = 'blocked_by_sandbox';
         }
-        sandboxViolations.push(sanitizeReceiptText(error.message));
+        sandboxViolations.push(sanitizeReceiptText(err.message));
       } else {
         finalStatus = 'failed_execution';
       }
-      finalSummary = sanitizeReceiptText(error instanceof Error ? error.message : String(error));
+      finalSummary = sanitizeReceiptText(error instanceof Error ? err.message : String(error));
     }
 
     const receipt: AgentMeshExecutionReceipt = {

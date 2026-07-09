@@ -5,15 +5,17 @@ import {
 } from './SharedSurfaceCommandContract.js';
 import { buildActions } from '../domain/surface/infrastructure/shared-surface-consistency/SharedSurfaceConsistencyActions.js';
 import {
-  buildSummary,
-  mapCommand,
-  RECOMMENDED_COMMANDS,
-} from '../domain/surface/infrastructure/shared-surface-consistency/SharedSurfaceConsistencyCommands.js';
-import {
   buildDiscordReadiness,
   buildTelegramReadiness,
   buildWebReadiness,
 } from '../domain/surface/infrastructure/shared-surface-consistency/SharedSurfaceConsistencyReadiness.js';
+
+import {
+  buildSummary,
+  mapCommand,
+  RECOMMENDED_COMMANDS,
+} from '../domain/surface/infrastructure/shared-surface-consistency/SharedSurfaceConsistencyCommands.js';
+
 import type {
   SharedSurfaceConsistencyManifestOptions,
   SharedSurfaceConsistencyOptions,

@@ -1,4 +1,4 @@
-﻿import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
+import type { SkillCatalogEntry } from '../skills/SkillCatalogContract.js';
 import { SkillCatalogService } from '../skills/SkillCatalogService.js';
 import { logger } from '../logger.js';
 import type {

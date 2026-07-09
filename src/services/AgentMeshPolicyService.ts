@@ -4,6 +4,7 @@ import type {
   AgentMeshUserConsent,
 } from '../contracts/AgentMeshConsentContract.js';
 import { AGENT_MESH_CRITICAL_PERMISSIONS } from '../contracts/AgentMeshConsentContract.js';
+
 import type { AgentMeshExecutionRequest } from '../contracts/AgentMeshExecutionContract.js';
 
 export class AgentMeshPolicyService {

@@ -1,7 +1,9 @@
 import { asErrorLike } from '../../../utils/errorLike';
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { logger } from '../logger.js';
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+
 import Card from "./Card";
 import ProxyLogDetail from "./ProxyLogDetail";
 import {
@@ -10,7 +12,7 @@ import {
   PROVIDER_COLORS,
   getProxyStatusStyle as getStatusStyle,
 } from "@/shared/constants/colors";
-import { logger } from '../logger.js';
+
 import {
 formatTime,
   formatDuration as formatLatency,

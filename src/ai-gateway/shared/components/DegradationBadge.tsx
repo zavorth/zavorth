@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
 "use client";
 
-import { useState, useEffect } from "react";
+
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 

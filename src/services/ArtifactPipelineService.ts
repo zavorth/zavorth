@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { ArtifactDeliveryChannel, ArtifactRecord } from '../contracts/ArtifactContract.js';
 import type { ExecutionLifecycleRecord } from '../contracts/ExecutionLifecycleContract.js';

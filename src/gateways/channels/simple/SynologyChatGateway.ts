@@ -1,6 +1,8 @@
 import { config } from '../../../config/index.js';
 import type { ChannelAdapterStatus } from '../../../contracts/ChannelMeshContract.js';
 import { WebhookGateway, type WebhookGatewayMode, type WebhookGatewayOptions } from '../../WebhookGateway.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 export class SynologyChatGateway extends WebhookGateway {
   public readonly id = 'synology-chat';
   public readonly name = 'Synology Chat';
@@ -107,7 +109,8 @@ export class SynologyChatGateway extends WebhookGateway {
 
       this.markOutbound();
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const msg = error instanceof Error ? err.message : String(error);
       this.recordError(`Synology Chat send failed: ${msg}`);
     }
   }

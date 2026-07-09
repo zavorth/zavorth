@@ -15,6 +15,8 @@ import type {
   ZavorthProviderRouterBudgetPreference,
 } from '../../contracts/ZavorthProviderRouterContract.js';
 import { ZAVORTH_PROVIDER_ROUTER_CONTRACT_VERSION } from '../../contracts/ZavorthProviderRouterContract.js';
+import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
+
 import { ZavorthContextBudgetService } from './ZavorthContextBudgetService.js';
 import {
   ProviderIntegrationRegistry,
@@ -24,7 +26,6 @@ import type {
   ProviderIntegrationManifest,
   ProviderIntegrationRouteManifest,
 } from './catalog/ProviderIntegrationManifest.js';
-import { safeParseInt } from '../../ai-gateway/shared/utils/safeParseInt.js';
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -318,7 +319,7 @@ export class ZavorthProviderRouterService {
 
         this.lastReceipt = receipt;
         return receipt;
-      } catch ($1: unknown) {
+      } catch (error: unknown) {
         const providerError = error as ProviderError;
         const providerLatencyMs = Date.now() - providerStart;
         this.recordHealth(entry.providerId, false, providerLatencyMs);
@@ -951,7 +952,7 @@ export class ZavorthProviderRouterService {
         try {
           const raw = Buffer.concat(chunks).toString('utf-8');
           resolve(raw.length > 0 ? JSON.parse(raw) : {});
-        } catch ($1: unknown) {
+        } catch (error: unknown) {
           reject(new Error('Invalid JSON body.'));
         }
       });

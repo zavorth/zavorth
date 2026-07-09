@@ -1,3 +1,4 @@
+
 /**
  * McpPluginToolsServer — MCP server that exposes Zavorth tools
  * to compatible MCP clients (Claude Code, Cursor, etc.).
@@ -11,6 +12,7 @@
  */
 
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface McpToolDefinition {
   name: string;
@@ -93,7 +95,8 @@ export class McpPluginToolsServer {
         content: [{ type: 'text', text: String(result) }],
       };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       return {
         content: [{ type: 'text', text: `Erro ao executar ${name}: ${message}` }],
         isError: true,

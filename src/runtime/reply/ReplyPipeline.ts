@@ -5,6 +5,7 @@ import type {
   UniversalReplyPort,
 } from '../agent/UniversalAgentRuntimeTypes.js';
 import { ChannelCapabilityMatrix } from './ChannelCapabilityMatrix.js';
+
 import { OutboundPolicy } from './OutboundPolicy.js';
 import { ReplyChunker } from './ReplyChunker.js';
 

@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+import { CanonicalExecutionPipelineService } from './CanonicalExecutionPipelineService.js';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -9,7 +10,7 @@ import type {
   NodeMeshCapabilityId,
   NodeMeshTransport,
 } from '../contracts/NodeMeshContract.js';
-import { CanonicalExecutionPipelineService } from './CanonicalExecutionPipelineService.js';
+
 import { logger } from '../logger.js';
 
 type NodeInvocationStoreRuntime = {

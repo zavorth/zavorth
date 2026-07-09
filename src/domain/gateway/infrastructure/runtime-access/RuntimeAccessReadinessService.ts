@@ -16,6 +16,8 @@ RuntimeAccessZavorthControlSnapshot,
   RuntimeAccessReadinessReport,
   RuntimeAccessResolvedInput,
 } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 export type { RuntimeAccessAuthStatus, RuntimeAccessChannelProviderDoctorSnapshot, RuntimeAccessZavorthControlSnapshot, RuntimeAccessDiscordBridgeSnapshot, RuntimeAccessLayeredMemorySnapshot, RuntimeAccessLearningSnapshot, RuntimeAccessLockSnapshot, RuntimeAccessMcpSnapshot, RuntimeAccessNodeMeshSmokeSnapshot, RuntimeAccessPlatformSnapshot, RuntimeAccessProviderSnapshot, RuntimeAccessReadinessInput, RuntimeAccessReadinessReport, RuntimeAccessReadinessStep, RuntimeAccessRemoteTransportDoctorSnapshot, RuntimeAccessResolvedInput, RuntimeAccessSystemOverlordSmokeSnapshot, RuntimeAccessTenantSnapshot } from '../../infrastructure/runtime-access-readiness/RuntimeAccessReadinessTypes.js';
 
 type RuntimeAccessSurfaceProbe = { ok: boolean; targetUrl: string; statusCode: number | null; error: string | null };
@@ -259,12 +261,13 @@ export class RuntimeAccessReadinessService {
         error: response.ok ? null : `status ${response.status}`,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const fallbackProbe = await this.probeLocalSurfaceViaNodeHttp(targetUrl);
       if (fallbackProbe) {
         return fallbackProbe;
       }
-      const isAbort = error instanceof Error && error.name === 'AbortError';
-      const message = error instanceof Error ? error.message : String(error || 'network failure');
+      const isAbort = error instanceof Error && err.name === 'AbortError';
+      const message = error instanceof Error ? err.message : String(error || 'network failure');
       return {
         ok: false,
         targetUrl,

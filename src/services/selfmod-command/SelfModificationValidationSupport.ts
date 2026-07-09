@@ -1,4 +1,4 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { spawnSync } from 'child_process';
 import { logger } from '../../logger.js';

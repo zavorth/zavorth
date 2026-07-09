@@ -4,6 +4,7 @@ import type {
   ExecutionOutcome,
 } from '../../../contracts/InternalBoundaryContract.js';
 import { InternalExecutionApiAdapter } from '../infrastructure/InternalExecutionApiAdapter.js';
+
 import type {
   ExecutionBoundaryPort,
   ExecutionDomainReadiness,

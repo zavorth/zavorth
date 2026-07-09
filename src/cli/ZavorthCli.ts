@@ -14,6 +14,7 @@ import type {
   CliWriter,
 } from './ZavorthCliContract.js';
 import { defaultWriter, isCliIo, withCliConsoleSuppressedAsync } from './ZavorthCliFlowHelpers.js';
+
 import { formatCliHelp } from './ZavorthCliSurfaceHelpers.js';
 import { formatExperienceAgentSession } from './ZavorthCliExperienceRenderer.js';
 import {

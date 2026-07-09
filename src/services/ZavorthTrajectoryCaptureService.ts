@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { redactSensitiveText } from '@zavorth/security/SensitiveDataGuard.js';
 
 import {
   ZAVORTH_TRAJECTORY_EXPORT_CONTRACT_VERSION,
@@ -10,7 +11,6 @@ import {
   type ZavorthTrajectoryExportFormat,
   type ZavorthTrajectoryToolStat,
 } from '@zavorth/contracts/ZavorthTrajectoryExportContract.js';
-import { redactSensitiveText } from '@zavorth/security/SensitiveDataGuard.js';
 
 type Runtime = {
   projectRoot?: string;

@@ -1,8 +1,10 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export const TRUSTED_DEVICE_ACCESS_SCOPES = [
   'chat:send',
@@ -438,7 +440,8 @@ export class TrustedDeviceAccessService {
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.slice(-100) as TrustedDeviceReceipt[] : [],
       };
     } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const detail = error instanceof Error ? err.message : String(error);
       throw new Error(`Failed to read trusted-device access state at ${this.stateFilePath}: ${detail}`);
     }
   }

@@ -9,6 +9,7 @@ import {
   persistChannelOutboxEnvelope,
 } from '../../../channels/contracts/ChannelMessageContract.js';
 import { ChannelPolicyManager } from '../../../channels/policies/ChannelPolicyManager';
+
 import { truncateSlackText } from '../../../utils/text.js';
 import { logger } from '../../../logger.js';
 

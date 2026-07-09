@@ -1,10 +1,20 @@
-﻿import { buildCanonicalRunContext } from '../contracts/ExecutionLifecycleContract.js';
+import { config } from '../config/index.js';
+import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+import { EchoCapabilityCatalogService } from '../domain/platform-ecosystem/infrastructure/EchoCapabilityCatalogService.js';
+import {
+  ZavorthWatchModeControlPlaneService,
+  type ZavorthWatchModeControlPlaneSnapshot,
+} from './ZavorthWatchModeControlPlaneService.js';
+import { GeminiVoiceService } from '../providers/GeminiVoiceService.js';
+import { logger } from '../logger.js';
+
+import { buildCanonicalRunContext } from '../contracts/ExecutionLifecycleContract.js';
 import path from 'path';
 import {
   createBoundaryCorrelation,
   type ZavorthBoundaryCorrelation,
 } from '../contracts/InternalBoundaryContract.js';
-import { config } from '../config/index.js';
+
 import { DEFAULT_ECHO_LLM_FALLBACK_ORDER } from '../config/sections/providerConfig.js';
 import { getDefaultCapabilityRegistry, type CapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
 import { InternalControlPlaneApiService } from '../api/internal/InternalControlPlaneApiService.js';
@@ -14,7 +24,7 @@ import {
   ZavorthProactivePermissionService,
   type PermissionRequest,
 } from './ZavorthProactivePermissionService.js';
-import { EchoExecutionBoundaryService } from '../domain/execution/infrastructure/EchoExecutionBoundaryService.js';
+
 import { EchoExecutionLedgerService } from '../domain/execution/infrastructure/EchoExecutionLedgerService.js';
 import { EchoPendingExecutionStoreService } from '../domain/execution/infrastructure/EchoPendingExecutionStoreService.js';
 import {
@@ -22,16 +32,12 @@ import {
   EchoVoiceTelemetryService,
   type EchoVoiceMetricsSnapshot,
 } from '../domain/observability/infrastructure/EchoVoiceTelemetryService.js';
-import { EchoCapabilityCatalogService } from '../domain/platform-ecosystem/infrastructure/EchoCapabilityCatalogService.js';
+
 import { EchoCapabilitySurfaceStateService } from '../domain/platform-ecosystem/application/EchoCapabilitySurfaceStateService.js';
 import {
   EchoSpeechSynthesisService,
 } from '../domain/surface/application/EchoSpeechSynthesisService.js';
-import {
-  ZavorthWatchModeControlPlaneService,
-  type ZavorthWatchModeControlPlaneSnapshot,
-} from './ZavorthWatchModeControlPlaneService.js';
-import { GeminiVoiceService } from '../providers/GeminiVoiceService.js';
+
 import { EchoExecutionLoop } from './EchoExecutionLoop.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 
@@ -51,7 +57,7 @@ import type {
   ZavorthEchoRuntime,
   EchoSurfaceOptions,
 } from './ZavorthEchoServiceTypes.js';
-import { logger } from '../logger.js';
+
 import {
 asSpeechFailure,
   asSpeechSuccess,
@@ -61,6 +67,7 @@ asSpeechFailure,
   optionalText,
   text,
 } from './ZavorthEchoServiceSupport.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 /**
  * High-level Echo pipeline service used by the zavorthControl and the voice agent.
@@ -180,12 +187,13 @@ export class ZavorthEchoService {
         executionEntry: entry,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const entry = this.buildExecutionEntry({
         prompt: normalizedPrompt,
         startTime,
         status: 'error',
         toolCalls: [],
-        finalResponse: error.message,
+        finalResponse: err.message,
         llmRaw: null,
         correlation,
         runContext,
@@ -197,7 +205,7 @@ export class ZavorthEchoService {
       });
       this.executionLedger.append(entry);
       return {
-        response: `Erro no pipeline Echo: ${error.message}`,
+        response: `Erro no pipeline Echo: ${err.message}`,
         toolsExecuted: [],
         permissionsRequested: [],
         executionEntry: entry,

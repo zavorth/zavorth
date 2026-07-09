@@ -1,4 +1,5 @@
-﻿import { randomUUID } from 'node:crypto';
+import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -11,7 +12,7 @@ import {
   type ZavorthCapabilityUsageSignalsSnapshot,
   type ZavorthCapabilityUsageSurface,
 } from '../contracts/ZavorthCapabilityUsageSignalsContract.js';
-import { ZavorthCapabilityActionSurfaceService } from './ZavorthCapabilityActionSurfaceService.js';
+
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';
 

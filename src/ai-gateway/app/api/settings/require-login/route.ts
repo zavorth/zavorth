@@ -5,6 +5,8 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { updateRequireLoginSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 // Node.js compatibility check — better-sqlite3 requires Node <24
 function getNodeCompatibility() {
   const nodeVersion = process.version;
@@ -73,9 +75,10 @@ export async function POST(request: Request) {
     await updateSettings(updates);
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.error("[API] Error updating require-login settings:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to update settings" },
+      { error: error instanceof Error ? err.message : "Failed to update settings" },
       { status: 500 }
     );
   }

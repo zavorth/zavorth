@@ -8,6 +8,8 @@ import {
   getProxyById,
 } from "../../../../lib/localDb";
 import { clearDispatcherCache } from "@ZavorthGateway/open-sse/utils/proxyDispatcher";
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+
 import { updateProxyConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import {
@@ -15,7 +17,7 @@ import {
   createErrorResponseFromUnknown,
   type ApiErrorType,
 } from "@/lib/api/errorResponse";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+
 import type { z } from "zod";
 import { logger } from '@/shared/utils/logger';const BASE_SUPPORTED_PROXY_TYPES = new Set(["http", "https"]);
 type UpdateProxyConfigInput = z.infer<typeof updateProxyConfigSchema>;

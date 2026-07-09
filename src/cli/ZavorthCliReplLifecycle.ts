@@ -12,24 +12,28 @@ import {
   persistCliReplHistory,
 } from './ZavorthCliFlowHelpers.js';
 import { formatCliChatHelp, isCliChatHelpCommand } from './ZavorthCliChatHelp.js';
+import { logger } from '../logger.js';
+
 import { formatCliChatWelcome } from './ZavorthCliSurfaceHelpers.js';
 import { globalSpinner } from './presentation/TerminalSpinner.js';
 import {
   buildTerminalShellSnapshot,
   formatTerminalShellScreen,
 } from './ZavorthCliTerminalShell.js';
-import { logger } from '../logger.js';
+import { errorMessage } from '../utils/errorLike.js';
+
 import {
 runZavorthCliTerminalShellInk,
   type ZavorthTerminalShellRunResult,
   type ZavorthTerminalShellRunnerParams,
-} from './ZavorthCliTerminalShellInkApp.js';async function readCliReplQuestion(
+} from './ZavorthCliTerminalShellInkApp.js';
+async function readCliReplQuestion(
   rl: ReturnType<CliReadlineFactory>,
   prompt: string,
 ): Promise<string | null> {
   try {
     return await rl.question(prompt);
-  } catch (error: unknown) {const message = String(error?.message || error || '');
+  } catch (error: unknown) {const message = String(errorMessage(error) || '');
     if (/readline was closed|readline closed|closed/i.test(message)) {
       return null;
     }

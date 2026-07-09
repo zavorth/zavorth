@@ -1,4 +1,6 @@
-﻿import crypto, { randomUUID } from 'node:crypto';
+import { ZavorthCapabilityAdapterDraftService } from './ZavorthCapabilityAdapterDraftService.js';
+
+import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -13,9 +15,10 @@ import {
   type ZavorthCapabilityAdapterVerificationSnapshot,
   type ZavorthCapabilityAdapterVerificationStatus,
 } from '../contracts/ZavorthCapabilityAdapterVerificationContract.js';
-import { ZavorthCapabilityAdapterDraftService } from './ZavorthCapabilityAdapterDraftService.js';
+
 import { ZavorthHomePathService } from './ZavorthHomePathService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -273,8 +276,9 @@ export class ZavorthCapabilityAdapterVerificationService {
           digest === item.sha256 ? 'sha256 matched' : 'sha256 mismatch; adapter draft may have been modified after generation.',
         );
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Zavorth Capability Adapter Verification] filesystem operation failed', error);
-    return check(`eval.artifact.${kind}`, 'eval', 'blocked', `${kind} artifact path is unsafe.`, error instanceof Error ? error.message : String(error));
+    return check(`eval.artifact.${kind}`, 'eval', 'blocked', `${kind} artifact path is unsafe.`, error instanceof Error ? err.message : String(error));
   }
     });
   }

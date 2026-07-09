@@ -34,23 +34,23 @@ describe('ChannelGatewayRegistryMesh Integration', () => {
             transportStrategy: 'gateway-adapter',
           }),
         }),
-        // Google Chat gateway should map to gateway-adapter transport
+        // Google Chat gateway is webhook-runtime-backed
         expect.objectContaining({
           normalizedSourceName: 'googlechat',
           canonicalChannelId: 'google-chat',
           status: 'adapter-backed',
           route: expect.objectContaining({
-            transportStrategy: 'gateway-adapter',
+            transportStrategy: 'webhook-runtime',
             webhookPath: '/api/webhooks/google-chat',
           }),
         }),
-        // Slack gateway should map to gateway-adapter transport
+        // Slack gateway is webhook-runtime-backed
         expect.objectContaining({
           normalizedSourceName: 'slack',
           canonicalChannelId: 'slack',
           status: 'adapter-backed',
           route: expect.objectContaining({
-            transportStrategy: 'gateway-adapter',
+            transportStrategy: 'webhook-runtime',
             webhookPath: '/api/webhooks/slack',
           }),
         }),

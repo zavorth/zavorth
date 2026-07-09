@@ -5,6 +5,7 @@ import type {
   AgentToolSecurityDefinition,
 } from './AgentSecurityPolicyEngine.js';
 import { normalizeAgentToolSecurityDefinition } from './AgentSecurityPolicyEngine.js';
+
 import { NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS } from './AgentToolSecurityCatalog.js';
 
 export type AgentSecurityInventorySurface =

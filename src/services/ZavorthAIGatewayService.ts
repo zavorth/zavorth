@@ -1,4 +1,3 @@
-import { asErrorLike } from '../utils/errorLike';
 import fs from 'fs';
 import http from 'http';
 import path from 'path';
@@ -7,6 +6,7 @@ import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { config } from '../config/index.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthGatewayStatus = {
   enabled: boolean;
@@ -77,7 +77,7 @@ export class ZavorthGatewayService {
       });
     } catch (error: unknown) {server.removeAllListeners();
       this.server = null;
-      if (error?.code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
+      if (asErrorLike(error).code === 'EADDRINUSE' && await this.isGatewayHealthy()) {
         const status = this.buildExternalGatewayStatus('Gateway proprio do AIGateway ja estava ativo em outro processo.');
         this.writeStatus(status);
         return status;
@@ -208,7 +208,8 @@ export class ZavorthGatewayService {
       const status = this.buildStatus(true, response.ok || response.status < 500, 'AIGateway own gateway responded to upstream.');
       this.writeStatus(status);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       const status = this.buildStatus(true, false, `Failed to forward request to AIGateway upstream: ${errorMessage}`);
       this.writeStatus(status);
       this.writeJson(res, { ok: false, error: status.message }, 502);
@@ -290,10 +291,11 @@ export class ZavorthGatewayService {
         body,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.sendWebSocketJson(ws, {
         id,
         type: 'chat.completions.error',
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       });
     }
   }

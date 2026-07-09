@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ZavorthMutationPlan } from '../contracts/ZavorthMutationPlaneContract.js';
@@ -11,7 +12,7 @@ import type {
   WorkspaceOptimizationChange,
   WorkspaceOptimizationPreview,
 } from '../contracts/WorkspaceOptimizerContract.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from './TrustDecisionService.js';
 import { WorkspaceProfileService } from './WorkspaceProfileService.js';

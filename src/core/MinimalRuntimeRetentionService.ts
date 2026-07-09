@@ -6,6 +6,8 @@ import {
   MinimalRuntimeArtifactRetentionCatalog,
   type MinimalRuntimeArtifactRetentionRule,
 } from './MinimalRuntimeArtifactRetentionCatalog.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type MinimalRuntimeRetentionActionKind =
   | 'keep'
   | 'compact-activation-ledger'
@@ -154,9 +156,10 @@ export class MinimalRuntimeRetentionService {
       try {
         actions.push(this.buildActionForFile(filePath));
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           filePath,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     }
@@ -489,6 +492,7 @@ export class MinimalRuntimeRetentionService {
     try {
       parsed = JSON.parse(raw);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         status: 'manual',
         currentItems: 0,
@@ -497,7 +501,7 @@ export class MinimalRuntimeRetentionService {
         wouldMutate: false,
         payload: '',
         message: `${options.label} has invalid JSON; inspect before compaction.`,
-        reason: error instanceof Error ? `json-state-invalid:${error.message}` : 'json-state-invalid',
+        reason: error instanceof Error ? `json-state-invalid:${err.message}` : 'json-state-invalid',
       };
     }
 
@@ -666,9 +670,10 @@ export class MinimalRuntimeRetentionService {
           reason: plan.reason,
         };
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           filePath: action.filePath,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
         return {
           ...action,
@@ -709,9 +714,10 @@ export class MinimalRuntimeRetentionService {
         message: `Activation ledger compacted to ${kept.length} receipts.`,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       errors.push({
         filePath: action.filePath,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       });
       return {
         ...action,
@@ -798,9 +804,10 @@ export class MinimalRuntimeRetentionService {
         reason: 'runtime-artifact-compacted',
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       errors.push({
         filePath: action.filePath,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       });
       return {
         ...action,
@@ -835,9 +842,10 @@ export class MinimalRuntimeRetentionService {
       try {
         objects.push(JSON.parse(line));
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         errors.push({
           line: index + 1,
-          reason: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? err.message : String(error),
         });
       }
     });

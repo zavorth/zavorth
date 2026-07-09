@@ -7,6 +7,8 @@ import type {
   SourceProviderRuntimeId,
 } from '../contracts/SourceProviderMeshExpansionContract.js';
 import { SourceProviderCredentialRouteService } from './SourceProviderCredentialRouteService.js';
+import { ZAVORTH_SEMANTIC_PROVIDER_MESH_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticProviderMeshCertificationContract.js';
+
 import { SourceProviderMeshExpansionService } from './SourceProviderMeshExpansionService.js';
 import type {
   ZavorthSemanticProviderCredentialScenario,
@@ -17,7 +19,6 @@ import type {
   ZavorthSemanticProviderMeshClaimPriority,
   ZavorthSemanticProviderMeshClaimStatus,
 } from '../contracts/ZavorthSemanticProviderMeshCertificationContract.js';
-import { ZAVORTH_SEMANTIC_PROVIDER_MESH_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticProviderMeshCertificationContract.js';
 
 type Runtime = {
   now?: () => Date;

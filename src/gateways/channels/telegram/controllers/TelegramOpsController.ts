@@ -26,13 +26,15 @@ import {
   type ProductObservabilitySnapshot,
 } from '../../../../observability/ProductObservabilityService.js';
 import { TelegramOpsAdministrationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsAdministrationService.js';
+import { ZavorthRuntimeReadinessService } from '../../../../services/ZavorthRuntimeReadinessService.js';
+
 import { TelegramOpsInsightService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightService.js';
 import { TelegramOpsModeCommandService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsModeCommandService.js';
 import {
   TelegramOpsRuntimeCommandService,
   type TelegramOpsRuntimeMaintenanceCommand,
 } from '../../../../gateways/channels/telegram/controllers/TelegramOpsRuntimeCommandService.js';
-import { ZavorthRuntimeReadinessService } from '../../../../services/ZavorthRuntimeReadinessService.js';
+
 import { ZavorthRuntimeGuidedFixesService } from '../../../../services/ZavorthRuntimeGuidedFixesService.js';
 import { ZavorthRuntimeReadinessUxService } from '../../../../services/ZavorthRuntimeReadinessUxService.js';
 import { ZavorthReadyToGoService } from '../../../../services/ZavorthReadyToGoService.js';
@@ -359,6 +361,11 @@ export class TelegramOpsController {
 
   public async handleBootstrap(ctx: Context): Promise<void> {
     await this.runtimeCommands.handleBootstrap(ctx);
+  }
+
+  /** Legacy /dashboard alias — points at the ZavorthControl web surface. */
+  public async handleDashboard(ctx: Context): Promise<void> {
+    await this.runtimeCommands.handleZavorthControl(ctx);
   }
 
   public async handleSelfUpdate(ctx: Context, args: string): Promise<void> {

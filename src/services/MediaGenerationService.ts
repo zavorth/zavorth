@@ -1,4 +1,10 @@
 import { asErrorLike } from '../utils/errorLike';
+import {
+  AiGatewayImageGenerationAdapter,
+  MediaAdapterNetworkError,
+  MediaAdapterProviderError,
+} from '../adapters/media/AiGatewayImageGenerationAdapter.js';
+import { safeFetch } from '../security/SafeFetchService.js';
 /**
  * MediaGenerationService — Serviço Zavorth-nativo de orquestração de geração de mídia.
  *
@@ -40,12 +46,7 @@ import type {
   MediaGenerationError,
   MediaGenerationModality,
 } from '../contracts/MediaGenerationContract.js';
-import {
-  AiGatewayImageGenerationAdapter,
-  MediaAdapterNetworkError,
-  MediaAdapterProviderError,
-} from '../adapters/media/AiGatewayImageGenerationAdapter.js';
-import { safeFetch } from '../security/SafeFetchService.js';
+
 
 /** Termos bloqueados por política de segurança de conteúdo. */
 const BLOCKED_TERMS = [

@@ -14,6 +14,7 @@ import type {
   ZavorthSemanticPluginPackageClaimStatus,
 } from '../contracts/ZavorthSemanticPluginPackageCertificationContract.js';
 import { ZAVORTH_SEMANTIC_PLUGIN_PACKAGE_CERTIFICATION_CONTRACT_VERSION } from '../contracts/ZavorthSemanticPluginPackageCertificationContract.js';
+
 import { SourcePluginOsAbsorptionService } from './SourcePluginOsAbsorptionService.js';
 
 type Runtime = {

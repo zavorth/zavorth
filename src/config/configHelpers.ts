@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type ZavorthProfile = 'core' | 'ops' | 'full';
 export type ZavorthProductMode = 'chat' | 'assistant' | 'builder' | 'operator';
 
@@ -36,8 +38,9 @@ export function parseStringMap(rawValue: string): Record<string, string> {
     const entries = Object.entries(parsed).filter(([key, value]) => key && value !== undefined && value !== null);
     return Object.fromEntries(entries.map(([key, value]) => [String(key), String(value)]));
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.warn(
-      `[config] Ignorando mapa JSON invalido no .env: ${error instanceof Error ? error.message : String(error)}`,
+      `[config] Ignorando mapa JSON invalido no .env: ${error instanceof Error ? err.message : String(error)}`,
     );
     return {};
   }

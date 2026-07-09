@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../../logger.js';
 import type {
@@ -322,10 +322,10 @@ export function safeResolve(value: unknown): string | null {
 export function safeRealPath(value: string): string | null {
   try {
     return fs.realpathSync.native(value);
-  } catch ($1: unknown) {
+  } catch (error: unknown) {
     try {
       return fs.realpathSync(value);
-    } catch ($1: unknown) { logger.warn('[Zavorth Runtime State Bus Utils] operation failed', error); return null; }
+    } catch (error: unknown) { logger.warn('[Zavorth Runtime State Bus Utils] operation failed', error); return null; }
   }
 }
 

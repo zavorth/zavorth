@@ -1,4 +1,6 @@
-﻿import path from 'node:path';
+import { GoalLoopService, type GoalLoopStepSnapshot } from './GoalLoopService.js';
+
+import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import type { AgentRunExecutionOptions } from '../runtime/agent/AgentRunService.js';
@@ -6,10 +8,11 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRunResult,
 } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
-import { GoalLoopService, type GoalLoopStepSnapshot } from './GoalLoopService.js';
+
 import type { GoalPlaneService } from './GoalPlaneService.js';
 import type { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService, type ZavorthOperationalReceipt } from './ZavorthOperationalStateDbService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type GoalLoopAgentRunner = {
   run(input: UniversalAgentRequest, options?: AgentRunExecutionOptions): Promise<UniversalAgentRunResult>;
@@ -204,17 +207,18 @@ export class GoalLoopWorkerService {
         receipt,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const failedTask = this.taskPlane.updateStatus(
         running.id,
         'failed',
         workerId,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? err.message : String(error),
       ) || running;
       const agentRun = {
         ok: false,
         runId: null,
         status: 'failed',
-        summary: error instanceof Error ? error.message : String(error),
+        summary: error instanceof Error ? err.message : String(error),
         replyText: null,
         approvalIds: [],
       };

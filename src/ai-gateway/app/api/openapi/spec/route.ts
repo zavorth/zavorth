@@ -1,3 +1,4 @@
+
 /**
  * API: OpenAPI Spec
  * GET — returns the parsed openapi.yaml as structured JSON catalog
@@ -8,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 let cachedSpec: { data: any; mtime: number } | null = null;
 
@@ -76,9 +78,10 @@ export async function GET() {
 
     return NextResponse.json(catalog);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json(
-      { error: error.message || "Failed to parse OpenAPI spec" },
+      { error: err.message || "Failed to parse OpenAPI spec" },
       { status: 500 }
     );
   }

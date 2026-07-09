@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   ProductObservabilitySnapshot,
   ProductObservabilityService,
 } from './ProductObservabilityService.js';

@@ -1,15 +1,17 @@
-﻿import {
+import { logger } from '../../logger.js';
+import {
   LEARNING_CANDIDATE_CONTRACT_VERSION,
   type ExperienceLearningCandidate,
   type ExperienceLearningCandidateState,
   type ExperienceLearningDecision,
 } from './ExperienceContracts.js';
-import { logger } from '../../logger.js';
+
 import type {
-LearningPlaneActionExecution,
+  LearningPlaneActionExecution,
   LearningPlaneSnapshot,
-  ZavorthLearningPlaneService,
 } from '../ZavorthLearningPlaneService.js';
+import { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
+import { errorMessage } from '../../utils/errorLike.js';
 
 export type LearningOSExport = {
   generatedAt: string;
@@ -207,7 +209,7 @@ export class LearningOSService {
         candidates: [],
         narrative: {
           headline: 'Learning OS indisponivel.',
-          operatorSummary: `Falha ao ler learning plane: ${error?.message || 'erro desconhecido'}.`,
+          operatorSummary: `Falha ao ler learning plane: ${errorMessage(error, 'erro desconhecido')}.`,
         },
       };
   }

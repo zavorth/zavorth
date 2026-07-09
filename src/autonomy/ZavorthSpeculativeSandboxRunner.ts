@@ -14,6 +14,8 @@ import type {
   ZavorthSpeculativeCommandRunner,
   ZavorthSpeculativeDockerValidationRunner,
 } from './ZavorthSpeculativeAutonomyService.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 const MAX_VALIDATION_COMMANDS = 3;
 const MAX_AST_FILES = 80;
 const MAX_DIFF_CHARS = 100000;
@@ -73,7 +75,6 @@ function normalizeSandboxIsolation(value: unknown): 'container' | 'local-copy' |
   return 'auto';
 }
 
-
 function redactSensitiveText(value: unknown, maxChars = MAX_STDIO_CHARS): string {
   let text = clampText(value, maxChars);
   text = text.replace(/\bsk-[A-Za-z0-9_-]{12,}\b/g, '[redacted-secret]');
@@ -110,7 +111,6 @@ function skippedValidation(reason: string): ZavorthSpeculativeValidationResult {
     durationMs: 0,
   };
 }
-
 
 export async function runValidationCommands(input: {
     originalWorkspace: string;
@@ -413,12 +413,13 @@ export function defaultDockerValidationRunner(
         stdio: ['ignore', 'pipe', 'pipe'],
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       finish({
         command: input.originalCommand,
         status: 'failed',
         exitCode: 1,
         stdout: '',
-        stderr: error instanceof Error ? error.message : String(error),
+        stderr: error instanceof Error ? err.message : String(error),
         durationMs: Date.now() - startedAt,
         timedOut,
       });

@@ -1,9 +1,9 @@
-import { asErrorLike } from '../utils/errorLike';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type McpTextContent = {
   type: 'text';
@@ -57,7 +57,7 @@ export class McpToolWrapper extends BaseTool {
 
       return textBlocks.map((block) => block.text).join('\n');
     } catch (error: unknown) { const err = asErrorLike(error); console.error(`[MCP] Falha ao executar ${this.name}:`, err.message);
-      return `Error executing tool: ${e.message}`;
+      return `Error executing tool: ${err.message}`;
     } finally {
       if (opId) {
         WorkspaceWriteApprovalPayloadCache.getInstance().clearPayload(opId);

@@ -1,4 +1,5 @@
-﻿import type { ScheduledTask } from '../storage/SchedulerRepository.js';
+import { ZavorthScheduledTaskPersistenceService } from './ZavorthScheduledTaskPersistenceService.js';
+import type { ScheduledTask } from '../storage/SchedulerRepository.js';
 import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskBudget,
@@ -14,7 +15,7 @@ import {
   type ZavorthScheduledTaskSurfaceStatus,
   type ZavorthScheduledTaskSurfaceTaskCard,
 } from '../contracts/ZavorthScheduledTaskSurfaceContract.js';
-import { ZavorthScheduledTaskPersistenceService } from './ZavorthScheduledTaskPersistenceService.js';
+
 import type { ZavorthPersistedScheduledTask } from '../contracts/ZavorthScheduledTaskPersistenceContract.js';
 import { logger } from '../logger.js';
 

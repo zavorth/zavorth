@@ -1,8 +1,9 @@
-﻿import type { ChildProcess } from 'child_process';
+
+import type { ChildProcess } from 'child_process';
 import { spawnShellCommand } from '../core/CommandSpawn.js';
 import type { WorkspaceHook, WorkspaceProfile } from './WorkspaceProfileService.js';
 import { logger } from '../logger.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type WorkspaceHookSource = WorkspaceProfile | Record<string, unknown> | null | undefined;
 
 type WorkspaceHookRuntime = {
@@ -97,12 +98,13 @@ export class WorkspaceHookService {
         stdio: 'inherit',
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Workspace Hook] process execution failed', error);
     return {
         command,
         status: 'failed_to_start',
         exitCode: null,
-        error: error?.message || String(error),
+        error: errorMessage(error),
       };
   }
 
@@ -117,7 +119,7 @@ export class WorkspaceHookService {
           command,
           status: 'failed',
           exitCode: null,
-          error: error?.message || String(error),
+          error: errorMessage(error),
         });
       });
       child.once('close', (code) => {

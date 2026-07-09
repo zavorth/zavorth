@@ -1,4 +1,5 @@
-﻿import fs from 'node:fs';
+
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   AI_FIRST_RUNTIME_RECEIPT_LEDGER_CONTRACT_VERSION,
@@ -11,6 +12,7 @@ import {
 import type { AiFirstRuntimeEntrypointAdapterSnapshot } from '../contracts/AiFirstRuntimeEntrypointAdapterContract.js';
 import { redactSensitiveText } from './AiFirstRoutePlanContractService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type AiFirstRuntimeReceiptLedgerRuntime = {
   now?: () => Date;
@@ -274,6 +276,7 @@ export class AiFirstRuntimeReceiptLedgerService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Ai First Runtime Receipt Ledger] filesystem operation failed', error);
     return {
         mode: 'jsonl-file',
@@ -282,7 +285,7 @@ export class AiFirstRuntimeReceiptLedgerService {
         targetPath: filePath,
         append,
         entriesWritten: 0,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

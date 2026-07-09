@@ -25,11 +25,13 @@ import type {
   ZavorthLearningMemoryRisk,
 } from '../contracts/ZavorthMemoryLearningLoopContract.js';
 import { ZavorthMemoryLearningLoopService } from './ZavorthMemoryLearningLoopService.js';
+import { ZavorthAdaptiveMultilingualRecallService } from './ZavorthAdaptiveMultilingualRecallService.js';
+
 import {
   ZavorthAdaptiveLearningI18nService,
   type ZavorthAdaptiveLearningRenderOptions,
 } from './ZavorthAdaptiveLearningI18nService.js';
-import { ZavorthAdaptiveMultilingualRecallService } from './ZavorthAdaptiveMultilingualRecallService.js';
+
 import { ZavorthAdaptiveSemanticClassifierService } from './ZavorthAdaptiveSemanticClassifierService.js';
 import { ZavorthAdaptiveTechnicalSafetyScannerService } from './ZavorthAdaptiveTechnicalSafetyScannerService.js';
 

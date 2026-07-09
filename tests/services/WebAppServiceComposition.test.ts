@@ -4,6 +4,7 @@ import {
   createWebAppRuntimeServiceState,
 } from '../../src/domain/surface/presentation/web-app/WebAppServiceState.js';
 import { DashboardAuthService } from '../../src/services/DashboardAuthService.js';
+
 import type { WatchModeRunSnapshot } from '../../src/services/ComputerUseWatchModeService.js';
 
 function createComposition() {

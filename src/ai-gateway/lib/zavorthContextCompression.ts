@@ -1,3 +1,4 @@
+import { safeParseInt } from "../shared/utils/safeParseInt.js";
 type ChatMessage = {
   role?: string;
   content?: unknown;
@@ -22,7 +23,7 @@ function boolEnv(name: string, fallback: boolean): boolean {
   return !["0", "false", "no", "off", "disabled"].includes(raw);
 }
 
-import { safeParseInt } from "../shared/utils/safeParseInt.js";
+
 import { logger } from '@/shared/utils/logger';
 
 function numberEnv(name: string, fallback: number): number {

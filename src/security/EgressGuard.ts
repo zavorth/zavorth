@@ -115,3 +115,48 @@ export async function assertProviderRequestTargetAllowed(rawUrl: string): Promis
     serviceName: "Provider request",
   });
 }
+
+/**
+ * Synchronous compatibility surface used by unit tests and legacy call sites.
+ * Production egress enforcement should prefer assertPublicHttpTargetAllowed().
+ */
+export class EgressGuard {
+  isPrivateNetworkAddress(address: string): boolean {
+    return isPrivateNetworkAddress(address);
+  }
+
+  isUrlAllowed(rawUrl: string): boolean {
+    try {
+      const parsed = new URL(rawUrl);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        return false;
+      }
+      const hostname = parsed.hostname.toLowerCase();
+      if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost")) {
+        return false;
+      }
+      if (isIP(hostname) && isPrivateNetworkAddress(hostname)) {
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  isDnsRebindingAttempt(rawUrl: string): boolean {
+    try {
+      const parsed = new URL(rawUrl);
+      const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+      if (!hostname || hostname === "localhost" || hostname.endsWith(".localhost")) {
+        return true;
+      }
+      if (isIP(hostname) && isPrivateNetworkAddress(hostname)) {
+        return true;
+      }
+      return false;
+    } catch {
+      return true;
+    }
+  }
+}

@@ -1,4 +1,5 @@
-﻿import fs from 'fs';
+import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -16,7 +17,7 @@ import {
   type TenantTeamOpsSnapshot,
   type TenantTeamOpsSource,
 } from '../contracts/TenantTeamOpsContract.js';
-import { buildRuntimeShellHtml } from '../domain/surface/presentation/web-console/WebConsoleRuntimeShellHtml.js';
+
 import { logger } from '../logger.js';
 import {
 ZavorthGovernanceControlPlaneService,

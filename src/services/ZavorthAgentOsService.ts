@@ -17,6 +17,7 @@ import {
   type AgentOsReputationEval,
 } from './ReputationScoreboardService.js';
 import { TransactionalExecutionService } from './TransactionalExecutionService.js';
+
 import { ZavorthIntelligenceFabricService } from './ZavorthIntelligenceFabricService.js';
 
 type AgentOsRuntime = {

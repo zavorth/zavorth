@@ -1,4 +1,8 @@
-﻿import type {
+import { ZAVORTH_REMOTE_MESH_SANDBOX_R7_SCOPED_MCP_TRANSPORT_VERSION } from '../contracts/RemoteMeshSandboxScopedMcpTransportContract.js';
+import { RemoteMeshSandboxLiveProbeExecutorService } from './RemoteMeshSandboxLiveProbeExecutorService.js';
+import { RemoteMeshSandboxAuditTimelineService } from './RemoteMeshSandboxAuditTimelineService.js';
+
+import type {
   RemoteMeshJson,
 } from '../contracts/RemoteMeshSandboxContract.js';
 import type {
@@ -14,19 +18,20 @@ import type {
   RemoteMeshScopedMcpTransportSnapshot,
   RemoteMeshScopedMcpTransportStatus,
 } from '../contracts/RemoteMeshSandboxScopedMcpTransportContract.js';
-import { ZAVORTH_REMOTE_MESH_SANDBOX_R7_SCOPED_MCP_TRANSPORT_VERSION } from '../contracts/RemoteMeshSandboxScopedMcpTransportContract.js';
+
 import type {
   RemoteMeshLiveProbeTransport,
   RemoteMeshLiveProbeTransportInvocation,
 } from './RemoteMeshSandboxLiveProbeExecutorService.js';
-import { RemoteMeshSandboxLiveProbeExecutorService } from './RemoteMeshSandboxLiveProbeExecutorService.js';
+
 import type {
   RemoteMeshLiveProbeTransportResult,
 } from '../contracts/RemoteMeshSandboxLiveProbeContract.js';
-import { RemoteMeshSandboxAuditTimelineService } from './RemoteMeshSandboxAuditTimelineService.js';
+
 import type { RemoteMeshSandboxReadinessSnapshot } from '../contracts/RemoteMeshSandboxReadinessContract.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type RemoteMeshScopedMcpStatusTransportRuntime = {
   now?: () => Date;
@@ -131,6 +136,7 @@ export class ScopedMcpStatusHttpTransport implements RemoteMeshLiveProbeTranspor
         secretValuesSerialized: false,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Remote Mesh Sandbox Scoped Mcp Status Transport] network request failed', error);
     return {
         status: 'failed',
@@ -138,7 +144,7 @@ export class ScopedMcpStatusHttpTransport implements RemoteMeshLiveProbeTranspor
         finishedAt: this.now().toISOString(),
         exitCode: 1,
         stdoutPreview: '',
-        stderrPreview: error instanceof Error ? error.message : 'unknown scoped MCP transport failure',
+        stderrPreview: error instanceof Error ? err.message : 'unknown scoped MCP transport failure',
         transportEvidence: [
           'scoped MCP HTTP status transport failed during POST',
           `endpoint=${diagnostics.config.endpointLabel || 'redacted'}`,

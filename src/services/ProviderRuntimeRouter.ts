@@ -2,7 +2,7 @@ import { ModelSelectionService, ProviderRuntimeRequest, ResolvedProviderRuntime 
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
-import { asErrorLike } from '../utils/errorLike';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export class ProviderRuntimeRouter {
   private static instance: ProviderRuntimeRouter;
@@ -43,7 +43,7 @@ export class ProviderRuntimeRouter {
     try {
       resolved = await selector.selectProvider(effectiveRequest);
     } catch (error: unknown) { const err = asErrorLike(error); if (err.message === 'missing_key' || err.message === 'provider_not_found' || err.message === 'capability_not_supported') {
-        throw e;
+        throw error;
       }
       throw new Error('routing_error');
     }

@@ -1,10 +1,12 @@
-﻿import { BaseTool } from './BaseTool.js';
+
+import { BaseTool } from './BaseTool.js';
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';
 import path from 'path';
 import fs from 'fs';
 import { decideSecurityPolicy, formatSecurityPolicyReceipt } from '../security/SecurityPolicyBroker.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type DesktopAutomationResult = {
   ok: boolean;
@@ -177,8 +179,9 @@ export class DesktopAutomationTool extends BaseTool {
 
       return response;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Desktop Automation] string operation failed', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? err.message : String(error);
       return `Error while running desktop automation: ${errorMessage}`;
   }
   }
@@ -236,7 +239,8 @@ export class DesktopAutomationTool extends BaseTool {
           try {
             const parsed = JSON.parse(stdout.trim()) as DesktopAutomationResult;
             resolve(parsed);
-          } catch (parseError: unknown) {const msg = parseError instanceof Error ? parseError.message : String(parseError);
+          } catch (parseError: unknown) {
+  const parseErrorLike = asErrorLike(parseError);const msg = parseError instanceof Error ? parseErrorLike.message : String(parseError);
             reject(new Error(`Failed to parse script response: ${msg}`));
           }
         },

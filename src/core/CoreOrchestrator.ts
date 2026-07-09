@@ -10,12 +10,15 @@ import {
 } from '../api/internal/InternalSurfaceApiCompat.js';
 import { DiscordSurfacePolicyService } from '../services/DiscordSurfacePolicyService.js';
 import {
+  SurfaceOperationalIntentService,
+} from '../services/SurfaceOperationalIntentService.js';
+import { randomUUID } from 'crypto';
+
+import {
   formatSharedSurfaceUnavailableReply,
   isSharedSurfaceCommandType,
 } from '../services/SharedSurfaceCommandContract.js';
-import {
-  SurfaceOperationalIntentService,
-} from '../services/SurfaceOperationalIntentService.js';
+
 import type { ZavorthResponseDecision } from '../contracts/ZavorthResponseDecisionContract.js';
 import { ContextEngine } from '../context-engine/ContextEngine.js';
 import type { LegacyUnifiedGatewayAdapter } from '../context-engine/LegacyUnifiedGatewayAdapter.js';
@@ -27,7 +30,7 @@ import type {
   UniversalReplyPort,
   ZavorthAgentGateway,
 } from '../runtime/agent/index.js';
-import { randomUUID } from 'crypto';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 type ParsedCoreCommand = ReturnType<CommandParser['parse']>;
 
 type CoreOrchestratorPipelineState = {
@@ -430,10 +433,11 @@ export class CoreOrchestrator implements IMessageBroker {
         },
       }, executor ? { executor } : {});
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.logRepo.log(
         'warn',
         'CoreOrchestrator',
-        `ZavorthAgentGateway falhou no ingresso natural; mantendo fallback legado: ${error?.message || String(error)}`,
+        `ZavorthAgentGateway falhou no ingresso natural; mantendo fallback legado: ${errorMessage(error)}`,
       );
       return false;
     }

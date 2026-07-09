@@ -1,4 +1,4 @@
-﻿export const runtimeShellScriptPart8Seg2: string = [
+export const runtimeShellScriptPart8Seg2: string = [
     "    memoryLayeredQuery.addEventListener('keydown', (event) => {",
     "      if (event.key !== 'Enter') {",
     "        return;",

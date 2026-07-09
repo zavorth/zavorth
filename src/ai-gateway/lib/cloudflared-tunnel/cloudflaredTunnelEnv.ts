@@ -8,6 +8,7 @@ import {
   type CloudflaredRuntimeDirs,
 } from "./cloudflaredTunnelTypes";
 import { getCloudflaredRuntimeDirs } from "./cloudflaredTunnelPaths";
+
 import { logger } from '@/shared/utils/logger';export function extractTryCloudflareUrl(text: string) {
   const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com\b/i);
   if (!match) return null;

@@ -7,6 +7,8 @@ import { kiroSocialExchangeSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 /**
  * POST /api/oauth/kiro/social-exchange
  * Exchange authorization code for tokens (Google/GitHub social login)
@@ -74,8 +76,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Kiro social exchange error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 

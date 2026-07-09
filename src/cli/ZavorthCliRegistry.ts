@@ -30,12 +30,6 @@ import {
   type RuntimeBootstrapRepairReport,
 } from '../runtime/access/RuntimeBootstrapRepairService.js';
 import { ZavorthMemoryPlaneService } from '../services/ZavorthMemoryPlaneService.js';
-import { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemoryService.js';
-import {
-  ZavorthLearningPlaneService,
-  type LearningPlaneActionExecution,
-  type LearningPlaneSnapshot,
-} from '../services/ZavorthLearningPlaneService.js';
 import {
   ZavorthPlatformRegistryService,
   type ZavorthPlatformRegistrySnapshot,
@@ -44,62 +38,14 @@ import {
 } from '../services/ZavorthPlatformRegistryService.js';
 import { ZavorthPlatformCatalogSyncService } from '../services/ZavorthPlatformCatalogSyncService.js';
 import {
-  ZavorthPlatformActionService,
-  type ZavorthPlatformActionExecution,
-} from '../services/ZavorthPlatformActionService.js';
-import {
   ZavorthPackagePublisher,
   type PublishResult as ZavorthPlatformPublishResult,
 } from '../platform/publish/ZavorthPackagePublisher.js';
 import { ZavorthHookPlaneService, type ZavorthHookPlaneSnapshot } from '../services/ZavorthHookPlaneService.js';
-import { ZavorthPluginActionService } from '../services/ZavorthPluginActionService.js';
-import { ZavorthPluginRegistryService } from '../services/ZavorthPluginRegistryService.js';
-import { ZavorthToolSurfaceService } from '../services/ZavorthToolSurfaceService.js';
-import type { ZavorthToolSurfaceSnapshot } from '../services/ZavorthToolSurfaceService.js';
-import { ZavorthSessionPlaneService } from '../services/ZavorthSessionPlaneService.js';
-import type {
-  ZavorthSessionPlaneSnapshot,
-  ZavorthSessionPlaneStatusSummarySnapshot,
-} from '../services/ZavorthSessionPlaneService.js';
 import { ZavorthNodeMeshService } from '../services/ZavorthNodeMeshService.js';
-import { NodeCapabilityService } from '../services/NodeCapabilityService.js';
-import { NodeDeviceProfileService } from '../services/NodeDeviceProfileService.js';
-import { NodeInvocationStoreService } from '../services/NodeInvocationStoreService.js';
-import { NodeInvokeService } from '../services/NodeInvokeService.js';
-import { NodePairingService } from '../services/NodePairingService.js';
-import {
-  AIGatewayProxyService,
-  type AIGatewayProxyStatus,
-} from '../services/AIGatewayProxyService.js';
 import { ZavorthGatewayLauncherService } from '../services/ZavorthGatewayLauncherService.js';
-import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionToolsService.js';
-import type { DomainRegistrySnapshot, DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
-import { NodeRegistryService } from '../services/NodeRegistryService.js';
-import { ZavorthGatewayService, type ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
-import { GatewayChannelRegistryService } from '../services/GatewayChannelRegistryService.js';
-import {
-  DiscordRuntimeChannelAdapter,
-  EmailRuntimeChannelAdapter,
-  IMessageRuntimeChannelAdapter,
-  SignalRuntimeChannelAdapter,
-  SlackRuntimeChannelAdapter,
-  TeamsRuntimeChannelAdapter,
-  WhatsAppRuntimeChannelAdapter,
-} from '../services/GatewayRuntimeChannelAdapters.js';
 import { GatewaySessionReadModelService } from '../runtime/sessions/GatewaySessionReadModelService.js';
-import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
-import {
-  GatewaySessionStoreService,
-  type GatewaySessionSpawnSnapshot,
-} from '../runtime/sessions/GatewaySessionStoreService.js';
 import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
-import { MemoryService } from '../services/MemoryService.js';
-import { handleZavorthCliRegistryKanbanCommand } from './ZavorthCliRegistryKanban.js';
-import {
-  AutoRepairService,
-  type AutoRepairReport,
-  type AutoRepairRunResult,
-} from '../services/AutoRepairService.js';
 import {
   OperationsActionService,
   type OperationsActionExecution,
@@ -110,10 +56,6 @@ import {
 } from '../services/OperationsCockpitService.js';
 import { OperationsHealthService } from '../observability/OperationsHealthService.js';
 import {
-  OperatorBriefService,
-  type OperatorBriefSnapshot,
-} from '../observability/OperatorBriefService.js';
-import {
   GatewayCompatibilityDoctorService,
   type AIGatewayCompatibilityDoctorReport,
 } from '../services/GatewayCompatibilityDoctorService.js';
@@ -122,49 +64,7 @@ import {
   type AIGatewayUpstreamSyncReport,
 } from '../services/GatewayUpstreamSyncService.js';
 import { CanonicalPublicApiService } from '../api/public/CanonicalPublicApiService.js';
-import {
-  createInternalSurfaceCommandApi,
-  type SurfaceCommandBoundary,
-} from '../api/internal/InternalSurfaceApiCompat.js';
-import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
-import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
-import { SurfaceTaskDispatchService } from '../services/SurfaceTaskDispatchService.js';
-import {
-  SupervisedRuntimeService,
-  type SupervisedRuntimeInspection,
-  type SupervisedReloadRequestResult,
-} from '../services/SupervisedRuntimeService.js';
 import { RuntimeCompositionService } from '../services/RuntimeCompositionService.js';
-import { WorkspaceExtensionRegistryService } from '../services/WorkspaceExtensionRegistryService.js';
-import { WorkspaceOperationalMemoryService } from '../runtime/context/WorkspaceOperationalMemoryService.js';
-import { TrustedBoundary } from '../security/TrustedBoundary.js';
-import { ExecutionGateway } from '../execution/ExecutionGateway.js';
-import { LocalExecutor } from '../execution/LocalExecutor.js';
-import { CodexExecutor } from '../execution/CodexExecutor.js';
-import { StitchExecutor } from '../execution/StitchExecutor.js';
-import { AiStudioExecutor } from '../execution/AiStudioExecutor.js';
-import { HostIdentityService } from '../services/HostIdentityService.js';
-import { BridgeManager } from '../orchestrator/BridgeManager.js';
-import { VideoHandler } from '../gateways/channels/telegram/VideoHandler.js';
-import { TelegramConversationController } from '../gateways/channels/telegram/controllers/TelegramConversationController.js';
-import { TelegramExecutionController } from '../gateways/channels/telegram/controllers/TelegramExecutionController.js';
-import { TelegramPermissionController } from '../gateways/channels/telegram/controllers/TelegramPermissionController.js';
-import { TelegramPipelineController } from '../gateways/channels/telegram/controllers/TelegramPipelineController.js';
-import { TelegramTaskOrchestrationController } from '../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
-import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
-import { AuditLogger } from '../monitoring/AuditLogger.js';
-import { MultiAgentPipeline } from '../runtime/workflows/MultiAgentPipeline.js';
-import { OperatorModeService } from '../services/OperatorModeService.js';
-import { PresentationModeService } from '../services/PresentationModeService.js';
-import { WorkspaceProfileService } from '../services/WorkspaceProfileService.js';
-import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../gateways/channels/telegram/TelegramTaskSupport.js';
-import {
-  formatAutoRepairRunResult as renderAutoRepairRunResult,
-  formatRuntimeAccessReadinessReport as renderRuntimeAccessReadinessReport,
-  formatRuntimeBootstrapRepairReport as renderRuntimeBootstrapRepairReport,
-  formatRuntimeBootstrapReport as renderRuntimeBootstrapReport,
-  formatSupervisedReloadResult as renderSupervisedReloadResult,
-} from './ZavorthCliOpsFormatting.js';
 import {
   type CliContextSnapshot,
   type CliDomainsSnapshot,
@@ -256,19 +156,7 @@ import {
   withCliConsoleSuppressed,
 } from './ZavorthCliNativeRenderers.js';
 import { formatLayeredMemoryMetrics } from './ZavorthCliRenderers.js';
-import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
-import {
-  formatExperienceCommandResult,
-  formatExperienceHome,
-} from './ZavorthCliExperienceRenderer.js';
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
-import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
-import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
-import {
-  formatCliChatReplyEventCard,
-  formatCliRecoverableErrorEventCard,
-  formatCliSuccessEventCard,
-} from './ZavorthCliEventCards.js';
 import {
   buildCliRuntimeFromOverrides as buildCliRuntimeFromOverridesImpl,
   buildSessionPlaneInput,
@@ -281,6 +169,131 @@ import {
   resolveSessionTargetRef,
 } from './ZavorthCliCommandHelpers.js';
 import { handleZavorthCliRegistryNodesCommand } from './ZavorthCliRegistryNodes.js';
+
+import { ZavorthLayeredMemoryService } from '../services/ZavorthLayeredMemoryService.js';
+import {
+  ZavorthLearningPlaneService,
+  type LearningPlaneActionExecution,
+  type LearningPlaneSnapshot,
+} from '../services/ZavorthLearningPlaneService.js';
+
+import {
+  ZavorthPlatformActionService,
+  type ZavorthPlatformActionExecution,
+} from '../services/ZavorthPlatformActionService.js';
+
+import { ZavorthPluginActionService } from '../services/ZavorthPluginActionService.js';
+import { ZavorthPluginRegistryService } from '../services/ZavorthPluginRegistryService.js';
+import { ZavorthToolSurfaceService } from '../services/ZavorthToolSurfaceService.js';
+import type { ZavorthToolSurfaceSnapshot } from '../services/ZavorthToolSurfaceService.js';
+import { ZavorthSessionPlaneService } from '../services/ZavorthSessionPlaneService.js';
+import type {
+  ZavorthSessionPlaneSnapshot,
+  ZavorthSessionPlaneStatusSummarySnapshot,
+} from '../services/ZavorthSessionPlaneService.js';
+
+import { NodeCapabilityService } from '../services/NodeCapabilityService.js';
+import { NodeDeviceProfileService } from '../services/NodeDeviceProfileService.js';
+import { NodeInvocationStoreService } from '../services/NodeInvocationStoreService.js';
+import { NodeInvokeService } from '../services/NodeInvokeService.js';
+import { NodePairingService } from '../services/NodePairingService.js';
+import {
+  AIGatewayProxyService,
+  type AIGatewayProxyStatus,
+} from '../services/AIGatewayProxyService.js';
+
+import { ZavorthSessionToolsService } from '../runtime/sessions/ZavorthSessionToolsService.js';
+import type { DomainRegistrySnapshot, DomainRegistrySummarySnapshot } from '../domain/DomainRegistry.js';
+import { NodeRegistryService } from '../services/NodeRegistryService.js';
+import { ZavorthGatewayService, type ZavorthGatewaySnapshot } from '../services/ZavorthGatewayService.js';
+import { GatewayChannelRegistryService } from '../services/GatewayChannelRegistryService.js';
+import {
+  DiscordRuntimeChannelAdapter,
+  EmailRuntimeChannelAdapter,
+  IMessageRuntimeChannelAdapter,
+  SignalRuntimeChannelAdapter,
+  SlackRuntimeChannelAdapter,
+  TeamsRuntimeChannelAdapter,
+  WhatsAppRuntimeChannelAdapter,
+} from '../services/GatewayRuntimeChannelAdapters.js';
+
+import { GatewaySessionService } from '../runtime/sessions/GatewaySessionService.js';
+import {
+  GatewaySessionStoreService,
+  type GatewaySessionSpawnSnapshot,
+} from '../runtime/sessions/GatewaySessionStoreService.js';
+
+import { MemoryService } from '../services/MemoryService.js';
+import { handleZavorthCliRegistryKanbanCommand } from './ZavorthCliRegistryKanban.js';
+import {
+  AutoRepairService,
+  type AutoRepairReport,
+  type AutoRepairRunResult,
+} from '../services/AutoRepairService.js';
+
+import {
+  OperatorBriefService,
+  type OperatorBriefSnapshot,
+} from '../observability/OperatorBriefService.js';
+
+import {
+  createInternalSurfaceCommandApi,
+  type SurfaceCommandBoundary,
+} from '../api/internal/InternalSurfaceApiCompat.js';
+import type { OpsQualityDTO } from '../contracts/public/rest/platform-ops-dto.js';
+import type { SurfaceTaskDispatcherLike } from '../services/SurfaceRuntime.js';
+import { SurfaceTaskDispatchService } from '../services/SurfaceTaskDispatchService.js';
+import {
+  SupervisedRuntimeService,
+  type SupervisedRuntimeInspection,
+  type SupervisedReloadRequestResult,
+} from '../services/SupervisedRuntimeService.js';
+
+import { WorkspaceExtensionRegistryService } from '../services/WorkspaceExtensionRegistryService.js';
+import { WorkspaceOperationalMemoryService } from '../runtime/context/WorkspaceOperationalMemoryService.js';
+import { TrustedBoundary } from '../security/TrustedBoundary.js';
+import { ExecutionGateway } from '../execution/ExecutionGateway.js';
+import { LocalExecutor } from '../execution/LocalExecutor.js';
+import { CodexExecutor } from '../execution/CodexExecutor.js';
+import { StitchExecutor } from '../execution/StitchExecutor.js';
+import { AiStudioExecutor } from '../execution/AiStudioExecutor.js';
+import { HostIdentityService } from '../services/HostIdentityService.js';
+import { BridgeManager } from '../orchestrator/BridgeManager.js';
+import { VideoHandler } from '../gateways/channels/telegram/VideoHandler.js';
+import { TelegramConversationController } from '../gateways/channels/telegram/controllers/TelegramConversationController.js';
+import { TelegramExecutionController } from '../gateways/channels/telegram/controllers/TelegramExecutionController.js';
+import { TelegramPermissionController } from '../gateways/channels/telegram/controllers/TelegramPermissionController.js';
+import { TelegramPipelineController } from '../gateways/channels/telegram/controllers/TelegramPipelineController.js';
+import { TelegramTaskOrchestrationController } from '../gateways/channels/telegram/controllers/TelegramTaskOrchestrationController.js';
+import { CommandParser } from '../gateways/channels/telegram/CommandParser.js';
+import { AuditLogger } from '../monitoring/AuditLogger.js';
+import { MultiAgentPipeline } from '../runtime/workflows/MultiAgentPipeline.js';
+import { OperatorModeService } from '../services/OperatorModeService.js';
+import { PresentationModeService } from '../services/PresentationModeService.js';
+import { WorkspaceProfileService } from '../services/WorkspaceProfileService.js';
+import { extractTaskPayload, getDefaultWorkspace, persistTask } from '../gateways/channels/telegram/TelegramTaskSupport.js';
+import {
+  formatAutoRepairRunResult as renderAutoRepairRunResult,
+  formatRuntimeAccessReadinessReport as renderRuntimeAccessReadinessReport,
+  formatRuntimeBootstrapRepairReport as renderRuntimeBootstrapRepairReport,
+  formatRuntimeBootstrapReport as renderRuntimeBootstrapReport,
+  formatSupervisedReloadResult as renderSupervisedReloadResult,
+} from './ZavorthCliOpsFormatting.js';
+
+import { formatCliChatAssistantMessage } from './ZavorthCliChatRenderers.js';
+import {
+  formatExperienceCommandResult,
+  formatExperienceHome,
+} from './ZavorthCliExperienceRenderer.js';
+
+import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
+import { ZavorthSmartCommandSurfaceService } from '../services/ZavorthSmartCommandSurfaceService.js';
+import {
+  formatCliChatReplyEventCard,
+  formatCliRecoverableErrorEventCard,
+  formatCliSuccessEventCard,
+} from './ZavorthCliEventCards.js';
+
 import { handleZavorthCliRegistryOpsCommand } from './ZavorthCliRegistryOps.js';
 import { handleZavorthCliRegistryPlatformCommand } from './ZavorthCliRegistryPlatform.js';
 import { handleZavorthCliRegistrySessionsCommand } from './ZavorthCliRegistrySessions.js';
@@ -302,11 +315,14 @@ import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js'
 import { handleZavorthManagedConfigCommand } from './managed-config/ZavorthManagedConfigCommand.js';
 import { handleZavorthLocalTaskCommand } from './local-task/ZavorthLocalTaskCommand.js';
 import type {
+
   ZavorthCliFlags,
   ZavorthCliRuntime,
   CliExecutionResult,
   CliWriter,
-} from './ZavorthCliContract.js';export type {
+} from './ZavorthCliContract.js';
+import { errorMessage } from '../utils/errorLike.js';
+export type {
   ZavorthCliDeps,
   ZavorthCliFlags,
   ZavorthCliIo,
@@ -317,7 +333,6 @@ import type {
   CliRuntimeProfile,
   CliWriter,
 } from './ZavorthCliContract.js';
-
 export const parseZavorthCliFlags = parseZavorthCliFlagsImpl;
 export const parseZavorthCliArgs = parseZavorthCliArgsImpl;
 export const buildCliRuntimeFromOverrides = buildCliRuntimeFromOverridesImpl;
@@ -418,7 +433,7 @@ export async function executeZavorthCliCommand(params: {
       ok: false,
       handled: true,
       output: [body],
-      error: error?.message || 'Zavorth command failed.',
+      error: errorMessage(error, 'Zavorth command failed.'),
     };
   }
 }

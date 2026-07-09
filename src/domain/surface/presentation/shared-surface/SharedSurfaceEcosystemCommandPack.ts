@@ -17,14 +17,17 @@ import {
   type ZavorthSubagentInvocationGatewayInput,
 } from '../../../../services/ZavorthSubagentInvocationGatewayService.js';
 import { ZavorthAgentSurfaceUxService } from '../../../../services/ZavorthAgentSurfaceUxService.js';
+import {
+  ZavorthBrowserVisionBridgeService,
+} from '../../../../services/ZavorthBrowserVisionBridgeService.js';
+
+
 import type { ZavorthSubagentRuntimeCommandInput } from '../../../../services/ZavorthSubagentRuntimeService.js';
 import {
   ZavorthVisionControlPlaneService,
   type ZavorthVisionControlPlaneCommandInput,
 } from '../../../../services/ZavorthVisionControlPlaneService.js';
-import {
-  ZavorthBrowserVisionBridgeService,
-} from '../../../../services/ZavorthBrowserVisionBridgeService.js';
+
 import type { ZavorthBrowserVisionInput } from '../../../../contracts/ZavorthBrowserVisionBridgeContract.js';
 import { ZavorthComputerControlPlaneService } from '../../../../services/ZavorthComputerControlPlaneService.js';
 import type { ZavorthComputerControlInput } from '../../../../contracts/ZavorthComputerControlPlaneContract.js';

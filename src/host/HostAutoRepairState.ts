@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export type HostAutoRepairStateDeps = {
   stateFilePath: string;
   now: () => number;
@@ -27,7 +29,8 @@ export function persistAutoRepairTriggerState(
       'utf-8',
     );
   } catch (error: unknown) {
-    deps.log(`Failed to persist autorepair trigger state: ${error.message}`);
+    const err = asErrorLike(error);
+    deps.log(`Failed to persist autorepair trigger state: ${err.message}`);
   }
 }
 

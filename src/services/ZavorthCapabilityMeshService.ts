@@ -1,4 +1,4 @@
-﻿import { createHash } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { config } from '../config/index.js';
 import {
   ZAVORTH_CAPABILITY_MESH_CONTRACT_VERSION,

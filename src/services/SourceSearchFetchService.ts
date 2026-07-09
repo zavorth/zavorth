@@ -1,9 +1,11 @@
-﻿import crypto from 'node:crypto';
+
+import crypto from 'node:crypto';
 import { logger } from '../logger.js';
 import type {
 ProxyRoutingPolicyReceipt,
   SearchFetchReceipt,
 } from '../contracts/SourceMemoryDocumentTerminalPackContract.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   now?: () => Date;
@@ -88,13 +90,14 @@ export class SourceSearchFetchService {
         reason: `HTTP ${response.status}`,
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Source Search] network request failed', error);
     return this.fetchReceipt({
         status: 'failed',
         url,
         resultCount: 0,
         liveNetworkPerformed: true,
-        reason: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? err.message : String(error),
       });
   } finally {
       clearTimeout(timeout);

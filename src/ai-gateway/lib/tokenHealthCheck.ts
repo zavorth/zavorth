@@ -1,4 +1,10 @@
 import { asErrorLike } from '../../utils/errorLike';
+import {
+  getAccessToken,
+  supportsTokenRefresh,
+  isUnrecoverableRefreshError,
+} from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
+import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
 /**
  * Proactive Token Health Check Scheduler
  *
@@ -17,12 +23,8 @@ import {
   getSettings,
   resolveProxyForConnection,
 } from "@/lib/localDb";
-import {
-  getAccessToken,
-  supportsTokenRefresh,
-  isUnrecoverableRefreshError,
-} from "@ZavorthGateway/open-sse/services/tokenRefresh.ts";
-import { pickMaskedDisplayValue } from "@/shared/utils/maskEmail";
+
+
 import { logger } from '@/shared/utils/logger';
 
 // ── Constants ────────────────────────────────────────────────────────────────

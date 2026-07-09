@@ -1,9 +1,11 @@
-﻿import { GoogleGenerativeAI, type Tool } from '@google/generative-ai';
+
+import { GoogleGenerativeAI, type Tool } from '@google/generative-ai';
 import { search, SafeSearchType, type SearchResult } from 'duck-duck-scrape';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 const SEARCH_FALLBACK_ORDER = ['AIGateway', 'gemini', 'deepseek', 'qwen', 'openrouter', 'minimax', 'opencode', 'openai'];
 
@@ -48,7 +50,8 @@ export class DeepSearchService {
         return groundedResult;
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       this.logRepo.log('warn', 'DeepSearch', `Grounding falhou: ${message}. Usando fallback DDG.`);
     }
 
@@ -119,7 +122,8 @@ export class DeepSearchService {
 
         return text + sources;
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Grounding com chave falhou: ${message}`);
       }
     }
@@ -166,7 +170,8 @@ export class DeepSearchService {
 
       return this.formatRawDuckDuckGoResults(query, topResults);
     } catch (error: unknown) {
-      const errMsg = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errMsg = error instanceof Error ? err.message : String(error);
       this.logRepo.log('error', 'DeepSearch', `Falha DDG: ${errMsg}`);
       return `❌ Falha no Deep Search.\n\nMotivo: ${errMsg}`;
     }
@@ -218,7 +223,8 @@ export class DeepSearchService {
           return text;
         }
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
+        const err = asErrorLike(error);
+        const message = error instanceof Error ? err.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Resumo com ${providerName} falhou: ${message}`);
       }
     }

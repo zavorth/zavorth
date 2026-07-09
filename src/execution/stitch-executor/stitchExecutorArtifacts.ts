@@ -7,7 +7,8 @@ import {
   StitchPersistArtifactsInput,
   StitchPersistArtifactsResult,
 } from './stitchExecutorTypes.js';
-import { safeFetch } from '../../security/SafeFetchService.js';export function resolveStitchProjectId(project: any): string {
+import { safeFetch } from '../../security/SafeFetchService.js';
+export function resolveStitchProjectId(project: any): string {
   return String(project?.projectId || project?.id || project?.name || '')
     .replace(/^projects\//, '')
     .trim();

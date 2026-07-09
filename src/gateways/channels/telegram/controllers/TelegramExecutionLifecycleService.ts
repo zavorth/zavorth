@@ -91,7 +91,7 @@ export class TelegramExecutionLifecycleService {
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');
       }
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       task.error_summary = message;
       this.deps.persistTask(task);
       this.deps.auditLogger.logSecurityBlock(task.task_id, `Execution failed: ${message}`).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });

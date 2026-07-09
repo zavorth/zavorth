@@ -1,4 +1,4 @@
-﻿import type { NodeMeshCapabilityId, NodeMeshHostHints, NodeMeshRegistryEntry } from '../contracts/NodeMeshContract.js';
+import type { NodeMeshCapabilityId, NodeMeshHostHints, NodeMeshRegistryEntry } from '../contracts/NodeMeshContract.js';
 import { logger } from '../logger.js';
 
 export type LiveNodeTransport = 'heartbeat' | 'sse' | 'websocket' | 'long-poll' | 'manual';

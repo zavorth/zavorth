@@ -1,6 +1,6 @@
+import { useTranslations } from "next-intl";
 "use client";
 
-import { useTranslations } from "next-intl";
 
 import { useState, useEffect } from "react";
 import { Button, Input } from "@/shared/components";

@@ -5,7 +5,9 @@ import {
   readJsonBody,
 } from "../../web/runtime-engine-state";
 import { GatewayResilienceControlService } from "../../../../../services/GatewayResilienceControlService.js";
+
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -16,10 +18,11 @@ export async function GET(request: Request) {
     const service = new GatewayResilienceControlService();
     return NextResponse.json(await service.buildSnapshot());
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "gateway resilience unavailable",
+      error: error instanceof Error ? err.message : "gateway resilience unavailable",
     }, { status: 500 });
   }
 }
@@ -39,10 +42,11 @@ export async function POST(request: Request) {
     const body = await readJsonBody(request);
     return NextResponse.json(await service.applyAction(body));
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "gateway resilience action failed",
+      error: error instanceof Error ? err.message : "gateway resilience action failed",
     }, { status: 400 });
   }
 }

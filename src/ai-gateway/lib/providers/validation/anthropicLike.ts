@@ -7,7 +7,9 @@ import {
   validationSuccess,
 } from "./validationResult.ts";
 import { normalizeAnthropicBaseUrl } from "./validationFamilies.ts";
+
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 export async function validateAnthropicLikeProvider({
   apiKey,
   baseUrl,
@@ -77,7 +79,8 @@ export async function validateAnthropicLikeProvider({
 
     return validationSuccess();
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[anthropic Like] network request failed', error);
-    return connectionFailed(error.message || "Connection failed");
+    return connectionFailed(err.message || "Connection failed");
   }
 }

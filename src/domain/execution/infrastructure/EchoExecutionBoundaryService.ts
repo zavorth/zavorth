@@ -5,6 +5,8 @@ import type {
   ExecutionOutcome,
 } from '../../../contracts/InternalBoundaryContract.js';
 import { createBoundaryCorrelation } from '../../../contracts/InternalBoundaryContract.js';
+import { IntelligenceRiskGateService } from '../../../services/IntelligenceRiskGateService.js';
+
 import type { ToolCategory } from '../../../echo/types/IZavorthTool.js';
 import { InternalExecutionApiService } from '../../../api/internal/InternalExecutionApiService.js';
 import type {
@@ -13,7 +15,6 @@ import type {
   IntelligenceRiskLevel,
   IntelligenceTrustMode,
 } from '../../../contracts/native/IntelligenceFabricContract.js';
-import { IntelligenceRiskGateService } from '../../../services/IntelligenceRiskGateService.js';
 
 type EchoExecutionBoundaryRuntime = {
   executionApi?: Pick<InternalExecutionApiService, 'decide' | 'execute'> | null;

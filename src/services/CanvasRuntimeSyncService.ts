@@ -1,10 +1,13 @@
-﻿import type {
+import { getRuntimeEngineApiState } from './RuntimeEngineApiStateService.js';
+
+import type {
   CanvasSessionSnapshot,
   ExecutionEngineId,
 } from '../contracts/ExecutionEngineContract.js';
-import { getRuntimeEngineApiState } from './RuntimeEngineApiStateService.js';
+
 import type { ZavorthSpeculativeAutonomyResult } from './ZavorthSpeculativeAutonomyService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type CanvasSpeculativeAutonomySyncService = {
   createFromSpeculativeAutonomyResult(
@@ -57,6 +60,7 @@ export async function syncSpeculativeAutonomyToCanvas(input: {
       error: null,
     };
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[Canvas Runtime] creation failed', error);
     return {
       ok: false,
@@ -67,7 +71,7 @@ export async function syncSpeculativeAutonomyToCanvas(input: {
       previewUrl: null,
       attemptCount: result.attempts.length,
       status: 'sync-failed',
-      error: error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? err.message : String(error),
     };
   }
 }

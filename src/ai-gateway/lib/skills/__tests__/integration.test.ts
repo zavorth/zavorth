@@ -3,13 +3,14 @@ import { retrieveMemories } from "../../memory/retrieval";
 import { createMemory } from "../../memory/store";
 import { skillRegistry } from "../registry";
 import { skillExecutor } from "../executor";
+import { getSettings } from "../../db/settings";
 
 vi.mock("../../db/settings", () => ({
   getSettings: vi.fn().mockResolvedValue({ skillsEnabled: true }),
   updateSettings: vi.fn().mockResolvedValue({}),
 }));
 
-import { getSettings } from "../../db/settings";
+
 const mockedGetSettings = vi.mocked(getSettings);
 
 describe("Memory + Skills Integration", () => {

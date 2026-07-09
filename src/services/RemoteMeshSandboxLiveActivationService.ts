@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { ZAVORTH_REMOTE_MESH_SANDBOX_R4_LIVE_ACTIVATION_VERSION } from '../contracts/RemoteMeshSandboxLiveActivationContract.js';
 
 import type {
   RemoteExecutionReceipt,
@@ -14,7 +15,7 @@ import type {
   RemoteMeshOwnerTrustProof,
   RemoteMeshSandboxLiveActivationSnapshot,
 } from '../contracts/RemoteMeshSandboxLiveActivationContract.js';
-import { ZAVORTH_REMOTE_MESH_SANDBOX_R4_LIVE_ACTIVATION_VERSION } from '../contracts/RemoteMeshSandboxLiveActivationContract.js';
+
 import type { RemoteMeshPolicyEvaluation } from '../contracts/RemoteMeshSandboxPolicyContract.js';
 import type { RemoteMeshSandboxReadinessSnapshot } from '../contracts/RemoteMeshSandboxReadinessContract.js';
 import { RemoteMeshSandboxAdapterDryRunService } from './RemoteMeshSandboxAdapterDryRunService.js';

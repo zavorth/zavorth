@@ -9,6 +9,8 @@ import type {
   ProviderMeshReadinessStatus,
 } from '../contracts/ProviderMeshReadinessContract.js';
 import { ZAVORTH_PROVIDER_MESH_READINESS_CONTRACT_VERSION } from '../contracts/ProviderMeshReadinessContract.js';
+import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
+
 import { CapabilityNormalizationService, DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationService.js';
 import { ProviderCompatibilityClassifier } from './providers/catalog/ProviderCompatibilityClassifier.js';
 import type { ProviderRuntimeAdapterKind } from './providers/catalog/ProviderCompatibilityClassifier.js';
@@ -17,7 +19,6 @@ import {
   type ProviderIntegrationManifest,
   type ProviderIntegrationRouteManifest,
 } from './providers/catalog/ProviderIntegrationManifest.js';
-import { ProviderIntegrationRegistry } from './providers/catalog/ProviderIntegrationRegistry.js';
 
 type ProviderMeshReadinessRuntime = {
   now?: () => Date;

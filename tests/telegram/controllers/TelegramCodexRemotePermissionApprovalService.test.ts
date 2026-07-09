@@ -42,8 +42,8 @@ describe('TelegramCodexRemotePermissionApprovalService', () => {
       runtimeUserId: 'telegram-user',
       skipApproval: true,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao codex-1 iniciada'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/open-session session-web-1'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Sessao codex-1 iniciada');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('/open-session session-web-1');
   });
 
   it('ignores non-Codex Remote permissions', async () => {

@@ -5,7 +5,8 @@ import {
   getProviderLimitsSyncIntervalMinutes,
   syncAllProviderLimits,
 } from "@/lib/usage/providerLimits";
-import { requireManagementAuth } from "@/lib/api/requireManagementAuth";/**
+import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+/**
  * GET /api/usage/provider-limits
  * Returns cached Provider Limits data without triggering live refreshes.
  */

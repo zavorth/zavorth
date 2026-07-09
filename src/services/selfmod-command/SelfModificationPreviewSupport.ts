@@ -1,4 +1,5 @@
-﻿import crypto from 'crypto';
+
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import type { SafeModificationService } from '../SafeModificationService.js';
@@ -16,6 +17,7 @@ FilePreviewArtifact,
   SelfmodValidationReport,
   StagedValidationChange,
 } from './SelfModificationCommandTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 type SelfModificationPreviewSupportOptions = {
   engine: Pick<SelfModificationService, 'previewModification'>;
@@ -137,11 +139,12 @@ export class SelfModificationPreviewSupport {
         validationPlan: this.options.defaultValidationPlan([relativePath]),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,
         mode: 'file',
-        summary: `Nao consegui montar o preview de auto-modificacao.\n\nMotivo: ${error.message}`,
+        summary: `Nao consegui montar o preview de auto-modificacao.\n\nMotivo: ${err.message}`,
       };
   }
   }
@@ -303,11 +306,12 @@ export class SelfModificationPreviewSupport {
         optimizationAnalysis,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Self Modification Preview] validation failed', error);
     return {
         success: false,
         mode: 'goal',
-        summary: `Nao consegui montar o changeset do objetivo.\n\nMotivo: ${error.message || error}`,
+        summary: `Nao consegui montar o changeset do objetivo.\n\nMotivo: ${err.message || error}`,
       };
   }
   }

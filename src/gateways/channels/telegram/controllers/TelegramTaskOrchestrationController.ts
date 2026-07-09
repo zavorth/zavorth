@@ -27,10 +27,12 @@ import {
   type TelegramTaskPreparationInput,
 } from '../../../../gateways/channels/telegram/controllers/TelegramTaskPreparationService.js';
 import { TelegramTaskSurfaceSecurityService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskSurfaceSecurityService.js';
+
 import { TelegramTaskWorkflowRoutingService } from '../../../../gateways/channels/telegram/controllers/TelegramTaskWorkflowRoutingService.js';
 import { buildTaskEventSurfaceResponse } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 type AttachRecentContextFn = (task: Task) => Promise<void>;
 type RouteIntentFn = (parsed: ParsedCommand) => RouteIntent;
 type RiskClassifierFn = (parsed: ParsedCommand, route: RouteIntent) => RiskClassification;
@@ -239,7 +241,8 @@ export class TelegramTaskOrchestrationController {
       });
       return task;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const errorMessage = error instanceof Error ? err.message : String(error);
       this.deps.logRepo.log('error', 'BotGateway', `Error processing task: ${errorMessage}`);
       if (!StateMachine.isTerminal(task.status)) {
         this.deps.taskManager.advanceState(task, 'failed');

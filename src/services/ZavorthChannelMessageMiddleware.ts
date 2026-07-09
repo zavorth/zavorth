@@ -1,4 +1,5 @@
-﻿/**
+
+/**
  * ChannelMessageMiddleware — Plugs into any gateway's message pipeline
  * to add commandless mode and adaptive formatting.
  *
@@ -26,6 +27,7 @@ import { ZavorthPresentationAdapterService, type UniversalResponse } from './Zav
 import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
 import { detectDeviceLocale } from './ZavorthIntentI18n.js';
 import { getChannelPairingService } from './ZavorthChannelPairingService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export interface MiddlewareInput {
   text: string;
@@ -130,6 +132,7 @@ export class ZavorthChannelMessageMiddleware {
         locale: result.detectedLanguage,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       // Graceful degradation: if middleware fails, let the gateway handle it
       return {
         handled: false,
@@ -138,7 +141,7 @@ export class ZavorthChannelMessageMiddleware {
         confidence: 0,
         requiresApproval: false,
         locale,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
     }
   }

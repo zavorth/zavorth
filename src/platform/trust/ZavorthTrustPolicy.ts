@@ -4,6 +4,7 @@ import {
   type ZavorthPlatformCatalogEntry,
 } from '../../services/ZavorthPlatformCatalogSourceService.js';
 import { PluginStateService } from '../../services/PluginStateService.js';
+
 import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerReceipt,

@@ -12,10 +12,12 @@ import {
   type ProviderStrategyDecision,
 } from '../services/ProviderStrategyService.js';
 import { logger } from '../logger.js';
+
 import {
 SkillRoutingService,
   type SkillRoutingDecision,
 } from '../services/SkillRoutingService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 export type PlannerDecisionTrace = {
   intent: ExecutionIntentClassification;
   provider: ProviderStrategyDecision;
@@ -103,6 +105,7 @@ export class StructuredPlanner {
           decisionTrace,
         };
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         logger.warn('[Structured Planner] validation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }

@@ -1,4 +1,5 @@
-﻿import type * as http from 'http';
+import { logger } from '../logger.js';
+import type * as http from 'http';
 import type { Duplex } from 'stream';
 import { WebSocketServer, type WebSocket } from 'ws';
 import { handleGatewayControlSocketMessage } from './zavorth-gateway-control-socket/controlSocketDispatch.js';
@@ -6,7 +7,7 @@ import {
   activateGatewayControlSession,
   initializeGatewayControlConnection,
 } from './zavorth-gateway-control-socket/controlSocketSession.js';
-import { logger } from '../logger.js';
+
 import type {
 GatewayConnectionState,
   GatewayControlReplayMode,

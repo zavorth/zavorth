@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { skillExecutor } from "@/lib/skills/executor";
 import { asErrorLike } from '../../../../../utils/errorLike';
+import { z } from "zod";
 
 export async function GET(request: Request) {
   if (!(await isAuthenticated(request))) {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   }
 }
 
-import { z } from "zod";
+
 import { validateBody, isValidationFailure } from "@/shared/validation/helpers";
 import { isAuthenticated } from "@/shared/utils/apiAuth";
 import { logger } from '@/shared/utils/logger';
@@ -47,8 +48,7 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ execution });
   } catch (error: unknown) {
-    const err = asErrorLike(error);
-    const error = err instanceof Error ? err.message : String(err);
+    const err = asErrorLike(error); const errorText = err.message || String(err);
     if (error.includes("disabled")) {
       return NextResponse.json({ error }, { status: 503 });
     }

@@ -1,6 +1,8 @@
-﻿import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
+
+import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
 import type { LogRepository } from '../storage/LogRepository.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 /**
  * MnemosCallbackPayload — Estrutura do callback embutido nos botões inline.
@@ -211,7 +213,8 @@ export class MnemosHumanInTheLoopService {
     try {
       toolResult = await this.toolInvoker.execute('index_file', { file_path: filePath });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const message = error instanceof Error ? err.message : String(error);
       this.logRepo.log('error', 'Mnemos', `Falha ao indexar ${fileName}: ${message}`);
       return {
         handled: true,

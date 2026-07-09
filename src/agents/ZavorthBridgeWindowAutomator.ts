@@ -85,7 +85,8 @@ export class ZavorthBridgeWindowAutomator {
     try {
       return JSON.parse(String(result.message || '').trim()) as ZavorthBridgeUiReadState;
     } catch (error: unknown) {
-      throw new Error(`Failed to parse ZavorthBridge UI state: ${error.message}`);
+      const err = asErrorLike(error);
+      throw new Error(`Failed to parse ZavorthBridge UI state: ${err.message}`);
     }
   }
 

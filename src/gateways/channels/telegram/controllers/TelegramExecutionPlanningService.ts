@@ -10,6 +10,8 @@ import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEn
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
 import type { PolicyViolation } from '../../../../security/PolicyEngine.js';
 import { logger } from '../../../../logger.js';
+import { asErrorLike } from '../../../../utils/errorLike.js';
+
 type PersistTaskFn = (task: Task) => void;
 
 export type TelegramExecutionPlanningServiceDeps = {
@@ -94,8 +96,9 @@ export class TelegramExecutionPlanningService {
 
       await SmartOutputService.reply(ctx, userFacingText);
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       this.deps.taskManager.advanceState(task, 'failed');
-      const message = error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       task.error_summary = message;
       this.deps.persistTask(task);
       const userFacingText = `I could not build a plan right now.\n\nReason: ${message}`;

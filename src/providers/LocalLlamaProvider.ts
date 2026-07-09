@@ -3,6 +3,8 @@ import { ChatMessage, ILlmProvider, LlmResponse, ProviderChatOptions, ToolDefini
 import { safeFetch, readSafeJsonResponse } from '../security/SafeFetchService.js';
 import { safeParseInt } from '../ai-gateway/shared/utils/safeParseInt.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
+
 export interface LocalLlamaProviderOptions {
     baseUrl?: string;
     modelName?: string;
@@ -206,7 +208,8 @@ ${tools.map(t => `- ${t.name}: ${t.description}. Expected parameters: ${JSON.str
                 finishReason: choice.finish_reason || 'stop'
             };
         } catch (error: unknown) {
-          const message = error instanceof Error ? error.message : String(error);
+          const err = asErrorLike(error);
+          const message = error instanceof Error ? err.message : String(error);
              throw new Error(`Failure in local llama.cpp provider (${this.baseUrl}): ${message}`);
         }
     }

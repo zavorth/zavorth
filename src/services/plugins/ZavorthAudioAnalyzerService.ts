@@ -1,9 +1,11 @@
-﻿import fs from 'fs';
+
+import fs from 'fs';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { getBestProvider, getAvailableProviders, callAudioProvider, listProviders } from './MultimodalProviderSelector.js';
 import { logger } from '../../logger.js';
+import { asErrorLike } from '../../utils/errorLike.js';
 
 export class ZavorthAudioAnalyzerService extends BaseTool {
   public readonly name = 'zavorth_audio_analyzer';
@@ -69,7 +71,8 @@ export class ZavorthAudioAnalyzerService extends BaseTool {
         const transcription = await callAudioProvider(provider, audioPath, 'auto', apiKey);
         lines.push('', 'Transcription:', transcription.slice(0, 1000));
       } catch (error: unknown) {
-        lines.push('', `Transcription error: ${error instanceof Error ? error.message : String(error)}`);
+        const err = asErrorLike(error);
+        lines.push('', `Transcription error: ${error instanceof Error ? err.message : String(error)}`);
       }
     } else {
       lines.push('', 'Note: No audio provider available. Configure OPENAI_API_KEY, DEEPGRAM_API_KEY, or GEMINI_API_KEY.');

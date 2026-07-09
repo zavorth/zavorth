@@ -13,6 +13,7 @@ import {
 } from '../contracts/ZavorthDailyProductQuietAutonomyContract.js';
 import { ProfileManifestService } from './ProfileManifestService.js';
 
+
 export type ZavorthDailyProductQuietAutonomyInput = {
   profileId?: string | null;
 };

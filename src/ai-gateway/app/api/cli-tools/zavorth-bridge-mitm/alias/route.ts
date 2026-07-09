@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server";
 "use server";
 
-import { NextResponse } from "next/server";
+
 import { getMitmAlias, setMitmAliasAll } from "@/models";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { cliMitmAliasUpdateSchema } from "@/shared/validation/schemas";

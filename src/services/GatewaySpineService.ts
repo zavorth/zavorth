@@ -1,4 +1,5 @@
-﻿import {
+import { logger } from '../logger.js';
+import {
   GATEWAY_SPINE_CONTRACT_VERSION,
   type GatewaySpineChannel,
   type GatewaySpineCommand,
@@ -8,7 +9,7 @@
   type GatewaySpineStatus,
   type GatewaySpineSurfaceProjection,
 } from '../contracts/GatewaySpineContract.js';
-import { logger } from '../logger.js';
+
 import type {
 GatewayChannelRegistryEntry,
   GatewayChannelRegistryService,

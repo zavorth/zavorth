@@ -1,6 +1,8 @@
 import { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../../../providers/ILlmProvider.js';
 import { logger } from '../../../logger.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 export type EchoVisionScreenAnalysis = {
   ok: boolean;
   providerName: string | null;
@@ -124,6 +126,7 @@ export class EchoVisionAnalysisService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
@@ -134,7 +137,7 @@ export class EchoVisionAnalysisService {
         suggestedNextAction: null,
         confidence: 0,
         rawResponse: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }
@@ -212,6 +215,7 @@ export class EchoVisionAnalysisService {
         error: null,
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Vision Analysis] parsing failed', error);
     return {
         ok: false,
@@ -222,7 +226,7 @@ export class EchoVisionAnalysisService {
         reason: null,
         confidence: 0,
         rawResponse: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

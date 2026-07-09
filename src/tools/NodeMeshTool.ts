@@ -1,4 +1,4 @@
-﻿import type { ToolDefinition } from '../providers/ILlmProvider.js';
+import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { globalLiveNodeRegistry, LiveNodeRegistryService } from '../services/LiveNodeRegistryService.js';
 import { NodeInvokeService } from '../services/NodeInvokeService.js';

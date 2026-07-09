@@ -5,8 +5,12 @@ import type { CapabilityLifecycleService } from '../../../../services/Capability
 import type { CompanionControlService } from '../../../../services/CompanionControlService.js';
 import type { CompanionWorkspaceOptimizerService } from '../../../../services/CompanionWorkspaceOptimizerService.js';
 import type { DesktopResourcePlaneService } from '../../../../services/DesktopResourcePlaneService.js';
-import type { ModeEscalationService } from '../../../../services/ModeEscalationService.js';type SharedSurfaceDesktopCommandPackDeps = {
+import type { ModeEscalationService } from '../../../../services/ModeEscalationService.js';
+import { errorMessage } from '../../../../utils/errorLike.js';
+type SharedSurfaceDesktopCommandPackDeps = {
+
   desktopResourcePlaneService: Pick<DesktopResourcePlaneService, 'inspectLive' | 'renderReport'> | null;
+
   capabilityLifecycleService: Pick<CapabilityLifecycleService, 'buildProductModeSnapshot' | 'setProductMode'> | null;
   companionControlService: Pick<
     CompanionControlService,
@@ -39,7 +43,7 @@ export class SharedSurfaceDesktopCommandPack {
     try {
       const snapshot = await this.deps.desktopResourcePlaneService.inspectLive({ preferCachedWithinMs: 15_000 });
       await ctx.reply(this.deps.desktopResourcePlaneService.renderReport(snapshot));
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui montar o Desktop Resource Plane agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui montar o Desktop Resource Plane agora.'));
     }
   }
 
@@ -142,7 +146,7 @@ export class SharedSurfaceDesktopCommandPack {
           requestedBy: String(ctx.userId || '').trim() || 'operator',
         });
         await ctx.reply(this.formatModeEscalationResolution(result));
-      } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui resolver o mode escalation agora.');
+      } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui resolver o mode escalation agora.'));
       }
       return;
     }
@@ -159,7 +163,7 @@ export class SharedSurfaceDesktopCommandPack {
           'Recomendacao: reinicie o Zavorth quando quiser reaplicar boot, warmup e surfaces de acordo com o novo modo.',
         ].join('\n'),
       );
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui trocar o product mode agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui trocar o product mode agora.'));
     }
   }
 
@@ -233,7 +237,7 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       await ctx.reply('Uso: /workspace [doctor|optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>]]');
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui operar o Workspace Optimizer agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui operar o Workspace Optimizer agora.'));
     }
   }
 
@@ -326,9 +330,8 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       await ctx.reply('Uso: /companion [list|inspect <id>|hibernate <id>|resume <id>|stop-idle <id>|trim <id>|restart-safe <id>]');
-    } catch (error: unknown) {await ctx.reply(error?.message || 'Nao consegui operar o Companion Control Plane agora.');
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui operar o Companion Control Plane agora.'));
     }
   }
-
 
 }

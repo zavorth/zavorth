@@ -2,6 +2,8 @@ import { randomUUID } from "crypto";
 import { getDbInstance } from "./core";
 import { backupDbFile } from "./backup";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 type JsonRecord = Record<string, unknown>;
 type ProxyScope = "global" | "provider" | "account" | "combo";
 
@@ -575,9 +577,10 @@ export async function bulkAssignProxyToScope(
       await assignProxyToScope(scope, scopeId, proxyId);
       updated++;
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       failed.push({
         scopeId,
-        reason: error instanceof Error ? error.message : "Unknown error",
+        reason: error instanceof Error ? err.message : "Unknown error",
       });
     }
   }

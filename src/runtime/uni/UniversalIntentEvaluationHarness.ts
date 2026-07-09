@@ -4,6 +4,7 @@ import type {
   UniversalIntentInput,
 } from './UniversalIntentContracts.js';
 import { ConversationalPermissionService } from './ConversationalPermissionService.js';
+
 import { UniversalIntentService } from './UniversalIntentService.js';
 
 export type C10NaturalSecuritySuiteId =

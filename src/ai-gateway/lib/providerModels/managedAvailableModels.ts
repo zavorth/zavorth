@@ -11,6 +11,7 @@ import {
 } from "@/shared/constants/providers";
 import { resolveManagedModelAlias } from "@/shared/utils/providerModelAliases";
 
+
 function isCompatibleProvider(providerId: string): boolean {
   return isOpenAICompatibleProvider(providerId) || isAnthropicCompatibleProvider(providerId);
 }

@@ -1,6 +1,8 @@
+import { NextResponse } from "next/server";
+import { createMultiBackup } from "@/shared/services/backupService";
+
 "use server";
 
-import { NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
@@ -9,12 +11,13 @@ import {
   getCliConfigPaths,
   getCliRuntimeStatus,
 } from "@/shared/services/cliRuntime";
-import { createMultiBackup } from "@/shared/services/backupService";
+
 import { saveCliToolLastConfigured, deleteCliToolLastConfigured } from "@/lib/db/cliToolState";
 import { cliModelConfigSchema } from "@/shared/validation/schemas";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { getApiKeyById } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 
 const getCodexConfigPath = () => getCliConfigPaths("codex").config;
 const getCodexAuthPath = () => getCliConfigPaths("codex").auth;
@@ -88,7 +91,8 @@ const readConfig = async () => {
     const content = await fs.readFile(configPath, "utf-8");
     return content;
   } catch (error: unknown) {
-    if (error.code === "ENOENT") return null;
+    const err = asErrorLike(error);
+    if (err.code === "ENOENT") return null;
     throw error;
   }
 };
@@ -279,7 +283,8 @@ export async function DELETE(request: Request) {
       const existingConfig = await fs.readFile(configPath, "utf-8");
       parsed = parseToml(existingConfig);
     } catch (error: unknown) {
-      if (error.code === "ENOENT") {
+      const err = asErrorLike(error);
+      if (err.code === "ENOENT") {
         return NextResponse.json({
           success: true,
           message: "No config file to reset",

@@ -10,6 +10,8 @@ import type {
   ZavorthActionResult,
   ZavorthActionSchema,
 } from '../ZavorthActionContracts.js';
+import { asErrorLike } from '../../../utils/errorLike.js';
+
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = ['tests/runtime/actions/ZavorthActionHarness.test.ts'];
 
@@ -114,7 +116,8 @@ async function shellPreviewCommand(input: ZavorthActionHandlerInput): Promise<Za
       data: { ...command, cwd: input.root, timeoutMs: 30000, outputTruncated: true },
     });
   } catch (error: unknown) {
-    return block(input, 'Shell command preview blocked.', [error instanceof Error ? error.message : String(error)]);
+    const err = asErrorLike(error);
+    return block(input, 'Shell command preview blocked.', [error instanceof Error ? err.message : String(error)]);
   }
 }
 

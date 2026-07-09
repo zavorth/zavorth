@@ -13,13 +13,14 @@ import {
   loadOptionalDependency,
 } from '@zavorth/services/OptionalCapabilityGuard.js';
 import { AudioHandler, type AudioTranscriptionResult } from '../../../../gateways/channels/telegram/AudioHandler.js';
+
 import { logEchoTrace } from '../../../../gateways/channels/telegram/EchoTrace.js';
 import { VideoHandler } from '../../../../gateways/channels/telegram/VideoHandler.js';
 import { EchoOutputStageService } from '@zavorth/services/EchoOutputStageService.js';
 import { safeFetch } from '@zavorth/security/SafeFetchService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';
 import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
-import { asErrorLike } from '../../../../utils/errorLike';
+import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type EchoPreferenceStoreLike = {
@@ -263,13 +264,13 @@ export class TelegramMediaController {
       logger.info(`[TelegramMedia] voice flow dispatched totalMs=${Date.now() - flowStartedAt}`);
     } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
-          e,
+          err,
           userId,
           t('media.audio_processing_capability'),
         ));
         return;
       }
-      await ctx.reply(t('media.audio_transcription_failed', { error: getErrorMessage(e) }));
+      await ctx.reply(t('media.audio_transcription_failed', { error: getErrorMessage(err) }));
     } finally {
       if (filePath) {
         this.audioHandler.cleanup(filePath);
@@ -309,13 +310,13 @@ export class TelegramMediaController {
       );
     } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
-          e,
+          err,
           userId,
           t('media.video_processing_capability'),
         ));
         return;
       }
-      await ctx.reply(t('media.video_processing_failed', { error: getErrorMessage(e) }));
+      await ctx.reply(t('media.video_processing_failed', { error: getErrorMessage(err) }));
     }
   }
 
@@ -418,13 +419,13 @@ export class TelegramMediaController {
       }
     } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
         await ctx.reply(this.buildCapabilityUnavailableReply(
-          e,
+          err,
           userId,
           t('media.document_reading_capability'),
         ));
         return;
       }
-      await ctx.reply(t('media.document_reading_failed', { error: getErrorMessage(e) }));
+      await ctx.reply(t('media.document_reading_failed', { error: getErrorMessage(err) }));
     } finally {
       if (filePath && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);

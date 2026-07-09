@@ -10,12 +10,13 @@ import {
   ZAVORTH_PLUGIN_OS_API_VERSION,
   ZAVORTH_PLUGIN_PERMISSION_KINDS,
 } from '../contracts/PluginManifestContract.js';
+import { ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION } from '../contracts/SourcePluginPackageContract.js';
+
 import type {
   SourcePluginPackageAdapterSnapshot,
   SourcePluginPackageCompatibility,
   SourcePluginPackageValidationIssue,
 } from '../contracts/SourcePluginPackageContract.js';
-import { ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION } from '../contracts/SourcePluginPackageContract.js';
 
 type SourcePluginPackageAdapterRuntime = {
   now?: () => Date;

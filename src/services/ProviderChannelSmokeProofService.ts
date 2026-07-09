@@ -7,6 +7,7 @@ import type {
   ProviderSmokeProof,
 } from '../contracts/ProviderChannelSmokeProofContract.js';
 import { ZAVORTH_PROVIDER_CHANNEL_SMOKE_PROOF_CONTRACT_VERSION } from '../contracts/ProviderChannelSmokeProofContract.js';
+
 import type { ChannelMeshConsistencyEntry } from '../contracts/ChannelMeshConsistencyContract.js';
 import type { ProviderMeshReadinessProviderEntry } from '../contracts/ProviderMeshReadinessContract.js';
 import { ChannelMeshConsistencyService } from './ChannelMeshConsistencyService.js';

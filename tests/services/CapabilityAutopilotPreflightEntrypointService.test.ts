@@ -4,6 +4,7 @@ import type {
   CapabilityReceipt,
 } from '../../src/contracts/CapabilityAutopilotContract';
 import { CapabilityAutopilotPreflightEntrypointService } from '../../src/services/CapabilityAutopilotPreflightEntrypointService';
+
 import { CapabilityAutopilotPreflightSurfaceService } from '../../src/services/CapabilityAutopilotPreflightSurfaceService';
 import type { CapabilityPreflightHintResult } from '../../src/services/CapabilityAutopilotPreflightHintService';
 

@@ -25,8 +25,8 @@ describe('TelegramSkillCatalogController', () => {
     expect(skillInstallPlanPresentationService.renderReport).toHaveBeenCalledWith({
       recipeId: 'security-hardening',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('recipe plan'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('policy: telegram-skill-catalog'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('recipe plan');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('policy: telegram-skill-catalog');
   });
 
   it('renders MCP inspection requests through the MCP sidecar service', async () => {
@@ -47,8 +47,8 @@ describe('TelegramSkillCatalogController', () => {
 
     await controller.handleSkills(ctx, 'mcp security');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('mcp report'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('policy: telegram-skill-catalog'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('mcp report');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('policy: telegram-skill-catalog');
   });
 
   it('renders the library overview through the presentation service', async () => {
@@ -69,8 +69,8 @@ describe('TelegramSkillCatalogController', () => {
 
     await controller.handleSkills(ctx, 'library security');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('library report'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('policy: telegram-skill-catalog'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('library report');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('policy: telegram-skill-catalog');
   });
 
   it('routes bridge activation commands through the governed activation service', async () => {
@@ -107,7 +107,7 @@ describe('TelegramSkillCatalogController', () => {
       channel: 'telegram',
       actorId: '42',
     }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Universal Skill Bridge Activation'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('policy: telegram-skill-bridge-activation'));
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Universal Skill Bridge Activation');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('policy: telegram-skill-bridge-activation');
   });
 });

@@ -13,17 +13,6 @@ import {
 } from '../../services/ZavorthBridgeUiCaptureService.js';
 import { FinalResponseFormattingService } from '../../services/FinalResponseFormattingService.js';
 import {
-  collectArtifacts as collectZavorthBridgeArtifacts,
-  collectRecentLogEvents as collectZavorthBridgeRecentLogEvents,
-  findLatestZavorthBridgeLogFile as findLatestZavorthBridgeLogFileImpl,
-  isAutomationTriggerZavorthBridgeLogLine as isAutomationTriggerZavorthBridgeLogLineImpl,
-  isInterestingZavorthBridgeLogLine as isInterestingZavorthBridgeLogLineImpl,
-  parseZavorthBridgeLogEvent as parseZavorthBridgeLogEventImpl,
-  resolveArtifactContentPath as resolveArtifactContentPathImpl,
-  type ZavorthBridgeArtifact,
-  type ZavorthBridgeLogEvent,
-} from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
-import {
   extractDirectoryHints as extractDirectoryHintsImpl,
   isExistingDirectory as isExistingDirectoryImpl,
   isLocalDirectoryInspectionPrompt as isLocalDirectoryInspectionPromptImpl,
@@ -52,6 +41,19 @@ import {
   looksLikeInventoryItem as looksLikeInventoryItemImpl,
 } from './RealZavorthBridgeWatcherFormattingHelpers.js';
 import { RealZavorthBridgeWatcherPermissionSupport } from './RealZavorthBridgeWatcherPermissionSupport.js';
+
+import {
+  collectArtifacts as collectZavorthBridgeArtifacts,
+  collectRecentLogEvents as collectZavorthBridgeRecentLogEvents,
+  findLatestZavorthBridgeLogFile as findLatestZavorthBridgeLogFileImpl,
+  isAutomationTriggerZavorthBridgeLogLine as isAutomationTriggerZavorthBridgeLogLineImpl,
+  isInterestingZavorthBridgeLogLine as isInterestingZavorthBridgeLogLineImpl,
+  parseZavorthBridgeLogEvent as parseZavorthBridgeLogEventImpl,
+  resolveArtifactContentPath as resolveArtifactContentPathImpl,
+  type ZavorthBridgeArtifact,
+  type ZavorthBridgeLogEvent,
+} from './RealZavorthBridgeWatcherArtifactLogHelpers.js';
+
 import { RealZavorthBridgeWatcherTaskSupport } from './RealZavorthBridgeWatcherTaskSupport.js';
 import { RealZavorthBridgeWatcherCompanionSupport } from './RealZavorthBridgeWatcherCompanionSupport.js';
 import type {
@@ -59,13 +61,13 @@ import type {
   RealZavorthBridgeWatcherWorkflowContext,
   ScopedCompanionUiTarget,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
+import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 export type {
   BotApiLike,
   BroadcastClient,
   RealZavorthBridgeWatcherDeps,
   RealZavorthBridgeWatcherWorkflowContext,
 } from './RealZavorthBridgeWatcherWorkflowTypes.js';
-
 export class RealZavorthBridgeWatcherWorkflow {
   private static readonly PERMISSION_NOTIFICATION_COOLDOWN_MS = 60_000;
   private readonly permissionSupport: RealZavorthBridgeWatcherPermissionSupport;
@@ -478,11 +480,12 @@ export class RealZavorthBridgeWatcherWorkflow {
         await this.broadcaster.sendToChat(session.chatId, message);
         return;
       } catch (error: unknown) {
-        directError = error instanceof Error ? error : new Error(String(error?.message || error));
+        const err = asErrorLike(error);
+        directError = error instanceof Error ? error : new Error(String(errorMessage(error)));
         this.logRepo.log(
           'warn',
           'RealZavorthBridgeWatcher',
-          `Failed to send direct message to ${session.chatId}: ${error.message}`,
+          `Failed to send direct message to ${session.chatId}: ${err.message}`,
           { taskId: session.taskId },
         );
       }
@@ -490,7 +493,8 @@ export class RealZavorthBridgeWatcherWorkflow {
 
     try {
       await this.broadcaster.broadcast(message);
-    } catch (error: unknown) {const broadcastError = error instanceof Error ? error : new Error(String(error?.message || error));
+    } catch (error: unknown) {
+  const err = asErrorLike(error);const broadcastError = error instanceof Error ? error : new Error(String(errorMessage(error)));
       throw new Error(
         directError
           ? `Direct delivery failed (${directError.message}) and broadcast also failed (${broadcastError.message}).`

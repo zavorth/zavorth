@@ -1,10 +1,11 @@
-﻿import fs from 'fs';
+import { logger } from '../logger.js';
+import fs from 'fs';
 import path from 'path';
 import type {
   ZavorthBridgeRemoteDoctorAction,
   ZavorthBridgeRemoteDoctorReport,
 } from './ZavorthBridgeRemoteDoctorService.js';
-import { logger } from '../logger.js';
+
 import type {
 ZavorthBridgeRemoteIncidentCode,
   ZavorthBridgeRemoteIncidentSeverity,

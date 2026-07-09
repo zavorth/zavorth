@@ -1,5 +1,5 @@
-﻿import * as http from 'http';
-
+import * as http from 'http';
+import { errorMessage } from '../utils/errorLike.js';
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;
 type EnsureAuthorized = (
@@ -71,7 +71,7 @@ export class ZavorthControlOperationsIntegrationRouteService {
         );
       } catch (error: unknown) {deps.writeJson(
           res,
-          { ok: false, error: error?.message || 'Falha ao executar a acao do Integration Hub.' },
+          { ok: false, error: errorMessage(error, 'Falha ao executar a acao do Integration Hub.') },
           400,
         );
       }

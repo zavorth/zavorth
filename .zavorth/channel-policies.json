@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-09T19:27:58.625Z",
+  "policies": {
+    "discord": {
+      "channelId": "discord",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "email": {
+      "channelId": "email",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "imessage": {
+      "channelId": "imessage",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "instagram": {
+      "channelId": "instagram",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "signal": {
+      "channelId": "signal",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "slack": {
+      "channelId": "slack",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [
+        "spammer@corp.com"
+      ],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "teams": {
+      "channelId": "teams",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "telegram": {
+      "channelId": "telegram",
+      "isOpenAccess": false,
+      "allowedList": [],
+      "allowedUsers": [],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    },
+    "whatsapp": {
+      "channelId": "whatsapp",
+      "isOpenAccess": false,
+      "allowedList": [
+        "+5511999999999"
+      ],
+      "allowedUsers": [
+        "+5511999999999"
+      ],
+      "allowedGroups": [],
+      "blockedList": [],
+      "updatedAt": "2026-07-09T19:27:58.624Z"
+    }
+  }
+}

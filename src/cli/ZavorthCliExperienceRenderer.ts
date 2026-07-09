@@ -1,4 +1,5 @@
-﻿import type {
+import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
+import type {
   ExperienceActionCard,
   ExperienceCommandResult,
   ExperienceDiffReview,
@@ -6,7 +7,7 @@
   ExperienceSnapshot,
   ExperienceTimelineItem,
 } from '../services/experience/ExperienceContracts.js';
-import { ZavorthSelfHealingUxService } from '../services/ZavorthSelfHealingUxService.js';
+
 import { formatZavorthSelfHealingProjection } from './ZavorthCliSelfHealingRenderer.js';
 import { renderCliScreen, type CliVisualPanel } from './ZavorthCliVisualSystem.js';
 import { formatCliValue, formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';

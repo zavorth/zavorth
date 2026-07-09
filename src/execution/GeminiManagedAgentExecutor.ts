@@ -4,6 +4,7 @@ import type { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionCo
 import type { IExecutor } from '../contracts/IExecutor.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { mapGeminiInteractionToReceipt } from '../providers/GeminiInteractionsProviderAdapter.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type GeminiManagedAgentExecutorOptions = {
   apiKey?: string | null;
@@ -87,6 +88,7 @@ export class GeminiManagedAgentExecutor implements IExecutor {
         },
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       result.error_code = 'GEMINI_MANAGED_AGENT_API_ERROR';
       result.error_message = `Gemini Managed Agent API error: ${(error as Error)?.message || String(error)}`;
     }

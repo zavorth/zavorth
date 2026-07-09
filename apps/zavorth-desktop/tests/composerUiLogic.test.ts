@@ -5,6 +5,7 @@ import {
   type QueuedPrompt,
 } from '../src/composer/composerQueue';
 import { deriveComposerStatus } from '../src/composer/composerStatus';
+
 import { buildContextMeter } from '../src/composer/contextMeter';
 
 function makeQueue(texts: string[]): QueuedPrompt[] {

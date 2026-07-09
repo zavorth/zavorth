@@ -11,6 +11,8 @@ import {
   type MinimalCapabilityActivationStatus,
 } from './MinimalCapabilityActivationPlanner.js';
 import { MinimalCapabilityRegistry } from './MinimalCapabilityRegistry.js';
+
+
 import { MinimalRuntimeProfileRegistry } from './MinimalRuntimeProfileRegistry.js';
 import {
   MinimalSidecarManager,

@@ -1,3 +1,4 @@
+import { ZavorthMcpServer } from '../../src/mcp/ZavorthMcpServer.js';
 const registeredHandlers = new Map<any, any>();
 const connectMock = jest.fn(async () => undefined);
 const closeMock = jest.fn();
@@ -46,7 +47,7 @@ jest.mock('../../src/mcp/tools/AutomaticBrowserTool.js', () => ({
   })),
 }));
 
-import { ZavorthMcpServer } from '../../src/mcp/ZavorthMcpServer.js';
+
 import { McpToolPolicy } from '../../src/mcp/McpToolPolicy.js';
 
 describe('ZavorthMcpServer', () => {

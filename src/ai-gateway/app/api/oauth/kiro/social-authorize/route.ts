@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { generatePKCE } from "@/lib/oauth/utils/pkce";
 import { KiroService } from "@/lib/oauth/services/kiro";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
+import { asErrorLike } from '../../../../../../utils/errorLike.js';
+
 /**
  * GET /api/oauth/kiro/social-authorize
  * Generate Google/GitHub social login URL for manual callback flow
@@ -36,7 +38,8 @@ export async function GET(request) {
       provider,
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     console.log("Kiro social authorize error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

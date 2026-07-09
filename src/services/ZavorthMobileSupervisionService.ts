@@ -1,4 +1,4 @@
-﻿import * as crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
 import * as http from 'node:http';
 import { logger } from '../logger.js';
 

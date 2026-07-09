@@ -4,6 +4,8 @@ import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { z } from "zod";
 import { isValidationFailure, validateBody } from "@/shared/validation/helpers";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 const cacheConfigUpdateSchema = z.object({
   semanticCacheEnabled: z.boolean().optional(),
   semanticCacheMaxSize: z.number().positive().optional(),
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json(config);
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
@@ -96,6 +99,7 @@ export async function PUT(request: NextRequest) {
     await updateSettings(updates);
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] cache operation failed', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

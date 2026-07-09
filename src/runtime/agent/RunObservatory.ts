@@ -14,7 +14,10 @@ import {
 import {
   IntelligenceFabricPostDefaultHealthService,
   type IntelligenceFabricPostDefaultHealthSnapshot,
-} from '../../services/IntelligenceFabricPostDefaultHealthService.js';export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
+} from '../../services/IntelligenceFabricPostDefaultHealthService.js';
+
+
+export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
 
 export type UniversalAgentRunObservatoryQuery = {
   runId?: string | null;

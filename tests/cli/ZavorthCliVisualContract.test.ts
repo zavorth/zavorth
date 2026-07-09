@@ -7,12 +7,6 @@ import {
   formatCliChatWelcome,
 } from '../../src/cli/ZavorthCliSurfaceHelpers';
 import { formatCliStatusSnapshot } from '../../src/cli/ZavorthCliNativeRenderers.status';
-import { formatCliChatHelp } from '../../src/cli/ZavorthCliChatHelp';
-import { formatCliChatAssistantMessage } from '../../src/cli/ZavorthCliChatRenderers';
-import {
-  formatCliApprovalRequiredEventCard,
-  formatCliRecoverableErrorEventCard,
-} from '../../src/cli/ZavorthCliEventCards';
 import {
   formatCliOperationsDoctorSnapshot,
   formatOperationsCockpitSnapshot,
@@ -20,14 +14,25 @@ import {
 } from '../../src/cli/ZavorthCliNativeRenderers.runtime';
 import { formatCliOperationsCockpitSnapshot } from '../../src/cli/ZavorthCliOperationsCockpit';
 import {
-  formatZavorthGoFailure,
-  formatZavorthGoReport,
-} from '../../src/cli/ZavorthCliGoRenderer';
-import {
   formatZavorthOnboardBanner,
   formatZavorthOnboardNonInteractiveHint,
 } from '../../src/cli/ZavorthCliOnboardRenderer';
 import { config } from '../../src/config/index';
+
+import { formatCliChatHelp } from '../../src/cli/ZavorthCliChatHelp';
+import { formatCliChatAssistantMessage } from '../../src/cli/ZavorthCliChatRenderers';
+import {
+  formatCliApprovalRequiredEventCard,
+  formatCliRecoverableErrorEventCard,
+} from '../../src/cli/ZavorthCliEventCards';
+
+
+import {
+  formatZavorthGoFailure,
+  formatZavorthGoReport,
+} from '../../src/cli/ZavorthCliGoRenderer';
+
+
 import type { RuntimeOfficialAccessReport } from '../../src/runtime/access/RuntimeOfficialAccessService';
 
 const FORBIDDEN_FIRST_LAYER_PATTERNS = [

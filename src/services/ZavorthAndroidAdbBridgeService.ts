@@ -1,13 +1,3 @@
-﻿import crypto from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import {
-  createSurfaceResponse,
-  type SurfaceReceiptStatus,
-  type SurfaceResponse,
-  type SurfaceResponseAction,
-} from '../domain/surface/application/surface-response/index.js';
 import {
   ZAVORTH_ANDROID_ADB_BRIDGE_CONTRACT_VERSION,
   type ZavorthAndroidAdbAction,
@@ -22,9 +12,22 @@ import {
   type ZavorthAndroidDeviceInfo,
   type ZavorthAndroidDeviceState,
 } from '../contracts/ZavorthAndroidAdbBridgeContract.js';
+
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import {
+  createSurfaceResponse,
+  type SurfaceReceiptStatus,
+  type SurfaceResponse,
+  type SurfaceResponseAction,
+} from '../domain/surface/application/surface-response/index.js';
+
 import type { ZavorthVisionPolicyDecision } from '../contracts/ZavorthVisionControlPlaneContract.js';
 import { ZavorthVisionControlPlaneService } from './ZavorthVisionControlPlaneService.js';
 import { logger } from '../logger.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 export type ZavorthAdbRunOptions = {
   binary?: string;
@@ -402,6 +405,7 @@ export class ZavorthAndroidAdbBridgeService {
         encoding: options.encoding || 'utf8',
       });
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       logger.warn('[Zavorth Android Adb Bridge] string operation failed', error);
     return {
         ok: false,
@@ -409,7 +413,7 @@ export class ZavorthAndroidAdbBridgeService {
         stdoutText: '',
         stderrText: '',
         stdoutBytes: null,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? err.message : String(error),
       };
   }
   }

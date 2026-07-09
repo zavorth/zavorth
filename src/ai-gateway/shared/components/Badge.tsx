@@ -1,6 +1,6 @@
+import { cn } from "@/shared/utils/cn";
 "use client";
 
-import { cn } from "@/shared/utils/cn";
 
 const variants = {
   default: "bg-black/5 dark:bg-white/10 text-text-muted",

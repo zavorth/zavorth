@@ -7,6 +7,7 @@ import {
   updateToolVersion,
 } from "@/lib/db/versionManager";
 import { getLatestRelease, clearCache as clearReleaseCache } from "./releaseChecker.ts";
+
 import { installVersion, getCurrentBinaryPath, rollbackVersion } from "./binaryManager.ts";
 import { startProcess, stopProcess, restartProcess, isProcessRunning } from "./processManager.ts";
 import { checkHealth, startMonitoring, stopMonitoring, isMonitoring } from "./healthMonitor.ts";

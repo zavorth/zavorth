@@ -24,6 +24,7 @@ import type {
   SkillRiskAssessment,
 } from './SkillCatalogContract.js';
 import { LicensePolicyService } from './LicensePolicyService.js';
+
 import { UniversalSkillIntakeService } from './UniversalSkillIntakeService.js';type Runtime = {
   now?: () => Date;
   projectRoot?: string;

@@ -24,6 +24,10 @@ import {
   wrapUntrustedContent,
 } from '../security/UntrustedContent.js';
 import { SkillSourceRegistryService } from '../services/SkillSourceRegistryService.js';
+import { SkillContentScannerService, type SkillContentScanResult } from './SkillContentScannerService.js';
+
+
+
 import {
   SkillTrustPolicyService,
   type SkillTrustDecision,
@@ -33,7 +37,7 @@ import type {
   SkillMetadata,
   SkillRiskAssessment,
 } from './SkillCatalogContract.js';
-import { SkillContentScannerService, type SkillContentScanResult } from './SkillContentScannerService.js';
+
 import { SkillLoader } from './SkillLoader.js';
 import { ZavorthSkillPreprocessorService } from './ZavorthSkillPreprocessorService.js';
 import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';

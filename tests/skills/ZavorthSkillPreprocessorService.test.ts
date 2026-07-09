@@ -6,6 +6,7 @@ import {
   SecurityPolicyViolationError,
 } from '../../src/skills/ZavorthSkillPreprocessorService.js';
 import { decideSecurityPolicy } from '../../src/security/SecurityPolicyBroker.js';
+
 import type { Database } from '../../src/storage/Database.js';
 import type { SkillMetadata } from '../../src/skills/SkillCatalogContract.js';
 

@@ -5,6 +5,8 @@ import { config } from '../../config/index.js';
 import type { ZavorthMutationPlan } from '../../contracts/ZavorthMutationPlaneContract.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+import { asErrorLike } from '../../utils/errorLike.js';
+
 export type AgentRunIntelligenceFabricDraftWorkspaceWrite = {
   path: string;
   content: string;
@@ -190,11 +192,12 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
           fs.writeFileSync(record.targetPath, write.content, 'utf8');
         });
       } catch (error: unknown) {
+        const err = asErrorLike(error);
         this.restoreRollback(records);
         return {
           status: 'failed',
           ok: false,
-          summary: `Falha ao aplicar rascunho; rollback local executado: ${error instanceof Error ? error.message : String(error)}`,
+          summary: `Falha ao aplicar rascunho; rollback local executado: ${error instanceof Error ? err.message : String(error)}`,
           appliedActions: [],
           rollbackAvailable: true,
           rollbackArtifactPath,
@@ -214,7 +217,8 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         blockedReasons: [],
       };
     } catch (error: unknown) {
-      return blocked(error instanceof Error ? error.message : String(error));
+      const err = asErrorLike(error);
+      return blocked(error instanceof Error ? err.message : String(error));
     }
   }
 
@@ -237,10 +241,11 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
         blockedReasons: [],
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       return {
         status: 'failed',
         ok: false,
-        summary: `Falha ao restaurar rollback artifact: ${error instanceof Error ? error.message : String(error)}`,
+        summary: `Falha ao restaurar rollback artifact: ${error instanceof Error ? err.message : String(error)}`,
         appliedActions: [],
         rollbackAvailable: false,
         rollbackArtifactPath: rollbackArtifactPath || null,
@@ -371,7 +376,8 @@ export function previewDraftWorkspacePatches(input: {
       }
       files.push(patchPreviewFile(relativePath, patch, 'passed', sha256(currentContent), sha256(patchResult.content), []));
     } catch (error: unknown) {
-      const reason = error instanceof Error ? error.message : String(error);
+      const err = asErrorLike(error);
+      const reason = error instanceof Error ? err.message : String(error);
       files.push(patchPreviewFile(patch.path, patch, 'blocked', null, null, [reason]));
       blockedReasons.push(reason);
     }

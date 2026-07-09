@@ -19,6 +19,8 @@ import {
 } from '../src/desktop-state/localTelemetry';
 import { buildDesktopUpdateStatus } from '../src/desktop-state/desktopUpdate';
 
+
+
 function memoryStorage(seed: Record<string, string> = {}) {
   const map = new Map(Object.entries(seed));
   return {

@@ -1,4 +1,6 @@
-﻿import crypto from 'node:crypto';
+import { redactSensitiveText } from '@zavorth/security/SensitiveDataGuard.js';
+
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -7,8 +9,9 @@ import {
   type ZavorthTrajectoryCaptureTurn,
   type ZavorthTrajectoryExportFormat,
 } from '@zavorth/contracts/ZavorthTrajectoryExportContract.js';
-import { redactSensitiveText } from '@zavorth/security/SensitiveDataGuard.js';
+
 import { ZavorthTrajectoryCaptureService } from '@zavorth/services/ZavorthTrajectoryCaptureService.js';
+import { asErrorLike } from '../utils/errorLike.js';
 
 type Runtime = {
   projectRoot?: string;
@@ -122,7 +125,8 @@ export class ZavorthBatchRunnerService {
           capture.captureTurn(turn);
           items[index] = { ...item, turn, success: true, error: null, durationMs: Date.now() - itemStart };
         } catch (error: unknown) {
-          const errorMessage = cleanText(error instanceof Error ? error.message : String(error));
+          const err = asErrorLike(error);
+          const errorMessage = cleanText(error instanceof Error ? err.message : String(error));
           const turn: ZavorthTrajectoryCaptureTurn = {
             turnId: `turn-${runId}-${index}-${hash(item.prompt)}`,
             runId,

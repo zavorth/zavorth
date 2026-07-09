@@ -7,11 +7,12 @@ import type {
   ReleaseCertificationProfileResult,
 } from '../contracts/ReleaseCertificationProfileHardeningContract.js';
 import { ZAVORTH_RELEASE_CERTIFICATION_PROFILE_HARDENING_CONTRACT_VERSION } from '../contracts/ReleaseCertificationProfileHardeningContract.js';
+import { ReleaseCertificationService } from './ReleaseCertificationService.js';
+
 import type {
   ReleaseCertificationProfile,
   ReleaseCertificationSnapshot,
 } from '../contracts/ReleaseCertificationContract.js';
-import { ReleaseCertificationService } from './ReleaseCertificationService.js';
 
 type ReleaseCertificationProfileHardeningRuntime = {
   now?: () => Date;

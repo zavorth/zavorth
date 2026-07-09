@@ -1,4 +1,6 @@
-﻿export class CapabilityUnavailableError extends Error {
+import { errorMessage } from '../utils/errorLike.js';
+
+export class CapabilityUnavailableError extends Error {
   public readonly capabilityId: string;
   public readonly dependencyName: string | null;
   public readonly remediation: string;
@@ -42,7 +44,7 @@ export async function loadOptionalDependency<T>(
 ): Promise<T> {
   try {
     return await import(dependencyName) as T;
-  } catch (error: unknown) {const message = String(error?.message || error || '').trim();
+  } catch (error: unknown) {const message = String(errorMessage(error) || '').trim();
     if (
       message.includes(`Cannot find package '${dependencyName}'`)
       || message.includes(`Cannot find module '${dependencyName}'`)

@@ -1,4 +1,3 @@
-type LooseRecord = any;
 import {
   GATEWAY_SESSION_ROUTE_PATHS,
   LEGACY_GATEWAY_SESSION_ROUTE_ALIASES,
@@ -8,6 +7,9 @@ import {
   HYBRID_MEMORY_DEFAULT_CONTEXT_TOKEN_BUDGET,
   HYBRID_MEMORY_DEFAULT_TOP_K,
 } from '../../../../../contracts/HybridMemoryContract.js';
+type LooseRecord = any;
+
+
 import type { HybridMemoryRecallResult } from '../../../../../contracts/HybridMemoryContract.js';
 import type { GatewayCanonicalStatePayload } from '../../../../../contracts/GatewayContract.js';
 import { config } from '../../../../../config/index.js';

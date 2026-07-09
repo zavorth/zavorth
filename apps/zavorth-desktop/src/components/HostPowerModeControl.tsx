@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import * as apiClient from '../apiClient';
 import { createLogger } from '../logger';
+import { asErrorLike } from '../lib/errors';
+import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 const logger = createLogger('trust');
-import { asErrorLike } from '../lib/errors';
 
 interface HostPowerModeControlProps {
   workspaceId: string;

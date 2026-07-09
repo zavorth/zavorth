@@ -7,9 +7,11 @@ import {
   resolveMcpHeartbeatPath,
 } from "@ZavorthGateway/open-sse/mcp-server/runtimeHeartbeat";
 import { getMcpHttpStatus } from "../../../../../open-sse/mcp-server/httpTransport";
+
 import { getSettings } from "@/lib/db/settings";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
+import { asErrorLike } from '../../../../../utils/errorLike.js';
 export async function GET(request: Request) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -70,8 +72,9 @@ export async function GET(request: Request) {
       },
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] network request failed', error);
-    const message = error instanceof Error ? error.message : "Failed to load MCP status";
+    const message = error instanceof Error ? err.message : "Failed to load MCP status";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

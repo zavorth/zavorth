@@ -6,6 +6,7 @@ import {
   type RuntimeChannelDescriptorContract,
 } from '../contracts/ChannelMeshContract.js';
 import { GatewayChannelAdapterRegistryService } from './GatewayChannelAdapterRegistryService.js';
+
 import type { PlatformReadiness } from '../contracts/PlatformContract.js';
 import { PlatformCapabilityService } from './PlatformCapabilityService.js';
 

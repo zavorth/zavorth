@@ -1,4 +1,4 @@
-﻿import * as http from 'http';
+import * as http from 'http';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';

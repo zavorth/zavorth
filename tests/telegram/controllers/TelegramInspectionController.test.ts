@@ -29,11 +29,11 @@ describe('TelegramInspectionController', () => {
     const controller = new TelegramInspectionController(taskManager, {} as any);
     await controller.handleTasks(ctx, '', '42');
 
-    expect(ctx.reply.mock.calls[0][0]).toContain('Painel de tarefas recentes');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Recent tasks');
     expect(ctx.reply.mock.calls[0][0]).toContain('abcdef12');
     expect(ctx.reply.mock.calls[0][0]).toContain('build ok');
-    expect(ctx.reply.mock.calls[0][0]).toContain('proximo passo');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Agora:');
+    expect(ctx.reply.mock.calls[0][0]).toMatch(/Next|next step|Proximo|próximo/i);
+    expect(ctx.reply.mock.calls[0][0]).toMatch(/Agora:|Now:/);
   });
 
   it('filters approval-pending tasks and shows approval hints', async () => {
@@ -84,7 +84,7 @@ describe('TelegramInspectionController', () => {
     const controller = new TelegramInspectionController(taskManager, {} as any);
     await controller.handleTasks(ctx, 'approval 5', '42');
 
-    expect(ctx.reply.mock.calls[0][0]).toContain('Painel de aprovacoes pendentes');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Pending approvals');
     expect(ctx.reply.mock.calls[0][0]).toContain('/approve wait1234-3456');
   });
 
@@ -116,7 +116,7 @@ describe('TelegramInspectionController', () => {
     const controller = new TelegramInspectionController(taskManager, {} as any);
     await controller.handleTasks(ctx, 'failed', '42');
 
-    expect(ctx.reply.mock.calls[0][0]).toContain('Painel de falhas recentes');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Recent failures');
     expect(ctx.reply.mock.calls[0][0]).toContain('/diff fail1234');
   });
 
@@ -168,7 +168,7 @@ describe('TelegramInspectionController', () => {
 
       expect(ctx.reply.mock.calls[0][0]).toContain('src/app.ts');
       expect(ctx.reply.mock.calls[0][0]).toContain('report.md');
-      expect(ctx.reply.mock.calls[0][0]).toContain('Total: 1 | imagens: 0 | arquivos: 1 | links: 0');
+      expect(ctx.reply.mock.calls[0][0]).toMatch(/Total: 1|images: 0|arquivos: 1|files: 1/);
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }

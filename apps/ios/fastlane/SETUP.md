@@ -1,4 +1,4 @@
-﻿# fastlane setup (Zavorth iOS)
+# fastlane setup (Zavorth iOS)
 
 Install:
 

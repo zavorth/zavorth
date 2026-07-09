@@ -6,6 +6,8 @@ getRuntimeEngineApiState,
   isUnsafeCrossSiteMutation,
   readJsonBody,
 } from "../runtime-engine-state";
+import { asErrorLike } from '../../../../../utils/errorLike.js';
+
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
@@ -53,10 +55,11 @@ export async function POST(request: Request) {
       state: isTrustedWorkspaceState(body.state) ? body.state : "trusted",
     });
   } catch (error: unknown) {
+    const err = asErrorLike(error);
     logger.warn('[route] validation failed', error);
     return NextResponse.json({
       ok: false,
-      error: error instanceof Error ? error.message : "trusted workspace rejected",
+      error: error instanceof Error ? err.message : "trusted workspace rejected",
     }, { status: 400 });
   }
   return NextResponse.json({

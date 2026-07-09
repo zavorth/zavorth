@@ -1,7 +1,8 @@
-﻿import { config } from '../config/index.js';
+
+import { config } from '../config/index.js';
 import { ZavorthBridgeRemoteDoctorService } from './ZavorthBridgeRemoteDoctorService.js';
 import { SidecarStatusService } from './SidecarStatusService.js';
-
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 export type ExternalServiceSmokeStep = {
   label: string;
   command: string;
@@ -159,6 +160,7 @@ export class ExternalServiceSmokeService {
         output: String(output || '').trim(),
       };
     } catch (error: unknown) {
+      const err = asErrorLike(error);
       const finished = this.now();
       return {
         label,
@@ -167,7 +169,7 @@ export class ExternalServiceSmokeService {
         startedAt,
         finishedAt: finished.toISOString(),
         durationMs: Math.max(0, finished.getTime() - started.getTime()),
-        output: error?.message || String(error),
+        output: errorMessage(error),
       };
     }
   }

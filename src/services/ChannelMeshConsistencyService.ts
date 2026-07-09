@@ -12,6 +12,7 @@ import type {
   ChannelMeshConsistencyTransportStrategy,
 } from '../contracts/ChannelMeshConsistencyContract.js';
 import { ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION } from '../contracts/ChannelMeshConsistencyContract.js';
+
 import { CapabilityNormalizationService, DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationService.js';
 import { GatewayChannelAdapterRegistryService } from './GatewayChannelAdapterRegistryService.js';
 import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
