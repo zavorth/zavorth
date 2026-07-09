@@ -54,7 +54,7 @@ describe('ZavorthCapabilityActionSurfaceService', () => {
       status: 'available',
       previewCommand: 'zavorth actions preview capability.candidate.research-pack',
     });
-    expect(snapshot.placement.dashboard.apiPath).toBe('/api/operations/capabilities');
+    expect(snapshot.placement.zavorthControl.apiPath).toBe('/api/operations/capabilities');
     expect(snapshot.placement.tui.visible).toBe(true);
     expect(snapshot.placement.setup.visible).toBe(true);
     expect(snapshot.safety.readOnlyProjection).toBe(true);

@@ -1,5 +1,5 @@
 import { config } from '../../src/config/index.js';
-import { DashboardAuthService } from '../../src/services/DashboardAuthService.js';
+import { ZavorthControlAuthService } from '../../src/services/ZavorthControlAuthService.js';
 import { WebAppSecurityService } from '../../src/services/WebAppSecurityService.js';
 
 describe('WebAppSecurityService', () => {
@@ -22,26 +22,26 @@ describe('WebAppSecurityService', () => {
   });
 
   it('authorizes only header-based credentials', () => {
-    config.zavorthWebAuthToken = 'web-secret';
-    const service = new WebAppSecurityService(new DashboardAuthService());
+    config.zavorthWebAuthToken = 'web-secret-token-for-tests-32chars!!';
+    const service = new WebAppSecurityService(new ZavorthControlAuthService());
 
     expect(service.isAuthorized({ headers: {} } as any)).toBe(false);
     expect(service.isAuthorized({
       headers: {
-        authorization: 'Bearer web-secret',
+        authorization: 'Bearer web-secret-token-for-tests-32chars!!',
       },
     } as any)).toBe(true);
     expect(service.isAuthorized({
       headers: {
-        'x-zavorth-token': 'web-secret',
+        'x-zavorth-token': 'web-secret-token-for-tests-32chars!!',
       },
     } as any)).toBe(true);
   });
 
   it('rejects query tokens for websocket upgrades unless legacy query auth is explicitly enabled', () => {
-    config.zavorthWebAuthToken = 'web-secret';
+    config.zavorthWebAuthToken = 'web-secret-token-for-tests-32chars!!';
     config.zavorthWebPort = 33333;
-    const service = new WebAppSecurityService(new DashboardAuthService());
+    const service = new WebAppSecurityService(new ZavorthControlAuthService());
     const url = new URL('http://127.0.0.1:33333/api/web/gateway/ws');
     url.searchParams.set('token', config.zavorthWebAuthToken);
 
@@ -53,7 +53,7 @@ describe('WebAppSecurityService', () => {
     expect(service.isAuthorizedUpgrade({
       headers: {
         origin: 'http://127.0.0.1:33333',
-        authorization: 'Bearer web-secret',
+        authorization: 'Bearer web-secret-token-for-tests-32chars!!',
       },
     } as any, url)).toBe(true);
     process.env.ZAVORTH_ALLOW_QUERY_AUTH_TOKEN = 'true';
@@ -70,12 +70,12 @@ describe('WebAppSecurityService', () => {
   });
 
   it('uses one-time short-lived tickets for browser websocket upgrades', () => {
-    config.zavorthWebAuthToken = 'web-secret';
+    config.zavorthWebAuthToken = 'web-secret-token-for-tests-32chars!!';
     config.zavorthWebPort = 33333;
-    const service = new WebAppSecurityService(new DashboardAuthService());
+    const service = new WebAppSecurityService(new ZavorthControlAuthService());
     const issued = service.issueUpgradeTicket({
       headers: {
-        authorization: 'Bearer web-secret',
+        authorization: 'Bearer web-secret-token-for-tests-32chars!!',
       },
     } as any);
 
@@ -97,11 +97,11 @@ describe('WebAppSecurityService', () => {
   });
 
   it('reflects only allowed origins and advertises explicit auth headers', () => {
-    config.zavorthWebAuthToken = 'web-secret';
+    config.zavorthWebAuthToken = 'web-secret-token-for-tests-32chars!!';
     config.zavorthPublicBaseUrl = 'https://zavorth.example.com';
     config.zavorthWebHost = '127.0.0.1';
     config.zavorthWebPort = 33333;
-    const service = new WebAppSecurityService(new DashboardAuthService());
+    const service = new WebAppSecurityService(new ZavorthControlAuthService());
 
     const allowedResponse = {
       setHeader: jest.fn(),

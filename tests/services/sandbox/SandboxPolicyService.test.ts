@@ -146,8 +146,8 @@ describe('SandboxPolicyService', () => {
       'javascript',
       'const fs = require("f" + "s"); console.log(fs.readdirSync("."));',
     );
-    expect(policy.securityLevel).toBe('container');
-    expect(policy.reason).toMatch(/heuristica|heuristic|container/i);
+    expect(policy.securityLevel).toBe('microvm');
+    expect(policy.reason).toMatch(/heuristica|heuristic|container|microvm/i);
   });
 
   it('escalates gcc compilation to microvm', () => {
