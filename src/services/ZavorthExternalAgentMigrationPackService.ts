@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { config } from '../config/index.js';

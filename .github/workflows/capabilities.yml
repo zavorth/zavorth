@@ -17,7 +17,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit --pretty false
+      - run: node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false
       - run: npm run qa:zavorth-natural-action-harness --silent
       - run: npm run qa:zavorth-capability-usage-docs --silent
       - run: npm run security:ci --silent

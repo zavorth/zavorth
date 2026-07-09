@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { execFile, type ExecException } from 'child_process';
+import { execFile, type ExecException } from 'child_process';
 import crypto from 'crypto';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';

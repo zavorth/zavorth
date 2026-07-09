@@ -1,7 +1,8 @@
-import { marked, type MarkedOptions, type TokenizerAndRendererExtension } from 'marked';
+import { marked, type MarkedOptions } from 'marked';
 import hljs from 'highlight.js';
 import katex from 'katex';
 import { useEffect, useRef, memo } from 'react';
+import { sanitizeHighlightedHtml, sanitizeMarkdownHtml } from './safeHtml';
 import './markdownStyles.css';
 
 interface MarkdownContentProps {
@@ -50,10 +51,11 @@ function renderMathPlaceholders(container: HTMLElement, placeholders: MathPlaceh
     const el = container.querySelector(`[data-math-id="${ph.id}"]`);
     if (!el) continue;
     try {
+      // trust:false prevents KaTeX from emitting \href/\includegraphics with raw URLs
       el.innerHTML = katex.renderToString(ph.tex, {
         displayMode: ph.displayMode,
         throwOnError: false,
-        trust: true,
+        trust: false,
       });
       if (ph.displayMode) {
         el.classList.add('katex-display');
@@ -86,9 +88,11 @@ function createRenderer() {
     const language = lang && hljs.getLanguage(lang) ? lang : undefined;
     let highlighted: string;
     try {
-      highlighted = language
-        ? hljs.highlight(text, { language }).value
-        : hljs.highlightAuto(text).value;
+      highlighted = sanitizeHighlightedHtml(
+        language
+          ? hljs.highlight(text, { language }).value
+          : hljs.highlightAuto(text).value,
+      );
     } catch {
       highlighted = escapeHtml(text);
     }
@@ -183,10 +187,10 @@ export const MarkdownContent = memo(function MarkdownContent({ content, classNam
     // Extract math before marked processes the content
     const { cleaned, placeholders } = extractMath(content);
 
-    // Parse markdown to HTML
-    const html = marked.parse(cleaned, { ...options, renderer }) as string;
+    // Parse markdown to HTML, then sanitize before any innerHTML assignment
+    const rawHtml = marked.parse(cleaned, { ...options, renderer }) as string;
+    const html = sanitizeMarkdownHtml(rawHtml);
 
-    // Set the HTML content
     containerRef.current.innerHTML = html;
 
     // Post-process: render KaTeX placeholders

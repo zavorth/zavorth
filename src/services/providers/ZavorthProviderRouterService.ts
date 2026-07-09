@@ -1,5 +1,5 @@
 import { asErrorLike } from '../../utils/errorLike';
-﻿import { logger } from '../../logger.js';
+import { logger } from '../../logger.js';
 import * as http from 'http';
 import type {
   ZavorthProviderRouterEntry,

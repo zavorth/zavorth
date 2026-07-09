@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';

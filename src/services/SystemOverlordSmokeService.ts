@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import fs from 'fs';
+import fs from 'fs';
 import { config } from '../config/index.js';
 import { SupervisedBrowserControlAdapter } from '../adapters/overlord/SupervisedBrowserControlAdapter.js';
 import { SupervisedDockerExecAdapter } from '../adapters/overlord/SupervisedDockerExecAdapter.js';

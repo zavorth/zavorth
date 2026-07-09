@@ -17,6 +17,12 @@ const ALLOWED_ENV_FILES = new Set([
   '.env.development.example',
 ]);
 
+// Intentional security-test fixtures contain fake token-shaped strings (xoxb, AIza, jwt, …).
+// Exclude only that fixture tree so real secret detection stays enabled everywhere else.
+const SKIP_SCAN_PREFIXES = [
+  'tests/security/',
+];
+
 const SECRET_NAME_RE = /(?:^|[_\-.])(api[_\-.]?key|secret|token|password|passwd|pwd|private[_\-.]?key|client[_\-.]?secret|approval[_\-.]?pin)(?:$|[_\-.])/i;
 const ENV_ASSIGNMENT_RE = /^\s*(?:export\s+)?(?:process\.env\.)?([A-Z][A-Z0-9_]{2,})\s*=\s*(['"]?)([^'"\s#][^'"\r\n#]*?)\2\s*(?:;|,)?\s*(?:#.*)?$/;
 const PRIVATE_KEY_RE = /-----BEGIN (?:RSA |DSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/;
@@ -195,6 +201,7 @@ function shouldScanPath(relativePath) {
     || normalized.startsWith('dist-ops/')
     || normalized.startsWith('coverage/')
     || normalized.startsWith('.tmp/')
+    || SKIP_SCAN_PREFIXES.some((prefix) => normalized.startsWith(prefix))
     || normalized.endsWith('package-lock.json')
     || normalized.endsWith('pnpm-lock.yaml')
     || normalized.endsWith('yarn.lock')

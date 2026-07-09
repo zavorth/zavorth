@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import fs from 'fs';
+import fs from 'fs';
 import http from 'http';
 import path from 'path';
 import type { Duplex } from 'stream';

@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿/**
+/**
  * SafeModificationService - Guarded Self-Modification
  *
  * Provides a safe pipeline for Zavorth to modify its own source code:

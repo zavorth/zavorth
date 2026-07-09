@@ -1,5 +1,5 @@
 import { logger } from '../../../logger.js';
-﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
+import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 
 export class CliChannelAdapter implements GatewayChannelAdapter {

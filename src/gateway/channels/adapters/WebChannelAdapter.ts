@@ -1,5 +1,5 @@
 import { logger } from '../../../logger.js';
-﻿import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
+import { GatewayChannelAdapter } from '../GatewayChannelAdapter';
 import { GatewayEventBus } from '../../events/GatewayEventBus';
 import { PublicApiRouter } from '../../../api/public/PublicApiRouter';
 

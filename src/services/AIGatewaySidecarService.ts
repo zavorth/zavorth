@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { logger } from '../logger.js';
+import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { execFile, type ChildProcess } from 'child_process';

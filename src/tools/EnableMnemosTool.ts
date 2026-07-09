@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { BaseTool } from './BaseTool.js';
+import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { execFile } from 'child_process';
 import * as util from 'util';

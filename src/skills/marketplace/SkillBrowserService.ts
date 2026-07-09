@@ -537,10 +537,12 @@ export class SkillBrowserService {
 
         // Filter by category
         let categoryFiltered = filtered;
-        if (input.category) {
+        const category = input.category;
+        if (category) {
+          const categoryNeedle = category.toLowerCase();
           categoryFiltered = filtered.filter(e =>
-            e.tags.some(t => t.toLowerCase().includes(input.category!.toLowerCase())) ||
-            e.description.toLowerCase().includes(input.category.toLowerCase())
+            e.tags.some(t => t.toLowerCase().includes(categoryNeedle)) ||
+            e.description.toLowerCase().includes(categoryNeedle)
           );
         }
 

@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import * as fs from 'fs';
+import * as fs from 'fs';
 import * as path from 'path';
 
 interface SemanticChunk {

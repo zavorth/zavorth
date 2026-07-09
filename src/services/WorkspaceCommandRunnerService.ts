@@ -1,5 +1,5 @@
 import { asErrorLike } from '../utils/errorLike';
-﻿import { execFile, ExecException } from 'child_process';
+import { execFile, ExecException } from 'child_process';
 import crypto from 'crypto';
 import path from 'path';
 import { WorkspacePathGuard } from '../mcp/workspace/WorkspacePathGuard.js';

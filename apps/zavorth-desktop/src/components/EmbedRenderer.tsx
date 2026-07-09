@@ -7,6 +7,7 @@ import {
   IconLink,
 } from '@tabler/icons-react';
 import { asErrorLike } from '../lib/errors';
+import { sanitizeSvgMarkup } from '../lib/safeHtml';
 
 interface EmbedRendererProps {
   url?: string;
@@ -306,9 +307,14 @@ const MermaidRenderer = memo(function MermaidRenderer({
 
         const id = `zvd-mermaid-${Math.random().toString(36).slice(2, 9)}`;
         const { svg } = await mod.default.render(id, code);
+        const safeSvg = sanitizeSvgMarkup(svg);
 
         if (!cancelled && containerRef.current) {
-          containerRef.current.innerHTML = svg;
+          if (!safeSvg) {
+            setError('Diagram SVG failed safety checks');
+            return;
+          }
+          containerRef.current.innerHTML = safeSvg;
           setRendered(true);
         }
       } catch (error: unknown) {
@@ -385,13 +391,8 @@ const SvgRenderer = memo(function SvgRenderer({
   code: string;
   theme: 'light' | 'dark';
 }) {
-  const sanitized = useMemo(() => {
-    const cleaned = code
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/on\w+='[^']*'/gi, '');
-    return cleaned;
-  }, [code]);
+  // Only inject when sanitizeSvgMarkup + isSafeStaticSvg both pass; never partial strip.
+  const sanitized = useMemo(() => sanitizeSvgMarkup(code), [code]);
 
   return (
     <div className={`zvd-embed-svg zvd-embed-svg--${theme}`}>
@@ -412,7 +413,23 @@ const SvgRenderer = memo(function SvgRenderer({
           height: auto;
         }
       `}</style>
-      <div dangerouslySetInnerHTML={{ __html: sanitized }} />
+      {sanitized ? (
+        <div dangerouslySetInnerHTML={{ __html: sanitized }} />
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '8px 4px',
+            fontSize: 13,
+            color: 'var(--zvd-text-secondary, #a1a1aa)',
+          }}
+        >
+          <IconAlertTriangle size={18} style={{ color: '#faad14', flexShrink: 0 }} />
+          <span>SVG blocked: unsafe markup was removed.</span>
+        </div>
+      )}
     </div>
   );
 });
