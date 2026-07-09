@@ -165,3 +165,5 @@ coverage-final.json
 test-results/
 playwright-report/
 blob-report/
+skill-library/native/auto_*/
+
