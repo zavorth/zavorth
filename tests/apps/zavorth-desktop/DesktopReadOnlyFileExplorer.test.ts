@@ -1,4 +1,4 @@
-import React from '../../../apps/zavorth-desktop/node_modules/react';
+import React from 'react';
 import { asErrorLike } from '../../../apps/zavorth-desktop/src/lib/errors';
 import { asErrorLike } from '../../../src/utils/errorLike';
 
@@ -269,12 +269,12 @@ const mockWindow = {
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRoot, Root } from '../../../apps/zavorth-desktop/node_modules/react-dom/client';
-import { act } from '../../../apps/zavorth-desktop/node_modules/react';
+import { createRoot, Root } from 'react-dom/client';
+import { act } from 'react';
 
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockFn = () => {
-  const React = require('../../../apps/zavorth-desktop/node_modules/react');
+  const React = require('react');
   const DummyIcon = (props: any) => React.createElement('span', props);
   return {
     ChevronDown: DummyIcon,

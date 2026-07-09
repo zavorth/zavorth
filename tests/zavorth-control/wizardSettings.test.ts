@@ -2,7 +2,7 @@ import {
   describeWizardSecret,
   normalizeWizardUpdates,
   serializeEnvValue,
-} from '../../src/zavorth-control/lib/api/wizardSettings';
+} from '../../src/ai-gateway/lib/api/wizardSettings';
 
 describe('wizard settings security helpers', () => {
   it('describes configured secrets without returning raw values', () => {

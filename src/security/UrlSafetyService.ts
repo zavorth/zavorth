@@ -71,12 +71,37 @@ function isInRange(octets: number[], start: number[], end: number[]): boolean {
   return true;
 }
 
-function normalizeIp(ip: string): string {
-  // Remove IPv4-mapped prefix
-  if (ip.startsWith(IPV4_MAPPED_PREFIX)) {
-    return ip.slice(IPV4_MAPPED_PREFIX.length);
+function stripIpBrackets(hostname: string): string {
+  const raw = String(hostname || '').trim();
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    return raw.slice(1, -1);
   }
-  return ip;
+  return raw;
+}
+
+function normalizeIp(ip: string): string {
+  const stripped = stripIpBrackets(ip).toLowerCase();
+  // Remove IPv4-mapped prefix (::ffff:169.254.169.254 or ::ffff:a9fe:a9fe)
+  if (stripped.startsWith(IPV4_MAPPED_PREFIX)) {
+    const mapped = stripped.slice(IPV4_MAPPED_PREFIX.length);
+    if (mapped.includes('.')) {
+      return mapped;
+    }
+    // Hex form: a9fe:a9fe -> 169.254.169.254
+    const hexParts = mapped.split(':').filter(Boolean);
+    if (hexParts.length === 2 && hexParts.every((part) => /^[0-9a-f]{1,4}$/i.test(part))) {
+      const hi = parseInt(hexParts[0], 16);
+      const lo = parseInt(hexParts[1], 16);
+      return [
+        (hi >> 8) & 0xff,
+        hi & 0xff,
+        (lo >> 8) & 0xff,
+        lo & 0xff,
+      ].join('.');
+    }
+    return mapped;
+  }
+  return stripped;
 }
 
 async function resolveDns(
@@ -121,9 +146,10 @@ export class UrlSafetyService {
     let parsed: URL;
     try {
       parsed = new URL(url);
-    } catch (error: unknown) {logger.warn('[Url Safety] parsing failed', error);
-    return { safe: false, reason: 'Invalid URL' };
-  }
+    } catch (error: unknown) {
+      logger.warn('[Url Safety] parsing failed', error);
+      return { safe: false, reason: 'Invalid URL' };
+    }
 
     // Block dangerous protocols
     const protocol = parsed.protocol.toLowerCase();
@@ -134,15 +160,22 @@ export class UrlSafetyService {
       };
     }
 
-    const hostname = parsed.hostname;
+    // Node may keep brackets on IPv6 hostnames (e.g. "[::1]"); normalize before checks.
+    const hostname = stripIpBrackets(parsed.hostname);
+    const displayHost = parsed.hostname;
 
     // localhost always allowed (development)
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+    if (
+      hostname === 'localhost'
+      || hostname === '127.0.0.1'
+      || hostname === '::1'
+      || hostname === '0:0:0:0:0:0:0:1'
+    ) {
       return { safe: true };
     }
 
-    // Trusted host allowlist
-    if (this.allowedHosts.has(hostname)) {
+    // Trusted host allowlist (accept both raw and bracketed forms)
+    if (this.allowedHosts.has(hostname) || this.allowedHosts.has(displayHost)) {
       return { safe: true };
     }
 

@@ -1,4 +1,4 @@
-import React from '../../../apps/zavorth-desktop/node_modules/react';
+import React from 'react';
 
 // Lightweight mock DOM (reuse pattern from previous desktop tests)
 class MockElement {
@@ -218,13 +218,13 @@ const mockWindow = {
 // Imports
 import fs from 'node:fs';
 import path from 'node:path';
-import { createRoot, type Root } from '../../../apps/zavorth-desktop/node_modules/react-dom/client';
-import { act } from '../../../apps/zavorth-desktop/node_modules/react';
+import { createRoot, type Root } from 'react-dom/client';
+import { act } from 'react';
 
 // Mock icons
 const iconsPath = path.resolve('apps/zavorth-desktop/src/icons');
 const mockIconsFn = () => {
-  const R = require('../../../apps/zavorth-desktop/node_modules/react');
+  const R = require('react');
   const Dummy = (p: any) => R.createElement('span', p);
   return { AppWindow: Dummy, Folder: Dummy, Terminal: Dummy, ChevronDown: Dummy, File: Dummy };
 };
