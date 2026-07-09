@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import { buildNaturalSetupMutationPlanner } from './WebAppSurfaceRouteActions.js';
 import {
   readBooleanSearchParam,
@@ -6,6 +6,7 @@ import {
   readTrimmedSearchParam,
 } from './WebAppSurfaceRouteParsing.js';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteTypes.js';
+import { KanbanSQLiteDispatcherService } from '../plugins/KanbanSQLiteDispatcherService.js';
 
 export async function handleWebAppSurfaceOperationRoutes(
   req: http.IncomingMessage,
@@ -276,7 +277,7 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         202,
       );
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Falha no action seguro de Natural Setup.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
     }
@@ -410,9 +411,155 @@ export async function handleWebAppSurfaceOperationRoutes(
         },
         action.ok ? 200 : 409,
       );
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Falha ao agir no Hub + MCP.';
       deps.writeJson(res, { ok: false, error: errorMessage }, 400);
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/boards' && req.method === 'GET') {
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const boards = kanban.getBoardsFull();
+      deps.writeJson(res, { ok: true, boards }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/board' && req.method === 'GET') {
+    const boardId = readTrimmedSearchParam(url, 'boardId');
+    if (!boardId) {
+      deps.writeJson(res, { ok: false, error: 'boardId obrigatorio.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const data = kanban.getBoardFull(boardId);
+      if (!data) {
+        deps.writeJson(res, { ok: false, error: 'Board nao encontrado.' }, 404);
+      } else {
+        deps.writeJson(res, { ok: true, board: data.board, cards: data.cards }, 200);
+      }
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/board' && req.method === 'POST') {
+    const body = await deps.readJsonBody(req) as any;
+    const name = String(body?.name || '').trim();
+    if (!name) {
+      deps.writeJson(res, { ok: false, error: 'name obrigatorio.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const result = kanban.createBoard(name, body?.columns as string[] | undefined);
+      deps.writeJson(res, { ok: !result.startsWith('Error:'), message: result }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/card' && req.method === 'POST') {
+    const body = await deps.readJsonBody(req) as any;
+    const boardId = String(body?.boardId || '').trim();
+    const title = String(body?.title || '').trim();
+    if (!boardId || !title) {
+      deps.writeJson(res, { ok: false, error: 'boardId e title sao obrigatorios.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const result = kanban.addCard(boardId, title, {
+        description: body?.description ? String(body.description) : undefined,
+        column: body?.column ? String(body.column) : undefined,
+        priority: body?.priority ? String(body.priority) as any : undefined,
+        assignee: body?.assignee ? String(body.assignee) : undefined,
+        labels: Array.isArray(body?.labels) ? (body.labels as string[]) : undefined,
+        blocked_by: body?.blocked_by ? String(body.blocked_by) : undefined,
+        metadata: body?.metadata ? (body.metadata as Record<string, unknown>) : undefined,
+      });
+      deps.writeJson(res, { ok: !result.startsWith('Error:'), message: result }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/card/move' && req.method === 'POST') {
+    const body = await deps.readJsonBody(req) as any;
+    const boardId = String(body?.boardId || '').trim();
+    const cardId = String(body?.cardId || '').trim();
+    const targetColumn = String(body?.targetColumn || '').trim();
+    if (!boardId || !cardId || !targetColumn) {
+      deps.writeJson(res, { ok: false, error: 'boardId, cardId e targetColumn sao obrigatorios.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const result = kanban.moveCard(boardId, cardId, targetColumn, body?.reason ? String(body.reason) : undefined);
+      deps.writeJson(res, { ok: !result.startsWith('Error:'), message: result }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/card/comment' && req.method === 'POST') {
+    const body = await deps.readJsonBody(req) as any;
+    const cardId = String(body?.cardId || '').trim();
+    const author = String(body?.author || '').trim();
+    const content = String(body?.content || '').trim();
+    if (!cardId || !author || !content) {
+      deps.writeJson(res, { ok: false, error: 'cardId, author e content sao obrigatorios.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const result = kanban.addComment(cardId, author, content);
+      deps.writeJson(res, { ok: true, message: result }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/card/comments' && req.method === 'GET') {
+    const cardId = readTrimmedSearchParam(url, 'cardId');
+    if (!cardId) {
+      deps.writeJson(res, { ok: false, error: 'cardId obrigatorio.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const comments = kanban.getComments(cardId);
+      deps.writeJson(res, { ok: true, comments }, 200);
+    } finally {
+      kanban.close();
+    }
+    return true;
+  }
+
+  if (pathname === '/api/web/kanban/card/subagent' && req.method === 'POST') {
+    const body = await deps.readJsonBody(req) as any;
+    const cardId = String(body?.cardId || '').trim();
+    const subagentId = body?.subagentId ? String(body.subagentId).trim() : null;
+    if (!cardId) {
+      deps.writeJson(res, { ok: false, error: 'cardId obrigatorio.' }, 400);
+      return true;
+    }
+    const kanban = new KanbanSQLiteDispatcherService();
+    try {
+      const result = kanban.assignSubagent(cardId, subagentId);
+      deps.writeJson(res, { ok: true, message: result }, 200);
+    } finally {
+      kanban.close();
     }
     return true;
   }

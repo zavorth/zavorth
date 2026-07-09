@@ -4,6 +4,10 @@
  * Orchestrates IntentClassifier + ToolGatekeeper in one simple call
  * for integration with ConversationalAgent and any other Zavorth point.
  *
+ * Supports hybrid classification:
+ * - Regex for trivial/obvious cases (zero cost)
+ * - LLM for ambiguous/complex cases (intelligent understanding)
+ *
  * USO:
  *   const firewall = new CognitiveFirewall();
  *   const decision = firewall.evaluate(userMessage, allToolDefinitions);
@@ -12,6 +16,7 @@
  */
 
 import { IntentClassifier, type IntentClassification } from './IntentClassifier.js';
+import { LLMIntentClassifier, type LLMIntentClassifierOptions } from './LLMIntentClassifier.js';
 import { ToolGatekeeper, type ToolGatekeeperHintProfile, type ToolGatekeeperOptions } from './ToolGatekeeper.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { calculateSavings } from './LazyToolDefinition.js';
@@ -40,24 +45,44 @@ export interface FirewallDecision {
   };
 }
 
-export interface CognitiveFirewallOptions extends ToolGatekeeperOptions {}
+export interface CognitiveFirewallOptions extends ToolGatekeeperOptions {
+  /** Enable LLM-based classification for ambiguous intents (default: false) */
+  enableLLMClassification?: boolean;
+  /** LLM provider name for classification (defaults to user's configured provider) */
+  llmProviderName?: string;
+  /** Confidence threshold below which LLM classification is used (default: 0.6) */
+  llmConfidenceThreshold?: number;
+  /** LLM classification options */
+  llmClassifierOptions?: LLMIntentClassifierOptions;
+}
 
 export class CognitiveFirewall {
-  private readonly classifier = new IntentClassifier();
+  private readonly regexClassifier = new IntentClassifier();
+  private readonly llmClassifier: LLMIntentClassifier | null;
   private readonly baseOptions: CognitiveFirewallOptions;
   private readonly baseGatekeeper: ToolGatekeeper;
+  private readonly gatekeeperCache: Map<string, ToolGatekeeper> = new Map();
+  private readonly llmConfidenceThreshold: number;
 
   constructor(options?: CognitiveFirewallOptions) {
     this.baseOptions = options ?? {};
     this.baseGatekeeper = new ToolGatekeeper(options);
+    this.llmConfidenceThreshold = options?.llmConfidenceThreshold ?? 0.6;
+    
+    // Initialize LLM classifier if enabled
+    if (options?.enableLLMClassification) {
+      this.llmClassifier = new LLMIntentClassifier({
+        providerName: options.llmProviderName,
+        ...options.llmClassifierOptions,
+      });
+    } else {
+      this.llmClassifier = null;
+    }
   }
 
   /**
-   * Evaluates a user message and decides:
-   * 1. Which tools to inject in the prompt (Just-In-Time)
-   * 2. Whether it can use a cheaper model (LLM Cascade)
-   *
-   * Runs in <1ms, 0 tokens, 0 external calls.
+   * Evaluates a user message synchronously (regex only, zero cost).
+   * Use this when async is not available or for trivial cases.
    *
    * @param userMessage - The user's message to classify
    * @param allTools - All registered tool definitions
@@ -68,15 +93,72 @@ export class CognitiveFirewall {
     allTools: ToolDefinition[],
     evaluateOptions?: { sessionId?: string },
   ): FirewallDecision {
-    const classification = this.classifier.classify(userMessage);
+    const classification = this.regexClassifier.classify(userMessage);
+    return this.buildDecision(classification, allTools, evaluateOptions);
+  }
 
-    // Use per-call sessionId if provided, otherwise use base gatekeeper
-    const gatekeeper = evaluateOptions?.sessionId && this.baseOptions.usageTracker
-      ? new ToolGatekeeper({
+  /**
+   * Evaluates a user message with intelligent hybrid classification.
+   * Uses regex for trivial cases, LLM for ambiguous/complex cases.
+   *
+   * @param userMessage - The user's message to classify
+   * @param allTools - All registered tool definitions
+   * @param evaluateOptions - Optional per-call options (e.g., sessionId for predictive loading)
+   */
+  public async evaluateAsync(
+    userMessage: string,
+    allTools: ToolDefinition[],
+    evaluateOptions?: { sessionId?: string },
+  ): Promise<FirewallDecision> {
+    // Start with regex classification
+    const regexClassification = this.regexClassifier.classify(userMessage);
+    
+    // If LLM is enabled and regex confidence is low, use LLM
+    if (this.llmClassifier && regexClassification.confidence < this.llmConfidenceThreshold) {
+      try {
+        const llmClassification = await this.llmClassifier.classify(userMessage);
+        
+        // Use LLM classification if it has higher confidence
+        if (llmClassification.confidence > regexClassification.confidence) {
+          console.log(`[CognitiveFirewall] LLM upgraded classification: ${regexClassification.category} (${regexClassification.confidence}) → ${llmClassification.category} (${llmClassification.confidence})`);
+          return this.buildDecision(llmClassification, allTools, evaluateOptions);
+        }
+      } catch (error) {
+        console.warn('[CognitiveFirewall] LLM classification failed, using regex:', error);
+      }
+    }
+    
+    return this.buildDecision(regexClassification, allTools, evaluateOptions);
+  }
+
+  /**
+   * Build the final decision from a classification.
+   */
+  private buildDecision(
+    classification: IntentClassification,
+    allTools: ToolDefinition[],
+    evaluateOptions?: { sessionId?: string },
+  ): FirewallDecision {
+    // Reuse cached gatekeeper per sessionId to avoid recreating ToolClusterRegistry
+    let gatekeeper: ToolGatekeeper;
+    if (evaluateOptions?.sessionId && this.baseOptions.usageTracker) {
+      let cached = this.gatekeeperCache.get(evaluateOptions.sessionId);
+      if (!cached) {
+        cached = new ToolGatekeeper({
           ...this.baseOptions,
           sessionId: evaluateOptions.sessionId,
-        })
-      : this.baseGatekeeper;
+        });
+        this.gatekeeperCache.set(evaluateOptions.sessionId, cached);
+        // Evict old entries if cache grows too large
+        if (this.gatekeeperCache.size > 100) {
+          const firstKey = this.gatekeeperCache.keys().next().value;
+          if (firstKey) this.gatekeeperCache.delete(firstKey);
+        }
+      }
+      gatekeeper = cached;
+    } else {
+      gatekeeper = this.baseGatekeeper;
+    }
 
     const toolHintProfile = gatekeeper.buildHintProfile(allTools, classification.category);
     const isCompactMode = toolHintProfile.isCompactMode ?? false;

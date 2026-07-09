@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZAVORTH_SELF_HEALING_UX_CONTRACT_VERSION,
   type ZavorthSelfHealingAction,
   type ZavorthSelfHealingBuildInput,
@@ -387,7 +387,7 @@ export class ZavorthSelfHealingUxService {
         probe: false,
         live: false,
       });
-    } catch (error) { logger.warn('[Zavorth Self Healing Ux] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Self Healing Ux] creation failed', error); return null; }
   }
 }
 

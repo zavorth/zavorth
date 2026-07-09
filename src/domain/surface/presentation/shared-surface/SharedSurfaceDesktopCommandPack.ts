@@ -41,7 +41,7 @@ export class SharedSurfaceDesktopCommandPack {
     try {
       const snapshot = await this.deps.desktopResourcePlaneService.inspectLive({ preferCachedWithinMs: 15_000 });
       await ctx.reply(this.deps.desktopResourcePlaneService.renderReport(snapshot));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui montar o Desktop Resource Plane agora.');
     }
   }
@@ -145,7 +145,7 @@ export class SharedSurfaceDesktopCommandPack {
           requestedBy: String(ctx.userId || '').trim() || 'operator',
         });
         await ctx.reply(this.formatModeEscalationResolution(result));
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         await ctx.reply(error?.message || 'Nao consegui resolver o mode escalation agora.');
       }
       return;
@@ -163,7 +163,7 @@ export class SharedSurfaceDesktopCommandPack {
           'Recomendacao: reinicie o Zavorth quando quiser reaplicar boot, warmup e surfaces de acordo com o novo modo.',
         ].join('\n'),
       );
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui trocar o product mode agora.');
     }
   }
@@ -238,7 +238,7 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       await ctx.reply('Uso: /workspace [doctor|optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>]]');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui operar o Workspace Optimizer agora.');
     }
   }
@@ -332,7 +332,7 @@ export class SharedSurfaceDesktopCommandPack {
       }
 
       await ctx.reply('Uso: /companion [list|inspect <id>|hibernate <id>|resume <id>|stop-idle <id>|trim <id>|restart-safe <id>]');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui operar o Companion Control Plane agora.');
     }
   }

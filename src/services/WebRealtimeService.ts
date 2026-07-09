@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+﻿import { randomUUID } from 'crypto';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
@@ -655,7 +655,10 @@ export class WebRealtimeService {
   private emit(sessionId: string, event: WebRealtimeEvent): void {
     try {
       this.mnemosCompiler.ingestEvent(config.projectRoot, sessionId, event);
-    } catch (error) { // Catch errors silently to not impact active sessions logger.warn('[Web Realtime] load operation failed', error); }
+    } catch (error: any) {
+      // Catch errors silently to not impact active sessions
+      logger.warn('[Web Realtime] load operation failed', error);
+    }
 
     const session = this.getSession(sessionId);
     for (const listener of session.listeners) {

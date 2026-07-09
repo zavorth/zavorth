@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP audit log";
     return NextResponse.json({ error: message }, { status: 500 });

@@ -38,7 +38,7 @@ export default function UsageAnalytics() {
       const data = await res.json();
       setAnalytics(data);
       setError(null);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       setError((err as any).message);
     } finally {
       setLoading(false);

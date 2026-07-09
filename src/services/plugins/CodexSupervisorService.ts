@@ -108,7 +108,7 @@ export class CodexSupervisorService {
       task.stdout = result.toString().slice(0, 50000);
       task.exit_code = 0;
       task.status = 'completed';
-    } catch (error: unknown) {
+    } catch (error: any) { const e = error;
       const err = error as { code?: number; stdout?: Buffer | string; stderr?: Buffer | string; message?: string };
       task.exit_code = err.code || 1;
       task.stdout = (err.stdout?.toString() || '').slice(0, 50000);
@@ -138,8 +138,27 @@ export class CodexSupervisorService {
     if (!task) return `Error: task "${taskId}" not found.`;
     if (task.status !== 'running') return `Task "${taskId}" nao esta running (status: ${task.status}).`;
 
+    // Attempt to kill the actual OS process if PID is tracked
+    const processInfo = this.runningProcesses.get(taskId);
+    if (processInfo?.pid) {
+      try {
+        process.kill(processInfo.pid, 'SIGTERM');
+        // Give it 2 seconds to gracefully terminate, then force kill
+        setTimeout(() => {
+          try {
+            process.kill(processInfo.pid, 'SIGKILL');
+          } catch {
+            // Process already exited
+          }
+        }, 2000);
+      } catch {
+        // Process may have already exited
+      }
+    }
+
     task.status = 'killed';
     task.completed_at = new Date().toISOString();
+    this.runningProcesses.delete(taskId);
 
     return `Task "${taskId}" morta.`;
   }

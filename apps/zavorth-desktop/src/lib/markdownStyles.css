@@ -437,15 +437,29 @@
 
 .zvd-tool-call {
   margin: 0.6em 0;
-  border-radius: 8px;
+  border-radius: var(--zvd-radius-control, 8px);
   border: 1px solid var(--zvd-border);
   background: var(--zvd-surface);
   overflow: hidden;
-  transition: border-color 150ms ease;
+  transition:
+    border-color var(--zvd-motion-fast, 120ms) ease,
+    box-shadow var(--zvd-motion-fast, 120ms) ease;
 }
 
 .zvd-tool-call:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: color-mix(in srgb, var(--zvd-accent) 28%, var(--zvd-border));
+}
+
+.zvd-tool-call--success {
+  border-left: 2px solid color-mix(in srgb, var(--zvd-success, #6fcf7c) 70%, var(--zvd-border));
+}
+
+.zvd-tool-call--error {
+  border-left: 2px solid color-mix(in srgb, var(--zvd-danger, #f85149) 80%, var(--zvd-border));
+}
+
+.zvd-tool-call--running {
+  border-left: 2px solid var(--zvd-accent);
 }
 
 .zvd-tool-call__header {
@@ -459,14 +473,19 @@
   border: none;
   width: 100%;
   color: var(--zvd-text);
-  font-size: 12.5px;
+  font-size: var(--zvd-text-sm, 12.5px);
   font-family: inherit;
   text-align: left;
-  transition: background 120ms ease;
+  transition: background var(--zvd-motion-fast, 120ms) ease;
 }
 
 .zvd-tool-call__header:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--zvd-muted) 8%, transparent);
+}
+
+.zvd-tool-call__header:focus-visible {
+  outline: 2px solid var(--zvd-focus-ring);
+  outline-offset: -2px;
 }
 
 .zvd-tool-call__icon {
@@ -505,11 +524,11 @@
 }
 
 .zvd-tool-call__status--success {
-  color: #6fcf7c;
+  color: var(--zvd-success, #6fcf7c);
 }
 
 .zvd-tool-call__status--error {
-  color: #f85149;
+  color: var(--zvd-danger, #f85149);
 }
 
 @keyframes zvd-spin {

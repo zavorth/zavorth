@@ -127,7 +127,7 @@ export class ClaudeService extends OAuthService {
 
       spinner.succeed("Claude connected successfully!");
       return true;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

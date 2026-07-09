@@ -78,7 +78,7 @@ export class DiscordGatewayLifecycleService {
           }
           await callbacks.onReady(client);
           resolve();
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           if (readyTimer) {
             clearTimeout(readyTimer);
           }
@@ -102,7 +102,7 @@ export class DiscordGatewayLifecycleService {
         await readyPromise;
       }
       return client;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (readyTimer) {
         clearTimeout(readyTimer);
       }
@@ -135,7 +135,7 @@ export class DiscordGatewayLifecycleService {
           }
           await guild.commands.set(commands);
           registered = true;
-        } catch (error: any) {
+        } catch (error: any) { const err = error; const e = error;
           this.log?.(
             'warn',
             `Discord native gateway could not register guild slash commands for ${guildId}: ${error?.message || error}`,

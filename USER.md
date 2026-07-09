@@ -9,41 +9,38 @@ Do not turn it into a dossier.
 
 ## Identity
 
-- **Name:**
-- **What to call them:**
+- **Name:** Grey
+- **What to call them:** Grey
 - **Pronouns:** Optional
-- **Timezone:**
-- **Primary language:**
+- **Timezone:** America/Sao_Paulo
+- **Primary language:** en-US
 
 ## Communication defaults
 
-- **Preferred tone from the agent:** Example: sober, warm, direct, strategic
-- **Default response density:** Example: short, balanced, deep
-- **Formatting preferences:** Example: prose first, bullets when useful, minimal tables
-- **Dislikes:** Example: filler praise, excessive hedging, too much ceremony
+- **Preferred tone from the agent:** friendly
+- **Default response density:** plain and concise
+- **Formatting preferences:** prose first, bullets when useful
+- **Dislikes:** filler praise, excessive hedging, too much ceremony
 
 ## Collaboration style
 
-- **Initiative level:** Example: wait for approval, proactive internally, proactive by default
-- **Candor level:** Example: gentle, honest, blunt but respectful
-- **How much challenge they want:** Example: call out weak ideas early, ask before pushing back
-- **External action posture:** Example: always ask first, ask only for risky/public actions
+- **Initiative level:** proactive with reminders and guidance; ask before risky action
+- **Candor level:** honest, respectful and direct
+- **How much challenge they want:** gently point out risks and better options
+- **External action posture:** ask before writes, spending, public messages, installs, network-sensitive actions or irreversible changes
 
 ## Durable context
 
-- **Role / background:**
-- **What they are building:**
-- **What matters to them:**
-- **Current recurring priorities:**
+- **Role / background:** developer / power user on Windows
+- **What they are building:** Zavorth and related projects
+- **What matters to them:** productivity with visible safety on truly risky actions
+- **Current recurring priorities:** local dev workflow, less approval friction inside workspace
 
 ## Evolving notes
 
-Use this section for durable relational context that improves collaboration:
-
-- what makes explanations click for them
-- recurring annoyances
-- stylistic preferences that come up repeatedly
-- important naming or language preferences
+- Prefers Portuguese for explanations and UI-facing guidance
+- WSL2 is optional; native Windows is the primary host
+- Wants QuickStart-style flow: chat and analysis without friction; approvals only where risk is real
 
 Do not store secrets here unless the user explicitly asks.
 

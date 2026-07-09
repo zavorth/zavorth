@@ -41,7 +41,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] string operation failed', error);
     return NextResponse.json(
       {
@@ -130,7 +130,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     );
 
     return NextResponse.json({ node: updated });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating provider node:", error);
     return NextResponse.json({ error: "Failed to update provider node" }, { status: 500 });
   }
@@ -153,7 +153,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await deleteProviderNode(id);
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error deleting provider node:", error);
     return NextResponse.json({ error: "Failed to delete provider node" }, { status: 500 });
   }

@@ -1,4 +1,4 @@
-import { Database } from '../storage/Database.js';
+﻿import { Database } from '../storage/Database.js';
 import { logger } from '../logger.js';
 
 export interface AgentWorkspaceConfig {
@@ -161,6 +161,6 @@ export class AgentWorkspaceConfigService {
         .map((value) => String(value || '').trim())
         .filter((value): value is AgentWorkspaceConfig['allowedCapabilities'][number] =>
           capabilityValues.has(value as AgentWorkspaceConfig['allowedCapabilities'][number]));
-    } catch (error) { logger.warn('[Agent Workspace] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Agent Workspace] JSON parse failed', error); return []; }
   }
 }

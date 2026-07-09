@@ -1,4 +1,4 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+﻿import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';
@@ -47,13 +47,16 @@ export class McpToolWrapper extends BaseTool {
               content: args.content as string,
             });
           }
-        } catch (error) { // not a WRITE_APPROVAL_REQUIRED json error logger.warn('[Mcp  Wrapper] parsing failed', error); }
+        } catch (error: any) {
+      // not a WRITE_APPROVAL_REQUIRED json error
+      logger.warn('[Mcp  Wrapper] parsing failed', error);
+    }
 
         throw new Error(`[MCP Tool Error] ${errorMsg}`);
       }
 
       return textBlocks.map((block) => block.text).join('\n');
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       console.error(`[MCP] Falha ao executar ${this.name}:`, e.message);
       return `Error executing tool: ${e.message}`;
     } finally {

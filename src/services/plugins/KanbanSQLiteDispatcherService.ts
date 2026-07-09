@@ -25,6 +25,7 @@ export interface KanbanCard {
   description: string;
   column_name: string;
   assignee: string | null;
+  subagent_id: string | null;
   priority: 'low' | 'medium' | 'high' | 'critical';
   labels: string[];
   blocked_by: string | null;
@@ -56,6 +57,14 @@ export interface DispatchLog {
   timestamp: string;
 }
 
+export interface KanbanComment {
+  id: string;
+  card_id: string;
+  author: string;
+  content: string;
+  timestamp: string;
+}
+
 export class KanbanSQLiteDispatcherService {
   private db: SQLiteDatabase;
   private readonly dbPath: string;
@@ -68,6 +77,7 @@ export class KanbanSQLiteDispatcherService {
     this.db = new DatabaseLib(this.dbPath);
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
+    this.db.pragma(`busy_timeout = ${process.env.ZAVORTH_SQLITE_BUSY_TIMEOUT || '10000'}`);
     this.initSchema();
   }
 
@@ -88,6 +98,7 @@ export class KanbanSQLiteDispatcherService {
         description TEXT DEFAULT '',
         column_name TEXT NOT NULL,
         assignee TEXT,
+        subagent_id TEXT,
         priority TEXT NOT NULL DEFAULT 'medium' CHECK(priority IN ('low','medium','high','critical')),
         labels TEXT DEFAULT '[]',
         blocked_by TEXT REFERENCES cards(id) ON DELETE SET NULL,
@@ -98,6 +109,14 @@ export class KanbanSQLiteDispatcherService {
         updated_at TEXT NOT NULL DEFAULT (datetime('now')),
         completed_at TEXT,
         metadata TEXT DEFAULT '{}'
+      );
+
+      CREATE TABLE IF NOT EXISTS card_comments (
+        id TEXT PRIMARY KEY,
+        card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+        author TEXT NOT NULL,
+        content TEXT NOT NULL,
+        timestamp TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
       CREATE TABLE IF NOT EXISTS dispatch_log (
@@ -115,10 +134,19 @@ export class KanbanSQLiteDispatcherService {
       CREATE INDEX IF NOT EXISTS idx_cards_column ON cards(board_id, column_name);
       CREATE INDEX IF NOT EXISTS idx_cards_priority ON cards(board_id, priority);
       CREATE INDEX IF NOT EXISTS idx_cards_assignee ON cards(assignee);
+      CREATE INDEX IF NOT EXISTS idx_cards_subagent ON cards(subagent_id);
       CREATE INDEX IF NOT EXISTS idx_cards_blocked ON cards(blocked_by);
       CREATE INDEX IF NOT EXISTS idx_dispatch_board ON dispatch_log(board_id);
       CREATE INDEX IF NOT EXISTS idx_dispatch_card ON dispatch_log(card_id);
+      CREATE INDEX IF NOT EXISTS idx_comments_card ON card_comments(card_id);
     `);
+
+    // Migração de coluna dinâmica se a tabela cards já existia sem subagent_id
+    try {
+      this.db.exec('ALTER TABLE cards ADD COLUMN subagent_id TEXT;');
+    } catch (e) {
+      // Ignora se a coluna já existia
+    }
   }
 
   public createBoard(name: string, columns?: string[]): string {
@@ -299,6 +327,36 @@ export class KanbanSQLiteDispatcherService {
     return result;
   }
 
+  public getBoardFull(boardId: string): { board: KanbanBoard; cards: KanbanCard[] } | null {
+    const board = this.getBoardData(boardId);
+    if (!board) return null;
+
+    const rawCards = this.db.prepare("SELECT * FROM cards WHERE board_id = ? ORDER BY CASE priority WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END").all(boardId) as Array<Record<string, unknown>>;
+    const cards: KanbanCard[] = rawCards.map((c) => ({
+      ...c,
+      labels: typeof c.labels === 'string' ? JSON.parse(c.labels) : (c.labels || []),
+      subtasks: typeof c.subtasks === 'string' ? JSON.parse(c.subtasks) : (c.subtasks || []),
+      metadata: typeof c.metadata === 'string' ? JSON.parse(c.metadata) : (c.metadata || {}),
+      auto_blocked: Boolean(c.auto_blocked),
+    })) as KanbanCard[];
+
+    return { board, cards };
+  }
+
+  public getBoardsFull(): Array<{ id: string; name: string; columns: string[]; cardCount: number }> {
+    const rawBoards = this.db.prepare('SELECT * FROM boards').all() as DBKanbanBoard[];
+    return rawBoards.map((b) => {
+      const board = this.mapBoard(b);
+      const cardCount = (this.db.prepare('SELECT COUNT(*) as c FROM cards WHERE board_id = ?').get(board.id) as { c: number }).c;
+      return {
+        id: board.id,
+        name: board.name,
+        columns: board.columns,
+        cardCount,
+      };
+    });
+  }
+
   public getBoard(boardId: string): string {
     const board = this.getBoardData(boardId);
     if (!board) return `Error: board "${boardId}" not found.`;
@@ -457,6 +515,32 @@ export class KanbanSQLiteDispatcherService {
       lines.push(`  ${priorityIcon[card.priority]} [${card.column_name}] ${card.id}: ${card.title}`);
     }
     return lines.join('\n');
+  }
+
+  public addComment(cardId: string, author: string, content: string): string {
+    const id = `comment_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    this.db.prepare('INSERT INTO card_comments (id, card_id, author, content) VALUES (?, ?, ?, ?)')
+      .run(id, cardId, author, content);
+    return `Comment added to card "${cardId}" by "${author}". ID: ${id}`;
+  }
+
+  public getComments(cardId: string): KanbanComment[] {
+    return this.db.prepare('SELECT * FROM card_comments WHERE card_id = ? ORDER BY timestamp ASC')
+      .all(cardId) as KanbanComment[];
+  }
+
+  public assignSubagent(cardId: string, subagentId: string | null): string {
+    const now = new Date().toISOString();
+    this.db.prepare('UPDATE cards SET subagent_id = ?, updated_at = ? WHERE id = ?')
+      .run(subagentId, now, cardId);
+    return `Card "${cardId}" subagent set to "${subagentId}".`;
+  }
+
+  public updateCardLabels(cardId: string, labels: string[]): string {
+    const now = new Date().toISOString();
+    this.db.prepare('UPDATE cards SET labels = ?, updated_at = ? WHERE id = ?')
+      .run(JSON.stringify(labels), now, cardId);
+    return `Labels updated for card "${cardId}": ${labels.join(', ')}`;
   }
 
   public close(): void {

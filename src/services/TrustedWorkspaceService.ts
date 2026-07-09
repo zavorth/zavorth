@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { Database } from '../storage/Database.js';
@@ -77,7 +77,7 @@ export class TrustedWorkspaceService {
     let resolved: string;
     try {
       resolved = fs.realpathSync(path.resolve(rootPath));
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Trusted Workspace] validation failed', error);
     resolved = path.resolve(rootPath);
   }
@@ -85,7 +85,7 @@ export class TrustedWorkspaceService {
     let activeWorkspace: string;
     try {
       activeWorkspace = fs.realpathSync(WorkspaceResolver.resolve(null));
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Trusted Workspace] validation failed', error);
     activeWorkspace = path.resolve(WorkspaceResolver.resolve(null));
   }
@@ -195,7 +195,7 @@ export class TrustedWorkspaceService {
       let resolvedCurrent: string;
       try {
         resolvedCurrent = fs.realpathSync(path.resolve(currentRootPath));
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Trusted Workspace] load operation failed', error);
     resolvedCurrent = path.resolve(currentRootPath);
   }

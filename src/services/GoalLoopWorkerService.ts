@@ -1,4 +1,4 @@
-import path from 'node:path';
+﻿import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import type { AgentRunExecutionOptions } from '../runtime/agent/AgentRunService.js';
@@ -203,7 +203,7 @@ export class GoalLoopWorkerService {
         loop,
         receipt,
       });
-    } catch (error) {
+    } catch (error: any) {
       const failedTask = this.taskPlane.updateStatus(
         running.id,
         'failed',

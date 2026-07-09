@@ -52,11 +52,11 @@ export async function GET(request: Request) {
         connected: pingRes.ok,
         lastSync: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json({ enabled: true, connected: false });
   }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json({ enabled: false, error: error.message }, { status: 500 });
   }
@@ -73,7 +73,7 @@ export async function POST(request: any) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
@@ -121,7 +121,7 @@ export async function POST(request: any) {
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Cloud sync error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -181,7 +181,7 @@ async function syncAndVerify(machineId: string, createdKey: any, existingKeys: a
         });
       }
       lastVerifyError = `Ping failed: ${pingResponse.status}`;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] health check failed', error);
     lastVerifyError = error?.name === "AbortError" ? "Verify timeout" : error.message;
   }
@@ -214,7 +214,7 @@ async function handleDisable(machineId: string, request: any) {
     response = await fetchWithTimeout(`${CLOUD_URL}/sync/${machineId}`, {
       method: "DELETE",
     });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     const isTimeout = error?.name === "AbortError";
     return NextResponse.json(
       {
@@ -254,7 +254,7 @@ async function updateClaudeSettingsToLocal(machineId: string, host: string) {
     try {
       const content = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(content);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code === "ENOENT") {
         return; // No settings file, nothing to update
       }
@@ -271,7 +271,7 @@ async function updateClaudeSettingsToLocal(machineId: string, host: string) {
     settings.env.ANTHROPIC_BASE_URL = localUrl;
     await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
     console.log(`Updated Claude CLI settings: ${cloudUrl} → ${localUrl}`);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Failed to update Claude CLI settings:", error.message);
   }
 }

@@ -55,7 +55,7 @@ export async function GET(request) {
     const modelCompatOverrides = provider ? getModelCompatOverrides(provider) : [];
 
     return Response.json({ models, modelCompatOverrides });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] search failed', error);
     return Response.json(
       { error: { message: "Failed to fetch provider models", type: "server_error" } },
@@ -72,7 +72,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
@@ -104,7 +104,7 @@ export async function POST(request) {
       supportedEndpoints
     );
     return Response.json({ model });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error adding provider model:", error);
     return Response.json(
       { error: { message: "Failed to add provider model", type: "server_error" } },
@@ -121,7 +121,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
@@ -236,7 +236,7 @@ export async function PUT(request) {
     }
 
     return Response.json({ model });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating provider model:", error);
     return Response.json(
       { error: { message: "Failed to update provider model", type: "server_error" } },
@@ -253,7 +253,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return Response.json(
       { error: { message: "Invalid JSON body", type: "validation_error" } },
@@ -316,7 +316,7 @@ export async function PATCH(request) {
       models: await getCustomModels(provider),
       modelCompatOverrides: getModelCompatOverrides(provider),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error patching provider models:", error);
     return Response.json(
       { error: { message: "Failed to update provider models", type: "server_error" } },
@@ -375,7 +375,7 @@ export async function DELETE(request) {
 
     const removed = await removeCustomModel(provider, modelId);
     return Response.json({ removed });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error removing provider model:", error);
     return Response.json(
       { error: { message: "Failed to remove provider model", type: "server_error" } },

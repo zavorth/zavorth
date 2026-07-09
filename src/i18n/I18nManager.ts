@@ -63,7 +63,7 @@ export class I18nManager {
           }
         }
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // directory may not exist yet
     }
     return Array.from(new Set(locales)).sort();
@@ -128,7 +128,7 @@ export class I18nManager {
           : {}),
       });
       return formatter.format(number);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return String(number);
     }
   }
@@ -194,12 +194,12 @@ export class I18nManager {
             const parsed = JSON.parse(content) as TranslationDict;
             if (!merged[ns]) merged[ns] = {};
             this.deepMerge(merged[ns] as TranslationDict, parsed);
-          } catch {
+          } catch (error: any) { const err = error; const e = error;
             // skip corrupt files
           }
         }
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // directory may not exist
     }
 
@@ -299,7 +299,7 @@ export class I18nManager {
         ) {
           return parsed as PluralForms;
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // not JSON
       }
     }
@@ -331,7 +331,7 @@ export class I18nManager {
         month: '2-digit',
         day: '2-digit',
       }).format(date);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return date.toISOString().slice(0, 10);
     }
   }
@@ -344,7 +344,7 @@ export class I18nManager {
         day: 'numeric',
         weekday: 'long',
       }).format(date);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return date.toLocaleDateString();
     }
   }
@@ -412,14 +412,14 @@ export class I18nManager {
                 const content = fs.readFileSync(path.join(localeDir, file), 'utf-8');
                 const parsed = JSON.parse(content) as TranslationDict;
                 this.loadTranslations(entry.name, { [ns]: parsed });
-              } catch {
+              } catch (error: any) { const err = error; const e = error;
                 // skip corrupt files
               }
             }
           }
         }
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // directory may not exist
     }
   }

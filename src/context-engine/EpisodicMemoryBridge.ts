@@ -114,7 +114,7 @@ export class EpisodicMemoryBridge {
       console.log(
         `[EpisodicMemoryBridge] Episode persisted: ${episodeKey} (${episode.turnCount} turns, topics: ${episode.topics.join(', ')})`,
       );
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[EpisodicMemoryBridge] Failed to persist episode:', error);
     }
   }
@@ -172,7 +172,7 @@ export class EpisodicMemoryBridge {
         totalSearched: relevantMemories.length,
         searchTimeMs,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[EpisodicMemoryBridge] Recall failed:', error);
       return { ...emptyResult, searchTimeMs: Date.now() - startTime };
     }

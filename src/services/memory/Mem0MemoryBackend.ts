@@ -1,4 +1,4 @@
-import type { IMemoryBackend } from './IMemoryBackend.js';
+﻿import type { IMemoryBackend } from './IMemoryBackend.js';
 
 type Mem0ClientLike = {
   add(content: string, params?: { user_id?: string; [key: string]: any }): Promise<any>;
@@ -42,7 +42,7 @@ export class Mem0MemoryBackend implements IMemoryBackend {
       this.client = new module.MemoryClient({ apiKey: this.apiKey });
       this.available = true;
       return true;
-    } catch {
+    } catch (error: any) {
       this.client = null;
       this.available = false;
       return false;

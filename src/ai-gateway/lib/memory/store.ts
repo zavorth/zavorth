@@ -39,7 +39,7 @@ function parseJSON(value: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch (error) { logger.warn('[store] JSON parse failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[store] JSON parse failed', error); return {}; }
 }
 
 function invalidateMemoryCache(key: string) {

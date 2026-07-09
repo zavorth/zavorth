@@ -440,16 +440,20 @@
   </aside>
 
   <!-- Command Palette -->
-  <div id="cmd-palette">
+  <div id="cmd-palette" role="dialog" aria-label="Command palette">
     <div class="cmd-palette__input-frame">
       <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" class="cmd-palette__input" placeholder="Search commands, agents, files..." id="cmd-input">
+      <input type="text" class="cmd-palette__input" placeholder="Search actions..." id="cmd-input" autocomplete="off">
     </div>
-    <div class="cmd-palette__results">
-      <div class="cmd-palette__group-label">Suggested Actions</div>
-      <div class="cmd-palette__item selected"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> Add New Agent</div>
-      <div class="cmd-palette__item"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Start Health Check</div>
-      <div class="cmd-palette__item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg> Open Settings</div>
+    <div class="cmd-palette__results" id="cmd-palette-results">
+      <div class="cmd-palette__group-label">Actions</div>
+      <div class="cmd-palette__item selected" data-cmd-action="new-chat"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> New chat / Open Inbox</div>
+      <div class="cmd-palette__item" data-cmd-action="approvals" data-dashboard-sector="sales-os"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-5"/></svg> Open Approvals</div>
+      <div class="cmd-palette__item" data-cmd-action="receipts" data-dashboard-sector="instances"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Open Receipts</div>
+      <div class="cmd-palette__item" data-cmd-action="channels" data-dashboard-sector="channels"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Open Channels</div>
+      <div class="cmd-palette__item" data-cmd-action="models" data-dashboard-sector="usage"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg> Open Models</div>
+      <div class="cmd-palette__item" data-cmd-action="doctor"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Ready check / Doctor</div>
+      <div class="cmd-palette__item" data-cmd-action="export"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export conversation</div>
     </div>
   </div>
 

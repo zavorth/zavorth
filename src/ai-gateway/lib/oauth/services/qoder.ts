@@ -213,7 +213,7 @@ export class QoderService {
 
       spinner.succeed(`Qoder connected successfully! (${userInfo.email || userInfo.phone})`);
       return true;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

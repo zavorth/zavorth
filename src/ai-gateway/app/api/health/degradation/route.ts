@@ -23,7 +23,7 @@ export async function GET(req: Request) {
       summary: getDegradationSummary(),
       features: report,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/health/degradation GET:", error);
     return NextResponse.json({ error: "Failed to fetch degradation report." }, { status: 500 });
   }

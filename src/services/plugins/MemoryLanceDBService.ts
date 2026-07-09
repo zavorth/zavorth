@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 
 export interface LanceDBDocument {
@@ -46,7 +46,7 @@ export class MemoryLanceDBService {
       try {
         const data = JSON.parse(fs.readFileSync(path.join(this.dbPath, file), 'utf-8'));
         this.collections.set(name, Array.isArray(data) ? data : []);
-      } catch {
+      } catch (error: any) {
         this.collections.set(name, []);
       }
     }

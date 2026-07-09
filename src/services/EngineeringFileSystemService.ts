@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
 
@@ -63,7 +63,7 @@ export class EngineeringFileSystemService {
       let entries: fs.Dirent[] = [];
       try {
         entries = this.readdirSync(current, { withFileTypes: true });
-      } catch {
+      } catch (error: any) {
         continue;
       }
 
@@ -91,7 +91,7 @@ export class EngineeringFileSystemService {
               break;
             }
           }
-        } catch {
+        } catch (error: any) {
           continue;
         }
       }
@@ -113,7 +113,7 @@ export class EngineeringFileSystemService {
       let entries: fs.Dirent[] = [];
       try {
         entries = this.readdirSync(current, { withFileTypes: true });
-      } catch {
+      } catch (error: any) {
         continue;
       }
 
@@ -133,7 +133,7 @@ export class EngineeringFileSystemService {
             modifiedAt: stat.mtime.toISOString(),
             sizeBytes: stat.size,
           });
-        } catch {
+        } catch (error: any) {
           continue;
         }
       }
@@ -180,7 +180,7 @@ export class EngineeringFileSystemService {
     let entries: fs.Dirent[] = [];
     try {
       entries = this.readdirSync(currentPath, { withFileTypes: true });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Engineering File System] filesystem operation failed', error);
     return;
   }

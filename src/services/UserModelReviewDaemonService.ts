@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 
 import { UserModelTurnCaptureService, type CapturedTurn } from './UserModelTurnCaptureService.js';
@@ -210,7 +210,10 @@ export class UserModelReviewDaemonService {
     if (fs.existsSync(fp)) {
       try {
         return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-      } catch (error) { // ignore logger.warn('[User Model] JSON parse failed', error); }
+      } catch (error: any) {
+      // ignore
+      logger.warn('[User Model] JSON parse failed', error);
+    }
     }
     return {
       running: false,

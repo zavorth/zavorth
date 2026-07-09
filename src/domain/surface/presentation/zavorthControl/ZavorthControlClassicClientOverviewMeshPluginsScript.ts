@@ -88,7 +88,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         }
         renderOperationsPlugins(payload.plugins || null);
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         showToast(error instanceof Error ? error.message : 'Falha ao executar a acao do plugin plane.');
       }
     }

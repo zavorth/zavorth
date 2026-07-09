@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { PtySessionApprovalService } from '../../services/PtySessionApprovalService.js';
@@ -51,7 +51,7 @@ export class PtySessionProposeTool extends BaseTool {
       );
       this.ptySessionService.registerPendingSession(proposal.sessionId, args.cwd as string, args.shell as string);
       return JSON.stringify({ success: true, status: 'PTY_APPROVAL_REQUIRED', sessionId: proposal.sessionId });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Pty Session Propose] serialization failed', error);
     return JSON.stringify({ success: false, error: err.message });
   }

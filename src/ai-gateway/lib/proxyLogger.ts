@@ -83,7 +83,7 @@ function loadFromDb() {
     if (proxyLogs.length > 0) {
       console.log(`[proxyLogger] Loaded ${proxyLogs.length} proxy logs from SQLite`);
     }
-  } catch (err: any) {
+  } catch (err: any) { const error = err; const e = err;
     console.warn("[proxyLogger] Failed to load from DB:", err.message);
   }
 }
@@ -147,7 +147,7 @@ export function logProxyEvent(entry: Partial<ProxyLogEntry>) {
         account: log.account,
         tlsFingerprint: log.tlsFingerprint ? 1 : 0,
       });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       console.warn("[proxyLogger] Failed to persist:", err.message);
     }
   }
@@ -211,7 +211,7 @@ export function clearProxyLogs() {
     try {
       const db = getDbInstance();
       db.prepare("DELETE FROM proxy_logs").run();
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       console.warn("[proxyLogger] Failed to clear DB:", err.message);
     }
   }

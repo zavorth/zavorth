@@ -7,7 +7,7 @@ export const APP_NAME = "ZavorthGateway";
 function safeHomeDir() {
   try {
     return os.homedir();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[data Paths] operation failed', error);
     return process.cwd();
   }

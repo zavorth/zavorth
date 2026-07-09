@@ -57,7 +57,7 @@ export async function POST(request) {
         );
       }
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[SECURITY] Prompt injection guard failed:", error);
     return new Response(
       JSON.stringify({

@@ -60,7 +60,10 @@ export async function GET(request: Request) {
         query = body.query || "";
         const { query: _q, provider: _p, ...rest } = body;
         filters = rest;
-      } catch (error) { // Unparseable request_body logger.warn('[route] JSON parse failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Unparseable request_body
+      logger.warn('[route] JSON parse failed', error);
+    }
       return {
         query,
         provider: row.provider,
@@ -70,7 +73,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json({ cache, providers, recent_searches });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: "Failed to get stats" }, { status: 500 });
   }

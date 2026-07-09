@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { createPatch } from 'diff';
@@ -488,7 +488,7 @@ export class FileInspectionService {
         let entries: fs.Dirent[];
         try {
           entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-        } catch {
+        } catch (error: any) {
           continue;
         }
 
@@ -542,7 +542,7 @@ export class FileInspectionService {
       let entries: fs.Dirent[];
       try {
         entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
-      } catch {
+      } catch (error: any) {
         continue;
       }
 
@@ -560,7 +560,7 @@ export class FileInspectionService {
         let stats: fs.Stats;
         try {
           stats = await fs.promises.stat(absolutePath);
-        } catch {
+        } catch (error: any) {
           continue;
         }
 
@@ -650,7 +650,7 @@ export class FileInspectionService {
   private safeIsDirectory(targetPath: string): boolean {
     try {
       return fs.statSync(targetPath).isDirectory();
-    } catch (error) { logger.warn('[File] filesystem operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[File] filesystem operation failed', error); return false; }
   }
 
   private looksBinary(buffer: Buffer): boolean {

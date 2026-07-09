@@ -12,7 +12,7 @@ function zavorthControlClassicClientDataSnippets() {
          const { snippets } = await res.json() as { snippets: Snippet[] };
          currentSnippets = snippets;
          renderSnippetList();
-      } catch (_e) { console.warn("[auto-fix] Empty catch block", _e); }
+      } catch (_e: any) { const error = _e; const err = _e; const e = _e; console.warn("[auto-fix] Empty catch block", _e); }
     }
 
     function renderSnippetList() {
@@ -66,7 +66,7 @@ function zavorthControlClassicClientDataSnippets() {
          const data = await res.json();
          if(data.ok) { showToast('Snippet Salvo!'); loadSnippets(); }
          else showToast(data.error, true);
-       } catch(_e) { showToast('Erro de rede', true); }
+       } catch (_e: any) { const error = _e; const err = _e; const e = _e; showToast('Erro de rede', true); }
     }
 
     async function deleteSnippet() {
@@ -81,7 +81,7 @@ function zavorthControlClassicClientDataSnippets() {
          const data = await res.json();
          if(data.ok) { showToast('Deletado!'); newSnippet(); loadSnippets(); }
          else showToast(data.error, true);
-       } catch(_e) { showToast('Erro de rede', true); }
+       } catch (_e: any) { const error = _e; const err = _e; const e = _e; showToast('Erro de rede', true); }
     }
 }
 

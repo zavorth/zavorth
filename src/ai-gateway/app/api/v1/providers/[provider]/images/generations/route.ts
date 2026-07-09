@@ -44,7 +44,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }

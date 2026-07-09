@@ -1,5 +1,6 @@
 import { buildApprovalCard, buildArtifactCard, buildRemoteMeshApprovalCard, deriveApprovalCapability } from './approval-artifact-cards';
 import { buildConversationStateCard } from './chat-renderer';
+import { looksLikeUnifiedDiff, setDiffReviewContent } from './diff-review-rail';
 
 const REMOTE_MESH_DISMISSED_APPROVALS_KEY = 'zavorth.remoteMesh.dismissedApprovals.v1';
 
@@ -348,6 +349,12 @@ export function createChatSurfaceRenderers({
     `;
 
     neuralFeed.appendChild(group);
+    const firstDiff = visibleArtifacts.find((artifact) => {
+      const kind = String(artifact?.kind || '').toLowerCase();
+      if (kind === 'diff' || artifact?.diff) return true;
+      return typeof artifact?.content === 'string' && looksLikeUnifiedDiff(artifact.content);
+    });
+    if (firstDiff) maybeOpenArtifactDiffRail(firstDiff);
     scrollFeedToEnd();
     updateDashboardGlass();
     return true;
@@ -369,9 +376,57 @@ export function createChatSurfaceRenderers({
     return true;
   }
 
+  /**
+   * When chat surfaces a diff/patch artifact, also populate the trust rail.
+   * Safe no-op when there is no unified-diff text.
+   */
+  function openDiffInTrustRail(diffText: string, meta: { file?: string; title?: string; runId?: string; sessionId?: string; artifactId?: string } = {}) {
+    const text = String(diffText || '').trim();
+    if (!text) return false;
+    setDiffReviewContent(text, {
+      file: meta.file,
+      title: meta.title || meta.file || 'Diff review',
+      runId: meta.runId,
+      sessionId: meta.sessionId,
+      artifactId: meta.artifactId,
+    });
+    if (!artifactPane?.classList.contains('hidden')) {
+      // already open
+    } else if (artifactPane) {
+      artifactPane.classList.remove('hidden');
+    }
+    updateDashboardGlass();
+    return true;
+  }
+
+  function maybeOpenArtifactDiffRail(artifact: any) {
+    if (!artifact) return false;
+    const isDiff = String(artifact.kind || '').toLowerCase() === 'diff' || Boolean(artifact.diff);
+    const raw =
+      (typeof artifact.diff === 'string' && artifact.diff)
+      || artifact.diff?.consolidatedDiff
+      || (Array.isArray(artifact.diff?.patches)
+        ? artifact.diff.patches.map((entry: any) => String(entry?.diff || entry?.patch || '').trim()).filter(Boolean).join('\n\n')
+        : '')
+      || (typeof artifact.content === 'string' && looksLikeUnifiedDiff(artifact.content) ? artifact.content : '')
+      || '';
+    if (!isDiff && !looksLikeUnifiedDiff(String(raw))) return false;
+    if (!String(raw).trim()) return false;
+    return openDiffInTrustRail(String(raw), {
+      file: artifact.path || artifact.name || artifact.title,
+      title: artifact.title || artifact.name || 'Diff review',
+      runId: artifact.runId || artifact.toolRunId,
+      sessionId: artifact.sessionId,
+      artifactId: artifact.id,
+    });
+  }
+
   return {
     openApprovalScopeEditor,
     openArtifactPane,
+    openDiffInTrustRail,
+    maybeOpenArtifactDiffRail,
+    looksLikeUnifiedDiff,
     renderApprovals,
     renderArtifacts,
     renderRemoteMeshApprovals,

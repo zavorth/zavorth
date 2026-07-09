@@ -163,7 +163,7 @@ export class QwenService {
 
       spinner.succeed("Qwen connected successfully!");
       return true;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

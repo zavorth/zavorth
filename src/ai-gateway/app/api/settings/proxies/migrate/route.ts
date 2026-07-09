@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return createErrorResponse({
       status: 400,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const force = validation.data.force === true;
     const result = await migrateLegacyProxyConfigToRegistry({ force });
     return Response.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to migrate legacy proxy config");
   }

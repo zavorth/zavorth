@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import type { SafeModificationService } from '../SafeModificationService.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
@@ -69,7 +69,7 @@ export class SelfModificationApplySupport {
       }
 
       return this.applyGoalPreview(artifact, requestedBy);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Self Modification Apply] operation failed', error);
     return {
         success: false,
@@ -141,7 +141,7 @@ export class SelfModificationApplySupport {
         restoredFiles,
         summary: `Rollback concluido para ${restoredFiles} arquivo(s).`,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Self Modification Apply] array operation failed', error);
     return {
         success: false,

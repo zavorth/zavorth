@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -226,11 +226,11 @@ export class ZavorthTelemetryLedgerService {
         .map((line) => {
           try {
             return JSON.parse(line) as TelemetryEventLike;
-          } catch (error) { logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error); return null; }
+          } catch (error: any) { logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error); return null; }
         })
           .filter((entry): entry is TelemetryEventLike => Boolean(entry?.traceId)),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Telemetry Ledger] JSON parse failed', error);
     return {
         events: [],

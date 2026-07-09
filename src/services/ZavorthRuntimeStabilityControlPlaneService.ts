@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
 import { ZavorthRemoteTransportService } from './ZavorthRemoteTransportService.js';
 import { KeepaliveStatusService, type KeepaliveStatusSnapshot } from './KeepaliveStatusService.js';
@@ -466,7 +466,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
   private safeSnapshot<T>(reader: () => T, fallback: T): T {
     try {
       return reader();
-    } catch (error) { logger.warn('[Zavorth Runtime Stability Control Plane] array operation failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Zavorth Runtime Stability Control Plane] array operation failed', error); return fallback; }
   }
 
   private text(value: unknown, fallback = ''): string {

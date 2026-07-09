@@ -70,3 +70,4 @@ What does not belong here:
 
 When schedules change, update this file.
 When timezone changes, update immediately.
+- **Weekend policy:** urgent-only

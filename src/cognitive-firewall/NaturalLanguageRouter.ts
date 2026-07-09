@@ -6,7 +6,7 @@
  * runtime, policy layer, or explicit command parser.
  */
 
-import { CognitiveFirewall } from '../cognitive-firewall/index.js';
+import type { CognitiveFirewall } from '../cognitive-firewall/index.js';
 import type { IntentCategory } from '../cognitive-firewall/IntentClassifier.js';
 
 export interface NaturalRouteDecision {
@@ -36,14 +36,26 @@ const ZERO_TOOL_INTENTS: Set<IntentCategory> = new Set([
 ]);
 
 const TRIVIAL_CHAT_PATTERNS = [
-  /^(oi|ola|hey|hi|hello|bom dia|boa tarde|boa noite|e ai|fala|salve|good morning|good afternoon|good evening|merci|danke|gracias|arigatou|감사합니다|شكرا|ありがとう)\b/i,
-  /^(ok|ta|beleza|blz|show|perfeito|entendi|certo|valeu|obrigado|obg|thanks|vlw|tmj|merci|danke|gracias)\b/i,
-  /^(sim|nao|s|n|yes|no|yeah|nope|yep|ja|nein|oui|non|はい|いいえ|네|아니오|نعم|لا)\s*$/i,
-  /^(haha|kk|kkk|rs|rsrs|lol|hehe)\s*$/i,
+  /^(hey|hi|hello|good\s+morning|good\s+afternoon|good\s+evening|thanks|thank\s+you|ok|okay|sure|right|got\s+it|understood|nice|great|perfect|awesome|cool|yes|no|y|n|\?\?|\!\!|bye|see\s+ya|cheers|lol|haha|hey|yo|sup|howdy|greetings|welcome|cheers|ta|ty|thx|tyvm|np|yw|roger|copy|affirmative|negative)\b/i,
+  /^(ok|okay|sure|right|got\s+it|understood|nice|great|perfect|awesome|cool|thanks|thank\s+you|cheers|ta|ty|thx|tyvm|np|yw|roger|copy)\b/i,
+  /^(yes|no|yeah|nope|yep|yep|yea|nah|nope|nay|aye|right|correct|wrong|true|false)\s*$/i,
+  /^(haha|lol|hehe|lmao|rofl|omg|wow|bruh|yo|hey|hi|hello)\s*$/i,
 ];
 
 export class NaturalLanguageRouter {
-  private readonly firewall = new CognitiveFirewall();
+  private readonly firewall: CognitiveFirewall;
+
+  constructor(firewall?: CognitiveFirewall) {
+    // Accept external instance to avoid duplicate CognitiveFirewall creation.
+    // Lazy-load only if no instance provided (backward compatibility).
+    if (firewall) {
+      this.firewall = firewall;
+    } else {
+      // Lazy import to avoid circular dependency
+      const { CognitiveFirewall: LazyFirewall } = require('../cognitive-firewall/index.js');
+      this.firewall = new LazyFirewall();
+    }
+  }
 
   public route(text: string): NaturalRouteDecision {
     const trimmed = text.trim();

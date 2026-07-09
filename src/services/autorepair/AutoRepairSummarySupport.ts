@@ -1,4 +1,4 @@
-import type { AutoRepairIncidentMemoryService } from '../AutoRepairIncidentMemoryService.js';
+﻿import type { AutoRepairIncidentMemoryService } from '../AutoRepairIncidentMemoryService.js';
 import {
   collectAutoRepairSmokeValidationStats,
   describeAutoRepairValidationStatus,
@@ -17,7 +17,7 @@ export function describeAutoRepairIncidentMemoryStatus(
       return incidentMemoryService.summarizeForStatus();
     }
     return 'Memoria operacional: historico disponivel para o planejador.';
-  } catch (error) { logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Memoria operacional: indisponivel neste momento.'; }
+  } catch (error: any) { logger.warn('[Auto Repair Summary] filesystem check failed', error); return 'Memoria operacional: indisponivel neste momento.'; }
 }
 
 export function summarizeLastAutoRepairRun(

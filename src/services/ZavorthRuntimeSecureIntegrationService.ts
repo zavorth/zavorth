@@ -1,4 +1,4 @@
-import os from 'node:os';
+﻿import os from 'node:os';
 import path from 'node:path';
 import type {
   ZavorthRuntimeStateBusActionInput,
@@ -423,5 +423,5 @@ function sanitizeRagSources(value: unknown): unknown[] {
 function safeResolve(value: string): string | null {
   try {
     return path.resolve(value);
-  } catch (error) { logger.warn('[Zavorth Runtime Secure Integration] operation failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Runtime Secure Integration] operation failed', error); return null; }
 }

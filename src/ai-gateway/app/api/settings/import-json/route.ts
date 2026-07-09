@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     let parsed: unknown;
     try {
       parsed = JSON.parse(rawText);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] JSON parse failed', error);
     return NextResponse.json(
         { error: "Invalid JSON: the file could not be parsed. Please upload a valid .json backup." },
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       message: "Settings backup imported successfully",
       ...counts,
     });
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[API] Error importing JSON backup:", err);
     return NextResponse.json({ error: (err as Error).message }, { status: 500 });
   }

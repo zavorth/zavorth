@@ -42,7 +42,7 @@ function isProcessAlive(pid) {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error) { logger.warn('[manager] encoding failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[manager] encoding failed', error); return false; }
 }
 
 /**
@@ -65,7 +65,10 @@ export async function getMitmStatus() {
           fs.unlinkSync(PID_FILE);
         }
       }
-    } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[manager] file cleanup failed', error);
+    }
   }
 
   // Check DNS configuration
@@ -139,7 +142,10 @@ export async function startMitm(apiKey, sudoPassword) {
     // Remove PID file
     try {
       fs.unlinkSync(PID_FILE);
-    } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[manager] file cleanup failed', error);
+    }
   });
 
   // Wait and verify server actually started
@@ -213,7 +219,10 @@ export async function stopMitm(sudoPassword) {
           }
         }
       }
-    } catch (error) { // Ignore logger.warn('[manager] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[manager] operation failed', error);
+    }
     serverProcess = null;
     serverPid = null;
   }
@@ -226,7 +235,10 @@ export async function stopMitm(sudoPassword) {
   clearCachedPassword(); // Clear password from memory when proxy stops
   try {
     fs.unlinkSync(PID_FILE);
-  } catch (error) { // Ignore logger.warn('[manager] file cleanup failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Ignore
+      logger.warn('[manager] file cleanup failed', error);
+    }
 
   return {
     running: false,

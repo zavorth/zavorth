@@ -64,7 +64,7 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       }
 
       await ctx.reply(this.formatReply(result));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui preparar o ZavorthBridge para uso no celular agora.');
     }
   }

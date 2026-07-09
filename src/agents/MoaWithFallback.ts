@@ -195,7 +195,7 @@ export class MoAWithFallback extends EventEmitter {
           latencyMs: Date.now() - startTime,
           success: true,
         };
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);
@@ -258,7 +258,7 @@ Instructions:
         const response = await this.callModel(candidate, aggregatorPrompt, systemPrompt, timeoutMs);
         chain.recordSuccess(candidate);
         return response;
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : String(error);
         lastError = message;
         const reason = this.classifyError(message);

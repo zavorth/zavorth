@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import fs from 'fs';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
@@ -30,7 +30,7 @@ export class ReadFileTool extends BaseTool {
     let filePath: string;
     try {
       filePath = new WorkspaceFsPolicy().resolveReadPath(rawFilePath).absolutePath;
-    } catch (error) { logger.warn('[Read File] process execution failed', error); return 'Error: for security, files can only be read inside the current workspace.'; }
+    } catch (error: any) { logger.warn('[Read File] process execution failed', error); return 'Error: for security, files can only be read inside the current workspace.'; }
 
     try {
       if (!fs.existsSync(filePath)) {
@@ -54,7 +54,7 @@ export class ReadFileTool extends BaseTool {
       }
 
       return content.trim();
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('[ReadFile] Error while reading:', message);
       return `Error while reading file: ${message}`;

@@ -92,11 +92,9 @@ import {
   GatewaySessionStoreService,
   type GatewaySessionSpawnSnapshot,
 } from '../runtime/sessions/GatewaySessionStoreService.js';
-import {
-  GatewaySessionToolsService,
-  type GatewaySessionSendResult,
-} from '../runtime/sessions/GatewaySessionToolsService.js';
+import { GatewaySessionToolsService } from '../runtime/sessions/GatewaySessionToolsService.js';
 import { MemoryService } from '../services/MemoryService.js';
+import { handleZavorthCliRegistryKanbanCommand } from './ZavorthCliRegistryKanban.js';
 import {
   AutoRepairService,
   type AutoRepairReport,
@@ -295,6 +293,9 @@ import { handleZavorthCliRegistryExperienceCommand } from './ZavorthCliRegistryE
 import { handleZavorthCliRegistryControlCommand } from './ZavorthCliRegistryZavorthControl.js';
 import { handleZavorthCliRegistryConnectorsCommand } from './ZavorthCliRegistryConnectors.js';
 import { handleZavorthCliRegistryScaffoldCommand } from './ZavorthCliRegistryScaffold.js';
+import { handleZavorthCliRegistrySkillsCommand } from './ZavorthCliRegistrySkills.js';
+import { handleZavorthCliVoiceCommand } from './ZavorthCliVoiceCommand.js';
+import { handleZavorthCompileCommand } from './ZavorthCompileCommand.js';
 import { handleZavorthUpdateCommand } from './update/ZavorthUpdateCommand.js';
 import { handleZavorthCompletionsCommand } from './completions/ZavorthCompletionsCommand.js';
 import { handleZavorthInspectCommand } from './inspect/ZavorthInspectCommand.js';
@@ -358,7 +359,11 @@ export async function executeZavorthCliCommand(params: {
     commandName === 'site-docs-demo' ||
     commandName === 'feedback-product-loop' ||
     commandName === 'pilot-loop' ||
-    commandName === 'integration-showcase'
+    commandName === 'integration-showcase' ||
+    commandName === 'skill' ||
+    commandName === 'skills' ||
+    commandName === 'voice' ||
+    commandName === 'compile'
   );
 
   const showSpinner = isSlow && !effectiveFlags.json && process.stdout.isTTY;
@@ -396,7 +401,7 @@ export async function executeZavorthCliCommand(params: {
       spinnerActive = false;
     }
     return result;
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (spinnerActive) {
       globalSpinner.fail(`Failed to run '${commandName}'`);
       spinnerActive = false;
@@ -509,6 +514,20 @@ async function executeZavorthCliCommandInner(params: {
       : formatCliHelp(helpTopic);
     writer.line(body);
     return { ok: true, handled: true, output: [body], error: null };
+  }
+
+  if (commandName === 'setup' || commandName === 'init') {
+    const { runZavorthSetupStudioCommand } = await import('./setup-studio/ZavorthSetupStudioCommand.js');
+    const result = await runZavorthSetupStudioCommand({
+      projectRoot: process.cwd(),
+      args: args.trim() ? args.trim().split(/\s+/) : [],
+      json: effectiveFlags.json,
+    });
+    const body = effectiveFlags.json
+      ? `${JSON.stringify({ applied: result.applied, exitCode: result.exitCode, writtenKeys: result.writtenKeys }, null, 2)}\n`
+      : result.output;
+    writer.line(body);
+    return { ok: result.exitCode === 0, handled: true, output: [body], error: result.exitCode !== 0 ? 'Setup failed.' : null };
   }
 
   const experienceResult = await handleZavorthCliRegistryExperienceCommand({
@@ -628,6 +647,15 @@ async function executeZavorthCliCommandInner(params: {
     return localTaskResult;
   }
 
+  const kanbanResult = await handleZavorthCliRegistryKanbanCommand({
+    commandName,
+    args,
+    writer,
+  });
+  if (kanbanResult) {
+    return kanbanResult;
+  }
+
   if (normalized === 'quit' || normalized === 'exit') {
     return {
       ok: true,
@@ -663,6 +691,21 @@ async function executeZavorthCliCommandInner(params: {
   const platformResult = await handleZavorthCliRegistryPlatformCommand(sharedParams);
   if (platformResult) {
     return platformResult;
+  }
+
+  const skillsResult = await handleZavorthCliRegistrySkillsCommand(sharedParams);
+  if (skillsResult) {
+    return skillsResult;
+  }
+
+  const voiceResult = await handleZavorthCliVoiceCommand(sharedParams);
+  if (voiceResult) {
+    return voiceResult;
+  }
+
+  const compileResult = await handleZavorthCompileCommand(sharedParams);
+  if (compileResult) {
+    return compileResult;
   }
 
   const tasksResult = await handleZavorthCliRegistryTasksCommand(sharedParams);

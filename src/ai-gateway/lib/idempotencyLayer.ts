@@ -89,7 +89,10 @@ export async function getIdempotencyStats() {
     if (typeof settings.idempotencyWindowMs === "number" && settings.idempotencyWindowMs > 0) {
       windowMs = settings.idempotencyWindowMs;
     }
-  } catch (error) { // Fallback to default if settings unavailable logger.warn('[idempotency Layer] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Fallback to default if settings unavailable
+      logger.warn('[idempotency Layer] operation failed', error);
+    }
   return {
     activeKeys: idempotencyStore.size,
     windowMs,

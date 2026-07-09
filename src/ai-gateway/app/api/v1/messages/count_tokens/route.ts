@@ -21,7 +21,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
       status: 400,

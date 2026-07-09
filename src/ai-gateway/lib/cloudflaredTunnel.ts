@@ -283,7 +283,7 @@ export async function startCloudflaredTunnel(): Promise<CloudflaredTunnelStatus>
 
   try {
     return await startPromise;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const currentState = await readStateFile();
     const message = isSpecificCloudflaredError(currentState.lastError)
       ? currentState.lastError

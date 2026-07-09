@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+﻿import * as fs from 'fs';
 import * as path from 'path';
 import { spawnSync } from 'child_process';
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
@@ -61,7 +61,7 @@ export class LoopEngineeringService {
     try {
       const content = fs.readFileSync(filePath, 'utf8');
       return JSON.parse(content);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Loop Engineering] JSON parse failed', error);
     return { sessionId, status: 'IDLE', task: '' };
   }
@@ -79,7 +79,10 @@ export class LoopEngineeringService {
     if (fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
-      } catch (error) { // Best effort cleanup only. logger.warn('[Loop Engineering] file cleanup failed', error); }
+      } catch (error: any) {
+      // Best effort cleanup only.
+      logger.warn('[Loop Engineering] file cleanup failed', error);
+    }
     }
   }
 
@@ -199,7 +202,10 @@ Task: "${task}"`;
       if (Array.isArray(parsed) && parsed.length >= 2 && parsed.length <= 5) {
         return parsed.map(String);
       }
-    } catch (error) { // Fall back to safe default questions. logger.warn('[Loop Engineering] JSON parse failed', error); }
+    } catch (error: any) {
+      // Fall back to safe default questions.
+      logger.warn('[Loop Engineering] JSON parse failed', error);
+    }
 
     return [
       'What behavior is expected for error scenarios or invalid inputs?',
@@ -229,7 +235,10 @@ ${answersContext ? `User-provided answers:\n${answersContext}` : ''}`;
       if (parsed && Array.isArray(parsed.criteria) && parsed.criteria.length === 3) {
         return parsed.criteria.map(String);
       }
-    } catch (error) { // Use deterministic fallback criteria. logger.warn('[Loop Engineering] JSON parse failed', error); }
+    } catch (error: any) {
+      // Use deterministic fallback criteria.
+      logger.warn('[Loop Engineering] JSON parse failed', error);
+    }
 
     return [
       'Criterion 1: The JavaScript syntax and structure must be valid.',
@@ -354,7 +363,7 @@ Respond ONLY with JSON in this format:
             critique: String(parsedCritique || ''),
           };
         }
-      } catch {
+      } catch (error: any) {
         const syntaxScore = ok ? 10 : 3;
         judgeResult = {
           grades: { criterion1: syntaxScore, criterion2: 7, criterion3: 6 },
@@ -383,7 +392,10 @@ Respond ONLY with JSON in this format:
 
       try {
         fs.unlinkSync(sandboxFile);
-      } catch (error) { // Best effort cleanup only. logger.warn('[Loop Engineering] file cleanup failed', error); }
+      } catch (error: any) {
+      // Best effort cleanup only.
+      logger.warn('[Loop Engineering] file cleanup failed', error);
+    }
 
       if (average >= 8.0) {
         break;
@@ -415,7 +427,10 @@ Generate a clean, concise Mutation Plan in plan or diff markdown format.`;
         }),
         'loop_engineering',
       );
-    } catch (error) { // Memory persistence is best effort in test environments. logger.warn('[Loop Engineering] operation failed', error); }
+    } catch (error: any) {
+      // Memory persistence is best effort in test environments.
+      logger.warn('[Loop Engineering] operation failed', error);
+    }
 
     const historyLines = state.history!.map(
       (entry) => `- Iteration ${entry.iteration}: Average ${entry.average.toFixed(2)} (weakest: ${entry.weakPoint})`,

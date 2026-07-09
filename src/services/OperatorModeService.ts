@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -63,7 +63,7 @@ export class OperatorModeService {
         updatedBy: parsed.updatedBy || null,
         note: parsed.note || null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Operator Mode] JSON parse failed', error);
     return {
         enabled: false,
@@ -78,6 +78,9 @@ export class OperatorModeService {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.snapshot, null, 2), 'utf8');
-    } catch (error) { // Keep in-memory state even if persistence fails. logger.warn('[Operator Mode] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Keep in-memory state even if persistence fails.
+      logger.warn('[Operator Mode] filesystem operation failed', error);
+    }
   }
 }

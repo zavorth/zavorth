@@ -28,7 +28,7 @@ export type ZavorthNativeLearningLoopCandidate = {
   confidence: number;
   risk: ZavorthNativeLearningLoopRisk;
   state: ZavorthNativeLearningLoopCandidateState;
-  approvalRequired: true;
+  approvalRequired: boolean;
   reversible: true;
   source: {
     surface: string;
@@ -95,6 +95,11 @@ export type ZavorthNativeLearningLoopSnapshot = {
     quarantined: number;
     requiresApproval: number;
     promoted: number;
+    tieredAutonomy: {
+      auto: number;
+      notify: number;
+      approve: number;
+    };
     sessionSearchReady: boolean;
     autoSkillCandidateReady: boolean;
     skillImprovementCandidateReady: boolean;

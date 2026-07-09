@@ -10,7 +10,7 @@ export async function DELETE(request: Request) {
   try {
     clearAllLKGP();
     return NextResponse.json({ cleared: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

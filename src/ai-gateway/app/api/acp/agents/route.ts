@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         custom: agents.filter((a) => a.isCustom).length,
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error detecting agents:", error);
     return NextResponse.json({ error: "Failed to detect agents" }, { status: 500 });
   }
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -106,7 +106,7 @@ export async function POST(request: Request) {
     // Refresh cache to detect the new agent
     const agents = refreshAgentCache();
     return NextResponse.json({ agents, added: newAgent });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error adding custom agent:", error);
     return NextResponse.json({ error: "Failed to add agent" }, { status: 500 });
   }
@@ -140,7 +140,7 @@ export async function DELETE(request: Request) {
     const agents = refreshAgentCache();
 
     return NextResponse.json({ agents, removed: agentId });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error removing custom agent:", error);
     return NextResponse.json({ error: "Failed to remove agent" }, { status: 500 });
   }

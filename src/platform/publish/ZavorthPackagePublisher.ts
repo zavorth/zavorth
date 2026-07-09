@@ -126,7 +126,7 @@ export class ZavorthPackagePublisher {
         if (response.ok) {
           uploadStatus = 'published';
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         uploadStatus = 'prepared';
       }
     }

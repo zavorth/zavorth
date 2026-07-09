@@ -163,7 +163,7 @@ export async function installVersion(version: string, dataDir?: string): Promise
   const symlinkPath = path.join(binDir, "cliproxyapi");
   try {
     await fs.unlink(symlinkPath);
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
   if (process.platform === "win32") {
     await fs.copyFile(binary, symlinkPath);
   } else {
@@ -179,7 +179,7 @@ export async function getCurrentBinaryPath(dataDir?: string): Promise<string | n
   try {
     const real = await fs.realpath(symlinkPath);
     return fsSync.existsSync(real) ? real : null;
-  } catch (error) { logger.warn('[binary Manager] filesystem operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[binary Manager] filesystem operation failed', error); return null; }
 }
 
 export async function getInstalledVersions(dataDir?: string): Promise<string[]> {
@@ -192,7 +192,7 @@ export async function getInstalledVersions(dataDir?: string): Promise<string[]> 
         (e) => e.startsWith("cliproxyapi-") && fsSync.statSync(path.join(binDir, e)).isDirectory()
       )
       .map((e) => e.replace("cliproxyapi-", ""));
-  } catch (error) { logger.warn('[binary Manager] filesystem operation failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[binary Manager] filesystem operation failed', error); return []; }
 }
 
 export async function rollbackVersion(dataDir?: string): Promise<string | null> {
@@ -210,7 +210,7 @@ export async function rollbackVersion(dataDir?: string): Promise<string | null> 
   const symlinkPath = path.join(binDir, "cliproxyapi");
   try {
     await fs.unlink(symlinkPath);
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
   if (process.platform === "win32") {
     await fs.copyFile(oldBinary, symlinkPath);
   } else {
@@ -226,5 +226,5 @@ export async function removeVersion(version: string, dataDir?: string): Promise<
   try {
     await fs.rm(versionDir, { recursive: true, force: true });
     return true;
-  } catch (error) { logger.warn('[binary Manager] delete operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[binary Manager] delete operation failed', error); return false; }
 }

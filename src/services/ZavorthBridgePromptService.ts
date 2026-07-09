@@ -1,4 +1,4 @@
-import { Task } from '../contracts/TaskContract.js';
+﻿import { Task } from '../contracts/TaskContract.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { config } from '../config/index.js';
 import {
@@ -266,7 +266,7 @@ export class ZavorthBridgePromptService {
 
     try {
       await this.automator.pasteAndSubmit(promptEnvelope, 400, activeProcessId || 0);
-    } catch (error) {
+    } catch (error: any) {
       await this.ensureConversationSurfaceVisible({
         taskId: task.task_id,
         targetInstanceId,

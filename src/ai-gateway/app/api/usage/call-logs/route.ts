@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
     const logs = await getCallLogs(filter);
     return NextResponse.json(logs);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/usage/call-logs failed:", error);
     return NextResponse.json({ error: "Failed to fetch call logs" }, { status: 500 });
   }

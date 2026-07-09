@@ -199,7 +199,7 @@ export class AutomaticBrowserTool {
         default:
           return this.errorResponse(`Tool ${name} not supported by AutomaticBrowserTool.`);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return this.errorResponse(
         error instanceof Error ? error.message : String(error),
       );
@@ -217,19 +217,19 @@ export class AutomaticBrowserTool {
 
     try {
       await page?.close?.();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // noop
     }
 
     try {
       await context?.close?.();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // noop
     }
 
     try {
       await browser?.close?.();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // noop
     }
   }
@@ -271,7 +271,7 @@ export class AutomaticBrowserTool {
             'A stack de browser esta pronta para o AutomaticBrowserTool.',
           ],
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         const message = error instanceof Error ? error.message : String(error);
         return {
           checkedAt,
@@ -283,7 +283,7 @@ export class AutomaticBrowserTool {
           recommendations: this.buildDoctorRecommendations(message),
         };
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return {
         checkedAt,
@@ -297,7 +297,7 @@ export class AutomaticBrowserTool {
     } finally {
       try {
         await browser?.close?.();
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // noop
       }
     }
@@ -680,13 +680,13 @@ export class AutomaticBrowserTool {
         moduleName: 'playwright-core',
         playwright: require('playwright-core') as PlaywrightModuleLike,
       };
-    } catch (coreError) {
+    } catch (coreError: any) { const error = coreError; const err = coreError; const e = coreError;
       try {
         return {
           moduleName: 'playwright',
           playwright: require('playwright') as PlaywrightModuleLike,
         };
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         const detail = coreError instanceof Error ? ` (${coreError.message})` : '';
         throw new Error(
           `AutomaticBrowserTool requer playwright-core ou playwright provisionado para navegacao real${detail}.`,
@@ -726,7 +726,7 @@ export class AutomaticBrowserTool {
         throw new Error('missing protocol');
       }
       return parsed.toString();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       throw new Error(`URL invalida para browser_navigate: "${url}".`);
     }
   }

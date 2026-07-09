@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { Database } from '../../storage/Database.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
@@ -183,7 +183,7 @@ export class HostCommandRunTool extends BaseTool {
         timeoutFlag: runResult.timeoutFlag,
         truncatedFlag: runResult.truncatedFlag
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Host Command Run] cache operation failed', error);
     return JSON.stringify({
         success: false,

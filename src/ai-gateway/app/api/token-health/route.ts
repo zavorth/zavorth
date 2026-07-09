@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       lastCheckAt: lastCheck,
       status: errored > 0 ? "error" : healthy < total ? "warning" : "healthy",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] health check failed', error);
     return Response.json({ error: err.message, status: "unknown" }, { status: 500 });
   }

@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
     const result = getAuditLog(options);
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/audit GET:", error);
     return NextResponse.json({ error: "Failed to fetch audit log." }, { status: 500 });
   }

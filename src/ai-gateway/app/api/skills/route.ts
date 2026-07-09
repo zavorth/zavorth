@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     await skillRegistry.loadFromDatabase();
     const skills = skillRegistry.list();
     return NextResponse.json({ skills });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

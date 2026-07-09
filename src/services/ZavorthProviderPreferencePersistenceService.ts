@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
@@ -140,7 +140,7 @@ export class ZavorthProviderPreferencePersistenceService {
         updatedAt: normalizeNullable(parsed.updatedAt) || new Date(0).toISOString(),
         receiptId: normalizeNullable(parsed.receiptId) || 'unknown',
       };
-    } catch (error) { logger.warn('[Zavorth  Preference Persistence] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth  Preference Persistence] parsing failed', error); return null; }
   }
 
   public renderText(snapshot: ZavorthProviderPreferencePersistenceSnapshot): string {
@@ -344,7 +344,7 @@ export class ZavorthProviderPreferencePersistenceService {
           return parsed;
         }
       }
-    } catch (error) { logger.warn('[Zavorth  Preference Persistence] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth  Preference Persistence] JSON parse failed', error); return null; }
     return null;
   }
 }

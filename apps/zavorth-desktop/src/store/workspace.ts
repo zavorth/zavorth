@@ -9,7 +9,13 @@ export const $channelSetup = atom<ChannelSetupSnapshot | null>(null);
 export const $gatewayResilience = atom<GatewayResilienceSnapshot | null>(null);
 export const $runtimeCapabilities = atom<RuntimeCapabilitiesSnapshot | null>(null);
 
-export function setWorkspaceScopes(s: DesktopWorkspaceScope[]) { $workspaceScopes.set(s); }
+export function setWorkspaceScopes(s: DesktopWorkspaceScope[] | ((current: DesktopWorkspaceScope[]) => DesktopWorkspaceScope[])) {
+  if (typeof s === 'function') {
+    $workspaceScopes.set(s($workspaceScopes.get()));
+  } else {
+    $workspaceScopes.set(s);
+  }
+}
 export function setWorkspaceScopeId(id: string) { $workspaceScopeId.set(id); }
 export function addWorkspaceScope(scope: DesktopWorkspaceScope) {
   const current = $workspaceScopes.get();

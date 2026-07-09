@@ -264,7 +264,7 @@ function toSerializableRecord(value: unknown): Record<string, unknown> | undefin
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : undefined;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return undefined;
   }
 }
@@ -763,13 +763,13 @@ function buildSidecars(generatedAt: string): UniversalAgentRunObservatorySidecar
 
   try {
     health = new SidecarStatusService().list();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     health = [];
   }
 
   try {
     receipts = new SidecarExecutionReceiptService().buildSnapshot(20);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     receipts = {
       ...receipts,
       generatedAt,

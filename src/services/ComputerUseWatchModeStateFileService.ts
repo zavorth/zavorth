@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { WatchModeSnapshot } from './ComputerUseWatchModeService.js';
@@ -48,7 +48,7 @@ export class ComputerUseWatchModeStateFileService {
         return (parsed as WatchModeStateDocument).snapshot || null;
       }
       return (parsed as WatchModeSnapshot) || null;
-    } catch (error) { logger.warn('[Computer Use Watch Mode State File] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Computer Use Watch Mode State File] JSON parse failed', error); return null; }
   }
 
   public saveSnapshot(snapshot: WatchModeSnapshot): WatchModeSnapshot {

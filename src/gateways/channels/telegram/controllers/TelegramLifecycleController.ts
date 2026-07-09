@@ -16,7 +16,7 @@ export class TelegramLifecycleController {
     try {
       await this.deps.menuController.registerTelegramMenu();
       this.deps.logRepo.log('info', 'BotGateway', 'Telegram command menu registered successfully.');
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       this.deps.logRepo.log(
         'warn',
@@ -58,7 +58,7 @@ export class TelegramLifecycleController {
           );
         });
       });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       throw error;
     }
   }

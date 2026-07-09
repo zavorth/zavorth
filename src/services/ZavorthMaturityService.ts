@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import type {
   ZavorthMaturityGate,
@@ -385,7 +385,7 @@ export class ZavorthMaturityService {
       return {
         scripts: parsed.scripts || {},
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Maturity] JSON parse failed', error);
     return { scripts: {} };
   }

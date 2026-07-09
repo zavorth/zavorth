@@ -42,7 +42,7 @@ export async function interceptToolCalls(
           id: call.id,
           result,
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[interception] process execution failed', error);
     return {
           id: call.id,
@@ -103,7 +103,7 @@ function parseArguments(args: string | Record<string, unknown>): Record<string, 
 
   try {
     return JSON.parse(args);
-  } catch (error) { logger.warn('[interception] JSON parse failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[interception] JSON parse failed', error); return {}; }
 }
 
 export async function handleToolCallExecution(

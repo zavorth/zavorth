@@ -55,7 +55,7 @@ export async function unlinkFileWithRetry(
     try {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       return;
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const code =
         err && typeof err === "object" && "code" in err ? (err as NodeJS.ErrnoException).code : "";
       if (code === "ENOENT") return;
@@ -134,19 +134,19 @@ export function backupDbFile(reason = "auto") {
             smallestSize = fStat.size;
             smallestIdx = i;
           }
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           smallestIdx = i;
           break;
         }
       }
       try {
         fs.unlinkSync(path.join(backupDir, files[smallestIdx]));
-      } catch (error) { /* gone */ logger.warn('[backup] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* gone */ logger.warn('[backup] file cleanup failed', error); }
       files.splice(smallestIdx, 1);
     }
 
     return { filename: path.basename(backupFile), size: stat.size };
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     const message = err instanceof Error ? err.message : String(err);
     console.error("[DB] Backup failed:", message);
     return null;
@@ -180,7 +180,7 @@ export async function listDbBackups() {
           | undefined;
         connectionCount = row?.cnt || 0;
         backupDb.close();
-      } catch (error) { /* ignore */ logger.warn('[backup] resource cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[backup] resource cleanup failed', error); }
 
       return {
         id: filename,
@@ -191,7 +191,7 @@ export async function listDbBackups() {
         connectionCount,
       };
     });
-  } catch (error) { logger.warn('[backup] resource cleanup failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[backup] resource cleanup failed', error); return []; }
 }
 
 // ──────────────── Restore Backup ────────────────
@@ -230,7 +230,7 @@ export async function restoreDbBackup(backupId: string) {
     if (result[0]?.integrity_check !== "ok") {
       throw new Error("Backup integrity check failed");
     }
-  } catch (e: unknown) {
+  } catch (e: any) { const error = e; const err = e;
     if (e instanceof Error && e.message === "Backup integrity check failed") throw e;
     const message = e instanceof Error ? e.message : String(e);
     throw new Error(`Backup file is corrupt: ${message}`);

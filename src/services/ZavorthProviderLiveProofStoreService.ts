@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -76,7 +76,7 @@ export class ZavorthProviderLiveProofStoreService {
           .map(normalizeEntry)
           .filter((entry): entry is ZavorthProviderLiveProofEntry => Boolean(entry)),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth  Live Proof Store] parsing failed', error);
     return this.emptyDocument();
   }

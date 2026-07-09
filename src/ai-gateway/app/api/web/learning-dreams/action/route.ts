@@ -37,7 +37,7 @@ function readState(): LearningState {
       return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
     }
     return JSON.parse(fs.readFileSync(filePath, "utf8")) as LearningState;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] JSON parse failed', error);
     return { version: 1, updatedAt: new Date(0).toISOString(), entries: {} };
   }
@@ -47,7 +47,7 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
   try {
     const body = await request.json();
     return body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : {};
-  } catch (error) { logger.warn('[route] filesystem operation failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[route] filesystem operation failed', error); return {}; }
 }
 
 export async function POST(request: Request) {

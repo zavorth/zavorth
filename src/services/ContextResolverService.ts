@@ -4,6 +4,7 @@ import {
   type WorkspaceProfile,
 } from './WorkspaceProfileService.js';
 import { logger } from '../logger.js';
+import { MccPathfinderService } from './MccPathfinderService.js';
 import {
 isMnemosAvailable,
   buildMnemosCognitiveInstruction,
@@ -50,6 +51,7 @@ export class ContextResolverService {
   private readonly globalPolicySummary: string;
   private readonly connectedToolNames: string[];
   private readonly connectedToolNamesProvider: (() => string[] | Promise<string[]>) | null;
+  private readonly pathfinder = new MccPathfinderService();
 
   constructor(options: ContextResolverOptions = {}) {
     this.workspaceProfiles = options.workspaceProfileService || new WorkspaceProfileService();
@@ -204,6 +206,20 @@ export class ContextResolverService {
     }
 
     if (input.userRequest) {
+      try {
+        const mccContext = await this.pathfinder.resolveContextForQuery(input.userRequest);
+        if (mccContext) {
+          layers.push({
+            id: 'mcc-graph-path',
+            label: 'Nexo Cognitivo (Caminhos Relacionais)',
+            summary: mccContext,
+            source: 'zavorth://mcc/graph-path',
+          });
+        }
+      } catch (error: any) {
+        logger.warn('[Context Resolver] MccPathfinderService failed to resolve context:', error);
+      }
+
       layers.push({
         id: 'user-request',
         label: 'Pedido do usuario',
@@ -222,6 +238,6 @@ export class ContextResolverService {
 
     try {
       return await this.connectedToolNamesProvider();
-    } catch (error) { logger.warn('[Context Resolver] connection failed', error); return this.connectedToolNames; }
+    } catch (error: any) { logger.warn('[Context Resolver] connection failed', error); return this.connectedToolNames; }
   }
 }

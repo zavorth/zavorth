@@ -192,7 +192,7 @@ export class AgentRunPolicyFlows {
     }
     try {
       await this.service.autoSkillInvocation.apply({ run, request });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const generatedAt = this.service.now().toISOString();
       const reason = error instanceof Error ? error.message : String(error);
       run.metadata = {

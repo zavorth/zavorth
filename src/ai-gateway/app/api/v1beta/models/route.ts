@@ -61,7 +61,7 @@ export async function GET() {
           ...(m.supportsThinking === true ? { thinking: true } : {}),
         });
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.error("[v1beta/models] Error fetching synced Gemini models:", err);
     }
 
@@ -88,10 +88,13 @@ export async function GET() {
           });
         }
       }
-    } catch (error) { // Custom models are optional — skip on error logger.warn('[route] creation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Custom models are optional — skip on error
+      logger.warn('[route] creation failed', error);
+    }
 
     return Response.json({ models });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching models:", error);
     return Response.json({ error: { message: error.message } }, { status: 500 });
   }

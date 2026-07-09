@@ -32,6 +32,15 @@ export function runZavorthDoctorPremium(input: RunZavorthDoctorPremiumInput): {
 } {
   let logBuffer = '';
 
+  if (input.dryRun && !input.fix) {
+    const snapshot = buildZavorthDoctorPremiumSnapshot({ projectRoot: input.projectRoot });
+    const preview = renderDoctorPreview(snapshot);
+    const output = input.json
+      ? JSON.stringify({ snapshot, preview }, null, 2) + '\n'
+      : `${preview}\n`;
+    return { exitCode: snapshot.status === 'fail' ? 1 : 0, output, snapshot };
+  }
+
   if (input.fix) {
     const dryRun = input.dryRun === true;
     logBuffer += `[zavorth-ops] Starting Doctor Auto-Repair...${dryRun ? ' (Dry Run)' : ''}\n`;
@@ -180,6 +189,45 @@ function accentForDoctorStatus(status: ZavorthDoctorPremiumStatus): 'emerald' | 
     return 'rose';
   }
   return 'amber';
+}
+
+export function renderDoctorPreview(snapshot: ZavorthDoctorPremiumSnapshot): string {
+  const failing = snapshot.checks.filter((c) => c.status === 'fail');
+  const warnings = snapshot.checks.filter((c) => c.status === 'warn');
+
+  if (failing.length === 0 && warnings.length === 0) {
+    return 'No issues to fix. Everything looks good.';
+  }
+
+  const lines: string[] = [];
+  lines.push('Preview of changes that would be applied:');
+  lines.push('');
+
+  if (failing.length > 0) {
+    lines.push(`Fixes (${failing.length}):`);
+    for (const check of failing) {
+      lines.push(`  ${check.title}`);
+      lines.push(`    Problem: ${check.summary}`);
+      lines.push(`    Fix: ${check.fixCommand || 'auto-repair available'}`);
+      if (check.evidence && check.evidence.length > 0) {
+        lines.push(`    Evidence: ${check.evidence[0]}`);
+      }
+      lines.push('');
+    }
+  }
+
+  if (warnings.length > 0) {
+    lines.push(`Warnings (${warnings.length}):`);
+    for (const check of warnings) {
+      lines.push(`  ${check.title}`);
+      lines.push(`    Issue: ${check.summary}`);
+      if (check.fixCommand) lines.push(`    Fix: ${check.fixCommand}`);
+      lines.push('');
+    }
+  }
+
+  lines.push('Run with --fix to apply these changes.');
+  return lines.join('\n');
 }
 
 export function renderZavorthDoctorCompactActions(snapshot: ZavorthDoctorPremiumSnapshot): string {

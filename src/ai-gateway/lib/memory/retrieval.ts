@@ -47,7 +47,7 @@ function parseMetadata(raw: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(raw);
     return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch (error) { logger.warn('[retrieval] JSON parse failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[retrieval] JSON parse failed', error); return {}; }
 }
 
 function rowToMemory(row: MemoryRow): Memory {

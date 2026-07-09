@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import type {
 IntegrationConnectorDoctor,
   IntegrationConnectorExecutePreview,
@@ -45,7 +45,7 @@ function normalizeHttpUrl(value: string | null | undefined, trimTrailingSlash = 
     }
     const normalized = url.toString();
     return trimTrailingSlash ? trimSlash(normalized) : normalized;
-  } catch (error) { logger.warn('[Integration Connector Mesh] network request failed', error); return null; }
+  } catch (error: any) { logger.warn('[Integration Connector Mesh] network request failed', error); return null; }
 }
 
 function joinUrl(baseUrl: string, suffix: string): string {
@@ -445,7 +445,7 @@ export class IntegrationConnectorMeshService {
     try {
       const url = new URL(target);
       return `${url.origin}/[${manifest.env.executeUrl}]`;
-    } catch (error) { logger.warn('[Integration Connector Mesh] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Integration Connector Mesh] process execution failed', error); return ''; }
   }
 
   private missingConfigHint(manifest: IntegrationConnectorManifest): string {
@@ -497,7 +497,7 @@ export class IntegrationConnectorMeshService {
         summary: `${manifest.label} probe returned HTTP ${response.status}.`,
         nextAction: 'Review connector API key, scopes, base URL and account status.',
       });
-    } catch (error) {
+    } catch (error: any) {
       const aborted = error instanceof Error && error.name === 'AbortError';
       return this.doctorSnapshot(manifest, {
         status: 'failed',
@@ -547,11 +547,11 @@ export class IntegrationConnectorMeshService {
     if (contentType.includes('application/json')) {
       try {
         return await response.json();
-      } catch (error) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
+      } catch (error: any) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
     }
     try {
       return (await response.text()).slice(0, 1000);
-    } catch (error) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Integration Connector Mesh] operation failed', error); return null; }
   }
 
   private doctorSnapshot(

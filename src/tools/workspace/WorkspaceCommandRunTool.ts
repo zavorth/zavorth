@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspaceCommandRiskClassifier } from '../../services/WorkspaceCommandRiskClassifier.js';
@@ -126,7 +126,7 @@ export class WorkspaceCommandRunTool extends BaseTool {
         timeoutFlag: result.timeoutFlag,
         truncatedFlag: result.truncatedFlag
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Workspace Command Run] process execution failed', error);
     return JSON.stringify({
         success: false,
@@ -161,7 +161,10 @@ export class WorkspaceCommandRunTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch (error) { // ignore parsing failures logger.warn('[Workspace Command Run] lifecycle operation failed', error); }
+        } catch (error: any) {
+      // ignore parsing failures
+      logger.warn('[Workspace Command Run] lifecycle operation failed', error);
+    }
       }
     }
 

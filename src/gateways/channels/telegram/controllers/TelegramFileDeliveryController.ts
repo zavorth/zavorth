@@ -52,7 +52,7 @@ export class TelegramFileDeliveryController {
         extraAllowedPaths: allowedPaths,
       });
       await this.deliverPlan(ctx, plan);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(
         this.formatter.compose('I could not prepare this delivery right now.', [
           {
@@ -149,7 +149,7 @@ export class TelegramFileDeliveryController {
       await ctx.replyWithDocument(new InputFile(plan.sendPath, plan.fileName), {
         caption: plan.caption,
       });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(
         this.formatter.compose('I could not send this file right now.', [
           {

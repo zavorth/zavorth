@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config as defaultConfig } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -273,7 +273,7 @@ export class ZavorthInspectService {
   private readPackageJson(): Record<string, any> {
     try {
       return JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf8'));
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[Inspect] Failed to read package.json:', error);
       return {};
     }

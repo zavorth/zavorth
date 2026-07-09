@@ -24,7 +24,7 @@ export async function GET(request: Request) {
       ...getTaskRoutingConfig(),
       defaultTaskModelMap: getDefaultTaskModelMap(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/task-routing GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
@@ -42,7 +42,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] array operation failed', error);
     return NextResponse.json(
       {
@@ -70,7 +70,7 @@ export async function PUT(request: Request) {
     await updateSettings({ taskRouting: JSON.stringify(persistable) });
 
     return NextResponse.json({ success: true, ...getTaskRoutingConfig() });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/task-routing PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/task-routing POST:", error);
     return NextResponse.json({ error: "Failed to execute action" }, { status: 500 });
   }

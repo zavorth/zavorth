@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -129,7 +129,7 @@ export class ZavorthBatchWorkloadService {
             startedAt,
             finishedAt: this.now().toISOString(),
           };
-        } catch (error) {
+        } catch (error: any) {
           results[index] = {
             ...item,
             status: 'failed',

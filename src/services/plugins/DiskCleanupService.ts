@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -78,7 +78,7 @@ export class DiskCleanupService {
               ruleSize += stat.size;
               ruleFiles++;
             }
-          } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
+          } catch (error: any) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
         }
       }
 
@@ -117,7 +117,7 @@ export class DiskCleanupService {
               result.bytes_freed += stat.size;
               result.details.push({ path: file, size: stat.size, reason: `${rule.name}: ${Math.floor(age / 86400000)} days` });
             }
-          } catch (error: unknown) {
+          } catch (error: any) {
             result.errors.push(`${file}: ${error instanceof Error ? error.message : String(error)}`);
           }
         }
@@ -194,7 +194,7 @@ export class DiskCleanupService {
         if (entry.isFile()) results.push(fullPath);
         else if (entry.isDirectory() && !entry.name.startsWith('.')) results.push(...this.listFiles(fullPath));
       }
-    } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
     return results;
   }
 
@@ -207,7 +207,7 @@ export class DiskCleanupService {
         if (entry.isFile()) size += fs.statSync(fullPath).size;
         else if (entry.isDirectory()) size += this.getDirSize(fullPath);
       }
-    } catch (error) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Disk Cleanup] filesystem operation failed', error); }
     return size;
   }
 

@@ -356,7 +356,7 @@ export class AgentChainBuilder {
 
         this.log.info(`[AgentChain] Step "${stepConfig.id}" completed (${stepResult.durationMs}ms)`);
         return true;
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         lastError = error instanceof Error ? error.message : String(error);
         stepResult.error = lastError;
         stepResult.finishedAt = this.now().toISOString();
@@ -386,7 +386,7 @@ export class AgentChainBuilder {
 
             this.log.info(`[AgentChain] Step "${stepConfig.id}" completed via fallback "${stepConfig.fallback}" (${stepResult.durationMs}ms)`);
             return true;
-          } catch (fallbackError: unknown) {
+          } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
             const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
             this.log.error(`[AgentChain] Fallback "${stepConfig.fallback}" also failed: ${fallbackErrorMsg}`);
             stepResult.status = 'failed';

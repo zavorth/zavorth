@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -43,7 +43,7 @@ export class SupervisedRuntimeNotificationService {
       }
 
       return parsed;
-    } catch (error) { logger.warn('[Supervised Runtime Notification] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Supervised Runtime Notification] JSON parse failed', error); return null; }
   }
 
   public async flushPending(

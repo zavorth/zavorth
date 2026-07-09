@@ -114,7 +114,7 @@ export function parseCallbackInput(
       error: url.searchParams.get("error"),
       errorDescription: url.searchParams.get("error_description"),
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     const [rawCode, rawState] = input.split("#", 2);
     return {
       code: rawCode || null,

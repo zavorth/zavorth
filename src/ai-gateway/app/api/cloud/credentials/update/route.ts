@@ -13,7 +13,7 @@ export async function PUT(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
@@ -80,7 +80,7 @@ export async function PUT(request: Request) {
       success: true,
       message: `Credentials updated for provider: ${provider}`,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Update credentials error:", error);
     return NextResponse.json({ error: "Failed to update credentials" }, { status: 500 });
   }

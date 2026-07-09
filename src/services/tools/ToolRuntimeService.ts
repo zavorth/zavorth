@@ -29,6 +29,7 @@ export interface ToolRuntimeServiceOptions {
 export class ToolRuntimeService {
   private readonly catalog: ToolCatalogService;
   private readonly cache: ToolResultCache;
+  private readonly cacheEnabled: boolean;
 
   constructor(
     private readonly registry?: ToolRegistryLike,
@@ -36,6 +37,7 @@ export class ToolRuntimeService {
     options?: ToolRuntimeServiceOptions,
   ) {
     this.catalog = new ToolCatalogService(registry);
+    this.cacheEnabled = options?.cacheEnabled ?? true;
     this.cache = new ToolResultCache({
       maxEntries: options?.cacheMaxEntries,
       defaultTtlMs: options?.cacheTtlMs,
@@ -75,18 +77,23 @@ export class ToolRuntimeService {
       throw new Error('Tool runtime sem executor configurado nesta sessao.');
     }
 
-    // Check cache first (Improvement E: Tool Result Caching)
-    const normalizedArgs = (typeof args === 'object' && args !== null ? args : {}) as Record<string, unknown>;
-    const cached = this.cache.get(toolName, normalizedArgs);
-    if (cached !== null) {
-      return cached;
+    // Only cache when enabled and args are objects (primitives cause key collisions)
+    const canCache = this.cacheEnabled && typeof args === 'object' && args !== null;
+
+    if (canCache) {
+      const cached = this.cache.get(toolName, args as Record<string, unknown>);
+      if (cached !== null) {
+        return cached;
+      }
     }
 
     // Execute the tool
     const result = await this.executor.executeTool(toolName, args);
 
-    // Cache the result
-    this.cache.set(toolName, normalizedArgs, result);
+    // Cache the result only when enabled and for object args
+    if (canCache) {
+      this.cache.set(toolName, args as Record<string, unknown>, result);
+    }
 
     return result;
   }

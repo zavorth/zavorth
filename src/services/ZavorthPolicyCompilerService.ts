@@ -1,4 +1,4 @@
-import type { CompiledPolicyRule, PolicyCompilerSnapshot } from '../contracts/PracticalAgencyContract.js';
+﻿import type { CompiledPolicyRule, PolicyCompilerSnapshot } from '../contracts/PracticalAgencyContract.js';
 import { logger } from '../logger.js';
 
 export class ZavorthPolicyCompilerService {
@@ -15,7 +15,7 @@ export class ZavorthPolicyCompilerService {
         hardBlocksPreserved: true,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth  Compiler] parsing failed', error);
     return {
         source: 'ZavorthPolicyCompilerService',

@@ -43,7 +43,7 @@ function CallbackContent() {
           window.opener.postMessage({ type: "oauth_callback", data: callbackData }, targetOrigin);
         }
         sent = true;
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         console.log("postMessage failed:", e);
       }
     }
@@ -54,7 +54,7 @@ function CallbackContent() {
       channel.postMessage(callbackData);
       channel.close();
       sent = true;
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("BroadcastChannel failed:", e);
     }
 
@@ -67,12 +67,12 @@ function CallbackContent() {
       storageCleanupTimer = window.setTimeout(() => {
         try {
           localStorage.removeItem("oauth_callback");
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // Ignore unavailable storage.
         }
       }, 30000);
       sent = true;
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("localStorage failed:", e);
     }
 
@@ -100,7 +100,7 @@ function CallbackContent() {
       if (storageCleanupTimer) window.clearTimeout(storageCleanupTimer);
       try {
         localStorage.removeItem("oauth_callback");
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Ignore unavailable storage.
       }
     };

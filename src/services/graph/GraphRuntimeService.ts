@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+﻿import { v4 as uuidv4 } from 'uuid';
 
 import { config } from '../../config/index.js';
 import {
@@ -141,7 +141,7 @@ export class GraphRuntimeService {
       });
 
       return runtimeResult;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       await this.telemetryRuntime.record({
         traceId,
@@ -242,7 +242,7 @@ export class GraphRuntimeService {
     if (typeof runtime.isProviderAvailable === 'function') {
       try {
         return runtime.isProviderAvailable(name);
-      } catch (error) { logger.warn('[Graph Runtime] operation failed', error); return true; }
+      } catch (error: any) { logger.warn('[Graph Runtime] operation failed', error); return true; }
     }
 
     return true;

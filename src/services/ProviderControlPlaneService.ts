@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { resolveWorkspaceLlmStrategy } from './WorkspaceLlmProfile.js';
@@ -974,6 +974,6 @@ export class ProviderControlPlaneService {
         checkedAt: String(parsed.checkedAt || '').trim(),
         message: String(parsed.message || '').trim(),
       };
-    } catch (error) { logger.warn('[Control Plane] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Control Plane] parsing failed', error); return null; }
   }
 }

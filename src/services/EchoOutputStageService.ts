@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import { config } from '../config/index.js';
 import type { AudioSynthesisOptions } from '../gateways/channels/telegram/AudioHandler.js';
 import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
@@ -162,7 +162,7 @@ export class EchoOutputStageService {
       }
 
       return true;
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error || 'erro desconhecido');
       if (request.traceId) {
         logEchoTrace(request.traceId, 'voice.send.failed', {

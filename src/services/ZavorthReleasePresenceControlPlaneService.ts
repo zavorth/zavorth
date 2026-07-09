@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
@@ -331,7 +331,7 @@ export class ZavorthReleasePresenceControlPlaneService {
         name: String(parsed.name || 'zavorth'),
         version: typeof parsed.version === 'string' ? parsed.version : null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Release Presence Control Plane] JSON parse failed', error);
     return { name: 'zavorth', version: null };
   }
@@ -345,19 +345,19 @@ export class ZavorthReleasePresenceControlPlaneService {
       return live
         ? this.operationsHealthService.readSnapshotLive()
         : this.operationsHealthService.readSnapshotFast();
-    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
   }
 
   private readRemoteTransportSnapshot(): ZavorthRemoteTransportSnapshot | null {
     try {
       return this.remoteTransportService.buildSnapshot();
-    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Release Presence Control Plane] health check failed', error); return null; }
   }
 
   private readTelemetrySnapshot(): ZavorthTelemetryLedgerSnapshot | null {
     try {
       return this.telemetryLedgerService.buildSnapshot();
-    } catch (error) { logger.warn('[Zavorth Release Presence Control Plane] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Release Presence Control Plane] creation failed', error); return null; }
   }
 
   private buildDescriptorList(entries: PublishHistoryEntry[]): PublishSnapshotDescriptor[] {

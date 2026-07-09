@@ -89,7 +89,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
       }
 
       await ctx.reply('Use /AIGateway [status|route|start|doctor|sync|promote|rollback].');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui operar o AIGateway agora.');
     }
   }

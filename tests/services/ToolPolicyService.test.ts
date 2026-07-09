@@ -74,4 +74,26 @@ describe('ToolPolicyService', () => {
     const policy = service.getPolicy('network.fetch');
     expect(policy?.conditions).toBe('only to known domains');
   });
+
+  it('evaluates checkPermission with workspace conditions and targetPath', () => {
+    const service = new ToolPolicyService({ projectRoot: tempDir });
+    service.setPolicy('file.write', 'allow', 'workspace only');
+
+    // 1. Inside workspace path
+    const insidePath = path.join(tempDir, 'subfolder', 'test.txt');
+    const resInside = service.checkPermission('file.write', { targetPath: insidePath });
+    expect(resInside.allowed).toBe(true);
+    expect(resInside.level).toBe('allow');
+
+    // 2. Outside workspace path
+    const outsidePath = path.join(os.tmpdir(), 'malicious.txt');
+    const resOutside = service.checkPermission('file.write', { targetPath: outsidePath });
+    expect(resOutside.allowed).toBe(false);
+    expect(resOutside.level).toBe('ask');
+
+    // 3. Omitted path
+    const resOmitted = service.checkPermission('file.write');
+    expect(resOmitted.allowed).toBe(false);
+    expect(resOmitted.level).toBe('ask');
+  });
 });

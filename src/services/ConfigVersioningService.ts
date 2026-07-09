@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { SpawnSyncReturns, spawnSync } from 'child_process';
 import { config } from '../config/index.js';
@@ -100,7 +100,7 @@ export class ConfigVersioningService {
   private safeQuery(db: Database, sql: string): any[] {
     try {
       return db.all(sql);
-    } catch (error) { logger.warn('[Versioning] filesystem operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Versioning] filesystem operation failed', error); return []; }
   }
 
   private runGit(

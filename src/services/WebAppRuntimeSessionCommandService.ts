@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import { randomUUID } from 'crypto';
 import * as http from 'http';
 import type { GatewayCanonicalStatePayload } from '../contracts/GatewayContract.js';
@@ -54,7 +54,7 @@ export class WebAppRuntimeSessionCommandService {
         clientContext: this.recordOrNull(body.clientContext),
       }, deps, helpers);
       deps.writeJson(res, payload, 200);
-    } catch (error: unknown) {
+    } catch (error: any) {
       logger.error('[WebAppRuntimeSessionCommandService] command failed', error);
       deps.writeJson(res, {
         ok: false,
@@ -350,7 +350,7 @@ export class WebAppRuntimeSessionCommandService {
       catalogSkills = this.arrayOfRecords(this.recordOrNull(catalog)?.skills)
         .map((skill) => this.compactItem(skill, 'skill'))
         .filter(Boolean);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Web App Runtime Session Command] array operation failed', error);
     catalogSkills = [];
   }

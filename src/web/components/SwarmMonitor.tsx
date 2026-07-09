@@ -249,7 +249,7 @@ export function SwarmMonitor({
       }
       setObjective('');
       await fetchList();
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       setError(err?.message || 'Failed to launch swarm.');
     } finally {
       setLaunching(false);
@@ -269,7 +269,7 @@ export function SwarmMonitor({
       if (data?.swarm) {
         setSwarm(data.swarm);
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       setError(err?.message || 'Failed to cancel swarm.');
     }
   };

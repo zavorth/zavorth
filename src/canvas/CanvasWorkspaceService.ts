@@ -654,7 +654,7 @@ export class CanvasWorkspaceService {
         plan,
         snapshot: await this.buildSnapshot(),
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return {
         generatedAt: this.now().toISOString(),
         ok: false,
@@ -1255,7 +1255,7 @@ export class CanvasWorkspaceService {
         return null;
       }
       return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }
@@ -1263,7 +1263,7 @@ export class CanvasWorkspaceService {
   private safeMutationPlans(limit: number): ZavorthMutationPlan[] {
     try {
       return this.mutationPlaneService.listPlans({ limit, includeExpired: false });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }
@@ -1275,7 +1275,7 @@ export class CanvasWorkspaceService {
       }
       const parsed = JSON.parse(this.readFileSync(this.stateFile, 'utf8')) as Partial<CanvasWorkspaceDocument>;
       return this.normalizeDocument(parsed);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return this.emptyDocument();
     }
   }

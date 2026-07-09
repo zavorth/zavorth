@@ -105,7 +105,7 @@ export async function GET(request: Request) {
     const catalog = aggregationService.toLegacyModelsCatalog(aggregation);
 
     return Response.json({ catalog });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { IntegrationHubMcpSnapshot, IntegrationHubMcpServerEntry } from '../contracts/IntegrationHubContract.js';
@@ -159,7 +159,7 @@ export class McpCapabilityControlPlaneService {
   private readManifestEntries(): ResolvedMcpServerManifestEntry[] {
     try {
       return this.manifestLoader.load();
-    } catch (error) { logger.warn('[Mcp Capability Control Plane] load operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Mcp Capability Control Plane] load operation failed', error); return []; }
   }
 
   private readRuntimeSnapshot(): McpRuntimeSnapshot | null {
@@ -169,6 +169,6 @@ export class McpCapabilityControlPlaneService {
 
     try {
       return JSON.parse(fs.readFileSync(this.runtimeStateFile, 'utf8')) as McpRuntimeSnapshot;
-    } catch (error) { logger.warn('[Mcp Capability Control Plane] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Mcp Capability Control Plane] JSON parse failed', error); return null; }
   }
 }

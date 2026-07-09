@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -134,7 +134,7 @@ export class SalesPackBusinessModeService {
         updatedAt: this.clean(record.updatedAt) || this.now().toISOString(),
         updatedBy: this.clean(record.updatedBy) || 'legacy',
       };
-    } catch (error) { logger.warn('[Sales Pack Business Mode] operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Sales Pack Business Mode] operation failed', error); return null; }
   }
 
   private clean(value: unknown): string | null {

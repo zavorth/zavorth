@@ -138,6 +138,16 @@ export class ZavorthMcpClient extends EventEmitter {
     } catch {
       // Server may already be dead
     }
+
+    // Close transport to release file descriptors (stdio pipes)
+    try {
+      if (entry.transport && typeof entry.transport.close === 'function') {
+        await entry.transport.close();
+      }
+    } catch {
+      // Transport may already be closed
+    }
+
     entry.connected = false;
     this.servers.delete(serverId);
     this.emit('server:disconnected', { serverId });
@@ -180,7 +190,7 @@ export class ZavorthMcpClient extends EventEmitter {
         content: (result.content || []) as McpToolCallResult['content'],
         isError: result.isError === true,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         serverId: entry.registration.id,
         toolName,

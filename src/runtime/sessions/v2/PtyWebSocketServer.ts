@@ -251,7 +251,7 @@ export class PtyWebSocketServer {
           }
           session.kill();
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         if (!allowInput) {
           ws.send(JSON.stringify({
             type: 'pty:error',

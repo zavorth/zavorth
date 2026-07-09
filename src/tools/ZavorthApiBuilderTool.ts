@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -126,7 +126,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
   }
 
   private async generateSpec(args: Record<string, unknown>): Promise<string> {
@@ -183,7 +183,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
       if (args.parameters_spec) {
         try {
           endpoint.parameters = JSON.parse(String(args.parameters_spec));
-        } catch (error) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
+        } catch (error: any) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
       }
 
       if (['post', 'put', 'patch'].includes(method) && args.request_body) {
@@ -204,14 +204,14 @@ export class ZavorthApiBuilderTool extends BaseTool {
             description: 'Successful response',
             content: { 'application/json': { schema: JSON.parse(String(args.response_body)) } },
           };
-        } catch (error) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
+        } catch (error: any) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
       }
 
       paths[endpointPath][method] = endpoint;
 
       fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
       return `Endpoint added: ${method.toUpperCase()} ${endpointPath}\nSpec updated: ${specPath}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] JSON parse failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] JSON parse failed', error); return ''; }
   }
 
   private async mockServer(args: Record<string, unknown>): Promise<string> {
@@ -227,10 +227,13 @@ export class ZavorthApiBuilderTool extends BaseTool {
         execFileSync('npx', ['--yes', 'openapi-mock-cli', '--port', String(port), specPath], {
           timeout: 5000,
         });
-      } catch (error) { // The server runs in background, this is expected to timeout logger.warn('[Zavorth Api Builder] filesystem operation failed', error); }
+      } catch (error: any) {
+      // The server runs in background, this is expected to timeout
+      logger.warn('[Zavorth Api Builder] filesystem operation failed', error);
+    }
 
       return `Mock server started on port ${port}\nSpec: ${specPath}\n\nNote: Server runs in foreground. Use a separate terminal or run with 'start' command.`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] lifecycle operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] lifecycle operation failed', error); return ''; }
   }
 
   private async testEndpoint(args: Record<string, unknown>): Promise<string> {
@@ -248,7 +251,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
           for (const [key, value] of Object.entries(headers)) {
             curlArgs.push('-H', `${key}: ${value}`);
           }
-        } catch (error) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
+        } catch (error: any) { /* ignore */ logger.warn('[Zavorth Api Builder] JSON parse failed', error); }
       }
 
       if (args.body && ['POST', 'PUT', 'PATCH'].includes(method)) {
@@ -262,7 +265,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
       const result = execFileSync('curl', curlArgs, { timeout: 15000, maxBuffer: 10 * 1024 * 1024 }).toString();
 
       return `${method} ${url}:\n${result}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
   }
 
   private async validateSpec(args: Record<string, unknown>): Promise<string> {
@@ -292,7 +295,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
       if (issues.length === 0) return `Spec validation passed: ${specPath}\n  Paths: ${Object.keys(spec.paths || {}).length}\n  Version: ${spec.openapi || spec.swagger}`;
 
       return `Spec validation (${issues.length} issues):\n  ${issues.join('\n  ')}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] validation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] validation failed', error); return ''; }
   }
 
   private async generateClient(args: Record<string, unknown>): Promise<string> {
@@ -318,7 +321,7 @@ export class ZavorthApiBuilderTool extends BaseTool {
 
       execFileSync(generator.cmd, generator.args, { timeout: 120000, maxBuffer: 50 * 1024 * 1024 });
       return `Client SDK generated:\n  Language: ${language}\n  Output: ${outputPath}\n  Spec: ${specPath}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
   }
 
   private async generateDocs(args: Record<string, unknown>): Promise<string> {
@@ -361,7 +364,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
 
       fs.writeFileSync(outputPath, html);
       return `API documentation generated: ${outputPath}\n  Title: ${title}\n  Version: ${version}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
   }
 
   private async listRoutes(args: Record<string, unknown>): Promise<string> {
@@ -381,7 +384,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
       }
 
       return `API Routes (${routes.length}):\n${routes.join('\n')}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] delete operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] delete operation failed', error); return ''; }
   }
 
   private async addSchema(args: Record<string, unknown>): Promise<string> {
@@ -404,7 +407,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
 
       fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
       return `Schema "${schemaName}" added to ${specPath}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] JSON parse failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] JSON parse failed', error); return ''; }
   }
 
   private async generateTypes(args: Record<string, unknown>): Promise<string> {
@@ -434,7 +437,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
 
       fs.writeFileSync(outputPath, types.join('\n'));
       return `TypeScript types generated: ${outputPath}\n  Schemas: ${Object.keys(schemas).length}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
   }
 
   private openapiTypeToTs(schema: Record<string, unknown>): string {
@@ -475,7 +478,7 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
         timeout: 30000,
       });
       return `Postman collection exported: ${outputPath}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] filesystem operation failed', error); return ''; }
   }
 
   private async importPostman(args: Record<string, unknown>): Promise<string> {
@@ -489,6 +492,6 @@ ${pathsHtml || '<p>No endpoints defined.</p>'}
         timeout: 30000,
       });
       return `OpenAPI spec imported from Postman: ${outputPath}`;
-    } catch (error) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Api Builder] process execution failed', error); return ''; }
   }
 }

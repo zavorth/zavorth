@@ -69,7 +69,7 @@ export async function GET(request) {
           connectionId;
         connectionMap[connectionId] = name;
       }
-    } catch (error) { /* ignore */ logger.warn('[route] connection failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] connection failed', error); }
 
     const analytics: any = await computeAnalytics(history, range, connectionMap);
 
@@ -108,14 +108,14 @@ export async function GET(request) {
         withRequested > 0 ? Number(((fallbackCount / withRequested) * 100).toFixed(2)) : 0;
       analytics.summary.requestedModelCoveragePct =
         total > 0 ? Number(((withRequested / total) * 100).toFixed(2)) : 0;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       analytics.summary.fallbackCount = 0;
       analytics.summary.fallbackRatePct = 0;
       analytics.summary.requestedModelCoveragePct = 0;
     }
 
     return NextResponse.json(analytics);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error computing analytics:", error);
     return NextResponse.json({ error: "Failed to compute analytics" }, { status: 500 });
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -35,7 +35,7 @@ export class MemorySemanticCacheService {
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
       if (data && typeof data === 'object') this.entries = new Map(Object.entries(data));
-    } catch (error) { /* ignore */ logger.warn('[Memory Semantic Cache] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Memory Semantic Cache] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

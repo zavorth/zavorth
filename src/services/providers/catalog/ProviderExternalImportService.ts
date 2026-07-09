@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+﻿import { readFileSync, existsSync } from 'fs';
 import { join, extname } from 'path';
 import type { ProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
 import { createMinimalProviderIntegrationManifest } from './ProviderIntegrationManifest.js';
@@ -86,7 +86,7 @@ function parseJsonConfig(content: string): ExternalProviderConfig[] {
       return [normalizeConfig(data)];
     }
     return [];
-  } catch (error) { logger.warn('[External Import] JSON parse failed', error); return []; }
+  } catch (error: any) { logger.warn('[External Import] JSON parse failed', error); return []; }
 }
 
 function parseEnvConfig(content: string): ExternalProviderConfig[] {
@@ -222,7 +222,7 @@ export class ProviderExternalImportService {
 
         content = readFileSync(filePath, 'utf-8');
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[External Import] filesystem operation failed', error);
     return {
         success: false,
@@ -249,7 +249,7 @@ export class ProviderExternalImportService {
         default:
           providers.push(...parseJsonConfig(content));
       }
-    } catch (error) {
+    } catch (error: any) {
       errors.push(`Parse error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 
@@ -285,7 +285,7 @@ export class ProviderExternalImportService {
           errors.push(...result.errors);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       errors.push(`Directory scan error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 

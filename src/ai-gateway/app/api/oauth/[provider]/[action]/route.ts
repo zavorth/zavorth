@@ -134,7 +134,7 @@ function normalizeOAuthRedirectUri(value: string | null, request: Request): stri
   let parsed: URL;
   try {
     parsed = new URL(redirectUri);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error("Invalid redirect_uri");
   }
 
@@ -155,7 +155,10 @@ function normalizeOAuthRedirectUri(value: string | null, request: Request): stri
   if (configuredBaseUrl) {
     try {
       allowedOrigins.add(new URL(configuredBaseUrl).origin);
-    } catch (error) { // Ignore invalid deployment base URL; it should not expand redirect allowances. logger.warn('[route] network request failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignore invalid deployment base URL; it should not expand redirect allowances.
+      logger.warn('[route] network request failed', error);
+    }
   }
 
   if (parsed.protocol !== "https:" || !allowedOrigins.has(parsed.origin)) {
@@ -233,7 +236,7 @@ export async function GET(
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("OAuth GET error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -255,7 +258,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
   if (globalThis.__codexCallbackState?.close) {
     try {
       globalThis.__codexCallbackState.close();
-    } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
   }
   globalThis.__codexCallbackState = null;
 
@@ -287,7 +290,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       if (globalThis.__codexCallbackState?.startedAt === startedAt) {
         try {
           close();
-        } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+        } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
         globalThis.__codexCallbackState = null;
       }
     }, 300000);
@@ -298,7 +301,7 @@ async function handleStartCallbackServer(provider: string, searchParams: URLSear
       redirectUri,
       serverPort: port,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] resource cleanup failed', error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -318,7 +321,7 @@ export async function POST(
     let rawBody: Record<string, unknown> = {};
     try {
       rawBody = await request.json() as Record<string, unknown>;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       if (action !== "poll-callback") {
         return NextResponse.json(
           {
@@ -566,7 +569,7 @@ export async function POST(
       // Clean up server
       try {
         close();
-      } catch (error) { /* ignore */ logger.warn('[route] resource cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* ignore */ logger.warn('[route] resource cleanup failed', error); }
       globalThis.__codexCallbackState = null;
 
       if (params.error) {
@@ -659,14 +662,14 @@ export async function POST(
             displayName: connection.displayName,
           },
         });
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json({ success: false, error: exchangeErr instanceof Error ? exchangeErr.message : "Unknown exchange error" }, { status: 500 });
   }
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("OAuth POST error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
   }
@@ -682,7 +685,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing to cloud after OAuth:", error);
   }
 }

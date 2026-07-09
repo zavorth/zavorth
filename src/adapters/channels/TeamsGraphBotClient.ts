@@ -207,7 +207,7 @@ export class TeamsGraphBotClient {
     let payload: Record<string, any> | null = null;
     try {
       payload = await response.json() as Record<string, any>;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       payload = null;
     }
 
@@ -249,7 +249,7 @@ export class TeamsGraphBotClient {
     let payload: Record<string, any> | null = null;
     try {
       payload = await response.json() as Record<string, any>;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       payload = null;
     }
 

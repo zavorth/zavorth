@@ -208,7 +208,7 @@ export class NodePairingManager {
           ? data.hostHints as Record<string, unknown>
           : this.buildHostHints(),
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

@@ -39,7 +39,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
         } else {
           setError(data.error || "Could not auto-detect token");
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         setError("Failed to auto-detect token");
       } finally {
         setAutoDetecting(false);
@@ -83,7 +83,7 @@ export default function KiroAuthModal({ isOpen, onMethodSelect, onClose }) {
 
       // Success - close modal
       onClose();
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       setError(err.message);
     } finally {
       setImporting(false);

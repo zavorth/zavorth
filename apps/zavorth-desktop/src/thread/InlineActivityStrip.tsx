@@ -1,5 +1,7 @@
 import type { ApprovalItem } from '../apiClient';
 import { itemId } from '../primitives/desktopPrimitives';
+import { t } from '../i18n';
+import { InThreadApprovalCard } from './InThreadApprovalCard';
 
 export function InlineActivityStrip(props: {
   approvals: ApprovalItem[];
@@ -13,33 +15,48 @@ export function InlineActivityStrip(props: {
     return null;
   }
 
-  return (
-    <div className="zvd-activity-strip">
-      <div>
-        <strong>{props.busy ? 'Working' : firstApproval?.title || firstApproval?.action || 'Review needed'}</strong>
-        <span>
-          {props.busy
-            ? 'Zavorth is processing this turn.'
-            : firstApproval?.summary || firstApproval?.risk || 'A decision is waiting.'}
-        </span>
+  if (firstApproval) {
+    const id = itemId(firstApproval, 'approval-0');
+    const title =
+      firstApproval.title || firstApproval.action || t('thread.approvalTitle');
+
+    return (
+      <div className="zvd-activity-footer">
+        {props.busy ? (
+          <div className="zvd-activity-strip zvd-activity-strip--running" role="status" aria-live="polite">
+            <span className="zvd-running-dot" aria-hidden="true" />
+            <div className="zvd-activity-strip__copy">
+              <strong>{t('thread.working')}</strong>
+              <span>{t('thread.workingBody')}</span>
+            </div>
+          </div>
+        ) : null}
+        <InThreadApprovalCard
+          id={id}
+          title={title}
+          summary={firstApproval.summary}
+          risk={firstApproval.risk}
+          busy={props.busy}
+          onApprove={approvalId => void props.onDecision(approvalId, 'approve')}
+          onReject={approvalId => void props.onDecision(approvalId, 'reject')}
+          onOpenReview={props.onOpenReview}
+        />
       </div>
-      {firstApproval ? (
-        <div className="zvd-activity-actions">
-          <button
-            disabled={props.busy}
-            onClick={() => void (!props.busy && props.onDecision(itemId(firstApproval, 'approval-0'), 'approve'))}
-          >
-            Approve
-          </button>
-          <button
-            disabled={props.busy}
-            onClick={() => void (!props.busy && props.onDecision(itemId(firstApproval, 'approval-0'), 'reject'))}
-          >
-            Reject
-          </button>
-          <button onClick={props.onOpenReview}>Details</button>
-        </div>
-      ) : <span className="zvd-running-dot" />}
+    );
+  }
+
+  return (
+    <div
+      className="zvd-activity-strip zvd-activity-strip--running"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span className="zvd-running-dot" aria-hidden="true" />
+      <div className="zvd-activity-strip__copy">
+        <strong>{t('thread.working')}</strong>
+        <span>{t('thread.workingBody')}</span>
+      </div>
     </div>
   );
 }

@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     let db;
     try {
       db = new Database(dbPath, { readonly: true, fileMustExist: true });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
         found: false,
@@ -73,14 +73,14 @@ export async function GET(request: Request) {
         accessToken: tokens.accessToken,
         machineId: tokens.machineId,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       db?.close();
       return NextResponse.json({
         found: false,
         error: `Failed to read database: ${(error as any).message}`,
       });
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Cursor auto-import error:", error);
     return NextResponse.json({ found: false, error: (error as any).message }, { status: 500 });
   }

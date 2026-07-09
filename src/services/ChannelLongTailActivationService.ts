@@ -1,4 +1,4 @@
-import {
+﻿import {
   BotHttpChannelLiveClient,
   LocalBridgeChannelLiveClient,
   WebhookChannelLiveClient,
@@ -251,7 +251,7 @@ export class ChannelLongTailActivationService {
         liveIoPerformed: true,
         secretValuesSerialized: false,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Channel Long Tail Activation] filesystem check failed', error);
     return {
         id,

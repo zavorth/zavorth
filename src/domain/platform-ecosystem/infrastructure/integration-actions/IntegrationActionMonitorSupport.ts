@@ -165,7 +165,10 @@ export class IntegrationActionMonitorSupport {
           requestedBy: context.requestedBy,
         },
       });
-    } catch (error) { // hooks de observabilidade nunca devem quebrar a finalizacao da acao logger.warn('[Integration Action Monitor] lifecycle operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // hooks de observabilidade nunca devem quebrar a finalizacao da acao
+      logger.warn('[Integration Action Monitor] lifecycle operation failed', error);
+    }
   }
 
   private normalizeWorkspace(value: string | null | undefined): string | null {

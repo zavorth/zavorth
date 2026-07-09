@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   try {
     const stats = await getAuditStats();
     return NextResponse.json(stats);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP audit stats";
     return NextResponse.json({ error: message }, { status: 500 });

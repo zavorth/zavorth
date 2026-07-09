@@ -33,7 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ webhook });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -56,7 +56,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ webhook });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -73,7 +73,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Webhook not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

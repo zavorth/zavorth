@@ -49,12 +49,17 @@ const ESCALATION_THRESHOLD = 2;
 /** Session TTL: 2 hours. */
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 
+/** Default max sessions to prevent unbounded memory growth. */
+const DEFAULT_MAX_SESSIONS = 1000;
+
 export class ContextAwareInjector {
   private readonly sessions: Map<string, InjectorState> = new Map();
   private readonly sessionTtlMs: number;
+  private readonly maxSessions: number;
 
-  constructor(options?: { sessionTtlMs?: number }) {
+  constructor(options?: { sessionTtlMs?: number; maxSessions?: number }) {
     this.sessionTtlMs = options?.sessionTtlMs ?? SESSION_TTL_MS;
+    this.maxSessions = options?.maxSessions ?? DEFAULT_MAX_SESSIONS;
   }
 
   /**
@@ -78,6 +83,19 @@ export class ContextAwareInjector {
 
     let state = this.sessions.get(sessionId);
     if (!state) {
+      // Evict oldest if at capacity
+      if (this.sessions.size >= this.maxSessions) {
+        let oldestKey: string | null = null;
+        let oldestTime = Infinity;
+        for (const [key, s] of this.sessions) {
+          if (s.lastActivity < oldestTime) {
+            oldestTime = s.lastActivity;
+            oldestKey = key;
+          }
+        }
+        if (oldestKey) this.sessions.delete(oldestKey);
+      }
+
       state = {
         injectedTools: new Set(),
         failureCount: 0,
@@ -95,7 +113,7 @@ export class ContextAwareInjector {
       if (tool) {
         state.injectedTools.add(toolCallName);
       }
-      return { tool, escalated: true, state };
+      return { tool, escalated: true, state: this.freezeState(state) };
     }
 
     // Check if tool exists in the registry
@@ -107,14 +125,23 @@ export class ContextAwareInjector {
       if (state.failureCount >= ESCALATION_THRESHOLD) {
         state.escalated = true;
       }
-      return { tool: null, escalated: state.escalated, state };
+      return { tool: null, escalated: state.escalated, state: this.freezeState(state) };
     }
 
     // Tool found — inject it
     state.injectedTools.add(toolCallName);
     state.failureCount = 0; // Reset failure count on success
 
-    return { tool, escalated: false, state };
+    return { tool, escalated: false, state: this.freezeState(state) };
+  }
+
+  private freezeState(state: InjectorState): Readonly<InjectorState> {
+    return {
+      injectedTools: new Set(state.injectedTools),
+      failureCount: state.failureCount,
+      escalated: state.escalated,
+      lastActivity: state.lastActivity,
+    };
   }
 
   /**

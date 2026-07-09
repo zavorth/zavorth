@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     let files;
     try {
       files = await readdir(cachePath);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem operation failed', error);
     return NextResponse.json({
         found: false,
@@ -44,7 +44,10 @@ export async function GET(request: Request) {
           refreshToken = data.refreshToken;
           foundFile = kiroTokenFile;
         }
-      } catch (error) { // Continue to search other files logger.warn('[route] JSON parse failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Continue to search other files
+      logger.warn('[route] JSON parse failed', error);
+    }
     }
 
     // If not found, search all .json files
@@ -62,7 +65,7 @@ export async function GET(request: Request) {
             foundFile = file;
             break;
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           // Skip invalid JSON files
           continue;
         }
@@ -81,7 +84,7 @@ export async function GET(request: Request) {
       refreshToken,
       source: foundFile,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Kiro auto-import error:", error);
     return NextResponse.json({ found: false, error: error.message }, { status: 500 });
   }

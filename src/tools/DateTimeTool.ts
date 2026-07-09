@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import { logger } from '../logger.js';
 
 /**
@@ -39,7 +39,7 @@ export class DateTimeTool extends BaseTool {
         iso: now.toISOString(),
         timezone,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Date Time] serialization failed', error);
     return JSON.stringify({ error: `Invalid time zone: ${timezone}` });
   }

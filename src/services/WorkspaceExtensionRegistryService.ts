@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { WorkspaceCommand, WorkspaceHook, WorkspaceProfile } from './WorkspaceProfileService.js';
@@ -138,7 +138,7 @@ export class WorkspaceExtensionRegistryService {
         return null;
       }
       return parsed as WorkspaceProfile;
-    } catch (error) { logger.warn('[Workspace Extension Registry] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Workspace Extension Registry] JSON parse failed', error); return null; }
   }
 
   private resolveSelectedEntry(

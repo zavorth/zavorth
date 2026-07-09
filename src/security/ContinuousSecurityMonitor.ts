@@ -299,7 +299,7 @@ function readContinuousSecurityBaseline(baselinePath: string): ContinuousSecurit
     }
     const parsed = JSON.parse(fs.readFileSync(baselinePath, 'utf8')) as ContinuousSecurityBaseline;
     return parsed.version === 1 && parsed.snapshot ? parsed : null;
-  } catch (error) { logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function compareContinuousSecurityBaseline(
@@ -629,7 +629,7 @@ function readJson(filePath: string): unknown {
       return null;
     }
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) { logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Continuous Security Monitor] JSON parse failed', error); return null; }
 }
 
 function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): boolean {

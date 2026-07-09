@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
@@ -114,7 +114,7 @@ export class ImageGenComfyUITool extends BaseTool {
       }
       if (models.length > 20) lines.push(`  ... e mais ${models.length - 20}`);
       return lines.join('\n');
-    } catch (error) { logger.warn('[Image Gen Comfy U I] load operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Image Gen Comfy U I] load operation failed', error); return ''; }
   }
 
   private async checkStatus(serverUrl: string): Promise<string> {
@@ -135,7 +135,7 @@ export class ImageGenComfyUITool extends BaseTool {
         `  Python: ${parsed.system?.python_version || 'unknown'}`,
         vram ? `  VRAM: ${(vram / 1024 / 1024 / 1024).toFixed(1)}GB (livre: ${(freeVram / 1024 / 1024 / 1024).toFixed(1)}GB)` : '',
       ].filter(Boolean).join('\n');
-    } catch (error) { logger.warn('[Image Gen Comfy U I] parsing failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Image Gen Comfy U I] parsing failed', error); return ''; }
   }
 
   private async getQueue(serverUrl: string): Promise<string> {
@@ -148,7 +148,7 @@ export class ImageGenComfyUITool extends BaseTool {
       const pending = parsed.queue_pending?.length || 0;
 
       return `Fila ComfyUI: ${running} running, ${pending} pendente(s).`;
-    } catch (error) { logger.warn('[Image Gen Comfy U I] JSON parse failed', error); return 'Error querying queue.'; }
+    } catch (error: any) { logger.warn('[Image Gen Comfy U I] JSON parse failed', error); return 'Error querying queue.'; }
   }
 
   private async generate(args: Record<string, unknown>, serverUrl: string): Promise<string> {
@@ -219,7 +219,7 @@ export class ImageGenComfyUITool extends BaseTool {
         `${serverUrl}/prompt`,
       ], { timeout: 30000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Image Gen Comfy U I] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Image Gen Comfy U I] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `ComfyUI error: ${parsed.error}`;
@@ -235,6 +235,6 @@ export class ImageGenComfyUITool extends BaseTool {
         `  Modelo: ${model || 'sd_xl_base_1.0.safetensors'}`,
         '  Use "get_queue" para acompanhar progresso.',
       ].join('\n');
-    } catch (error) { logger.warn('[Image Gen Comfy U I] parsing failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Image Gen Comfy U I] parsing failed', error); return ''; }
   }
 }

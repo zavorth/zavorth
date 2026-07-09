@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 type OperationsPlaneDynamic = any;
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
@@ -114,7 +114,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           200,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar a acao do plano remoto.' },
@@ -166,7 +166,7 @@ export class ZavorthControlOperationsPlaneRouteService {
             },
             report.status === 'failed' ? 409 : 200,
           );
-        } catch (error: OperationsPlaneDynamic) {
+        } catch (error: any) {
           deps.writeJson(
             res,
             { ok: false, error: error?.message || 'Falha ao rodar o doctor remoto.' },
@@ -195,7 +195,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           result.ok ? 200 : 409,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao recuperar o transporte remoto.' },
@@ -236,7 +236,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           200,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar a acao do plugin plane.' },
@@ -280,7 +280,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           200,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar a acao do platform plane.' },
@@ -302,7 +302,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao sincronizar o platform plane.' },
@@ -337,7 +337,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao publicar no platform plane.' },
@@ -389,7 +389,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           run.ok ? 200 : 409,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar o hook plane.' },
@@ -429,7 +429,7 @@ export class ZavorthControlOperationsPlaneRouteService {
           },
           200,
         );
-      } catch (error: OperationsPlaneDynamic) {
+      } catch (error: any) {
         deps.writeJson(
           res,
           { ok: false, error: error?.message || 'Falha ao executar a acao do Channel Mesh.' },

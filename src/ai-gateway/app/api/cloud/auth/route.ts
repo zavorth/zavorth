@@ -54,7 +54,7 @@ export async function POST(request) {
       connections: mappedConnections,
       modelAliases,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Cloud auth error:", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

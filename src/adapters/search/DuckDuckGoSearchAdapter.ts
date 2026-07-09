@@ -80,7 +80,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
         }));
 
       return { items, providerId: this.adapterId };
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn(`[DuckDuckGoSearchAdapter] DuckDuckGo failed, trying Bing fallback: ${err instanceof Error ? err.message : String(err)}`);
 
       const bingItems = await this.searchBingFallback(query, limit);
@@ -102,7 +102,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 
       try {
         return await runSearch() as DuckDuckGoSearchResponse;
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         const message = String(err?.message || err || '');
         if (!/too quickly|anomaly|rate|429/i.test(message)) {
           throw err;
@@ -155,7 +155,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
 
       const html = await response.text();
       return this.parseBingResults(html, query).slice(0, limit);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }
@@ -196,7 +196,7 @@ export class DuckDuckGoSearchAdapter implements ISearchQueryAdapter {
       const base64 = encoded.startsWith('a1') ? encoded.slice(2) : encoded;
       const decoded = Buffer.from(base64.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
       return /^https?:\/\//i.test(decoded) ? decoded : raw;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return raw;
     }
   }

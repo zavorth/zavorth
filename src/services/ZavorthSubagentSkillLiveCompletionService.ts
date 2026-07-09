@@ -1,4 +1,4 @@
-import type { SkillMetadata } from '../skills/SkillLoader.js';
+﻿import type { SkillMetadata } from '../skills/SkillLoader.js';
 import { SkillLoader } from '../skills/SkillLoader.js';
 import {
   ZAVORTH_SUBAGENT_SKILL_LIVE_COMPLETION_CONTRACT_VERSION,
@@ -163,7 +163,7 @@ export class ZavorthSubagentSkillLiveCompletionService {
   private loadSkills(): SkillMetadata[] {
     try {
       return this.skillLoader.loadAll({ includeSupportFiles: false, quiet: true });
-    } catch (error) { logger.warn('[Zavorth Subagent Skill Live Completion] load operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Subagent Skill Live Completion] load operation failed', error); return []; }
   }
 
   private buildEntries(input: {

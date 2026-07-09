@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import type { NodeMeshCapabilityId } from '../contracts/NodeMeshContract.js';
 import { NODE_HOST_SUPPORTED_CAPABILITY_IDS } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityCatalog.js';
 import { buildExecutionResult, normalizeTimeout } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityExecutionHelpers.js';
@@ -255,7 +255,7 @@ export class NodeHostCapabilityService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Node Host Capability] load operation failed', error);
     return {
         ok: false,

@@ -59,7 +59,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       const replayRunId = runId.replace(/\/replay$/, '').trim();
       try {
         deps.writeJson(res, { ok: true, replay: service.getReplay(replayRunId) }, 200);
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         deps.writeJson(res, { ok: false, error: error instanceof Error ? error.message : 'Replay indisponivel.' }, 404);
       }
       return true;
@@ -182,7 +182,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         200,
       );
       return true;
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : 'Falha ao operar o run de engenharia.';
       deps.writeJson(res, { ok: false, error: message }, message.includes('nao encontrado') ? 404 : 409);
     }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -39,7 +39,7 @@ export class RetryService {
     try {
       const p = path.join(this.storageDir, 'attempts.json');
       if (fs.existsSync(p)) this.attempts = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error) { /* ignore */ logger.warn('[Retry] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Retry] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -91,7 +91,7 @@ export class RetryService {
           this.recordAttempt(operation, attempt, config.maxRetries, '', 0, true);
         }
         return result;
-      } catch (error: unknown) {
+      } catch (error: any) {
         lastError = error instanceof Error ? error : new Error(String(error));
         const errorMsg = lastError.message;
 

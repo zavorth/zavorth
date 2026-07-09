@@ -179,7 +179,7 @@ export async function runZavorthMockGatewayCommand(rawArgs: string[]): Promise<n
             isGroup,
           });
         }
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         process.stderr.write(`[ERROR] Failed to process message: ${err?.message || err}\n`);
       }
     }

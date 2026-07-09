@@ -1,4 +1,4 @@
-export const runtimeShellScriptPart7Seg2: string = [
+﻿export const runtimeShellScriptPart7Seg2: string = [
     "      mode === 'extensions-open' ? 'Abrindo painel das extensoes...' : 'Atualizando catalogo de extensoes...',",
     "    );",
     "    const payload = await fetchExtensionOperationalPanel(token, selectedId);",
@@ -11,7 +11,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "      opsExtensionsStatus,",
     "      selectedId ? 'Catalogo atualizado para o workspace selecionado.' : 'Catalogo de extensoes atualizado.',",
     "    );",
-    "  } catch (error) {",
+    "  } catch (error: any) {",
     "    const message = error instanceof Error ? error.message : String(error);",
     "    if (kind === 'nodes') {",
     "      setOperationalActionStatus(opsNodesStatus, message);",
@@ -551,7 +551,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "        );",
     "        return;",
     "      }",
-    "    } catch (error) {",
+    "    } catch (error: any) {",
     "    const message = error instanceof Error ? error.message : String(error);",
     "    if (kind === 'nodes') {",
     "      setOperationalActionStatus(opsNodesStatus, message);",

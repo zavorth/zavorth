@@ -52,7 +52,7 @@ export class ProjectManifestLoader {
     let parsed: unknown;
     try {
       parsed = loadYaml(fs.readFileSync(resolvedManifestPath, 'utf8'));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       throw new ProjectManifestError([{
         path: resolvedManifestPath,

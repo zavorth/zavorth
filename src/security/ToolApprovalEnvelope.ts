@@ -205,5 +205,5 @@ function safeEqualHex(left: string, right: string): boolean {
     const leftBuffer = Buffer.from(left, 'hex');
     const rightBuffer = Buffer.from(right, 'hex');
     return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
-  } catch (error) { logger.warn('[Approval Envelope] operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Approval Envelope] operation failed', error); return false; }
 }

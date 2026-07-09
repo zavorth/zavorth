@@ -120,7 +120,7 @@ function recordOrNull(value: unknown): Record<string, unknown> | null {
 function measureJsonBytes(value: unknown): number {
   try {
     return Buffer.byteLength(JSON.stringify(value) || '', 'utf8');
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return -1;
   }
 }

@@ -1,8 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 import { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
 import { TelemetryRuntimeService } from '../observability/telemetry/TelemetryRuntimeService.js';
 import { ToolRegistry } from '../tools/ToolRegistry.js';
+import { ExternalAiRelayService } from '../services/ExternalAiRelayService.js';
+import { ZavorthSandboxDebuggerService } from '../services/ZavorthSandboxDebuggerService.js';
 import {
   AgentSecurityPolicyEngine,
   type AgentInputTrust,
@@ -102,7 +107,7 @@ export class ToolExecutor {
           reason: 'blocked_by_hook',
         },
       });
-      throw new Error('A hook blocked runtime execution for this tool.');
+      throw new Error('Um hook bloqueou a execucao do runtime para essa tool.');
     }
 
     const tool = this.registry.getTool(toolName);
@@ -122,7 +127,7 @@ export class ToolExecutor {
           argKeys,
         },
       });
-      throw new Error(`Tool "${toolName}" not found in registry.`);
+      throw new Error(`Ferramenta "${toolName}" nao encontrada no registro.`);
     }
 
     const securityDecision = this.evaluateSecurityPolicy(toolName, input, metadata, workspace);
@@ -233,7 +238,134 @@ export class ToolExecutor {
         },
       });
       return result;
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
+      try {
+        if (process.env.NODE_ENV === 'production') {
+          this.logRepo.log('warn', 'ToolExecutor', 'Auto-debugger disabled in production');
+        } else {
+        const isSelfHealable =
+          error instanceof SyntaxError ||
+          error instanceof ReferenceError ||
+          error instanceof TypeError ||
+          error instanceof RangeError ||
+          (error && typeof error === 'object' && (
+            error.name === 'SyntaxError' ||
+            error.name === 'ReferenceError' ||
+            error.name === 'TypeError' ||
+            error.name === 'RangeError' ||
+            /SyntaxError|ReferenceError|TypeError|RangeError/.test(String(error.stack || error.message || ''))
+          ));
+
+        if (isSelfHealable && tool) {
+          const className = tool.constructor.name.replace(/[^a-zA-Z0-9_]/g, '_');
+          if (className !== 'McpToolWrapper') {
+            const toolFilePath = this.findToolSourceFile(className);
+            if (toolFilePath) {
+              this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Tool "${toolName}" (Class: ${className}) failed with self-healable error. File: ${toolFilePath}`);
+              const sourceCode = fs.readFileSync(toolFilePath, 'utf-8')
+                .replace(/(^|\n).*(API_KEY|SECRET|TOKEN|PASSWORD|PRIVATE_KEY|credential|authorization).*(\n|$)/gi, '[REDACTED]\n');
+
+              const relayService = new ExternalAiRelayService();
+              const systemPrompt = `You are the Auto-Debugger self-healing loop.
+Your task is to repair a TypeScript tool that failed with a syntax, runtime, or reference error.
+Analyze the provided source code, input arguments, and error trace.
+Return ONLY the complete corrected TypeScript code for the file.
+Do not include any explanation, markdown formatting, or HTML tags. Output only the raw TypeScript code.`;
+
+              const userPrompt = `Tool Class: ${className}
+Tool File Path: ${toolFilePath}
+
+Original Source Code:
+\`\`\`typescript
+${sourceCode}
+\`\`\`
+
+Input Arguments:
+${JSON.stringify(input, null, 2)}
+
+Error Trace/Stack:
+${error.stack || error.message || String(error)}
+
+Please repair the TypeScript code to resolve the error while maintaining the tool's original functionality and import structure.
+Return only the corrected TypeScript file content.`;
+
+              const relayResult = await relayService.execute({
+                provider: 'gemini',
+                task: 'chat',
+                prompt: userPrompt,
+                systemPrompt,
+              });
+
+              if (relayResult && relayResult.rawResponse) {
+                const correctedCode = this.cleanCode(relayResult.rawResponse);
+                if (correctedCode && correctedCode.length > 0) {
+                  const testPath = path.join(process.cwd(), 'tests', 'tools', `${className}.test.ts`);
+                  const applied = ZavorthSandboxDebuggerService.validateAndApply(toolFilePath, correctedCode, testPath);
+
+                  if (!applied) {
+                    this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger: Validation failed for corrected code. Change rejected and rolled back.`);
+                    throw new Error(`Auto-Debugger failed to repair tool: validation failed.`);
+                  }
+
+                  this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Corrected code successfully validated and applied.`);
+
+                  const resolvedPath = require.resolve(toolFilePath);
+                  delete require.cache[resolvedPath];
+
+                  let loadedModulePath = resolvedPath;
+                  const normalizedClassFilename = className.toLowerCase();
+                  for (const key of Object.keys(require.cache)) {
+                    const lowerKey = key.toLowerCase();
+                    if (
+                      lowerKey.endsWith(`${normalizedClassFilename}.js`) ||
+                      lowerKey.endsWith(`${normalizedClassFilename}.ts`) ||
+                      lowerKey.includes(path.join('tools', className).toLowerCase())
+                    ) {
+                      loadedModulePath = key;
+                      delete require.cache[key];
+                    }
+                  }
+
+                  this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Reloading module for ${className}`);
+                  const moduleExports = require(loadedModulePath);
+                  const NewClass = moduleExports[className];
+
+                  if (NewClass) {
+                    const newToolInstance = new NewClass();
+                    this.registry.register(newToolInstance);
+
+                    this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Attempting re-execution of healed tool "${toolName}"`);
+                    const healedResult = await newToolInstance.execute(input);
+
+                    await this.recordTelemetry(traceId, 'tool.completed', 'success', {
+                      toolName,
+                      resultLength: String(healedResult || '').length,
+                      selfHealed: true,
+                    });
+
+                    await this.hookPipeline.run({
+                      event: 'runtime.after_execute',
+                      workspace,
+                      context: {
+                        traceId,
+                        toolName,
+                        resultLength: String(healedResult || '').length,
+                        selfHealed: true,
+                      },
+                    });
+
+                    return healedResult;
+                  }
+                }
+              }
+            }
+          }
+        }
+        }
+      } catch (healError: any) {
+        this.logRepo.log('error', 'ToolExecutor', `Auto-Debugger self-healing failed: ${healError.stack || healError.message}`);
+      }
+
       const message = redactSensitiveText(error instanceof Error ? error.message : String(error));
       this.logRepo.log('error', 'ToolExecutor', `Tool ${toolName} failed: ${message}`);
       await this.recordTelemetry(traceId, 'tool.failed', 'failed', {
@@ -252,6 +384,53 @@ export class ToolExecutor {
       });
       throw error;
     }
+  }
+
+  private findToolSourceFile(className: string): string | null {
+    const possibleRoots = [
+      process.cwd(),
+      path.resolve(__dirname, '..'),
+      path.resolve(__dirname, '../..'),
+    ];
+
+    for (const root of possibleRoots) {
+      const toolsDir = path.join(root, 'src/tools');
+      if (fs.existsSync(toolsDir)) {
+        const found = this.searchDirRecursive(toolsDir, `${className}.ts`);
+        if (found) return found;
+      }
+      const altToolsDir = path.join(root, 'Zavorth/src/tools');
+      if (fs.existsSync(altToolsDir)) {
+        const found = this.searchDirRecursive(altToolsDir, `${className}.ts`);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  private searchDirRecursive(dir: string, targetFilename: string): string | null {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        const found = this.searchDirRecursive(fullPath, targetFilename);
+        if (found) return found;
+      } else if (entry.isFile() && entry.name === targetFilename) {
+        return fullPath;
+      }
+    }
+    return null;
+  }
+
+  private cleanCode(response: string): string {
+    let cleaned = response.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/^```[a-zA-Z]*\r?\n/, '');
+    }
+    if (cleaned.endsWith('```')) {
+      cleaned = cleaned.replace(/\r?\n```$/, '');
+    }
+    return cleaned.trim();
   }
 
   private resolveTraceId(toolName: string, args: Record<string, unknown>): string {
@@ -402,7 +581,7 @@ export class ToolExecutor {
     if (decision.action === 'require_confirmation') {
       return [
         formatUserFacingSecurityApprovalMessage(decision),
-        `Tool "${decision.toolName}" requires security confirmation before execution.`,
+        `A tool "${decision.toolName}" exige confirmacao de seguranca antes da execucao.`,
         `Risco: ${decision.risk}.`,
         `Capacidades: ${decision.capabilities.join(', ')}.`,
         `Regra: ${decision.rule}.`,
@@ -411,7 +590,7 @@ export class ToolExecutor {
     }
 
     return [
-      `Tool "${decision.toolName}" was blocked by the central security policy.`,
+      `A tool "${decision.toolName}" foi bloqueada pela politica central de seguranca.`,
       `Regra: ${decision.rule}.`,
       `Motivos: ${decision.reasons.join(' ')}`,
       formatSecurityPolicyReceipt(brokerDecision.receipt),
@@ -462,7 +641,7 @@ export class ToolExecutor {
         status,
         payload,
       });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // telemetry should never break tool execution
     }
   }

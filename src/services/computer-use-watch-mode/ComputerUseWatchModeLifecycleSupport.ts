@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type { ComputerUseAction, ComputerUseAgent, ComputerUseConfig, ComputerUseSnapshot } from '../../agents/ComputerUseAgent.js';
 import type { CapabilityLifecycleService } from '../CapabilityLifecycleService.js';
@@ -635,7 +635,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     try {
       const target = normalized.match(/^https?:\/\//i) ? normalized : `https://${normalized}`;
       return new URL(target).hostname.trim().toLowerCase();
-    } catch (error) { logger.warn('[Computer Use Watch Mode Lifecycle] network request failed', error); return null; }
+    } catch (error: any) { logger.warn('[Computer Use Watch Mode Lifecycle] network request failed', error); return null; }
   }
 
   private pushTimeline(
@@ -847,7 +847,10 @@ export class ComputerUseWatchModeLifecycleSupport {
       }
       fs.unlinkSync(screenshotPath);
       run.buffers.deletedScreenshotBytes += stats.size;
-    } catch (error) { // Artefatos travados nao podem quebrar stop/finalizacao. logger.warn('[Computer Use Watch Mode Lifecycle] file cleanup failed', error); }
+    } catch (error: any) {
+      // Artefatos travados nao podem quebrar stop/finalizacao.
+      logger.warn('[Computer Use Watch Mode Lifecycle] file cleanup failed', error);
+    }
   }
 
   private screenshotSize(screenshotPath: string | null): number {
@@ -858,7 +861,7 @@ export class ComputerUseWatchModeLifecycleSupport {
     try {
       const stats = fs.statSync(normalized);
       return stats.isFile() ? stats.size : 0;
-    } catch (error) { logger.warn('[Computer Use Watch Mode Lifecycle] filesystem operation failed', error); return 0; }
+    } catch (error: any) { logger.warn('[Computer Use Watch Mode Lifecycle] filesystem operation failed', error); return 0; }
   }
 
   private rejectPendingWaiters(run: InternalWatchModeRun): void {

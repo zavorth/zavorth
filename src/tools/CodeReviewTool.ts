@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -67,7 +67,7 @@ export class CodeReviewTool extends BaseTool {
         } else {
           code = target;
         }
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Code] filesystem operation failed', error);
     code = target;
   }
@@ -76,7 +76,7 @@ export class CodeReviewTool extends BaseTool {
     try {
       const findings = this.analyzeCode(code, focus, severityThreshold);
       return this.formatFindings(findings, target, focus, severityThreshold);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Code] filesystem operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Erro na analise de codigo: ${message}`;

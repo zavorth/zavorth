@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const hours = Number(searchParams.get("hours") || 24);
     const items = await getProxyHealthStats({ hours });
     return Response.json({ items, total: items.length, windowHours: hours });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] health check failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy health stats");
   }

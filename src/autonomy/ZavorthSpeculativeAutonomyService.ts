@@ -488,7 +488,7 @@ export class ZavorthSpeculativeAutonomyService {
     let workspaceStat: ReturnType<typeof fs.lstatSync> | null = null;
     try {
       workspaceStat = fs.lstatSync(workspaceRoot);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       workspaceStat = null;
     }
     if (!workspaceStat?.isDirectory() || workspaceStat.isSymbolicLink()) {
@@ -626,7 +626,7 @@ export class ZavorthSpeculativeAutonomyService {
     let copyStats: WorkspaceCopyStats;
     try {
       copyStats = this.copyWorkspace(input.workspaceRoot, sandboxWorkspace);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const reason = error instanceof Error ? error.message : String(error);
       return this.blockedAttempt({
         id: input.id,
@@ -1147,7 +1147,7 @@ export class ZavorthSpeculativeAutonomyService {
         return ['npm test -- --runInBand'];
       }
       return [];
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }

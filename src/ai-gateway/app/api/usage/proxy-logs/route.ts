@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     const logs = getProxyLogs(filters);
     return Response.json(logs);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },
@@ -43,7 +43,7 @@ export async function DELETE(request: Request) {
   try {
     clearProxyLogs();
     return Response.json({ cleared: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     return Response.json(
       { error: { message: (error as any).message, type: "server_error" } },

@@ -133,7 +133,7 @@ export class CheckpointStorage {
       }
 
       return JSON.parse(content) as CheckpointData;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }
@@ -159,7 +159,7 @@ export class CheckpointStorage {
 
       this.metadataIndex.delete(checkpointId);
       return true;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }
@@ -243,7 +243,7 @@ export class CheckpointStorage {
       const content = fs.readFileSync(metadata.filePath, 'utf-8');
       const checksum = crypto.createHash('sha256').update(content).digest('hex');
       return checksum === metadata.checksum;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }
@@ -271,7 +271,7 @@ export class CheckpointStorage {
       const checkpoint = imported.checkpoint as CheckpointData;
       await this.saveCheckpoint(checkpoint);
       return checkpoint;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }
@@ -295,7 +295,7 @@ export class CheckpointStorage {
         const content = fs.readFileSync(path.join(metaDir, file), 'utf-8');
         const metadata = JSON.parse(content) as CheckpointMetadata;
         this.metadataIndex.set(metadata.id, metadata);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Skip corrupted metadata files
       }
     }

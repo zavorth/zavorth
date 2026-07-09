@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { execNativeCommandSync } from '../../core/CommandSpawn.js';
 import type { SandboxLanguage } from './ISandboxRuntime.js';
@@ -54,7 +54,7 @@ export class FirecrackerSandboxPayloadSupport {
       execNativeCommandSync('mkfs.ext4', [
         '-F', '-q', '-d', payloadStaging, drivePath,
       ], { timeout: 5000 });
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
         `[FirecrackerSandbox] Falha ao construir payload drive: ${message}. ` +
@@ -80,7 +80,7 @@ export class FirecrackerSandboxPayloadSupport {
           stdio: ['ignore', 'pipe', 'ignore'],
         });
         return String(output || '');
-      } catch (error) { logger.warn('[Firecracker Sandbox Payload] filesystem operation failed', error); return ''; }
+      } catch (error: any) { logger.warn('[Firecracker Sandbox Payload] filesystem operation failed', error); return ''; }
     };
 
     const stdout = readFile('results/stdout.txt');

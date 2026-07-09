@@ -50,7 +50,7 @@ export class ServiceRegistry {
     try {
       this.validateToken(token);
       return this.services.has(token.id);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }

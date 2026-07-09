@@ -135,7 +135,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || approvalResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }
@@ -157,7 +157,7 @@ export class TelegramZavorthBridgePermissionAutomationService {
         const effectiveProcessId = Number(candidatePid || rejectionResult.pid || 0);
         await this.verifyPermissionApplied(automator, effectiveProcessId);
         return effectiveProcessId;
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Telegram Zavorth Bridge Permission Automation] number operation failed', error);
     lastError = error instanceof Error ? error : new Error(String(error));
   }

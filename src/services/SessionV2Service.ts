@@ -60,6 +60,12 @@ type ManagedSession = {
   memory: InfiniteMemoryCompressor;
   recordingEnabled: boolean;
   lastSavedPath: string | null;
+  eventHandlers?: {
+    onData: (data: string) => void;
+    onError: (data: string) => void;
+    onInput: (data: string) => void;
+    onExit: () => void;
+  };
 };
 
 export class SessionV2Service {
@@ -186,6 +192,7 @@ export class SessionV2Service {
 
   public shutdown(): void {
     for (const entry of this.sessions.values()) {
+      this.unbindSession(entry);
       entry.manager.kill();
       this.finalizeRecording(entry);
     }
@@ -198,21 +205,38 @@ export class SessionV2Service {
       entry.recorder.startRecording(entry.manager);
     }
 
-    entry.manager.getEvents().on('pty:data', (data: string) => {
+    const onData = (data: string) => {
       entry.memory.pushMessage(`[stdout] ${data}`);
-    });
+    };
 
-    entry.manager.getEvents().on('pty:error', (data: string) => {
+    const onError = (data: string) => {
       entry.memory.pushMessage(`[stderr] ${data}`);
-    });
+    };
 
-    entry.manager.getEvents().on('pty:input', (data: string) => {
+    const onInput = (data: string) => {
       entry.memory.pushMessage(`[stdin] ${data}`);
-    });
+    };
 
-    entry.manager.getEvents().on('pty:exit', () => {
+    const onExit = () => {
       this.finalizeRecording(entry);
-    });
+    };
+
+    // Store handlers for later removal
+    entry.eventHandlers = { onData, onError, onInput, onExit };
+
+    entry.manager.getEvents().on('pty:data', onData);
+    entry.manager.getEvents().on('pty:error', onError);
+    entry.manager.getEvents().on('pty:input', onInput);
+    entry.manager.getEvents().on('pty:exit', onExit);
+  }
+
+  private unbindSession(entry: ManagedSession): void {
+    if (!entry.eventHandlers) return;
+    const events = entry.manager.getEvents();
+    events.removeListener('pty:data', entry.eventHandlers.onData);
+    events.removeListener('pty:error', entry.eventHandlers.onError);
+    events.removeListener('pty:input', entry.eventHandlers.onInput);
+    events.removeListener('pty:exit', entry.eventHandlers.onExit);
   }
 
   private finalizeRecording(entry: ManagedSession): void {

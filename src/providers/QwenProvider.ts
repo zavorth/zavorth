@@ -62,7 +62,7 @@ export class QwenProvider implements ILlmProvider {
         toolCalls,
         finishReason: choice?.finish_reason || 'stop',
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
 
       if (/auth|token|unauthorized|forbidden|401|403/i.test(message)) {

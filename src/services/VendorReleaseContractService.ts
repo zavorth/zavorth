@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -110,7 +110,7 @@ export class VendorReleaseContractService {
         return { sources: [] };
       }
       return JSON.parse(this.readFileSyncImpl(this.manifestFile, 'utf8')) as VendorSourceRawDocument;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Vendor Release Contract] JSON parse failed', error);
     return { sources: [] };
   }

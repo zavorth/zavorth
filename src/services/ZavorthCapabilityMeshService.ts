@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 import { config } from '../config/index.js';
 import {
   ZAVORTH_CAPABILITY_MESH_CONTRACT_VERSION,
@@ -512,7 +512,7 @@ function stableId(value: string): string {
 function safeRead<T>(reader: () => T, fallback: T): T {
   try {
     return reader();
-  } catch (error) { logger.warn('[Zavorth Capability Mesh] creation failed', error); return fallback; }
+  } catch (error: any) { logger.warn('[Zavorth Capability Mesh] creation failed', error); return fallback; }
 }
 
 function emptyExternalRegistry(generatedAt: string): ZavorthExternalAgentGatewayRegistrySnapshot {

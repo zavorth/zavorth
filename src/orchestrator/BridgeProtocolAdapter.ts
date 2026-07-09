@@ -231,7 +231,7 @@ export class BridgeProtocolAdapter {
         const parsed = JSON.parse(trimmed);
         if (parsed.protocol === PROTOCOL_VERSION) return 'V2';
         return 'UNKNOWN';
-      } catch (error) { logger.warn('[Bridge Protocol Adapter] JSON parse failed', error); return 'UNKNOWN'; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Bridge Protocol Adapter] JSON parse failed', error); return 'UNKNOWN'; }
     }
     if (trimmed.includes('[PROTOCOL:') && trimmed.includes('[END_OF_MESSAGE]')) {
       return 'V1';
@@ -253,7 +253,7 @@ export class BridgeProtocolAdapter {
           return { accepted: false, reason: validation.reason };
         }
         return { accepted: true, envelope: parsed, originalVersion: 'V2' };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Bridge Protocol Adapter] JSON parse failed', error);
     return { accepted: false, reason: `JSON parse error: ${e.message}` };
   }

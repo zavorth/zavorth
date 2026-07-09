@@ -187,7 +187,7 @@ export class AgentRunIntelligenceFabricCanary {
       });
       this.writeMetadata(input.run, metadata);
       return metadata;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const metadata = this.fallbackMetadata(error);
       this.writeMetadata(input.run, metadata);
       return metadata;

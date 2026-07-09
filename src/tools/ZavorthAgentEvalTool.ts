@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -126,7 +126,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
     if (!fs.existsSync(reportsPath)) return;
     try {
       this.reports = JSON.parse(fs.readFileSync(reportsPath, 'utf-8'));
-    } catch (error) { /* ignore */ logger.warn('[Zavorth Agent Eval] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Agent Eval] JSON parse failed', error); }
   }
 
   private saveReports(): void {
@@ -326,7 +326,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
     if (!tasksJson) return 'Error: "tasks_json" is required.';
 
     let imported: EvalTask[];
-    try { imported = JSON.parse(tasksJson); } catch (error) { logger.warn('[Zavorth Agent Eval] JSON parse failed', error); return 'Error: invalid JSON.'; }
+    try { imported = JSON.parse(tasksJson); } catch (error: any) { logger.warn('[Zavorth Agent Eval] JSON parse failed', error); return 'Error: invalid JSON.'; }
 
     let count = 0;
     for (const task of imported) {

@@ -94,7 +94,7 @@ export class AgentRunEchoHandsExecutor {
           },
         },
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = normalizeText(error instanceof Error ? error.message : String(error), 'Echo Hands falhou no tool runtime.');
       return this.buildDegradedResult(`Echo Hands nao executado: ${message}`, {
         reason: 'echo-hands-execution-failed',

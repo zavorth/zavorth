@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   let body: Record<string, unknown> = {};
   try {
     body = (await request.json()) as Record<string, unknown>;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     body = {};
   }

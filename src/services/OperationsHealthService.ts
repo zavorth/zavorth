@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { LogRepository, type SystemLog } from '../storage/LogRepository.js';
@@ -413,7 +413,10 @@ export class OperationsHealthService {
     try {
       fs.mkdirSync(path.dirname(this.operationsSnapshotCacheFile), { recursive: true });
       fs.writeFileSync(this.operationsSnapshotCacheFile, JSON.stringify(snapshot, null, 2), 'utf8');
-    } catch (error) { // Fast snapshot persistence must never break operational reads. logger.warn('[Operations] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Fast snapshot persistence must never break operational reads.
+      logger.warn('[Operations] filesystem operation failed', error);
+    }
   }
 
   private readPersistedFastSnapshot(
@@ -447,7 +450,7 @@ export class OperationsHealthService {
       }
 
       return parsed;
-    } catch (error) { logger.warn('[Operations] parsing failed', error); return null; }
+    } catch (error: any) { logger.warn('[Operations] parsing failed', error); return null; }
   }
 
   private buildEstimatedDockerStatus(

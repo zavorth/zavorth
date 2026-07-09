@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
       githubIssueUrl: ghData.html_url,
       githubIssueNumber: ghData.number,
     });
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[issues/report] GitHub fetch failed:", err);
     return NextResponse.json(
       { logged: true, githubIssueCreated: false, error: "GitHub request failed" },

@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ZavorthRuntimeReadinessCheck,
   ZavorthRuntimeReadinessCheckId,
   ZavorthRuntimeReadinessSnapshot,
@@ -258,7 +258,7 @@ export class ZavorthRuntimeGuidedFixesService {
   private safeProviderSnapshot(): ZavorthProviderReadinessMatrixSnapshot | null {
     try {
       return this.providerReadiness.buildSnapshot({ includeAdvanced: false, probe: false });
-    } catch (error) { logger.warn('[Zavorth Runtime Guided es] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Runtime Guided es] creation failed', error); return null; }
   }
 
   private renderTelegramFromParts(snapshot: Omit<ZavorthRuntimeGuidedFixesSnapshot, 'telegramProjection'>): string {

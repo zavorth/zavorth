@@ -132,7 +132,7 @@ export class McpToolPolicy {
           ? parsed.tools
           : {},
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return { ...DEFAULT_POLICY_DOCUMENT };
     }
   }

@@ -110,7 +110,7 @@ export class TelegramChainController {
               : '\nSem resposta textual.'
           }`,
         );
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         summaries.push(`Passo ${i + 1}: ${segments[i]}\nFalhou: ${error instanceof Error ? error.message : String(error)}`);
         previousOutput = '';
       }

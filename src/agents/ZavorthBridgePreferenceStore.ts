@@ -35,7 +35,7 @@ export class ZavorthBridgePreferenceStore {
           ? parsed.updatedAt
           : null,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Bridge Preference Store] parsing failed', error);
     return {
         preferredModel: config.zavorthBridgePreferredModelDefault || DEFAULT_PREFERENCES.preferredModel,

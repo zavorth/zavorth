@@ -67,7 +67,7 @@ export class OpenRouterProvider implements ILlmProvider {
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[OpenRouter] Request error:', error?.message || error);
       throw error;
     }
@@ -97,7 +97,7 @@ export class OpenRouterProvider implements ILlmProvider {
       } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[OpenRouter] Streaming error:', error?.message || error);
       throw error;
     }

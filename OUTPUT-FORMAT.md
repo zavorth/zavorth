@@ -59,3 +59,4 @@ What does not belong here:
 ## Maintenance rule
 
 When formatting preferences change, update this file.
+- **Default output format:** answer-first-then-explain

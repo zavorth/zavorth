@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -200,7 +200,7 @@ export class TrustPlanePolicyLedgerService {
         },
         result: this.nullableText(raw.result),
       };
-    } catch (error) { logger.warn('[Trust Plane  Ledger] load operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Trust Plane  Ledger] load operation failed', error); return null; }
   }
 
   private normalizeDiff(entry: TrustPlanePolicyDiffEntry): TrustPlanePolicyDiffEntry {

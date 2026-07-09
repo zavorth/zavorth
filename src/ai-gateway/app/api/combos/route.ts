@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   try {
     const combos = await getCombos();
     return NextResponse.json({ combos });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching combos:", error);
     return NextResponse.json({ error: "Failed to fetch combos" }, { status: 500 });
   }
@@ -49,7 +49,7 @@ export async function POST(request) {
     const tempCombo = { name, models: models || [], strategy, config };
     try {
       validateComboDAG(name, [...allCombos, tempCombo]);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: dagError.message }, { status: 400 });
   }
@@ -60,7 +60,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json(combo, { status: 201 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error creating combo:", error);
     return NextResponse.json({ error: "Failed to create combo" }, { status: 500 });
   }
@@ -76,7 +76,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing to cloud:", error);
   }
 }

@@ -1,4 +1,4 @@
-import type { ChildProcess } from 'child_process';
+﻿import type { ChildProcess } from 'child_process';
 import { spawnShellCommand } from '../core/CommandSpawn.js';
 import type { WorkspaceHook, WorkspaceProfile } from './WorkspaceProfileService.js';
 import { logger } from '../logger.js';
@@ -96,7 +96,7 @@ export class WorkspaceHookService {
         env: process.env,
         stdio: 'inherit',
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Workspace Hook] process execution failed', error);
     return {
         command,

@@ -218,7 +218,7 @@ export class McpRuntimeService {
         try {
           const discovered = await this.collectDiscoveredTools(manager, server.id);
           return { manager, server, discovered, attemptedAt };
-        } catch (error: unknown) {
+        } catch (error: any) { const err = error; const e = error;
           return { manager, server, discovered: [], attemptedAt, error };
         }
       })
@@ -297,7 +297,7 @@ export class McpRuntimeService {
 
       try {
         await manager.disconnect();
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         this.logRepo.log(
           'warn',
           'MCP',
@@ -329,7 +329,7 @@ export class McpRuntimeService {
     const manager = this.managers[managerIndex];
     try {
       await manager.disconnect();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.logRepo.log(
         'warn',
         'MCP',
@@ -419,7 +419,7 @@ export class McpRuntimeService {
       );
 
       return { ok: true, toolCount: registeredToolNames.length, toolNames: registeredToolNames, error: null };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       this.entries.set(serverId, {
         id: serverId,
         capability: String(serverEntry.capability || '').trim() || null,

@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       assistant,
       channels: assistant.channels,
     }));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return NextResponse.json({
       ok: false,
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       error: "unsupported channel setup action",
       allowedActions: ["applyScaffold", "doctor", "testConnection"],
     }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json({
       ok: false,

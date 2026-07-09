@@ -57,7 +57,7 @@ export class ProviderConnectionTestService {
       } else {
         return this.finishTest(providerId, false, 'unsupported', `Provider type ${config.type} is not supported for connection tests yet.`);
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       const normalized = ErrorNormalizationService.getInstance().normalize(err);
       let status: ProviderConnectionTestResult['status'] = 'network_error';
       let message = 'Network error occurred while connecting.';
@@ -106,7 +106,7 @@ export class ProviderConnectionTestService {
       } else {
         return this.finishTest(providerId, false, 'network_error', `Received unexpected status code ${res.status}.`);
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       clearTimeout(timeout);
       throw err;
     }
@@ -139,7 +139,7 @@ export class ProviderConnectionTestService {
         // Anything else means we reached Anthropic and the key didn't get outright rejected at auth layer
         return this.finishTest(providerId, true, 'reachable', 'Successfully connected and verified API key.');
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       clearTimeout(timeout);
       throw err;
     }
@@ -168,7 +168,7 @@ export class ProviderConnectionTestService {
       } else {
         return this.finishTest(providerId, false, 'network_error', `Received unexpected status code ${res.status}.`);
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       clearTimeout(timeout);
       throw err;
     }
@@ -196,7 +196,7 @@ export class ProviderConnectionTestService {
       } else {
         return this.finishTest(providerId, false, 'network_error', `Received unexpected status code ${res.status} from Ollama.`);
       }
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       clearTimeout(timeout);
       throw err;
     }

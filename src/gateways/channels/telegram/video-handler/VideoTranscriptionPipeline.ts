@@ -33,7 +33,7 @@ export class VideoTranscriptionPipeline {
 
     try {
       return await this.deps.geminiVideoAnalyzer.analyzeYouTubeUrl(videoUrl, title);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.warn(`[VideoHandler] Gemini YouTube falhou: ${errorMessage}`);
       return {
@@ -55,7 +55,7 @@ export class VideoTranscriptionPipeline {
 
     try {
       return await this.deps.geminiVideoAnalyzer.analyzeLocalVideo(filePath, mimeType, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.warn(`[VideoHandler] Gemini local video falhou: ${errorMessage}`);
       return {
@@ -77,7 +77,7 @@ export class VideoTranscriptionPipeline {
 
     try {
       return await this.deps.geminiVideoAnalyzer.analyzeLocalAudio(filePath, mimeType, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.warn(`[VideoHandler] Gemini local audio falhou: ${errorMessage}`);
       return {
@@ -105,7 +105,7 @@ export class VideoTranscriptionPipeline {
       preparedAudioPath = prepared.normalizedAudioPath;
       chunkPaths = prepared.chunks.map((chunk) => chunk.filePath);
       return await this.buildChunkedTranscriptFromPreparedChunks(prepared.chunks, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         transcript: '',
@@ -134,7 +134,7 @@ export class VideoTranscriptionPipeline {
       preparedAudioPath = prepared.normalizedAudioPath;
       chunkPaths = prepared.chunks.map((chunk) => chunk.filePath);
       return await this.buildChunkedTranscriptFromPreparedChunks(prepared.chunks, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         transcript: '',
@@ -208,7 +208,7 @@ export class VideoTranscriptionPipeline {
         source: `transcricao pura via Gemini fallback (${config.geminiTranscriptionModel})`,
         warnings,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         transcript: '',
@@ -230,7 +230,7 @@ export class VideoTranscriptionPipeline {
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
       try {
         return await this.deps.audioHandler.transcribe(filePath, options);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         lastError = error;
         if (attempt < attempts) {
           await VideoHandlerFormatSupport.sleep(attempt * 1500);
@@ -252,7 +252,7 @@ export class VideoTranscriptionPipeline {
 
     try {
       return await this.deps.geminiTranscriptionFallbackAnalyzer.transcribeLocalAudio(filePath, mimeType, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.warn(`[VideoHandler] Gemini transcription fallback falhou: ${errorMessage}`);
       return {
@@ -377,7 +377,7 @@ export class VideoTranscriptionPipeline {
           prompt: chunkPrompt,
         }, 1);
         chunkSource = 'OpenAI transcription';
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         const errorMessage = error instanceof Error ? error.message : String(error);
         warnings.push(`${label}: a transcricao OpenAI falhou (${errorMessage}).`);
       }
@@ -403,7 +403,7 @@ export class VideoTranscriptionPipeline {
           prompt: chunkPrompt,
         }, 1);
         chunkSource = 'OpenAI transcription';
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         const errorMessage = error instanceof Error ? error.message : String(error);
         warnings.push(`${label}: a transcricao OpenAI de apoio falhou (${errorMessage}).`);
       }
@@ -431,7 +431,7 @@ export class VideoTranscriptionPipeline {
 
     try {
       return await this.deps.geminiVideoAnalyzer.summarizeTextSections(sections, titleHint);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.warn(`[VideoHandler] Gemini section summary falhou: ${errorMessage}`);
       return {

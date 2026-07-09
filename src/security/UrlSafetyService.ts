@@ -121,7 +121,7 @@ export class UrlSafetyService {
     let parsed: URL;
     try {
       parsed = new URL(url);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Url Safety] parsing failed', error);
     return { safe: false, reason: 'Invalid URL' };
   }

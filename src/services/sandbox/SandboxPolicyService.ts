@@ -130,6 +130,21 @@ const HIGH_RISK_CODE_PATTERNS = [
   /\brequire\(\s*['"]fs['"]\s*\)/,
   /\bprocess\.env\b/,
   /\bprocess\.exit\b/,
+
+  // Anti-obfuscation and evasion patterns
+  /\\[xX][0-9a-fA-F]{2}/, // Hex escape sequences
+  /\\u[0-9a-fA-F]{4}/, // Unicode escape sequences
+  /\bBuffer\.from\b.*\bbase64\b/i, // JS base64 decode
+  /\bb64decode\b/i, // Python base64 decode
+  /\bgetattr\b/i, // Python getattr reflection
+  /\bglobals\s*\(\)/i, // Python globals() reflection
+  /\blocals\s*\(\)/i, // Python locals() reflection
+  /\b(eval|exec|require)\s*\(\s*[^)]*['"]\s*\+\s*['"]/i, // String concatenation inside eval/exec/require
+  /\batob\s*\(/i, // JS base64 decode (atob)
+  /\bbtoa\s*\(/i, // JS base64 encode (btoa)
+  /\bString\.fromCharCode\s*\(/i, // Dynamic string construction from char codes
+  /\bprocess\.binding\s*\(/i, // Node.js internal C++ binding access
+  /\bimport\.meta\b/i, // ESM import.meta (potential URL/resolve bypass)
 ];
 
 export type CodeSandboxPolicy = {

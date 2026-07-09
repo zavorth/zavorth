@@ -313,7 +313,7 @@ export class ZavorthSkillLifecycleService {
     const file = this.snapshotPath(skillId);
     try {
       return JSON.parse(fs.readFileSync(file, 'utf8')) as ZavorthSkillLifecycleSnapshot;
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn(`[ZavorthSkillLifecycle] Failed to read snapshot for ${skillId}:`, err);
       return null;
     }
@@ -332,7 +332,7 @@ export class ZavorthSkillLifecycleService {
     try {
       const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
       existing = Array.isArray(parsed) ? parsed : [];
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       logger.warn(`[ZavorthSkillLifecycle] Failed to read existing receipts, starting fresh:`, err);
       existing = [];
     }

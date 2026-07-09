@@ -793,7 +793,7 @@ export class UniversalSkillTrustImportService {
         }
         const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
         return Array.isArray(parsed?.events) ? parsed.events : [];
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return [];
       }
     })();
@@ -875,7 +875,7 @@ function parseFrontmatter(text: string): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }

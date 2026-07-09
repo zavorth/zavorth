@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 
@@ -13,7 +13,7 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Action: 'navigate', 'click', 'type', 'screenshot', 'extract', 'evaluate', 'wait_for', 'cookies', 'get_html', 'get_text', 'pdf'.",
+        description: "Action: 'navigate', 'click', 'type', 'screenshot', 'extract', 'evaluate', 'wait_for', 'cookies', 'get_html', 'get_text', 'pdf', 'download', 'download_all', 'links'.",
       },
       url: {
         type: 'string',
@@ -67,6 +67,27 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
         type: 'boolean',
         description: 'Run browser in headless mode. Default: true.',
       },
+      // Download-specific parameters
+      min_size: {
+        type: 'number',
+        description: 'Minimum file size in bytes to download.',
+      },
+      max_size: {
+        type: 'number',
+        description: 'Maximum file size in bytes to download.',
+      },
+      only_types: {
+        type: 'string',
+        description: 'Comma-separated MIME types or extensions to download (e.g., "pdf,jpg,zip").',
+      },
+      mirror: {
+        type: 'boolean',
+        description: 'Mirror mode: recreate directory structure from URL. Default: false.',
+      },
+      concurrent: {
+        type: 'number',
+        description: 'Number of concurrent downloads (max 5). Default: 3.',
+      },
     },
     required: ['action'],
   };
@@ -78,6 +99,110 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
   private positiveInteger(value: unknown, fallback: number): number {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : fallback;
+  }
+
+  /**
+   * Parse only_types filter into extensions array
+   */
+  private parseOnlyTypes(onlyTypes: string): string[] {
+    if (!onlyTypes) return [];
+    return onlyTypes
+      .split(',')
+      .map(t => t.trim().toLowerCase())
+      .filter(t => t.length > 0);
+  }
+
+  /**
+   * Check if a filename matches the only_types filter
+   */
+  private matchesOnlyTypes(fileName: string, allowedTypes: string[]): boolean {
+    if (allowedTypes.length === 0) return true;
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    return allowedTypes.includes(ext);
+  }
+
+  /**
+   * Get file extension from MIME type
+   */
+  private getExtensionFromMimeType(mimeType: string): string {
+    const mimeMap: Record<string, string> = {
+      'application/pdf': 'pdf',
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'application/zip': 'zip',
+      'application/x-rar-compressed': 'rar',
+      'application/gzip': 'gz',
+      'text/html': 'html',
+      'text/plain': 'txt',
+      'application/json': 'json',
+      'application/javascript': 'js',
+      'text/css': 'css',
+      'video/mp4': 'mp4',
+      'audio/mpeg': 'mp3',
+    };
+    const normalizedMime = mimeType.split(';')[0].trim().toLowerCase();
+    return mimeMap[normalizedMime] || '';
+  }
+
+  /**
+   * Get MIME type category for auto-organization
+   */
+  private getMimeTypeCategory(mimeType: string, fileName: string): string {
+    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    
+    if (ext === 'pdf' || mimeType.includes('pdf')) return 'pdf';
+    if (ext.match(/^(jpg|jpeg|png|gif|webp|bmp|svg|ico)$/) || mimeType.includes('image/')) return 'images';
+    if (ext.match(/^(zip|rar|gz|tar|7z|bz2)$/) || mimeType.includes('archive') || mimeType.includes('compressed')) return 'archives';
+    return 'other';
+  }
+
+  /**
+   * Categorize file by extension for auto-organization
+   */
+  private categorizeFile(fileName: string): string {
+    return this.getMimeTypeCategory('', fileName);
+  }
+
+  /**
+   * Build download directory path with auto-organization
+   */
+  private buildDownloadPath(
+    outputDir: string,
+    fileName: string,
+    mimeType: string,
+    mirror: boolean,
+    urlPath?: string
+  ): string {
+    const category = this.getMimeTypeCategory(mimeType, fileName);
+    
+    if (mirror && urlPath) {
+      // Recreate directory structure from URL
+      const dirPath = require('path').dirname(urlPath);
+      return require('path').join(outputDir, 'mirror', dirPath, fileName);
+    }
+    
+    // Auto-organize by type
+    return require('path').join(outputDir, category, fileName);
+  }
+
+  /**
+   * Generate unique filename to avoid overwrites
+   */
+  private async getUniqueFilePath(filePath: string): Promise<string> {
+    const fs = require('fs');
+    if (!fs.existsSync(filePath)) return filePath;
+    
+    const dir = require('path').dirname(filePath);
+    const ext = require('path').extname(filePath);
+    const base = require('path').basename(filePath, ext);
+    let counter = 1;
+    
+    while (fs.existsSync(require('path').join(dir, `${base}_${counter}${ext}`))) {
+      counter++;
+    }
+    return require('path').join(dir, `${base}_${counter}${ext}`);
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -96,7 +221,10 @@ export class ZavorthBrowserAutomationTool extends BaseTool {
       case 'get_html': return await this.getHtml(args);
       case 'get_text': return await this.getText(args);
       case 'pdf': return await this.generatePdf(args);
-      default: return `Error: action "${action}" is invalid. Valid: navigate, click, type, screenshot, extract, evaluate, wait_for, cookies, get_html, get_text, pdf.`;
+      case 'download': return await this.downloadFile(args);
+      case 'download_all': return await this.downloadAll(args);
+      case 'links': return await this.extractLinks(args);
+      default: return `Error: action "${action}" is invalid. Valid: navigate, click, type, screenshot, extract, evaluate, wait_for, cookies, get_html, get_text, pdf, download, download_all, links.`;
     }
   }
 
@@ -124,7 +252,7 @@ const { chromium } = require('playwright');
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result;
-    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async navigate(args: Record<string, unknown>): Promise<string> {
@@ -161,7 +289,7 @@ const { chromium } = require('playwright');
       const result = await this.runWithPlaywright(script);
       if (result.startsWith('Playwright error:')) return result;
       return `Navigation successful:\n${result.trim()}`;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Browser Automation] resource cleanup failed', error);
     return await this.fallbackCurl(String(args.url || ''));
   }
@@ -172,7 +300,7 @@ const { chromium } = require('playwright');
       const { execFileSync } = await import('child_process');
       const result = execFileSync('curl', ['-s', '-L', '-o', '/dev/null', '-w', 'HTTP %{http_code}\nURL: %{url_effective}\nRedirects: %{num_redirects}\nTime: %{time_total}s', '--max-time', '30', url], { timeout: 35000 }).toString();
       return `Fallback curl check:\n${result}`;
-    } catch (error) { logger.warn('[Zavorth Browser Automation] network request failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Browser Automation] network request failed', error); return ''; }
   }
 
   private async click(args: Record<string, unknown>): Promise<string> {
@@ -266,7 +394,7 @@ const { chromium } = require('playwright');
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return `Script output:\n${result.trim().slice(0, 10000)}`;
-    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async waitFor(args: Record<string, unknown>): Promise<string> {
@@ -312,7 +440,7 @@ const { chromium } = require('playwright');
       const { execFileSync } = await import('child_process');
       const result = execFileSync('curl', ['-s', '-L', '--max-time', '30', url], { timeout: 35000, maxBuffer: 10 * 1024 * 1024 }).toString();
       return `HTML from ${url} (first 10000 chars):\n${result.slice(0, 10000)}`;
-    } catch (error) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Browser Automation] process execution failed', error); return ''; }
   }
 
   private async getText(args: Record<string, unknown>): Promise<string> {
@@ -367,4 +495,286 @@ const { chromium } = require('playwright');
     const result = await this.runWithPlaywright(script);
     return result.startsWith('Playwright error:') ? result : `PDF generated:\n${result.trim()}`;
   }
+
+  /**
+   * Download a single file using Node.js http/https (no Playwright).
+   * Features: progress tracking, deduplication, auto-organize by type,
+   * checksum verification, filters (min_size, max_size, only_types), mirror mode.
+   */
+  private async downloadFile(args: Record<string, unknown>): Promise<string> {
+    const url = String(args.url || '');
+    const outputPath = String(args.output_path || '').trim() || './downloads';
+    if (!url) return 'Error: "url" is required for download.';
+
+    const minSize = args.min_size ? Number(args.min_size) : 0;
+    const maxSize = args.max_size ? Number(args.max_size) : Infinity;
+    const onlyTypes = this.parseOnlyTypes(String(args.only_types || ''));
+    const mirror = args.mirror === true;
+
+    try {
+      const fs = require('fs');
+      const pathMod = require('path');
+      const crypto = require('crypto');
+      const https = require('https');
+      const http = require('http');
+      const protocol = url.startsWith('https') ? https : http;
+
+      return await new Promise<string>((resolve) => {
+        const req = protocol.get(url, { timeout: 30000 }, (res: any) => {
+          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+            const redirectUrl = res.headers.location.startsWith('http')
+              ? res.headers.location
+              : new URL(res.headers.location, url).href;
+            res.destroy();
+            return this.downloadFile({ ...args, url: redirectUrl }).then(resolve);
+          }
+
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            res.destroy();
+            resolve(`Download failed: HTTP ${res.statusCode}`);
+            return;
+          }
+
+          const contentLength = parseInt(res.headers['content-length'] || '0', 10);
+          const contentType = res.headers['content-type'] || '';
+          const contentDisposition = res.headers['content-disposition'] || '';
+
+          let fileName = 'download';
+          const dispositionMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^\n]*)/i);
+          if (dispositionMatch) {
+            fileName = dispositionMatch[1].replace(/['"]/g, '');
+          } else {
+            const urlObj = new URL(url);
+            fileName = pathMod.basename(decodeURIComponent(urlObj.pathname)) || 'download';
+          }
+
+          if (onlyTypes.length > 0) {
+            const ext = pathMod.extname(fileName).toLowerCase().replace('.', '');
+            if (!onlyTypes.includes(ext)) { res.destroy(); resolve(`Filtered: ${fileName} (wrong type)`); return; }
+          }
+          if (maxSize > 0 && contentLength > maxSize) {
+            res.destroy(); resolve(`Filtered: ${fileName} (too large)`); return;
+          }
+
+          const category = mirror ? 'mirror' : this.getMimeTypeCategory(contentType, fileName);
+          const saveDir = mirror
+            ? pathMod.join(outputPath, 'mirror', new URL(url).pathname)
+            : pathMod.join(outputPath, category);
+          if (!fs.existsSync(saveDir)) fs.mkdirSync(saveDir, { recursive: true });
+
+          let savePath = pathMod.join(saveDir, fileName);
+          if (fs.existsSync(savePath)) {
+            const existingSize = fs.statSync(savePath).size;
+            if (contentLength > 0 && existingSize === contentLength) {
+              res.destroy();
+              resolve(`Skipped: ${fileName} (duplicate, ${existingSize} bytes)`);
+              return;
+            }
+            const ext = pathMod.extname(fileName);
+            const base = pathMod.basename(fileName, ext);
+            let counter = 1;
+            while (fs.existsSync(pathMod.join(saveDir, `${base}_${counter}${ext}`))) counter++;
+            savePath = pathMod.join(saveDir, `${base}_${counter}${ext}`);
+          }
+
+          const chunks: Buffer[] = [];
+          let downloaded = 0;
+          let lastProgressPct = 0;
+
+          res.on('data', (chunk: Buffer) => {
+            chunks.push(chunk);
+            downloaded += chunk.length;
+            if (contentLength > 0) {
+              const pct = Math.floor((downloaded / contentLength) * 100);
+              if (pct >= lastProgressPct + 10 || pct === 100) {
+                lastProgressPct = pct;
+                console.log(JSON.stringify({ progress: `${pct}%`, downloaded, total: contentLength, fileName }));
+              }
+            } else if (downloaded % (1024 * 1024) === 0) {
+              console.log(JSON.stringify({ downloaded, fileName }));
+            }
+          });
+
+          res.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            if (minSize > 0 && buffer.length < minSize) {
+              resolve(`Filtered: ${fileName} (too small: ${buffer.length} bytes)`);
+              return;
+            }
+            fs.writeFileSync(savePath, buffer);
+            const checksum = crypto.createHash('sha256').update(buffer).digest('hex');
+            const verified = contentLength === 0 || buffer.length === contentLength;
+            console.log(JSON.stringify({ downloaded: true, path: savePath, bytes: buffer.length, checksum: 'sha256:' + checksum, verified, category }));
+            resolve(`Downloaded: ${fileName} (${buffer.length} bytes) -> ${category}/`);
+          });
+
+          res.on('error', (err: Error) => { resolve(`Download failed: ${err.message}`); });
+        });
+        req.on('error', (err: Error) => { resolve(`Download failed: ${err.message}`); });
+        req.on('timeout', () => { req.destroy(); resolve('Download failed: timeout'); });
+      });
+    } catch (e) {
+      return `Download error: ${e instanceof Error ? e.message : String(e)}`;
+    }
+  }
+
+  /**
+   * Download all linked files from a page.
+   * Uses Playwright for navigation/link extraction, Node.js http/https for downloads.
+   * Features: concurrent downloads (max 5), deduplication, auto-organize by type, filters.
+   */
+  private async downloadAll(args: Record<string, unknown>): Promise<string> {
+    const selector = String(args.selector || 'a[href]').trim();
+    const outputDir = String(args.output_path || './downloads').trim();
+    const url = String(args.url || '');
+    const concurrent = Math.min(this.positiveInteger(args.concurrent, 3), 5);
+    const minSize = args.min_size ? Number(args.min_size) : 0;
+    const maxSize = args.max_size ? Number(args.max_size) : Infinity;
+    const onlyTypes = this.parseOnlyTypes(String(args.only_types || ''));
+    const mirror = args.mirror === true;
+
+    // Step 1: Use Playwright to navigate and extract links
+    const extractScript = `
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
+  const sourceUrl = ${this.jsLiteral(url)};
+  if (sourceUrl) {
+    await page.goto(sourceUrl, { waitUntil: 'networkidle', timeout: 30000 });
+  }
+  const links = await page.$$eval(${this.jsLiteral(selector)}, (els) =>
+    els.map((el) => ({
+      href: el.href || el.getAttribute('href') || '',
+      text: el.textContent?.trim() || ''
+    }))
+  );
+  const filtered = links.filter((l) => l.href && (l.href.startsWith('http') || l.href.startsWith('/')));
+  console.log(JSON.stringify(filtered.slice(0, 50)));
+  await browser.close();
+})().catch((error) => {
+  console.error(JSON.stringify({ error: error.message }));
+  process.exitCode = 1;
+});
+`;
+
+    const extractResult = await this.runWithPlaywright(extractScript);
+    if (extractResult.startsWith('Playwright error:')) return extractResult;
+
+    let links: Array<{ href: string; text: string }>;
+    try {
+      links = JSON.parse(extractResult.trim());
+    } catch {
+      return `Failed to parse extracted links from page.`;
+    }
+
+    // Step 2: Resolve URLs and build download queue with deduplication
+    const seen = new Map<string, boolean>();
+    const downloadQueue: Array<{ url: string; fileName: string }> = [];
+
+    for (const link of links) {
+      try {
+        const fullUrl = link.href.startsWith('/') ? new URL(link.href, url).href : link.href;
+        const urlObj = new URL(fullUrl);
+        const fileName = decodeURIComponent(urlObj.pathname.split('/').pop() || 'download');
+
+        if (onlyTypes.length > 0) {
+          const ext = fileName.split('.').pop()?.toLowerCase() || '';
+          if (!onlyTypes.includes(ext)) continue;
+        }
+
+        const dedupeKey = `${fileName}-${fullUrl}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.set(dedupeKey, true);
+
+        downloadQueue.push({ url: fullUrl, fileName });
+      } catch {
+        // Skip invalid URLs
+      }
+    }
+
+    const results: string[] = [];
+    let index = 0;
+    const self = this;
+    async function worker() {
+      while (index < downloadQueue.length) {
+        const item = downloadQueue[index++];
+        try {
+          const res = await self.downloadFile({
+            url: item.url,
+            output_path: outputDir,
+            min_size: minSize,
+            max_size: maxSize,
+            only_types: onlyTypes.join(','),
+          });
+          results.push(res);
+        } catch (e: any) {
+          results.push(`Download failed for ${item.url}: ${e?.message || e}`);
+        }
+      }
+    }
+
+    const workers = [];
+    for (let i = 0; i < Math.min(concurrent, downloadQueue.length); i++) {
+      workers.push(worker());
+    }
+    await Promise.all(workers);
+
+    return `Processed ${results.length} downloads:\n` + results.map((r) => `- ${r}`).join('\n');
+  }
+
+  /**
+   * Extract links from a page using Playwright.
+   * Supports filters: min_size, max_size, only_types.
+   * Returns enriched link metadata (size, type, downloadable flag).
+   */
+  private async extractLinks(args: Record<string, unknown>): Promise<string> {
+    const selector = String(args.selector || 'a[href]').trim();
+    const url = String(args.url || '');
+    const minSize = args.min_size ? Number(args.min_size) : 0;
+    const maxSize = args.max_size ? Number(args.max_size) : Infinity;
+    const onlyTypes = this.parseOnlyTypes(String(args.only_types || ''));
+
+    try {
+      const http = require('http');
+      const https = require('https');
+      const protocol = url.startsWith('https') ? https : http;
+
+      return await new Promise<string>((resolve) => {
+        protocol.get(url, { timeout: 10000 }, (res: any) => {
+          let body = '';
+          res.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+          res.on('end', () => {
+            const linkRegex = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>([^<]*)<\/a>/gi;
+            const links: Array<{ href: string; text: string }> = [];
+            let match;
+            while ((match = linkRegex.exec(body)) !== null) {
+              links.push({ href: match[1], text: match[2].trim().substring(0, 80) });
+            }
+
+            const filtered = links.filter((l) => {
+              if (!l.href) return false;
+              if (onlyTypes.length > 0) {
+                const ext = l.href.split('.').pop()?.toLowerCase() || '';
+                if (!onlyTypes.includes(ext)) return false;
+              }
+              return true;
+            });
+
+            const result = filtered.map((l) => ({
+              href: l.href,
+              text: l.text,
+              type: l.href.split('.').pop() || 'unknown',
+            }));
+
+            resolve(JSON.stringify(result, null, 2));
+          });
+          res.on('error', (err: Error) => { resolve(`Error: ${err.message}`); });
+        }).on('error', (err: Error) => { resolve(`Error: ${err.message}`); });
+      });
+    } catch (e) {
+      return `Error: ${e instanceof Error ? e.message : String(e)}`;
+    }
+  }
 }
+

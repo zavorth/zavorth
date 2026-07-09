@@ -59,5 +59,5 @@ async function readDeveloperWorkspaceJsonBody(request: Request): Promise<Record<
     return body && typeof body === "object" && !Array.isArray(body)
       ? body as Record<string, unknown>
       : {};
-  } catch (error) { logger.warn('[developer Workspace] network request failed', error); return {}; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[developer Workspace] network request failed', error); return {}; }
 }

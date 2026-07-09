@@ -272,7 +272,7 @@ export class DeveloperWorkspaceSurfaceService {
         snapshot,
         message: `Developer Workspace executou ${action}.`,
       });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const snapshot = this.buildSnapshot(input);
       return this.actionResult({
         ok: false,
@@ -302,7 +302,7 @@ export class DeveloperWorkspaceSurfaceService {
           manifestPath: input.manifestPath || undefined,
         }),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Developer Workspace Surface] load operation failed', error);
     return {
         ok: false,

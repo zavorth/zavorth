@@ -216,7 +216,7 @@ export function buildGatewayControlReadPayload(
 export async function readGatewayControlJsonBody(request: Request): Promise<{ ok: true; body: unknown } | { ok: false }> {
   try {
     return { ok: true, body: await request.json() };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[gateway Control] cache operation failed', error);
     return { ok: true, body: {} };
   }
@@ -341,7 +341,7 @@ export async function buildGatewayControlDelegatedOperationPayload(
       errors: [],
       message: "Operacao aprovada e delegada para o equivalente existente.",
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const finishedAtDate = getGatewayControlNow(options);
     const timedOut = error instanceof GatewayControlOperationTimeoutError;
     return {
@@ -659,7 +659,7 @@ async function readGatewayControlEquivalentJson(response: Response): Promise<Rec
   try {
     const value = await response.json();
     return asRecord(value);
-  } catch (error) { logger.warn('[gateway Control] operation failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[gateway Control] operation failed', error); return null; }
 }
 
 function asRecord(value: unknown): Record<string, unknown> {

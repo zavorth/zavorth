@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 
 import {
   buildZavorthTransactionSandboxAdapterCertificationContractSnapshot,
@@ -476,13 +476,13 @@ function evaluateEndpoint(manifest: ZavorthTransactionSandboxAdapterManifest | n
 function safeHost(value: string | undefined): string | null {
   try {
     return value ? new URL(value).hostname.toLowerCase() : null;
-  } catch (error) { logger.warn('[Zavorth Transaction Sandbox Adapter Certification] network request failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Transaction Sandbox Adapter Certification] network request failed', error); return null; }
 }
 
 function safeProtocol(value: string | undefined): string | null {
   try {
     return value ? new URL(value).protocol.toLowerCase() : null;
-  } catch (error) { logger.warn('[Zavorth Transaction Sandbox Adapter Certification] operation failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Transaction Sandbox Adapter Certification] operation failed', error); return null; }
 }
 
 function isSandboxLikeHost(host: string): boolean {

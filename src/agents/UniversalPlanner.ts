@@ -19,7 +19,7 @@ export class UniversalPlanner {
     try {
       const result = await this.planner.generatePlan(task, prompt);
       return result.plan;
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       logger.error('[UniversalPlanner] Planning error:', err.message);
       throw new Error(`Planner error (${providerName}/${modelName}): ${err.message}`);
     }

@@ -46,7 +46,7 @@ async function renderTerminalQr(value: string): Promise<string> {
     const toString = (module.toString || module.default?.toString) as ((text: string, options: JsonObject) => Promise<string>) | undefined;
     if (!toString) return '';
     return (await toString(value, { type: 'terminal', small: true, margin: 1 })).trim();
-  } catch (error) { logger.warn('[Zavorth Cli Message Pairing] load operation failed', error); return ''; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Message Pairing] load operation failed', error); return ''; }
 }
 
 export async function createPairingDraft(root: string, input: { channel: string; target: string; label: string; ttlMinutes: number }): Promise<JsonObject> {

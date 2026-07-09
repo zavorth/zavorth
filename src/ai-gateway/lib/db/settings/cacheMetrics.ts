@@ -135,7 +135,7 @@ export async function getCacheMetrics() {
       byStrategy,
       lastUpdated: new Date().toISOString(),
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Failed to fetch cache metrics from usage_history:", error);
     return {
       totalRequests: 0,
@@ -202,7 +202,7 @@ export async function getCacheTrend(hours = 24): Promise<CacheTrendPoint[]> {
       cachedTokens: r.cachedTokens || 0,
       cacheCreationTokens: r.cacheCreationTokens || 0,
     }));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Failed to fetch cache trend:", error);
     return [];
   }

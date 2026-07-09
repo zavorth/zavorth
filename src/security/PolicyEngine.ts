@@ -260,7 +260,7 @@ export class PolicyEngine {
       const parsed = JSON.parse(raw) as SecurityPolicy;
       this.validatePolicySchema(parsed);
       return parsed;
-    } catch (e: unknown) {
+    } catch (e: any) { const error = e; const err = e;
       const message = e instanceof Error ? e.message : String(e);
       throw new Error(`[PolicyEngine] Erro ao carregar pol?tica de seguran?a: ${message}`);
     }

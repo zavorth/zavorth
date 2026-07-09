@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const report = getDiversityReport();
     return NextResponse.json(report);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

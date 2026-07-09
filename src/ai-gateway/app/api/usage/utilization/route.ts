@@ -67,7 +67,7 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json(response);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error fetching utilization data:", error);
     return NextResponse.json({ error: "Failed to fetch utilization data" }, { status: 500 });
   }

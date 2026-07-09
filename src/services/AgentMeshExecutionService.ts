@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+﻿import { randomUUID } from 'crypto';
 import type {
   AgentMeshExecutionRequest,
   AgentMeshExecutionReceipt,
@@ -130,7 +130,7 @@ export class AgentMeshExecutionService {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof AgentMeshDriverUnavailableException) {
         finalStatus = 'failed_driver_unavailable';
         finalSummary = sanitizeReceiptText(error.message);

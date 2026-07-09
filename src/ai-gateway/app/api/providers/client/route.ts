@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     }));
 
     return NextResponse.json({ connections: clientConnections });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching providers for client:", error);
     return NextResponse.json({ error: "Failed to fetch providers" }, { status: 500 });
   }

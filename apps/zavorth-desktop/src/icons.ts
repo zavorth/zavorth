@@ -11,7 +11,9 @@ import {
   IconClock,
   IconCommand,
   IconDeviceDesktopAnalytics,
+  IconFile,
   IconFolder,
+  IconFolderOpen,
   IconHexagonLetterZ,
   IconLayoutSidebarLeftCollapse,
   IconMessageCircle,
@@ -41,13 +43,16 @@ export const AppWindow = IconAppWindow;
 export const Auth = IconBrandOauth;
 export const Brand = IconHexagonLetterZ;
 export const Channels = IconUsers;
+export const Users = IconUsers;
 export const Chat = IconMessageCircle;
 export const ChevronDown = IconChevronDown;
 export const ChevronRight = IconChevronRight;
 export const Clock = IconClock;
 export const Command = IconCommand;
 export const Core = IconDeviceDesktopAnalytics;
+export const File = IconFile;
 export const Folder = IconFolder;
+export const FolderOpen = IconFolderOpen;
 export const Memory = IconBrain;
 export const Mic = IconMicrophone;
 export const Pencil = IconPencil;

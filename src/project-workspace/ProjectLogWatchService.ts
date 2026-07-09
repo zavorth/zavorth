@@ -361,7 +361,7 @@ export class ProjectLogWatchService {
       event.agentRunStatus = result.run.status;
       event.status = 'agent_run_created';
       event.updatedAt = this.nowIso();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       event.status = 'agent_run_failed';
       event.error = errorMessage(error);
       event.updatedAt = this.nowIso();
@@ -651,7 +651,7 @@ function defaultIdFactory(prefix: string): string {
 function matchesPattern(text: string, pattern: string): boolean {
   try {
     return new RegExp(pattern, 'i').test(text);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return normalizeText(text).toLowerCase().includes(normalizeText(pattern).toLowerCase());
   }
 }

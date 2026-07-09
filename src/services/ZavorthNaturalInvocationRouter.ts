@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import {
   ZAVORTH_NATURAL_INVOCATION_CONTRACT_VERSION,
   type ZavorthNaturalInvocationAction,
@@ -582,7 +582,7 @@ Examples:
       approvalReason: risky ? 'LLM-classified intent involves potentially risky operations.' : null,
       risky,
     });
-  } catch (error) { logger.warn('[Zavorth Natural Invocation r] parsing failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Natural Invocation r] parsing failed', error); return null; }
 }
 
 function base(input: {

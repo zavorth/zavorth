@@ -189,7 +189,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
 
     try {
       return JSON.parse(fs.readFileSync(config.whatsappStatusFile, 'utf8')) as WhatsAppGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Whats App way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Whats App way.stub] JSON parse failed', error); return null; }
   }
 
   public async requestLoginQr(): Promise<WhatsAppLoginQrReceipt> {
@@ -521,7 +521,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         if (value) {
           return { value, source: candidate };
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         this.lastError = `Could not read the WhatsApp QR from ${candidate}: ${error instanceof Error ? error.message : String(error)}`;
         return null;
       }
@@ -562,7 +562,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
         }),
         updatedAt: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Whats App way.stub] validation failed', error);
     return {
         ...status,
@@ -776,7 +776,7 @@ export class WhatsAppGateway implements LiveChannelBroadcastGatewayContract {
     let responsePayload: CloudApiSendResult | null = null;
     try {
       responsePayload = await response.json() as CloudApiSendResult;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Whats App way.stub] load operation failed', error);
     responsePayload = null;
   }

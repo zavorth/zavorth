@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, type Tool } from '@google/generative-ai';
+﻿import { GoogleGenerativeAI, type Tool } from '@google/generative-ai';
 import { search, SafeSearchType, type SearchResult } from 'duck-duck-scrape';
 import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
@@ -47,7 +47,7 @@ export class DeepSearchService {
         this.logRepo.log('info', 'DeepSearch', `Grounding bem-sucedido (${groundedResult.length} chars)`);
         return groundedResult;
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       this.logRepo.log('warn', 'DeepSearch', `Grounding falhou: ${message}. Usando fallback DDG.`);
     }
@@ -72,7 +72,10 @@ export class DeepSearchService {
         if (subResult && subResult.length > 30) {
           subResults.push(`---\n**Sub-pergunta:** ${subQuestion}\n${subResult}`);
         }
-      } catch (error) { // Continua para as próximas sub-perguntas. logger.warn('[Deep Search] search failed', error); }
+      } catch (error: any) {
+      // Continua para as próximas sub-perguntas.
+      logger.warn('[Deep Search] search failed', error);
+    }
     }
 
     return this.synthesize(query, subResults);
@@ -116,7 +119,7 @@ export class DeepSearchService {
         }
 
         return text + sources;
-      } catch (error: unknown) {
+      } catch (error: any) {
         const message = error instanceof Error ? error.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Grounding com chave falhou: ${message}`);
       }
@@ -163,7 +166,7 @@ export class DeepSearchService {
       }
 
       return this.formatRawDuckDuckGoResults(query, topResults);
-    } catch (error: unknown) {
+    } catch (error: any) {
       const errMsg = error instanceof Error ? error.message : String(error);
       this.logRepo.log('error', 'DeepSearch', `Falha DDG: ${errMsg}`);
       return `❌ Falha no Deep Search.\n\nMotivo: ${errMsg}`;
@@ -215,7 +218,7 @@ export class DeepSearchService {
           }
           return text;
         }
-      } catch (error: unknown) {
+      } catch (error: any) {
         const message = error instanceof Error ? error.message : String(error);
         this.logRepo.log('warn', 'DeepSearch', `Resumo com ${providerName} falhou: ${message}`);
       }

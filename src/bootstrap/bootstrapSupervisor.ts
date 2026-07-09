@@ -38,7 +38,7 @@ export function createBootstrapSupervisor(): BootstrapSupervisor {
 
     try {
       process.send(message);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // The main bootstrap should not fail because of a supervisor IPC error.
     }
   };
@@ -121,7 +121,7 @@ export function createBootstrapSupervisor(): BootstrapSupervisor {
       try {
         const response = await fetch(url, { method: 'GET' });
         return response.ok;
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return false;
       }
     },

@@ -1,8 +1,10 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
+import { executionContextScope } from '../runtime/context/ExecutionContextScope.js';
+import { ZavorthGitLockTool } from './ZavorthGitLockTool.js';
 
 /**
  * Creates files on the local filesystem inside safe directories.
@@ -40,12 +42,15 @@ export class CreateFileTool extends BaseTool {
     try {
       resolvedPolicy = policy.resolveWritePath(filepath);
       fullPath = resolvedPolicy.absolutePath;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Create File] serialization failed', error);
     return JSON.stringify({ error: 'For security, files can only be created inside the output/ folder.' });
   }
 
     try {
+      const currentSubagentId = executionContextScope.current()?.sessionId || null;
+      await ZavorthGitLockTool.checkLock(fullPath, currentSubagentId);
+
       const dir = path.dirname(fullPath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -63,7 +68,7 @@ export class CreateFileTool extends BaseTool {
           scope: resolvedPolicy.scope,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Create File] filesystem operation failed', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
       return JSON.stringify({ error: `Failed to create file: ${errorMessage}` });

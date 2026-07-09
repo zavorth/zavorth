@@ -56,7 +56,7 @@ export class TelegramExecutionResearchService {
         output: userFacingText,
         success: true,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = String(
         (error instanceof Error ? error.message : null) ?? error ?? 'Unknown web research failure.',
       ).trim();

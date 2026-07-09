@@ -23,7 +23,7 @@ export async function handleHostPowerRequest(
       }
       const state = HostPowerModeService.getInstance().getState(workspaceId);
       deps.writeJson(res, { ok: true, data: state });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -45,7 +45,7 @@ export async function handleHostPowerRequest(
 
       await HostPowerModeService.getInstance().enable(workspaceId, durationMinutes);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;
@@ -67,7 +67,7 @@ export async function handleHostPowerRequest(
 
       await HostPowerModeService.getInstance().disable(workspaceId);
       deps.writeJson(res, { ok: true });
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       deps.writeJson(res, { ok: false, error: err.message }, 500);
     }
     return true;

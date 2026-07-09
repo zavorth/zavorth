@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import fs from 'fs';
 import { WorkspaceFsPolicy } from './workspace/WorkspaceFsPolicy.js';
 import { logger } from '../logger.js';
@@ -27,7 +27,7 @@ export class ListDirectoryTool extends BaseTool {
     let dirPath: string;
     try {
       dirPath = new WorkspaceFsPolicy().resolveListPath(rawDirPath).absolutePath;
-    } catch (error) { logger.warn('[List Directory] process execution failed', error); return 'Error: for security, directories can only be listed inside the current workspace.'; }
+    } catch (error: any) { logger.warn('[List Directory] process execution failed', error); return 'Error: for security, directories can only be listed inside the current workspace.'; }
 
     try {
       if (!fs.existsSync(dirPath)) {
@@ -59,7 +59,7 @@ export class ListDirectoryTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       console.error('[ListDirectory] Error while listing:', message);
       return `Error while reading directory: ${message}`;

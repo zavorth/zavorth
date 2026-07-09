@@ -202,7 +202,7 @@ export class SecurityAuditTrailService {
 
     try {
       return JSON.parse(this.readFileSync(this.getLedgerFile(), 'utf8')) as SecurityAuditTrailLedger;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -106,7 +106,7 @@ export class ZavorthCronSchedulerTool extends BaseTool {
         case 'update': return this.updateJob(args);
         default: return `Error: action "${action}" not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Cron] delete operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `CronScheduler error: ${message}`;

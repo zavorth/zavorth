@@ -65,14 +65,14 @@ async function checkCertInstalledMac(certPath) {
       SYSTEM_KEYCHAIN,
     ]);
     return String(stdout).toUpperCase().includes(fingerprint);
-  } catch (error) { logger.warn('[install] process execution failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[install] process execution failed', error); return false; }
 }
 
 async function checkCertInstalledWindows() {
   try {
     await execFileCapture("certutil", ["-store", "Root", TARGET_HOST]);
     return true;
-  } catch (error) { logger.warn('[install] process execution failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[install] process execution failed', error); return false; }
 }
 
 /**
@@ -114,7 +114,7 @@ async function installCertMac(sudoPassword, certPath) {
       sudoPassword
     );
     console.log(`Installed certificate to system keychain: ${certPath}`);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const msg = error.message?.includes("canceled")
       ? "User canceled authorization"
       : "Certificate install failed";
@@ -156,7 +156,7 @@ async function uninstallCertMac(sudoPassword, certPath) {
       sudoPassword
     );
     console.log("Uninstalled certificate from system keychain");
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error("Failed to uninstall certificate");
   }
 }

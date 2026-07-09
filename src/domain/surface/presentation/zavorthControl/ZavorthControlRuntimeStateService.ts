@@ -34,7 +34,7 @@ export class ZavorthControlRuntimeStateService {
         ),
         'utf8',
       );
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.warn(`Nao consegui persistir o estado do zavorthControl: ${error?.message || error}`);
     }
   }
@@ -52,7 +52,10 @@ export class ZavorthControlRuntimeStateService {
       }
 
       fs.rmSync(filePath, { force: true });
-    } catch (error) { // Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos. logger.warn('[Zavorth Control Runtime State] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Ignora limpeza falha de estado; o readiness vai filtrar snapshots mortos.
+      logger.warn('[Zavorth Control Runtime State] JSON parse failed', error);
+    }
   }
 }
 

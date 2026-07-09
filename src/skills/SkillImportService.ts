@@ -361,7 +361,7 @@ export class SkillImportService {
     }
     try {
       return this.lstatSyncImpl(normalizedFile).isFile();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }
@@ -378,7 +378,7 @@ export class SkillImportService {
         return '';
       }
       return this.readFileSyncImpl(filePath, 'utf8').trim();
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return '';
     }
   }
@@ -419,7 +419,7 @@ export class SkillImportService {
             .map(([key, value]) => [key, String(value ?? '').trim()]),
         );
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // fallback abaixo
     }
 

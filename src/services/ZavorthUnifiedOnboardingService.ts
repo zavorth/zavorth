@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZAVORTH_UNIFIED_ONBOARDING_CONTRACT_VERSION,
   type ZavorthUnifiedOnboardingProviderSummary,
   type ZavorthUnifiedOnboardingSnapshot,
@@ -232,7 +232,7 @@ export class ZavorthUnifiedOnboardingService {
       report = this.providerDoctor.inspect({
         includeAdvanced: input.includeAdvanced === true,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Unified Onboarding] operation failed', error);
     return {
         status: 'attention',

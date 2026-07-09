@@ -770,7 +770,7 @@ function parseCliActionArgs(value: string): Record<string, unknown> {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : {};
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] JSON parse failed', error);
     return { query: textValue };
   }
@@ -1089,7 +1089,7 @@ async function cancelSwarmRun(stateFilePath: string, runId: string): Promise<boo
     await fs.mkdir(path.dirname(stateFilePath), { recursive: true });
     await fs.writeFile(stateFilePath, `${JSON.stringify({ runs }, null, 2)}\n`, 'utf8');
     return true;
-  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] filesystem operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Live Namespaces] filesystem operation failed', error); return false; }
 }
 
 async function runBackup(root: string, args: string[]) {
@@ -1514,7 +1514,7 @@ async function loadManagedConfigSource(source: string): Promise<{ ok: boolean; c
       return { ok: true, config: await response.json() as JsonObject };
     }
     return { ok: true, config: await readJson(source, {}) as JsonObject };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { ok: false, config: {}, reason: error instanceof Error ? error.message : String(error) };
   }
@@ -1908,7 +1908,7 @@ async function acquireTaskLock(root: string, collection: string): Promise<{ ok: 
     await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
     await handle.close();
     return { ok: true, file, message: 'lock acquired' };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] filesystem operation failed', error);
     return { ok: false, file, message: `Worker lock is active for ${collection}. Use logs/status or remove stale lock only after verifying no worker is running.` };
   }
@@ -2050,7 +2050,7 @@ async function fetchDocsIndex(url: string, query: string): Promise<{ lines: stri
     const lines = text.split(/\r?\n/u);
     const matches = terms.length ? lines.filter((line) => terms.some((term) => line.toLowerCase().includes(term))).slice(0, 12) : lines.slice(0, 12);
     return { lines: matches.length ? matches : ['Live docs fetched, no matching lines.'], payload: { ok: true, url: redactUrl(url), matches } };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { lines: [`Live docs fetch failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false } };
   }
@@ -2296,7 +2296,7 @@ function parseMcpFrames(buffer: Buffer<ArrayBufferLike>): { messages: JsonObject
     const body = remaining.slice(bodyStart, bodyEnd).toString('utf8');
     try {
       messages.push(JSON.parse(body));
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       messages.push({ error: { message: 'invalid-json-rpc-response' } });
     }
     remaining = remaining.slice(bodyEnd);
@@ -3295,7 +3295,7 @@ function isSkillAllowlisted(root: string, id: string): boolean {
     const file = path.join(stateDir(root), 'skills-allowlist.json');
     const raw = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : [];
     return Array.isArray(raw) && raw.includes(idFromSpec(id));
-  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] JSON parse failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Live Namespaces] JSON parse failed', error); return false; }
 }
 
 function doctorSkill(root: string, skill: JsonObject): Array<{ id: string; ok: boolean; summary: string }> {
@@ -3542,14 +3542,14 @@ function isPidAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
     return true;
-  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
 }
 
 function killPid(pid: number): boolean {
   try {
     process.kill(pid);
     return true;
-  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Live Namespaces] creation failed', error); return false; }
 }
 
 function sanitizeServiceState(value: unknown): JsonObject {
@@ -3839,7 +3839,7 @@ function redactUrl(value: string): string {
       if (/token|key|secret|auth|sig/iu.test(key)) url.searchParams.set(key, '***');
     }
     return url.toString();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] search failed', error);
     return redact(value);
   }
@@ -4120,7 +4120,7 @@ async function deliverMessage(
       return { ok: true, channel: normalized, mode: 'outbox', receipt };
     }
     return { ok: false, reason: `missing-channel-config:${normalized}`, required: adapter.env };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] filesystem check failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }
@@ -4169,7 +4169,7 @@ async function readChannelMessages(channel: string, args: string[]): Promise<{ l
       };
     }
     return { lines: [`Live read is not available for ${channel} yet.`], payload: { ok: false, reason: `unsupported-live-read:${channel}` } };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error);
     return { lines: [`Live read failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false, reason: error instanceof Error ? error.message : String(error) } };
   }
@@ -4242,7 +4242,7 @@ async function lookupChannelDirectory(channel: string, kind: 'self' | 'peers' | 
       return { lines: entries.length ? entries.map(formatDirectoryEntry) : ['No Matrix rooms returned.'], payload: { ok: response.ok, count: entries.length, entries }, entries };
     }
     return { lines: [`Live directory lookup is not available for ${channel} yet. Use zavorth directory add to store trusted IDs locally.`], payload: { ok: false, reason: `unsupported-live-directory:${channel}` }, entries: [] };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error);
     return { lines: [`Live directory lookup failed: ${error instanceof Error ? error.message : String(error)}`], payload: { ok: false, reason: error instanceof Error ? error.message : String(error) }, entries: [] };
   }
@@ -4282,7 +4282,7 @@ async function renderTerminalQr(value: string): Promise<string> {
     const toString = (module.toString || module.default?.toString) as ((text: string, options: JsonObject) => Promise<string>) | undefined;
     if (!toString) return '';
     return (await toString(value, { type: 'terminal', small: true, margin: 1 })).trim();
-  } catch (error) { logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error); return ''; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Live Namespaces] load operation failed', error); return ''; }
 }
 
 function hashPairingCode(code: string): string {
@@ -4524,7 +4524,7 @@ async function inferText(provider: string, prompt: string, args: string[]): Prom
     const choices = Array.isArray(data.choices) ? data.choices : [];
     const message = ((choices[0] as JsonObject | undefined)?.message || {}) as JsonObject;
     return { ok: response.ok, status: response.status, provider, model: openAiLike.model, text: String(message.content || data.error || '') };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] filesystem check failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }
@@ -4579,7 +4579,7 @@ async function postJson(url: string, body: unknown): Promise<JsonObject> {
       body: JSON.stringify(body),
     });
     return { ok: response.ok, status: response.status };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Live Namespaces] network request failed', error);
     return { ok: false, reason: error instanceof Error ? error.message : String(error) };
   }

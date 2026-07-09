@@ -109,7 +109,7 @@ function toStoredErrorString(error: unknown): string | null {
   if (typeof sanitized === "string") return sanitized;
   try {
     return JSON.stringify(sanitized);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[call] load operation failed', error);
     return String(sanitized);
   }
@@ -165,7 +165,10 @@ async function resolveAccountName(connectionId: string | null | undefined) {
     if (conn) {
       account = pickMaskedDisplayValue([conn.name, conn.email], account);
     }
-  } catch (error) { // Best-effort lookup only. logger.warn('[call] connection failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Best-effort lookup only.
+      logger.warn('[call] connection failed', error);
+    }
 
   return account;
 }
@@ -255,7 +258,7 @@ function writeCallArtifact(artifact: CallLogArtifact): string | null {
     fs.writeFileSync(absPath, JSON.stringify(artifact, null, 2));
     rotateCallLogs();
     return relPath;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[callLogs] Failed to write request artifact:", (error as Error).message);
     return null;
   }
@@ -268,7 +271,7 @@ function readArtifactFromDisk(relativePath: string | null) {
     const absPath = path.join(CALL_LOGS_DIR, relativePath);
     if (!fs.existsSync(absPath)) return null;
     return JSON.parse(fs.readFileSync(absPath, "utf8")) as CallLogArtifact;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[callLogs] Failed to read request artifact:", (error as Error).message);
     return null;
   }
@@ -310,7 +313,7 @@ function readLegacyLogFromDisk(entry: {
     if (files.length > 0) {
       return JSON.parse(fs.readFileSync(path.join(dir, files[0]), "utf8"));
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[callLogs] Failed to read legacy disk log:", (error as Error).message);
   }
 
@@ -329,7 +332,10 @@ function cleanupEmptyCallLogDirs() {
         fs.rmSync(entryPath, { recursive: true, force: true });
       }
     }
-  } catch (error) { // Best effort only. logger.warn('[call] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Best effort only.
+      logger.warn('[call] filesystem operation failed', error);
+    }
 }
 
 export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?: number) {
@@ -355,18 +361,21 @@ export function cleanupOverflowCallLogFiles(baseDir = CALL_LOGS_DIR, maxEntries?
               const fileStat = fs.statSync(filePath);
               return { filePath, mtimeMs: fileStat.mtimeMs };
             });
-        } catch (error) { logger.warn('[call] filesystem operation failed', error); return []; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[call] filesystem operation failed', error); return []; }
       })
       .sort((a, b) => b.mtimeMs - a.mtimeMs);
 
     for (const file of files.slice(limit)) {
       try {
         fs.rmSync(file.filePath, { force: true });
-      } catch (error) { // Best effort only. logger.warn('[call] filesystem operation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Best effort only.
+      logger.warn('[call] filesystem operation failed', error);
+    }
     }
 
     cleanupEmptyCallLogDirs();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error(
       "[callLogs] Failed to prune overflow request artifacts:",
       (error as Error).message
@@ -460,7 +469,7 @@ export async function saveCallLog(entry: any) {
         ).run(artifactRelPath, protectedPipelinePayloads ? 1 : 0, logEntry.id);
       }
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[callLogs] Failed to save call log:", (error as Error).message);
   }
 }
@@ -481,7 +490,7 @@ export function rotateCallLogs() {
       }
     }
     cleanupOverflowCallLogFiles(CALL_LOGS_DIR, getCallLogMaxEntries());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[callLogs] Failed to rotate request artifacts:", (error as Error).message);
   }
 }
@@ -489,7 +498,10 @@ export function rotateCallLogs() {
 if (shouldPersistToDisk) {
   try {
     rotateCallLogs();
-  } catch (error) { // Best-effort startup cleanup. logger.warn('[call] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Best-effort startup cleanup.
+      logger.warn('[call] operation failed', error);
+    }
 }
 
 export async function getCallLogs(filter: any = {}) {

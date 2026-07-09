@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import type { ChatMessage, ToolDefinition } from '../providers/ILlmProvider.js';
 import { LlmRuntimeService, type LlmRuntimeResult } from './llm/LlmRuntimeService.js';
 import type {
@@ -111,7 +111,7 @@ export class ZavorthLiveSubagentExecutionService {
           maxOutputChars: input.maxOutputChars,
           maxToolCalls: input.maxToolCalls,
         });
-      } catch (error) {
+      } catch (error: any) {
         const completedAt = this.now().toISOString();
         return {
           workerId,
@@ -270,7 +270,7 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         try {
           toolResult = await this.toolRuntime.executeTool(toolCall.name, toolCall.arguments);
           toolStats.executed += 1;
-        } catch (error) {
+        } catch (error: any) {
     logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
     toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? error.message : String(error)}`;
   }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MediaGenerationService — Serviço Zavorth-nativo de orquestração de geração de mídia.
  *
  * Este serviço é o coração da capability `media.generate`. Ele é responsável por:
@@ -130,7 +130,7 @@ export class MediaGenerationService {
         : request;
 
       adapterOutputs = await adapter.generate(effectiveRequest);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Media Generation] creation failed', error);
     return this.buildAdapterErrorResult(err, processedAt, policyDecision);
   }
@@ -141,7 +141,7 @@ export class MediaGenerationService {
       try {
         const artifact = await this.storeAsArtifact(output, modality, request);
         artifacts.push(artifact);
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.error(`[MediaGenerationService] Artifact storage failed: ${err instanceof Error ? err.message : String(err)}`);
         // Continua com os outros artefatos, não falha tudo.
       }

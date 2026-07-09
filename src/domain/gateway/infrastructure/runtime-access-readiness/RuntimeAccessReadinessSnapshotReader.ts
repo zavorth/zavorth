@@ -98,7 +98,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         capabilities: [...snapshot.capabilities],
         recommendations: [...snapshot.recommendations],
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Runtime Access Readiness Snapshot Reader] creation failed', error);
     return {
         manifestPath: config.mcpServersManifestPath,
@@ -220,7 +220,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         updatedAt:
           typeof parsed.updatedAt === "string" ? parsed.updatedAt : null,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return fallback; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return fallback; }
   }
 
   public readZavorthControlSnapshot(
@@ -265,7 +265,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         updatedAt:
           typeof parsed.updatedAt === "string" ? parsed.updatedAt : null,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error); return null; }
   }
 
   public readNodeMeshSmokeSnapshot(): RuntimeAccessNodeMeshSmokeSnapshot {
@@ -301,7 +301,7 @@ export class RuntimeAccessReadinessSnapshotReader {
         currentFingerprint,
         storedFingerprint,
       };
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] operation failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] operation failed', error); return null; }
   }
 
   public readLockSnapshot(filePath: string): RuntimeAccessLockSnapshot {
@@ -328,7 +328,7 @@ export class RuntimeAccessReadinessSnapshotReader {
           typeof parsed.startedAt === "string" ? parsed.startedAt : null,
         alive: pid ? this.isProcessAlive(pid) : false,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Runtime Access Readiness Snapshot Reader] parsing failed', error);
     return {
         active: true,
@@ -373,7 +373,7 @@ export class RuntimeAccessReadinessSnapshotReader {
       return typeof parsed.fingerprint === "string" && parsed.fingerprint.trim()
         ? parsed.fingerprint.trim()
         : null;
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] JSON parse failed', error); return null; }
   }
 
   private readTokenFile(filePath: string): string | null {
@@ -384,13 +384,13 @@ export class RuntimeAccessReadinessSnapshotReader {
 
       const token = this.options.readFileSync(filePath, "utf8").trim();
       return token || null;
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return null; }
   }
 
   private isProcessAlive(pid: number): boolean {
     try {
       this.options.kill(pid, 0);
       return true;
-    } catch (error) { logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return error?.code !== "ESRCH"; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Runtime Access Readiness Snapshot Reader] filesystem operation failed', error); return error?.code !== "ESRCH"; }
   }
 }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SearchQueryService — Serviço Zavorth-nativo de orquestração de busca web unificada.
  *
  * Este serviço é o coração da capability `search.query`. Ele unifica as superfícies
@@ -123,7 +123,7 @@ export class SearchQueryService {
     let adapterOutput: AdapterSearchOutput;
     try {
       adapterOutput = await this.invokeAdapterWithFallback(effectiveRequest, mode);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Search Query] search failed', error);
     return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
   }
@@ -238,7 +238,7 @@ export class SearchQueryService {
           if (result.groundedSynthesis?.synthesizedText && result.groundedSynthesis.synthesizedText.length > 50) {
             return result;
           }
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           logger.warn(`[SearchQueryService] Grounding failed, falling back to DDG: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
@@ -364,7 +364,7 @@ export class SearchQueryService {
     await Promise.all(targets.map(async (item) => {
       try {
         item.extractedContent = await this.extractPageExcerpt(item.url);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         item.extractedContent = { error: 'extraction_failed' };
       }
     }));
@@ -416,7 +416,7 @@ export class SearchQueryService {
         excerpt: this.wrapUntrustedWebEvidence(excerpt, url, 'page_excerpt'),
         publishedAt,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Search Query] operation failed', error);
     return { error: err?.name === 'AbortError' ? 'timeout' : (err?.message || String(err)) };
   } finally {
@@ -813,7 +813,7 @@ function titleFromUrl(url: string): string {
   try {
     const parsed = new URL(url);
     return parsed.hostname.replace(/^www\./, '');
-  } catch (error) { logger.warn('[Search Query] parsing failed', error); return url; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Search Query] parsing failed', error); return url; }
 }
 
 function readProviderError(payload: unknown, status: number): string {

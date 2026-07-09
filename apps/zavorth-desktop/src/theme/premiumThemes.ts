@@ -20,12 +20,12 @@ export interface PremiumThemeState {
 type StorageLike = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const PREMIUM_THEME_STORAGE_KEY = 'zvd:premium-themes:v1';
-export const DEFAULT_PREMIUM_THEME_ID = 'zavorth-atelier';
-export const DEFAULT_PREMIUM_FONT = 'Segoe UI';
+export const DEFAULT_PREMIUM_THEME_ID = 'zavorth-official';
+export const DEFAULT_PREMIUM_FONT = 'Inter';
 
 export const premiumThemeFonts = [
-  'Segoe UI',
   'Inter',
+  'Segoe UI',
   'Geist',
   'SF Pro Text',
   'JetBrains Mono',
@@ -36,6 +36,23 @@ const allowedVariablePattern = /^--zvd-(seed|glass|premium)-[a-z0-9-]+$/;
 const unsafeValuePattern = /(url\s*\(|expression\s*\(|javascript:|<|>|;)/i;
 
 export const premiumThemeMarketplace: PremiumTheme[] = [
+  {
+    id: 'zavorth-official',
+    name: 'Zavorth Official',
+    description: 'Brand green #00e88f on calm surfaces — Kael-ready daily desktop.',
+    author: 'Zavorth',
+    translucency: 'soft',
+    builtin: true,
+    cssVars: {
+      '--zvd-seed-accent': '#00e88f',
+      '--zvd-seed-accent-2': '#5ef0b5',
+      '--zvd-seed-bg': '#f4faf7',
+      '--zvd-seed-surface': '#fbfffd',
+      '--zvd-seed-sidebar': '#eef6f2',
+      '--zvd-glass-opacity': '0.88',
+      '--zvd-glass-blur': '18px',
+    },
+  },
   {
     id: 'zavorth-atelier',
     name: 'Zavorth Atelier',

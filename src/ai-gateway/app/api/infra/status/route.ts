@@ -8,7 +8,7 @@ export async function GET() {
       activeRequests: getActiveRequestCount(),
       epoch: STARTUP_EPOCH,
     });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[Status API] Error handling request:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

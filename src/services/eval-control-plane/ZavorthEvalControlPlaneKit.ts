@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import type { ProductObservabilitySnapshot } from '../ProductObservabilityService.js';
 import type { ZavorthEvalHistorySnapshot } from '../ZavorthEvalHistoryFileService.js';
 import type { ZavorthTelemetryLedgerSnapshot } from '../ZavorthTelemetryLedgerService.js';
@@ -669,7 +669,7 @@ export function readEvalTelemetrySnapshot(
       redaction: snapshot.redaction || buildEvalMissingTelemetry().redaction,
       recommendation: snapshot.recommendation,
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return {
       ...buildEvalMissingTelemetry(),
@@ -723,7 +723,7 @@ export function captureEvalHistorySnapshot(
       return buildEvalFallbackHistory(snapshot.summary.posture);
     }
     return evalHistoryService.capture(snapshot) || buildEvalFallbackHistory(snapshot.summary.posture);
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Zavorth Eval Control Plane Kit] creation failed', error);
     return buildEvalFallbackHistory(snapshot.summary.posture);
   }

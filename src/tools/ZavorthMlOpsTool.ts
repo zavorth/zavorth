@@ -1,6 +1,7 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
+import { logger } from '../logger.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 
 export class ZavorthMlOpsTool extends BaseTool {
@@ -98,7 +99,7 @@ export class ZavorthMlOpsTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Ml Ops] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Ml Ops] process execution failed', error); return ''; }
   }
 
   private getModelCode(modelType: string, hyperparams: string): string {
@@ -374,7 +375,6 @@ else:
     const script = `
 import pandas as pd
 import numpy as np
-import { logger } from '../logger.js';
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
@@ -416,7 +416,7 @@ print(f"  Std: {scores.std():.4f}")
       const dest = path.join(destDir, `${modelName}.pkl`);
       fs.copyFileSync(modelPath, dest);
       return `Model saved as "${modelName}" to ${dest}`;
-    } catch (error) { logger.warn('[Zavorth Ml Ops] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Ml Ops] filesystem operation failed', error); return ''; }
   }
 
   private async loadModel(args: Record<string, unknown>): Promise<string> {

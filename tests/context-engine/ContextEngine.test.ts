@@ -196,12 +196,76 @@ describe('ContextEngine gateway ingest', () => {
     );
 
     expect(decision.messages.length).toBe(2);
-    expect(decision.messages[0]).toEqual(expect.objectContaining({ role: 'system', content: 'system' }));
+    expect(decision.messages[0]).toEqual(expect.objectContaining({ role: 'system' }));
+    expect(decision.messages[0].content).toContain('system');
+    expect(decision.messages[0].content).toContain('COGNITIVE NEXUS');
     expect(decision.messages[1]).toEqual(
       expect.objectContaining({
         role: 'user',
         content: 'primeira mensagem\n\nsegunda mensagem\n\nterceira mensagem',
       })
     );
+  });
+
+  it('uses AdaptivePersonaEngine instead of hardcoded prompt', () => {
+    const engine = new ContextEngine();
+    const decision = engine.prepare(
+      'rode os testes npm',
+      'user-1',
+      'chat-1',
+      'telegram',
+      [],
+      'You are Zavorth',
+    );
+    // Should not contain the old hardcoded persona text
+    expect(decision.messages[0].content).not.toContain('EXECUTOR Squad. Be highly practical');
+    // Should contain the new persona-based prompt
+    expect(decision.messages[0].content).toContain('COGNITIVE NEXUS');
+  });
+
+  it('propagates persona metadata in decision', () => {
+    const engine = new ContextEngine();
+    const decision = engine.prepare(
+      'rode os testes npm',
+      'user-1',
+      'chat-1',
+      'telegram',
+      [],
+      'system',
+    );
+    expect(decision.personaType).toBe('executor');
+    expect(decision.personaConfidence).toBeGreaterThanOrEqual(0.7);
+    expect(decision.personaIsAmbiguous).toBe(false);
+  });
+
+  it('uses conversational persona for ambiguous intents', () => {
+    const engine = new ContextEngine();
+    const decision = engine.prepare(
+      'oi',
+      'user-1',
+      'chat-1',
+      'telegram',
+      [],
+      'system',
+    );
+    expect(decision.personaType).toBe('conversational');
+    expect(decision.personaIsAmbiguous).toBe(false);
+  });
+
+  it('logs persona resolution', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    const engine = new ContextEngine();
+    engine.prepare(
+      'rode os testes npm',
+      'user-1',
+      'chat-1',
+      'telegram',
+      [],
+      'system',
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[ContextEngine] Persona:')
+    );
+    consoleSpy.mockRestore();
   });
 });

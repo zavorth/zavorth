@@ -8,6 +8,7 @@ import {
 export type ZavorthPremiumCliAccent =
   | 'neural'
   | 'cyan'
+  | 'orange'
   | 'violet'
   | 'emerald'
   | 'amber'
@@ -44,8 +45,8 @@ export type ZavorthPremiumCliTheme = {
 
 const DEFAULT_MAX_WIDTH = 82;
 const DEFAULT_MIN_WIDTH = 44;
-const ZAVORTH_CYAN = '\u001b[38;2;6;182;212m';
-const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;34;211;238m';
+const ZAVORTH_CYAN = '\u001b[38;2;255;122;24m';
+const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;255;191;105m';
 const ANSI_RESET = '\u001b[0m';
 
 export function createZavorthPremiumCliTheme(input: {
@@ -88,6 +89,8 @@ export function paintPremiumAccent(
       return color.bold(`${ZAVORTH_CYAN_BRIGHT}${value}${ANSI_RESET}`);
     case 'cyan':
       return color.cyan(value);
+    case 'orange':
+      return `\u001b[38;2;255;122;24m${value}${ANSI_RESET}`;
     case 'violet':
       return color.magenta(value);
     case 'emerald':

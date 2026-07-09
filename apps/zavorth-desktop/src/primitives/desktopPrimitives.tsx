@@ -24,8 +24,17 @@ export const panelLabels: Record<DesktopPanel, string> = {
   approvals: 'Review',
   memory: 'Memory',
   skills: 'Skills',
-  channels: 'Canais',
+  channels: 'Channels',
   settings: 'Settings',
+  files: 'Files',
+  preview: 'Preview',
+  automations: 'Automations',
+  agents: 'Agents',
+  profiles: 'Profiles',
+  analytics: 'Analytics',
+  marketplace: 'Marketplace',
+  workboard: 'Workboard',
+  receipts: 'Proof',
 };
 
 export function asRecord(value: unknown): Record<string, unknown> {
@@ -71,6 +80,15 @@ export function PanelScaffold(props: { title: string; subtitle: string; children
   );
 }
 
-export function EmptyPanel(props: { text: string }) {
-  return <div className="zvd-empty-panel">{props.text}</div>;
+export function EmptyPanel(props: { text: string; title?: string }) {
+
+  if (props.title) {
+    return (
+      <div className="zvd-empty">
+        <div className="zvd-empty-title">{props.title}</div>
+        <p className="zvd-empty-body">{props.text}</p>
+      </div>
+    );
+  }
+  return <div className="zvd-empty-panel zvd-empty">{props.text}</div>;
 }

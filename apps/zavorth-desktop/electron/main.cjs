@@ -20,6 +20,12 @@ const {
   resolveRuntimePaths,
   resolveZavorthHome,
 } = require('./runtime-access.cjs');
+const {
+  sanitizeApiPath,
+  isAllowedNavigationUrl,
+  validateRendererUrl,
+} = require('./api-path.cjs');
+const desktopUpdates = require('./desktop-updates.cjs');
 
 let mainWindow = null;
 let runtimeProcess = null;
@@ -116,43 +122,6 @@ function isTrustedWorkspacePath(value) {
   ].map(normalizeResolvedPath);
   const normalized = normalizeResolvedPath(resolved);
   return allowedRoots.some(root => isPathInside(root, normalized));
-}
-
-function validateRendererUrl(value) {
-  const text = String(value || '').trim();
-  if (!text) {
-    return '';
-  }
-  const parsed = new URL(text);
-  const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
-  if ((parsed.protocol === 'http:' || parsed.protocol === 'https:') && localHosts.has(parsed.hostname)) {
-    return parsed.toString();
-  }
-  throw new Error('ZAVORTH_DESKTOP_RENDERER_URL must point to localhost.');
-}
-
-function isAllowedNavigationUrl(value) {
-  try {
-    const parsed = new URL(String(value || ''));
-    if (parsed.protocol === 'file:') {
-      return true;
-    }
-    return (parsed.protocol === 'http:' || parsed.protocol === 'https:')
-      && ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
-  } catch {
-    return false;
-  }
-}
-
-function sanitizeApiPath(value) {
-  const text = String(value || '').trim();
-  if (!text.startsWith('/api/')) {
-    throw new Error('Only local Zavorth API paths are allowed.');
-  }
-  if (/^[a-z][a-z\d+.-]*:/iu.test(text) || text.includes('\\') || text.includes('..')) {
-    throw new Error('Unsafe local API path.');
-  }
-  return text;
 }
 
 function buildLocalApiUrl(pathname, query) {
@@ -495,6 +464,22 @@ function nodeCommand() {
 
 function runtimeCommand() {
   const paths = resolveRuntimePaths();
+  const standaloneName = process.platform === 'win32' ? 'zavorth.exe' : 'zavorth';
+  const standaloneCandidates = [
+    process.resourcesPath ? path.join(process.resourcesPath, 'dist-standalone', standaloneName) : null,
+    path.join(paths.repoRoot, 'dist-standalone', standaloneName),
+  ].filter(Boolean);
+
+  for (const candidate of standaloneCandidates) {
+    if (fs.existsSync(candidate)) {
+      return {
+        command: candidate,
+        args: ['go'],
+        label: `dist-standalone/${standaloneName}`,
+      };
+    }
+  }
+
   const sourceHostBin = path.join(paths.repoRoot, 'src', 'host.ts');
   const hostBin = path.join(paths.repoRoot, 'dist', 'host.js');
   const tsxBin = path.join(paths.repoRoot, 'node_modules', 'tsx', 'dist', 'loader.mjs');
@@ -655,7 +640,9 @@ function createWindow() {
   });
 
   void loadRenderer();
-  mainWindow.webContents.openDevTools();
+  if (process.env.ZAVORTH_DESKTOP_RENDERER_URL) {
+    mainWindow.webContents.openDevTools();
+  }
 }
 
 ipcMain.handle('zavorth:runtime:status', async () => runtimeStatus());
@@ -702,18 +689,69 @@ ipcMain.handle('zavorth:access:repair', async () => {
   resolveAccessToken({ generate: true });
   return runtimeStatus('Local access is ready.');
 });
-ipcMain.handle('zavorth:setup:start', async () => {
+async function launchGuidedSetup(extra = {}) {
   const paths = resolveRuntimePaths();
   const command = fs.existsSync(paths.cliBin)
     ? `${nodeCommand()} "${paths.cliBin}" setup`
     : `${process.platform === 'win32' ? 'zavorth.cmd' : 'zavorth'} setup`;
-  emitBootEvent('info', 'Setup can be opened from the terminal command.');
+
+  // Prefer opening a real terminal/console with the setup command when possible.
+  let launched = false;
+  try {
+    if (process.platform === 'win32') {
+      const child = spawn('cmd.exe', ['/c', 'start', 'cmd.exe', '/k', command], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: false,
+      });
+      child.unref();
+      launched = true;
+    } else if (process.platform === 'darwin') {
+      const child = spawn('osascript', [
+        '-e',
+        `tell application "Terminal" to do script ${JSON.stringify(command)}`,
+      ], { detached: true, stdio: 'ignore' });
+      child.unref();
+      launched = true;
+    } else {
+      const child = spawn('x-terminal-emulator', ['-e', 'bash', '-lc', `${command}; exec bash`], {
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+      launched = true;
+    }
+  } catch {
+    launched = false;
+  }
+
+  // If a package download URL exists for this install path, also surface it.
+  if (extra?.downloadUrl) {
+    try {
+      await shell.openExternal(String(extra.downloadUrl));
+    } catch {
+      // ignore external open failures
+    }
+  }
+
+  emitBootEvent('info', launched
+    ? `Setup launched in a terminal: ${command}`
+    : `Setup command ready: ${command}`);
+
   return {
     ok: true,
     command,
-    message: 'Run this command in a terminal for the guided setup.',
+    launched,
+    latestVersion: extra?.latestVersion || null,
+    message: launched
+      ? (extra?.latestVersion
+        ? `Setup opened to install ${extra.latestVersion}. Terminal command: ${command}`
+        : `Setup opened in a terminal. Command: ${command}`)
+      : `Run this command in a terminal for the guided setup: ${command}`,
   };
-});
+}
+
+ipcMain.handle('zavorth:setup:start', async () => launchGuidedSetup());
 ipcMain.handle('zavorth:logs:open', async () => {
   const { logsDir } = resolveRuntimePaths();
   fs.mkdirSync(logsDir, { recursive: true });
@@ -783,6 +821,50 @@ ipcMain.handle('zavorth:sessions:switch', async (_event, sessionId) => {
     timeoutMs: 8000,
   });
   return result;
+});
+
+ipcMain.handle('zavorth:sessions:create', async (_event, input = {}) => {
+  const sessionId = String(input.sessionId || '').trim()
+    || `desktop-${Date.now().toString(36)}-${crypto.randomBytes(4).toString('hex')}`;
+  const label = String(input.label || 'New Chat').trim() || 'New Chat';
+  const surface = String(input.surface || input.workspaceId || 'desktop').trim() || 'desktop';
+  const workspaceId = input.workspaceId ? String(input.workspaceId) : null;
+
+  const createResult = await desktopApiRequest({
+    method: 'POST',
+    path: '/api/experience/sessions',
+    body: { sessionId, label, surface, workspaceId },
+    timeoutMs: 12000,
+  });
+
+  if (createResult.ok) {
+    const data = createResult.data && typeof createResult.data === 'object' ? createResult.data : {};
+    return {
+      ok: true,
+      status: createResult.status,
+      data: {
+        sessionId: String(data.sessionId || data.id || sessionId),
+        label: String(data.label || data.name || label),
+        surface: String(data.surface || surface),
+      },
+      error: '',
+    };
+  }
+
+  // Lazy-create fallback when runtime only supports switch/home.
+  const switchResult = await desktopApiRequest({
+    method: 'POST',
+    path: '/api/experience/sessions/switch',
+    body: { sessionId, label, surface },
+    timeoutMs: 8000,
+  });
+
+  return {
+    ok: true,
+    status: switchResult.ok ? switchResult.status : 200,
+    data: { sessionId, label, surface },
+    error: switchResult.ok ? '' : (createResult.error || switchResult.error || ''),
+  };
 });
 
 ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
@@ -978,15 +1060,148 @@ ipcMain.on('zavorth:kael-overlay:control', (_event, payload) => {
 });
 
 
-// Phase 4 - Auto-Updates and Multiple Windows IPC Handlers
+// Phase 4 / Sprint fix — Auto-Updates and companion voice IPC
+function updateHomeDir() {
+  try {
+    return resolveZavorthHome();
+  } catch {
+    return path.join(app.getPath('userData'), 'updates');
+  }
+}
+
 ipcMain.handle('zavorth:check-updates', async () => {
-  // Simulates check updates
-  return {
-    hasUpdate: false,
-    version: app.getVersion(),
-    latestVersion: app.getVersion(),
-    changelog: 'No update is available right now.'
-  };
+  return desktopUpdates.checkUpdates({
+    currentVersion: app.getVersion(),
+    homeDir: updateHomeDir(),
+  });
+});
+
+ipcMain.handle('zavorth:updates:download', async () => {
+  return desktopUpdates.downloadUpdate({
+    currentVersion: app.getVersion(),
+    homeDir: updateHomeDir(),
+  });
+});
+
+ipcMain.handle('zavorth:updates:defer', async (_event, input = {}) => {
+  return desktopUpdates.deferUpdate({
+    homeDir: updateHomeDir(),
+    days: input.days || 7,
+  });
+});
+
+ipcMain.handle('zavorth:updates:install', async () => {
+  return desktopUpdates.installUpdate({
+    currentVersion: app.getVersion(),
+    homeDir: updateHomeDir(),
+    allowSetupFallback: true,
+    startSetup: async (extra = {}) => launchGuidedSetup(extra),
+  });
+});
+
+ipcMain.handle('zavorth:updates:rollback', async () => {
+  return desktopUpdates.rollbackUpdate({ homeDir: updateHomeDir() });
+});
+
+ipcMain.handle('zavorth:updates:open-github', async () => {
+  return desktopUpdates.openGithubReleases({});
+});
+
+function isProcessAlive(pid) {
+  const id = Number(pid);
+  if (!Number.isFinite(id) || id <= 0) return false;
+  try {
+    process.kill(id, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+ipcMain.handle('zavorth:voice-agent:status', async () => {
+  const home = resolveZavorthHome();
+  const statusFile = path.join(home, 'agent-voice-status.json');
+  try {
+    const raw = JSON.parse(fs.readFileSync(statusFile, 'utf8'));
+    const pid = raw.pid || null;
+    const alive = Boolean(raw.running) && isProcessAlive(pid);
+    if (!alive && (raw.running || pid)) {
+      // Stale status file: companion exited without cleanup.
+      try {
+        fs.writeFileSync(statusFile, `${JSON.stringify({
+          ...raw,
+          running: false,
+          updatedAt: new Date().toISOString(),
+          message: 'Voice companion is not running. Desktop dictation (Web Speech) remains available.',
+        }, null, 2)}\n`, 'utf8');
+      } catch {
+        // ignore write failures
+      }
+    }
+    return {
+      ok: true,
+      running: alive,
+      pid: alive ? pid : null,
+      mode: alive ? (raw.mode || 'companion') : 'desktop-dictation',
+      hotkey: raw.hotkey || 'Ctrl+Shift+Space',
+      wakeWord: alive ? (raw.wakeWord || 'hey zavorth') : null,
+      updatedAt: raw.updatedAt || null,
+      message: alive
+        ? (raw.message || 'Voice companion is running.')
+        : 'Voice companion is not running. Desktop dictation (Web Speech) remains available.',
+    };
+  } catch {
+    return {
+      ok: true,
+      running: false,
+      pid: null,
+      mode: 'desktop-dictation',
+      hotkey: 'Ctrl+Shift+Space',
+      wakeWord: null,
+      updatedAt: null,
+      message: 'Voice companion is not running. Desktop dictation (Web Speech) remains available.',
+    };
+  }
+});
+
+ipcMain.handle('zavorth:voice-agent:start', async () => {
+  const repoRoot = resolveRepoRoot();
+  const agentEntry = path.join(repoRoot, 'agent', 'src', 'index.ts');
+  const statusFile = path.join(resolveZavorthHome(), 'agent-voice-status.json');
+  if (!fs.existsSync(agentEntry)) {
+    return {
+      ok: false,
+      error: 'Voice companion package was not found in this install (agent/src/index.ts).',
+    };
+  }
+  try {
+    const child = spawn(nodeCommand(), ['--import', 'tsx', agentEntry], {
+      cwd: path.join(repoRoot, 'agent'),
+      detached: true,
+      stdio: 'ignore',
+      env: {
+        ...process.env,
+        ZAVORTH_AGENT_STATUS_FILE: statusFile,
+        ZAVORTH_AGENT_FROM_DESKTOP: '1',
+      },
+      windowsHide: true,
+    });
+    child.unref();
+    fs.mkdirSync(path.dirname(statusFile), { recursive: true });
+    fs.writeFileSync(statusFile, `${JSON.stringify({
+      running: true,
+      pid: child.pid,
+      mode: 'companion',
+      hotkey: 'Ctrl+Shift+Space',
+      wakeWord: 'hey zavorth',
+      updatedAt: new Date().toISOString(),
+      message: 'Voice companion started from Desktop.',
+    }, null, 2)}\n`, 'utf8');
+    emitBootEvent('info', `Voice companion started (pid ${child.pid}).`);
+    return { ok: true, pid: child.pid, message: 'Voice companion started.' };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not start voice companion.' };
+  }
 });
 
 ipcMain.handle('zavorth:open-window', async () => {
@@ -1021,11 +1236,35 @@ app.on('open-url', (event, url) => {
 
 app.whenReady().then(() => {
   createWindow();
+  try {
+    const { globalShortcut } = require('electron');
+    const ok = globalShortcut.register('CommandOrControl+Shift+Space', () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.show();
+        mainWindow.focus();
+        mainWindow.webContents.send('zavorth:voice:hotkey');
+      }
+    });
+    if (ok) {
+      emitBootEvent('info', 'Voice hotkey registered: Ctrl+Shift+Space');
+    }
+  } catch {
+    // globalShortcut may be unavailable in smoke/test hosts
+  }
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
+});
+
+app.on('will-quit', () => {
+  try {
+    const { globalShortcut } = require('electron');
+    globalShortcut.unregisterAll();
+  } catch {
+    // ignore
+  }
 });
 
 app.on('window-all-closed', () => {

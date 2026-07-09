@@ -14,7 +14,7 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
       return NextResponse.json({ error: "Memory not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] delete operation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -32,7 +32,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     return NextResponse.json({ memory });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

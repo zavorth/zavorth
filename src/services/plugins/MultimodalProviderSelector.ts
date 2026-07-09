@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -130,7 +130,7 @@ export async function callVisionProvider(
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No analysis available.';
-      } finally { try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
+      } finally { try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
     }
     case 'openai': {
       const payload = JSON.stringify({
@@ -150,7 +150,7 @@ export async function callVisionProvider(
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.choices?.[0]?.message?.content || 'No analysis available.';
-      } finally { try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
+      } finally { try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
     }
     case 'anthropic': {
       const payload = JSON.stringify({
@@ -170,7 +170,7 @@ export async function callVisionProvider(
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.content?.[0]?.text || 'No analysis available.';
-      } finally { try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
+      } finally { try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
     }
     default:
       throw new Error(`Provider "${provider.id}" not supported for vision.`);
@@ -222,7 +222,7 @@ export async function callAudioProvider(
         ], { timeout: 60000 }).toString();
         const parsed = JSON.parse(result);
         return parsed.candidates?.[0]?.content?.parts?.[0]?.text || 'No transcription available.';
-      } finally { try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
+      } finally { try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Multimodal  Selector] JSON parse failed', error); } }
     }
     default:
       throw new Error(`Provider "${provider.id}" not supported for audio.`);

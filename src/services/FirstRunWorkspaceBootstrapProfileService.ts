@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ModelPickerContract, SelectedModelProfile } from '../contracts/ModelPickerContract.js';
@@ -308,7 +308,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
         return null;
       }
       return parsed as ZavorthFirstRunWorkspaceProfile;
-    } catch (error) { logger.warn('[First Run Workspace  Profile] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[First Run Workspace  Profile] JSON parse failed', error); return null; }
   }
 
   public buildWorkspaceIdentitySnapshot(): ZavorthWorkspaceIdentityProfileSnapshot {
@@ -369,7 +369,7 @@ export class FirstRunWorkspaceBootstrapProfileService {
   private readModelPickerContract(): ModelPickerContract | null {
     try {
       return this.modelPickerContractService.buildContract({ includeAdvanced: true });
-    } catch (error) { logger.warn('[First Run Workspace  Profile] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[First Run Workspace  Profile] creation failed', error); return null; }
   }
 
   private buildWrites(

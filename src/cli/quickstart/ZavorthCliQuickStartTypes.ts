@@ -42,3 +42,15 @@ export type ZavorthCliQuickStartSnapshot = {
     detail?: string;
   }>;
 };
+
+export type ZavorthQuickStartInteractiveResult = {
+  exitCode: number;
+  output: string;
+  snapshot: ZavorthCliQuickStartSnapshot;
+  locale?: string;
+  provider?: string;
+  model?: string;
+  agentName?: string;
+  userName?: string;
+  tone?: string;
+};

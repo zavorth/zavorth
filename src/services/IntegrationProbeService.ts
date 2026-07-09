@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -381,7 +381,7 @@ export class IntegrationProbeService {
         httpStatus: null,
         latencyMs,
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Integration Probe] network request failed', error);
     return this.createSnapshot(manifest, {
         status: 'failed',
@@ -564,7 +564,7 @@ export class IntegrationProbeService {
         return '';
       }
       return text.slice(0, 180);
-    } catch (error) { logger.warn('[Integration Probe] network request failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Integration Probe] network request failed', error); return ''; }
   }
 
   private describeFailure(status: number): string {
@@ -606,7 +606,7 @@ export class IntegrationProbeService {
         updatedAt: parsed.updatedAt || this.now().toISOString(),
         entries: parsed.entries || {},
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Integration Probe] JSON parse failed', error);
     return {
         version: 1,

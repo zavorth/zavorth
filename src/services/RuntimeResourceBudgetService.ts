@@ -1,4 +1,4 @@
-import os from 'os';
+﻿import os from 'os';
 import { createRequire } from 'module';
 import { logger } from '../logger.js';
 
@@ -148,7 +148,7 @@ function readLoadedCommonJsModules(): number {
   try {
     const require = createRequire(__filename);
     return Object.keys(require.cache || {}).length;
-  } catch (error) { logger.warn('[Runtime Resource Budget] cache operation failed', error); return 0; }
+  } catch (error: any) { logger.warn('[Runtime Resource Budget] cache operation failed', error); return 0; }
 }
 
 export class RuntimeResourceBudgetService {

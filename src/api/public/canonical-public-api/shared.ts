@@ -38,7 +38,7 @@ export class CanonicalPublicApiSharedSupport {
       }
       const payload = JSON.parse(fs.readFileSync(packagePath, 'utf8')) as { version?: string };
       return String(payload.version || '1.0.0');
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return '1.0.0';
     }
   }

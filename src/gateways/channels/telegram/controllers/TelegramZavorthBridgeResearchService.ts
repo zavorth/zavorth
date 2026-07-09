@@ -84,7 +84,7 @@ export class TelegramZavorthBridgeResearchService {
       );
       this.deps.taskManager.advanceState(task, 'completed');
       return true;
-    } catch (fallbackError: unknown) {
+    } catch (fallbackError: any) { const error = fallbackError; const err = fallbackError; const e = fallbackError;
       const fallbackMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
       task.error_summary = zavorthBridgeError
         ? `ZavorthBridge: ${zavorthBridgeError.message}\nFallback web: ${fallbackMsg}`

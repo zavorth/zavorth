@@ -220,7 +220,7 @@ export class McpManagementService {
       const raw = fs.readFileSync(this.manifestPath, 'utf8');
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : [];
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       this.log('warn', `MCP manifest at ${this.manifestPath} cannot be read; using an empty list.`);
       return [];
     }

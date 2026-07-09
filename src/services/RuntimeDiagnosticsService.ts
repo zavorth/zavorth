@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { config } from '../config/index.js';
@@ -229,7 +229,7 @@ export class RuntimeDiagnosticsService {
         alive,
         file: filePath,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Runtime Diagnostics] lifecycle operation failed', error);
     return {
         active: true,
@@ -246,7 +246,7 @@ export class RuntimeDiagnosticsService {
     try {
       this.killFn(pid, 0);
       return true;
-    } catch (error) { logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
+    } catch (error: any) { logger.warn('[Runtime Diagnostics] lifecycle operation failed', error); return error?.code !== 'ESRCH'; }
   }
 
   private readBridgeSnapshot(filePath: string): BridgeSnapshot {
@@ -289,7 +289,7 @@ export class RuntimeDiagnosticsService {
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
         file: filePath,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Runtime Diagnostics] filesystem check failed', error);
     return {
         mode: config.discordBotToken ? 'native' : config.discordBridgeEnabled ? 'bridge' : 'unknown',

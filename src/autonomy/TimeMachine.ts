@@ -39,13 +39,13 @@ function deleteRecursive(dir: string, exclude: Set<string>): void {
       deleteRecursive(entryPath, new Set());
       try {
         fs.rmdirSync(entryPath);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Best effort
       }
     } else {
       try {
         fs.unlinkSync(entryPath);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Best effort
       }
     }
@@ -75,7 +75,7 @@ export class TimeMachine {
         isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Git command failed or not a repo
       }
     }
@@ -88,7 +88,7 @@ export class TimeMachine {
         // but now we have a record in the stash history.
         execSync('git stash apply stash@{0}', { cwd: workspacePath, stdio: 'pipe' });
         return snapshotId;
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         console.warn('Git stash failed, trying fallback local snapshot:', err);
       }
     }
@@ -98,7 +98,7 @@ export class TimeMachine {
       const snapshotDir = path.join(workspacePath, '.zavorth', 'snapshots', snapshotId);
       const exclude = new Set(['.git', 'node_modules', '.zavorth']);
       copyRecursive(workspacePath, snapshotDir, exclude);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.error('Local backup snapshot creation failed:', err);
       throw new Error(`Failed to create local snapshot: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -128,7 +128,7 @@ export class TimeMachine {
         isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // Git command failed or not a repo
       }
     }
@@ -150,7 +150,7 @@ export class TimeMachine {
             return true;
           }
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         console.error('Git rollback failed, trying fallback local restore:', err);
       }
     }
@@ -163,7 +163,7 @@ export class TimeMachine {
         deleteRecursive(workspacePath, exclude);
         copyRecursive(backupDir, workspacePath, exclude);
         return true;
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         console.error('Fallback rollback failed:', err);
       }
     }

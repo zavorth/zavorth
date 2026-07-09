@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { AcpxBridgeRuntimeAdapter } from '../adapters/claude/AcpxBridgeRuntimeAdapter.js';
 import { ClaudeCodeCliBridgeAdapter } from '../adapters/claude/ClaudeCodeCliBridgeAdapter.js';
@@ -594,7 +594,7 @@ function dependencySectionNames(): Array<keyof PackageJsonShape> {
 function parseJson(text: string): PackageJsonShape | null {
   try {
     return JSON.parse(text) as PackageJsonShape;
-  } catch (error) { logger.warn('[Source Agent Runtime Bridge] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Source Agent Runtime Bridge] JSON parse failed', error); return null; }
 }
 
 function dedupeReferences(references: Reference[]): Reference[] {
@@ -610,7 +610,7 @@ function dedupeReferences(references: Reference[]): Reference[] {
 function readDir(absolutePath: string): fs.Dirent[] {
   try {
     return fs.readdirSync(absolutePath, { withFileTypes: true });
-  } catch (error) { logger.warn('[Source Agent Runtime Bridge] filesystem operation failed', error); return []; }
+  } catch (error: any) { logger.warn('[Source Agent Runtime Bridge] filesystem operation failed', error); return []; }
 }
 
 function readText(absolutePath: string): string {
@@ -620,7 +620,7 @@ function readText(absolutePath: string): string {
       return '';
     }
     return fs.readFileSync(absolutePath, 'utf8');
-  } catch (error) { logger.warn('[Source Agent Runtime Bridge] filesystem operation failed', error); return ''; }
+  } catch (error: any) { logger.warn('[Source Agent Runtime Bridge] filesystem operation failed', error); return ''; }
 }
 
 function normalizePath(input: string): string {

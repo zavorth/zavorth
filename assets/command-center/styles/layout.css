@@ -72,19 +72,20 @@
   z-index: 0;
   pointer-events: none;
 }
+/* C0: calm brand wash — no heavy aurora drift */
 .core-frame::before {
   background: var(--b-aurora-layer);
-  background-size: 160% 160%;
-  filter: blur(34px);
-  opacity: 0.72;
+  background-size: 100% 100%;
+  filter: blur(48px);
+  opacity: 0.28;
   transform: translateZ(0);
-  animation: b-aurora-drift 16s var(--b-ease-in-out) infinite;
+  animation: none;
 }
 .core-frame::after {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 20%, transparent) 0%, transparent 24%),
-    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 7%, transparent) 52%, transparent 100%);
-  opacity: 0.68;
+    linear-gradient(180deg, color-mix(in srgb, var(--b-surface) 12%, transparent) 0%, transparent 20%),
+    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--b-pulse) 3%, transparent) 50%, transparent 100%);
+  opacity: 0.32;
 }
 @supports (height: 100dvh) {
   .core-frame { height: 100dvh; }

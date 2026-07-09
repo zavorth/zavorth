@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -767,7 +767,7 @@ function parseStringArray(value: string): string[] {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed.map((entry) => String(entry)) : [];
-  } catch (error) { logger.warn('[Zavorth Subagent Board] JSON parse failed', error); return []; }
+  } catch (error: any) { logger.warn('[Zavorth Subagent Board] JSON parse failed', error); return []; }
 }
 
 function parseComments(value: string): ZavorthSubagentBoardTaskComment[] {
@@ -787,5 +787,5 @@ function parseComments(value: string): ZavorthSubagentBoardTaskComment[] {
         };
       })
       .filter((entry) => entry.body);
-  } catch (error) { logger.warn('[Zavorth Subagent Board] creation failed', error); return []; }
+  } catch (error: any) { logger.warn('[Zavorth Subagent Board] creation failed', error); return []; }
 }

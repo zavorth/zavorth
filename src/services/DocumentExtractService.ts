@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   DocumentExtractRequest,
   DocumentExtractResult,
   DocumentExtractTable,
@@ -156,7 +156,7 @@ export class DocumentExtractService {
         processedAt,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Document Extract] operation failed', error);
     return {
         ok: false,

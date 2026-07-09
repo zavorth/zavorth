@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { DesktopResourceSnapshot } from '../contracts/DesktopResourceContract.js';
@@ -67,7 +67,7 @@ export class DesktopResourcePlaneService {
       const parsed = JSON.parse(fs.readFileSync(this.latestFilePath, 'utf8')) as DesktopResourceSnapshot;
       this.lastSnapshot = parsed;
       return parsed;
-    } catch (error) { logger.warn('[Desktop Resource Plane] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Desktop Resource Plane] JSON parse failed', error); return null; }
   }
 
   public renderReport(snapshot: DesktopResourceSnapshot): string {
@@ -146,7 +146,10 @@ export class DesktopResourcePlaneService {
       }
       try {
         entries.push(JSON.parse(trimmed));
-      } catch (error) { // Corrupted history lines are ignored on the next successful snapshot write. logger.warn('[Desktop Resource Plane] JSON parse failed', error); }
+      } catch (error: any) {
+      // Corrupted history lines are ignored on the next successful snapshot write.
+      logger.warn('[Desktop Resource Plane] JSON parse failed', error);
+    }
     }
     return entries;
   }

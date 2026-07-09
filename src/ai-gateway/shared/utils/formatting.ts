@@ -20,7 +20,7 @@ export function formatTime(isoString) {
       minute: "2-digit",
       second: "2-digit",
     });
-  } catch (error) { logger.warn('[formatting] string operation failed', error); return "-"; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[formatting] string operation failed', error); return "-"; }
 }
 
 /**
@@ -43,7 +43,7 @@ export function formatDateTime(iso) {
   try {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US") + ", " + d.toLocaleTimeString("en-US", { hour12: false });
-  } catch (error) { logger.warn('[formatting] string operation failed', error); return iso; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[formatting] string operation failed', error); return iso; }
 }
 
 /**
@@ -141,7 +141,7 @@ export function truncateUrl(url, max = 50) {
     const parsed = new URL(url);
     const display = parsed.hostname + parsed.pathname;
     return display.length > max ? display.slice(0, max) + "..." : display;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[formatting] parsing failed', error);
     return url.length > max ? url.slice(0, max) + "..." : url;
   }

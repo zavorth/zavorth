@@ -1,4 +1,4 @@
-import path from 'node:path';
+﻿import path from 'node:path';
 
 import type { TaskPlaneItem } from '../contracts/TaskPlaneContract.js';
 import type { GoalPlaneItem } from './GoalPlaneService.js';
@@ -181,7 +181,7 @@ export class GoalLoopStatusProjectionService {
         stateDbPath: this.stateDbPath,
         now: this.now,
       }).snapshot().goals;
-    } catch (error) { logger.warn('[Goal Loop Status Projection] creation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Goal Loop Status Projection] creation failed', error); return []; }
   }
 
   private readContinuationTasks(): TaskPlaneItem[] {
@@ -198,7 +198,7 @@ export class GoalLoopStatusProjectionService {
       return tasks
         .filter((task) => task.source === 'goal-loop')
         .filter((task) => normalize((task.payload || {}).kind) === 'goal-loop-continuation');
-    } catch (error) { logger.warn('[Goal Loop Status Projection] load operation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Goal Loop Status Projection] load operation failed', error); return []; }
   }
 
   private readHeartbeat(): StoredHeartbeat | null {

@@ -1,4 +1,4 @@
-import * as crypto from 'node:crypto';
+﻿import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
@@ -340,7 +340,7 @@ export class ZavorthGitWorkflowService {
     try {
       const parsed = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
       current = Array.isArray(parsed?.receipts) ? parsed.receipts : [];
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Git Workflow] JSON parse failed', error);
     current = [];
   }

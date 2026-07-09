@@ -1,4 +1,4 @@
-import { buildCanonicalRunContext } from '../contracts/ExecutionLifecycleContract.js';
+﻿import { buildCanonicalRunContext } from '../contracts/ExecutionLifecycleContract.js';
 import path from 'path';
 import {
   createBoundaryCorrelation,
@@ -427,7 +427,7 @@ export class ZavorthEchoService {
         providerName,
         latencyMs: Date.now() - start,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth] network request failed', error);
     return {
         online: false,
@@ -636,7 +636,7 @@ export class ZavorthEchoService {
         return typeof tool.getRecentPhysicalEvents === 'function'
           ? tool.getRecentPhysicalEvents(6)
           : [];
-      } catch (error) { logger.warn('[Zavorth] process signal failed', error); return []; }
+      } catch (error: any) { logger.warn('[Zavorth] process signal failed', error); return []; }
     });
 
     return events

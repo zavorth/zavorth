@@ -257,6 +257,6 @@ describe('SkillImportPreviewService', () => {
         pinnedRevision: null,
       },
       sourceSkillDirPaths: [sourceSkillDir],
-    })).toThrow('esta desabilitada');
+    })).toThrow('is disabled');
   });
 });

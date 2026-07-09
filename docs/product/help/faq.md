@@ -82,12 +82,30 @@ Yes. When Zavorth notices repeated patterns, it suggests a skill. You approve or
 
 Until you delete them. Memory is stored locally in `.zavorth/` as SQLite (for fast search) and Markdown files (for readability). There is no expiry.
 
-### Can I import my setup from another compatible runtime?
+### Can I import my setup from another agent or workspace home?
 
-Yes:
+Yes. Zavorth uses **structural** detection (identity files, skills/, memory/,
+config/, plugins/) — not a fixed product list:
+
 ```bash
-zavorth migrate --from compatible-runtime --path ~/.agent-runtime --consent
+zavorth import-workspace /path/to/workspace --preview
+zavorth import-workspace /path/to/workspace --apply --consent
+zavorth migrate /path/to/workspace --apply --consent
+zavorth migrate --auto --preview
 ```
+
+### Can Zavorth fetch skills or plugins that are not in a local catalog?
+
+Yes. Use the Capability Fabric:
+
+```bash
+zavorth absorb ./pack-or-url --preview
+zavorth absorb plugin ./pack --apply --consent
+zavorth absorb mcp ./mcp-pack --apply --consent
+```
+
+Preview is default. MCP packs start disabled. Executable plugins stay held until
+you explicitly allow enable.
 
 ---
 

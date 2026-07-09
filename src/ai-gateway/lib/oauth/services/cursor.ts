@@ -148,7 +148,10 @@ export class CursorService {
           userId: decoded.sub || decoded.user_id,
         };
       }
-    } catch (error) { // Token is not a JWT, that's okay logger.warn('[cursor] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Token is not a JWT, that's okay
+      logger.warn('[cursor] JSON parse failed', error);
+    }
 
     return null;
   }

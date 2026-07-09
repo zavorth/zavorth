@@ -218,7 +218,7 @@ export class AiStudioExecutor implements IExecutor {
           return result;
         }
       }
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const classified = this.classifyError(error);
       result.error_code = classified.code;
       result.error_message = classified.message;
@@ -289,7 +289,7 @@ export class AiStudioExecutor implements IExecutor {
           ? 'Google AI Studio respondeu normalmente.'
           : 'Google AI Studio authenticated, but the probe response was not expected.',
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const classified = this.classifyError(error);
       return { ok: false, message: classified.message };
     }

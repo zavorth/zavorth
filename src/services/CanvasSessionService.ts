@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type {
@@ -332,7 +332,10 @@ export class CanvasSessionService {
           content: fs.readFileSync(absolutePath, 'utf8'),
           mimeType: mimeForSnapshot(relativePath),
         });
-      } catch (error) { // The sandbox may report a touched file that was removed by a failed attempt. logger.warn('[Canvas Session] filesystem operation failed', error); }
+      } catch (error: any) {
+      // The sandbox may report a touched file that was removed by a failed attempt.
+      logger.warn('[Canvas Session] filesystem operation failed', error);
+    }
     }
     return files.length > 0 ? files : defaultFiles();
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 
 import { ZavorthLlmRuntimeService } from './ZavorthLlmRuntimeService.js';
@@ -244,7 +244,7 @@ export class UserModelDialecticReasoningService {
             allDeepInsights.push(obs);
           }
         }
-      } catch {
+      } catch (error: any) {
         if (lastOutput.trim().length > 20) {
           allDeepInsights.push(lastOutput.trim().slice(0, 500));
         }
@@ -410,7 +410,7 @@ export class UserModelDialecticReasoningService {
     if (!fs.existsSync(fp)) return null;
     try {
       return JSON.parse(fs.readFileSync(fp, 'utf-8'));
-    } catch (error) { logger.warn('[User Model Dialectic Reasoning] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[User Model Dialectic Reasoning] JSON parse failed', error); return null; }
   }
 
   private getFilePath(): string {

@@ -1,4 +1,4 @@
-import crypto, { randomUUID } from 'node:crypto';
+﻿import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -276,8 +276,10 @@ export class ZavorthCapabilityActionExposureService {
         exposures: Array.isArray(parsed.exposures) ? parsed.exposures.map(normalizeExposure).filter(isExposure) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error) {
-    logger.warn('[Zavorth Capability Action Exposure] parsing failed', error);
+    } catch (error: any) {
+    if (error?.code !== 'ENOENT') {
+      logger.warn('[Zavorth Capability Action Exposure] parsing failed', error);
+    }
     return this.emptyStore();
   }
   }

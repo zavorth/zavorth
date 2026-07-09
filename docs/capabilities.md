@@ -37,7 +37,85 @@ A capability becoming visible does not mean it can act silently. Anything that c
 - Status: `available`
 - Preview: `zavorth actions preview skills.absorb`
 - Receipts: `zavorth actions receipts --id skills.absorb`
-- Next safe step: Preview the action before approval.
+- Next safe step: Preview the action before approval. Accepts local path or HTTPS URL.
+
+### Absorb plugin pack
+
+- Action id: `plugins.absorb`
+- Status: `available`
+- Preview: `zavorth actions preview plugins.absorb`
+- Next safe step: Preview first. Executable packs stay held until higher-trust enable.
+
+### Intake MCP pack
+
+- Action id: `mcp.intake`
+- Status: `available`
+- Preview: `zavorth actions preview mcp.intake`
+- Next safe step: Packs materialize disabled; enable requires a separate approval.
+
+### Absorb any capability source
+
+- Action id: `capabilities.absorb`
+- Status: `available`
+- Preview: `zavorth actions preview capabilities.absorb`
+- Next safe step: Auto-classifies skill / plugin / MCP from path or URL.
+
+### Import workspace home
+
+- Action id: `workspace.import`
+- Status: `available`
+- Preview: `zavorth actions preview workspace.import`
+- Next safe step: Structural import from any local workspace home (brand-agnostic).
+
+### Reach inventory
+
+- Action id: `reach.inventory`
+- Status: `available`
+- Next safe step: Inspect channel tiers and node readiness (`zavorth reach`).
+
+### Synthesize channel pack
+
+- Action id: `reach.synthesize`
+- Status: `available`
+- Preview: `zavorth actions preview reach.synthesize`
+- Next safe step: Generate Tier C pack; never live until doctor + proof.
+
+### Node pairing draft
+
+- Action id: `reach.pair`
+- Status: `available`
+- Next safe step: Create pairing draft, then bootstrap companion.
+
+### Power inventory
+
+- Action id: `power.inventory`
+- Status: `available`
+- Next safe step: Inspect elastic backends, trusted operator, yellow learning candidates (`zavorth power`).
+
+### Trusted Operator Mode
+
+- Action id: `power.trusted.toggle`
+- Status: `available`
+- Next safe step: Preview, then enable for single-user green friction reduction (red lane intact).
+
+### Promote yellow learning
+
+- Action id: `power.learn.promote`
+- Status: `available`
+- Next safe step: Promote staged shadow skill/procedure with explicit consent.
+
+### Product readiness
+
+- Action id: `product.inventory`
+- Status: `available`
+- Next safe step: `zavorth product` for first-run + public commands.
+
+### Hermetic product certification
+
+- Action id: `product.certify`
+- Status: `available`
+- Next safe step: `zavorth product certify` — capability/reach/power matrix without live IO.
+
 
 ### ACP/Codex packaging status
 

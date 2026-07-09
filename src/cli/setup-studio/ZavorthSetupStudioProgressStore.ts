@@ -43,7 +43,7 @@ export class ZavorthSetupStudioProgressStore {
         lastChannelId: nullableString(parsed.lastChannelId),
         safety: { rawSecretsStored: false },
       };
-    } catch (error) { logger.warn('[Zavorth Setup Studio Progress Store] parsing failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Setup Studio Progress Store] parsing failed', error); return null; }
   }
 
   public write(progress: Omit<ZavorthSetupStudioProgress, 'contractVersion' | 'updatedAt' | 'safety'>): ZavorthSetupStudioProgress {

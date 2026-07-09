@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -376,7 +376,7 @@ export class FeedbackTelemetryContractService {
     }
     try {
       return JSON.parse(raw) as PackageLike;
-    } catch (error) { logger.warn('[Feedback Telemetry Contract] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Feedback Telemetry Contract] JSON parse failed', error); return null; }
   }
 
   private readWebsiteText(relativePath: string): string | null {
@@ -402,7 +402,7 @@ export class FeedbackTelemetryContractService {
   private safeReadAbsolute(filePath: string): string {
     try {
       return this.readFileSync(filePath, 'utf8');
-    } catch (error) { logger.warn('[Feedback Telemetry Contract] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Feedback Telemetry Contract] filesystem operation failed', error); return ''; }
   }
 
   private check(

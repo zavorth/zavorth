@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -45,7 +45,7 @@ export class VersionControlService {
           this.versions.set(filePath, versions);
         }
       }
-    } catch (error) { /* ignore */ logger.warn('[Version Control] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Version Control] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

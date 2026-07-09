@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { ZavorthLearningArtifact } from '../contracts/ZavorthMutationPlaneContract.js';
@@ -104,7 +104,7 @@ export class ZavorthReplayLearningRegistryService {
         records: Array.isArray(parsed.records) ? parsed.records.map((entry) => this.normalizeRecord(entry)) : [],
         profile: this.normalizeProfile(parsed.profile),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Replay Learning Registry] filesystem operation failed', error);
     return this.emptyRegistry();
   }

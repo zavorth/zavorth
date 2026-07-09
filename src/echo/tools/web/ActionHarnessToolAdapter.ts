@@ -77,7 +77,7 @@ export class ActionHarnessToolAdapter implements IZavorthTool {
         error: result.summary || `Action "${this.actionId}" returned a non-ok result.`,
         data: scrubLlmToolData(result.data),
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return {
         success: false,

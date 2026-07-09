@@ -81,7 +81,7 @@ export class SystemScreenshotTool implements IZavorthTool {
             }
 
             return result;
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[System Screenshot] filesystem operation failed', error);
     return {
                 success: false,

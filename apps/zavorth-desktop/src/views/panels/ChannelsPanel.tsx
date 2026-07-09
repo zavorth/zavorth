@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { ChannelItem } from '../../apiClient';
 import { asRecord, panelLabels } from '../../primitives/desktopPrimitives';
+import { StatusBadge } from '../../primitives';
+import { readinessFromChannel } from '../../desktop-state/readiness';
 import { DetailRows, PageFrame, SearchBox } from './panelPrimitives';
 
 export function ChannelsPanel(props: { channels: ChannelItem[] }) {
@@ -15,16 +17,34 @@ export function ChannelsPanel(props: { channels: ChannelItem[] }) {
     .map((channel, index) => {
       const record = asRecord(channel);
       const id = String(record.id || record.channel || record.name || `channel-${index}`);
+      const badge = readinessFromChannel({
+        status: String(record.status || ''),
+        liveReady: Boolean(record.liveReady),
+        configured: Boolean(record.configured),
+        readiness: String(record.readiness || record.status || ''),
+        summary: String(
+          record.summary
+            || (record.outboxOnly ? 'Outbox or preview route only.' : '')
+            || '',
+        ),
+      });
+      // Catalog/configured alone must never read as "ready" — StatusBadge uses readiness state.
+      const detail =
+        badge.detail
+        || (badge.state === 'needs_setup'
+          ? 'Needs setup before it can send live messages.'
+          : badge.state === 'available'
+            ? 'Catalog support — not proven live yet.'
+            : badge.state === 'live'
+              ? 'Live route is ready.'
+              : undefined);
+
       return {
         id,
         title: String(record.name || record.channel || record.id || 'Channel'),
-        description: record.liveReady
-          ? 'Live route is ready.'
-          : record.outboxOnly
-            ? 'Outbox or preview route only.'
-            : String(record.summary || 'Needs setup before it can send live messages.'),
-        meta: record.liveReady ? 'live' : record.outboxOnly ? 'outbox' : String(record.status || 'setup'),
-        tone: record.liveReady ? 'ready' as const : record.outboxOnly ? 'warning' as const : 'muted' as const,
+        description: detail,
+        tone: badge.tone,
+        actions: <StatusBadge state={badge.state} label={badge.label} />,
       };
     });
 

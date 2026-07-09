@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     // Cleanup temp file
     try {
       fs.unlinkSync(tmpPath);
-    } catch (error) { /* best effort */ logger.warn('[route] file cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* best effort */ logger.warn('[route] file cleanup failed', error); }
 
     return new Response(fileBuffer, {
       status: 200,
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
           : {}),
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error exporting database:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

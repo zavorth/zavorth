@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -47,7 +47,7 @@ export class MemoryRetainDBService {
       for (const [id, mem] of Object.entries(data as Record<string, RetainedMemory>)) {
         this.memories.set(id, mem);
       }
-    } catch (error) { /* ignore */ logger.warn('[Memory Retain D B] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Memory Retain D B] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

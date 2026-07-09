@@ -132,7 +132,7 @@ function toSerializableRecord(value: unknown): Record<string, unknown> {
   try {
     const parsed = JSON.parse(JSON.stringify(value));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }
@@ -762,7 +762,7 @@ export class ZavorthAgentGateway {
       this.workflowJobs.set(job.id, job);
       this.persistWorkflowJob(job);
       return result;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const failedAt = this.nowIso();
       const message = normalizeText(error?.message, 'Executor duravel falhou ao retomar a execucao.');
       this.applyWorkflowFailure(job, run, message, failedAt);

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }, 500);
 
     return NextResponse.json({ success: true, message: "Draining shutdown initiated." });
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[Drain API] Error processing request:", error.message);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

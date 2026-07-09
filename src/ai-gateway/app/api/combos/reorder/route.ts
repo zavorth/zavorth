@@ -15,7 +15,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
@@ -38,7 +38,7 @@ export async function POST(request) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ combos });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error reordering combos:", error);
     return NextResponse.json({ error: "Failed to reorder combos" }, { status: 500 });
   }
@@ -51,7 +51,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing to cloud:", error);
   }
 }

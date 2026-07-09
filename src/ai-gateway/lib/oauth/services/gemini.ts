@@ -239,7 +239,7 @@ export class GeminiCLIService {
         `Gemini CLI connected successfully! (${userInfo.email}, Project: ${projectId})`
       );
       return true;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

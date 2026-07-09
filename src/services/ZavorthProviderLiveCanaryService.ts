@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import {
   ZAVORTH_PROVIDER_LIVE_CANARY_VERSION,
   type ZavorthProviderLiveCanaryProviderEntry,
@@ -187,7 +187,7 @@ export class ZavorthProviderLiveCanaryService {
             : 'Provider responded, but the exact canary marker was not observed.',
         ),
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       return {
         ...base,
@@ -238,7 +238,7 @@ export class ZavorthProviderLiveCanaryService {
         return { status: 'failed', error: 'Provider answered, but the exact canary marker was not observed.' };
       }
       return { status: 'passed', error: null };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth  Live Canary] filesystem check failed', error);
     return {
         status: 'failed',
@@ -274,7 +274,7 @@ export class ZavorthProviderLiveCanaryService {
       try {
         available = this.llmRuntime.isProviderAvailable(providerName);
         reason = available ? 'credential or endpoint presence detected' : 'credential or endpoint not detected';
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth  Live Canary] array operation failed', error);
     available = false;
         reason = error instanceof Error ? error.message : String(error);

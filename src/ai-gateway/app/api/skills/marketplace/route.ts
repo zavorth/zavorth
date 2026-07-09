@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
     const data = await res.json();
     return NextResponse.json({ skills: data.skills || [] });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

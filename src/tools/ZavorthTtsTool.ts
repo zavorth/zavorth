@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -98,7 +98,7 @@ export class ZavorthTtsTool extends BaseTool {
         case 'set_default': return this.setDefault(args);
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Tts] async operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `TTS error: ${message}`;
@@ -156,7 +156,7 @@ export class ZavorthTtsTool extends BaseTool {
         `  - Texto: "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`,
       ];
       return lines.join('\n');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Tts] creation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Audio generation error: ${message}`;
@@ -343,7 +343,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpPayload); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }
@@ -372,7 +372,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpSsml); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpSsml); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }
@@ -396,7 +396,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', `${options.outputPath}.json`,
           ], { timeout: 60000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpPayload); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return `${options.outputPath}.json`;
       }
@@ -418,7 +418,7 @@ export class ZavorthTtsTool extends BaseTool {
             '-o', options.outputPath,
           ], { timeout: 120000 });
         } finally {
-          try { fs.unlinkSync(tmpPayload); } catch (error) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
+          try { fs.unlinkSync(tmpPayload); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Tts] file cleanup failed', error); }
         }
         return options.outputPath;
       }

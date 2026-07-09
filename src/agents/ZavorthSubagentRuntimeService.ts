@@ -1607,7 +1607,7 @@ export class ZavorthSubagentRuntimeService {
       } finally {
         board.close();
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Subagent Runtime] resource cleanup failed', error);
     snapshot = null;
   }
@@ -1808,7 +1808,7 @@ export class ZavorthSubagentRuntimeService {
           : [],
         batchRuns: positiveInteger((parsed as Partial<StoredState>).batchRuns, 0),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Subagent Runtime] parsing failed', error);
     return emptyState();
   }

@@ -16,7 +16,7 @@ describe("Memory Retrieval - corrupt metadata handling", () => {
       const result = (() => {
         try {
           return JSON.parse(String(corrupt));
-        } catch (error) { logger.warn('[retrieval.test] JSON parse failed', error); return {}; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[retrieval.test] JSON parse failed', error); return {}; }
       })();
       expect(result).toEqual({});
     }

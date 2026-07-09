@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   let payload: RemoteMeshNotebookMcpProxyApplyRequest;
   try {
     payload = await request.json() as RemoteMeshNotebookMcpProxyApplyRequest;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       { ok: false, error: "Invalid Remote Mesh MCP proxy JSON body." },

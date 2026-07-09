@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspacePathGuard } from '../../mcp/workspace/WorkspacePathGuard.js';
@@ -58,7 +58,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
       let resolvedCwd: string;
       try {
         resolvedCwd = guard.resolveForWrite(cwdInput);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Workspace Command Propose] validation failed', error);
     return JSON.stringify({
           success: false,
@@ -157,7 +157,7 @@ export class WorkspaceCommandProposeTool extends BaseTool {
         riskLevel,
         reason
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Workspace Command Propose] serialization failed', error);
     return JSON.stringify({
         success: false,
@@ -208,7 +208,10 @@ export class WorkspaceCommandProposeTool extends BaseTool {
           if (isPathOutside(resolved, resolvedRoot)) {
             return true;
           }
-        } catch (error) { // ignore parsing failures logger.warn('[Workspace Command Propose] lifecycle operation failed', error); }
+        } catch (error: any) { const err = error; const e = error;
+      // ignore parsing failures
+      logger.warn('[Workspace Command Propose] lifecycle operation failed', error);
+    }
       }
     }
 

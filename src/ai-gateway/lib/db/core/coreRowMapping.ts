@@ -36,7 +36,7 @@ export function rowToCamel(row: unknown): JsonRecord | null {
     if (camelKey === "providerSpecificData" && typeof value === "string") {
       try {
         result[camelKey] = JSON.parse(value);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         result[camelKey] = value;
       }
       continue;

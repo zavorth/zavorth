@@ -29,7 +29,7 @@ export class AudioChunker {
     try {
       const loaded = require('ffmpeg-static');
       this.ffmpegPath = typeof loaded === 'string' && loaded ? loaded : null;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       this.ffmpegPath = null;
     }
   }
@@ -106,7 +106,7 @@ export class AudioChunker {
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         logger.warn(`[AudioChunker] Falha ao remover temporario: ${error}`);
       }
     }

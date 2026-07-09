@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -61,7 +61,7 @@ export class StreamingLLMService {
     this.sessions.set(sessionId, session);
 
     try {
-      const { execFileSync } = await import('child_process');
+      const { spawn } = await import('child_process');
 
       const apiKey = this.getApiKey(provider);
       if (!apiKey) {
@@ -91,15 +91,46 @@ export class StreamingLLMService {
         `${baseUrl}/chat/completions`,
       ];
 
-      const result = execFileSync('curl', curlArgs, {
-        timeout: 120000,
-        maxBuffer: 50 * 1024 * 1024,
-      }).toString();
+      // Use spawn instead of execFileSync for cancellation support
+      const child = spawn('curl', curlArgs, {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Streaming L L M] file cleanup failed', error); }
+      // Store child process for cancellation
+      this.activeStreams.set(sessionId, {
+        abort: () => {
+          try {
+            child.kill('SIGTERM');
+            setTimeout(() => {
+              try { child.kill('SIGKILL'); } catch { /* already exited */ }
+            }, 2000);
+          } catch { /* already exited */ }
+        },
+      });
+
+      let result = '';
+      let fullContent = '';
+
+      // Collect stdout
+      child.stdout?.on('data', (data: Buffer) => {
+        result += data.toString();
+      });
+
+      // Wait for process to complete
+      await new Promise<void>((resolve, reject) => {
+        child.on('close', () => resolve());
+        child.on('error', (err) => reject(err));
+        // Timeout after 120 seconds
+        setTimeout(() => {
+          try { child.kill('SIGTERM'); } catch { /* already exited */ }
+        }, 120000);
+      });
+
+      // Clean up
+      this.activeStreams.delete(sessionId);
+      try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
 
       const lines = result.split('\n').filter((l) => l.startsWith('data: '));
-      let fullContent = '';
 
       for (const line of lines) {
         const data = line.slice(6).trim();
@@ -122,7 +153,7 @@ export class StreamingLLMService {
             session.total_tokens += chunk.tokens;
             options?.onChunk?.(chunk);
           }
-        } catch (error) { /* skip non-JSON lines */ logger.warn('[Streaming L L M] parsing failed', error); }
+        } catch (error: any) { /* skip non-JSON lines */ logger.warn('[Streaming L L M] parsing failed', error); }
       }
 
       session.status = 'complete';
@@ -130,7 +161,7 @@ export class StreamingLLMService {
       options?.onComplete?.(session);
 
       return fullContent;
-    } catch (error: unknown) {
+    } catch (error: any) {
       session.status = 'error';
       session.error = error instanceof Error ? error.message : String(error);
       options?.onError?.(session.error);
@@ -139,12 +170,15 @@ export class StreamingLLMService {
   }
 
   public cancel(sessionId: string): string {
+    // Try to abort via activeStreams (works for async implementations)
     const stream = this.activeStreams.get(sessionId);
     if (stream) {
       stream.abort();
       this.activeStreams.delete(sessionId);
     }
 
+    // For sync execFileSync implementations, we can't kill the process
+    // but we can mark the session as cancelled and it will be ignored
     const session = this.sessions.get(sessionId);
     if (session) {
       session.status = 'cancelled';

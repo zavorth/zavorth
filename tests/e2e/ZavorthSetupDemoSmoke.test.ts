@@ -1,11 +1,11 @@
 import { ZavorthSetupDemoReadinessService } from '../../src/services/ZavorthSetupDemoReadinessService';
-import { ZavorthDashboardExperienceHomeService } from '../../src/services/ZavorthDashboardExperienceHomeService';
+import { ZavorthControlExperienceHomeService } from '../../src/services/ZavorthControlExperienceHomeService';
 import {
   GovernedReviewGitHubService,
   type GovernedReviewGitHubCommandRunner,
 } from '../../src/runtime/review/GovernedReviewGitHubService';
 import { ZavorthAgentGateway } from '../../src/runtime/agent';
-import { TelegramDailyAssistantService } from '../../src/telegram/TelegramDailyAssistantService';
+import { TelegramDailyAssistantService } from '../../src/gateways/channels/telegram/TelegramDailyAssistantService';
 
 describe('Zavorth Phase D setup demo smoke', () => {
   it('runs the deterministic setup demo across Home, GitHub review and Daily Assistant receipts', async () => {
@@ -15,7 +15,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
     expect(readiness.status).toBe('ready');
     expect(readiness.installOnboard.estimatedMinutes).toBeLessThanOrEqual(10);
 
-    const home = new ZavorthDashboardExperienceHomeService({
+    const home = new ZavorthControlExperienceHomeService({
       now: () => new Date('2026-05-16T12:00:00.000Z'),
     }).buildSnapshot();
     expect(home.simpleNavigation.areas.map((area) => area.id)).toEqual([
@@ -25,7 +25,7 @@ describe('Zavorth Phase D setup demo smoke', () => {
       'receipts',
       'connectors',
     ]);
-    expect(home.safety.dashboardCanExecuteTargetAction).toBe(false);
+    expect(home.safety.zavorthControlCanExecuteTargetAction).toBe(false);
 
     const commentBodies: string[] = [];
     const github = new GovernedReviewGitHubService({

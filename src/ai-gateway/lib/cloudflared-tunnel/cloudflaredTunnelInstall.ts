@@ -78,7 +78,7 @@ async function resolvePathCommand(command: string) {
       .map((line) => line.trim())
       .find(Boolean);
     return first || null;
-  } catch (error) { logger.warn('[cloudflared Tunnel Install] process execution failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[cloudflared Tunnel Install] process execution failed', error); return null; }
 }
 
 export async function resolveBinary(): Promise<BinaryResolution> {
@@ -164,7 +164,10 @@ export async function installManagedBinary(input: {
     } finally {
       try {
         await fs.unlink(tempDownloadPath);
-      } catch (error) { // Ignore temp cleanup issues. logger.warn('[cloudflared Tunnel Install] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore temp cleanup issues.
+      logger.warn('[cloudflared Tunnel Install] file cleanup failed', error);
+    }
       input.installPromiseRef.current = null;
     }
   })();

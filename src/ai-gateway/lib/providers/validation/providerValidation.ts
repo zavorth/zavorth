@@ -31,7 +31,7 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
         providerSpecificData: genericOpenAIProviderData,
         modelId: providerSpecificData?.validationModelId || "gpt-4o-mini",
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[provider Validation] delete operation failed', error);
     return { valid: false, error: error.message || "Validation failed", unsupported: false };
   }
@@ -51,7 +51,7 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
         chatPath: providerSpecificData?.chatPath,
         providerSpecificData,
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[provider Validation] validation failed', error);
     return { valid: false, error: error.message || "Validation failed", unsupported: false };
   }
@@ -116,7 +116,7 @@ export async function validateProviderApiKey({ provider, apiKey, providerSpecifi
     }
 
     return { valid: false, error: "Provider validation not supported", unsupported: true };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[provider Validation] validation failed', error);
     return validationFailure(error.message || "Validation failed", { unsupported: false });
   }

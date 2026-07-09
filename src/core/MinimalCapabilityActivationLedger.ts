@@ -203,7 +203,7 @@ export class MinimalCapabilityActivationLedger {
         const parsed = JSON.parse(line) as MinimalCapabilityActivationReceipt;
         this.assertReceipt(parsed);
         receipts.push(parsed);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         errors.push({
           line: index + 1,
           reason: error instanceof Error ? error.message : String(error),

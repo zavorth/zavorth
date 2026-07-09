@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   try {
     const service = new GatewayResilienceControlService();
     return NextResponse.json(await service.buildSnapshot());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     return NextResponse.json({
       ok: false,
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const service = new GatewayResilienceControlService();
     const body = await readJsonBody(request);
     return NextResponse.json(await service.applyAction(body));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({
       ok: false,

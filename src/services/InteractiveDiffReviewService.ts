@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { applyPatch } from 'diff';
@@ -272,7 +272,7 @@ export class InteractiveDiffReviewService {
         afterHash,
         events,
       };
-    } catch (error) {
+    } catch (error: any) {
       const event = this.trace.append({
         kind: 'diff',
         title: 'Interactive diff apply failed',

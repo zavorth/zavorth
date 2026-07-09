@@ -14,6 +14,7 @@ import { ZavorthMnemosProceduralMemoryService } from './ZavorthMnemosProceduralM
 import { ZavorthReplayLearningService, type ZavorthReplayLearningSnapshot } from './ZavorthReplayLearningService.js';
 import { ZavorthSkillEvolutionService, type ZavorthSkillEvolutionSnapshot } from './ZavorthSkillEvolutionService.js';
 import { ZavorthAdaptiveLearningOsService } from './ZavorthAdaptiveLearningOsService.js';
+import { TieredAutonomyClassifier, type TieredAutonomyConfig, type AutonomyTier } from './TieredAutonomyService.js';
 
 type NativeLearningRuntime = {
   now?: () => Date;
@@ -22,6 +23,8 @@ type NativeLearningRuntime = {
   skillEvolution?: Pick<ZavorthSkillEvolutionService, 'buildSnapshot'>;
   proceduralMemory?: Pick<ZavorthMnemosProceduralMemoryService, 'preview' | 'list'>;
   adaptiveLearning?: Pick<ZavorthAdaptiveLearningOsService, 'buildSnapshot' | 'ingestObservation'>;
+  /** Tiered autonomy classifier for auto/notify/approve tier assignment. */
+  tieredAutonomy?: TieredAutonomyClassifier;
 };
 
 type BuildSnapshotInput = {
@@ -52,6 +55,7 @@ export class ZavorthNativeLearningLoopService {
   private readonly skillEvolution: Pick<ZavorthSkillEvolutionService, 'buildSnapshot'>;
   private readonly proceduralMemory: Pick<ZavorthMnemosProceduralMemoryService, 'preview' | 'list'>;
   private readonly adaptiveLearning: Pick<ZavorthAdaptiveLearningOsService, 'buildSnapshot' | 'ingestObservation'>;
+  private readonly tierClassifier: TieredAutonomyClassifier;
 
   public constructor(runtime: NativeLearningRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -60,6 +64,7 @@ export class ZavorthNativeLearningLoopService {
     this.skillEvolution = runtime.skillEvolution || new ZavorthSkillEvolutionService();
     this.proceduralMemory = runtime.proceduralMemory || new ZavorthMnemosProceduralMemoryService();
     this.adaptiveLearning = runtime.adaptiveLearning || new ZavorthAdaptiveLearningOsService({ now: this.now });
+    this.tierClassifier = runtime.tieredAutonomy || new TieredAutonomyClassifier();
   }
 
   public async buildSnapshot(input: BuildSnapshotInput = {}): Promise<ZavorthNativeLearningLoopSnapshot> {
@@ -138,6 +143,10 @@ export class ZavorthNativeLearningLoopService {
     }));
 
     const uniqueCandidates = this.dedupe(candidates);
+
+    // Apply tiered autonomy: classify candidates and update state/approvalRequired
+    const tierCounts = this.applyTieredAutonomy(uniqueCandidates);
+
     const quarantined = uniqueCandidates.filter((candidate) => candidate.state === 'quarantined').length;
     const requiresApproval = uniqueCandidates.filter((candidate) => candidate.approvalRequired).length;
     const promoted = uniqueCandidates.filter((candidate) => candidate.state === 'promoted').length;
@@ -169,6 +178,7 @@ export class ZavorthNativeLearningLoopService {
         quarantined,
         requiresApproval,
         promoted,
+        tieredAutonomy: tierCounts,
         sessionSearchReady: memoryStatus.policy.ftsTopKRecall === true,
         autoSkillCandidateReady: Boolean(skillAssessment || memoryStatus.policy.skillHighRiskBlocked),
         skillImprovementCandidateReady: true,
@@ -216,6 +226,7 @@ export class ZavorthNativeLearningLoopService {
       `Status: ${snapshot.status}`,
       `Candidates: ${snapshot.summary.candidates}`,
       `Requires approval: ${snapshot.summary.requiresApproval}`,
+      `Tiered autonomy: auto=${snapshot.summary.tieredAutonomy.auto}, notify=${snapshot.summary.tieredAutonomy.notify}, approve=${snapshot.summary.tieredAutonomy.approve}`,
       `Quarantined: ${snapshot.summary.quarantined}`,
       `Session search: ${snapshot.summary.sessionSearchReady ? 'ready' : 'not ready'}`,
       `User model: suggest-only, reversible, approved=${snapshot.userModel.approvedRecords}, revoked=${snapshot.userModel.revokedRecords}`,
@@ -591,6 +602,57 @@ export class ZavorthNativeLearningLoopService {
       result.push(candidate);
     }
     return result;
+  }
+
+  /**
+   * Applies tiered autonomy to candidates: classifies each into auto/notify/approve
+   * and updates state/approvalRequired accordingly.
+   *
+   * - auto tier: state → promoted, approvalRequired → false
+   * - notify tier: keeps approvalRequired true, but marks as eligible for fast-track
+   * - approve tier: no changes (current behavior)
+   *
+   * Returns tier counts for snapshot summary.
+   */
+  private applyTieredAutonomy(
+    candidates: ZavorthNativeLearningLoopCandidate[],
+  ): { auto: number; notify: number; approve: number } {
+    const tierCounts = { auto: 0, notify: 0, approve: 0 };
+
+    for (const candidate of candidates) {
+      // Skip quarantined candidates — they need manual review regardless
+      if (candidate.state === 'quarantined') {
+        tierCounts.approve++;
+        continue;
+      }
+
+      const decision = this.tierClassifier.classify(candidate);
+
+      switch (decision.tier) {
+        case 'auto':
+          // Auto-apply: promote immediately, no approval needed
+          candidate.state = 'promoted';
+          candidate.approvalRequired = false;
+          tierCounts.auto++;
+          break;
+
+        case 'notify':
+          // Fast-track: apply with notification, approval required but expedited
+          // Keep approvalRequired true so the user sees it, but it can be auto-approved
+          candidate.approvalRequired = true;
+          tierCounts.notify++;
+          break;
+
+        case 'approve':
+        default:
+          // Standard flow: queue for approval
+          candidate.approvalRequired = true;
+          tierCounts.approve++;
+          break;
+      }
+    }
+
+    return tierCounts;
   }
 
   private touchesSecurityPolicy(value: string): boolean {

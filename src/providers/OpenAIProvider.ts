@@ -69,7 +69,7 @@ export class OpenAIProvider implements ILlmProvider {
           finishReason: choice.finish_reason as LlmResponse['finishReason'],
           metadata: nativeToolPayload.metadata,
         };
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }
@@ -110,7 +110,7 @@ export class OpenAIProvider implements ILlmProvider {
         this.currentClientIndex = clientIndex;
         yield* streamOpenAICompatibleCompletion(stream, nativeToolPayload.metadata);
         return;
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         if (isProviderAbortError(error, options?.signal)) {
           throw error;
         }

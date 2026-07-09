@@ -142,7 +142,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
 
     try {
       entry.runtime.child.kill((input.signal || 'SIGTERM') as NodeJS.Signals);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       entry.record.status = 'failed';
       entry.record.lastError = errorMessage(error);
       this.appendLog(entry, 'system', `[process:stop:error] ${entry.record.lastError}`);
@@ -225,7 +225,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
       if (entry.runtime.child) {
         try {
           entry.runtime.child.kill('SIGTERM');
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // Best-effort cleanup for tests and short-lived CLI callers.
         }
         entry.runtime.child = null;
@@ -282,7 +282,7 @@ export class ProjectProcessSupervisor extends EventEmitter {
       entry.record.status = 'running';
       this.registerOwnership(entry);
       this.bindChild(entry, child);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       entry.runtime.child = null;
       entry.record.status = 'failed';
       entry.record.lastError = errorMessage(error);

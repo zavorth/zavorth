@@ -20,7 +20,7 @@ export async function GET(request: Request) {
         sourceEndpoints: [...tool.sourceEndpoints],
       })),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] array operation failed', error);
     const message = error instanceof Error ? error.message : "Failed to load MCP tools";
     return NextResponse.json({ error: message }, { status: 500 });

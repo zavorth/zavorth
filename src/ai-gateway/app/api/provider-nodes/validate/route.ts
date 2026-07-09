@@ -29,7 +29,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
@@ -102,7 +102,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({ valid: res.ok, error: res.ok ? null : "Invalid API key" });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error validating provider node:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
   }

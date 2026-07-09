@@ -273,7 +273,7 @@ export class ConversationalAgent {
             // Store in cache (Improvement E)
             this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[Conversational Agent] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
           toolResult = `Tool ${toolCall.name} failed: ${message}`;
@@ -517,7 +517,7 @@ export class ConversationalAgent {
         escalation: this.resolveExecutionEscalation(text, mode, options),
         llm,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       if (!decision.explicitSubagentRequest) {
         return null;
       }
@@ -761,7 +761,7 @@ export class ConversationalAgent {
           query,
         }),
       ].filter(Boolean).join('\n\n');
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error);
       return [
         'Automatic web search failed for this recency-sensitive request.',

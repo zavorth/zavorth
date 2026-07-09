@@ -6,7 +6,7 @@ function isHttpUrl(value: string): boolean {
   try {
     const parsed = new URL(value);
     return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch (error) { logger.warn('[schema-provider] network request failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[schema-provider] network request failed', error); return false; }
 }
 
 export const jsonObjectSchema = z.record(z.string(), z.unknown());

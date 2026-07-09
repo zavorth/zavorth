@@ -37,7 +37,7 @@ const readSettings = async () => {
     const settingsPath = getExternalExecutorSettingsPath();
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(settings),
       settingsPath: getExternalExecutorSettingsPath(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error checking external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to check external executor settings" },
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[external Executor Settings] process execution failed', error);
     return NextResponse.json(
       {
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
       try {
         const keyRecord = await getApiKeyById(keyId);
         if (keyRecord?.key) apiKey = keyRecord.key as string;
-      } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] validation failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[external Executor Settings] validation failed', error); }
     }
 
     const executorDir = getExternalExecutorDir();
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error) { /* No existing settings */ logger.warn('[external Executor Settings] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* No existing settings */ logger.warn('[external Executor Settings] JSON parse failed', error); }
 
     if (!settings.agents) settings.agents = {};
     if (!settings.agents.defaults) settings.agents.defaults = {};
@@ -161,14 +161,14 @@ export async function POST(request: Request) {
 
     try {
       saveCliToolLastConfigured(EXTERNAL_EXECUTOR_TOOL_ID);
-    } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: `${DISPLAY_NAME} settings applied successfully!`,
       settingsPath,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to update external executor settings" },
@@ -195,7 +195,7 @@ export async function DELETE(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code === "ENOENT") {
         return NextResponse.json({
           success: true,
@@ -221,13 +221,13 @@ export async function DELETE(request: Request) {
 
     try {
       deleteCliToolLastConfigured(EXTERNAL_EXECUTOR_TOOL_ID);
-    } catch (error) { /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[external Executor Settings] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error resetting external executor settings:", error);
     return NextResponse.json(
       { error: "Failed to reset external executor settings" },

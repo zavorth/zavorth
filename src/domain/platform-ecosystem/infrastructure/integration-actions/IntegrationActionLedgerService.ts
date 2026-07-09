@@ -37,7 +37,7 @@ export class IntegrationActionLedgerService {
       const raw = fs.readFileSync(this.actionStatusFile, 'utf8');
       const parsed = JSON.parse(raw) as IntegrationActionExecution;
       return parsed.integrationId === integrationId ? parsed : null;
-    } catch (error) { logger.warn('[Integration Action Ledger] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Integration Action Ledger] JSON parse failed', error); return null; }
   }
 
   public readActionHistory(integrationId: string, limit: number): IntegrationActionExecution[] {
@@ -65,7 +65,10 @@ export class IntegrationActionLedgerService {
         if (records.length >= limit) {
           break;
         }
-      } catch (error) { // Ignora linhas corrompidas no historico. logger.warn('[Integration Action Ledger] process execution failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignora linhas corrompidas no historico.
+      logger.warn('[Integration Action Ledger] process execution failed', error);
+    }
     }
     return records;
   }

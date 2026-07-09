@@ -478,7 +478,7 @@ export class RealZavorthBridgeWatcherWorkflow {
       try {
         await this.broadcaster.sendToChat(session.chatId, message);
         return;
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         directError = error instanceof Error ? error : new Error(String(error?.message || error));
         this.logRepo.log(
           'warn',
@@ -491,7 +491,7 @@ export class RealZavorthBridgeWatcherWorkflow {
 
     try {
       await this.broadcaster.broadcast(message);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const broadcastError = error instanceof Error ? error : new Error(String(error?.message || error));
       throw new Error(
         directError

@@ -26,7 +26,7 @@ export class TelegramFileDeliveryPermissionApprovalService {
         if (resumed) {
           return true;
         }
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
           `The permission was approved, but I could not complete the delivery right now.\n\nReason: ${msg}`,
@@ -41,7 +41,7 @@ export class TelegramFileDeliveryPermissionApprovalService {
         if (resumed) {
           return true;
         }
-      } catch (error: unknown) {
+      } catch (error: any) { const err = error; const e = error;
         const msg = error instanceof Error ? error.message : String(error);
         await ctx.reply(
           `The permission was approved, but I could not complete the inspection right now.\n\nReason: ${msg}`,

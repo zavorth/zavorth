@@ -162,7 +162,7 @@ export class ReviewActionExecutor {
           },
         }),
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         liveAgentSnapshot: {
           status: 'failed',
@@ -533,7 +533,7 @@ function parseJsonObject(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }

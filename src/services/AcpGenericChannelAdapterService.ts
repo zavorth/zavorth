@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { config } from '../config/index.js';
@@ -165,7 +165,7 @@ export class AcpGenericChannelAdapterService {
       this.seenIdempotencyKeys.set(idempotencyKey, receipt.id);
       this.record(receipt, options.receiptPath);
       return receipt;
-    } catch (error) {
+    } catch (error: any) {
       const receipt = this.buildReceipt({
         status: 'failed',
         envelope: {},

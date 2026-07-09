@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../../config/index.js';
 import type { SelfModificationPreviewResult, SelfModificationService } from '../SelfModificationService.js';
 import type { SafeModificationService } from '../SafeModificationService.js';
@@ -135,7 +135,7 @@ export class AutoRepairCodeAttemptRunner {
           status: 'deleted-new-file',
           reason: 'Arquivo novo removido durante o rollback.',
         };
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Auto Repair Code Attempt Runner] file cleanup failed', error);
     return {
           status: 'failed',

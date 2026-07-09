@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -110,7 +110,7 @@ export class DemoGuideService {
       );
 
       return { sessions };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Demo Guide] lifecycle operation failed', error);
     return { sessions: {} };
   }
@@ -120,6 +120,9 @@ export class DemoGuideService {
     try {
       fs.mkdirSync(path.dirname(this.stateFile), { recursive: true });
       fs.writeFileSync(this.stateFile, JSON.stringify(this.state, null, 2), 'utf8');
-    } catch (error) { // Keep in-memory state even if persistence fails. logger.warn('[Demo Guide] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Keep in-memory state even if persistence fails.
+      logger.warn('[Demo Guide] filesystem operation failed', error);
+    }
   }
 }

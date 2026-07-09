@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import {
   ZAVORTH_MNEMOS_LINT_VERSION,
@@ -151,7 +151,7 @@ export class ZavorthMnemosLintService {
     }
     try {
       return JSON.parse(String(this.readFileSyncImpl(indexPath, 'utf8'))) as WikiIndex;
-    } catch {
+    } catch (error: any) {
       this.addFinding(findings, 'critical', 'index', '.zavorth/wiki/index.json', 'Mnemos wiki index is not valid JSON.', 'Fix index.json before trusting wiki retrieval.');
       return {};
     }

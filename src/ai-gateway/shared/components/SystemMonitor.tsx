@@ -70,7 +70,7 @@ export default function SystemMonitor({ compact = false }) {
         if (!mountedRef.current) return;
         setMetrics(data);
         setError(false);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         if (mountedRef.current) setError(true);
       }
     }

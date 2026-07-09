@@ -27,6 +27,10 @@ export function createOverlayController(options: OverlayControllerOptions) {
     markOverlayOpened();
     closeMobileDrawer(false);
     cmdPalette?.classList.add('active');
+    if (cmdInput) {
+      cmdInput.value = '';
+      cmdInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
     cmdInput?.focus();
   }
 

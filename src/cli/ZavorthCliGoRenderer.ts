@@ -254,7 +254,7 @@ function normalizeHomeUrl(value: string | null): string {
       url.hash = '';
       return url.toString();
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Go Renderer] search failed', error);
     return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
   }

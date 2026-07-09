@@ -17,7 +17,7 @@ export async function initializeCloudSync() {
     await scheduler.start();
 
     return scheduler;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[CloudSync] Error initializing scheduler:", error);
     throw error;
   }

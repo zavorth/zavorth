@@ -194,7 +194,7 @@ export class McpOAuthManagerEnhanced {
       for (let attempt = 0; attempt < this.maxRetries; attempt++) {
         try {
           return await this.refreshWithToken(state, stored.refreshToken);
-        } catch (error: unknown) {
+        } catch (error: any) { const err = error; const e = error;
           if (this.isInvalidClientError(error)) {
             this.deadClients.add(state.config.clientId);
             throw new Error('Client ID invalid. Re-registration required.');
@@ -305,7 +305,7 @@ export class McpOAuthManagerEnhanced {
       state.refreshTimer = setTimeout(async () => {
         try {
           await this.getAccessToken(this.getProviderName(state));
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // Silent failure - will retry on next getAccessToken call
         }
       }, refreshAt);
@@ -353,7 +353,7 @@ export class McpOAuthManagerEnhanced {
       state.metadata = stored.metadata;
 
       return stored;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

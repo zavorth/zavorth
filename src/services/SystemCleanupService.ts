@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+﻿import { execFile } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -65,7 +65,7 @@ export class SystemCleanupService {
         try {
           await this.killProcess(proc.pid);
           killed.push(`${proc.name} (PID: ${proc.pid})`);
-        } catch (e: any) {
+        } catch (e: any) { const error = e; const err = e;
           warnings.push(`Falha ao matar ${proc.name} (${proc.pid}): ${e.message}`);
         }
       }
@@ -76,7 +76,7 @@ export class SystemCleanupService {
         try {
           await this.shutdownWsl();
           wslShutdown = true;
-        } catch (e: any) {
+        } catch (e: any) { const error = e; const err = e;
           warnings.push(`Falha ao desligar WSL: ${e.message}`);
         }
       }
@@ -85,7 +85,7 @@ export class SystemCleanupService {
       let artifactsCleaned = 0;
       try {
         artifactsCleaned = await this.cleanTempArtifacts();
-      } catch (e: any) {
+      } catch (e: any) { const error = e; const err = e;
         warnings.push(`Falha ao limpar temp artifacts: ${e.message}`);
       }
 
@@ -94,7 +94,7 @@ export class SystemCleanupService {
         : `Nenhum processo nao-essencial ou artefato encontrado.${wslShutdown ? ' WSL desligado.' : ''}`;
 
       return { ok: true, killed, skipped, wslShutdown, message, warnings };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[System Cleanup] operation failed', error);
     return {
         ok: false,
@@ -124,10 +124,16 @@ export class SystemCleanupService {
             try {
               fs.unlinkSync(path.join(dir, file));
               removedCounts++;
-            } catch (error) { // Ignore lock errors logger.warn('[System Cleanup] file cleanup failed', error); }
+            } catch (error: any) {
+      // Ignore lock errors
+      logger.warn('[System Cleanup] file cleanup failed', error);
+    }
           }
         }
-      } catch (error) { // Ignorar erros de leitura de diretorio logger.warn('[System Cleanup] file cleanup failed', error); }
+      } catch (error: any) {
+      // Ignorar erros de leitura de diretorio
+      logger.warn('[System Cleanup] file cleanup failed', error);
+    }
     }
     return removedCounts;
   }

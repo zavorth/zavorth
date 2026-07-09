@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -276,7 +276,7 @@ export class ZavorthSessionRecallService {
           ? parsed.sessions.map(normalizeSession).filter((entry): entry is ZavorthSessionRecallSession => Boolean(entry))
           : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Session Recall] JSON parse failed', error);
     return { sessions: [] };
   }

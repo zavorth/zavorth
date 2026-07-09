@@ -98,7 +98,7 @@ export class ZavorthBridgeCompanionBridge {
     try {
       const raw = await fs.promises.readFile(this.getStatusFilePath(), 'utf8');
       return JSON.parse(raw) as CompanionStatus;
-    } catch (error) { logger.warn('[Zavorth Bridge Companion Bridge] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Bridge Companion Bridge] JSON parse failed', error); return null; }
   }
 
   public async isOnline(maxAgeMs = DEFAULT_STATUS_MAX_AGE_MS): Promise<boolean> {
@@ -240,7 +240,7 @@ export class ZavorthBridgeCompanionBridge {
         let parsed: CompanionResult;
         try {
           parsed = JSON.parse(raw) as CompanionResult;
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           await new Promise((resolve) => setTimeout(resolve, this.pendingResultRetryMs));
           continue;
         }

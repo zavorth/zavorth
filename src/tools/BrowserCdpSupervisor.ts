@@ -1,4 +1,4 @@
-/**
+﻿/**
  * BrowserCdpSupervisor — Persistent WebSocket for browser control.
  *
  * Maintains active CDP (Chrome DevTools Protocol) connection with browser,
@@ -146,7 +146,7 @@ export class BrowserCdpSupervisor extends EventEmitter {
       try {
         await this.connect();
         this.emit('reconnected');
-      } catch {
+      } catch (error: any) {
         this.attemptReconnect();
       }
     }, delay);
@@ -181,7 +181,10 @@ export class BrowserCdpSupervisor extends EventEmitter {
       if (msg.method) {
         this.handleEvent(msg.method, msg.params);
       }
-    } catch (error) { // Ignore invalid messages. logger.warn('[Browser Cdp Supervisor] delete operation failed', error); }
+    } catch (error: any) {
+      // Ignore invalid messages.
+      logger.warn('[Browser Cdp Supervisor] delete operation failed', error);
+    }
   }
 
   private handleEvent(method: string, params: Record<string, unknown>): void {

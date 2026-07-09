@@ -143,7 +143,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     }
     try {
       return JSON.parse(fs.readFileSync(this.statusFile, 'utf8')) as WebhookGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[Webhook way] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Webhook way] JSON parse failed', error); return null; }
   }
 
   public abstract describe(): ChannelAdapterStatus;
@@ -199,17 +199,30 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.writeStatus();
 
     if (this.broker) {
-      await this.broker.processMessage({
-        platform: this.id as CanonicalChannelPlatform,
-        userId,
-        chatId,
-        messageId: extracted.messageId || null,
-        isGroup: Boolean(extracted.isGroup),
-        rawText,
-        reply: async (text: string) => {
-          await this.sendMessage({ chatId, text });
+      const { withMiddleware } = await import('./ZavorthGatewayMiddlewareIntegration.js');
+      await withMiddleware(
+        async () => {
+          await this.broker!.processMessage({
+            platform: this.id as CanonicalChannelPlatform,
+            userId,
+            chatId,
+            messageId: extracted.messageId || null,
+            isGroup: Boolean(extracted.isGroup),
+            rawText,
+            reply: async (text: string) => {
+              await this.sendMessage({ chatId, text });
+            },
+          });
         },
-      });
+        {
+          text: rawText,
+          channelId: this.id,
+          userId,
+          reply: async (text: string) => {
+            await this.sendMessage({ chatId, text });
+          },
+        }
+      );
     }
 
     await this.eventBus.emit(buildInboundChannelEvent({
@@ -307,7 +320,7 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
         return response.ok
           ? { ok: true, status: 'delivered', transport: this.mode, httpStatus: response.status }
           : { ok: false, status: 'failed', transport: this.mode, httpStatus: response.status, reason: `HTTP ${response.status}` };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Webhook way] network request failed', error);
     return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? error.message : String(error) };
   }

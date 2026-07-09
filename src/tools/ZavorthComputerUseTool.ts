@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
@@ -113,7 +113,7 @@ export class ZavorthComputerUseTool extends BaseTool {
         case 'get_screen_size': return await this.getScreenSize();
         default: return `Error: action "${action}" not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Computer Use] async operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `ComputerUse error: ${message}`;
@@ -123,7 +123,7 @@ export class ZavorthComputerUseTool extends BaseTool {
   private async screenshot(args: Record<string, unknown>): Promise<string> {
     let region: { x: number; y: number; width: number; height: number } | undefined;
     if (typeof args.region === 'string') {
-      try { region = JSON.parse(args.region); } catch (error) { /* ignore */ logger.warn('[Zavorth Computer Use] JSON parse failed', error); }
+      try { region = JSON.parse(args.region); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Computer Use] JSON parse failed', error); }
     }
 
     const result = await this.executeDesktopCommand('screenshot', { region });
@@ -262,7 +262,7 @@ export class ZavorthComputerUseTool extends BaseTool {
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { require('fs').unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {
@@ -300,7 +300,7 @@ export class ZavorthComputerUseTool extends BaseTool {
         default:
           return { success: false, action_performed: command, error: `Command "${command}" not supported on macOS.` };
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Computer Use] string operation failed', error);
     return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
   }
@@ -321,7 +321,7 @@ export class ZavorthComputerUseTool extends BaseTool {
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { require('fs').unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {
@@ -372,7 +372,7 @@ export class ZavorthComputerUseTool extends BaseTool {
         default:
           return { success: false, action_performed: command, error: `Command "${command}" not supported on Windows.` };
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Computer Use] process execution failed', error);
     return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
   }
@@ -389,14 +389,14 @@ export class ZavorthComputerUseTool extends BaseTool {
           try {
             try {
               execFileSync('import', ['-window', 'root', tmpFile], { timeout: 10000 });
-            } catch {
+            } catch (error: any) {
               execFileSync('scrot', [tmpFile], { timeout: 10000 });
             }
             const fs = require('fs');
             const buffer = fs.readFileSync(tmpFile);
             return { success: true, action_performed: 'screenshot', image_base64: buffer.toString('base64') };
           } finally {
-            try { require('fs').unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
+            try { require('fs').unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Zavorth Computer Use] file cleanup failed', error); }
           }
         }
         case 'click': {
@@ -431,7 +431,7 @@ export class ZavorthComputerUseTool extends BaseTool {
         default:
           return { success: false, action_performed: command, error: `Command "${command}" not supported on Linux.` };
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Computer Use] process execution failed', error);
     return { success: false, action_performed: command, error: error instanceof Error ? error.message : String(error) };
   }

@@ -63,7 +63,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       {
@@ -140,7 +140,7 @@ export async function POST(request) {
         error,
       }),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error validating API key:", error);
     return NextResponse.json({ error: "Validation failed" }, { status: 500 });
   }

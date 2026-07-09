@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+﻿import { spawn } from 'node:child_process';
 import path from 'node:path';
 import type {
   GovernedTerminalReceipt,
@@ -100,7 +100,7 @@ export class GovernedTerminalRuntime {
           ? 'Governed terminal command executed with explicit policy allowance.'
           : 'Governed terminal command executed but returned a non-zero exit.',
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Governed Terminal Runtime] process execution failed', error);
     return this.receipt({
         status: 'failed',
@@ -197,7 +197,7 @@ async function runShellCommand(input: {
     const timeout = setTimeout(() => {
       try {
         child.kill('SIGKILL');
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       finish({
         exitCode: null,
         stdout: stdout.trim() || null,
@@ -225,11 +225,11 @@ function hasPty(): boolean {
   try {
     require.resolve('node-pty');
     return true;
-  } catch {
+  } catch (error: any) {
     try {
       require.resolve('@lydell/node-pty');
       return true;
-    } catch (error) { logger.warn('[Governed Terminal Runtime] module import failed', error); return false; }
+    } catch (error: any) { logger.warn('[Governed Terminal Runtime] module import failed', error); return false; }
   }
 }
 

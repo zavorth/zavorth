@@ -1,4 +1,4 @@
-import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
+﻿import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContract.js';
 import type {
   ZavorthResponseDecision,
   ZavorthResponseDecisionConfidence,
@@ -324,7 +324,7 @@ export class SurfaceOperationalIntentService {
             || input.resourceImpact?.budget?.externalExposure === 'public',
         },
       });
-    } catch (error) { logger.warn('[Surface Operational] module import failed', error); return null; }
+    } catch (error: any) { logger.warn('[Surface Operational] module import failed', error); return null; }
   }
 
   private collectCapabilityIds(input: SurfaceOperationalIntent): string[] {
@@ -563,7 +563,7 @@ export class SurfaceOperationalIntentService {
     try {
       const state = this.ownerControlledDefaultActivationService?.status(1).state || null;
       return state?.status === 'active' && state.defaultRouter === 'ai-first';
-    } catch (error) { logger.warn('[Surface Operational] filesystem check failed', error); return false; }
+    } catch (error: any) { logger.warn('[Surface Operational] filesystem check failed', error); return false; }
   }
 
   private async classifyAmbiguousIntent(input: SurfaceOperationalIntent): Promise<{
@@ -633,7 +633,7 @@ export class SurfaceOperationalIntentService {
           ? parsed.requestedTools.map((tool: unknown) => String(tool || '').trim()).filter(Boolean).slice(0, 8)
           : [],
       };
-    } catch (error) { logger.warn('[Surface Operational] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Surface Operational] JSON parse failed', error); return null; }
   }
 
   private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -1039,7 +1039,7 @@ export class ZavorthHardwareActionPlaneService {
       return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
         .filter((entry) => entry.domain === 'hardware' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
         .slice(0, limit);
-    } catch (error) { logger.warn('[Zavorth Hardware Action Plane] filesystem check failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Hardware Action Plane] filesystem check failed', error); return []; }
   }
 
   private resolveAdapter(providerId: HardwareProviderId): HardwareProviderAdapter | null {
@@ -1113,7 +1113,7 @@ export class ZavorthHardwareActionPlaneService {
     try {
       const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<HardwareActionPlaneState>;
       return this.normalizeState(parsed);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Hardware Action Plane] JSON parse failed', error);
     return this.defaultState();
   }
@@ -1307,7 +1307,10 @@ export class ZavorthHardwareActionPlaneService {
         },
         result: input.summary,
       });
-    } catch (error) { // O ledger nao deve impedir emergency stop ou bloqueio local. logger.warn('[Zavorth Hardware Action Plane] operation failed', error); }
+    } catch (error: any) {
+      // O ledger nao deve impedir emergency stop ou bloqueio local.
+      logger.warn('[Zavorth Hardware Action Plane] operation failed', error);
+    }
   }
 
   private normalizeProviderId(value: unknown): HardwareProviderId {

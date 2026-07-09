@@ -36,7 +36,7 @@ export async function GET(request) {
       codeChallenge,
       provider,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Kiro social authorize error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

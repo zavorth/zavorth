@@ -187,7 +187,7 @@ export async function GET(request: Request) {
     // Get full config
     const config = await getProxyConfig();
     return Response.json(redactProxySecrets(config));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy config");
   }
@@ -204,7 +204,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
@@ -228,7 +228,7 @@ export async function PUT(request: Request) {
     const updated = await setProxyConfig(normalizedBody);
     clearDispatcherCache();
     return Response.json(updated);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const routeError = toApiRouteError(error);
     const status = Number(routeError.status) || 500;
     const type = (routeError.type ||
@@ -261,7 +261,7 @@ export async function DELETE(request: Request) {
     const updated = await deleteProxyForLevel(level, id);
     clearDispatcherCache();
     return Response.json(updated);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to delete proxy");
   }

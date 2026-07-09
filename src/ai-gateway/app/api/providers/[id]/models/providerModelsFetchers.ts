@@ -138,7 +138,7 @@ export async function fetchGeminiCliModels(context: ProviderModelsHandlerContext
       }));
 
     return buildResponse({ provider, connectionId, models });
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.log("[models] Gemini CLI model fetch error:", message);
     return jsonError("Failed to fetch Gemini CLI models", 500);

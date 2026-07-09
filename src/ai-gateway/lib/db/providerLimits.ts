@@ -32,7 +32,7 @@ const PROVIDER_LIMITS_CACHE_NAMESPACE = "providerLimitsCache";
 function parseJson(raw: string): unknown {
   try {
     return JSON.parse(raw) as unknown;
-  } catch (error) { logger.warn('[provider] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[provider] JSON parse failed', error); return null; }
 }
 
 function toRecord(value: unknown): JsonRecord | null {

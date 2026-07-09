@@ -167,7 +167,7 @@ export class RuntimeAccessLaunchService {
         command: `${launchCommand.command} ${launchCommand.args.join(' ')}`,
         error: null,
       };
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const message = error instanceof Error ? error.message : String(error ?? 'failed to open surface');
       return {
         attempted: true,

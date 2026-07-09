@@ -73,7 +73,7 @@ export class TelegramAuthorizedChatRegistry {
         updatedAt: cleanOptional(parsed.updatedAt) || new Date(0).toISOString(),
         chats,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Telegram Authorized Chat Registry] parsing failed', error);
     return {
         version: 1,

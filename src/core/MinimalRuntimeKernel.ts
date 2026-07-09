@@ -228,7 +228,7 @@ export class MinimalRuntimeKernel {
     const shutdown = async (signal: string) => {
       try {
         await this.stop(signal);
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         this.writer.error(error instanceof Error ? error.message : String(error));
       } finally {
         process.exit(0);

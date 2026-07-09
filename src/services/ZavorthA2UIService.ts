@@ -1,4 +1,4 @@
-export type A2UIPropValue = string | number | boolean | null | A2UIPropValueArray | A2UIPropObject;
+﻿export type A2UIPropValue = string | number | boolean | null | A2UIPropValueArray | A2UIPropObject;
 export interface A2UIPropValueArray extends Array<A2UIPropValue> {}
 export interface A2UIPropObject {
   [key: string]: A2UIPropValue;
@@ -311,7 +311,7 @@ export class ZavorthA2UIService {
         event: completionEvent,
         data: handlerResult ? this.clone(handlerResult) : null,
       };
-    } catch (error: unknown) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       const event = this.appendEvent(surfaceId, 'action_blocked', {
         actionId,

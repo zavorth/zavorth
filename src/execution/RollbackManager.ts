@@ -43,7 +43,7 @@ export class RollbackManager {
     try {
       this.taskManager.advanceState(task, 'rollback_pending');
       this.taskManager.advanceState(task, 'reverted');
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       // Ignore error if the state is not compatible; force manual persistence.
       task.status = 'reverted';
     }

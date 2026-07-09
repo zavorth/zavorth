@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       ? assignments.filter((entry) => entry.scopeId === scopeId)
       : assignments;
     return Response.json({ items: filtered, total: filtered.length });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy assignments");
   }
@@ -43,7 +43,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
@@ -67,7 +67,7 @@ export async function PUT(request: Request) {
     const assigned = await assignProxyToScope(scope, scopeId || null, proxyId || null);
     clearDispatcherCache();
     return Response.json({ success: true, assignment: assigned });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to update assignment");
   }

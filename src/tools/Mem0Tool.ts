@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { MemoryRuntimeService } from '../services/memory/MemoryRuntimeService.js';
 import { logger } from '../logger.js';
@@ -54,6 +54,6 @@ export class Mem0Tool extends BaseTool {
       }
 
       return results.map((entry) => `- ${entry}`).join('\n');
-    } catch (error) { logger.warn('[Mem0] search failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Mem0] search failed', error); return ''; }
   }
 }

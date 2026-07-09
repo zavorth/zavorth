@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -51,7 +51,7 @@ export class ActiveMemoryService {
       const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       const sanitized = this.sanitizeParsedData(data) as Record<string, MemoryEntry>;
       this.entries = new Map(Object.entries(sanitized));
-    } catch (error) { /* ignore */ logger.warn('[Active Memory] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Active Memory] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -88,7 +88,7 @@ export class ActiveMemoryService {
         JSON.stringify(Object.fromEntries(this.entries), null, 2),
         'utf-8',
       );
-    } catch (error) {
+    } catch (error: any) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw error;
       }

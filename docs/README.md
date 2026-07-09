@@ -13,6 +13,10 @@ understand, operate and integrate the agent.
 | [Zavorth Control](/docs/web-zavorthControl.md) | Using `/control` |
 | [CLI](/docs/zavorth-cli.md) | Terminal operation and JSON output |
 | [Product Certification](/docs/product-certification.md) | Daily product readiness and clean install confidence |
+| [Product Fabric](/docs/product-fabric.md) | First-run trail, public commands, hermetic fabric certification |
+| [Capability Fabric](/docs/capability-fabric.md) | Absorb skills/plugins/MCP on demand |
+| [Reach Fabric](/docs/reach-fabric.md) | Honest channel tiers + nodes |
+| [Power Fabric](/docs/power-fabric.md) | Elastic backends, trusted mode, learning promote |
 | [Troubleshooting](/docs/troubleshooting.md) | Fixing common runtime issues |
 
 ## Core Concepts

@@ -433,7 +433,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
           && typeof (job as { id?: unknown }).id === 'string'
         ))
         .slice(0, this.maxJobs);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return [];
     }
   }
@@ -462,7 +462,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
     while (lockFd === null) {
       try {
         lockFd = fs.openSync(lockPath, 'wx');
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         this.removeStaleLock(lockPath);
         if (Date.now() - startedAt > this.lockTimeoutMs) {
           throw new Error(`Could not acquire local queue lock: ${lockPath}`);
@@ -479,12 +479,12 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
     } finally {
       try {
         fs.closeSync(lockFd);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // ignore close failure
       }
       try {
         fs.unlinkSync(lockPath);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // ignore stale lock cleanup failure
       }
     }
@@ -496,7 +496,7 @@ export class JsonAgentWorkflowQueueStore implements AgentWorkflowQueueStore {
       if (Date.now() - stat.mtimeMs > this.lockTimeoutMs * 5) {
         fs.unlinkSync(lockPath);
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // ignore missing/inaccessible lock
     }
   }

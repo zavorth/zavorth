@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -401,7 +401,7 @@ export class ZavorthAndroidAdbBridgeService {
         timeoutMs: options.timeoutMs || DEFAULT_TIMEOUT_MS,
         encoding: options.encoding || 'utf8',
       });
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Android Adb Bridge] string operation failed', error);
     return {
         ok: false,

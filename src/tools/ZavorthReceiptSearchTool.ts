@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -145,7 +145,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
         case 'list_sessions': return this.listSessions();
         default: return `Error: action "${action}" is not implemented.`;
       }
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Receipt Search] filesystem check failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `ReceiptSearch error: ${message}`;
@@ -341,7 +341,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     try {
       new Date(receipt.timestamp).toISOString();
       checks.push('✅ Timestamp valido');
-    } catch {
+    } catch (error: any) {
       checks.push('❌ Timestamp invalid');
       allValid = false;
     }
@@ -436,7 +436,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
         } else if (parsed.id) {
           receipts.push(parsed);
         }
-      } catch {
+      } catch (error: any) {
         continue;
       }
     }
@@ -459,7 +459,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
         } else if (parsed.id === receiptId) {
           return parsed;
         }
-      } catch {
+      } catch (error: any) {
         continue;
       }
     }
@@ -515,7 +515,10 @@ export class ZavorthReceiptSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch (error) { // ignore logger.warn('[Zavorth Receipt Search] filesystem operation failed', error); }
+    } catch (error: any) {
+      // ignore
+      logger.warn('[Zavorth Receipt Search] filesystem operation failed', error);
+    }
     return results;
   }
 }

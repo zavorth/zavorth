@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -168,7 +168,7 @@ export class WebAppPolishContractService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error) { logger.warn('[Web App Polish Contract] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Web App Polish Contract] JSON parse failed', error); return null; }
   }
 
   private check(

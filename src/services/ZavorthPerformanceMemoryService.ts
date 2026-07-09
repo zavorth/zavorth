@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 import { logger } from '../logger.js';
@@ -225,5 +225,5 @@ function clamp(value: number, min: number, max: number): number {
 function parseJson<T>(text: string, fallback: T): T {
   try {
     return JSON.parse(text) as T;
-  } catch (error) { logger.warn('[Zavorth Performance Memory] JSON parse failed', error); return fallback; }
+  } catch (error: any) { logger.warn('[Zavorth Performance Memory] JSON parse failed', error); return fallback; }
 }

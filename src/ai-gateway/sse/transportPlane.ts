@@ -86,7 +86,7 @@ export function withZavorthSessionHeader(response: Response, sessionId: string |
   try {
     applySessionHeaders(response.headers, sessionId);
     return response;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     const cloned = new Response(response.body, {
       status: response.status,
       statusText: response.statusText,

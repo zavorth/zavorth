@@ -319,7 +319,7 @@ export class TelegramEchoApprovalController {
     try {
       await ctx.editMessageText(rendered.text);
       return;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       await replyWithTelegramSurfaceResponse(ctx, response);
     }
   }

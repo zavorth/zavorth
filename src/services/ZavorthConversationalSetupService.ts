@@ -320,7 +320,7 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
       if (jsonStart !== -1 && jsonEnd !== -1) {
         extracted = JSON.parse(content.substring(jsonStart, jsonEnd));
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.error('Extraction from onboarding history failed', err);
     }
 

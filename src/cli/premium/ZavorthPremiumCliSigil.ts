@@ -9,8 +9,8 @@
  */
 
 export const ZAVORTH_BLOCK_BANNER = [
-  ' \u001b[38;2;6;182;212m▄▄   ▄▄  ▄▄▄▄  ▄▄   ▄▄ ▄▄▄▄  ▄▄▄▄ \u001b[0m',
-  ' \u001b[38;2;6;182;212m█▀█  █▀█ █  █▀█ █▀█  █▀█ █  █▀█ \u001b[0m',
+  ' \u001b[38;2;255;122;24m▄▄   ▄▄  ▄▄▄▄  ▄▄   ▄▄ ▄▄▄▄  ▄▄▄▄ \u001b[0m',
+  ' \u001b[38;2;255;122;24m█▀█  █▀█ █  █▀█ █▀█  █▀█ █  █▀█ \u001b[0m',
   ' \u001b[38;2;107;114;128m█▀▀█ █▀▀▄ █  █ ▄ █  █▄▀ █  █▄▄▄ \u001b[0m',
 ];
 
@@ -34,7 +34,7 @@ export const ZAVORTH_ASCII_SIGIL = [
 ];
 
 export const ZAVORTH_COMPACT_SIGIL = [
-  '\u001b[38;2;6;182;212m◇\u001b[0m ZAVORTH \u001b[38;2;6;182;212m◇\u001b[0m',
+  '\u001b[38;2;255;122;24m◇\u001b[0m ZAVORTH \u001b[38;2;255;122;24m◇\u001b[0m',
   'Event-horizon agent zavorthControl',
 ];
 

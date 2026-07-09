@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+﻿import { createHash, randomUUID } from 'node:crypto';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative as relativePath, resolve } from 'node:path';
@@ -77,7 +77,10 @@ class AcpStreamInterceptor extends Transform {
           void this.onElevatedApproval(obj);
           continue;
         }
-      } catch (error) { // Not JSON or parse error, let it pass logger.warn('[Acp Live Session] JSON parse failed', error); }
+      } catch (error: any) {
+      // Not JSON or parse error, let it pass
+      logger.warn('[Acp Live Session] JSON parse failed', error);
+    }
       this.push(line + '\n');
     }
     callback();
@@ -92,7 +95,7 @@ class AcpStreamInterceptor extends Transform {
         } else {
           this.push(this.buffer + '\n');
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         this.push(this.buffer + '\n');
       }
     }
@@ -338,7 +341,7 @@ export class AcpLiveSessionService {
 
       await transport.request(jsonRpc('session/end', { sessionId }));
       push('session-end', 'ACP session ended.');
-    } catch (error) {
+    } catch (error: any) {
       status = 'failed';
       outputText = error instanceof Error ? error.message : String(error);
       push('error', outputText);
@@ -534,7 +537,7 @@ export class AcpLiveSessionService {
         stopReason: response.stopReason,
       });
       params.push('session-end', 'ACP SDK session ended.', { stopReason: response.stopReason });
-    } catch (error) {
+    } catch (error: any) {
       status = 'failed';
       outputText = error instanceof Error ? error.message : String(error);
       params.push('error', outputText, stderr ? { stderr: sanitizeText(stderr) } : undefined);
@@ -716,11 +719,19 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
     }
     const id = request.id || this.nextId++;
     const message = { ...request, id };
+    const childRef = this.child;
     return new Promise((resolveResponse, reject) => {
       this.pending.set(id, { resolve: resolveResponse, reject });
-      this.child?.stdin.write(`${JSON.stringify(message)}\n`, 'utf8');
+      childRef.stdin.write(`${JSON.stringify(message)}\n`, 'utf8');
       setTimeout(() => {
         if (this.pending.delete(id)) {
+          // Kill the child process on timeout to prevent orphan
+          try {
+            childRef.kill('SIGTERM');
+            setTimeout(() => {
+              try { childRef.kill('SIGKILL'); } catch { /* already exited */ }
+            }, 2000);
+          } catch { /* already exited */ }
           reject(new Error(`ACP stdio transport timed out waiting for ${request.method}.`));
         }
       }, 15000).unref();
@@ -739,7 +750,10 @@ class StdioAcpJsonRpcTransport implements AcpJsonRpcTransport {
           this.pending.get(response.id)?.resolve(response);
           this.pending.delete(response.id);
         }
-      } catch (error) { // Ignore non-JSON diagnostic output from third-party ACP servers. logger.warn('[Acp Live Session] delete operation failed', error); }
+      } catch (error: any) {
+      // Ignore non-JSON diagnostic output from third-party ACP servers.
+      logger.warn('[Acp Live Session] delete operation failed', error);
+    }
     }
   }
 

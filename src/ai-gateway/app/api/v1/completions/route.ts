@@ -78,7 +78,7 @@ export async function POST(request: Request) {
         return await handleChat(newRequest, buildClientRawRequest(request, body));
       }
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[SECURITY] Prompt injection guard failed:", error);
     return new Response(
       JSON.stringify({

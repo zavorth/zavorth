@@ -66,7 +66,7 @@ export class OpenCodeProvider implements ILlmProvider {
         toolCalls,
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[OpenCode] Request error:', error?.message || error);
       throw error;
     }

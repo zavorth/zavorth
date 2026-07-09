@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LLMFallbackRouter — Integration between LLMRouterService and ModelFallbackChain.
  *
  * Combines intelligent routing from LLMRouterService with progressive
@@ -115,7 +115,7 @@ export class LLMFallbackRouter {
           fallbackUsed: fallbackUsed || attempts > 1,
           totalLatencyMs: Date.now() - startTime,
         };
-      } catch (error: unknown) {
+      } catch (error: any) {
         const reason = this.classifyError(error);
         chain.recordFailure(candidate, reason);
 

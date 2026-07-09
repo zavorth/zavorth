@@ -39,5 +39,5 @@ export function orange(value: string): string {
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) {
     return value;
   }
-  return `\u001b[38;2;6;182;212m${value}\u001b[0m`;
+  return `\u001b[38;2;255;122;24m${value}\u001b[0m`;
 }

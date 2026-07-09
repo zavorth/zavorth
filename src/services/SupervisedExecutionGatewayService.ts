@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { LocalExecutor } from '../execution/LocalExecutor.js';
 import type { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import type {
@@ -58,7 +58,7 @@ export class SupervisedExecutionGatewayService {
     this.recordBuilder = new SupervisedExecutionGatewayRecordBuilder((actionId) => {
       try {
         return this.ledger.find(actionId)?.metadata?.execution_lifecycle;
-      } catch (error) { logger.warn('[Supervised Execution way] process execution failed', error); return null; }
+      } catch (error: any) { logger.warn('[Supervised Execution way] process execution failed', error); return null; }
     });
   }
 
@@ -329,7 +329,7 @@ export class SupervisedExecutionGatewayService {
           runtimeTarget: decision.runtimeTarget,
         },
       }));
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Supervised Execution way] process execution failed', error);
     return this.ledger.record(this.recordBuilder.buildRecord({
         actionId,
@@ -395,7 +395,10 @@ export class SupervisedExecutionGatewayService {
               reason: `Kill switch: ${reason}`,
             });
             affectedActions.push(cancelled);
-          } catch (error) { // Some actions may not expose canonical cancelation handles yet. logger.warn('[Supervised Execution way] operation failed', error); }
+          } catch (error: any) {
+      // Some actions may not expose canonical cancelation handles yet.
+      logger.warn('[Supervised Execution way] operation failed', error);
+    }
         }
       }
     } else {

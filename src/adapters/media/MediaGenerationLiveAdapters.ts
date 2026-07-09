@@ -316,7 +316,7 @@ function normalizeMediaOutputs(payload: any, input: {
 async function readJson(response: Response): Promise<any> {
   try {
     return await response.json();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

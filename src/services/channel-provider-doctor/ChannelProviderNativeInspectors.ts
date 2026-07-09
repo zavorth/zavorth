@@ -1,4 +1,4 @@
-import { config } from '../../config/index.js';
+﻿import { config } from '../../config/index.js';
 import type { ChannelProviderDoctorItem } from '../ChannelProviderDoctorService.js';
 import { logger } from '../../logger.js';
 
@@ -87,7 +87,7 @@ export async function inspectTelegramChannel(
         `Operadores permitidos: ${config.allowedUserIds.length}.`,
       ],
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'telegram',
@@ -237,7 +237,7 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
         `Guilds permitidas: ${config.discordAllowedGuildIds.length}.`,
       ],
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Channel  Native Inspectors] load operation failed', error);
     return {
       channelId: 'discord',
@@ -430,7 +430,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
         `Canais permitidos: ${config.slackAllowedChannelIds.length}.`,
       ],
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'slack',
@@ -714,7 +714,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         `Chats permitidos: ${config.whatsappAllowedChatIds.length}.`,
       ],
     };
-  } catch (error) {
+  } catch (error: any) {
     logger.warn('[Channel  Native Inspectors] validation failed', error);
     return {
       channelId: 'whatsapp',

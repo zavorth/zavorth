@@ -267,7 +267,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         workspace: process.cwd(),
       });
       await ctx.reply(this.buildTenantActionReply(tenantId, actionId, result));
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(error?.message || 'Nao consegui executar a acao guiada do tenant agora.');
     }
   }

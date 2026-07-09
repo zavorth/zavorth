@@ -141,7 +141,7 @@ export class SkillSnapshotAssembler {
         },
         metadata,
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const metadata: Record<string, unknown> = {
         ...(input.metadata || {}),
         source: 'SkillScanner',

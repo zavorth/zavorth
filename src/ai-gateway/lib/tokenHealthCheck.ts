@@ -95,7 +95,7 @@ async function shouldHideLogs(): Promise<boolean> {
       cachedHideLogs = settings.hideHealthCheckLogs === true;
       cacheTimestamp = now;
       return cachedHideLogs;
-    } catch (error) { logger.warn('[token  Check] health check failed', error); return false; } finally {
+    } catch (error: any) { const err = error; const e = error; logger.warn('[token  Check] health check failed', error); return false; } finally {
       pendingHideLogs = null;
     }
   })();
@@ -188,12 +188,12 @@ async function sweep() {
     for (const conn of connections) {
       try {
         await checkConnection(conn);
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         // Per-connection isolation: one failure never blocks others
         logError(`${LOG_PREFIX} Error checking ${conn.name || conn.id}:`, err.message);
       }
     }
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     logError(`${LOG_PREFIX} Sweep error:`, err.message);
   }
 }

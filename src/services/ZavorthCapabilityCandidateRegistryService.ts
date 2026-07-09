@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -248,7 +248,7 @@ export class ZavorthCapabilityCandidateRegistryService {
         candidates: Array.isArray(parsed.candidates) ? parsed.candidates.map(normalizeCandidate).filter(isCandidate) : [],
         receipts: Array.isArray(parsed.receipts) ? parsed.receipts.map(normalizeReceipt).filter(isReceipt).slice(-MAX_RECEIPTS) : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Candidate Registry] parsing failed', error);
     return this.emptyStore();
   }

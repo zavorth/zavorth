@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -121,7 +121,7 @@ export class ZavorthBatchRunnerService {
           };
           capture.captureTurn(turn);
           items[index] = { ...item, turn, success: true, error: null, durationMs: Date.now() - itemStart };
-        } catch (error) {
+        } catch (error: any) {
           const errorMessage = cleanText(error instanceof Error ? error.message : String(error));
           const turn: ZavorthTrajectoryCaptureTurn = {
             turnId: `turn-${runId}-${index}-${hash(item.prompt)}`,

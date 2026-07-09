@@ -102,7 +102,10 @@ export async function GET(req: NextRequest) {
         }
 
         entries.push(entry);
-      } catch (error) { // Skip unparseable lines logger.warn('[route] operation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Skip unparseable lines
+      logger.warn('[route] operation failed', error);
+    }
     }
 
     // Return last N entries (most recent)
@@ -114,7 +117,7 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "no-store, no-cache, must-revalidate",
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     return NextResponse.json({ error: err.message || "Failed to read logs" }, { status: 500 });
   }

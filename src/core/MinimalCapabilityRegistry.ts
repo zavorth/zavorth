@@ -188,7 +188,7 @@ export class MinimalCapabilityRegistry {
           for (const item of items) {
             manifests.push(this.normalizeManifest(item, filePath, 'manifest'));
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           invalidManifests.push({
             filePath,
             reason: error instanceof Error ? error.message : String(error),

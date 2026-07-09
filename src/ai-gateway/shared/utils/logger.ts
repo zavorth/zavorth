@@ -102,13 +102,13 @@ function buildLogger(): pino.Logger {
           ],
         },
       });
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       // Log the actual error for diagnostics (issue #165)
       try {
         process.stderr.write(
           `[logger] Failed to set up file transport, attempting sync fallback: ${(err as Error)?.message || err}\n`
         );
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
       // Fallback: use sync pino.destination() instead of worker-thread transport
       // pino.transport() uses worker threads which can fail in Next.js production bundles
@@ -124,12 +124,12 @@ function buildLogger(): pino.Logger {
             { stream: fileDestination, level: logLevel as pino.Level },
           ])
         );
-      } catch (fallbackErr) {
+      } catch (fallbackErr: any) { const error = fallbackErr; const err = fallbackErr; const e = fallbackErr;
         try {
           process.stderr.write(
             `[logger] Sync fallback also failed, falling back to console only: ${(fallbackErr as Error)?.message || fallbackErr}\n`
           );
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       }
     }
   }

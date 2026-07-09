@@ -677,7 +677,7 @@ export class UniversalSkillBridgeRuntimeService {
         }
         const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
         return Array.isArray(parsed?.receipts) ? parsed.receipts : [];
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         return [];
       }
     })();
@@ -729,7 +729,7 @@ export class UniversalSkillBridgeRuntimeService {
           },
         },
       });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Skill bridge receipts must not fail the safe prompt envelope path.
     }
   }

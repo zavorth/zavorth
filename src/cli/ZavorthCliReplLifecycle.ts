@@ -31,7 +31,7 @@ async function readCliReplQuestion(
 ): Promise<string | null> {
   try {
     return await rl.question(prompt);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     const message = String(error?.message || error || '');
     if (/readline was closed|readline closed|closed/i.test(message)) {
       return null;
@@ -79,7 +79,10 @@ export async function runZavorthCliRepl(params: {
     interrupted = true;
     try {
       rl.close();
-    } catch (error) { // readline may already be closing after Ctrl+C. logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // readline may already be closing after Ctrl+C.
+      logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
+    }
   });
   writer.line(params.welcomeText || formatCliChatWelcome());
 
@@ -136,7 +139,7 @@ export async function runZavorthCliRepl(params: {
         if (showSpinner) {
           globalSpinner.succeed(result.ok ? 'Done' : 'Needs attention');
         }
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         if (showSpinner) {
           globalSpinner.fail('Could not finish');
         }
@@ -150,6 +153,9 @@ export async function runZavorthCliRepl(params: {
   } finally {
     try {
       rl.close();
-    } catch (error) { // A piped/non-interactive stdin can close before the REPL loop asks again. logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // A piped/non-interactive stdin can close before the REPL loop asks again.
+      logger.warn('[Zavorth Cli Repl Lifecycle] resource cleanup failed', error);
+    }
   }
 }

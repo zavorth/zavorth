@@ -16,7 +16,7 @@ export class TelegramHubHeroService {
         parse_mode: 'Markdown',
         show_caption_above_media: true,
       });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const msg = error instanceof Error ? error.message : String(error);
       logger.warn(`Failed to send hub hero: ${msg}`);
     }

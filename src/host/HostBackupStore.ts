@@ -43,7 +43,7 @@ export class HostBackupStore {
         });
         this.pruneRelatedBackups(manifest, filePath);
         this.options.log(`  Backed up: ${basename} -> ${backupName}`);
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         this.options.log(`  Failed to backup ${filePath}: ${err.message}`);
       }
     }
@@ -88,7 +88,7 @@ export class HostBackupStore {
         }
         fs.copyFileSync(entry.backupPath, originalPath);
         this.options.log(`  Restored: ${path.basename(originalPath)}`);
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         this.options.log(`  Failed to restore ${originalPath}: ${err.message}`);
       }
     }
@@ -107,7 +107,7 @@ export class HostBackupStore {
       if (fs.existsSync(entry.backupPath)) {
         try {
           fs.unlinkSync(entry.backupPath);
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // Ignore cleanup failure for old backups.
         }
       }
@@ -122,7 +122,7 @@ export class HostBackupStore {
       if (fs.existsSync(this.options.manifestPath)) {
         return JSON.parse(fs.readFileSync(this.options.manifestPath, 'utf-8'));
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Ignore malformed manifest and rebuild it on the next save.
     }
 

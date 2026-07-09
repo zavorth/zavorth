@@ -60,7 +60,7 @@ export class MiniMaxProvider implements ILlmProvider {
         finishReason: choice.finish_reason as LlmResponse['finishReason'],
         metadata: nativeToolPayload.metadata,
       };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       logger.error('[MiniMax] Request error:', error?.message || error);
       throw error;
     }

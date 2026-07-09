@@ -144,7 +144,7 @@ export function evaluateCase(evalCase: any, actualOutput: string) {
       durationMs: Date.now() - start,
       details,
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[eval Runner] lifecycle operation failed', error);
     return {
       caseId: evalCase.id,

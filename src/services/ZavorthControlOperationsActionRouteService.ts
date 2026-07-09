@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 
 type WriteJson = (res: http.ServerResponse, body: unknown, statusCode?: number) => void;
 type ReadJsonBody = (req: http.IncomingMessage) => Promise<Record<string, any>>;

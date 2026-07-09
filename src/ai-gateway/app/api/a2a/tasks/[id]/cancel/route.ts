@@ -12,7 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const tm = getTaskManager();
     const task = tm.cancelTask(id);
     return NextResponse.json({ task: { id: task.id, state: task.state } });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     const message = error instanceof Error ? error.message : "Failed to cancel A2A task";
     const status = message.includes("not found") ? 404 : 400;

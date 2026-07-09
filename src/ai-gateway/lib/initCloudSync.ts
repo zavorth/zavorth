@@ -20,7 +20,7 @@ export async function ensureCloudSyncInitialized() {
       await initializeCloudSync();
       startModelSyncScheduler();
       initialized = true;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error("[ServerInit] Error initializing background sync services:", error);
     }
   }

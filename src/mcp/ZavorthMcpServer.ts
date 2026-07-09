@@ -107,7 +107,7 @@ export class ZavorthMcpServer {
               ],
               isError: false,
             };
-          } catch (err) {
+          } catch (err: any) { const error = err; const e = err;
              return {
               content: [
                 {

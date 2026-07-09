@@ -1,4 +1,4 @@
-import { execFileSync } from 'child_process';
+﻿import { execFileSync } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -82,7 +82,10 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
     } finally {
       try {
         fs.rmSync(jailPath, { recursive: true, force: true });
-      } catch (error) { // ignore cleanup failures for ephemeral jails logger.warn('[Local Jail Sandbox Runtime] process execution failed', error); }
+      } catch (error: any) {
+      // ignore cleanup failures for ephemeral jails
+      logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
+    }
     }
   }
 
@@ -218,7 +221,10 @@ export class LocalJailSandboxRuntime implements ISandboxRuntime {
           } else {
             child.kill('SIGKILL');
           }
-        } catch (error) { // ignore kill failures on timeout logger.warn('[Local Jail Sandbox Runtime] process execution failed', error); }
+        } catch (error: any) {
+      // ignore kill failures on timeout
+      logger.warn('[Local Jail Sandbox Runtime] process execution failed', error);
+    }
 
         resolve({
           stdout,

@@ -38,7 +38,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       authPath: result.authPath,
       writtenAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[Codex Auth Apply] Failed:", error);
     return toErrorResponse(error);
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { readZavorthEnv } from '../config/configHelpers.js';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -33,7 +33,7 @@ function resolvePersistedProfile(stateFilePath?: string | null): ZavorthProfile 
       return null;
     }
     return normalizeZavorthProfile(parsed.profile);
-  } catch (error) { logger.warn('[Runtime Profile] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Runtime Profile] JSON parse failed', error); return null; }
 }
 
 function resolveBootstrapProfile(

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SafeModificationService - Guarded Self-Modification
  *
  * Provides a safe pipeline for Zavorth to modify its own source code:
@@ -58,7 +58,7 @@ export class SafeModificationService {
         success: true,
         reason: `Arquivo ${path.basename(absolutePath)} modificado com sucesso. Backup criado pelo Host.`,
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Safe Modification] filesystem operation failed', error);
     return {
         success: false,
@@ -85,7 +85,7 @@ export class SafeModificationService {
       try {
         JSON.parse(newContent);
         return { passes: true, output: '' };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Safe Modification] JSON parse failed', error);
     return {
           passes: false,
@@ -140,7 +140,7 @@ export class SafeModificationService {
           }),
         );
         passes = true;
-      } catch (e: any) {
+      } catch (e: any) { const error = e; const err = e;
         output = e.stdout || e.stderr || e.message || '';
         const basename = path.basename(originalPath);
         const relevantErrors = output
@@ -157,7 +157,10 @@ export class SafeModificationService {
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error) { // ignore cleanup failures logger.warn('[Safe Modification] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // ignore cleanup failures
+      logger.warn('[Safe Modification] file cleanup failed', error);
+    }
     }
   }
 
@@ -214,7 +217,7 @@ export class SafeModificationService {
           passes: true,
           output: output.trim(),
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[Safe Modification] validation failed', error);
     return {
           passes: false,
@@ -224,7 +227,10 @@ export class SafeModificationService {
     } finally {
       try {
         fs.unlinkSync(tmpPath);
-      } catch (error) { // ignore cleanup failures logger.warn('[Safe Modification] file cleanup failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // ignore cleanup failures
+      logger.warn('[Safe Modification] file cleanup failed', error);
+    }
     }
   }
 

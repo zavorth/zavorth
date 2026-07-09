@@ -111,7 +111,7 @@ export async function fetchLiteLLMPricing(): Promise<Record<string, LiteLLMModel
   const text = await response.text();
   try {
     return JSON.parse(text) as Record<string, LiteLLMModelInfo>;
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`LiteLLM returned invalid JSON (${text.slice(0, 100)}...)`);
   }
 }
@@ -194,7 +194,7 @@ export function getSyncedPricing(): PricingByProvider {
     if (!key || rawValue === null) continue;
     try {
       synced[key] = JSON.parse(rawValue) as PricingModels;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       console.warn(`[PRICING_SYNC] Corrupted data for provider "${key}", skipping`);
     }
   }
@@ -300,7 +300,7 @@ export async function syncPricingFromSources(opts?: {
         : {}),
       ...(dryRun ? { data: aggregated } : {}),
     };
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     const message = err instanceof Error ? err.message : String(err);
     console.warn("[PRICING_SYNC] Sync failed:", message);
     return {

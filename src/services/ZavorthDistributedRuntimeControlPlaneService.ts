@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import { RuntimeAccessManifestService } from '../runtime/access/RuntimeAccessManifestService.js';
 import { ZavorthChannelMeshService } from './ZavorthChannelMeshService.js';
 import { ZavorthNodeMeshService } from './ZavorthNodeMeshService.js';
@@ -104,7 +104,7 @@ export class ZavorthDistributedRuntimeControlPlaneService {
   private async safeAsync<T>(factory: () => Promise<T> | T, fallback: any): Promise<T> {
     try {
       return await factory() as T;
-    } catch (error) { logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }
+    } catch (error: any) { logger.warn('[Zavorth Distributed Runtime Control Plane] string operation failed', error); return fallback as T; }
   }
 }
 

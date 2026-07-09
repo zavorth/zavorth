@@ -102,7 +102,7 @@ export class TelegramHubController {
       try {
         await ctx.api.editMessageText(ctx.chat.id, ctx.callbackQuery.message.message_id, text, options);
         return;
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         if (!(err instanceof Error) || !err.message?.includes('not modified')) {
           await ctx.reply(text, options);
         }

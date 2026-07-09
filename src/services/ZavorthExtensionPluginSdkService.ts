@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -506,7 +506,7 @@ function normalizeId(value: unknown): string | null {
 function parseJson(value: string): ZavorthExtensionPluginManifest | null {
   try {
     return JSON.parse(value) as ZavorthExtensionPluginManifest;
-  } catch (error) { logger.warn('[Zavorth Extension Plugin Sdk] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Extension Plugin Sdk] JSON parse failed', error); return null; }
 }
 
 function sampleManifest(): ZavorthExtensionPluginManifest {

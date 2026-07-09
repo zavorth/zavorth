@@ -55,7 +55,7 @@ export class MinimalRuntimeEventBus {
     for (const listener of listeners) {
       try {
         await listener(event);
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         this.failedDeliveries += 1;
       }
     }

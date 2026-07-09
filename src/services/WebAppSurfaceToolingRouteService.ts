@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import type { WebAppSurfaceRouteDeps } from './WebAppSurfaceRouteService.js';
 type SurfaceToolingDynamic = any;
 
@@ -84,7 +84,7 @@ export class WebAppSurfaceToolingRouteService {
           result,
           plugins: deps.pluginRegistry.buildSnapshot({ selectedId: pluginId }),
         }, 200);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao do plugin plane.' }, 400);
       }
       return true;
@@ -134,7 +134,7 @@ export class WebAppSurfaceToolingRouteService {
             ? deps.pluginRegistry.buildSnapshot({ selectedId: entryId.replace(/^plugin:/i, '') })
             : null,
         }, 200);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao do platform plane.' }, 400);
       }
       return true;
@@ -157,7 +157,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao sincronizar o platform plane.' }, 400);
       }
       return true;
@@ -193,7 +193,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           result.ok ? 200 : 400,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao publicar no platform plane.' }, 400);
       }
       return true;
@@ -244,7 +244,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           run.ok ? 200 : 409,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar o hook plane.' }, 400);
       }
       return true;
@@ -340,7 +340,7 @@ export class WebAppSurfaceToolingRouteService {
           action,
           trustPlane: action?.snapshot || deps.trustPlane.buildSnapshot(),
         }, action?.status === 'waiting_approval' ? 202 : 200);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao agir no Trust Plane.' }, 400);
       }
       return true;
@@ -399,7 +399,7 @@ export class WebAppSurfaceToolingRouteService {
           workspace: deps.workspaceRoot,
         });
         deps.writeJson(res, { ok: true, ...result }, result?.action?.status === 'started' ? 202 : 200);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao guiada do tenant.' }, 400);
       }
       return true;
@@ -441,7 +441,7 @@ export class WebAppSurfaceToolingRouteService {
         });
 
         deps.writeJson(res, { ok: true, ...result }, 202);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao do Agent OS.' }, 400);
       }
       return true;
@@ -463,7 +463,7 @@ export class WebAppSurfaceToolingRouteService {
 
         const action = deps.operationsActions.execute(actionId);
         deps.writeJson(res, { ok: true, action, accepted: action.status === 'started' }, action.status === 'started' ? 202 : 500);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao iniciar acao operacional.' }, 400);
       }
       return true;
@@ -500,7 +500,7 @@ export class WebAppSurfaceToolingRouteService {
           forceRepair: body?.forceRepair === true,
         });
         deps.writeJson(res, { ok: mobileAccess.ok, mobileAccess }, mobileAccess.ok ? 200 : 409);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao iniciar o acesso movel do ZavorthBridge.' }, 400);
       }
       return true;
@@ -517,7 +517,7 @@ export class WebAppSurfaceToolingRouteService {
           requestedBy: deps.runtime?.webUserId || 'web-user',
         });
         deps.writeJson(res, { ok: true, mobileAccess }, 200);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao encerrar o acesso movel do ZavorthBridge.' }, 400);
       }
       return true;
@@ -541,7 +541,7 @@ export class WebAppSurfaceToolingRouteService {
       try {
         const report = await deps.AIGatewayCompatibilityDoctor.run();
         deps.writeJson(res, { ok: report.ok, report }, report.ok ? 200 : 409);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao rodar o doctor do AIGateway.' }, 400);
       }
       return true;
@@ -589,7 +589,7 @@ export class WebAppSurfaceToolingRouteService {
         }
 
         deps.writeJson(res, { ok: report.ok, report }, report.ok ? 200 : 409);
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao operar o AIGateway.' }, 400);
       }
       return true;
@@ -645,7 +645,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao preparar a integracao.' }, 400);
       }
       return true;
@@ -680,7 +680,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           action.status === 'started' ? 202 : 200,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao executar a acao guiada.' }, 400);
       }
       return true;
@@ -726,7 +726,7 @@ export class WebAppSurfaceToolingRouteService {
           },
           200,
         );
-      } catch (error: SurfaceToolingDynamic) {
+      } catch (error: any) {
         deps.writeJson(res, { ok: false, error: error?.message || 'Falha ao aplicar o perfil de provider.' }, 400);
       }
       return true;

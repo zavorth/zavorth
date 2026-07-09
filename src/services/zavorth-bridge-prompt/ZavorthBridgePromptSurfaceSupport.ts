@@ -1,4 +1,4 @@
-import { config } from '../../config/index.js';
+﻿import { config } from '../../config/index.js';
 import type { ZavorthBridgeCompanionBridge } from '../../agents/ZavorthBridgeCompanionBridge.js';
 import type { ZavorthBridgeUiSnapshot } from '../ZavorthBridgeUiCaptureService.js';
 import {
@@ -160,7 +160,7 @@ export class ZavorthBridgePromptSurfaceSupport {
           promptSurfaceReady: ready,
         },
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,
@@ -200,7 +200,7 @@ export class ZavorthBridgePromptSurfaceSupport {
           recoveryAttempted: true,
         },
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Bridge Prompt Surface] operation failed', error);
     return {
         ready: false,

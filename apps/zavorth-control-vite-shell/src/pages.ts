@@ -5,6 +5,8 @@
  */
 import { CONTROL_LOCALES, readControlLocalePreference } from './locale';
 import { initLearningDreamsUi } from './learning-dreams-ui';
+import { initMemoryBrowserUi } from './memory-browser-ui';
+import { initPolicySimulatorUi } from './policy-simulator-ui';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
 
 declare global {
@@ -19,13 +21,49 @@ declare global {
 export function initControlPages() {
 
   populate('sector-overview', `
-    <div class="daily-page daily-page--work" data-zavorth-premium-dashboard-v2>
-      ${dailyHeader('Work', 'Current run and anything that needs your attention.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>')}
+    <div class="daily-page daily-page--work dashboard-glass" data-zavorth-premium-dashboard-v2>
+      ${dailyHeader('Work', '', `
+        <button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>
+        <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
+        <button class="daily-button" type="button" data-dashboard-sector="instances">Receipts</button>
+        <button class="daily-button" type="button" data-dashboard-prompt="Run doctor health check. Show only missing setup, failed routes, and the next fix.">Doctor</button>
+      `)}
+      <section class="daily-panel daily-panel--attention" aria-label="Attention">
+        <div class="daily-panel__head">
+          <div><span>Attention</span><h2 data-dashboard-approval-title>Nothing needs you</h2></div>
+          <button class="daily-button" type="button" data-dashboard-sector="sales-os">Review</button>
+        </div>
+        <div data-attention-list class="daily-list">
+          <p class="daily-muted">Nothing needs you</p>
+        </div>
+      </section>
+      <section class="daily-action-row" aria-label="Primary actions">
+        <button type="button" data-dashboard-sector="terminal">New chat</button>
+        <button type="button" data-dashboard-sector="sales-os">Approvals</button>
+        <button type="button" data-dashboard-sector="instances">Receipts</button>
+        <button type="button" data-dashboard-sector="channels">Channels</button>
+        <button type="button" data-dashboard-sector="usage">Models</button>
+      </section>
       <section class="daily-stat-row daily-stat-row--compact" aria-label="Work status">
-        ${dailyMetric('Status', '<span data-live-runtime-state>Ready</span>', '<span data-live-runtime-detail>No active run</span>')}
-        ${dailyMetric('Input', '<span data-live-gateway-state>Local</span>', '<span data-live-gateway-detail>Web and terminal</span>')}
-        ${dailyMetric('Mode', '<span data-runtime-engine-active>Lite</span>', 'Configured route')}
-        ${dailyMetric('Approvals', '0', 'Nothing pending')}
+        ${dailyMetric('Status', '<span data-live-runtime-state>Ready</span>', '<span data-live-runtime-detail>Idle</span>')}
+        ${dailyMetric('Approvals pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">None</span>')}
+        ${dailyMetric('Receipts', '<span data-dashboard-metric="receipts">0</span>', '<span data-inbox-metric="receipts">0</span>')}
+        ${dailyMetric('Errors', '<span data-dashboard-metric="errors">0</span>', 'Trace')}
+        ${dailyMetric('Trust', '<span id="session-trust-score" class="session-trust-score" data-session-trust-score><strong data-session-trust-value>100</strong> <span data-session-trust-label>Governed</span></span>', 'Session')}
+      </section>
+      <section class="workboard-lite" data-workboard-lite aria-label="Workboard">
+        <div class="workboard-lite__col" data-workboard-col="pending">
+          <h3>Pending</h3>
+          <ul data-workboard-list="pending"><li class="daily-muted">—</li></ul>
+        </div>
+        <div class="workboard-lite__col" data-workboard-col="running">
+          <h3>Running</h3>
+          <ul data-workboard-list="running"><li class="daily-muted">—</li></ul>
+        </div>
+        <div class="workboard-lite__col" data-workboard-col="done">
+          <h3>Done</h3>
+          <ul data-workboard-list="done"><li class="daily-muted">—</li></ul>
+        </div>
       </section>
       <div class="agent-os-live-summary" hidden aria-hidden="true">Runtime summary is available to the live bridge.</div>
       <section class="daily-layout daily-layout--main" aria-label="Work overview">
@@ -33,12 +71,18 @@ export function initControlPages() {
           <div class="daily-panel__head">
             <div>
               <span>Now</span>
-              <h2 data-dashboard-runtime-title>No active work</h2>
+              <h2 data-dashboard-runtime-title>No task running</h2>
             </div>
-            <button class="daily-button" type="button" data-dashboard-sector="terminal">Ask</button>
+            <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
           </div>
-          <p class="daily-muted" data-dashboard-runtime-text>Ready for a new request.</p>
-          <details class="daily-disclosure daily-disclosure--quiet" open>
+          <p class="daily-muted" data-dashboard-runtime-text>Ready.</p>
+          <div class="zavorth-gantt-chart" data-dashboard-timeline aria-label="Runtime trace timeline">
+            <div class="zavorth-gantt-empty">
+              <span class="zavorth-gantt-empty-dot"></span>
+              <span>No trace yet.</span>
+            </div>
+          </div>
+          <details class="daily-disclosure daily-disclosure--quiet">
             <summary>Logs</summary>
             <div class="zavorth-console-panel daily-console">
               <div class="zavorth-console-header">
@@ -55,32 +99,28 @@ export function initControlPages() {
               </div>
             </div>
           </details>
-          <details class="daily-disclosure daily-disclosure--quiet">
-            <summary>Trace timeline</summary>
-            <div class="zavorth-gantt-chart" data-dashboard-timeline aria-label="Runtime trace timeline">
-              <div class="zavorth-gantt-empty">
-                <span class="zavorth-gantt-empty-dot"></span>
-                <span>No trace yet.</span>
-              </div>
-            </div>
-          </details>
         </article>
         <aside class="daily-stack">
           <article class="daily-panel">
-            <div class="daily-panel__head">
-              <div><span>Approvals</span><h2 data-dashboard-approval-title>Nothing to approve</h2></div>
-              <button class="daily-button" type="button" data-dashboard-sector="sales-os">Open</button>
-            </div>
-            <p class="daily-muted" data-dashboard-approval-text>No decision is waiting for you.</p>
-          </article>
-          <article class="daily-panel">
-            <div class="daily-panel__head"><div><span>Useful status</span><h2>System</h2></div></div>
+            <div class="daily-panel__head"><div><span>System</span><h2>Connection</h2></div></div>
             <div class="daily-key-value">
-              ${dailyKeyValue('Dashboard', 'Online')}
-              ${dailyKeyValue('Background', '<span data-live-sync-state>Idle</span>')}
-              ${dailyKeyValue('Last sync', '<span data-live-sync-detail>Starting</span>')}
-              ${dailyKeyValue('Autonomy', 'Quiet')}
+              ${dailyKeyValue('Runtime', '<span data-live-runtime-state>Ready</span>')}
+              ${dailyKeyValue('Gateway', '<span data-live-gateway-state>Local</span>')}
+              ${dailyKeyValue('Route', '<span data-live-gateway-detail>Web</span>')}
+              ${dailyKeyValue('Sync', '<span data-live-sync-detail>Starting</span>')}
+              ${dailyKeyValue('Mode', '<span data-runtime-engine-active>Lite</span>')}
             </div>
+            <p class="daily-muted" hidden data-dashboard-approval-text>Nothing pending.</p>
+          </article>
+          <article class="daily-panel" data-policy-simulator>
+            <div class="daily-panel__head"><div><span>Policy</span><h2>Simulator</h2></div></div>
+            <div class="policy-sim-row">
+              <input type="text" data-policy-sim-input placeholder="What if I ask..." aria-label="Policy what-if prompt" autocomplete="off">
+              <button class="daily-button" type="button" data-policy-sim-run>Simulate</button>
+            </div>
+            <ul class="policy-sim-results" data-policy-sim-results>
+              <li class="daily-muted">Predicted gates appear here.</li>
+            </ul>
           </article>
         </aside>
       </section>
@@ -89,25 +129,25 @@ export function initControlPages() {
 
   populate('sector-channels', `
     <div class="daily-page">
-      ${dailyHeader('Channels', 'Connect remote inboxes for requests and approved replies.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Connect a channel. Show only missing credentials and the next setup step.">Connect</button><button class="daily-button" type="button" data-dashboard-prompt="Test configured channels and show only failures or missing credentials.">Test</button>')}
+      ${dailyHeader('Channels', '', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Connect a channel. Show only missing credentials and the next setup step.">Connect</button><button class="daily-button" type="button" data-dashboard-prompt="Test configured channels and show only failures or missing credentials.">Test</button>')}
       <section class="daily-stat-row daily-stat-row--compact" aria-label="Channel status">
-        ${dailyMetric('Connected', 'Local', 'Web and terminal')}
-        ${dailyMetric('Remote', 'Optional', 'Token or webhook')}
-        ${dailyMetric('Last message', 'None', 'No remote activity')}
+        ${dailyMetric('Connected', 'Local', 'Web / terminal')}
+        ${dailyMetric('Remote', 'Optional', 'Token / webhook')}
+        ${dailyMetric('Last message', 'None', '—')}
       </section>
       <section class="daily-panel daily-panel--list daily-panel--flush">
         <div class="daily-panel__head">
-          <div><span>Channels</span><h2>Available routes</h2></div>
+          <div><span>Channels</span><h2>Routes</h2></div>
         </div>
         <div class="daily-list daily-list--compact">
-          ${channelRow('Dashboard', 'Local chat', 'Ready', 'ok', 'Open', 'Details', 'Open the local dashboard chat.')}
-          ${channelRow('Telegram', 'Bot token', 'Set up', 'warn', 'Connect', 'Details', 'Connect Telegram with a bot token and editable progress replies.')}
-          ${channelRow('Discord', 'Bot or app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Discord for workspace chat.')}
-          ${channelRow('Slack', 'Workspace app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Slack for team requests.')}
-          ${channelRow('WhatsApp', 'Bridge or webhook', 'Set up', 'warn', 'Connect', 'Details', 'Connect WhatsApp through a configured bridge.')}
-          ${channelRow('Email', 'Mailbox route', 'Set up', 'warn', 'Connect', 'Details', 'Connect an email inbox for governed requests.')}
-          ${channelRow('Signal', 'Local bridge', 'Set up', 'warn', 'Connect', 'Details', 'Connect Signal through a local bridge.')}
-          ${channelRow('Teams', 'Microsoft app', 'Set up', 'warn', 'Connect', 'Details', 'Connect Microsoft Teams for approved team replies.')}
+          ${channelRow('Dashboard', 'Local', 'Ready', 'ok', 'Open', 'Test', 'Open the local dashboard chat.')}
+          ${channelRow('Telegram', 'Bot token', 'Set up', 'warn', 'Connect', 'Test', 'Connect Telegram. Show only missing credentials.')}
+          ${channelRow('Discord', 'Bot / app', 'Set up', 'warn', 'Connect', 'Test', 'Connect Discord. Show only missing credentials.')}
+          ${channelRow('Slack', 'Workspace', 'Set up', 'warn', 'Connect', 'Test', 'Connect Slack. Show only missing credentials.')}
+          ${channelRow('WhatsApp', 'Bridge', 'Set up', 'warn', 'Connect', 'Test', 'Connect WhatsApp. Show only missing credentials.')}
+          ${channelRow('Email', 'Mailbox', 'Set up', 'warn', 'Connect', 'Test', 'Connect email. Show only missing credentials.')}
+          ${channelRow('Signal', 'Bridge', 'Set up', 'warn', 'Connect', 'Test', 'Connect Signal. Show only missing credentials.')}
+          ${channelRow('Teams', 'App', 'Set up', 'warn', 'Connect', 'Test', 'Connect Teams. Show only missing credentials.')}
         </div>
       </section>
     </div>
@@ -115,80 +155,81 @@ export function initControlPages() {
 
   populate('sector-sales-os', `
     <div class="daily-page">
-      ${dailyHeader('Approvals', 'Only decisions that need you stop here.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Show pending approvals with approve, reject and limit controls.">Review</button>')}
-      <section class="daily-stat-row" aria-label="Approval status">
-        ${dailyMetric('Pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">No pending approval</span>')}
-        ${dailyMetric('Receipts', 'On', 'Every decision')}
-        ${dailyMetric('Risky work', 'Gated', 'Preview first')}
+      ${dailyHeader('Approvals', '', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Show pending approvals with approve, reject and limit controls.">Review</button>')}
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Approval status">
+        ${dailyMetric('Pending', '<span data-sales-os-metric="approvals">0</span>', '<span data-sales-os-meta="approvals">None</span>')}
       </section>
       <section class="daily-panel daily-panel--primary">
         <div class="daily-panel__head">
           <div><span>Queue</span><h2 data-dashboard-approval-title>No decision waiting</h2></div>
           <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
         </div>
-        <p class="daily-muted" data-dashboard-approval-text>Approval cards appear here when a request can change files, policy, channels or external state.</p>
+        <div data-approvals-queue class="daily-list">
+          <p class="daily-muted" data-dashboard-approval-text>Nothing pending.</p>
+          <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+        </div>
       </section>
     </div>
   `);
 
   populate('sector-instances', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>History</span>
-          <h1 class="premium-title">Proof, not mystery logs.</h1>
-          <p class="premium-subtitle">See what ran, what was blocked, which approval authorized it and what can be rolled back.</p>
+    <div class="daily-page">
+      ${dailyHeader('Receipts', '', `
+        <button class="daily-button daily-button--primary" type="button" data-export-receipts data-dashboard-prompt="Export recent receipts and run history.">Export</button>
+        <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
+      `)}
+      <section class="daily-panel daily-panel--primary">
+        <div class="daily-panel__head">
+          <div><span>History</span><h2 data-history-title>No completed work yet</h2></div>
         </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Show recent history and summarize what happened in plain English.">Summarize history</button>
-      </section>
-      <section class="premium-layout premium-layout--wide-right">
-        <article class="premium-panel">
-          <div class="premium-panel__header"><div><span>Recent work</span><h2 data-history-title>No completed work yet</h2></div><span class="dashboard-pill">evidence</span></div>
-          <p data-history-summary>After a mission, this area shows requests, tool calls, approvals, files touched, blocked risks and rollback notes.</p>
-          <div class="receipt-story-grid">
-            ${receiptStory('What changed', 'No mutation recorded yet.')}
-            ${receiptStory('Why', 'The reason will cite the original user request and policy route.')}
-            ${receiptStory('Review', 'Receipts can be searched, replayed or opened from the composer History button.')}
-            ${receiptStory('Undo', 'Rollback guidance appears when the action supports it.')}
-          </div>
-        </article>
-        <article class="premium-panel premium-panel--table">
-          <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Source</th><th>Artifacts</th><th>Decision</th><th>Updated</th><th>Status</th></tr></thead><tbody>
-            <tr><td class="mono">none yet</td><td>Web</td><td>0</td><td>Ask Zavorth first</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
-          </tbody></table></div>
-        </article>
+        <p class="daily-muted" data-history-summary hidden></p>
+        <div class="data-table-wrap" data-receipts-list>
+          <table class="data-table">
+            <thead>
+              <tr><th>Item</th><th>Source</th><th>Artifacts</th><th>Decision</th><th>Updated</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">none yet</td><td>Web</td><td>0</td><td>—</td><td>-</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   `);
 
   populate('sector-sessions', `
-    <div class="premium-page">
-      <section class="premium-hero premium-hero--compact">
-        <div>
-          <span class="dashboard-eyebrow"><span class="dashboard-live-dot"></span>History</span>
-          <h1 class="premium-title">Past work stays readable.</h1>
-          <p class="premium-subtitle">Sessions, handoffs and receipts appear as a timeline instead of raw runtime noise.</p>
-        </div>
-        <button class="operator-primary-action" type="button" data-dashboard-prompt="Summarize my recent sessions and what still needs attention.">Summarize history</button>
+    <div class="daily-page">
+      ${dailyHeader('Sessions', '', '<button class="daily-button daily-button--primary" type="button" data-dashboard-sector="terminal">Open chat</button>')}
+      <section class="daily-toolbar" aria-label="Session filters">
+        <input type="search" placeholder="Search sessions" aria-label="Search sessions" data-session-search>
       </section>
-      <div class="data-table-wrap"><table class="data-table"><thead><tr><th>Session</th><th>Channel</th><th>Events</th><th>Receipts</th><th>Status</th></tr></thead><tbody>
-        <tr><td class="mono">main</td><td>Web</td><td>0</td><td>0</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
-      </tbody></table></div>
+      <section class="daily-panel daily-panel--flush">
+        <div class="data-table-wrap">
+          <table class="data-table" data-sessions-table>
+            <thead>
+              <tr><th>Session</th><th>Channel</th><th>Events</th><th>Receipts</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="mono">main</td><td>Web</td><td>0</td><td>0</td><td><span class="badge badge--info"><span class="badge__dot"></span>Waiting</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   `);
 
   populate('sector-usage', `
     <div class="daily-page">
-      ${dailyHeader('Models', 'Choose, test and inspect AI routes.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Test the active provider route with a sanitized request.">Test route</button>')}
-      <section class="daily-stat-row" aria-label="Model status">
-        ${dailyMetric('Active route', 'Auto', '<span data-provider-picker="active">Configured route</span>')}
-        ${dailyMetric('Fallbacks', '<span data-provider-picker="fallbacks">Live routes</span>', 'Used only when ready')}
-        ${dailyMetric('Proof', '<span data-provider-picker="proof">Sanitized</span>', 'Secrets hidden')}
+      ${dailyHeader('Models', '', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Test the active provider route with a sanitized request.">Test route</button>')}
+      <section class="daily-stat-row daily-stat-row--compact" aria-label="Model status">
+        ${dailyMetric('Active route', 'Auto', '<span data-provider-picker="active">Configured</span>')}
+        ${dailyMetric('Fallbacks', '<span data-provider-picker="fallbacks">Live</span>', 'Ready routes')}
+        ${dailyMetric('Proof', '<span data-provider-picker="proof">Sanitized</span>', 'Redacted')}
       </section>
       <section class="daily-panel daily-panel--list daily-panel--flush">
         <div class="daily-panel__head">
-          <div><span>Provider catalog</span><h2>Routes</h2></div>
-          <button class="daily-button" type="button" data-dashboard-prompt="Explain the current AI model, provider route, fallback, and anything that still needs setup.">Details</button>
+          <div><span>Catalog</span><h2>Routes</h2></div>
+          <button class="daily-button" type="button" data-dashboard-prompt="Show the active model route, fallback, and anything that still needs setup.">Details</button>
         </div>
         <div class="daily-provider-summary" data-provider-model-catalog-summary>
           <div class="info-row"><span class="info-row__label">Routes</span><span class="info-row__value mono">loading</span></div>
@@ -303,16 +344,44 @@ export function initControlPages() {
 
   populate('sector-nodes', `
     <div class="daily-page">
-      ${dailyHeader('Memory', 'Search, correct and forget what Zavorth remembers.', '<button class="daily-button daily-button--primary" type="button" data-dashboard-prompt="Search Zavorth memory and show facts with provenance.">Search</button>')}
+      ${dailyHeader('Memory', '', '<button class="daily-button daily-button--primary" type="button" data-prompt="Search Zavorth memory and show facts with provenance.">Search</button>')}
       <section class="daily-panel daily-panel--search">
-        <input type="search" placeholder="Search memory" aria-label="Search memory">
-        <button class="daily-button" type="button" data-dashboard-prompt="Search Zavorth memory for the typed topic and show provenance.">Search</button>
+        <input type="search" placeholder="Search memory" aria-label="Search memory" data-memory-search>
+        <button class="daily-button" type="button" data-memory-search-run data-prompt="Search Zavorth memory for the typed topic and show provenance.">Search</button>
       </section>
       <section class="daily-action-row" aria-label="Memory actions">
-        <button type="button" data-dashboard-prompt="Recall useful memory with provenance.">Recall</button>
-        <button type="button" data-dashboard-prompt="Forget a memory fact by id with receipt.">Forget</button>
-        <button type="button" data-dashboard-prompt="Correct a memory fact with receipt.">Correct</button>
-        <button type="button" data-dashboard-prompt="Promote a repeated pattern into a rule after approval.">Promote</button>
+        <button type="button" data-prompt="Search Zavorth memory and show facts with provenance.">Search</button>
+        <button type="button" data-prompt="Forget a memory fact by id with receipt.">Forget</button>
+        <button type="button" data-prompt="Correct a memory fact with receipt.">Correct</button>
+      </section>
+      <section class="daily-panel daily-panel--list daily-panel--flush" aria-label="Memory browser">
+        <div class="daily-panel__head"><div><span>Mnemos</span><h2>Facts</h2></div></div>
+        <ul class="memory-browser-list" data-memory-list>
+          <li class="memory-browser-item" data-memory-item data-memory-search-text="facts provenance trust vault">
+            <strong>Facts</strong><span>Provenance / trust</span>
+            <div class="memory-browser-actions">
+              <button type="button" data-prompt="Search Zavorth memory and show facts with provenance.">Search</button>
+              <button type="button" data-prompt="Forget a memory fact by id with receipt.">Forget</button>
+              <button type="button" data-prompt="Correct a memory fact with receipt.">Correct</button>
+            </div>
+          </li>
+          <li class="memory-browser-item" data-memory-item data-memory-search-text="recall local search mnemos fts">
+            <strong>Recall</strong><span>Local search</span>
+            <div class="memory-browser-actions">
+              <button type="button" data-prompt="Recall useful memory with provenance.">Search</button>
+              <button type="button" data-prompt="Forget a memory fact by id with receipt.">Forget</button>
+              <button type="button" data-prompt="Correct a memory fact with receipt.">Correct</button>
+            </div>
+          </li>
+          <li class="memory-browser-item" data-memory-item data-memory-search-text="folders workspaces scope">
+            <strong>Folders</strong><span>Allowed scope</span>
+            <div class="memory-browser-actions">
+              <button type="button" data-prompt="Show trusted folder scopes for memory.">Search</button>
+              <button type="button" data-prompt="Forget a memory fact by id with receipt.">Forget</button>
+              <button type="button" data-prompt="Correct a memory fact with receipt.">Correct</button>
+            </div>
+          </li>
+        </ul>
       </section>
       <section class="daily-layout daily-layout--main">
         <article class="daily-panel daily-panel--primary">
@@ -337,7 +406,6 @@ export function initControlPages() {
               <div class="zavorth-memory-inspection-body" id="zavorth-memory-inspection-body">
                 <div class="zavorth-memory-inspection-empty">
                   <span>Select a scope</span>
-                  <p>Facts, folders and linked agents appear here.</p>
                 </div>
               </div>
             </div>
@@ -371,8 +439,8 @@ export function initControlPages() {
 
   populate('sector-dreams', `
     <div class="daily-page learning-page" data-learning-dreams-root>
-      ${dailyHeader('Learning', 'Review memory and skill suggestions before they change future behavior.', '<button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>')}
-      <div class="learning-loading">Checking learning...</div>
+      ${dailyHeader('Learning', '', '<button class="daily-button daily-button--primary" type="button" data-learning-refresh>Refresh</button>')}
+      <div class="learning-loading">Loading candidates…</div>
     </div>
   `);
 
@@ -552,6 +620,8 @@ export function initControlPages() {
   bindSkillFilters();
   bindLocaleSettings();
   initRuntimeEngineUi();
+  initPolicySimulatorUi();
+  initMemoryBrowserUi();
   normalizeStaticEmptyStates();
   window.ZavorthLocale?.apply();
 
@@ -563,8 +633,29 @@ export function initControlPages() {
   function normalizeStaticEmptyStates() {
     const memoryEmpty = document.querySelector('#zavorth-memory-inspection-body .zavorth-memory-inspection-empty');
     if (memoryEmpty) {
-      memoryEmpty.innerHTML = '<span>Select a memory scope</span><p>Inspect facts, recall local memory, review trusted folders, or check connected agents.</p>';
+      memoryEmpty.innerHTML = '<span>Select a scope</span>';
     }
+  }
+
+  // Support compact data-prompt buttons (Memory browser + elsewhere) alongside data-dashboard-prompt.
+  if (document.documentElement.dataset.zavorthDataPromptBound !== '1') {
+    document.documentElement.dataset.zavorthDataPromptBound = '1';
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest?.('[data-dashboard-prompt]')) return;
+      const promptButton = target?.closest?.('[data-prompt]');
+      if (!promptButton || promptButton.closest('#neural-feed, .compose-dock, #suggestion-chips')) return;
+      const prompt = promptButton.getAttribute('data-prompt') || '';
+      if (!prompt) return;
+      event.preventDefault();
+      const input = document.getElementById('compose-input');
+      document.querySelector('[data-sector="terminal"]')?.click();
+      if (input instanceof HTMLTextAreaElement || input instanceof HTMLInputElement) {
+        input.value = prompt;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+      }
+    });
   }
 
   function bindPromptActions() {
@@ -656,7 +747,7 @@ export function initControlPages() {
       <div>
         <span class="daily-kicker"><span class="dashboard-live-dot"></span>${title}</span>
         <h1>${title}</h1>
-        <p>${subtitle}</p>
+        ${subtitle ? `<p>${subtitle}</p>` : ''}
       </div>
       ${actions ? `<div class="daily-header__actions">${actions}</div>` : ''}
     </section>`;

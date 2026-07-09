@@ -1,4 +1,4 @@
-import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
+﻿import { ArtifactPipelineService } from '../runtime/artifacts/ArtifactPipelineService.js';
 import type { PermissionRequest } from '../contracts/PermissionRequest.js';
 import type { Task } from '../contracts/TaskContract.js';
 import type { WebComposerMention } from '../contracts/WebComposer.js';
@@ -137,7 +137,7 @@ export class ComposerActionService {
         taskId: permission.task_id || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Composer Action] path resolution failed', error);
     return this.finishWithError(
         sessionId,
@@ -222,7 +222,7 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Composer Action] load operation failed', error);
     return this.finishWithError(
         sessionId,
@@ -266,7 +266,7 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Composer Action] lifecycle operation failed', error);
     return this.finishWithError(
         sessionId,
@@ -309,7 +309,7 @@ export class ComposerActionService {
         taskId: String(actionMention.payload?.taskId || '').trim() || null,
         snapshot: await this.realtime.getResolvedSnapshot(sessionId),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Composer Action] resource cleanup failed', error);
     return this.finishWithError(
         sessionId,

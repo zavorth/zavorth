@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../config/index.js';
 import { spawnNativeCommand } from '../core/CommandSpawn.js';
 import { logger } from '../logger.js';
@@ -92,7 +92,7 @@ export class ZavorthGatewayLauncherService {
         },
       });
       return response.ok;
-    } catch (error) { logger.warn('[Zavorth way Launcher] network request failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth way Launcher] network request failed', error); return false; }
   }
 
   private isPidAlive(pid: number | null): boolean {
@@ -102,6 +102,6 @@ export class ZavorthGatewayLauncherService {
     try {
       process.kill(pid, 0);
       return true;
-    } catch (error) { logger.warn('[Zavorth way Launcher] process signal failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth way Launcher] process signal failed', error); return false; }
   }
 }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
 
@@ -71,7 +71,7 @@ export function listInstances(homeRoot: string): InstanceInfo[] {
           results.push(buildInstanceInfo(path.join(instancesDir, entry.name), entry.name));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[ZavorthInstance] Failed to read instances directory', error);
     }
   }
@@ -154,13 +154,19 @@ function buildInstanceInfo(instanceDir: string, name: string): InstanceInfo {
       try {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         createdAt = meta.createdAt || null;
-      } catch (error) { // ignore logger.warn('[Zavorth Instance] JSON parse failed', error); }
+      } catch (error: any) {
+      // ignore
+      logger.warn('[Zavorth Instance] JSON parse failed', error);
+    }
     }
     if (!createdAt) {
       try {
         const stat = fs.statSync(instanceDir);
         createdAt = stat.birthtime?.toISOString() || stat.mtime.toISOString();
-      } catch (error) { // ignore logger.warn('[Zavorth Instance] JSON parse failed', error); }
+      } catch (error: any) {
+      // ignore
+      logger.warn('[Zavorth Instance] JSON parse failed', error);
+    }
     }
   }
 

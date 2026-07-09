@@ -59,7 +59,7 @@ export class EchoExecutionLedgerService {
         this.entries.length,
         ...records.map((entry): EchoExecutionEntry => this.clone(entry as EchoExecutionEntry)).slice(-this.maxEntries),
       );
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       this.entries.splice(0, this.entries.length);
     }
   }
@@ -76,6 +76,9 @@ export class EchoExecutionLedgerService {
         JSON.stringify({ entries: this.entries.slice(-this.maxEntries) }, null, 2),
         'utf8',
       );
-    } catch (error) { // Persistence is best-effort; callers still receive the in-process ledger. logger.warn('[Execution Ledger] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Persistence is best-effort; callers still receive the in-process ledger.
+      logger.warn('[Execution Ledger] filesystem operation failed', error);
+    }
   }
 }

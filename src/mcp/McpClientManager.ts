@@ -139,7 +139,7 @@ export class McpClientManager {
     logger.info(`[MCP] Desconectando servidor ${this.name}...`);
     try {
       await this.transport.close();
-    } catch (e: any) {
+    } catch (e: any) { const error = e; const err = e;
       logger.error(`[MCP] Erro desconectando transport: ${e.message}`);
     }
   }

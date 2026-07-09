@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+﻿import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/index.js';
@@ -95,7 +95,7 @@ export class ArtifactDiffService {
         processedAt,
         error: null,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Artifact Diff] operation failed', error);
     return {
         ok: false,

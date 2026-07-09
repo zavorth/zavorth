@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   try {
     return NextResponse.json(getBackgroundDegradationConfig());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/background-degradation GET:", error);
     return NextResponse.json({ error: "Failed to get config" }, { status: 500 });
   }
@@ -38,7 +38,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] array operation failed', error);
     return NextResponse.json(
       {
@@ -65,7 +65,7 @@ export async function PUT(request) {
     await updateSettings({ backgroundDegradation: JSON.stringify(persistable) });
 
     return NextResponse.json({ success: true, ...getBackgroundDegradationConfig() });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/background-degradation PUT:", error);
     return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -108,7 +108,7 @@ export async function POST(request) {
       return NextResponse.json({ success: true, stats: getBackgroundDegradationConfig().stats });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/settings/background-degradation POST:", error);
     return NextResponse.json({ error: "Failed to execute action" }, { status: 500 });
   }

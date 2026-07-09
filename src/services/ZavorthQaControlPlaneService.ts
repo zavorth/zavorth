@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { ArchitectureRefactorScorecardService, type ArchitectureRefactorSnapshot } from '../observability/ArchitectureRefactorScorecardService.js';
@@ -604,7 +604,7 @@ export class ZavorthQaControlPlaneService {
     }
     try {
       return JSON.parse(this.readFileSync(filePath, 'utf8')) as T;
-    } catch (error) { logger.warn('[Zavorth Qa Control Plane] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Qa Control Plane] JSON parse failed', error); return null; }
   }
 
   private normalizeTimestamp(value: string | null | undefined): string | null {

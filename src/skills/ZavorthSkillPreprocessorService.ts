@@ -159,7 +159,7 @@ export class ZavorthSkillPreprocessorService {
     if (!this.database) {
       try {
         this.database = await Database.getInstance();
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn('[ZavorthSkillPreprocessorService] Database.getInstance() failed, proceeding with fallback config lookup only.', err);
       }
     }
@@ -194,7 +194,7 @@ export class ZavorthSkillPreprocessorService {
             configKeys = [parsed.config_keys];
           }
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn('[ZavorthSkillPreprocessorService] Frontmatter parsing failed:', err);
       }
     }
@@ -274,7 +274,7 @@ export class ZavorthSkillPreprocessorService {
             allowed: true,
             output: trimmedOutput,
           });
-        } catch (err: any) {
+        } catch (err: any) { const error = err; const e = err;
           const errMsg = err?.message || String(err);
           finalBody += `[Error: ${errMsg}]`;
 
@@ -338,7 +338,7 @@ export class ZavorthSkillPreprocessorService {
         if (stateMetaRow && stateMetaRow.value_json) {
           return JSON.parse(String(stateMetaRow.value_json));
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in zavorth_state_meta:`, err);
       }
 
@@ -359,7 +359,7 @@ export class ZavorthSkillPreprocessorService {
         if (fallbackMemoryRow && fallbackMemoryRow.value !== undefined) {
           return fallbackMemoryRow.value;
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in user_memory:`, err);
       }
 
@@ -371,7 +371,7 @@ export class ZavorthSkillPreprocessorService {
         if (snippetRow && snippetRow.content !== undefined) {
           return snippetRow.content;
         }
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         logger.warn(`[ZavorthSkillPreprocessorService] Error looking up key "${key}" in snippets:`, err);
       }
     }
@@ -468,7 +468,7 @@ export class ZavorthSkillPreprocessorService {
       lines.push(']');
 
       return content + '\n' + lines.join('\n');
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return content;
     }
   }
@@ -529,7 +529,7 @@ export class ZavorthSkillPreprocessorService {
         }
 
         return output || `[Zavorth capability execution finished with exit code ${result.status}]`;
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         return `[Zavorth capability evaluation error: ${err.message}]`;
       }
     });

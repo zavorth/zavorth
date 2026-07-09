@@ -508,6 +508,8 @@
     "qa:zavorthControl-provider-cockpit-visual": "npx tsx scripts/zavorthControl-provider-cockpit-visual-qa.ts --require-pass",
     "qa:zavorthControl-provider-cockpit-live": "npx tsx scripts/zavorthControl-provider-cockpit-live-smoke.ts --require-pass",
     "build": "npm run runtime:build --silent && npm run surfaces:check --silent && npm run product:launchers:build --silent",
+    "compile": "node scripts/zavorth-compile.mjs",
+    "compile:check": "node scripts/zavorth-compile.mjs --check",
     "typecheck:root": "node scripts/run-root-typecheck.mjs",
     "test": "node scripts/run-jest-ci-groups.mjs",
     "test:ci": "node scripts/run-jest-ci-groups.mjs",

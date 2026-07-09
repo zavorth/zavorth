@@ -88,7 +88,7 @@ async function assertSafeHttpTargetAllowed(
     let parsed: URL;
     try {
       parsed = new URL(rawUrl);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       const decision = decideSecurityPolicy({
         surface: 'web-fetch',
         operation: 'parse_url',
@@ -135,7 +135,7 @@ async function assertSafeHttpTargetAllowed(
       reasons: [`${serviceName} target passed DNS/IP egress policy.`],
     });
     return parsed;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     const decision = decideSecurityPolicy({
       surface: 'web-fetch',

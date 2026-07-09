@@ -1,11 +1,25 @@
+/**
+ * Migration UX — thin presentation layer over UniversalWorkspaceImportService.
+ * Structural / brand-agnostic only.
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
+import {
+  UniversalWorkspaceImportService,
+  type UniversalWorkspaceImportInput,
+} from '../UniversalWorkspaceImportService.js';
+import type {
+  UniversalWorkspaceImportSnapshot,
+  UniversalWorkspaceProfileId,
+} from '../../contracts/UniversalCapabilityFabricContract.js';
 
 export interface AgentDetection {
   name: string;
   path: string;
-  type: 'legacy-python' | 'legacy-typescript' | 'zavorth' | 'claude' | 'cursor' | 'generic';
+  /** Structural profile id — never a third-party product name. */
+  type: UniversalWorkspaceProfileId;
   configFiles: string[];
   skills: number;
   providers: number;
@@ -17,10 +31,11 @@ export interface MigrationPlan {
   items: MigrationItem[];
   warnings: string[];
   estimatedTime: string;
+  snapshot: UniversalWorkspaceImportSnapshot;
 }
 
 export interface MigrationItem {
-  type: 'config' | 'skill' | 'provider' | 'memory' | 'preference';
+  type: 'config' | 'skill' | 'provider' | 'memory' | 'preference' | 'identity' | 'plugin' | 'unknown';
   name: string;
   sourcePath: string;
   targetPath: string;
@@ -28,233 +43,186 @@ export interface MigrationItem {
   reason?: string;
 }
 
+const PROFILE_ALIASES: Record<string, UniversalWorkspaceProfileId | 'auto'> = {
+  auto: 'auto' as 'auto',
+  generic: 'mixed-agent-home',
+  mixed: 'mixed-agent-home',
+  'mixed-agent-home': 'mixed-agent-home',
+  identity: 'identity-markdown-home',
+  'identity-markdown-home': 'identity-markdown-home',
+  skills: 'skill-centric-home',
+  'skill-centric-home': 'skill-centric-home',
+  memory: 'memory-centric-home',
+  'memory-centric-home': 'memory-centric-home',
+  config: 'config-centric-home',
+  'config-centric-home': 'config-centric-home',
+  plugins: 'plugin-centric-home',
+  'plugin-centric-home': 'plugin-centric-home',
+  opaque: 'opaque-or-empty',
+  'opaque-or-empty': 'opaque-or-empty',
+  // legacy structural aliases kept for CLI compatibility (not product brands)
+  'legacy-python': 'mixed-agent-home',
+  'legacy-typescript': 'mixed-agent-home',
+  community: 'mixed-agent-home',
+  'community-agent': 'mixed-agent-home',
+  workspace: 'mixed-agent-home',
+};
+
 export class MigrationUXService {
   private readonly storageDir: string;
-  private readonly knownAgents: Map<string, string[]> = new Map();
+  private readonly importer: UniversalWorkspaceImportService;
 
-  constructor(options?: { storageDir?: string }) {
+  constructor(options?: { storageDir?: string; projectRoot?: string }) {
     this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'migration-ux');
     if (!fs.existsSync(this.storageDir)) fs.mkdirSync(this.storageDir, { recursive: true });
-    this.initKnownAgents();
-  }
-
-  private initKnownAgents(): void {
-    // Known config file patterns for each agent
-    this.knownAgents.set('legacy-python', [
-      'agent_state.py', 'state.py', 'config.yaml', 'config.yml',
-      'agent/', 'skills/', 'providers/', 'memory/'
-    ]);
-    this.knownAgents.set('legacy-typescript', [
-      'agent.json', 'workspace.json', 'config.json',
-      'src/', 'skills/', 'channels/', 'plugins/'
-    ]);
-    this.knownAgents.set('zavorth', [
-      'zavorth.json', 'IDENTITY.md', 'SOUL.md', 'USER.md',
-      'src/', 'skill-library/', 'config/', 'data/'
-    ]);
-    this.knownAgents.set('claude', [
-      'CLAUDE.md', '.claude/', 'claude.json',
-      'settings/', 'projects/'
-    ]);
-    this.knownAgents.set('cursor', [
-      '.cursor/', 'cursor.json', '.cursorrules',
-      'settings/', 'prompts/'
-    ]);
+    this.importer = new UniversalWorkspaceImportService({
+      projectRoot: options?.projectRoot || process.cwd(),
+    });
   }
 
   public detectAgent(sourcePath: string): AgentDetection | null {
-    if (!fs.existsSync(sourcePath)) return null;
+    const detected = this.importer.detect(sourcePath);
+    if (!detected) return null;
 
-    const files = fs.readdirSync(sourcePath);
-    const detection: AgentDetection = {
-      name: path.basename(sourcePath),
-      path: sourcePath,
-      type: 'generic',
-      configFiles: [],
-      skills: 0,
-      providers: 0,
-      confidence: 0,
-    };
-
-    // Check each known agent pattern
-    for (const [agentType, patterns] of this.knownAgents) {
-      let matches = 0;
-      const matchedFiles: string[] = [];
-
-      for (const pattern of patterns) {
-        const fullPath = path.join(sourcePath, pattern);
-        if (fs.existsSync(fullPath)) {
-          matches++;
-          matchedFiles.push(pattern);
+    const skillsDir = this.findSkillsDirectory(detected.path);
+    const skills = skillsDir
+      ? fs.readdirSync(skillsDir).filter((f) => {
+        try {
+          return fs.statSync(path.join(skillsDir, f)).isDirectory();
+        } catch {
+          return false;
         }
-      }
+      }).length
+      : 0;
 
-      const confidence = matches / patterns.length;
-      if (confidence > detection.confidence) {
-        detection.type = agentType as AgentDetection['type'];
-        detection.confidence = confidence;
-        detection.configFiles = matchedFiles;
-      }
-    }
-
-    // Count skills
-    const skillsDir = this.findSkillsDirectory(sourcePath);
-    if (skillsDir) {
-      detection.skills = fs.readdirSync(skillsDir).filter((f: string) => {
-        const stat = fs.statSync(path.join(skillsDir, f));
-        return stat.isDirectory();
-      }).length;
-    }
-
-    // Count providers
-    const providersDir = this.findProvidersDirectory(sourcePath);
-    if (providersDir) {
-      detection.providers = fs.readdirSync(providersDir).filter((f: string) =>
-        f.endsWith('.json') || f.endsWith('.yaml') || f.endsWith('.yml')
-      ).length;
-    }
-
-    return detection;
+    return {
+      name: path.basename(detected.path),
+      path: detected.path,
+      type: detected.profileId,
+      configFiles: detected.signals.filter((s) => s.present && s.path).map((s) => path.relative(detected.path, s.path!)),
+      skills,
+      providers: 0,
+      confidence: detected.confidence,
+    };
   }
 
-  public detectFromName(agentName: string): AgentDetection | null {
-    // Common installation paths
-    const homeDir = require('os').homedir();
-    const commonPaths = [
-      path.join(homeDir, agentName),
-      path.join(homeDir, `.${agentName}`),
-      path.join(homeDir, '.config', agentName),
-      path.join(homeDir, 'AppData', 'Roaming', agentName),
-      path.join(homeDir, '.local', 'share', agentName),
-      path.join(process.cwd(), agentName),
-      path.join(process.cwd(), '..', agentName),
-    ];
-
-    for (const p of commonPaths) {
-      if (fs.existsSync(p)) {
-        return this.detectAgent(p);
-      }
+  public detectFromName(profileOrHint: string): AgentDetection | null {
+    const key = String(profileOrHint || '').trim().toLowerCase();
+    const alias = PROFILE_ALIASES[key];
+    // Prefer structural home scan using the hint as a directory name fragment.
+    const detected = this.importer.detectFromHomeHints(key === 'auto' || !key ? undefined : key);
+    if (detected) {
+      return this.detectAgent(detected.path);
     }
-
+    if (alias && alias !== 'auto') {
+      // No path found; return null — caller should pass a path.
+      return null;
+    }
     return null;
   }
 
-  public planMigration(detection: AgentDetection): MigrationPlan {
-    const items: MigrationItem[] = [];
-    const warnings: string[] = [];
+  public planMigration(detection: AgentDetection, options?: Partial<UniversalWorkspaceImportInput>): MigrationPlan {
+    const snapshot = this.importer.buildSnapshot({
+      sourcePath: detection.path,
+      apply: false,
+      projectRoot: process.cwd(),
+      targetRoot: path.join(this.storageDir, 'imported', detection.name),
+      ...options,
+    });
 
-    // Plan config migration
-    for (const configFile of detection.configFiles) {
-      const sourcePath = path.join(detection.path, configFile);
-      if (fs.existsSync(sourcePath)) {
-        const stat = fs.statSync(sourcePath);
-        if (stat.isFile()) {
-          items.push({
-            type: 'config',
-            name: configFile,
-            sourcePath,
-            targetPath: path.join(this.storageDir, 'imported', configFile),
-            status: 'pending',
-          });
-        } else if (stat.isDirectory()) {
-          // Scan directory for files
-          try {
-            const files = fs.readdirSync(sourcePath);
-            for (const file of files.slice(0, 100)) { // Limit to 100 files per dir
-              const filePath = path.join(sourcePath, file);
-              const fileStat = fs.statSync(filePath);
-              if (fileStat.isFile()) {
-                items.push({
-                  type: 'config',
-                  name: `${configFile}/${file}`,
-                  sourcePath: filePath,
-                  targetPath: path.join(this.storageDir, 'imported', configFile, file),
-                  status: 'pending',
-                });
-              }
-            }
-          } catch (error) { /* ignore permission errors */ logger.warn('[Migration U X] operation failed', error); }
-        }
-      }
-    }
+    const items: MigrationItem[] = snapshot.items.map((item) => ({
+      type: this.mapKind(item.kind),
+      name: item.name,
+      sourcePath: item.sourcePath,
+      targetPath: item.targetPath,
+      status: 'pending',
+      reason: item.reason,
+    }));
 
-    // Check for secrets
-    const secretPatterns = [/api[_-]?key/i, /secret/i, /token/i, /password/i, /credential/i];
-    for (const item of items) {
-      if (item.type === 'config') {
-        try {
-          const content = fs.readFileSync(item.sourcePath, 'utf-8');
-          for (const pattern of secretPatterns) {
-            if (pattern.test(content)) {
-              warnings.push(`⚠️ ${item.name} may contain secrets — review before importing`);
-              break;
-            }
-          }
-        } catch (error) { /* ignore */ logger.warn('[Migration U X] filesystem operation failed', error); }
-      }
-    }
-
-    // Estimate time
     const fileCount = items.length;
-    const estimatedTime = fileCount < 10 ? '< 1 minute' :
-      fileCount < 50 ? '1-2 minutes' :
-      fileCount < 100 ? '2-5 minutes' :
-      '5+ minutes';
+    const estimatedTime = fileCount < 10
+      ? '< 1 minute'
+      : fileCount < 50
+        ? '1-2 minutes'
+        : fileCount < 100
+          ? '2-5 minutes'
+          : '5+ minutes';
 
     return {
       source: detection,
       items,
-      warnings,
+      warnings: snapshot.warnings,
       estimatedTime,
+      snapshot,
     };
   }
 
   public executeMigration(plan: MigrationPlan, options?: {
     dryRun?: boolean;
     skipSecrets?: boolean;
+    consent?: boolean;
     onProgress?: (item: MigrationItem, index: number, total: number) => void;
-  }): { success: number; failed: number; skipped: number } {
+  }): { success: number; failed: number; skipped: number; snapshot?: UniversalWorkspaceImportSnapshot } {
     const dryRun = options?.dryRun !== false;
+
+    if (dryRun) {
+      for (const item of plan.items) item.status = 'pending';
+      return { success: 0, failed: 0, skipped: plan.items.length, snapshot: plan.snapshot };
+    }
+
+    const snapshot = this.importer.buildSnapshot({
+      sourcePath: plan.source.path,
+      apply: true,
+      consent: options?.consent === true,
+      includeSecretLike: options?.skipSecrets === false,
+      targetRoot: path.join(this.storageDir, 'imported', plan.source.name),
+    });
+
     let success = 0;
     let failed = 0;
     let skipped = 0;
 
-    for (let i = 0; i < plan.items.length; i++) {
-      const item = plan.items[i];
-      options?.onProgress?.(item, i, plan.items.length);
-
-      if (dryRun) {
-        item.status = 'pending';
-        continue;
-      }
-
-      try {
-        // Create target directory
-        const targetDir = path.dirname(item.targetPath);
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-
-        // Copy file
-        fs.copyFileSync(item.sourcePath, item.targetPath);
+    for (let i = 0; i < snapshot.items.length; i++) {
+      const src = snapshot.items[i];
+      const item = plan.items[i] || {
+        type: this.mapKind(src.kind),
+        name: src.name,
+        sourcePath: src.sourcePath,
+        targetPath: src.targetPath,
+        status: 'pending' as const,
+      };
+      options?.onProgress?.(item, i, snapshot.items.length);
+      if (src.status === 'copied') {
         item.status = 'done';
-        success++;
-      } catch (error: unknown) {
+        success += 1;
+      } else if (src.status === 'skipped') {
+        item.status = 'skipped';
+        skipped += 1;
+      } else {
         item.status = 'error';
-        item.reason = error instanceof Error ? error.message : String(error);
-        failed++;
+        item.reason = src.reason;
+        failed += 1;
       }
+      plan.items[i] = item;
     }
 
-    return { success, failed, skipped };
+    try {
+      const reportPath = path.join(this.storageDir, 'last-import-report.json');
+      fs.writeFileSync(reportPath, JSON.stringify(snapshot, null, 2), 'utf8');
+    } catch (error: any) {
+      logger.warn('[MigrationUX] failed to write report', error);
+    }
+
+    return { success, failed, skipped, snapshot };
   }
 
   public generateReport(plan: MigrationPlan, result: { success: number; failed: number; skipped: number }): string {
-    const lines: string[] = [
-      '=== Migration Report ===',
+    return [
+      '=== Universal Workspace Import Report ===',
       '',
-      `Source: ${plan.source.name} (${plan.source.type})`,
+      `Source: ${plan.source.name}`,
       `Path: ${plan.source.path}`,
+      `Structural profile: ${plan.source.type}`,
       `Confidence: ${(plan.source.confidence * 100).toFixed(0)}%`,
       '',
       'Items:',
@@ -263,39 +231,33 @@ export class MigrationUXService {
       `  Failed: ${result.failed}`,
       `  Skipped: ${result.skipped}`,
       '',
-    ];
+      ...(plan.warnings.length
+        ? ['Warnings:', ...plan.warnings.map((w) => `  ${w}`), '']
+        : []),
+      `Estimated time: ${plan.estimatedTime}`,
+      '',
+      'Detection is structural and brand-agnostic.',
+      'Secret-like files stay held unless explicitly consented.',
+    ].join('\n');
+  }
 
-    if (plan.warnings.length > 0) {
-      lines.push('Warnings:');
-      for (const warning of plan.warnings) {
-        lines.push(`  ${warning}`);
-      }
-      lines.push('');
+  private mapKind(kind: string): MigrationItem['type'] {
+    switch (kind) {
+      case 'skill': return 'skill';
+      case 'memory': return 'memory';
+      case 'config': return 'config';
+      case 'plugin': return 'plugin';
+      case 'identity': return 'identity';
+      case 'preference': return 'preference';
+      case 'tool-policy': return 'config';
+      default: return 'unknown';
     }
-
-    lines.push(`Estimated time: ${plan.estimatedTime}`);
-
-    return lines.join('\n');
   }
 
   private findSkillsDirectory(sourcePath: string): string | null {
-    const candidates = ['skills', 'skill-library', 'agent/skills'];
-    for (const candidate of candidates) {
+    for (const candidate of ['skills', 'skill-library', 'agent/skills']) {
       const fullPath = path.join(sourcePath, candidate);
-      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
-        return fullPath;
-      }
-    }
-    return null;
-  }
-
-  private findProvidersDirectory(sourcePath: string): string | null {
-    const candidates = ['providers', 'config/providers', 'agent/providers'];
-    for (const candidate of candidates) {
-      const fullPath = path.join(sourcePath, candidate);
-      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
-        return fullPath;
-      }
+      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) return fullPath;
     }
     return null;
   }

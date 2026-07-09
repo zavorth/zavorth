@@ -1,0 +1,13 @@
+{
+  "latestVersion": "0.1.1",
+  "version": "0.1.1",
+  "channel": "stable",
+  "changelog": [
+    "Optional custom manifest — only needed if you later host your own update JSON.",
+    "Default Desktop channel is GitHub Releases (zavorth/zavorth), no website required."
+  ],
+  "releaseNotes": "Most users should leave ZAVORTH_UPDATE_MANIFEST_URL unset and use GitHub Releases.",
+  "downloadUrl": null,
+  "releaseUrl": "https://github.com/zavorth/zavorth/releases",
+  "notes": "Override with ZAVORTH_UPDATE_MANIFEST_URL only if you publish a private JSON. Otherwise Desktop queries api.github.com/repos/zavorth/zavorth/releases/latest."
+}

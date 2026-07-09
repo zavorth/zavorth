@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   CapabilityDefinition,
   CapabilityDispatchMode,
   CapabilityPolicy,
@@ -566,7 +566,7 @@ export class ZavorthCapabilityOsService {
         status: entry.status,
         reason: 'Decisao registrada no Trust Plane ledger com entrada redigida.',
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Capability Os] filesystem check failed', error);
     return {
         recorded: false,

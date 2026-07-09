@@ -414,7 +414,7 @@ export class TelegramOpsRuntimeCommandService {
             : await this.deps.remoteModeManager.status();
 
       await ctx.reply(this.formatRemoteModeReply(result, mode));
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(`I could not adjust remote mode right now.\n\nReason: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -480,7 +480,7 @@ export class TelegramOpsRuntimeCommandService {
       }
 
       await ctx.reply(lines.join('\n'), { parse_mode: 'Markdown' });
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(`Failed to start ZavorthControl: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -508,7 +508,7 @@ export class TelegramOpsRuntimeCommandService {
 
       const result = await this.deps.wslControl.status();
       await this.replyWslSurface(ctx, result);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       await ctx.reply(`Error accessing WSL: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

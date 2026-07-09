@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import {
   createSurfaceResponse,
   type SurfaceReceiptStatus,
@@ -402,7 +402,7 @@ export class ZavorthComputerControlPlaneService {
     }
     try {
       return this.watchMode.buildSnapshot(6);
-    } catch (error) { logger.warn('[Zavorth Computer Control Plane] connection failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Computer Control Plane] connection failed', error); return null; }
   }
 
   private tryCancel(input: ZavorthComputerControlInput): { used: boolean; runId: string | null; reason: string } {
@@ -428,7 +428,7 @@ export class ZavorthComputerControlPlaneService {
         runId: run.runId,
         reason: `Watch Mode run ${run.runId} cancel requested.`,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Computer Control Plane] lifecycle operation failed', error);
     return {
         used: false,

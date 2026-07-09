@@ -450,7 +450,7 @@ function parseJsonRecord(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
     return isRecord(parsed) ? parsed : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }

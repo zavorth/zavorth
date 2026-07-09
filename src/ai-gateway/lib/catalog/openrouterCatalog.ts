@@ -64,7 +64,7 @@ function readCache(): CacheFile | null {
     if (!fs.existsSync(filePath)) return null;
     const raw = fs.readFileSync(filePath, "utf8");
     return JSON.parse(raw) as CacheFile;
-  } catch (error) { logger.warn('[openrouter] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[openrouter] JSON parse failed', error); return null; }
 }
 
 /** Write catalog to disk cache. */
@@ -76,7 +76,7 @@ function writeCache(data: CatalogEntry[]): void {
   };
   try {
     fs.writeFileSync(filePath, JSON.stringify(cache, null, 2), "utf8");
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.warn("[OpenRouterCatalog] Failed to write cache:", err);
   }
 }
@@ -136,7 +136,7 @@ export async function getOpenRouterCatalog(): Promise<{
     const data = await fetchFromAPI();
     writeCache(data);
     return { data, stale: false, cachedAt: null, fromCache: false };
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.warn("[OpenRouterCatalog] Fetch failed, using stale cache:", err);
 
     // Stale-if-error: return old cache if available
@@ -167,7 +167,7 @@ export async function refreshOpenRouterCatalog(): Promise<{
     const data = await fetchFromAPI();
     writeCache(data);
     return { data, ok: true };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[openrouter] network request failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return { data: [], ok: false, error };

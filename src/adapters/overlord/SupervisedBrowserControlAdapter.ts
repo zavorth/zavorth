@@ -122,7 +122,7 @@ export class SupervisedBrowserControlAdapter implements SystemOverlordRuntimeAda
         return 'browser_navigate accepts only http/https URLs.';
       }
       return null;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return `Invalid URL for browser_navigate: "${url}".`;
     }
   }

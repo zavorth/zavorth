@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import type {
   SatelliteAppCapabilityPrimitive,
@@ -560,7 +560,7 @@ export class SatelliteAppConsistencyService {
     const absolutePath = path.join(rootDir, SOURCE_FILE_NAMES[key]);
     try {
       return fs.readFileSync(absolutePath, 'utf8');
-    } catch (error) { logger.warn('[Satellite App Consistency] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Satellite App Consistency] filesystem operation failed', error); return ''; }
   }
 }
 

@@ -1,4 +1,4 @@
-import { config } from '../config/index.js';
+﻿import { config } from '../config/index.js';
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ChatMessage, ILlmProvider } from '../providers/ILlmProvider.js';
 import { GeminiVideoAnalyzer } from '../gateways/channels/telegram/GeminiVideoAnalyzer.js';
@@ -114,7 +114,7 @@ export class ExternalAiRelayService {
 
     try {
       analysis = await analyzer.transcribeYouTubeUrl(youtubeUrl, undefined, request.prompt);
-    } catch (error) {
+    } catch (error: any) {
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes('input token count exceeds')) {
         throw new Error(
@@ -167,7 +167,7 @@ export class ExternalAiRelayService {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();
       return host.includes('youtube.com') || host.includes('youtu.be');
-    } catch (error) { logger.warn('[External Ai Relay] parsing failed', error); return false; }
+    } catch (error: any) { logger.warn('[External Ai Relay] parsing failed', error); return false; }
   }
 
   private createProvider(providerName: NormalizedRelayProvider): ILlmProvider {

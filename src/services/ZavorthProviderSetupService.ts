@@ -1,4 +1,4 @@
-import type { ZavorthRuntimeProviderConnection } from '../contracts/ZavorthRuntimeStateBusContract.js';
+﻿import type { ZavorthRuntimeProviderConnection } from '../contracts/ZavorthRuntimeStateBusContract.js';
 import { logger } from '../logger.js';
 
 export type ZavorthProviderSetupInput = {
@@ -94,7 +94,10 @@ function canonicalHostname(value: string | null): string | null {
         .replace(/^\[|\]$/g, '')
         .toLowerCase();
       if (hostname) return hostname;
-    } catch (error) { // Try next candidate. logger.warn('[Zavorth  Setup] network request failed', error); }
+    } catch (error: any) {
+      // Try next candidate.
+      logger.warn('[Zavorth  Setup] network request failed', error);
+    }
   }
   return trimmed
     .replace(/^[a-z][a-z0-9+.-]*:\/\//i, '')

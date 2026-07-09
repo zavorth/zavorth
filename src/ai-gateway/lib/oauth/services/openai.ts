@@ -114,7 +114,7 @@ export class OpenAIService extends OAuthService {
 
       spinner.succeed("OpenAI connected successfully!");
       return true;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       spinner.fail(`Failed: ${error.message}`);
       throw error;
     }

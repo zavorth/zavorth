@@ -349,7 +349,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       if(data.type==='status-change'&&data.data)setStatus(data.data.status);
       if(data.type==='approval-pending'||data.type==='approval-resolved')fetchStatus();
       prependEvent(data);
-    }catch (e) { logger.warn("[auto-fix] Empty catch block", e); }
+    }catch (e: any) { const error = e; const err = e; logger.warn("[auto-fix] Empty catch block", e); }
   }
 
   function prependEvent(e){

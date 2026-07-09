@@ -20,6 +20,11 @@ import {
 import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutationGateContract.js';
 import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';
+import { runMigrationUX } from './cli/MigrationCli.js';
+import { runCapabilityFabricCli, runImportWorkspaceCli } from './cli/CapabilityFabricCli.js';
+import { runReachFabricCli } from './cli/ReachFabricCli.js';
+import { runPowerFabricCli } from './cli/PowerFabricCli.js';
+import { runProductFabricCli } from './cli/ProductFabricCli.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -345,7 +350,7 @@ async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
       ], 'success');
     }
     return 0;
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
     return 1;
   }
@@ -433,7 +438,7 @@ function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { written
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     current = '';
   }
   const lines = current.split(/\r?\n/u);
@@ -603,7 +608,7 @@ async function runPremiumHatch(rawArgs: string[]): Promise<number> {
 
 async function runPremiumQuickStart(rawArgs: string[]): Promise<number> {
   const { runZavorthCliQuickStart } = await import('./cli/quickstart/index.js');
-  const result = runZavorthCliQuickStart({
+  const result = await runZavorthCliQuickStart({
     projectRoot,
     json: rawArgs.includes('--json'),
   });
@@ -704,14 +709,20 @@ function resolveDailyHudArgs(rawArgs: string[]): string[] {
 }
 
 async function runPremiumSetupStudio(rawArgs: string[]): Promise<number> {
-  const { runZavorthSetupStudioCommand } = await import('./cli/setup-studio/index.js');
-  const result = await runZavorthSetupStudioCommand({
-    projectRoot,
-    args: rawArgs,
-    json: rawArgs.includes('--json'),
-  });
-  process.stdout.write(result.output);
-  return result.exitCode;
+  try {
+    const { runZavorthSetupStudioCommand } = await import('./cli/setup-studio/index.js');
+    const result = await runZavorthSetupStudioCommand({
+      projectRoot,
+      args: rawArgs,
+      json: rawArgs.includes('--json'),
+    });
+    process.stdout.write(result.output);
+    return result.exitCode;
+  } catch (error: any) {
+    process.stderr.write(`[setup-studio] Error: ${error?.message || error}\n`);
+    if (error?.stack) process.stderr.write(`${error.stack}\n`);
+    return 1;
+  }
 }
 
 
@@ -2364,7 +2375,7 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
         process.stdout.write(`${tCli('instance.use_hint', { name })}\n`);
       }
       return 0;
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       await logCliError(err.message || String(err), 'Instance Error');
       return 1;
     }
@@ -2387,7 +2398,7 @@ async function runInstanceCommand(rawArgs: string[]): Promise<number> {
         process.stdout.write(`${tCli('instance.deleted', { name })}\n`);
       }
       return 0;
-    } catch (err: any) {
+    } catch (err: any) { const error = err; const e = err;
       await logCliError(err.message || String(err), 'Instance Error');
       return 1;
     }
@@ -2436,7 +2447,7 @@ function writeInstanceEnv(root: string, instanceName: string): { written: boolea
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     current = '';
   }
   const lines = current.split(/\r?\n/u);
@@ -2491,6 +2502,59 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
 
   if (command === 'workflows' && (restArgs.includes('--help') || restArgs.includes('-h'))) {
     return runDynamicWorkflows(['--help']);
+  }
+
+  // Universal Capability Fabric — brand-agnostic absorb / workspace import
+  if (
+    command === 'absorb'
+    || command === 'capability-absorb'
+    || command === 'capabilities-absorb'
+    || command === 'fetch-capability'
+  ) {
+    return runCapabilityFabricCli(restArgs);
+  }
+
+  if (
+    command === 'import-workspace'
+    || command === 'workspace-import'
+    || command === 'universal-import'
+  ) {
+    return runImportWorkspaceCli(restArgs);
+  }
+
+  if (
+    command === 'migrate'
+    || command === 'workspace-migrate'
+    || command === 'import-agent-home'
+  ) {
+    return runMigrationUX(restArgs);
+  }
+
+  if (
+    command === 'reach'
+    || command === 'reach-fabric'
+    || command === 'channel-tiers'
+    || command === 'node-mesh'
+  ) {
+    return runReachFabricCli(restArgs);
+  }
+
+  if (
+    command === 'power'
+    || command === 'power-fabric'
+    || command === 'trusted-operator'
+    || command === 'elastic-backends'
+  ) {
+    return runPowerFabricCli(restArgs);
+  }
+
+  if (
+    command === 'product'
+    || command === 'product-fabric'
+    || command === 'productize'
+    || command === 'daily-product'
+  ) {
+    return runProductFabricCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);
@@ -2569,6 +2633,21 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runZavorthMemoryEncryptionCommand(memoryArgs);
   }
 
+  if (command === 'setup' || command === 'init') {
+    if (restArgs.includes('--help') || restArgs.includes('-h')) {
+      return printBuiltinHelp('onboard');
+    }
+    const firstArg = String(restArgs[0] || '').trim().toLowerCase();
+    if (firstArg === 'legacy') {
+      return runPromotedScript('setup-v3', restArgs.slice(1));
+    }
+    const sections = ['provider', 'channels', 'skills', 'memory', 'agent', 'hooks', 'search', 'gateway'];
+    if (sections.includes(firstArg)) {
+      return runPremiumSetupStudio(['--section', firstArg, ...restArgs.slice(1)]);
+    }
+    return runPremiumSetupStudio(restArgs);
+  }
+
   if (isZavorthLiveNamespaceCommand(command)) {
     const result = await runZavorthLiveNamespaceCommand({ projectRoot, command, args: restArgs });
     process.stdout.write(result.output);
@@ -2621,8 +2700,8 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPremiumHatch(restArgs);
   }
 
-  if (command === 'quickstart' || command === 'configure') {
-    return runPremiumQuickStart(restArgs);
+  if (command === 'configure') {
+    return runPremiumSetupStudio(restArgs);
   }
 
   if (command === 'constitution' || command === 'project-constitution') {
@@ -2723,16 +2802,6 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPremiumSetupStudio(restArgs);
   }
 
-  if (command === 'setup' || command === 'init') {
-    if (restArgs.includes('--help') || restArgs.includes('-h')) {
-      return printBuiltinHelp('onboard');
-    }
-    if (String(restArgs[0] || '').trim().toLowerCase() === 'legacy') {
-      return runPromotedScript('setup-v3', restArgs.slice(1));
-    }
-    return runPremiumSetupStudio(restArgs);
-  }
-
   if (command === 'instance') {
     return runInstanceCommand(restArgs);
   }
@@ -2751,7 +2820,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPromotedScript('ops-go', restArgs);
   }
 
-  if (command === 'start' || command === 'quickstart') {
+  if (command === 'start') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('go');
     }
@@ -4032,7 +4101,7 @@ function readPackageVersion(): string {
   try {
     const parsed = JSON.parse(readFileSync(path.join(projectRoot, 'package.json'), 'utf8')) as { version?: string };
     return String(parsed.version || 'local');
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return 'local';
   }
 }
@@ -4134,7 +4203,7 @@ void runSimpleCommandPlan(simpleCommandPlan)
         if (isDebug && error instanceof Error && error.stack) {
           process.stderr.write(`\nDebug Stack Trace:\n${error.stack}\n`);
         }
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         console.error([
           'Zavorth could not finish this command.',
           `Cause: ${message}`,

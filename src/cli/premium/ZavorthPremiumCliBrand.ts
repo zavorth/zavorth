@@ -8,9 +8,9 @@ const ANSI_RESET = '\u001b[0m';
 
 function gradientText(text: string): string {
   const colors = [
-    '\u001b[38;2;34;211;238m',   // #22D3EE
-    '\u001b[38;2;6;182;212m',    // #06B6D4
-    '\u001b[38;2;8;145;178m',    // #0891B2
+    '\u001b[38;2;255;191;105m',  // #FFBF69
+    '\u001b[38;2;255;122;24m',   // #FF7A18
+    '\u001b[38;2;230;100;20m',   // #E66414
   ];
 
   let result = '';
@@ -35,7 +35,7 @@ export function renderPremiumBrand(
 
   if (isAsciiOnly) {
     return [
-      paintPremiumAccent('  ZAVORTH', 'cyan', theme),
+      paintPremiumAccent('  ZAVORTH', 'orange', theme),
       '',
       paintPremiumAccent(`  ${theme.tagline}`, 'muted', theme),
     ].join('\n');
@@ -46,7 +46,7 @@ export function renderPremiumBrand(
     : '  Z A V O R T H';
 
   const divider = theme.colorEnabled
-    ? `  \u001b[38;2;6;182;212m${'─'.repeat(40)}${ANSI_RESET}`
+    ? `  \u001b[38;2;255;122;24m${'─'.repeat(40)}${ANSI_RESET}`
     : '  ' + '─'.repeat(40);
 
   return [

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -509,7 +509,10 @@ export class ModeEscalationService {
           requests: Array.isArray(parsed.requests) ? parsed.requests : [],
         };
       }
-    } catch (error) { // Keep runtime resilient even if the persisted file was corrupted. logger.warn('[Mode Escalation] JSON parse failed', error); }
+    } catch (error: any) {
+      // Keep runtime resilient even if the persisted file was corrupted.
+      logger.warn('[Mode Escalation] JSON parse failed', error);
+    }
     return {
       version: 1,
       grants: [],

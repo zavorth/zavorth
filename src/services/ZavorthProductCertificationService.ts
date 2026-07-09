@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 
 import {
@@ -368,7 +368,7 @@ export class ZavorthProductCertificationService {
     try {
       const pkg = JSON.parse(this.read('package.json')) as { scripts?: Record<string, string> };
       return Boolean(pkg.scripts?.[name]);
-    } catch (error) { logger.warn('[Zavorth Product Certification] JSON parse failed', error); return false; }
+    } catch (error: any) { logger.warn('[Zavorth Product Certification] JSON parse failed', error); return false; }
   }
 
   private exists(relativePath: string): boolean {
@@ -378,7 +378,7 @@ export class ZavorthProductCertificationService {
   private read(relativePath: string): string {
     try {
       return fs.readFileSync(path.join(this.projectRoot, relativePath), 'utf8');
-    } catch (error) { logger.warn('[Zavorth Product Certification] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Product Certification] filesystem operation failed', error); return ''; }
   }
 }
 

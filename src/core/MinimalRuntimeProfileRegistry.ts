@@ -218,7 +218,7 @@ export class MinimalRuntimeProfileRegistry {
             const profile = this.normalizeProfile(item, filePath);
             profiles.set(profile.id, profile);
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           invalidProfiles.push({
             filePath,
             reason: error instanceof Error ? error.message : String(error),

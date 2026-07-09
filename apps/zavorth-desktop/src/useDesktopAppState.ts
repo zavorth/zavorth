@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   dispatchRuntimeStateAction,
@@ -37,6 +37,8 @@ import {
   mutateControlMemory,
   mutateChannelSetup,
   mutateGatewayResilience,
+  createDesktopSession,
+  switchDesktopSession,
 } from './apiClient';
 import type { BootEvent, RuntimeStatus } from './global';
 import {
@@ -57,6 +59,40 @@ import { modelOptions } from './modelCatalog';
 import { parseSlashCommand, slashCommands } from './slashCommands';
 import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 import { logger } from './logger.js';
+import { useDesktopAutomations } from './desktop-state/useDesktopAutomations';
+import {
+  loadSubagents,
+  persistSubagents,
+  createSubagent,
+  appendSubagentTask,
+  completeSubagentTask,
+  deleteSubagent,
+  type ActiveSubagent,
+} from './desktop-state/subagents';
+import {
+  loadCustomProfiles,
+  persistCustomProfiles,
+  createCustomProfile,
+  addCustomProfile,
+  deleteCustomProfile,
+  mergeProfiles,
+  type AgentProfile,
+} from './desktop-state/agentProfiles';
+import { useDesktopProduct } from './desktop-state/useDesktopProduct';
+import {
+  appendReceipt,
+  extractReceiptsFromSnapshot,
+  loadReceipts,
+  persistReceipts,
+  type DesktopReceipt,
+} from './desktop-state/receiptsLedger';
+import { trackDesktopEvent } from './desktop-state/localTelemetry';
+import { buildDesktopUpdateStatus, type DesktopUpdateStatus } from './desktop-state/desktopUpdate';
+import { sendDesktopNotification } from './components/DesktopNotificationService';
+
+export type { ActiveSubagent } from './desktop-state/subagents';
+export type { AgentProfile } from './desktop-state/agentProfiles';
+export type { ScheduledTask } from './desktop-state/useDesktopAutomations';
 
 import {
   $status, setStatus,
@@ -68,6 +104,7 @@ import {
   $effort, setEffort,
   $experienceProfile, setExperienceProfile,
   $sessionId,
+  setSessionIdOverride,
   $events, addEvent,
   
   $activePanel, setActivePanel,
@@ -91,6 +128,7 @@ import {
   
   $themeMode, setThemeMode,
   $accentPreset, setAccentPreset,
+  $density, setDensity,
   
   $composerInput, setComposerInput,
   
@@ -129,6 +167,7 @@ export function useDesktopAppState() {
   const sidebarCollapsed = useStore($sidebarCollapsed);
   const theme = useStore($themeMode);
   const accent = useStore($accentPreset);
+  const density = useStore($density);
   const workspaceScopes = useStore($workspaceScopes);
   const workspaceScopeId = useStore($workspaceScopeId);
   const workspaceWriteApprovals = useStore($workspaceWriteApprovals);
@@ -140,10 +179,17 @@ export function useDesktopAppState() {
 
   const [promptedWorkspaces, setPromptedWorkspaces] = useState<Set<string>>(() => new Set());
   const [kaelActive, setKaelActive] = useState(false);
+  const [subagents, setSubagents] = useState<ActiveSubagent[]>(() => loadSubagents());
+  const [customProfiles, setCustomProfiles] = useState<AgentProfile[]>(() => loadCustomProfiles());
+  const [receipts, setReceipts] = useState<DesktopReceipt[]>(() => loadReceipts());
+  const [updateStatus, setUpdateStatus] = useState<DesktopUpdateStatus | null>(null);
+  const prevBusyForNotify = useRef(false);
+  const prevRunningForNotify = useRef<boolean | null>(null);
 
   const bridgeReady = Boolean(window.zavorthDesktop);
   const sessionId = useStore($sessionId);
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
+  const allProfiles = useMemo(() => mergeProfiles(customProfiles), [customProfiles]);
 
   const connectedModelOptions = useMemo(() => {
     if (runtimeCapabilities) {
@@ -154,6 +200,104 @@ export function useDesktopAppState() {
   }, [runtimeCapabilities]);
 
   const activeWorkspaceScope = workspaceScopes.find(scope => scope.id === workspaceScopeId) || workspaceScopes[0];
+
+  const automations = useDesktopAutomations({
+    workspaceScope: activeWorkspaceScope,
+    selectedModel,
+    profile: experienceProfile,
+    effort,
+  });
+
+  const recordReceipt = useCallback((input: Parameters<typeof appendReceipt>[1]) => {
+    setReceipts(current => appendReceipt(current, input));
+  }, []);
+
+  const product = useDesktopProduct({
+    tools,
+    snapshot,
+    sessionId,
+    setInput: (value) => {
+      if (typeof value === 'function') {
+        setComposerInput(value($composerInput.get()));
+      } else {
+        setComposerInput(value);
+      }
+    },
+    setActivePanel: (panel) => setActivePanel(panel as typeof activePanel),
+    setNotice,
+    getComposerInput: () => $composerInput.get(),
+  });
+
+  useEffect(() => {
+    const fromSnapshot = extractReceiptsFromSnapshot(snapshot);
+    if (fromSnapshot.length === 0) return;
+    setReceipts(current => {
+      const ids = new Set(current.map(item => item.id));
+      const merged = [...fromSnapshot.filter(item => !ids.has(item.id)), ...current];
+      return persistReceipts(merged);
+    });
+  }, [snapshot]);
+
+  useEffect(() => {
+    if (prevBusyForNotify.current && !busy) {
+      void sendDesktopNotification({
+        title: 'Zavorth',
+        body: 'Response finished.',
+        silent: false,
+      });
+      recordReceipt({
+        kind: 'chat',
+        title: 'Chat response finished',
+        summary: 'A desktop run completed.',
+        status: 'ok',
+        sessionId,
+        source: 'zavorth-desktop',
+      });
+      trackDesktopEvent('run_finished', { sessionId: sessionId || null });
+    }
+    prevBusyForNotify.current = busy;
+  }, [busy, recordReceipt, sessionId]);
+
+  useEffect(() => {
+    if (prevRunningForNotify.current === null) {
+      prevRunningForNotify.current = status.running;
+      return;
+    }
+    if (prevRunningForNotify.current && !status.running) {
+      void sendDesktopNotification({
+        title: 'Zavorth runtime offline',
+        body: status.message || 'Local runtime is not reachable.',
+      });
+      recordReceipt({
+        kind: 'runtime',
+        title: 'Runtime went offline',
+        summary: status.message || 'Local runtime is not reachable.',
+        status: 'failed',
+        source: 'zavorth-desktop',
+      });
+      trackDesktopEvent('runtime_offline', {});
+    }
+    if (!prevRunningForNotify.current && status.running) {
+      recordReceipt({
+        kind: 'runtime',
+        title: 'Runtime ready',
+        summary: status.message || 'Local runtime is reachable.',
+        status: 'ok',
+        source: 'zavorth-desktop',
+      });
+      trackDesktopEvent('runtime_online', {});
+    }
+    prevRunningForNotify.current = status.running;
+  }, [recordReceipt, status.message, status.running]);
+
+  useEffect(() => {
+    if (approvals.length > 0) {
+      void sendDesktopNotification({
+        title: 'Approval needed',
+        body: `${approvals.length} pending decision${approvals.length === 1 ? '' : 's'} in Zavorth Desktop.`,
+      });
+    }
+  }, [approvals.length]);
 
   const applyRuntimeStateProjection = useCallback((home: ExperienceSnapshot | null) => {
     const runtimeState = runtimeStateFromSnapshot(home);
@@ -244,9 +388,10 @@ export function useDesktopAppState() {
     }
   }, [sessionId, activeWorkspaceScope]);
 
-  const refreshHome = useCallback(async () => {
+  const refreshHome = useCallback(async (explicitSessionId?: string) => {
     try {
-      const home = await loadHome(sessionId, responseProfile);
+      const targetSessionId = String(explicitSessionId || sessionId || '').trim() || 'desktop-main';
+      const home = await loadHome(targetSessionId, responseProfile);
       setSnapshot(home);
       applyRuntimeStateProjection(home);
       const homeMessages = normalizeMessages(home.chat?.messages);
@@ -393,6 +538,16 @@ export function useDesktopAppState() {
       await resolveApprovalRequest(approvalId, decision);
       await refreshPanels();
       appendLocalMessage(setMessages, 'system', `Approval ${decision === 'approve' ? 'approved' : 'rejected'}.`);
+      recordReceipt({
+        kind: 'approval',
+        title: `Approval ${decision}`,
+        summary: `Decision ${decision} for ${approvalId}.`,
+        status: decision === 'approve' ? 'ok' : 'failed',
+        sessionId,
+        source: 'zavorth-desktop',
+        metadata: { approvalId, decision },
+      });
+      trackDesktopEvent('approval_resolved', { decision });
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not resolve approval.');
     } finally {
@@ -574,14 +729,205 @@ export function useDesktopAppState() {
       } else {
         appendLocalMessage(setMessages, 'assistant', result.error || 'Zavorth received the request.');
       }
+      if (result.receiptId) {
+        recordReceipt({
+          id: result.receiptId,
+          kind: 'chat',
+          title: 'Chat delivery receipt',
+          summary: `Message handled in session ${sessionId}.`,
+          status: result.error ? 'failed' : 'ok',
+          sessionId,
+          source: 'experience',
+        });
+      }
+      trackDesktopEvent('chat_send', { ok: !result.error });
       await refreshPanels();
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not send message.');
       appendLocalMessage(setMessages, 'system', 'The message could not be delivered to the local runtime.');
+      recordReceipt({
+        kind: 'chat',
+        title: 'Chat delivery failed',
+        summary: error instanceof Error ? error.message : 'Could not send message.',
+        status: 'failed',
+        sessionId,
+        source: 'zavorth-desktop',
+      });
     } finally {
       setBusy(false);
     }
   }
+
+  const clearReceipts = useCallback(() => {
+    setReceipts(persistReceipts([]));
+  }, []);
+
+  const checkDesktopUpdates = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = Boolean(options?.silent);
+    try {
+      const result = await window.zavorthDesktop?.checkUpdates?.();
+      const status = buildDesktopUpdateStatus({
+        currentVersion: result?.version || '0.1.0',
+        latestVersion: result?.latestVersion || result?.version || '0.1.0',
+        providerConfigured: result?.providerConfigured !== false,
+        downloaded: Boolean(result?.downloaded),
+        deferredUntil: result?.deferredUntil || null,
+        rollbackVersion: result?.rollbackVersion || null,
+        channel: result?.channel || 'github',
+        source: result?.source || result?.channel || 'github',
+        githubRepo: result?.githubRepo || 'zavorth/zavorth',
+        releaseUrl: result?.releaseUrl || null,
+        releaseNotes: result?.changelog ? [result.changelog] : [],
+        error: result?.error || (!result ? 'Update bridge unavailable.' : null),
+      });
+      setUpdateStatus(status);
+      if (!silent) {
+        setNotice(status.message);
+        recordReceipt({
+          kind: 'system',
+          title: 'Update check',
+          summary: status.message,
+          status: status.state === 'error' ? 'failed' : 'info',
+          source: 'zavorth-desktop-update',
+        });
+      } else if (status.state === 'available' || status.state === 'ready-to-install' || status.state === 'error') {
+        // Background check only surfaces noteworthy states.
+        setNotice(status.message);
+      }
+      trackDesktopEvent('update_check', { state: status.state, silent });
+      return status;
+    } catch (error) {
+      const status = buildDesktopUpdateStatus({
+        currentVersion: '0.1.0',
+        providerConfigured: false,
+        error: error instanceof Error ? error.message : 'Update check failed.',
+      });
+      setUpdateStatus(status);
+      return status;
+    }
+  }, [recordReceipt]);
+
+  const downloadDesktopUpdate = useCallback(async () => {
+    const result = await window.zavorthDesktop?.downloadUpdate?.();
+    setNotice(result?.message || result?.error || 'Download requested.');
+    recordReceipt({
+      kind: 'system',
+      title: 'Update download',
+      summary: result?.message || result?.error || 'Download requested.',
+      status: result?.ok ? 'ok' : 'failed',
+      source: 'zavorth-desktop-update',
+    });
+    await checkDesktopUpdates();
+  }, [checkDesktopUpdates, recordReceipt]);
+
+  const installDesktopUpdate = useCallback(async () => {
+    const result = await window.zavorthDesktop?.installUpdate?.();
+    setNotice(result?.message || result?.error || 'Install requested.');
+    recordReceipt({
+      kind: 'system',
+      title: 'Update install',
+      summary: result?.message || result?.error || 'Install requested.',
+      status: result?.ok ? 'ok' : 'failed',
+      source: 'zavorth-desktop-update',
+    });
+    await checkDesktopUpdates();
+  }, [checkDesktopUpdates, recordReceipt]);
+
+  const deferDesktopUpdate = useCallback(async () => {
+    const result = await window.zavorthDesktop?.deferUpdate?.({ days: 7 });
+    setNotice(result?.message || result?.error || 'Update deferred.');
+    await checkDesktopUpdates();
+  }, [checkDesktopUpdates]);
+
+  const rollbackDesktopUpdate = useCallback(async () => {
+    const result = await window.zavorthDesktop?.rollbackUpdate?.();
+    setNotice(result?.message || result?.error || 'Rollback info.');
+    recordReceipt({
+      kind: 'system',
+      title: 'Update rollback info',
+      summary: result?.message || result?.error || 'Rollback info.',
+      status: result?.ok ? 'info' : 'failed',
+      source: 'zavorth-desktop-update',
+    });
+  }, [recordReceipt]);
+
+  const openGithubReleases = useCallback(async () => {
+    const result = await window.zavorthDesktop?.openGithubReleases?.()
+      || await window.zavorthDesktop?.downloadUpdate?.();
+    setNotice(result?.message || result?.error || 'Opened GitHub Releases.');
+    trackDesktopEvent('open_github_releases', { ok: Boolean(result?.ok !== false) });
+  }, []);
+
+  const [voiceAgentStatus, setVoiceAgentStatus] = useState<{
+    running: boolean;
+    message: string;
+    hotkey: string;
+    wakeWord: string | null;
+    mode: string;
+  } | null>(null);
+
+  const refreshVoiceAgentStatus = useCallback(async () => {
+    const result = await window.zavorthDesktop?.getVoiceAgentStatus?.();
+    if (!result) {
+      setVoiceAgentStatus({
+        running: false,
+        message: 'Voice companion bridge unavailable; Desktop dictation still works.',
+        hotkey: 'Ctrl+Shift+Space',
+        wakeWord: null,
+        mode: 'desktop-dictation',
+      });
+      return;
+    }
+    setVoiceAgentStatus({
+      running: Boolean(result.running),
+      message: result.message || result.error || '',
+      hotkey: result.hotkey || 'Ctrl+Shift+Space',
+      wakeWord: result.wakeWord || null,
+      mode: result.mode || 'desktop-dictation',
+    });
+  }, []);
+
+  const startVoiceAgent = useCallback(async () => {
+    const result = await window.zavorthDesktop?.startVoiceAgent?.();
+    setNotice(result?.message || result?.error || 'Voice companion start requested.');
+    recordReceipt({
+      kind: 'system',
+      title: 'Voice companion',
+      summary: result?.message || result?.error || 'Start requested.',
+      status: result?.ok ? 'ok' : 'failed',
+      source: 'zavorth-desktop-voice',
+    });
+    await refreshVoiceAgentStatus();
+  }, [recordReceipt, refreshVoiceAgentStatus]);
+
+  useEffect(() => {
+    void refreshVoiceAgentStatus();
+    const timer = window.setInterval(() => {
+      void refreshVoiceAgentStatus();
+    }, 45000);
+    return () => window.clearInterval(timer);
+  }, [refreshVoiceAgentStatus]);
+
+  // Local-first update check once after shell loads (non-blocking, honest about unconfigured channel).
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void checkDesktopUpdates({ silent: true });
+    }, 1800);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-shot after mount
+  }, []);
+
+  const openSetup = useCallback(async () => {
+    const result = await window.zavorthDesktop?.startSetup?.();
+    setNotice(result?.message || 'Setup launch requested.');
+    trackDesktopEvent('open_setup', { ok: Boolean(result?.ok) });
+  }, []);
+
+  const openLogs = useCallback(async () => {
+    const result = await window.zavorthDesktop?.openLogs?.();
+    setNotice(result?.path ? `Logs: ${result.path}` : 'Log folder open requested.');
+    trackDesktopEvent('open_logs', {});
+  }, []);
 
   async function requestRuntimeStart() {
     setBusy(true);
@@ -777,24 +1123,125 @@ export function useDesktopAppState() {
   }, [pendingHostCommands]);
 
   const handleSwitchSession = useCallback(async (nextSessionId: string) => {
+    const id = String(nextSessionId || '').trim();
+    if (!id) return;
     setBusy(true);
     try {
-      if (window.zavorthDesktop?.switchSession) {
-        const res = await window.zavorthDesktop.switchSession(nextSessionId);
-        if (res.ok) {
-          await refreshHome();
-          await refreshPanels();
-          setActivePanel('chat');
-        } else {
-          setNotice(res.error || 'Failed to switch session.');
-        }
-      }
+      setSessionIdOverride(id);
+      setMessages([]);
+      setComposerInput('');
+      await switchDesktopSession(id);
+      await refreshHome(id);
+      await refreshPanels();
+      setActivePanel('chat');
     } catch (err) {
       setNotice(err instanceof Error ? err.message : 'Error switching session.');
     } finally {
       setBusy(false);
     }
   }, [refreshHome, refreshPanels]);
+
+  const handleNewSession = useCallback(async (workspaceId?: string) => {
+    setBusy(true);
+    try {
+      const targetWorkspaceId = String(workspaceId || '').trim();
+      if (targetWorkspaceId && targetWorkspaceId !== 'chat') {
+        const scope = workspaceScopes.find(candidate => candidate.id === targetWorkspaceId);
+        if (scope) {
+          await applyRuntimeSelection({
+            type: 'set-workspace',
+            payload: { workspace: workspaceScopeForMetadata(scope) },
+          });
+        }
+      } else if (targetWorkspaceId === 'chat') {
+        const chatScope = workspaceScopes.find(scope => scope.kind === 'chat') || workspaceScopes[0];
+        if (chatScope) {
+          await applyRuntimeSelection({
+            type: 'set-workspace',
+            payload: { workspace: workspaceScopeForMetadata(chatScope) },
+          });
+        }
+      }
+
+      const surface = targetWorkspaceId && targetWorkspaceId !== 'chat'
+        ? targetWorkspaceId
+        : (activeWorkspaceScope?.label || activeWorkspaceScope?.id || 'desktop');
+
+      const created = await createDesktopSession({
+        label: 'New Chat',
+        surface,
+        workspaceId: targetWorkspaceId && targetWorkspaceId !== 'chat' ? targetWorkspaceId : activeWorkspaceScope?.id || null,
+      });
+
+      setSessionIdOverride(created.sessionId);
+      setMessages([]);
+      setComposerInput('');
+      setActivePanel('chat');
+
+      try {
+        await switchDesktopSession(created.sessionId);
+      } catch {
+        // Runtime may lazy-create on first home load.
+      }
+
+      await refreshHome(created.sessionId);
+      await refreshPanels();
+    } catch (err) {
+      setNotice(err instanceof Error ? err.message : 'Could not create a new session.');
+      // Local fallback so the user still gets a clean thread.
+      const fallbackId = `desktop-local-${Date.now().toString(36)}`;
+      setSessionIdOverride(fallbackId);
+      setMessages([]);
+      setComposerInput('');
+      setActivePanel('chat');
+    } finally {
+      setBusy(false);
+    }
+  }, [
+    activeWorkspaceScope?.id,
+    activeWorkspaceScope?.label,
+    applyRuntimeSelection,
+    refreshHome,
+    refreshPanels,
+    workspaceScopes,
+  ]);
+
+  const handleAddSubagent = useCallback((role: string, typeName: string) => {
+    setSubagents(current => persistSubagents([...current, createSubagent(role, typeName)]));
+  }, []);
+
+  const handleDeleteSubagent = useCallback((id: string) => {
+    setSubagents(current => persistSubagents(deleteSubagent(current, id)));
+  }, []);
+
+  const handleTriggerSubagentTask = useCallback((id: string, task: string) => {
+    setSubagents(current => {
+      const running = persistSubagents(appendSubagentTask(current, id, task));
+      window.setTimeout(() => {
+        setSubagents(latest => persistSubagents(completeSubagentTask(latest, id, task)));
+      }, 1200);
+      return running;
+    });
+  }, []);
+
+  const handleAddCustomProfile = useCallback((
+    name: string,
+    prompt: string,
+    effortValue: AgentProfile['effort'],
+    costLimit: number,
+  ) => {
+    const profile = createCustomProfile({
+      name,
+      systemPrompt: prompt,
+      effort: effortValue,
+      costLimit,
+    });
+    setCustomProfiles(current => persistCustomProfiles(addCustomProfile(current, profile)));
+  }, []);
+
+  const handleDeleteCustomProfile = useCallback((id: string) => {
+    setCustomProfiles(current => persistCustomProfiles(deleteCustomProfile(current, id)));
+  }, []);
 
   const handleToggleKael = useCallback(async () => {
     if (!window.zavorthDesktop?.kaelOverlay) return;
@@ -874,10 +1321,12 @@ export function useDesktopAppState() {
     input,
     busy,
     notice,
+    setNotice,
     selectedModel,
     sidebarCollapsed,
     theme,
     accent,
+    density,
     workspaceScopes,
     workspaceWriteApprovals,
     showTrustPrompt,
@@ -892,6 +1341,7 @@ export function useDesktopAppState() {
     channelItems,
     kaelActive,
     setAccent: setAccentPreset,
+    setDensity,
     setCommandPaletteOpen,
     setInput: setComposerInput,
     setMessages,
@@ -923,7 +1373,58 @@ export function useDesktopAppState() {
     handleActiveMandateRevoke,
     handleHostCommandResolve,
     handleSwitchSession,
+    handleNewSession,
     dispatchRuntimeStateAction,
     handleToggleKael,
+    subagents,
+    onAddSubagent: handleAddSubagent,
+    onDeleteSubagent: handleDeleteSubagent,
+    onTriggerSubagentTask: handleTriggerSubagentTask,
+    customProfiles,
+    allProfiles,
+    onAddCustomProfile: handleAddCustomProfile,
+    onDeleteCustomProfile: handleDeleteCustomProfile,
+    scheduledTasks: automations.scheduledTasks,
+    onAddScheduledTask: automations.handleAddScheduledTask,
+    onDeleteScheduledTask: automations.handleDeleteScheduledTask,
+    onToggleScheduledTask: automations.handleToggleScheduledTask,
+    onRunScheduledTask: automations.handleRunScheduledTask,
+    loadScheduledTaskLogs: automations.loadScheduledTaskLogs,
+    boards: product.boards,
+    runtimeWorkboard: product.runtimeWorkboard,
+    marketplacePlugins: product.marketplacePlugins,
+    marketplaceLoading: product.marketplaceLoading,
+    marketplaceSource: product.marketplaceSource,
+    refreshMarketplace: product.refreshMarketplace,
+    onBoardSelect: product.handleBoardSelect,
+    onCardCreate: product.handleCardCreate,
+    onCardUpdate: product.handleCardUpdate,
+    onCardDelete: product.handleCardDelete,
+    onColumnCreate: product.handleColumnCreate,
+    onColumnUpdate: product.handleColumnUpdate,
+    onColumnDelete: product.handleColumnDelete,
+    onOpenCardInChat: product.handleOpenCardInChat,
+    onInstallPlugin: product.handleInstallPlugin,
+    onUninstallPlugin: product.handleUninstallPlugin,
+    onUpdatePlugin: product.handleUpdatePlugin,
+    onAttachFile: product.handleAttachFile,
+    receipts,
+    clearReceipts,
+    recordReceipt,
+    updateStatus,
+    checkDesktopUpdates,
+    downloadDesktopUpdate,
+    installDesktopUpdate,
+    deferDesktopUpdate,
+    rollbackDesktopUpdate,
+    openGithubReleases,
+    voiceAgentStatus,
+    refreshVoiceAgentStatus,
+    startVoiceAgent,
+    openSetup,
+    openLogs,
+    workboardSync: product.workboardSync,
+    workboardSyncBusy: product.workboardSyncBusy,
+    onSyncWorkboard: product.handleSyncBoard,
   };
 }

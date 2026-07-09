@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { SandboxExecutionService } from './SandboxExecutionService.js';
 import { SidecarExecutionReceiptService } from './SidecarExecutionReceiptService.js';
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
@@ -122,7 +122,7 @@ export class RuntimeIsolatedShellSidecarService {
         startedAt,
       });
       return output;
-    } catch (error) {
+    } catch (error: any) {
       this.recordShellBlock({
         command,
         auditId,
@@ -179,7 +179,10 @@ export class RuntimeIsolatedShellSidecarService {
           stderrBytes: Buffer.byteLength(result.stderr || '', 'utf8'),
         },
       });
-    } catch (error) { // Receipts nao podem derrubar execucao ja isolada. logger.warn('[Runtime Isolated Shell Sidecar] process execution failed', error); }
+    } catch (error: any) {
+      // Receipts nao podem derrubar execucao ja isolada.
+      logger.warn('[Runtime Isolated Shell Sidecar] process execution failed', error);
+    }
   }
 
   private recordShellBlock(input: {
@@ -210,7 +213,10 @@ export class RuntimeIsolatedShellSidecarService {
           policyReason: input.policyReason,
         },
       });
-    } catch (error) { // Receipts nao podem mascarar o erro original. logger.warn('[Runtime Isolated Shell Sidecar] lifecycle operation failed', error); }
+    } catch (error: any) {
+      // Receipts nao podem mascarar o erro original.
+      logger.warn('[Runtime Isolated Shell Sidecar] lifecycle operation failed', error);
+    }
   }
 
   private describeCommand(command: string, auditId: string): string {

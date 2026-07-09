@@ -5,6 +5,8 @@ import type { CliDomainsSnapshot, CliStatusSnapshot } from './ZavorthCliSurfaceH
 import { readCliBriefSnapshot, readCliCockpitSnapshot } from './ZavorthCliNativeRenderers.runtime.js';
 import { formatCount, sanitizeHumanCliText } from './ZavorthCliText.js';
 import { renderCliScreen } from './ZavorthCliVisualSystem.js';
+import { config } from '../config/index.js';
+import { getI18nService } from '../i18n/ZavorthI18nService.js';
 
 function buildCliDomainsSnapshot(
   runtime: ZavorthCliRuntime,
@@ -436,6 +438,33 @@ async function buildCliStatusSnapshot(
   const remoteTransportDoctor = cockpit?.operations?.remoteTransportDoctor || null;
   const remoteTransportItems = Array.isArray(remoteTransportDoctor?.items) ? remoteTransportDoctor.items : [];
 
+  const llmProvider = config.llmProvider || 'gemini';
+  let llmModel = 'unknown';
+  if (llmProvider === 'gemini') {
+    llmModel = config.geminiModel || 'gemini-2.5-flash';
+  } else if (llmProvider === 'openai') {
+    llmModel = config.openaiModel || 'gpt-4o-mini';
+  } else if (llmProvider === 'deepseek') {
+    llmModel = config.deepseekModel || 'deepseek-chat';
+  } else if (llmProvider === 'aigateway') {
+    llmModel = config.AIGatewayModel || 'gpt-4o-mini';
+  }
+
+  const memoryMetricsRaw = runtime.layeredMemoryService
+    ? await runtime.layeredMemoryService.readMetrics({
+        userId: flags.userId,
+        platform: flags.platform,
+        chatId: flags.chatId || null,
+        sessionId: flags.sessionId || null,
+      })
+    : null;
+
+  const taskOsRaw = runtime.taskOperatingSystemService
+    ? await runtime.taskOperatingSystemService.buildSnapshot({
+        userId: flags.userId,
+      })
+    : null;
+
   return {
     generatedAt: new Date().toISOString(),
     headline:
@@ -516,34 +545,149 @@ async function buildCliStatusSnapshot(
           recommendedAction: remoteTransportDoctor.recommendedAction || null,
         }
       : null,
+    llm: {
+      provider: llmProvider,
+      model: llmModel,
+    },
+    memoryMetrics: memoryMetricsRaw
+      ? {
+          total: memoryMetricsRaw.summary.totalEntries,
+          episodic: memoryMetricsRaw.summary.episodic,
+          semantic: memoryMetricsRaw.summary.semantic,
+          procedural: memoryMetricsRaw.summary.procedural,
+          pressure: memoryMetricsRaw.summary.pressure,
+        }
+      : null,
+    taskOs: taskOsRaw
+      ? {
+          total: taskOsRaw.summary.tasks,
+          active: taskOsRaw.summary.active,
+          awaitingPermission: taskOsRaw.summary.awaitingPermission,
+        }
+      : null,
   };
 }
 
 function formatCliStatusSnapshot(snapshot: CliStatusSnapshot): string {
+  const i18n = getI18nService();
   const attentionItems = buildStatusAttentionItems(snapshot);
   const primaryAction = resolveStatusPrimaryAction(snapshot, attentionItems);
-  const summaryLines = buildStatusSummaryLines(snapshot, attentionItems);
+
+  // 1. Panel: Geral
+  const generalLines: string[] = [];
+  if (snapshot.llm) {
+    const providerCapitalized = snapshot.llm.provider.charAt(0).toUpperCase() + snapshot.llm.provider.slice(1);
+    generalLines.push(i18n.t('cli.status.provider', {
+      fallback: `- LLM Provider: ${providerCapitalized} (via ${snapshot.llm.model})`,
+      vars: { provider: providerCapitalized, model: snapshot.llm.model }
+    }));
+  } else {
+    generalLines.push(i18n.t('cli.status.provider', {
+      fallback: `- LLM Provider: Gemini (via gemini-2.5-flash)`,
+      vars: { provider: 'Gemini', model: 'gemini-2.5-flash' }
+    }));
+  }
+
+  const readinessLabel = attentionItems.length === 0 
+    ? i18n.t('cli.status.state_ready', { fallback: 'Ready to use' }) 
+    : i18n.t('cli.status.state_pending', { fallback: 'Awaiting setup / attention' });
+  generalLines.push(i18n.t('cli.status.agent_state', {
+    fallback: `- Agent state: ${readinessLabel}`,
+    vars: { state: readinessLabel }
+  }));
+
+  if (snapshot.platform) {
+    generalLines.push(i18n.t('cli.status.resources', {
+      fallback: `- Resources: ${snapshot.platform.skills} skills, ${snapshot.platform.plugins} plugins, ${snapshot.platform.mcps} MCP servers`,
+      vars: {
+        skills: String(snapshot.platform.skills),
+        plugins: String(snapshot.platform.plugins),
+        mcps: String(snapshot.platform.mcps)
+      }
+    }));
+  }
+
+  // 2. Panel: Cognição & Autonomia
+  const cognitionLines: string[] = [];
+  const sessionsCount = snapshot.sessions ? snapshot.sessions.total : 0;
+  cognitionLines.push(i18n.t('cli.status.sessions', {
+    fallback: `- Active sessions: ${sessionsCount} in history`,
+    vars: { count: String(sessionsCount) }
+  }));
+
+  if (snapshot.taskOs) {
+    cognitionLines.push(i18n.t('cli.status.autonomy', {
+      fallback: `- Autonomy: ${snapshot.taskOs.active} sub-agents running (${snapshot.taskOs.total} tasks registered)`,
+      vars: {
+        active: String(snapshot.taskOs.active),
+        total: String(snapshot.taskOs.total)
+      }
+    }));
+  } else {
+    cognitionLines.push(i18n.t('cli.status.no_autonomy', { fallback: '- Autonomy: No active background tasks' }));
+  }
+
+  if (snapshot.memoryMetrics) {
+    cognitionLines.push(i18n.t('cli.status.memory_episodic', {
+      fallback: `- Episodic Memory: ${snapshot.memoryMetrics.episodic} recent entries`,
+      vars: { count: String(snapshot.memoryMetrics.episodic) }
+    }));
+    cognitionLines.push(i18n.t('cli.status.memory_semantic', {
+      fallback: `- Semantic Memory: ${snapshot.memoryMetrics.semantic} facts assimilated`,
+      vars: { count: String(snapshot.memoryMetrics.semantic) }
+    }));
+    cognitionLines.push(i18n.t('cli.status.memory_procedural', {
+      fallback: `- Procedural Memory: ${snapshot.memoryMetrics.procedural} routines saved`,
+      vars: { count: String(snapshot.memoryMetrics.procedural) }
+    }));
+
+    let pressureKey = 'cli.status.pressure_healthy';
+    let pressureFallback = 'Healthy';
+    if (snapshot.memoryMetrics.pressure === 'elevated') {
+      pressureKey = 'cli.status.pressure_elevated';
+      pressureFallback = 'Elevated (consolidation recommended)';
+    } else if (snapshot.memoryMetrics.pressure === 'critical') {
+      pressureKey = 'cli.status.pressure_critical';
+      pressureFallback = 'Critical (clean/reconciliation required)';
+    }
+    const pressureLabel = i18n.t(pressureKey, { fallback: pressureFallback });
+    cognitionLines.push(i18n.t('cli.status.recall_pressure', {
+      fallback: `- Recall pressure: ${pressureLabel}`,
+      vars: { pressure: pressureLabel }
+    }));
+  } else {
+    cognitionLines.push(i18n.t('cli.status.memory_episodic', { fallback: '- Episodic Memory: 0 recent entries', vars: { count: '0' } }));
+    cognitionLines.push(i18n.t('cli.status.memory_semantic', { fallback: '- Semantic Memory: 0 facts assimilated', vars: { count: '0' } }));
+    cognitionLines.push(i18n.t('cli.status.memory_procedural', { fallback: '- Procedural Memory: 0 routines saved', vars: { count: '0' } }));
+  }
+
+  // 3. Panel: Faça Agora
   const actionLines = [
     `> ${primaryAction.label}`,
     ...(primaryAction.command ? [`> ${primaryAction.command}`] : []),
-    '? se quiser detalhes: zavorth doctor',
+    i18n.t('cli.status.diagnose', { fallback: '? for deep diagnostics: zavorth doctor' }),
   ];
 
   return renderCliScreen({
-    eyebrow: 'Status rapido',
+    eyebrow: i18n.t('cli.status.eyebrow', { fallback: 'Quick Status' }),
     eyebrowTone: attentionItems.length > 0 ? 'warning' : 'success',
-    title: 'Status do Zavorth',
+    title: i18n.t('cli.status.title', { fallback: 'Operation Dashboard' }),
     summary: normalizeStatusHeadline(snapshot.headline),
     mode: 'compact',
     showWordmark: false,
     panels: [
       {
-        title: 'Em resumo',
-        lines: summaryLines,
+        title: i18n.t('cli.status.general', { fallback: 'General' }),
+        lines: generalLines,
         tone: attentionItems.length > 0 ? 'warning' : 'success',
       },
       {
-        title: 'Faca agora',
+        title: i18n.t('cli.status.cognition', { fallback: 'Cognition & Autonomy' }),
+        lines: cognitionLines,
+        tone: 'neutral',
+      },
+      {
+        title: i18n.t('cli.status.do_now', { fallback: 'Do now' }),
         lines: actionLines,
         tone: 'brand',
       },

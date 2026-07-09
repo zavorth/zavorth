@@ -39,7 +39,7 @@ export class WindowsSessionService {
 
           try {
             resolve(JSON.parse(stdout.trim()) as WindowsSessionStatus);
-          } catch (parseError: any) {
+          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
             reject(new Error(`Failed to parse Windows session status: ${parseError.message}`));
           }
         },

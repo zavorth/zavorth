@@ -39,7 +39,10 @@ if (logToFile) {
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
-  } catch (error) { // silently ignore — will retry on each write logger.warn('[structured Logger] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // silently ignore — will retry on each write
+      logger.warn('[structured Logger] filesystem operation failed', error);
+    }
 }
 
 /**
@@ -49,7 +52,10 @@ function writeToFile(entry: Record<string, unknown>) {
   if (!logToFile) return;
   try {
     appendFileSync(logFilePath, JSON.stringify(entry) + "\n");
-  } catch (error) { // Silently fail — file logging should never break the app logger.warn('[structured Logger] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Silently fail — file logging should never break the app
+      logger.warn('[structured Logger] filesystem operation failed', error);
+    }
 }
 
 function formatEntry(
@@ -168,7 +174,7 @@ export function createLogger(component: string) {
         // Use stderr.write to avoid Next.js console patching that triggers EPIPE loops
         try {
           process.stderr.write(formatEntry("error", component, message, meta) + "\n");
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
         writeToFile(entry);
       }
     },
@@ -177,7 +183,7 @@ export function createLogger(component: string) {
       const entry = buildEntry("fatal", component, message, meta);
       try {
         process.stderr.write(formatEntry("fatal", component, message, meta) + "\n");
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
       writeToFile(entry);
     },
     child(defaultMeta: Record<string, unknown>) {

@@ -35,7 +35,7 @@ export class HybridExecutor {
 
     try {
       return await this.executeDirect(skillName, input, context);
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       if (this.config.autoUpgrade && this.isRetryable(err)) {
         return this.executeInSandbox(skillName, input, context);
       }

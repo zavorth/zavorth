@@ -84,7 +84,7 @@ export const gemini = {
         const data = await projectRes.json();
         projectId = data.cloudaicompanionProject?.id || data.cloudaicompanionProject || "";
       }
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       console.log("Failed to fetch project ID:", e);
     }
 

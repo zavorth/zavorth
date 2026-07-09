@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -120,7 +120,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Session Search] operation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Search error: ${message}`;
@@ -180,7 +180,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
               context: matchResult.contextSnippet,
             });
           }
-        } catch {
+        } catch (error: any) {
           continue;
         }
       }
@@ -211,7 +211,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
     if (mode === 'regex') {
       try {
         pattern = new RegExp(query, 'i');
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Zavorth Session Search] search failed', error);
     return { matchedLines: [], score: 0, contextSnippet: '' };
   }
@@ -276,7 +276,10 @@ export class ZavorthSessionSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch (error) { // ignore permission errors logger.warn('[Zavorth Session Search] filesystem operation failed', error); }
+    } catch (error: any) {
+      // ignore permission errors
+      logger.warn('[Zavorth Session Search] filesystem operation failed', error);
+    }
     return results;
   }
 }

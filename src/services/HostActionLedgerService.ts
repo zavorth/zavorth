@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { SystemOverlordActionRecord } from '../contracts/SystemOverlordContract.js';
@@ -43,6 +43,6 @@ export class HostActionLedgerService {
   private safeParse(line: string): SystemOverlordActionRecord | null {
     try {
       return JSON.parse(line) as SystemOverlordActionRecord;
-    } catch (error) { logger.warn('[Host Action Ledger] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Host Action Ledger] JSON parse failed', error); return null; }
   }
 }

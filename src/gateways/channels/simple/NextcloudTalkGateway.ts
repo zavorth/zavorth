@@ -130,7 +130,7 @@ export class NextcloudTalkGateway extends WebhookGateway {
       }
 
       this.markOutbound();
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.recordError(`Nextcloud Talk send failed: ${errorMessage}`);
     }

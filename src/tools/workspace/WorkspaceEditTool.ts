@@ -1,10 +1,13 @@
 import fs from 'fs';
+import path from 'node:path';
 import { createTwoFilesPatch } from 'diff';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import { DiskMutationGateService } from '../../services/DiskMutationGateService.js';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceFsPolicy } from './WorkspaceFsPolicy.js';
 import { logger } from '../../logger.js';
+import { executionContextScope } from '../../runtime/context/ExecutionContextScope.js';
+import { ZavorthGitLockTool } from '../ZavorthGitLockTool.js';
 
 function readString(value: unknown): string {
   return String(value ?? '').trim();
@@ -66,8 +69,21 @@ export class WorkspaceEditTool extends BaseTool {
     const approvalPhrase = String(args.approvalPhrase ?? '');
     if (previewId) {
       try {
+        const workspaceRoot = process.cwd();
+        const currentSubagentId = executionContextScope.current()?.sessionId || null;
+        const previewFilePath = path.join(workspaceRoot, '.zavorth', 'previews', 'disk-mutation-gate', `${previewId}.json`);
+        if (fs.existsSync(previewFilePath)) {
+          const previewData = JSON.parse(fs.readFileSync(previewFilePath, 'utf8'));
+          const ops = previewData?.preview?.operations || previewData?.operations || [];
+          for (const op of ops) {
+            const opPath = op.absolutePath || op.path;
+            if (opPath) {
+              await ZavorthGitLockTool.checkLock(opPath, currentSubagentId);
+            }
+          }
+        }
         const result = gate.applyPreview({
-          workspaceRoot: process.cwd(),
+          workspaceRoot,
           previewId,
           approvalPhrase,
           approvedBy: readString(args.approvedBy) || 'workspace.edit',
@@ -80,7 +96,7 @@ export class WorkspaceEditTool extends BaseTool {
           preview: result.preview,
           receipt: result.receipt,
         });
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Workspace Edit] serialization failed', error);
     return JSON.stringify({
           success: false,
@@ -108,7 +124,7 @@ export class WorkspaceEditTool extends BaseTool {
     let resolved: ReturnType<WorkspaceFsPolicy['resolveEditPath']>;
     try {
       resolved = new WorkspaceFsPolicy().resolveEditPath(filepath);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Workspace Edit] search failed', error);
     return JSON.stringify({
         success: false,
@@ -116,6 +132,10 @@ export class WorkspaceEditTool extends BaseTool {
         error: 'For security, edits can only modify files inside the workspace output/ scope.',
       });
   }
+
+    // Check if target file is locked by another subagent
+    const currentSubagentId = executionContextScope.current()?.sessionId || null;
+    await ZavorthGitLockTool.checkLock(resolved.absolutePath, currentSubagentId);
 
     if (!fs.existsSync(resolved.absolutePath) || !fs.statSync(resolved.absolutePath).isFile()) {
       return JSON.stringify({

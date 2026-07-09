@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { IconSettings, IconServer, IconShield, IconCpu, IconActivity, IconFolder, IconX, IconClock, IconUsers, IconFileText, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
 import type {
   ApprovalItem,
@@ -19,7 +19,7 @@ import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitive
 interface SettingsOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  accent: 'orange' | 'purple' | 'navy';
+  accent: 'green' | 'orange' | 'purple' | 'navy';
   busy: boolean;
   effort: string;
   events: BootEvent[];
@@ -30,7 +30,7 @@ interface SettingsOverlayProps {
   status: RuntimeStatus;
   approvalsCount: number;
   theme: 'light' | 'dark' | 'system';
-  onAccent(value: 'orange' | 'purple' | 'navy'): void;
+  onAccent(value: 'green' | 'orange' | 'purple' | 'navy'): void;
   onEffort(value: string): void;
   onProfile(value: string): void;
   onRepair(): void | Promise<void>;
@@ -59,7 +59,7 @@ export function SettingsOverlay({
         timestamp: new Date().toISOString(),
         settings: {
           theme: localStorage.getItem('zvd:theme') || 'system',
-          accent: localStorage.getItem('zvd:accent') || 'orange',
+          accent: localStorage.getItem('zvd:accent') || 'green',
           profile: props.profile,
           effort: props.effort,
         },
@@ -120,9 +120,51 @@ export function SettingsOverlay({
     };
     reader.readAsText(file);
   };
-  const [activeTab, setActiveTab] = useState<TabType>('general');
+  const settingsTabs: TabType[] = [
+    'general',
+    'providers',
+    'permissions',
+    'mcp',
+    'workspace',
+    'diagnostics',
+    'shortcuts',
+    'cron',
+    'subagents',
+    'artifacts',
+  ];
+
+  const readTabFromLocation = (): TabType => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash.replace(/^#/, '');
+      const raw = (params.get('settingsTab') || params.get('tab') || hash || '').trim().toLowerCase();
+      if (settingsTabs.includes(raw as TabType)) return raw as TabType;
+    } catch {
+      // ignore
+    }
+    return 'general';
+  };
+
+  const [activeTab, setActiveTab] = useState<TabType>(() => (isOpen ? readTabFromLocation() : 'general'));
   const [sidebarSide, setSidebarSide] = useState(() => localStorage.getItem('zvd:sidebar-side') || 'left');
   const [soundsEnabled, setSoundsEnabled] = useState(() => localStorage.getItem('zvd:sounds-enabled') !== 'false');
+
+  // Deep-link: ?settingsTab=providers or #providers when overlay opens
+  useEffect(() => {
+    if (!isOpen) return;
+    setActiveTab(readTabFromLocation());
+  }, [isOpen]);
+
+  const selectTab = (tab: TabType) => {
+    setActiveTab(tab);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('settingsTab', tab);
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // ignore
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -138,32 +180,32 @@ export function SettingsOverlay({
           left: 0;
           width: 100vw;
           height: 100vh;
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(12px);
+          background: rgba(0, 0, 0, 0.22);
+          backdrop-filter: blur(2px);
           z-index: 9999;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #f5f5f7;
+          color: var(--zvd-text);
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           animation: zvdFadeIn 200ms ease;
         }
         .zvd-settings-window {
-          background: #18181a;
-          border: 1px solid #27272a;
-          border-radius: 16px;
+          background: var(--zvd-surface);
+          border: 1px solid var(--zvd-stroke-hairline);
+          border-radius: 28px;
           width: 90%;
           max-width: 860px;
           height: 80vh;
           display: flex;
-          box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+          box-shadow: var(--zvd-shadow-elevation);
           overflow: hidden;
           animation: zvdPopUp 250ms cubic-bezier(0.16, 1, 0.3, 1);
         }
         .zvd-settings-sidebar {
           width: 220px;
-          background: #121214;
-          border-right: 1px solid #27272a;
+          background: var(--zvd-sidebar);
+          border-right: 1px solid var(--zvd-stroke-hairline);
           padding: 24px 12px;
           display: flex;
           flex-direction: column;
@@ -174,7 +216,7 @@ export function SettingsOverlay({
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          color: #71717a;
+          color: var(--zvd-muted);
           padding: 0 12px 10px;
         }
         .zvd-settings-tab-btn {
@@ -183,21 +225,21 @@ export function SettingsOverlay({
           gap: 10px;
           background: transparent;
           border: none;
-          color: #a1a1aa;
+          color: var(--zvd-muted);
           padding: 10px 12px;
-          border-radius: 8px;
+          border-radius: 20px;
           cursor: pointer;
           font-size: 14px;
           text-align: left;
           transition: all 150ms ease;
         }
         .zvd-settings-tab-btn:hover {
-          background: #1f1f23;
-          color: #fff;
+          background: var(--zvd-border-soft);
+          color: var(--zvd-text);
         }
         .zvd-settings-tab-btn--active {
-          background: rgba(216, 107, 42, 0.08);
-          color: var(--zvd-accent, #d86b2a) !important;
+          background: var(--zvd-accent-soft);
+          color: var(--zvd-accent) !important;
           font-weight: 600;
         }
         .zvd-settings-content {
@@ -205,11 +247,11 @@ export function SettingsOverlay({
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          background: #18181a;
+          background: var(--zvd-surface);
         }
         .zvd-settings-header {
           padding: 20px 24px;
-          border-bottom: 1px solid #27272a;
+          border-bottom: 1px solid var(--zvd-stroke-hairline);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -222,18 +264,18 @@ export function SettingsOverlay({
         .zvd-settings-close {
           background: transparent;
           border: none;
-          color: #71717a;
+          color: var(--zvd-muted);
           cursor: pointer;
           padding: 4px;
-          border-radius: 6px;
+          border-radius: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 150ms ease;
         }
         .zvd-settings-close:hover {
-          background: #27272a;
-          color: #fff;
+          background: var(--zvd-border-soft);
+          color: var(--zvd-text);
         }
         .zvd-settings-body {
           flex: 1;
@@ -249,25 +291,25 @@ export function SettingsOverlay({
         .zvd-settings-form-group label {
           font-size: 13px;
           font-weight: 600;
-          color: #d4d4d8;
+          color: var(--zvd-text);
         }
         .zvd-settings-select {
-          background: #202022;
-          border: 1px solid #27272a;
-          border-radius: 8px;
-          padding: 10px 12px;
-          color: #fff;
+          background: var(--zvd-sidebar);
+          border: 1px solid var(--zvd-stroke-hairline);
+          border-radius: 20px;
+          padding: 10px 16px;
+          color: var(--zvd-text);
           font-size: 14px;
           outline: none;
           cursor: pointer;
         }
         .zvd-settings-select:focus {
-          border-color: var(--zvd-accent, #d86b2a);
+          border-color: var(--zvd-accent);
         }
         .zvd-settings-card {
-          background: #202022;
-          border: 1px solid #27272a;
-          border-radius: 12px;
+          background: var(--zvd-sidebar);
+          border: 1px solid var(--zvd-stroke-hairline);
+          border-radius: 16px;
           padding: 16px;
           margin-bottom: 20px;
         }
@@ -278,7 +320,7 @@ export function SettingsOverlay({
         }
         .zvd-settings-card-desc {
           font-size: 13px;
-          color: #a1a1aa;
+          color: var(--zvd-muted);
         }
       `}</style>
       <div className="zvd-settings-window" onClick={e => e.stopPropagation()}>
@@ -287,7 +329,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'general' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('general'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('general'); }}
           >
             <IconSettings size={18} />
             General
@@ -295,7 +337,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'providers' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('providers'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('providers'); }}
           >
             <IconServer size={18} />
             AI Providers
@@ -303,7 +345,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'permissions' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('permissions'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('permissions'); }}
           >
             <IconShield size={18} />
             Permissions
@@ -311,7 +353,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('mcp'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('mcp'); }}
           >
             <IconCpu size={18} />
             MCP Servers
@@ -319,7 +361,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'workspace' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('workspace'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('workspace'); }}
           >
             <IconFolder size={18} />
             Workspace
@@ -327,7 +369,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'diagnostics' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); setActiveTab('diagnostics'); }}
+            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('diagnostics'); }}
           >
             <IconActivity size={18} />
             Diagnostics
@@ -404,6 +446,7 @@ export function SettingsOverlay({
                     value={props.accent}
                     onChange={e => props.onAccent(e.target.value as any)}
                   >
+                    <option value="green">Green (brand)</option>
                     <option value="orange">Orange</option>
                     <option value="purple">Purple</option>
                     <option value="navy">Dark Blue</option>

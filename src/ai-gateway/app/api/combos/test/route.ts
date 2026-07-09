@@ -45,7 +45,7 @@ async function testComboModel(modelStr, internalUrl) {
       let responseBody = null;
       try {
         responseBody = await res.json();
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     responseBody = null;
   }
@@ -68,7 +68,7 @@ async function testComboModel(modelStr, internalUrl) {
     try {
       const errBody = await res.json();
       errorMsg = errBody?.error?.message || errBody?.error || res.statusText;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     errorMsg = res.statusText;
   }
@@ -80,7 +80,7 @@ async function testComboModel(modelStr, internalUrl) {
       error: errorMsg,
       latencyMs,
     };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const latencyMs = Date.now() - startTime;
     return {
       model: modelStr,
@@ -103,7 +103,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
       {
@@ -147,7 +147,7 @@ export async function POST(request) {
       results,
       testedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error testing combo:", error);
     return NextResponse.json({ error: "Failed to test combo" }, { status: 500 });
   }

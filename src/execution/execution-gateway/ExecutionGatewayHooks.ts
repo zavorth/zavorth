@@ -24,7 +24,7 @@ export async function recordExecutionGatewayTelemetry(
       status,
       payload,
     });
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     // telemetry should never break execution flow
   }
 }
@@ -71,7 +71,7 @@ export async function runExecutionGatewayRuntimeFailureHook(
 ): Promise<void> {
   try {
     await runExecutionGatewayRuntimeHook(hookPipeline, 'runtime.exec_failed', workspace, context);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     // Observability hooks must not break the gateway decision.
   }
 }

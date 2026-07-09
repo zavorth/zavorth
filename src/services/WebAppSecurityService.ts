@@ -1,4 +1,4 @@
-import * as http from 'http';
+﻿import * as http from 'http';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
 import { ZavorthControlAuthService } from './ZavorthControlAuthService.js';
@@ -162,6 +162,6 @@ export class WebAppSecurityService {
     }
     try {
       return new URL(normalized).origin;
-    } catch (error) { logger.warn('[Web App Security] network request failed', error); return null; }
+    } catch (error: any) { logger.warn('[Web App Security] network request failed', error); return null; }
   }
 }

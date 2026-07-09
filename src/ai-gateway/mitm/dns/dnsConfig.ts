@@ -121,7 +121,7 @@ export function checkDNSEntry() {
       const parts = line.trim().split(/\s+/);
       return parts.length >= 2 && parts[0] === "127.0.0.1" && parts.some((p) => p === TARGET_HOST);
     });
-  } catch (error) { logger.warn('[dns] filesystem operation failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[dns] filesystem operation failed', error); return false; }
 }
 
 /**
@@ -164,7 +164,7 @@ if (-not $exists) {
       );
     }
     console.log(`Added DNS entry: ${entry}`);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`Failed to add DNS entry: ${error.message}`);
   }
 }
@@ -200,7 +200,7 @@ Set-Content -LiteralPath $hostsPath -Value $next -Encoding ASCII
       );
     }
     console.log(`Removed DNS entry for ${TARGET_HOST}`);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`Failed to remove DNS entry: ${error.message}`);
   }
 }

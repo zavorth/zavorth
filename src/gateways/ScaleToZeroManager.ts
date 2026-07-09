@@ -163,13 +163,13 @@ export class ScaleToZeroManager {
     if (gateway && isLifecycleGateway(gateway)) {
       try {
         await gateway.shutdown();
-      } catch (error) { logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
     }
 
     if (this.onShutdown) {
       try {
         await this.onShutdown(normalized);
-      } catch (error) { logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] filesystem check failed', error); return false; }
     }
 
     state.isShutdown = true;
@@ -210,13 +210,13 @@ export class ScaleToZeroManager {
 
       try {
         await Promise.race([initPromise, timeoutPromise]);
-      } catch (error) { logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
     }
 
     if (this.onWarmUp) {
       try {
         await this.onWarmUp(gatewayId);
-      } catch (error) { logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
+      } catch (error: any) { const err = error; const e = error; logger.warn('[Scale To Zero Manager] operation failed', error); return false; }
     }
 
     const state = this.states.get(gatewayId);
@@ -332,7 +332,10 @@ export class ScaleToZeroManager {
       };
 
       fs.writeFileSync(this.stateFilePath, JSON.stringify(state, null, 2), 'utf-8');
-    } catch (error) { // Persistence failure is non-critical logger.warn('[Scale To Zero Manager] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Persistence failure is non-critical
+      logger.warn('[Scale To Zero Manager] filesystem operation failed', error);
+    }
   }
 
   private loadState(): void {
@@ -355,6 +358,9 @@ export class ScaleToZeroManager {
       if (Array.isArray(persisted.events)) {
         this.events.push(...persisted.events);
       }
-    } catch (error) { // Load failure is non-critical; start fresh logger.warn('[Scale To Zero Manager] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Load failure is non-critical; start fresh
+      logger.warn('[Scale To Zero Manager] operation failed', error);
+    }
   }
 }

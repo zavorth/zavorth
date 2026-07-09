@@ -1,4 +1,4 @@
-import type { ToolDefinition } from '../providers/ILlmProvider.js';
+﻿import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { globalLiveNodeRegistry, LiveNodeRegistryService } from '../services/LiveNodeRegistryService.js';
 import { NodeInvokeService } from '../services/NodeInvokeService.js';
@@ -43,7 +43,7 @@ function parseJsonObject(input: unknown): Record<string, unknown> | null {
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed as Record<string, unknown>
       : null;
-  } catch (error) { logger.warn('[Node Mesh] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Node Mesh] JSON parse failed', error); return null; }
 }
 
 function parsePayload(input: unknown): { ok: true; payload: Record<string, unknown> } | { ok: false; error: string } {

@@ -9,6 +9,7 @@ import type { SandboxResult } from './sandbox/ISandboxRuntime.js';
 import { LocalJailSandboxRuntime } from './sandbox/LocalJailSandboxRuntime.js';
 import { SandboxPolicyService } from './sandbox/SandboxPolicyService.js';
 import { WasmSandboxRuntime } from './sandbox/WasmSandboxRuntime.js';
+import { SecurityOrchestratorEngine } from './sandbox/SecurityOrchestratorEngine.js';
 
 export type SandboxTierDecision = {
   tier: SandboxSecurityLevel;
@@ -35,6 +36,12 @@ export class SandboxExecutionService {
   private readonly localJailRuntime = new LocalJailSandboxRuntime();
   private readonly wasmRuntime = new WasmSandboxRuntime();
   private readonly policy = new SandboxPolicyService();
+  private readonly securityEngine = new SecurityOrchestratorEngine({
+    getDockerRuntime: () => this.dockerRuntime,
+    getFirecrackerRuntime: () => this.firecrackerRuntime,
+    getLocalJailRuntime: () => this.localJailRuntime,
+    getWasmRuntime: () => this.wasmRuntime,
+  });
 
   // ---------------------------------------------------------------------------
   // Availability
@@ -236,43 +243,12 @@ export class SandboxExecutionService {
     env?: Record<string, string>;
     allowTrustedLocalJail?: boolean;
   }): Promise<SandboxResult> {
-    const policy = this.policy.resolveCodeExecutionPolicy(
-      input.language,
-      input.code,
-      input.preferredLevel || 'auto',
-      { allowTrustedLocalJail: input.allowTrustedLocalJail === true },
-    );
-    if (policy.securityLevel === 'local-jail') {
-      return this.localJailRuntime.execute({
-        code: input.code,
-        language: input.language,
-        timeoutMs: input.timeoutMs,
-        env: input.env,
-      });
-    }
-    if (policy.securityLevel === 'container') {
-      return this.dockerRuntime.execute({
-        code: input.code,
-        language: input.language,
-        timeoutMs: input.timeoutMs,
-        env: input.env,
-      });
-    }
-    if (policy.securityLevel === 'microvm') {
-      return this.firecrackerRuntime.execute({
-        code: input.code,
-        language: input.language,
-        timeoutMs: input.timeoutMs,
-        env: input.env,
-      });
-    }
-    if (policy.securityLevel === 'wasm') {
-      return this.wasmRuntime.execute({
-        moduleBase64: input.code,
-        timeoutMs: input.timeoutMs,
-      });
-    }
-    throw new Error(`Sandbox tier nao suportado: ${policy.securityLevel}.`);
+    return this.securityEngine.executeSecurely({
+      code: input.code,
+      language: input.language,
+      timeoutMs: input.timeoutMs,
+      env: input.env,
+    }, input.preferredLevel || 'auto');
   }
 
   private profileToPreferredLevel(

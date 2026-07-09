@@ -15,7 +15,7 @@ function isLocalZavorthControlRequest(request: any): boolean {
   try {
     const hostname = new URL(request.url).hostname.toLowerCase();
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch (error) { logger.warn('[proxy] encoding failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[proxy] encoding failed', error); return false; }
 }
 
 export async function proxy(request: any) {
@@ -111,7 +111,7 @@ export async function proxy(request: any) {
       ) {
         return response;
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       // FASE-01: Log settings fetch errors instead of silencing them
       console.error("[Middleware] settings_error: Settings read failed:", err.message, {
         path: pathname,
@@ -155,14 +155,14 @@ export async function proxy(request: any) {
             console.log(
               `[Middleware] JWT auto-refreshed for ${pathname} (was expiring in ${Math.round((exp - now) / 3600)}h)`
             );
-          } catch (refreshErr) {
+          } catch (refreshErr: any) { const error = refreshErr; const err = refreshErr; const e = refreshErr;
             // Refresh failed — continue with existing valid token
             console.error("[Middleware] JWT auto-refresh failed:", refreshErr.message);
           }
         }
 
         return response;
-      } catch (err) {
+      } catch (err: any) { const error = err; const e = err;
         // FASE-01: Log auth errors instead of silently redirecting
         console.error("[Middleware] auth_error: JWT verification failed:", err.message, {
           path: pathname,

@@ -168,7 +168,7 @@ export class ZavorthHost {
     try {
       this.hostLock.acquire(this.hostLockOwner);
       this.hostLock.ensure(this.hostLockOwner);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error instanceof ZavorthProcessLockConflictError || error?.code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
         this.log(`Another Zavorth host supervisor is already active (PID ${error.existingPid}). Exiting duplicate host.`);
         this.exitImpl(0);
@@ -215,7 +215,7 @@ export class ZavorthHost {
         stdio: ['pipe', 'inherit', 'inherit', 'ipc'],
         env: workerEnv,
       });
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (process.platform !== 'win32' || error?.code !== 'EPERM') {
         throw error;
       }
@@ -424,7 +424,7 @@ export class ZavorthHost {
         signal: timeoutSignal,
       } as RequestInit);
       return Boolean(response?.ok);
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }

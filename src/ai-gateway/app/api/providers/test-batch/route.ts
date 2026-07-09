@@ -43,7 +43,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] connection failed', error);
     return NextResponse.json(
       {
@@ -127,7 +127,7 @@ export async function POST(request) {
           statusCode: data.statusCode || null,
           testedAt: data.testedAt || new Date().toISOString(),
         };
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return {
           provider: conn.provider,
@@ -185,7 +185,7 @@ export async function POST(request) {
         failed: results.filter((r) => !r.valid).length,
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error in batch test:", error);
     return NextResponse.json({ error: "Batch test failed" }, { status: 500 });
   }

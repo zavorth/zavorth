@@ -78,7 +78,7 @@ export class TelegramExecutionArtifactDeliveryService {
           deliveredKeys.add(deliveryKey);
           newlyDelivered.push(deliveryKey);
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         if (remoteUrl) {
           deferredLinks.push(this.artifactPipeline.formatLinkLine(artifact));
           deliveredKeys.add(deliveryKey);

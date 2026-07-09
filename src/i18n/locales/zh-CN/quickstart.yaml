@@ -1,0 +1,166 @@
+welcome:
+  title: "欢迎使用 Zavorth"
+  subtitle: "让我们完成配置。"
+  banner_line1: "AI 智能体运行时"
+  banner_line2: "受控的。本地优先。属于您。"
+
+security:
+  short: "Zavorth 将自然语言路由到模型、频道和本地工具。敏感操作需要您的批准。"
+  confirm_first_run: "欢迎！准备好设置 Zavorth 了吗？"
+  confirm_reconfigure: "重新配置现有的 Zavorth 安装？"
+
+existing_config:
+  title: "检测到现有配置"
+  provider: "提供商: {value}"
+  model: "模型: {value}"
+  channels: "频道: {value}"
+  home: "主目录: {value}"
+
+config_issues:
+  title: "配置问题"
+  no_api_keys: "未在 .env 中找到 API 密钥"
+  env_not_found: ".env 文件未找到 — 需要配置提供商"
+  env_unreadable: ".env 文件存在但无法读取"
+  run_doctor: "先运行 zavorth doctor 修复问题？"
+  doctor_hint: "在另一个终端运行 \"zavorth doctor\"，然后回来。"
+
+mode:
+  prompt_first_run: "您想如何设置？"
+  prompt_reconfigure: "您想如何重新配置？"
+  complete: "完整设置"
+  complete_hint: "所有步骤 — 提供商、频道、技能、内存"
+  quickstart: "快速开始"
+  quickstart_hint: "快速 — 仅提供商，稍后配置其余"
+  safe: "安全模式"
+  safe_hint: "严格审批，本地优先默认值"
+  blank: "空白页"
+  blank_hint: "最小化 — 逐项启用功能"
+
+home:
+  prompt: "Zavorth 应将此实例存储在哪里？"
+  keep_current: "保持当前 ZAVORTH_HOME"
+  use_isolated: "在此项目旁使用隔离主目录"
+  choose_custom: "选择自定义主目录路径"
+  path_prompt: "ZAVORTH_HOME 路径"
+
+config_handling:
+  prompt: "设置应如何处理现有配置？"
+  keep: "保留当前值"
+  review: "审查并更新"
+  reset: "设置前重置"
+
+skill_governance:
+  prompt: "Zavorth 应如何处理导入的技能？"
+  casual: "宽松"
+  casual_hint: "推荐个人使用；快速导入，保留硬性阻止"
+  governed: "严格"
+  governed_hint: "更严格的企业审查，针对风险、许可和审计"
+
+wake_detector:
+  prompt: "启用 Echo 唤醒词设置？"
+  default_local: "默认本地检测器"
+  custom_command: "自定义检测器命令"
+  disabled: "保持关闭"
+  command_prompt: "唤醒检测器命令"
+  args_prompt: "唤醒检测器参数"
+
+migration:
+  prompt: "从另一个 AI 代理迁移设置？"
+  path_prompt: "代理工作区文件夹路径："
+  complete: "迁移完成。请审查导入的设置。"
+  skipped: "迁移已跳过或失败。您可以稍后运行：zavorth migrate"
+
+provider:
+  auto_detected: "找到 {provider} 的 API 密钥。"
+  auto_selected: "使用 {provider}，模型 {model}。"
+  none_found: "未在环境变量中找到 LLM 提供商 API 密钥。"
+  select_prompt: "您想使用哪个提供商？"
+  all_providers: "所有原生提供商路由"
+  api_key_prompt: "粘贴您的 {provider} API 密钥（留空跳过）："
+  testing: "正在测试 API 密钥..."
+  verified: "API 密钥已验证。"
+  test_failed: "API 密钥测试失败。稍后可用 zavorth providers 修复"
+  skip: "暂时跳过"
+  skip_hint: "稍后用 zavorth providers 配置"
+  more: "更多提供商..."
+  models_prompt: "为 {provider} 选择模型："
+  manual_prompt: "提供商名称（例如 openai、anthropic）"
+
+channels:
+  title: "通信界面"
+  telegram_token: "Telegram 机器人令牌"
+  telegram_users: "Telegram 允许的用户 ID，逗号分隔"
+  discord_token: "Discord 机器人令牌，留空稍后配置"
+  slack_token: "Slack 机器人令牌，留空稍后配置"
+  email_smtp: "邮箱 SMTP URL，留空稍后配置"
+
+search:
+  title: "网络搜索"
+  prompt: "选择搜索提供商？"
+  local: "本地（无需 API 密钥）"
+  brave: "Brave Search"
+  google: "Google Search"
+  skip: "暂时跳过"
+
+hooks:
+  title: "自动化"
+  prompt: "准备自动化模板？"
+  hint: "在您审查并启用之前保持禁用"
+
+memory:
+  title: "内存"
+  prompt: "内存模式？"
+  local_metadata: "本地元数据（偏好、审批和使用信号）"
+  local_summary: "本地摘要（简短的项目/上下文摘要）"
+  off: "关闭（设置期间不使用内存）"
+  vault_scope: "内存扫描范围？"
+  skip: "暂时跳过"
+  documents: "文档"
+  downloads: "下载"
+  custom: "自定义路径"
+  whole_pc: "整个电脑"
+
+gateway:
+  title: "运行时服务"
+  installed: "运行时服务已安装"
+  not_installed: "运行时服务"
+  start_cmd: "显示启动命令"
+  reinstall: "显示重新安装命令"
+  skip: "暂时跳过"
+
+hatch:
+  title: "启动智能体"
+  prompt: "设置完成后如何启动智能体？"
+  terminal: "在终端中启动"
+  browser: "在 ZavorthControl 中启动"
+  later: "稍后启动"
+
+summary:
+  title: "设置完成"
+  provider: "提供商: {value}"
+  model: "模型: {value}"
+  channels_label: "频道: {value}"
+  governance: "技能治理: {value}"
+  memory_label: "内存: {value}"
+  env_updated: ".env 已更新（{count} 个密钥）"
+  backup: "备份: {value}"
+  next_steps: "下一步："
+  step_chat: "  zavorth chat          开始与智能体对话"
+  step_channels: "  zavorth channels      连接消息平台"
+  step_doctor: "  zavorth doctor        检查系统健康"
+  step_providers: "  zavorth providers     更改或添加提供商"
+
+section:
+  title: "设置 — {section}"
+
+headless:
+  message: "设置需要交互式终端 (TTY)。"
+  non_interactive: "非交互式选项："
+  cmd_apply: "  zavorth setup --non-interactive --apply    静默应用默认值"
+  cmd_json: "  zavorth setup --json                       输出 JSON 格式"
+  cmd_dry: "  zavorth setup --dry-run                    预览不写入"
+  or_run: "或从交互式会话运行设置："
+  ssh_hint: "  SSH 带 TTY:  ssh -t user@host"
+  docker_hint: "  Docker:      docker run -it zavorth setup"
+
+cancelled: "设置已取消。未做任何更改。"

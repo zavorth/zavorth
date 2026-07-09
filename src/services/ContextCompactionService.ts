@@ -416,7 +416,7 @@ export class ContextCompactionService {
             ...message,
             content: `[Old tool result summarized (${tool}) - ${summary}]`,
           });
-        } catch (err: unknown) {
+        } catch (err: any) { const error = err; const e = err;
           // Fallback cleanly to static description in case of error
           const status = message.status || 'ok';
           compacted.push({

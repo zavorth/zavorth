@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import type { EngineeringContextSnapshot } from '../contracts/EngineeringCoreContract.js';
@@ -76,7 +76,7 @@ export class EngineeringContextService {
         return null;
       }
       return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    } catch (error) { logger.warn('[Engineering Context] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Engineering Context] JSON parse failed', error); return null; }
   }
 
   private readConnectedMcpToolNames(mcpRuntimeService: Pick<McpRuntimeService, 'readSnapshot'> | null): string[] {

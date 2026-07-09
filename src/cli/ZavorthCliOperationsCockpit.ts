@@ -375,7 +375,7 @@ export async function buildCliOperationsCockpitSnapshot(
       const probeInput = await buildCliRuntimeAccessProbeInput(runtime);
       const report = runtime.runtimeAccessReadinessService.inspect(probeInput);
       doctor = await buildCliOperationsDoctorSnapshot(report, runtime, flags);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Operations] creation failed', error);
     doctorError = error?.message || String(error);
   }
@@ -385,7 +385,7 @@ export async function buildCliOperationsCockpitSnapshot(
   if (runtime.memoryPlaneService) {
     try {
       memory = summarizeMemory(await runtime.memoryPlaneService.buildSnapshot());
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Operations] creation failed', error);
     memory = null;
   }

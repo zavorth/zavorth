@@ -48,7 +48,7 @@ export class WorkspaceWriteApprovalPayloadCache {
           this.cache.delete(id);
         }
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       logger.error('Error clearing expired cache payloads:', err);
     }
   }

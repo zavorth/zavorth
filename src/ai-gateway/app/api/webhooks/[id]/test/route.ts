@@ -41,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       status: result.status,
       error: result.error || null,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

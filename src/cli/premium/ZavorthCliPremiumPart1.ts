@@ -144,7 +144,7 @@ export async function runDiagnosticsExport(rawArgs: string[]): Promise<number> {
       ], 'success');
     }
     return 0;
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     await logCliError(`Failed to export diagnostics: ${error?.message || String(error)}`, 'Export Failed');
     return 1;
   }
@@ -232,7 +232,7 @@ export function writeZavorthHomeEnvSelection(root: string, homeRoot: string): { 
   let current = '';
   try {
     current = existsSync(envFile) ? readFileSync(envFile, 'utf8') : '';
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[Zavorth Cli Premium Part1] filesystem operation failed', error);
     current = '';
   }
@@ -403,7 +403,7 @@ export async function runPremiumHatch(rawArgs: string[]): Promise<number> {
 
 export async function runPremiumQuickStart(rawArgs: string[]): Promise<number> {
   const { runZavorthCliQuickStart } = await import('../quickstart/index.js');
-  const result = runZavorthCliQuickStart({
+  const result = await runZavorthCliQuickStart({
     projectRoot,
     json: rawArgs.includes('--json'),
   });

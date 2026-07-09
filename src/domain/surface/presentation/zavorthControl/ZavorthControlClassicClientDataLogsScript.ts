@@ -17,7 +17,7 @@ function zavorthControlClassicClientDataLogs() {
             `;
          }).join('');
          document.getElementById('log-container')!.innerHTML = html || 'Nenhum log.';
-      } catch(e) {
+      } catch (e: any) { const error = e; const err = e;
          document.getElementById('log-container')!.innerHTML = 'Falha ao carregar logs.';
       }
     }

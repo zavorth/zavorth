@@ -178,7 +178,7 @@ export class HostPowerModeService {
     for (const cb of this.onDisableCallbacks) {
       try {
         await cb(workspaceId);
-      } catch (e) {
+      } catch (e: any) { const error = e; const err = e;
         logger.error('Error in HostPowerMode disable callback:', e);
       }
     }

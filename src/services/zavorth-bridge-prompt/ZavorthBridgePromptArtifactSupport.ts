@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../../config/index.js';
 import type { PendingZavorthBridgeSession } from '../../orchestrator/AgentBridgeManager.js';
@@ -62,7 +62,7 @@ export class ZavorthBridgePromptArtifactSupport {
       const parsed = JSON.parse(raw) as PendingZavorthBridgeSession;
       parsed.trackingFile = trackingFile;
       return parsed;
-    } catch (error) { logger.warn('[Zavorth Bridge Prompt Artifact] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Bridge Prompt Artifact] JSON parse failed', error); return null; }
   }
 
   public async markSessionCompleted(

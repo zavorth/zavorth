@@ -41,7 +41,7 @@ export async function POST(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     return Response.json(
       {
@@ -90,7 +90,7 @@ export async function POST(request, { params }) {
     });
 
     return await handleChat(newRequest, buildClientRawRequest(request, rawBody));
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error handling Gemini request:", error);
     return Response.json({ error: { message: error.message, code: 500 } }, { status: 500 });
   }

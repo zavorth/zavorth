@@ -1,4 +1,4 @@
-import {
+﻿import {
   ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION,
   type ZavorthErrorRecoveryCategory,
   type ZavorthErrorRecoveryReceipt,
@@ -222,7 +222,7 @@ export class ZavorthNativeEngineAbsorptionService {
       } else {
         parsed = value as Record<string, unknown>;
       }
-    } catch {
+    } catch (error: any) {
       blockedReasons.push('json-parse-failed');
     }
 

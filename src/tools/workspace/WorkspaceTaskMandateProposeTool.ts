@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { BaseTool } from '../BaseTool.js';
 import { WorkspaceResolver } from '../../security/WorkspaceResolver.js';
 import { WorkspacePathGuard } from '../../mcp/workspace/WorkspacePathGuard.js';
@@ -92,7 +92,7 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         try {
           const resolved = guard.resolveForWrite(dirInput);
           targetDirectories.push(resolved);
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[Workspace Task Mandate Propose] validation failed', error);
     return JSON.stringify({
             success: false,
@@ -135,7 +135,7 @@ export class WorkspaceTaskMandateProposeTool extends BaseTool {
         }
       });
 
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Workspace Task Mandate Propose] creation failed', error);
     return JSON.stringify({
         success: false,

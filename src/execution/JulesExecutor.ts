@@ -108,7 +108,7 @@ export class JulesExecutor implements IExecutor {
         result.metadata.jules_pending = true;
       }
 
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       result.error_message = `Jules API error: ${error.message}`;
       result.error_code = 'JULES_API_ERROR';
       result.actions_executed.push(`[Jules] Error: ${error.message}`);
@@ -127,7 +127,7 @@ export class JulesExecutor implements IExecutor {
         serviceName: 'Jules availability check',
       });
       return res.ok || res.status === 200;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }

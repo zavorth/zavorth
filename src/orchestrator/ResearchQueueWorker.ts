@@ -62,7 +62,7 @@ export class ResearchQueueWorker {
       }
 
       await this.execute(task);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.deps.log('error', 'ResearchQueueWorker', error.message || 'Research worker failed.');
     } finally {
       this.running = false;
@@ -96,7 +96,7 @@ export class ResearchQueueWorker {
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'delivery_pending');
       await this.deliver(task, false);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       task.error_summary = error.message || 'Failed to execute queued research.';
       task.metadata = {
         ...(task.metadata || {}),
@@ -142,7 +142,7 @@ export class ResearchQueueWorker {
       };
       this.deps.taskManager.saveTask(task);
       this.deps.taskManager.advanceState(task, 'completed');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       task.metadata = {
         ...(task.metadata || {}),
         async_queue: {
@@ -174,7 +174,7 @@ export class ResearchQueueWorker {
         chatId,
         `Research failed.\nShort reference: ${task.task_id.substring(0, 8)}\n\nReason: ${task.error_summary || 'Unknown error.'}`,
       );
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       this.deps.log('warn', 'ResearchQueueWorker', 'Failed to deliver research error.', {
       });
     }

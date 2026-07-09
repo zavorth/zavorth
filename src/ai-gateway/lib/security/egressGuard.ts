@@ -71,7 +71,7 @@ export async function assertPublicHttpTargetAllowed(
   let parsed: URL;
   try {
     parsed = new URL(rawUrl);
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`${serviceName} URL is invalid`);
   }
 
@@ -95,7 +95,7 @@ export async function assertPublicHttpTargetAllowed(
   let resolved;
   try {
     resolved = await lookup(hostname, { all: true });
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`${serviceName} hostname could not be resolved`);
   }
 

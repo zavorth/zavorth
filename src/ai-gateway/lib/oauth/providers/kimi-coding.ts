@@ -66,7 +66,7 @@ export const kimiCoding = {
     let data;
     try {
       data = await response.json();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[kimi-coding] network request failed', error);
     const text = await response.text();
       data = { error: "invalid_response", error_description: text };

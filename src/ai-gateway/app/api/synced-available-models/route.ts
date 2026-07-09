@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
     const allModels = await getAllSyncedAvailableModels();
     return Response.json(allModels);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] search failed', error);
     return Response.json(
       { error: { message: "Failed to fetch synced available models", type: "server_error" } },

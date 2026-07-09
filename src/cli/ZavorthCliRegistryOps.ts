@@ -1265,5 +1265,5 @@ function buildCliProductizationContractSnapshot(
 function safeBuildSnapshot<T>(factory: () => T): T | null {
   try {
     return factory();
-  } catch (error) { logger.warn('[Zavorth Cli Registry Ops] connection failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[Zavorth Cli Registry Ops] connection failed', error); return null; }
 }

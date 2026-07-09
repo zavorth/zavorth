@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import fs from 'fs';
 
 import type { ProviderDoctorService } from './ProviderDoctorService.js';
@@ -112,7 +112,10 @@ export class ZavorthFirstBootDetectionService {
             dbExists,
           });
         }
-      } catch (error) { // Provider doctor unavailable — continue detection heuristics. logger.warn('[Zavorth First Boot Detection] creation failed', error); }
+      } catch (error: any) {
+      // Provider doctor unavailable — continue detection heuristics.
+      logger.warn('[Zavorth First Boot Detection] creation failed', error);
+    }
     }
 
     // 2. Env-var detection
@@ -232,7 +235,10 @@ export class ZavorthFirstBootDetectionService {
       if (config && typeof (config as Record<string, unknown>).dataDir === 'string') {
         return path.join((config as Record<string, unknown>).dataDir as string, 'zavorth.db');
       }
-    } catch (error) { // config unavailable — use fallback logger.warn('[Zavorth First Boot Detection] operation failed', error); }
+    } catch (error: any) {
+      // config unavailable — use fallback
+      logger.warn('[Zavorth First Boot Detection] operation failed', error);
+    }
     return path.join(this.cwd, 'data', 'zavorth.db');
   }
 

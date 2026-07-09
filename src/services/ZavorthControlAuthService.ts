@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -195,7 +195,7 @@ export class ZavorthControlAuthService {
           'productModeId',
         ]),
       };
-    } catch (error) { logger.warn('[Zavorth Control Auth] operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Control Auth] operation failed', error); return null; }
   }
 
   private readClaimString(claims: Record<string, unknown>, keys: string[]): string | null {
@@ -262,6 +262,6 @@ export class ZavorthControlAuthService {
 
       const token = fs.readFileSync(filePath, 'utf8').trim();
       return token || null;
-    } catch (error) { logger.warn('[Zavorth Control Auth] filesystem operation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Zavorth Control Auth] filesystem operation failed', error); return null; }
   }
 }

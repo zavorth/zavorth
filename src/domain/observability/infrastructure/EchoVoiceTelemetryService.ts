@@ -291,7 +291,10 @@ export class EchoVoiceTelemetryService {
           status,
         },
       });
-    } catch (error) { // Observability must never break the calling surface. logger.warn('[Voice Telemetry] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Observability must never break the calling surface.
+      logger.warn('[Voice Telemetry] operation failed', error);
+    }
   }
 
   private readEvents(): VoiceTelemetryEvent[] {
@@ -304,12 +307,12 @@ export class EchoVoiceTelemetryService {
         .map((line) => {
           try {
             return JSON.parse(line) as VoiceTelemetryEvent;
-          } catch (error) { logger.warn('[Voice Telemetry] JSON parse failed', error); return null; }
+          } catch (error: any) { const err = error; const e = error; logger.warn('[Voice Telemetry] JSON parse failed', error); return null; }
         })
         .filter((entry): entry is VoiceTelemetryEvent => Boolean(entry?.traceId))
         .filter((entry) => entry.source === VOICE_TELEMETRY_SOURCE)
         .filter((entry) => /^voice\.tts\./.test(this.normalizeText(entry.eventType)));
-    } catch (error) { logger.warn('[Voice Telemetry] JSON parse failed', error); return []; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Voice Telemetry] JSON parse failed', error); return []; }
   }
 
   private resolveTraceId(value?: string | null): string {

@@ -33,7 +33,7 @@ export async function fetchWithTimeout(url: string, options: RequestInit & Timeo
       signal: controller.signal,
     });
     return response;
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.name === "AbortError" || controller.signal.aborted) {
       const timeoutError: any = new Error(`${label} timed out after ${timeoutMs}ms`);
       timeoutError.name = "TimeoutError";

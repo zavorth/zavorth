@@ -257,7 +257,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
 
     try {
       return JSON.parse(fs.readFileSync(this.statusFilePath, 'utf8')) as DiscordBridgeStatusSnapshot;
-    } catch (error) { logger.warn('[Discord Bridge way] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Discord Bridge way] JSON parse failed', error); return null; }
   }
 
   public async processInboxOnce(): Promise<void> {
@@ -393,7 +393,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       }));
       this.writeStatus();
       return { accepted: true, chatId };
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const reason = error?.message || 'Discord bridge failed while delegating to the broker.';
       this.patchState((state) => ({
         ...state,
@@ -436,7 +436,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
       const raw = await fs.promises.readFile(filePath, 'utf8');
       const envelope = JSON.parse(raw) as DiscordBridgeInboundEnvelope;
       outcome = await this.ingestEnvelope(envelope);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       outcome = {
         accepted: false,
         reason: error?.message || 'Discord bridge failed while parsing the inbox envelope.',
@@ -665,7 +665,7 @@ export class DiscordBridgeGateway implements LiveChannelBroadcastGatewayContract
               .slice(0, MAX_PROCESSED_MESSAGE_IDS)
           : [],
       };
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[Discord Bridge way] parsing failed', error);
     return {
         startedAt: null,

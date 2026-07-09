@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       ),
     };
     return NextResponse.json({ memories, stats });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] parsing failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     }
     const memoryId = await createMemory(validation.data);
     return NextResponse.json({ success: true, id: memoryId });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 400 });

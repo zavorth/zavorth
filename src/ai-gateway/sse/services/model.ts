@@ -38,7 +38,7 @@ async function lookupCustomModelApiFormat(
     if (!Array.isArray(models)) return undefined;
     const match = models.find((m: any) => m.id === modelId);
     return match?.apiFormat === "responses" ? "responses" : undefined;
-  } catch (error) { logger.warn('[model] operation failed', error); return undefined; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[model] operation failed', error); return undefined; }
 }
 
 /**
@@ -93,7 +93,10 @@ export async function getModelInfo(modelStr) {
         const strippedResult = await getModelInfoCore(parsed.model, getModelAliases);
         return { ...strippedResult, extendedContext };
       }
-    } catch (error) { // If settings read fails, fall through to normal resolution logger.warn('[model] parsing failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // If settings read fails, fall through to normal resolution
+      logger.warn('[model] parsing failed', error);
+    }
   }
 
   if (!parsed.isAlias) {
@@ -143,7 +146,10 @@ export async function getComboForModel(modelStr) {
     if (mapped && (mapped as any).models?.length > 0) {
       return normalizeZavorthComboStrategy(mapped);
     }
-  } catch (error) { // If the mappings table doesn't exist yet (pre-migration), continue gracefully logger.warn('[model] health check failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // If the mappings table doesn't exist yet (pre-migration), continue gracefully
+      logger.warn('[model] health check failed', error);
+    }
 
   return null;
 }
@@ -189,7 +195,7 @@ async function buildZavorthAutoCombo(name: string) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-  } catch (error) { logger.warn('[model] connection failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[model] connection failed', error); return null; }
 }
 
 function normalizeZavorthComboStrategy(combo: any) {

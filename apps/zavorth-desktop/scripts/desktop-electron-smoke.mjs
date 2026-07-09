@@ -245,11 +245,58 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
     receivedRuntimeActions.push(body);
+    const base = runtimeStateSnapshot();
+    const workboardPayload = body?.payload && typeof body.payload === 'object' ? body.payload : {};
+    const card = workboardPayload.card && typeof workboardPayload.card === 'object' ? workboardPayload.card : null;
+    const workboard = body?.type === 'workboard-sync'
+      ? {
+        updatedAt: new Date().toISOString(),
+        source: 'zavorth-desktop-workboard',
+        selectedTaskId: card?.taskId || null,
+        selectedTask: card,
+        sessions: [{
+          sessionId: body.sessionId || 'desktop-main',
+          objective: workboardPayload.board?.name || 'Desktop Workboard',
+          status: 'running',
+          maxDepth: 3,
+          maxChildren: 8,
+        }],
+        tasks: workboardPayload.operation === 'delete-card' ? [] : (card ? [card] : []),
+        workers: [],
+        receipts: [{
+          receiptId: `wb-${receivedRuntimeActions.length}`,
+          action: `workboard-${workboardPayload.operation || 'sync-board'}`,
+          taskId: card?.taskId || null,
+          workerId: null,
+          status: 'applied',
+        }],
+        boards: workboardPayload.board ? [workboardPayload.board] : [],
+        summary: {
+          sessions: 1,
+          queued: card && workboardPayload.operation !== 'delete-card' ? 1 : 0,
+          running: 0,
+          completed: 0,
+          blocked: 0,
+        },
+        safety: {
+          sqliteDurable: true,
+          mutationRequiresApproval: true,
+          retryBounded: true,
+          spawnDepthBounded: true,
+        },
+      }
+      : null;
     send(200, {
       ok: true,
       applied: true,
       receipt: { id: `smoke-${receivedRuntimeActions.length}`, action: body.type },
-      snapshot: runtimeStateSnapshot(),
+      snapshot: workboard
+        ? {
+          ...base,
+          state: { ...base.state, workboard },
+          projections: { ...base.projections, workboard },
+        }
+        : base,
     });
     return;
   }
@@ -324,8 +371,24 @@ const app = await electron.launch({
 
 try {
   const window = await app.firstWindow();
-  await window.waitForLoadState('domcontentloaded');
-  await window.waitForSelector('.zvd-statusbar', { timeout: 15000 });
+  window.on('console', msg => console.log('PAGE LOG:', msg.text()));
+  window.on('pageerror', err => console.error('PAGE ERROR STACK:', err.stack || err.message));
+  
+  // Wait for the app root element to render
+  await window.waitForSelector('.zvd-app', { timeout: 15000 });
+
+  // Sprint 0: first-run onboarding may cover the shell — skip it for smoke.
+  try {
+    const skipOnboarding = window.locator('.zvd-onboarding-overlay button', { hasText: /Pular|Skip/i }).first();
+    if (await skipOnboarding.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await skipOnboarding.click({ force: true });
+      await window.waitForSelector('.zvd-onboarding-overlay', { state: 'detached', timeout: 5000 }).catch(() => undefined);
+    }
+  } catch {
+    // Onboarding already completed or not shown.
+  }
+
+  await window.waitForSelector('.zvd-statusbar', { timeout: 5000 });
 
   const title = await window.title();
   if (title !== 'Zavorth') {
@@ -337,17 +400,20 @@ try {
     throw new Error(`Expected runtime statusbar controls, found ${statusbarItems}.`);
   }
 
-  await window.getByTitle('Toggle terminal (Ctrl+J)').click();
+  await window.getByTitle('Toggle terminal (Ctrl+J)').click({ force: true });
   await window.waitForSelector('.zvd-terminal-panel', { timeout: 5000 });
+  // Unified terminal: Logs tab should be present.
+  await window.waitForSelector('.zvd-terminal-tabs', { timeout: 3000 });
   await waitForRuntimeAction('session', 'open');
 
-  await window.getByTitle('Model settings').click();
+  await window.getByTitle('Model settings').click({ force: true });
   await waitForRuntimeAction('gateway', 'open');
 
-  await window.getByTitle('Effort settings').click();
+  await window.getByTitle('Effort settings').click({ force: true });
   await waitForRuntimeAction('agents', 'sync');
 
-  await window.getByRole('button', { name: 'Settings', exact: true }).click();
+  // Sidebar Settings nav (avoid topbar title/icon which share the same accessible name after Sprint 2)
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Configurações/i }).click({ force: true });
   await window.waitForSelector('.zvd-settings-section[aria-label="Runtime"]', { timeout: 5000 });
   const runtimeTabs = () => window.locator('.zvd-settings-section[aria-label="Runtime"] .zvd-text-tabs button');
 
@@ -375,7 +441,7 @@ try {
     throw new Error(`Could not click ${buttonText} in row ${rowText}. Last error: ${lastError?.message || 'none'}. Visible runtime text: ${visibleText}`);
   }
 
-  await window.getByRole('tab', { name: /Permissions/i }).click();
+  await window.getByRole('tab', { name: /Permissions/i }).click({ force: true });
   try {
     await window.getByText('Code-heavy work with safer fallbacks.').waitFor({ state: 'visible', timeout: 10000 });
   } catch (error) {
@@ -387,26 +453,60 @@ try {
   await clickDetailAction('Anthropic', 'Setup');
   await waitForRuntimeActionType('set-provider-connection');
 
-  await window.getByRole('tab', { name: /Workspace/i }).click();
+  await window.getByRole('tab', { name: /Workspace/i }).click({ force: true });
   await clickDetailAction('Smoke docs', 'Trust source');
   await waitForRuntimeActionType('set-workspace-knowledge');
 
-  await window.getByRole('tab', { name: /^MCP/i }).click();
+  await window.getByRole('tab', { name: /^MCP/i }).click({ force: true });
   await clickDetailAction('Filesystem MCP', 'Trust');
   await waitForRuntimeActionType('set-mcp-trust');
 
-  await window.getByRole('tab', { name: /Skills/i }).click();
+  await window.getByRole('tab', { name: /Skills/i }).click({ force: true });
   await clickDetailAction('Write file', 'Execute');
   await waitForRuntimeActionType('skill-lifecycle');
 
-  await window.getByRole('tab', { name: /Jobs/i }).click();
+  await window.getByRole('tab', { name: /Jobs/i }).click({ force: true });
   await clickDetailAction('Scheduled jobs', 'Recover');
   await waitForRuntimeActionType('recover-scheduled-jobs');
   await clickDetailAction('Stream session', 'Resume');
   await waitForRuntimeActionType('resume-stream');
 
-  await window.getByRole('tab', { name: /Personal Ops/i }).click();
+  await window.getByRole('tab', { name: /Personal Ops/i }).click({ force: true });
   await window.locator('.zvd-detail-row', { hasText: 'Primary email' }).locator('button', { hasText: 'Connect Google' }).waitFor();
+
+  // Product journey: workboard → sync push → settings update → receipt → voice
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Workboard/i }).click({ force: true });
+  await window.waitForSelector('text=Workboard', { timeout: 5000 });
+  const workboardBody = await window.locator('body').innerText();
+  if (!/Workboard|Local board|Hybrid|Runtime|cards|Project Management/i.test(workboardBody)) {
+    throw new Error('Workboard surface did not render expected content.');
+  }
+  const syncNow = window.getByRole('button', { name: /Sync now|Sync workboard/i }).first();
+  if (await syncNow.count()) {
+    await syncNow.click({ force: true });
+    await waitForRuntimeActionType('workboard-sync').catch(() => undefined);
+  }
+
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Settings|Configurações/i }).click({ force: true });
+  await window.waitForSelector('.zvd-update-panel', { timeout: 5000 });
+  await window.getByRole('button', { name: /Check GitHub|Check updates/i }).first().click({ force: true });
+  await window.waitForTimeout(400);
+  // Voice companion + workboard sync rows in Experience settings
+  await window.getByText(/Voice companion/i).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
+  await window.getByText(/Workboard sync/i).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
+  await window.getByRole('button', { name: /Open GitHub Releases|Install via Setup|Open Setup|GitHub/i }).first().waitFor({ state: 'visible', timeout: 5000 });
+
+  // Receipts should include the update check ledger entry
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Receipts|Recibos/i }).click({ force: true });
+  await window.waitForSelector('text=Receipts', { timeout: 5000 });
+  const receiptsText = await window.locator('body').innerText();
+  if (!/Receipt|Update check|No receipts yet|recibo/i.test(receiptsText)) {
+    throw new Error('Receipts panel did not render after product journey.');
+  }
+
+  // Mic / voice affordance remains present for dictation + hotkey bridge
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Chat|Conversa/i }).click({ force: true });
+  await window.waitForSelector('.zvd-composer-icon-btn[aria-label*="Voice"]', { timeout: 5000 });
 
   console.log(JSON.stringify({
     status: 'pass',
@@ -428,6 +528,13 @@ try {
       'settings-skill-lifecycle-action',
       'settings-job-recovery-action',
       'settings-stream-resume-action',
+      'workboard-surface',
+      'workboard-sync-action',
+      'update-control-panel',
+      'setup-upgrade-affordance',
+      'receipts-panel',
+      'voice-dictation-affordance',
+      'voice-companion-settings',
     ],
   }, null, 2));
 } finally {

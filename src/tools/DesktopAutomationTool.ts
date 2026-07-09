@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import { execFile } from 'child_process';
 import { config } from '../config/index.js';
 import path from 'path';
@@ -176,7 +176,7 @@ export class DesktopAutomationTool extends BaseTool {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Desktop Automation] string operation failed', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
       return `Error while running desktop automation: ${errorMessage}`;
@@ -236,7 +236,7 @@ export class DesktopAutomationTool extends BaseTool {
           try {
             const parsed = JSON.parse(stdout.trim()) as DesktopAutomationResult;
             resolve(parsed);
-          } catch (parseError: unknown) {
+          } catch (parseError: any) { const error = parseError; const err = parseError; const e = parseError;
             const msg = parseError instanceof Error ? parseError.message : String(parseError);
             reject(new Error(`Failed to parse script response: ${msg}`));
           }

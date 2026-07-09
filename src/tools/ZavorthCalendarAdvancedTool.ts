@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -124,7 +124,7 @@ export class ZavorthCalendarAdvancedTool extends BaseTool {
         maxBuffer: 10 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
   }
 
   private async runNodeScript(script: string, timeout = 30000): Promise<string> {
@@ -135,7 +135,7 @@ export class ZavorthCalendarAdvancedTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Calendar Advanced] process execution failed', error); return ''; }
   }
 
   private async listEvents(args: Record<string, unknown>): Promise<string> {
@@ -170,7 +170,7 @@ try {
   events.slice(0, ${Number(args.max_results || 20)}).forEach(e => {
     console.log(\`\${e.start?.dateTime} - \${e.subject} [\${e.id}]\`);
   });
-} catch (e) {
+} catch (e: any) { const error = e; const err = e;
   console.error('Outlook CLI not available. Install: npm i -g @pnp/cli-microsoft365');
 }
 `;
@@ -194,7 +194,7 @@ try {
       });
 
       return `ICS events from ${icsPath} (${events.length}):\n${events.join('\n')}`;
-    } catch (error) { logger.warn('[Zavorth Calendar Advanced] lifecycle operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Calendar Advanced] lifecycle operation failed', error); return ''; }
   }
 
   private async createEvent(args: Record<string, unknown>): Promise<string> {

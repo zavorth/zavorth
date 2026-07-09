@@ -49,7 +49,7 @@ async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await access(targetPath);
     return true;
-  } catch (error) { logger.warn('[auto Update] filesystem check failed', error); return false; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[auto Update] filesystem check failed', error); return false; }
 }
 
 function shellQuote(value: string): string {
@@ -98,12 +98,15 @@ export async function detectComposeCommand(
   try {
     await execFileImpl("docker", ["compose", "version"], { timeout: 10_000 });
     return "docker compose";
-  } catch (error) { // Fall through. logger.warn('[auto Update] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Fall through.
+      logger.warn('[auto Update] process execution failed', error);
+    }
 
   try {
     await execFileImpl("docker-compose", ["version"], { timeout: 10_000 });
     return "docker-compose";
-  } catch (error) { logger.warn('[auto Update] process execution failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[auto Update] process execution failed', error); return null; }
 }
 
 export async function validateAutoUpdateRuntime(
@@ -123,7 +126,7 @@ export async function validateAutoUpdateRuntime(
 
     try {
       await execFileImpl("git", ["--version"], { timeout: 10_000 });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[auto Update] process execution failed', error);
     return {
         supported: false,
@@ -169,7 +172,7 @@ export async function validateAutoUpdateRuntime(
 
   try {
     await execFileImpl("git", ["--version"], { timeout: 10_000 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[auto Update] process execution failed', error);
     return {
       supported: false,
@@ -201,7 +204,7 @@ export async function ensureGitTagExists(
       timeout: 10_000,
       cwd,
     });
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     throw new Error(`Git tag not found: ${targetTag}`);
   }
 }

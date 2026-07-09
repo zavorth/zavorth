@@ -119,7 +119,7 @@ export class StitchExecutor implements IExecutor {
     try {
       await this.loadSdk();
       return true;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return false;
     }
   }

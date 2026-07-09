@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { createHash } from 'crypto';
 import { config } from '../config/index.js';
@@ -130,7 +130,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(this.marketplaceIndexPath, 'utf8');
       return JSON.parse(raw) as ZavorthMarketplaceIndexDocument;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[Marketplace] Failed to parse marketplace index, returning defaults', { error });
       return { schemaVersion: 'zavorth.marketplace-index/v1', categories: [], remoteRegistry: null };
     }
@@ -143,7 +143,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(this.ratingsPath, 'utf8');
       return JSON.parse(raw) as Record<string, { total: number; count: number }>;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[Marketplace] Failed to parse ratings file, returning empty ratings', { error });
       return {};
     }
@@ -165,7 +165,7 @@ export class ZavorthSkillMarketplaceService {
     try {
       const raw = this.readFileSync(manifestPath, 'utf8');
       return JSON.parse(raw) as NativeSkillManifest;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn(`[Marketplace] Failed to parse native skill manifest at ${manifestPath}`, { error });
       return null;
     }
@@ -420,7 +420,7 @@ export class ZavorthSkillMarketplaceService {
         warnings,
       });
       return { installed: true, skillPath: path.relative(this.projectRoot, targetDir), warnings };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Skill Marketplace] operation failed', error);
     return {
         installed: false,
@@ -472,7 +472,7 @@ export class ZavorthSkillMarketplaceService {
     }
     try {
       return JSON.parse(this.readFileSync(this.lockPath, 'utf8')) as Record<string, unknown>;
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('[Marketplace] Failed to parse lock file, returning empty lock', { error });
       return {};
     }

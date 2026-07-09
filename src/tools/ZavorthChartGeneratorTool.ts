@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -73,7 +73,7 @@ export class ZavorthChartGeneratorTool extends BaseTool {
     let data: Array<Record<string, unknown>>;
     try {
       data = JSON.parse(String(args.data || '[]'));
-    } catch (error) { logger.warn('[Zavorth Chart Generator] JSON parse failed', error); return 'Error: invalid JSON for "data".'; }
+    } catch (error: any) { logger.warn('[Zavorth Chart Generator] JSON parse failed', error); return 'Error: invalid JSON for "data".'; }
 
     if (!Array.isArray(data) || data.length === 0) {
       return 'Error: "data" must be a non-empty array.';

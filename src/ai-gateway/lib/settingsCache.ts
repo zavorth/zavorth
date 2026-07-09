@@ -35,7 +35,7 @@ export async function getCachedSettings() {
     cache.data = settings;
     cache.lastFetch = now;
     return settings;
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     // If fetch fails but we have stale data, return it
     if (cache.data) {
       console.error("[SettingsCache] Failed to refresh, using stale data:", err.message);

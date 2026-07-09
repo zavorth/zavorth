@@ -576,7 +576,7 @@ export class AgentRunFactory {
     }
     try {
       return this.modelPickerContractService.buildContract({ includeAdvanced: true });
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

@@ -193,7 +193,7 @@ export class SkillRouter {
           use_count = use_count + 1,
           last_executed_at = datetime('now')
       `, [skillId]);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`[SkillRouter] Failed to record telemetry for skill ${skillId}:`, error);
     }
   }
@@ -258,7 +258,7 @@ export class SkillRouter {
       };
 
       return this.normalizeSelection(parsed, skills);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`routeSelection error: ${error}. Falling back to heuristics or free mode.`);
       return { primarySkillName: null, supportSkillName: null };
     }

@@ -36,7 +36,7 @@ export async function GET(request: Request, { params }: RouteContext) {
     }
 
     return NextResponse.json({ task });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to get scheduled task";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -79,7 +79,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     });
 
     return NextResponse.json({ ok: true, result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] async operation failed', error);
     const message = error instanceof Error ? error.message : "Failed to update scheduled task";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -102,7 +102,7 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     });
 
     return NextResponse.json({ ok: true, result });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to delete scheduled task";
     return NextResponse.json({ error: message }, { status: 500 });

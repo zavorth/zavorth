@@ -142,7 +142,7 @@ export default function Header({ onMenuClick, showMenuButton = true }) {
         router.push("/login");
         router.refresh();
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       console.error("Failed to logout:", err);
     }
   };

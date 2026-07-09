@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       total: maskedKeys.length,
       allowKeyReveal: isApiKeyRevealEnabled(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching keys:", error);
     return NextResponse.json({ error: "Failed to fetch keys" }, { status: 500 });
   }
@@ -83,7 +83,7 @@ export async function POST(request) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error creating key:", error);
     return NextResponse.json({ error: "Failed to create key" }, { status: 500 });
   }
@@ -99,7 +99,7 @@ async function syncKeysToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing keys to cloud:", error);
   }
 }

@@ -171,7 +171,10 @@ export class AgentBridgeManager {
         const parsed = JSON.parse(raw) as PendingZavorthBridgeSession;
         parsed.trackingFile = trackingFile;
         sessions.push(parsed);
-      } catch (error) { // Ignore malformed tracking files so they do not break the watcher loop. logger.warn('[Agent Bridge Manager] JSON parse failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore malformed tracking files so they do not break the watcher loop.
+      logger.warn('[Agent Bridge Manager] JSON parse failed', error);
+    }
     }
 
     return sessions.sort((left, right) => {
@@ -268,7 +271,7 @@ export class AgentBridgeManager {
             ? session.lastNotifiedPermissionId
             : existing.lastNotifiedPermissionId || null,
       };
-    } catch (error) { logger.warn('[Agent Bridge Manager] operation failed', error); return session; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Agent Bridge Manager] operation failed', error); return session; }
   }
 
   private mergeArtifactKeys(existing: string[] | undefined, next: string[] | undefined): string[] {

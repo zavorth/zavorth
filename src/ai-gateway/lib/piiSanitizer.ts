@@ -172,7 +172,10 @@ export function sanitizePIIResponse(response: any): any {
         choice.delta.content = result.text;
       }
     }
-  } catch (error) { // Fail open — don't break the response logger.warn('[pii Sanitizer] operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Fail open — don't break the response
+      logger.warn('[pii Sanitizer] operation failed', error);
+    }
 
   return response;
 }

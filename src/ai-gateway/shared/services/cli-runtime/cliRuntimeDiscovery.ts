@@ -19,7 +19,7 @@ export const checkExplicitPath = async (commandPath: string) => {
 
   try {
     await fs.access(commandPath, fs.constants.F_OK);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: false, commandPath: null, reason: "not_found" };
   }
@@ -27,7 +27,7 @@ export const checkExplicitPath = async (commandPath: string) => {
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[cli Runtime Discovery] filesystem check failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }
@@ -94,7 +94,7 @@ export const checkKnownPath = async (commandPath: string) => {
           isWithinExpected = true;
           break;
         }
-      } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+      } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
     }
 
     if (!isWithinExpected) {
@@ -109,7 +109,7 @@ export const checkKnownPath = async (commandPath: string) => {
     if (stat.size < 30 || stat.size > 350 * 1024 * 1024) {
       return { installed: false, commandPath: null, reason: "suspicious_size" };
     }
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const errorCode = (error as NodeJS.ErrnoException).code;
     if (errorCode === "ENOENT") {
       return { installed: false, commandPath: null, reason: "not_found" };
@@ -123,7 +123,7 @@ export const checkKnownPath = async (commandPath: string) => {
   try {
     await fs.access(commandPath, fs.constants.X_OK);
     return { installed: true, commandPath, reason: null };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[cli Runtime Discovery] validation failed', error);
     return { installed: true, commandPath, reason: "not_executable" };
   }

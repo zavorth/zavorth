@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import { config } from '../../config/index.js';
 import { ProviderFactory } from '../../providers/ProviderFactory.js';
 import type {
@@ -265,7 +265,7 @@ export class LlmRuntimeService {
             attempts,
           }),
         };
-      } catch (error) {
+      } catch (error: any) {
         lastError = error;
         if (this.isAbortError(error, options?.signal)) {
           this.recordAttempt(attempts, {
@@ -439,7 +439,7 @@ export class LlmRuntimeService {
         return Boolean(target.baseUrl && target.apiKey);
       }
       return false;
-    } catch (error) { logger.warn('[Llm Runtime] operation failed', error); return false; }
+    } catch (error: any) { logger.warn('[Llm Runtime] operation failed', error); return false; }
   }
 
   private isAIGatewayAvailable(): boolean {
@@ -475,7 +475,7 @@ export class LlmRuntimeService {
 
       const raw = fs.readFileSync(statusFile, 'utf8');
       return JSON.parse(raw) as AIGatewayHealthSnapshot;
-    } catch (error) { logger.warn('[Llm Runtime] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Llm Runtime] JSON parse failed', error); return null; }
   }
 
   private createProvider(name: string): ILlmProvider {
@@ -684,7 +684,7 @@ export class LlmRuntimeService {
   private getProviderFactoryDefaultModel(providerName: string): string {
     try {
       return ProviderFactory.resolveRuntimeTarget(providerName).modelName || '';
-    } catch (error) { logger.warn('[Llm Runtime] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Llm Runtime] operation failed', error); return ''; }
   }
 
   private resolveProviderChain(options?: LlmRunOptions): string[] {

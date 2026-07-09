@@ -139,7 +139,7 @@ export class AutonomousHousekeepingAgentService {
           command: 'npm run qa:selfmod-optimization',
           artifactId: preview.previewId || preview.artifactId || null,
         });
-      } catch (error: any) {
+      } catch (error: any) { const err = error; const e = error;
         operations.push({
           id: 'refactor-preview',
           label: 'Refactor Preview',

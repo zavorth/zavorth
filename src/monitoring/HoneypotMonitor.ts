@@ -74,7 +74,7 @@ export class HoneypotMonitor {
       });
 
       console.log('Honeypot armed at:', this.honeyPath);
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error('Failed to start honeypot:', error);
     }
   }
@@ -99,7 +99,7 @@ export class HoneypotMonitor {
     try {
       fs.writeFileSync(this.honeyPath, decoyContent, 'utf-8');
       this.lastSelfWriteAt = Date.now();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       console.error('Failed to write honeypot decoy:', error);
     }
   }
@@ -137,7 +137,7 @@ export class HoneypotMonitor {
 
       await this.botAlertCallback(alertMessage);
       console.warn('Honeypot: canary file access detected (alert only, no lock).');
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       console.error('Failed to process honeypot alert:', error.message);
     }
   }

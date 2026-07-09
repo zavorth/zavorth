@@ -187,7 +187,7 @@ export class LocalVoiceDictation {
     if (this.recorderProcess) {
       try {
         this.recorderProcess.kill();
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         // noop
       }
       this.recorderProcess = null;
@@ -333,7 +333,7 @@ export class LocalVoiceDictation {
       if (this.existsSyncImpl(targetPath)) {
         this.rmSyncImpl(targetPath, { force: true });
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // noop
     }
   }

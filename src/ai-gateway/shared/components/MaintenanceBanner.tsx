@@ -41,7 +41,7 @@ export default function MaintenanceBanner() {
             setMessage(t("maintenanceServerIssues"));
           }
         }
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         consecutiveFailuresRef.current += 1;
         if (consecutiveFailuresRef.current >= 2 && !dismissedUntilRecoveryRef.current) {
           setShow(true);

@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       persistCanaryReport: false,
     });
     return NextResponse.json(snapshot);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       persistCanaryReport: false,
     });
     return NextResponse.json(snapshot);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     const error = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error }, { status: 500 });

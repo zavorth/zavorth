@@ -400,7 +400,7 @@ export class ZavorthAndroidAdbBridgeService {
         timeoutMs: options.timeoutMs || DEFAULT_TIMEOUT_MS,
         encoding: options.encoding || 'utf8',
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return {
         ok: false,
         code: null,

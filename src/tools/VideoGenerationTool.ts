@@ -1,4 +1,4 @@
-import { BaseTool } from './BaseTool.js';
+﻿import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { safeFetch } from '../security/SafeFetchService.js';
 import { logger } from '../logger.js';
@@ -92,7 +92,7 @@ export class VideoGenerationTool extends BaseTool {
       let payload: Record<string, unknown> = {};
       try {
         payload = text ? JSON.parse(text) : {};
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Video Generation] JSON parse failed', error);
     payload = { rawText: text.slice(0, 1000) };
   }
@@ -115,7 +115,7 @@ export class VideoGenerationTool extends BaseTool {
         `  - Style: ${style}`,
         outputUrl ? `  - URL: ${outputUrl}` : '  - URL: unavailable in backend response',
       ].join('\n');
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Video Generation] creation failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Video generation error: ${message}`;

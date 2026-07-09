@@ -134,7 +134,7 @@ export class SkillProvenanceService {
           audit: this.normalizeAudit(raw.governance?.audit),
         },
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

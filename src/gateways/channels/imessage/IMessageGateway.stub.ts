@@ -69,7 +69,7 @@ export class IMessageGateway implements LiveChannelBroadcastGatewayContract {
     }
     try {
       return JSON.parse(fs.readFileSync(config.imessageStatusFile, 'utf8')) as IMessageGatewayStatusSnapshot;
-    } catch (error) { logger.warn('[I Message way.stub] JSON parse failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[I Message way.stub] JSON parse failed', error); return null; }
   }
 
   public getIdentityHints(): { linkedBy: string; verificationMethod: string } {

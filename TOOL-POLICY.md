@@ -2,16 +2,19 @@
 
 Fine-grained control over which tools require approval.
 
+Calibrated for local development on Windows: low friction inside the workspace,
+approval kept for shell, network, email, and other external effects.
+
 ## Policies
 
-- **file.read:** allow
-- **file.write:** ask
-- **shell.execute:** ask
-- **network.fetch:** ask
-- **email.send:** ask
-- **calendar.write:** ask
-- **subagent.delegate:** allow
-- **mcp.execute:** ask
+- [file.read] allow
+- [file.write] allow | workspace only
+- [shell.execute] ask
+- [network.fetch] ask
+- [email.send] ask
+- [calendar.write] ask
+- [subagent.delegate] allow
+- [mcp.execute] ask
 
 ## Default Level
 

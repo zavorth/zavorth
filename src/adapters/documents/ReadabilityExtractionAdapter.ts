@@ -110,7 +110,7 @@ function extractReadableHtml(html: string, url: string | null): {
           siteName: cleanText(article?.siteName || '') || null,
         };
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Fall through to the deterministic extractor.
     }
   }
@@ -136,7 +136,7 @@ function loadReadability(): { Readability: ReadabilityShape; JSDOM: JSDOMShape }
       Readability: readabilityModule.Readability,
       JSDOM: jsdomModule.JSDOM,
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

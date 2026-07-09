@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
@@ -89,7 +89,7 @@ export class WebFirecrawlTool extends BaseTool {
         'https://api.firecrawl.dev/v1/scrape',
       ], { timeout: 60000, maxBuffer: 20 * 1024 * 1024 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
@@ -116,7 +116,7 @@ export class WebFirecrawlTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error) { logger.warn('[Web Firecrawl] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Web Firecrawl] operation failed', error); return ''; }
   }
 
   private async crawl(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -144,7 +144,7 @@ export class WebFirecrawlTool extends BaseTool {
         'https://api.firecrawl.dev/v1/crawl',
       ], { timeout: 60000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
@@ -163,7 +163,7 @@ export class WebFirecrawlTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error) { logger.warn('[Web Firecrawl] parsing failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Web Firecrawl] parsing failed', error); return ''; }
   }
 
   private async map(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -184,7 +184,7 @@ export class WebFirecrawlTool extends BaseTool {
         'https://api.firecrawl.dev/v1/map',
       ], { timeout: 30000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
@@ -197,7 +197,7 @@ export class WebFirecrawlTool extends BaseTool {
       if (links.length > 30) lines.push(`  ... and ${links.length - 30} more links`);
 
       return lines.join('\n');
-    } catch (error) { logger.warn('[Web Firecrawl] parsing failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Web Firecrawl] parsing failed', error); return ''; }
   }
 
   private async extract(args: Record<string, unknown>, apiKey: string): Promise<string> {
@@ -205,11 +205,11 @@ export class WebFirecrawlTool extends BaseTool {
     if (!urlsRaw) return 'Error: "urls" is required for extract.';
 
     let urls: string[];
-    try { urls = JSON.parse(urlsRaw); } catch (error) { logger.warn('[Web Firecrawl] JSON parse failed', error); return 'Error: Invalid "urls" JSON.'; }
+    try { urls = JSON.parse(urlsRaw); } catch (error: any) { logger.warn('[Web Firecrawl] JSON parse failed', error); return 'Error: Invalid "urls" JSON.'; }
 
     let schema: Record<string, unknown> = {};
     if (typeof args.extract_schema === 'string') {
-      try { schema = JSON.parse(args.extract_schema); } catch (error) { /* ignore */ logger.warn('[Web Firecrawl] JSON parse failed', error); }
+      try { schema = JSON.parse(args.extract_schema); } catch (error: any) { /* ignore */ logger.warn('[Web Firecrawl] JSON parse failed', error); }
     }
 
     try {
@@ -226,13 +226,13 @@ export class WebFirecrawlTool extends BaseTool {
         'https://api.firecrawl.dev/v1/extract',
       ], { timeout: 120000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Web Firecrawl] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `Firecrawl Error: ${parsed.error}`;
 
       return `Extract de ${urls.length} URL(s): ${JSON.stringify(parsed.data || parsed).slice(0, 2000)}`;
-    } catch (error) { logger.warn('[Web Firecrawl] JSON parse failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Web Firecrawl] JSON parse failed', error); return ''; }
   }
 
   private checkStatus(apiKey: string): string {

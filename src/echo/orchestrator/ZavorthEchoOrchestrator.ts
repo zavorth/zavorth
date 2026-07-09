@@ -55,7 +55,7 @@ export class ZavorthEchoOrchestrator {
             for (const tool of buildVerifiedActionHarnessTools(options.actionGateway)) {
                 this.registerTool(tool);
             }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
             console.warn('[EchoOrchestrator] Failed to register web Action Harness tools:', error instanceof Error ? error.message : String(error));
         }
     }
@@ -159,7 +159,7 @@ export class ZavorthEchoOrchestrator {
             toolCall.result = result.error || 'Failure';
             this.logExecution(originalPrompt, [toolCall], 'error', startTime);
             return { response: `TOOL FAILURE: ${result.error}`, data: result.data };
-        } catch (error: any) {
+        } catch (error: any) { const err = error; const e = error;
             toolCall.securityDecision = 'blocked';
             toolCall.result = error.message;
             toolCall.durationMs = Date.now() - startTime;

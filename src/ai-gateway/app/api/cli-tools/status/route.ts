@@ -47,7 +47,7 @@ async function checkToolConfigStatus(toolId: string): Promise<string> {
       default:
         return "unknown";
     }
-  } catch (error) { logger.warn('[route] serialization failed', error); return "not_configured"; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[route] serialization failed', error); return "not_configured"; }
 }
 
 /**
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
             commandPath: runtime.commandPath,
             reason: runtime.reason || null,
           };
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           statuses[toolId] = {
             installed: false,
             runnable: false,
@@ -120,10 +120,10 @@ export async function GET(request: Request) {
           statuses[toolId].lastConfiguredAt = timestamp;
         }
       }
-    } catch (error) { /* non-critical */ logger.warn('[route] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] operation failed', error); }
 
     return NextResponse.json(statuses);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching CLI tool statuses:", error);
     return NextResponse.json({ error: "Failed to fetch statuses" }, { status: 500 });
   }

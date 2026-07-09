@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       circuitBreakers,
       rateLimitStatus,
     });
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[API] GET /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to load resilience status") },
@@ -61,7 +61,7 @@ export async function PATCH(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       {
@@ -92,7 +92,7 @@ export async function PATCH(request) {
       ...(profiles ? { profiles } : {}),
       ...(defaults ? { defaults } : {}),
     });
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[API] PATCH /api/resilience error:", err);
     return NextResponse.json(
       { error: getErrorMessage(err, "Failed to save resilience settings") },

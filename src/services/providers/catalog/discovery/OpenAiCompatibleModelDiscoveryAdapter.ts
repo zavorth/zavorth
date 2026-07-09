@@ -1,4 +1,4 @@
-import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
+﻿import type { ModelCatalogProviderInput } from '../ModelCatalogAggregationService.js';
 import { assertProviderRequestTargetAllowed } from '../../../../ai-gateway/lib/security/egressGuard.js';
 import { logger } from '../../../../logger';
 
@@ -83,7 +83,10 @@ export class OpenAiCompatibleModelDiscoveryAdapter {
         if (response.status === 401 || response.status === 403) {
           break;
         }
-      } catch (error) { // Try the next compatible endpoint. logger.warn('[Open Ai Compatible Model Discovery Adapter] operation failed', error); }
+      } catch (error: any) {
+      // Try the next compatible endpoint.
+      logger.warn('[Open Ai Compatible Model Discovery Adapter] operation failed', error);
+    }
     }
 
     return {

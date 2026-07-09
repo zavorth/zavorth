@@ -19,7 +19,7 @@ export const cline = {
       let base64 = code;
       try {
         base64 = decodeURIComponent(base64);
-      } catch (error) { /* already decoded */ logger.warn('[cline] encoding failed', error); }
+      } catch (error: any) { const err = error; const e = error; /* already decoded */ logger.warn('[cline] encoding failed', error); }
       const padding = 4 - (base64.length % 4);
       if (padding !== 4) {
         base64 += "=".repeat(padding);
@@ -39,7 +39,7 @@ export const cline = {
         lastName: tokenData.lastName,
         expires_at: tokenData.expiresAt,
       };
-    } catch (e) {
+    } catch (e: any) { const error = e; const err = e;
       const response = await fetch(config.tokenExchangeUrl, {
         method: "POST",
         headers: {

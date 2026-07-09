@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -175,7 +175,7 @@ export class ZavorthAutomationDeliveryService {
         .map((line) => JSON.parse(line) as AutomationDeliveryRecord)
         .slice(-Math.max(0, limit))
         .reverse();
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Failed to read recent delivery records.', { err: error });
       return [];
     }
@@ -192,7 +192,7 @@ export class ZavorthAutomationDeliveryService {
       .map((line) => {
         try {
           return JSON.parse(line) as AutomationWebhookEnvelope;
-        } catch (error) { logger.warn('[Zavorth Automation Delivery] JSON parse failed', error); return null; }
+        } catch (error: any) { logger.warn('[Zavorth Automation Delivery] JSON parse failed', error); return null; }
       })
       .filter((entry): entry is AutomationWebhookEnvelope => Boolean(entry));
   }
@@ -326,7 +326,10 @@ export class ZavorthAutomationDeliveryService {
         }
       }
       fs.renameSync(filePath, `${filePath}.1`);
-    } catch (error) { // Automation delivery should continue even if rotation finds a locked file. logger.warn('[Zavorth Automation Delivery] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Automation delivery should continue even if rotation finds a locked file.
+      logger.warn('[Zavorth Automation Delivery] filesystem operation failed', error);
+    }
   }
 
   private readDeliveryRecords(): AutomationDeliveryRecord[] {
@@ -349,13 +352,13 @@ export class ZavorthAutomationDeliveryService {
         .map((line) => {
           try {
             return JSON.parse(line) as AutomationDeliveryRecord;
-          } catch (error) {
+          } catch (error: any) {
             logger.warn('Invalid JSON line in automation file.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationDeliveryRecord => Boolean(entry));
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Failed to read automation JSONL records.', { err: error });
       return [];
     }
@@ -371,13 +374,13 @@ export class ZavorthAutomationDeliveryService {
         .map((entry) => {
           try {
             return JSON.parse(this.readFileSync(path.join(config.emailOutboxDir, entry), 'utf8')) as AutomationEmailEnvelope;
-          } catch (error) {
+          } catch (error: any) {
             logger.warn('Invalid email envelope in outbox.', { err: error });
             return null;
           }
         })
         .filter((entry): entry is AutomationEmailEnvelope => Boolean(entry));
-    } catch (error) {
+    } catch (error: any) {
       logger.warn('Failed to read email envelopes from outbox.', { err: error });
       return [];
     }
@@ -407,7 +410,10 @@ export class ZavorthAutomationDeliveryService {
           this.unlinkSync(entry.filePath);
         }
       }
-    } catch (error) { // Outbox retention is best-effort so the main delivery path keeps working. logger.warn('[Zavorth Automation Delivery] file cleanup failed', error); }
+    } catch (error: any) {
+      // Outbox retention is best-effort so the main delivery path keeps working.
+      logger.warn('[Zavorth Automation Delivery] file cleanup failed', error);
+    }
   }
 
   private normalizeDelivery(value: ScheduledTask['delivery']): string {

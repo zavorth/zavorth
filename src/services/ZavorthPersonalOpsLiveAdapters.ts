@@ -1,4 +1,4 @@
-import { SecureStorageService } from './SecureStorageService.js';
+﻿import { SecureStorageService } from './SecureStorageService.js';
 import {
   ZavorthPersonalOpsOAuthService,
   type ZavorthPersonalOpsOAuthProvider,
@@ -400,7 +400,7 @@ async function readJson(response: Response): Promise<Record<string, unknown>> {
     }
     const parsed = JSON.parse(text) as unknown;
     return record(parsed) || {};
-  } catch (error) { logger.warn('[Zavorth Personal Ops Live Adapters] JSON parse failed', error); return {}; }
+  } catch (error: any) { logger.warn('[Zavorth Personal Ops Live Adapters] JSON parse failed', error); return {}; }
 }
 
 function buildGmailRaw(payload: Record<string, unknown>): string {

@@ -89,7 +89,10 @@ export class CircuitBreaker {
           this.halfOpenAllowed = this.halfOpenRequests;
         }
       }
-    } catch (error) { // DB may not be ready yet (build phase) logger.warn('[circuit Breaker] resource cleanup failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // DB may not be ready yet (build phase)
+      logger.warn('[circuit Breaker] resource cleanup failed', error);
+    }
   }
 
   /**
@@ -108,7 +111,10 @@ export class CircuitBreaker {
           halfOpenRequests: this.halfOpenRequests,
         },
       });
-    } catch (error) { // Non-critical: in-memory still works logger.warn('[circuit Breaker] operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Non-critical: in-memory still works
+      logger.warn('[circuit Breaker] operation failed', error);
+    }
   }
 
   /**
@@ -148,7 +154,7 @@ export class CircuitBreaker {
       const result = await fn();
       this._onSuccess();
       return result;
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       if (this.isFailure(error)) {
         this._onFailure();
       }
@@ -288,7 +294,10 @@ export function getAllCircuitBreakerStatuses() {
         getCircuitBreaker(cb.name);
       }
     }
-  } catch (error) { // Use registry only logger.warn('[circuit Breaker] load operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Use registry only
+      logger.warn('[circuit Breaker] load operation failed', error);
+    }
   return Array.from(registry.values()).map((cb) => cb.getStatus());
 }
 
@@ -302,7 +311,10 @@ export function resetAllCircuitBreakers() {
   registry.clear();
   try {
     deleteAllCircuitBreakerStates();
-  } catch (error) { // Non-critical logger.warn('[circuit Breaker] delete operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[circuit Breaker] delete operation failed', error);
+    }
 }
 
 export { STATE };

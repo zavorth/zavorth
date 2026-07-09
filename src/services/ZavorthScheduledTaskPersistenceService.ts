@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 import type {
   SchedulerGovernedScheduledTaskMetadata,
   SchedulerTaskBudget,
@@ -414,7 +414,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;
     }
-  } catch (error) { logger.warn('[Zavorth Scheduled Task Persistence] JSON parse failed', error); return null; }
+  } catch (error: any) { logger.warn('[Zavorth Scheduled Task Persistence] JSON parse failed', error); return null; }
   return null;
 }
 

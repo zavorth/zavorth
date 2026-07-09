@@ -50,7 +50,10 @@ function getState(identifier) {
       lockoutCache.set(identifier, fromDb);
       return fromDb;
     }
-  } catch (error) { // DB may not be ready logger.warn('[lockout] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // DB may not be ready
+      logger.warn('[lockout] cache operation failed', error);
+    }
 
   return null;
 }
@@ -64,7 +67,10 @@ function persistState(identifier, state) {
   lockoutCache.set(identifier, state);
   try {
     saveLockoutState(identifier, state);
-  } catch (error) { // Non-critical logger.warn('[lockout] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[lockout] cache operation failed', error);
+    }
 }
 
 /**
@@ -148,7 +154,10 @@ export function recordSuccess(identifier) {
   lockoutCache.delete(identifier);
   try {
     deleteLockoutState(identifier);
-  } catch (error) { // Non-critical logger.warn('[lockout] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[lockout] cache operation failed', error);
+    }
 }
 
 /**
@@ -160,7 +169,10 @@ export function forceUnlock(identifier) {
   lockoutCache.delete(identifier);
   try {
     deleteLockoutState(identifier);
-  } catch (error) { // Non-critical logger.warn('[lockout] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Non-critical
+      logger.warn('[lockout] cache operation failed', error);
+    }
 }
 
 /**
@@ -182,7 +194,10 @@ export function getLockedIdentifiers() {
         });
       }
     }
-  } catch (error) { // Use cache only logger.warn('[lockout] cache operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Use cache only
+      logger.warn('[lockout] cache operation failed', error);
+    }
 
   const locked = [];
   for (const [id, state] of lockoutCache.entries()) {

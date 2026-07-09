@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       summary,
       list,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API ERROR] /api/providers/expiration GET:", error);
     return NextResponse.json({ error: "Failed to fetch expiration metadata." }, { status: 500 });
   }

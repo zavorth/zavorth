@@ -295,7 +295,7 @@ export class ChannelPolicyManager {
           ? parsed.policies as Record<string, ChannelAccessPolicy>
           : {},
       };
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return {
         version: 1,
         updatedAt: this.now().toISOString(),

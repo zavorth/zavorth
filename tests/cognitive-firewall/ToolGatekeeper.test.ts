@@ -105,13 +105,13 @@ describe('ToolGatekeeper dynamic skill map', () => {
   it('keeps recent news requests mapped to web hints and simple chat lightweight', () => {
     const firewall = new CognitiveFirewall();
     const tools: ToolDefinition[] = [
-      { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
-      { name: 'get_datetime', description: 'Data atual', parameters: { type: 'object', properties: {} } },
-      { name: 'read_file', description: 'Le arquivo do workspace', parameters: { type: 'object', properties: {} } },
+      { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {} } },
+      { name: 'get_datetime', description: 'Current date/time', parameters: { type: 'object', properties: {} } },
+      { name: 'read_file', description: 'Read workspace file', parameters: { type: 'object', properties: {} } },
     ];
 
-    const newsDecision = firewall.evaluate('quais sao as noticias recentes de IA?', tools);
-    const chatDecision = firewall.evaluate('oi', tools);
+    const newsDecision = firewall.evaluate('what are the latest AI news?', tools);
+    const chatDecision = firewall.evaluate('hi', tools);
 
     expect(newsDecision.toolHintProfile.groups).toEqual(['web']);
     expect(newsDecision.recommendedToolNames).toEqual(expect.arrayContaining(['web_search', 'get_datetime']));

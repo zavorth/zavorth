@@ -171,10 +171,13 @@ export function useAgentStream() {
                   }
                 }
               }
-            } catch (error) { // Ignore malformed SSE chunks logger.warn('[use Agent Stream] operation failed', error); }
+            } catch (error: any) { const err = error; const e = error;
+      // Ignore malformed SSE chunks
+      logger.warn('[use Agent Stream] operation failed', error);
+    }
           }
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         if (err instanceof Error && err.name === "AbortError") {
           // User cancelled — leave current text in place
         } else {

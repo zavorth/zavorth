@@ -16,6 +16,11 @@ import { runDiskMutationGateCommand } from './disk/ZavorthCliDiskMutationNamespa
 import { runProjectConstitutionCommand } from './constitution/ZavorthCliConstitutionNamespace.js';
 import { runBuiltinLauncherPart2 } from './ZavorthCliBuiltinLauncherPart2.js';
 import { runBuiltinLauncherPart3 } from './ZavorthCliBuiltinLauncherPart3.js';
+import { runMigrationUX } from './MigrationCli.js';
+import { runCapabilityFabricCli, runImportWorkspaceCli } from './CapabilityFabricCli.js';
+import { runReachFabricCli } from './ReachFabricCli.js';
+import { runPowerFabricCli } from './PowerFabricCli.js';
+import { runProductFabricCli } from './ProductFabricCli.js';
 
 // Shared infrastructure imports
 import {
@@ -76,6 +81,59 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
 
   if (command === 'workflows' && (restArgs.includes('--help') || restArgs.includes('-h'))) {
     return runDynamicWorkflows(['--help']);
+  }
+
+  // Universal Capability Fabric — brand-agnostic absorb / workspace import
+  if (
+    command === 'absorb'
+    || command === 'capability-absorb'
+    || command === 'capabilities-absorb'
+    || command === 'fetch-capability'
+  ) {
+    return runCapabilityFabricCli(restArgs);
+  }
+
+  if (
+    command === 'import-workspace'
+    || command === 'workspace-import'
+    || command === 'universal-import'
+  ) {
+    return runImportWorkspaceCli(restArgs);
+  }
+
+  if (
+    command === 'migrate'
+    || command === 'workspace-migrate'
+    || command === 'import-agent-home'
+  ) {
+    return runMigrationUX(restArgs);
+  }
+
+  if (
+    command === 'reach'
+    || command === 'reach-fabric'
+    || command === 'channel-tiers'
+    || command === 'node-mesh'
+  ) {
+    return runReachFabricCli(restArgs);
+  }
+
+  if (
+    command === 'power'
+    || command === 'power-fabric'
+    || command === 'trusted-operator'
+    || command === 'elastic-backends'
+  ) {
+    return runPowerFabricCli(restArgs);
+  }
+
+  if (
+    command === 'product'
+    || command === 'product-fabric'
+    || command === 'productize'
+    || command === 'daily-product'
+  ) {
+    return runProductFabricCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

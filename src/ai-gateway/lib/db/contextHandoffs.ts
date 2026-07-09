@@ -47,7 +47,7 @@ function parseJsonArray(value: unknown): string[] {
     return Array.isArray(parsed)
       ? parsed.map((item) => (typeof item === "string" ? item : String(item))).filter(Boolean)
       : [];
-  } catch (error) { logger.warn('[context Handoffs] JSON parse failed', error); return []; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[context Handoffs] JSON parse failed', error); return []; }
 }
 
 function toHandoffPayload(row: unknown): HandoffPayload | null {

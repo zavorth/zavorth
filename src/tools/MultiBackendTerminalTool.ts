@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+﻿import { execFile } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
 import path from 'path';
@@ -93,7 +93,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       }
 
       return this.executeWithBackend(command, backend, cwd, timeoutMs);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Multi Backend Terminal] process execution failed', error);
     const message = error instanceof Error ? error.message : String(error);
       return `Failed to run command on backend "${backend}": ${message}`;
@@ -131,7 +131,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       }
 
       return output.trim();
-    } catch (error: unknown) {
+    } catch (error: any) {
       const execError = error as { code?: unknown; stdout?: unknown; stderr?: unknown; killed?: unknown };
       let errorOutput = '';
       if (originalBackend) {
@@ -154,7 +154,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       const checkArg = os.platform() === 'win32' ? binary : binary;
       await execFileAsync(checkCommand, [checkArg], { timeout: 5000, windowsHide: true });
       return true;
-    } catch (error) { logger.warn('[Multi Backend Terminal] process execution failed', error); return false; }
+    } catch (error: any) { logger.warn('[Multi Backend Terminal] process execution failed', error); return false; }
   }
 
   private detectDefaultShell(): ShellBackend {

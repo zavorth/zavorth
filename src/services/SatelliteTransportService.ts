@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+﻿import { randomUUID } from 'crypto';
 import * as http from 'http';
 import os from 'os';
 import type { Duplex } from 'stream';
@@ -141,7 +141,10 @@ export class SatelliteTransportService {
     this.wss?.clients.forEach((client) => {
       try {
         client.close();
-      } catch (error) { // Ignore shutdown errors. logger.warn('[Satellite Transport] resource cleanup failed', error); }
+      } catch (error: any) {
+      // Ignore shutdown errors.
+      logger.warn('[Satellite Transport] resource cleanup failed', error);
+    }
     });
     this.wss?.close();
     this.wss = null;
@@ -189,7 +192,7 @@ export class SatelliteTransportService {
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
-    } catch {
+    } catch (error: any) {
       this.sendError(session, 'INVALID_MESSAGE', 'Mensagem JSON invalida.');
       return;
     }
@@ -225,7 +228,7 @@ export class SatelliteTransportService {
 
     try {
       await handler(session, envelope);
-    } catch (error) {
+    } catch (error: any) {
       logger.error(
         `[SatelliteTransport] Handler error (${envelope.type}): ${
           error instanceof Error ? error.message : String(error)
@@ -437,7 +440,7 @@ export class SatelliteTransportService {
 
     try {
       session.send(envelope);
-    } catch (error) {
+    } catch (error: any) {
       logger.error(
         `[SatelliteTransport] Send failed to ${session.sessionId}: ${
           error instanceof Error ? error.message : String(error)

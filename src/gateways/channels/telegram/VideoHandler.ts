@@ -85,7 +85,7 @@ export class VideoHandler {
       if (cleanupSummary.deletedFiles > 0) {
         logger.info(`[VideoHandler] Limpeza automatica concluiu ${cleanupSummary.deletedFiles} arquivos e liberou ${VideoHandlerHelpers.formatMegabytes(cleanupSummary.freedBytes)} MB.`);
       }
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       logger.warn(`[VideoHandler] A limpeza automatica falhou: ${error}`);
     }
   }
@@ -300,7 +300,7 @@ export class VideoHandler {
           prompt: 'Transcreva o conteudo falado do video com pontuacao e nomes proprios quando possivel.',
         });
         transcriptSource = 'OpenAI transcription';
-      } catch (error) {
+      } catch (error: any) { const err = error; const e = error;
         const errorMessage = error instanceof Error ? error.message : String(error);
         warnings.push(`Nao consegui transcrever o audio do video: ${errorMessage}`);
       }

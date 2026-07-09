@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json(
       { error: { message: "Invalid request", details: [{ field: "body", message: "Invalid JSON body" }] } },
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
     // Not found
     return NextResponse.json({ error: "Alias not found" }, { status: 404 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Model resolve error:", error);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

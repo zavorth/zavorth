@@ -25,7 +25,7 @@ import {
   type ZavorthActionLookupResult,
   type ZavorthActionResult,
 } from './ZavorthActionContracts.js';
-import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createProductizationPacksActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
+import { createCapabilitySpineActionModule, createGovernedOpsActionModule, createNativeExtendedToolsActionModule, createNativePowerPacksActionModule, createPowerFabricActionModule, createProductFabricActionModule, createProductizationPacksActionModule, createReachFabricActionModule, createWebBrowserActionModule, createWorkspaceFilesActionModule } from './modules/index.js';
 
 const SKILL_GOVERNANCE_ENV_KEY = 'ZAVORTH_SKILLS_GOVERNANCE_MODE';
 
@@ -72,7 +72,7 @@ function readEnvMode(root: string): 'casual' | 'governed' {
     const raw = fs.readFileSync(envFile(root), 'utf8');
     const match = raw.match(new RegExp(`^${SKILL_GOVERNANCE_ENV_KEY}\\s*=\\s*(.+)$`, 'mu'));
     return normalizeMode(match?.[1]) || 'casual';
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return 'casual';
   }
 }
@@ -115,7 +115,7 @@ async function appendJsonArray(file: string, value: unknown): Promise<void> {
   try {
     const parsed = JSON.parse(await fsp.readFile(file, 'utf8'));
     items = Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     items = [];
   }
   items.push(value);
@@ -270,7 +270,7 @@ function stateDbForHome(home: ReturnType<ZavorthHomePathService['resolveSnapshot
 function readJsonFile(file: string, fallback: unknown): unknown {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return fallback;
   }
 }
@@ -281,7 +281,7 @@ function listJsonFiles(dir: string): Array<Record<string, unknown>> {
       .filter((entry) => entry.endsWith('.json'))
       .map((entry) => readJsonFile(path.join(dir, entry), {}))
       .filter((entry): entry is Record<string, unknown> => Boolean(entry && typeof entry === 'object' && !Array.isArray(entry)));
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }
@@ -954,7 +954,7 @@ function memorySearchHandler(input: ZavorthActionHandlerInput): ZavorthActionRes
         : ['No memory hits.'],
       data: { snapshot },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     return result({
       ok: true,
       actionId: input.actionId,
@@ -1223,7 +1223,7 @@ async function integrationConnectorsHandler(input: ZavorthActionHandlerInput): P
         ],
         data: { preview },
       });
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
       return result({
         ok: false,
         actionId: input.actionId,
@@ -1671,6 +1671,9 @@ function buildDefaultActions(runtime: ZavorthActionCatalogRuntime = {}): Zavorth
   ]);
   const actionModules = [
     createCapabilitySpineActionModule(),
+    createReachFabricActionModule(),
+    createPowerFabricActionModule(),
+    createProductFabricActionModule(),
     createNativeExtendedToolsActionModule(),
     createNativePowerPacksActionModule(),
     createProductizationPacksActionModule(),
@@ -1815,7 +1818,7 @@ function loadGeneratedCapabilityActions(root: string): ZavorthActionDefinition[]
         outputSchema,
         handler: generatedCapabilityCandidateHandler(exposure.actionId),
       }));
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -30,7 +30,7 @@ export class CostAnalyticsService {
     if (!fs.existsSync(p)) return;
     try {
       this.entries = JSON.parse(fs.readFileSync(p, 'utf-8'));
-    } catch (error) { /* ignore */ logger.warn('[Cost Analytics] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Cost Analytics] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {

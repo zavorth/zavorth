@@ -1,4 +1,4 @@
-import { Database } from '../storage/Database.js';
+﻿import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { TrustedWorkspaceService } from './TrustedWorkspaceService.js';
 import { AgentWorkspaceConfigService } from './AgentWorkspaceConfigService.js';
@@ -53,7 +53,7 @@ export class InternalBetaDiagnosticsService {
           remediation: 'Check the integrity of the zavorth.db data file.',
         });
       }
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const message = err instanceof Error ? err.message : String(err);
       checks.push({
         id: 'database_reachable',
@@ -74,7 +74,7 @@ export class InternalBetaDiagnosticsService {
           message: 'SecurityAuditLogger instantiated successfully.',
         });
       }
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const message = err instanceof Error ? err.message : String(err);
       checks.push({
         id: 'audit_logger_reachable',
@@ -104,7 +104,7 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Select "Trust this workspace" in the desktop interface.',
           });
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'workspace_trusted',
@@ -155,7 +155,7 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Adjust workspace permissions in Workspace Settings.',
           });
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'workspace_config_present',
@@ -199,7 +199,7 @@ export class InternalBetaDiagnosticsService {
             remediation: 'Select a default model in Workspace Settings.',
           });
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'provider_default_selected',
@@ -249,7 +249,7 @@ export class InternalBetaDiagnosticsService {
             });
           }
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'provider_configured',
@@ -283,7 +283,7 @@ export class InternalBetaDiagnosticsService {
             remediation: firstErr ? firstErr.message : 'Fix the inconsistencies shown in Workspace Settings.',
           });
         }
-      } catch (err: unknown) {
+      } catch (err: any) { const error = err; const e = err;
         const message = err instanceof Error ? err.message : String(err);
         checks.push({
           id: 'runtime_ready',
@@ -365,7 +365,10 @@ export class InternalBetaDiagnosticsService {
             warningsCount: checks.filter((check) => check.status === 'warning').length,
           },
         });
-      } catch (error) { // Keep diagnostics available even if audit logging fails. logger.warn('[Internal Beta Diagnostics] operation failed', error); }
+      } catch (error: any) {
+      // Keep diagnostics available even if audit logging fails.
+      logger.warn('[Internal Beta Diagnostics] operation failed', error);
+    }
     }
 
     const normalizer = ErrorNormalizationService.getInstance();

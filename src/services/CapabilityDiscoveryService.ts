@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 
@@ -193,7 +193,10 @@ export class CapabilityDiscoveryService {
           }
         }
       }
-    } catch (error) { // skip unreadable files logger.warn('[Capability Discovery] operation failed', error); }
+    } catch (error: any) {
+      // skip unreadable files
+      logger.warn('[Capability Discovery] operation failed', error);
+    }
   }
 
   private determineStatus(content: string, category: CapabilityCategory): CapabilityStatus {

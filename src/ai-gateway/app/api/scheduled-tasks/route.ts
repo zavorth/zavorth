@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const tasks = await surface.list();
 
     return NextResponse.json({ tasks });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to list scheduled tasks";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(result, { status: 201 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] creation failed', error);
     const message = error instanceof Error ? error.message : "Failed to create scheduled task";
     return NextResponse.json({ error: message }, { status: 500 });

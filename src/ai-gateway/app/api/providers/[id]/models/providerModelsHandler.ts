@@ -139,7 +139,7 @@ export async function handleProviderModelsGet(
     }
 
     return fetchGenericProviderModels(modelsContext, config);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching provider models:", error);
     return jsonError("Failed to fetch models", 500);
   }

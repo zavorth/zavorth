@@ -86,7 +86,7 @@ export async function GET(req: Request) {
       avgDurationMs,
       last24h: [],
     });
-  } catch (err: unknown) {
+  } catch (err: any) { const error = err; const e = err;
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[/api/v1/search/analytics]", msg);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+﻿import { execFile } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
@@ -47,7 +47,7 @@ export class RuntimeEphemeralShellAdapter {
       try {
         fs.rmSync(workspace, { recursive: true, force: true });
         workspaceRemoved = true;
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Runtime Ephemeral Shell Adapter] delete operation failed', error);
     workspaceRemoved = false;
   }

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -101,7 +101,10 @@ export class SidecarExecutionReceiptService {
         if (this.isReceipt(parsed)) {
           receipts.push(parsed);
         }
-      } catch (error) { // Ignore malformed historical lines; the ledger is append-only. logger.warn('[Sidecar Execution Receipt] JSON parse failed', error); }
+      } catch (error: any) {
+      // Ignore malformed historical lines; the ledger is append-only.
+      logger.warn('[Sidecar Execution Receipt] JSON parse failed', error);
+    }
     }
     return receipts
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))

@@ -63,7 +63,10 @@ export async function collectArtifacts(brainDir: string): Promise<ZavorthBridgeA
           updatedAt,
           updatedAtMs,
         });
-      } catch (error) { // Ignore malformed metadata or content files and keep scanning. logger.warn('[Real Zavorth Bridge Watcher Artifact Log Helpers] operation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Ignore malformed metadata or content files and keep scanning.
+      logger.warn('[Real Zavorth Bridge Watcher Artifact Log Helpers] operation failed', error);
+    }
     }
   }
 

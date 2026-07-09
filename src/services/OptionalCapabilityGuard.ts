@@ -1,4 +1,4 @@
-export class CapabilityUnavailableError extends Error {
+﻿export class CapabilityUnavailableError extends Error {
   public readonly capabilityId: string;
   public readonly dependencyName: string | null;
   public readonly remediation: string;

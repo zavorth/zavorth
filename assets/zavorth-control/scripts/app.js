@@ -619,16 +619,18 @@
   function updateDashboardTimeline(events) {
     const timeline = document.querySelector('[data-dashboard-timeline]');
     if (!timeline) return;
+    timeline.hidden = false;
     if (events.length === 0) {
-      timeline.hidden = true;
-      timeline.innerHTML = '';
+      timeline.innerHTML = `
+        <div class="platform-section-title">Live trail</div>
+        <div class="premium-status premium-status--info"><span>No events yet</span><strong>—</strong></div>
+      `;
       return;
     }
-    timeline.hidden = false;
     timeline.innerHTML = `
-      <div class="platform-section-title">Recent activity</div>
+      <div class="platform-section-title">Live trail</div>
       <div class="dashboard-mini-timeline">
-        ${events.slice(0, 3).map((event) => `
+        ${events.slice(0, 6).map((event) => `
       <div class="dashboard-timeline-item dashboard-timeline-item--${escapeHtml(traceEventClass(event.type))}">
         <span></span>
         <p>${escapeHtml(event.title || traceEventLabel(event.type))}</p>
@@ -2950,11 +2952,16 @@ ${current}` : skillPrompt;
   const coreModalCancel = document.getElementById('core-modal-cancel');
 
   function openPalette() {
+    if (!overlayShade || !cmdPalette) return;
     overlayShade.classList.add('active');
     markOverlayOpened();
     closeMobileDrawer(false);
     cmdPalette.classList.add('active');
-    cmdInput.focus();
+    if (cmdInput) {
+      cmdInput.value = '';
+      filterStaticPalette('');
+      cmdInput.focus();
+    }
   }
 
   function openMobileDrawer() {
@@ -2986,12 +2993,55 @@ ${current}` : skillPrompt;
   }
 
   function dismissOverlays() {
-    overlayShade.classList.remove('active');
-    cmdPalette.classList.remove('active');
-    coreModal.classList.remove('active');
+    if (overlayShade) overlayShade.classList.remove('active');
+    if (cmdPalette) cmdPalette.classList.remove('active');
+    if (coreModal) coreModal.classList.remove('active');
     closeToolSheet(false);
     closeTraceSheet(false);
     closeMobileDrawer(false);
+  }
+
+  function filterStaticPalette(query) {
+    const needle = String(query || '').trim().toLowerCase();
+    const items = Array.from(document.querySelectorAll('#cmd-palette .cmd-palette__item'));
+    items.forEach((item) => {
+      const text = (item.textContent || '').toLowerCase();
+      const action = String(item.getAttribute('data-cmd-action') || '').toLowerCase();
+      const match = !needle || text.includes(needle) || action.includes(needle);
+      item.style.display = match ? '' : 'none';
+      item.classList.remove('selected');
+    });
+    const visible = items.filter((item) => item.style.display !== 'none');
+    if (visible[0]) visible[0].classList.add('selected');
+  }
+
+  function runStaticPaletteAction(action) {
+    const normalized = String(action || '').trim().toLowerCase();
+    dismissOverlays();
+    if (normalized === 'new-chat' || normalized === 'inbox') {
+      activateSector('terminal');
+      return;
+    }
+    if (normalized === 'approvals') return activateSector('sales-os');
+    if (normalized === 'receipts') return activateSector('instances');
+    if (normalized === 'channels') return activateSector('channels');
+    if (normalized === 'models') return activateSector('usage');
+    if (normalized === 'doctor' || normalized === 'ready' || normalized === 'ready-check') {
+      activateSector('terminal');
+      const input = document.getElementById('compose-input');
+      if (input) {
+        input.value = 'Run a ready check and summarize only blockers.';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+      }
+      if (window.emitSignal) window.emitSignal('info', 'Ready check', 'Prompt prepared in Inbox.');
+      return;
+    }
+    if (normalized === 'export') {
+      const exportBtn = document.getElementById('export-chat-trigger');
+      if (exportBtn) exportBtn.click();
+      else if (window.emitSignal) window.emitSignal('info', 'Export', 'Use Export in the composer when available.');
+    }
   }
 
   if (searchBtn) searchBtn.addEventListener('click', openPalette);
@@ -3018,8 +3068,42 @@ ${current}` : skillPrompt;
     });
   }
 
+  const cmdResults = document.getElementById('cmd-palette-results') || document.querySelector('#cmd-palette .cmd-palette__results');
+  if (cmdResults && !document.documentElement.dataset.zavorthStaticPaletteBound) {
+    document.documentElement.dataset.zavorthStaticPaletteBound = '1';
+    cmdResults.addEventListener('click', (event) => {
+      const item = event.target && event.target.closest ? event.target.closest('.cmd-palette__item') : null;
+      if (!item) return;
+      event.preventDefault();
+      const action = item.getAttribute('data-cmd-action') || '';
+      const sector = item.getAttribute('data-dashboard-sector') || '';
+      if (action) runStaticPaletteAction(action);
+      else if (sector) {
+        dismissOverlays();
+        activateSector(sector);
+      }
+    });
+    if (cmdInput) {
+      cmdInput.addEventListener('input', () => filterStaticPalette(cmdInput.value || ''));
+      cmdInput.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        const selected = document.querySelector('#cmd-palette .cmd-palette__item.selected')
+          || Array.from(document.querySelectorAll('#cmd-palette .cmd-palette__item')).find((item) => item.style.display !== 'none');
+        if (!selected) return;
+        const action = selected.getAttribute('data-cmd-action') || '';
+        const sector = selected.getAttribute('data-dashboard-sector') || '';
+        if (action) runStaticPaletteAction(action);
+        else if (sector) {
+          dismissOverlays();
+          activateSector(sector);
+        }
+      });
+    }
+  }
+
   document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    if ((e.ctrlKey || e.metaKey) && String(e.key || '').toLowerCase() === 'k') {
       e.preventDefault();
       openPalette();
     }

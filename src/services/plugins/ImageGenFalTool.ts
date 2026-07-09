@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { BaseTool } from '../../tools/BaseTool.js';
@@ -122,7 +122,7 @@ export class ImageGenFalTool extends BaseTool {
         `https://fal.run/${model}`,
       ], { timeout: 120000 }).toString();
 
-      try { fs.unlinkSync(tmpFile); } catch (error) { /* ignore */ logger.warn('[Image Gen Fal] file cleanup failed', error); }
+      try { fs.unlinkSync(tmpFile); } catch (error: any) { /* ignore */ logger.warn('[Image Gen Fal] file cleanup failed', error); }
 
       const parsed = JSON.parse(result);
       if (parsed.error) return `fal.ai Error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
@@ -144,7 +144,7 @@ export class ImageGenFalTool extends BaseTool {
             if (fs.existsSync(outputPath)) {
               lines.push(`  Saved: ${outputPath}`);
             }
-          } catch (error) { /* ignore */ logger.warn('[Image Gen Fal] filesystem operation failed', error); }
+          } catch (error: any) { /* ignore */ logger.warn('[Image Gen Fal] filesystem operation failed', error); }
         }
       }
 
@@ -153,6 +153,6 @@ export class ImageGenFalTool extends BaseTool {
       }
 
       return lines.join('\n');
-    } catch (error) { logger.warn('[Image Gen Fal] filesystem operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Image Gen Fal] filesystem operation failed', error); return ''; }
   }
 }

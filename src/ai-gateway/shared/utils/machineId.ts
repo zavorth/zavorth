@@ -31,7 +31,10 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch (error) { // Not Windows or REG.exe failed — continue logger.warn('[machine Id] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Not Windows or REG.exe failed — continue
+      logger.warn('[machine Id] process execution failed', error);
+    }
 
   // Strategy 2: macOS — ioreg IOPlatformUUID
   try {
@@ -50,7 +53,10 @@ function getMachineIdRaw(): string {
         ?.toLowerCase();
       if (id && id.length > 8) return id;
     }
-  } catch (error) { // Not macOS or ioreg not available — continue logger.warn('[machine Id] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Not macOS or ioreg not available — continue
+      logger.warn('[machine Id] process execution failed', error);
+    }
 
   // Strategy 3: Linux — read machine-id files directly (no `head` or pipe)
   try {
@@ -60,20 +66,29 @@ function getMachineIdRaw(): string {
         if (content.length > 8) return content;
       }
     }
-  } catch (error) { // Files not readable — continue logger.warn('[machine Id] filesystem operation failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Files not readable — continue
+      logger.warn('[machine Id] filesystem operation failed', error);
+    }
 
   // Strategy 4: Hostname fallback (works on all platforms)
   try {
     const hostname = execSync("hostname", { encoding: "utf8", timeout: 5000 });
     const id = hostname.trim().toLowerCase();
     if (id) return id;
-  } catch (error) { // hostname failed — continue logger.warn('[machine Id] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // hostname failed — continue
+      logger.warn('[machine Id] process execution failed', error);
+    }
 
   // Strategy 5: Node.js os.hostname() (no exec needed)
   try {
     const os = require("os");
     return os.hostname().toLowerCase();
-  } catch (error) { // Final fallback logger.warn('[machine Id] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Final fallback
+      logger.warn('[machine Id] process execution failed', error);
+    }
 
   return "unknown-machine";
 }
@@ -97,13 +112,13 @@ export async function getConsistentMachineId(salt = null) {
       .digest("hex");
     // Return only first 16 characters for brevity
     return hashedMachineId.substring(0, 16);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error getting machine ID:", error);
     // Fallback to random ID if node-machine-id fails
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[machine Id] string operation failed', error);
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;
@@ -121,13 +136,13 @@ export async function getConsistentMachineId(salt = null) {
 export async function getRawMachineId() {
   try {
     return getMachineIdRaw();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error getting raw machine ID:", error);
     // Fallback to random ID if node-machine-id fails
     try {
       const cryptoFallback = await import("crypto");
       return cryptoFallback.randomUUID();
-    } catch (error) {
+    } catch (error: any) { const err = error; const e = error;
     logger.warn('[machine Id] string operation failed', error);
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0;

@@ -1,4 +1,4 @@
-import type { NodeMeshCapabilityId, NodeMeshHostHints, NodeMeshRegistryEntry } from '../contracts/NodeMeshContract.js';
+﻿import type { NodeMeshCapabilityId, NodeMeshHostHints, NodeMeshRegistryEntry } from '../contracts/NodeMeshContract.js';
 import { logger } from '../logger.js';
 
 export type LiveNodeTransport = 'heartbeat' | 'sse' | 'websocket' | 'long-poll' | 'manual';
@@ -324,7 +324,10 @@ export class LiveNodeRegistryService {
     for (const listener of this.listeners) {
       try {
         listener(event);
-      } catch (error) { // Listener failures must not break node heartbeats. logger.warn('[Live Node Registry] load operation failed', error); }
+      } catch (error: any) {
+      // Listener failures must not break node heartbeats.
+      logger.warn('[Live Node Registry] load operation failed', error);
+    }
     }
     return event;
   }

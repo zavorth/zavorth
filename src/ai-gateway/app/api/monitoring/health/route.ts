@@ -77,7 +77,7 @@ export async function GET() {
       },
       setupComplete: settings?.setupComplete || false,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] GET /api/monitoring/health error:", error);
     return NextResponse.json({ status: "error", error: "Health check failed" }, { status: 500 });
   }
@@ -109,7 +109,7 @@ export async function DELETE(request: Request) {
       message: `Reset ${resetCount} circuit breaker(s) to healthy state`,
       resetCount,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] DELETE /api/monitoring/health error:", error);
     return NextResponse.json({ error: "Failed to reset circuit breakers" }, { status: 500 });
   }

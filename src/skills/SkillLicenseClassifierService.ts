@@ -118,7 +118,7 @@ export class SkillLicenseClassifierService {
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         return parsed as Record<string, unknown>;
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // fallback abaixo
     }
 
@@ -146,7 +146,7 @@ export class SkillLicenseClassifierService {
       }
       const parsed = JSON.parse(this.readFileSyncImpl(filePath, 'utf8'));
       return parsed && typeof parsed === 'object' ? parsed as Record<string, any> : null;
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       return null;
     }
   }

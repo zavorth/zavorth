@@ -12,6 +12,9 @@ import type {
 import { ZavorthHiddenCapabilitySpineService } from '../../../services/ZavorthHiddenCapabilitySpineService.js';
 import { UniversalSkillExpansionService } from '../../../services/UniversalSkillExpansionService.js';
 import { ZavorthExternalAgentGatewayService } from '../../../services/ZavorthExternalAgentGatewayService.js';
+import { UniversalCapabilityFabricService } from '../../../services/UniversalCapabilityFabricService.js';
+import { UniversalWorkspaceImportService } from '../../../services/UniversalWorkspaceImportService.js';
+import type { CapabilityFabricKind } from '../../../contracts/UniversalCapabilityFabricContract.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [
@@ -67,7 +70,7 @@ async function appendJsonArray(file: string, value: unknown): Promise<void> {
   try {
     const parsed = JSON.parse(await fsp.readFile(file, 'utf8'));
     items = Array.isArray(parsed) ? parsed : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     items = [];
   }
   items.push(value);
@@ -168,7 +171,7 @@ function listSkills(root: string): Array<{ id: string; name: string; file: strin
           source,
         });
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       // Optional skill roots may not exist.
     }
   }
@@ -217,11 +220,42 @@ function skillsInspect(input: ZavorthActionHandlerInput): ZavorthActionResult {
 }
 
 async function skillsAbsorb(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
-  const sourcePath = text(input.args.sourcePath || input.args.source || input.args.path);
-  if (!sourcePath) return block(input, 'Missing skill source path.', ['Provide args.sourcePath.']);
+  const source = text(input.args.sourcePath || input.args.source || input.args.path || input.args.url);
+  if (!source) return block(input, 'Missing skill source path or URL.', ['Provide args.sourcePath or args.url.']);
+
+  // Prefer Universal Capability Fabric (path / archive / HTTPS). Fall back to expansion pack for local trees.
+  const fabric = new UniversalCapabilityFabricService({ projectRoot: input.root });
+  const fabricSnap = await fabric.buildSnapshot({
+    source,
+    kind: 'skill',
+    apply: input.operation === 'action.apply',
+    allowAllCandidates: input.trustedOperatorConfirmation === true,
+    allowExecutable: input.trustedOperatorConfirmation === true,
+    label: text(input.args.label || path.basename(source), 'skill-source'),
+  });
+
+  if (fabricSnap.candidates.length > 0 || fabricSnap.status !== 'blocked') {
+    return result({
+      ok: fabricSnap.status !== 'blocked',
+      actionId: input.actionId,
+      operation: input.operation,
+      status: input.operation === 'action.apply' ? 'applied' : input.operation === 'action.preview' ? 'preview' : 'ok',
+      summary: fabricSnap.narrative.operatorSummary,
+      lines: [
+        `Status: ${fabricSnap.status}`,
+        `Source: ${fabricSnap.source.kind}`,
+        `Candidates: ${fabricSnap.summary.candidates}`,
+        `Materialized: ${fabricSnap.summary.materialized}`,
+        `Held: ${fabricSnap.summary.heldForApproval}`,
+        fabricSnap.narrative.nextSafeAction,
+      ],
+      data: { snapshot: fabricSnap },
+    });
+  }
+
   const expansion = new UniversalSkillExpansionService({ projectRoot: input.root });
   const snapshot = await expansion.buildSnapshot({
-    sources: [{ sourcePath, presetId: 'generic-skill-folder', sourceKind: 'auto' }],
+    sources: [{ sourcePath: source, presetId: 'generic-skill-folder', sourceKind: 'auto' }],
     projectRoot: input.root,
     apply: input.operation === 'action.apply',
     allowSource: input.trustedOperatorConfirmation === true,
@@ -238,6 +272,74 @@ async function skillsAbsorb(input: ZavorthActionHandlerInput): Promise<ZavorthAc
       `Status: ${snapshot.status}`,
       `Candidates: ${snapshot.summary.candidates}`,
       `Materialized: ${snapshot.summary.materialized}`,
+    ],
+    data: { snapshot },
+  });
+}
+
+async function capabilityAbsorb(input: ZavorthActionHandlerInput, forcedKind?: CapabilityFabricKind | 'auto'): Promise<ZavorthActionResult> {
+  const source = text(input.args.source || input.args.sourcePath || input.args.path || input.args.url);
+  if (!source) return block(input, 'Missing capability source.', ['Provide args.source, args.sourcePath, or args.url.']);
+  const kindRaw = text(input.args.kind || forcedKind || 'auto', 'auto');
+  const kind = (['skill', 'plugin', 'mcp', 'auto'].includes(kindRaw) ? kindRaw : 'auto') as CapabilityFabricKind | 'auto';
+  const fabric = new UniversalCapabilityFabricService({ projectRoot: input.root });
+  const snapshot = await fabric.buildSnapshot({
+    source,
+    kind,
+    apply: input.operation === 'action.apply',
+    allowAllCandidates: input.trustedOperatorConfirmation === true,
+    allowExecutable: input.trustedOperatorConfirmation === true || text(input.args.allowExecutable) === 'true',
+    overwrite: text(input.args.overwrite) === 'true',
+    label: text(input.args.label || path.basename(source), 'capability-source'),
+  });
+  return result({
+    ok: snapshot.status !== 'blocked',
+    actionId: input.actionId,
+    operation: input.operation,
+    status: input.operation === 'action.apply' ? 'applied' : input.operation === 'action.preview' ? 'preview' : 'ok',
+    summary: snapshot.narrative.operatorSummary,
+    lines: [
+      `Status: ${snapshot.status}`,
+      `Source: ${snapshot.source.kind} · ${snapshot.source.label}`,
+      `Skills: ${snapshot.summary.skills} · Plugins: ${snapshot.summary.plugins} · MCP: ${snapshot.summary.mcp}`,
+      `Materialized: ${snapshot.summary.materialized} · Held: ${snapshot.summary.heldForApproval} · Denied: ${snapshot.summary.denied}`,
+      snapshot.narrative.nextSafeAction,
+    ],
+    data: { snapshot },
+  });
+}
+
+function pluginsAbsorb(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
+  return capabilityAbsorb(input, 'plugin');
+}
+
+function mcpIntake(input: ZavorthActionHandlerInput): Promise<ZavorthActionResult> {
+  return capabilityAbsorb(input, 'mcp');
+}
+
+function workspaceImport(input: ZavorthActionHandlerInput): ZavorthActionResult {
+  const sourcePath = text(input.args.sourcePath || input.args.path || input.args.source);
+  if (!sourcePath) return block(input, 'Missing workspace path.', ['Provide args.sourcePath.']);
+  const importer = new UniversalWorkspaceImportService({ projectRoot: input.root });
+  const snapshot = importer.buildSnapshot({
+    sourcePath,
+    apply: input.operation === 'action.apply',
+    consent: input.trustedOperatorConfirmation === true,
+    includeSecretLike: text(input.args.includeSecretLike) === 'true',
+    overwrite: text(input.args.overwrite) === 'true',
+  });
+  return result({
+    ok: snapshot.status !== 'blocked',
+    actionId: input.actionId,
+    operation: input.operation,
+    status: input.operation === 'action.apply' ? 'applied' : input.operation === 'action.preview' ? 'preview' : 'ok',
+    summary: snapshot.narrative.operatorSummary,
+    lines: [
+      `Status: ${snapshot.status}`,
+      `Profile: ${snapshot.profileId}`,
+      `Confidence: ${Math.round(snapshot.confidence * 100)}%`,
+      `Items: ${snapshot.summary.items} · skills=${snapshot.summary.skills} memory=${snapshot.summary.memory} config=${snapshot.summary.config}`,
+      snapshot.narrative.nextSafeAction,
     ],
     data: { snapshot },
   });
@@ -359,7 +461,11 @@ export function createCapabilitySpineActionModule(): ZavorthActionModule {
       action('capability-spine', { id: 'capabilities.hidden.expose', title: 'Queue hidden capability exposure', description: 'Preview and queue a materialization plan that turns hidden capability families into verified Action Harness actions.', aliases: ['expose hidden capability', 'materialize capability'], domains: ['capabilities', 'atlas'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'capabilities', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }, outputSchema, handler: hiddenExpose }),
       action('capability-spine', { id: 'skills.catalog.list', title: 'List skills', description: 'List local skill roots known to Zavorth without executing skill content.', aliases: ['skills list', 'list skills'], domains: ['skills'], risk: 'safe', effects: ['read'], scope: 'skills', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: skillsList }),
       action('capability-spine', { id: 'skills.catalog.inspect', title: 'Inspect skill', description: 'Inspect a local skill manifest/content preview without executing it.', aliases: ['skill inspect', 'view skill'], domains: ['skills'], risk: 'safe', effects: ['read'], scope: 'skills', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } }, outputSchema, handler: skillsInspect }),
-      action('capability-spine', { id: 'skills.absorb', title: 'Absorb skill source', description: 'Import approved local skill sources into skill-library/imported.', aliases: ['absorb skill', 'import skill', 'skill absorption'], domains: ['skills'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'skills', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { sourcePath: { type: 'string' }, source: { type: 'string' } }, required: ['sourcePath'] }, outputSchema, handler: skillsAbsorb }),
+      action('capability-spine', { id: 'skills.absorb', title: 'Absorb skill source', description: 'Import skill packs from local path, archive, or HTTPS URL under quarantine and approval.', aliases: ['absorb skill', 'import skill', 'skill absorption', 'get skill from web'], domains: ['skills'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'skills', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { sourcePath: { type: 'string' }, source: { type: 'string' }, url: { type: 'string' }, path: { type: 'string' } } }, outputSchema, handler: skillsAbsorb }),
+      action('capability-spine', { id: 'plugins.absorb', title: 'Absorb plugin pack', description: 'Discover and quarantine plugin packs from path or HTTPS. Executable packs stay held until higher-trust enable.', aliases: ['absorb plugin', 'import plugin', 'plugin absorption'], domains: ['plugins', 'capabilities'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'high', effects: ['write'], scope: 'plugins', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { source: { type: 'string' }, sourcePath: { type: 'string' }, url: { type: 'string' }, path: { type: 'string' } } }, outputSchema, handler: pluginsAbsorb }),
+      action('capability-spine', { id: 'mcp.intake', title: 'Intake MCP pack', description: 'Stage MCP server packs as disabled candidates until explicit enable approval.', aliases: ['absorb mcp', 'import mcp', 'mcp intake', 'add mcp server'], domains: ['mcp', 'capabilities'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'high', effects: ['write'], scope: 'mcp', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { source: { type: 'string' }, sourcePath: { type: 'string' }, url: { type: 'string' }, path: { type: 'string' } } }, outputSchema, handler: mcpIntake }),
+      action('capability-spine', { id: 'capabilities.absorb', title: 'Absorb capability source', description: 'Universal intake for skill, plugin, or MCP packs from path/archive/HTTPS with automatic classification.', aliases: ['absorb capability', 'fetch capability', 'capability intake', 'install from web'], domains: ['capabilities'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'capabilities', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { source: { type: 'string' }, sourcePath: { type: 'string' }, url: { type: 'string' }, kind: { type: 'string' } } }, outputSchema, handler: (input) => capabilityAbsorb(input, 'auto') }),
+      action('capability-spine', { id: 'workspace.import', title: 'Import workspace home', description: 'Import identity, memory, skills, plugins and config from any local workspace using structural fingerprints only.', aliases: ['import workspace', 'migrate workspace', 'import agent home', 'universal import'], domains: ['migration', 'capabilities'], risk: 'attention', mutationDomain: 'capability', mutationRisk: 'medium', effects: ['write'], scope: 'workspace', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { sourcePath: { type: 'string' }, path: { type: 'string' }, source: { type: 'string' } } }, outputSchema, handler: workspaceImport }),
       action('capability-spine', { id: 'agents.external.list', title: 'List external agents', description: 'List external agent profiles registered as governed Zavorth arms.', aliases: ['external agents list', 'agent arms'], domains: ['agents'], risk: 'safe', effects: ['read'], scope: 'agents', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: externalAgentsList }),
       action('capability-spine', { id: 'agents.external.invoke', title: 'Invoke external agent', description: 'Preview or invoke an approved external agent profile as a governed arm.', aliases: ['invoke external agent', 'delegate task', 'external arm'], domains: ['agents'], risk: 'danger', mutationDomain: 'capability', mutationRisk: 'high', effects: ['external_send', 'shell'], scope: 'agents', receiptPolicy: 'required', requiresPreview: true, requiresApproval: true, inputSchema: { type: 'object', properties: { profileId: { type: 'string' }, prompt: { type: 'string' } }, required: ['profileId', 'prompt'] }, outputSchema, handler: externalAgentInvoke }),
       action('capability-spine', { id: 'workflows.list', title: 'List workflows', description: 'List Zavorth package workflow scripts that can be surfaced as governed workflow actions.', aliases: ['workflow list', 'list workflows'], domains: ['workflows'], risk: 'safe', effects: ['read'], scope: 'workflows', receiptPolicy: 'none', requiresPreview: false, requiresApproval: false, inputSchema: { type: 'object', properties: {} }, outputSchema, handler: workflowsList }),

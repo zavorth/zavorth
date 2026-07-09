@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const circuitBreakers = getAllCircuitBreakerStatuses();
     const lockedIdentifiers = getLockedIdentifiers();
     return NextResponse.json({ circuitBreakers, lockedIdentifiers });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error loading policies:", error);
     return NextResponse.json({ error: "Failed to load policies" }, { status: 500 });
   }
@@ -27,7 +27,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return NextResponse.json(
       {
@@ -53,7 +53,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({ error: "Unknown action. Supported: unlock" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating policies:", error);
     return NextResponse.json({ error: "Failed to update policies" }, { status: 500 });
   }

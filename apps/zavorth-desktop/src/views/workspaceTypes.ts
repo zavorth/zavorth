@@ -13,7 +13,8 @@ import type { DesktopPanel } from '../slashCommands';
 
 export type WorkspaceViewProps = {
   activePanel: Exclude<DesktopPanel, 'chat'>;
-  accent: 'orange' | 'purple' | 'navy';
+  accent: 'green' | 'orange' | 'purple' | 'navy';
+  density?: 'comfortable' | 'compact';
   approvals: ApprovalItem[];
   busy: boolean;
   channels: ChannelItem[];
@@ -30,7 +31,8 @@ export type WorkspaceViewProps = {
   theme: 'light' | 'dark' | 'system';
   tools: ToolItem[];
   onAccessRepair(): void | Promise<void>;
-  onAccent(value: 'orange' | 'purple' | 'navy'): void;
+  onAccent(value: 'green' | 'orange' | 'purple' | 'navy'): void;
+  onDensity?(value: 'comfortable' | 'compact'): void;
   onEffort(value: string): void;
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;

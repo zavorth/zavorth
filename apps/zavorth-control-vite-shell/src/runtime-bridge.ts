@@ -7,6 +7,7 @@
  */
 import { createRuntimeAuthSession } from './runtime-auth-session';
 import { basename, createRuntimeArtifactUtils, extensionOf } from './runtime-artifact-utils';
+import { hideDiffReviewRail, setDiffReviewContent } from './diff-review-rail';
 import { createRuntimeHttp, messageFromCaughtError, messageFromErrorPayload } from './runtime-http';
 import { createRuntimeModelProfile, normalizeModelProfile } from './runtime-model-profile';
 import { createRuntimeOperationsPanels } from './runtime-operations-panels';
@@ -648,17 +649,19 @@ export function initRuntimeBridge() {
     if (runtimeTitle) runtimeTitle.textContent = hasActiveWork ? text(activeRun.title || activeRun.summary, activeRun.id) : 'No task running';
     if (runtimeText) {
       runtimeText.textContent = hasActiveWork
-        ? `${text(activeRun.status, 'running')} - ${deriveNextRunAction(activeRun)}`
-        : 'Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.';
+        ? `${text(activeRun.status, 'running')}${activeRun?.nextAction ? ` · ${deriveNextRunAction(activeRun)}` : ''}`.slice(0, 96)
+        : pendingApprovals
+          ? `${pendingApprovals} approval${pendingApprovals === 1 ? '' : 's'} pending.`
+          : 'Ready.';
     }
 
     const approvalTitle = document.querySelector('[data-dashboard-approval-title]');
     const approvalText = document.querySelector('[data-dashboard-approval-text]');
-    if (approvalTitle) approvalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending approval${pendingApprovals === 1 ? '' : 's'}` : 'No pending approvals';
+    if (approvalTitle) approvalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending` : 'Nothing needs you';
     if (approvalText) {
       approvalText.textContent = pendingApprovals
-        ? 'Review before allowing changes or tool access.'
-        : 'When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.';
+        ? 'Review pending decisions.'
+        : 'Nothing pending.';
     }
 
     const inboxApprovalBanner = document.getElementById('approval-context-banner');
@@ -668,8 +671,8 @@ export function initRuntimeBridge() {
     if (inboxApprovalTitle) inboxApprovalTitle.textContent = pendingApprovals ? `${pendingApprovals} pending approval${pendingApprovals === 1 ? '' : 's'}` : 'No pending approvals';
     if (inboxApprovalText) {
       inboxApprovalText.textContent = pendingApprovals
-        ? 'Review before Zavorth changes files, tools, or external state.'
-        : 'Risky actions appear here before Zavorth acts.';
+        ? 'Review before acting.'
+        : 'No risky actions waiting.';
     }
 
     updatePremiumStatus('Dashboard', state.auth?.webReady ? 'online' : 'local', state.auth?.webReady ? 'ok' : 'info');
@@ -763,8 +766,9 @@ export function initRuntimeBridge() {
     }
     if (historySummary) {
       historySummary.textContent = runs.length
-        ? 'Recent runs show status, decisions, artifacts and replay links in one readable place.'
-        : 'After a mission, this area shows files touched, tools used, approvals, blocked risks, cost and rollback notes.';
+        ? `${numberLabel(runs.length)} run${runs.length === 1 ? '' : 's'}`
+        : '';
+      if (historySummary instanceof HTMLElement) historySummary.hidden = !runs.length;
     }
 
     if (runs.length === 0) {
@@ -1077,7 +1081,7 @@ export function initRuntimeBridge() {
       ),
       controlRailLinkHtml(
         `Input (${firstReadyChannelLabel()})`,
-        'Show active input routes and suggest the next safe setup step.',
+        'Show active input routes.',
         firstReadyChannelLabel() !== 'Local',
       ),
     ].join('');
@@ -1287,7 +1291,7 @@ export function initRuntimeBridge() {
         status: state.zavorthControl?.authRequired ? 'Protected' : 'Waiting',
         detail: state.zavorthControl?.authRequired
           ? 'Unlock with the local token to list live runs.'
-          : 'No live run has been registered yet. When you talk to Zavorth, executions appear here.',
+          : 'No live runs yet.',
         meta: `<span class="badge badge--muted">${escapeHtml(getCurrentModelLabel())}</span>`,
       }));
       return;
@@ -1804,28 +1808,46 @@ export function initRuntimeBridge() {
     ].join('');
   }
 
-  async function buildArtifactPaneHtml(artifact) {
-    if (artifact.kind === 'diff' || artifact.diff) {
-      let diffPayload = artifact.diff;
-      if (artifact.toolRunId) {
+  function consolidateDiffText(diffPayload: any, fallback = '') {
+    return String(
+      diffPayload?.consolidatedDiff
+      || (Array.isArray(diffPayload?.patches)
+        ? diffPayload.patches.map((entry: any) => String(entry?.diff || entry?.patch || entry?.content || '').trim()).filter(Boolean).join('\n\n')
+        : '')
+      || (typeof diffPayload === 'string' ? diffPayload : '')
+      || diffPayload?.text
+      || diffPayload?.patch
+      || diffPayload?.summary
+      || fallback
+      || '',
+    );
+  }
+
+  async function resolveArtifactDiffText(artifact: any) {
+    let diffPayload = artifact?.diff;
+    if (artifact?.toolRunId) {
+      try {
         const sessionId = artifact.sessionId || readSessionId();
         const suffix = artifact.path ? `&path=${encodeURIComponent(artifact.path)}` : '';
         const payload = await readJson(`/api/web/tool-runs/${encodeURIComponent(artifact.toolRunId)}/diff?sessionId=${encodeURIComponent(sessionId)}${suffix}`, {
           headers: authHeaders(),
         });
         diffPayload = payload?.diff || diffPayload;
+      } catch {
+        // Keep local payload when the live fetch is unavailable.
       }
-      const consolidated = String(
-        diffPayload?.consolidatedDiff
-        || (Array.isArray(diffPayload?.patches)
-          ? diffPayload.patches.map((entry) => String(entry?.diff || '').trim()).filter(Boolean).join('\n\n')
-          : '')
-        || diffPayload?.summary
-        || 'Diff without text content.',
-      );
+    }
+    const fromContent = typeof artifact?.content === 'string' ? artifact.content : '';
+    return consolidateDiffText(diffPayload, fromContent || 'Diff without text content.');
+  }
+
+  async function buildArtifactPaneHtml(artifact) {
+    if (artifact.kind === 'diff' || artifact.diff) {
+      const consolidated = await resolveArtifactDiffText(artifact);
       return [
         artifactMetadataHtml(artifact),
         `<pre class="artifact-render"><code class="language-diff">${escapeHtml(consolidated)}</code></pre>`,
+        `<p class="diff-review-rail__hint">Hunk-level approve/reject controls are in the trust rail above.</p>`,
       ].join('');
     }
 
@@ -1883,6 +1905,19 @@ export function initRuntimeBridge() {
     const artifact = state.artifactsById.get(String(id || '').trim());
     if (!artifact) {
       throw new Error('Artifact not found in the current dashboard state.');
+    }
+    const isDiff = artifact.kind === 'diff' || Boolean(artifact.diff);
+    if (isDiff) {
+      const consolidated = await resolveArtifactDiffText(artifact);
+      setDiffReviewContent(consolidated, {
+        file: artifact.path || artifact.name || artifact.title || undefined,
+        title: artifact.title || artifact.name || 'Diff review',
+        runId: artifact.runId || artifact.toolRunId || undefined,
+        sessionId: artifact.sessionId || undefined,
+        artifactId: artifact.id || undefined,
+      });
+    } else {
+      hideDiffReviewRail();
     }
     const html = await buildArtifactPaneHtml(artifact);
     ui.openArtifactPane?.(artifact.title || 'Artifact', html);

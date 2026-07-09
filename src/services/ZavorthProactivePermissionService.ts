@@ -1,4 +1,4 @@
-import { logger } from '../logger.js';
+﻿import { logger } from '../logger.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -119,7 +119,7 @@ export class ZavorthProactivePermissionService {
           this.pendingRequests.set(normalized.id, normalized);
         }
       }
-    } catch {
+    } catch (error: any) {
       this.pendingRequests.clear();
     }
   }
@@ -136,6 +136,9 @@ export class ZavorthProactivePermissionService {
         JSON.stringify({ requests: Array.from(this.pendingRequests.values()).map((entry) => this.clone(entry)) }, null, 2),
         'utf8',
       );
-    } catch (error) { // Permission durability is best-effort; the active process keeps the in-memory source of truth. logger.warn('[Zavorth Proactive Permission] filesystem operation failed', error); }
+    } catch (error: any) {
+      // Permission durability is best-effort; the active process keeps the in-memory source of truth.
+      logger.warn('[Zavorth Proactive Permission] filesystem operation failed', error);
+    }
   }
 }

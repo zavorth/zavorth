@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../logger.js';
 import {
@@ -311,7 +311,7 @@ export class ZavorthMnemosProceduralMemoryService {
         sourceText: compact(rule.sourceText),
         secretFree: true,
       })) : [];
-    } catch (error) { logger.warn('[Zavorth Mnemos Procedural Memory] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[Zavorth Mnemos Procedural Memory] JSON parse failed', error); return []; }
   }
 
   private writeRules(rules: ZavorthMnemosProceduralRule[]): void {

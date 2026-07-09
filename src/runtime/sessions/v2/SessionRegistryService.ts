@@ -181,7 +181,7 @@ function sanitizeMetadata(input: Record<string, unknown>): Record<string, unknow
   try {
     const parsed = JSON.parse(JSON.stringify(input || {}));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return {};
   }
 }

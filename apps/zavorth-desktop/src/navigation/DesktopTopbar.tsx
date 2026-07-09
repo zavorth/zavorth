@@ -1,5 +1,6 @@
-import { Refresh, Search, Sliders, Stop, Sparkles } from '../icons';
+import { Command, Refresh, Search, Sliders, Stop, Sparkles } from '../icons';
 import type { RuntimeStatus } from '../global';
+import { t } from '../i18n';
 
 export function DesktopTopbar(props: {
   busy: boolean;
@@ -8,38 +9,57 @@ export function DesktopTopbar(props: {
   kaelActive: boolean;
   onToggleKael(): void;
   onCommandPalette(): void;
+  onOpenCommandCenter?(): void;
   onModel(): void;
   onRefresh(): void;
   onStop(): void;
 }) {
+  const isMac = navigator.userAgent.includes('Macintosh');
+  const shortcutHint = isMac ? '⌘K' : 'Ctrl+K';
+  const ccShortcutHint = isMac ? '⌘⇧K' : 'Ctrl+Shift+K';
+
   return (
-    <header className="zvd-topbar">
+    <header className="zvd-topbar" role="banner">
       <div className="zvd-topbar-left">
-        {/* Zavorth Core */}
-        <button className="zvd-topbar-title" type="button" onClick={props.onModel} title="Open workspace settings">
-          <span>Desktop</span>
-          <small>local</small>
+        <button
+          className="zvd-topbar-title"
+          type="button"
+          onClick={() => props.onOpenCommandCenter?.() ?? props.onModel()}
+          title={t('nav.commandCenter')}
+          aria-label={t('nav.commandCenter')}
+        >
+          <img
+            className="zvd-topbar-kael"
+            src="./zavorth-mascot.svg"
+            alt=""
+            aria-hidden="true"
+            width={22}
+            height={22}
+          />
+          <span>Zavorth</span>
+          <small>Desktop</small>
         </button>
       </div>
 
-      <div className="zvd-topbar-right" aria-label="Window actions">
+      <div className="zvd-topbar-right" aria-label={t('a11y.windowActions')}>
         <button
           className={`zvd-status-pill ${props.status.running ? 'is-live' : ''}`}
           onClick={props.onModel}
           type="button"
           title={props.status.message}
+          aria-label={`${props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}. ${props.modelLabel}`}
         >
           <span aria-hidden="true" className="zvd-status-dot" />
-          {props.status.running ? 'Local ready' : 'Local offline'}
+          {props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}
           <small>{props.modelLabel}</small>
         </button>
         <button
           className={`zvd-icon-button ${props.kaelActive ? 'is-active' : ''}`}
           onClick={props.onToggleKael}
           type="button"
-          aria-label="Toggle Kael Mascot"
-          title="Toggle Kael Mascot"
-          style={props.kaelActive ? { color: '#f16a21', background: 'rgba(241, 106, 33, 0.15)' } : undefined}
+          aria-label={t('topbar.toggleKael')}
+          title={t('topbar.toggleKael')}
+          aria-pressed={props.kaelActive}
         >
           <Sparkles aria-hidden="true" size={18} stroke={1.8} />
         </button>
@@ -47,8 +67,8 @@ export function DesktopTopbar(props: {
           className="zvd-icon-button"
           onClick={props.onRefresh}
           type="button"
-          aria-label="Refresh runtime status"
-          title="Refresh runtime status"
+          aria-label={t('topbar.refresh')}
+          title={t('topbar.refresh')}
         >
           <Refresh aria-hidden="true" size={18} stroke={1.8} />
         </button>
@@ -56,22 +76,39 @@ export function DesktopTopbar(props: {
           className="zvd-icon-button"
           onClick={props.onModel}
           type="button"
-          aria-label="Open settings"
-          title="Open settings"
+          aria-label={t('settings')}
+          title={t('settings')}
         >
           <Sliders aria-hidden="true" size={18} stroke={1.8} />
         </button>
+        {props.onOpenCommandCenter ? (
+          <button
+            className="zvd-icon-button"
+            onClick={props.onOpenCommandCenter}
+            type="button"
+            aria-label={`${t('nav.commandCenter')} (${ccShortcutHint})`}
+            title={`${t('nav.commandCenter')} (${ccShortcutHint})`}
+          >
+            <Command aria-hidden="true" size={18} stroke={1.8} />
+          </button>
+        ) : null}
         <button
           className="zvd-icon-button"
           onClick={props.onCommandPalette}
           type="button"
-          aria-label="Open command palette"
-          title="Open command palette"
+          aria-label={`${t('nav.search')} (${shortcutHint})`}
+          title={`${t('nav.search')} (${shortcutHint})`}
         >
           <Search aria-hidden="true" size={18} stroke={1.8} />
         </button>
         {props.busy && (
-          <button className="zvd-icon-button is-danger" onClick={props.onStop} type="button" aria-label="Stop response" title="Stop response">
+          <button
+            className="zvd-icon-button is-danger"
+            onClick={props.onStop}
+            type="button"
+            aria-label={t('topbar.stop')}
+            title={t('topbar.stop')}
+          >
             <Stop aria-hidden="true" size={17} stroke={2} />
           </button>
         )}
@@ -79,4 +116,3 @@ export function DesktopTopbar(props: {
     </header>
   );
 }
-

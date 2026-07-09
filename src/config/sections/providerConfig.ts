@@ -89,7 +89,7 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
       routeId: String(parsed.routeId || '').trim() || null,
       familyId: String(parsed.familyId || '').trim() || null,
     };
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return null;
   }
 }

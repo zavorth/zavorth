@@ -78,7 +78,7 @@ export async function GET(request: Request) {
         });
       }
     }
-  } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+  } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
 
   return new Response(JSON.stringify({ object: "list", data }), {
     headers: { "Content-Type": "application/json" },
@@ -92,7 +92,7 @@ export async function POST(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     log.warn("EMBED", "Invalid JSON body");
     return errorResponse(HTTP_STATUS.BAD_REQUEST, "Invalid JSON body");
   }
@@ -136,18 +136,18 @@ export async function POST(request) {
             hostname === "127.0.0.1" ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)
           );
-        } catch (error) { logger.warn('[route] operation failed', error); return false; }
+        } catch (error: any) { const err = error; const e = error; logger.warn('[route] operation failed', error); return false; }
       })
       .map((n) => {
         try {
           return buildDynamicEmbeddingProvider(n);
-        } catch (err) {
+        } catch (err: any) { const error = err; const e = err;
           log.error("EMBED", `Skipping invalid provider_node ${n.prefix}: ${err}`);
           return null;
         }
       })
       .filter((p): p is NonNullable<typeof p> => p !== null);
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     log.error("EMBED", `Failed to load provider_nodes for embeddings: ${err}`);
   }
 
@@ -192,7 +192,7 @@ export async function POST(request) {
           `Resolved custom embedding provider: ${provider} → ${providerConfig.baseUrl}`
         );
       }
-    } catch (err) {
+    } catch (err: any) { const error = err; const e = err;
       log.error("EMBED", `Failed to resolve custom embedding provider ${provider}: ${err}`);
     }
   }

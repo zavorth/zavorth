@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import { assertPublicHttpTargetAllowed } from '../ai-gateway/lib/security/egressGuard.js';
 import {
   ZAVORTH_NATIVE_BROWSER_COMPUTER_USE_CONTRACT_VERSION,
@@ -203,7 +203,7 @@ export class ZavorthNativeBrowserComputerUseService {
         timeoutMs: input.timeoutMs || 30_000,
       });
       return { used: true, error: null };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Native Browser Computer Use] process execution failed', error);
     return {
         used: false,
@@ -246,7 +246,7 @@ export class ZavorthNativeBrowserComputerUseService {
         origin: parsed.origin,
         blocked: false,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Native Browser Computer Use] network request failed', error);
     return {
         policy: 'blocked',

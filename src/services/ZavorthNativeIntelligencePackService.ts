@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -273,7 +273,7 @@ export class ZavorthNativeIntelligencePackService {
         if (!manifestMatchesDefinition) {
           issues.push('manifest does not match native definition');
         }
-      } catch {
+      } catch (error: any) {
         issues.push('manifest is not valid JSON');
       }
     }

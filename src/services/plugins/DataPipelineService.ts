@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../../logger.js';
 
@@ -40,7 +40,7 @@ export class DataPipelineService {
     try {
       const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
       if (Array.isArray(data)) for (const pipeline of data) this.pipelines.set(pipeline.id, pipeline);
-    } catch (error) { /* ignore */ logger.warn('[Data Pipeline] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Data Pipeline] JSON parse failed', error); }
   }
 
   private scheduleFlush(): void {
@@ -97,7 +97,7 @@ export class DataPipelineService {
         currentData = await this.executeStep(step, currentData);
         step.status = 'completed';
         step.result = currentData;
-      } catch (error: unknown) {
+      } catch (error: any) {
         step.status = 'failed';
         step.error = error instanceof Error ? error.message : String(error);
         pipeline.status = 'failed';

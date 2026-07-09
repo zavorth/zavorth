@@ -87,7 +87,7 @@ export class GeminiCliExecutor implements IExecutor {
       result.success = true;
       result.actions_executed.push(`[GeminiCLI] Prompt executado (${prompt.length} chars)`);
       result.commands_executed.push(`gemini --prompt "${prompt.substring(0, 80)}..."`);
-    } catch (error: unknown) {
+    } catch (error: any) { const err = error; const e = error;
       const classifiedError = this.classifyExecutionError(error);
       result.error_message = classifiedError.errorMessage;
       result.error_code = classifiedError.errorCode;
@@ -143,7 +143,7 @@ export class GeminiCliExecutor implements IExecutor {
       const timer = setTimeout(() => {
         try {
           child.kill('SIGKILL');
-        } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+        } catch (err: any) { const error = err; const e = err; logger.warn("[auto-fix] Empty catch block", err); }
         reject(new Error(`Gemini CLI timeout apos ${timeoutMs / 1000}s`));
       }, timeoutMs);
 

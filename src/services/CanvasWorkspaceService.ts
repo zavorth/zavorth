@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -655,7 +655,7 @@ export class CanvasWorkspaceService {
         plan,
         snapshot: await this.buildSnapshot(),
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Canvas Workspace] creation failed', error);
     return {
         generatedAt: this.now().toISOString(),
@@ -1257,13 +1257,13 @@ export class CanvasWorkspaceService {
         return null;
       }
       return asCanvasRecord(await (service.buildSnapshot as (input?: unknown) => unknown | Promise<unknown>)(input));
-    } catch (error) { logger.warn('[Canvas Workspace] creation failed', error); return null; }
+    } catch (error: any) { logger.warn('[Canvas Workspace] creation failed', error); return null; }
   }
 
   private safeMutationPlans(limit: number): ZavorthMutationPlan[] {
     try {
       return this.mutationPlaneService.listPlans({ limit, includeExpired: false });
-    } catch (error) { logger.warn('[Canvas Workspace] creation failed', error); return []; }
+    } catch (error: any) { logger.warn('[Canvas Workspace] creation failed', error); return []; }
   }
 
   private readDocument(): CanvasWorkspaceDocument {
@@ -1273,7 +1273,7 @@ export class CanvasWorkspaceService {
       }
       const parsed = JSON.parse(this.readFileSync(this.stateFile, 'utf8')) as Partial<CanvasWorkspaceDocument>;
       return this.normalizeDocument(parsed);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Canvas Workspace] JSON parse failed', error);
     return this.emptyDocument();
   }

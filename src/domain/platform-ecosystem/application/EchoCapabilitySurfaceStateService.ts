@@ -59,7 +59,7 @@ export class EchoCapabilitySurfaceStateService {
     }
     try {
       return this.normalizeLifecycle(capableTool.getLifecycleSnapshot());
-    } catch (error) { logger.warn('[Capability Surface State] module import failed', error); return null; }
+    } catch (error: any) { const err = error; const e = error; logger.warn('[Capability Surface State] module import failed', error); return null; }
   }
 
   private normalizeLifecycle(value: unknown): EchoCapabilityLifecycleRecord | null {

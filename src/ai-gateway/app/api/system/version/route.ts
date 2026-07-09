@@ -28,7 +28,7 @@ async function getLatestNpmVersion(): Promise<string | null> {
     });
     const parsed = JSON.parse(stdout.trim());
     return typeof parsed === "string" ? parsed : null;
-  } catch (error) { logger.warn('[route] JSON parse failed', error); return null; }
+  } catch (error: any) { const err = error; const e = error; logger.warn('[route] JSON parse failed', error); return null; }
 }
 
 function getCurrentVersion(): string {
@@ -170,7 +170,10 @@ export async function POST(req: NextRequest) {
               timeout: 30_000,
               cwd: process.cwd(),
             });
-          } catch (error) { // No local changes to stash. logger.warn('[route] process execution failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // No local changes to stash.
+      logger.warn('[route] process execution failed', error);
+    }
 
           const shortHead = (
             await execFileAsync("git", ["rev-parse", "--short", "HEAD"], {
@@ -185,7 +188,10 @@ export async function POST(req: NextRequest) {
               timeout: 10_000,
               cwd: process.cwd(),
             });
-          } catch (error) { // Backup branch is best-effort only. logger.warn('[route] process execution failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // Backup branch is best-effort only.
+      logger.warn('[route] process execution failed', error);
+    }
 
           await execFileAsync("git", ["checkout", resolvedTargetTag], {
             timeout: 30_000,
@@ -209,7 +215,10 @@ export async function POST(req: NextRequest) {
               timeout: 15_000,
               cwd: process.cwd(),
             });
-          } catch (error) { // .env sync is non-fatal during update. logger.warn('[route] process execution failed', error); }
+          } catch (error: any) { const err = error; const e = error;
+      // .env sync is non-fatal during update.
+      logger.warn('[route] process execution failed', error);
+    }
 
           send({
             step: "rebuild",
@@ -229,7 +238,7 @@ export async function POST(req: NextRequest) {
               cwd: process.cwd(),
             });
             send({ step: "restart", status: "done", message: "Service restarted" });
-          } catch {
+          } catch (error: any) { const err = error; const e = error;
             send({
               step: "restart",
               status: "skipped",
@@ -245,7 +254,7 @@ export async function POST(req: NextRequest) {
             message: `Update to ${resolvedTargetTag} complete!`,
           });
           console.log(`[AutoUpdate] Successfully updated to ${resolvedTargetTag} via source mode`);
-        } catch (err: any) {
+        } catch (err: any) { const error = err; const e = err;
           const errMsg = err?.stderr || err?.message || String(err);
           send({ step: "error", status: "failed", message: errMsg });
           console.error("[AutoUpdate] Source update failed:", err);
@@ -305,7 +314,7 @@ export async function POST(req: NextRequest) {
         try {
           await execFileAsync("pm2", ["restart", "ZavorthGateway", "--update-env"], { timeout: 30000 });
           send({ step: "restart", status: "done", message: "Service restarted" });
-        } catch {
+        } catch (error: any) { const err = error; const e = error;
           // PM2 may not be available (Docker/manual setups)
           send({
             step: "restart",
@@ -322,7 +331,7 @@ export async function POST(req: NextRequest) {
           message: `Update to v${latest} complete!`,
         });
         console.log(`[AutoUpdate] Successfully updated to v${latest}`);
-      } catch (err: any) {
+      } catch (err: any) { const error = err; const e = err;
         const errMsg = err?.stderr || err?.message || String(err);
         send({ step: "error", status: "failed", message: errMsg });
         console.error(`[AutoUpdate] Update failed:`, err);

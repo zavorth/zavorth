@@ -99,7 +99,7 @@ export class EchoPendingExecutionStoreService {
           this.records.set(normalized.permissionId, normalized);
         }
       }
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       this.records.clear();
     }
   }
@@ -116,6 +116,9 @@ export class EchoPendingExecutionStoreService {
         JSON.stringify({ records: this.list() }, null, 2),
         'utf8',
       );
-    } catch (error) { // Persistence is best-effort; the in-memory boundary remains authoritative for this process. logger.warn('[Pending Execution Store] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Persistence is best-effort; the in-memory boundary remains authoritative for this process.
+      logger.warn('[Pending Execution Store] filesystem operation failed', error);
+    }
   }
 }

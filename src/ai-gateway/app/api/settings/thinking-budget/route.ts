@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     const config = getThinkingBudgetConfig();
     return NextResponse.json(config);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error reading thinking budget config:", error);
     return NextResponse.json({ error: "Failed to read thinking budget config" }, { status: 500 });
   }
@@ -30,7 +30,7 @@ export async function PUT(request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -57,7 +57,7 @@ export async function PUT(request) {
     await updateSettings({ thinkingBudget: body });
 
     return NextResponse.json(getThinkingBudgetConfig());
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Error updating thinking budget config:", error);
     return NextResponse.json({ error: "Failed to update thinking budget config" }, { status: 500 });
   }

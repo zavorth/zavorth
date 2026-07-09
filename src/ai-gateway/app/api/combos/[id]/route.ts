@@ -29,7 +29,7 @@ export async function GET(request, { params }) {
     }
 
     return NextResponse.json(combo);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error fetching combo:", error);
     return NextResponse.json({ error: "Failed to fetch combo" }, { status: 500 });
   }
@@ -43,7 +43,7 @@ export async function PUT(request, { params }) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] network request failed', error);
     return NextResponse.json(
       {
@@ -81,7 +81,7 @@ export async function PUT(request, { params }) {
       if (comboName) {
         try {
           validateComboDAG(comboName, updatedCombos);
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] validation failed', error);
     return NextResponse.json({ error: dagError.message }, { status: 400 });
   }
@@ -98,7 +98,7 @@ export async function PUT(request, { params }) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json(combo);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating combo:", error);
     return NextResponse.json({ error: "Failed to update combo" }, { status: 500 });
   }
@@ -121,7 +121,7 @@ export async function DELETE(request, { params }) {
     await syncToCloudIfEnabled();
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error deleting combo:", error);
     return NextResponse.json({ error: "Failed to delete combo" }, { status: 500 });
   }
@@ -137,7 +137,7 @@ async function syncToCloudIfEnabled() {
 
     const machineId = await getConsistentMachineId();
     await syncToCloud(machineId);
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error syncing to cloud:", error);
   }
 }

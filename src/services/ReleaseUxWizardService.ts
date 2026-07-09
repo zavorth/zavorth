@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import {
@@ -498,7 +498,7 @@ export class ReleaseUxWizardService {
     }
     try {
       return JSON.parse(this.readFileSync(target, 'utf8')) as PackageLike;
-    } catch (error) { logger.warn('[Release Ux Wizard] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Release Ux Wizard] JSON parse failed', error); return null; }
   }
 
   private check(

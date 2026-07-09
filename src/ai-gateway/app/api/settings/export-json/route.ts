@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("[API] Error exporting JSON backup:", error);
     return NextResponse.json({ error: "Failed to export JSON" }, { status: 500 });
   }

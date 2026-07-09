@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -131,7 +131,7 @@ export class ZavorthPluginStateService {
         };
       }
       return JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as ZavorthPluginState;
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Plugin State] JSON parse failed', error);
     return {
         version: 1,

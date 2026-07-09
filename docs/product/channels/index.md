@@ -7,6 +7,21 @@ Zavorth works from the channels you already use. One runtime, every surface: the
 
 Live-ready means this local installation has passed its own doctor/live proof with your credentials, allowlists, and channel policy. A channel being catalogued or scaffolded does not mean it can send or receive live messages yet.
 
+Zavorth also exposes a **Reach Fabric** inventory with honest tiers:
+
+- **Tier A** — native first-class surfaces
+- **Tier B** — protocol packs (shared doctor/allowlist base)
+- **Tier C** — synthesized packs generated on demand (never live until proof)
+
+```bash
+zavorth reach
+zavorth reach channels --tier B
+zavorth reach doctor matrix
+zavorth reach synthesize my-channel --notes "webhook ops bot" --apply --consent
+```
+
+See [Reach Fabric](../../reach-fabric.md).
+
 ## Available channels
 
 | Channel | Default status | Notes |

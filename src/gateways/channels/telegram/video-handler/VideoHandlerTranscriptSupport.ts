@@ -27,7 +27,7 @@ export class VideoHandlerTranscriptSupport {
           jsonText,
           "YouTube player response",
         ) as YouTubePlayerResponse;
-      } catch {
+      } catch (error: any) { const err = error; const e = error;
         continue;
       }
     }
@@ -120,7 +120,10 @@ export class VideoHandlerTranscriptSupport {
       if (text) {
         return text;
       }
-    } catch (error) { // Fallback to XML below. logger.warn('[Video  Transcript] network request failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // Fallback to XML below.
+      logger.warn('[Video  Transcript] network request failed', error);
+    }
 
     const xmlText = await VideoHandlerFetchSupport.fetchText(baseUrl);
     return this.parseYouTubeXmlTranscript(xmlText);

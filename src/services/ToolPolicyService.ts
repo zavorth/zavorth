@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -80,9 +80,30 @@ export class ToolPolicyService {
     return entries;
   }
 
-  public checkPermission(action: ZavorthToolPolicyAction): { allowed: boolean; level: ZavorthToolPolicyLevel } {
+  public checkPermission(action: ZavorthToolPolicyAction, context?: { targetPath?: string }): { allowed: boolean; level: ZavorthToolPolicyLevel } {
     const policy = this.getPolicy(action);
-    const level = policy?.level || DEFAULT_LEVEL;
+    let level = policy?.level || DEFAULT_LEVEL;
+
+    if (level === 'allow' && policy?.conditions) {
+      const cond = policy.conditions.toLowerCase();
+      if (cond.includes('workspace')) {
+        if (context?.targetPath) {
+          const absoluteTarget = path.resolve(context.targetPath);
+          const absoluteRoot = path.resolve(this.projectRoot);
+          const relative = path.relative(absoluteRoot, absoluteTarget);
+          const isInside = relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+
+          if (!isInside) {
+            logger.warn(`[ToolPolicyService] Action ${action} denied automatic 'allow' because target ${context.targetPath} is outside workspace root ${this.projectRoot}. Falling back to 'ask'.`);
+            level = 'ask';
+          }
+        } else {
+          // If workspace restriction is set but targetPath context is missing, fall back to ask
+          level = 'ask';
+        }
+      }
+    }
+
     return { allowed: level === 'allow', level };
   }
 
@@ -93,7 +114,7 @@ export class ToolPolicyService {
     try {
       const raw = String(this.fs.readFileSync(permPath, 'utf8') || '{}');
       perms = JSON.parse(raw);
-    } catch (error) { logger.warn('[ToolPolicyService] JSON parse failed', error); return []; }
+    } catch (error: any) { logger.warn('[ToolPolicyService] JSON parse failed', error); return []; }
     const entries: ZavorthToolPolicyEntry[] = [];
     for (const [key, value] of Object.entries(perms)) {
       const action = key as ZavorthToolPolicyAction;
@@ -157,7 +178,7 @@ export class ToolPolicyService {
     try {
       if (!this.fs.existsSync(filePath)) return fallback;
       return String(this.fs.readFileSync(filePath, 'utf8') || '');
-    } catch (error) { logger.warn('[ToolPolicyService] filesystem operation failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[ToolPolicyService] filesystem operation failed', error); return fallback; }
   }
 
   private writeText(filePath: string, content: string): void {

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -90,7 +90,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
     if (!fs.existsSync(chunksPath)) return;
     try {
       this.chunks = JSON.parse(fs.readFileSync(chunksPath, 'utf-8'));
-    } catch (error) { /* ignore */ logger.warn('[Zavorth Rag Builder] JSON parse failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Rag Builder] JSON parse failed', error); }
   }
 
   private saveChunks(): void {
@@ -147,7 +147,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
           maxBuffer: 10 * 1024 * 1024,
         }).toString();
         source = sourceUrl;
-      } catch (error) { logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); return ''; }
+      } catch (error: any) { logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); return ''; }
     }
 
     const chunks = this.chunkText(content, source, chunkSize, chunkOverlap);
@@ -177,7 +177,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
         }));
         this.chunks.push(...embedded);
         totalChunks += embedded.length;
-      } catch { continue; }
+      } catch (error: any) { continue; }
     }
 
     this.saveChunks();
@@ -320,7 +320,7 @@ export class ZavorthRagBuilderTool extends BaseTool {
         if (entry.isDirectory()) results.push(...this.listFiles(fullPath));
         else if (entry.isFile()) results.push(fullPath);
       }
-    } catch (error) { /* ignore */ logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); }
+    } catch (error: any) { /* ignore */ logger.warn('[Zavorth Rag Builder] filesystem operation failed', error); }
     return results;
   }
 }

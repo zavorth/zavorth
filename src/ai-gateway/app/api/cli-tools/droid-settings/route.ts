@@ -25,7 +25,7 @@ const readSettings = async () => {
     const settingsPath = getDroidSettingsPath();
     const content = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(content);
-  } catch (error: any) {
+  } catch (error: any) { const err = error; const e = error;
     if (error.code === "ENOENT") return null;
     throw error;
   }
@@ -87,7 +87,7 @@ export async function GET(request: Request) {
       hasZavorthGateway: hasZavorthGatewayConfig(settings),
       settingsPath: getDroidSettingsPath(),
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error checking droid settings:", error);
     return NextResponse.json({ error: "Failed to check droid settings" }, { status: 500 });
   }
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
   let rawBody;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] filesystem check failed', error);
     return NextResponse.json(
       {
@@ -135,7 +135,10 @@ export async function POST(request: Request) {
         if (keyRecord?.key) {
           apiKey = keyRecord.key as string;
         }
-      } catch (error) { // Non-critical: fall back to whatever value was in apiKey logger.warn('[route] validation failed', error); }
+      } catch (error: any) { const err = error; const e = error;
+      // Non-critical: fall back to whatever value was in apiKey
+      logger.warn('[route] validation failed', error);
+    }
     }
 
     const droidDir = getDroidDir();
@@ -152,7 +155,7 @@ export async function POST(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error) { /* No existing settings */ logger.warn('[route] JSON parse failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* No existing settings */ logger.warn('[route] JSON parse failed', error); }
 
     // Ensure customModels array exists
     if (!settings.customModels) {
@@ -186,14 +189,14 @@ export async function POST(request: Request) {
     // Persist last-configured timestamp
     try {
       saveCliToolLastConfigured("droid");
-    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "Factory Droid settings applied successfully!",
       settingsPath,
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error updating droid settings:", error);
     return NextResponse.json({ error: "Failed to update droid settings" }, { status: 500 });
   }
@@ -220,7 +223,7 @@ export async function DELETE(request: Request) {
     try {
       const existingSettings = await fs.readFile(settingsPath, "utf-8");
       settings = JSON.parse(existingSettings);
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       if (error.code === "ENOENT") {
         return NextResponse.json({
           success: true,
@@ -246,13 +249,13 @@ export async function DELETE(request: Request) {
     // Clear last-configured timestamp
     try {
       deleteCliToolLastConfigured("droid");
-    } catch (error) { /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
+    } catch (error: any) { const err = error; const e = error; /* non-critical */ logger.warn('[route] filesystem operation failed', error); }
 
     return NextResponse.json({
       success: true,
       message: "ZavorthGateway settings removed successfully",
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.log("Error resetting droid settings:", error);
     return NextResponse.json({ error: "Failed to reset droid settings" }, { status: 500 });
   }

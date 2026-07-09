@@ -71,6 +71,11 @@ export type WorkboardPanelProps = {
   onColumnCreate?: (boardId: string, name: string) => void;
   onColumnUpdate?: (boardId: string, columnId: string, name: string) => void;
   onColumnDelete?: (boardId: string, columnId: string) => void;
+  onOpenCardInChat?: (boardId: string, cardId: string) => void;
+  syncLabel?: string | null;
+  syncDetail?: string | null;
+  syncBusy?: boolean;
+  onSyncNow?: (boardId?: string) => void | Promise<boolean | void>;
 };
 
 // --- Local nanostores ---
@@ -343,9 +348,11 @@ function CardDetailModal({
   onClose,
   onUpdate,
   onDelete,
+  onOpenInChat,
 }: {
   card: WorkboardCard;
   columns: WorkboardColumn[];
+  onOpenInChat?: () => void;
   onClose: () => void;
   onUpdate: (card: WorkboardCard) => void;
   onDelete: () => void;
@@ -442,6 +449,18 @@ function CardDetailModal({
             Delete
           </button>
           <div className="zvd-modal-footer-right">
+            {onOpenInChat && (
+              <button
+                className="zvd-btn-secondary"
+                onClick={() => {
+                  onOpenInChat();
+                  onClose();
+                }}
+                type="button"
+              >
+                Open in chat
+              </button>
+            )}
             <button className="zvd-btn-secondary" onClick={onClose}>
               Cancel
             </button>
@@ -781,6 +800,11 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
     props.onBoardSelect?.(id);
   };
 
+  const handleOpenSelectedInChat = () => {
+    if (!board || !selectedCard) return;
+    props.onOpenCardInChat?.(board.id, selectedCard.id);
+  };
+
   const handleCreateCard = (cardData: Omit<WorkboardCard, 'id' | 'createdAt'>) => {
     if (!board) return;
     props.onCardCreate?.(board.id, cardData);
@@ -837,9 +861,20 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
   return (
     <PageFrame
       eyebrow="Project Management"
-      description="Visualize and manage your workflow with Kanban boards."
-      meta={board ? `${board.cards.length} cards` : 'no board'}
+      description={props.syncDetail || 'Visualize and manage your workflow with Kanban boards. Local-first with optional runtime sync.'}
+      meta={props.syncLabel || (board ? `${board.cards.length} cards` : 'no board')}
       title="Workboard"
+      actions={props.onSyncNow ? (
+        <button
+          type="button"
+          className="zvd-btn-secondary"
+          disabled={props.syncBusy}
+          onClick={() => void props.onSyncNow?.(board?.id)}
+          aria-label="Sync workboard to runtime"
+        >
+          {props.syncBusy ? 'Syncing…' : 'Sync now'}
+        </button>
+      ) : undefined}
     >
       <style>{`
         .zvd-kanban-board {
@@ -1583,6 +1618,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
             onClose={() => $selectedCard.set(null)}
             onUpdate={handleUpdateCard}
             onDelete={() => handleDeleteCard(selectedCard.id)}
+            onOpenInChat={props.onOpenCardInChat ? handleOpenSelectedInChat : undefined}
           />
         )}
 

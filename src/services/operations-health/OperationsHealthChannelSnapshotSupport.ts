@@ -1,4 +1,4 @@
-import { config } from '../../config/index.js';
+﻿import { config } from '../../config/index.js';
 import { ZavorthBridgeAccessLeaseService } from '../ZavorthBridgeAccessLeaseService.js';
 import { logger } from '../../logger.js';
 import type {
@@ -98,7 +98,7 @@ export class OperationsHealthChannelSnapshotSupport {
             : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readWhatsAppChannelSnapshot(): WhatsAppChannelSnapshot {
@@ -200,7 +200,7 @@ export class OperationsHealthChannelSnapshotSupport {
         lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readSlackChannelSnapshot(): SlackChannelSnapshot {
@@ -265,7 +265,7 @@ export class OperationsHealthChannelSnapshotSupport {
         lastError: typeof parsed.lastError === 'string' ? parsed.lastError : null,
         updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : null,
       };
-    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readSignalChannelSnapshot(): PlannedChannelSnapshot {
@@ -407,7 +407,7 @@ export class OperationsHealthChannelSnapshotSupport {
         imapConfigured: typeof parsed.imapConfigured === 'boolean' ? parsed.imapConfigured : fallback.imapConfigured,
         webhookConfigured: typeof parsed.webhookConfigured === 'boolean' ? parsed.webhookConfigured : fallback.webhookConfigured,
       };
-    } catch (error) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Operations  Channel Snapshot] parsing failed', error); return fallback; }
   }
 
   public readZavorthBridgeMobileAccessSnapshot(): ZavorthBridgeMobileAccessSnapshot {

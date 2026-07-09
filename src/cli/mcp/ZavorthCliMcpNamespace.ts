@@ -190,7 +190,7 @@ function parseMcpFrames(buffer: Buffer<ArrayBufferLike>): { messages: JsonObject
     const body = remaining.slice(bodyStart, bodyEnd).toString('utf8');
     try {
       messages.push(JSON.parse(body));
-    } catch {
+    } catch (error: any) { const err = error; const e = error;
       messages.push({ error: { message: 'invalid-json-rpc-response' } });
     }
     remaining = remaining.slice(bodyEnd);

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
@@ -317,7 +317,7 @@ export class SkillTrustPolicyService {
         return DEFAULT_POLICY;
       }
       return JSON.parse(this.readFileSyncImpl(this.policyFile, 'utf8')) as SkillTrustPolicyRawDocument;
-    } catch (error) { logger.warn('[Skill Trust] JSON parse failed', error); return DEFAULT_POLICY; }
+    } catch (error: any) { logger.warn('[Skill Trust] JSON parse failed', error); return DEFAULT_POLICY; }
   }
 
   private normalizeDocument(raw: SkillTrustPolicyRawDocument): SkillTrustPolicyDocument {

@@ -242,7 +242,7 @@ export class TelegramConversationAutonomousService {
           this.resolveGatewayAssistantMessageKind(result),
         ),
       );
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const errorMessage = err instanceof Error ? err.message : String(err);
       this.deps.stateService.recordAgentGatewayRunException(task, actionPayload, err);
       await SmartOutputService.reply(ctx, `Governed execution failed: ${errorMessage}`);

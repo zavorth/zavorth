@@ -35,3 +35,4 @@ What does not belong here:
 
 When a strategy proves ineffective, adjust it.
 When new error categories emerge, add them here.
+- **Default error handling:** ask-user

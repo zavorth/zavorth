@@ -225,7 +225,10 @@ function detectAgent(
     const versionMatch = output.match(/(\d+\.\d+\.\d+(?:-\w+)?)/);
     version = versionMatch ? versionMatch[1] : output.split("\n")[0];
     installed = true;
-  } catch (error) { // Not installed or not runnable logger.warn('[registry] process execution failed', error); }
+  } catch (error: any) { const err = error; const e = error;
+      // Not installed or not runnable
+      logger.warn('[registry] process execution failed', error);
+    }
 
   return { ...def, version, installed, isCustom };
 }

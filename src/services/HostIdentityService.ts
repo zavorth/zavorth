@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -82,6 +82,6 @@ export class HostIdentityService {
       }
 
       return JSON.parse(fs.readFileSync(this.stateFile, 'utf8')) as StoredHostIdentity;
-    } catch (error) { logger.warn('[Host Identity] JSON parse failed', error); return null; }
+    } catch (error: any) { logger.warn('[Host Identity] JSON parse failed', error); return null; }
   }
 }

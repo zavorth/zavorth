@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -606,7 +606,7 @@ export class NodeRegistryService {
       }
 
       return JSON.parse(fs.readFileSync(filePath, 'utf8')) as T;
-    } catch (error) { logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
+    } catch (error: any) { logger.warn('[Node Registry] JSON parse failed', error); return fallback; }
   }
 
   private writeJsonFile(filePath: string, payload: unknown): void {

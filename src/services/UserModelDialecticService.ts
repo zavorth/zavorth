@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { logger } from '../logger.js';
 
@@ -158,7 +158,10 @@ export class UserModelDialecticService {
       try {
         const data = JSON.parse(fs.readFileSync(fp, 'utf-8'));
         if (data && data.contractVersion) return data;
-      } catch (error) { // fall through logger.warn('[User Model Dialectic] JSON parse failed', error); }
+      } catch (error: any) {
+      // fall through
+      logger.warn('[User Model Dialectic] JSON parse failed', error);
+    }
     }
     return this.buildDefaultProfile();
   }

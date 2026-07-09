@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       accountId: accountId || null,
       checkedAt: new Date().toISOString(),
     });
-  } catch (err) {
+  } catch (err: any) { const error = err; const e = err;
     console.error("[quotas/check] error:", err);
     return NextResponse.json({ error: "Quota check failed" }, { status: 500 });
   }

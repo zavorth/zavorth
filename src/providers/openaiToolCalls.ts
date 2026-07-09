@@ -21,7 +21,7 @@ function parseToolArguments(rawValue: string): Record<string, unknown> {
     }
 
     return { value: parsed };
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[openai  Calls] JSON parse failed', error);
     return { raw: normalized };
   }

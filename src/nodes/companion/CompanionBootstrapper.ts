@@ -68,7 +68,7 @@ function loadPendingResults(stateFile: string | null): Array<Record<string, unkn
   try {
     const parsed = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
     return Array.isArray(parsed?.pendingResults) ? parsed.pendingResults : [];
-  } catch {
+  } catch (error: any) { const err = error; const e = error;
     return [];
   }
 }

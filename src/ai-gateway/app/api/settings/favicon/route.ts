@@ -23,7 +23,7 @@ async function resolveAllowedFaviconUrl(url: string): Promise<string | null> {
       serviceName: "Custom favicon fetch",
     });
     return parsedUrl.toString();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Blocked invalid favicon URL:", error instanceof Error ? error.message : String(error));
     return null;
   }
@@ -98,7 +98,7 @@ export async function GET() {
               }
             }
           }
-        } catch (error) {
+        } catch (error: any) { const err = error; const e = error;
           console.error("Failed to fetch custom favicon:", error);
         }
       }
@@ -123,7 +123,7 @@ export async function GET() {
         "Cache-Control": `public, max-age=${CACHE_DURATION}`,
       },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     console.error("Favicon API error:", error);
     return NextResponse.redirect("/favicon.svg");
   }

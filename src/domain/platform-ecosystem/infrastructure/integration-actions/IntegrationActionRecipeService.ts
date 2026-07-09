@@ -531,7 +531,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -586,7 +586,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {
@@ -645,7 +645,7 @@ export class IntegrationActionRecipeService {
       };
       this.ledgerService.persistRecord(record);
       return record;
-    } catch (error: any) {
+    } catch (error: any) { const err = error; const e = error;
       const doctor = this.healthService.buildDoctorSnapshot(integrationId);
       this.installerService.recordHealthStatus(integrationId, doctor.status);
       const record: IntegrationActionExecution = {

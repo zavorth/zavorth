@@ -17,7 +17,7 @@ function ensureDataDirectory(): void {
 
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
-  } catch (error: unknown) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.warn(
         `[DB] Cannot create data directory '${DATA_DIR}': ${message}\n` +

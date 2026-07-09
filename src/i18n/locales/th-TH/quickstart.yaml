@@ -1,0 +1,166 @@
+welcome:
+  title: "ยินดีต้อนรับสู่ Zavorth"
+  subtitle: "มาตั้งค่าทุกอย่างกัน"
+  banner_line1: "รันไทม์เอเจนต์ AI"
+  banner_line2: "กำกับดูแล ระดับท้องถิ่น เป็นของคุณ"
+
+security:
+  short: "Zavorth กำหนดเส้นทางภาษาธรรมชาติไปยังโมเดล ช่องทาง และเครื่องมือท้องถิ่น การกระทำที่ละเอียดอ่อนต้องได้รับอนุมัติจากคุณ"
+  confirm_first_run: "ยินดีต้อนรับ! พร้อมตั้งค่า Zavorth หรือยัง?"
+  confirm_reconfigure: "ตั้งค่า Zavorth ที่มีอยู่ใหม่?"
+
+existing_config:
+  title: "ตรวจพบการตั้งค่าที่มีอยู่"
+  provider: "ผู้ให้บริการ: {value}"
+  model: "โมเดล: {value}"
+  channels: "ช่องทาง: {value}"
+  home: "โฮม: {value}"
+
+config_issues:
+  title: "ปัญหาการตั้งค่า"
+  no_api_keys: "ไม่พบ API key ใน .env"
+  env_not_found: "ไม่พบไฟล์ .env — ต้องตั้งค่าผู้ให้บริการ"
+  env_unreadable: "ไฟล์ .env มีอยู่แต่อ่านไม่ได้"
+  run_doctor: "รัน zavorth doctor เพื่อแก้ไขปัญหา?"
+  doctor_hint: "รัน \"zavorth doctor\" ในเทอร์มินัลอื่น"
+
+mode:
+  prompt_first_run: "ต้องการตั้งค่าอย่างไร?"
+  prompt_reconfigure: "ต้องการตั้งค่าใหม่อย่างไร?"
+  complete: "ตั้งค่าครบถ้วน"
+  complete_hint: "ทุกขั้นตอน — ผู้ให้บริการ ช่องทาง ทักษะ ความจำ"
+  quickstart: "เริ่มต้นเร็ว"
+  quickstart_hint: "เร็ว — เฉพาะผู้ให้บริการ ที่เหลือทีหลัง"
+  safe: "โหมดปลอดภัย"
+  safe_hint: "การอนุมัติที่เข้มงวด ค่าเริ่มต้นระดับท้องถิ่น"
+  blank: "หน้าว่าง"
+  blank_hint: "น้อยที่สุด — เปิดใช้งานทีละฟีเจอร์"
+
+home:
+  prompt: "เก็บ instance นี้ไว้ที่ไหน?"
+  keep_current: "เก็บ ZAVORTH_HOME ปัจจุบัน"
+  use_isolated: "ใช้โฮมแยกข้างโปรเจกต์"
+  choose_custom: "เลือกพาธโฮมกำหนดเอง"
+  path_prompt: "พาธ ZAVORTH_HOME"
+
+config_handling:
+  prompt: "จัดการการตั้งค่าที่มีอยู่อย่างไร?"
+  keep: "เก็บค่าปัจจุบัน"
+  review: "ตรวจสอบและอัปเดต"
+  reset: "รีเซ็ตก่อนตั้งค่า"
+
+skill_governance:
+  prompt: "จัดการทักษะที่นำเข้าอย่างไร?"
+  casual: "ไม่เป็นทางการ"
+  casual_hint: "แนะนำสำหรับการใช้งานส่วนตัว นำเข้าเร็ว"
+  governed: "กำกับดูแล"
+  governed_hint: "การตรวจสอบองค์กรที่เข้มงวดสำหรับความเสี่ยง ลิขสิทธิ์ การตรวจสอบ"
+
+wake_detector:
+  prompt: "เปิดใช้งานการตั้งค่า Wake word Echo?"
+  default_local: "เครื่องตรวจจับท้องถิ่นเริ่มต้น"
+  custom_command: "คำสั่งเครื่องตรวจจับกำหนดเอง"
+  disabled: "ปิดไว้"
+  command_prompt: "คำสั่งเครื่องตรวจจับ wake"
+  args_prompt: "อาร์กิวเมนต์เครื่องตรวจจับ wake"
+
+migration:
+  prompt: "ย้ายการตั้งค่าจาก agent AI อื่น?"
+  path_prompt: "พาธโฟลเดอร์ workspace ของ agent:"
+  complete: "การย้ายเสร็จสมบูรณ์ ตรวจสอบการตั้งค่าที่นำเข้า"
+  skipped: "การย้ายถูกข้ามหรือล้มเหลว รันทีหลัง: zavorth migrate"
+
+provider:
+  auto_detected: "พบ API key สำหรับ {provider}"
+  auto_selected: "ใช้ {provider} กับโมเดล {model}"
+  none_found: "ไม่พบ API key ของ LLM provider ในตัวแปรสภาพแวดล้อม"
+  select_prompt: "ต้องการใช้ผู้ให้บริการใด?"
+  all_providers: "ทุกเส้นทาง provider ดั้งเดิม"
+  api_key_prompt: "วาง API key ของ {provider} (เว้นว่างเพื่อข้าม):"
+  testing: "กำลังทดสอบ API key..."
+  verified: "API key ผ่านการตรวจสอบ"
+  test_failed: "การทดสอบ API key ล้มเหลว แก้ไขทีหลังด้วย: zavorth providers"
+  skip: "ข้ามตอนนี้"
+  skip_hint: "ตั้งค่าทีหลังด้วย zavorth providers"
+  more: "ผู้ให้บริการเพิ่มเติม..."
+  models_prompt: "เลือกโมเดลสำหรับ {provider}:"
+  manual_prompt: "ชื่อผู้ให้บริการ (เช่น openai, anthropic)"
+
+channels:
+  title: "ช่องทางสื่อสาร"
+  telegram_token: "โทเค็นบอท Telegram"
+  telegram_users: "รหัสผู้ใช้ Telegram ที่อนุญาต คั่นด้วยจุลภาค"
+  discord_token: "โทเค็นบอท Discord ว่างไว้เพื่อตั้งค่าทีหลัง"
+  slack_token: "โทเค็นบอท Slack ว่างไว้เพื่อตั้งค่าทีหลัง"
+  email_smtp: "URL SMTP อีเมล ว่างไว้เพื่อตั้งค่าทีหลัง"
+
+search:
+  title: "ค้นหาเว็บ"
+  prompt: "ผู้ให้บริการค้นหาใด?"
+  local: "ท้องถิ่น (ไม่ต้องใช้ API key)"
+  brave: "Brave Search"
+  google: "Google Search"
+  skip: "ข้ามตอนนี้"
+
+hooks:
+  title: "อัตโนมัติ"
+  prompt: "เตรียมเทมเพลตอัตโนมัติ?"
+  hint: "ปิดอยู่จนกว่าจะตรวจสอบและเปิดใช้งาน"
+
+memory:
+  title: "ความจำ"
+  prompt: "โหมดความจำ?"
+  local_metadata: "ข้อมูลเมตาท้องถิ่น (ความชอบ การอนุมัติ สัญญาณการใช้งาน)"
+  local_summary: "สรุปท้องถิ่น (สรุปสั้นของโปรเจกต์/บริบท)"
+  off: "ปิด (ไม่ใช้ความจำระหว่างตั้งค่า)"
+  vault_scope: "ขอบเขตการสแกนความจำ?"
+  skip: "ข้ามตอนนี้"
+  documents: "เอกสาร"
+  downloads: "ดาวน์โหลด"
+  custom: "พาธกำหนดเอง"
+  whole_pc: "ทั้งพีซี"
+
+gateway:
+  title: "บริการรันไทม์"
+  installed: "บริการรันไทม์ติดตั้งแล้ว"
+  not_installed: "บริการรันไทม์"
+  start_cmd: "แสดงคำสั่งเริ่มต้น"
+  reinstall: "แสดงคำสั่งติดตั้งใหม่"
+  skip: "ข้ามตอนนี้"
+
+hatch:
+  title: "เริ่มต้น agent"
+  prompt: "ต้องการเริ่ม agent อย่างไรหลังตั้งค่า?"
+  terminal: "เริ่มในเทอร์มินัล"
+  browser: "เริ่มใน ZavorthControl"
+  later: "เริ่มทีหลัง"
+
+summary:
+  title: "ตั้งค่าเสร็จสมบูรณ์"
+  provider: "ผู้ให้บริการ: {value}"
+  model: "โมเดล: {value}"
+  channels_label: "ช่องทาง: {value}"
+  governance: "การกำกับดูแลทักษะ: {value}"
+  memory_label: "ความจำ: {value}"
+  env_updated: ".env อัปเดตแล้ว ({count} คีย์)"
+  backup: "สำเนาข้อมูล: {value}"
+  next_steps: "ขั้นตอนถัดไป:"
+  step_chat: "  zavorth chat          เริ่มสนทนากับ agent"
+  step_channels: "  zavorth channels      เชื่อมต่อแพลตฟอร์มส่งข้อความ"
+  step_doctor: "  zavorth doctor        ตรวจสอบสถานะระบบ"
+  step_providers: "  zavorth providers     เปลี่ยนหรือเพิ่มผู้ให้บริการ"
+
+section:
+  title: "ตั้งค่า — {section}"
+
+headless:
+  message: "การตั้งค่าต้องใช้เทอร์มินัลแบบโต้ตอบ (TTY)"
+  non_interactive: "ตัวเลือกที่ไม่ใช่แบบโต้ตอบ:"
+  cmd_apply: "  zavorth setup --non-interactive --apply    ใช้ค่าเริ่มต้นโดยเงียบ"
+  cmd_json: "  zavorth setup --json                       ผลลัพธ์แบบ JSON"
+  cmd_dry: "  zavorth setup -- dry-run                   ดูตัวอย่างโดยไม่เขียน"
+  or_run: "หรือรันการตั้งค่าจากเซสชันแบบโต้ตอบ:"
+  ssh_hint: "  SSH พร้อม TTY:  ssh -t user@host"
+  docker_hint: "  Docker:          docker run -it zavorth setup"
+
+cancelled: "การตั้งค่าถูกยกเลิก ไม่มีการเปลี่ยนแปลงใดๆ"

@@ -129,7 +129,7 @@ export class TelegramSwarmController {
         : finalMessage;
 
       await this.deps.botApi.sendMessage(chatId, truncated, { parse_mode: 'Markdown' });
-    } catch (err: unknown) {
+    } catch (err: any) { const error = err; const e = err;
       const errMessage = err instanceof Error ? err.message : String(err);
       await this.deps.botApi.sendMessage(chatId,
         `🐝❌ **Swarm failed**: ${errMessage}`,
@@ -174,7 +174,10 @@ export class TelegramSwarmController {
         `\`[Researcher]\` ${researcherStatus} ${status === 'running' && roleId.includes('researcher') ? 'Processing...' : ''}`,
         `\`[Actor]\`      ${actorStatus} ${status === 'running' && roleId.includes('actor') ? 'Processing...' : ''}`,
       ].join('\n'), { parse_mode: 'Markdown' });
-    } catch (error) { // edit may fail if message is unchanged or too fast — ignore logger.warn('[Telegram Swarm] parsing failed', error); }
+    } catch (error: any) { const err = error; const e = error;
+      // edit may fail if message is unchanged or too fast — ignore
+      logger.warn('[Telegram Swarm] parsing failed', error);
+    }
   }
 
   private calculateDuration(start: string | null, end: string | null): string {

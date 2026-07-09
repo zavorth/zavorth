@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process';
+﻿import { execFile, spawn } from 'node:child_process';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { logger } from '../logger.js';
@@ -300,7 +300,7 @@ export class ZavorthAgentReviewService {
         diffText: diff.stdout,
         collectedFromGit: true,
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Zavorth Agent] parsing failed', error);
     return {
         files: [],
@@ -454,7 +454,7 @@ export async function defaultAgentReviewCommandRunner(
       stderr: result.stderr || '',
       exitCode: 0,
     };
-  } catch (error) {
+  } catch (error: any) {
     const failure = error as Error & { stdout?: string; stderr?: string; code?: number };
     return {
       command,

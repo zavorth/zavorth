@@ -1,4 +1,4 @@
-import os from 'os';
+﻿import os from 'os';
 import { execFile } from 'child_process';
 import type {
   DesktopDockerDesktopSample,
@@ -117,13 +117,13 @@ $processes = Get-Process | ForEach-Object {
   $startTime = $null
   try {
     $startTime = $_.StartTime.ToString('o')
-  } catch {
+  } catch (error: any) {
     $startTime = $null
   }
   $responding = $null
   try {
     $responding = [bool]$_.Responding
-  } catch {
+  } catch (error: any) {
     $responding = $null
   }
   [PSCustomObject]@{
@@ -165,7 +165,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
     try {
       const stdout = await this.exec(this.powershellPath, ['-NoProfile', '-Command', script], { timeoutMs: 30_000 });
       return JSON.parse(stdout) as RawProcessReport;
-    } catch {
+    } catch (error: any) {
       const totalVisibleMemoryMb = this.round(os.totalmem() / 1024 / 1024);
       const freePhysicalMemoryMb = this.round(os.freemem() / 1024 / 1024);
       return {
@@ -199,7 +199,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
             }))
           : [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         ok: false,
@@ -228,7 +228,7 @@ $memoryLoadPercent = if ($totalVisibleMemoryMb -gt 0) {
         contextName: String(contextOutput || '').trim() || null,
         warnings: [],
       };
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Desktop Resource Collector] filesystem check failed', error);
     return {
         detected: false,

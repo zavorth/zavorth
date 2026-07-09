@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -90,7 +90,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         maxBuffer: 50 * 1024 * 1024,
       }).toString();
       return result.trim();
-    } catch (error) { logger.warn('[Zavorth Security Scanner] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] process execution failed', error); return ''; }
   }
 
   private async cveCheck(args: Record<string, unknown>): Promise<string> {
@@ -118,8 +118,8 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         }
 
         return lines.join('\n');
-      } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return 'CVE check: No npm project found or audit completed with no issues.'; }
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+      } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return 'CVE check: No npm project found or audit completed with no issues.'; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async dependencyAudit(args: Record<string, unknown>): Promise<string> {
@@ -142,14 +142,14 @@ export class ZavorthSecurityScannerTool extends BaseTool {
                 return `  ${name}: ${vuln.severity || 'unknown'} - ${vuln.title || 'no title'}`;
               }),
             ].join('\n');
-          } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+          } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
         }
         case 'pip':
           return `Dependency audit:\n${await this.runCmd('pip', ['audit'], { cwd: targetPath })}`;
         default:
           return `Dependency audit not supported for "${resolved}".`;
       }
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async secretScan(args: Record<string, unknown>): Promise<string> {
@@ -201,7 +201,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
                   }
                 }
               }
-            } catch (error) { /* skip binary files */ logger.warn('[Zavorth Security Scanner] operation failed', error); }
+            } catch (error: any) { /* skip binary files */ logger.warn('[Zavorth Security Scanner] operation failed', error); }
           }
         }
       };
@@ -217,7 +217,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         '',
         '⚠️ Review these findings and remove any hardcoded secrets.',
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] delete operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] delete operation failed', error); return ''; }
   }
 
   private async configAudit(args: Record<string, unknown>): Promise<string> {
@@ -264,7 +264,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         '',
         ...issues,
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async sastScan(args: Record<string, unknown>): Promise<string> {
@@ -308,7 +308,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
                   }
                 }
               }
-            } catch (error) { /* skip */ logger.warn('[Zavorth Security Scanner] operation failed', error); }
+            } catch (error: any) { /* skip */ logger.warn('[Zavorth Security Scanner] operation failed', error); }
           }
         }
       };
@@ -331,7 +331,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         '',
         ...findings.slice(0, 50).map(f => `  [${f.severity.toUpperCase()}] ${f.file}:${f.line} — ${f.desc}`),
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async licenseCheck(args: Record<string, unknown>): Promise<string> {
@@ -341,7 +341,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
       const { execFileSync } = await import('child_process');
       const result = execFileSync('npx', ['license-checker', '--summary', '--production'], { cwd: targetPath, timeout: 30000 }).toString();
       return `License compliance:\n${result.trim().slice(0, 3000)}`;
-    } catch {
+    } catch (error: any) {
       const pkgPath = path.join(targetPath, 'package.json');
       if (!fs.existsSync(pkgPath)) return 'Error: No package.json found.';
 
@@ -382,7 +382,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         `Missing (${missing.length}):`,
         ...missing.map(c => `  ✗ ${c.name} [${c.severity}]`),
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async filePermissions(args: Record<string, unknown>): Promise<string> {
@@ -406,7 +406,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
         worldWritable.length > 0 ? `⚠️ World-writable files found (${worldWritable.length}):` : '✓ No world-writable files found.',
         ...worldWritable.slice(0, 20).map(l => `  ${l}`),
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] operation failed', error); return ''; }
   }
 
   private async hardeningCheck(args: Record<string, unknown>): Promise<string> {
@@ -469,7 +469,7 @@ export class ZavorthSecurityScannerTool extends BaseTool {
           return `  ${icon} ${c.name}: ${c.detail}`;
         }),
       ].join('\n');
-    } catch (error) { logger.warn('[Zavorth Security Scanner] filesystem check failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Security Scanner] filesystem check failed', error); return ''; }
   }
 
   private async generateReport(args: Record<string, unknown>): Promise<string> {

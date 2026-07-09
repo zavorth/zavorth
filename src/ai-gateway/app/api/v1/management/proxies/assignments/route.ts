@@ -41,7 +41,7 @@ export async function GET(request: Request) {
       items,
       page: { limit, offset, total: filtered.length },
     });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] search failed', error);
     return createErrorResponseFromUnknown(error, "Failed to load proxy assignments");
   }
@@ -54,7 +54,7 @@ export async function PUT(request: Request) {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] load operation failed', error);
     return createErrorResponse({
       status: 400,
@@ -79,7 +79,7 @@ export async function PUT(request: Request) {
     clearDispatcherCache();
 
     return Response.json({ success: true, assignment });
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     logger.warn('[route] cache operation failed', error);
     return createErrorResponseFromUnknown(error, "Failed to update proxy assignment");
   }

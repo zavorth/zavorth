@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import crypto from 'crypto';
@@ -98,7 +98,10 @@ export class TemporaryDirectoryTrustService {
             this.activeByWorkspace.get(wsId)!.set(trust.trustId, trust);
           }
         }
-      } catch (error) { // ignore logger.warn('[Temporary Directory Trust] JSON parse failed', error); }
+      } catch (error: any) {
+      // ignore
+      logger.warn('[Temporary Directory Trust] JSON parse failed', error);
+    }
     }
   }
 
@@ -147,7 +150,10 @@ export class TemporaryDirectoryTrustService {
     for (const candidate of candidates) {
       try {
         unique.add(path.resolve(candidate).toLowerCase());
-      } catch (error) { // ignore invalid entries logger.warn('[Temporary Directory Trust] operation failed', error); }
+      } catch (error: any) {
+      // ignore invalid entries
+      logger.warn('[Temporary Directory Trust] operation failed', error);
+    }
     }
     return [...unique];
   }
@@ -172,7 +178,7 @@ export class TemporaryDirectoryTrustService {
     let realPath: string;
     try {
       realPath = fs.realpathSync(resolvedPath);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Temporary Directory Trust] lifecycle operation failed', error);
     realPath = path.resolve(resolvedPath);
   }
@@ -180,7 +186,7 @@ export class TemporaryDirectoryTrustService {
     let realWs: string;
     try {
       realWs = fs.realpathSync(workspaceRoot);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Temporary Directory Trust] path resolution failed', error);
     realWs = path.resolve(workspaceRoot);
   }
@@ -259,7 +265,7 @@ export class TemporaryDirectoryTrustService {
     let resolved: string;
     try {
       resolved = fs.realpathSync(normalized);
-    } catch (error) {
+    } catch (error: any) {
     logger.warn('[Temporary Directory Trust] validation failed', error);
     resolved = normalized;
   }
@@ -590,12 +596,12 @@ export class TemporaryDirectoryTrustService {
     let realTarget: string;
     try {
       realTarget = this.resolveRealpath(absolutePath);
-    } catch {
+    } catch (error: any) {
       try {
         const parent = path.dirname(absolutePath);
         const resolvedParent = this.resolveRealpath(parent);
         realTarget = path.join(resolvedParent, path.basename(absolutePath));
-      } catch (error) {
+      } catch (error: any) {
     logger.warn('[Temporary Directory Trust] path resolution failed', error);
     realTarget = path.resolve(absolutePath);
   }

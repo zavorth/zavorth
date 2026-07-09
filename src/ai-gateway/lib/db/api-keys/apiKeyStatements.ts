@@ -136,7 +136,7 @@ function ensureApiKeysColumns(db: ApiKeysDbLike) {
       "ALTER TABLE api_keys ADD COLUMN max_sessions INTEGER NOT NULL DEFAULT 0",
     );
     schemaChecked = true;
-  } catch (error) {
+  } catch (error: any) { const err = error; const e = error;
     const message = error instanceof Error ? error.message : String(error);
     console.warn("[DB] Failed to verify api_keys schema:", message);
   }

@@ -1,4 +1,4 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -103,7 +103,7 @@ export class ZavorthSshTunnelTool extends BaseTool {
       });
 
       return `SSH tunnel created:\n  ID: ${id}\n  Type: ${tunnelType}\n  ${user}@${host}:${port} -> localhost:${assignedLocalPort}`;
-    } catch (error) { logger.warn('[Zavorth Ssh Tunnel] process execution failed', error); return ''; }
+    } catch (error: any) { logger.warn('[Zavorth Ssh Tunnel] process execution failed', error); return ''; }
   }
 
   private listTunnels(): string {
