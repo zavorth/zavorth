@@ -625,7 +625,7 @@ export class ZavorthExternalAgentGatewayService {
     const now = this.now().toISOString();
     const adapter = input.adapter || inferAdapter(input);
     const id = normalizeId(input.id || input.label || input.command || input.endpoint || 'external-agent');
-    const root = input.root ? path.resolve(String(input.root)) : null;
+    const root = input.root ? resolveHostWorkspaceMount(String(input.root)) : null;
     const isolation = normalizeIsolation(input, adapter, root, this.projectRoot);
     return {
       id,
