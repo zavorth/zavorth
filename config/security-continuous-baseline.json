@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-09T23:55:01.159Z",
+  "updatedAt": "2026-07-10T00:06:44.339Z",
   "snapshot": {
     "controls": [
       {
@@ -223,7 +223,7 @@
     "ciWorkflow": {
       "id": "security-workflow",
       "relativePath": ".github/workflows/security.yml",
-      "sha256": "97e0a1e412e44a697ac6e057f7e34bb3c6f5afcc95cddf7a931c0c8a23b6daad",
+      "sha256": "ac267fc9b9fd1a0676522e4067e8a69a90ecf3e3c616d78ea817565f0d7579f4",
       "present": true
     }
   }
