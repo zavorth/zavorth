@@ -133,7 +133,7 @@ describe('TelegramSecurityController', () => {
         },
         remote: {
           ready: true,
-          appUrl: 'https://zavorth.example.com/dashboard',
+          appUrl: 'https://zavorth.example.com/zavorthControl',
         },
         auth: {
           authorizedHost: true,

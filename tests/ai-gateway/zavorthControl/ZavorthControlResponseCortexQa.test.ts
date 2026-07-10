@@ -319,7 +319,7 @@ describe('ZavorthControl response cortex QA gate', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'qa-shell-approval',
-      expect.stringContaining('Preciso da sua confirmacao'),
+      expect.stringContaining('I need your confirmation'),
       null,
       'universal-agent-runtime',
     );

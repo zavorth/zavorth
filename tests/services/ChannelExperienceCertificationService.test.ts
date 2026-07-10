@@ -60,7 +60,7 @@ describe('ChannelExperienceCertificationService', () => {
 
     expect(report).toContain('Certificacao de experiencia dos canais do Zavorth');
     expect(report).toContain('WhatsApp: certified');
-    expect(report).toContain('Dashboard: contract-ready');
+    expect(report).toContain('ZavorthControl: contract-ready');
   });
 });
 

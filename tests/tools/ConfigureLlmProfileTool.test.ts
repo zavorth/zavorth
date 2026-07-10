@@ -61,7 +61,7 @@ describe('ConfigureLlmProfileTool', () => {
       action: 'set',
       providerName: 'unknown-provider',
       modelName: 'whatever',
-    })).rejects.toThrow(/nao reconhecido/i);
+    })).rejects.toThrow(/unrecognized|nao reconhecido|unknown/i);
 
     expect(fs.existsSync(envFilePath)).toBe(false);
   });

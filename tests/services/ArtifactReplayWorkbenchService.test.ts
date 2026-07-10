@@ -20,7 +20,7 @@ describe('ArtifactReplayWorkbenchService', () => {
   it('builds artifact index, compare entries, learning marks and controlled evidence exports', async () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       controlPlaneSnapshot: controlPlaneFixture(),
       replayLearningSnapshot: replayLearningFixture(),
       existsSync: () => true,
@@ -57,7 +57,7 @@ describe('ArtifactReplayWorkbenchService', () => {
   it('fails when replay learning redaction policy becomes unsafe', async () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       controlPlaneSnapshot: controlPlaneFixture(),
       replayLearningSnapshot: replayLearningFixture({
         policy: {
@@ -89,7 +89,7 @@ describe('ArtifactReplayWorkbenchService', () => {
         'artifact:workbench': '',
         'qa:stage:43': '',
       }),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       controlPlaneSnapshot: controlPlaneFixture(),
       replayLearningSnapshot: replayLearningFixture(),
       existsSync: () => true,
@@ -108,7 +108,7 @@ describe('ArtifactReplayWorkbenchService', () => {
   it('fails when the Dashboard workbench card disappears', async () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard').replace('id="artifact-replay-workbench-card"', 'id="artifact-workbench-missing"'),
+      html: buildRuntimeShellHtml('/zavorthControl').replace('id="artifact-replay-workbench-card"', 'id="artifact-workbench-missing"'),
       controlPlaneSnapshot: controlPlaneFixture(),
       replayLearningSnapshot: replayLearningFixture(),
       existsSync: () => true,
@@ -129,7 +129,7 @@ describe('ArtifactReplayWorkbenchService', () => {
   it('renders a human report with the next phase recommendation', async () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       controlPlaneSnapshot: controlPlaneFixture(),
       replayLearningSnapshot: replayLearningFixture(),
       existsSync: () => true,

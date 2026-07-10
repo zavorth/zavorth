@@ -163,7 +163,7 @@ function providerSnapshot(input: {
     },
     commands: [],
     dashboardProjection: {
-      route: '/dashboard',
+      route: '/zavorthControl',
       endpoint: '/api/providers/readiness',
       executionAuthority: false,
       canRenderTestButtons: true,

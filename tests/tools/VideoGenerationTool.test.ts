@@ -28,7 +28,7 @@ describe('VideoGenerationTool', () => {
   it('returns error when duration is out of range', async () => {
     const result = await tool.execute({ prompt: 'Test', duration: 100 });
     expect(result).toContain('Erro');
-    expect(result).toContain('duracao');
+    expect(result).toMatch(/duration|duracao/i);
   });
 
   it('returns error when fps is out of range', async () => {
@@ -40,7 +40,7 @@ describe('VideoGenerationTool', () => {
   it('returns error for invalid resolution', async () => {
     const result = await tool.execute({ prompt: 'Test', resolution: '8k' });
     expect(result).toContain('Erro');
-    expect(result).toContain('resolucao');
+    expect(result).toMatch(/resolution|resolucao/i);
   });
 
   it('returns error when endpoint not configured', async () => {
@@ -48,7 +48,7 @@ describe('VideoGenerationTool', () => {
     delete process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT;
     const result = await tool.execute({ prompt: 'A cat walking on the beach' });
     expect(result).toContain('Erro');
-    expect(result).toContain('backend de video nao configurado');
+    expect(result).toMatch(/video backend is not configured|backend de video/i);
     if (original !== undefined) process.env.ZAVORTH_VIDEO_GENERATION_ENDPOINT = original;
   });
 
@@ -76,7 +76,7 @@ describe('VideoGenerationTool', () => {
       expect.objectContaining({ method: 'POST' }),
       expect.objectContaining({ serviceName: 'Video generation tool' }),
     );
-    expect(result).toContain('Video enviado');
+    expect(result).toMatch(/Video submitted|Video enviado/i);
 
     global.fetch = originalFetch;
     if (originalEndpoint === undefined) {

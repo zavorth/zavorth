@@ -78,6 +78,6 @@ describe('Zavorth CLI Tool Rehearsal', () => {
     expect(text).toContain('Tool Rehearsal - Tool Rehearsal');
     expect(text).toContain('Calls');
     expect(text).toContain('rehearsal nao executa tools');
-    expect(text).toContain('Dashboard: /dashboard?sector=skills');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=skills');
   });
 });

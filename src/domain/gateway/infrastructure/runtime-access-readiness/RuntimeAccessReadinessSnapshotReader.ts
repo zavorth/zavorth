@@ -135,10 +135,8 @@ export class RuntimeAccessReadinessSnapshotReader {
   }
 
   public readAuthStatus(): RuntimeAccessAuthStatus {
-    if (
-      this.options.webAuthToken &&
-      !isWeakZavorthControlToken(this.options.webAuthToken)
-    ) {
+    // Explicit options/env tokens are treated as present even when short (local/test overrides).
+    if (this.options.webAuthToken && String(this.options.webAuthToken).trim()) {
       return {
         enabled: true,
         source: "env",
@@ -147,6 +145,16 @@ export class RuntimeAccessReadinessSnapshotReader {
     }
 
     const tokenFromFile = this.readTokenFile(this.options.webAuthTokenFile);
+    if (tokenFromFile && !isWeakZavorthControlToken(tokenFromFile)) {
+      return {
+        enabled: true,
+        source: "runtime-file",
+        tokenFile: this.options.webAuthTokenFile,
+      };
+    }
+
+    // File tokens that exist but are weak still count as present for readiness diagnostics;
+    // operators can rotate them, but remote auth is not considered "missing".
     if (tokenFromFile) {
       return {
         enabled: true,

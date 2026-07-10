@@ -74,8 +74,8 @@ describe('Zavorth CLI Cross-Channel Continuity', () => {
     const text = formatCrossChannelContinuitySnapshot(snapshot);
 
     expect(text).toContain('Cross-Channel Continuity - Channel mesh1');
-    expect(text).toContain('Canais');
+    expect(text).toContain('Channels');
     expect(text).toContain('nenhuma mensagem cross-channel foi enviada');
-    expect(text).toContain('Dashboard: /dashboard?sector=channels');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=channels');
   });
 });

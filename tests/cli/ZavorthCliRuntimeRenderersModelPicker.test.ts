@@ -61,7 +61,7 @@ function createReadinessReport(overrides: Record<string, any> = {}) {
     },
     auth: { enabled: true, source: 'env', tokenFile: 'token.txt' },
     local: { baseUrl: 'http://127.0.0.1:33333', dashboardUrl: 'http://127.0.0.1:33333/', appUrl: 'http://127.0.0.1:33333/dashboard', ready: true, issues: [] },
-    remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/dashboard', ready: true, issues: [] },
+    remote: { baseUrl: 'https://zavorth.example.com', appUrl: 'https://zavorth.example.com/zavorthControl', ready: true, issues: [] },
     recommendations: ['O Model Picker compartilhado selecionou OpenAI/gpt-4o (ready).'],
     nextSteps: [],
     summary: 'Zavorth pronto para uso local e remoto.',

@@ -20,7 +20,7 @@ describe('WebAppPolishContractService', () => {
   });
 
   it('fails when the product command rail loses the canonical CLI journey', () => {
-    const html = buildRuntimeShellHtml('/dashboard')
+    const html = buildRuntimeShellHtml('/zavorthControl')
       .replace('id="product-command-chat"', 'id="product-command-chat-missing"')
       .replace('zavorth doctor', 'zavorth diagnose');
     const service = new WebAppPolishContractService({
@@ -45,7 +45,7 @@ describe('WebAppPolishContractService', () => {
 
   it('fails when web polish package gates are not exposed', () => {
     const service = new WebAppPolishContractService({
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       script: buildRuntimeShellScript(),
       styles: buildRuntimeShellStyles(),
       packageJson: packageJsonFixture({
@@ -73,7 +73,7 @@ describe('WebAppPolishContractService', () => {
 
   it('fails when the responsive layout contract disappears', () => {
     const service = new WebAppPolishContractService({
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       script: buildRuntimeShellScript(),
       styles: buildRuntimeShellStyles().replace('@media (max-width: 640px)', '@media (min-width: 641px)'),
       packageJson: packageJsonFixture(),
@@ -94,7 +94,7 @@ describe('WebAppPolishContractService', () => {
 
   it('renders a human report with the next phase recommendation', () => {
     const service = new WebAppPolishContractService({
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       script: buildRuntimeShellScript(),
       styles: buildRuntimeShellStyles(),
       packageJson: packageJsonFixture(),

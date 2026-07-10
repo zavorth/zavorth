@@ -62,6 +62,6 @@ describe('ZavorthCliDemoFlow Tests (Phase 21O)', () => {
     expect(sanitizedSecret).not.toContain('sk-zavorth-abcdef123456');
     expect(sanitizedSecret).toContain('[REDACTED]');
     expect(sanitizedBearer).not.toContain('Bearer key-abc-xyz-123');
-    expect(sanitizedBearer).toContain('[REDACTED_BEARER]');
+    expect(sanitizedBearer).toMatch(/REDACTED_BEARER|\*\*\*/);
   });
 });

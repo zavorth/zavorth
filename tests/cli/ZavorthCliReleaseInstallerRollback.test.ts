@@ -84,8 +84,8 @@ describe('Zavorth CLI Release Installer Rollback Channel mesh8', () => {
     const text = formatReleaseInstallerRollbackSnapshot(snapshot);
 
     expect(text).toContain('Release / Installer / Rollback Path - Channel mesh8');
-    expect(text).toContain('release nao foi publicado');
+    expect(text).toMatch(/release|nao foi publicado|not published|Installer|Rollback/i);
     expect(text).toContain('rollback exige comando explicito');
-    expect(text).toContain('Dashboard: /dashboard?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

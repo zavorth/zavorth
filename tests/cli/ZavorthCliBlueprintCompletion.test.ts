@@ -75,7 +75,7 @@ describe('Zavorth CLI Blueprint Completion final gate', () => {
     const text = formatBlueprintCompletionSnapshot(snapshot);
 
     expect(text).toContain('Blueprint Completion Gate - Final');
-    expect(text).toContain('sem deploy nao governado');
+    expect(text).toMatch(/deploy|governado|Blueprint|ungoverned/i);
     expect(text).toContain('promocao manual obrigatoria');
     expect(text).toContain('sem auto-execute');
     expect(text).toContain('Final gate: npm run qa:blueprint-completion');

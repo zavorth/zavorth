@@ -34,7 +34,7 @@ describe('ZavorthCliTuiPolishService', () => {
     expect(snapshot.operator).toEqual(expect.objectContaining({
       activeProvider: 'gemini',
       activeModel: 'gemini-test',
-      dashboardUrl: '/dashboard',
+      dashboardUrl: '/zavorthControl',
       remoteReady: true,
     }));
     expect(snapshot.providers.map((provider) => provider.id)).toEqual(['gemini', 'openrouter']);
@@ -136,7 +136,7 @@ function readySnapshot() {
     },
     actions: {
       primary: 'Pode usar remoto agora.',
-      dashboard: '/dashboard',
+      dashboard: '/zavorthControl',
       telegram: '/readiness',
       fixes: 'zavorth readiness fixes',
       refreshProviders: 'zavorth ready --refresh-providers',
@@ -204,7 +204,7 @@ function readinessSnapshot(): ZavorthRuntimeReadinessSnapshot {
       primaryCommand: 'zavorth readiness',
       jsonCommand: 'zavorth readiness --json',
       dailyCommand: 'zavorth daily',
-      dashboardRoute: '/dashboard',
+      dashboardRoute: '/zavorthControl',
       safeStartupCommand: 'zavorth go',
     },
     safety: {

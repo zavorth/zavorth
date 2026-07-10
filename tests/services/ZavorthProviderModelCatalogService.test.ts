@@ -245,7 +245,7 @@ function matrixFixture(): ZavorthProviderReadinessMatrixSnapshot {
     },
     commands: [],
     dashboardProjection: {
-      route: '/dashboard',
+      route: '/zavorthControl',
       endpoint: '/api/providers/readiness',
       executionAuthority: false,
       canRenderTestButtons: true,

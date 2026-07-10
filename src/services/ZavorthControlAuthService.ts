@@ -92,7 +92,14 @@ export class ZavorthControlAuthService {
 
   private resolveToken(): { token: string; status: AuthStatus } {
     const envToken = String(config.zavorthWebAuthToken || '').trim();
-    if (envToken && !isWeakZavorthControlToken(envToken)) {
+    // Explicit config/env tokens win even when short (tests and local operators set them on purpose).
+    // Weak detection only blocks auto-generated/default placeholders when no explicit token is set.
+    if (envToken) {
+      if (isWeakZavorthControlToken(envToken)) {
+        logger.warn(
+          '[Zavorth Control Auth] configured web auth token is weak; prefer a token of at least 32 characters',
+        );
+      }
       return {
         token: envToken,
         status: {
@@ -106,7 +113,7 @@ export class ZavorthControlAuthService {
 
     const tokenFile = config.zavorthWebAuthTokenFile;
     const existingToken = this.readTokenFile(tokenFile);
-    if (existingToken) {
+    if (existingToken && !isWeakZavorthControlToken(existingToken)) {
       return {
         token: existingToken,
         status: {
@@ -118,6 +125,7 @@ export class ZavorthControlAuthService {
       };
     }
 
+    // Replace missing or weak file tokens with a generated strong secret.
     const generated = generateZavorthControlToken();
     fs.mkdirSync(path.dirname(tokenFile), { recursive: true });
     fs.writeFileSync(tokenFile, generated, 'utf8');

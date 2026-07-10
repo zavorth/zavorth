@@ -11,7 +11,7 @@ describe('buildOnboardingGuide', () => {
     expect(guide.summary).toContain('core');
     expect(guide.summary).toContain('Telegram');
     expect(guide.steps.join(' ')).toContain('core');
-    expect(guide.steps.join(' ')).toContain('/dashboard');
+    expect(guide.steps.join(' ')).toContain('/zavorthControl');
     expect(guide.commands).toEqual(expect.arrayContaining([
       'npm run profile:status',
       'npm run ops:doctor:desktop',

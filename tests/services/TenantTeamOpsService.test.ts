@@ -21,7 +21,7 @@ describe('TenantTeamOpsService', () => {
   it('builds identity scopes, policy scopes, permission readouts, project reports and isolation map', () => {
     const service = new TenantTeamOpsService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       governanceSnapshot: governanceFixture(),
       now: () => new Date('2026-04-24T18:30:00.000Z'),
     });
@@ -68,7 +68,7 @@ describe('TenantTeamOpsService', () => {
         'tenant:ops': '',
         'qa:tenant-team-ops': '',
       }),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       governanceSnapshot: governanceFixture(),
     });
 
@@ -102,7 +102,7 @@ describe('TenantTeamOpsService', () => {
     });
     const service = new TenantTeamOpsService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       governanceSnapshot: governance,
     });
 
@@ -137,7 +137,7 @@ describe('TenantTeamOpsService', () => {
     });
     const service = new TenantTeamOpsService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       governanceSnapshot: governance,
     });
 
@@ -152,7 +152,7 @@ describe('TenantTeamOpsService', () => {
   it('renders a human report and closes the cycle', () => {
     const service = new TenantTeamOpsService({
       packageJson: packageJsonFixture(),
-      html: buildRuntimeShellHtml('/dashboard'),
+      html: buildRuntimeShellHtml('/zavorthControl'),
       governanceSnapshot: governanceFixture(),
     });
 

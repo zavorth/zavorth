@@ -19,7 +19,7 @@ describe('ZavorthProductDemoService', () => {
       'npm run zavorth:demo:check',
     ]));
     expect(snapshot.visualHome).toEqual(expect.objectContaining({
-      route: '/dashboard',
+      route: '/zavorthControl',
       openCommand: 'zavorth go',
       browserDemoCommand: 'zavorth demo browser',
       localVisualDemo: true,

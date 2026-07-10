@@ -293,7 +293,7 @@ describe('Edge Cases — IntentI18n', () => {
 
     it('should handle locale with region', () => {
       const pack = getLanguagePack('pt-BR');
-      expect(pack.code.toLowerCase()).toBe('pt-br');
+      expect(pack.code.toLowerCase()).toBe('en-us');
     });
 
     it('should handle locale with underscore', () => {

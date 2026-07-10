@@ -167,7 +167,7 @@ describe('ZavorthHardwareActionPlaneService', () => {
       }),
     );
     expect(planned.status).toBe('blocked');
-    expect(planned.blockers.join(' ')).toContain('nao allowlisted');
+    expect(planned.blockers.join(' ')).toContain('not allowlisted');
     expect(mutationPlane.createPlan).not.toHaveBeenCalled();
   });
 

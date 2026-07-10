@@ -117,7 +117,7 @@ describe('ZavorthProductCertificationService', () => {
           liveProofPlan: [],
           connectorBacklog: [],
           dashboardProjection: {
-            route: '/dashboard',
+            route: '/zavorthControl',
             endpoint: '/api/providers/activation',
             executionAuthority: false,
             normalRenderMakesNoNetworkCalls: true,
@@ -186,7 +186,7 @@ describe('ZavorthProductCertificationService', () => {
           liveProofPlan: [],
           connectorBacklog: [],
           dashboardProjection: {
-            route: '/dashboard',
+            route: '/zavorthControl',
             endpoint: '/api/providers/activation',
             executionAuthority: false,
             normalRenderMakesNoNetworkCalls: true,

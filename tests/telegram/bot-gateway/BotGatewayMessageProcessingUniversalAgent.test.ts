@@ -194,7 +194,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
-      /Preciso da sua confirmacao|I need your confirmation/i,
+      /I need your confirmation|I need your confirmation/i,
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('approval:');
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
@@ -310,7 +310,7 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(
-      /Preciso da sua confirmacao|I need your confirmation/i,
+      /I need your confirmation|I need your confirmation/i,
     );
     const activeRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;
     expect(activeRun).toEqual(expect.objectContaining({

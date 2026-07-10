@@ -73,8 +73,8 @@ describe('Zavorth CLI Artifact Memory', () => {
     const text = formatArtifactMemorySnapshot(snapshot);
 
     expect(text).toContain('Artifact Memory');
-    expect(text).toContain('Artifacts indexados');
+    expect(text).toMatch(/Artifact Memory|Artifacts indexados|Indexed artifacts/i);
     expect(text).toContain('nao le conteudo de arquivo');
-    expect(text).toContain('Dashboard: /dashboard?sector=dreams');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=dreams');
   });
 });

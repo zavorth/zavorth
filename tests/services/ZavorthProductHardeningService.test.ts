@@ -26,7 +26,7 @@ describe('ZavorthProductHardeningService', () => {
       'repo-hygiene',
     ]);
     expect(snapshot.surfacePolicy).toEqual(expect.objectContaining({
-      canonicalEntry: '/dashboard',
+      canonicalEntry: '/zavorthControl',
       retiredSurfaces: ['/app', '/classic'],
       legacyRoutesRetired: true,
       duplicateSurfacesRemoved: true,

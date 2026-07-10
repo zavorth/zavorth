@@ -496,7 +496,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-skill',
-      expect.stringContaining('Preciso da sua confirmacao'),
+      expect.stringContaining('I need your confirmation'),
       null,
       'universal-agent-runtime',
     );
@@ -698,7 +698,7 @@ describe('WebAppConversationService natural-first routing', () => {
     }));
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard',
-      expect.stringContaining('Preciso da sua confirmacao'),
+      expect.stringContaining('I need your confirmation'),
       null,
       'universal-agent-runtime',
     );
@@ -843,7 +843,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBeNull();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-risk',
-      expect.stringContaining('Preciso da sua confirmacao'),
+      expect.stringContaining('I need your confirmation'),
       null,
       'universal-agent-runtime',
     );

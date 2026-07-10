@@ -67,6 +67,6 @@ describe('Zavorth CLI Natural Capability Discovery', () => {
 
     expect(text).toContain('Natural Capability Discovery - Capability Discovery');
     expect(text).toContain('selfmod.preview');
-    expect(text).toContain('Dashboard: /dashboard?sector=skills');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=skills');
   });
 });

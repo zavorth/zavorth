@@ -73,6 +73,6 @@ describe('Zavorth CLI UNI / Trust enforcement', () => {
     expect(text).toContain('UNI / Trust Slider Enforcement - Channel mesh4');
     expect(text).toContain('Trust Slider e aplicado antes do executor');
     expect(text).toContain('host inteiro exige Overlord');
-    expect(text).toContain('Dashboard: /dashboard?sector=config');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=config');
   });
 });

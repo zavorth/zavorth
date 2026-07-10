@@ -316,7 +316,7 @@ describe('RuntimeAccessReadinessService', () => {
         }),
       }),
     );
-    expect(report.remote.appUrl).toBe('https://zavorth.example.com/dashboard');
+    expect(report.remote.appUrl).toBe('https://zavorth.example.com/zavorthControl');
     expect(report.runtime.remoteTransportDoctor).toEqual(
       expect.objectContaining({
         available: true,
@@ -1114,7 +1114,7 @@ describe('RuntimeAccessReadinessService', () => {
     tempDirs.push(root);
     const hostLockFile = path.join(root, 'host.lock.json');
     const workerLockFile = path.join(root, 'worker.lock.json');
-    const dashboardRuntimeFile = path.join(root, 'dashboard-runtime.json');
+    const zavorthControlRuntimeFile = path.join(root, 'dashboard-runtime.json');
     const tenantRegistryFile = path.join(root, 'tenant-registry.json');
 
     fs.writeFileSync(
@@ -1128,7 +1128,7 @@ describe('RuntimeAccessReadinessService', () => {
       'utf8',
     );
     fs.writeFileSync(
-      dashboardRuntimeFile,
+      zavorthControlRuntimeFile,
       JSON.stringify({
         pid: 4302,
         host: '127.0.0.1',
@@ -1144,7 +1144,7 @@ describe('RuntimeAccessReadinessService', () => {
       hostLockFilePath: hostLockFile,
       workerLockFilePath: workerLockFile,
       tenantRegistryFile,
-      dashboardRuntimeFile,
+      zavorthControlRuntimeFile,
       webHost: '127.0.0.1',
       webPort: 33333,
       publicBaseUrl: 'https://zavorth.example.com',
@@ -1168,7 +1168,7 @@ describe('RuntimeAccessReadinessService', () => {
       },
     });
 
-    expect(report.runtime.dashboard).toEqual(
+    expect(report.runtime.zavorthControl).toEqual(
       expect.objectContaining({
         active: true,
         port: 33337,
@@ -1176,7 +1176,7 @@ describe('RuntimeAccessReadinessService', () => {
       }),
     );
     expect(report.local.baseUrl).toBe('http://127.0.0.1:33337');
-    expect(report.local.appUrl).toBe('http://127.0.0.1:33337/dashboard');
+    expect(report.local.appUrl).toBe('http://127.0.0.1:33337/zavorthControl');
   });
 
   it('ignores a dashboard snapshot that does not belong to the active worker pid', () => {
@@ -1184,7 +1184,7 @@ describe('RuntimeAccessReadinessService', () => {
     tempDirs.push(root);
     const hostLockFile = path.join(root, 'host.lock.json');
     const workerLockFile = path.join(root, 'worker.lock.json');
-    const dashboardRuntimeFile = path.join(root, 'dashboard-runtime.json');
+    const zavorthControlRuntimeFile = path.join(root, 'dashboard-runtime.json');
     const tenantRegistryFile = path.join(root, 'tenant-registry.json');
 
     fs.writeFileSync(
@@ -1198,7 +1198,7 @@ describe('RuntimeAccessReadinessService', () => {
       'utf8',
     );
     fs.writeFileSync(
-      dashboardRuntimeFile,
+      zavorthControlRuntimeFile,
       JSON.stringify({
         pid: 9999,
         host: '127.0.0.1',
@@ -1214,7 +1214,7 @@ describe('RuntimeAccessReadinessService', () => {
       hostLockFilePath: hostLockFile,
       workerLockFilePath: workerLockFile,
       tenantRegistryFile,
-      dashboardRuntimeFile,
+      zavorthControlRuntimeFile,
       webHost: '127.0.0.1',
       webPort: 33333,
       publicBaseUrl: 'https://zavorth.example.com',
@@ -1238,9 +1238,9 @@ describe('RuntimeAccessReadinessService', () => {
       },
     });
 
-    expect(report.runtime.dashboard).toBeNull();
+    expect(report.runtime.zavorthControl).toBeNull();
     expect(report.local.baseUrl).toBe('http://127.0.0.1:33333');
-    expect(report.local.appUrl).toBe('http://127.0.0.1:33333/dashboard');
+    expect(report.local.appUrl).toBe('http://127.0.0.1:33333/zavorthControl');
   });
 
   it('confirms live local readiness when the app shell responds', async () => {

@@ -87,7 +87,7 @@ describe('ZavorthAgentReviewService', () => {
       expect.objectContaining({ id: 'apply-patch', enabled: false, requiresApproval: true }),
     ]));
     expect(snapshot.visual).toEqual(expect.objectContaining({
-      route: '/dashboard/reviews',
+      route: '/zavorthControl/reviews',
       layout: 'review-board',
       statusTone: 'danger',
       severityCounts: expect.objectContaining({ high: 1 }),

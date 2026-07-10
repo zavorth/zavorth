@@ -517,7 +517,7 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
       expect(container!.textContent).toContain('No pending approvals.');
     });
 
-    it('filters visible records when switching to Recentes tab (static check)', () => {
+    it('filters visible records when switching to Recent tab (static check)', () => {
       // Verify the component accepts recentApprovals prop and renders without error
       act(() => {
         root!.render(React.createElement(ApprovalsPanel, {
@@ -525,20 +525,20 @@ describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
           recentApprovals: recentApprovals,
         }));
       });
-      // Pendentes tab is default — recent items should not be visible by default
+      // Pending tab is default — recent items should not be visible by default
       const text = container!.textContent;
       expect(text).toContain('Write to config.json'); // pending item visible
     });
 
-    it('renders "Recentes" tab label in DOM', () => {
+    it('renders "Recent" tab label in DOM', () => {
       act(() => {
         root!.render(React.createElement(ApprovalsPanel, {
           approvals: safePendingApprovals,
           recentApprovals: recentApprovals,
         }));
       });
-      expect(container!.textContent).toMatch(/Recentes|Recent/);
-      expect(container!.textContent).toContain('Pendentes');
+      expect(container!.textContent).toMatch(/Recent|Recent/);
+      expect(container!.textContent).toContain('Pending');
     });
 
     it('does not add drag-drop handlers', () => {

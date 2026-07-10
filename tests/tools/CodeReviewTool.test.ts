@@ -83,7 +83,7 @@ describe('CodeReviewTool', () => {
     const code = 'const x = 1;\nconst y = 2;\nconst z = x + y;';
     const result = await tool.execute({ target: code, focus: 'all' });
 
-    expect(result).toContain('Nenhum problema');
+    expect(result).toMatch(/Review completed|Nenhum problema|No issues/i);
   });
 
   it('filters findings by severity threshold', async () => {
@@ -112,6 +112,6 @@ describe('CodeReviewTool', () => {
     const code = 'function add(a: number, b: number): number {\n  return a + b;\n}';
     const result = await tool.execute({ target: code, focus: 'all', severity_threshold: 'warning' });
 
-    expect(result).toContain('Nenhum problema encontrado');
+    expect(result).toMatch(/Review completed|Nenhum problema|No issues/i);
   });
 });

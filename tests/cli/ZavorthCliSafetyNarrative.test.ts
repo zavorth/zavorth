@@ -67,6 +67,6 @@ describe('Zavorth CLI Safety Narrative', () => {
 
     expect(text).toContain('Safety Narrative - Safety Narrative');
     expect(text).toContain('Alternativas seguras');
-    expect(text).toContain('Dashboard: /dashboard?sector=overview');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=overview');
   });
 });

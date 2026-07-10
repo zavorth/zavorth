@@ -92,7 +92,7 @@ describe('Zavorth CLI Governed Review', () => {
     expect(text).toContain('Zavorth Governed Review - Connector registry');
     expect(text).toContain('Agentes');
     expect(text).toContain('Policy Gate');
-    expect(text).toContain('/dashboard/reviews');
+    expect(text).toContain('/zavorthControl/reviews');
     expect(text).toContain('approval-gated');
   });
 

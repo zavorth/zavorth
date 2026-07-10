@@ -277,7 +277,7 @@ describe('TelegramCapabilityController', () => {
         executor_preference: null,
         dispatch_mode: 'execution',
         command: {
-          command: '/dashboard',
+          command: '/zavorthControl',
           description: '',
           handler_action: 'ops_dashboard',
         },

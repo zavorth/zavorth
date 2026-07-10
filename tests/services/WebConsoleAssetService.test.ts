@@ -17,7 +17,7 @@ describe('WebConsoleAssetService', () => {
 
   it('serves the canonical dashboard shell at /dashboard and root', () => {
     const service = new WebConsoleAssetService(process.cwd());
-    for (const route of ['/', '/dashboard']) {
+    for (const route of ['/', '/zavorthControl']) {
       const response = {
         writeHead: jest.fn(),
         end: jest.fn(),
@@ -46,7 +46,7 @@ describe('WebConsoleAssetService', () => {
     };
     const writeJson = jest.fn();
 
-    expect(service.handleStaticRoute('/dashboard', response as any, writeJson)).toBe(true);
+    expect(service.handleStaticRoute('/zavorthControl', response as any, writeJson)).toBe(true);
     expect(response.writeHead).toHaveBeenCalledWith(200, {
       'Content-Type': 'text/html; charset=utf-8',
     });
@@ -75,7 +75,7 @@ describe('WebConsoleAssetService', () => {
 
       expect(service.handleStaticRoute('/dashboard/review', blockedResponse as any, blockedJson)).toBe(true);
       expect(blockedResponse.writeHead).toHaveBeenCalledWith(302, {
-        Location: '/dashboard',
+        Location: '/zavorthControl',
         'Cache-Control': 'no-store',
       });
       expect(blockedResponse.end).toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe('WebConsoleAssetService', () => {
     expect(service.handleStaticRoute('/app', response as any, writeJson)).toBe(true);
     expect(writeJson).toHaveBeenCalledWith(response, expect.objectContaining({
       ok: false,
-      dashboardUrl: '/dashboard',
+      dashboardUrl: '/zavorthControl',
     }), 410);
     expect(response.end).not.toHaveBeenCalled();
   });
@@ -151,7 +151,7 @@ describe('WebConsoleAssetService', () => {
       expect(service.handleStaticRoute('/app', response as any, writeJson)).toBe(true);
       expect(writeJson).toHaveBeenCalledWith(response, expect.objectContaining({
         ok: false,
-        dashboardUrl: '/dashboard',
+        dashboardUrl: '/zavorthControl',
       }), 410);
       expect(response.end).not.toHaveBeenCalled();
     } finally {
