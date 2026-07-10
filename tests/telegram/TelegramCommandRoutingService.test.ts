@@ -19,6 +19,7 @@ describe('TelegramCommandRoutingService', () => {
         handleIntegrations: jest.fn().mockResolvedValue(undefined),
         handleDemo: jest.fn().mockResolvedValue(undefined),
         handleDashboard: jest.fn().mockResolvedValue(undefined),
+        handleZavorthControl: jest.fn().mockResolvedValue(undefined),
         handleAccess: jest.fn().mockResolvedValue(undefined),
         handleBootstrap: jest.fn().mockResolvedValue(undefined),
         handleWslCommand: jest.fn().mockResolvedValue(undefined),
@@ -267,7 +268,7 @@ describe('TelegramCommandRoutingService', () => {
     );
 
     expect(handled).toBe(true);
-    expect(deps.opsController.handleDashboard).toHaveBeenCalled();
+    expect(deps.opsController.handleZavorthControl).toHaveBeenCalled();
   });
 
   it('routes readiness guided fixes on Telegram surfaces', async () => {
