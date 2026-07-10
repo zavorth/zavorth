@@ -122,7 +122,13 @@ export class ErrorNormalizationService {
       code = 'missing_key';
       severity = 'warning';
       recoverable = true;
-    } else if (lowercaseMsg.includes('invalid key') || lowercaseMsg.includes('invalid api key') || lowercaseMsg.includes('invalid_key')) {
+    } else if (
+      lowercaseMsg.includes('invalid key')
+      || lowercaseMsg.includes('invalid api key')
+      || lowercaseMsg.includes('invalid_key')
+      || lowercaseMsg.includes('unauthorized')
+      || lowercaseMsg.includes('forbidden')
+    ) {
       code = 'invalid_key';
       severity = 'error';
       recoverable = true;
@@ -132,6 +138,8 @@ export class ErrorNormalizationService {
       || lowercaseMsg.includes('time out')
       || lowercaseMsg.includes('exceeded timeout')
       || lowercaseMsg.includes('etimedout')
+      || lowercaseMsg.includes('gateway timeout')
+      || lowercaseMsg.includes('gateway_timeout')
     ) {
       code = 'timeout';
       severity = 'warning';
@@ -144,6 +152,10 @@ export class ErrorNormalizationService {
       || lowercaseMsg.includes('econnreset')
       || lowercaseMsg.includes('socket hang up')
       || lowercaseMsg.includes('dns')
+      || lowercaseMsg.includes('bad gateway')
+      || lowercaseMsg.includes('bad_gateway')
+      || lowercaseMsg.includes('service unavailable')
+      || lowercaseMsg.includes('service_unavailable')
     ) {
       code = 'network_error';
       severity = 'error';
@@ -168,7 +180,12 @@ export class ErrorNormalizationService {
       code = 'model_not_found';
       severity = 'error';
       recoverable = true;
-    } else if (lowercaseMsg.includes('capability') || lowercaseMsg.includes('not supported') || lowercaseMsg.includes('capability_not_supported')) {
+    } else if (
+      lowercaseMsg.includes('capability_not_supported')
+      || lowercaseMsg.includes('capability not supported')
+      || (lowercaseMsg.includes('capability') && lowercaseMsg.includes('not supported'))
+      || lowercaseMsg.includes('not supported')
+    ) {
       code = 'capability_not_supported';
       severity = 'error';
       recoverable = true;
@@ -180,7 +197,12 @@ export class ErrorNormalizationService {
       code = 'critical_confirmation_required';
       severity = 'warning';
       recoverable = true;
-    } else if (lowercaseMsg.includes('provider error') || lowercaseMsg.includes('provider_error')) {
+    } else if (
+      lowercaseMsg.includes('provider error')
+      || lowercaseMsg.includes('provider_error')
+      || lowercaseMsg.includes('invalid response from provider')
+      || lowercaseMsg.includes('invalid_response')
+    ) {
       code = 'provider_error';
       severity = 'error';
       recoverable = true;

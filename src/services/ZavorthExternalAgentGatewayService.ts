@@ -172,6 +172,11 @@ export class ZavorthExternalAgentGatewayService {
     };
   }
 
+  /** Compatibility alias for older dashboard-era callers/tests. */
+  public buildDashboardSnapshot(): ZavorthExternalAgentGatewayZavorthControlSnapshot {
+    return this.buildZavorthControlSnapshot();
+  }
+
   public readLatestReceipt(): ZavorthExternalAgentGatewayReceipt | null {
     const target = this.resolveReceiptPath(null);
     try {
