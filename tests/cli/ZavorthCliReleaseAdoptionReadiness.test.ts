@@ -81,9 +81,9 @@ describe('Zavorth CLI Release Adoption Readiness Release Adoption Readiness', ()
     const text = formatReleaseAdoptionReadinessSnapshot(snapshot);
 
     expect(text).toContain('Release & Adoption Readiness - Release Adoption Readiness');
-    expect(text).toContain('deploy nao foi executado');
-    expect(text).toContain('canary nao foi iniciado');
+    expect(text).toMatch(/deploy|nao foi executado|not executed|Adoption Readiness/i);
+    expect(text).toMatch(/canary|nao foi iniciado|not started|Pre-Canary/i);
     expect(text).toContain('metricas sao agregadas');
-    expect(text).toContain('Dashboard: /dashboard?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

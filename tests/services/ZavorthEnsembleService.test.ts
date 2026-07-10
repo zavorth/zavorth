@@ -233,7 +233,7 @@ describe('ExperimentalZavorthEnsembleService', () => {
           }),
         ]),
       }));
-      expect(completed.synthesizedOutput).toContain('Swarm v2 Official Synthesis');
+      expect(completed.synthesizedOutput).toMatch(/Ensemble Official Synthesis|Swarm v2 Official Synthesis/i);
       expect(replay?.events).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: 'swarm.queued' }),
         expect.objectContaining({ type: 'batch.started' }),
@@ -339,7 +339,7 @@ describe('ExperimentalZavorthEnsembleService', () => {
       expect(cancelled.official).toBe(true);
       expect(cancelled.queue?.status).toBe('cancelled');
       expect(cancelled.synthesis?.status).toBe('failed');
-      expect(cancelled.synthesizedOutput).toContain('cancelado');
+      expect(cancelled.synthesizedOutput).toContain('cancelled');
       expect(replay?.events).toEqual(expect.arrayContaining([
         expect.objectContaining({ type: 'swarm.cancelled' }),
       ]));

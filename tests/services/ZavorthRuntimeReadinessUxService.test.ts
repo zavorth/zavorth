@@ -22,7 +22,7 @@ describe('ZavorthRuntimeReadinessUxService', () => {
     expect(ux.statusLabel).toBe('Atencao');
     expect(ux.dailyUseLabel).toBe('com atencao');
     expect(ux.dashboardProjection).toEqual(expect.objectContaining({
-      route: '/dashboard',
+      route: '/zavorthControl',
       endpoint: '/api/runtime/readiness',
       slot: 'runtime-readiness',
       renderMode: 'operator-cards',
@@ -40,7 +40,7 @@ describe('ZavorthRuntimeReadinessUxService', () => {
       executionAuthority: false,
     }));
     expect(ux.telegramProjection.replyMarkup.inline_keyboard.flat().map((button) => button.callback_data)).toEqual([
-      '/dashboard',
+      '/zavorthControl',
       '/status',
       '/models',
       '/fixes',
@@ -108,7 +108,7 @@ function providerSnapshot(input: {
     },
     commands: [],
     dashboardProjection: {
-      route: '/dashboard',
+      route: '/zavorthControl',
       endpoint: '/api/providers/readiness',
       executionAuthority: false,
       canRenderTestButtons: true,

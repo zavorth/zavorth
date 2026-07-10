@@ -116,7 +116,7 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           remote: {
             baseUrl: 'https://zavorth.example.com',
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             ready: true,
             issues: [],
           },
@@ -238,7 +238,7 @@ function buildRepairReport(overrides: Partial<RuntimeBootstrapRepairReport> = {}
           },
           remote: {
             baseUrl: 'https://zavorth.example.com',
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             ready: true,
             issues: [],
           },
@@ -275,7 +275,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
         requiresHttps: false,
       },
       auth: {
@@ -289,7 +289,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
         summary: 'Acesso remoto oficial pronto e validado.',
         recommendedProvider: null,
         recommendedAction: null,
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
         baseUrl: 'https://zavorth.example.com',
         issues: [],
         nextSteps: [],
@@ -331,7 +331,7 @@ function buildStartupResult(overrides: Partial<RuntimeStartupResult> = {}): Runt
         remoteRecommendation: {
           ready: true,
           command: 'npm run ops:remote:go',
-          appUrl: 'https://zavorth.example.com/dashboard',
+          appUrl: 'https://zavorth.example.com/zavorthControl',
           summary: 'Acesso remoto oficial pronto e validado.',
           nextSteps: [],
         },
@@ -616,7 +616,7 @@ describe('RuntimeInstallJourneyService', () => {
             remoteRecommendation: {
               ready: true,
               command: 'npm run ops:remote:go',
-              appUrl: 'https://zavorth.example.com/dashboard',
+              appUrl: 'https://zavorth.example.com/zavorthControl',
               summary: 'Acesso remoto oficial pronto e validado.',
               nextSteps: [],
             },

@@ -107,7 +107,7 @@ describe('Workspace patch/edit tools', () => {
 
     expect(result.success).toBe(false);
     expect(result.applied).toBe(false);
-    expect(result.error).toContain('Patch invalido');
+    expect(result.error).toContain('Invalid patch');
     expect(fs.readFileSync(path.join(tempDir, 'output', 'notes', 'item.txt'), 'utf8')).toBe('one\n');
   });
 

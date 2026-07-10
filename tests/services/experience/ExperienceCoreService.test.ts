@@ -185,7 +185,7 @@ describe('Experience Core Layer', () => {
       userId: 'user-1',
     });
 
-    expect(dashboard.kind).toBe('dashboard');
+    expect(dashboard.kind).toBe('zavorthControl');
     expect(dashboard.shouldExecuteAgent).toBe(false);
     expect(coding.kind).toBe('workspace-review');
     expect(coding.shouldExecuteAgent).toBe(true);

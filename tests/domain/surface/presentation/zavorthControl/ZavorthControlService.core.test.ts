@@ -1161,7 +1161,7 @@ describe('ZavorthControlService', () => {
       expect.objectContaining({
         summary: expect.any(String),
         local: expect.objectContaining({
-          appUrl: expect.stringContaining('/dashboard'),
+          appUrl: expect.stringContaining('/zavorthControl'),
           apiBaseUrl: expect.stringContaining('/api/web'),
         }),
         commands: expect.objectContaining({

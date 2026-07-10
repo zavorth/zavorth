@@ -80,6 +80,6 @@ describe('Zavorth CLI productization evidence Channel mesh6', () => {
     expect(text).toContain('Productization Evidence & Release Readiness - Channel mesh6');
     expect(text).toContain('noReleasePublished');
     expect(text).toContain('stable requer release real');
-    expect(text).toContain('Dashboard: /dashboard?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

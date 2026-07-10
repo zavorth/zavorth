@@ -67,6 +67,6 @@ describe('Zavorth CLI Universal Preview Mode', () => {
 
     expect(text).toContain('Universal Preview Mode - Universal Preview');
     expect(text).toContain('chamadas reais: 0');
-    expect(text).toContain('Dashboard: /dashboard?sector=overview');
+    expect(text).toContain('Dashboard: /zavorthControl?sector=overview');
   });
 });

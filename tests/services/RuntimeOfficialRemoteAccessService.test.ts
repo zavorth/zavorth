@@ -9,7 +9,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           remote: {
             ready: false,
             configured: true,
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: ['O probe do /dashboard remoto falhou.'],
           },
   nextSteps: ['Valide a URL publica e o token web com npm run ops:remote:official.'],
@@ -65,7 +65,7 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           remote: {
             ready: true,
             configured: true,
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: [],
           },
           nextSteps: ['Abra o app oficial.'],
@@ -108,13 +108,13 @@ describe('RuntimeOfficialRemoteAccessService', () => {
           manifest: {
             remote: {
               baseUrl: 'https://zavorth.example.com',
-              appUrl: 'https://zavorth.example.com/dashboard',
+              appUrl: 'https://zavorth.example.com/zavorthControl',
             },
           },
           remote: {
             ready: false,
             configured: true,
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: ['Probe remoto pendente.'],
           },
     nextSteps: ['Validar a URL publica e o token web com npm run ops:remote:official.'],
@@ -170,13 +170,13 @@ describe('RuntimeOfficialRemoteAccessService', () => {
             },
             remote: {
               baseUrl: 'https://zavorth.example.com',
-              appUrl: 'https://zavorth.example.com/dashboard',
+              appUrl: 'https://zavorth.example.com/zavorthControl',
             },
           },
           remote: {
             ready: false,
             configured: true,
-            appUrl: 'https://zavorth.example.com/dashboard',
+            appUrl: 'https://zavorth.example.com/zavorthControl',
             issues: ['Probe remoto pendente.'],
           },
           nextSteps: ['Feche o remoto oficial em um comando com npm run ops:remote:go.'],

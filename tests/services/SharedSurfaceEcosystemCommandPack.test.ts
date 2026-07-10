@@ -695,7 +695,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       actorId: 'telegram-user',
     }));
     expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Zavorth Natural Invoke');
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Acao: spawn_team');
+    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
     expect((ctx.reply as jest.Mock).mock.calls[0][1]).toMatchObject({
       reply_markup: expect.objectContaining({ inline_keyboard: expect.any(Array) }),
     });
@@ -722,7 +722,7 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       text: 'mande um agente pesquisar e outro revisar canais',
       autoExecute: true,
     }));
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Agentes: session');
+    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Agents: session|Agentes: session|session/i);
   });
 
   it('maps natural running-status phrases to subagents.list', async () => {

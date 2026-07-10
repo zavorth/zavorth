@@ -42,7 +42,7 @@ describe('Agent surface UX phase 4', () => {
     const signal = renderSurfaceResponseForTarget('signal', response);
 
     expect(telegram.text).toContain('Zavorth Natural Invoke');
-    expect(telegram.text).toContain('Acao: spawn_team');
+    expect(telegram.text).toMatch(/Action: spawn_team|Acao: spawn_team|spawn_team/i);
     expect((telegram.native as any).replyMarkup.inline_keyboard.flat()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ text: 'Planejar' }),

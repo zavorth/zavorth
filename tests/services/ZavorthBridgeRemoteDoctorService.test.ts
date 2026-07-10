@@ -75,7 +75,7 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
       expect(report.repairPolicy.cooldownActive).toBe(false);
       expect(report.forceRepair).toBe(false);
       expect(report.playbook.title).toContain('Bridge');
-      expect(report.summary).toContain('Diagnostico concluido');
+      expect(report.summary).toContain('Diagnosis complete');
 
       const persisted = JSON.parse(fs.readFileSync(reportFilePath, 'utf8'));
       expect(persisted.repairRequested).toBe(false);
@@ -226,7 +226,7 @@ describe('ZavorthBridgeRemoteDoctorService', () => {
           }),
         ]),
       );
-      expect(report.summary).toContain('ficou pronto');
+      expect(report.summary).toContain('became ready');
 
       const persisted = JSON.parse(fs.readFileSync(reportFilePath, 'utf8'));
       expect(persisted.repaired).toBe(true);

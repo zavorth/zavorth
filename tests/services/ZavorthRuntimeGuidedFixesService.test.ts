@@ -43,7 +43,7 @@ describe('ZavorthRuntimeGuidedFixesService', () => {
     expect(snapshot.primaryFix).toEqual(expect.objectContaining({
       id: 'open-dashboard-ready',
       command: 'zavorth go',
-      route: '/dashboard',
+      route: '/zavorthControl',
     }));
   });
 });
@@ -84,7 +84,7 @@ function readinessSnapshot(status: 'ready' | 'attention'): ZavorthRuntimeReadine
       primaryCommand: 'zavorth readiness',
       jsonCommand: 'zavorth readiness --json',
       dailyCommand: 'zavorth daily',
-      dashboardRoute: '/dashboard',
+      dashboardRoute: '/zavorthControl',
       safeStartupCommand: 'zavorth go',
     },
     safety: {

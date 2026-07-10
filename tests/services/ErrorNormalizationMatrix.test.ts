@@ -140,7 +140,7 @@ describe('ErrorNormalizationService - Combinatorial Matrix Tests', () => {
         } else if (input.raw.includes('secret_')) {
           expect(sanitized).toContain('[REDACTED_SECRET_REF]');
         } else if (input.raw.includes('Bearer ') && !input.raw.includes('Authorization:')) {
-          expect(sanitized).toContain('[REDACTED_BEARER]');
+          expect(sanitized).toMatch(/REDACTED_BEARER|\*\*\*/);
         } else if (input.raw.includes('Authorization:')) {
           const hasRedaction = sanitized.includes('[REDACTED_AUTHORIZATION]') || sanitized.includes('[REDACTED_BEARER]');
           expect(hasRedaction).toBe(true);

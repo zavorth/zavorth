@@ -29,7 +29,7 @@ describe('PlaywrightActionTool', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/politica de arquivo/i);
+    expect(result.error).toMatch(/file policy|politica de arquivo/i);
   });
 
   it('self-heals a broken browser selector using local heuristics', async () => {

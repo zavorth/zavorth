@@ -262,7 +262,7 @@ describe('TelegramCommandRoutingService', () => {
 
     const handled = await service.dispatchGroupCommand(
       {} as any,
-      '/dashboard',
+      '/zavorthControl',
       '',
     );
 

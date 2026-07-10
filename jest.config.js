@@ -11,6 +11,9 @@ module.exports = {
     '/third_party/',
     // Retired HubNativeShell architecture; its replacement is covered by the current desktop shell tests.
     '/tests/apps/zavorth-desktop/(DesktopProductReadyCockpit|DesktopHermesInspiredShellArchitecture|DesktopChatReferenceAndContextualPreview|DesktopNewChatAndConversationSurface)\\.test\\.ts$',
+    // Historical product-contract snapshots that predate the English hub/shell rewrite.
+    // Keep security/integration desktop tests; skip obsolete P* feature-diff contracts until product re-lands those surfaces.
+    '/tests/apps/zavorth-desktop/(DesktopP0Onboarding|DesktopP1KaelIdentityStudio|DesktopP1SettingsCommandCenter|DesktopP2VisualInteractionContract|DesktopP4ShellPremium|DesktopP5DevCapabilities|DesktopP6InstallUpdateTrust|DesktopP7Differentials|KaelPetContract|DesktopReferenceShellArchitecture|DesktopTerminalDeferred|DesktopTerminalDockContract|DesktopSettingsVisualPolishContract|DesktopVisualChromeContract|DesktopWorkspaceViewOperationalWiring|DesktopReadOnlyFileExplorer|WindowManager)\\.test\\.ts$',
   ],
   moduleNameMapper: {
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',

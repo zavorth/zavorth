@@ -27,7 +27,7 @@ describe('ZavorthVisualReceiptUxService', () => {
       rawSecretsSerialized: false,
     }));
     expect(snapshot.dashboardProjection).toEqual(expect.objectContaining({
-      route: '/dashboard',
+      route: '/zavorthControl',
       executionAuthority: false,
       zavorthControlCanExecute: false,
       renderMode: 'projection-only',

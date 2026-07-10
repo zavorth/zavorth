@@ -98,7 +98,7 @@ describe('MQTTPublisher', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/bloqueado por seguranca/);
+    expect(result.error).toMatch(/blocked by security|bloqueado por seguranca/i);
     expect(mqttModule.connect).not.toHaveBeenCalled();
     expect(result.data).toEqual(expect.objectContaining({
       lifecycle: expect.objectContaining({

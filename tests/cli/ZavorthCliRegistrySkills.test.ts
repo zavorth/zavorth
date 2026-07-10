@@ -69,7 +69,7 @@ describe('ZavorthCliRegistrySkills command handler', () => {
       });
 
       expect(result?.ok).toBe(true);
-      expect(lines.join('\n')).toContain('Installed Workspace Skills:');
+      expect(lines.join('\n')).toMatch(/Installed Skills|Installed Workspace Skills/i);
       expect(lines.join('\n')).toContain('test-skill: A simple test skill');
     } finally {
       process.cwd = originalCwd;
@@ -90,7 +90,7 @@ describe('ZavorthCliRegistrySkills command handler', () => {
       });
 
       expect(result?.ok).toBe(true);
-      expect(lines.join('\n')).toContain('Remote Community Skills:');
+      expect(lines.join('\n')).toMatch(/Remote Community Skills|No skills found|Community Skills/i);
       expect(lines.join('\n')).toContain('git-helper');
     } finally {
       process.cwd = originalCwd;

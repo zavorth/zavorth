@@ -1,9 +1,13 @@
 /**
- * Compatibility alias: DashboardService was renamed to WebAppService
- * during the zavorthControl migration. Tests and legacy imports keep working.
+ * Compatibility alias: historical DashboardService is the full HTTP control/web host.
+ * WebAppService remains the embedded request-handler composition used by ZavorthControl.
  */
 export {
-  WebAppService as DashboardService,
+  ZavorthControlService as DashboardService,
+  ZavorthControlService,
+} from './ZavorthControlService.js';
+export type { ChannelIngressGateways as DashboardChannelIngressGateways } from './ZavorthControlService.js';
+export {
   WebAppService,
 } from './WebAppService.js';
 export type {

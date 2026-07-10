@@ -25,7 +25,7 @@ describe('ZavorthUserResponseRendererService', () => {
       approvalStatus: 'pending',
     });
 
-    expect(result.text).toContain('Preciso da sua confirmacao para continuar com seguranca.');
+    expect(result.text).toContain('I need your confirmation para continuar com seguranca.');
     expect(result.text).toContain('Nada foi executado ainda.');
     expect(result.text).toContain('approval: approval-123 (pending)');
     expect(result.text).toContain('responda "Aprovo"');

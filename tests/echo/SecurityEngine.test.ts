@@ -34,7 +34,7 @@ describe('SecurityEngine', () => {
         SecurityEngine.authorizeExecution('abrir terminal', new SystemOpenAppTool(), {
           appName,
         });
-      }).toThrow(/bloqueado|whitelist/);
+      }).toThrow(/blocked|bloqueado|whitelist|allowlist/i);
 
       const result = await new SystemOpenAppTool().execute({ appName });
       expect(result.success).toBe(false);
@@ -49,7 +49,7 @@ describe('SecurityEngine', () => {
         topic: 'casa/sala/luz',
         payload: 'ON',
       });
-    }).toThrow(/nao e local/);
+    }).toThrow(/localhost|private|local|nao e local/i);
   });
 
   it('blocks external browser targets unless explicitly allowlisted', () => {
@@ -92,7 +92,7 @@ describe('SecurityEngine', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toMatch(/rede privada/);
+      expect(result.error).toMatch(/private|local|rede privada/i);
       expect(fetchSpy).not.toHaveBeenCalled();
     } finally {
       fetchSpy.mockRestore();
@@ -117,6 +117,6 @@ describe('SecurityEngine', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/bloqueado por seguranca/);
+    expect(result.error).toMatch(/blocked by security|bloqueado por seguranca/i);
   });
 });

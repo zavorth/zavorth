@@ -146,7 +146,7 @@ function productizationStub(sandboxStatus: 'ready' | 'fallback') {
         mission: {} as any,
         receipt: {} as any,
         dashboardProjection: {
-          route: '/dashboard',
+          route: '/zavorthControl',
           executionAuthority: false,
           approvalRequiredForMutableActions: true,
           visualBlocksRequireOwnerApproval: true,

@@ -13,7 +13,7 @@ describe('LegacySurfaceContainmentService', () => {
     expect(snapshot).toEqual(
       expect.objectContaining({
         contractVersion: LEGACY_SURFACE_CONTAINMENT_VERSION,
-        canonicalEntry: '/dashboard',
+        canonicalEntry: '/zavorthControl',
         frozenSurfaces: [],
         retiredSurfaces: ['/app', '/classic'],
         generatedAt: '2026-04-14T12:00:00.000Z',
@@ -37,8 +37,8 @@ describe('LegacySurfaceContainmentService', () => {
           localDashboardUrl: 'http://127.0.0.1:33333/dashboard',
           localLegacyAppUrl: null,
           localClassicUrl: null,
-          remoteControlUrl: 'https://zavorth.example.com/dashboard',
-          remoteDashboardUrl: 'https://zavorth.example.com/dashboard',
+          remoteControlUrl: 'https://zavorth.example.com/zavorthControl',
+          remoteDashboardUrl: 'https://zavorth.example.com/zavorthControl',
           remoteLegacyAppUrl: null,
           remoteClassicUrl: null,
         },
@@ -46,7 +46,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(snapshot.surfaces).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: 'dashboard', role: 'canonical', path: '/dashboard', status: 'primary' }),
+        expect.objectContaining({ id: 'dashboard', role: 'canonical', path: '/zavorthControl', status: 'primary' }),
         expect.objectContaining({ id: 'app', role: 'retired', status: 'removed' }),
         expect.objectContaining({ id: 'classic', role: 'retired', status: 'removed' }),
       ]),
@@ -56,12 +56,12 @@ describe('LegacySurfaceContainmentService', () => {
   it('renders removed-route warnings only for retired routes', () => {
     const service = new LegacySurfaceContainmentService();
 
-    expect(service.resolveRole('/dashboard')).toBe('canonical');
+    expect(service.resolveRole('/zavorthControl')).toBe('canonical');
     expect(service.resolveRole('/app/')).toBe('retired');
     expect(service.resolveRole('/classic')).toBe('retired');
-    expect(service.isLegacy('/dashboard')).toBe(false);
+    expect(service.isLegacy('/zavorthControl')).toBe(false);
     expect(service.isLegacy('/app')).toBe(true);
-    expect(service.renderBanner('/dashboard')).toBeNull();
+    expect(service.renderBanner('/zavorthControl')).toBeNull();
     expect(service.renderBanner('/app')).toContain('has been removed');
     expect(service.renderBanner('/classic')).toContain('Use /dashboard');
   });
@@ -69,12 +69,12 @@ describe('LegacySurfaceContainmentService', () => {
   it('blocks all work against removed web surfaces', () => {
     const service = new LegacySurfaceContainmentService();
 
-    expect(service.decideFeatureDestination('/dashboard', 'product-feature')).toEqual(
+    expect(service.decideFeatureDestination('/zavorthControl', 'product-feature')).toEqual(
       expect.objectContaining({
         phase: 'P3-003',
         allowed: true,
         featureKind: 'product-feature',
-        requestedPath: '/dashboard',
+        requestedPath: '/zavorthControl',
         surface: expect.objectContaining({ id: 'dashboard', status: 'primary' }),
         requiredDestination: ['gateway contract', 'control plane', 'dashboard'],
       }),

@@ -74,6 +74,6 @@ describe('GeminiInteractionsProviderAdapter', () => {
   it('fails closed when the beta route is not enabled', async () => {
     (config as any).geminiInteractionsEnabled = false;
     const provider = new GeminiInteractionsProviderAdapter({ apiKey: 'test-key' });
-    await expect(provider.chat([{ role: 'user', content: 'oi' }])).rejects.toThrow(/desabilitada/i);
+    await expect(provider.chat([{ role: 'user', content: 'oi' }])).rejects.toThrow(/disabled|desabilitada/i);
   });
 });

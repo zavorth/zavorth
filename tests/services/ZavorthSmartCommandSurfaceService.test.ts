@@ -157,7 +157,7 @@ function providerCatalog(): ZavorthProviderModelCatalogSnapshot {
     providers: [],
     commands: [],
     dashboardProjection: {
-      route: '/dashboard',
+      route: '/zavorthControl',
       endpoint: '/api/providers/model-catalog',
       executionAuthority: false,
       normalRenderMakesNoNetworkCalls: true,

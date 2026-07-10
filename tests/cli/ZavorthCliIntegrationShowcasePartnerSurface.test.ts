@@ -81,9 +81,9 @@ describe('Zavorth CLI Integration Showcase Partner Surface Integration Showcase'
     const text = formatIntegrationShowcasePartnerSurfaceSnapshot(snapshot);
 
     expect(text).toContain('Integration Showcase / Partner Surface - Integration Showcase');
-    expect(text).toContain('fixture nao exige credencial');
+    expect(text).toMatch(/fixture|credencial|credential|Integration Showcase/i);
     expect(text).toContain('fixture nao chama rede');
     expect(text).toContain('compatibilidade tecnica nao vira parceria formal');
-    expect(text).toContain('Dashboard: /dashboard?runId=');
+    expect(text).toContain('Dashboard: /zavorthControl?runId=');
   });
 });

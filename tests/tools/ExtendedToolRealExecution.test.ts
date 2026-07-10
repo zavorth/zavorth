@@ -48,7 +48,7 @@ describe('Extended tool real execution boundaries', () => {
       trajectories: JSON.stringify([{ prompt: 'Say hi', provider: 'openai' }]),
     });
 
-    expect(result).toContain('execucao real');
+    expect(result).toMatch(/live batch|execucao real|real providers/i);
     expect(result).not.toContain('[Simulated]');
   });
 

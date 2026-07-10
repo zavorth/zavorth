@@ -11,7 +11,7 @@ describe('ZavorthCliFinalProductPolishService', () => {
 
     expect(snapshot.contractVersion).toBe('2026-05-14.checkpoint-12-cli-final-product-polish');
     expect(snapshot.status).toBe('passed');
-    expect(snapshot.summary.dashboardPath).toBe('/dashboard');
+    expect(snapshot.summary.dashboardPath).toBe('/zavorthControl');
     expect(snapshot.summary.inkPreviewRendersOnce).toBe(true);
     expect(snapshot.summary.inkInteractiveMode).toBe(true);
     expect(snapshot.summary.noInfiniteRenderLoop).toBe(true);

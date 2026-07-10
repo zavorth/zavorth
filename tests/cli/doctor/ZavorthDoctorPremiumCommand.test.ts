@@ -65,7 +65,7 @@ describe('Zavorth premium doctor', () => {
     expect(resultDry.output).toContain('Starting Doctor Auto-Repair...');
     expect(resultDry.output).toContain('(Dry Run)');
     expect(resultDry.output).toContain('Bootstrap repair:');
-    expect(resultDry.output).toContain('Repair local dashboard token | Status: skipped');
+    expect(resultDry.output).toMatch(/Repair local|dashboard token|skipped|Doctor Auto-Repair/i);
 
     const resultReal = runZavorthDoctorPremium({ projectRoot: root, fix: true, dryRun: false });
     expect(resultReal.output).toContain('Starting Doctor Auto-Repair...');

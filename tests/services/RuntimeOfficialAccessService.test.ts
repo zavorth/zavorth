@@ -22,7 +22,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
       summary: 'Zavorth pronto para uso local.',
@@ -36,7 +36,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       summary: 'Zavorth pronto para uso local e remoto.',
     } as any;
@@ -49,7 +49,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       auth: {
         authorizedHost: false,
@@ -65,7 +65,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       auth: {
         authorizedHost: true,
@@ -131,7 +131,7 @@ describe('RuntimeOfficialAccessService', () => {
     expect(report.remote.appProbe).toEqual(
       expect.objectContaining({
         ok: true,
-        targetUrl: 'https://zavorth.example.com/dashboard',
+        targetUrl: 'https://zavorth.example.com/zavorthControl',
       }),
     );
     expect(report.remote.authProbe).toEqual(
@@ -248,7 +248,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
       summary: 'Zavorth pronto para uso local.',
@@ -261,7 +261,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
         requiresHttps: false,
       },
       auth: {
@@ -337,7 +337,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
       summary: 'Zavorth pronto para uso local.',
@@ -351,7 +351,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: false,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
         requiresHttps: false,
       },
       auth: {
@@ -424,7 +424,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
       },
       nextSteps: [],
       summary: 'Zavorth pronto para uso local e remoto.',
@@ -438,7 +438,7 @@ describe('RuntimeOfficialAccessService', () => {
       remote: {
         ready: true,
         baseUrl: 'https://zavorth.example.com',
-        appUrl: 'https://zavorth.example.com/dashboard',
+        appUrl: 'https://zavorth.example.com/zavorthControl',
         requiresHttps: false,
       },
       auth: {

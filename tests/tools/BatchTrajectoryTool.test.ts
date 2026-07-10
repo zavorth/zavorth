@@ -66,7 +66,7 @@ describe('BatchTrajectoryTool', () => {
       trajectories: JSON.stringify(trajectories),
     });
     expect(result).toContain('Erro');
-    expect(result).toContain('maximo');
+    expect(result).toMatch(/maximum|maximo/i);
   });
 
   it('returns error for invalid comparison metric', async () => {
@@ -83,7 +83,7 @@ describe('BatchTrajectoryTool', () => {
       trajectories: JSON.stringify([{ prompt: 'Hello world' }]),
     });
 
-    expect(result).toContain('execucao real');
+    expect(result).toMatch(/live batch|execucao real|real providers/i);
     expect(result).not.toContain('[Simulated]');
     expect(ProviderFactory.create).not.toHaveBeenCalled();
   });

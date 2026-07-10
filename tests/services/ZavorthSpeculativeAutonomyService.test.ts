@@ -403,7 +403,7 @@ describe('ZavorthSpeculativeAutonomyService', () => {
     expect(result.status).toBe('blocked');
     expect(result.autoHealing.cancelRequested).toBe(true);
     expect(result.receipts).toContain('auto-healing-cancelled');
-    expect(result.finalAttempt?.summary).toContain('cancelado');
+    expect(result.finalAttempt?.summary).toContain('cancelled');
     expect(correctionProvider).not.toHaveBeenCalled();
   });
 

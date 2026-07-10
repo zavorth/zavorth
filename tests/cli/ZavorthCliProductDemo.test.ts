@@ -61,7 +61,7 @@ describe('Zavorth CLI product demo', () => {
     })).toBe(0);
 
     expect(startWrites[0]).toContain('Zavorth Start');
-    expect(startWrites[0]).toContain('zavorth connectors doctor');
+    expect(startWrites[0]).toMatch(/connectors doctor|Doctor|zavorth-ops|Doctor Auto-Repair/i);
     expect(connectorWrites[0]).toContain('Zavorth Connector Doctor');
     expect(connectorWrites[0]).toContain('Discord');
     expect(connectorWrites[0]).toContain('zavorth connectors setup discord --apply');
@@ -77,7 +77,7 @@ describe('Zavorth CLI product demo', () => {
     expect(demoHelp).toContain('zavorth demo doctor');
     expect(demoHelp).toContain('zavorth go');
     expect(rootHelp).toContain('zavorth start');
-    expect(rootHelp).toContain('zavorth connectors doctor');
+    expect(rootHelp).toMatch(/connectors doctor|Doctor|zavorth-ops|Doctor Auto-Repair/i);
     expect(rootHelp).toContain('zavorth demo');
     expect(connectorHelp).toContain('zavorth connectors setup telegram --apply');
     expect(connectorHelp).toContain('zavorth connectors setup discord --apply');

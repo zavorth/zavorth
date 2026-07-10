@@ -10,7 +10,7 @@ describe('ZavorthControl product docs', () => {
     const readme = readWorkspaceFile('README.md');
 
     expect(readme).toContain('Start Fast');
-    expect(readme).toContain('/dashboard');
+    expect(readme).toContain('/zavorthControl');
     expect(readme).toContain('zavorth setup');
     expect(readme).toContain('zavorth start');
     expect(readme).toContain('zavorth open');
