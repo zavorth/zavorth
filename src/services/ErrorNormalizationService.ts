@@ -20,15 +20,15 @@ export class ErrorNormalizationService {
     if (!value) return '';
     let sanitized = value;
 
-    // Redaction: sk-* tokens
+    // Redaction: Authorization / Bearer first so full credentials become opaque markers
+    // before nested sk- token patterns rewrite the secret payload.
+    sanitized = sanitized.replace(/Authorization:\s*Bearer\s+\S+/gi, '[REDACTED_AUTHORIZATION]');
+    sanitized = sanitized.replace(/Authorization:\s*[A-Za-z0-9\-._~+/=]+/gi, '[REDACTED_AUTHORIZATION]');
+    sanitized = sanitized.replace(/Bearer\s+\S+/gi, '[REDACTED_BEARER]');
+
+    // Redaction: sk-* tokens (remaining bare secrets)
     sanitized = sanitized.replace(/sk-[A-Za-z0-9]{20,}/g, '[REDACTED_SECRET]');
     sanitized = sanitized.replace(/sk-[A-Za-z0-9\-]+/g, '[REDACTED_SECRET]');
-
-    // Redaction: Bearer ...
-    sanitized = sanitized.replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, '[REDACTED_BEARER]');
-
-    // Redaction: Authorization: ...
-    sanitized = sanitized.replace(/Authorization:\s*[A-Za-z0-9\-._~+/]+=*/gi, '[REDACTED_AUTHORIZATION]');
 
     // Redaction: secretRef/...
     sanitized = sanitized.replace(/secret_[A-Za-z0-9_\-]+/g, '[REDACTED_SECRET_REF]');
