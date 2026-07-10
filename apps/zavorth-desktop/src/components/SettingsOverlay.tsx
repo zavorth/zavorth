@@ -17,6 +17,7 @@ import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { errorMessage } from '../lib/errors';
 import { parseAccent, parseThemeMode } from '../lib/typeGuards';
+import { playTapSound } from '../lib/haptics';
 
 interface SettingsOverlayProps {
   isOpen: boolean;
@@ -331,7 +332,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'general' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('general'); }}
+            onClick={() => { playTapSound(); selectTab('general'); }}
           >
             <IconSettings size={18} />
             General
@@ -339,7 +340,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'providers' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('providers'); }}
+            onClick={() => { playTapSound(); selectTab('providers'); }}
           >
             <IconServer size={18} />
             AI Providers
@@ -347,7 +348,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'permissions' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('permissions'); }}
+            onClick={() => { playTapSound(); selectTab('permissions'); }}
           >
             <IconShield size={18} />
             Permissions
@@ -355,7 +356,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('mcp'); }}
+            onClick={() => { playTapSound(); selectTab('mcp'); }}
           >
             <IconCpu size={18} />
             MCP Servers
@@ -363,7 +364,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'workspace' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('workspace'); }}
+            onClick={() => { playTapSound(); selectTab('workspace'); }}
           >
             <IconFolder size={18} />
             Workspace
@@ -371,7 +372,7 @@ export function SettingsOverlay({
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'diagnostics' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { require('../lib/haptics').playTapSound(); selectTab('diagnostics'); }}
+            onClick={() => { playTapSound(); selectTab('diagnostics'); }}
           >
             <IconActivity size={18} />
             Diagnostics

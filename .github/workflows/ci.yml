@@ -60,7 +60,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Rebuild native modules
-        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+        run: |
+          npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers --silent \
+            || npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers
 
       - name: Security tests
         run: npm run test:ci:security --silent
@@ -97,7 +99,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Rebuild native modules
-        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+        run: |
+          npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers --silent \
+            || npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers
 
       - name: Install desktop test dependencies
         run: |
@@ -146,7 +150,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Rebuild native modules
-        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+        run: |
+          npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers --silent \
+            || npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers
 
       - name: Platform tests
         run: npm run test:ci:platform --silent

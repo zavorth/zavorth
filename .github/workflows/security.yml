@@ -30,7 +30,9 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Rebuild native modules
-        run: npm rebuild better-sqlite3 --silent || npm rebuild better-sqlite3
+        run: |
+          npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers --silent \
+            || npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers
 
       - name: Run security CI
         run: npm run security:ci
