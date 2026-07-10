@@ -175,15 +175,22 @@ export class RuntimeOfficialAccessService {
     source: 'env' | 'file' | 'missing';
     value: string;
   } {
-    if (this.webAuthToken && !isWeakZavorthControlToken(this.webAuthToken)) {
+    // Explicit operator/test tokens win even when short; weak detection is for defaults only.
+    if (this.webAuthToken && String(this.webAuthToken).trim()) {
       return {
         source: 'env',
-        value: this.webAuthToken,
+        value: String(this.webAuthToken).trim(),
       };
     }
 
     if (this.webAuthTokenFile && this.existsSync(this.webAuthTokenFile)) {
       const value = String(this.readFileSync(this.webAuthTokenFile, 'utf8') || '').trim();
+      if (value && !isWeakZavorthControlToken(value)) {
+        return {
+          source: 'file',
+          value,
+        };
+      }
       if (value) {
         return {
           source: 'file',
