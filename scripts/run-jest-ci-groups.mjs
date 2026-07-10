@@ -53,6 +53,8 @@ const GROUPS = [
     id: 'services',
     label: 'Service layer',
     paths: ['tests/services'],
+    // Soft-skipped product suites may leave zero runnable files after ignore patterns.
+    jestArgs: ['--passWithNoTests'],
   },
   {
     id: 'runtime-agent',
