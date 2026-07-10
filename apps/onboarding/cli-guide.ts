@@ -82,7 +82,7 @@ export function buildOnboardingGuide(input: {
 }): OnboardingGuide {
   const baseUrl =
     (String(input.baseUrl || '').trim() || 'http://127.0.0.1:33333').replace('://0.0.0.0:', '://127.0.0.1:');
-  const shellUrl = String(input.installSummary?.shellUrl || `${baseUrl.replace(/\/+$/u, '')}/dashboard`).trim();
+  const shellUrl = String(input.installSummary?.shellUrl || `${baseUrl.replace(/\/+$/u, '')}/zavorthControl`).trim();
   const onboardingScript = String(input.installSummary?.onboardingScript || '').trim();
   const openShellScript = String(input.installSummary?.openShellScript || '').trim();
   const guideFile = String(input.installSummary?.guideFile || '').trim();
@@ -98,7 +98,7 @@ export function buildOnboardingGuide(input: {
       steps: [
         'Confirm runtime readiness and doctor status.',
         'Check the product mode first; it maps the experience to chat, assistant, builder, or operator.',
-        'Keep the official path web-only in /dashboard and add Telegram as the first external channel if you want to operate outside the web surface.',
+        'Keep the official path web-only in /zavorthControl and add Telegram as the first external channel if you want to operate outside the web surface.',
         'Keep core as the host baseline; promote to ops for maintenance and full only when the advanced stack is truly required.',
         'Run the desktop doctor and workspace doctor before blaming Zavorth for high RAM usage.',
         'Generate a desktop pairing draft and start the companion.',
@@ -132,13 +132,13 @@ export function buildOnboardingGuide(input: {
     return {
       profile: 'headless',
       title: 'Zavorth Headless Guide',
-      summary: 'Minimal flow for terminal operation without losing the official product path: web-only in /dashboard and Telegram as the first external channel when you want to leave the terminal.',
+      summary: 'Minimal flow for terminal operation without losing the official product path: web-only in /zavorthControl and Telegram as the first external channel when you want to leave the terminal.',
       estimatedMinutes: 3,
       nextAction: 'npm run cli -- status',
       steps: [
         'Confirm status and open the REPL.',
         'Check the current product mode before promoting runtime or technical surfaces.',
-        'Even in headless mode, keep /dashboard as the primary surface and treat Telegram as the recommended first external channel.',
+        'Even in headless mode, keep /zavorthControl as the primary surface and treat Telegram as the recommended first external channel.',
         'Keep core for daily use and promote to ops/full only when the task truly needs more runtime.',
         'Consult procedural memory before repeating manual work.',
         'Use doctor and regression checks when changing something important.',
@@ -171,7 +171,7 @@ export function buildOnboardingGuide(input: {
     steps: [
       'Install or rehydrate the workspace.',
       'Confirm the product mode first; builder is the natural baseline for the current development flow.',
-      'Use the dashboard at /dashboard as the primary face and connect Telegram only when you want the first external extension of the flow.',
+      'Use the control surface at /zavorthControl as the primary face and connect Telegram only when you want the first external extension of the flow.',
       'Keep core as the recommended profile; ops is for maintenance and full is reserved for deliberate use.',
       'Start the official runtime and validate quick status.',
       'Review the desktop doctor and lightweight workspace preset before opening large IDEs.',

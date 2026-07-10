@@ -848,7 +848,7 @@ function normalizeIsolation(
   const image = clean(input.sandboxImage || input.dockerImage);
   const distro = clean(input.wslDistro);
   const workspaceMount = input.workspaceMount
-    ? path.resolve(String(input.workspaceMount))
+    ? resolveHostWorkspaceMount(String(input.workspaceMount))
     : kind === 'docker'
       ? root || projectRoot
       : null;
@@ -937,13 +937,33 @@ function emptyCliPlan(
   };
 }
 
+function resolveHostWorkspaceMount(value: string): string {
+  const raw = String(value || '').trim();
+  if (!raw) return raw;
+  // Keep absolute Windows drive paths intact on non-Windows CI hosts so WSL
+  // translation can recover C:\... without path.resolve() treating it as relative.
+  if (/^[a-zA-Z]:[\\/]/.test(raw) || /(?:^|[\\/])[a-zA-Z]:[\\/]/.test(raw)) {
+    return raw;
+  }
+  return path.resolve(raw);
+}
+
 function toWslPath(value: string): string {
   const raw = String(value || '').trim();
   if (!raw) return '~';
+
+  // Linux path.resolve() may prefix a Windows path with the POSIX cwd
+  // (e.g. "/home/runner/.../C:\\Users\\me\\work"). Recover the drive path first.
+  const embeddedDrive = raw.match(/(?:^|[\\/])([a-zA-Z]):[\\/](.*)$/);
+  if (embeddedDrive) {
+    const rest = embeddedDrive[2].replace(/\\/g, '/').replace(/^\/+/g, '');
+    return `/mnt/${embeddedDrive[1].toLowerCase()}/${rest}`;
+  }
+
   if (raw.startsWith('/')) return raw;
   const uncMatch = raw.match(/^\\\\(?:wsl(?:\.localhost)?\$?)\\[^\\]+\\(.+)$/i);
   if (uncMatch) return `/${uncMatch[1].replace(/\\/g, '/')}`;
-  const driveMatch = raw.match(/^([a-zA-Z]):\\(.+)$/);
+  const driveMatch = raw.match(/^([a-zA-Z]):[\\/](.+)$/);
   if (driveMatch) return `/mnt/${driveMatch[1].toLowerCase()}/${driveMatch[2].replace(/\\/g, '/')}`;
   return raw.replace(/\\/g, '/');
 }

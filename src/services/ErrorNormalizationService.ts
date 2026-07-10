@@ -76,7 +76,13 @@ export class ErrorNormalizationService {
     let recoverable = false;
 
     // Mapping rules based on the error message keywords
-    if (lowercaseMsg.includes('path traversal') || lowercaseMsg.includes('..')) {
+    // Match true path-traversal tokens only — do not treat ellipsis ("...") as traversal.
+    if (
+      lowercaseMsg.includes('path traversal')
+      || lowercaseMsg.includes('../')
+      || lowercaseMsg.includes('..\\')
+      || /(^|[^\.])\.\.([^\.]|$)/.test(lowercaseMsg)
+    ) {
       code = 'path_traversal';
       severity = 'error';
       recoverable = false;
@@ -120,11 +126,25 @@ export class ErrorNormalizationService {
       code = 'invalid_key';
       severity = 'error';
       recoverable = true;
-    } else if (lowercaseMsg.includes('timeout') || lowercaseMsg.includes('exceeded timeout')) {
+    } else if (
+      lowercaseMsg.includes('timeout')
+      || lowercaseMsg.includes('timed out')
+      || lowercaseMsg.includes('time out')
+      || lowercaseMsg.includes('exceeded timeout')
+      || lowercaseMsg.includes('etimedout')
+    ) {
       code = 'timeout';
       severity = 'warning';
       recoverable = true;
-    } else if (lowercaseMsg.includes('network') || lowercaseMsg.includes('fetch failed') || lowercaseMsg.includes('econnrefused') || lowercaseMsg.includes('enotfound')) {
+    } else if (
+      lowercaseMsg.includes('network')
+      || lowercaseMsg.includes('fetch failed')
+      || lowercaseMsg.includes('econnrefused')
+      || lowercaseMsg.includes('enotfound')
+      || lowercaseMsg.includes('econnreset')
+      || lowercaseMsg.includes('socket hang up')
+      || lowercaseMsg.includes('dns')
+    ) {
       code = 'network_error';
       severity = 'error';
       recoverable = true;
