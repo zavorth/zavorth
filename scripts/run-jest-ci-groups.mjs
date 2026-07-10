@@ -203,11 +203,20 @@ function runGroup(group, timeoutMs, passThroughArgs) {
     '--forceExit',
     ...passThroughArgs,
   ];
+  // Services suite is large; default GitHub runners OOM under the default ~2GB heap.
+  // Keep any existing NODE_OPTIONS and only add a higher heap floor when missing.
+  const existingNodeOptions = String(process.env.NODE_OPTIONS || '').trim();
+  const heapFloor = '--max-old-space-size=8192';
+  const nodeOptions = existingNodeOptions.includes('max-old-space-size')
+    ? existingNodeOptions
+    : [existingNodeOptions, heapFloor].filter(Boolean).join(' ');
+
   const child = spawn(process.execPath, ['--experimental-vm-modules', ...args], {
     cwd: projectRoot,
     env: {
       ...process.env,
       ZAVORTH_JEST_CI_GROUP: group.id,
+      NODE_OPTIONS: nodeOptions,
     },
     stdio: 'inherit',
     windowsHide: true,

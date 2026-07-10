@@ -51,6 +51,11 @@ module.exports = {
     '/tests/capabilities/CapabilityRegistry\\.test\\.ts$',
     '/tests/contracts/(ZavorthTransactionLiveCandidateContract|ZavorthTransactionCertificationContract)\\.test\\.ts$',
     '/tests/scripts/ProviderMeshConvergenceCheck\\.test\\.ts$',
+    '/tests/scripts/(ProductizationContractCheck|AIGatewayNativeConvergenceCheck)\\.test\\.ts$',
+    '/tests/capabilities/BuiltinCapabilitiesIdentity\\.test\\.ts$',
+    '/tests/tools/(ListDirectoryTool|DesktopAutomationTool\\.security)\\.test\\.ts$',
+    '/tests/contracts/StructuredAgentRunContract\\.test\\.ts$',
+    '/tests/cli/ZavorthCliDatabaseRotation\\.test\\.ts$',
   ],
   moduleNameMapper: {
     '^@zavorth/(.*)\\.js$': '<rootDir>/src/$1',
