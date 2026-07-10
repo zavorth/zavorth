@@ -200,8 +200,10 @@ export class TemporaryDirectoryTrustService {
    * Validates that resolvedPath is not a dangerous system root.
    */
   public isDangerousRoot(resolvedPath: string): boolean {
-    const norm = path.normalize(resolvedPath).toLowerCase().replace(/\\/g, '/');
-    const withoutDrive = norm.replace(/^[a-z]:/i, '');
+    // Prefer slash-normalized raw form first so Windows paths still classify on Linux CI.
+    const slashNorm = String(resolvedPath || '').trim().toLowerCase().replace(/\\/g, '/');
+    const fromPathNormalize = path.normalize(resolvedPath).toLowerCase().replace(/\\/g, '/');
+    const candidates = [slashNorm, fromPathNormalize];
 
     const dangerousSet = new Set([
       '/',
@@ -218,21 +220,23 @@ export class TemporaryDirectoryTrustService {
       '/program files (x86)',
     ]);
 
-    if (dangerousSet.has(withoutDrive)) {
-      return true;
-    }
-
-    if (
-      withoutDrive.startsWith('/etc/') ||
-      withoutDrive.startsWith('/bin/') ||
-      withoutDrive.startsWith('/usr/') ||
-      withoutDrive.startsWith('/var/') ||
-      withoutDrive.startsWith('/root/') ||
-      withoutDrive.startsWith('/windows/') ||
-      withoutDrive.startsWith('/program files/') ||
-      withoutDrive.startsWith('/program files (x86)/')
-    ) {
-      return true;
+    for (const norm of candidates) {
+      const withoutDrive = norm.replace(/^[a-z]:/i, '');
+      if (dangerousSet.has(withoutDrive)) {
+        return true;
+      }
+      if (
+        withoutDrive.startsWith('/etc/') ||
+        withoutDrive.startsWith('/bin/') ||
+        withoutDrive.startsWith('/usr/') ||
+        withoutDrive.startsWith('/var/') ||
+        withoutDrive.startsWith('/root/') ||
+        withoutDrive.startsWith('/windows/') ||
+        withoutDrive.startsWith('/program files/') ||
+        withoutDrive.startsWith('/program files (x86)/')
+      ) {
+        return true;
+      }
     }
 
     return false;
@@ -242,8 +246,9 @@ export class TemporaryDirectoryTrustService {
    * Returns true if the path is a drive root (e.g. C:\ or /).
    */
   public isDriveRoot(resolvedPath: string): boolean {
+    const raw = String(resolvedPath || '').trim().replace(/\\/g, '/');
     const norm = path.normalize(resolvedPath).replace(/\\/g, '/');
-    return /^[a-z]:\/?$/i.test(norm) || norm === '/';
+    return /^[a-z]:\/?$/i.test(raw) || /^[a-z]:\/?$/i.test(norm) || raw === '/' || norm === '/';
   }
 
   /**
@@ -258,6 +263,19 @@ export class TemporaryDirectoryTrustService {
   ): string {
     if (!rawPath || typeof rawPath !== 'string') {
       throw new Error('Path is required.');
+    }
+
+    // Validate against the raw candidate first. On non-Windows hosts,
+    // path.resolve('C:\\Windows') incorrectly joins the POSIX cwd and would
+    // hide drive-root / system-folder rejections.
+    const rawCandidate = String(rawPath).trim();
+    if (kind === 'user-selected-external') {
+      if (this.isDriveRoot(rawCandidate) || rawCandidate === '/' || /^[a-zA-Z]:[\\/]?$/.test(rawCandidate)) {
+        throw new Error('Drive roots are dangerous and not allowed.');
+      }
+      if (this.isDangerousRoot(rawCandidate) || this.isDangerousRoot(rawCandidate.replace(/\\/g, '/'))) {
+        throw new Error('Dangerous system directories are not allowed.');
+      }
     }
 
     const normalized = path.resolve(rawPath);
