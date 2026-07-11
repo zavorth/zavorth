@@ -14,6 +14,7 @@
 
 import { UniversalPowerFabricService } from '../services/UniversalPowerFabricService.js';
 import type { PowerBackendId } from '../contracts/UniversalPowerFabricContract.js';
+import { paintCliTone } from './ZavorthCliVisualTheme.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -80,6 +81,7 @@ export async function runPowerFabricCli(rawArgs: string[] = []): Promise<number>
     console.log('');
     console.log(`Yellow candidates: ${snap.summary.yellowCandidates}`);
     console.log(`Next: ${snap.narrative.nextSafeAction}`);
+    console.log(paintCliTone('Tip: zavorth risk-budget status', 'muted'));
     return 0;
   }
 

@@ -317,7 +317,8 @@ function visibleLength(value: string): number {
 function orange(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
-  return `\u001b[38;2;255;122;24m${value}\u001b[0m`;
+  // Product brand green `#00e88f` (orange brand retired)
+  return `\u001b[38;2;0;232;143m${value}\u001b[0m`;
 }
 
 function warm(value: string): string {
@@ -342,7 +343,7 @@ function paintBannerLine(value: string): string {
   if (String(process.env.NO_COLOR || '').trim()) return value;
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) return value;
   return Array.from(value).map((char) => {
-    if (char === '█') return `\u001b[38;2;255;122;24m${char}\u001b[0m`;
+    if (char === '█') return `\u001b[38;2;0;232;143m${char}\u001b[0m`;
     if ('╗╔╝╚║═'.includes(char)) return `\u001b[38;2;200;90;18m${char}\u001b[0m`;
     return char;
   }).join('');

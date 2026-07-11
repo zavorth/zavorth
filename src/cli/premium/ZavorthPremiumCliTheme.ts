@@ -45,8 +45,9 @@ export type ZavorthPremiumCliTheme = {
 
 const DEFAULT_MAX_WIDTH = 82;
 const DEFAULT_MIN_WIDTH = 44;
-const ZAVORTH_CYAN = '\u001b[38;2;255;122;24m';
-const ZAVORTH_CYAN_BRIGHT = '\u001b[38;2;255;191;105m';
+/** Product brand green `#00e88f`. */
+const ZAVORTH_BRAND = '\u001b[38;2;0;232;143m';
+const ZAVORTH_BRAND_BRIGHT = '\u001b[38;2;52;255;180m';
 const ANSI_RESET = '\u001b[0m';
 
 export function createZavorthPremiumCliTheme(input: {
@@ -86,11 +87,12 @@ export function paintPremiumAccent(
   }
   switch (accent) {
     case 'neural':
-      return color.bold(`${ZAVORTH_CYAN_BRIGHT}${value}${ANSI_RESET}`);
+      return color.bold(`${ZAVORTH_BRAND_BRIGHT}${value}${ANSI_RESET}`);
     case 'cyan':
       return color.cyan(value);
     case 'orange':
-      return `\u001b[38;2;255;122;24m${value}${ANSI_RESET}`;
+      // Orange brand retired — maps to product brand green for legacy accent name.
+      return `${ZAVORTH_BRAND}${value}${ANSI_RESET}`;
     case 'violet':
       return color.magenta(value);
     case 'emerald':

@@ -36,6 +36,11 @@ import {
   ProofLedgerService,
   defaultProofLedgerJsonlPath,
 } from '../services/proof/ProofLedgerService.js';
+import {
+  paintCliBadge,
+  paintCliTone,
+  renderCliWordmarkStrip,
+} from './ZavorthCliVisualTheme.js';
 
 const DEMO_STORE_REL = path.join('.zavorth', 'approval-presentation-demo.json');
 
@@ -55,12 +60,11 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    '=== Zavorth Approval Presentation (Proof OS) ===',
+    `${paintCliBadge('APPROVAL', 'brand')} ${paintCliTone('Zavorth Approval Presentation (Proof OS)', 'brand')}`,
+    paintCliTone('Unified approval card facade over leases + loose desktop/control shapes.', 'muted'),
+    paintCliTone('Does not replace approval-leases, trust panel, or desktop approval modals.', 'muted'),
     '',
-    'Unified approval card facade over leases + loose desktop/control shapes.',
-    'Does not replace approval-leases, trust panel, or desktop approval modals.',
-    '',
-    'Usage:',
+    paintCliTone('Usage:', 'info'),
     '  zavorth approval',
     '  zavorth approvals',
     '  zavorth approval list [--json] [--open]',
@@ -71,10 +75,10 @@ function printHelp(): void {
     '  zavorth approval status',
     '  zavorth approval --help',
     '',
-    'Lifecycle: Request → Scope → Lease → Decision → Receipt',
-    `Contract: ${APPROVAL_PRESENTATION_CONTRACT_VERSION}`,
+    paintCliTone('Lifecycle: Request → Scope → Lease → Decision → Receipt', 'muted'),
+    `${paintCliTone('Contract:', 'info')} ${APPROVAL_PRESENTATION_CONTRACT_VERSION}`,
     '',
-    'Examples:',
+    paintCliTone('Examples:', 'info'),
     '  zavorth approval seed-demo --with-proof',
     '  zavorth approval list --open',
     '  zavorth approval show card-demo-open',
@@ -253,7 +257,8 @@ function runStatus(args: string[], json: boolean): number {
     return 0;
   }
 
-  console.log('Approval presentation status');
+  console.log(`${renderCliWordmarkStrip()} ${paintCliTone('Approval', 'muted')}`);
+  console.log(paintCliTone('Approval presentation status', 'brand'));
   console.log(`  contract: ${snapshot.contractVersion}`);
   console.log(`  demo store: ${demoStorePath()}`);
   console.log(`  total: ${snapshot.summary.total}`);

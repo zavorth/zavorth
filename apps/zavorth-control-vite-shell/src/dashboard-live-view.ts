@@ -1,5 +1,11 @@
 import { translate, translateCount } from './locale';
 import { computeNextAction, renderNextActionBar } from './next-action-ui';
+import {
+  buildControlReadinessItems,
+  classifyControlReadiness,
+  composeProofOsPanelModel,
+} from './proof-os-model';
+import { refreshProofOsUi } from './proof-os-ui';
 import { renderSessionTrustScore } from './session-trust-score';
 import { updateWorkboardLite } from './workboard-lite';
 
@@ -298,7 +304,76 @@ export function createDashboardLiveView({
     }
   };
 
+  const buildProofOsModel = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const bridgeState = window.ZavorthRuntimeBridge?.state || {};
+    const control = bridgeState.zavorthControl || {};
+    const gatewaySnapshot = control.snapshot || {};
+    const providerCatalog = bridgeState.providerModelCatalog || control.providerModelCatalog || null;
+    const providerSummary = providerCatalog?.summary || providerCatalog || null;
+    const liveReadyRoutes = Number(providerSummary?.liveReadyRoutes || providerSummary?.liveReady || 0);
+    const catalogOnly = Number(
+      providerSummary?.catalogReadyButNotLive
+      || providerSummary?.needsLiveProof
+      || 0,
+    );
+
+    const readinessItems = buildControlReadinessItems({
+      live: Boolean(snapshot.liveSnapshot.live),
+      authRequired: Boolean(snapshot.liveSnapshot.authRequired),
+    });
+
+    if (providerSummary) {
+      const providerBadge = classifyControlReadiness({
+        liveReady: liveReadyRoutes > 0,
+        catalogReady: liveReadyRoutes === 0 && catalogOnly > 0,
+        configured: liveReadyRoutes > 0 || catalogOnly > 0 ? true : false,
+      });
+      readinessItems.push({
+        ...providerBadge,
+        detail: providerBadge.state === 'live'
+          ? 'Provider proven live.'
+          : providerBadge.state === 'catalog'
+            ? 'Provider catalog ≠ live.'
+            : providerBadge.detail,
+      });
+    }
+
+    const riskBudgetState =
+      bridgeState.riskBudget
+      || gatewaySnapshot.riskBudget
+      || control.riskBudget
+      || null;
+
+    const proofs = Array.isArray(gatewaySnapshot.proofEvents)
+      ? gatewaySnapshot.proofEvents
+      : Array.isArray(control.proofEvents)
+        ? control.proofEvents
+        : [];
+
+    const runs = Array.isArray(snapshot.liveSnapshot.runs)
+      ? snapshot.liveSnapshot.runs
+      : Array.isArray(gatewaySnapshot.runs)
+        ? gatewaySnapshot.runs
+        : [];
+
+    return composeProofOsPanelModel({
+      proofs,
+      runs,
+      riskBudgetState,
+      readinessItems,
+      latest: 8,
+      useCacheFallback: true,
+    });
+  };
+
+  const updateProofOs = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const proofOsModel = buildProofOsModel(snapshot);
+    refreshProofOsUi(proofOsModel);
+    return proofOsModel;
+  };
+
   const updateNextAction = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const proofOsModel = updateProofOs(snapshot);
     const model = computeNextAction({
       pendingApprovals: snapshot.pendingApprovals,
       activeApprovals: snapshot.activeApprovals,
@@ -316,7 +391,10 @@ export function createDashboardLiveView({
       live: Boolean(snapshot.liveSnapshot.live),
       providerReady: null,
     });
-    renderNextActionBar(model);
+    renderNextActionBar(model, {
+      riskBudget: proofOsModel.riskBudget,
+      readinessItems: proofOsModel.readinessItems,
+    });
 
     // Highlight Review dock when approvals pending
     document.querySelectorAll<HTMLElement>('.dock-node[data-sector="sales-os"]').forEach((node) => {

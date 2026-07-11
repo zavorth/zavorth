@@ -30,6 +30,11 @@ import {
   ProofLedgerService,
   defaultProofLedgerJsonlPath,
 } from '../services/proof/ProofLedgerService.js';
+import {
+  paintCliBadge,
+  paintCliTone,
+  renderCliWordmarkStrip,
+} from './ZavorthCliVisualTheme.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -47,12 +52,11 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    '=== Zavorth Risk Budget OS ===',
+    `${paintCliBadge('RISK BUDGET', 'brand')} ${paintCliTone('Zavorth Risk Budget OS', 'brand')}`,
+    paintCliTone('Daily risk ceilings for disk / shell / network / model cost units.', 'muted'),
+    paintCliTone('Composes with autonomy slider and trusted operator; does not replace them.', 'muted'),
     '',
-    'Daily risk ceilings for disk / shell / network / model cost units.',
-    'Composes with autonomy slider and trusted operator; does not replace them.',
-    '',
-    'Usage:',
+    paintCliTone('Usage:', 'info'),
     '  zavorth risk-budget',
     '  zavorth risk-budget status [--json]',
     '  zavorth risk-budget mode <observer|operator|autopilot>',
@@ -63,23 +67,23 @@ function printHelp(): void {
     '  zavorth risk-budget suggest-mode <conservative|balanced|business|advanced>',
     '  zavorth risk-budget --help',
     '',
-    'Aliases:',
+    paintCliTone('Aliases:', 'info'),
     '  zavorth budget …',
     '  zavorth trust budget …',
     '',
-    'Modes:',
+    paintCliTone('Modes:', 'info'),
     '  observer   — no mutation spends without explicit approval',
     '  operator   — default governed path; track until hard ceilings',
     '  autopilot  — low-risk auto-spend up to daily ceilings; then freeze',
     '',
-    'Dimensions:',
+    paintCliTone('Dimensions:', 'info'),
     `  ${RISK_BUDGET_DIMENSIONS.join(' | ')}`,
     '',
-    'Storage:',
+    paintCliTone('Storage:', 'info'),
     `  Default state: ${defaultRiskBudgetStatePath()}`,
     '  Override with env ZAVORTH_RISK_BUDGET_PATH',
     '',
-    'Examples:',
+    paintCliTone('Examples:', 'info'),
     '  zavorth risk-budget status',
     '  zavorth risk-budget mode operator',
     '  zavorth risk-budget spend --dimension diskMutations --amount 1 --risk low',
@@ -175,7 +179,8 @@ function runStatus(args: string[], json: boolean): number {
   }
 
   const label = RISK_BUDGET_MODE_LABELS[state.mode] || state.mode;
-  console.log('Risk budget status');
+  console.log(`${renderCliWordmarkStrip()} ${paintCliTone('Risk budget', 'muted')}`);
+  console.log(paintCliTone('Risk budget status', 'brand'));
   console.log(`  contract: ${state.contractVersion}`);
   console.log(`  mode: ${label} (${state.mode})`);
   console.log(`  day: ${state.dayKey}`);
