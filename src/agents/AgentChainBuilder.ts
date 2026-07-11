@@ -467,8 +467,10 @@ export class AgentChainBuilder {
       cwd: process.cwd(),
     });
     if (result.error) throw result.error;
-    if (result.status !== 0) throw new Error(`Command failed with exit code ${result.status}: ${result.stderr}`);
-    return result.stdout || '';
+    if (result.status !== 0) {
+      throw new Error(`Command failed with exit code ${result.status}: ${String(result.stderr || '')}`);
+    }
+    return String(result.stdout ?? '');
   }
 
   public resolveInputReferences(template: string, outputs: Map<string, string>): string {
