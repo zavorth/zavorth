@@ -46,7 +46,19 @@ describe('receipts ledger', () => {
     expect(loadReceipts(store)).toHaveLength(0);
   });
 
-  it('extracts receipts from experience snapshot bags', () => {
+  it('fills empty titles on append so proof strip never gets blank chips', () => {
+    const store = memoryStorage();
+    const next = appendReceipt([], {
+      kind: 'runtime',
+      title: '   ',
+      summary: '',
+      status: 'ok',
+    }, store);
+    expect(next[0].title).toBe('Runtime proof');
+    expect(next[0].summary).toBe('No details.');
+  });
+
+    it('extracts receipts from experience snapshot bags', () => {
     const receipts = extractReceiptsFromSnapshot({
       receipts: [{ receiptId: 'r1', title: 'Chat', status: 'ok', summary: 'Delivered' }],
       memory: { receipts: [{ id: 'r2', kind: 'memory', title: 'Forgot fact', status: 'applied' }] },

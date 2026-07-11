@@ -68,13 +68,14 @@ import { useVoiceDictation } from '../voice/useVoiceDictation';
 import { NextActionBanner } from '../components/NextActionBanner';
 import { ProofStrip } from '../components/ProofStrip';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
+import { appendReceipt } from '../desktop-state/receiptsLedger';
+import { buildHomeTrustSummary } from '../desktop-state/homeTrustModel';
 import type { DesktopRiskBudgetState } from '../desktop-state/riskBudgetBridge';
 import {
   loadTrustedOperator,
   toggleTrustedOperator,
 } from '../trust/trustedOperator';
 import type { HunkReceipt } from '../trust/hunkApproval';
-import { appendReceipt } from '../desktop-state/receiptsLedger';
 import { useCodeBridge } from '../desktop-state/useCodeBridge';
 import { CodeBridgeChecksPanel } from '../components/CodeBridgeChecksPanel';
 
@@ -172,6 +173,7 @@ export function DesktopShell(props: {
   boards?: WorkboardBoard[];
   runtimeWorkboard?: RuntimeWorkboardProjection | null;
   marketplacePlugins?: PluginItem[];
+  marketplaceSource?: 'api' | 'tools' | 'empty';
   onBoardSelect?: (boardId: string) => void;
   onCardCreate?: (boardId: string, card: Omit<WorkboardCard, 'id' | 'createdAt'>) => void;
   onCardUpdate?: (boardId: string, card: WorkboardCard) => void;
@@ -188,6 +190,8 @@ export function DesktopShell(props: {
   receipts?: DesktopReceipt[];
   /** Optional risk budget snapshot for chat-home chip (pure props, no fs). */
   riskBudgetState?: DesktopRiskBudgetState | null;
+  /** Persist a new receipt into React state (preferred over localStorage-only append). */
+  onRecordReceipt?: (input: Omit<DesktopReceipt, 'id' | 'at'> & { id?: string; at?: string }) => void;
   onClearReceipts?: () => void;
   updateStatusMessage?: string | null;
   updateStatus?: import('../desktop-state/desktopUpdate').DesktopUpdateStatus | null;
@@ -272,6 +276,12 @@ export function DesktopShell(props: {
     setLocalCommandCenterOpen(open);
   }, [props.onCommandCenter]);
   const activeModel = (props.modelOptions || []).find(model => model.id === props.selectedModel) || props.modelOptions?.[0];
+  const homeTrust = useMemo(() => buildHomeTrustSummary({
+    approvals: props.approvals,
+    receipts: props.receipts,
+  }), [props.approvals, props.receipts]);
+  const pendingApprovalCount = homeTrust.pendingApprovalCount;
+
   const voice = useVoiceDictation({
     value: props.input,
     onChange: props.onInput,
@@ -320,7 +330,7 @@ export function DesktopShell(props: {
       runtimeRunning: props.status.running,
       automationCount: props.scheduledTasks?.length,
       customProfileCount: props.customProfiles?.length,
-      approvalsCount: props.approvals?.length,
+      approvalsCount: pendingApprovalCount,
       memoryCount: props.memoryItems?.length,
       channelCount: props.channels?.length,
       workspacePath: props.workspaceScope?.path || props.workspaceScope?.label || null,
@@ -540,7 +550,7 @@ export function DesktopShell(props: {
   }, [trustedOperator]);
 
   const handleHunkReceipt = useCallback((receipt: HunkReceipt) => {
-    appendReceipt(Array.isArray(props.receipts) ? props.receipts : [], {
+    const payload: Omit<DesktopReceipt, 'id' | 'at'> & { id?: string; at?: string } = {
       kind: 'approval',
       title: receipt.summary,
       summary: `${receipt.decision} · ${receipt.path}`,
@@ -552,8 +562,14 @@ export function DesktopShell(props: {
         path: receipt.path,
         decision: receipt.decision,
       },
-    });
-  }, [props.receipts]);
+    };
+    if (props.onRecordReceipt) {
+      props.onRecordReceipt(payload);
+      return;
+    }
+    // Fallback when parent does not own receipts state (tests / isolated shells).
+    appendReceipt(Array.isArray(props.receipts) ? props.receipts : [], payload);
+  }, [props.onRecordReceipt, props.receipts]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -607,7 +623,7 @@ export function DesktopShell(props: {
       <DesktopSidebar
         activePanel={props.activePanel}
         collapsed={props.sidebarCollapsed}
-        pendingApprovals={props.approvals.length}
+        pendingApprovals={pendingApprovalCount}
         onNewSession={props.onNewSession}
         onNewSessionWithWorkspace={props.onNewSessionWithWorkspace}
         onPanel={props.onPanel}
@@ -656,7 +672,7 @@ export function DesktopShell(props: {
           {props.activePanel === 'chat' ? (
             <>
               <NextActionBanner
-                approvalsCount={props.approvals.length}
+                approvalsCount={pendingApprovalCount}
                 busy={props.busy}
                 runtimeOnline={props.status.running}
                 onOpenReview={() => props.onPanel('approvals')}
@@ -705,7 +721,7 @@ export function DesktopShell(props: {
                 onWorkspaceFolder={props.onWorkspaceFolder}
                 onWorkspaceScope={props.onWorkspaceScope}
                 messages={props.messages}
-                pendingApprovals={props.approvals.length}
+                pendingApprovals={pendingApprovalCount}
                 activeToolCount={activeToolCount}
                 streamingAssistant={streamingAssistant}
                 justCompleted={justCompleted}
@@ -726,7 +742,7 @@ export function DesktopShell(props: {
             <DesktopWorkspaceView
               activePanel={props.activePanel}
               approvals={props.approvals}
-              approvalsCount={props.approvals?.length ?? 0}
+              approvalsCount={pendingApprovalCount}
               busy={props.busy}
               channels={props.channels}
               channelSetup={props.channelSetup}
@@ -782,6 +798,7 @@ export function DesktopShell(props: {
               boards={props.boards}
               runtimeWorkboard={props.runtimeWorkboard}
               marketplacePlugins={props.marketplacePlugins}
+              marketplaceSource={props.marketplaceSource}
               onBoardSelect={props.onBoardSelect}
               onCardCreate={props.onCardCreate}
               onCardUpdate={props.onCardUpdate}
@@ -799,7 +816,7 @@ export function DesktopShell(props: {
               onUpdatePlugin={props.onUpdatePlugin}
               onAttachFile={props.onAttachFile}
               onRefreshMarketplace={props.onRefreshMarketplace}
-              receipts={props.receipts}
+              receipts={Array.isArray(props.receipts) ? props.receipts : []}
               onClearReceipts={props.onClearReceipts}
               updateStatusMessage={props.updateStatusMessage}
               updateStatus={props.updateStatus}

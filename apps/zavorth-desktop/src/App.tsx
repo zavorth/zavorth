@@ -112,6 +112,7 @@ export function App() {
     boards,
     runtimeWorkboard,
     marketplacePlugins,
+    marketplaceSource,
     onBoardSelect,
     onCardCreate,
     onCardUpdate,
@@ -127,6 +128,7 @@ export function App() {
     refreshMarketplace,
     receipts,
     clearReceipts,
+    recordReceipt,
     updateStatus,
     checkDesktopUpdates,
     downloadDesktopUpdate,
@@ -318,6 +320,7 @@ export function App() {
           boards={boards}
           runtimeWorkboard={runtimeWorkboard}
           marketplacePlugins={marketplacePlugins}
+          marketplaceSource={marketplaceSource}
           onBoardSelect={onBoardSelect}
           onCardCreate={onCardCreate}
           onCardUpdate={onCardUpdate}
@@ -332,6 +335,7 @@ export function App() {
           onAttachFile={onAttachFile}
           onRefreshMarketplace={refreshMarketplace}
           receipts={receipts}
+          onRecordReceipt={recordReceipt}
           onClearReceipts={clearReceipts}
           updateStatusMessage={updateStatus?.message || null}
           updateStatus={updateStatus}

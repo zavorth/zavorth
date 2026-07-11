@@ -938,9 +938,12 @@ input:focus-visible,
   font-size: 13px;
   font-weight: 650;
   line-height: 1.25;
-  white-space: nowrap;
+  /* Prefer clamp so pt-BR long phrases stay readable on narrow widths. */
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 /* Chat home: compact proof strip (last receipts + open proof CTA) */
@@ -978,9 +981,12 @@ input:focus-visible,
   color: var(--zvd-muted);
   font-size: 12px;
   line-height: 1.3;
-  white-space: nowrap;
+  /* Allow wrap for longer locales (pt-BR) instead of hard-clipping. */
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .zvd-proof-strip__list {
@@ -1062,7 +1068,7 @@ input:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  max-width: 220px;
+  max-width: min(280px, 42vw);
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid var(--zvd-border);

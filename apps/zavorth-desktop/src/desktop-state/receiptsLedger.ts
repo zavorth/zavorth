@@ -59,12 +59,20 @@ export function appendReceipt(
   input: Omit<DesktopReceipt, 'id' | 'at'> & { id?: string; at?: string },
   storage: StorageLike | null = storageOrNull(),
 ): DesktopReceipt[] {
+  const kind = (['chat', 'approval', 'memory', 'channel', 'marketplace', 'workboard', 'runtime', 'system'] as const)
+    .includes(input.kind as DesktopReceiptKind)
+    ? (input.kind as DesktopReceiptKind)
+    : 'system';
+  const title = String(input.title || '').trim() || `${kind.charAt(0).toUpperCase()}${kind.slice(1)} proof`;
+  const summary = String(input.summary || '').trim() || 'No details.';
   const receipt: DesktopReceipt = {
     id: input.id || `rcpt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
-    kind: input.kind,
-    title: input.title,
-    summary: input.summary,
-    status: input.status,
+    kind,
+    title,
+    summary,
+    status: input.status === 'ok' || input.status === 'failed' || input.status === 'pending' || input.status === 'info'
+      ? input.status
+      : 'info',
     at: input.at || new Date().toISOString(),
     sessionId: input.sessionId || null,
     source: input.source || null,

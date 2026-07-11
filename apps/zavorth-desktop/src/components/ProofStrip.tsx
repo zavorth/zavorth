@@ -30,8 +30,9 @@ export type ProofStripProps = {
 };
 
 export function ProofStrip(props: ProofStripProps) {
-  const items = selectProofStripItems(props.receipts, 3);
+  const items = selectProofStripItems(props.receipts || [], 3);
   const lang = props.language;
+  // Only show chip when caller explicitly provides state (incl. null → unavailable).
   const riskLine = props.riskBudgetState !== undefined
     ? formatRiskBudgetStatusLine(props.riskBudgetState)
     : null;
@@ -55,7 +56,7 @@ export function ProofStrip(props: ProofStripProps) {
                 onOpen={
                   props.onOpenReceipt
                     ? () => {
-                        const full = props.receipts.find((r) => r.id === item.id);
+                        const full = (props.receipts || []).find((r) => r.id === item.id);
                         if (full) props.onOpenReceipt?.(full);
                         else props.onOpenProof();
                       }
@@ -97,7 +98,7 @@ function ProofStripRow(props: {
         className={`zvd-proof-strip__item zvd-proof-strip__item--${props.item.tone}`}
         onClick={props.onOpen}
         data-proof-tone={props.item.tone}
-        title={props.item.title}
+        title={props.item.fullTitle}
       >
         <span className="zvd-proof-strip__dot" aria-hidden="true" />
         <span className="zvd-proof-strip__item-title">{props.item.title}</span>

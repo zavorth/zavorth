@@ -35,6 +35,9 @@ describe('quality bar — IA', () => {
     const shell = read('src/shell/DesktopShell.tsx');
     expect(shell).toMatch(/ProofStrip/);
     expect(shell).toMatch(/from ['"]\.\.\/components\/ProofStrip['"]/);
+    expect(shell).toMatch(/onRecordReceipt/);
+    expect(shell).toMatch(/pendingApprovalCount/);
+    expect(shell).toMatch(/buildHomeTrustSummary/);
     const i18n = read('src/i18n.ts');
     expect(i18n).toMatch(/proof\.stripEmpty/);
     expect(i18n).toMatch(/proof\.stripOpen/);
