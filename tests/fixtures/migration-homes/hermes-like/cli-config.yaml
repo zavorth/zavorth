@@ -1,0 +1,3 @@
+# Synthetic hermes-like cli config
+mode: fixture
+gateway: optional

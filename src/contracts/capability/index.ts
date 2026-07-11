@@ -1,3 +1,4 @@
+export * from './AbsorbRiskReportContract.js';
 export * from './CapabilityActivationFlowContract.js';
 export * from './CapabilityAutopilotContract.js';
 export * from './CapabilityConsoleContract.js';
