@@ -105,6 +105,43 @@ zavorth receipts --json   # machine-readable output
 
 This makes Zavorth safe to use for anything important. You always know what it did and when.
 
+## Proof OS presentation model
+
+Approvals follow a single product lifecycle across surfaces (Desktop cards, CLI, Control, ACP, runtime leases):
+
+```
+Request → Scope → Lease → Decision → Receipt
+```
+
+| Stage | Meaning |
+|---|---|
+| **Request** | Something sensitive is proposed; a card appears |
+| **Scope** | Subject, workspace, channel, tool, and allowed operations are bound |
+| **Lease** | A time-boxed grant may be issued (see approval-leases) |
+| **Decision** | Operator chooses approve / deny / defer (or revoke / expire) |
+| **Receipt** | Outcome is logged as a Proof OS event (`kind=approval`) |
+
+The **presentation layer** unifies card shapes for UI without replacing existing systems:
+
+- Lease engine: `src/approval-leases/*`
+- Desktop cards/modals remain as-is
+- Proof ledger receives decision events when wired
+
+```bash
+# Presentation facade (demo + format helpers)
+zavorth approval              # status
+zavorth approval seed-demo    # sample cards
+zavorth approval list --open
+zavorth approval decide <id> --action approve
+zavorth approval format-lease --json
+
+# Proof ledger (approval events)
+zavorth proof list --kind approval
+```
+
+Contract version: `2026-07-11.proof-os-approval-v1`  
+(`src/contracts/approval/ApprovalPresentationContract.ts`)
+
 ## Related
 
 - [Getting started](/docs/product/start/getting-started)
