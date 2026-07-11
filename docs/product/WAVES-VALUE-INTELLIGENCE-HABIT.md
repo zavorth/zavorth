@@ -138,7 +138,8 @@ Atualizar esta tabela em **todo** handoff.
 
 **Também feito depois das waves:** testability pack, honesty/security harden, **user provider/channel selection only** (no silent Gemini/Telegram defaults).  
 
-**Residual (próximo trabalho):** ver tabela completa em [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md) — live multi-step com provider do user, selection UX, autopilot scripts neutral, R2/signing launch residual.
+**Residual (próximo trabalho):** programa unificado **V8–V12** em [WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md) (inglês, i18n/device locale, critérios de aceite, âncoras de código).
+Tabela residual R1–R14: [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md).
 
 ---
 

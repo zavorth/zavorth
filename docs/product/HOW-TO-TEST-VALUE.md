@@ -12,10 +12,11 @@ Hermetic / unit / catalog suite (no live keys required). Expect steps `pass` or 
 
 This suite does **not** claim live agent IQ. `claimsLiveIntelligence` stays false.
 
-With live LLM probe only (Gemini key in `.env`, exact token `ZAVORTH_LIVE_OK` required):
+With the live user-provider harness (probe + multi-step tool plan; direct cells cover OpenAI, Anthropic, and Gemini, while other configured/compatible providers use the production runtime; exact tokens `ZAVORTH_LIVE_OK` / `ZAVORTH_LIVE_MS_OK`):
 
 ```bash
 npm run value:test-all -- --live
+npm run agent:smartness:live -- --live
 ```
 
 JSON:
@@ -29,17 +30,21 @@ npm run value:test-all -- --json
 | What | Command |
 |------|---------|
 | Hermetic agent smartness | `npm run agent:smartness:check` |
-| Live smartness (optional) | `npm run agent:smartness:live -- --live` |
+| Live smartness (optional, user provider) | `npm run agent:smartness:live -- --live` |
 | Daily happy path / chatReady | `npm run zavorth:daily-product-experience:check` |
+| Time-to-first-useful (structural) | `npm run value:ttfu -- --check` |
+| Record TTFU measurement | `npm run value:ttfu -- --record --started=<iso> --first-useful=<iso> --provider=<id>` |
 | Memory drafts store | `npm run value:memory-drafts -- --check` |
 | List drafts | `npm run value:memory-drafts` |
 | Demo extract → drafts | `npm run value:memory-drafts -- extract-demo` |
 | Promote draft | `npm run value:memory-drafts -- promote <id>` |
 | Forget draft | `npm run value:memory-drafts -- forget <id>` |
 | Killer mission prompts | `npm run value:killer` |
+| Killer execute (credentialed) | `npm run value:killer -- --execute --live --audience=personal` |
+| Code daily loop | `npm run value:code-loop -- --check` |
 | Continuity model | `npm run value:continuity -- --check` |
 | Offline Trust Loop demo | `zavorth demo` or open `assets/zavorth-demo/index.html` |
-| Live Gemini probe | `npm run dogfood:live:llm` |
+| Live probe (legacy script; prefer smartness live) | `npm run dogfood:live:llm` |
 
 ## 3) Manual product path (10 minutes)
 
@@ -63,14 +68,16 @@ Copy the printed prompt into Desktop chat after provider setup.
 ## 5) Honest limits
 
 - Hermetic smartness is a **unit scoreboard** (retry, memory honesty, profiles) — not live multi-step IQ.  
-- Live multi-step tool-use is **not auto-certified** (stays blocked after probe; use killer missions manually).  
-- Live cells fail closed without keys / exact token (not silent pass).  
-- Killer missions are **prompt catalogs**, not executed missions.  
+- Live multi-step tool-use **can pass** via `agent:smartness:live -- --live` when the user's selected route works and the model completes a real tool round (`claimsLiveIntelligence: true` only then). A successful probe alone is insufficient. Without usable credentials/configuration it stays **blocked**.
+- Live cells fail closed without keys / exact tokens (not silent pass). No silent Gemini default.
+- TTFU structural check ≠ measured under 3 minutes. Record a real session with `--record` before claiming measured TTFU.
+- Killer missions are prompt catalogs by default; use `--execute --live` for real runs (receipts under `data/product/`).
 - Catalog ≠ Live (honesty readiness still applies).  
 - Day-1 banner eligibility uses local open timestamps; calendar launch R2 residual may still be ops-gated.
 
 ## Related
 
-- [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md)
+- [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) — V0–V7 foundation
+- [WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md) — V8–V12 residual (live multi-step, selection UX, launch)
 - [demo-scripts.md](./demo-scripts.md)
 - [value-baseline.md](./value-baseline.md)
