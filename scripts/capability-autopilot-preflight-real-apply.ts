@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { requireAutopilotCapabilityId } from '../src/services/CapabilityAutopilotSelection.js';
 import { CapabilityAutopilotPreflightApplyAdapterService } from '../src/services/CapabilityAutopilotPreflightApplyAdapterService.js';
 import { CapabilityAutopilotPreflightApplyDryRunExecutorService } from '../src/services/CapabilityAutopilotPreflightApplyDryRunExecutorService.js';
 import { CapabilityAutopilotPreflightDispatchAdapterService } from '../src/services/CapabilityAutopilotPreflightDispatchAdapterService.js';
@@ -22,7 +23,7 @@ const dryRunConfirmed = !argv.includes('--no-dry-run-confirmation');
 const finalApprovalGranted = !argv.includes('--no-final-approval');
 const budgetApproved = !argv.includes('--no-budget');
 const scopeApproved = !argv.includes('--no-scope');
-const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
+const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot-preflight-real-apply' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 const audience = (readArg('--audience=') || (asJson ? 'technical_operator' : 'everyday_user')) as CapabilityAutopilotAudience;
 const surfaces = readSurfaces('--surfaces=') || ['cli', 'web', 'chat', 'telegram', 'api'];
 const expectedSurfaces = readSurfaces('--expected-surfaces=') || surfaces;

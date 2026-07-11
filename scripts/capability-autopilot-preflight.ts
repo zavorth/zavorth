@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { requireAutopilotCapabilityId } from '../src/services/CapabilityAutopilotSelection.js';
 import type {
   CapabilityAutopilotAudience,
   CapabilityAutopilotSurface,
@@ -8,7 +9,7 @@ import { CapabilityAutopilotPreflightEntrypointService } from '../src/services/C
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
-const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
+const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot-preflight' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 const audience = readAudience();
 const expectedSurfaces: CapabilityAutopilotSurface[] = ['cli', 'web', 'chat', 'telegram', 'api'];
 const surfaces = readSurfaces();
