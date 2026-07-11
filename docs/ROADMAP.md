@@ -46,12 +46,19 @@ Do **not** say “launched” or “fully shipped” from local hermetic green a
 - Host + AI gateway local ops when operator starts them
 - Desktop first-run audience (personal / developer / business) + profile manifests
 
-## Next (residual)
+## Next (residual) — unified closeout V8–V12
 
-- Real calendar day-1 retention (**R2**)
-- Credentialed **live** provider/channel cells as operators enable them
-- Signing / launch ops (desktop installers, notarization, public assets)
-- Public channel announcement only after residual ops checklist
+Executable program: **[WAVES-UNIFIED-CLOSEOUT.md](./product/WAVES-UNIFIED-CLOSEOUT.md)**
+
+| Wave | Focus | Status |
+|------|--------|--------|
+| **V8** | Live multi-step with **user-selected** provider + TTFU structural/measure | IMPLEMENTED; live evidence pending |
+| **V9** | Desktop/Control primary + secondary + channel pickers; no legacy Auto/Gemini copy; i18n/device locale | IN PROGRESS |
+| **V10** | Autopilot + catalog neutral defaults (no silent gemini-cli) | **DONE** |
+| **V11** | Reopen ritual, non-dev jargon, killer demos executed, Code daily loop | READY |
+| **V12** | Launch ops: calendar day-1, signing, live cells, public announce checklist | residual |
+
+Order: `(V8 live evidence ∥ V9 ∥ V10) → V11 → V12`. Next product wave: **V9**; V8 still needs a credentialed cell and a real TTFU record before closeout.
 
 ## Later
 

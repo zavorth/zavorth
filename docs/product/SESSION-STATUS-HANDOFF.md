@@ -16,7 +16,8 @@ This is the single handoff for humans/agents continuing after the Trust Loop ren
 |------|------|
 | **This file** | Done vs todo (session snapshot — Trust Loop + Waves) |
 | [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md) | Value program + dynamic residual detail |
-| [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) | Full Value Waves program |
+| [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) | Value Waves V0–V7 foundation (DONE) |
+| **[WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md)** | **Unified residual V8–V12 (next work — start here)** |
 | [HOW-TO-TEST-VALUE.md](./HOW-TO-TEST-VALUE.md) | How to test value surfaces |
 | [ROADMAP.md](../ROADMAP.md) | High-level now / next / later |
 | [launch-readiness.md](./launch-readiness.md) | Launch residual honesty |
@@ -96,6 +97,16 @@ npm run i18n:check
 4. **Public announcement**  
    Only after residual ops checklist (do not claim “launched” from hermetic green alone).
 
+### Closeout progress (V8–V12)
+
+| Wave | Status |
+|------|--------|
+| **V8** Live multi-step + TTFU | **DONE** — multi-step live pass + TTFU ~15s measured |
+| **V9** Selection UX | **CORE SHIPPED** — pickers + secondary + channel + catalog |
+| **V10** Neutral ops defaults | **DONE** — autopilot fail-closed; catalog fallbacks empty |
+| **V11** Habit + audiences | **IN PROGRESS** — ritual + killer execute + code daily loop |
+| **V12** Launch residual | residual (ops) |
+
 ### Optional polish (non-blocking for value-ready)
 
 - V4-c: further personal-home jargon abstraction (hide Policy Broker etc. more aggressively).
@@ -119,7 +130,7 @@ npm run i18n:check
 
 ## Next agent checklist
 
-1. Read this file + [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) residual.  
+1. Read this file + **[WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md)** (V8–V12 executable residual).
 2. Run `npm run value:test-all` (must stay green).  
-3. Pick residual from **Launch-ready** list above — do not re-open V1–V7 foundation unless regressions.  
-4. Update this handoff date + residual when closing an ops item.
+3. Execute waves in order `(V8 ∥ V9 ∥ V10) → V11 → V12` — do not re-open V1–V7 foundation unless regressions.
+4. Update unified closeout handoff logs + residual tables when a wave ships.

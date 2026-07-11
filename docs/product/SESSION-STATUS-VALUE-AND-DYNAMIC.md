@@ -99,29 +99,29 @@ Always confirm with `git log --oneline -15`.
 
 ### P0 — Product feel / intelligence
 
-| # | Work | Why |
-|---|------|-----|
-| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider, not Gemini-only probe) | Multi-step still `blocked` after live probe; IQ not auto-certified |
-| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | Happy path documented; not calendar-measured product gate |
-| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | Banner exists; R2 calendar retention still launch residual |
+| # | Work | Status | Why / notes |
+|---|------|--------|-------------|
+| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **DONE (V8)** | Live multi-step pass; `claimsLiveIntelligence: true` only then |
+| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **DONE (V8)** | Wall-clock TTFU ~15.4s from timed live multi-step session |
+| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **PARTIAL (V11)** | pendingTasks + resume-task; full three-surface polish residual |
 
 ### P1 — Dynamic selection polish
 
-| # | Work | Why |
-|---|------|-----|
-| R4 | **UI shells** still may show legacy “Auto / Gemini” copy in old assets | Runtime fixed; some control/command-center static UI may lag |
-| R5 | **Capability autopilot scripts** still default `executor-gemini-cli` in many `scripts/capability-autopilot*.ts` | Ops tooling bias; require `--capability` or user selection |
-| R6 | **Catalog fallbackRouteIds** still list gemini in some mesh manifests | Prefer empty / user policy only |
-| R7 | **Channel preference write path in product UI** (Setup/Desktop “make this my primary channel”) | Resolver + file exist; first-class UI switch may be incomplete |
-| R8 | **Secondary model in chat routing** always applied from preference when primary fails | Preference fields exist; wire every chat path to secondary explicitly |
+| # | Work | Status | Why / notes |
+|---|------|--------|-------------|
+| R4 | **UI shells** legacy “Auto / Gemini” | **MOSTLY DONE (V9)** | Configured route + Control form; keep watching mirrors |
+| R5 | **Capability autopilot scripts** default `executor-gemini-cli` | **DONE (V10)** | `requireAutopilotCapabilityId` — fail closed without `--capability=` / env |
+| R6 | **Catalog fallbackRouteIds** list gemini in core/local manifests | **DONE (V10)** | Product default empty; user policy only |
+| R7 | **Channel preference write path in product UI** | **DONE (V9 core)** | Desktop + Control write `channel-selection-preferences.json` |
+| R8 | **Secondary model in chat routing** | **DONE (V9 core)** | Preference field + LlmRuntime secondary retry on primary model fail |
 
 ### P2 — Audiences / wow / non-dev
 
 | # | Work | Why |
 |---|------|-----|
 | R9 | Non-dev path fully free of npm/doctor jargon in first run | Improved; still operator-shaped in places |
-| R10 | One killer demo **executed and recorded** per audience (not only prompt catalog) | Catalog exists; not automated execution |
-| R11 | Code surface (Zavorth Code) unified daily loop for devs | Still split product / bridge |
+| R10 | One killer demo **executed and recorded** per audience | **PARTIAL** | `value:killer -- --execute --live`; personal audience executed + receipt; run other audiences as needed |
+| R11 | Code surface unified daily loop | **PARTIAL** | `ZavorthCodeDailyLoopService` + `value:code-loop:check`; PE semantics aligned |
 
 ### P3 — Launch / ops (not value-local)
 
@@ -133,14 +133,22 @@ Always confirm with `git log --oneline -15`.
 
 ---
 
-## 3. Suggested next waves (optional V8+)
+## 3. Unified next waves (V8–V12) — executable program
 
-| Wave | Name | Scope |
-|------|------|--------|
-| **V8** | Live agent quality (user provider) | Multi-step missions with configured provider only; no vendor hardcode |
-| **V9** | Selection UX complete | Desktop/Control primary+secondary+channel pickers bound to preference files |
-| **V10** | Autopilot/ops neutral defaults | Strip gemini-cli defaults from scripts; require explicit capability |
-| **V11** | Launch residual | R2, signing, public announce checklist only |
+**Canonical program (full acceptance criteria, code anchors, i18n rules, ID disambiguation):**
+
+→ **[WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md)**
+
+| Wave | Name | Closes (unified IDs) | Priority | Status |
+|------|------|----------------------|----------|--------|
+| **V8** | Live quality + time-to-value | VR-LIVE-MS, VR-TTFU (old R1, value-R2) | P0 | **DONE** (live multi-step + TTFU ~15s) |
+| **V9** | Selection UX complete | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY (R4, R7, R8) | P1 | **CORE SHIPPED** |
+| **V10** | Neutral ops defaults | VR-AUTOPILOT, VR-CATALOG-FB (R5, R6) | P1 | **DONE** |
+| **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **IN PROGRESS** (ritual + killer execute + code loop) |
+| **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | residual |
+
+**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8 implemented / live evidence pending; V10 shipped 2026-07-11**
+**Naming note:** value residual “R2” (TTFU) ≠ retention/launch “R2” (calendar day-1 = **LR-DAY1** / old R12).
 
 ---
 
