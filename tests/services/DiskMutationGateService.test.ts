@@ -117,6 +117,40 @@ describe('DiskMutationGateService', () => {
     expect(fs.existsSync(path.join(workspaceRoot, '.env'))).toBe(false);
   });
 
+  it('never keeps secret bodies in blocked preview diffPatch or on-disk preview JSON', () => {
+    const secretBody = 'OPENAI_API_KEY=sk-test-secret-value-xyz';
+    const preview = service.createPreview({
+      workspaceRoot,
+      operations: [
+        {
+          kind: 'write_file',
+          path: 'ok.txt',
+          content: secretBody,
+        },
+      ],
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.findings.map((f) => f.id)).toEqual(expect.arrayContaining(['secret-like-content']));
+    expect(preview.operations[0]?.diffPatch).toBeNull();
+    const serialized = JSON.stringify(preview);
+    expect(serialized).not.toContain('sk-test-secret-value-xyz');
+    expect(serialized).not.toContain(secretBody);
+
+    const previewFile = path.join(
+      workspaceRoot,
+      '.zavorth',
+      'previews',
+      'disk-mutation-gate',
+      `${preview.previewId}.json`,
+    );
+    if (fs.existsSync(previewFile)) {
+      const disk = fs.readFileSync(previewFile, 'utf8');
+      expect(disk).not.toContain('sk-test-secret-value-xyz');
+      expect(disk).not.toContain(secretBody);
+    }
+  });
+
   it('blocks apply when the target changed after preview', () => {
     fs.writeFileSync(path.join(workspaceRoot, 'target.txt'), 'before\n', 'utf8');
     const preview = service.createPreview({

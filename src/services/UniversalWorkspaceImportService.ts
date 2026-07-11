@@ -47,6 +47,21 @@ type Runtime = {
   cpSync?: typeof fs.cpSync;
 };
 
+/** Keep import targets under project root (S2 path confinement). */
+export function assertPathUnderProjectRoot(
+  projectRoot: string,
+  candidate: string,
+  label: string,
+): string {
+  const root = path.resolve(projectRoot);
+  const resolved = path.resolve(candidate);
+  const relative = path.relative(root, resolved);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error(`${label} must stay under project root: ${resolved}`);
+  }
+  return resolved;
+}
+
 const SECRET_LIKE = [
   /api[_-]?key/i,
   /secret/i,
@@ -113,8 +128,16 @@ export class UniversalWorkspaceImportService {
   public buildSnapshot(input: UniversalWorkspaceImportInput): UniversalWorkspaceImportSnapshot {
     const apply = input.apply === true;
     const sourcePath = path.resolve(input.sourcePath || '');
-    const targetRoot = path.resolve(
-      input.targetRoot || path.join(this.projectRoot, '.zavorth', 'workspace-imports', path.basename(sourcePath) || 'workspace'),
+    const defaultTarget = path.join(
+      this.projectRoot,
+      '.zavorth',
+      'workspace-imports',
+      path.basename(sourcePath) || 'workspace',
+    );
+    const targetRoot = assertPathUnderProjectRoot(
+      this.projectRoot,
+      input.targetRoot || defaultTarget,
+      'targetRoot',
     );
     const warnings: string[] = [];
     const receipts: UniversalWorkspaceImportReceipt[] = [];

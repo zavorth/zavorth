@@ -15,6 +15,7 @@ import { UniversalCapabilityFabricService } from '../services/UniversalCapabilit
 import { UniversalWorkspaceImportService } from '../services/UniversalWorkspaceImportService.js';
 import {
   AbsorbRiskReportService,
+  redactSecretLikeText,
   resolveAbsorbProofAction,
 } from '../services/capability/AbsorbRiskReportService.js';
 import { WorkspaceMigrationProfileService } from '../services/migration/WorkspaceMigrationProfileService.js';
@@ -182,7 +183,9 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
     console.log('');
     console.log('Issues:');
     for (const issue of snapshot.issues.slice(0, 20)) {
-      console.log(`  [${issue.severity}] ${issue.code}: ${issue.message}`);
+      // Never echo secret-like issue bodies on the CLI (S1).
+      const safeMessage = redactSecretLikeText(String(issue.message || ''));
+      console.log(`  [${issue.severity}] ${issue.code}: ${safeMessage}`);
     }
   }
   if (snapshot.receipts.length) {

@@ -235,6 +235,43 @@ describe('AbsorbRiskReportService', () => {
     expect(['high', 'critical', 'medium']).toContain(report.overallRisk);
   });
 
+  test('secret-like issue messages never leak raw tokens into findings or markdown', () => {
+    const service = createService();
+    const leaked = 'api_key=sk-live-ACTUALSECRET999';
+    const report = service.fromFabricSnapshot(
+      baseSnapshot({
+        candidates: [
+          {
+            id: 'c1',
+            kind: 'skill',
+            name: 'ok-skill',
+            risk: 'low',
+            executableCodeDetected: false,
+          },
+        ],
+        issues: [
+          {
+            severity: 'warn',
+            code: 'LEAK',
+            message: leaked,
+          },
+        ],
+      }),
+    );
+
+    expect(report.secretLikeDetected).toBe(true);
+    const secretFindings = report.findings.filter((f) => f.dimension === 'secrets');
+    expect(secretFindings.length).toBeGreaterThan(0);
+    for (const f of secretFindings) {
+      expect(f.detail).not.toContain('ACTUALSECRET999');
+      expect(f.detail).not.toContain('sk-live-');
+      expect(f.title).not.toContain('ACTUALSECRET999');
+    }
+    const md = service.toMarkdown(report);
+    expect(md).not.toContain('ACTUALSECRET999');
+    expect(md).not.toContain('sk-live-ACTUALSECRET999');
+  });
+
   test('resolveAbsorbProofAction maps preview / promote / reject', () => {
     expect(
       resolveAbsorbProofAction({ apply: false, consent: false, status: 'preview-only' }),

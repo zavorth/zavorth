@@ -142,6 +142,19 @@ function looksSecretLike(text: string): boolean {
   return SECRET_PATTERNS.some((re) => re.test(text));
 }
 
+/** Presence-only redaction for operator-facing absorb text (never echo raw secrets). */
+export function redactSecretLikeText(text: string): string {
+  let out = String(text || '');
+  out = out.replace(
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
+    '$1=[REDACTED]',
+  );
+  out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
+  out = out.replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, 'gh*_[REDACTED]');
+  out = out.replace(/\bsecret\d+\b/gi, '[REDACTED]');
+  return out;
+}
+
 function overallFromFindings(
   findings: AbsorbRiskFinding[],
   fallback: AbsorbRiskReport['overallRisk'] = 'unknown',
@@ -197,12 +210,17 @@ export class AbsorbRiskReportService {
       title: string,
       detail: string,
     ): void => {
+      const safeTitle = redactSecretLikeText(title);
+      const rawDetail = String(detail || '');
+      const safeDetail = looksSecretLike(rawDetail)
+        ? 'Secret-like pattern detected (value redacted).'
+        : redactSecretLikeText(rawDetail);
       findings.push({
         id: this.idFactory(`finding-${++findingSeq}`),
         dimension,
         severity,
-        title,
-        detail,
+        title: safeTitle,
+        detail: safeDetail,
       });
     };
 
@@ -334,7 +352,7 @@ export class AbsorbRiskReportService {
           'secrets',
           maxSeverity(severity, 'high'),
           `Secret-like signal: ${code || 'issue'}`,
-          message.slice(0, 280) || code || 'Secret-like pattern in absorb issues.',
+          'Secret-like pattern detected (value redacted).',
         );
         continue;
       }

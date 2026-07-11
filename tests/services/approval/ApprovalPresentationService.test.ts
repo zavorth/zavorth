@@ -346,4 +346,48 @@ describe('ApprovalPresentationService', () => {
     const openOnly = service.listCards([a, b], { openOnly: true });
     expect(openOnly).toHaveLength(1);
   });
+  test('invalid expiry fails closed (not open)', () => {
+    const invalid = formatLeaseExpiry('not-a-date', FIXED_NOW);
+    expect(invalid.expired).toBe(true);
+    expect(invalid.label).toMatch(/Invalid expiry/i);
+
+    const service = createService();
+    const card = service.fromLease({
+      leaseId: 'bad-exp',
+      expiresAt: 'garbage',
+      toolQualifiedName: 'fs.write',
+      riskClassAtGrant: 'medium',
+      allowedOperations: ['write'],
+      createdAt: '2026-07-11T11:00:00.000Z',
+      grantReason: 'x',
+      grantSource: 'test_only',
+      auditCorrelationId: 'a',
+      subjectId: 'u',
+      workspaceId: 'ws',
+      channelId: 'cli',
+      toolFingerprint: 'fp',
+    } as ApprovalLease);
+    expect(card.stage).toBe('expired');
+    expect(isOpenCard(card, FIXED_NOW)).toBe(false);
+  });
+});
+
+describe('shouldRunApprovalPresentationCli routing', () => {
+  // Imported lazily to keep pure service tests independent if CLI path changes.
+  const { shouldRunApprovalPresentationCli } = require('../../../src/cli/ApprovalPresentationCli.js');
+
+  test('does not steal premium approvals list/approve', () => {
+    expect(shouldRunApprovalPresentationCli('approvals', [])).toBe(false);
+    expect(shouldRunApprovalPresentationCli('approvals', ['list'])).toBe(false);
+    expect(shouldRunApprovalPresentationCli('approvals', ['approve', 'x'])).toBe(false);
+    expect(shouldRunApprovalPresentationCli('approve', [])).toBe(false);
+  });
+
+  test('singular approval and unique presentation subs route in', () => {
+    expect(shouldRunApprovalPresentationCli('approval', [])).toBe(true);
+    expect(shouldRunApprovalPresentationCli('approval', ['list'])).toBe(true);
+    expect(shouldRunApprovalPresentationCli('approval', ['decide', 'x'])).toBe(true);
+    expect(shouldRunApprovalPresentationCli('approvals', ['list', '--demo'])).toBe(true);
+    expect(shouldRunApprovalPresentationCli('approvals', ['decide', 'x'])).toBe(true);
+  });
 });
