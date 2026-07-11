@@ -325,6 +325,8 @@ export class DiskMutationGateService {
           appliedOperations.push(this.receiptOperation(operation, operationPreview || null, 'noop'));
           continue;
         }
+        // S2/S9: re-validate path containment at apply time (do not trust stored absolutePath alone).
+        this.assertApplyPathStillInsideWorkspace(workspaceRoot, operation);
         this.assertPrecondition(operationPreview);
         this.applyOperation(operation);
         appliedOperations.push(this.receiptOperation(operation, this.inspectAppliedOperation(operation), 'applied'));
@@ -657,6 +659,32 @@ export class DiskMutationGateService {
         return;
       default:
         throw new Error(`Operacao de disco desconhecida: ${(operation as { kind: string }).kind}`);
+    }
+  }
+
+  /** Fail closed if stored apply paths left the workspace (tampered preview JSON). */
+  private assertApplyPathStillInsideWorkspace(
+    workspaceRoot: string,
+    operation: StoredDiskMutationOperation,
+  ): void {
+    const absolute = path.resolve(operation.absolutePath);
+    if (!isInsidePath(workspaceRoot, absolute)) {
+      throw new Error(
+        `Apply blocked: operation path escapes workspace (${operation.relativePath || absolute}).`,
+      );
+    }
+    const relative = toPosix(path.relative(workspaceRoot, absolute));
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      throw new Error(`Apply blocked: relative path escapes workspace (${relative}).`);
+    }
+    // Recompute expected absolute from relativePath when present — reject mismatch.
+    if (operation.relativePath) {
+      const expected = path.resolve(workspaceRoot, operation.relativePath);
+      if (path.resolve(expected) !== absolute) {
+        throw new Error(
+          `Apply blocked: absolutePath does not match relativePath for ${operation.relativePath}.`,
+        );
+      }
     }
   }
 

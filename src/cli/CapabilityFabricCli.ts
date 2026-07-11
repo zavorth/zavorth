@@ -56,7 +56,8 @@ function printHelp(): void {
     '',
     'Rules:',
     '  - preview is default (safe install preview + risk report)',
-    '  - apply requires --consent / --yes',
+    '  - apply requires --consent / --yes (consent does NOT elevate risk flags)',
+    '  - elevated candidates need explicit --allow-executable and/or --allow-all',
     '  - executable plugins and MCP start held/disabled',
     '  - high risk / executable packs stay quarantined until trust upgrade',
     '  - no third-party product profile is required for structural import',
@@ -66,7 +67,7 @@ function printHelp(): void {
     'Examples:',
     '  zavorth absorb ./packs/my-skill --preview',
     '  zavorth absorb https://example.com/skill-page --kind skill --preview',
-    '  zavorth absorb plugin ./packs/my-plugin --apply --consent',
+    '  zavorth absorb plugin ./packs/my-plugin --apply --consent --allow-executable',
     '  zavorth import-workspace ./old-agent-home --preview',
     '  zavorth import-workspace ./old-agent-home --profile auto --preview',
     '  zavorth import-workspace ./agent-home --profile openclaw-home --preview',
@@ -119,10 +120,11 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   }
 
   const apply = hasFlag(args, '--apply');
+  // S4: consent only authorizes apply of already-allowed candidates — never elevates risk.
   const consent = hasFlag(args, '--consent') || hasFlag(args, '--yes');
   const json = hasFlag(args, '--json');
   const allowExecutable = hasFlag(args, '--allow-executable');
-  const allowAll = hasFlag(args, '--allow-all') || consent;
+  const allowAll = hasFlag(args, '--allow-all');
   const overwrite = hasFlag(args, '--overwrite');
   const skipProof = hasFlag(args, '--no-proof');
 

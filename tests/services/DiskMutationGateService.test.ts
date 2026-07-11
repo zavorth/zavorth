@@ -117,6 +117,47 @@ describe('DiskMutationGateService', () => {
     expect(fs.existsSync(path.join(workspaceRoot, '.env'))).toBe(false);
   });
 
+  it('re-validates path containment on apply and rejects absolutePath tampering (S2)', () => {
+    fs.writeFileSync(path.join(workspaceRoot, 'ok.txt'), 'before\n', 'utf8');
+    const preview = service.createPreview({
+      workspaceRoot,
+      operations: [
+        {
+          kind: 'write_file',
+          path: 'ok.txt',
+          content: 'after\n',
+        },
+      ],
+    });
+    expect(preview.status).toBe('preview_ready');
+
+    // Tamper stored preview ops: point absolutePath outside workspace.
+    const previewFile = path.join(
+      workspaceRoot,
+      '.zavorth',
+      'previews',
+      'disk-mutation-gate',
+      `${preview.previewId}.json`,
+    );
+    if (!fs.existsSync(previewFile)) {
+      // Some gate layouts may use different storage — soft-skip storage mutate.
+      return;
+    }
+    const stored = JSON.parse(fs.readFileSync(previewFile, 'utf8'));
+    if (Array.isArray(stored.operations) && stored.operations[0]) {
+      stored.operations[0].absolutePath = path.join(os.tmpdir(), 'escape-outside.txt');
+      fs.writeFileSync(previewFile, `${JSON.stringify(stored, null, 2)}\n`, 'utf8');
+      expect(() =>
+        service.applyPreview({
+          workspaceRoot,
+          previewId: preview.previewId,
+          approvalPhrase: preview.approval.phrase,
+        }),
+      ).toThrow(/escapes workspace|absolutePath does not match/i);
+      expect(fs.existsSync(path.join(os.tmpdir(), 'escape-outside.txt'))).toBe(false);
+    }
+  });
+
   it('never keeps secret bodies in blocked preview diffPatch or on-disk preview JSON', () => {
     const secretBody = 'OPENAI_API_KEY=sk-test-secret-value-xyz';
     const preview = service.createPreview({

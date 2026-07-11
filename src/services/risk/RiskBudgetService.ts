@@ -28,6 +28,7 @@ import {
   type RiskBudgetState,
 } from '../../contracts/risk/RiskBudgetContract.js';
 import type { ProofLedgerService } from '../proof/ProofLedgerService.js';
+import { safeWriteLocalTextFile } from '../security/LocalStatePathGuard.js';
 
 export type RiskBudgetServiceOptions = {
   stateFile?: string;
@@ -546,7 +547,12 @@ export class RiskBudgetService {
         contractVersion: RISK_BUDGET_CONTRACT_VERSION,
         limits: this.computeEffectiveLimits(this.state.mode),
       };
-      this.writeFileSync(this.stateFile, JSON.stringify(payload, null, 2), 'utf8');
+      // Prefer atomic local write when default fs is used (S9).
+      if (this.writeFileSync === fs.writeFileSync) {
+        safeWriteLocalTextFile(this.stateFile, `${JSON.stringify(payload, null, 2)}\n`);
+      } else {
+        this.writeFileSync(this.stateFile, JSON.stringify(payload, null, 2), 'utf8');
+      }
     } catch {
       // keep in-memory state
     }
