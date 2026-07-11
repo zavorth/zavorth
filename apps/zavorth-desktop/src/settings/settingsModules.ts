@@ -112,7 +112,7 @@ export function buildSettingsModules(input: SettingsModuleInput = {}): SettingsM
       title: 'Workspace',
       items: [
         moduleDef('workspace', 'Workspace', 'Workspace', 'Active directory, scope and local runtime.', ['folder', 'directory', 'workspace', 'local'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Workspace active' : 'Choose a folder'),
-        moduleDef('files', 'File Explorer', 'Workspace', 'Local project files and safe read access.', ['file', 'explorer', 'project'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Ready' : 'No workspace'),
+        moduleDef('files', 'File Explorer', 'Workspace', 'Local project files and safe read access.', ['file', 'explorer', 'project'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Available' : 'No workspace'),
         moduleDef('approvals', 'Review', 'Workspace', 'Write approvals, host commands and active mandate.', ['review', 'approval', 'diff', 'host command'], approvalsCount > 0 ? 'attention' : 'ready', approvalsCount > 0 ? `${approvalsCount} item(s)` : 'No reviews'),
         moduleDef('agents', 'Agent Team', 'Workspace', 'Subagents, roles and delegated tasks.', ['subagent', 'agent', 'team', 'delegate'], 'ready', 'Available'),
         moduleDef('preview', 'Web Preview', 'Workspace', 'Local web preview for apps and screens.', ['browser', 'preview', 'web'], hasWorkspace ? 'ready' : 'idle', hasWorkspace ? 'Available' : 'No workspace'),

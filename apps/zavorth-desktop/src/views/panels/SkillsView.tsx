@@ -3,7 +3,7 @@ import type { ToolItem } from '../../apiClient';
 import { readinessFromTool } from '../../desktop-state/readiness';
 import { PageFrame, SearchBox, TextTabs } from '../panelChrome';
 
-type Mode = 'all' | 'ready' | 'review';
+type Mode = 'all' | 'live' | 'review';
 
 export function SkillsView(props: { tools: ToolItem[] }) {
   const [mode, setMode] = useState<Mode>('all');
@@ -13,15 +13,15 @@ export function SkillsView(props: { tools: ToolItem[] }) {
     const q = query.trim().toLowerCase();
     return props.tools.filter((tool, index) => {
       const badge = readinessFromTool({ status: tool.status, risk: tool.risk });
-      if (mode === 'ready' && badge.tone !== 'ready') return false;
+      if (mode === 'live' && badge.state !== 'live') return false;
       if (mode === 'review' && badge.tone !== 'warning' && badge.tone !== 'danger') return false;
       const id = tool.id || tool.name || `tool-${index}`;
       return !q || `${id} ${tool.title || ''} ${tool.description || ''} ${tool.source || ''}`.toLowerCase().includes(q);
     });
   }, [mode, props.tools, query]);
   const selected = visible.find((tool, index) => (tool.id || tool.name || `tool-${index}`) === selectedId) || visible[0] || null;
-  const readyCount = props.tools.filter(tool => readinessFromTool({ status: tool.status, risk: tool.risk }).tone === 'ready').length;
-  const reviewCount = props.tools.length - readyCount;
+  const liveCount = props.tools.filter(tool => readinessFromTool({ status: tool.status, risk: tool.risk }).state === 'live').length;
+  const reviewCount = props.tools.length - liveCount;
 
   return (
     <PageFrame
@@ -32,13 +32,13 @@ export function SkillsView(props: { tools: ToolItem[] }) {
     >
       <div className="zvd-capability-summary" aria-label="Resumo das skills">
         <div><strong>{props.tools.length}</strong><span>Total</span></div>
-        <div><strong>{readyCount}</strong><span>Prontas</span></div>
+        <div><strong>{liveCount}</strong><span>Live</span></div>
         <div><strong>{reviewCount}</strong><span>Revisar</span></div>
       </div>
       <div className="zvd-capability-toolbar">
         <TextTabs<Mode> value={mode} onChange={setMode} items={[
           { value: 'all', label: 'Todas', count: props.tools.length },
-          { value: 'ready', label: 'Prontas', count: readyCount },
+          { value: 'live', label: 'Live', count: liveCount },
           { value: 'review', label: 'Revisar', count: reviewCount },
         ]} />
         <SearchBox value={query} onChange={setQuery} placeholder="Buscar skill" />

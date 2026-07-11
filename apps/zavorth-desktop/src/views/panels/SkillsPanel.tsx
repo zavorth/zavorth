@@ -1,25 +1,35 @@
 import { useMemo, useState } from 'react';
 import type { ToolItem } from '../../apiClient';
+import { readinessFromTool } from '../../desktop-state/readiness';
 import { itemId, panelLabels } from '../../primitives/desktopPrimitives';
 import { DetailRows, PageFrame, SearchBox, TextTabs } from './panelPrimitives';
 
+type ToolWithLive = ToolItem & { liveReady?: boolean | null };
+
+function toolBadge(tool: ToolItem) {
+  return readinessFromTool({
+    status: tool.status,
+    risk: tool.risk,
+    liveReady: (tool as ToolWithLive).liveReady,
+  });
+}
+
 export function SkillsPanel(props: { tools: ToolItem[] }) {
-  const [mode, setMode] = useState<'all' | 'ready' | 'review'>('all');
+  const [mode, setMode] = useState<'all' | 'live' | 'review'>('all');
   const [query, setQuery] = useState('');
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = props.tools.filter(tool => {
-      const status = String(tool.status || '').toLowerCase();
-      const risk = String(tool.risk || '').toLowerCase();
-      const haystack = `${tool.title || ''} ${tool.name || ''} ${tool.id || ''} ${tool.description || ''} ${tool.source || ''} ${status} ${risk}`.toLowerCase();
+      const badge = toolBadge(tool);
+      const haystack = `${tool.title || ''} ${tool.name || ''} ${tool.id || ''} ${tool.description || ''} ${tool.source || ''} ${tool.status || ''} ${tool.risk || ''} ${badge.label}`.toLowerCase();
       if (q && !haystack.includes(q)) {
         return false;
       }
-      if (mode === 'ready') {
-        return status.includes('ready') || status.includes('trusted') || !status;
+      if (mode === 'live') {
+        return badge.state === 'live';
       }
       if (mode === 'review') {
-        return status.includes('review') || status.includes('draft') || risk.includes('high') || risk.includes('medium');
+        return badge.state === 'blocked' || badge.state === 'needs_setup' || badge.tone === 'warning' || badge.tone === 'danger';
       }
       return true;
     });
@@ -32,6 +42,8 @@ export function SkillsPanel(props: { tools: ToolItem[] }) {
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [mode, props.tools, query]);
 
+  const liveCount = props.tools.filter(tool => toolBadge(tool).state === 'live').length;
+
   const rows = groups.flatMap(([source, tools]) => [
     {
       id: `group-${source}`,
@@ -40,13 +52,16 @@ export function SkillsPanel(props: { tools: ToolItem[] }) {
       meta: 'source',
       tone: 'muted' as const,
     },
-    ...tools.map((tool, index) => ({
-      id: itemId(tool, `tool-${source}-${index}`),
-      title: tool.title || tool.name || tool.id || 'Skill',
-      description: tool.description || 'Available through the local runtime.',
-      meta: tool.status || tool.risk || 'available',
-      tone: (tool.risk === 'high' ? 'danger' : tool.status === 'trusted' || tool.status === 'ready' ? 'ready' : 'muted') as 'ready' | 'warning' | 'danger' | 'muted',
-    })),
+    ...tools.map((tool, index) => {
+      const badge = toolBadge(tool);
+      return {
+        id: itemId(tool, `tool-${source}-${index}`),
+        title: tool.title || tool.name || tool.id || 'Skill',
+        description: tool.description || 'Available through the local runtime.',
+        meta: badge.label,
+        tone: badge.tone,
+      };
+    }),
   ]);
 
   return (
@@ -56,12 +71,12 @@ export function SkillsPanel(props: { tools: ToolItem[] }) {
       title={panelLabels.skills}
       actions={<SearchBox value={query} onChange={setQuery} placeholder="Search skills" />}
     >
-      <TextTabs<'all' | 'ready' | 'review'>
+      <TextTabs<'all' | 'live' | 'review'>
         value={mode}
         onChange={setMode}
         items={[
           { value: 'all', label: 'All', count: props.tools.length },
-          { value: 'ready', label: 'Ready' },
+          { value: 'live', label: 'Live', count: liveCount },
           { value: 'review', label: 'Needs review' },
         ]}
       />

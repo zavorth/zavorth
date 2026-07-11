@@ -14,8 +14,11 @@ Goal: no surface shows Ready/Live without proof. Catalog ≠ live.
 - [x] **qualityBar / trustShip** — regression for status-only not live
 - [x] **DESIGN.md / QUALITY.md** — Ready/Live requires live proof boolean
 - [x] **Product doc** — `docs/product/honesty-readiness.md`
+- [x] **providerLiveCount wiring** — DesktopShell from `runtimeCapabilities.providers.connected`
+- [x] **SkillsPanel / SkillsView** — route through `readinessFromTool`; Live tab not bare Ready
 
 ## Residual
 
-- SkillsPanel / constellation / statusbar may still use local string heuristics; not all routes go through `readiness.ts`.
-- Command Center `providerLiveCount` optional until wired from runtime capabilities.
+- Settings module chrome still uses operational counts (e.g. “N active”), not Live certification.
+- Statusbar uses process-local “Runtime online” (not provider Live).
+- Constellation requires `liveReady` for Live; agent process motion may still show live while running.

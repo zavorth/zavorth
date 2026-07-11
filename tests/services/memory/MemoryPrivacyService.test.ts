@@ -181,4 +181,62 @@ describe('MemoryPrivacyService', () => {
     expect(view.canForget).toBe(false);
     expect(view.origin).toBe('system');
   });
+
+  test('title with embedded secret is redacted in views', () => {
+    const service = createService();
+    const secretValue = 'sk-titleLEAKSHOULDNOTAPPEAR99';
+    const [view] = service.fromLooseItems([
+      {
+        id: 'mem-title-secret',
+        title: 'Vendor key ' + secretValue,
+        summary: 'credential reference',
+        kind: 'secret-reference',
+        origin: 'conversation',
+      },
+    ]);
+    expect(view.secretLike).toBe(true);
+    expect(view.title).not.toContain(secretValue);
+    expect(JSON.stringify(view)).not.toContain(secretValue);
+  });
+
+  test('whyIKnowThis is accurate for dream-cycle pending vs accepted', () => {
+    const service = createService();
+    const [pending, accepted] = service.fromLooseItems([
+      {
+        id: 'dream-pending',
+        title: 'Maybe prefer dark mode',
+        origin: 'dream-cycle',
+        consentState: 'review',
+        summary: 'Proposed preference',
+      },
+      {
+        id: 'dream-accepted',
+        title: 'Prefer dark mode',
+        origin: 'dream-cycle',
+        consentState: 'granted',
+        summary: 'Accepted preference',
+      },
+    ]);
+    expect(pending.whyIKnowThis).toMatch(/pending review/i);
+    expect(accepted.whyIKnowThis).toMatch(/after review/i);
+    expect(accepted.whyIKnowThis).not.toMatch(/pending review/i);
+  });
+
+  test('forgetInDemo only mutates demo store (not a live wipe path)', () => {
+    const dir = createTempDir();
+    const demoPath = path.join(dir, 'memory-privacy-demo.json');
+    const service = createService({ demoStorePath: demoPath });
+    service.seedDemo();
+    const before = JSON.parse(fs.readFileSync(demoPath, 'utf8'));
+    const result = service.forgetInDemo('mem-demo-pref-tabs', 'tester');
+    expect(result).not.toBeNull();
+    const after = JSON.parse(fs.readFileSync(demoPath, 'utf8'));
+    // Demo item is marked forgotten, not deleted from disk file
+    expect(after.items.find((i) => i.id === 'mem-demo-pref-tabs')?.forgotten).toBe(true);
+    expect(after.items.length).toBe(before.items.length);
+    // Null demo path cannot forget anything
+    const noStore = createService({ demoStorePath: null });
+    expect(noStore.forgetInDemo('mem-demo-pref-tabs')).toBeNull();
+  });
+
 });

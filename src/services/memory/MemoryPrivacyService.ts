@@ -476,20 +476,24 @@ export class MemoryPrivacyService {
 
   private mapLooseItem(raw: LooseMemoryItem, index: number): MemoryPrivacyItemView {
     const id = String(raw.id || raw.key || `memory-${index + 1}`).trim() || `memory-${index + 1}`;
-    const title = sanitizeDisplay(
-      String(raw.title || raw.kind || raw.type || 'Memory item').trim() || 'Memory item',
-    );
+    const rawTitle = String(raw.title || raw.kind || raw.type || 'Memory item').trim() || 'Memory item';
     const rawSummary = String(
       raw.summary || raw.description || raw.contentPreview || '',
     ).trim();
     const secretLike = raw.secretLike === true || detectSecretLike(raw);
+    // Never surface secret-like tokens in operator-facing title/summary.
+    const title = secretLike
+      ? redactSecretLikeText(rawTitle)
+      : sanitizeDisplay(rawTitle);
     const summary = secretLike
       ? redactSecretLikeText(rawSummary || 'Sensitive memory (details redacted).')
       : sanitizeDisplay(rawSummary || 'No summary.');
 
     const origin = inferOrigin(raw);
     const originLabel = ORIGIN_LABELS[origin];
-    const whyIKnowThis = buildWhyIKnowThis(raw, origin);
+    const whyRaw = buildWhyIKnowThis(raw, origin);
+    // Always run presence-only redaction so custom why text cannot leak tokens.
+    const whyIKnowThis = redactSecretLikeText(whyRaw);
     const consentState = inferConsent(raw, origin);
     const systemCritical = isSystemCritical(raw);
     const canForget = raw.canForget === false || systemCritical
@@ -510,10 +514,15 @@ export class MemoryPrivacyService {
     const metadata: Record<string, unknown> = {
       ...(raw.metadata && typeof raw.metadata === 'object' ? { ...raw.metadata } : {}),
     };
-    // Strip any accidental secret-bearing keys from metadata projection.
+    // Strip accidental secret-bearing keys/values from metadata projection.
     for (const key of Object.keys(metadata)) {
       if (/secret|password|token|api[_-]?key|credential/i.test(key)) {
         metadata[key] = '[redacted]';
+        continue;
+      }
+      const value = metadata[key];
+      if (typeof value === 'string' && detectSecretLike({ content: value, summary: value })) {
+        metadata[key] = redactSecretLikeText(value);
       }
     }
 
@@ -587,9 +596,15 @@ function buildWhyIKnowThis(raw: LooseMemoryItem, origin: MemoryPrivacyOrigin): s
       || (raw.metadata as Record<string, unknown>).why
     : null;
   if (custom != null && String(custom).trim()) {
+    // Custom explanations still pass through secret redaction at the call site when needed.
     return sanitizeDisplay(String(custom).trim());
   }
   if (origin === 'dream-cycle') {
+    const consent = String(raw.consentState || raw.consent || '').trim().toLowerCase();
+    if (consent === 'granted' || consent === 'implied') {
+      return 'Accepted from the Mnemos dream cycle after review.';
+    }
+    // Default / review / unknown → pending review narrative
     return 'Learning candidate pending review from the Mnemos dream cycle.';
   }
   return WHY_BY_ORIGIN[origin];

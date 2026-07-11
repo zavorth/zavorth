@@ -349,6 +349,14 @@ export function DesktopShell(props: {
       agents: props.subagents,
       approvalsPending: props.approvals?.length,
       receiptsCount: props.receipts?.length,
+      providerCount: (() => {
+        const p = props.runtimeCapabilities?.providers;
+        if (!p) return 0;
+        if (p.all?.length) return p.all.length;
+        return (p.connected?.length || 0) + (p.configurable?.length || 0) + (p.blocked?.length || 0);
+      })(),
+      // Connection proof only — never catalog length alone.
+      providerLiveCount: props.runtimeCapabilities?.providers?.connected?.length || 0,
     };
   }, [
     props.approvals?.length,
@@ -357,6 +365,7 @@ export function DesktopShell(props: {
     props.kaelActive,
     props.memoryItems?.length,
     props.receipts?.length,
+    props.runtimeCapabilities,
     props.scheduledTasks?.length,
     props.status.running,
     props.subagents,
