@@ -248,7 +248,8 @@ function runShow(args: string[], json: boolean): number {
   }
 
   if (json) {
-    console.log(JSON.stringify(event, null, 2));
+    // Never dump raw secret-like metadata on CLI show (S1).
+    console.log(JSON.stringify(service.toPublicEvent(event), null, 2));
     return 0;
   }
 
