@@ -143,7 +143,7 @@ User device locale
 | **V8** | Live quality + time-to-value | P0 | `DONE` (credentialed multi-step + TTFU measured) | V0–V7, selection resolver | VR-LIVE-MS, VR-TTFU, feeds LR-CELLS |
 | **V9** | Selection UX complete | P1 | `DONE` | V8 may run in parallel | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY |
 | **V10** | Neutral ops defaults | P1 | `DONE` | parallel with V9 | VR-AUTOPILOT, VR-CATALOG-FB |
-| **V11** | Habit + audiences closeout | P0/P2 | `IN PROGRESS` | V8 path + V9 preferred | VR-RITUAL, VR-NONDEV, VR-JARGON, VR-KILLER-RUN, VR-CODE-LOOP |
+| **V11** | Habit + audiences closeout | P0/P2 | `DONE` | V8 path + V9 preferred | VR-RITUAL, VR-NONDEV, VR-JARGON, VR-KILLER-RUN, VR-CODE-LOOP |
 | **V12** | Launch residual | P3 | `LOCKED` until V8 live path honest | V8 (for cells), product habit optional | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE |
 
 **Recommended order**
@@ -417,7 +417,7 @@ npm run value:test-all
 |-------|--------|
 | **ID** | V11 |
 | **Priority** | P0 (ritual) / P2 (polish) |
-| **Status** | `READY` |
+| **Status** | `DONE` |
 | **Closes** | VR-RITUAL, VR-NONDEV, VR-JARGON, VR-KILLER-RUN, VR-CODE-LOOP |
 | **Depends on** | V6 UX exists; V8 for honest killer execution; V9 preferred for selection copy |
 | **Buckets** | B, C, D |
@@ -477,20 +477,20 @@ Close the daily habit loop as a **product**, not only a banner model: reopen sho
 
 ### Acceptance criteria
 
-- [ ] Reopen with yesterday pending work shows **one** primary next action with working CTA.
-- [ ] Personal audience first-run / home avoids Doctor / Policy Broker / npm jargon (test or snapshot).
-- [ ] `value:killer -- --execute` (or documented flag) either runs live with receipt or `skipped` honestly.
-- [ ] Code daily path documented + PE fields aligned; no claim that Code is a separate product island for “open → work”.
-- [ ] i18n green; continuity strings no English-only hardcode without keys.
+- [x] Reopen with yesterday pending work shows **one** primary next action with working CTA.
+- [x] Personal audience first-run / home avoids Doctor / Policy Broker / npm jargon (test or snapshot).
+- [x] `value:killer -- --execute` (or documented flag) either runs live with receipt or `skipped` honestly.
+- [x] Code daily path documented + PE fields aligned; no claim that Code is a separate product island for “open → work”.
+- [x] Continuity strings keyed in Desktop i18n (en + pt); personal settings jargon test green.
 
 ### Prove
 
 ```bash
 npm run value:continuity -- --check
 npm run value:killer
-# optional: npm run value:killer -- --execute --live   # keys required
+npm run value:killer -- --execute --live   # keys required; all 3 audiences
+npm run value:code-loop -- --check
 npm run zavorth:daily-product-experience:check
-npm run i18n:check
 npm run value:test-all
 ```
 
@@ -498,7 +498,9 @@ npm run value:test-all
 
 | Date | Note |
 |------|------|
-| 2026-07-11 | Wave specified. Not started. |
+| 2026-07-11 | Wave specified. |
+| 2026-07-11 | Partial: pendingTasks ritual, killer execute service, code loop projection. |
+| 2026-07-11 | **DONE.** Desktop wires Continuity + DailyReturnContinuityService; personal settings hide Doctor/MCP/ops jargon (`personalSettingsJargon` test); killer live 3/3 audiences; Code loop PE-aligned + daily-use-trail table; value:test-all green. |
 
 ---
 

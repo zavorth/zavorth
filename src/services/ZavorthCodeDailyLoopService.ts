@@ -12,6 +12,12 @@ export type CodeDailyLoopSnapshot = {
   chatReady: boolean;
   providerReady: boolean;
   providerId: string | null;
+  /** Same field names as Daily PE for cross-surface tooling. */
+  peAligned: {
+    chatReady: boolean;
+    happyPathSteps: number;
+    nextCommand: string;
+  };
   happyPath: {
     steps: Array<{ id: string; label: string; summary: string; done: boolean }>;
     nextCommand: string;
@@ -72,6 +78,7 @@ export class ZavorthCodeDailyLoopService {
       },
     ];
 
+    const nextCommand = chatReady ? 'zavorth' : 'zavorth setup';
     return {
       generatedAt: now,
       version: 'code-daily-loop/v1',
@@ -79,9 +86,14 @@ export class ZavorthCodeDailyLoopService {
       chatReady,
       providerReady,
       providerId: selection.providerId,
+      peAligned: {
+        chatReady,
+        happyPathSteps: steps.length,
+        nextCommand,
+      },
       happyPath: {
         steps,
-        nextCommand: chatReady ? 'zavorth' : 'zavorth setup',
+        nextCommand,
         summary: chatReady
           ? 'Code daily loop ready: open → ask → review (same PE as Desktop/Control).'
           : 'Code daily loop needs a configured provider (shared UserSelectionResolver).',
@@ -89,6 +101,7 @@ export class ZavorthCodeDailyLoopService {
       alignsWithDailyPe: true,
       notes: [
         'Code uses the same provider/channel preference files as Desktop and Control.',
+        'Daily loop order matches Desktop/Control: open → provider ready → first ask → review.',
         'This projection does not claim the external zavorth-code repo is fully merged.',
       ],
     };

@@ -174,6 +174,8 @@ const translations: Record<string, Record<string, string>> = {
     'continuity.startTitle': 'Ready for a useful first ask',
     'continuity.startDetail': 'Try a safe starter that does not change files.',
     'continuity.startCta': 'Start',
+    'continuity.resumeTaskDetail': 'Primary next action from last session.',
+    'continuity.resumeTaskCta': 'Continue',
     'thread.approvalTitle': 'Approval needed',
     'thread.approve': 'Approve',
     'thread.reject': 'Reject',
@@ -712,6 +714,8 @@ const translations: Record<string, Record<string, string>> = {
     'continuity.startTitle': 'Pronto para um primeiro pedido útil',
     'continuity.startDetail': 'Use um starter seguro que não altera arquivos.',
     'continuity.startCta': 'Começar',
+    'continuity.resumeTaskDetail': 'Próxima ação principal da última sessão.',
+    'continuity.resumeTaskCta': 'Continuar',
 
     'thread.suggestion2': 'Revisar este repositorio quanto a riscos e propor um plano seguro para aprovar passo a passo',
     'thread.suggestion3': 'O que voce lembra de mim com fontes, e como eu esqueço drafts?',

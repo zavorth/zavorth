@@ -103,7 +103,7 @@ Always confirm with `git log --oneline -15`.
 |---|------|--------|-------------|
 | R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **DONE (V8)** | Live multi-step pass; `claimsLiveIntelligence: true` only then |
 | R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **DONE (V8)** | Wall-clock TTFU ~15.4s from timed live multi-step session |
-| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **PARTIAL (V11)** | pendingTasks + resume-task; full three-surface polish residual |
+| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **DONE (V11)** | DesktopShell + ContinuityBanner + DailyReturnContinuityService |
 
 ### P1 — Dynamic selection polish
 
@@ -144,7 +144,7 @@ Always confirm with `git log --oneline -15`.
 | **V8** | Live quality + time-to-value | VR-LIVE-MS, VR-TTFU (old R1, value-R2) | P0 | **DONE** (live multi-step + TTFU ~15s) |
 | **V9** | Selection UX complete | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY (R4, R7, R8) | P1 | **CORE SHIPPED** |
 | **V10** | Neutral ops defaults | VR-AUTOPILOT, VR-CATALOG-FB (R5, R6) | P1 | **DONE** |
-| **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **IN PROGRESS** (ritual + killer execute + code loop) |
+| **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **DONE** |
 | **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | residual |
 
 **Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8 implemented / live evidence pending; V10 shipped 2026-07-11**

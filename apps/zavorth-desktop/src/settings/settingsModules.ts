@@ -38,6 +38,8 @@ export type SettingsModuleGroup = {
   items: SettingsModule[];
 };
 
+export type SettingsAudience = 'personal' | 'developer' | 'business' | 'power';
+
 export type SettingsModuleInput = {
   runtimeRunning?: boolean;
   providerCount?: number;
@@ -49,7 +51,13 @@ export type SettingsModuleInput = {
   memoryCount?: number;
   channelCount?: number;
   workspacePath?: string | null;
+  /** When personal, hide ops jargon (Doctor, Policy Broker, npm-style modules). */
+  audience?: SettingsAudience | null;
 };
+
+export function isPersonalAudience(audience?: SettingsAudience | null): boolean {
+  return !audience || audience === 'personal';
+}
 
 const moduleOrder: SettingsModuleId[] = [
   'general',
@@ -87,38 +95,61 @@ export function buildSettingsModules(input: SettingsModuleInput = {}): SettingsM
   const channelCount = count(input.channelCount);
   const hasWorkspace = Boolean(input.workspacePath);
   const runtimeRunning = Boolean(input.runtimeRunning);
+  const personal = isPersonalAudience(input.audience);
 
-  return [
+  const groups: SettingsModuleGroup[] = [
     {
-      title: 'Personal',
+      title: personal ? 'You' : 'Personal',
       items: [
-        moduleDef('general', 'General', 'Personal', 'Appearance, reasoning effort, theme, accent and local backup.', ['theme', 'appearance', 'effort', 'backup'], 'ready', 'Configured'),
-        moduleDef('identity', 'Identity Studio', 'Personal', 'Agent identity, voice, user profile, rules, memory and session presets.', ['voice', 'user', 'rules', 'identity', 'profile', 'presets', 'session'], 'ready', 'Profile ready'),
-        moduleDef('profiles', 'Profiles', 'Personal', 'Reusable experience profiles and personas.', ['persona', 'profile', 'custom', 'voice'], customProfileCount > 0 ? 'ready' : 'idle', customProfileCount > 0 ? `${customProfileCount} profile(s)` : 'No custom profiles'),
-        moduleDef('pets', 'Pets', 'Personal', 'Kael scale, event behavior, discreet mode, notifications and reduced motion.', ['kael', 'mascot', 'pet', 'size', 'animation', 'discreet', 'notifications'], 'ready', 'Customizable'),
-        moduleDef('permissions', 'Permissions', 'Personal', 'Trust policy, approvals, scopes and revocation.', ['trust', 'approval', 'permission', 'security'], approvalsCount > 0 ? 'attention' : 'ready', approvalsCount > 0 ? `${approvalsCount} pending` : 'No pending items'),
-        moduleDef('memory', 'Memory', 'Personal', 'Long-term memory, learned candidates and privacy controls.', ['memory', 'learning', 'recall', 'privacy'], memoryCount > 0 ? 'ready' : 'idle', memoryCount > 0 ? `${memoryCount} memories` : 'No memories'),
+        moduleDef('general', 'General', personal ? 'You' : 'Personal', personal ? 'Theme, accent, and simple preferences.' : 'Appearance, reasoning effort, theme, accent and local backup.', ['theme', 'appearance', 'effort', 'backup'], 'ready', 'Configured'),
+        moduleDef('identity', personal ? 'Your profile' : 'Identity Studio', personal ? 'You' : 'Personal', personal ? 'How Zavorth talks with you and what it should remember about your preferences.' : 'Agent identity, voice, user profile, rules, memory and session presets.', ['voice', 'user', 'rules', 'identity', 'profile', 'presets', 'session'], 'ready', 'Profile ready'),
+        moduleDef('profiles', 'Profiles', personal ? 'You' : 'Personal', personal ? 'Reusable ways of working (optional).' : 'Reusable experience profiles and personas.', ['persona', 'profile', 'custom', 'voice'], customProfileCount > 0 ? 'ready' : 'idle', customProfileCount > 0 ? `${customProfileCount} profile(s)` : 'No custom profiles'),
+        moduleDef('pets', 'Pets', personal ? 'You' : 'Personal', 'Kael scale, event behavior, discreet mode, notifications and reduced motion.', ['kael', 'mascot', 'pet', 'size', 'animation', 'discreet', 'notifications'], 'ready', 'Customizable'),
+        moduleDef('permissions', personal ? 'Safety' : 'Permissions', personal ? 'You' : 'Personal', personal ? 'What needs your OK before anything sensitive happens.' : 'Trust policy, approvals, scopes and revocation.', ['trust', 'approval', 'permission', 'security'], approvalsCount > 0 ? 'attention' : 'ready', approvalsCount > 0 ? `${approvalsCount} pending` : 'No pending items'),
+        moduleDef('memory', 'Memory', personal ? 'You' : 'Personal', personal ? 'What Zavorth remembers, drafts waiting for you, and how to forget.' : 'Long-term memory, learned candidates and privacy controls.', ['memory', 'learning', 'recall', 'privacy'], memoryCount > 0 ? 'ready' : 'idle', memoryCount > 0 ? `${memoryCount} memories` : 'No memories'),
       ],
     },
     {
-      title: 'Integrations',
+      title: personal ? 'Connections' : 'Integrations',
       items: [
-        moduleDef('providers', 'AI Providers', 'Integrations', 'Models, providers, keys and local fallback.', ['provider', 'model', 'gpt', 'api key', 'llm'], providerCount > 0 ? 'ready' : 'attention', providerCount > 0 ? `${providerCount} active` : 'No provider'),
-        moduleDef('mcp', 'MCP Servers', 'Integrations', 'MCP servers, trust and connected tools.', ['mcp', 'tools', 'server', 'trust'], mcpServerCount === 0 ? 'idle' : trustedMcpServerCount === mcpServerCount ? 'ready' : 'attention', mcpServerCount === 0 ? 'No MCP' : `${trustedMcpServerCount}/${mcpServerCount} trusted`),
-        moduleDef('channels', 'Channels', 'Integrations', 'External channels, connectors and readiness.', ['slack', 'email', 'channel', 'connector'], channelCount > 0 ? 'ready' : 'idle', channelCount > 0 ? `${channelCount} channel(s)` : 'No channels'),
+        moduleDef('providers', personal ? 'AI models' : 'AI Providers', personal ? 'Connections' : 'Integrations', personal ? 'Which model answers you, plus a backup if the first one fails.' : 'Models, providers, keys and local fallback.', ['provider', 'model', 'gpt', 'api key', 'llm'], providerCount > 0 ? 'ready' : 'attention', providerCount > 0 ? `${providerCount} active` : 'No provider'),
+        ...(personal
+          ? []
+          : [
+              moduleDef('mcp', 'MCP Servers', 'Integrations', 'MCP servers, trust and connected tools.', ['mcp', 'tools', 'server', 'trust'], mcpServerCount === 0 ? 'idle' : trustedMcpServerCount === mcpServerCount ? 'ready' : 'attention', mcpServerCount === 0 ? 'No MCP' : `${trustedMcpServerCount}/${mcpServerCount} trusted`),
+            ]),
+        moduleDef('channels', 'Channels', personal ? 'Connections' : 'Integrations', personal ? 'Optional apps like Discord or Slack — only if you want them.' : 'External channels, connectors and readiness.', ['slack', 'email', 'channel', 'connector'], channelCount > 0 ? 'ready' : 'idle', channelCount > 0 ? `${channelCount} channel(s)` : 'No channels'),
       ],
     },
     {
       title: 'Workspace',
       items: [
-        moduleDef('workspace', 'Workspace', 'Workspace', 'Active directory, scope and local runtime.', ['folder', 'directory', 'workspace', 'local'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Workspace active' : 'Choose a folder'),
-        moduleDef('files', 'File Explorer', 'Workspace', 'Local project files and safe read access.', ['file', 'explorer', 'project'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Available' : 'No workspace'),
-        moduleDef('approvals', 'Review', 'Workspace', 'Write approvals, host commands and active mandate.', ['review', 'approval', 'diff', 'host command'], approvalsCount > 0 ? 'attention' : 'ready', approvalsCount > 0 ? `${approvalsCount} item(s)` : 'No reviews'),
-        moduleDef('agents', 'Agent Team', 'Workspace', 'Subagents, roles and delegated tasks.', ['subagent', 'agent', 'team', 'delegate'], 'ready', 'Available'),
-        moduleDef('preview', 'Web Preview', 'Workspace', 'Local web preview for apps and screens.', ['browser', 'preview', 'web'], hasWorkspace ? 'ready' : 'idle', hasWorkspace ? 'Available' : 'No workspace'),
+        moduleDef('workspace', personal ? 'Folder' : 'Workspace', 'Workspace', personal ? 'The folder Zavorth can work in on this computer.' : 'Active directory, scope and local runtime.', ['folder', 'directory', 'workspace', 'local'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Workspace active' : 'Choose a folder'),
+        moduleDef('files', personal ? 'Files' : 'File Explorer', 'Workspace', personal ? 'Browse project files safely.' : 'Local project files and safe read access.', ['file', 'explorer', 'project'], hasWorkspace ? 'ready' : 'attention', hasWorkspace ? 'Available' : 'No workspace'),
+        moduleDef('approvals', 'Review', 'Workspace', personal ? 'Things that need your OK before files or tools change.' : 'Write approvals, host commands and active mandate.', ['review', 'approval', 'diff', 'host command'], approvalsCount > 0 ? 'attention' : 'ready', approvalsCount > 0 ? `${approvalsCount} item(s)` : 'No reviews'),
+        ...(personal
+          ? []
+          : [
+              moduleDef('agents', 'Agent Team', 'Workspace', 'Subagents, roles and delegated tasks.', ['subagent', 'agent', 'team', 'delegate'], 'ready', 'Available'),
+              moduleDef('preview', 'Web Preview', 'Workspace', 'Local web preview for apps and screens.', ['browser', 'preview', 'web'], hasWorkspace ? 'ready' : 'idle', hasWorkspace ? 'Available' : 'No workspace'),
+            ]),
       ],
     },
-    {
+  ];
+
+  if (personal) {
+    groups.push({
+      title: 'Help',
+      items: [
+        moduleDef('sessions', 'History', 'Help', 'Recent chats you can reopen.', ['session', 'history', 'thread', 'resume'], 'ready', 'Local history'),
+        moduleDef('updates', 'Updates', 'Help', 'Get the latest Desktop improvements.', ['update', 'release notes', 'rollback', 'install'], 'ready', 'Local channel'),
+        moduleDef('trust', 'Privacy & safety', 'Help', 'Keep this computer protected and review sensitive permissions.', ['trust', 'hardening', 'safe mode', 'audit log', 'remote display'], 'ready', 'Protected'),
+        // Personal never sees "Runtime Doctor" / Policy Broker labels.
+        moduleDef('diagnostics', 'Something wrong?', 'Help', 'Simple checks if chat will not start. No terminal commands required.', ['logs', 'runtime', 'diagnostics', 'error', 'status', 'help'], runtimeRunning ? 'ready' : 'attention', runtimeRunning ? 'Looking good' : 'Needs attention'),
+      ],
+    });
+  } else {
+    groups.push({
       title: 'Operations',
       items: [
         moduleDef('automations', 'Scheduled Tasks', 'Operations', 'Durable automations, logs and recurring executions.', ['automation', 'scheduler', 'cron', 'task', 'recurring'], automationCount > 0 ? 'ready' : 'idle', automationCount > 0 ? `${automationCount} task(s)` : 'No automations'),
@@ -128,8 +159,18 @@ export function buildSettingsModules(input: SettingsModuleInput = {}): SettingsM
         moduleDef('trust', 'Trust', 'Operations', 'Desktop hardening, remote display detection, sensitive permissions, audit log and safe mode.', ['trust', 'hardening', 'safe mode', 'audit log', 'remote display'], 'ready', 'Protected'),
         moduleDef('diagnostics', 'Diagnostics', 'Operations', 'Logs, runtime, repair, updates and desktop signals.', ['logs', 'runtime', 'diagnostics', 'error', 'status'], runtimeRunning ? 'ready' : 'attention', runtimeRunning ? 'Runtime online' : 'Runtime offline'),
       ],
-    },
-  ];
+    });
+  }
+
+  return groups;
+}
+
+/** True when personal settings hide operator jargon modules. */
+export function personalSettingsHidesJargon(groups: SettingsModuleGroup[]): boolean {
+  const flat = flattenSettingsModules(groups);
+  const hasDoctor = flat.some((module) => module.id === 'doctor' || /doctor|policy broker/i.test(module.label));
+  const hasMcp = flat.some((module) => module.id === 'mcp');
+  return !hasDoctor && !hasMcp;
 }
 
 export function flattenSettingsModules(groups: SettingsModuleGroup[]): SettingsModule[] {
