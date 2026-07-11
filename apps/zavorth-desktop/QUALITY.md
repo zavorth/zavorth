@@ -111,6 +111,7 @@ Manual extras when shipping a heavy visual PR: light/dark, comfortable/compact s
 - [x] Kael mascot on empty chat
 - [x] No third-party agent product names in polish UI strings
 - [x] Status badges: Live / Needs setup / Available / Blocked (catalog ≠ live)
+- [x] Ready/Live requires `liveReady === true` proof boolean (status-only never grants live)
 
 ## Definition of done for a visual PR
 

@@ -54,6 +54,8 @@ A cataloged channel, skill, provider, or backend is **not** the same as live-rea
 
 Never label catalog entries as “ready” without a live signal. `StatusBadge` and readiness helpers enforce this distinction.
 
+- **Ready/Live requires live proof boolean** (`liveReady === true`). Status strings alone (`ready`, `available`, `ok`, `healthy`, `active`, even `live`/`connected`) never grant Live.
+
 ### 7. Density
 Two densities via `.zvd-app.density-compact` (and `comfortable` default). Density retunes control height, type base, sidebar width, and spacing — not a separate component tree.
 

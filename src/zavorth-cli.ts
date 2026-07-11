@@ -36,6 +36,7 @@ import {
 } from './cli/ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './cli/RiskBudgetCli.js';
 import { runChangePreviewCli } from './cli/ChangePreviewCli.js';
+import { runMemoryPrivacyCli } from './cli/MemoryPrivacyCli.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -2607,6 +2608,15 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     || command === 'what-changes'
   ) {
     return runChangePreviewCli(restArgs);
+  }
+
+  // Memory Privacy OS (Mnemos product narrative — does not replace dream/forget engine).
+  if (
+    command === 'memory-privacy'
+    || command === 'memory-privacy-os'
+    || command === 'privacy-memory'
+  ) {
+    return runMemoryPrivacyCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

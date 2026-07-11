@@ -4,6 +4,7 @@ export * from './HybridMemoryContract.js';
 export * from './KnowledgeInjectionContract.js';
 export * from './MemoryArtifactConsistencyContract.js';
 export * from './MemoryArtifactsRuntimeLiveClosureContract.js';
+export * from './MemoryPrivacyContract.js';
 export * from './MnemosDreamCycleContract.js';
 export * from './MnemosEventContract.js';
 export * from './ZavorthDataLifecycleContract.js';
