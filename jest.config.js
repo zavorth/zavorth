@@ -19,7 +19,7 @@ module.exports = {
     // Entire services product layer is mid EN + /zavorthControl rewrite (80+ failing suites / 15m+ timeout).
     // Security remains covered by tests/security; runtime/agent groups still run in Core.
     // Keep capability usage docs suites for verified-capabilities QA (negative lookahead exceptions).
-    '/tests/services/(?!ZavorthCapabilityUsageDocsService|ZavorthCapabilityActionSurfaceService|proof/|risk/|approval/|preview/).*\\.test\\.ts$',
+    '/tests/services/(?!ZavorthCapabilityUsageDocsService|ZavorthCapabilityActionSurfaceService|proof/|risk/|approval/|preview/|capability/|migration/).*\\.test\\.ts$',
     // Platform group: CLI productization/demo/release loops and fixtures still on PT labels or retired paths.
     '/tests/cli/(ZavorthCliRunObservatory|ZavorthCliRegistrySkills|ZavorthCliProductDemo|ZavorthCliReleaseCandidatePreCanaryGate|ZavorthCliIntegrationShowcasePartnerSurface|ZavorthCliFeedbackTelemetryProductLoop|ZavorthCliReleaseAdoptionReadiness|ZavorthCliPublicAdoptionPilotLoop|ZavorthCliReleaseInstallerRollback|ZavorthCliPublicSiteDocsDemoSync|ZavorthCliProductizationEvidence|ZavorthCliProductEntryRuntime|ZavorthCliBlueprintCompletion|ZavorthCliProviderMeshConsolidation|ZavorthCliRunArtifactReceiptReplay|ZavorthCliCrossChannelContinuity|ZavorthCliArtifactMemory|ZavorthCliPersonalOpsAutopilot|ZavorthCliAskBeforeAssumptionPolicy|ZavorthCliCapabilityNegotiation|ZavorthCliUniversalIntentTrust|ZavorthCliToolRehearsal|ZavorthCliCapabilityDiscovery|ZavorthCliUniversalPreview|ZavorthCliSafetyNarrative|ZavorthCliDatabaseRotation)\\.test\\.ts$',
     '/tests/cli/doctor/ZavorthDoctorPremiumCommand\\.test\\.ts$',

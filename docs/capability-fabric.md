@@ -36,13 +36,16 @@ zavorth absorb https://example.com/skill-page --kind skill --preview
 zavorth absorb ./packs/my-skill --apply --consent
 zavorth absorb plugin ./packs/my-plugin --apply --consent --allow-executable
 
-# Universal workspace import (structural only)
+# Universal workspace import (structural only; optional --profile risk report)
 zavorth import-workspace ./any-agent-home --preview
+zavorth import-workspace ./any-agent-home --profile auto --preview
 zavorth import-workspace ./any-agent-home --apply --consent
 zavorth migrate ./any-agent-home --preview
 zavorth migrate ./any-agent-home --apply --consent
 zavorth migrate --auto --preview
 ```
+
+See also: [Workspace migration](./product/migration-workspace.md) (profile flags, secrets policy).
 
 ## Action Harness
 
@@ -75,6 +78,13 @@ These are **shapes**, not product names:
 
 Signals include identity/soul/user/agents markdown, skills/memory/plugins/config
 directories, mcp manifests, and generic workspace config files.
+
+### Optional migration profile labels (`--profile`)
+
+On top of universal structural import, `import-workspace` may attach a risk report
+using structure fingerprints: `auto`, `generic` / `generic-agent-home`,
+`openclaw-home`, `hermes-home`. These labels are optional and never required to import.
+Details: [Workspace migration](./product/migration-workspace.md).
 
 ## Safety invariants
 

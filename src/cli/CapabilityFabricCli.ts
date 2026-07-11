@@ -1,16 +1,27 @@
 /**
  * CLI for the Universal Capability Fabric.
  *
+ * Install capabilities safely under quarantine with a clear risk report:
+ *
  *   zavorth absorb <source> [--kind skill|plugin|mcp|auto] [--apply] [--consent]
  *   zavorth absorb skill <source>
  *   zavorth absorb plugin <source>
  *   zavorth absorb mcp <source>
- *   zavorth import-workspace <path> [--apply --consent]
+ *   zavorth import-workspace <path> [--profile auto|generic|openclaw-home|hermes-home] [--apply --consent]
  */
 
 import path from 'node:path';
 import { UniversalCapabilityFabricService } from '../services/UniversalCapabilityFabricService.js';
 import { UniversalWorkspaceImportService } from '../services/UniversalWorkspaceImportService.js';
+import {
+  AbsorbRiskReportService,
+  resolveAbsorbProofAction,
+} from '../services/capability/AbsorbRiskReportService.js';
+import { WorkspaceMigrationProfileService } from '../services/migration/WorkspaceMigrationProfileService.js';
+import {
+  ProofLedgerService,
+  defaultProofLedgerJsonlPath,
+} from '../services/proof/ProofLedgerService.js';
 import type { CapabilityFabricKind } from '../contracts/UniversalCapabilityFabricContract.js';
 
 function hasFlag(args: string[], name: string): boolean {
@@ -29,28 +40,56 @@ function printHelp(): void {
   console.log([
     '=== Zavorth Capability Fabric ===',
     '',
+    'Install capabilities safely under quarantine.',
     'Absorb skills, plugins, or MCP packs from path / archive / HTTPS URL.',
+    'Preview shows a risk report (files, executable, network, permissions, secrets).',
     'Import any local workspace home by structure (brand-agnostic).',
+    'Optional named migration profiles add a risk report on top of structural import.',
     '',
     'Usage:',
     '  zavorth absorb <source> [--kind auto|skill|plugin|mcp] [--preview|--apply] [--consent] [--json]',
     '  zavorth absorb skill <source> ...',
     '  zavorth absorb plugin <source> ...',
     '  zavorth absorb mcp <source> ...',
-    '  zavorth import-workspace <path> [--preview|--apply --consent] [--json]',
+    '  zavorth import-workspace <path> [--profile auto|generic|generic-agent-home|openclaw-home|hermes-home] [--preview|--apply --consent] [--json]',
     '',
     'Rules:',
-    '  - preview is default',
+    '  - preview is default (safe install preview + risk report)',
     '  - apply requires --consent / --yes',
     '  - executable plugins and MCP start held/disabled',
-    '  - no third-party product profile is required',
+    '  - high risk / executable packs stay quarantined until trust upgrade',
+    '  - no third-party product profile is required for structural import',
+    '  - --profile is optional; labels are structure fingerprints only',
+    '  - Proof OS events are written for preview / promote / reject',
     '',
     'Examples:',
     '  zavorth absorb ./packs/my-skill --preview',
     '  zavorth absorb https://example.com/skill-page --kind skill --preview',
     '  zavorth absorb plugin ./packs/my-plugin --apply --consent',
     '  zavorth import-workspace ./old-agent-home --preview',
+    '  zavorth import-workspace ./old-agent-home --profile auto --preview',
+    '  zavorth import-workspace ./agent-home --profile openclaw-home --preview',
   ].join('\n'));
+}
+
+function printRiskReportSection(markdown: string): void {
+  console.log('');
+  console.log(markdown);
+}
+
+function appendAbsorbProofEvent(
+  reportService: AbsorbRiskReportService,
+  report: ReturnType<AbsorbRiskReportService['fromFabricSnapshot']>,
+  action: 'preview' | 'promote' | 'reject',
+): void {
+  try {
+    const ledger = new ProofLedgerService({
+      jsonlPath: defaultProofLedgerJsonlPath(),
+    });
+    ledger.append(reportService.toProofEventInput(report, action));
+  } catch {
+    // Proof ledger is best-effort; never fail absorb UX on ledger I/O.
+  }
 }
 
 export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<number> {
@@ -84,6 +123,7 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   const allowExecutable = hasFlag(args, '--allow-executable');
   const allowAll = hasFlag(args, '--allow-all') || consent;
   const overwrite = hasFlag(args, '--overwrite');
+  const skipProof = hasFlag(args, '--no-proof');
 
   if (apply && !consent) {
     console.log('Apply requires --consent (or --yes). Showing preview instead.\n');
@@ -100,8 +140,31 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
     label: path.basename(source),
   });
 
+  const riskService = new AbsorbRiskReportService();
+  const riskReport = riskService.fromFabricSnapshot(snapshot);
+  const proofAction = resolveAbsorbProofAction({
+    apply,
+    consent,
+    status: snapshot.status,
+    receipts: snapshot.receipts,
+  });
+
+  if (!skipProof) {
+    appendAbsorbProofEvent(riskService, riskReport, proofAction);
+  }
+
   if (json) {
-    console.log(JSON.stringify(snapshot, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          snapshot,
+          riskReport,
+          proofAction,
+        },
+        null,
+        2,
+      ),
+    );
     return snapshot.status === 'blocked' ? 1 : 0;
   }
 
@@ -129,6 +192,9 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
       console.log(`  - ${r.kind}/${r.status}: ${r.summary}`);
     }
   }
+
+  printRiskReportSection(riskService.toMarkdown(riskReport));
+
   console.log('');
   console.log(`Next: ${snapshot.narrative.nextSafeAction}`);
   return snapshot.status === 'blocked' ? 1 : 0;
@@ -139,10 +205,14 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
     console.log([
       '=== Zavorth Universal Workspace Import ===',
       '',
-      '  zavorth import-workspace <path> [--preview|--apply --consent] [--json]',
+      '  zavorth import-workspace <path> [--profile auto|generic|generic-agent-home|openclaw-home|hermes-home]',
+      '                                [--preview|--apply --consent] [--json] [--no-proof]',
       '  zavorth import-workspace --auto [--preview]',
       '',
-      'Structural detection only. No product-brand profiles.',
+      'Structural import always available (brand-agnostic).',
+      'Optional --profile adds a risk migration report (structure labels only).',
+      'Default profile: auto. Preview is default; apply still needs --consent.',
+      'Secrets are never auto-imported; reports note presence only (values redacted).',
     ].join('\n'));
     return rawArgs.length === 0 ? 1 : 0;
   }
@@ -151,8 +221,12 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
   const consent = hasFlag(rawArgs, '--consent') || hasFlag(rawArgs, '--yes');
   const json = hasFlag(rawArgs, '--json');
   const auto = hasFlag(rawArgs, '--auto');
+  const noProof = hasFlag(rawArgs, '--no-proof');
+  const profileOpt = readOption(rawArgs, '--profile') || 'auto';
   const positional = rawArgs.filter((a) => !a.startsWith('--'));
-  const importer = new UniversalWorkspaceImportService({ projectRoot: process.cwd() });
+  const projectRoot = process.cwd();
+  const importer = new UniversalWorkspaceImportService({ projectRoot });
+  const migration = new WorkspaceMigrationProfileService({ projectRoot });
 
   let sourcePath = positional[0];
   if (!sourcePath && auto) {
@@ -166,12 +240,33 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
   }
 
   if (!sourcePath) {
-    console.log('Missing path. Usage: zavorth import-workspace <path>');
+    console.log(
+      'Missing path. Usage: zavorth import-workspace <path> [--profile auto|generic|openclaw-home|hermes-home]',
+    );
     return 1;
   }
 
   if (apply && !consent) {
     console.log('Apply requires --consent. Running preview.\n');
+  }
+
+  // Migration risk report (preview-oriented; structural snapshot underneath)
+  const migrationReport = migration.buildReport({
+    sourcePath,
+    profile: profileOpt,
+    includeSecretLike: hasFlag(rawArgs, '--include-secret-like'),
+  });
+
+  // Optional Proof OS receipt (system/marketplace); never includes secret values
+  if (!noProof) {
+    try {
+      const ledger = new ProofLedgerService({
+        jsonlPath: defaultProofLedgerJsonlPath(projectRoot),
+      });
+      ledger.append(migration.toProofEventInput(migrationReport));
+    } catch {
+      // Proof append is best-effort; never block import
+    }
   }
 
   const snapshot = importer.buildSnapshot({
@@ -183,14 +278,30 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
   });
 
   if (json) {
-    console.log(JSON.stringify(snapshot, null, 2));
+    console.log(
+      JSON.stringify(
+        {
+          migrationReport,
+          structuralImport: snapshot,
+        },
+        null,
+        2,
+      ),
+    );
     return snapshot.status === 'blocked' ? 1 : 0;
   }
 
+  // Migration report section before structural import narrative
+  console.log('=== Migration risk report ===');
+  console.log(migration.toMarkdown(migrationReport));
+  console.log('=== Structural import ===');
   console.log(snapshot.narrative.headline);
   console.log(snapshot.narrative.operatorSummary);
-  console.log(`Profile: ${snapshot.profileId}`);
-  console.log(`Confidence: ${Math.round(snapshot.confidence * 100)}%`);
+  console.log(`Structural profile: ${snapshot.profileId}`);
+  console.log(
+    `Migration profile: ${migrationReport.profileId} (detected ${migrationReport.detectedProfileId})`,
+  );
+  console.log(`Confidence: ${Math.round(migrationReport.confidence * 100)}%`);
   console.log(`Status: ${snapshot.status}`);
   console.log('');
   console.log('Items (first 40):');
