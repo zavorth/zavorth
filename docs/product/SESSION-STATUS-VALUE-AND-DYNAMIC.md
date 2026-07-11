@@ -117,11 +117,11 @@ Always confirm with `git log --oneline -15`.
 
 ### P2 — Audiences / wow / non-dev
 
-| # | Work | Why |
-|---|------|-----|
-| R9 | Non-dev path fully free of npm/doctor jargon in first run | Improved; still operator-shaped in places |
-| R10 | One killer demo **executed and recorded** per audience | **PARTIAL** | `value:killer -- --execute --live`; personal audience executed + receipt; run other audiences as needed |
-| R11 | Code surface unified daily loop | **PARTIAL** | `ZavorthCodeDailyLoopService` + `value:code-loop:check`; PE semantics aligned |
+| # | Work | Status | Why / notes |
+|---|------|--------|-------------|
+| R9 | Non-dev path fully free of npm/doctor jargon in first run | **DONE (V11)** | Personal settings hide Doctor/MCP; plain labels |
+| R10 | One killer demo **executed and recorded** per audience | **DONE (V11)** | Live 3/3 via `value:killer -- --execute --live` |
+| R11 | Code surface unified daily loop | **DONE (V11)** | Code loop service + daily-use-trail three-surface table |
 
 ### P3 — Launch / ops (not value-local)
 
@@ -147,7 +147,7 @@ Always confirm with `git log --oneline -15`.
 | **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **DONE** |
 | **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | residual |
 
-**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8 implemented / live evidence pending; V10 shipped 2026-07-11**
+**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8–V11 done 2026-07-11; next is V12 launch residual**
 **Naming note:** value residual “R2” (TTFU) ≠ retention/launch “R2” (calendar day-1 = **LR-DAY1** / old R12).
 
 ---

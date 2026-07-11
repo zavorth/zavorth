@@ -1,6 +1,6 @@
 # Unified Closeout Waves — V8–V12
 
-**Status:** `ACTIVE` — V8/V9/V10 DONE; V11/V12 residual
+**Status:** `ACTIVE` — V8–V11 DONE; V12 launch residual
 **Last updated:** 2026-07-11  
 **Language of this document:** English  
 **Product brand:** Trust Loop (not “Proof OS”)
