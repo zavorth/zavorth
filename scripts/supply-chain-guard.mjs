@@ -14,12 +14,16 @@ const UNPINNED_SPEC_RE = /^(?:\*|latest)$/i;
 const REMOTE_SCRIPT_RE = /\b(?:curl|wget|irm|iwr|Invoke-WebRequest|Invoke-RestMethod)\b[\s\S]*(?:\||;|&&)\s*(?:sh|bash|zsh|pwsh|powershell|cmd)\b/i;
 const OPAQUE_SHELL_RE = /\b(?:powershell|pwsh)\b[\s\S]*(?:-enc|-encodedcommand)\b/i;
 
-/** Explicitly reviewed lifecycle scripts (path:scriptName). */
-const LIFECYCLE_ALLOWLIST = new Set([
-  'package.json:postinstall',
-  'packages/code/package.json:postinstall',
-  'packages/code/cli/package.json:prepare',
-]);
+/**
+ * Explicitly reviewed lifecycle scripts.
+ * Matched by path + script name + command fingerprint so fixture package.json
+ * postinstalls are still blocked.
+ */
+const LIFECYCLE_ALLOWLIST = [
+  { path: 'package.json', name: 'postinstall', commandRe: /ensure-code-runtime/i },
+  { path: 'packages/code/package.json', name: 'postinstall', commandRe: /fix-node-pty/i },
+  { path: 'packages/code/cli/package.json', name: 'prepare', commandRe: /effect-language-service|patch/i },
+];
 
 /** Explicitly reviewed unpinned specs (path:section.name). */
 const UNPINNED_ALLOWLIST = new Set([
@@ -27,6 +31,13 @@ const UNPINNED_ALLOWLIST = new Set([
   'packages/code/poe-auth/package.json:peerDependencies.@zavorth/plugin',
   'packages/code/poe-auth/package.json:dependencies.poe-oauth',
 ]);
+
+function isLifecycleAllowed(relativePath, name, command) {
+  const normalized = normalizePath(relativePath);
+  return LIFECYCLE_ALLOWLIST.some(
+    (entry) => entry.path === normalized && entry.name === name && entry.commandRe.test(String(command || '')),
+  );
+}
 
 const findings = scanPackageManifests(readPackageManifests());
 const snapshot = {
@@ -115,16 +126,13 @@ function scanScripts(relativePath, raw, scripts) {
       continue;
     }
     const line = findLine(raw, `"${escapeJson(name)}"`);
-    if (LIFECYCLE_SCRIPTS.has(name)) {
-      const key = `${normalizePath(relativePath)}:${name}`;
-      if (!LIFECYCLE_ALLOWLIST.has(key)) {
-        results.push({
-          file: relativePath,
-          line,
-          rule: 'package-lifecycle-script',
-          detail: `${name} scripts executam durante install/publish e exigem revisao explicita`,
-        });
-      }
+    if (LIFECYCLE_SCRIPTS.has(name) && !isLifecycleAllowed(relativePath, name, command)) {
+      results.push({
+        file: relativePath,
+        line,
+        rule: 'package-lifecycle-script',
+        detail: `${name} scripts executam durante install/publish e exigem revisao explicita`,
+      });
     }
     if (REMOTE_SCRIPT_RE.test(command)) {
       results.push({

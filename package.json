@@ -1290,11 +1290,15 @@
     "residual:waves:check": "npm run waves:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent && node scripts/retention-log.mjs --check --soft",
     "security:secrets-history": "node scripts/secrets-history-scan.mjs",
     "dogfood:day0": "node scripts/run-day0-dogfood-session.mjs",
+    "dogfood:live:close": "node scripts/live-dogfood-close.mjs",
+    "dogfood:live:llm": "node scripts/probe-live-llm.mjs",
+    "dogfood:hermetic": "node scripts/run-hermetic-dogfood-matrix.mjs",
+    "retention:day1": "node scripts/schedule-day1-retention.mjs",
+    "ops:signing:check": "node scripts/ops-signing-readiness.mjs",
     "qa:zavorth-q4-q5-golden-ux": "node scripts/zavorth-q4-q5-golden-ux.mjs",
     "zavorth:q4-q5": "node scripts/zavorth-q4-q5-golden-ux.mjs",
     "qa:zavorth-q8-q10": "node scripts/zavorth-q8-q10-quality.mjs",
-    "qa:zavorth-live-surface-smoke": "node scripts/zavorth-live-surface-smoke.mjs",
-    "dogfood:hermetic": "node scripts/run-hermetic-dogfood-matrix.mjs"
+    "qa:zavorth-live-surface-smoke": "node scripts/zavorth-live-surface-smoke.mjs"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",
