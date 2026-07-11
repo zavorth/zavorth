@@ -52,13 +52,13 @@ Executable program: **[WAVES-UNIFIED-CLOSEOUT.md](./product/WAVES-UNIFIED-CLOSEO
 
 | Wave | Focus | Status |
 |------|--------|--------|
-| **V8** | Live multi-step with **user-selected** provider + TTFU structural/measure | IMPLEMENTED; live evidence pending |
-| **V9** | Desktop/Control primary + secondary + channel pickers; no legacy Auto/Gemini copy; i18n/device locale | IN PROGRESS |
+| **V8** | Live multi-step with **user-selected** provider + measured TTFU | **DONE** — credentialed evidence + 15.4s TTFU |
+| **V9** | Desktop/Control primary + secondary + channel pickers; no legacy Auto/Gemini copy; i18n/device locale | **DONE** |
 | **V10** | Autopilot + catalog neutral defaults (no silent gemini-cli) | **DONE** |
 | **V11** | Reopen ritual, non-dev jargon, killer demos executed, Code daily loop | READY |
 | **V12** | Launch ops: calendar day-1, signing, live cells, public announce checklist | residual |
 
-Order: `(V8 live evidence ∥ V9 ∥ V10) → V11 → V12`. Next product wave: **V9**; V8 still needs a credentialed cell and a real TTFU record before closeout.
+Order: `(V8 ∥ V9 ∥ V10) → V11 → V12`. Next product wave: **V11**.
 
 ## Later
 

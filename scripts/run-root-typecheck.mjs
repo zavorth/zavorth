@@ -13,7 +13,14 @@ const tscBin = path.join(repoRoot, 'node_modules', 'typescript', 'bin', 'tsc');
 
 const child = spawn(
   process.execPath,
-  [tscBin, '-p', 'tsconfig.json', '--noEmit', '--pretty', 'false'],
+  [
+    tscBin,
+    '-p', 'tsconfig.json',
+    '--noEmit',
+    '--pretty', 'false',
+    '--incremental',
+    '--tsBuildInfoFile', 'node_modules/.cache/zavorth-root.tsbuildinfo',
+  ],
   {
     cwd: repoRoot,
     env,

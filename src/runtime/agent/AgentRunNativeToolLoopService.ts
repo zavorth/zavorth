@@ -924,7 +924,7 @@ export class AgentRunNativeToolLoopService {
   private listAlternateToolNames(failedToolName: string): string[] {
     const failed = normalizeToolKey(failedToolName);
     const definitions = Array.isArray((this.toolRuntime as { listTools?: () => ToolDefinition[] } | null)?.listTools?.())
-      ? ((this.toolRuntime as { listTools: () => ToolDefinition[] }).listTools() || [])
+      ? ((this.toolRuntime as unknown as { listTools: () => ToolDefinition[] }).listTools() || [])
       : [];
     if (definitions.length > 0) {
       return definitions

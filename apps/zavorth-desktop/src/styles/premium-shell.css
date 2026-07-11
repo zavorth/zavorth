@@ -1771,6 +1771,71 @@
   }
 }
 
+.zvd-app .zvd-user-route-selection {
+  margin: 0 0 18px;
+  padding: 16px;
+  border: 1px solid var(--zvd-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--zvd-surface) 92%, transparent);
+  box-shadow: var(--zvd-shadow-xs);
+}
+
+.zvd-app .zvd-user-route-selection__head {
+  margin-bottom: 14px;
+}
+
+.zvd-app .zvd-user-route-selection__head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.zvd-app .zvd-user-route-selection__head p {
+  margin: 5px 0 0;
+  color: var(--zvd-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.zvd-app .zvd-user-route-selection__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.zvd-app .zvd-user-route-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.zvd-app .zvd-user-route-field > span {
+  color: var(--zvd-muted);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+}
+
+.zvd-app .zvd-user-route-selection__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.zvd-app .zvd-user-route-selection__message {
+  color: var(--zvd-muted);
+  font-size: 12px;
+}
+
+.zvd-app .zvd-user-route-selection__message.is-error {
+  color: var(--zvd-text);
+  padding-left: 10px;
+  border-left: 2px solid var(--zvd-border-strong);
+}
+
 @media (max-width: 820px) {
   .zvd-app .zvd-page {
     padding: 22px 18px 52px;

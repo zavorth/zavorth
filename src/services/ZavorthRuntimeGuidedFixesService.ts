@@ -14,6 +14,7 @@ export const ZAVORTH_RUNTIME_GUIDED_FIXES_CONTRACT_VERSION = 'zavorth-runtime-gu
 export type ZavorthRuntimeGuidedFixKind =
   | 'open-route'
   | 'run-command'
+  | 'provider-setup'
   | 'provider-live-proof'
   | 'manual-setup'
   | 'inspect';

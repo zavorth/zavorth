@@ -33,6 +33,29 @@ describe('Value surfaces testability', () => {
     }
   });
 
+  it('keeps Desktop and Control selection bound to the canonical catalog and live form handler', () => {
+    const desktopCatalog = fs.readFileSync(
+      path.join(process.cwd(), 'apps/zavorth-desktop/src/selection/userSelectionCatalog.ts'),
+      'utf8',
+    );
+    const controlPages = fs.readFileSync(
+      path.join(process.cwd(), 'apps/zavorth-control-vite-shell/src/pages.ts'),
+      'utf8',
+    );
+    const controlActions = fs.readFileSync(
+      path.join(process.cwd(), 'apps/zavorth-control-vite-shell/src/model-preference-actions.ts'),
+      'utf8',
+    );
+
+    expect(desktopCatalog).toContain("src/services/selection/UserSelectionCatalog");
+    expect(desktopCatalog).not.toContain("id: 'openai'");
+    expect(controlPages).toContain('listUserSelectionProviders()');
+    expect(controlPages).toContain('listUserSelectionChannels()');
+    expect(controlPages).toContain('bindModelPreferenceEvents');
+    expect(controlActions).toContain("API_BASE = '/api/providers/preference'");
+    expect(controlActions).not.toMatch(/âœ|â|ðŸ/);
+  });
+
   it('stores memory drafts without silent promote and blocks cross-user promote', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-drafts-'));
     const store = new MemoryDraftStoreService({ storePath: path.join(dir, 'drafts.json') });

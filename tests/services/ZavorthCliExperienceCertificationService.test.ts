@@ -13,7 +13,7 @@ describe('ZavorthCliExperienceCertificationService', () => {
         id: 'home-inbox',
         command: 'zavorth go',
         kind: 'home_area',
-        mirrorsDashboardHome: true,
+        mirrorsZavorthControlHome: true,
       }),
       expect.objectContaining({
         id: 'home-connectors',
@@ -22,7 +22,7 @@ describe('ZavorthCliExperienceCertificationService', () => {
       }),
       expect.objectContaining({
         command: expect.stringContaining('zavorth guided-missions'),
-        mirrorsDashboardHome: true,
+        mirrorsZavorthControlHome: true,
       }),
       expect.objectContaining({
         command: expect.stringContaining('zavorth ask-runtime'),

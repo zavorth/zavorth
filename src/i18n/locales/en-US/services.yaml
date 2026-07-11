@@ -48,3 +48,12 @@ voice:
   transcription: "Transcription: {text}"
   tts_generating: "Generating speech..."
   tts_generated: "Speech generated."
+
+live_smartness:
+  no_selected_provider: "No user-selected provider."
+  runtime_probe_pass: "Live {provider} probe passed through the production LLM runtime."
+  runtime_probe_token_mismatch: "Provider {provider} replied, but did not return the exact certification token."
+  runtime_tool_missing: "Provider {provider} did not issue the required tool call."
+  runtime_multi_pass: "Live multi-step tool round passed through the production runtime with {provider}."
+  runtime_multi_token_mismatch: "Provider {provider} completed a tool round but missed the exact final token."
+  runtime_failure: "{phase} via production runtime: {message}"
