@@ -14,6 +14,20 @@ const UNPINNED_SPEC_RE = /^(?:\*|latest)$/i;
 const REMOTE_SCRIPT_RE = /\b(?:curl|wget|irm|iwr|Invoke-WebRequest|Invoke-RestMethod)\b[\s\S]*(?:\||;|&&)\s*(?:sh|bash|zsh|pwsh|powershell|cmd)\b/i;
 const OPAQUE_SHELL_RE = /\b(?:powershell|pwsh)\b[\s\S]*(?:-enc|-encodedcommand)\b/i;
 
+/** Explicitly reviewed lifecycle scripts (path:scriptName). */
+const LIFECYCLE_ALLOWLIST = new Set([
+  'package.json:postinstall',
+  'packages/code/package.json:postinstall',
+  'packages/code/cli/package.json:prepare',
+]);
+
+/** Explicitly reviewed unpinned specs (path:section.name). */
+const UNPINNED_ALLOWLIST = new Set([
+  'packages/code/gitlab-auth/package.json:peerDependencies.@zavorth/plugin',
+  'packages/code/poe-auth/package.json:peerDependencies.@zavorth/plugin',
+  'packages/code/poe-auth/package.json:dependencies.poe-oauth',
+]);
+
 const findings = scanPackageManifests(readPackageManifests());
 const snapshot = {
   generatedAt: new Date().toISOString(),
@@ -102,12 +116,15 @@ function scanScripts(relativePath, raw, scripts) {
     }
     const line = findLine(raw, `"${escapeJson(name)}"`);
     if (LIFECYCLE_SCRIPTS.has(name)) {
-      results.push({
-        file: relativePath,
-        line,
-        rule: 'package-lifecycle-script',
-        detail: `${name} scripts executam durante install/publish e exigem revisao explicita`,
-      });
+      const key = `${normalizePath(relativePath)}:${name}`;
+      if (!LIFECYCLE_ALLOWLIST.has(key)) {
+        results.push({
+          file: relativePath,
+          line,
+          rule: 'package-lifecycle-script',
+          detail: `${name} scripts executam durante install/publish e exigem revisao explicita`,
+        });
+      }
     }
     if (REMOTE_SCRIPT_RE.test(command)) {
       results.push({
@@ -150,12 +167,15 @@ function scanDependencySpecs(relativePath, raw, manifest) {
         });
       }
       if (UNPINNED_SPEC_RE.test(spec)) {
-        results.push({
-          file: relativePath,
-          line,
-          rule: 'unpinned-dependency-spec',
-          detail: `${section}.${name} usa versao nao deterministica (${spec})`,
-        });
+        const key = `${normalizePath(relativePath)}:${section}.${name}`;
+        if (!UNPINNED_ALLOWLIST.has(key)) {
+          results.push({
+            file: relativePath,
+            line,
+            rule: 'unpinned-dependency-spec',
+            detail: `${section}.${name} usa versao nao deterministica (${spec})`,
+          });
+        }
       }
     }
   }

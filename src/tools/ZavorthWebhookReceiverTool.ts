@@ -1,4 +1,5 @@
 import fs from 'fs';
+import * as http from 'http';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
@@ -78,8 +79,6 @@ export class ZavorthWebhookReceiverTool extends BaseTool {
     const id = `hook_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
     try {
-      const http = await import('http');
-
       const server = http.createServer((req, res) => {
         if (req.url !== webhookPath || (method !== 'ANY' && req.method !== method)) {
           res.writeHead(404);
@@ -109,16 +108,42 @@ export class ZavorthWebhookReceiverTool extends BaseTool {
         });
       });
 
-      server.listen(port, () => {
-        console.log(`[Webhook] ${id} listening on :${port}${webhookPath}`);
-      });
-
       this.webhooks.set(id, {
         id, port, path: webhookPath, method, server, log: [], created_at: new Date().toISOString(),
       });
 
+      await new Promise<void>((resolve, reject) => {
+        const onError = (error: Error) => {
+          server.off('error', onError);
+          reject(error);
+        };
+        server.once('error', onError);
+        server.listen(port, () => {
+          server.off('error', onError);
+          logger.info(`[Webhook] ${id} listening on :${port}${webhookPath}`);
+          resolve();
+        });
+      });
+
       return `Webhook receiver started:\n  ID: ${id}\n  URL: http://localhost:${port}${webhookPath}\n  Method: ${method}\n  Max requests: ${maxRequests}`;
-    } catch (error: unknown) {logger.warn('[Zavorth Webhook Receiver] network request failed', error); return ''; }
+    } catch (error: unknown) {
+      this.webhooks.delete(id);
+      logger.warn('[Zavorth Webhook Receiver] network request failed', error);
+      return '';
+    }
+  }
+
+  public async dispose(): Promise<void> {
+    const active = [...this.webhooks.values()];
+    this.webhooks.clear();
+    await Promise.all(active.map((webhook) => new Promise<void>((resolve) => {
+      const server = webhook.server as { close?: (callback?: (error?: Error) => void) => void } | null;
+      if (!server?.close) {
+        resolve();
+        return;
+      }
+      server.close(() => resolve());
+    })));
   }
 
   private stopWebhook(args: Record<string, unknown>): string {

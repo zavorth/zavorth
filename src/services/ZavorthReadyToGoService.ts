@@ -117,7 +117,9 @@ export class ZavorthReadyToGoService {
   }
 
   public async buildSnapshot(input: ZavorthReadyToGoInput = {}): Promise<ZavorthReadyToGoSnapshot> {
-    const refreshProviders = input.refreshProviders !== false;
+    // Status is a local deterministic projection by default. Network probes
+    // remain explicit so automation and interactive shells stay responsive.
+    const refreshProviders = input.refreshProviders === true;
     const provider = refreshProviders
       ? await this.providerReadiness.buildLiveSnapshot({
         includeAdvanced: input.includeAdvancedProviders === true,

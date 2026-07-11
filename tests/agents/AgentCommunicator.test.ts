@@ -1,6 +1,8 @@
 import { MessageBus } from '../../src/agents/MessageBus.js';
 import { AgentCommunicator, type AgentInfo } from '../../src/agents/AgentCommunicator.js';
 
+const setups: Array<{ bus: MessageBus; communicator: AgentCommunicator }> = [];
+
 function createSetup() {
   let tick = 0;
   const bus = new MessageBus({
@@ -13,12 +15,12 @@ function createSetup() {
     heartbeatTimeoutMs: 300,
     now: () => new Date(2026, 0, 1, 0, 0, 0, tick),
   });
-  return { bus, communicator };
+  const setup = { bus, communicator };
+  setups.push(setup);
+  return setup;
 }
 
 describe('AgentCommunicator', () => {
-  const setups: Array<{ bus: MessageBus; communicator: AgentCommunicator }> = [];
-
   afterEach(() => {
     for (const s of setups) {
       for (const agent of s.communicator.listAgents()) {

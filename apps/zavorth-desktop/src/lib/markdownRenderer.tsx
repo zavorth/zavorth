@@ -1,5 +1,5 @@
 import { marked, type MarkedOptions } from 'marked';
-import hljs from 'highlight.js';
+import hljs from './highlight';
 import katex from 'katex';
 import { useEffect, useRef, memo } from 'react';
 import { sanitizeHighlightedHtml, sanitizeMarkdownHtml } from './safeHtml';

@@ -104,6 +104,7 @@ type WorkspaceViewProps = {
   toolCalls?: ToolCall[];
   tokenUsage?: TokenUsage[];
   marketplacePlugins?: PluginItem[];
+  marketplaceSource?: 'api' | 'tools' | 'empty';
   onInstallPlugin?: (pluginId: string) => void;
   onUninstallPlugin?: (pluginId: string) => void;
   onUpdatePlugin?: (pluginId: string) => void;
@@ -282,6 +283,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
       <PanelSuspense>
         <PluginMarketplacePanel
           plugins={props.marketplacePlugins || []}
+          source={props.marketplaceSource}
           onInstall={props.onInstallPlugin}
           onUninstall={props.onUninstallPlugin}
           onUpdate={props.onUpdatePlugin}

@@ -66,6 +66,25 @@ describe('ZavorthReadyToGoService', () => {
     expect(snapshot.provider.liveNetworkUsed).toBe(false);
   });
 
+  it('defaults to the fast offline projection and requires explicit live refresh', async () => {
+    const providerReadiness = {
+      buildSnapshot: jest.fn(() => providerSnapshot()),
+      buildLiveSnapshot: jest.fn(async () => providerSnapshot()),
+    };
+    const service = new ZavorthReadyToGoService({
+      runtimeReadiness: { buildSnapshot: jest.fn(async () => readinessSnapshot('ready')) },
+      providerReadiness,
+      guidedFixes: { buildSnapshot: jest.fn(() => ({ fixes: [] })) },
+    });
+
+    const snapshot = await service.buildSnapshot();
+
+    expect(providerReadiness.buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({ probe: false }));
+    expect(providerReadiness.buildLiveSnapshot).not.toHaveBeenCalled();
+    expect(snapshot.provider.refreshRequested).toBe(false);
+    expect(snapshot.provider.liveNetworkUsed).toBe(false);
+  });
+
   it('keeps remote use in attention when Telegram is not ready', async () => {
     const service = new ZavorthReadyToGoService({
       runtimeReadiness: {

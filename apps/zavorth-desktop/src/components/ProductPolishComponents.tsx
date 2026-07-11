@@ -40,7 +40,7 @@ export const SurfaceCard: React.FC<{
 }> = ({ title, children, style }) => {
   return (
     <div className="zvd-surface-card" style={style}>
-      {title && <h4>{title}</h4>}
+      {title && <h3>{title}</h3>}
       {children}
     </div>
   );

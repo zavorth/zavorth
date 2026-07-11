@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, memo } from 'react';
-import hljs from 'highlight.js';
+import hljs from '../lib/highlight';
 import { sanitizeHighlightedHtml } from '../lib/safeHtml';
 
 interface CodeBlockProps {

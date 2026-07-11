@@ -8,7 +8,7 @@ const tmpDir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'migration-ux-'));
 describe('MigrationUXService', () => {
   let svc: MigrationUXService;
   let dir: string;
-  beforeEach(() => { dir = tmpDir(); svc = new MigrationUXService({ storageDir: dir }); });
+  beforeEach(() => { dir = tmpDir(); svc = new MigrationUXService({ storageDir: dir, projectRoot: dir }); });
   afterEach(() => { fs.rmSync(dir, { recursive: true, force: true }); });
 
   it('creates instance', () => { expect(svc).toBeDefined(); });

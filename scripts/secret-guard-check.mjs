@@ -18,9 +18,11 @@ const ALLOWED_ENV_FILES = new Set([
 ]);
 
 // Intentional security-test fixtures contain fake token-shaped strings (xoxb, AIza, jwt, …).
-// Exclude only that fixture tree so real secret detection stays enabled everywhere else.
+// Exclude fixture trees so real secret detection stays enabled everywhere else.
 const SKIP_SCAN_PREFIXES = [
   'tests/security/',
+  // Code CLI unit tests use synthetic sk-/jwt/pem fixtures (not live secrets).
+  'packages/code/cli/test/',
 ];
 
 const SECRET_NAME_RE = /(?:^|[_\-.])(api[_\-.]?key|secret|token|password|passwd|pwd|private[_\-.]?key|client[_\-.]?secret|approval[_\-.]?pin)(?:$|[_\-.])/i;

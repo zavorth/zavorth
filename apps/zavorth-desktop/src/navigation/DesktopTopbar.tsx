@@ -24,7 +24,7 @@ export function DesktopTopbar(props: {
   const trustBadge = trustedOperatorBadge(trustEnabled);
 
   return (
-    <header className="zvd-topbar" role="banner">
+    <header className="zvd-topbar">
       <div className="zvd-topbar-left">
         <button
           className="zvd-topbar-title"

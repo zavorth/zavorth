@@ -253,7 +253,7 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     await runtime2.stop();
   }, 30000);
 
-  it('detects description drift and keeps the tool approved and registered', async () => {
+  it('detects description drift and requires renewed approval before registration', async () => {
     // 1. Initial boot and approval
     const registry = new ToolRegistry();
     const logRepo = { log: jest.fn() } as any;
@@ -276,11 +276,12 @@ describe('MCP Fixture Server E2E Lifecycle & Sandboxing', () => {
     const runtime2 = new McpRuntimeService(registry2, logRepo, loader, trackingFactory, stateFilePath, policyService);
     await runtime2.start();
 
-    // Check that fixture:fixture.echo is still approved and registered
+    // A description change alters the signed capability surface. The previous
+    // approval must not silently authorize the changed tool.
     const docAfterDrift = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
-    expect(docAfterDrift.tools['fixture:fixture.echo'].status).toBe('approved');
+    expect(docAfterDrift.tools['fixture:fixture.echo'].status).toBe('pending_approval');
     expect(docAfterDrift.tools['fixture:fixture.echo'].lastSeenDescription).toBe('Drifted description of echoes back the message');
-    expect(registry2.getTool('fixture:fixture.echo')).toBeDefined();
+    expect(registry2.getTool('fixture:fixture.echo')).toBeUndefined();
 
     await runtime2.stop();
   }, 30000);

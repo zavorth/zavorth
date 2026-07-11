@@ -172,10 +172,10 @@ export async function runSkillsGovernance(root: string, args: string[]) {
       ...preview.lines.filter((line) => line !== 'Preview only. No file was written.'),
       'Preview only. Add --apply to write ZAVORTH_SKILLS_GOVERNANCE_MODE into .env.',
     ], {
+      ...(preview.data || {}),
       dryRun: true,
       mode: wanted,
       actionId: preview.actionId,
-      ...(preview.data || {}),
       envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
     });
   }
@@ -189,10 +189,10 @@ export async function runSkillsGovernance(root: string, args: string[]) {
   return render(args, 'Zavorth skill governance', [
     ...applied.lines,
   ], {
+    ...(applied.data || {}),
     applied: true,
     mode: wanted,
     actionId: applied.actionId,
-    ...(applied.data || {}),
     envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
   });
 }
@@ -587,7 +587,12 @@ function sanitizeSkillRecord(value: unknown): JsonObject {
 }
 
 function isSkillGovernanceAction(action: string, args: string[]): boolean {
-  return action === 'governance' || args.includes('--governance') || args.includes('--enterprise');
+  const tokens = args.map((arg) => String(arg || '').trim().toLowerCase());
+  return action === 'governance'
+    || tokens.includes('governance')
+    || tokens.includes('governed')
+    || tokens.includes('--governance')
+    || tokens.includes('--enterprise');
 }
 
 function resolveRequestedSkillGovernanceMode(args: string[]): 'casual' | 'governed' | null {
