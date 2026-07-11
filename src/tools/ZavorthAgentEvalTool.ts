@@ -155,37 +155,29 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
   private async runEval(args: Record<string, unknown>): Promise<string> {
     const evalName = String(args.eval_name || `eval_${Date.now()}`);
-    const category = typeof args.category === 'string' ? args.category : undefined;
-    const difficulty = typeof args.difficulty === 'string' ? args.difficulty : undefined;
-    const maxTasks = typeof args.max_tasks === 'number' ? args.max_tasks : 10;
-
-    let tasksToRun = [...this.tasks];
-    if (category) tasksToRun = tasksToRun.filter((t) => t.category === category);
-    if (difficulty) tasksToRun = tasksToRun.filter((t) => t.difficulty === difficulty);
-    tasksToRun = tasksToRun.slice(0, maxTasks);
-
-    if (tasksToRun.length === 0) return 'No tasks match the filter criteria.';
-
-    const results: EvalResult[] = [];
+    const category = typeof args.category === 'string' ? args.category.toLowerCase() : 'smartness';
     const startTime = Date.now();
 
-    for (const task of tasksToRun) {
-      const taskStart = Date.now();
-      const output = `Simulated output for: ${task.input.slice(0, 50)}`;
-      const score = this.scoreOutput(output, task.expected_output);
-      const duration = Date.now() - taskStart;
-
-      results.push({
-        task_id: task.id,
-        task_name: task.name,
-        actual_output: output,
-        expected_output: task.expected_output,
-        score,
-        pass: score >= 0.5,
-        duration_ms: duration,
-        notes: score >= 0.5 ? 'Pass' : 'Below threshold',
-      });
+    if (category === 'coding' || category === 'reasoning' || category === 'research' || category === 'creative') {
+      return [
+        'Error: free-form LLM category evals are not simulated.',
+        'Use category "smartness" (default) for the hermetic agent quality scoreboard,',
+        'or provide a live credentialed eval harness outside this tool.',
+      ].join('\n');
     }
+
+    const { AgentSmartnessService } = await import('../services/agent-smartness/AgentSmartnessService.js');
+    const smartness = await new AgentSmartnessService().run();
+    const results: EvalResult[] = smartness.results.map((entry) => ({
+      task_id: entry.id,
+      task_name: entry.name,
+      actual_output: entry.notes,
+      expected_output: 'pass',
+      score: entry.score,
+      pass: entry.pass,
+      duration_ms: entry.durationMs,
+      notes: entry.pass ? 'Pass' : entry.notes,
+    }));
 
     const report: EvalReport = {
       id: `report_${Date.now()}`,
@@ -193,8 +185,8 @@ export class ZavorthAgentEvalTool extends BaseTool {
       total_tasks: results.length,
       passed: results.filter((r) => r.pass).length,
       failed: results.filter((r) => !r.pass).length,
-      avg_score: results.reduce((s, r) => s + r.score, 0) / results.length,
-      avg_duration_ms: (Date.now() - startTime) / results.length,
+      avg_score: results.length ? results.reduce((sum, row) => sum + row.score, 0) / results.length : 0,
+      avg_duration_ms: results.length ? (Date.now() - startTime) / results.length : 0,
       results,
       created_at: new Date().toISOString(),
     };
@@ -204,10 +196,12 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     return [
       `Evaluation "${evalName}" completed.`,
+      '  Mode: agent-smartness (not simulated)',
       `  Total: ${report.total_tasks}`,
       `  Passed: ${report.passed}`,
       `  Failed: ${report.failed}`,
       `  Avg score: ${(report.avg_score * 100).toFixed(1)}%`,
+      `  Mission success rate: ${Math.round(smartness.missionSuccessRate * 100)}%`,
       `  Report ID: ${report.id}`,
     ].join('\n');
   }

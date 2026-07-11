@@ -93,11 +93,26 @@ export type ZavorthDailyProductExperienceZavorthControlCard = {
   executionAuthority: false;
 };
 
+export type ZavorthDailyProductExperienceHappyPathStep = {
+  id: 'open' | 'provider' | 'first-ask' | 'review-if-risky';
+  label: string;
+  summary: string;
+  requiredForChat: boolean;
+};
+
 export type ZavorthDailyProductExperienceSnapshot = {
   generatedAt: string;
   version: typeof ZAVORTH_DAILY_PRODUCT_EXPERIENCE_VERSION;
   status: ZavorthDailyProductExperienceStatus;
   headline: string;
+  chatReady: boolean;
+  platformSetupComplete: boolean;
+  happyPath: {
+    title: 'Daily happy path';
+    summary: string;
+    steps: ZavorthDailyProductExperienceHappyPathStep[];
+    nextCommand: string;
+  };
   selectedProfile: {
     profileId: ZavorthExperienceProfileId;
     label: string;

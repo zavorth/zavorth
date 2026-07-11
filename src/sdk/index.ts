@@ -1,4 +1,5 @@
 export * from './public.js';
+export { ZavorthDailyProductExperienceService } from '../services/ZavorthDailyProductExperienceService.js';
 export * from './agent-runtime-bridge.js';
 export * from './channel-mesh-expansion.js';
 export * from './memory-document-terminal-pack.js';

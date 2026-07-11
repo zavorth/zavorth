@@ -43,13 +43,50 @@ export class ZavorthDailyProductExperienceService {
     const capability = await this.capabilityFlow.buildSnapshot(input);
     const selectedProfile = profile.profiles.find((entry) => entry.id === profile.selected.profileId) || profile.profiles[0];
     const setupSteps = buildSetupSteps(setup);
-    const status = resolveStatus(setup, capability);
+    const chatReady = resolveChatReady(setup);
+    const platformSetupComplete = resolvePlatformSetupComplete(setup);
+    const status = resolveStatus(setup, capability, chatReady);
 
     return {
       generatedAt: this.now().toISOString(),
       version: ZAVORTH_DAILY_PRODUCT_EXPERIENCE_VERSION,
       status,
-      headline: headlineFor(status),
+      headline: headlineFor(status, chatReady),
+      chatReady,
+      platformSetupComplete,
+      happyPath: {
+        title: 'Daily happy path',
+        summary: chatReady
+          ? 'Provider is ready. Open the daily surface and ask normally. Sensitive work still asks first.'
+          : 'Configure one provider, then open chat. Channels, skills and evals are optional platform setup.',
+        steps: [
+          {
+            id: 'open',
+            label: 'Open Zavorth',
+            summary: 'Use Desktop, Control, or `zavorth open`.',
+            requiredForChat: true,
+          },
+          {
+            id: 'provider',
+            label: 'Prove one provider',
+            summary: 'Add a model key or local model and run a probe.',
+            requiredForChat: true,
+          },
+          {
+            id: 'first-ask',
+            label: 'First useful ask',
+            summary: 'Ask a real question without file mutation (for example: explain this project).',
+            requiredForChat: true,
+          },
+          {
+            id: 'review-if-risky',
+            label: 'Review only when risky',
+            summary: 'Writes, shell, sends and sensitive memory stay on explicit approval.',
+            requiredForChat: false,
+          },
+        ],
+        nextCommand: chatReady ? 'zavorth open' : 'zavorth setup',
+      },
       selectedProfile: {
         profileId: profile.selected.profileId,
         label: selectedProfile?.label || profile.selected.profileId,
@@ -59,7 +96,7 @@ export class ZavorthDailyProductExperienceService {
       },
       firstRun: {
         title: 'Start guided',
-        summary: 'Choose a profile, prove one provider, prove one channel, pick an execution profile, then run a small mission.',
+        summary: 'Happy path: provider then chat. Full platform setup (channel, runtime, memory, tools, routines, evals) stays optional.',
         steps: setupSteps,
       },
       dailyLoop: {
@@ -132,6 +169,12 @@ export class ZavorthDailyProductExperienceService {
       snapshot.headline,
       '',
       `Profile: ${snapshot.selectedProfile.label} (${snapshot.selectedProfile.profileId})`,
+      `Chat ready: ${snapshot.chatReady ? 'yes' : 'no'}`,
+      `Platform setup complete: ${snapshot.platformSetupComplete ? 'yes' : 'no'}`,
+      '',
+      '[Daily happy path]',
+      ...snapshot.happyPath.steps.map((step) => `- ${step.label}: ${step.summary}`),
+      `Next: ${snapshot.happyPath.nextCommand}`,
       '',
       '[Start guided]',
       ...snapshot.firstRun.steps.map((step) => `- [${step.status}] ${step.label}: ${step.nextAction}`),
@@ -291,17 +334,41 @@ function card(
   };
 }
 
-function resolveStatus(setup: ZavorthControlSetupChecklistSnapshot, capability: ZavorthDailyCapabilityFlowSnapshot): ZavorthDailyProductExperienceStatus {
+function resolveChatReady(setup: ZavorthControlSetupChecklistSnapshot): boolean {
+  const provider = setup.items.find((item) => item.id === 'connect-provider');
+  if (provider) return provider.status === 'done';
+  return setup.summary.needsSetup === 0 && setup.summary.blocked === 0 && setup.summary.done > 0;
+}
+
+function resolvePlatformSetupComplete(setup: ZavorthControlSetupChecklistSnapshot): boolean {
+  return setup.summary.blocked === 0
+    && setup.summary.needsSetup === 0
+    && setup.summary.next === 0
+    && setup.summary.done >= setup.summary.total
+    && setup.summary.total > 0;
+}
+
+function resolveStatus(
+  setup: ZavorthControlSetupChecklistSnapshot,
+  capability: ZavorthDailyCapabilityFlowSnapshot,
+  chatReady: boolean,
+): ZavorthDailyProductExperienceStatus {
   if (setup.summary.blocked > 0 || capability.status === 'blocked') return 'blocked';
-  if (setup.summary.needsSetup > 0) return 'needs-setup';
-  if (setup.summary.next > 0 || capability.status === 'attention') return 'attention';
+  if (!chatReady) return 'needs-setup';
+  if (!resolvePlatformSetupComplete(setup) || capability.status === 'attention' || setup.summary.next > 0) {
+    return 'attention';
+  }
   return 'ready';
 }
 
-function headlineFor(status: ZavorthDailyProductExperienceStatus): string {
+function headlineFor(status: ZavorthDailyProductExperienceStatus, chatReady: boolean): string {
   if (status === 'blocked') return 'Fix the blocked item before making Zavorth part of daily work.';
-  if (status === 'needs-setup') return 'Zavorth is close; finish provider, channel or execution setup first.';
-  if (status === 'attention') return 'Zavorth is usable now, with a few reviewable next steps.';
+  if (status === 'needs-setup') return 'Add and prove one provider, then open chat. Full platform setup can wait.';
+  if (status === 'attention') {
+    return chatReady
+      ? 'Chat is ready. Optional platform steps remain for channels, tools and routines.'
+      : 'Zavorth is usable now, with a few reviewable next steps.';
+  }
   return 'Zavorth is ready for daily use with reviewable memory, tools and history.';
 }
 

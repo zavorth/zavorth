@@ -18,6 +18,7 @@ import {
   type RuntimePolicyBundle,
   type SurfaceExperienceBundle,
 } from '../contracts/ProfileManifestContract.js';
+import { resolveRuntimeProfileId } from './ExperienceRuntimeProfileMap.js';
 
 export type ProfileManifestServiceOptions = {
   profileDir?: string | null;
@@ -194,7 +195,7 @@ export class ProfileManifestService {
   }
 
   public compileProfileById(profileId: string | null | undefined): ProfileRuntimeBundle | null {
-    const normalized = normalizeId(profileId);
+    const normalized = resolveRuntimeProfileId(profileId);
     if (!normalized) return null;
     const manifests = this.loadAll();
     const byId = new Map(manifests.map((entry) => [entry.manifest.id.toLowerCase(), entry]));

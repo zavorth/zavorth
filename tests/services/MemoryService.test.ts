@@ -35,15 +35,28 @@ describe('MemoryService', () => {
     expect(context).toContain('[work] projeto: Zavorth V2');
   });
 
-  it('extracts richer conversational facts from a conversation', async () => {
+  it('extracts richer conversational facts without silent promote by default', async () => {
     const service = new MemoryService();
 
-    await service.autoExtract(
+    const draft = await service.autoExtract(
       'u2',
       'Meu nome e Grey, moro em Sao Paulo, meu projeto atual e Zavorth e responda em portugues. Minha stack atual e TypeScript com Node.',
       'ok #telegram #zavorth',
     );
 
+    expect(draft.persisted).toBe(false);
+    expect(draft.mode).toBe('draft-only');
+    expect(draft.candidates.length).toBeGreaterThan(0);
+    expect(await service.recall('u2', 'nome')).toBeNull();
+
+    const promoted = await service.autoExtract(
+      'u2',
+      'Meu nome e Grey, moro em Sao Paulo, meu projeto atual e Zavorth e responda em portugues. Minha stack atual e TypeScript com Node.',
+      'ok #telegram #zavorth',
+      { persist: true },
+    );
+
+    expect(promoted.persisted).toBe(true);
     expect(await service.recall('u2', 'nome')).toBe('Grey');
     expect(await service.recall('u2', 'localidade')).toContain('Sao Paulo');
     expect(await service.recall('u2', 'projeto_atual')).toContain('Zavorth');

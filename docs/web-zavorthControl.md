@@ -49,12 +49,14 @@ the first screen can answer:
 ```bash
 npm run zavorth:daily-product-experience
 npm run zavorth:daily-product-experience:json
+npm run zavorth:daily-product-experience:check
 ```
 
-This projection renders at `/control` with `renderMode:
-daily-product-experience`. It is read-only: opening a card can draft a prompt or
-show a checklist, but it must not send messages, mutate files, install tools,
-promote learned memory or change providers by itself.
+The projection exposes `chatReady` (provider proven) and a short `happyPath`
+separate from optional full platform setup. It renders at `/control` with
+`renderMode: daily-product-experience`. It is read-only: opening a card can draft
+a prompt or show a checklist, but it must not send messages, mutate files,
+install tools, promote learned memory or change providers by itself.
 
 ## Premium Control Blocks
 

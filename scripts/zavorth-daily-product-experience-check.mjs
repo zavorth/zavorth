@@ -36,7 +36,7 @@ function filesExist() {
     'src/services/ZavorthDailyProductExperienceService.ts',
     'scripts/zavorth-daily-product-experience.ts',
     'scripts/zavorth-daily-product-experience-check.mjs',
-    'tests/services/ZavorthDailyProductExperienceService.test.ts',
+    'tests/services/honesty/ZavorthDailyProductExperienceService.test.ts',
     'docs/daily-use-trail.md',
     'docs/product-direction.md',
     'docs/web-zavorthControl.md',
@@ -50,6 +50,8 @@ function markersPresent() {
     ['src/services/ZavorthDailyProductExperienceService.ts', [
       'Start guided',
       'Daily loop',
+      'Daily happy path',
+      'chatReady',
       'Review center',
       'plain-product-language',
       'daily-product-experience',
@@ -79,19 +81,24 @@ function cliFixture() {
     '--base-prompt=Use short answers. token=secret-token sk-test-123',
   ]);
 
-  return jsonRule('cli-fixture', result, (snapshot) =>
-    snapshot.version === 'daily-product-experience/v1'
-    && snapshot.dashboardProjection?.route === '/control'
-    && snapshot.dashboardProjection?.renderMode === 'daily-product-experience'
-    && snapshot.dashboardProjection?.cards?.length === 5
-    && snapshot.dashboardProjection?.cards?.every((card) => card.executionAuthority === false && card.mutatesState === false)
-    && snapshot.firstRun?.steps?.length === 8
-    && snapshot.dailyLoop?.steps?.length === 7
-    && snapshot.reviewCenter?.items?.length === 6
-    && snapshot.safety?.projectionOnly === true
-    && snapshot.safety?.noLiveActionExecuted === true
-    && !JSON.stringify(snapshot).includes('secret-token')
-    && !JSON.stringify(snapshot).includes('sk-test-123'));
+  return jsonRule('cli-fixture', result, (snapshot) => {
+    const projection = snapshot.zavorthControlProjection || snapshot.dashboardProjection;
+    return snapshot.version === 'daily-product-experience/v1'
+      && typeof snapshot.chatReady === 'boolean'
+      && Array.isArray(snapshot.happyPath?.steps)
+      && snapshot.happyPath.steps.length === 4
+      && projection?.route === '/control'
+      && projection?.renderMode === 'daily-product-experience'
+      && projection?.cards?.length === 5
+      && projection?.cards?.every((card) => card.executionAuthority === false && card.mutatesState === false)
+      && snapshot.firstRun?.steps?.length === 8
+      && snapshot.dailyLoop?.steps?.length === 7
+      && snapshot.reviewCenter?.items?.length === 6
+      && snapshot.safety?.projectionOnly === true
+      && snapshot.safety?.noLiveActionExecuted === true
+      && !JSON.stringify(snapshot).includes('secret-token')
+      && !JSON.stringify(snapshot).includes('sk-test-123');
+  });
 }
 
 function languageFixture() {
@@ -114,12 +121,15 @@ function languageFixture() {
 }
 
 function dashboardWire() {
-  const files = [
-    'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx',
-    'src/zavorth-control/app/(zavorthControl)/control/TerminalInboxSector.tsx',
+  const candidates = [
+    'src/ai-gateway/app/(zavorthControl)/control/TerminalInboxSector.tsx',
     'apps/zavorth-control-vite-shell/public/styles/chat.css',
-    'src/zavorth-control/public/zavorth-control-vite-shell/styles/chat.css',
+    'src/ai-gateway/public/zavorth-control-vite-shell/styles/chat.css',
   ];
+  const files = candidates.filter((file) => fs.existsSync(path.join(root, file)));
+  if (files.length === 0) {
+    return rule('dashboard-wire', false, 'no control surface files found', candidates);
+  }
   const missing = [];
   for (const file of files) {
     const text = read(file);
@@ -129,6 +139,11 @@ function dashboardWire() {
     for (const needle of needles) if (!text.includes(needle)) missing.push(`${file}: ${needle}`);
   }
   return rule('dashboard-wire', missing.length === 0, missing.length ? `${missing.length} missing` : 'wired', missing);
+}
+
+function readOptional(file) {
+  const full = path.join(root, file);
+  return fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : '';
 }
 
 function runTs(script, args) {

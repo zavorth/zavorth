@@ -1,34 +1,34 @@
 # Daily Use Trail
 
-This page is the short path for a new operator who wants Zavorth ready for daily work without reading the full architecture first.
+Short path for daily work. Full platform setup is optional after chat works.
 
-## The First Pass
+## Happy path (chat ready)
 
-1. **Choose a profile**
-   Pick `personal`, `creator`, `developer`, `business` or `power`. The profile changes tone, suggested tools and how much detail Zavorth shows by default.
+1. **Open Zavorth**
+   Desktop, Control, `zavorth open`, or `zavorth start`.
 
-2. **Test a provider**
-   Add one model provider or local model, then run a probe. Zavorth should show whether the route is live, fallback-only or blocked by a missing key.
+2. **Prove one provider**
+   Add a model key or local model, then probe. Catalog presence is not Live.
 
-3. **Connect a channel**
-   Start with Telegram when available, then add Slack, WhatsApp, Signal, Email or Discord as needed. A channel is only live after its proof passes; otherwise it stays as outbox or preview.
+3. **First useful ask**
+   Ask normally. Prefer a read-only first win (explain the project, plan the day).
 
-4. **Pick a runtime profile**
-   Choose `minimal`, `chat`, `safe-8gb`, `developer` or `full`. The runtime profile should explain what starts automatically, what stays lazy and which doctor check to run next.
+4. **Approve only when risky**
+   Writes, shell, external sends and sensitive memory stay on explicit approval.
 
-5. **Review learned memory**
-   Open learned memory before relying on personalization. Every item should show evidence, confidence, expiry and actions to edit, reject or forget.
+That is enough for daily chat. Channels, skills, routines and evals can wait.
 
-6. **Add tools and skills**
-   Use the tools catalog for MCP entries, local tools and skills. New executable behavior starts as preview, gets scanned, runs a smoke check and only becomes active after the required approval.
+## Optional platform setup
 
-7. **Schedule a routine**
-   Create a routine only after the final prompt and scope are visible. Jobs cannot silently expand scope, renew expired approval or bypass the kill switch.
+1. Choose experience profile (`personal`, `creator`, `developer`, `business`, `power`).
+2. Connect a channel (Telegram first when available). Live only after proof.
+3. Pick a runtime profile (`minimal`, `chat`, `safe-8gb`, `developer`, `full`).
+4. Review learned memory (draft-only learning until you promote).
+5. Add tools and skills through preview → smoke → approval when required.
+6. Schedule a routine with visible final prompt and scope.
+7. Run quality checks (`npm run agent:smartness:check` for agent scoreboard).
 
-8. **Run evals**
-   Run evals for response quality, learned memory safety, tool use, leaks, approval fatigue and recovery from failed tools.
-
-## Daily Loop
+## Daily loop
 
 - Ask normally in the inbox.
 - Let safe, reversible work run quietly.
@@ -36,35 +36,26 @@ This page is the short path for a new operator who wants Zavorth ready for daily
 - Check receipts and learned memory when something looks surprising.
 - Promote useful skills and archive unused ones from the same lifecycle surface.
 
-## Daily Product Experience
-
-The daily product experience is the single projection that joins the first-run
-checklist, daily work loop, review center and quality gates. It is meant for
-Zavorth Control, CLI and docs surfaces that need to explain what the user should
-do next without granting any new execution authority.
+## Daily product experience
 
 ```bash
 npm run zavorth:daily-product-experience
 npm run zavorth:daily-product-experience:json -- --profile personal
 npm run zavorth:daily-product-experience:check
+npm run agent:smartness:check
 ```
 
-It keeps the happy path simple:
+Snapshot fields:
 
-1. Start guided: choose profile, test provider, connect channel, configure
-   runtime, review memory, review tools, schedule one routine and run evals.
-2. Work daily: ask, let Zavorth understand readiness and risk, choose a route,
-   work, deliver, record history and review what changed.
-3. Review later: learned memory, skills, channel readiness, execution readiness,
-   quality evals and history are visible from one center.
+- `chatReady` — provider proven; chat can be useful
+- `platformSetupComplete` — full optional checklist done
+- `happyPath` — short open → provider → first ask → review-if-risky
 
-The projection is read-only. Live sends, file changes, provider changes,
-scheduled work and sensitive learned memory still use the runtime approval path.
-
-## Useful Commands
+## Useful commands
 
 ```bash
 zavorth start
+zavorth open
 zavorth setup
 zavorth connect
 zavorth learn
@@ -72,4 +63,11 @@ zavorth tools
 zavorth health
 ```
 
-These commands are guides. They do not change files, send messages or install tools by themselves.
+| Command | Behavior |
+|---------|----------|
+| `start` / `open` | Opens the daily surface (live) |
+| `setup` | Setup Studio (live) |
+| `connect` / `learn` / `tools` | Read-only live status surfaces (no silent installs or sends) |
+| `health` | Diagnostics |
+
+The projection paths remain approval-bound for mutations. Live sends, file changes, provider changes, scheduled work and sensitive learned memory still use the runtime approval path.
