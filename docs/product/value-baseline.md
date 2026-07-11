@@ -22,8 +22,13 @@ Baseline for the Value Waves program (`WAVES-VALUE-INTELLIGENCE-HABIT.md`).
 | CLI start | Live for open/start via `ops-go`; connect/learn/tools are read-only live surfaces |
 | Profiles | `config/profile-manifests/{business,power}.json` + experience map |
 | Memory | autoExtract draft-only; promote via `MemoryService.promoteMemoryDraft` |
-| Continuity | `DailyReturnContinuityService` |
+| Continuity | `DailyReturnContinuityService` + Desktop ContinuityBanner |
 | First-win desktop ask | `DESKTOP_ONBOARDING_STARTER_ASK` |
+| User selection (no silent Gemini/Telegram) | `src/services/UserSelectionResolver.ts` + preference files under `data/runtime/` |
+
+## Status log
+
+Full done/residual: [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md)
 
 ## Memory write-path (summary)
 

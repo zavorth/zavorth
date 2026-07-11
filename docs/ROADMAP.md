@@ -14,6 +14,10 @@ Order: V0 baseline → V1 smartness scoreboard ∥ V2 daily loop → V3 first de
 
 Any agent continuing this work should open that file first (status table + residual next).
 
+**Done + residual log (read this to continue):**
+
+→ **[SESSION-STATUS-VALUE-AND-DYNAMIC.md](./product/SESSION-STATUS-VALUE-AND-DYNAMIC.md)**
+
 **How to test everything value-related:**
 
 ```bash
