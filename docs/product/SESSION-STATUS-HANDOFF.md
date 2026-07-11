@@ -14,7 +14,8 @@ This is the single handoff for humans/agents continuing after the Trust Loop ren
 
 | Path | What |
 |------|------|
-| **This file** | Done vs todo (session snapshot) |
+| **This file** | Done vs todo (session snapshot — Trust Loop + Waves) |
+| [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md) | Value program + dynamic residual detail |
 | [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) | Full Value Waves program |
 | [HOW-TO-TEST-VALUE.md](./HOW-TO-TEST-VALUE.md) | How to test value surfaces |
 | [ROADMAP.md](../ROADMAP.md) | High-level now / next / later |
