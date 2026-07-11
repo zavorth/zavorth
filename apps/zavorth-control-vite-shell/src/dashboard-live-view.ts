@@ -4,6 +4,7 @@ import {
   buildControlReadinessItems,
   classifyControlReadiness,
   composeProofOsPanelModel,
+  readHonestBoolean,
 } from './proof-os-model';
 import { refreshProofOsUi } from './proof-os-ui';
 import { renderSessionTrustScore } from './session-trust-score';
@@ -310,23 +311,28 @@ export function createDashboardLiveView({
     const gatewaySnapshot = control.snapshot || {};
     const providerCatalog = bridgeState.providerModelCatalog || control.providerModelCatalog || null;
     const providerSummary = providerCatalog?.summary || providerCatalog || null;
-    const liveReadyRoutes = Number(providerSummary?.liveReadyRoutes || providerSummary?.liveReady || 0);
-    const catalogOnly = Number(
+    // Numeric live route counts only — never treat truthy catalog strings as live.
+    const liveReadyRoutesRaw = Number(providerSummary?.liveReadyRoutes);
+    const liveReadyRoutes = Number.isFinite(liveReadyRoutesRaw) ? Math.max(0, liveReadyRoutesRaw) : 0;
+    const providerLiveFlag = providerSummary?.liveReady === true;
+    const catalogOnlyRaw = Number(
       providerSummary?.catalogReadyButNotLive
-      || providerSummary?.needsLiveProof
-      || 0,
+      ?? providerSummary?.needsLiveProof
+      ?? 0,
     );
+    const catalogOnly = Number.isFinite(catalogOnlyRaw) ? Math.max(0, catalogOnlyRaw) : 0;
+    const providerIsLive = liveReadyRoutes > 0 || providerLiveFlag;
 
     const readinessItems = buildControlReadinessItems({
-      live: Boolean(snapshot.liveSnapshot.live),
-      authRequired: Boolean(snapshot.liveSnapshot.authRequired),
+      live: readHonestBoolean(snapshot.liveSnapshot.live, false),
+      authRequired: readHonestBoolean(snapshot.liveSnapshot.authRequired, false),
     });
 
     if (providerSummary) {
       const providerBadge = classifyControlReadiness({
-        liveReady: liveReadyRoutes > 0,
-        catalogReady: liveReadyRoutes === 0 && catalogOnly > 0,
-        configured: liveReadyRoutes > 0 || catalogOnly > 0 ? true : false,
+        liveReady: providerIsLive,
+        catalogReady: !providerIsLive && catalogOnly > 0,
+        configured: providerIsLive || catalogOnly > 0 ? true : false,
       });
       readinessItems.push({
         ...providerBadge,

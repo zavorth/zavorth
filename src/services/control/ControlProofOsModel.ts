@@ -91,6 +91,14 @@ const KIND_HINTS: Array<{ match: RegExp; kind: ControlProofEventKind }> = [
   { match: /system|boot|config/, kind: 'system' },
 ];
 
+const READINESS_STATES: ControlReadinessState[] = [
+  'live',
+  'catalog',
+  'needs_setup',
+  'blocked',
+  'unknown',
+];
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   return value as Record<string, unknown>;
@@ -110,6 +118,27 @@ function readNullableString(value: unknown): string | null {
 function readNumber(value: unknown, fallback = 0): number {
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
+}
+
+/** Non-negative finite number for budget counters/limits (display honesty). */
+function readNonNegative(value: unknown, fallback = 0): number {
+  return Math.max(0, readNumber(value, fallback));
+}
+
+/**
+ * Strict-ish boolean for cache/API payloads.
+ * String "false" must not become true (Boolean("false") === true).
+ */
+export function readHonestBoolean(value: unknown, fallback = false): boolean {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return value !== 0;
+  if (typeof value === 'string') {
+    const text = value.trim().toLowerCase();
+    if (text === 'true' || text === '1' || text === 'yes' || text === 'on') return true;
+    if (text === 'false' || text === '0' || text === 'no' || text === 'off' || text === '') return false;
+  }
+  if (value == null) return fallback;
+  return Boolean(value);
 }
 
 function normalizeStatus(value: unknown): ControlProofEventStatus {
@@ -249,18 +278,18 @@ export function buildRiskBudgetView(stateLike: unknown): ControlRiskBudgetView |
   const counters: Record<string, number> = {};
   const limits: Record<string, number> = {};
   for (const dim of ['diskMutations', 'shellCommands', 'networkSends', 'modelCostUnits']) {
-    counters[dim] = readNumber(countersRaw?.[dim], 0);
-    limits[dim] = readNumber(limitsRaw?.[dim], 0);
+    counters[dim] = readNonNegative(countersRaw?.[dim], 0);
+    limits[dim] = readNonNegative(limitsRaw?.[dim], 0);
   }
   // Preserve any extra dimensions if present.
   if (countersRaw) {
     for (const [key, value] of Object.entries(countersRaw)) {
-      if (!(key in counters)) counters[key] = readNumber(value, 0);
+      if (!(key in counters)) counters[key] = readNonNegative(value, 0);
     }
   }
   if (limitsRaw) {
     for (const [key, value] of Object.entries(limitsRaw)) {
-      if (!(key in limits)) limits[key] = readNumber(value, 0);
+      if (!(key in limits)) limits[key] = readNonNegative(value, 0);
     }
   }
 
@@ -268,7 +297,7 @@ export function buildRiskBudgetView(stateLike: unknown): ControlRiskBudgetView |
     mode: mode || 'operator',
     modeLabel: riskBudgetModeLabel(mode || 'operator'),
     dayKey: readString(obj.dayKey, ''),
-    frozen: Boolean(obj.frozen),
+    frozen: readHonestBoolean(obj.frozen, false),
     counters,
     limits,
     updatedAt: readNullableString(obj.updatedAt),
@@ -285,8 +314,8 @@ export function formatRiskBudgetLine(view: ControlRiskBudgetView | null | undefi
   const frozen = view.frozen ? ' · FROZEN' : '';
   const parts = ['diskMutations', 'shellCommands', 'networkSends'].map((dim) => {
     const short = SHORT_DIM[dim] || dim;
-    const used = readNumber(view.counters?.[dim], 0);
-    const limit = readNumber(view.limits?.[dim], 0);
+    const used = readNonNegative(view.counters?.[dim], 0);
+    const limit = readNonNegative(view.limits?.[dim], 0);
     return `${short} ${used}/${limit}`;
   });
   return `${mode} · ${parts.join(' · ')}${frozen}`;
@@ -317,6 +346,7 @@ export function classifyControlReadiness(input: {
   }
 
   // Live requires explicit liveReady — catalog alone is never enough.
+  // Strict equality: string "true" / 1 must not grant live.
   if (input?.liveReady === true) {
     return {
       state: 'live',
@@ -361,6 +391,54 @@ export function classifyControlReadiness(input: {
   };
 }
 
+/**
+ * Sanitize a readiness badge recovered from localStorage.
+ * Cache is offline/stale by definition — never trust `live` without re-proof.
+ */
+export function sanitizeCachedReadinessBadge(raw: unknown): ControlReadinessBadge | null {
+  const rec = asRecord(raw);
+  if (!rec) return null;
+
+  let state = readString(rec.state, 'unknown') as ControlReadinessState;
+  if (!READINESS_STATES.includes(state)) return null;
+
+  let label = readString(rec.label, state);
+  let detail = readString(rec.detail, '') || undefined;
+  const labelLower = label.toLowerCase();
+
+  // Cache cannot prove live (poison or stale). Always demote live → catalog.
+  if (state === 'live') {
+    state = 'catalog';
+    label = 'Catalog only';
+    detail = detail || 'Cached readiness is not live proof.';
+  }
+
+  let tone: ControlReadinessBadge['tone'] = 'muted';
+  if (state === 'blocked') {
+    tone = 'danger';
+    label = labelLower.includes('block') ? label : 'Blocked';
+  } else if (state === 'needs_setup') {
+    tone = 'warning';
+    label = labelLower.includes('setup') ? label : 'Needs setup';
+  } else if (state === 'catalog') {
+    tone = 'muted';
+    // Poison: state catalog + label "Live"
+    if (labelLower.includes('live') && !labelLower.includes('catalog')) {
+      label = 'Catalog only';
+      detail = detail || 'Cached readiness is not live proof.';
+    }
+  } else {
+    tone = 'muted';
+  }
+
+  return {
+    state,
+    label,
+    tone,
+    detail,
+  };
+}
+
 /** Cache payload shape for Control localStorage (`zavorth.control.proof-os.v1`). */
 export type ControlProofOsCache = {
   version: 1;
@@ -371,6 +449,7 @@ export type ControlProofOsCache = {
 };
 
 export const CONTROL_PROOF_OS_CACHE_KEY = 'zavorth.control.proof-os.v1';
+export const CONTROL_PROOF_OS_CACHE_VERSION = 1 as const;
 
 export function serializeProofOsCache(model: {
   proofs?: ControlProofEvent[];
@@ -379,7 +458,7 @@ export function serializeProofOsCache(model: {
   updatedAt?: string;
 }): ControlProofOsCache {
   return {
-    version: 1,
+    version: CONTROL_PROOF_OS_CACHE_VERSION,
     updatedAt: model.updatedAt || new Date().toISOString(),
     proofs: Array.isArray(model.proofs) ? model.proofs : [],
     riskBudget: model.riskBudget ?? null,
@@ -390,36 +469,24 @@ export function serializeProofOsCache(model: {
 export function parseProofOsCache(raw: unknown): ControlProofOsCache | null {
   const obj = asRecord(raw);
   if (!obj) return null;
+
+  // Reject unknown future / garbage versions. Missing version → treat as v1 legacy.
+  if (obj.version != null) {
+    const version = Number(obj.version);
+    if (!Number.isFinite(version) || version !== CONTROL_PROOF_OS_CACHE_VERSION) {
+      return null;
+    }
+  }
+
   const proofs = normalizeProofEvents(Array.isArray(obj.proofs) ? obj.proofs : []);
   const riskBudget = buildRiskBudgetView(obj.riskBudget);
   const readinessRaw = Array.isArray(obj.readinessItems) ? obj.readinessItems : [];
   const readinessItems = readinessRaw
-    .map((item) => {
-      const rec = asRecord(item);
-      if (!rec) return null;
-      const state = readString(rec.state, 'unknown') as ControlReadinessState;
-      const allowed: ControlReadinessState[] = ['live', 'catalog', 'needs_setup', 'blocked', 'unknown'];
-      if (!allowed.includes(state)) return null;
-      // Re-run honesty: never accept live without explicit live flag in original — use stored state as-is only when not live from catalog mislabel.
-      const badge: ControlReadinessBadge = {
-        state: state === 'live' && rec.detail && String(rec.detail).toLowerCase().includes('catalog')
-          ? 'catalog'
-          : state,
-        label: readString(rec.label, state),
-        tone: (readString(rec.tone, 'muted') as ControlReadinessBadge['tone']) || 'muted',
-        detail: readString(rec.detail, '') || undefined,
-      };
-      if (badge.state === 'live' && badge.label.toLowerCase().includes('catalog')) {
-        badge.state = 'catalog';
-        badge.label = 'Catalog only';
-        badge.tone = 'muted';
-      }
-      return badge;
-    })
+    .map((item) => sanitizeCachedReadinessBadge(item))
     .filter((item): item is ControlReadinessBadge => Boolean(item));
 
   return {
-    version: 1,
+    version: CONTROL_PROOF_OS_CACHE_VERSION,
     updatedAt: readString(obj.updatedAt, new Date(0).toISOString()),
     proofs,
     riskBudget,
