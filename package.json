@@ -1287,7 +1287,8 @@
     "wave2:check": "npm run wave2:docs:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent",
     "wave3:check": "npm run wave3:launch:check --silent",
     "waves:check": "npm run wave2:check --silent && npm run wave3:check --silent",
-    "residual:waves:check": "npm run waves:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent && node scripts/retention-log.mjs --check --soft"
+    "residual:waves:check": "npm run waves:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent && node scripts/retention-log.mjs --check --soft",
+    "security:secrets-history": "node scripts/secrets-history-scan.mjs"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",

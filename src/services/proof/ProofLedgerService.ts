@@ -26,6 +26,7 @@ import {
   proofEventFromDesktopReceipt,
   proofEventFromEvidenceRecord,
 } from './proofEventMappers.js';
+import { safeWriteLocalTextFile } from '../security/LocalStatePathGuard.js';
 
 export type ProofLedgerPersistenceAdapter = {
   load(): ProofEvent[];
@@ -169,9 +170,9 @@ export class JsonlProofLedgerAdapter implements ProofLedgerPersistenceAdapter {
   }
 
   public saveAll(events: ProofEvent[]): void {
-    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
     const payload = events.map((e) => JSON.stringify(e)).join('\n');
-    fs.writeFileSync(this.filePath, payload ? `${payload}\n` : '', 'utf8');
+    // S9: refuse symlink overwrite; write via temp+rename under the store path.
+    safeWriteLocalTextFile(this.filePath, payload ? `${payload}\n` : '');
   }
 
   public append(event: ProofEvent): void {
