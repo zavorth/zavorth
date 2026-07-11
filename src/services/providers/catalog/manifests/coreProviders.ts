@@ -66,7 +66,8 @@ export const CORE_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] 
         models: [
           { modelId: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', primary: true },
         ],
-        fallbackRouteIds: ['gemini'],
+        // Product policy: no silent mesh fallbacks — user fallback order only.
+        fallbackRouteIds: [],
         limitations: [
           'Experimental beta route. Disabled by default unless ZAVORTH_GEMINI_INTERACTIONS_ENABLED=true.',
           'For stable production routing, keep using the standard Gemini generateContent provider.',
@@ -89,7 +90,7 @@ export const CORE_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] 
         models: [
           { modelId: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', primary: true },
         ],
-        fallbackRouteIds: ['gemini-interactions', 'gemini'],
+        fallbackRouteIds: [],
         limitations: [
           'Governed execution backend. Never enabled by default.',
           'Requires explicit approval, cost/data limits and ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED=true.',
@@ -120,7 +121,7 @@ export const CORE_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] 
         summary: 'Gemma hosted through the Gemini API route.',
         defaultModelName: 'gemma-2-27b-it',
         secondaryModelNames: [],
-        fallbackModelNames: ['gemini-2.5-flash'],
+        fallbackModelNames: [],
         capabilities: ['chat', 'streaming', 'budget'],
         modalities: ['text'],
       },
@@ -141,7 +142,7 @@ export const CORE_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegrationManifest[] 
         capabilities: ['chat', 'streaming', 'budget'],
         modalities: ['text'],
         models: [{ modelId: 'gemma-2-27b-it', label: 'Gemma 2 27B IT', primary: true }],
-        fallbackRouteIds: ['gemini'],
+        fallbackRouteIds: [],
       },
     ],
   },

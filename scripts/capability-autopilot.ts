@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { requireAutopilotCapabilityId } from '../src/services/CapabilityAutopilotSelection.js';
 import {
   CapabilityAutopilotPermissionService,
   type CapabilityAutopilotPermissionMapping,
@@ -42,7 +43,7 @@ type CapabilityAutopilotGateSnapshot = {
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
-const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
+const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot] falha: ${error instanceof Error ? error.message : String(error)}\n`);

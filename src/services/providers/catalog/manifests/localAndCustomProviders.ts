@@ -46,7 +46,7 @@ export const LOCAL_AND_CUSTOM_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegratio
         modalities: ['text', 'tool'],
         models: [],
         passthroughModels: true,
-        fallbackRouteIds: ['openai', 'gemini'],
+        fallbackRouteIds: [],
       },
     ],
   },

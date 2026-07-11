@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { requireAutopilotCapabilityId } from '../src/services/CapabilityAutopilotSelection.js';
 import { CapabilityAutopilotReceiptService } from '../src/services/CapabilityAutopilotReceiptService.js';
 import { CapabilityAutopilotValidationResumeService } from '../src/services/CapabilityAutopilotValidationResumeService.js';
 import type {
@@ -41,7 +42,7 @@ type CapabilityAutopilotResumeSnapshot = {
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
-const capabilityId = readArg('--capability=') || 'executor-gemini-cli';
+const capabilityId = (() => { try { return requireAutopilotCapabilityId(typeof argv !== 'undefined' ? argv : process.argv.slice(2)); } catch (error) { process.stderr.write('[' + 'capability-autopilot-resume' + '] ' + (error instanceof Error ? error.message : String(error)) + '\n'); process.exit(1); return ''; } })();
 const surface = (readArg('--surface=') || 'cli') as CapabilityAutopilotSurface;
 const audience = (asJson ? 'technical_operator' : 'everyday_user') as CapabilityAutopilotAudience;
 
