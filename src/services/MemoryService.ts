@@ -278,7 +278,8 @@ export class MemoryService {
     botResponse: string,
     options: { persist?: boolean } = {},
   ): Promise<AutoExtractResult> {
-    const candidates = this.extractMemoryCandidates(userMessage, botResponse);
+    // Prefer user text for draft candidates to reduce model-poisoned memory.
+    const candidates = this.extractMemoryCandidates(userMessage, '');
     if (!options.persist) {
       if (candidates.length > 0) {
         this.draftStore.addCandidates({
@@ -293,6 +294,7 @@ export class MemoryService {
         mode: 'draft-only',
       };
     }
+    // Explicit opt-in path only; still stores under draft_ category for audit.
     for (const candidate of candidates) {
       const category = candidate.category.startsWith('draft_')
         ? candidate.category
@@ -310,12 +312,16 @@ export class MemoryService {
     return this.draftStore.list(userId, 'pending');
   }
 
-  public promoteMemoryDraft(id: string) {
-    return this.draftStore.promote(id);
+  public async promoteMemoryDraft(id: string, options: { actorUserId?: string } = {}) {
+    const item = this.draftStore.getById(id);
+    if (!item || item.status !== 'pending') return null;
+    if (options.actorUserId && item.userId !== options.actorUserId) return null;
+    await this.remember(item.userId, item.key, item.value, item.category);
+    return this.draftStore.promote(id, { actorUserId: options.actorUserId || item.userId });
   }
 
-  public forgetMemoryDraft(id: string) {
-    return this.draftStore.forget(id);
+  public forgetMemoryDraft(id: string, options: { actorUserId?: string } = {}) {
+    return this.draftStore.forget(id, options);
   }
 
   private mapEntry(entry: MemoryEntry): MemoryEntry {
@@ -376,9 +382,12 @@ export class MemoryService {
 
     const patterns = [
       { regex: /meu nome (?:é|e) ([^\n,.!]+)/i, key: 'nome', category: 'pessoal' },
+      { regex: /my name is ([^\n,.!]+)/i, key: 'nome', category: 'pessoal' },
       { regex: /(?:moro|vivo) (?:em|no|na) ([^\n,.!]+)/i, key: 'localidade', category: 'pessoal' },
+      { regex: /i live in ([^\n,.!]+)/i, key: 'localidade', category: 'pessoal' },
       { regex: /(?:trabalho|trampo) (?:com|em|na|no) ([^\n,.!]+)/i, key: 'trabalho', category: 'profissional' },
       { regex: /(?:prefiro|gosto de) ([^\n.!]+)/i, key: 'preferencia_principal', category: 'preferencia' },
+      { regex: /i prefer ([^\n.!]+)/i, key: 'preferencia_principal', category: 'preferencia' },
       { regex: /(?:projeto atual|meu projeto atual|estou mexendo no projeto)(?: é| e|:)? ([^\n,.!]+)/i, key: 'projeto_atual', category: 'contexto' },
       { regex: /(?:meu objetivo(?: agora)?|quero agora)(?: é| e|:)? ([^\n.!]+)/i, key: 'objetivo_atual', category: 'contexto' },
       { regex: /(?:workspace|diret[oó]rio|pasta principal)(?: atual| favorita)?(?: é| e| fica em|:)? ([A-Za-z]:[^\n]+|\/[^\n]+)/i, key: 'workspace_preferido', category: 'workspace' },

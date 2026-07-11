@@ -1303,7 +1303,7 @@
     "agent:smartness:json": "npx tsx scripts/agent-smartness-run.ts --json",
     "agent:smartness:check": "npx jest tests/services/honesty/AgentSmartnessService.test.ts --runInBand && node scripts/agent-smartness-check.mjs",
     "agent:smartness:live": "npx tsx scripts/agent-smartness-live-run.ts",
-    "agent:smartness:live:check": "npx tsx scripts/agent-smartness-live-run.ts --check --allow-blocked",
+    "agent:smartness:live:check": "npx tsx scripts/agent-smartness-live-run.ts --check",
     "value:test-all": "node scripts/value-test-all.mjs",
     "value:memory-drafts": "npx tsx scripts/memory-drafts-run.ts",
     "value:killer": "npx tsx scripts/killer-missions-run.ts",

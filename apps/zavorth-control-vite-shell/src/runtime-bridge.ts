@@ -21,6 +21,7 @@ import {
   buildControlReadinessItems,
   classifyControlReadiness,
   composeTrustLoopPanelModel,
+  readHonestBoolean,
 } from './trust-loop-model';
 import { refreshTrustLoopUi } from './trust-loop-ui';
 import { shellWarn } from './shell-debug';
@@ -634,8 +635,8 @@ export function initRuntimeBridge() {
     const runs = getRuns();
     const activeRun = getActiveRun();
     const jobs = getWorkflowJobs();
-    const live = Boolean(state.zavorthControl?.live);
-    const authRequired = Boolean(state.zavorthControl?.authRequired);
+    const live = readHonestBoolean(state.zavorthControl?.live, false);
+    const authRequired = readHonestBoolean(state.zavorthControl?.authRequired, false);
     const runtimeLabel = live ? 'live runtime' : authRequired ? 'protected access' : 'fallback local';
     const activeSessions = new Set(runs.map((run) => run.sessionId || run.id).filter(Boolean)).size;
     const pendingApprovals = runs.reduce((count, run) => {
@@ -769,15 +770,16 @@ export function initRuntimeBridge() {
     );
 
     const readinessItems = buildControlReadinessItems({
-      live: Boolean(state.zavorthControl?.live),
-      authRequired: Boolean(state.zavorthControl?.authRequired),
+      live: readHonestBoolean(state.zavorthControl?.live, false),
+      authRequired: readHonestBoolean(state.zavorthControl?.authRequired, false),
     });
 
     if (providerSummary) {
+      const providerLiveFlag = readHonestBoolean(providerSummary?.liveReady, false);
       const providerBadge = classifyControlReadiness({
-        liveReady: liveReadyRoutes > 0,
-        catalogReady: liveReadyRoutes === 0 && catalogOnly > 0,
-        configured: liveReadyRoutes > 0 || catalogOnly > 0 ? true : false,
+        liveReady: liveReadyRoutes > 0 || providerLiveFlag,
+        catalogReady: liveReadyRoutes === 0 && !providerLiveFlag && catalogOnly > 0,
+        configured: liveReadyRoutes > 0 || providerLiveFlag || catalogOnly > 0 ? true : false,
       });
       readinessItems.push({
         ...providerBadge,
@@ -999,8 +1001,8 @@ export function initRuntimeBridge() {
     const pending = pendingApprovalCount();
     const receipts = totalArtifactCount();
     const skillCount = getAvailableSkills().filter((skill) => !/disabled/i.test(String(skill.status || ''))).length;
-    const live = Boolean(state.zavorthControl?.live);
-    const protectedRuntime = Boolean(state.zavorthControl?.authRequired);
+    const live = readHonestBoolean(state.zavorthControl?.live, false);
+    const protectedRuntime = readHonestBoolean(state.zavorthControl?.authRequired, false);
     const gatewayLabel = state.realtime.connected
       ? 'Live'
       : live
@@ -2035,8 +2037,9 @@ export function initRuntimeBridge() {
   }
 
   function openAccessStatusModal() {
-    const unlocked = Boolean(state.zavorthControl?.live && !state.zavorthControl?.authRequired);
-    const protectedMode = Boolean(state.zavorthControl?.authRequired);
+    const unlocked = readHonestBoolean(state.zavorthControl?.live, false)
+      && !readHonestBoolean(state.zavorthControl?.authRequired, false);
+    const protectedMode = readHonestBoolean(state.zavorthControl?.authRequired, false);
     const statusLabel = unlocked ? 'Unlocked' : protectedMode ? 'Protected' : 'Local';
     const statusTone = unlocked ? 'ok' : protectedMode ? 'warn' : 'info';
     const detail = unlocked

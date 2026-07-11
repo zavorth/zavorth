@@ -196,7 +196,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     return [
       `Evaluation "${evalName}" completed.`,
-      '  Mode: agent-smartness (not simulated)',
+      '  Mode: hermetic unit scoreboard (no live LLM intelligence claim)',
       `  Total: ${report.total_tasks}`,
       `  Passed: ${report.passed}`,
       `  Failed: ${report.failed}`,

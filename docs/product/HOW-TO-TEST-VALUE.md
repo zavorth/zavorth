@@ -8,14 +8,13 @@ One checklist so you can verify intelligence, daily habit, continuity, memory dr
 npm run value:test-all
 ```
 
-Hermetic suite (no live keys required). Expect all steps `pass`.
+Hermetic / unit / catalog suite (no live keys required). Expect steps `pass` or `skipped`.
 
-With live LLM (Gemini key in `.env`):
+This suite does **not** claim live agent IQ. `claimsLiveIntelligence` stays false.
+
+With live LLM probe only (Gemini key in `.env`, exact token `ZAVORTH_LIVE_OK` required):
 
 ```bash
-npm run value:test-all -- --live
-# or
-set ZAVORTH_LIVE_SMARTNESS=1
 npm run value:test-all -- --live
 ```
 
@@ -63,8 +62,10 @@ Copy the printed prompt into Desktop chat after provider setup.
 
 ## 5) Honest limits
 
-- Hermetic smartness does **not** claim live LLM IQ.  
-- Live cells are **blocked** without keys (not silent pass).  
+- Hermetic smartness is a **unit scoreboard** (retry, memory honesty, profiles) — not live multi-step IQ.  
+- Live multi-step tool-use is **not auto-certified** (stays blocked after probe; use killer missions manually).  
+- Live cells fail closed without keys / exact token (not silent pass).  
+- Killer missions are **prompt catalogs**, not executed missions.  
 - Catalog ≠ Live (honesty readiness still applies).  
 - Day-1 banner eligibility uses local open timestamps; calendar launch R2 residual may still be ops-gated.
 

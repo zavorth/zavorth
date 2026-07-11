@@ -14,6 +14,8 @@ describe('AgentSmartnessService', () => {
     }).run();
 
     expect(report.simulated).toBe(false);
+    expect(report.mode).toBe('hermetic-unit');
+    expect(report.claimsLiveIntelligence).toBe(false);
     expect(report.total).toBeGreaterThanOrEqual(5);
     expect(report.ok).toBe(true);
     expect(report.failed).toBe(0);

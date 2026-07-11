@@ -21,13 +21,17 @@ async function main(): Promise<void> {
   }
 
   if (!asCheck) return;
-  if (!report.ok) {
+  if (!report.hermeticOk) {
     process.exitCode = 1;
     return;
   }
-  if (live && report.blockedOnly && !allowBlocked) {
-    process.stderr.write('Live smartness requested but all live cells are blocked (missing credentials).\n');
-    process.exitCode = 2;
+  if (live && !report.liveOk) {
+    if (report.blockedOnly && allowBlocked) {
+      process.stderr.write('Live cells blocked (credentials/manual). Allowed by --allow-blocked.\n');
+      return;
+    }
+    process.stderr.write('Live smartness requested but liveOk is false (blocked or failed).\n');
+    process.exitCode = report.blockedOnly ? 2 : 1;
   }
 }
 

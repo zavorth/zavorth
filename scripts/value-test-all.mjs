@@ -22,46 +22,58 @@ function run(label, args, opts = {}) {
     exitCode: result.status,
     stdout: (result.stdout || '').trim(),
     stderr: (result.stderr || '').trim(),
+    kind: opts.kind || 'unit',
   };
 }
 
 const tsx = path.join(root, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 const steps = [];
 
-steps.push(run('agent-smartness-hermetic', [
+steps.push(run('agent-smartness-hermetic-unit', [
   tsx,
   path.join(root, 'scripts', 'agent-smartness-run.ts'),
   '--check',
-]));
+], { kind: 'hermetic-unit' }));
 
-steps.push(run('agent-smartness-live', [
-  tsx,
-  path.join(root, 'scripts', 'agent-smartness-live-run.ts'),
-  '--check',
-  ...(live ? ['--live'] : ['--allow-blocked']),
-]));
+if (live) {
+  steps.push(run('agent-smartness-live-probe', [
+    tsx,
+    path.join(root, 'scripts', 'agent-smartness-live-run.ts'),
+    '--check',
+    '--live',
+  ], { kind: 'live' }));
+} else {
+  steps.push({
+    id: 'agent-smartness-live-probe',
+    status: 'skipped',
+    exitCode: 0,
+    stdout: 'skipped (no --live); hermetic unit only',
+    stderr: '',
+    kind: 'live',
+  });
+}
 
 steps.push(run('daily-product-experience', [
   path.join(root, 'scripts', 'zavorth-daily-product-experience-check.mjs'),
-]));
+], { kind: 'product-projection' }));
 
 steps.push(run('memory-drafts', [
   tsx,
   path.join(root, 'scripts', 'memory-drafts-run.ts'),
   '--check',
-]));
+], { kind: 'integration-unit' }));
 
-steps.push(run('killer-missions', [
+steps.push(run('killer-missions-catalog', [
   tsx,
   path.join(root, 'scripts', 'killer-missions-run.ts'),
   '--check',
-]));
+], { kind: 'catalog' }));
 
-steps.push(run('continuity', [
+steps.push(run('continuity-model', [
   tsx,
   path.join(root, 'scripts', 'continuity-return-run.ts'),
   '--check',
-]));
+], { kind: 'unit' }));
 
 const requiredFiles = [
   'docs/product/HOW-TO-TEST-VALUE.md',
@@ -77,17 +89,21 @@ steps.push({
   exitCode: missing.length === 0 ? 0 : 1,
   stdout: missing.length === 0 ? 'all present' : missing.join(', '),
   stderr: '',
+  kind: 'files',
 });
 
 const failed = steps.filter((step) => step.status === 'fail');
 const report = {
   generatedAt: new Date().toISOString(),
   live,
+  claimsLiveIntelligence: false,
   ok: failed.length === 0,
   passed: steps.filter((step) => step.status === 'pass').length,
+  skipped: steps.filter((step) => step.status === 'skipped').length,
   failed: failed.length,
   steps: steps.map((step) => ({
     id: step.id,
+    kind: step.kind,
     status: step.status,
     exitCode: step.exitCode,
     notes: (step.stdout || step.stderr || '').split(/\r?\n/).slice(0, 8).join(' | '),
@@ -97,11 +113,12 @@ const report = {
 if (asJson) {
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } else {
-  process.stdout.write('Zavorth value test suite\n');
+  process.stdout.write('Zavorth value test suite (honest kinds)\n');
   for (const step of report.steps) {
-    process.stdout.write(`[${step.status}] ${step.id}${step.notes ? ` — ${step.notes.slice(0, 160)}` : ''}\n`);
+    process.stdout.write(`[${step.status}] (${step.kind}) ${step.id}${step.notes ? ` — ${step.notes.slice(0, 140)}` : ''}\n`);
   }
-  process.stdout.write(`\n${report.ok ? 'OK' : 'FAILED'} ${report.passed}/${steps.length}\n`);
+  process.stdout.write(`\nclaimsLiveIntelligence: false\n`);
+  process.stdout.write(`${report.ok ? 'OK' : 'FAILED'} pass=${report.passed} skip=${report.skipped} fail=${report.failed}\n`);
 }
 
 process.exit(report.ok ? 0 : 1);
