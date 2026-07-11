@@ -2,6 +2,7 @@ import { Button } from '../primitives';
 import { t } from '../i18n';
 
 export type NextActionBannerProps = {
+  /** Pending approvals only — not total/historical approvals. */
   approvalsCount: number;
   busy?: boolean;
   runtimeOnline?: boolean;
@@ -20,19 +21,17 @@ type NextActionModel = {
 };
 
 function resolveNextAction(props: NextActionBannerProps): NextActionModel | null {
-  const n = Math.max(0, Number(props.approvalsCount) || 0);
+  const n = Math.max(0, Math.floor(Number(props.approvalsCount) || 0));
   const lang = props.language;
 
   if (n > 0) {
-    // Emphasize the daily loop: review the gate, then inspect proof receipts.
-    const base = n === 1
+    // Banner CTA opens Review only — keep copy honest (no "then open proof").
+    // Proof strip below handles ledger navigation.
+    const title = n === 1
       ? t('nextAction.oneApproval', lang)
-      : t('nextAction.nApprovals', lang).replace('{n}', String(n));
-    const withProof = t('home.nextApproval', lang)
-      .replace('{n}', String(n))
-      .replace('{base}', base);
+      : t('nextAction.nApprovals', lang).replace(/\{n\}/g, String(n));
     return {
-      title: withProof.includes('{') ? `${base} · ${t('home.latestProof', lang)}` : withProof,
+      title,
       cta: t('nextAction.review', lang),
       onClick: props.onOpenReview,
       tone: 'warn',
@@ -76,7 +75,7 @@ export function NextActionBanner(props: NextActionBannerProps) {
     >
       <div className="zvd-next-action__copy">
         <span className="zvd-next-action__eyebrow">{t('nextAction.next', props.language)}</span>
-        <strong className="zvd-next-action__title">{model.title}</strong>
+        <strong className="zvd-next-action__title" title={model.title}>{model.title}</strong>
       </div>
       <Button variant="default" size="sm" onClick={model.onClick}>
         {model.cta}
@@ -84,3 +83,6 @@ export function NextActionBanner(props: NextActionBannerProps) {
     </section>
   );
 }
+
+/** Exported for unit tests — pure resolution of banner copy/CTA. */
+export { resolveNextAction };
