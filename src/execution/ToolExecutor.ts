@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 import { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
 import { TelemetryRuntimeService } from '../observability/telemetry/TelemetryRuntimeService.js';

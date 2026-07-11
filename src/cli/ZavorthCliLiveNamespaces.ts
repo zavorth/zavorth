@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, scryptSync } from 'crypto';
 import { spawn } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
+import { spawnCommandLine } from '../security/SafeProcessExec.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { gzip, gunzip } from 'zlib';
@@ -2424,7 +2425,19 @@ async function probeMcpServer(root: string, server: JsonObject, action: string, 
 async function runMcpJsonRpcSequence(command: string, methods: string[], cwd: string, timeoutMs: number): Promise<{ ok: boolean; responses: JsonObject[]; durationMs: number; error?: string }> {
   const startedAt = Date.now();
   return new Promise((resolve) => {
-    const child = spawn(command, [], { cwd, shell: true, windowsHide: true, stdio: 'pipe' });
+    // S3: argv-only MCP spawn (no shell:true).
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawnCommandLine(command, { cwd, windowsHide: true, stdio: 'pipe' });
+    } catch (error) {
+      resolve({
+        ok: false,
+        responses: [],
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return;
+    }
     let stdout: Buffer<ArrayBufferLike> = Buffer.alloc(0);
     let stderr = '';
     const responses: JsonObject[] = [];
@@ -3663,7 +3676,14 @@ async function runServiceCommand(root: string, serviceName: 'daemon' | 'gateway'
     const command = readFlag(args, 'command') || String(state.command || '');
     if (!command) return render(args, `Zavorth ${serviceName}`, [`No command configured. Run: zavorth ${serviceName} install --command <command>`], { ok: false });
     if (!args.includes('--yes')) return render(args, `Zavorth ${serviceName}`, [`Start preview: ${serviceName}`, `Command: ${redactCommand(command)}`, 'Add --yes to spawn the service.'], { dryRun: true, service: sanitizeServiceState({ ...state, command }) });
-    const child = spawn(command, [], { cwd: root, shell: true, detached: true, stdio: 'ignore', windowsHide: true });
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
+    } catch (error) {
+      return render(args, `Zavorth ${serviceName}`, [
+        `Refused unsafe service command (S3): ${error instanceof Error ? error.message : String(error)}`,
+      ], { ok: false });
+    }
     child.unref();
     const next = { ...state, serviceName, command, installed: true, status: 'running', pid: child.pid, startedAt: new Date().toISOString() };
     await writeJson(stateFile, next);
@@ -3686,7 +3706,14 @@ async function runServiceCommand(root: string, serviceName: 'daemon' | 'gateway'
     if (Number(state.pid || 0)) killPid(Number(state.pid));
     const command = String(state.command || '');
     if (!command) return render(args, `Zavorth ${serviceName}`, ['No command configured for restart.'], { ok: false });
-    const child = spawn(command, [], { cwd: root, shell: true, detached: true, stdio: 'ignore', windowsHide: true });
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
+    } catch (error) {
+      return render(args, `Zavorth ${serviceName}`, [
+        `Refused unsafe service command (S3): ${error instanceof Error ? error.message : String(error)}`,
+      ], { ok: false });
+    }
     child.unref();
     const next = { ...state, status: 'running', pid: child.pid, restartedAt: new Date().toISOString() };
     await writeJson(stateFile, next);
@@ -3719,7 +3746,14 @@ async function runNodeHost(root: string, args: string[]) {
     const id = readFlag(args, 'id') || idWithTime('node');
     const command = readFlag(args, 'command') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || 'node';
     if (!args.includes('--yes')) return render(args, 'Zavorth node', [`Node host preview: ${id}`, `Command: ${redactCommand(command)}`, 'Add --yes to start a local node host process.'], { dryRun: true, id, command: redactCommand(command) });
-    const child = spawn(command, [], { cwd: root, shell: true, detached: true, stdio: 'ignore', windowsHide: true });
+    let child: ReturnType<typeof spawn>;
+    try {
+      child = spawnCommandLine(command, { cwd: root, detached: true, stdio: 'ignore', windowsHide: true });
+    } catch (error) {
+      return render(args, 'Zavorth node', [
+        `Refused unsafe node host command (S3): ${error instanceof Error ? error.message : String(error)}`,
+      ], { ok: false });
+    }
     child.unref();
     const record = { id, kind: 'node-host', command, pid: child.pid, status: 'running', startedAt: new Date().toISOString() };
     await upsertNodeRecord(root, record);
