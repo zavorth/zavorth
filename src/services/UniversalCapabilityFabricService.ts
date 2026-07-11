@@ -35,6 +35,7 @@ import {
 } from '../contracts/UniversalCapabilityFabricContract.js';
 
 import { UniversalSkillTrustImportService } from '../skills/UniversalSkillTrustImportService.js';
+import { assertPathUnderProjectRoot } from './UniversalWorkspaceImportService.js';
 
 export type UniversalCapabilityFabricInput = {
   source: string;
@@ -104,9 +105,11 @@ export class UniversalCapabilityFabricService {
     const apply = input.apply === true;
     const issues: CapabilityFabricIssue[] = [];
     const receipts: CapabilityFabricReceipt[] = [];
-    const quarantineRoot = path.resolve(
+    const quarantineRoot = assertPathUnderProjectRoot(
+      this.projectRoot,
       input.quarantineRoot
         || path.join(this.projectRoot, '.zavorth', 'capability-quarantine'),
+      'quarantineRoot',
     );
 
     const source = await this.resolveSource(input, quarantineRoot, issues);
@@ -473,12 +476,18 @@ export class UniversalCapabilityFabricService {
     issues: CapabilityFabricIssue[],
   ): string | null {
     if (!source.resolvedLocalPath) return null;
-    const target = candidate.targetDirHint || path.join(quarantineRoot, candidate.kind, this.safeId(candidate.name));
+    const rawTarget = candidate.targetDirHint || path.join(quarantineRoot, candidate.kind, this.safeId(candidate.name));
+    // Materialize targets must stay under the pinned quarantine root (S2).
+    const target = assertPathUnderProjectRoot(quarantineRoot, rawTarget, 'materializeTarget');
     try {
       if (this.existsSync(target)) {
         if (!overwrite) {
           // merge-safe: write into timestamped subdir
-          const alt = `${target}-${Date.now()}`;
+          const alt = assertPathUnderProjectRoot(
+            quarantineRoot,
+            `${target}-${Date.now()}`,
+            'materializeTarget',
+          );
           this.mkdirSync(path.dirname(alt), { recursive: true });
           this.cpSync(source.resolvedLocalPath, alt, { recursive: true });
           this.writeManifest(alt, candidate, source);

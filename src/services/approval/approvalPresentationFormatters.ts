@@ -52,7 +52,8 @@ export function formatLeaseExpiry(
 
   const expMs = Date.parse(String(expiresAt));
   if (!Number.isFinite(expMs)) {
-    return { label: 'Invalid expiry', expired: false, remainingMs: 0 };
+    // Fail closed: unparseable expiry must not keep a card open.
+    return { label: 'Invalid expiry', expired: true, remainingMs: Number.NEGATIVE_INFINITY };
   }
 
   const remainingMs = expMs - nowMs;

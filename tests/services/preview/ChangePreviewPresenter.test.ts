@@ -218,4 +218,29 @@ describe('ChangePreviewPresenter', () => {
     expect(card.title).toBe('If you approve, what changes?');
     expect(card.generatedAt).toBe(FIXED_NOW.toISOString());
   });
+  test('honesty: merge plan + warning impact stays limited (not full)', () => {
+    const presenter = createPresenter();
+    const plan = presenter.fromPlanSteps([
+      {
+        kind: 'write',
+        label: 'Write file',
+        risk: 'attention',
+        requiresApproval: true,
+      },
+    ]);
+    const impact = presenter.fromImpactSimulation({
+      status: 'warning',
+      warnings: ['project twin is not fresh'],
+      affectedTargets: ['src/a.ts'],
+      blockers: [],
+      source: 'ImpactSimulatorService',
+      requiresApproval: true,
+    });
+    expect(impact.confidence).toBe('limited');
+    const merged = presenter.mergeSources(plan, impact);
+    expect(merged.confidence).toBe('limited');
+    expect(merged.confidence).not.toBe('full');
+    expect(merged.metadata?.hasPlanSteps).toBe(true);
+    expect(merged.metadata?.hasImpactTwin).toBe(true);
+  });
 });

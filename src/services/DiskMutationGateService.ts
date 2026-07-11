@@ -609,6 +609,12 @@ export class DiskMutationGateService {
     }
 
     const blocked = findings.some((finding) => finding.severity === 'blocked');
+    const secretLikeBlocked = findings.some((finding) => finding.id === 'secret-like-content');
+    // Never keep secret bodies in preview diffs or stored apply payloads (S1).
+    if (secretLikeBlocked) {
+      diffPatch = null;
+      proposedContent = null;
+    }
     const noop = !blocked && this.isNoop(operation.kind, before, after);
     return {
       preview: {

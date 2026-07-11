@@ -557,15 +557,17 @@ export class ChangePreviewPresenter {
       if (card.sourceServices.includes('ImpactSimulatorService')) hasImpact = true;
     }
 
-    // Honesty: full only when both plan-like and impact-like sources present
-    // and neither card forced limited/unavailable without recovery.
+    // Honesty: full only when both plan-like and impact-like sources present.
+    // Do not upgrade to full when impact data quality is limited (blockers/warnings).
+    // Plan-only limited (approval-heavy steps) may still become full once a clean impact twin is merged.
     if (hasPlan && hasImpact && confidence !== 'unavailable') {
-      // If any source was limited due to blockers, stay limited
-      const anyBlocked = present.some(
-        (c) => c.confidence === 'limited'
-          && /block/i.test(c.confidenceReason),
-      );
-      confidence = anyBlocked ? 'limited' : 'full';
+      const impactDataQualityLimited = present.some((c) => {
+        if (c.confidence === 'unavailable') return true;
+        if (c.confidence !== 'limited') return false;
+        const reason = c.confidenceReason || '';
+        return /block/i.test(reason) || /warning/i.test(reason);
+      });
+      confidence = impactDataQualityLimited ? 'limited' : 'full';
     } else if (hasPlan || hasImpact) {
       if (confidence === 'full') confidence = 'partial';
     } else if (confidence === 'full') {

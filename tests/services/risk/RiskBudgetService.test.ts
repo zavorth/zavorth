@@ -243,4 +243,42 @@ describe('RiskBudgetService', () => {
     expect(state.mode).toBe('operator');
     expect(state.limits.diskMutations).toBeGreaterThan(DEFAULT_OPERATOR_LIMITS.diskMutations);
   });
+  test('unfreeze clears freeze but keeps counters', () => {
+    const service = createService();
+    service.spend({ dimension: 'diskMutations', amount: 4, riskLevel: 'low' });
+    service.freeze('manual');
+    expect(service.getState().frozen).toBe(true);
+    const state = service.unfreeze();
+    expect(state.frozen).toBe(false);
+    expect(state.counters.diskMutations).toBe(4);
+  });
+
+  test('unknown riskLevel normalizes to low (autopilot may allow)', () => {
+    const service = createService();
+    service.setMode('autopilot');
+    const decision = service.spend({
+      dimension: 'diskMutations',
+      amount: 1,
+      // intentionally invalid — documents current permissive normalize
+      riskLevel: 'banana' as any,
+    });
+    expect(decision.allowed).toBe(true);
+  });
+
+  test('timezone dayKey uses IANA zone near UTC boundary', () => {
+    const now = () => new Date('2026-07-11T23:30:00.000Z');
+    const dir = createTempDir();
+    const utc = createService({
+      stateFile: path.join(dir, 'utc.json'),
+      now,
+      timezone: 'UTC',
+    });
+    const tokyo = createService({
+      stateFile: path.join(dir, 'tokyo.json'),
+      now,
+      timezone: 'Asia/Tokyo',
+    });
+    expect(utc.getState().dayKey).toBe('2026-07-11');
+    expect(tokyo.getState().dayKey).toBe('2026-07-12');
+  });
 });

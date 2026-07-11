@@ -165,13 +165,14 @@ export function normalizeProofEvents(raw: unknown[]): ControlProofEvent[] {
           if (!art) return null;
           const artId = readString(art.id, '');
           if (!artId) return null;
+          const label = readString(art.label, '');
           return {
             id: artId,
             type: readString(art.type, 'artifact'),
-            label: readString(art.label, '') || undefined,
+            ...(label ? { label } : {}),
           };
         })
-        .filter((item): item is { id: string; type: string; label?: string } => Boolean(item))
+        .filter((item): item is { id: string; type: string; label?: string } => item != null)
       : undefined;
 
     out.push({

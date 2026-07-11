@@ -471,4 +471,57 @@ describe('ProofLedgerService', () => {
     expect(event.status).toBe('pending');
     expect(event.title).toBe('Waiting');
   });
+  test('corrupt JSONL lines are skipped on load', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'proof-corrupt-'));
+    const filePath = path.join(dir, 'proof-ledger.jsonl');
+    try {
+      fs.writeFileSync(
+        filePath,
+        [
+          JSON.stringify({
+            id: 'good-1',
+            runId: null,
+            kind: 'system',
+            surface: 'cli',
+            title: 'Good',
+            summary: 'ok',
+            status: 'ok',
+            riskLevel: 'none',
+            approvalId: null,
+            artifacts: [],
+            createdAt: '2026-07-11T12:00:00.000Z',
+            source: 't',
+          }),
+          '{not-json',
+          '',
+          JSON.stringify({
+            id: 'good-2',
+            runId: null,
+            kind: 'chat',
+            surface: 'cli',
+            title: 'Also good',
+            summary: 'ok',
+            status: 'ok',
+            riskLevel: 'none',
+            approvalId: null,
+            artifacts: [],
+            createdAt: '2026-07-11T12:01:00.000Z',
+            source: 't',
+            metadata: { apiKey: 'sk-secret-12345' },
+          }),
+        ].join('\n') + '\n',
+        'utf8',
+      );
+      const service = new ProofLedgerService({ jsonlPath: filePath });
+      expect(service.list()).toHaveLength(2);
+      const json = service.toJson(service.buildSnapshot());
+      const md = service.toMarkdown(service.buildSnapshot());
+      // JSON export currently preserves metadata (documented gap / S1 follow-up)
+      expect(json).toContain('sk-secret-12345');
+      // Markdown export stays surface-level (no metadata dump)
+      expect(md).not.toContain('sk-secret-12345');
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
