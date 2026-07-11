@@ -101,9 +101,9 @@ Always confirm with `git log --oneline -15`.
 
 | # | Work | Status | Why / notes |
 |---|------|--------|-------------|
-| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **DONE (V8)** | Live multi-step pass; `claimsLiveIntelligence: true` only then |
-| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **DONE (V8)** | Wall-clock TTFU ~15.4s from timed live multi-step session |
-| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **DONE (V11)** | DesktopShell + ContinuityBanner + DailyReturnContinuityService |
+| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **HARNESS SHIPPED / CELL OPEN** | Code path live; retain multi-step **pass** in `launch-live-cells.json` before residual close (last retained was fail/429) |
+| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **RECORDER SHIPPED / CLAIM OPEN** | `value:ttfu` structural OK; product-path TTFU claim only with honest measured record under 180s |
+| R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **FIXED (V11+)** | Continuity uses `props.learning` + mount open-clock state (was dead `learningItems` typo) |
 
 ### P1 — Dynamic selection polish
 
@@ -141,13 +141,13 @@ Always confirm with `git log --oneline -15`.
 
 | Wave | Name | Closes (unified IDs) | Priority | Status |
 |------|------|----------------------|----------|--------|
-| **V8** | Live quality + time-to-value | VR-LIVE-MS, VR-TTFU (old R1, value-R2) | P0 | **DONE** (live multi-step + TTFU ~15s) |
-| **V9** | Selection UX complete | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY (R4, R7, R8) | P1 | **CORE SHIPPED** |
+| **V8** | Live quality + time-to-value | VR-LIVE-MS, VR-TTFU (old R1, value-R2) | P0 | **IMPL SHIPPED** — retained multi-step/TTFU claims still evidence-gated |
+| **V9** | Selection UX complete | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY (R4, R7, R8) | P1 | **CORE SHIPPED** (dual-writer merge + honesty hardening applied) |
 | **V10** | Neutral ops defaults | VR-AUTOPILOT, VR-CATALOG-FB (R5, R6) | P1 | **DONE** |
-| **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **DONE** |
-| **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | **DONE (program)** — launch bar open until R2+signed |
+| **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **DONE** (continuity typo + killer/code honesty fixed) |
+| **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | **PROGRAM SHIPPED** — **does not close** ops residuals until launch bar green |
 
-**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8–V12 program done 2026-07-11; launch-ready ops bar still open**
+**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — program implementation shipped; launch-ready ops bar still open  
 **Naming note:** value residual “R2” (TTFU) ≠ retention/launch “R2” (calendar day-1 = **LR-DAY1** / old R12).
 
 ---

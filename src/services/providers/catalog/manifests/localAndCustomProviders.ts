@@ -24,7 +24,8 @@ export const LOCAL_AND_CUSTOM_PROVIDER_INTEGRATION_MANIFESTS: ProviderIntegratio
         summary: 'Zavorth-owned OpenAI-compatible local/hybrid route.',
         defaultModelName: null,
         secondaryModelNames: [],
-        fallbackModelNames: ['openai', 'gemini'],
+        // Product default: empty fallbacks unless user policy sets them.
+        fallbackModelNames: [],
         capabilities: ['chat', 'coding', 'reasoning', 'streaming', 'tool_use', 'local'],
         modalities: ['text', 'tool'],
       },

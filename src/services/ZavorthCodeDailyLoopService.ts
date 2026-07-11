@@ -23,9 +23,12 @@ export type CodeDailyLoopSnapshot = {
     nextCommand: string;
     summary: string;
   };
-  alignsWithDailyPe: true;
+  /** True only when step order/ids match PE contract (and optional PE snapshot agrees). */
+  alignsWithDailyPe: boolean;
   notes: string[];
 };
+
+const EXPECTED_STEP_IDS = ['open-code', 'provider-ready', 'first-ask', 'review'] as const;
 
 export class ZavorthCodeDailyLoopService {
   constructor(
@@ -38,14 +41,21 @@ export class ZavorthCodeDailyLoopService {
 
   public buildSnapshot(input: {
     dailyPe?: Pick<ZavorthDailyProductExperienceSnapshot, 'chatReady' | 'happyPath'> | null;
+    /** Optional proof that the user already sent a first ask in Code. */
+    firstAskDone?: boolean;
+    /** Optional proof that a review step was completed. */
+    reviewDone?: boolean;
   } = {}): CodeDailyLoopSnapshot {
     const selection = resolveUserProviderSelection({
       projectRoot: this.options.projectRoot,
       env: this.options.env,
     });
     const providerReady = Boolean(selection.configured && selection.providerId);
+    // Prefer real Daily PE chatReady when provided; otherwise preference-only readiness.
     const chatReady = input.dailyPe?.chatReady ?? providerReady;
     const now = (this.options.now || (() => new Date()))().toISOString();
+    const firstAskDone = Boolean(input.firstAskDone) && chatReady;
+    const reviewDone = Boolean(input.reviewDone) && chatReady;
 
     const steps = [
       {
@@ -65,18 +75,28 @@ export class ZavorthCodeDailyLoopService {
       {
         id: 'first-ask',
         label: 'First ask',
-        summary: chatReady
-          ? 'Send a useful coding ask in the TUI session.'
-          : 'Blocked until provider is ready.',
-        done: chatReady,
+        summary: firstAskDone
+          ? 'First coding ask recorded for this Code session.'
+          : chatReady
+            ? 'Send a useful coding ask in the TUI session (not auto-marked done).'
+            : 'Blocked until provider is ready.',
+        done: firstAskDone,
       },
       {
         id: 'review',
         label: 'Review',
-        summary: 'Review diffs/approvals before applying risky edits.',
-        done: chatReady,
+        summary: reviewDone
+          ? 'Review step completed for this Code session.'
+          : 'Review diffs/approvals before applying risky edits (not auto-marked done).',
+        done: reviewDone,
       },
     ];
+
+    const stepIdsMatch = steps.every((step, index) => step.id === EXPECTED_STEP_IDS[index]);
+    const peChatAgrees = input.dailyPe
+      ? Boolean(input.dailyPe.chatReady) === Boolean(chatReady)
+      : true;
+    const alignsWithDailyPe = stepIdsMatch && peChatAgrees && steps.length === 4;
 
     const nextCommand = chatReady ? 'zavorth' : 'zavorth setup';
     return {
@@ -95,13 +115,14 @@ export class ZavorthCodeDailyLoopService {
         steps,
         nextCommand,
         summary: chatReady
-          ? 'Code daily loop ready: open → ask → review (same PE as Desktop/Control).'
+          ? 'Code daily loop structure matches Desktop/Control PE (open → provider → first ask → review).'
           : 'Code daily loop needs a configured provider (shared UserSelectionResolver).',
       },
-      alignsWithDailyPe: true,
+      alignsWithDailyPe,
       notes: [
         'Code uses the same provider/channel preference files as Desktop and Control.',
         'Daily loop order matches Desktop/Control: open → provider ready → first ask → review.',
+        'first-ask and review stay incomplete until real session signals are provided.',
         'This projection does not claim the external zavorth-code repo is fully merged.',
       ],
     };
@@ -113,6 +134,7 @@ export class ZavorthCodeDailyLoopService {
       `chatReady: ${snapshot.chatReady ? 'yes' : 'no'}`,
       `providerReady: ${snapshot.providerReady ? 'yes' : 'no'}`,
       `provider: ${snapshot.providerId || 'not configured'}`,
+      `alignsWithDailyPe: ${snapshot.alignsWithDailyPe ? 'yes' : 'no'}`,
       '',
       '[happy path]',
       ...snapshot.happyPath.steps.map((step) => `- [${step.done ? 'done' : 'todo'}] ${step.label}: ${step.summary}`),

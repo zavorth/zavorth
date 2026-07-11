@@ -532,6 +532,7 @@ export function initControlPages() {
               <label class="settings-minimal-select">
                 <span>Primary channel</span>
                 <select id="pref-channel" name="channelId">
+                  <option value="">Not configured</option>
                   ${listUserSelectionChannels().map((channel) => (
                     `<option value="${escapeHtml(channel.id)}">${escapeHtml(channel.label)}</option>`
                   )).join('')}

@@ -56,6 +56,7 @@ export function parseEchoLlmFallbackOrder(rawValue: string | undefined): string[
 type PersistedProviderPreference = {
   providerId: string;
   modelId: string | null;
+  secondaryModelId: string | null;
   routeId: string | null;
   familyId: string | null;
 };
@@ -74,6 +75,7 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
     return {
       providerId,
       modelId: String(parsed.modelId || '').trim() || null,
+      secondaryModelId: String(parsed.secondaryModelId || '').trim() || null,
       routeId: String(parsed.routeId || '').trim() || null,
       familyId: String(parsed.familyId || '').trim() || null,
     };
@@ -94,7 +96,7 @@ export function buildProviderConfig(projectRoot?: string) {
     llmProvider: selectedProvider,
     providerConfigured: Boolean(selectedProvider),
     secondaryModelId: String(
-      getEnv('ZAVORTH_SECONDARY_MODEL_ID', getEnv('ZAVORTH_SECONDARY_MODEL', (persistedPreference as { secondaryModelId?: string | null })?.secondaryModelId || '')),
+      getEnv('ZAVORTH_SECONDARY_MODEL_ID', getEnv('ZAVORTH_SECONDARY_MODEL', persistedPreference?.secondaryModelId || '')),
     ).trim() || null,
     directProviderDebug,
     echoLlmFallbackOrder: parseEchoLlmFallbackOrder(

@@ -41,6 +41,8 @@ export type CommandCenterGroup = {
 
 export type CommandCenterInput = {
   settingsGroups: SettingsModuleGroup[];
+  /** Experience audience — personal hides operator jargon (MCP/Doctor). */
+  audience?: 'personal' | 'developer' | 'business' | string | null;
   /** Providers present in catalog / configured list (not proof of live). */
   providerCount?: number;
   /** Providers with live proof — only this may label the action as Live. */
@@ -276,15 +278,19 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
           : 'Needs setup',
       action: { type: 'settings', tab: 'providers' },
     },
-    {
-      id: 'mcp:trust',
-      category: 'Trust',
-      title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
-      subtitle: input.mcpServerCount ? `${input.mcpServerCount} MCP server(s) detected` : 'Add tools and review server permissions',
-      keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
-      statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
-      action: { type: 'settings', tab: 'mcp' },
-    },
+    ...(input.audience === 'personal'
+      ? []
+      : [{
+        id: 'mcp:trust',
+        category: 'Trust' as const,
+        title: input.mcpServerCount ? 'Review MCP trust' : 'Connect MCP server',
+        subtitle: input.mcpServerCount
+          ? `${input.mcpServerCount} MCP server(s) detected`
+          : 'Add tools and review server permissions',
+        keywords: ['mcp', 'tool', 'trust', 'server', 'permission', 'readiness'],
+        statusLabel: input.mcpServerCount ? 'Review' : 'No servers',
+        action: { type: 'settings' as const, tab: 'mcp' as SettingsModuleId },
+      }]),
     {
       id: 'automations:create',
       category: 'Power',

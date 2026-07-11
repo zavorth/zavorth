@@ -27,6 +27,14 @@ async function main(): Promise<void> {
   }
 
   if (execute) {
+    if (missionId) {
+      const match = catalog.list(audience).find((mission) => mission.id === missionId);
+      if (!match) {
+        process.stderr.write(`killer mission not found: ${missionId}\n`);
+        process.exitCode = 1;
+        return;
+      }
+    }
     const report = await new KillerMissionExecuteService({
       projectRoot: process.cwd(),
       env: process.env,
@@ -36,7 +44,8 @@ async function main(): Promise<void> {
     } else {
       process.stdout.write(`${new KillerMissionExecuteService().renderText(report)}\n`);
     }
-    if (!report.ok && live) {
+    // Live certification must fail closed when nothing executed or any mission failed/blocked.
+    if (live && (!report.ok || report.executed === 0)) {
       process.exitCode = 1;
     }
     return;

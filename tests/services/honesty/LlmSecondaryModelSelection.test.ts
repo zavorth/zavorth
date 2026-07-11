@@ -21,7 +21,7 @@ describe('V9 secondary-model runtime path', () => {
       runtime.isProviderAvailable = () => true;
       runtime.createProvider = () => ({});
       runtime.chatProvider = jest.fn(async (input: { modelName: string }) => {
-        if (input.modelName === 'primary-model') throw new Error('primary unavailable');
+        if (input.modelName === 'primary-model') throw new Error('model_not_found: primary-model');
         return { content: 'secondary ok', toolCalls: [] };
       });
 
@@ -41,10 +41,45 @@ describe('V9 secondary-model runtime path', () => {
         usedSecondaryModel: true,
         secondaryModelId: 'secondary-model',
       });
+      expect(result.route.fallbackUsed).toBe(true);
       expect(result.route.attempts.map((attempt) => attempt.modelName)).toEqual([
         'primary-model',
         'secondary-model',
       ]);
+    } finally {
+      process.chdir(previousCwd);
+      fs.rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('does not retry secondary model on auth failures', async () => {
+    const previousCwd = process.cwd();
+    const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-secondary-auth-'));
+    writeProviderPreference({
+      projectRoot,
+      providerId: 'openai',
+      modelId: 'primary-model',
+      secondaryModelId: 'secondary-model',
+    });
+
+    process.chdir(projectRoot);
+    try {
+      const runtime = new LlmRuntimeService('openai') as any;
+      runtime.isProviderAvailable = () => true;
+      runtime.createProvider = () => ({});
+      runtime.chatProvider = jest.fn(async () => {
+        throw new Error('Invalid API key');
+      });
+
+      await expect(
+        runtime.chatDetailed(
+          [{ role: 'user', content: 'hello' }],
+          undefined,
+          { providerName: 'openai', modelName: 'primary-model', allowFallback: false },
+        ),
+      ).rejects.toThrow(/api key/i);
+
+      expect(runtime.chatProvider).toHaveBeenCalledTimes(1);
     } finally {
       process.chdir(previousCwd);
       fs.rmSync(projectRoot, { recursive: true, force: true });

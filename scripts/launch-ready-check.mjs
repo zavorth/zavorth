@@ -72,12 +72,31 @@ const signing = runNode('scripts/ops-signing-readiness.mjs');
 const installer = runNode('scripts/installer-readiness-check.mjs');
 const valueSuite = runNode('scripts/value-test-all.mjs');
 
-const signedHints = [
-  'dist-release',
-  'release-assets',
-  'out/make',
-  'apps/zavorth-desktop/out',
-].filter((rel) => exists(rel));
+const signingReport = readJson('.zavorth/ops-signing-report.json');
+const signedArtifactsVerified = Boolean(
+  signingReport?.signedArtifactsVerified
+  || (Array.isArray(signingReport?.signedArtifactsFound) && signingReport.signedArtifactsFound.length > 0),
+);
+// Fallback: re-check via signing script field after runNode already executed.
+const signedFromRun = (() => {
+  try {
+    const parsed = JSON.parse(signing.stdout || '{}');
+    return Boolean(parsed.signedArtifactsVerified);
+  } catch {
+    return false;
+  }
+})();
+const signedOk = signedArtifactsVerified || signedFromRun;
+
+const day1Fake = Boolean(
+  retention.criteria?.day1Return
+  && (
+    retention.day1Method === 'fake-env'
+    || (Array.isArray(retention.history) && retention.history.some(
+      (h) => h?.event === 'day1Return' && /FAKE|fake-env|ALLOW_FAKE/i.test(String(h?.note || h?.notes || '')),
+    ))
+  ),
+);
 
 const checks = [
   {
@@ -103,16 +122,18 @@ const checks = [
   {
     id: 'retention-r2-calendar',
     bar: 'launch',
-    ok: Boolean(retention.criteria?.day1Return),
-    notes: retention.criteria?.day1Return
-      ? 'day1Return recorded on later calendar day'
-      : 'day1Return open — wait real next UTC day; never ZAVORTH_ALLOW_FAKE_DAY1 for claims',
+    ok: Boolean(retention.criteria?.day1Return) && !day1Fake,
+    notes: day1Fake
+      ? 'day1Return present but marked fake/ALLOW_FAKE — not launch evidence'
+      : retention.criteria?.day1Return
+        ? 'day1Return recorded on later calendar day'
+        : 'day1Return open — wait real next UTC day; never ZAVORTH_ALLOW_FAKE_DAY1 for claims',
   },
   {
     id: 'signing-packaging-structural',
     bar: 'product',
-    ok: signing.ok,
-    notes: signing.ok
+    ok: signing.ok || signing.status === 2,
+    notes: signing.ok || signing.status === 2
       ? 'installer/signing packaging scripts present'
       : 'ops-signing-readiness structural fail',
   },
@@ -125,18 +146,22 @@ const checks = [
   {
     id: 'signed-store-artifacts',
     bar: 'launch',
-    ok: signedHints.length > 0,
-    notes: signedHints.length
-      ? `signed/store paths present: ${signedHints.join(', ')}`
-      : 'no signed/store artifact dirs — OPS-ONLY until certs/notarization',
+    ok: signedOk,
+    notes: signedOk
+      ? 'non-empty installer/package files verified under release dirs'
+      : 'no verified installer/package files — directory presence alone is not signed evidence',
   },
   {
     id: 'live-cells-recorded',
     bar: 'launch',
-    ok: Boolean(liveCells?.cells?.some((cell) => cell.status === 'pass' && cell.live === true)),
-    notes: liveCells?.cells?.length
-      ? `live cells file has ${liveCells.cells.filter((c) => c.status === 'pass').length} pass cell(s)`
-      : 'no launch-live-cells.json — run npm run launch:live-cells -- --live',
+    ok: Boolean(liveCells?.cells?.some(
+      (cell) => cell.id === 'live.multi-step.tool-plan' && cell.status === 'pass' && cell.live === true,
+    )),
+    notes: liveCells?.cells?.some(
+      (cell) => cell.id === 'live.multi-step.tool-plan' && cell.status === 'pass' && cell.live === true,
+    )
+      ? 'live multi-step tool-plan cell pass retained'
+      : 'require live.multi-step.tool-plan pass (probe-only is not enough) — run npm run launch:live-cells -- --live',
   },
   {
     id: 'announce-not-auto',
@@ -168,11 +193,11 @@ const report = {
       !retention.criteria?.day1Return
         ? 'After a later UTC calendar day of real product use: node scripts/retention-log.mjs --day1-return'
         : null,
-      signedHints.length === 0
-        ? 'Produce signed installers/notarization into dist-release or release-assets'
+      !signedOk
+        ? 'Produce non-empty signed installers into dist-release or release-assets (not empty dirs)'
         : null,
-      !liveCells?.cells?.some((c) => c.status === 'pass')
-        ? 'npm run launch:live-cells -- --live'
+      !liveCells?.cells?.some((c) => c.id === 'live.multi-step.tool-plan' && c.status === 'pass')
+        ? 'npm run launch:live-cells -- --live (need multi-step pass)'
         : null,
     ].filter(Boolean),
 };

@@ -126,14 +126,17 @@ export class KillerMissionExecuteService {
         {
           providerName: providerId,
           ...(modelId ? { modelName: modelId } : {}),
-          allowFallback: true,
+          // Certification runs stay on the user-selected provider only.
+          allowFallback: false,
         },
       );
       const finished = now();
       const text = String(result.response.content || '');
       const lower = text.toLowerCase();
       const signalsMatched = mission.expectedSignals.filter((signal) => lower.includes(signal.toLowerCase()));
-      const pass = text.trim().length > 40 && signalsMatched.length > 0;
+      // Require a non-trivial reply and majority of expected signals (not a single common word).
+      const requiredSignals = Math.max(1, Math.ceil(mission.expectedSignals.length / 2));
+      const pass = text.trim().length > 40 && signalsMatched.length >= requiredSignals;
       return {
         id: `killer-${mission.id}-${finished.getTime().toString(36)}`,
         missionId: mission.id,
@@ -144,7 +147,7 @@ export class KillerMissionExecuteService {
         startedAt,
         finishedAt: finished.toISOString(),
         durationMs: finished.getTime() - started.getTime(),
-        responsePreview: text.slice(0, 400),
+        responsePreview: redactSensitive(text).slice(0, 400),
         signalsMatched,
         notes: pass
           ? `Executed live with ${providerId}; matched signals: ${signalsMatched.join(', ')}`
@@ -167,7 +170,7 @@ export class KillerMissionExecuteService {
         durationMs: finished.getTime() - started.getTime(),
         responsePreview: '',
         signalsMatched: [],
-        notes: message.slice(0, 240),
+        notes: redactSensitive(message).slice(0, 240),
         live: true,
       };
     }
@@ -199,14 +202,20 @@ export class KillerMissionExecuteService {
 
   private report(when: Date, liveRequested: boolean, receipts: KillerExecutionReceipt[]): KillerExecuteReport {
     const failed = receipts.filter((entry) => entry.status === 'fail').length;
+    const blocked = receipts.filter((entry) => entry.status === 'blocked').length;
     const skipped = receipts.filter((entry) => entry.status === 'skipped' || entry.status === 'blocked').length;
     const executed = receipts.filter((entry) => entry.status === 'pass').length;
+    // Dry-run (no live): skipped catalog listing is honest success.
+    // Live: every intended mission must pass — blocked/empty is not success.
+    const ok = liveRequested
+      ? receipts.length > 0 && failed === 0 && blocked === 0 && executed === receipts.length
+      : failed === 0;
     return {
       generatedAt: when.toISOString(),
       version: 'killer-execute/v1',
       liveRequested,
       receipts,
-      ok: failed === 0,
+      ok,
       executed,
       skipped,
       failed,
@@ -229,4 +238,13 @@ export class KillerMissionExecuteService {
     const next = [...existing, ...receipts.filter((entry) => entry.live)].slice(-100);
     fs.writeFileSync(file, `${JSON.stringify({ version: 1, receipts: next }, null, 2)}\n`, 'utf8');
   }
+}
+
+function redactSensitive(text: string): string {
+  return String(text || '')
+    .replace(/key=[^&\s"']+/gi, 'key=REDACTED')
+    .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer REDACTED')
+    .replace(/sk-[A-Za-z0-9_-]+/g, 'sk-REDACTED')
+    .replace(/AIza[0-9A-Za-z_-]+/g, 'AIzaREDACTED')
+    .replace(/x-api-key["\s:=]+[^\s"',}]+/gi, 'x-api-key=REDACTED');
 }

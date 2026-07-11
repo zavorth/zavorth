@@ -34,8 +34,10 @@ export function readDesktopOpenClock(storage?: StorageLike): {
 } {
   const store = resolveStorage(storage);
   if (!store) return { previousOpenAt: null, currentOpenAt: null };
+  // Do not fall back previous → last: that collapses previous/current and
+  // hides real day-1 eligibility when PREVIOUS was never written.
   return {
-    previousOpenAt: store.getItem(DESKTOP_PREVIOUS_OPEN_AT_KEY) || store.getItem(DESKTOP_LAST_OPEN_AT_KEY),
+    previousOpenAt: store.getItem(DESKTOP_PREVIOUS_OPEN_AT_KEY),
     currentOpenAt: store.getItem(DESKTOP_LAST_OPEN_AT_KEY),
   };
 }
@@ -62,13 +64,24 @@ export function readRememberedDesktopSession(storage?: StorageLike): {
   };
 }
 
+/** UTC calendar day key (YYYY-MM-DD), 1-based month, zero-padded. */
+export function calendarDayKey(iso: string): string | null {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(date.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export function isDay1ReturnEligible(previousOpenAt: string | null, currentOpenAt: string | null): boolean {
   if (!previousOpenAt || !currentOpenAt) return false;
   const previous = new Date(previousOpenAt);
   const current = new Date(currentOpenAt);
   if (Number.isNaN(previous.getTime()) || Number.isNaN(current.getTime())) return false;
-  const prevDay = `${previous.getUTCFullYear()}-${previous.getUTCMonth()}-${previous.getUTCDate()}`;
-  const curDay = `${current.getUTCFullYear()}-${current.getUTCMonth()}-${current.getUTCDate()}`;
+  const prevDay = calendarDayKey(previousOpenAt);
+  const curDay = calendarDayKey(currentOpenAt);
+  if (!prevDay || !curDay || prevDay === curDay) return false;
   const delta = current.getTime() - previous.getTime();
-  return prevDay !== curDay && delta >= 12 * 60 * 60 * 1000 && delta <= 48 * 60 * 60 * 1000;
+  return delta >= 12 * 60 * 60 * 1000 && delta <= 48 * 60 * 60 * 1000;
 }

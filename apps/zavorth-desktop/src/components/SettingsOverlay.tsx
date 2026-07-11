@@ -18,6 +18,7 @@ import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitive
 import { errorMessage } from '../lib/errors';
 import { parseAccent, parseThemeMode } from '../lib/typeGuards';
 import { playTapSound } from '../lib/haptics';
+import { getOnboardingAudience } from '../onboarding/desktopOnboarding';
 
 interface SettingsOverlayProps {
   isOpen: boolean;
@@ -50,7 +51,8 @@ export function SettingsOverlay({
   onClose,
   ...props
 }: SettingsOverlayProps) {
-  
+  const isPersonalAudience = getOnboardingAudience() === 'personal';
+
   const handleExport = async () => {
     try {
       const res = await fetch('/api/v2/providers');
@@ -127,7 +129,7 @@ export function SettingsOverlay({
     'general',
     'providers',
     'permissions',
-    'mcp',
+    ...(isPersonalAudience ? [] : (['mcp'] as TabType[])),
     'workspace',
     'diagnostics',
     'shortcuts',
@@ -141,6 +143,7 @@ export function SettingsOverlay({
       const params = new URLSearchParams(window.location.search);
       const hash = window.location.hash.replace(/^#/, '');
       const raw = (params.get('settingsTab') || params.get('tab') || hash || '').trim().toLowerCase();
+      if (raw === 'mcp' && isPersonalAudience) return 'general';
       if (settingsTabs.includes(raw as TabType)) return raw as TabType;
     } catch {
       // ignore
@@ -353,14 +356,16 @@ export function SettingsOverlay({
             <IconShield size={18} />
             Permissions
           </button>
-          <button
-            type="button"
-            className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}
-            onClick={() => { playTapSound(); selectTab('mcp'); }}
-          >
-            <IconCpu size={18} />
-            MCP Servers
-          </button>
+          {!isPersonalAudience ? (
+            <button
+              type="button"
+              className={`zvd-settings-tab-btn ${activeTab === 'mcp' ? 'zvd-settings-tab-btn--active' : ''}`}
+              onClick={() => { playTapSound(); selectTab('mcp'); }}
+            >
+              <IconCpu size={18} />
+              MCP Servers
+            </button>
+          ) : null}
           <button
             type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'workspace' ? 'zvd-settings-tab-btn--active' : ''}`}
@@ -534,7 +539,7 @@ export function SettingsOverlay({
               </div>
             )}
 
-            {activeTab === 'mcp' && (
+            {activeTab === 'mcp' && !isPersonalAudience && (
               <div className="flex flex-col gap-3 text-center py-12 text-gray-500">
                 No additional MCP servers are connected right now.
               </div>

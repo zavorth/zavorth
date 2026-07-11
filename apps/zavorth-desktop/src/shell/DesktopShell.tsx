@@ -27,7 +27,6 @@ import { ContinuityBanner, buildContinuityBannerModel } from '../components/Cont
 import { NextActionBanner } from '../components/NextActionBanner';
 import {
   isDay1ReturnEligible,
-  readDesktopOpenClock,
   readRememberedDesktopSession,
   rememberDesktopSession,
   touchDesktopOpenClock,
@@ -292,9 +291,9 @@ export function DesktopShell(props: {
   }), [props.approvals, props.receipts]);
   const pendingApprovalCount = homeTrust.pendingApprovalCount;
 
-  useEffect(() => {
-    touchDesktopOpenClock();
-  }, []);
+  // Touch once on mount and keep clock in React state so day-1 eligibility
+  // is computed from the same values written to localStorage (not a stale read).
+  const [openClock] = useState(() => touchDesktopOpenClock());
 
   useEffect(() => {
     if (props.currentSessionId) {
@@ -304,14 +303,13 @@ export function DesktopShell(props: {
 
   const continuityModel = useMemo(() => {
     if (props.busy) return null;
-    const clock = readDesktopOpenClock();
     const remembered = readRememberedDesktopSession();
     const providerReady = Boolean(props.runtimeCapabilities?.providers?.connected?.length);
     // Prefer return continuity only when returning to a prior session, not the active one.
     const lastSessionId = remembered.id && remembered.id !== props.currentSessionId
       ? remembered.id
       : (props.currentSessionId ? null : remembered.id);
-    const learningPending = (props.learningItems || []).filter((item) => {
+    const learningPending = (props.learning || []).filter((item: LearningItem) => {
       const status = String(item.status || '').toLowerCase();
       return status !== 'promoted' && status !== 'accepted' && status !== 'rejected';
     }).length;
@@ -319,10 +317,10 @@ export function DesktopShell(props: {
       pendingApprovals: pendingApprovalCount,
       providerReady,
       memoryDraftCount: learningPending,
-      previousOpenAt: clock.previousOpenAt,
-      currentOpenAt: clock.currentOpenAt,
+      previousOpenAt: openClock.previousOpenAt,
+      currentOpenAt: openClock.currentOpenAt,
       sessions: lastSessionId
-        ? [{ id: lastSessionId, title: remembered.title, updatedAt: clock.previousOpenAt || undefined }]
+        ? [{ id: lastSessionId, title: remembered.title, updatedAt: openClock.previousOpenAt || undefined }]
         : [],
     });
     return buildContinuityBannerModel({
@@ -331,14 +329,16 @@ export function DesktopShell(props: {
       lastSessionId,
       lastSessionTitle: remembered.title,
       pendingTasks: snapshot.pendingTasks,
-      day1ReturnEligible: isDay1ReturnEligible(clock.previousOpenAt, clock.currentOpenAt)
+      day1ReturnEligible: isDay1ReturnEligible(openClock.previousOpenAt, openClock.currentOpenAt)
         || snapshot.day1ReturnEligible,
     });
   }, [
     pendingApprovalCount,
+    openClock.currentOpenAt,
+    openClock.previousOpenAt,
     props.busy,
     props.currentSessionId,
-    props.learningItems,
+    props.learning,
     props.runtimeCapabilities,
   ]);
 
@@ -398,6 +398,7 @@ export function DesktopShell(props: {
     });
     return {
       settingsGroups,
+      audience: getOnboardingAudience(),
       automationCount: props.scheduledTasks?.length,
       customProfileCount: props.customProfiles?.length,
       runtimeRunning: props.status.running,

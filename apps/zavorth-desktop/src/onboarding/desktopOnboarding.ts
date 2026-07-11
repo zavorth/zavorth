@@ -38,6 +38,9 @@ export type DesktopOnboardingAudienceOption = {
   /** i18n key suffix under onboarding.audience.* */
   titleKey: string;
   bodyKey: string;
+  /** i18n key for first-ask starter (device language). */
+  starterAskKey: string;
+  /** English fallback when i18n key is missing. */
   starterAsk: string;
 };
 
@@ -46,6 +49,7 @@ export const DESKTOP_ONBOARDING_AUDIENCES: DesktopOnboardingAudienceOption[] = [
     id: 'personal',
     titleKey: 'onboarding.audiencePersonalTitle',
     bodyKey: 'onboarding.audiencePersonalBody',
+    starterAskKey: 'onboarding.starterPersonal',
     starterAsk:
       'In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.',
   },
@@ -53,6 +57,7 @@ export const DESKTOP_ONBOARDING_AUDIENCES: DesktopOnboardingAudienceOption[] = [
     id: 'developer',
     titleKey: 'onboarding.audienceDeveloperTitle',
     bodyKey: 'onboarding.audienceDeveloperBody',
+    starterAskKey: 'onboarding.starterDeveloper',
     starterAsk:
       'Review this workspace for risk and propose a safe first plan I can approve step by step.',
   },
@@ -60,6 +65,7 @@ export const DESKTOP_ONBOARDING_AUDIENCES: DesktopOnboardingAudienceOption[] = [
     id: 'business',
     titleKey: 'onboarding.audienceBusinessTitle',
     bodyKey: 'onboarding.audienceBusinessBody',
+    starterAskKey: 'onboarding.starterBusiness',
     starterAsk:
       'Summarize what this workspace is for in business terms, list the top risks that need approval, and suggest one read-only next step.',
   },
@@ -78,8 +84,21 @@ export function getAudienceOption(id: DesktopOnboardingAudienceId | null | undef
     || DESKTOP_ONBOARDING_AUDIENCES[0];
 }
 
-export function starterAskForAudience(id: DesktopOnboardingAudienceId | null | undefined): string {
-  return getAudienceOption(id).starterAsk;
+/**
+ * Resolve starter ask text. Prefer a device-language translator when provided.
+ */
+export function starterAskForAudience(
+  id: DesktopOnboardingAudienceId | null | undefined,
+  translate?: (key: string) => string,
+): string {
+  const option = getAudienceOption(id);
+  if (translate) {
+    const localized = translate(option.starterAskKey);
+    if (localized && localized !== option.starterAskKey) {
+      return localized;
+    }
+  }
+  return option.starterAsk;
 }
 
 export function setOnboardingAudience(id: DesktopOnboardingAudienceId, storage?: StorageLike): void {

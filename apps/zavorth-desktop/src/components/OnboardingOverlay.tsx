@@ -114,7 +114,9 @@ export function OnboardingOverlay({
   const [trustedOperator, setTrustedOperator] = useState(() => getTrustedOperatorHint());
 
   const trailStep = DESKTOP_ONBOARDING_TRAIL[trailIndex] ?? DESKTOP_ONBOARDING_TRAIL[0];
-  const starterAsk = starterAskForAudience(audience) || t('onboarding.firstAskStarter') || DESKTOP_ONBOARDING_STARTER_ASK;
+  const starterAsk = starterAskForAudience(audience, t)
+    || t('onboarding.firstAskStarter')
+    || DESKTOP_ONBOARDING_STARTER_ASK;
 
   const applyAudience = (next: DesktopOnboardingAudienceId) => {
     setAudience(next);

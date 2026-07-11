@@ -192,7 +192,17 @@ function redact(text: string): string {
     .replace(/key=[^&\s"']+/gi, 'key=REDACTED')
     .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer REDACTED')
     .replace(/sk-[A-Za-z0-9_-]+/g, 'sk-REDACTED')
+    .replace(/AIza[0-9A-Za-z_-]+/g, 'AIzaREDACTED')
+    .replace(/x-api-key["\s:=]+[^\s"',}]+/gi, 'x-api-key=REDACTED')
     .slice(0, 500);
+}
+
+function exactProbeToken(text: string): boolean {
+  return String(text || '').trim() === LIVE_PROBE_TOKEN;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export class LiveUserProviderHarness {
@@ -370,7 +380,7 @@ export class LiveUserProviderHarness {
     const messages: ChatMessage[] = [{
       role: 'user',
       content:
-        `Call zavorth_live_marker exactly once. After receiving its result, reply exactly: ${LIVE_MULTI_STEP_TOKEN} ${marker}`,
+        `Call zavorth_live_marker exactly once. After receiving its result, reply exactly: ${LIVE_MULTI_STEP_TOKEN} followed by the marker value from the tool result (nothing else).`,
     }];
     const options = {
       providerName: providerId,
@@ -407,7 +417,7 @@ export class LiveUserProviderHarness {
         messages.push({ role: 'assistant', content: finalText || '(empty)' });
         messages.push({
           role: 'user',
-          content: `Tool returned marker=${marker}. Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} ${marker}`,
+          content: `Read the marker from the tool result only. Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value.`,
         });
         second = await runtime.chatDetailed(messages, tools, options);
         finalText = String(second.response.content || '');
@@ -478,48 +488,36 @@ export class LiveUserProviderHarness {
   }
 
   private async probeGemini(creds: ResolvedLiveCredentials): Promise<LiveHarnessResult> {
-    const models = [creds.modelId, 'gemini-2.5-flash', 'gemini-2.0-flash'].filter(Boolean);
-    let lastStatus = 0;
-    let lastBody = '';
-    for (const model of models) {
-      const url =
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-        + `?key=${encodeURIComponent(creds.apiKey)}`;
-      const body = JSON.stringify({
-        contents: [{ parts: [{ text: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }] }],
-        generationConfig: { maxOutputTokens: 64, temperature: 0 },
-      });
-      const res = await this.transport()({
-        url,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-        timeoutMs: 45000,
-      });
-      lastStatus = res.status;
-      lastBody = res.body;
-      const text = extractGeminiText(res.body);
-      if (res.status >= 200 && res.status < 300 && text.includes(LIVE_PROBE_TOKEN)) {
-        return {
-          status: 'pass',
-          notes: `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`,
-          evidence: {
-            family: 'gemini',
-            providerId: creds.providerId,
-            model,
-            exactToken: true,
-            credentialSource: creds.credentialSource,
-          },
-        };
-      }
-    }
+    // Probe only the selected/default model — never certify a fallback model as the user's route.
+    const model = creds.modelId || DEFAULT_MODELS.gemini;
+    const url =
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
+      + `?key=${encodeURIComponent(creds.apiKey)}`;
+    const body = JSON.stringify({
+      contents: [{ parts: [{ text: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }] }],
+      generationConfig: { maxOutputTokens: 64, temperature: 0 },
+    });
+    const res = await this.transport()({
+      url,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      timeoutMs: 45000,
+    });
+    const text = extractGeminiText(res.body);
+    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
     return {
-      status: 'fail',
-      notes: `Gemini probe failed status=${lastStatus}`,
+      status: exact ? 'pass' : 'fail',
+      notes: exact
+        ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
+        : `Gemini probe failed status=${res.status}`,
       evidence: {
         family: 'gemini',
         providerId: creds.providerId,
-        outputPreview: redact(lastBody),
+        model,
+        exactToken: exact,
+        credentialSource: creds.credentialSource,
+        outputPreview: redact(res.body),
       },
     };
   }
@@ -542,17 +540,17 @@ export class LiveUserProviderHarness {
       timeoutMs: 45000,
     });
     const text = extractOpenAiText(res.body);
-    const pass = res.status >= 200 && res.status < 300 && text.includes(LIVE_PROBE_TOKEN);
+    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
     return {
-      status: pass ? 'pass' : 'fail',
-      notes: pass
+      status: exact ? 'pass' : 'fail',
+      notes: exact
         ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
         : `OpenAI probe failed status=${res.status}`,
       evidence: {
         family: 'openai',
         providerId: creds.providerId,
         model: creds.modelId,
-        exactToken: text.includes(LIVE_PROBE_TOKEN),
+        exactToken: exact,
         credentialSource: creds.credentialSource,
         outputPreview: redact(res.body),
       },
@@ -578,17 +576,17 @@ export class LiveUserProviderHarness {
       timeoutMs: 45000,
     });
     const text = extractAnthropicText(res.body);
-    const pass = res.status >= 200 && res.status < 300 && text.includes(LIVE_PROBE_TOKEN);
+    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
     return {
-      status: pass ? 'pass' : 'fail',
-      notes: pass
+      status: exact ? 'pass' : 'fail',
+      notes: exact
         ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
         : `Anthropic probe failed status=${res.status}`,
       evidence: {
         family: 'anthropic',
         providerId: creds.providerId,
         model: creds.modelId,
-        exactToken: text.includes(LIVE_PROBE_TOKEN),
+        exactToken: exact,
         credentialSource: creds.credentialSource,
         outputPreview: redact(res.body),
       },
@@ -632,7 +630,7 @@ export class LiveUserProviderHarness {
     });
 
     const call = extractGeminiFunctionCall(round1.body);
-    if (!call) {
+    if (!call || call.name !== 'zavorth_live_marker') {
       return {
         status: 'fail',
         notes: 'Multi-step round 1 did not produce a tool call (Gemini).',
@@ -655,13 +653,14 @@ export class LiveUserProviderHarness {
       };
     }
 
+    // Keep the user turn placeholder-only; secret marker lives only in functionResponse.
     const history = [
       {
         role: 'user',
         parts: [{
           text:
             'You must call the tool zavorth_live_marker first. '
-            + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} ${markerValue}`,
+            + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`,
         }],
       },
       {
@@ -705,8 +704,8 @@ export class LiveUserProviderHarness {
               role: 'user',
               parts: [{
                 text:
-                  `The tool returned marker=${markerValue}. `
-                  + `Reply with exactly these two tokens separated by a space and nothing else: ${LIVE_MULTI_STEP_TOKEN} ${markerValue}`,
+                  'Read the marker from the tool functionResponse only. '
+                  + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value> and nothing else.`,
               }],
             },
           ],
@@ -856,8 +855,8 @@ export class LiveUserProviderHarness {
             {
               role: 'user',
               content:
-                `Tool returned marker=${markerValue}. `
-                + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} ${markerValue}`,
+                `Read the marker from the tool message only. `
+                + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value.`,
             },
           ],
           temperature: 0,
@@ -999,19 +998,22 @@ export class LiveUserProviderHarness {
           messages: [
             { role: 'user', content: userText },
             { role: 'assistant', content: assistantContent },
+            // Single user turn: tool_result + finish instruction (Anthropic forbids consecutive users).
             {
               role: 'user',
-              content: [{
-                type: 'tool_result',
-                tool_use_id: toolUse.id,
-                content: JSON.stringify({ marker: markerValue }),
-              }],
-            },
-            {
-              role: 'user',
-              content:
-                `Tool returned marker=${markerValue}. `
-                + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} ${markerValue}`,
+              content: [
+                {
+                  type: 'tool_result',
+                  tool_use_id: toolUse.id,
+                  content: JSON.stringify({ marker: markerValue }),
+                },
+                {
+                  type: 'text',
+                  text:
+                    'Read the tool result marker. '
+                    + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value only.`,
+                },
+              ],
             },
           ],
         }),
@@ -1031,8 +1033,8 @@ export class LiveUserProviderHarness {
         model,
         toolName: toolUse.name,
         toolRounds: 1,
-        exactToken: finalText.includes(LIVE_MULTI_STEP_TOKEN),
-        markerMatched: finalText.includes(markerValue),
+        exactToken: pass,
+        markerMatched: pass,
         autoCertified: pass,
         credentialSource: creds.credentialSource,
         outputPreview: redact(finalText || round2.body),
@@ -1041,16 +1043,18 @@ export class LiveUserProviderHarness {
   }
 }
 
-/** Accept token + marker with light whitespace/punctuation noise from models. */
+/**
+ * Strict multi-step finish: token + marker only (optional surrounding quotes/punctuation).
+ * Rejects long prose that merely embeds the token string.
+ */
 function multiStepTextPasses(text: string, markerValue: string): boolean {
   const normalized = String(text || '').replace(/\s+/g, ' ').trim();
   if (!normalized) return false;
-  const hasToken = normalized.includes(LIVE_MULTI_STEP_TOKEN);
-  const hasMarker = normalized.includes(markerValue);
-  if (hasToken && hasMarker) return true;
-  // Exact compact form
-  if (normalized === `${LIVE_MULTI_STEP_TOKEN} ${markerValue}`) return true;
-  return false;
+  const pattern = new RegExp(
+    `^["'\`]*${escapeRegExp(LIVE_MULTI_STEP_TOKEN)}\\s+${escapeRegExp(markerValue)}["'\`.,!;:]*$`,
+    'i',
+  );
+  return pattern.test(normalized);
 }
 
 function extractGeminiText(body: string): string {
@@ -1070,7 +1074,7 @@ function extractGeminiFunctionCall(body: string): { name: string; args: Record<s
     const parts = parsed?.candidates?.[0]?.content?.parts;
     if (!Array.isArray(parts)) return null;
     for (const part of parts) {
-      if (part?.functionCall?.name) {
+      if (part?.functionCall?.name === 'zavorth_live_marker') {
         return {
           name: String(part.functionCall.name),
           args: (part.functionCall.args && typeof part.functionCall.args === 'object')
@@ -1099,11 +1103,14 @@ function extractOpenAiToolCall(body: string): { id: string; name: string; raw: u
     const parsed = JSON.parse(body);
     const toolCalls = parsed?.choices?.[0]?.message?.tool_calls;
     if (!Array.isArray(toolCalls) || toolCalls.length === 0) return null;
-    const first = toolCalls[0];
+    const match = toolCalls.find(
+      (entry: { function?: { name?: string } }) => String(entry?.function?.name || '') === 'zavorth_live_marker',
+    ) || null;
+    if (!match) return null;
     return {
-      id: String(first.id || 'tool_call_0'),
-      name: String(first.function?.name || ''),
-      raw: first,
+      id: String(match.id || 'tool_call_0'),
+      name: String(match.function?.name || ''),
+      raw: match,
     };
   } catch {
     return null;
@@ -1129,7 +1136,9 @@ function extractAnthropicToolUse(body: string): { id: string; name: string; raw:
     const parsed = JSON.parse(body);
     const content = parsed?.content;
     if (!Array.isArray(content)) return null;
-    const tool = content.find((part: { type?: string }) => part?.type === 'tool_use');
+    const tool = content.find(
+      (part: { type?: string; name?: string }) => part?.type === 'tool_use' && part?.name === 'zavorth_live_marker',
+    );
     if (!tool) return null;
     return {
       id: String(tool.id || 'tool_use_0'),
