@@ -1,3 +1,5 @@
+**Full done+residual (this stream):** [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md)
+
 # Session status handoff — Trust Loop + Value Waves
 
 **Last updated:** 2026-07-11  
