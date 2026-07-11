@@ -9,15 +9,10 @@ import { isModelSyncInternalRequest } from "./shared/services/modelSyncScheduler
 import { logger } from '@/shared/utils/logger';
 import { asErrorLike } from '../utils/errorLike';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || "");
+const SECRET = process.env.JWT_SECRET
+  ? new TextEncoder().encode(process.env.JWT_SECRET)
+  : null;
 const AUTH_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60;
-
-function isLocalZavorthControlRequest(request: any): boolean {
-  try {
-    const hostname = new URL(request.url).hostname.toLowerCase();
-    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
-  } catch (error: unknown) {logger.warn('[proxy] encoding failed', error); return false; }
-}
 
 export async function proxy(request: any) {
   const { pathname } = request.nextUrl;
@@ -86,10 +81,6 @@ export async function proxy(request: any) {
 
   // zavorthControlSectorForPath — Control routes map to the ZavorthControl sector.
   if (pathname.startsWith("/control") || pathname.startsWith("/zavorthControl")) {
-    if (isLoopbackRequest(request) || isLocalZavorthControlRequest(request)) {
-      return response;
-    }
-
     // Always allow onboarding — it has its own setupComplete guard
     if (pathname.startsWith("/zavorthControl/onboarding")) {
       return response;
@@ -124,9 +115,12 @@ export async function proxy(request: any) {
 
     const token = request.cookies.get("auth_token")?.value;
 
-    if (token) {
+    if (token && SECRET) {
       try {
-        const { payload } = await jwtVerify(token, SECRET);
+        const { payload } = await jwtVerify(token, SECRET, { algorithms: ['HS256'] });
+        if (payload.authenticated !== true) {
+          throw new Error('JWT is missing the authenticated session claim');
+        }
 
         // Auto-refresh: if token expires within 7 days, issue a fresh 30-day token
         const exp = payload.exp as number;
@@ -193,5 +187,5 @@ export async function proxy(request: any) {
 }
 
 export const config = {
-  matcher: ["/", "/zavorthControl/:path*", "/api/:path*"],
+  matcher: ["/", "/control/:path*", "/zavorthControl/:path*", "/api/:path*"],
 };

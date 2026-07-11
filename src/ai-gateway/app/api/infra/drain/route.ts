@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { STARTUP_EPOCH } from "@/lib/gracefulShutdown";
 import { asErrorLike } from '../../../../../utils/errorLike.js';
+import { requireStrictManagementAuth } from '@/lib/api/requireManagementAuth';
 
 export async function POST(request: Request) {
+  const authError = await requireStrictManagementAuth(request);
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { epoch } = body;
@@ -17,7 +21,7 @@ export async function POST(request: Request) {
     if (epoch !== STARTUP_EPOCH) {
       console.warn(`[Drain API] Rejected drain request due to epoch mismatch. Expected: ${STARTUP_EPOCH}, received: ${epoch}`);
       return NextResponse.json(
-        { error: "Epoch mismatch", expected: STARTUP_EPOCH, received: epoch },
+        { error: "Epoch mismatch" },
         { status: 400 }
       );
     }

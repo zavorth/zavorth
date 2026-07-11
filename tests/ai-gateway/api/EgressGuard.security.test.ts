@@ -1,32 +1,35 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+jest.mock('@/shared/utils/logger', () => ({
+  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
+}), { virtual: true });
 import {
   assertPublicHttpTargetAllowed,
   isPrivateNetworkAddress,
-} from '../../../src/zavorth-control/lib/security/egressGuard';
-import { deliverWebhook } from '../../../src/zavorth-control/lib/webhookDispatcher';
+} from '../../../src/ai-gateway/lib/security/egressGuard';
+import { deliverWebhook } from '../../../src/ai-gateway/lib/webhookDispatcher';
 
 function readApiRoute(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/zavorth-control/app/api', ...segments, 'route.ts'), 'utf8');
+  return readFileSync(join(process.cwd(), 'src/ai-gateway/app/api', ...segments, 'route.ts'), 'utf8');
 }
 
 function readValidationFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/zavorth-control/lib/providers/validation', name),
+    join(process.cwd(), 'src/ai-gateway/lib/providers/validation', name),
     'utf8'
   );
 }
 
 function readVersionManagerFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/zavorth-control/lib/versionManager', name),
+    join(process.cwd(), 'src/ai-gateway/lib/versionManager', name),
     'utf8'
   );
 }
 
 function readProviderModelsFile(name: string): string {
   return readFileSync(
-    join(process.cwd(), 'src/zavorth-control/app/api/providers/[id]/models', name),
+    join(process.cwd(), 'src/ai-gateway/app/api/providers/[id]/models', name),
     'utf8'
   );
 }
@@ -124,7 +127,7 @@ describe('egress guard hardening', () => {
     }
 
     const specialty = readFileSync(
-      join(process.cwd(), 'src/zavorth-control/lib/providers/validationSpecialtyProviders.ts'),
+      join(process.cwd(), 'src/ai-gateway/lib/providers/validationSpecialtyProviders.ts'),
       'utf8'
     );
     expect(specialty).toContain('assertProviderValidationTargetAllowed(messagesUrl)');
@@ -134,7 +137,7 @@ describe('egress guard hardening', () => {
       'fetch(messagesUrl'
     );
     const searchGuard = specialty.indexOf('await assertProviderValidationTargetAllowed(url)');
-    const searchFetch = specialty.indexOf('fetch(url,', searchGuard);
+    const searchFetch = specialty.indexOf('fetch(', searchGuard);
     expect(searchGuard).toBeGreaterThanOrEqual(0);
     expect(searchFetch).toBeGreaterThan(searchGuard);
   });
@@ -175,5 +178,9 @@ describe('egress guard hardening', () => {
     expect(binaryManager).toContain('validateArchiveEntries("zip"');
     expect(binaryManager).toContain('validateArchiveEntries("tar"');
     expect(binaryManager).toContain('Unsafe ${kind} archive entry blocked');
+    expect(binaryManager).toContain('Trusted SHA256 checksum missing');
+    expect(binaryManager).toContain('assertSafeVersion(version)');
+    const removalSection = binaryManager.slice(binaryManager.indexOf('export async function removeVersion'));
+    expectGuardBeforeFetch(removalSection, 'version = assertSafeVersion(version)', 'fs.rm(');
   });
 });

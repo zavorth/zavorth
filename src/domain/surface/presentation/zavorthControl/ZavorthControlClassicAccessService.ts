@@ -8,6 +8,8 @@ export type ZavorthControlClassicAccessDeps = {
   authService: ZavorthControlAuthLike;
 };
 
+const SAFE_HTTP_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
 export class ZavorthControlClassicAccessService {
   public requiresAuthorization(pathname: string): boolean {
     return (
@@ -25,8 +27,22 @@ export class ZavorthControlClassicAccessService {
     req: http.IncomingMessage,
     deps: ZavorthControlClassicAccessDeps,
   ): boolean {
-    return this.isLoopbackAddress(req.socket.remoteAddress)
-      || deps.authService.validate(this.resolveZavorthControlToken(req));
+    if (deps.authService.validate(this.resolveZavorthControlToken(req))) {
+      return true;
+    }
+
+    // Loopback may still read protected classic endpoints without a token.
+    // Mutations always require a valid token, including on loopback.
+    if (!this.isSafeHttpMethod(req.method)) {
+      return false;
+    }
+
+    return this.isLoopbackAddress(req.socket.remoteAddress);
+  }
+
+  public isSafeHttpMethod(method: string | undefined): boolean {
+    const normalized = String(method || 'GET').toUpperCase();
+    return SAFE_HTTP_METHODS.has(normalized);
   }
 
   public isLoopbackAddress(remoteAddress: string | undefined): boolean {

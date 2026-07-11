@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 function readGatewayFile(...segments: string[]): string {
-  return readFileSync(join(process.cwd(), 'src/zavorth-control', ...segments), 'utf8');
+  return readFileSync(join(process.cwd(), 'src/ai-gateway', ...segments), 'utf8');
 }
 
 function readProjectFile(...segments: string[]): string {
@@ -107,7 +107,7 @@ describe('auth boundary hardening', () => {
     expect(a2aRoute).toContain('configuredA2AApiKey');
     expect(a2aRoute).toContain('ZAVORTH_A2A_API_KEY');
     expect(a2aRoute).toContain('isStrictlyAuthenticated');
-    expect(a2aRoute).toContain('isSameOriginDashboardRequest(req) && !(await isAuthRequired())');
+    expect(a2aRoute).toContain('isSameOriginZavorthControlRequest(req) && !(await isAuthRequired())');
     expect(a2aRoute).toContain('ZAVORTH_A2A_ALLOW_UNAUTHENTICATED');
     expect(a2aRoute).toContain('timingSafeEqual');
     expect(a2aRoute).not.toContain('if (!configuredKey) return true');
@@ -122,13 +122,16 @@ describe('auth boundary hardening', () => {
 
   it('keeps keyless /v1 gateway access restricted to loopback hosts', () => {
     const apiKeyPolicy = readGatewayFile('shared/utils/apiKeyPolicy.ts');
+    const loopbackPolicy = readGatewayFile('shared/utils/loopbackRequest.ts');
     const modelCatalog = readGatewayFile('app/api/v1/models/catalog.ts');
 
-    expect(apiKeyPolicy).toContain('isLoopbackGatewayRequest');
-    expect(apiKeyPolicy).toContain('x-forwarded-host');
+    expect(apiKeyPolicy).toContain('isTrustedLoopbackRequest');
+    expect(loopbackPolicy).toContain('isLoopbackOnlyWebBinding');
+    expect(loopbackPolicy).toContain("env.ZAVORTH_WEB_HOST || (env.PORT ? '0.0.0.0' : '127.0.0.1')");
+    expect(loopbackPolicy).toContain("header(request, 'x-forwarded-host')");
+    expect(loopbackPolicy).toContain("header(request, 'x-forwarded-for')");
     expect(apiKeyPolicy).toContain('Missing API key for non-loopback gateway request');
     expect(apiKeyPolicy).toContain('Invalid API key');
-    expect(apiKeyPolicy).toContain('hostCandidates.every((host) => isLoopbackHostname(host))');
     expect(apiKeyPolicy).not.toContain('No API key = local mode, skip policy checks');
     expect(modelCatalog).toContain('enforceApiKeyPolicy(request, null)');
   });
@@ -144,7 +147,7 @@ describe('auth boundary hardening', () => {
       ['app', 'api', 'v1', 'batches', 'delete-completed', 'route.ts'],
     ];
 
-    for (const root of ['src/zavorth-control', 'src/ai-gateway']) {
+    for (const root of ['src/ai-gateway']) {
       for (const routePath of runtimeStoreRoutes) {
         const route = readProjectFile(root, ...routePath);
         const handlerCount = Array.from(route.matchAll(/export async function (GET|POST|DELETE)\(request: Request/g)).length;
@@ -163,7 +166,7 @@ describe('auth boundary hardening', () => {
   });
 
   it('keeps relay CORS scoped to the configured origin', () => {
-    for (const root of ['src/zavorth-control', 'src/ai-gateway']) {
+    for (const root of ['src/ai-gateway']) {
       const relayRoute = readProjectFile(root, 'app', 'api', 'v1', 'relay', 'chat', 'completions', 'route.ts');
 
       expect(relayRoute).toContain('import { CORS_ORIGIN } from "@/shared/utils/cors";');
@@ -201,7 +204,11 @@ describe('auth boundary hardening', () => {
     expect(apiAuth).toContain('isLoopbackRequest');
     expect(apiAuth).toContain('return isStrictlyAuthenticated(request);');
     expect(requireManagementAuth).not.toContain('isAuthRequired');
+    expect(requireManagementAuth).not.toContain('isLoopbackRequest');
+    expect(requireManagementAuth).not.toContain('isLocalZavorthControlRequest');
     expect(proxy).toContain('!authRequired && isLoopbackRequest(request)');
     expect(proxy).toContain('settings.requireLogin === false && isLoopbackRequest(request)');
+    expect(proxy).toContain('"/control/:path*"');
+    expect(proxy).not.toContain('isLocalZavorthControlRequest');
   });
 });
