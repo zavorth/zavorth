@@ -23,6 +23,12 @@ type MemoryCandidate = {
   category: string;
 };
 
+export type AutoExtractResult = {
+  candidates: MemoryCandidate[];
+  persisted: boolean;
+  mode: 'draft-only' | 'persist';
+};
+
 /**
  * MemoryService — memória persistente do Zavorth entre conversas.
  * Agora mantém vetores locais para recuperação por similaridade.
@@ -264,11 +270,31 @@ export class MemoryService {
     return `\n\n${buildUntrustedContextBlock('MEMORIA PERSISTENTE DO USUARIO:', sections)}`;
   }
 
-  public async autoExtract(userId: string, userMessage: string, botResponse: string): Promise<void> {
+  public async autoExtract(
+    userId: string,
+    userMessage: string,
+    botResponse: string,
+    options: { persist?: boolean } = {},
+  ): Promise<AutoExtractResult> {
     const candidates = this.extractMemoryCandidates(userMessage, botResponse);
-    for (const candidate of candidates) {
-      await this.remember(userId, candidate.key, candidate.value, candidate.category);
+    if (!options.persist) {
+      return {
+        candidates,
+        persisted: false,
+        mode: 'draft-only',
+      };
     }
+    for (const candidate of candidates) {
+      const category = candidate.category.startsWith('draft_')
+        ? candidate.category
+        : `draft_${candidate.category || 'general'}`;
+      await this.remember(userId, candidate.key, candidate.value, category);
+    }
+    return {
+      candidates,
+      persisted: candidates.length > 0,
+      mode: 'persist',
+    };
   }
 
   private mapEntry(entry: MemoryEntry): MemoryEntry {

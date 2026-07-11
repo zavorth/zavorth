@@ -34,6 +34,7 @@ import {
 import { ZavorthTerminalBackendsService } from '../../services/ZavorthTerminalBackendsService.js';
 
 import { ProviderNativeCapabilityMatrixService } from '../../services/llm/ProviderNativeCapabilityMatrixService.js';
+import { buildStructuredToolFailurePlan } from './StructuredToolFailurePlan.js';
 import {
   clampText,
   delay,
@@ -500,7 +501,21 @@ export class AgentRunNativeToolLoopService {
             if (isTransientToolError(error)) {
               stats.retriedToolCalls += 1;
             }
-            const message = `Tool ${toolCall.name} failed: ${error instanceof Error ? err.message : String(error)}`;
+            const failureMessage = error instanceof Error ? err.message : String(error);
+            const recoveryPlan = buildStructuredToolFailurePlan({
+              toolName: toolCall.name,
+              errorMessage: failureMessage,
+              availableAlternatives: this.listAlternateToolNames(toolCall.name),
+            });
+            const message = [
+              `Tool ${toolCall.name} failed: ${failureMessage}`,
+              `recovery.shouldRetry=${recoveryPlan.shouldRetry}`,
+              `recovery.nextActions=${recoveryPlan.nextActions.join(',')}`,
+              recoveryPlan.preferredAlternative
+                ? `recovery.preferredAlternative=${recoveryPlan.preferredAlternative}`
+                : null,
+              recoveryPlan.userVisibleSummary,
+            ].filter(Boolean).join('\n');
             evidenceTexts.push(`${toolCall.name}:\n${message}`);
             toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
             events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {
@@ -513,6 +528,7 @@ export class AgentRunNativeToolLoopService {
                 ok: false,
                 summary: message,
               }),
+              recoveryPlan,
             }));
           }
         }
@@ -890,7 +906,8 @@ export class AgentRunNativeToolLoopService {
         output: await this.toolRuntime.executeTool(toolName, args),
         attempts: 1,
       };
-    } catch (error: unknown) {if (!isTransientToolError(error)) {
+    } catch (error: unknown) {
+      if (!isTransientToolError(error)) {
         throw error;
       }
       await delay(120);
@@ -899,6 +916,21 @@ export class AgentRunNativeToolLoopService {
         attempts: 2,
       };
     }
+  }
+
+  private listAlternateToolNames(failedToolName: string): string[] {
+    const failed = normalizeToolKey(failedToolName);
+    const definitions = Array.isArray((this.toolRuntime as { listTools?: () => ToolDefinition[] } | null)?.listTools?.())
+      ? ((this.toolRuntime as { listTools: () => ToolDefinition[] }).listTools() || [])
+      : [];
+    if (definitions.length > 0) {
+      return definitions
+        .map((entry) => normalizeText(entry.name))
+        .filter((name) => name && normalizeToolKey(name) !== failed)
+        .slice(0, 4);
+    }
+    const defaults = ['list_directory', 'read_file', 'web_search', 'get_datetime'];
+    return defaults.filter((name) => normalizeToolKey(name) !== failed).slice(0, 3);
   }
 
   private async compactMessagesForNextTurn(

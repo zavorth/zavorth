@@ -28,7 +28,6 @@ export type DesktopOnboardingTrailStep = {
   optional?: boolean;
 };
 
-/** 4-step first-run trail (labels are defaults; UI prefers i18n). */
 export const DESKTOP_ONBOARDING_TRAIL: DesktopOnboardingTrailStep[] = [
   { id: 'provider', label: 'Provider' },
   { id: 'trust', label: 'Trust' },
@@ -36,9 +35,8 @@ export const DESKTOP_ONBOARDING_TRAIL: DesktopOnboardingTrailStep[] = [
   { id: 'first-ask', label: 'First ask' },
 ];
 
-/** Safe default starter when the user finishes onboarding with "Start chatting". */
 export const DESKTOP_ONBOARDING_STARTER_ASK =
-  'Review this workspace for risk and propose a safe first plan I can approve step by step.';
+  'In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.';
 
 export type OnboardingChecklistItem = {
   id: 'runtime' | 'provider' | 'model' | 'workspace' | 'identity' | 'trust';
