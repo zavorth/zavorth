@@ -53,4 +53,21 @@ describe('UserSelectionResolver', () => {
     expect(selection.providerId).toBe('anthropic');
     expect(selection.source).toBe('request');
   });
+
+  it('resolves an injected environment without reading ambient process state', () => {
+    process.env.LLM_PROVIDER = 'gemini';
+    const selection = resolveUserProviderSelection({
+      projectRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-sel-')),
+      env: {
+        LLM_PROVIDER: 'anthropic',
+        ZAVORTH_MODEL_ID: 'claude-test',
+        ZAVORTH_PROVIDER_FALLBACK_ORDER: 'openai,openrouter',
+      } as NodeJS.ProcessEnv,
+    });
+
+    expect(selection.providerId).toBe('anthropic');
+    expect(selection.modelId).toBe('claude-test');
+    expect(selection.fallbackProviderIds).toEqual(['openai', 'openrouter']);
+    expect(selection.source).toBe('env');
+  });
 });

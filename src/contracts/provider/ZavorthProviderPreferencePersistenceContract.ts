@@ -11,6 +11,7 @@ export type ZavorthProviderPreferenceStatus =
 export type ZavorthProviderPreferenceValue = {
   providerId: string;
   modelId: string | null;
+  secondaryModelId?: string | null;
   routeId: string | null;
   familyId: string | null;
   source: 'provider-selection-ux';

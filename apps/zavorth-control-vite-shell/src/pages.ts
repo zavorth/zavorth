@@ -8,6 +8,12 @@ import { initLearningDreamsUi } from './learning-dreams-ui';
 import { initMemoryBrowserUi } from './memory-browser-ui';
 import { initPolicySimulatorUi } from './policy-simulator-ui';
 import { initRuntimeEngineUi } from './runtime-engines-ui';
+import { escapeHtml } from './html-utils';
+import { bindModelPreferenceEvents } from './model-preference-actions';
+import {
+  listUserSelectionChannels,
+  listUserSelectionProviders,
+} from '../../../src/services/selection/UserSelectionCatalog';
 
 declare global {
   interface Window {
@@ -501,6 +507,42 @@ export function initControlPages() {
               <div><strong>Active route</strong><span data-provider-picker="active">Configured route</span></div>
               <strong class="settings-minimal-current" data-provider-picker="fallbacks">Live routes</strong>
             </div>
+            <form id="model-preference-form" class="daily-settings-form daily-route-form">
+              <label class="settings-minimal-select">
+                <span>Primary provider</span>
+                <select id="pref-provider" name="providerId" required>
+                  <option value="">Not configured</option>
+                  ${listUserSelectionProviders().map((provider) => (
+                    `<option value="${escapeHtml(provider.id)}">${escapeHtml(provider.label)}</option>`
+                  )).join('')}
+                </select>
+              </label>
+              <label class="settings-minimal-select">
+                <span>Primary model</span>
+                <input id="pref-model" name="modelId" type="text" placeholder="e.g. gpt-4o-mini" autocomplete="off">
+              </label>
+              <label class="settings-minimal-select">
+                <span>Secondary model</span>
+                <input id="pref-secondary-model" name="secondaryModelId" type="text" placeholder="Used if primary model fails" autocomplete="off">
+              </label>
+              <label class="settings-minimal-select">
+                <span>Route id (optional)</span>
+                <input id="pref-route" name="routeId" type="text" placeholder="optional route id" autocomplete="off">
+              </label>
+              <label class="settings-minimal-select">
+                <span>Primary channel</span>
+                <select id="pref-channel" name="channelId">
+                  ${listUserSelectionChannels().map((channel) => (
+                    `<option value="${escapeHtml(channel.id)}">${escapeHtml(channel.label)}</option>`
+                  )).join('')}
+                </select>
+              </label>
+              <div class="daily-route-form__actions">
+                <button class="daily-button" type="submit">Save route</button>
+                <button class="daily-button" type="button" id="btn-preview-pref">Preview</button>
+              </div>
+              <div id="pref-result-panel" class="daily-route-result" hidden aria-live="polite"></div>
+            </form>
             <details class="daily-disclosure">
               <summary>Provider catalog</summary>
               <div class="daily-provider-summary" data-provider-model-catalog-summary>
@@ -518,6 +560,7 @@ export function initControlPages() {
               <h2>Channels</h2>
               <button class="daily-button" type="button" data-dashboard-sector="channels">Manage</button>
             </div>
+            <p class="daily-settings-hint">Primary channel is set with the Model route form above. Connectors below are optional.</p>
             ${settingsLinkRow('Telegram', 'Connect')}
             ${settingsLinkRow('Discord', 'Connect')}
             ${settingsLinkRow('Slack', 'Connect')}
@@ -836,3 +879,4 @@ export function initControlPages() {
 
 initControlPages();
 initLearningDreamsUi();
+bindModelPreferenceEvents(() => window.ZavorthControlChat?.refreshDashboard?.());

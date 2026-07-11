@@ -20,6 +20,7 @@ ZavorthProviderSelectionUxService,
 export type ZavorthProviderPreferencePersistenceInput = ZavorthProviderSelectionUxInput & {
   providerId?: string | null;
   modelId?: string | null;
+  secondaryModelId?: string | null;
   approvalId?: string | null;
   confirm?: boolean;
   dryRun?: boolean;
@@ -134,6 +135,7 @@ export class ZavorthProviderPreferencePersistenceService {
       return {
         providerId,
         modelId: normalizeNullable(parsed.modelId),
+        secondaryModelId: normalizeNullable(parsed.secondaryModelId),
         routeId: normalizeNullable(parsed.routeId),
         familyId: normalizeNullable(parsed.familyId),
         source: 'provider-selection-ux',
@@ -187,7 +189,14 @@ export class ZavorthProviderPreferencePersistenceService {
     const deniedReason = resolveDeniedReason(selection, approval, action);
     const next = deniedReason
       ? previous
-      : buildPreference(selection, input.modelId, generatedAt, createReceiptId(action, selection.selected?.providerId || 'none', generatedAt));
+      : buildPreference(
+        selection,
+        input.modelId,
+        input.secondaryModelId,
+        generatedAt,
+        createReceiptId(action, selection.selected?.providerId || 'none', generatedAt),
+        previous,
+      );
     const receipt = this.buildReceipt({
       id: next?.receiptId || createReceiptId(action, providerId || 'none', generatedAt),
       action,
@@ -352,8 +361,10 @@ export class ZavorthProviderPreferencePersistenceService {
 function buildPreference(
   selection: ZavorthProviderSelectionUxSnapshot,
   modelId: string | null | undefined,
+  secondaryModelId: string | null | undefined,
   updatedAt: string,
   receiptId: string,
+  previous: ZavorthProviderPreferenceValue | null,
 ): ZavorthProviderPreferenceValue | null {
   if (!selection.selected) {
     return null;
@@ -361,6 +372,9 @@ function buildPreference(
   return {
     providerId: selection.selected.providerId,
     modelId: normalizeNullable(modelId) || normalizeNullable(selection.selected.model),
+    secondaryModelId: secondaryModelId === undefined
+      ? normalizeNullable(previous?.secondaryModelId)
+      : normalizeNullable(secondaryModelId),
     routeId: selection.selected.providerId,
     familyId: selection.selected.providerId,
     source: 'provider-selection-ux',

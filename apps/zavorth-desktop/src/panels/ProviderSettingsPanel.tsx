@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Settings, Plus, Server, Edit2, Trash2, Key, CheckCircle2, XCircle, ChevronRight, HelpCircle } from 'lucide-react';
 import { ProviderConfigPayload } from '../components/ProviderSetupModal.js';
 import { errorMessage } from '../lib/errors';
+import { UserRouteSelectionPanel } from './UserRouteSelectionPanel.js';
+import { listUserSelectionProviders } from '../selection/userSelectionCatalog';
 
 export function ProviderSettingsPanel() {
   const [providers, setProviders] = useState<ProviderConfigPayload[]>([]);
@@ -475,9 +477,13 @@ export function ProviderSettingsPanel() {
     return <div className="zvd-loading-text">Loading providers...</div>;
   }
 
+  const catalogTypes = listUserSelectionProviders();
+
   return (
     <div className="flex flex-col gap-4 mt-4 w-full">
       <style>{styles}</style>
+
+      <UserRouteSelectionPanel />
       
       {error && (
         <div className="bg-red-900/20 border border-red-500/50 text-red-400 p-4 rounded-lg mb-4">
@@ -686,12 +692,13 @@ export function ProviderSettingsPanel() {
                         }
                       }}
                     >
-                      <option value="openai">OpenAI</option>
-                      <option value="anthropic">Anthropic</option>
-                      <option value="google">Google Gemini</option>
-                      <option value="openrouter">OpenRouter</option>
-                      <option value="ollama">Ollama (Local)</option>
-                      <option value="openai-compatible">Custom (OpenAI Compatible)</option>
+                      {/* Keep API payload types; labels come from shared catalog where possible. */}
+                      <option value="openai">{catalogTypes.find((e) => e.id === 'openai')?.label || 'OpenAI'}</option>
+                      <option value="anthropic">{catalogTypes.find((e) => e.id === 'anthropic')?.label || 'Anthropic'}</option>
+                      <option value="google">{catalogTypes.find((e) => e.id === 'gemini')?.label || 'Google Gemini'}</option>
+                      <option value="openrouter">{catalogTypes.find((e) => e.id === 'openrouter')?.label || 'OpenRouter'}</option>
+                      <option value="ollama">{catalogTypes.find((e) => e.id === 'ollama')?.label || 'Ollama (Local)'}</option>
+                      <option value="openai-compatible">{catalogTypes.find((e) => e.id === 'custom-openai-compatible')?.label || 'Custom (OpenAI Compatible)'}</option>
                     </select>
                   </div>
 

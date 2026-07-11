@@ -350,8 +350,8 @@
           </div>
           <div class="platform-section-title">Provider catalog</div>
           <div class="provider-picker-premium" aria-label="Provider picker">
-            <button type="button" class="provider-picker-card is-active" data-dashboard-prompt="Show Gemini provider models, live proof and recommended default model.">
-              <span>Active route</span><strong>Auto / Gemini</strong><small data-provider-picker="active">Uses configured route</small>
+            <button type="button" class="provider-picker-card is-active" data-dashboard-prompt="Show the configured provider route, available models and live proof.">
+              <span>Active route</span><strong data-provider-picker="active">Configured route</strong><small>Uses your saved provider selection.</small>
             </button>
             <button type="button" class="provider-picker-card" data-dashboard-prompt="Show fallback providers and which ones are live validated.">
               <span>Fallbacks</span><strong data-provider-picker="fallbacks">Live routes</strong><small>Only proven routes become defaults.</small>
