@@ -127,9 +127,9 @@ Always confirm with `git log --oneline -15`.
 
 | # | Work | Why |
 |---|------|-----|
-| R12 | Retention R2 real calendar day-1 | launch-readiness residual |
-| R13 | Signed desktop/installers, store assets | launch-readiness residual |
-| R14 | Live credentialed provider/channel certification cells | catalog ≠ live honesty |
+| R12 | Retention R2 real calendar day-1 | **OPEN** | Process ready; same UTC day as R1 — wait next day then `--day1-return` |
+| R13 | Signed desktop/installers, store assets | **OPEN (structural OK)** | `ops:signing:check` packaging green; no signed dirs yet |
+| R14 | Live credentialed provider/channel certification cells | **PARTIAL** | Provider multi-step/killer recorded when quota allows; channels not claimed |
 
 ---
 
@@ -145,9 +145,9 @@ Always confirm with `git log --oneline -15`.
 | **V9** | Selection UX complete | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY (R4, R7, R8) | P1 | **CORE SHIPPED** |
 | **V10** | Neutral ops defaults | VR-AUTOPILOT, VR-CATALOG-FB (R5, R6) | P1 | **DONE** |
 | **V11** | Habit + audiences closeout | VR-RITUAL, VR-NONDEV, VR-KILLER-RUN, VR-CODE-LOOP (R3, R9–R11) | P0/P2 | **DONE** |
-| **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | residual |
+| **V12** | Launch residual | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE (R12–R14) | P3 | **DONE (program)** — launch bar open until R2+signed |
 
-**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8–V11 done 2026-07-11; next is V12 launch residual**
+**Order:** `(V8 ∥ V9 ∥ V10) → V11 → V12` — **V8–V12 program done 2026-07-11; launch-ready ops bar still open**
 **Naming note:** value residual “R2” (TTFU) ≠ retention/launch “R2” (calendar day-1 = **LR-DAY1** / old R12).
 
 ---
