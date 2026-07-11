@@ -16,6 +16,20 @@ Use this page when naming packages, writing docs, choosing where to implement UI
 
 These are **three products**, not three names for one UI.
 
+### Unified daily loop (product meaning)
+
+All three surfaces share the same **open → provider ready → first ask → review** semantics via Daily PE / selection preferences:
+
+| Surface | Projection / entry |
+|---------|---------------------|
+| Desktop | Daily PE + ContinuityBanner + chat |
+| Control | Daily PE cards + Settings route pickers |
+| Code | `npm run value:code-loop` → `ZavorthCodeDailyLoopService` (same `UserSelectionResolver` prefs) |
+
+```bash
+npm run value:code-loop -- --check
+```
+
 ```text
 Zavorth Code     →  terminal coding agent (CLI/TUI)
 Zavorth Control  →  browser dashboard / control plane

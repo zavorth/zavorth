@@ -2,7 +2,7 @@ import { Button } from '../primitives';
 import { t } from '../i18n';
 
 export type ContinuityBannerModel = {
-  kind: 'review-approval' | 'continue-session' | 'start-chat' | 'setup-provider';
+  kind: 'review-approval' | 'continue-session' | 'start-chat' | 'setup-provider' | 'resume-task';
   title: string;
   detail: string;
   cta: string;
@@ -25,7 +25,7 @@ export function ContinuityBanner(props: ContinuityBannerProps) {
   if (model.kind === 'review-approval') return null;
 
   const onClick = () => {
-    if (model.kind === 'continue-session' && model.sessionId && props.onContinueSession) {
+    if ((model.kind === 'continue-session' || model.kind === 'resume-task') && model.sessionId && props.onContinueSession) {
       props.onContinueSession(model.sessionId);
       return;
     }
@@ -69,6 +69,7 @@ export function buildContinuityBannerModel(input: {
   providerReady: boolean;
   lastSessionId?: string | null;
   lastSessionTitle?: string | null;
+  pendingTasks?: string[];
   day1ReturnEligible?: boolean;
   language?: string | null;
 }): ContinuityBannerModel | null {
@@ -80,6 +81,19 @@ export function buildContinuityBannerModel(input: {
       title: t('continuity.setupProvider', lang) || 'Prove one provider to chat',
       detail: t('continuity.setupProviderDetail', lang) || 'Catalog is not Live until a probe passes.',
       cta: t('continuity.setupCta', lang) || 'Open setup',
+      day1ReturnEligible: Boolean(input.day1ReturnEligible),
+    };
+  }
+  const primaryTask = Array.isArray(input.pendingTasks)
+    ? input.pendingTasks.map((entry) => String(entry || '').trim()).find(Boolean)
+    : '';
+  if (primaryTask) {
+    return {
+      kind: 'resume-task',
+      title: primaryTask,
+      detail: t('continuity.resumeTaskDetail', lang) || 'Primary next action from last session.',
+      cta: t('continuity.continueCta', lang) || 'Continue',
+      sessionId: input.lastSessionId || null,
       day1ReturnEligible: Boolean(input.day1ReturnEligible),
     };
   }

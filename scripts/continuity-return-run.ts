@@ -18,14 +18,23 @@ function main(): void {
       providerReady: true,
       sessions: [{ id: 's1', title: 'Work', updatedAt: '2026-07-10T20:00:00.000Z' }],
     });
+    const ritual = service.buildSnapshot({
+      providerReady: true,
+      pendingApprovals: 0,
+      pendingTasks: ['Finish report draft'],
+      sessions: [{ id: 's1', title: 'Yesterday', updatedAt: '2026-07-10T20:00:00.000Z' }],
+    });
     const ok = withApprovals.nextAction.kind === 'review-approval'
       && continueSession.nextAction.kind === 'continue-session'
-      && day1.day1ReturnEligible === true;
+      && day1.day1ReturnEligible === true
+      && ritual.nextAction.kind === 'resume-task'
+      && ritual.pendingTasks[0] === 'Finish report draft';
     const payload = {
       ok,
       approvals: withApprovals.nextAction.kind,
       continue: continueSession.nextAction.kind,
       day1: day1.day1ReturnEligible,
+      ritual: ritual.nextAction.kind,
     };
     process.stdout.write(asJson ? `${JSON.stringify(payload, null, 2)}\n` : `continuity check: ${ok ? 'pass' : 'fail'}\n`);
     process.exitCode = ok ? 0 : 1;

@@ -6,8 +6,10 @@ export type DailyReturnContinuitySnapshot = {
   lastSessionTitle: string | null;
   lastActivityAt: string | null;
   pendingApprovals: number;
+  /** Short list of unfinished items from yesterday (product ritual, not launch R2). */
+  pendingTasks: string[];
   nextAction: {
-    kind: 'review-approval' | 'continue-session' | 'start-chat' | 'setup-provider';
+    kind: 'review-approval' | 'continue-session' | 'start-chat' | 'setup-provider' | 'resume-task';
     title: string;
     detail: string;
     command: string;
@@ -24,6 +26,9 @@ export type DailyReturnContinuityInput = {
     lastActivityAt?: string | null;
   }>;
   pendingApprovals?: number;
+  /** Optional unfinished work items carried from last session. */
+  pendingTasks?: string[];
+  memoryDraftCount?: number;
   providerReady?: boolean;
   previousOpenAt?: string | null;
   currentOpenAt?: string | null;
@@ -51,6 +56,8 @@ export class DailyReturnContinuityService {
       && (currentOpenAt.getTime() - previousOpenAt.getTime()) <= 48 * 60 * 60 * 1000,
     );
 
+    const pendingTasks = buildPendingTasks(input, latest, pendingApprovals);
+
     let nextAction: DailyReturnContinuitySnapshot['nextAction'];
     if (pendingApprovals > 0) {
       nextAction = {
@@ -65,6 +72,15 @@ export class DailyReturnContinuityService {
         title: 'Prove one provider',
         detail: 'Chat needs a live or local model route.',
         command: 'zavorth setup',
+      };
+    } else if (pendingTasks.length > 0) {
+      nextAction = {
+        kind: 'resume-task',
+        title: pendingTasks[0],
+        detail: pendingTasks.length === 1
+          ? 'One unfinished item from last session.'
+          : `${pendingTasks.length} unfinished items — primary next action first.`,
+        command: 'zavorth open',
       };
     } else if (latest) {
       nextAction = {
@@ -90,6 +106,7 @@ export class DailyReturnContinuityService {
       lastSessionTitle: latest?.title?.trim() || null,
       lastActivityAt: latest?.lastActivityAt || latest?.updatedAt || null,
       pendingApprovals,
+      pendingTasks,
       nextAction,
       day1ReturnEligible,
     };
@@ -109,4 +126,34 @@ export class DailyReturnContinuityService {
 
 function calendarDayKey(value: Date): string {
   return `${value.getUTCFullYear()}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-${String(value.getUTCDate()).padStart(2, '0')}`;
+}
+
+function buildPendingTasks(
+  input: DailyReturnContinuityInput,
+  latest: { id: string; title?: string | null } | null,
+  pendingApprovals: number,
+): string[] {
+  const tasks: string[] = [];
+  if (Array.isArray(input.pendingTasks)) {
+    for (const entry of input.pendingTasks) {
+      const text = String(entry || '').trim();
+      if (text && !tasks.includes(text)) tasks.push(text);
+    }
+  }
+  if (pendingApprovals > 0) {
+    const approvalTask = pendingApprovals === 1
+      ? 'Review 1 pending approval'
+      : `Review ${pendingApprovals} pending approvals`;
+    if (!tasks.includes(approvalTask)) tasks.unshift(approvalTask);
+  }
+  const drafts = Math.max(0, Number(input.memoryDraftCount || 0));
+  if (drafts > 0) {
+    const draftTask = drafts === 1
+      ? 'Review 1 memory draft'
+      : `Review ${drafts} memory drafts`;
+    if (!tasks.includes(draftTask)) tasks.push(draftTask);
+  }
+  // Do not invent tasks from session title alone — that stays continue-session.
+  void latest;
+  return tasks.slice(0, 5);
 }
