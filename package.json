@@ -1105,6 +1105,8 @@
     "qa:zavorth-product-certification": "npm run runtime:check --silent && npm run release:scan --silent && npm run qa:zavorth-agent-kernel --silent && npm run qa:zavorth-channel-live-canary --silent && npm run zavorth:cli-hud:check --silent && npm run qa:zavorthControl-streaming-e2e --silent && npx jest tests/services/ZavorthProductCertificationService.test.ts --runInBand && node scripts/zavorth-product-certification-check.mjs",
     "zavorth:golden-path": "node scripts/zavorth-golden-path.mjs",
     "qa:zavorth-golden-path": "node scripts/zavorth-golden-path.mjs",
+    "zavorth:release-hardening": "node scripts/zavorth-release-hardening-check.mjs",
+    "qa:zavorth-release-hardening": "node scripts/zavorth-release-hardening-check.mjs",
     "zavorth:product-readiness": "npx tsx scripts/zavorth-product-certification.ts",
     "zavorth:product-readiness:json": "npx tsx scripts/zavorth-product-certification.ts --json",
     "zavorth:product-readiness:check": "node scripts/zavorth-product-certification-check.mjs",

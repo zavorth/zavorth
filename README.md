@@ -268,7 +268,10 @@ Zavorth is proactive **without** being reckless.
 | `zavorth providers` | Provider readiness |
 | `zavorth channels telegram` | Connect a first-class channel |
 | `zavorth trust` | Inspect approval posture |
+| `zavorth proof` | Proof ledger (list / show / export receipts) |
 | `zavorth doctor` | Diagnose issues |
+
+Trust-loop gate (hermetic): `npm run qa:zavorth-golden-path` — see [docs/product/golden-path.md](docs/product/golden-path.md). Pre-ship: `npm run qa:zavorth-release-hardening`.
 
 Full public catalog:
 
