@@ -459,9 +459,9 @@ export class AgentChainBuilder {
       return this.executor.executeLocal(command);
     }
 
-    const { spawnSync } = await import('child_process');
-    const result = spawnSync(command, [], {
-      shell: true,
+    // S3: never shell:true on chain local commands — argv-only spawn.
+    const { spawnSyncCommandLine } = await import('../security/SafeProcessExec.js');
+    const result = spawnSyncCommandLine(command, {
       timeout: timeoutMs,
       encoding: 'utf-8',
       cwd: process.cwd(),

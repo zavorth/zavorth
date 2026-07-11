@@ -1,8 +1,17 @@
 import { execFileSync } from 'node:child_process';
 import { asErrorLike } from '../../utils/errorLike';
+import {
+  MARKETPLACE_ALLOWED_BINARIES,
+  safeExecFile,
+} from '../../security/SafeProcessExec.js';
+
 function safeExec(cmd: string, args: string[], opts: { stdio?: string; timeout?: number } = {}): void {
-  const cleanArgs = args.map((a) => a.replace(/[;&|`$(){}[\]<>]/g, ''));
-  execFileSync(cmd, cleanArgs, { stdio: (opts.stdio as any) || 'pipe', timeout: opts.timeout || 30000 });
+  // S3: execFile + binary allowlist + metachar rejection (never shell:true).
+  safeExecFile(cmd, args, {
+    stdio: (opts.stdio as 'pipe' | 'ignore' | 'inherit') || 'pipe',
+    timeout: opts.timeout || 30000,
+    allowedBinaries: MARKETPLACE_ALLOWED_BINARIES,
+  });
 }
 
 function sanitizeSkillId(name: string): string {
