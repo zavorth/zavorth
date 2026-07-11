@@ -2,7 +2,7 @@
 
 **Status do programa:** `ACTIVE` — Value-ready (local); residual V8+ open  
 **Última atualização:** 2026-07-11  
-**Status consolidado (feito + falta):** [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md)  
+**Status consolidado (feito + falta):** [SESSION-STATUS-HANDOFF.md](./SESSION-STATUS-HANDOFF.md) · [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md)  
 **Origem:** diagnóstico A–E (inteligência, wow, hábito diário, multi-audiência, solicitações × realidade) após o ciclo Trust Loop / harden de superfícies.  
 **Público deste arquivo:** qualquer agente ou humano que vá **continuar o trabalho**. Leia a secção [Como usar este arquivo](#como-usar-este-arquivo) antes de editar código.
 
