@@ -1,7 +1,8 @@
 # Value Waves — Inteligência, Hábito, Wow e Audiências
 
-**Status do programa:** `ACTIVE`  
-**Última atualização:** 2026-07-11 (V0–V7 + testability pack: live smartness, continuity UI, memory drafts, killer missions, `value:test-all`)  
+**Status do programa:** `ACTIVE` — Value-ready (local); residual V8+ open  
+**Última atualização:** 2026-07-11  
+**Status consolidado (feito + falta):** [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md)  
 **Origem:** diagnóstico A–E (inteligência, wow, hábito diário, multi-audiência, solicitações × realidade) após o ciclo Trust Loop / harden de superfícies.  
 **Público deste arquivo:** qualquer agente ou humano que vá **continuar o trabalho**. Leia a secção [Como usar este arquivo](#como-usar-este-arquivo) antes de editar código.
 
@@ -133,7 +134,11 @@ Atualizar esta tabela em **todo** handoff.
 | V6 | `DONE` | implementation agent | 2026-07-11 | `DailyReturnContinuityService` |
 | V7 | `DONE` | implementation agent | 2026-07-11 | product-story/ROADMAP/README/what-is utilidade→hábito→confiança; Value-ready vs Launch-ready |
 
-**Programa completo (fundação local):** V0–V7 `DONE` → **Value-ready (local)**. Residual de lançamento = Launch-ready (ops): R2 calendar, live cells, signing — ver ROADMAP / launch-readiness.
+**Programa completo (fundação local):** V0–V7 `DONE` → **Value-ready (local)**.  
+
+**Também feito depois das waves:** testability pack, honesty/security harden, **user provider/channel selection only** (no silent Gemini/Telegram defaults).  
+
+**Residual (próximo trabalho):** ver tabela completa em [SESSION-STATUS-VALUE-AND-DYNAMIC.md](./SESSION-STATUS-VALUE-AND-DYNAMIC.md) — live multi-step com provider do user, selection UX, autopilot scripts neutral, R2/signing launch residual.
 
 ---
 
