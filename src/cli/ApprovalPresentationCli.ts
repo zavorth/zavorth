@@ -1,5 +1,5 @@
 /**
- * Unified approval presentation CLI (Proof OS product face).
+ * Unified approval presentation CLI (Trust Loop product face).
  *
  *   zavorth approval
  *   zavorth approvals
@@ -60,7 +60,7 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    `${paintCliBadge('APPROVAL', 'brand')} ${paintCliTone('Zavorth Approval Presentation (Proof OS)', 'brand')}`,
+    `${paintCliBadge('APPROVAL', 'brand')} ${paintCliTone('Zavorth Approval Presentation (Trust Loop)', 'brand')}`,
     paintCliTone('Unified approval card facade over leases + loose desktop/control shapes.', 'muted'),
     paintCliTone('Does not replace approval-leases, trust panel, or desktop approval modals.', 'muted'),
     '',
@@ -186,7 +186,7 @@ export function shouldRunApprovalPresentationCli(
 /** Strip presentation namespace prefix and map `cards` → `list`. */
 export function normalizeApprovalPresentationArgs(restArgs: string[] = []): string[] {
   const first = String(restArgs[0] || '').trim().toLowerCase();
-  if (first === 'presentation' || first === 'proof-os' || first === 'card') {
+  if (first === 'presentation' || first === 'trust-loop' || first === 'card') {
     return restArgs.slice(1);
   }
   if (first === 'cards') {

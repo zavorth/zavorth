@@ -20,9 +20,9 @@ import { createRuntimeSessionUi } from './runtime-session-ui';
 import {
   buildControlReadinessItems,
   classifyControlReadiness,
-  composeProofOsPanelModel,
-} from './proof-os-model';
-import { refreshProofOsUi } from './proof-os-ui';
+  composeTrustLoopPanelModel,
+} from './trust-loop-model';
+import { refreshTrustLoopUi } from './trust-loop-ui';
 import { shellWarn } from './shell-debug';
 
 export function initRuntimeBridge() {
@@ -757,7 +757,7 @@ export function initRuntimeBridge() {
     `).join('');
   }
 
-  function updateProofOsSurface() {
+  function updateTrustLoopSurface() {
     const snapshot = getGatewaySnapshot();
     const runs = getRuns();
     const providerSummary = state.providerModelCatalog?.summary || state.providerModelCatalog || null;
@@ -801,7 +801,7 @@ export function initRuntimeBridge() {
         ? state.zavorthControl.proofEvents
         : [];
 
-    const model = composeProofOsPanelModel({
+    const model = composeTrustLoopPanelModel({
       proofs,
       runs,
       riskBudgetState,
@@ -809,7 +809,7 @@ export function initRuntimeBridge() {
       latest: 8,
       useCacheFallback: true,
     });
-    refreshProofOsUi(model);
+    refreshTrustLoopUi(model);
     return model;
   }
 
@@ -835,8 +835,8 @@ export function initRuntimeBridge() {
       if (historySummary instanceof HTMLElement) historySummary.hidden = !runs.length;
     }
 
-    // Keep Proof OS panel language in sync with receipts (thin companion, not a second agent).
-    updateProofOsSurface();
+    // Keep Trust Loop panel language in sync with receipts (thin companion, not a second agent).
+    updateTrustLoopSurface();
 
     if (runs.length === 0) {
       tbody.innerHTML = `

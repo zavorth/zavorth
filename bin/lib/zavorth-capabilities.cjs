@@ -174,9 +174,9 @@ const CAPABILITY_DEFS = [
   { command: 'retry', cluster: 'operator', strategy: 'delegated', summary: 'Retry work' },
   { command: 'cancel', cluster: 'operator', strategy: 'delegated', summary: 'Cancel work' },
   { command: 'mock-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
-  // Proof OS product commands — always delegated to agent runtime (builtin CLI),
+  // Trust Loop product commands — always delegated to agent runtime (builtin CLI),
   // never fall through to Code TUI ensure/download.
-  { command: 'proof', aliases: ['proof-ledger', 'proof-os'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Proof OS unified receipt ledger (list/show/export)' },
+  { command: 'proof', aliases: ['proof-ledger', 'proof-os', 'trust-loop'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Trust Loop unified receipt ledger (list/show/export)' },
   {
     command: 'memory-privacy',
     aliases: ['memory-privacy-os', 'privacy-memory'],
@@ -217,7 +217,7 @@ const CAPABILITY_DEFS = [
     aliases: ['approval-presentation', 'approval-os'],
     cluster: 'approvals-trust',
     strategy: 'delegated',
-    summary: 'Proof OS approval presentation (list/decide)',
+    summary: 'Trust Loop approval presentation (list/decide)',
   },
 
   // Meta
@@ -2962,11 +2962,12 @@ async function runNativeHost(rest, opts) {
  * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv, exit?: boolean }} [opts]
  * @returns {Promise<number>}
  */
-/** Proof OS commands that must never fall through to LLM chat or Code TUI. */
-const PROOF_OS_COMMANDS = new Set([
+/** Trust Loop commands that must never fall through to LLM chat or Code TUI. */
+const TRUST_LOOP_COMMANDS = new Set([
   'proof',
   'proof-ledger',
-  'proof-os',
+  'proof-os', // backward-compatible CLI alias
+  'trust-loop',
   'memory-privacy',
   'memory-privacy-os',
   'privacy-memory',
@@ -2988,14 +2989,14 @@ const PROOF_OS_COMMANDS = new Set([
 ]);
 
 /**
- * Prefer src CLI via tsx when dist is stale/missing Proof OS handlers.
+ * Prefer src CLI via tsx when dist is stale/missing Trust Loop handlers.
  * Falls back to dist agent runtime.
  * @param {string} command
  * @param {string[]} rest
  * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv, exit?: boolean }} [opts]
  * @returns {number}
  */
-function runProofOsCli(command, rest, opts) {
+function runTrustLoopCli(command, rest, opts) {
   const projectRoot = path.resolve((opts && opts.projectRoot) || defaultProjectRoot());
   const env = (opts && opts.env) || process.env;
   const shouldExit = !opts || opts.exit !== false;
@@ -3015,7 +3016,7 @@ function runProofOsCli(command, rest, opts) {
 
   if (!launch) {
     process.stderr.write(
-      'Proof OS CLI unavailable (need node_modules/tsx + src/zavorth-cli.ts, or dist/zavorth-cli.js).\n',
+      'Trust Loop CLI unavailable (need node_modules/tsx + src/zavorth-cli.ts, or dist/zavorth-cli.js).\n',
     );
     if (shouldExit) process.exit(1);
     return 1;
@@ -3042,10 +3043,10 @@ async function runDelegated(def, rest, opts) {
   const shouldExit = !opts || opts.exit !== false;
   const notice = env.ZAVORTH_CAPABILITY_NOTICE === '1' || env.ZAVORTH_CAPABILITY_NOTICE === 'true';
 
-  // Proof OS: always run dedicated CLI (tsx/src preferred over stale dist).
-  if (PROOF_OS_COMMANDS.has(def.command) || PROOF_OS_COMMANDS.has(String(def.command || '').toLowerCase())) {
-    if (notice) process.stderr.write(`[capability] ${def.command} → proof-os cli\n`);
-    return runProofOsCli(def.command, rest, opts);
+  // Trust Loop: always run dedicated CLI (tsx/src preferred over stale dist).
+  if (TRUST_LOOP_COMMANDS.has(def.command) || TRUST_LOOP_COMMANDS.has(String(def.command || '').toLowerCase())) {
+    if (notice) process.stderr.write(`[capability] ${def.command} → trust-loop cli\n`);
+    return runTrustLoopCli(def.command, rest, opts);
   }
 
   if (notice) process.stderr.write(`[capability] ${def.command} → agent runtime\n`);

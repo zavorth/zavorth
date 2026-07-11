@@ -1,6 +1,6 @@
 /**
- * S6 — Control Proof OS UI must HTML-escape untrusted proof fields.
- * Presentation lives in apps/zavorth-control-vite-shell/src/proof-os-ui.ts.
+ * S6 — Control Trust Loop UI must HTML-escape untrusted proof fields.
+ * Presentation lives in apps/zavorth-control-vite-shell/src/trust-loop-ui.ts.
  */
 
 import { readFileSync } from 'node:fs';
@@ -12,9 +12,9 @@ function readShell(rel: string): string {
   return readFileSync(path.join(root, 'apps', 'zavorth-control-vite-shell', 'src', rel), 'utf8');
 }
 
-describe('Proof OS UI XSS posture (S6)', () => {
+describe('Trust Loop UI XSS posture (S6)', () => {
   it('imports and uses escapeHtml for all dynamic proof fields', () => {
-    const ui = readShell('proof-os-ui.ts');
+    const ui = readShell('trust-loop-ui.ts');
     const htmlUtils = readShell('html-utils.ts');
 
     expect(ui).toContain("import { escapeHtml } from './html-utils'");
@@ -67,12 +67,12 @@ describe('Proof OS UI XSS posture (S6)', () => {
     }
   });
 
-  it('renderProofOsPanelHtml path never uses raw innerHTML templates without escapeHtml', () => {
-    const ui = readShell('proof-os-ui.ts');
+  it('renderTrustLoopPanelHtml path never uses raw innerHTML templates without escapeHtml', () => {
+    const ui = readShell('trust-loop-ui.ts');
     // Mount uses innerHTML only with pre-escaped render helpers.
     expect(ui).toContain('host.innerHTML = html');
-    expect(ui).toContain('renderProofOsPanelHtml');
-    expect(ui).toContain('renderProofOsChromeHtml');
+    expect(ui).toContain('renderTrustLoopPanelHtml');
+    expect(ui).toContain('renderTrustLoopChromeHtml');
     // No unescaped template of event fields:
     expect(ui).not.toMatch(/innerHTML\s*=\s*[`'"].*\$\{event\./);
   });

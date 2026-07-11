@@ -7,7 +7,7 @@
  * 2) golden path (skip with ZAVORTH_RELEASE_SKIP_GOLDEN=1 → warn; STRICT makes skip fail)
  * 3) identity:public (if package script exists)
  * 4) surfaces:check (if package script exists)
- * 5) static docs + Proof OS modules + feature preservation inventory
+ * 5) static docs + Trust Loop modules + feature preservation inventory
  *
  * Writes best-effort report: .zavorth/release-hardening-last.json
  * Exit 1 on any required failure. Skipped golden is warn-only unless STRICT.
@@ -53,8 +53,8 @@ const REQUIRED_DOCS = [
 /** Public phase-plan stubs that must NOT exist outside archive. */
 const FORBIDDEN_PUBLIC_PLANS = ['docs/CLI-VISUAL-OVERHAUL-PLAN.md'];
 
-/** Key Proof OS modules that must ship. */
-const PROOF_OS_MODULES = [
+/** Key Trust Loop modules that must ship. */
+const TRUST_LOOP_MODULES = [
   'src/services/proof/ProofLedgerService.ts',
   'src/services/approval/ApprovalPresentationService.ts',
   'src/services/risk/RiskBudgetService.ts',
@@ -271,7 +271,7 @@ function runGoldenPath() {
     record(name, 'fail', `exit=${result.status}`, durationMs);
     return false;
   }
-  record(name, 'pass', 'hermetic Proof OS trust loop', durationMs);
+  record(name, 'pass', 'hermetic Trust Loop', durationMs);
   return true;
 }
 
@@ -325,8 +325,8 @@ function runStaticChecks() {
     }
   }
 
-  for (const mod of PROOF_OS_MODULES) {
-    if (!exists(mod)) issues.push(`missing Proof OS module: ${mod}`);
+  for (const mod of TRUST_LOOP_MODULES) {
+    if (!exists(mod)) issues.push(`missing Trust Loop module: ${mod}`);
   }
 
   /** @type {{ feature: string, ok: boolean, missing: string[] }[]} */
@@ -349,7 +349,7 @@ function runStaticChecks() {
   record(
     name,
     'pass',
-    `docs + ${PROOF_OS_MODULES.length} Proof OS modules + ${FEATURE_PRESERVATION.length} features`,
+    `docs + ${TRUST_LOOP_MODULES.length} Trust Loop modules + ${FEATURE_PRESERVATION.length} features`,
     durationMs,
   );
   return { ok: true, inventory };
@@ -372,7 +372,7 @@ function writeReport(ok, inventory) {
     featurePreservation: inventory,
     requiredDocs: REQUIRED_DOCS,
     forbiddenPublicPlans: FORBIDDEN_PUBLIC_PLANS,
-    proofOsModules: PROOF_OS_MODULES,
+    trustLoopModules: TRUST_LOOP_MODULES,
     commands: {
       run: 'npm run qa:zavorth-release-hardening',
       alias: 'npm run zavorth:release-hardening',
@@ -431,11 +431,11 @@ function main() {
   const i18nOk = runI18nCheck();
   const goldenOk = runGoldenPath();
   // identity:public currently fails on pre-existing control-cli path debt.
-  // Treat as warn by default so Proof OS release hardening can ship; STRICT forces fail.
+  // Treat as warn by default so Trust Loop release hardening can ship; STRICT forces fail.
   const identityHard = runOptionalNpmScript('identity:public', 'identity:public', scripts, 120_000);
   let identityOk = identityHard;
   if (!identityHard && !strict) {
-    // Re-record as warn: soft-debt outside Proof OS scope
+    // Re-record as warn: soft-debt outside Trust Loop scope
     const last = steps[steps.length - 1];
     if (last && last.name === 'identity:public' && last.status === 'fail') {
       last.status = 'warn';

@@ -16,7 +16,7 @@
 | Provider helper | `readinessFromProvider` | **Fixed** — only `connected === true` or `liveReady`; bare `ready` is catalog |
 | Tool helper | `readinessFromTool` | **Fixed** — status `ready`/`trusted` is available/muted unless `liveReady` |
 | Shared monorepo helper | `src/services/honesty/ReadinessHonesty.ts` | **Added** — same rules; keep in sync with desktop |
-| Control Proof OS | `src/services/control/ControlProofOsModel.ts` (`classifyControlReadiness`) | **Already honest** — live only via `liveReady`; covered by `tests/control/ProofOsModel.test.ts` |
+| Control Trust Loop | `src/services/control/ControlTrustLoopModel.ts` (`classifyControlReadiness`) | **Already honest** — live only via `liveReady`; covered by `tests/control/TrustLoopModel.test.ts` |
 | Command Center providers label | `apps/zavorth-desktop/src/command-center/commandCenter.ts` | **Fixed** — `Live` / `Catalog only` / `Needs setup` (never bare Ready from count) |
 | Command Center `providerLiveCount` wiring | `apps/zavorth-desktop/src/shell/DesktopShell.tsx` | **Fixed** — from `runtimeCapabilities.providers.connected` |
 | Skills panel / view | `SkillsPanel.tsx`, `SkillsView.tsx` | **Fixed** — badges via `readinessFromTool`; Live tab requires live state |
@@ -35,10 +35,10 @@
 
 - Desktop: `apps/zavorth-desktop/tests/qualityBar.test.ts`, `trustShip.test.ts`, `commandCenterHonesty.test.ts`, `constellationLayout.test.ts`
 - Monorepo: `tests/services/honesty/ReadinessHonesty.test.ts`
-- Control: `tests/control/ProofOsModel.test.ts`
+- Control: `tests/control/TrustLoopModel.test.ts`
 
 ## Remaining risks
 
 - Settings modules may still show operational counts (e.g. “N active”) — chrome, not Live certification of provider health checks.
 - WorkspaceRuntimeReadinessCard uses API workspace flags (`ready` boolean for provider/model/autonomy/policy) — separate from catalog Live badges.
-- Desktop UI still hard-codes many English strings in components; monorepo YAML (`proof-os.honesty.*`) is the product-namespace source of truth for CLI/control.
+- Desktop UI still hard-codes many English strings in components; monorepo YAML (`trust-loop.honesty.*`) is the product-namespace source of truth for CLI/control.

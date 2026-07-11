@@ -1,5 +1,5 @@
 /**
- * Q7 — Proof OS CLI matrix (module entrypoints under NO_COLOR).
+ * Q7 — Trust Loop CLI matrix (module entrypoints under NO_COLOR).
  */
 
 process.env.NO_COLOR = '1';
@@ -30,7 +30,7 @@ async function capture(run: () => Promise<number> | number): Promise<{ code: num
   }
 }
 
-describe('Proof OS CLI matrix (Q7)', () => {
+describe('Trust Loop CLI matrix (Q7)', () => {
   it('proof help is readable under NO_COLOR', async () => {
     const { code, out } = await capture(() => runProofLedgerCli(['--help']));
     expect(code).toBe(0);

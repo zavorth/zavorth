@@ -3,11 +3,11 @@
  *
  * Facade over existing approval-leases, desktop approval cards/modals,
  * and Control cards. Does not replace those systems — normalizes shapes
- * for UI surfaces and emits Proof OS events via ProofLedgerService.
+ * for UI surfaces and emits Trust Loop events via ProofLedgerService.
  */
 
 export const APPROVAL_PRESENTATION_CONTRACT_VERSION =
-  '2026-07-11.proof-os-approval-v1' as const;
+  '2026-07-11.trust-loop-approval-v1' as const;
 
 export type ApprovalLifecycleStage =
   | 'request'

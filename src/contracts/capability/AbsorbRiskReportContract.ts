@@ -6,7 +6,7 @@
  */
 
 export const ABSORB_RISK_REPORT_CONTRACT_VERSION =
-  '2026-07-11.proof-os-absorb-v1' as const;
+  '2026-07-11.trust-loop-absorb-v1' as const;
 
 export type AbsorbRiskDimension =
   | 'files'

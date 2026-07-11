@@ -62,7 +62,7 @@ function printHelp(): void {
     '  - high risk / executable packs stay quarantined until trust upgrade',
     '  - no third-party product profile is required for structural import',
     '  - --profile is optional; labels are structure fingerprints only',
-    '  - Proof OS events are written for preview / promote / reject',
+    '  - Trust Loop events are written for preview / promote / reject',
     '',
     'Examples:',
     '  zavorth absorb ./packs/my-skill --preview',
@@ -262,7 +262,7 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
     includeSecretLike: hasFlag(rawArgs, '--include-secret-like'),
   });
 
-  // Optional Proof OS receipt (system/marketplace); never includes secret values
+  // Optional Trust Loop receipt (system/marketplace); never includes secret values
   if (!noProof) {
     try {
       const ledger = new ProofLedgerService({

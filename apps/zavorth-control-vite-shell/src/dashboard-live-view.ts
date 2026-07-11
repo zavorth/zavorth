@@ -3,10 +3,10 @@ import { computeNextAction, renderNextActionBar } from './next-action-ui';
 import {
   buildControlReadinessItems,
   classifyControlReadiness,
-  composeProofOsPanelModel,
+  composeTrustLoopPanelModel,
   readHonestBoolean,
-} from './proof-os-model';
-import { refreshProofOsUi } from './proof-os-ui';
+} from './trust-loop-model';
+import { refreshTrustLoopUi } from './trust-loop-ui';
 import { renderSessionTrustScore } from './session-trust-score';
 import { updateWorkboardLite } from './workboard-lite';
 
@@ -305,7 +305,7 @@ export function createDashboardLiveView({
     }
   };
 
-  const buildProofOsModel = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+  const buildTrustLoopModel = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
     const bridgeState = window.ZavorthRuntimeBridge?.state || {};
     const control = bridgeState.zavorthControl || {};
     const gatewaySnapshot = control.snapshot || {};
@@ -362,7 +362,7 @@ export function createDashboardLiveView({
         ? gatewaySnapshot.runs
         : [];
 
-    return composeProofOsPanelModel({
+    return composeTrustLoopPanelModel({
       proofs,
       runs,
       riskBudgetState,
@@ -372,14 +372,14 @@ export function createDashboardLiveView({
     });
   };
 
-  const updateProofOs = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
-    const proofOsModel = buildProofOsModel(snapshot);
-    refreshProofOsUi(proofOsModel);
-    return proofOsModel;
+  const updateTrustLoop = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
+    const trustLoopModel = buildTrustLoopModel(snapshot);
+    refreshTrustLoopUi(trustLoopModel);
+    return trustLoopModel;
   };
 
   const updateNextAction = (snapshot: ReturnType<typeof getDashboardSnapshot>) => {
-    const proofOsModel = updateProofOs(snapshot);
+    const trustLoopModel = updateTrustLoop(snapshot);
     const model = computeNextAction({
       pendingApprovals: snapshot.pendingApprovals,
       activeApprovals: snapshot.activeApprovals,
@@ -398,8 +398,8 @@ export function createDashboardLiveView({
       providerReady: null,
     });
     renderNextActionBar(model, {
-      riskBudget: proofOsModel.riskBudget,
-      readinessItems: proofOsModel.readinessItems,
+      riskBudget: trustLoopModel.riskBudget,
+      readinessItems: trustLoopModel.readinessItems,
     });
 
     // Highlight Review dock when approvals pending

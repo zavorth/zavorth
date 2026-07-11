@@ -1,5 +1,5 @@
 /**
- * Change Preview / counterfactual product UX contract (Proof OS face).
+ * Change Preview / counterfactual product UX contract (Trust Loop face).
  *
  * Productizes ImpactSimulatorService, FutureComparatorService, and
  * UniversalPreviewModeService — does not replace them.
@@ -7,7 +7,7 @@
  */
 
 export const CHANGE_PREVIEW_CONTRACT_VERSION =
-  '2026-07-11.proof-os-change-preview-v1' as const;
+  '2026-07-11.trust-loop-change-preview-v1' as const;
 
 export type ChangePreviewConfidence =
   | 'full'

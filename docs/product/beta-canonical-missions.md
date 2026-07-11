@@ -15,7 +15,7 @@ Short list of missions that define a successful Zavorth beta day-0 loop.
 | `dogfood.security.05` | Classic Control access/token |
 | `dogfood.security.08` | `security:ci` gate |
 | `dogfood.channels.06` | Channel factory registry |
-| `dogfood.receipts.01` | Proof OS / receipts golden path |
+| `dogfood.receipts.01` | Trust Loop / receipts golden path |
 | `dogfood.update.03` | Update/rollback readiness scripts |
 
 ## Full catalog

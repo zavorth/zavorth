@@ -1,7 +1,7 @@
 /**
- * Control Proof OS pure model — honesty + formatting unit tests.
- * Source: src/services/control/ControlProofOsModel.ts
- * (Control shell re-exports via apps/zavorth-control-vite-shell/src/proof-os-model.ts)
+ * Control Trust Loop pure model — honesty + formatting unit tests.
+ * Source: src/services/control/ControlTrustLoopModel.ts
+ * (Control shell re-exports via apps/zavorth-control-vite-shell/src/trust-loop-model.ts)
  */
 
 import {
@@ -10,18 +10,18 @@ import {
   formatProofLine,
   formatRiskBudgetLine,
   normalizeProofEvents,
-  parseProofOsCache,
+  parseTrustLoopCache,
   readHonestBoolean,
   sanitizeCachedReadinessBadge,
   selectLatestProof,
-  serializeProofOsCache,
-} from '../../src/services/control/ControlProofOsModel';
+  serializeTrustLoopCache,
+} from '../../src/services/control/ControlTrustLoopModel';
 
 import {
-  composeProofOsPanelModel,
+  composeTrustLoopPanelModel,
   buildControlReadinessItems,
-  CONTROL_PROOF_OS_CACHE_KEY,
-} from '../../apps/zavorth-control-vite-shell/src/proof-os-model';
+  CONTROL_TRUST_LOOP_CACHE_KEY,
+} from '../../apps/zavorth-control-vite-shell/src/trust-loop-model';
 
 function memoryStorage(seed: Record<string, string> = {}) {
   const map = new Map(Object.entries(seed));
@@ -38,7 +38,7 @@ function memoryStorage(seed: Record<string, string> = {}) {
   };
 }
 
-describe('ControlProofOsModel', () => {
+describe('ControlTrustLoopModel', () => {
   describe('classifyControlReadiness', () => {
     it('never maps catalog-only to live', () => {
       const badge = classifyControlReadiness({ catalogReady: true, liveReady: false });
@@ -248,15 +248,15 @@ describe('ControlProofOsModel', () => {
         counters: { diskMutations: 0, shellCommands: 0, networkSends: 0, modelCostUnits: 0 },
         limits: { diskMutations: 0, shellCommands: 0, networkSends: 0, modelCostUnits: 0 },
       });
-      const serialized = serializeProofOsCache({ proofs, riskBudget });
-      const parsed = parseProofOsCache(serialized);
+      const serialized = serializeTrustLoopCache({ proofs, riskBudget });
+      const parsed = parseTrustLoopCache(serialized);
       expect(parsed).not.toBeNull();
       expect(parsed!.proofs[0].id).toBe('p1');
       expect(parsed!.riskBudget?.mode).toBe('observer');
     });
 
     it('demotes poisoned live readiness badges from cache', () => {
-      const poisoned = parseProofOsCache({
+      const poisoned = parseTrustLoopCache({
         version: 1,
         updatedAt: '2026-07-11T00:00:00.000Z',
         proofs: [],
@@ -279,8 +279,8 @@ describe('ControlProofOsModel', () => {
     });
 
     it('rejects unknown cache versions', () => {
-      expect(parseProofOsCache({ version: 99, proofs: [], riskBudget: null })).toBeNull();
-      expect(parseProofOsCache({ version: 'nope', proofs: [] })).toBeNull();
+      expect(parseTrustLoopCache({ version: 99, proofs: [], riskBudget: null })).toBeNull();
+      expect(parseTrustLoopCache({ version: 'nope', proofs: [] })).toBeNull();
     });
 
     it('sanitizeCachedReadinessBadge never returns live', () => {
@@ -289,10 +289,10 @@ describe('ControlProofOsModel', () => {
     });
   });
 
-  describe('composeProofOsPanelModel (shell)', () => {
+  describe('composeTrustLoopPanelModel (shell)', () => {
     it('does not resurrect cached proofs when live snapshot provides empty arrays', () => {
       const storage = memoryStorage({
-        [CONTROL_PROOF_OS_CACHE_KEY]: JSON.stringify({
+        [CONTROL_TRUST_LOOP_CACHE_KEY]: JSON.stringify({
           version: 1,
           updatedAt: '2026-07-10T00:00:00.000Z',
           proofs: [
@@ -312,7 +312,7 @@ describe('ControlProofOsModel', () => {
         }),
       });
 
-      const model = composeProofOsPanelModel({
+      const model = composeTrustLoopPanelModel({
         proofs: [],
         runs: [],
         riskBudgetState: null,
@@ -325,13 +325,13 @@ describe('ControlProofOsModel', () => {
       expect(model.riskBudget).toBeNull();
       expect(model.readinessItems?.[0].state).toBe('needs_setup');
       // Cache rewritten without poison proofs
-      const rewritten = JSON.parse(storage.getItem(CONTROL_PROOF_OS_CACHE_KEY)!);
+      const rewritten = JSON.parse(storage.getItem(CONTROL_TRUST_LOOP_CACHE_KEY)!);
       expect(rewritten.proofs).toEqual([]);
     });
 
     it('uses cache only when dimensions were not provided', () => {
       const storage = memoryStorage({
-        [CONTROL_PROOF_OS_CACHE_KEY]: JSON.stringify({
+        [CONTROL_TRUST_LOOP_CACHE_KEY]: JSON.stringify({
           version: 1,
           updatedAt: '2026-07-10T00:00:00.000Z',
           proofs: [
@@ -357,7 +357,7 @@ describe('ControlProofOsModel', () => {
         }),
       });
 
-      const model = composeProofOsPanelModel({
+      const model = composeTrustLoopPanelModel({
         storage,
         useCacheFallback: true,
       });

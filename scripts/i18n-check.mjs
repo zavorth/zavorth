@@ -5,7 +5,7 @@
  * - Loads YAML namespaces under src/i18n/locales
  * - Flattens nested keys
  * - Requires en-US keys present in pt-BR for required namespaces
- * - Requires Proof OS product keys in en-US proof-os namespace
+ * - Requires Trust Loop product keys in en-US trust-loop namespace
  *
  * Usage:
  *   node scripts/i18n-check.mjs
@@ -22,10 +22,10 @@ const ROOT = path.resolve(__dirname, '..');
 const LOCALES_DIR = path.join(ROOT, 'src', 'i18n', 'locales');
 
 const REQUIRED_LOCALES = ['en-US', 'pt-BR'];
-const REQUIRED_NAMESPACES = ['common', 'cli', 'desktop', 'proof-os'];
+const REQUIRED_NAMESPACES = ['common', 'cli', 'desktop', 'trust-loop'];
 
-/** Product language keys that must exist under en-US/proof-os.yaml (flattened). */
-const REQUIRED_PROOF_OS_KEYS = [
+/** Product language keys that must exist under en-US/trust-loop.yaml (flattened). */
+const REQUIRED_TRUST_LOOP_KEYS = [
   'proof.title',
   'proof.ledger',
   'proof.empty',
@@ -90,7 +90,7 @@ function loadNamespace(locale, ns) {
 function main() {
   const namespaces = {};
   const missingInPtBr = [];
-  const missingProofOs = [];
+  const missingTrustLoop = [];
   const missingFiles = [];
   const parseErrors = [];
   let enKeyCount = 0;
@@ -136,11 +136,11 @@ function main() {
       }
     }
 
-    if (ns === 'proof-os') {
+    if (ns === 'trust-loop') {
       const enSet = new Set(en.keys);
-      for (const key of REQUIRED_PROOF_OS_KEYS) {
+      for (const key of REQUIRED_TRUST_LOOP_KEYS) {
         if (!enSet.has(key)) {
-          missingProofOs.push(key);
+          missingTrustLoop.push(key);
         }
       }
     }
@@ -150,7 +150,7 @@ function main() {
     missingFiles.length > 0
     || parseErrors.length > 0
     || missingInPtBr.length > 0
-    || missingProofOs.length > 0;
+    || missingTrustLoop.length > 0;
 
   const summary = {
     ok: !failed,
@@ -160,11 +160,11 @@ function main() {
     ptKeyCount,
     okPairs,
     missingInPtBrCount: missingInPtBr.length,
-    missingProofOsCount: missingProofOs.length,
+    missingTrustLoopCount: missingTrustLoop.length,
     missingFilesCount: missingFiles.length,
     parseErrorsCount: parseErrors.length,
     missingInPtBr: missingInPtBr.slice(0, 200),
-    missingProofOs,
+    missingTrustLoop,
     missingFiles,
     parseErrors,
     byNamespace: namespaces,
@@ -179,7 +179,7 @@ function main() {
     console.log(`  pt-BR keys: ${ptKeyCount}`);
     console.log(`  matched en→pt pairs: ${okPairs}`);
     console.log(`  missing in pt-BR: ${missingInPtBr.length}`);
-    console.log(`  missing required proof-os (en-US): ${missingProofOs.length}`);
+    console.log(`  missing required trust-loop (en-US): ${missingTrustLoop.length}`);
     console.log(`  missing files: ${missingFiles.length}`);
     console.log(`  parse errors: ${parseErrors.length}`);
 
@@ -191,9 +191,9 @@ function main() {
       console.log('\nParse errors:');
       for (const e of parseErrors) console.log(`  - ${e.path}: ${e.error}`);
     }
-    if (missingProofOs.length) {
-      console.log('\nRequired Proof OS keys missing from en-US/proof-os.yaml:');
-      for (const k of missingProofOs) console.log(`  - ${k}`);
+    if (missingTrustLoop.length) {
+      console.log('\nRequired Trust Loop keys missing from en-US/trust-loop.yaml:');
+      for (const k of missingTrustLoop) console.log(`  - ${k}`);
     }
     if (missingInPtBr.length) {
       console.log('\nKeys present in en-US but missing in pt-BR:');

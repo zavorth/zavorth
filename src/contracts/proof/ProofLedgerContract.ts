@@ -1,11 +1,11 @@
 /**
- * Proof OS unified receipt ledger contract.
+ * Trust Loop unified receipt ledger contract.
  *
  * Facade/projection over existing receipt systems (desktop receipts,
  * agent run evidence, AI-first runtime ledger, etc.). Does not replace them.
  */
 
-export const PROOF_LEDGER_CONTRACT_VERSION = '2026-07-11.proof-os-v1' as const;
+export const PROOF_LEDGER_CONTRACT_VERSION = '2026-07-11.trust-loop-v1' as const;
 
 export type ProofRiskLevel = 'none' | 'low' | 'medium' | 'high' | 'critical';
 

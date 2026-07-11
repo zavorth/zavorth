@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Q8–Q10 quality gates for Proof OS verification.
+ * Q8–Q10 quality gates for Trust Loop verification.
  *
  * Q8 Cross-surface honesty language (Desktop / Control / CLI / demo / site tokens)
  * Q9 Performance budgets (golden-path duration, CLI help cold, strip/list scale)
@@ -46,7 +46,7 @@ function exists(rel) {
       mustNot: [],
     },
     {
-      file: 'src/services/control/ControlProofOsModel.ts',
+      file: 'src/services/control/ControlTrustLoopModel.ts',
       must: [/liveReady === true/, /Catalog only|catalog/],
       mustNot: [],
     },
@@ -76,12 +76,12 @@ function exists(rel) {
     }
   }
 
-  // Shared honesty vocabulary across desktop i18n + proof-os yaml
+  // Shared honesty vocabulary across desktop i18n + trust-loop yaml
   const desktopI18n = exists('apps/zavorth-desktop/src/i18n.ts') ? read('apps/zavorth-desktop/src/i18n.ts') : '';
-  const proofOsEn = exists('src/i18n/locales/en-US/proof-os.yaml')
-    ? read('src/i18n/locales/en-US/proof-os.yaml')
+  const trustLoopEn = exists('src/i18n/locales/en-US/trust-loop.yaml')
+    ? read('src/i18n/locales/en-US/trust-loop.yaml')
     : '';
-  if (proofOsEn && !/Live|live/.test(proofOsEn)) fails.push('proof-os.yaml missing Live vocabulary');
+  if (trustLoopEn && !/Live|live/.test(trustLoopEn)) fails.push('trust-loop.yaml missing Live vocabulary');
   if (desktopI18n && !/Live|live|ready/i.test(desktopI18n)) fails.push('desktop i18n missing readiness vocabulary');
 
   // Website demo honesty
@@ -150,7 +150,7 @@ function exists(rel) {
       '--input-type=module',
       '-e',
       `
-      import { selectLatestProof } from './src/services/control/ControlProofOsModel.ts';
+      import { selectLatestProof } from './src/services/control/ControlTrustLoopModel.ts';
       const n = 5000;
       const events = Array.from({ length: n }, (_, i) => ({
         id: 'p' + i,
@@ -188,7 +188,7 @@ function exists(rel) {
       tsx,
       '-e',
       `
-      import { selectLatestProof } from './src/services/control/ControlProofOsModel.ts';
+      import { selectLatestProof } from './src/services/control/ControlTrustLoopModel.ts';
       const n = 5000;
       const events = Array.from({ length: n }, (_, i) => ({
         id: 'p' + i, runId: null, kind: 'chat', surface: 'cli', title: 'T' + i, summary: 'S',

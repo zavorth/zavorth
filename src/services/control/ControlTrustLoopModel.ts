@@ -1,5 +1,5 @@
 /**
- * Control surface Proof OS pure model.
+ * Control surface Trust Loop pure model.
  *
  * Browser-safe and Node-safe. Mirrors desktop proofBridge / riskBudgetBridge
  * language so Control keeps the same honesty rules (catalog ≠ live).
@@ -439,8 +439,8 @@ export function sanitizeCachedReadinessBadge(raw: unknown): ControlReadinessBadg
   };
 }
 
-/** Cache payload shape for Control localStorage (`zavorth.control.proof-os.v1`). */
-export type ControlProofOsCache = {
+/** Cache payload shape for Control localStorage (`zavorth.control.trust-loop.v1`). */
+export type ControlTrustLoopCache = {
   version: 1;
   updatedAt: string;
   proofs: ControlProofEvent[];
@@ -448,17 +448,17 @@ export type ControlProofOsCache = {
   readinessItems?: ControlReadinessBadge[];
 };
 
-export const CONTROL_PROOF_OS_CACHE_KEY = 'zavorth.control.proof-os.v1';
-export const CONTROL_PROOF_OS_CACHE_VERSION = 1 as const;
+export const CONTROL_TRUST_LOOP_CACHE_KEY = 'zavorth.control.trust-loop.v1';
+export const CONTROL_TRUST_LOOP_CACHE_VERSION = 1 as const;
 
-export function serializeProofOsCache(model: {
+export function serializeTrustLoopCache(model: {
   proofs?: ControlProofEvent[];
   riskBudget?: ControlRiskBudgetView | null;
   readinessItems?: ControlReadinessBadge[];
   updatedAt?: string;
-}): ControlProofOsCache {
+}): ControlTrustLoopCache {
   return {
-    version: CONTROL_PROOF_OS_CACHE_VERSION,
+    version: CONTROL_TRUST_LOOP_CACHE_VERSION,
     updatedAt: model.updatedAt || new Date().toISOString(),
     proofs: Array.isArray(model.proofs) ? model.proofs : [],
     riskBudget: model.riskBudget ?? null,
@@ -466,14 +466,14 @@ export function serializeProofOsCache(model: {
   };
 }
 
-export function parseProofOsCache(raw: unknown): ControlProofOsCache | null {
+export function parseTrustLoopCache(raw: unknown): ControlTrustLoopCache | null {
   const obj = asRecord(raw);
   if (!obj) return null;
 
   // Reject unknown future / garbage versions. Missing version → treat as v1 legacy.
   if (obj.version != null) {
     const version = Number(obj.version);
-    if (!Number.isFinite(version) || version !== CONTROL_PROOF_OS_CACHE_VERSION) {
+    if (!Number.isFinite(version) || version !== CONTROL_TRUST_LOOP_CACHE_VERSION) {
       return null;
     }
   }
@@ -486,7 +486,7 @@ export function parseProofOsCache(raw: unknown): ControlProofOsCache | null {
     .filter((item): item is ControlReadinessBadge => Boolean(item));
 
   return {
-    version: CONTROL_PROOF_OS_CACHE_VERSION,
+    version: CONTROL_TRUST_LOOP_CACHE_VERSION,
     updatedAt: readString(obj.updatedAt, new Date(0).toISOString()),
     proofs,
     riskBudget,

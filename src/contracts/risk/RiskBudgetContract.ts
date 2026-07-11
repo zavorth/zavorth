@@ -1,11 +1,11 @@
 /**
- * Risk Budget OS contract (Proof OS companion).
+ * Risk Budget OS contract (Trust Loop companion).
  *
  * Daily counters + mode-based limits for disk / shell / network / model cost units.
  * Composes with autonomy slider + trusted operator; does not replace them.
  */
 
-export const RISK_BUDGET_CONTRACT_VERSION = '2026-07-11.proof-os-risk-budget-v1' as const;
+export const RISK_BUDGET_CONTRACT_VERSION = '2026-07-11.trust-loop-risk-budget-v1' as const;
 
 export type RiskBudgetMode = 'observer' | 'operator' | 'autopilot';
 

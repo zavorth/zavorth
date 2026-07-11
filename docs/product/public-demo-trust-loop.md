@@ -1,4 +1,4 @@
-# Public demo — Proof OS (static)
+# Public demo — Trust Loop (static)
 
 Short map of the **approve → receipt** marketing surfaces. None of these are a live agent session.
 

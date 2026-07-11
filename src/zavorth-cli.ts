@@ -2576,12 +2576,12 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   if (
     command === 'proof'
     || command === 'proof-ledger'
-    || command === 'proof-os'
+    || command === 'trust-loop'
   ) {
     return runProofLedgerCli(restArgs);
   }
 
-  // Proof OS approval presentation facade (does not replace premium approve flow).
+  // Trust Loop approval presentation facade (does not replace premium approve flow).
   if (
     command === 'approval-presentation'
     || command === 'approval-os'
@@ -2593,7 +2593,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runApprovalPresentationCli(args);
   }
 
-  // Proof OS Risk Budget (compose autonomy/trusted-operator; do not replace them).
+  // Trust Loop Risk Budget (compose autonomy/trusted-operator; do not replace them).
   if (command === 'risk-budget' || command === 'riskbudget') {
     return runRiskBudgetCli(restArgs);
   }
@@ -2601,7 +2601,7 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runRiskBudgetCli(restArgs);
   }
 
-  // Proof OS change preview / counterfactual product face.
+  // Trust Loop change preview / counterfactual product face.
   if (
     command === 'change-preview'
     || command === 'preview-change'

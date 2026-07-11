@@ -95,7 +95,7 @@ export function renderCliWordmark(label = 'ZAVORTH'): string {
   ].join('\n') : plain;
 }
 
-/** Lightweight one-line status strip for bare Proof OS / risk-budget commands. */
+/** Lightweight one-line status strip for bare Trust Loop / risk-budget commands. */
 export function renderCliWordmarkStrip(label = 'ZAVORTH'): string {
   const normalized = String(label || '').trim().toUpperCase() || 'ZAVORTH';
   if (!isCliColorEnabled()) {

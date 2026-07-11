@@ -6,7 +6,7 @@
  * Does not replace MnemosDreamCycleService or memory storage engines.
  */
 
-export const MEMORY_PRIVACY_CONTRACT_VERSION = '2026-07-11.proof-os-memory-privacy-v1' as const;
+export const MEMORY_PRIVACY_CONTRACT_VERSION = '2026-07-11.trust-loop-memory-privacy-v1' as const;
 
 export type MemoryPrivacyOrigin =
   | 'conversation'

@@ -2,7 +2,7 @@
  * Desktop bridge for unified ApprovalPresentationCard shapes.
  *
  * Pure mappers so desktop store/approval cards can project into the
- * Proof OS approval presentation model without pulling Node-only services.
+ * Trust Loop approval presentation model without pulling Node-only services.
  * Mirrors src/contracts/approval/ApprovalPresentationContract.ts.
  */
 

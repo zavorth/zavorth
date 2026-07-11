@@ -1571,43 +1571,43 @@
 }
 
 /* Next action bar */
-.proof-os-chrome-host {
+.trust-loop-chrome-host {
   margin: 0 0 10px;
 }
-.proof-os-chrome {
+.trust-loop-chrome {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
 }
-.proof-os-host {
+.trust-loop-host {
   margin: 0 0 12px;
 }
-.proof-os-panel__chips,
-.proof-os-panel__readiness {
+.trust-loop-panel__chips,
+.trust-loop-panel__readiness {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
 }
-.proof-os-panel__risk-line {
+.trust-loop-panel__risk-line {
   margin: 0 0 8px;
 }
-.proof-os-list {
+.trust-loop-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   gap: 6px;
 }
-.proof-os-list__item {
+.trust-loop-list__item {
   padding: 8px 10px;
   border-radius: 10px;
   border: 1px solid var(--b-shell, rgba(255,255,255,0.08));
   background: color-mix(in srgb, var(--b-glass, rgba(255,255,255,0.04)) 80%, transparent);
   font-size: 12px;
 }
-.proof-os-risk-chip.is-frozen {
+.trust-loop-risk-chip.is-frozen {
   outline: 1px solid color-mix(in srgb, var(--b-danger, #ef4444) 50%, transparent);
 }
 

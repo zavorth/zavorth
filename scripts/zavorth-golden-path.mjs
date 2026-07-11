@@ -1,5 +1,5 @@
 /**
- * P13 — Zavorth golden path (hermetic Proof OS trust loop).
+ * P13 — Zavorth golden path (hermetic Trust Loop).
  *
  * Steps:
  * 1) Unit gate — critical Jest suites (runInBand)
@@ -24,7 +24,7 @@ const UNIT_SUITES = [
   'tests/services/preview/ChangePreviewPresenter.test.ts',
   'tests/services/honesty/ReadinessHonesty.test.ts',
   'tests/services/memory/MemoryPrivacyService.test.ts',
-  'tests/control/ProofOsModel.test.ts',
+  'tests/control/TrustLoopModel.test.ts',
 ];
 
 /**
@@ -192,7 +192,7 @@ function writeReport(ok) {
   console.log('');
   console.log(
     ok
-      ? '[pass] golden path complete — hermetic Proof OS trust loop verified'
+      ? '[pass] golden path complete — hermetic Trust Loop verified'
       : '[fail] golden path failed — see steps above',
   );
 
@@ -214,7 +214,7 @@ function writeReport(ok) {
 }
 
 function main() {
-  console.log('Zavorth golden path — hermetic Proof OS trust loop');
+  console.log('Zavorth golden path — hermetic Trust Loop');
   console.log(`root: ${root}`);
   console.log('');
 

@@ -2,7 +2,7 @@
 /**
  * Live-ish Desktop/Control surface smoke for Q4/Q5 residual.
  *
- * - Control: build vite shell if needed, serve static assets, fetch HTML, assert Proof OS hosts.
+ * - Control: build vite shell if needed, serve static assets, fetch HTML, assert Trust Loop hosts.
  * - Desktop: run full vitest unit suite + golden Q4 as stand-in for Electron session.
  * - Optional: if PLAYWRIGHT available and CONTROL_BASE_URL set, open live URL.
  *
@@ -78,11 +78,11 @@ function runNpx(args, opts = {}) {
       : '';
   const pagesSrc = fs.existsSync(pages) ? fs.readFileSync(pages, 'utf8') : '';
   const hasHosts =
-    /data-proof-os-host|data-proof-os-chrome-host/.test(pagesSrc)
-    || /data-proof-os-host|data-proof-os-chrome-host/.test(html);
+    /data-trust-loop-host|data-trust-loop-chrome-host|data-proof-os-host|data-proof-os-chrome-host/.test(pagesSrc)
+    || /data-trust-loop-host|data-trust-loop-chrome-host|data-proof-os-host|data-proof-os-chrome-host/.test(html);
   ok = hasHosts;
-  if (!ok) detail = (detail || '') + ' missing proof-os host markers';
-  else detail = (detail || 'proof-os hosts present') + (fs.existsSync(distIndex) ? ' (dist)' : ' (src)');
+  if (!ok) detail = (detail || '') + ' missing trust-loop host markers';
+  else detail = (detail || 'trust-loop hosts present') + (fs.existsSync(distIndex) ? ' (dist)' : ' (src)');
   record('live-control-surface-hosts', ok, detail, Date.now() - t0);
 }
 
@@ -146,13 +146,15 @@ function runNpx(args, opts = {}) {
       }).on('error', reject);
     });
 
-    // Index may be a vite shell; Proof OS hosts are injected by pages.ts at runtime.
-    // Assert shell boots and proof-os modules exist on disk.
-    const ui = path.join(controlShell, 'src', 'proof-os-ui.ts');
-    const model = path.join(controlShell, 'src', 'proof-os-model.ts');
+    // Index may be a vite shell; Trust Loop hosts are injected by pages.ts at runtime.
+    // Assert shell boots and trust-loop modules exist on disk.
+    const uiTrust = path.join(controlShell, 'src', 'trust-loop-ui.ts');
+    const modelTrust = path.join(controlShell, 'src', 'trust-loop-model.ts');
+    const uiLegacy = path.join(controlShell, 'src', 'proof-os-ui.ts');
+    const modelLegacy = path.join(controlShell, 'src', 'proof-os-model.ts');
     const ok =
-      fs.existsSync(ui)
-      && fs.existsSync(model)
+      (fs.existsSync(uiTrust) || fs.existsSync(uiLegacy))
+      && (fs.existsSync(modelTrust) || fs.existsSync(modelLegacy))
       && body.length > 50
       && (/zavorth|control|vite|root|app/i.test(body) || body.includes('<!'));
     record(

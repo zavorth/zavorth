@@ -1,7 +1,7 @@
 /**
  * P11 — Honesty enforcement: catalog ≠ live.
  * Source: src/services/honesty/ReadinessHonesty.ts
- * Keep semantics aligned with desktop readiness.ts and ControlProofOsModel.
+ * Keep semantics aligned with desktop readiness.ts and ControlTrustLoopModel.
  */
 
 import {
