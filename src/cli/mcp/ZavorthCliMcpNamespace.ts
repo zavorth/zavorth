@@ -21,11 +21,15 @@ export async function runMcp(root: string, args: string[]) {
   const servers = await readArray(file);
   if (action === 'add') {
     const name = args[1];
-    const command = args.slice(2).join(' ');
+    const optionIndex = args.findIndex((value, index) => index >= 2 && ['--allow-tools', '--allow-resources', '--channel'].includes(value));
+    const commandParts = args.slice(2, optionIndex >= 0 ? optionIndex : undefined);
+    const command = commandParts.join(' ');
     if (!name || !command) return render(args, 'Zavorth mcp', ['Usage: zavorth mcp add <name> <command>'], { ok: false });
     servers.push({
       id: name,
       command,
+      commandFile: commandParts[0],
+      commandArgs: commandParts.slice(1),
       status: 'configured',
       allowTools: splitList(readFlag(args, 'allow-tools') || ''),
       allowResources: splitList(readFlag(args, 'allow-resources') || ''),
@@ -102,10 +106,14 @@ export async function runMcp(root: string, args: string[]) {
 
 async function probeMcpServer(root: string, server: JsonObject, action: string, args: string[]): Promise<JsonObject> {
   const command = String(server.command || '');
+  const invocation = resolveMcpInvocation(server);
+  if (!invocation) {
+    return { ok: false, serverId: server.id, command: redactCommand(command), error: 'invalid-mcp-command' };
+  }
   const methods = ['initialize'];
   if (action === 'tools' || action === 'doctor' || action === 'run') methods.push('tools/list');
   if (action === 'resources' || action === 'doctor' || action === 'run') methods.push('resources/list');
-  const result = await runMcpJsonRpcSequence(command, methods, root, readNumberFlag(args, 'timeout-ms') || 5000);
+  const result = await runMcpJsonRpcSequence(invocation.file, invocation.args, methods, root, readNumberFlag(args, 'timeout-ms') || 5000);
   const tools = filterMcpTools(extractMcpTools(result.responses), (server.allowTools as string[] | undefined) || []);
   const resources = filterMcpResources(extractMcpResources(result.responses), (server.allowResources as string[] | undefined) || []);
   return {
@@ -125,37 +133,67 @@ async function probeMcpServer(root: string, server: JsonObject, action: string, 
   };
 }
 
-async function runMcpJsonRpcSequence(command: string, methods: string[], cwd: string, timeoutMs: number): Promise<{ ok: boolean; responses: JsonObject[]; durationMs: number; error?: string }> {
+function resolveMcpInvocation(server: JsonObject): { file: string; args: string[] } | null {
+  const structuredFile = String(server.commandFile || '').trim();
+  const structuredArgs = Array.isArray(server.commandArgs) ? server.commandArgs.map((value) => String(value)) : [];
+  if (structuredFile) return { file: structuredFile, args: structuredArgs };
+
+  const legacy = String(server.command || '').trim();
+  if (!legacy || legacy.length > 2_048 || /[\r\n;&|<>`]|\$\(/.test(legacy)) return null;
+  const tokens = Array.from(legacy.matchAll(/"([^"\\]*(?:\\.[^"\\]*)*)"|'([^']*)'|([^\s]+)/g))
+    .map((match) => match[1] ?? match[2] ?? match[3]);
+  return tokens.length > 0 ? { file: tokens[0], args: tokens.slice(1) } : null;
+}
+
+async function runMcpJsonRpcSequence(command: string, commandArgs: string[], methods: string[], cwd: string, timeoutMs: number): Promise<{ ok: boolean; responses: JsonObject[]; durationMs: number; error?: string }> {
   const startedAt = Date.now();
   return new Promise((resolve) => {
-    const child = spawn(command, [], { cwd, shell: true, windowsHide: true, stdio: 'pipe' });
+    const child = spawn(command, commandArgs, { cwd, shell: false, windowsHide: true, stdio: 'pipe' });
     let stdout: Buffer<ArrayBufferLike> = Buffer.alloc(0);
     let stderr = '';
+    let outputBytes = 0;
+    let settled = false;
     const responses: JsonObject[] = [];
     let nextId = 1;
+    const finish = (result: { ok: boolean; responses: JsonObject[]; durationMs: number; error?: string }) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
     const timer = setTimeout(() => {
       child.kill();
-      resolve({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-timeout' });
+      finish({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-timeout' });
     }, timeoutMs);
-    child.stderr.on('data', (chunk) => { stderr += String(chunk); });
+    child.stderr.on('data', (chunk) => {
+      outputBytes += Buffer.byteLength(chunk);
+      stderr = (stderr + String(chunk)).slice(-8_192);
+      if (outputBytes > 2 * 1024 * 1024) {
+        child.kill();
+        finish({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-output-limit-exceeded' });
+      }
+    });
     child.stdout.on('data', (chunk) => {
+      outputBytes += Buffer.byteLength(chunk);
+      if (outputBytes > 2 * 1024 * 1024) {
+        child.kill();
+        finish({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-output-limit-exceeded' });
+        return;
+      }
       stdout = Buffer.concat([stdout, Buffer.from(chunk)]);
       const parsed = parseMcpFrames(stdout);
       stdout = parsed.remaining;
       responses.push(...parsed.messages);
       if (responses.length >= methods.length) {
-        clearTimeout(timer);
         child.kill();
-        resolve({ ok: responses.every((response) => !(response as JsonObject).error), responses, durationMs: Date.now() - startedAt });
+        finish({ ok: responses.every((response) => !(response as JsonObject).error), responses, durationMs: Date.now() - startedAt });
       }
     });
     child.on('error', (error) => {
-      clearTimeout(timer);
-      resolve({ ok: false, responses, durationMs: Date.now() - startedAt, error: error.message });
+      finish({ ok: false, responses, durationMs: Date.now() - startedAt, error: error.message });
     });
     child.on('exit', () => {
-      clearTimeout(timer);
-      resolve({ ok: responses.length > 0 && responses.every((response) => !(response as JsonObject).error), responses, durationMs: Date.now() - startedAt, error: responses.length ? undefined : stderr.slice(0, 500) || 'mcp-process-exited-without-response' });
+      finish({ ok: responses.length > 0 && responses.every((response) => !(response as JsonObject).error), responses, durationMs: Date.now() - startedAt, error: responses.length ? undefined : stderr.slice(0, 500) || 'mcp-process-exited-without-response' });
     });
     for (const method of methods) {
       const payload = method === 'initialize'

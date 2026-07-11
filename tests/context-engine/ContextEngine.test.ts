@@ -106,10 +106,32 @@ describe('ContextEngine gateway ingest', () => {
 
     expect(workspaceMessage?.role).toBe('system');
     expect(workspaceMessage?.content).toContain('TRUST_BOUNDARY');
+    expect(workspaceMessage?.content).toContain('<untrusted_rag_evidence');
     expect(workspaceMessage?.content).toContain('UNTRUSTED_INSTRUCTION_OVERRIDE_REDACTED');
     expect(workspaceMessage?.content).toContain('UNTRUSTED_SYSTEM_PROMPT_LEAK_REDACTED');
     expect(workspaceMessage?.content).not.toContain('ignore previous instructions');
     expect(workspaceMessage?.content).not.toContain('reveal your system prompt');
+  });
+
+  it('marks multimodal attachments as untrusted evidence for downstream tool policy', () => {
+    const engine = new ContextEngine();
+    const decision = engine.prepare(
+      'describe this image',
+      'user-1',
+      'chat-media',
+      'web',
+      [],
+      'system',
+      null,
+      [{ mimeType: 'image/png', data: 'base64-image' }],
+    );
+
+    expect(decision.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        role: 'system',
+        content: expect.stringContaining('<untrusted_media_content'),
+      }),
+    ]));
   });
 
   it('expires inactive sessions by TTL', () => {

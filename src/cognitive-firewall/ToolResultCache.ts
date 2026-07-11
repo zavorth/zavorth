@@ -37,13 +37,13 @@ export interface ToolResultCacheStats {
   size: number;
 }
 
-/** Tools with side effects that must never be cached. */
-const NON_CACHEABLE_TOOLS = new Set([
-  'run_sandbox_code',
-  'remote_shell',
-  'desktop_automation',
-  'execute_command',
-  'run_command',
+/** Explicitly read-only tools. Unknown tools fail closed and are never cached. */
+const CACHEABLE_TOOLS = new Set([
+  'web_search',
+  'read_file',
+  'list_directory',
+  'search_files',
+  'get_datetime',
 ]);
 
 const CACHE_FILE = 'tool-result-cache.json';
@@ -185,7 +185,7 @@ export class ToolResultCache {
    * Checks if a tool is non-cacheable (has side effects).
    */
   private isNonCacheable(toolName: string): boolean {
-    return NON_CACHEABLE_TOOLS.has(toolName);
+    return !CACHEABLE_TOOLS.has(toolName);
   }
 
   /**

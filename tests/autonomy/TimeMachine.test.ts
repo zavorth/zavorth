@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { execFileSync } from 'child_process';
 import { TimeMachine } from '../../src/autonomy/TimeMachine';
 
 describe('TimeMachine', () => {
@@ -62,5 +63,24 @@ describe('TimeMachine', () => {
     expect(fs.readFileSync(file1, 'utf8')).toBe('content1');
     expect(fs.readFileSync(file2, 'utf8')).toBe('content2');
     expect(fs.existsSync(file3)).toBe(false);
+  });
+
+  it('does not discard git changes when the requested snapshot does not exist', async () => {
+    execFileSync('git', ['init'], { cwd: tempDir, stdio: 'pipe' });
+    execFileSync('git', ['config', 'user.email', 'time-machine@test.invalid'], { cwd: tempDir });
+    execFileSync('git', ['config', 'user.name', 'Time Machine Test'], { cwd: tempDir });
+
+    const tracked = path.join(tempDir, 'tracked.txt');
+    const untracked = path.join(tempDir, 'untracked.txt');
+    fs.writeFileSync(tracked, 'committed', 'utf8');
+    execFileSync('git', ['add', 'tracked.txt'], { cwd: tempDir });
+    execFileSync('git', ['commit', '-m', 'baseline'], { cwd: tempDir, stdio: 'pipe' });
+
+    fs.writeFileSync(tracked, 'user change', 'utf8');
+    fs.writeFileSync(untracked, 'user untracked data', 'utf8');
+
+    await expect(TimeMachine.rollback(tempDir, 'tm-9999999999999')).resolves.toBe(false);
+    expect(fs.readFileSync(tracked, 'utf8')).toBe('user change');
+    expect(fs.readFileSync(untracked, 'utf8')).toBe('user untracked data');
   });
 });

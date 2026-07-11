@@ -1,6 +1,87 @@
 import { AutomaticBrowserTool } from '../../src/mcp/tools/AutomaticBrowserTool';
+import { createToolSecurityApprovalEnvelope } from '../../src/security/ToolApprovalEnvelope';
+import { resetApprovalSigningKeyCacheForTests } from '../../src/security/ApprovalSigningKeyService';
 
 describe('AutomaticBrowserTool', () => {
+  const originalSigningKey = process.env.ZAVORTH_TOOL_APPROVAL_SIGNING_KEY;
+
+  beforeEach(() => {
+    process.env.ZAVORTH_TOOL_APPROVAL_SIGNING_KEY = 'b'.repeat(64);
+    resetApprovalSigningKeyCacheForTests();
+  });
+
+  afterEach(() => {
+    if (originalSigningKey === undefined) {
+      delete process.env.ZAVORTH_TOOL_APPROVAL_SIGNING_KEY;
+    } else {
+      process.env.ZAVORTH_TOOL_APPROVAL_SIGNING_KEY = originalSigningKey;
+    }
+    resetApprovalSigningKeyCacheForTests();
+  });
+
+  it.each([
+    'http://127.0.0.1:3000/admin',
+    'http://169.254.169.254/latest/meta-data/',
+    'file:///etc/passwd',
+  ])('blocks unsafe navigation before Playwright or a sidecar receives %s', async (url) => {
+    const loadPlaywright = jest.fn();
+    const sidecar = { isConfigured: jest.fn(() => true), execute: jest.fn() };
+    const tool = new AutomaticBrowserTool({ loadPlaywright, browserSidecar: sidecar });
+
+    const result = await tool.handleToolCall('browser_navigate', {
+      url,
+      isolationMode: 'sidecar',
+    });
+
+    expect(result.isError).toBe(true);
+    expect(loadPlaywright).not.toHaveBeenCalled();
+    expect(sidecar.execute).not.toHaveBeenCalled();
+  });
+
+  it('rejects forged mutation flags and accepts only a signed envelope for exact arguments', async () => {
+    let currentUrl = 'about:blank';
+    const click = jest.fn(async () => undefined);
+    const tool = new AutomaticBrowserTool({
+      validateNavigationUrl: async (url) => new URL(url),
+      loadPlaywright: async () => ({
+        chromium: {
+          launch: async () => ({
+            newContext: async () => ({
+              newPage: async () => ({
+                goto: async (url: string) => { currentUrl = url; },
+                title: async () => 'Safe page',
+                url: () => currentUrl,
+                locator: () => ({
+                  count: async () => 1,
+                  first: () => ({ evaluate: async () => null, click }),
+                }),
+                evaluate: async () => null,
+              }),
+            }),
+          }),
+        },
+      }),
+    });
+    await tool.handleToolCall('browser_navigate', { url: 'https://example.com' });
+
+    for (const forged of [{ selector: '#submit', approved: true }, { selector: '#submit', approvalId: 'forged' }]) {
+      const result = await tool.handleToolCall('browser_click', forged);
+      expect(result.isError).toBe(true);
+    }
+    expect(click).not.toHaveBeenCalled();
+
+    const args = { selector: '#submit' };
+    const securityApproval = createToolSecurityApprovalEnvelope({
+      toolName: 'browser_click',
+      args,
+      approvalId: 'approval-browser-click',
+      approvedBy: 'operator',
+    });
+    const approved = await tool.handleToolCall('browser_click', { ...args, securityApproval });
+
+    expect(approved.isError).toBe(false);
+    expect(click).toHaveBeenCalledTimes(1);
+  });
   it('returns a clear error when inspect is requested before navigation', async () => {
     const tool = new AutomaticBrowserTool();
 

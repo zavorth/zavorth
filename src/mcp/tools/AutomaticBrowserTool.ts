@@ -4,6 +4,11 @@ import {
   type RuntimeBrowserSidecarAction,
 } from '../../services/RuntimeBrowserSidecarService.js';
 import { asErrorLike } from '../../utils/errorLike';
+import { assertPublicHttpTargetAllowed } from '../../ai-gateway/lib/security/egressGuard.js';
+import {
+  extractToolSecurityApprovalEnvelope,
+  verifyToolSecurityApprovalEnvelope,
+} from '../../security/ToolApprovalEnvelope.js';
 
 type McpToolContent = {
   type: 'text';
@@ -35,6 +40,14 @@ type PlaywrightPageLike = {
 
 type PlaywrightContextLike = {
   newPage(): Promise<PlaywrightPageLike>;
+  route?(
+    pattern: string,
+    handler: (route: {
+      request(): { url(): string };
+      continue(): Promise<void>;
+      abort(errorCode?: string): Promise<void>;
+    }) => Promise<void>,
+  ): Promise<void>;
   close?(): Promise<void>;
 };
 
@@ -54,6 +67,7 @@ type AutomaticBrowserToolOptions = {
   launchOptions?: Record<string, unknown>;
   isolationGuard?: RuntimeIsolationGuardService;
   browserSidecar?: Pick<RuntimeBrowserSidecarService, 'execute' | 'isConfigured'> | null;
+  validateNavigationUrl?: (url: string) => Promise<URL>;
 };
 
 export type AutomaticBrowserDoctorReport = {
@@ -305,12 +319,13 @@ export class AutomaticBrowserTool {
   }
 
   private async handleNavigate(args: Record<string, unknown>): Promise<McpToolCallResponse> {
-    const sidecar = await this.tryHandleBrowserSidecar('browser_navigate', args);
+    const url = await this.normalizeUrl(args?.url);
+    const validatedArgs = { ...args, url };
+    const sidecar = await this.tryHandleBrowserSidecar('browser_navigate', validatedArgs);
     if (sidecar) {
       return sidecar;
     }
 
-    const url = this.normalizeUrl(args?.url);
     const page = await this.ensurePage();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
@@ -660,6 +675,16 @@ export class AutomaticBrowserTool {
       ...this.options.launchOptions,
     });
     this.context = await this.browser.newContext();
+    if (typeof this.context.route === 'function') {
+      await this.context.route('**/*', async (route) => {
+        try {
+          await this.validateNavigationUrl(route.request().url());
+          await route.continue();
+        } catch {
+          await route.abort('blockedbyclient');
+        }
+      });
+    }
     this.page = await this.context.newPage();
     return this.page;
   }
@@ -714,21 +739,27 @@ export class AutomaticBrowserTool {
     ];
   }
 
-  private normalizeUrl(value: unknown): string {
+  private async normalizeUrl(value: unknown): Promise<string> {
     const url = String(value || '').trim();
     if (!url) {
       throw new Error('browser_navigate requer uma URL absoluta.');
     }
 
     try {
-      const parsed = new URL(url);
-      if (!parsed.protocol) {
-        throw new Error('missing protocol');
-      }
+      const parsed = await this.validateNavigationUrl(url);
       return parsed.toString();
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       throw new Error(`URL invalida para browser_navigate: "${url}".`);
     }
+  }
+
+  private validateNavigationUrl(url: string): Promise<URL> {
+    if (this.options.validateNavigationUrl) {
+      return this.options.validateNavigationUrl(url);
+    }
+    return assertPublicHttpTargetAllowed(url, {
+      serviceName: 'MCP browser navigation',
+    });
   }
 
   private normalizeSelector(value: unknown, action: string): string {
@@ -740,11 +771,15 @@ export class AutomaticBrowserTool {
   }
 
   private requireMutationApproval(args: Record<string, unknown>, action: string): void {
-    const approvalId = String(args.approvalId || '').trim();
-    if (args.approved === true || approvalId.length > 0) {
+    const verification = verifyToolSecurityApprovalEnvelope({
+      toolName: action,
+      args,
+      envelope: extractToolSecurityApprovalEnvelope(args, {}),
+    });
+    if (verification.ok) {
       return;
     }
-    throw new Error(`${action} exige approvalId ou approved=true antes de click/type no browser.`);
+    throw new Error(`${action} exige uma approval envelope assinada e valida (${verification.reason}).`);
   }
 
   private buildSearchUrl(engine: string, query: string): string {

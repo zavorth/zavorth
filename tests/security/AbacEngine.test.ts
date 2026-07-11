@@ -2,13 +2,26 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { AbacEngine } from '../../src/security/AbacEngine.js';
+import { AbacEngine, getZonedDayAndHour } from '../../src/security/AbacEngine.js';
 
 describe('AbacEngine', () => {
   let engine: AbacEngine;
+  /** Snapshot env so timezone cases never leak across tests. */
+  let previousAbacTimezone: string | undefined;
 
   beforeEach(() => {
-    engine = new AbacEngine();
+    previousAbacTimezone = process.env.ZAVORTH_ABAC_TIMEZONE;
+    delete process.env.ZAVORTH_ABAC_TIMEZONE;
+    // Fresh engine per case; no shared mutable clock / fake timers.
+    engine = new AbacEngine({ defaultTimezone: 'UTC' });
+  });
+
+  afterEach(() => {
+    if (previousAbacTimezone === undefined) {
+      delete process.env.ZAVORTH_ABAC_TIMEZONE;
+    } else {
+      process.env.ZAVORTH_ABAC_TIMEZONE = previousAbacTimezone;
+    }
   });
 
   describe('Policy CRUD operations', () => {
@@ -396,7 +409,7 @@ describe('AbacEngine', () => {
   });
 
   describe('Time-based conditions', () => {
-    it('should deny policy outside time window', () => {
+    it('should deny policy outside absolute time window (ISO Z instants)', () => {
       engine.createPolicy({
         id: 'time_policy',
         name: 'Business Hours',
@@ -433,7 +446,8 @@ describe('AbacEngine', () => {
       expect(insideTime.allowed).toBe(true);
     });
 
-    it('should deny policy on wrong day of week', () => {
+    it('should deny policy on wrong day of week using UTC (Z fixtures)', () => {
+      // 2025-01-04T12:00:00Z is Saturday (6) in UTC — independent of host TZ.
       engine.createPolicy({
         id: 'weekday_policy',
         name: 'Weekdays Only',
@@ -445,6 +459,7 @@ describe('AbacEngine', () => {
         priority: 1,
         enabled: true,
         timeConstraints: {
+          timezone: 'UTC',
           daysOfWeek: [1, 2, 3, 4, 5],
         },
       });
@@ -457,9 +472,20 @@ describe('AbacEngine', () => {
         timestamp: new Date('2025-01-04T12:00:00Z'),
       });
       expect(weekend.allowed).toBe(false);
+
+      // 2025-01-03T12:00:00Z is Friday (5) in UTC
+      const weekday = engine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: new Date('2025-01-03T12:00:00Z'),
+      });
+      expect(weekday.allowed).toBe(true);
     });
 
-    it('should deny policy outside allowed hours', () => {
+    it('should deny policy outside allowed hours using UTC (Z fixtures)', () => {
+      // 02:00 UTC is outside 9–17 regardless of host local offset.
       engine.createPolicy({
         id: 'hours_policy',
         name: 'Business Hours Only',
@@ -471,6 +497,7 @@ describe('AbacEngine', () => {
         priority: 1,
         enabled: true,
         timeConstraints: {
+          timezone: 'UTC',
           hoursOfDay: [9, 10, 11, 12, 13, 14, 15, 16, 17],
         },
       });
@@ -483,6 +510,128 @@ describe('AbacEngine', () => {
         timestamp: new Date('2025-01-01T02:00:00Z'),
       });
       expect(night.allowed).toBe(false);
+
+      const business = engine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: new Date('2025-01-01T14:00:00Z'),
+      });
+      expect(business.allowed).toBe(true);
+    });
+
+    it('should evaluate day/hour in an explicit operator timezone (not host local)', () => {
+      // 2025-01-04T02:00:00Z = Friday 21:00 in America/New_York (EST, UTC-5).
+      // UTC calendar fields would be Saturday hour 2; NY is Friday hour 21.
+      const instant = new Date('2025-01-04T02:00:00Z');
+      expect(getZonedDayAndHour(instant, 'UTC')).toEqual({ dayOfWeek: 6, hourOfDay: 2 });
+      expect(getZonedDayAndHour(instant, 'America/New_York')).toEqual({
+        dayOfWeek: 5,
+        hourOfDay: 21,
+      });
+
+      engine.createPolicy({
+        id: 'ny_weekdays',
+        name: 'NY weekdays',
+        description: '',
+        resource: 'file',
+        action: 'read',
+        condition: { attribute: 'x', operator: 'equals' as const, value: 1 },
+        effect: 'ALLOW',
+        priority: 1,
+        enabled: true,
+        timeConstraints: {
+          timezone: 'America/New_York',
+          daysOfWeek: [1, 2, 3, 4, 5],
+          hoursOfDay: [21],
+        },
+      });
+
+      const nyFridayEvening = engine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: instant,
+      });
+      expect(nyFridayEvening.allowed).toBe(true);
+
+      // Same instant denied when evaluated in UTC (Saturday, hour 2).
+      engine.updatePolicy('ny_weekdays', {
+        timeConstraints: {
+          timezone: 'UTC',
+          daysOfWeek: [1, 2, 3, 4, 5],
+          hoursOfDay: [21],
+        },
+      });
+      const utcView = engine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: instant,
+      });
+      expect(utcView.allowed).toBe(false);
+    });
+
+    it('should default day/hour evaluation to UTC when no timezone is set', () => {
+      expect(engine.getDefaultTimezone()).toBe('UTC');
+
+      engine.createPolicy({
+        id: 'default_tz',
+        name: 'Default TZ',
+        description: '',
+        resource: 'file',
+        action: 'read',
+        condition: { attribute: 'x', operator: 'equals' as const, value: 1 },
+        effect: 'ALLOW',
+        priority: 1,
+        enabled: true,
+        timeConstraints: {
+          // no timezone — engine default UTC
+          hoursOfDay: [2],
+        },
+      });
+
+      const at0200Z = engine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: new Date('2025-01-01T02:00:00Z'),
+      });
+      expect(at0200Z.allowed).toBe(true);
+    });
+
+    it('should honor engine defaultTimezone without mutating global env for other cases', () => {
+      const operatorEngine = new AbacEngine({ defaultTimezone: 'America/Sao_Paulo' });
+      expect(operatorEngine.getDefaultTimezone()).toBe('America/Sao_Paulo');
+      // 15:00Z = 12:00 in America/Sao_Paulo (UTC-3, no DST in 2025 for this date).
+      operatorEngine.createPolicy({
+        id: 'sp_hours',
+        name: 'SP hours',
+        description: '',
+        resource: 'file',
+        action: 'read',
+        condition: { attribute: 'x', operator: 'equals' as const, value: 1 },
+        effect: 'ALLOW',
+        priority: 1,
+        enabled: true,
+        timeConstraints: {
+          hoursOfDay: [12],
+        },
+      });
+      const result = operatorEngine.evaluate({
+        userId: 'u1',
+        resource: 'file',
+        action: 'read',
+        attributes: { x: 1 },
+        timestamp: new Date('2025-06-15T15:00:00Z'),
+      });
+      expect(result.allowed).toBe(true);
+      // Shared suite engine remains UTC and is not polluted by this instance.
+      expect(engine.getDefaultTimezone()).toBe('UTC');
     });
   });
 

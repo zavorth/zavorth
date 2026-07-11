@@ -84,7 +84,7 @@ import {
     const deviceType = this.resolveDeviceType(prompt, request);
     const modelId = this.resolveModelId(request);
     const generationPrompt = this.buildGenerationPrompt(prompt, request);
-    const artifactDir = path.join(config.stitchArtifactsDir, request.task_id);
+    const artifactDir = this.resolveArtifactDirectory(request.task_id);
     await fs.promises.mkdir(artifactDir, { recursive: true });
 
     return executeStitchSdkRoute({
@@ -168,6 +168,16 @@ import {
       error_message: null,
       metadata: {},
     };
+  }
+
+  private resolveArtifactDirectory(taskId: string): string {
+    const root = path.resolve(config.stitchArtifactsDir);
+    const safeTaskId = sanitizeStitchFilePart(String(taskId || '')) || `task-${uuidv4()}`;
+    const candidate = path.resolve(root, safeTaskId);
+    if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) {
+      throw new Error('Unsafe Stitch artifact path');
+    }
+    return candidate;
   }
 
   private buildAuthMissingMessage(): string {

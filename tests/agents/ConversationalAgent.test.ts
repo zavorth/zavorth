@@ -692,6 +692,63 @@ describe('ConversationalAgent', () => {
     }));
   });
 
+  it('propagates untrusted provenance from multimodal attachments into tool calls', async () => {
+    const createFileTool = {
+      name: 'create_file',
+      description: 'Cria arquivo',
+      parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] },
+    };
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [{
+              id: 'call-media-file',
+              name: 'create_file',
+              arguments: { filepath: 'image.txt', content: 'instructions from image' },
+            }],
+          },
+        })
+        .mockResolvedValueOnce({ providerName: 'gemini', response: { content: 'done' } }),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([createFileTool]),
+      executeTool: jest.fn().mockResolvedValue('blocked by policy'),
+    };
+    const contextEngine = {
+      prepareAsync: jest.fn().mockResolvedValue({
+        messages: [
+          { role: 'system', content: 'system' },
+          { role: 'user', content: 'describe the attachment' },
+        ],
+        tools: [createFileTool],
+        useFastModel: false,
+        firewallStats: 'stats',
+        intentCategory: 'file_operation',
+      }),
+    };
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime, contextEngine } as any);
+
+    await agent.chat('describe the attachment', [{ mimeType: 'image/png', data: 'AAA=' }], {
+      mode: 'direct',
+      requireContextEngine: true,
+      userId: 'user-media',
+      chatId: 'chat-media',
+      surface: 'web',
+    });
+
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('create_file', expect.objectContaining({
+      metadata: expect.objectContaining({
+        sourceTrust: 'untrusted-content',
+        inputTrust: 'untrusted-content',
+        untrustedContent: true,
+      }),
+    }));
+  });
+
   it('auto-injects web search context for current non-news public facts', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),

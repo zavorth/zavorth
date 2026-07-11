@@ -43,11 +43,34 @@ export interface AbacPolicy {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * Time-window constraints for ABAC policies.
+ *
+ * Contract:
+ * - `notBefore` / `notAfter` are absolute instants (ISO-8601). Prefer a `Z`
+ *   (UTC) suffix so evaluation is independent of the host locale.
+ * - `daysOfWeek` / `hoursOfDay` are calendar fields evaluated in an explicit
+ *   timezone — never the host's local wall clock unless that zone is chosen.
+ * - Timezone resolution order: `timeConstraints.timezone` → engine
+ *   `defaultTimezone` → `ZAVORTH_ABAC_TIMEZONE` env → `"UTC"`.
+ * - `daysOfWeek` uses JS convention: 0 = Sunday … 6 = Saturday.
+ * - `hoursOfDay` uses 0–23 in the resolved timezone.
+ */
 export interface TimeConstraint {
   notBefore?: string;
   notAfter?: string;
   daysOfWeek?: number[];
   hoursOfDay?: number[];
+  /** IANA timezone (e.g. `UTC`, `America/Sao_Paulo`). Default: engine/UTC. */
+  timezone?: string;
+}
+
+export interface AbacEngineOptions {
+  /**
+   * Default timezone for day/hour constraints when a policy does not set
+   * `timeConstraints.timezone`. Defaults to `ZAVORTH_ABAC_TIMEZONE` or `UTC`.
+   */
+  defaultTimezone?: string;
 }
 
 export interface AttributeDefinition {
@@ -80,13 +103,85 @@ export interface AccessDecision {
   deniedBy?: string;
 }
 
+const WEEKDAY_SHORT_TO_JS: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+/**
+ * Resolve calendar day-of-week (0–6, Sun–Sat) and hour (0–23) for `date`
+ * in an explicit IANA timezone. Uses UTC getters for UTC aliases so fixtures
+ * with `Z` timestamps stay deterministic without depending on host locale.
+ */
+export function getZonedDayAndHour(
+  date: Date,
+  timeZone: string
+): { dayOfWeek: number; hourOfDay: number } {
+  const zone = String(timeZone || 'UTC').trim() || 'UTC';
+  if (zone === 'UTC' || zone === 'Etc/UTC' || zone === 'Z' || zone === 'GMT' || zone === 'Etc/GMT') {
+    return {
+      dayOfWeek: date.getUTCDay(),
+      hourOfDay: date.getUTCHours(),
+    };
+  }
+
+  const weekdayParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    weekday: 'short',
+  }).formatToParts(date);
+  const weekday = weekdayParts.find((p) => p.type === 'weekday')?.value ?? '';
+  const dayOfWeek = WEEKDAY_SHORT_TO_JS[weekday];
+  if (dayOfWeek === undefined) {
+    throw new Error(`Unable to resolve weekday for timezone '${zone}' (got '${weekday}')`);
+  }
+
+  // hourCycle h23 yields 0–23; avoid locale 12h am/pm ambiguity.
+  const hourParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hour: 'numeric',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const hourRaw = hourParts.find((p) => p.type === 'hour')?.value ?? '0';
+  const hourOfDay = Number.parseInt(hourRaw, 10);
+  if (!Number.isFinite(hourOfDay) || hourOfDay < 0 || hourOfDay > 23) {
+    throw new Error(`Unable to resolve hour for timezone '${zone}' (got '${hourRaw}')`);
+  }
+
+  return { dayOfWeek, hourOfDay };
+}
+
+function resolveAbacTimezone(policyZone: string | undefined, engineDefault: string): string {
+  const fromPolicy = policyZone?.trim();
+  if (fromPolicy) return fromPolicy;
+  const fromEngine = engineDefault?.trim();
+  if (fromEngine) return fromEngine;
+  const fromEnv = process.env.ZAVORTH_ABAC_TIMEZONE?.trim();
+  if (fromEnv) return fromEnv;
+  return 'UTC';
+}
+
 export class AbacEngine {
   private policies: Map<string, AbacPolicy>;
   private attributeDefinitions: Map<string, AttributeDefinition>;
+  private readonly defaultTimezone: string;
 
-  constructor() {
+  constructor(options: AbacEngineOptions = {}) {
     this.policies = new Map();
     this.attributeDefinitions = new Map();
+    this.defaultTimezone =
+      options.defaultTimezone?.trim() ||
+      process.env.ZAVORTH_ABAC_TIMEZONE?.trim() ||
+      'UTC';
+  }
+
+  /** Effective default timezone used when a policy omits `timeConstraints.timezone`. */
+  public getDefaultTimezone(): string {
+    return this.defaultTimezone;
   }
 
   public createPolicy(policy: AbacPolicy): void {
@@ -212,13 +307,22 @@ export class AbacEngine {
     const tc = policy.timeConstraints;
     const ts = timestamp.getTime();
 
+    // Absolute instant bounds — independent of evaluation timezone.
     if (tc.notBefore && ts < new Date(tc.notBefore).getTime()) return false;
     if (tc.notAfter && ts > new Date(tc.notAfter).getTime()) return false;
+
+    const needsCalendar =
+      (tc.daysOfWeek && tc.daysOfWeek.length > 0) || (tc.hoursOfDay && tc.hoursOfDay.length > 0);
+    if (!needsCalendar) return true;
+
+    const zone = resolveAbacTimezone(tc.timezone, this.defaultTimezone);
+    const { dayOfWeek, hourOfDay } = getZonedDayAndHour(timestamp, zone);
+
     if (tc.daysOfWeek && tc.daysOfWeek.length > 0) {
-      if (!tc.daysOfWeek.includes(timestamp.getDay())) return false;
+      if (!tc.daysOfWeek.includes(dayOfWeek)) return false;
     }
     if (tc.hoursOfDay && tc.hoursOfDay.length > 0) {
-      if (!tc.hoursOfDay.includes(timestamp.getHours())) return false;
+      if (!tc.hoursOfDay.includes(hourOfDay)) return false;
     }
     return true;
   }

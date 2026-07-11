@@ -103,7 +103,7 @@ export class SupplyChainVerifier {
     const firstSeen = !existing;
 
     // Verify signature if provided
-    let signatureValid: boolean | null = null;
+    let signatureValid: boolean | null = signature ? false : null;
     let trustedKey = false;
 
     if (signature) {
@@ -111,7 +111,7 @@ export class SupplyChainVerifier {
       if (keyFingerprint) {
         trustedKey = this.trustedKeys.has(keyFingerprint);
         try {
-          signatureValid = this.verifySignature(skillPath, signature, keyFingerprint);
+          signatureValid = trustedKey && this.verifySignature(skillPath, signature, keyFingerprint);
         } catch (error: unknown) {logger.warn('[Supply Chain Verifier] validation failed', error);
     signatureValid = false;
   }
@@ -137,7 +137,7 @@ export class SupplyChainVerifier {
     await this.saveTrustData();
 
     return {
-      verified: hashMatch && (signatureValid !== false),
+      verified: hashMatch && (!signature || (trustedKey && signatureValid === true)),
       hash,
       hashMatch,
       signatureValid,
@@ -150,6 +150,10 @@ export class SupplyChainVerifier {
    * Calculates SHA-256 hash of a file or directory.
    */
   async calculateHash(targetPath: string): Promise<string> {
+    return this.calculateHashSync(targetPath);
+  }
+
+  private calculateHashSync(targetPath: string): string {
     const stat = fs.statSync(targetPath);
 
     if (stat.isFile()) {
@@ -203,11 +207,13 @@ export class SupplyChainVerifier {
    * Signs a skill file or directory.
    */
   signSkill(skillPath: string, privateKey: string): string {
-    const hash = this.hashFile(skillPath);
+    const hash = this.calculateHashSync(skillPath);
+    const publicKey = crypto.createPublicKey(privateKey).export({ type: 'spki', format: 'pem' }).toString();
+    const fingerprint = this.fingerprintPublicKey(publicKey);
     const sign = crypto.createSign('SHA256');
     sign.update(hash);
-    const signature = sign.sign(privateKey, 'hex');
-    return signature;
+    sign.end();
+    return `${fingerprint}:${sign.sign(privateKey, 'hex')}`;
   }
 
   /**
@@ -217,30 +223,44 @@ export class SupplyChainVerifier {
     const keyData = this.trustedKeys.get(keyFingerprint);
     if (!keyData) return false;
 
-    const hash = this.hashFile(skillPath);
+    const parsed = this.parseSignature(signature);
+    if (!parsed || parsed.fingerprint !== keyFingerprint) return false;
+
+    const hash = this.calculateHashSync(skillPath);
     const verify = crypto.createVerify('SHA256');
     verify.update(hash);
+    verify.end();
 
     try {
-      return verify.verify(keyData.publicKey, signature, 'hex');
+      return verify.verify(keyData.publicKey, parsed.signatureHex, 'hex');
     } catch (error: unknown) {logger.warn('[Supply Chain Verifier] creation failed', error); return false; }
   }
 
   private extractKeyFingerprint(signature: string): string | null {
-    // Signature format: "fingerprint:signature_data"
-    const colonIndex = signature.indexOf(':');
-    if (colonIndex === -1) return null;
-    return signature.substring(0, colonIndex);
+    return this.parseSignature(signature)?.fingerprint ?? null;
+  }
+
+  private parseSignature(signature: string): { fingerprint: string; signatureHex: string } | null {
+    const match = /^([a-f0-9]{16}):([a-f0-9]+)$/i.exec(signature);
+    if (!match || match[2].length % 2 !== 0) return null;
+    return { fingerprint: match[1].toLowerCase(), signatureHex: match[2] };
+  }
+
+  private fingerprintPublicKey(publicKey: string): string {
+    let normalized = publicKey;
+    try {
+      normalized = crypto.createPublicKey(publicKey).export({ type: 'spki', format: 'pem' }).toString();
+    } catch {
+      // Preserve compatibility for manually registered opaque keys; they cannot verify signatures.
+    }
+    return crypto.createHash(this.hashAlgo).update(normalized).digest('hex').substring(0, 16);
   }
 
   /**
    * Adds a trusted key.
    */
   addTrustedKey(name: string, publicKey: string): TrustedKey {
-    const fingerprint = crypto.createHash(this.hashAlgo)
-      .update(publicKey)
-      .digest('hex')
-      .substring(0, 16);
+    const fingerprint = this.fingerprintPublicKey(publicKey);
 
     const key: TrustedKey = {
       name,

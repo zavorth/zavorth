@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import crypto from 'crypto';
 import { SupplyChainVerifier } from '../../src/security/SupplyChainVerifier.js';
 
 describe('SupplyChainVerifier', () => {
@@ -95,6 +96,44 @@ describe('SupplyChainVerifier', () => {
 
     const hash = await verifier.calculateHash(dir);
     expect(hash).toBeTruthy();
+  });
+
+  it('verifies trusted signatures for files and rejects tampering', async () => {
+    const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const privatePem = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
+    const publicPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
+    verifier.addTrustedKey('test-signer', publicPem);
+
+    const signature = verifier.signSkill(testFile, privatePem);
+    const valid = await verifier.verifySkill(testFile, undefined, signature);
+    expect(valid.verified).toBe(true);
+    expect(valid.signatureValid).toBe(true);
+    expect(valid.trustedKey).toBe(true);
+
+    fs.writeFileSync(testFile, 'tampered content');
+    const tampered = await verifier.verifySkill(testFile, undefined, signature);
+    expect(tampered.verified).toBe(false);
+    expect(tampered.signatureValid).toBe(false);
+  });
+
+  it('signs directories and rejects signatures from untrusted keys', async () => {
+    const skillDir = path.join(tempDir, 'signed-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'), 'safe instructions');
+    const { privateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const privatePem = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
+
+    const signature = verifier.signSkill(skillDir, privatePem);
+    const result = await verifier.verifySkill(skillDir, undefined, signature);
+    expect(result.verified).toBe(false);
+    expect(result.signatureValid).toBe(false);
+    expect(result.trustedKey).toBe(false);
+  });
+
+  it('fails closed for malformed signature envelopes', async () => {
+    const result = await verifier.verifySkill(testFile, undefined, 'not-a-signed-envelope');
+    expect(result.verified).toBe(false);
+    expect(result.signatureValid).toBe(false);
   });
 
   it('exports report', async () => {
