@@ -1,0 +1,50 @@
+# Proof OS product language (en-US)
+# Namespace: proof-os — keys: proof-os.<section>.<key>
+
+proof:
+  title: Proof
+  ledger: Proof ledger
+  empty: No proof recorded yet
+  description: Unified receipt and evidence projection for actions, approvals, memory, and runtime events.
+
+approval:
+  title: Approval
+  decide: Decide
+  pending: Pending approval
+  approved: Approved
+  rejected: Rejected
+
+riskBudget:
+  title: Risk budget
+  observer: Observer
+  operator: Operator
+  autopilot: Autopilot
+  chipLabel: Risk budget
+
+changePreview:
+  title: If you approve, what changes?
+  limited: Limited preview — not a full world twin
+  unavailable: No simulated change available
+
+memoryPrivacy:
+  title: Memory privacy
+  why: Why I know this
+  forget: Forget
+  origin: Origin
+  candidates: Learning candidates
+  empty: No memories projected yet
+
+honesty:
+  live: Live
+  catalogOnly: Catalog only
+  needsSetup: Needs setup
+  blocked: Blocked
+
+absorb:
+  riskReport: Risk report
+  quarantine: Quarantine
+  title: Absorb
+
+migration:
+  title: Workspace migration
+  profile: Profile

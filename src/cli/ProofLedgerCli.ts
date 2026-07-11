@@ -22,6 +22,7 @@ import {
   paintCliTone,
   renderCliWordmarkStrip,
 } from './ZavorthCliVisualTheme.js';
+import { getI18nService, resolveFromEnv } from '../i18n/index.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -38,8 +39,14 @@ function readOption(args: string[], name: string): string | null {
 }
 
 function printHelp(): void {
+  const i18n = getI18nService({
+    locale: resolveFromEnv(process.env) || undefined,
+  });
+  const ledgerTitle = i18n.t('proof-os.proof.ledger', {
+    fallback: 'Proof ledger',
+  });
   console.log([
-    `${paintCliBadge('PROOF OS', 'brand')} ${paintCliTone('Zavorth Proof Ledger', 'brand')}`,
+    `${paintCliBadge('PROOF OS', 'brand')} ${paintCliTone(`Zavorth ${ledgerTitle}`, 'brand')}`,
     paintCliTone('Unified receipt / evidence projection facade.', 'muted'),
     paintCliTone('Does not replace desktop receipts, agent evidence store, or AI-first ledgers.', 'muted'),
     '',
