@@ -12,6 +12,15 @@ Order: V0 baseline → V1 smartness scoreboard ∥ V2 daily loop → V3 first de
 
 Any agent continuing this work should open that file first (status table + wave in progress).
 
+**How to test everything value-related:**
+
+```bash
+npm run value:test-all
+npm run value:test-all -- --live
+```
+
+See [product/HOW-TO-TEST-VALUE.md](./product/HOW-TO-TEST-VALUE.md).
+
 ## Now (local ready)
 
 - Hermetic dogfood matrix (110) + day-0 session

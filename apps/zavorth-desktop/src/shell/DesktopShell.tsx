@@ -23,6 +23,15 @@ import type {
 } from '../apiClient';
 import { DesktopCommandBar } from '../composer/DesktopCommandBar';
 import { DesktopInspector } from '../panels/DesktopInspector';
+import { ContinuityBanner, buildContinuityBannerModel } from '../components/ContinuityBanner';
+import { NextActionBanner } from '../components/NextActionBanner';
+import {
+  isDay1ReturnEligible,
+  readDesktopOpenClock,
+  readRememberedDesktopSession,
+  rememberDesktopSession,
+  touchDesktopOpenClock,
+} from '../desktop-state/continuityStorage';
 
 import {
   clearQueue,
@@ -65,7 +74,6 @@ import type { PluginItem } from '../views/panels/PluginMarketplacePanel';
 import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardProjection';
 import { t } from '../i18n';
 import { useVoiceDictation } from '../voice/useVoiceDictation';
-import { NextActionBanner } from '../components/NextActionBanner';
 import { ProofStrip } from '../components/ProofStrip';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
 import { appendReceipt } from '../desktop-state/receiptsLedger';
@@ -281,6 +289,38 @@ export function DesktopShell(props: {
     receipts: props.receipts,
   }), [props.approvals, props.receipts]);
   const pendingApprovalCount = homeTrust.pendingApprovalCount;
+
+  useEffect(() => {
+    touchDesktopOpenClock();
+  }, []);
+
+  useEffect(() => {
+    if (props.currentSessionId) {
+      rememberDesktopSession({ id: props.currentSessionId, title: null });
+    }
+  }, [props.currentSessionId]);
+
+  const continuityModel = useMemo(() => {
+    const clock = readDesktopOpenClock();
+    const remembered = readRememberedDesktopSession();
+    const sessionId = props.currentSessionId || remembered.id;
+    const providerReady = Boolean(
+      props.runtimeCapabilities?.providers?.connected?.length
+      || props.status.running,
+    );
+    return buildContinuityBannerModel({
+      pendingApprovals: pendingApprovalCount,
+      providerReady,
+      lastSessionId: sessionId,
+      lastSessionTitle: remembered.title,
+      day1ReturnEligible: isDay1ReturnEligible(clock.previousOpenAt, clock.currentOpenAt),
+    });
+  }, [
+    pendingApprovalCount,
+    props.currentSessionId,
+    props.runtimeCapabilities,
+    props.status.running,
+  ]);
 
   const voice = useVoiceDictation({
     value: props.input,
@@ -688,6 +728,19 @@ export function DesktopShell(props: {
                 onOpenChat={() => props.onPanel('chat')}
                 onOpenProof={() => props.onPanel('receipts')}
                 onDoctor={() => void props.onAccessRepair()}
+              />
+              <ContinuityBanner
+                model={continuityModel}
+                onReview={() => props.onPanel('approvals')}
+                onContinueSession={(sessionId) => {
+                  if (props.onSwitchSession) {
+                    props.onSwitchSession(sessionId);
+                    return;
+                  }
+                  props.onPanel('chat');
+                }}
+                onStartChat={() => props.onPanel('chat')}
+                onSetupProvider={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
               />
               <ProofStrip
                 receipts={Array.isArray(props.receipts) ? props.receipts : []}

@@ -2889,6 +2889,18 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runPromotedScript('ops-go', restArgs);
   }
 
+  if (command === 'memory-drafts' || command === 'memory-draft') {
+    return npmInherited(['exec', 'tsx', '--', 'scripts/memory-drafts-run.ts', ...restArgs], projectRoot);
+  }
+
+  if (command === 'value-test' || command === 'value-tests') {
+    return npmInherited(['exec', 'node', '--', 'scripts/value-test-all.mjs', ...restArgs], projectRoot);
+  }
+
+  if (command === 'killer' || command === 'killer-missions') {
+    return npmInherited(['exec', 'tsx', '--', 'scripts/killer-missions-run.ts', ...restArgs], projectRoot);
+  }
+
   if (command === 'demo') {
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('demo');

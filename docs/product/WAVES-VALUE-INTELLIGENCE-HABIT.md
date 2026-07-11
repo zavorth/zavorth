@@ -1,7 +1,7 @@
 # Value Waves — Inteligência, Hábito, Wow e Audiências
 
 **Status do programa:** `ACTIVE`  
-**Última atualização:** 2026-07-11 (implementation pass: V0–V7 code integrated)  
+**Última atualização:** 2026-07-11 (V0–V7 + testability pack: live smartness, continuity UI, memory drafts, killer missions, `value:test-all`)  
 **Origem:** diagnóstico A–E (inteligência, wow, hábito diário, multi-audiência, solicitações × realidade) após o ciclo Trust Loop / harden de superfícies.  
 **Público deste arquivo:** qualquer agente ou humano que vá **continuar o trabalho**. Leia a secção [Como usar este arquivo](#como-usar-este-arquivo) antes de editar código.
 
@@ -802,7 +802,8 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 | Data | Evento |
 |------|--------|
 | 2026-07-11 | Programa criado a partir do diagnóstico A–E (inteligência, wow, hábito, audiências, solicitações). Trabalho recente Trust Loop/harden reconhecido como base de governança, **não** como fecho do gap de valor. |
+| 2026-07-11 | Pack de testabilidade: `npm run value:test-all` (7/7 hermético), ContinuityBanner Desktop, MemoryDraftStore, killer missions, smartness live blocked-honest, HOW-TO-TEST-VALUE.md. |
 
 ---
 
-*Fim do documento de waves. Próxima ação humana/agente recomendada: executar **Wave V0**.*
+*Fim do documento de waves. Como testar: `docs/product/HOW-TO-TEST-VALUE.md` e `npm run value:test-all`.*
