@@ -109,7 +109,7 @@ export type ZavorthLiveCanaryExecutionAdapterReviewSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION;
   source: 'ZavorthLiveCanaryExecutionAdapterReviewService';
-  phase: 'checkpoint-8-live-canary-execution-adapter-review';
+  gate: 'live-canary-execution-adapter-review';
   status: ZavorthLiveCanaryAdapterReviewStatus;
   mode: ZavorthLiveCanaryAdapterMode;
   evidenceCanary: ZavorthUxRolloutEvidenceCanarySnapshot;

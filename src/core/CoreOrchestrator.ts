@@ -534,9 +534,26 @@ export class CoreOrchestrator implements IMessageBroker {
   }
 
   private resolveUniversalAgentChannel(platform: PlatformKey | string): UniversalAgentChannel {
-    const normalized = String(platform || '').trim().toLowerCase();
-    if (normalized === 'telegram' || normalized === 'web' || normalized === 'cli' || normalized === 'discord') {
+    const normalized = String(platform || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+    if (
+      normalized === 'telegram'
+      || normalized === 'web'
+      || normalized === 'cli'
+      || normalized === 'discord'
+      || normalized === 'slack'
+      || normalized === 'whatsapp'
+      || normalized === 'signal'
+      || normalized === 'email'
+      || normalized === 'teams'
+      || normalized === 'api'
+    ) {
       return normalized;
+    }
+    if (normalized === 'tg') return 'telegram';
+    if (normalized === 'wa') return 'whatsapp';
+    if (normalized === 'mail') return 'email';
+    if (normalized === 'msteams' || normalized === 'ms-teams' || normalized === 'microsoft-teams') {
+      return 'teams';
     }
     if (normalized) {
       return 'api';

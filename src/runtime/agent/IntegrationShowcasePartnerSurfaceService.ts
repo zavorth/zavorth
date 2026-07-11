@@ -64,7 +64,7 @@ export type IntegrationShowcasePartnerSurfaceSnapshot = {
   showcase: {
     contractLinked: boolean;
     contractStatus: 'ready' | 'attention' | 'blocked' | 'unknown';
-    phase: '58' | null;
+    gate: 'integration-showcase' | null;
     routeCount: number;
     integrationCount: number;
     vendorCount: number;
@@ -123,7 +123,7 @@ export type IntegrationShowcasePartnerSurfaceSnapshot = {
     docsAnchor: '/docs#integration-showcase';
     integrationShowcaseCommand: 'npm run integration-showcase';
     qaCommand: 'npm run qa:integration-showcase';
-    phaseGateCommand: 'npm run qa:phase:58';
+    gateCommand: 'npm run qa:integration-showcase';
     smokeArtifact: 'integration-smoke.json';
     matrixArtifact: 'capability-matrix.json';
     partnerSurfaceArtifact: 'partner-surface.json';
@@ -291,14 +291,14 @@ export class IntegrationShowcasePartnerSurfaceService {
       showcase: {
         contractLinked: Boolean(showcase),
         contractStatus: showcaseStatus,
-        phase: showcase?.phase === '58' ? '58' : null,
+        gate: showcase?.gate === 'integration-showcase' ? 'integration-showcase' : null,
         routeCount: arrayOrEmpty(showcase?.routes).length,
         integrationCount: integrations.length,
         vendorCount: new Set(integrations.map((item) => normalizeText(item.vendor))).size,
         fixtureReadyCount: integrations.filter((item) => item.fixtureAvailable === true && arrayOrEmpty<string>(item.modes).includes('fixture')).length,
         credentialModeCount: integrations.filter((item) => arrayOrEmpty<string>(item.modes).includes('credential')).length,
         formalPartnersRegistered: integrations.filter((item) => item.formalPartnerRegistered === true).length,
-        nextStage: normalizeText(showcase?.nextRecommendedPhase?.phase) || null,
+        nextStage: normalizeText(showcase?.nextRecommendedGate?.gate) || null,
       },
       artifacts: {
         smokePath: normalizeText(showcaseArtifacts?.smokePath) || null,
@@ -365,7 +365,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         docsAnchor: '/docs#integration-showcase',
         integrationShowcaseCommand: 'npm run integration-showcase',
         qaCommand: 'npm run qa:integration-showcase',
-        phaseGateCommand: 'npm run qa:phase:58',
+        gateCommand: 'npm run qa:integration-showcase',
         smokeArtifact: 'integration-smoke.json',
         matrixArtifact: 'capability-matrix.json',
         partnerSurfaceArtifact: 'partner-surface.json',
@@ -484,7 +484,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         label: 'Trust Plane visivel',
         status: input.trustPlaneReady ? 'ready' : 'needs-action',
         source: 'IntegrationShowcasePartnerSurfaceService',
-        command: 'npm run qa:phase:58',
+        command: 'npm run qa:integration-showcase',
         detail: input.trustPlaneReady
           ? 'Approval, policy e audit trail aparecem como controles publicos.'
           : 'Showcase precisa evidenciar approval, policy e audit trail.',
@@ -565,7 +565,7 @@ export class IntegrationShowcasePartnerSurfaceService {
       {
         id: 'next-phase',
         label: 'Release train',
-        routeOrCommand: 'npm run qa:phase:59',
+        routeOrCommand: 'npm run qa:release-train',
         status: input.canPublishShowcasePreview ? 'ready' : 'needs-action',
         detail: 'Readiness checkpoint 9 abre apenas depois da showcase ficar auditavel.',
       },

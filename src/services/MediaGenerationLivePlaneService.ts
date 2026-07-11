@@ -61,7 +61,7 @@ export class MediaGenerationLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'Runtime gateway - Media Generation Live Plane',
+      gate: 'media-generation-live-plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 8,

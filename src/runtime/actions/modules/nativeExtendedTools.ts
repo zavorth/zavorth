@@ -16,6 +16,13 @@ import { MultiBackendTerminalTool } from '../../../tools/MultiBackendTerminalToo
 import { SkillFeedbackCollectorTool } from '../../../tools/SkillFeedbackCollectorTool.js';
 import { VideoGenerationTool } from '../../../tools/VideoGenerationTool.js';
 import type { BaseTool } from '../../../tools/BaseTool.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+} from '../../operator/OperatorContinuityEnvelope.js';
+import { decideSecurityPolicy } from '../../../security/SecurityPolicyBroker.js';
 
 const SURFACE: ZavorthActionDefinition['surface'] = ['cli', 'zavorthControl', 'tui', 'api', 'channel', 'llm'];
 const TEST_REFS = [
@@ -76,27 +83,79 @@ async function runTool(input: ZavorthActionHandlerInput, tool: BaseTool, preview
     };
   }
 
-  const output = await tool.execute({
-    ...input.args,
-    metadata: {
-      sourceSurface: input.sourceSurface || 'action-harness',
+  const kernel = new OperatorContinuityKernel();
+  const sealed = await kernel.runMutation({
+    request: {
+      surface: 'action-gateway',
+      operation: 'action.apply.tool',
+      target: tool.name,
       actorId: input.actorId || null,
-      approvalId: input.approvalId || null,
-      trustedOperatorConfirmation: input.trustedOperatorConfirmation === true,
+      sourceSurface: input.sourceSurface || 'action-harness',
+      argsDigest: digestOperatorPayload(input.args || {}),
+      metadata: {
+        actionId: input.actionId,
+        approvalId: input.approvalId || null,
+      },
+    },
+    decide: () => decisionFromBroker(decideSecurityPolicy({
+      surface: 'tool',
+      operation: 'action.apply.tool',
+      target: tool.name,
+      sourceTrust: 'trusted-user',
+      metadata: {
+        sourceSurface: input.sourceSurface || 'action-harness',
+        actorId: input.actorId || null,
+        actionId: input.actionId,
+      },
+      toolDecision: {
+        action: 'allow',
+        allowed: true,
+        risk: 'safe',
+        toolName: tool.name,
+        surface: 'native-tool',
+        capabilities: ['audit'],
+        requiresConfirmation: false,
+        reasons: ['Action harness tool execution is recorded by the operator continuity kernel.'],
+        rule: 'ACTION_HARNESS_CONTINUITY',
+      },
+      reasons: ['Action harness tool execution was sealed by operator continuity.'],
+    })),
+    execute: async () => tool.execute({
+      ...input.args,
+      metadata: {
+        sourceSurface: input.sourceSurface || 'action-harness',
+        actorId: input.actorId || null,
+        approvalId: input.approvalId || null,
+        trustedOperatorConfirmation: input.trustedOperatorConfirmation === true,
+      },
+    }),
+    mapResult: (output) => {
+      const failed = /^Erro:/iu.test(output) || /\b(blocked|bloquead|indisponivel|desabilitad)/iu.test(output);
+      return resultFromToolOutcome({
+        ok: !failed,
+        status: failed ? 'blocked' : 'applied',
+        summary: failed ? `${input.actionId} did not complete.` : `${input.actionId} completed.`,
+        output,
+        data: { tool: tool.name },
+      });
     },
   });
-  const failed = /^Erro:/iu.test(output) || /\b(blocked|bloquead|indisponivel|desabilitad)/iu.test(output);
+
+  const output = String(sealed.value || '');
+  const failed = !sealed.envelope.result?.ok;
   return {
     ok: !failed,
     actionId: input.actionId,
     operation: input.operation,
     status: failed ? 'blocked' : 'applied',
-    summary: failed ? `${input.actionId} did not complete.` : `${input.actionId} completed.`,
+    summary: sealed.envelope.result?.summary
+      || (failed ? `${input.actionId} did not complete.` : `${input.actionId} completed.`),
     lines: output.split(/\r?\n/u).slice(0, 40),
     data: {
       tool: tool.name,
       output,
       rawSecretsSerialized: false,
+      operatorContinuity: kernel.toPublicView(sealed.envelope),
     },
   };
 }
@@ -123,7 +182,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         description: 'Generate video through a configured real video backend.',
         aliases: ['generate video', 'video generation', 'media video'],
         domains: ['video', 'media'],
-        risk: 'attention',
+        risk: 'safe',
         mutationDomain: 'capability',
         mutationRisk: 'medium',
         effects: ['network', 'external_send'],
@@ -141,7 +200,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         description: 'Manage local Kanban boards through the native task board tool.',
         aliases: ['kanban board', 'task board', 'move card'],
         domains: ['kanban', 'tasks'],
-        risk: 'attention',
+        risk: 'safe',
         mutationDomain: 'capability',
         mutationRisk: 'medium',
         effects: ['write'],
@@ -159,7 +218,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         description: 'Record, review or optimize local skill feedback metrics.',
         aliases: ['skill feedback', 'skills metrics', 'optimize skill'],
         domains: ['skills', 'feedback'],
-        risk: 'attention',
+        risk: 'safe',
         mutationDomain: 'capability',
         mutationRisk: 'medium',
         effects: ['write'],
@@ -177,7 +236,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         description: 'Run multiple real LLM trajectories and compare their outputs.',
         aliases: ['batch trajectories', 'compare llm trajectories', 'multi provider compare'],
         domains: ['trajectories', 'providers', 'llm'],
-        risk: 'attention',
+        risk: 'safe',
         mutationDomain: 'capability',
         mutationRisk: 'medium',
         effects: ['network', 'external_send'],
@@ -231,7 +290,7 @@ export function createNativeExtendedToolsActionModule(): ZavorthActionModule {
         description: 'Manage local calendar events and iCal artifacts.',
         aliases: ['calendar event', 'local calendar', 'create event'],
         domains: ['calendar', 'tasks'],
-        risk: 'attention',
+        risk: 'safe',
         mutationDomain: 'capability',
         mutationRisk: 'medium',
         effects: ['write'],

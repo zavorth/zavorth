@@ -1,5 +1,5 @@
 /**
- * Fase 21K-A — ToolExposurePolicy × AgentWorkspaceConfig Smoke Tests
+ * ToolExposurePolicy × AgentWorkspaceConfig Smoke Tests
  *
  * Validates that ToolExposurePolicy correctly applies AgentWorkspaceConfig
  * as a narrowing policy over tool exposure:
@@ -57,7 +57,7 @@ function buildWorkspaceMeta(overrides: Partial<{
   };
 }
 
-describe('AgentWorkspaceToolPolicySmoke — Fase 21K-A', () => {
+describe('AgentWorkspaceToolPolicySmoke', () => {
   const policy = new ToolExposurePolicy();
 
   // 1. Safe defaults block risky tools

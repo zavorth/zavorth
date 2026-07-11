@@ -1,6 +1,6 @@
 import { ProviderConfigService } from '../../src/services/ProviderConfigService';
 
-describe('Base URL Validation (Phase 21H)', () => {
+describe('Base URL Validation', () => {
   let service: ProviderConfigService;
 
   beforeAll(() => {

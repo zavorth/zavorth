@@ -5,12 +5,12 @@ describe('PublicReleaseBundleContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('51');
+    expect(snapshot.phase).toBe('public-release-bundle');
     expect(snapshot.surface).toBe('release-bundle');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/release');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
     }));
@@ -45,7 +45,7 @@ describe('PublicReleaseBundleContractService', () => {
         scripts: {
           'release-bundle': 'npx tsx scripts/release-bundle.ts',
           'qa:release-bundle': 'npx tsx scripts/release-bundle.ts --require-pass --build --screenshots',
-          'qa:stage:51': 'node scripts/capability-suite-adoption-check.mjs --phase=51',
+          'qa:public-release-bundle': 'node scripts/capability-suite-adoption-check.mjs --gate=public-release-bundle',
           'release:status:fast': 'npm run cli:fast -- release status',
           'doctor:fast': 'npm run cli:fast -- doctor',
           'release:changelog': 'npx tsx scripts/release-ux-wizard.ts --changelog',
@@ -87,7 +87,7 @@ describe('PublicReleaseBundleContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
@@ -113,7 +113,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'release-bundle': 'npx tsx scripts/release-bundle.ts',
         'qa:release-bundle': 'npx tsx scripts/release-bundle.ts --require-pass --build --screenshots',
-        'qa:stage:51': 'node scripts/capability-suite-adoption-check.mjs --phase=51',
+        'qa:public-release-bundle': 'node scripts/capability-suite-adoption-check.mjs --gate=public-release-bundle',
         'release:status:fast': 'npm run cli:fast -- release status',
         'doctor:fast': 'npm run cli:fast -- doctor',
         'release:changelog': 'npx tsx scripts/release-ux-wizard.ts --changelog',

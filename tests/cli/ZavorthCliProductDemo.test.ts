@@ -47,7 +47,7 @@ describe('Zavorth CLI product demo', () => {
     expect(snapshot.smoke.command).toBe('npm run zavorth:demo:check');
   });
 
-  it('renders the Phase F start and connectors commands from the public CLI registry', async () => {
+  it('renders the start and connectors commands from the public CLI registry', async () => {
     const startWrites: string[] = [];
     const connectorWrites: string[] = [];
 

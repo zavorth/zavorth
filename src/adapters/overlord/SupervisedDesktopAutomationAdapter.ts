@@ -7,6 +7,14 @@ import type {
   SystemOverlordActionRequest,
   SystemOverlordCapabilityDecision,
 } from '../../contracts/SystemOverlordContract.js';
+import { decideSecurityPolicy } from '../../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+  type OperatorContinuityEnvelope,
+} from '../../runtime/operator/OperatorContinuityEnvelope.js';
 import { numberField, readStructuredInput, stringField } from './SupervisedAdapterInput.js';
 
 type DesktopToolLike = Pick<DesktopAutomationTool, 'execute'>;
@@ -31,10 +39,21 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
   public readonly label = 'Desktop Automation Supervision Adapter';
   private readonly tool: DesktopToolLike;
   private readonly platform: NodeJS.Platform;
+  private readonly continuityKernel: OperatorContinuityKernel;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
-  constructor(options: { desktopTool?: DesktopToolLike; platform?: NodeJS.Platform } = {}) {
+  constructor(options: {
+    desktopTool?: DesktopToolLike;
+    platform?: NodeJS.Platform;
+    continuityKernel?: OperatorContinuityKernel;
+  } = {}) {
     this.tool = options.desktopTool || new DesktopAutomationTool();
     this.platform = options.platform || process.platform;
+    this.continuityKernel = options.continuityKernel || new OperatorContinuityKernel();
+  }
+
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
   }
 
   public canHandle(
@@ -80,13 +99,97 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
       };
     }
 
-    const result = await this.tool.execute({
+    const readOnly = READ_ONLY_DESKTOP_ACTIONS.has(action);
+    const toolArgs = {
       action,
       windowTitle,
       targetText,
       payload,
       processId: processId || undefined,
+    };
+    const sealed = await this.continuityKernel.runMutation({
+      request: {
+        surface: 'desktop-automation',
+        operation: readOnly ? 'desktop.observe' : 'desktop.mutate',
+        target: action,
+        actorId: String(request.metadata?.actorId || '').trim() || null,
+        sourceSurface: String(request.metadata?.sourceSurface || 'system-overlord').trim() || 'system-overlord',
+        argsDigest: digestOperatorPayload({
+          action,
+          windowTitle: windowTitle || null,
+          processId: processId || null,
+          hasTargetText: Boolean(targetText),
+          payloadLength: payload ? payload.length : 0,
+        }),
+        metadata: {
+          adapterId: this.id,
+          approved: request.approved === true,
+          runtimeTarget: decision.runtimeTarget,
+        },
+      },
+      decide: () => decisionFromBroker(decideSecurityPolicy({
+        surface: 'desktop-automation',
+        operation: readOnly ? 'desktop.observe' : 'desktop.mutate',
+        target: action,
+        sourceTrust: 'trusted-user',
+        metadata: {
+          adapterId: this.id,
+          approved: request.approved === true,
+          windowTitle: windowTitle || null,
+        },
+        toolDecision: {
+          action: 'allow',
+          allowed: true,
+          risk: readOnly ? 'safe' : 'review',
+          toolName: 'desktop_automation',
+          surface: 'native-tool',
+          capabilities: readOnly ? ['desktop', 'local-observation'] : ['desktop'],
+          requiresConfirmation: false,
+          reasons: [
+            readOnly
+              ? 'Supervised desktop observation is sealed by operator continuity.'
+              : 'Supervised desktop mutation was approved and sealed by operator continuity.',
+          ],
+          rule: 'SUPERVISED_DESKTOP_CONTINUITY',
+        },
+        reasons: [
+          'Supervised desktop automation execution was sealed by the operator continuity kernel.',
+        ],
+      })),
+      execute: async () => this.tool.execute(toolArgs),
+      mapResult: (output) => {
+        const failed = /^(error|erro)\b/i.test(String(output || '').trim());
+        return resultFromToolOutcome({
+          ok: !failed,
+          status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),
+          summary: failed
+            ? `Desktop action "${action}" failed.`
+            : `Desktop action "${action}" completed.`,
+          output,
+          data: { action, adapterId: this.id },
+        });
+      },
     });
+
+    this.lastContinuityEnvelope = sealed.envelope;
+    const publicView = this.continuityKernel.toPublicView(sealed.envelope);
+
+    if (sealed.value === undefined) {
+      return {
+        ok: false,
+        errorCode: 'desktop_action_policy_blocked',
+        errorMessage: sealed.envelope.result?.summary
+          || sealed.envelope.decision?.reasons.join(' ')
+          || `Desktop action "${action}" blocked by continuity policy.`,
+        metadata: {
+          adapterId: this.id,
+          action,
+          operatorContinuity: publicView,
+        },
+      };
+    }
+
+    const result = sealed.value;
     const ok = !/^(error|erro)\b/i.test(String(result || '').trim());
 
     return {
@@ -103,6 +206,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
         processId: processId || null,
         targetText: targetText || null,
         runtimeTarget: decision.runtimeTarget,
+        operatorContinuity: publicView,
       },
     };
   }

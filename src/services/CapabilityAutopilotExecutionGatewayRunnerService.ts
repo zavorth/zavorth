@@ -118,7 +118,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       error_summary: null,
       rollback_available: false,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-65',
+        gate: 'capability-autopilot-provider-expansion',
         capability_autopilot: true,
         capability_id: input.repairPlan.capabilityId,
         repair_plan_id: input.repairPlan.repairPlanId,
@@ -349,7 +349,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
     result: ExecutionResult | null,
   ): Record<string, unknown> {
     return {
-      phase: 'capability-autopilot-checkpoint-65',
+      gate: 'capability-autopilot-provider-expansion',
       gatewayRunner: true,
       capabilityId: input.repairPlan.capabilityId,
       repairPlanId: input.repairPlan.repairPlanId,

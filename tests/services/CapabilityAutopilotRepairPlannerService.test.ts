@@ -141,7 +141,7 @@ describe('CapabilityAutopilotRepairPlannerService', () => {
       },
       metadata: {
         readOnly: true,
-        stage: 'capability-autopilot-checkpoint-4',
+        stage: 'capability-autopilot-repair-planner',
       },
     });
     expect(plan.permissionRequirements).toEqual([

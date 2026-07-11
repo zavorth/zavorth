@@ -38,7 +38,7 @@ export type CapabilityAutopilotBetaFieldTrialOptions = {
 };
 
 export type CapabilityAutopilotBetaFieldTrialSnapshot = {
-  phase: '79';
+  gate: 'capability-autopilot-beta-field-trial';
   fieldTrialId: string;
   generatedAt: string;
   surface: 'capability-autopilot-beta-field-trial-loop';
@@ -51,7 +51,7 @@ export type CapabilityAutopilotBetaFieldTrialSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotBetaReadinessSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotBetaReadinessSnapshot['gate'];
   sourceStatus: CapabilityAutopilotBetaReadinessSnapshot['status'];
   sourceRecommendation: CapabilityAutopilotBetaReadinessSnapshot['recommendation'];
   fieldTrialApproved: boolean;
@@ -91,8 +91,8 @@ export type CapabilityAutopilotBetaFieldTrialSnapshot = {
     reason: string | null;
     fieldTrialReceiptId: string | null;
   };
-  nextRecommendedPhase: {
-    phase: '80';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-release-candidate';
     title: string;
     reason: string;
   };
@@ -147,7 +147,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       : 'hold_beta';
 
     return {
-      phase: '79',
+      gate: 'capability-autopilot-beta-field-trial',
       fieldTrialId: this.buildFieldTrialId(source, generatedAt, options.fieldTrialReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-beta-field-trial-loop',
@@ -160,7 +160,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       sourceRecommendation: source.recommendation,
       fieldTrialApproved: resolved.fieldTrialApproved,
@@ -200,14 +200,14 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
         reason: options.reason || null,
         fieldTrialReceiptId: options.fieldTrialReceiptId || null,
       },
-      nextRecommendedPhase: {
-        phase: '80',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-release-candidate',
         title: 'Capability Autopilot Release Candidate Gate',
         reason:
           'Depois do field trial beta, o proximo passo e decidir release candidate com sinais reais, incidentes, feedback e rollback rehearsal auditados.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-79',
+        gate: 'capability-autopilot-beta-field-trial',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -225,7 +225,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
 
   public renderReport(snapshot: CapabilityAutopilotBetaFieldTrialSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-beta-field-trial] Etapa 79 - Capability Autopilot Beta Field Trial Loop');
+    lines.push('[capability-autopilot-beta-field-trial] Capability Autopilot Beta Field Trial Loop');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -240,8 +240,8 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -435,7 +435,7 @@ export class CapabilityAutopilotBetaFieldTrialLoopService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.betaReadinessId,
         source.generatedAt,
         generatedAt,

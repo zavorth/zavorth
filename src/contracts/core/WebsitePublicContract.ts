@@ -33,7 +33,7 @@ export type WebsitePublicScreenshotSpec = {
 };
 
 export type WebsitePublicContractSnapshot = {
-  phase: '46';
+  gate: 'website-public';
   surface: 'website-public';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -59,8 +59,8 @@ export type WebsitePublicContractSnapshot = {
   screenshots: WebsitePublicScreenshotSpec[];
   forbiddenClaims: string[];
   checks: WebsitePublicCheck[];
-  nextRecommendedPhase: {
-    phase: '47';
+  nextRecommendedGate: {
+    gate: 'public-demo';
     title: string;
     reason: string;
   };
@@ -86,7 +86,7 @@ export const WEBSITE_PUBLIC_REQUIRED_ROUTES: WebsitePublicRouteSpec[] = [
     label: 'public changelog',
     sourcePath: 'app/changelog/page.tsx',
     outputCandidates: ['changelog.html', 'changelog/index.html'],
-    requiredPhrases: ['v0.1 Preview', 'Etapa 46'],
+    requiredPhrases: ['v0.1 Preview', 'Website'],
   },
   {
     route: '/security',

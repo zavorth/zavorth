@@ -67,6 +67,12 @@ describe('ComputerUseAgent', () => {
       action: 'screenshot',
       windowTitle: 'Fake Window',
     });
+    const envelope = agent.getLastContinuityEnvelope();
+    expect(envelope?.request?.surface).toBe('desktop-automation');
+    expect(envelope?.request?.operation).toBe('computer-use.observe');
+    expect(envelope?.decision?.allowed).toBe(true);
+    expect(envelope?.result?.status).toBe('observation');
+    expect(envelope?.receipt?.terminal).toBe(true);
   });
 
   it('blocks execution unless the visual computer-use profile is explicitly enabled', async () => {
@@ -77,7 +83,7 @@ describe('ComputerUseAgent', () => {
       targetWindow: 'Fake Window',
       objective: 'Should be blocked',
       maxIterations: 1,
-    })).rejects.toThrow('Computer Use visual bloqueado');
+    })).rejects.toThrow(/Computer Use is blocked|Computer Use visual bloqueado/i);
   });
 
   it('emits hook callbacks for screenshot planning and execution so watch mode can supervise the run', async () => {

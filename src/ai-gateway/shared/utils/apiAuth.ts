@@ -12,6 +12,7 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { getSettings } from "@/lib/localDb";
 import { logger } from '@/shared/utils/logger';
+import { isTrustedLoopbackRequest } from './loopbackRequest';
 
 // ──────────────── Public Routes (No Auth Required) ────────────────
 
@@ -159,68 +160,13 @@ export function isPublicRoute(pathname: string): boolean {
   );
 }
 
-function normalizeRequestHostname(value: string | null | undefined): string {
-  const raw = String(value || "").trim().toLowerCase();
-  if (!raw) return "";
-  if (raw.startsWith("::ffff:")) {
-    return raw.slice("::ffff:".length);
-  }
-
-  try {
-    return new URL(raw.includes("://") ? raw : `http://${raw}`)
-      .hostname.toLowerCase()
-      .replace(/^\[/, "")
-      .replace(/\]$/, "");
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-    logger.warn('[api Auth] network request failed', error);
-    return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
-  }
-}
-
-function isLoopbackHostname(hostname: string): boolean {
-  const normalized = normalizeRequestHostname(hostname)
-    .replace(/^::ffff:/, "");
-  return (
-    normalized === "localhost" ||
-    normalized === "127.0.0.1" ||
-    normalized === "::1" ||
-    normalized === "0:0:0:0:0:0:0:1"
-  );
-}
-
-function getHeader(request: Request, name: string): string {
-  return String(request.headers?.get?.(name) || "").trim();
-}
-
 /**
  * Returns true only when the request appears to be local loopback.
  * This keeps first-run/no-login convenience local while preventing accidental
  * LAN/tunnel exposure from inheriting the same no-auth posture.
  */
 export function isLoopbackRequest(request: Request): boolean {
-  const hostCandidates = [
-    (() => {
-      try {
-        return new URL(request.url).hostname;
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[api Auth] operation failed', error); return ''; }
-    })(),
-    getHeader(request, "host"),
-    getHeader(request, "x-forwarded-host"),
-  ]
-    .flatMap((value) => String(value || "").split(",").map((entry) => entry.trim()))
-    .filter(Boolean);
-
-  if (hostCandidates.length === 0 || !hostCandidates.every((host) => isLoopbackHostname(host))) {
-    return false;
-  }
-
-  const forwardedIpCandidates = [
-    ...getHeader(request, "x-forwarded-for").split(",").map((entry) => entry.trim()).filter(Boolean),
-    getHeader(request, "x-real-ip"),
-    getHeader(request, "cf-connecting-ip"),
-  ].filter(Boolean);
-
-  return forwardedIpCandidates.every((ip) => isLoopbackHostname(ip));
+  return isTrustedLoopbackRequest(request);
 }
 
 /**

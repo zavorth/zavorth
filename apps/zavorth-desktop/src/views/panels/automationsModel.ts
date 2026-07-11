@@ -15,6 +15,10 @@ export type AutomationJob = {
   status: string;
   description: string;
   tone: 'ready' | 'warning' | 'muted' | 'danger';
+  lastRun?: number;
+  nextRun?: number;
+  lastSessionId?: string;
+  history?: Array<{ at: string; ok: boolean; message?: string | null }>;
 };
 
 export function mapScheduledTasks(
@@ -25,12 +29,16 @@ export function mapScheduledTasks(
     prompt?: string;
     intervalMinutes?: number;
     enabled?: boolean;
-    lastRunAt?: string;
-    nextRunAt?: string;
+    status?: string;
+    lastRun?: number;
+    nextRun?: number;
+    lastSessionId?: string;
+    history?: Array<{ at: string; ok: boolean; message?: string | null }>;
   }>,
 ): AutomationJob[] {
   return (tasks || []).map(task => {
     const enabled = task.enabled !== false;
+    const status = enabled ? (task.status || 'idle') : 'paused';
     return {
       id: task.id,
       kind: 'schedule' as const,
@@ -39,11 +47,17 @@ export function mapScheduledTasks(
       prompt: task.prompt,
       intervalMinutes: task.intervalMinutes,
       enabled,
-      status: enabled ? 'scheduled' : 'paused',
+      status,
       description: task.prompt
         ? String(task.prompt).slice(0, 140)
         : `Every ${task.intervalMinutes || '?'} min`,
-      tone: enabled ? 'ready' as const : 'muted' as const,
+      tone: status === 'failed' ? 'danger' as const
+        : status === 'running' ? 'warning' as const
+        : enabled ? 'ready' as const : 'muted' as const,
+      lastRun: task.lastRun,
+      nextRun: task.nextRun,
+      lastSessionId: task.lastSessionId,
+      history: task.history,
     };
   });
 }

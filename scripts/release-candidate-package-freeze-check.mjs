@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-candidate-package-freeze-files',
-    label: 'Release Candidate Package Freeze phase files exist',
+    label: 'Release Candidate Package Freeze gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/ReleaseCandidatePackageFreezeContract.ts',

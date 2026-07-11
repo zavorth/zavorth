@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'pre-canary-go-no-go-alignment-files',
-    label: 'Pre-Canary Go/No-Go Alignment phase files exist',
+    label: 'Pre-Canary Go/No-Go Alignment gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/PreCanaryGoNoGoAlignmentContract.ts',

@@ -493,9 +493,23 @@ function firstTargetValue(plan: AiFirstRoutePlan): string | null {
 }
 
 function normalizeSurface(surface: string): UniversalAgentChannel {
-  if (surface === 'web' || surface === 'cli' || surface === 'telegram' || surface === 'discord' || surface === 'api') {
+  if (
+    surface === 'web'
+    || surface === 'cli'
+    || surface === 'telegram'
+    || surface === 'discord'
+    || surface === 'api'
+    || surface === 'slack'
+    || surface === 'whatsapp'
+    || surface === 'signal'
+    || surface === 'email'
+    || surface === 'teams'
+  ) {
     return surface;
   }
+  if (surface === 'msteams' || surface === 'ms-teams') return 'teams';
+  if (surface === 'wa') return 'whatsapp';
+  if (surface === 'mail') return 'email';
   return 'unknown';
 }
 

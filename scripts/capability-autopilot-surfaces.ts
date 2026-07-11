@@ -190,7 +190,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotSurfacesSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-surfaces] Etapa 63 - Cross-Surface Capability UX');
+  lines.push('[capability-autopilot-surfaces] Cross-Surface Capability UX');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);

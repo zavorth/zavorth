@@ -42,6 +42,20 @@ export class MatrixGateway extends WebhookGateway {
     );
   }
 
+  public override doctorSnapshot() {
+    const base = super.doctorSnapshot();
+    return {
+      ...base,
+      installHint: this.resolveConfigured()
+        ? 'Matrix Client-Server API ready for room send (m.room.message).'
+        : 'Set MATRIX_BASE_URL + MATRIX_ACCESS_TOKEN (+ MATRIX_DEFAULT_ROOM_ID).',
+      allowlist: {
+        ...base.allowlist,
+        defaultRoomConfigured: Boolean(String(config.matrixDefaultRoomId || '').trim()),
+      },
+    };
+  }
+
   protected resolveOutboxDir(): string {
     return config.matrixOutboxDir;
   }

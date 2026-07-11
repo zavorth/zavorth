@@ -106,7 +106,7 @@ export class ZavorthScheduledTaskLiveTickCertificationService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskLiveTickCertificationService',
-      phase: 'checkpoint-6-scheduler-live-tick-certification',
+      gate: 'scheduler-live-tick-certification',
       status,
       summary,
       guard,
@@ -308,7 +308,7 @@ class FixtureExecutionGateway implements GatewayLike {
         metadata: {
           fixture: true,
           noExternalIo: true,
-          phase: 'checkpoint-6-scheduler-live-tick-certification',
+          gate: 'scheduler-live-tick-certification',
         },
       },
     };
@@ -429,7 +429,7 @@ function makeTask(id: string, metadata: SchedulerGovernedScheduledTaskMetadata |
 function governedMetadata(approvalId: string, expiresAt: string): SchedulerGovernedScheduledTaskMetadata {
   return {
     contractVersion: '2026-05-12.persisted-scheduled-task-registration-checkpoint-3',
-    phase: 'checkpoint-3-persisted-scheduled-task-registration',
+    gate: 'persisted-scheduled-task-registration',
     registryStatus: 'active',
     approvalId,
     approvalExpiresAt: expiresAt,
@@ -604,7 +604,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     const metadata = parsed?.governedScheduledTask;
     if (
       metadata
-      && metadata.phase === 'checkpoint-3-persisted-scheduled-task-registration'
+      && metadata.gate === 'persisted-scheduled-task-registration'
       && typeof metadata.approvedScopeHash === 'string'
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;

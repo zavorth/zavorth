@@ -73,7 +73,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
     sourcePattern: 'catalog capabilities, tools, channels, workers, sessions, health, and policies as provider-agnostic evidence only',
     decision: 'adapt',
-    phase: 'inventory',
+    gate: 'inventory',
     priority: 1,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalCapabilityInventoryContract',
@@ -94,7 +94,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime', 'acp-compatible-sidecar'],
     sourcePattern: 'health, version, channel/session summaries, and degraded state probes',
     decision: 'externalize',
-    phase: 'sidecar-adapter',
+    gate: 'sidecar-adapter',
     priority: 2,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalRuntimeReadOnlyProbeContract',
@@ -115,7 +115,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'classify provider, terminal, permission, context, billing, rate-limit, and syntax failures',
     decision: 'absorb',
-    phase: 'native-engine',
+    gate: 'native-engine',
     priority: 3,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthErrorClassifierContract',
@@ -136,7 +136,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'repair malformed JSON/tool arguments before tool preview or approval',
     decision: 'absorb',
-    phase: 'native-engine',
+    gate: 'native-engine',
     priority: 4,
     naturalFirstRoute: 'tool-preview',
     contract: 'ZavorthToolCallRepairContract',
@@ -157,7 +157,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'parallelize tool batches only when resource/write sets do not conflict',
     decision: 'absorb',
-    phase: 'native-engine',
+    gate: 'native-engine',
     priority: 5,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthSafeToolParallelismContract',
@@ -178,7 +178,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'remember commands, failures, workarounds, and successful recovery paths',
     decision: 'absorb',
-    phase: 'sessions-memory-continuation',
+    gate: 'sessions-memory-continuation',
     priority: 6,
     naturalFirstRoute: 'memory-recall',
     contract: 'ZavorthProceduralMemoryContract',
@@ -199,7 +199,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['reference-runtime'],
     sourcePattern: 'dedupe, merge, archive, pin, or propose skill changes with dry-run and rollback',
     decision: 'absorb',
-    phase: 'native-engine',
+    gate: 'native-engine',
     priority: 7,
     naturalFirstRoute: 'approval-proposal',
     contract: 'ZavorthSkillCuratorContract',
@@ -220,7 +220,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'map external chat/channel events into NormalizedInboundMessage and ReplyPipeline',
     decision: 'adapt',
-    phase: 'channels-messaging',
+    gate: 'channels-messaging',
     priority: 8,
     naturalFirstRoute: 'capability-discovery',
     contract: 'ZavorthExternalChannelGatewayContract',
@@ -241,7 +241,7 @@ const BRIDGE_CANDIDATES: ZavorthExternalRuntimeCandidate[] = [
     sourceRuntimeIds: ['acp-compatible-sidecar', 'reference-runtime'],
     sourcePattern: 'bounded sidecar/local worker tasks with timeout, cancel, and result mapping',
     decision: 'adapt',
-    phase: 'delegated-workers',
+    gate: 'delegated-workers',
     priority: 9,
     naturalFirstRoute: 'governed-execution',
     contract: 'ZavorthDelegatedWorkerBridgeContract',
@@ -353,7 +353,7 @@ export class ZavorthExternalRuntimeBridgeService {
         continue;
       }
       lines.push(
-        `- ${candidateEntry.priority}. ${candidateEntry.label}: ${candidateEntry.decision} -> ${candidateEntry.phase} | route=${candidateEntry.naturalFirstRoute}`,
+        `- ${candidateEntry.priority}. ${candidateEntry.label}: ${candidateEntry.decision} -> ${candidateEntry.acceptanceGates.join(', ')} | route=${candidateEntry.naturalFirstRoute}`,
       );
     }
 
@@ -392,7 +392,7 @@ function candidate(input: {
   sourceRuntimeIds: ZavorthExternalRuntimeCandidate['sourceRuntimeIds'];
   sourcePattern: string;
   decision: ZavorthExternalRuntimeDecision;
-  phase: ZavorthExternalRuntimeCandidate['phase'];
+  gate: ZavorthExternalRuntimeCandidate['phase'];
   priority: number;
   naturalFirstRoute: ZavorthExternalRuntimeCandidate['naturalFirstRoute'];
   contract: string;
@@ -409,7 +409,7 @@ function candidate(input: {
     sourceRuntimeIds: input.sourceRuntimeIds,
     sourcePattern: input.sourcePattern,
     decision: input.decision,
-    phase: input.phase,
+    phase: input.gate,
     priority: input.priority,
     naturalFirstRoute: input.naturalFirstRoute,
     zavorthOwner: {

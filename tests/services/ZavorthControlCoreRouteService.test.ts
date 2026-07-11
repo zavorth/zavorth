@@ -13,7 +13,7 @@ jest.mock('../../src/services/ProviderSecretStore');
 jest.mock('../../src/security/WorkspaceResolver');
 jest.mock('../../src/services/SecurityAuditLogger');
 
-describe('ZavorthControlCoreRouteService Security Tests (Phase 21H)', () => {
+describe('ZavorthControlCoreRouteService Security Tests (provider secrets)', () => {
   let service: ZavorthControlCoreRouteService;
   
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe('ZavorthControlCoreRouteService Security Tests (Phase 21H)', () => {
   });
 });
 
-describe('ZavorthControlCoreRouteService Security Tests (Phase 21J)', () => {
+describe('ZavorthControlCoreRouteService Security Tests (workspace audit)', () => {
   let service: ZavorthControlCoreRouteService;
   let mockLogWorkspaceEvent: jest.Mock;
   

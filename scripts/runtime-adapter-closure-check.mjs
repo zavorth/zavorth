@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'runtime-adapter-closure-files',
-    label: 'Runtime adapter closure phase files exist',
+    label: 'Runtime adapter closure gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/RuntimeAdapterClosureContract.ts',
@@ -34,7 +34,7 @@ const rules = [
       'p1-channel-webhook-template',
       'generic-provider-runtime',
       'bot-api-channel-runtime',
-      'Etapa 12 - Native Capability Closure',
+      'Native Capability Closure',
       'liveExternalCallRequired: false',
       'liveChannelSendRequired: false',
       'secretValuesSerialized: false',

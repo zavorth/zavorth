@@ -9,7 +9,7 @@ function source(path: string): string {
   return readFileSync(resolve(root, path), 'utf8');
 }
 
-describe('Prompt injection phase 2 hardening', () => {
+describe('Prompt injection hardening', () => {
   it('exposes the central untrusted-content firewall in conversational prompts', () => {
     const instruction = new ConversationalAgent().buildSystemInstruction();
 

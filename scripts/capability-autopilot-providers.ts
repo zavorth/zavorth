@@ -163,7 +163,7 @@ function buildChecks(
         expansion.coverage.localRuntimes > 0 &&
         expansion.coverage.channels > 0 &&
         expansion.coverage.capabilityTargets > 0 ? 'pass' : 'fail',
-      'A etapa 65 precisa provar providers remotos, runtimes locais, canais e executores no mesmo contrato.',
+      'O gate de provider expansion precisa provar providers remotos, runtimes locais, canais e executores no mesmo contrato.',
       [
         `remoteProviders=${expansion.coverage.remoteProviders}`,
         `localRuntimes=${expansion.coverage.localRuntimes}`,
@@ -219,7 +219,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotProvidersSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-providers] Etapa 65 - Provider And Integration Expansion');
+  lines.push('[capability-autopilot-providers] Provider And Integration Expansion');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`targets: ${snapshot.entries.length}`);

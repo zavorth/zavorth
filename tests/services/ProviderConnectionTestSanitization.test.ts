@@ -2,7 +2,7 @@ import { ProviderConnectionTestService } from '../../src/services/ProviderConnec
 import { ProviderConfigService } from '../../src/services/ProviderConfigService';
 import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore';
 
-describe('ProviderConnectionTestService Sanitization Test (Phase 21H)', () => {
+describe('ProviderConnectionTestService Sanitization Test', () => {
   it('never returns raw stack traces, error messages, or auth headers in response', async () => {
     // Mock Provider dependencies
     jest.spyOn(ProviderConfigService.getInstance(), 'getProvider').mockResolvedValue({

@@ -88,7 +88,7 @@ export class TenantTeamOpsService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '42',
+      gate: 'tenant-team-ops',
       surface: 'tenant-team-ops',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -122,7 +122,7 @@ export class TenantTeamOpsService {
         governance: 'npm run ops:governance',
         tenants: 'zavorth tenants',
       },
-      nextRecommendedPhase: {
+      nextRecommendedGate: {
         phase: 'complete',
         title: 'Ciclo 39-45 fechado',
         reason:
@@ -133,7 +133,7 @@ export class TenantTeamOpsService {
 
   public renderReport(snapshot: TenantTeamOpsSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[tenant-team-ops] Etapa 42 - Tenant/Team Ops');
+    lines.push('[tenant-team-ops] Tenant/Team Ops');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`tenants=${snapshot.summary.tenants} shared=${snapshot.summary.sharedTenants} personal=${snapshot.summary.personalTenants} teams=${snapshot.summary.teams} scopes=${snapshot.summary.policyScopes}`);
@@ -152,8 +152,8 @@ export class TenantTeamOpsService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -402,7 +402,7 @@ export class TenantTeamOpsService {
 
   private checkQuietGate(): TenantTeamOpsCheck {
     const scripts = this.readPackageJson()?.scripts || {};
-    const quietScripts = ['tenant:ops', 'tenant:ops:json', 'qa:tenant-team-ops', 'qa:phase:42'];
+    const quietScripts = ['tenant:ops', 'tenant:ops:json', 'qa:tenant-team-ops', 'qa:tenant-team-ops'];
     const backgroundWords = ['nodemon', '--watch', ' dev', 'node-mesh-host', 'ops-maintain-recurring', 'start-ai-gateway-runtime'];
     const offenders = quietScripts.filter((scriptName) => {
       const command = ` ${String(scripts[scriptName] || '').toLowerCase()} `;
@@ -413,7 +413,7 @@ export class TenantTeamOpsService {
       'Tenant/Team Ops nao inicia background persistente',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Scripts e gate da Etapa 42 sao leituras sob demanda.'
+        ? 'Scripts e gate de tenant/team ops sao leituras sob demanda.'
         : 'Scripts de Tenant/Team Ops apontam para processo persistente.',
       'tenant',
       offenders,

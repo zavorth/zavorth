@@ -15,7 +15,7 @@ describe('IntegrationShowcaseService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('58');
+    expect(snapshot.phase).toBe('integration-showcase');
     expect(snapshot.surface).toBe('integration-showcase');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
@@ -25,7 +25,7 @@ describe('IntegrationShowcaseService', () => {
       'Vercel',
       'Figma',
     ]));
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '59',
       title: 'v1.x Release Train And LTS Policy',
     }));
@@ -166,7 +166,7 @@ describe('IntegrationShowcaseService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
 
     const report = service.renderReport();
@@ -299,9 +299,9 @@ function docs76Source() {
     'degradacao segura',
     'Trust Plane',
     'qa:integration-showcase',
-    'qa:stage:58',
+    'qa:integration-showcase',
     'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
-    'qa:stage:59',
+    'qa:release-train',
   ].join('\n');
 }
 
@@ -310,9 +310,9 @@ function roadmapSource() {
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface: implementada.',
     'integration showcase partner surface Slack GitHub Vercel Figma fixture degradacao segura Trust Plane',
     'qa:integration-showcase',
-    'qa:stage:58',
+    'qa:integration-showcase',
     'Readiness checkpoint 9 - v1.x Release Train And LTS Policy',
-    'qa:stage:59',
+    'qa:release-train',
   ].join('\n');
 }
 

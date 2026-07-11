@@ -1,24 +1,40 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { McpPluginToolsServer } from '../../src/mcp/McpPluginToolsServer.js';
 
 describe('McpPluginToolsServer', () => {
   let server: McpPluginToolsServer;
+  let executeTool: jest.MockedFunction<(name: string, args: Record<string, unknown>) => Promise<string>>;
+  let rawExecute: jest.MockedFunction<(args: Record<string, unknown>) => Promise<string>>;
 
   beforeEach(() => {
-    // Create a mock tool registry
+    rawExecute = jest.fn(async () => 'raw result');
+    executeTool = jest.fn(async () => 'result');
+
     const mockRegistry = {
       getAllTools: () => [
-        { name: 'test_tool', description: 'A test tool', parameters: { type: 'object' }, execute: async () => 'result' },
+        {
+          name: 'test_tool',
+          description: 'A test tool',
+          parameters: { type: 'object' },
+          execute: rawExecute,
+        },
       ],
       getTool: (name: string) => {
         if (name === 'test_tool') {
-          return { name: 'test_tool', description: 'A test tool', parameters: { type: 'object' }, execute: async () => 'result' };
+          return {
+            name: 'test_tool',
+            description: 'A test tool',
+            parameters: { type: 'object' },
+            execute: rawExecute,
+          };
         }
         return null;
       },
     } as any;
 
-    server = new McpPluginToolsServer(mockRegistry);
+    server = new McpPluginToolsServer(mockRegistry, {
+      toolExecutor: { executeTool },
+    });
   });
 
   it('lists tools', () => {
@@ -27,9 +43,28 @@ describe('McpPluginToolsServer', () => {
     expect(tools[0].name).toBe('test_tool');
   });
 
-  it('calls tool', async () => {
-    const result = await server.callTool('test_tool', {});
+  it('calls tool through the central ToolExecutor instead of raw tool.execute', async () => {
+    const result = await server.callTool('test_tool', { foo: 'bar' });
     expect(result.content[0].text).toBe('result');
+    expect(executeTool).toHaveBeenCalledWith('test_tool', { foo: 'bar' });
+    expect(rawExecute).not.toHaveBeenCalled();
+  });
+
+  it('requires a configured ToolExecutor for tool calls', async () => {
+    const mockRegistry = {
+      getAllTools: () => [],
+      getTool: () => ({
+        name: 'test_tool',
+        description: 'A test tool',
+        parameters: { type: 'object' },
+        execute: rawExecute,
+      }),
+    } as any;
+    const unconfigured = new McpPluginToolsServer(mockRegistry);
+    const result = await unconfigured.callTool('test_tool', {});
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('ToolExecutor');
+    expect(rawExecute).not.toHaveBeenCalled();
   });
 
   it('handles unknown tool', async () => {
@@ -63,6 +98,8 @@ describe('McpPluginToolsServer', () => {
       params: { name: 'test_tool', arguments: {} },
     });
     expect(response.result).toBeDefined();
+    expect(executeTool).toHaveBeenCalledWith('test_tool', {});
+    expect(rawExecute).not.toHaveBeenCalled();
   });
 
   it('handles unknown method', async () => {

@@ -59,13 +59,13 @@ export type CapabilityPreflightControlledRealApplyOptions = {
 };
 
 export type CapabilityPreflightControlledRealApplyExecution = {
-  phase: '76';
+  gate: 'capability-autopilot-preflight-controlled-real-apply';
   controlledExecutionId: string;
   generatedAt: string;
   surface: 'capability-autopilot-preflight-controlled-real-apply-executor';
   status: CapabilityPreflightControlledRealApplyStatus;
   capabilityId: string;
-  sourceDecisionPhase: CapabilityPreflightRealApplyApprovalDecision['phase'];
+  sourceDecisionGate: CapabilityPreflightRealApplyApprovalDecision['gate'];
   sourceDecisionId: string;
   sourceSurface: CapabilityPreflightRealApplyApprovalDecision['sourceSurface'];
   sourceAction: CapabilityPreflightRealApplyApprovalDecision['sourceAction'];
@@ -118,7 +118,7 @@ export type CapabilityPreflightControlledRealApplyExecution = {
 };
 
 export type CapabilityPreflightControlledRealApplyExecutorSnapshot = {
-  phase: '76';
+  gate: 'capability-autopilot-preflight-controlled-real-apply';
   surface: 'capability-autopilot-preflight-controlled-real-apply-executor';
   generatedAt: string;
   capabilityId: string;
@@ -129,11 +129,11 @@ export type CapabilityPreflightControlledRealApplyExecutorSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightRealApplyApprovalGateSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightRealApplyApprovalGateSnapshot['gate'];
   executions: CapabilityPreflightControlledRealApplyExecution[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '77';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-post-run-rollback';
     title: string;
     reason: string;
   };
@@ -185,13 +185,13 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
     const invoked = adapterResult.ok && adapterResult.sideEffectInvoked;
 
     return {
-      phase: '76',
+      gate: 'capability-autopilot-preflight-controlled-real-apply',
       controlledExecutionId,
       generatedAt,
       surface: 'capability-autopilot-preflight-controlled-real-apply-executor',
       status,
       capabilityId: decision.capabilityId,
-      sourceDecisionPhase: decision.phase,
+      sourceDecisionGate: decision.gate,
       sourceDecisionId: decision.realApplyGateId,
       sourceSurface: decision.sourceSurface,
       sourceAction: decision.sourceAction,
@@ -236,7 +236,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       evidence: this.buildEvidence(decision, budgetLock, adapterResult),
       safeSummary: this.buildSafeSummary(decision, status, adapterResult),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-76',
+        gate: 'capability-autopilot-preflight-controlled-real-apply',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -264,7 +264,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '76',
+      gate: 'capability-autopilot-preflight-controlled-real-apply',
       surface: 'capability-autopilot-preflight-controlled-real-apply-executor',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -275,17 +275,17 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       executions,
       checks,
-      nextRecommendedPhase: {
-        phase: '77',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-post-run-rollback',
         title: 'Real Apply Post-Run Verification And Rollback Ledger',
         reason:
           'Depois da execucao controlada, o proximo passo e verificar resultado real, consolidar rollback ledger e registrar auditoria pos-run por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-76',
+        gate: 'capability-autopilot-preflight-controlled-real-apply',
         sourceSnapshotStatus: source.status,
         decisionCount: source.decisions.length,
         executionCount: executions.length,
@@ -300,7 +300,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
 
   public renderReport(snapshot: CapabilityPreflightControlledRealApplyExecutorSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-controlled-apply] Etapa 76 - Preflight Controlled Real Apply Executor');
+    lines.push('[capability-autopilot-preflight-controlled-apply] Preflight Controlled Real Apply Executor');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -314,8 +314,8 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -331,13 +331,13 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
     },
   ): CapabilityPreflightControlledRealApplyExecution {
     return {
-      phase: '76',
+      gate: 'capability-autopilot-preflight-controlled-real-apply',
       controlledExecutionId: data.controlledExecutionId,
       generatedAt: data.generatedAt,
       surface: 'capability-autopilot-preflight-controlled-real-apply-executor',
       status: 'blocked',
       capabilityId: decision.capabilityId,
-      sourceDecisionPhase: decision.phase,
+      sourceDecisionGate: decision.gate,
       sourceDecisionId: decision.realApplyGateId,
       sourceSurface: decision.sourceSurface,
       sourceAction: decision.sourceAction,
@@ -389,7 +389,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       ],
       safeSummary: `Execucao controlada bloqueada para ${decision.sourceAction?.kind || '<sem-action>'}; adapter nao foi invocado.`,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-76',
+        gate: 'capability-autopilot-preflight-controlled-real-apply',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -489,7 +489,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
       ),
       this.check(
         'capability-autopilot-preflight-controlled-apply:source-authorization',
-        'fonte autorizada pela etapa 75',
+        'fonte autorizada pelo gate de real-apply',
         executions.every((execution) =>
           execution.sourceRealApplyAuthorized &&
           execution.status === 'controlled_apply_succeeded'
@@ -529,7 +529,7 @@ export class CapabilityAutopilotPreflightControlledRealApplyExecutorService {
           execution.dispatchExecuted &&
           execution.sideEffectLevel === 'controlled_real_apply'
         ) ? 'pass' : 'fail',
-        'A Etapa 76 e a primeira que invoca um adapter de apply real controlado.',
+        'Este gate e o primeiro que invoca um adapter de apply real controlado.',
         executions.map((execution) =>
           `${execution.sourceSurface}:${execution.adapterResult?.mode || '<none>'}:adapter=${execution.adapterInvoked}:sideEffect=${execution.sideEffectInvoked}`,
         ),

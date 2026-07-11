@@ -31,7 +31,7 @@ export type PublicReleaseBundleContractServiceOptions = {
 };
 
 const WEBSITE_RELEASE_BUNDLE_SCRIPTS = ['release-bundle', 'qa:release-bundle'] as const;
-const CORE_RELEASE_BUNDLE_SCRIPTS = ['release-bundle', 'qa:release-bundle', 'qa:phase:51'] as const;
+const CORE_RELEASE_BUNDLE_SCRIPTS = ['release-bundle', 'qa:release-bundle', 'qa:public-release-bundle'] as const;
 
 export class PublicReleaseBundleContractService {
   private readonly projectRoot: string;
@@ -76,7 +76,7 @@ export class PublicReleaseBundleContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '51',
+      gate: 'public-release-bundle',
       surface: 'release-bundle',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -92,8 +92,8 @@ export class PublicReleaseBundleContractService {
       requiredCommands: [...PUBLIC_RELEASE_BUNDLE_REQUIRED_COMMANDS],
       screenshots: PUBLIC_RELEASE_BUNDLE_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
-        phase: '52',
+      nextRecommendedGate: {
+        gate: 'feedback-telemetry',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
         reason:
           'Com bundle e installer verificaveis, o proximo passo e abrir feedback e telemetry opt-in sem quebrar soberania local.',
@@ -117,8 +117,8 @@ export class PublicReleaseBundleContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

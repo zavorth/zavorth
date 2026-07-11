@@ -32,7 +32,7 @@ export type DistributionPolicyContractServiceOptions = {
 };
 
 const WEBSITE_DISTRIBUTION_SCRIPTS = ['distribution-policy', 'qa:distribution-policy'] as const;
-const CORE_DISTRIBUTION_SCRIPTS = ['distribution-policy', 'qa:distribution-policy', 'qa:phase:50'] as const;
+const CORE_DISTRIBUTION_SCRIPTS = ['distribution-policy', 'qa:distribution-policy', 'qa:distribution-policy'] as const;
 
 export class DistributionPolicyContractService {
   private readonly projectRoot: string;
@@ -76,7 +76,7 @@ export class DistributionPolicyContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '50',
+      gate: 'distribution-policy',
       surface: 'distribution-policy',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -93,8 +93,8 @@ export class DistributionPolicyContractService {
       requiredPolicies: [...DISTRIBUTION_POLICY_REQUIRED_POLICIES],
       screenshots: DISTRIBUTION_POLICY_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
-        phase: '51',
+      nextRecommendedGate: {
+        gate: 'public-release-bundle',
         title: 'Release Bundle And Installer Distribution',
         reason:
           'Com edicoes e politica publica definidas, o proximo passo e empacotar bundle e installer verificaveis.',
@@ -118,8 +118,8 @@ export class DistributionPolicyContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

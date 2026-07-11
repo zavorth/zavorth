@@ -170,7 +170,7 @@ export type ReleaseCandidatePreCanaryGateSnapshot = {
     evidencePackCommand: 'npm run qa:release-train';
     integrationCommand: 'npm run qa:integration-showcase';
     autopilotCommand: 'npm run qa:capability-autopilot-release-candidate';
-    phaseGateCommand: 'npm run qa:phase:59';
+    phaseGateCommand: 'npm run qa:release-train';
     rollbackPreviewCommand: 'npm run release:rollback-preview';
   };
   nextSafeAction: string;
@@ -336,7 +336,7 @@ export class ReleaseCandidatePreCanaryGateService {
         evidencePackCommand: 'npm run qa:release-train',
         integrationCommand: 'npm run qa:integration-showcase',
         autopilotCommand: 'npm run qa:capability-autopilot-release-candidate',
-        phaseGateCommand: 'npm run qa:phase:59',
+        phaseGateCommand: 'npm run qa:release-train',
         rollbackPreviewCommand: 'npm run release:rollback-preview',
       },
       nextSafeAction: resolveReleaseCandidateNextSafeAction(status),
@@ -659,7 +659,7 @@ export class ReleaseCandidatePreCanaryGateService {
         label: 'Canary e rollout continuam desligados',
         status: statusLevel(!input.autopilot.globalRolloutEnabled && !input.autopilot.autoPromoteEnabled, true, input.blocked),
         source: 'ReleaseCandidatePreCanaryGateService',
-        command: 'npm run qa:phase:59',
+        command: 'npm run qa:release-train',
         detail: 'Pre-Canary Gate so abre pre-canary gate; nao executa canary, deploy, global rollout ou promocao automatica.',
         critical: true,
       },

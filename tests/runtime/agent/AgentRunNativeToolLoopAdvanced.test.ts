@@ -38,7 +38,14 @@ describe('AgentRunNativeToolLoopService advanced harness', () => {
     });
 
     expect(executeTool).toHaveBeenCalledTimes(2);
-    expect(executeTool).toHaveBeenLastCalledWith('read_file', { filePath: 'README.md' });
+    expect(executeTool).toHaveBeenLastCalledWith('read_file', expect.objectContaining({
+      filePath: 'README.md',
+      metadata: expect.objectContaining({
+        runId: 'run-native-tool-loop-advanced',
+        sourceSurface: 'agent-native-tool-loop',
+        toolCallId: 'call-1',
+      }),
+    }));
     expect(result.stats).toEqual(expect.objectContaining({
       requested: 1,
       executed: 1,
@@ -135,6 +142,78 @@ describe('AgentRunNativeToolLoopService advanced harness', () => {
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(1);
     expect(result.result.response.content).toBe('Recovered continuation.');
     expect(result.stats.stopReasonRecoveries).toBe(1);
+  });
+
+  it('compacts over-budget tool-loop history via ContextCompactionService before the next turn', async () => {
+    const bulky = 'x'.repeat(8_000);
+    const messages = [
+      { role: 'system' as const, content: 'You are Zavorth.' },
+      { role: 'user' as const, content: 'audit the repo deeply' },
+      {
+        role: 'assistant' as const,
+        content: 'calling tools',
+        toolCalls: [{ id: 'call-read', name: 'read_file', arguments: { filePath: 'README.md' } }],
+      },
+      {
+        role: 'tool' as const,
+        content: bulky,
+        toolName: 'read_file',
+        toolCallId: 'call-read',
+      },
+      { role: 'user' as const, content: 'continue' },
+      {
+        role: 'assistant' as const,
+        content: 'more tools',
+        toolCalls: [{ id: 'call-list', name: 'list_directory', arguments: { path: '.' } }],
+      },
+      {
+        role: 'tool' as const,
+        content: bulky,
+        toolName: 'list_directory',
+        toolCallId: 'call-list',
+      },
+    ];
+    const llmRuntime = {
+      chatDetailed: jest.fn(async (nextMessages: any[]) => {
+        expect(Array.isArray(nextMessages)).toBe(true);
+        expect(nextMessages.length).toBeGreaterThan(0);
+        return runtimeResult('Compact path answer.', [], 'stop');
+      }),
+    };
+    const service = buildService({
+      llmRuntime,
+      toolRuntime: {
+        getToolDefinitions: () => [tool('read_file'), tool('list_directory')],
+        hasTool: (name: string) => name === 'read_file' || name === 'list_directory',
+        isAvailable: () => true,
+        executeTool: jest.fn(async (name: string) => `${name}-result-${bulky}`),
+      },
+    });
+
+    const activeRun = run({
+      metadata: {
+        nativeToolContextChars: 6_000,
+      },
+    });
+    const result = await service.run({
+      messages: [...messages],
+      initialResult: runtimeResult('', [{
+        id: 'call-3',
+        name: 'read_file',
+        arguments: { filePath: 'package.json' },
+      }], 'tool_calls'),
+      tools: [tool('read_file'), tool('list_directory')],
+      options: {},
+      run: activeRun,
+      request: {
+        ...request('audit the repo deeply'),
+        metadata: { nativeToolContextChars: 6_000 },
+      },
+    });
+
+    expect(result.stats.compactions).toBeGreaterThanOrEqual(1);
+    expect(result.result.response.content).toBe('Compact path answer.');
+    expect(llmRuntime.chatDetailed).toHaveBeenCalled();
   });
 });
 

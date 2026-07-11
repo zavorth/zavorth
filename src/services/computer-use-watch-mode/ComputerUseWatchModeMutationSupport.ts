@@ -5,6 +5,12 @@ import type { PermissionService } from '../PermissionService.js';
 import type { TrustDecisionService } from '../TrustDecisionService.js';
 import type { StartWatchModeRunInput, WatchModeMutationPreview, WatchModeRunSnapshot, WatchModeSnapshot } from './ComputerUseWatchModeSharedTypes.js';
 import { logger } from '../../logger.js';
+import { decideSecurityPolicy } from '../../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  resultFromToolOutcome,
+} from '../../runtime/operator/OperatorContinuityEnvelope.js';
 
 type ComputerUseWatchModeMutationSupportDeps = {
   mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan' | 'attachApproval' | 'approvePlan' | 'markApplied' | 'markBlocked'>;
@@ -120,7 +126,19 @@ export class ComputerUseWatchModeMutationSupport {
   public async applyMutationPlan(input: {
     planId: string;
     requestedBy?: string | null;
-  }): Promise<{ ok: true; status: 'applied'; mutationPlan: ZavorthMutationPlan; snapshot: WatchModeSnapshot; run: WatchModeRunSnapshot | null }> {
+  }): Promise<{
+    ok: true;
+    status: 'applied';
+    mutationPlan: ZavorthMutationPlan;
+    snapshot: WatchModeSnapshot;
+    run: WatchModeRunSnapshot | null;
+    operatorContinuity?: {
+      continuityId: string;
+      receiptId: string | null;
+      decisionAction: string | null;
+      policyBrokerReceiptId: string | null;
+    };
+  }> {
     let plan = this.deps.mutationPlane.readPlan(input.planId);
     if (!plan || plan.domain !== 'watch') {
       throw new Error(`Plano de Watch Mode nao encontrado: ${input.planId || 'n/d'}.`);
@@ -142,6 +160,65 @@ export class ComputerUseWatchModeMutationSupport {
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
       throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+    }
+
+    const brokerDecision = decideSecurityPolicy({
+      surface: 'desktop-automation',
+      operation: 'watch-mode.apply',
+      target: plan.actionId,
+      sourceTrust: 'trusted-user',
+      metadata: {
+        planId: plan.id,
+        requestedBy: input.requestedBy || null,
+        domain: 'watch',
+      },
+      toolDecision: {
+        action: 'allow',
+        allowed: true,
+        risk: 'safe',
+        toolName: `watch-mode.${plan.actionId}`,
+        surface: 'native-tool',
+        capabilities: ['desktop'],
+        requiresConfirmation: false,
+        reasons: [
+          'Watch Mode apply already has mutation-plane approval; broker records continuity receipt.',
+        ],
+        rule: 'WATCH_MODE_APPLY_CONTINUITY',
+      },
+      reasons: [
+        'Watch Mode mutation apply recorded by operator continuity kernel.',
+      ],
+    });
+    const continuityKernel = new OperatorContinuityKernel();
+    let continuity = continuityKernel.begin({
+      correlation: {
+        mutationPlanId: plan.id,
+        policyBrokerReceiptId: brokerDecision.receipt.receiptId,
+      },
+    });
+    continuity = continuityKernel.recordRequest(continuity, {
+      surface: 'desktop-automation',
+      operation: 'watch-mode.apply',
+      target: plan.actionId,
+      actorId: input.requestedBy || null,
+      sourceSurface: 'watch-mode',
+      metadata: { planId: plan.id },
+    });
+    continuity = continuityKernel.attachDecision(continuity, decisionFromBroker(brokerDecision));
+    if (!brokerDecision.allowed) {
+      continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: false,
+        status: 'blocked',
+        summary: brokerDecision.reasons.join(' '),
+        data: { policyBrokerReceiptId: brokerDecision.receipt.receiptId },
+      }));
+      continuity = continuityKernel.finalizeReceipt(continuity, {
+        receiptId: brokerDecision.receipt.receiptId,
+      });
+      this.deps.mutationPlane.markBlocked(plan.id, `Policy blocked apply: ${brokerDecision.action}`);
+      throw new Error(
+        `Watch Mode apply blocked by policy (${brokerDecision.action}). Receipt: ${brokerDecision.receipt.receiptId}`,
+      );
     }
 
     const payload = plan.payload || {};
@@ -178,12 +255,31 @@ export class ComputerUseWatchModeMutationSupport {
     }
 
     const appliedPlan = this.deps.mutationPlane.markApplied(plan.id, `Watch Mode ${plan.actionId} aplicado.`, [plan.actionId]);
+    continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+      ok: true,
+      status: 'applied',
+      summary: `Watch Mode ${plan.actionId} applied.`,
+      data: {
+        policyBrokerReceiptId: brokerDecision.receipt.receiptId,
+        mutationPlanId: appliedPlan.id,
+      },
+    }));
+    continuity = continuityKernel.finalizeReceipt(continuity, {
+      receiptId: brokerDecision.receipt.receiptId,
+    });
+    const publicView = continuityKernel.toPublicView(continuity);
     return {
       ok: true,
       status: 'applied',
       mutationPlan: appliedPlan,
       snapshot: this.deps.previewSnapshot(8),
       run,
+      operatorContinuity: {
+        continuityId: publicView.continuityId,
+        receiptId: publicView.receiptId,
+        decisionAction: publicView.decisionAction,
+        policyBrokerReceiptId: publicView.policyBrokerReceiptId,
+      },
     };
   }
 

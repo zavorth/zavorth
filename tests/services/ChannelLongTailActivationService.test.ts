@@ -16,13 +16,21 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
   });
 
 describe('ChannelLongTailActivationService Approval gate', () => {
+  it('resolves google-chat and qq aliases when running configured doctor', () => {
+    const service = new ChannelLongTailActivationService();
+    const google = service.runConfiguredDoctor({ channelId: 'google-chat' as any });
+    const qq = service.runConfiguredDoctor({ channelId: 'qq' as any });
+    expect(google.channelId).toBe('googlechat');
+    expect(qq.channelId).toBe('qqbot');
+  });
+
   it('closes Approval gate long-tail activation gates without live IO', () => {
     const snapshot = new ChannelLongTailActivationService({
       now: () => new Date('2026-05-04T20:00:00.000Z'),
     }).buildSnapshot();
 
     expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-3');
-    expect(snapshot.phase).toBe('Approval gate - Channel Live Activation Long Tail');
+    expect(snapshot.gate).toBe('Approval gate - Channel Live Activation Long Tail');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({
@@ -280,7 +288,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     const webhook = await webhookService.runStagingLiveSmoke({
       channelId: 'googlechat',
       confirmLiveIo: true,
-      message: 'phase 3 webhook smoke',
+      message: 'webhook staging smoke',
     });
     expect(webhook).toEqual(
       expect.objectContaining({
@@ -300,7 +308,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
       expect.objectContaining({
         channelId: 'googlechat',
         recipients: ['space-1'],
-        text: 'phase 3 webhook smoke',
+        text: 'webhook staging smoke',
       }),
     );
 
@@ -315,7 +323,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     const bot = await botService.runStagingLiveSmoke({
       channelId: 'line',
       confirmLiveIo: true,
-      message: 'phase 3 bot smoke',
+      message: 'bot-http staging smoke',
     });
     expect(bot.status).toBe('sent');
     expect(bot.sendReceipt?.family).toBe('bot-http');
@@ -337,7 +345,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     const receipt = await service.runStagingLiveSmoke({
       channelId: 'imessage',
       confirmLiveIo: true,
-      message: 'phase 3 apple bridge smoke',
+      message: 'apple bridge staging smoke',
     });
 
     expect(receipt.status).toBe('sent');
@@ -351,7 +359,7 @@ describe('ChannelLongTailActivationService Approval gate', () => {
     );
     expect(scriptCalls[0]).toEqual({
       file: 'imessage-bridge.ps1',
-      args: ['--channel', 'imessage', '--recipients', 'chat-guid', '--message', 'phase 3 apple bridge smoke'],
+      args: ['--channel', 'imessage', '--recipients', 'chat-guid', '--message', 'apple bridge staging smoke'],
     });
   });
 });

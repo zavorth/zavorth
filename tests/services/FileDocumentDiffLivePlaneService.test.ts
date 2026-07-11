@@ -88,7 +88,7 @@ describe('FileDocumentDiffLivePlaneService Certification matrix', () => {
   it('copies real bytes under approved workspace policy', async () => {
     const sourcePath = path.join(workspaceRoot, 'input.txt');
     const destinationPath = path.join(workspaceRoot, 'out', 'copy.txt');
-    await fs.promises.writeFile(sourcePath, 'phase 9 bytes', 'utf8');
+    await fs.promises.writeFile(sourcePath, 'file-transfer-bytes', 'utf8');
     const service = new FileTransferService({
       artifactDir,
       workspaceRoots: [workspaceRoot],
@@ -116,10 +116,10 @@ describe('FileDocumentDiffLivePlaneService Certification matrix', () => {
       expect.objectContaining({
         ok: true,
         status: 'completed',
-        bytesTransferred: Buffer.byteLength('phase 9 bytes'),
+        bytesTransferred: Buffer.byteLength('file-transfer-bytes'),
       }),
     );
-    expect(await fs.promises.readFile(destinationPath, 'utf8')).toBe('phase 9 bytes');
+    expect(await fs.promises.readFile(destinationPath, 'utf8')).toBe('file-transfer-bytes');
   });
 
   it('extracts text, metadata and tables from a real HTML document', async () => {

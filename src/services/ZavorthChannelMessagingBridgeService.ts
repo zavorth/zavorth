@@ -123,7 +123,7 @@ export class ZavorthChannelMessagingBridgeService {
       contractVersion: ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'checkpoint-5-channels-and-messaging',
+      gate: 'channels-and-messaging',
       previousCapabilityProviderStatus,
       channelDescriptors,
       normalizedInboundMessage,

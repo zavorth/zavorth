@@ -17,7 +17,7 @@ export class ZavorthFunctionalClosureZavorthControlService {
   public buildSnapshot(items: ZavorthFunctionalClosureItem[]): ZavorthFunctionalClosureZavorthControlSnapshot {
     const categoryRows = items.map((item) => ({
       category: item.category,
-      phase: item.phase,
+      gate: item.gate,
       status: item.status,
       priority: item.priority,
       decision: item.decision,
@@ -67,8 +67,8 @@ export class ZavorthFunctionalClosureZavorthControlService {
       `P2: ${input.items.filter((item) => item.priority === 'P2').length}`,
       `Receipts: ${input.receiptRows.reduce((total: number, row: { receipts: number }) => total + row.receipts, 0)}`,
       'Categories:',
-      ...input.categoryRows.map((row: { phase: number; category: string; status: string; priority: string; decision: string; receipts: number }) => (
-        `- phase ${row.phase} ${row.category}: ${row.status}, ${row.priority}, decision=${row.decision}, receipts=${row.receipts}`
+      ...input.categoryRows.map((row: { gate: number; category: string; status: string; priority: string; decision: string; receipts: number }) => (
+        `- phase ${row.gate} ${row.category}: ${row.status}, ${row.priority}, decision=${row.decision}, receipts=${row.receipts}`
       )),
     ];
 

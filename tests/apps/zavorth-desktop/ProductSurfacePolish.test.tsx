@@ -10,7 +10,7 @@ import {
   ActionHint,
 } from '../../../apps/zavorth-desktop/src/components/ProductPolishComponents';
 
-describe('ProductSurfacePolish UX Tests (Phase 21N)', () => {
+describe('ProductSurfacePolish UX Tests', () => {
   it('renders StatusBadge with different statuses without crashing', () => {
     const { container: success } = render(<StatusBadge status="success">Pronto</StatusBadge>);
     expect(success.textContent).toContain('Pronto');

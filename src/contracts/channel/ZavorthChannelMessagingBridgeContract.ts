@@ -200,7 +200,7 @@ export type ZavorthChannelMessagingBridgeSnapshot = {
   contractVersion: typeof ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION;
   status: ZavorthChannelMessagingBridgeStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'checkpoint-5-channels-and-messaging';
+  gate: 'channels-and-messaging';
   previousCapabilityProviderStatus: ZavorthCapabilityProviderRegistryStatus;
   channelDescriptors: ZavorthNormalizedChannelDescriptor[];
   normalizedInboundMessage: ZavorthNormalizedInboundMessage;

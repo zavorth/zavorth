@@ -218,7 +218,7 @@ export type ZavorthNativeCompanionDeviceSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION;
   status: 'passed' | 'failed';
-  phase: 6;
+  gate: 'native-companion-device';
   statement: 'Zavorth native companion and device capabilities are exposed through browser-first, desktop and optional runtime bridges with artifact-first receipts.';
   runtime: {
     platform: NodeJS.Platform;

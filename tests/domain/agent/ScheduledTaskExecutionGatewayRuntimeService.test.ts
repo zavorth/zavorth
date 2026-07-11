@@ -17,7 +17,7 @@ describe('ZavorthScheduledTaskExecutionGatewayRuntimeService', () => {
     });
 
     expect(snapshot.contractVersion).toBe(ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION);
-    expect(snapshot.phase).toBe('checkpoint-2-scheduled-task-execution-gateway');
+    expect(snapshot.gate).toBe('checkpoint-2-scheduled-task-execution-gateway');
     expect(snapshot.status).toBe('needs_reapproval');
     expect(snapshot.summary.gatewayCalled).toBe(false);
     expect(snapshot.summary.executionPerformed).toBe(false);

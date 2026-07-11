@@ -95,7 +95,7 @@ export type ZavorthExternalCapabilityInventorySnapshot = {
   contractVersion: typeof ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION;
   status: ZavorthExternalCapabilityInventoryStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'checkpoint-0-freeze-and-inventory';
+  gate: 'external-capability-inventory';
   bridgeContractVersion: typeof ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION;
   bridgeStatus: 'bridge-ready' | 'attention' | 'blocked';
   sourceProbes: ZavorthExternalCapabilityInventorySourceProbe[];

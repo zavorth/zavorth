@@ -5,7 +5,7 @@ import {
 } from '../../src/contracts/ZavorthTransactionPlaneContract.js';
 
 describe('ZavorthTransactionPlaneContract', () => {
-  it('defines the phase 0 security contract and default invariants', () => {
+  it('defines the security contract and default invariants', () => {
     const snapshot = buildZavorthTransactionPlaneContractSnapshot();
 
     expect(snapshot.version).toBe(ZAVORTH_TRANSACTION_PLANE_CONTRACT_VERSION);
@@ -99,7 +99,7 @@ describe('ZavorthTransactionPlaneContract', () => {
     expect(decision.realMoneyAction).toBe(true);
   });
 
-  it('keeps critical value movement blocked by default in phase 0', () => {
+  it('keeps critical value movement blocked by default', () => {
     const decision = evaluateZavorthTransactionPlaneSafety({
       actor: 'zavorth-runtime',
       actionKind: 'asset-withdrawal',

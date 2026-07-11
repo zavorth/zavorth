@@ -89,7 +89,7 @@ export type ZavorthPreferenceLedgerSnapshot = {
 
 export type ZavorthWorkspaceMemoryOsSnapshot = {
   generatedAt: string;
-  phase: '29';
+  gate: 'workspace-memory-os';
   surface: 'workspace-memory-os';
   workspaceProfile: ZavorthWorkspaceProfileSnapshot;
   recentTaskResolver: ZavorthRecentTaskResolution;
@@ -133,7 +133,7 @@ export type ZavorthWorkspaceMemoryOsSnapshot = {
 
 export type ZavorthFollowUpResolution = {
   generatedAt: string;
-  phase: '29';
+  gate: 'workspace-memory-os';
   surface: 'workspace-memory-resolution';
   input: string;
   intent: 'continue_task' | 'redeliver_artifact' | 'same_workspace' | 'memory_search';
@@ -152,7 +152,7 @@ export type ZavorthMemoryReviewAction = 'forget' | 'correct';
 
 export type ZavorthMemoryReviewActionResult = {
   generatedAt: string;
-  phase: '29';
+  gate: 'workspace-memory-os';
   surface: 'workspace-memory-action';
   action: ZavorthMemoryReviewAction;
   key: string;
@@ -294,7 +294,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
     return {
       generatedAt,
-      phase: '29',
+      gate: 'workspace-memory-os',
       surface: 'workspace-memory-os',
       workspaceProfile,
       recentTaskResolver,
@@ -357,7 +357,7 @@ export class ZavorthWorkspaceMemoryOsService {
       const artifact = review.conversationSummary.recentArtifacts[0] || null;
       return {
         generatedAt,
-        phase: '29',
+        gate: 'workspace-memory-os',
         surface: 'workspace-memory-resolution',
         input: text,
         intent: 'redeliver_artifact',
@@ -378,7 +378,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (wantsSameWorkspace) {
       return {
         generatedAt,
-        phase: '29',
+        gate: 'workspace-memory-os',
         surface: 'workspace-memory-resolution',
         input: text,
         intent: 'same_workspace',
@@ -401,7 +401,7 @@ export class ZavorthWorkspaceMemoryOsService {
     if (wantsContinue) {
       return {
         generatedAt,
-        phase: '29',
+        gate: 'workspace-memory-os',
         surface: 'workspace-memory-resolution',
         input: text,
         intent: 'continue_task',
@@ -419,7 +419,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
     return {
       generatedAt,
-      phase: '29',
+      gate: 'workspace-memory-os',
       surface: 'workspace-memory-resolution',
       input: text,
       intent: 'memory_search',
@@ -493,7 +493,7 @@ export class ZavorthWorkspaceMemoryOsService {
 
     return {
       generatedAt,
-      phase: '29',
+      gate: 'workspace-memory-os',
       surface: 'workspace-memory-action',
       action: input.action,
       key,
@@ -563,7 +563,7 @@ export class ZavorthWorkspaceMemoryOsService {
       slug: this.slug(workspace || 'workspace-desconhecido'),
       stack: Array.from(stack).sort(),
       buildCommands: this.pickScripts(scripts, ['build', 'runtime:build', 'compile']),
-      testCommands: this.pickScripts(scripts, ['test', 'test:cli', 'runtime:check', 'qa:phase:29']),
+      testCommands: this.pickScripts(scripts, ['test', 'test:cli', 'runtime:check', 'qa:workspace-memory-os']),
       importantDirectories: this.findImportantDirectories(workspace),
       preferredExecutor: this.resolvePreferredExecutor(input.taskOs),
       codeStyle: this.inferCodeStyle(workspace, packageJson),

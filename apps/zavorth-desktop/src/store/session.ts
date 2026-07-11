@@ -22,7 +22,9 @@ export const $events = atom<BootEvent[]>([]);
 
 // Actions
 export function setStatus(s: RuntimeStatus) { $status.set(s); }
-export function setMessages(m: ChatMessage[]) { $messages.set(m); }
+export function setMessages(m: ChatMessage[] | ((current: ChatMessage[]) => ChatMessage[])) {
+  $messages.set(typeof m === 'function' ? m($messages.get()) : m);
+}
 export function setBusy(b: boolean) { $busy.set(b); }
 export function setNotice(n: string) { $notice.set(n); }
 export function setSelectedModel(m: string) { $selectedModel.set(m); }

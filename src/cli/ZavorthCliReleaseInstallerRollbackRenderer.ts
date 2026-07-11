@@ -149,7 +149,7 @@ export function buildReleaseInstallerRollbackCliSnapshot(input: {
         ],
         screenshots: [],
         checks: [],
-        nextRecommendedStage: {
+        nextRecommendedGate: {
           stage: '52',
           title: 'Feedback, Telemetry Opt-In And Product Loop',
           reason: 'Depois do release path, abrir loop de produto sem canary real.',

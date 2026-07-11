@@ -115,7 +115,7 @@ function createSource(
       reason: 'checkpoint-80-test',
       releaseCandidateReceiptId: 'release-candidate-1',
     },
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '81',
       title: 'Capability Autopilot v1.1 Release Rollout Plan',
       reason: 'Prepare rollout plan.',
@@ -264,11 +264,11 @@ describe('CapabilityAutopilotReleaseRolloutPlanService', () => {
     ]));
   });
 
-  it('renders the next phase for release execution gate', () => {
+  it('renders the next gate for release execution gate', () => {
     const service = createService();
     const snapshot = service.buildRolloutPlanSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-release-rollout-plan - Capability Autopilot v1.1 Release Rollout Plan');
     expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 82 - Capability Autopilot v1.1 Release Execution Gate');
   });
 });

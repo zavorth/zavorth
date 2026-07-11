@@ -1,0 +1,148 @@
+name: Code CLI (cutover)
+
+on:
+  pull_request:
+    paths:
+      - "packages/code/**"
+      - "bin/zavorth.js"
+      - "bin/lib/**"
+      - "scripts/sync-zavorth-code-from-sibling.mjs"
+      - "scripts/smoke-code-*.mjs"
+      - "scripts/smoke-entry-tui.mjs"
+      - "scripts/smoke-single-bin.mjs"
+      - "scripts/smoke-monorepo-*.mjs"
+      - "docs/product/code-cli-integration.md"
+      - "docs/product/code-cli-packaging.md"
+      - ".github/workflows/code-cli.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/code/**"
+      - "bin/zavorth.js"
+      - "bin/lib/**"
+      - "scripts/sync-zavorth-code-from-sibling.mjs"
+      - "scripts/smoke-code-*.mjs"
+      - "scripts/smoke-entry-tui.mjs"
+      - "scripts/smoke-single-bin.mjs"
+      - "scripts/smoke-monorepo-*.mjs"
+      - "docs/product/code-cli-packaging.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cutover-gates:
+    name: Cutover + single-bin gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install monorepo deps (for jest if needed)
+        run: npm ci --ignore-scripts
+        continue-on-error: true
+
+      - name: Cutover smoke (SoT + single bin)
+        run: npm run code:cutover:smoke
+
+      - name: Single-bin smoke
+        run: npm run code:single-bin:smoke
+
+      - name: Entry smoke
+        run: npm run code:entry:smoke
+
+      - name: Capabilities smoke
+        run: npm run code:capabilities:smoke
+
+      - name: Runtime bridge smoke
+        run: npm run code:runtime-bridge:smoke
+
+      - name: Packaging smoke
+        run: npm run code:packaging:smoke
+
+      - name: Policy smoke
+        run: npm run code:policy:smoke
+
+      - name: Toolchain contract
+        run: npm run code:toolchain:check
+
+      - name: Gateway routing smoke
+        run: npm run code:gateway:smoke
+
+  code-workspace:
+    name: Code Bun workspace smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Code workspace
+        working-directory: packages/code
+        run: bun install --ignore-scripts
+
+      - name: Typecheck Code workspace
+        run: bun run --cwd packages/code typecheck
+
+      - name: Workspace smoke
+        working-directory: packages/code
+        run: bun run scripts/smoke-code-workspace.mjs
+
+  code-tui-binary:
+    name: Build Code TUI binary (linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Code workspace
+        working-directory: packages/code
+        run: bun install --ignore-scripts
+
+      - name: Build single-platform binary
+        working-directory: packages/code/cli
+        run: bun run script/build.ts --single --skip-install
+
+      - name: Assert binary exists
+        run: |
+          find packages/code/cli/dist -type f -name zavorth | tee /tmp/bin.txt
+          test -s /tmp/bin.txt
+
+      - name: Launch prefers binary (smoke)
+        run: |
+          node -e "
+            const l=require('./bin/lib/launch-code-tui.cjs');
+            const b=l.resolveCompiledCodeBinary(process.cwd(), process.env);
+            if(!b) { console.error('no binary resolved'); process.exit(1); }
+            console.log('resolved', b);
+          "
+          node -e "
+            const c=require('./bin/lib/zavorth-capabilities.cjs');
+            c.collectHealthSnapshot({projectRoot:process.cwd(),env:process.env}).then(s=>{
+              console.log(JSON.stringify({ready:s.ready,mode:s.codeRuntimeMode,binary:s.codeBinaryOk,bun:s.bunOk},null,2));
+              if(!s.codeBinaryOk) process.exit(1);
+              if(!s.ready) process.exit(1);
+            });
+          "

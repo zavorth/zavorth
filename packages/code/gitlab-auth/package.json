@@ -1,0 +1,26 @@
+{
+  "name": "@zavorth/gitlab-auth",
+  "version": "2.0.1",
+  "description": "GitLab OAuth authentication plugin for Zavorth (vendored)",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": ["src", "LICENSE", "README.md"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@zavorth/plugin": "*"
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^10.2.0",
+    "fastify": "^5.2.0",
+    "open": "^10.0.0"
+  }
+}

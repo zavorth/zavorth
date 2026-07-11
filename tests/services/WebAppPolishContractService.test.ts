@@ -8,12 +8,12 @@ describe('WebAppPolishContractService', () => {
     const service = new WebAppPolishContractService();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('40');
+    expect(snapshot.gate).toBe('web-app-polish');
     expect(snapshot.surface).toBe('web-app-polish');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.requirements.map((requirement) => requirement.id)).toContain('product-command-rail');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '43',
       title: 'Artifact And Replay Workbench',
     }));
@@ -50,7 +50,6 @@ describe('WebAppPolishContractService', () => {
       styles: buildRuntimeShellStyles(),
       packageJson: packageJsonFixture({
         'qa:web-app-polish': '',
-        'qa:stage:40': '',
       }),
       existsSync: () => true,
       readFileSync: () => '',
@@ -62,10 +61,6 @@ describe('WebAppPolishContractService', () => {
     expect(snapshot.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: 'package:qa:web-app-polish',
-        status: 'fail',
-      }),
-      expect.objectContaining({
-        id: 'package:qa:stage:40',
         status: 'fail',
       }),
     ]));
@@ -92,7 +87,7 @@ describe('WebAppPolishContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = new WebAppPolishContractService({
       html: buildRuntimeShellHtml('/zavorthControl'),
       script: buildRuntimeShellScript(),
@@ -105,7 +100,7 @@ describe('WebAppPolishContractService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 40 - Web/App Polish');
+    expect(report).toContain('Gate web-app-polish - Web/App Polish');
     expect(report).toContain('proximo passo recomendada: 43 - Artifact And Replay Workbench');
   });
 });
@@ -117,7 +112,6 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
       'test:web:qa': 'jest tests/domain/surface/presentation/dashboard --runInBand',
       'test:web:smoke': 'node scripts/web-app-smoke.mjs',
       'qa:web-app-polish': 'npx tsx scripts/web-app-polish.ts --require-pass',
-      'qa:stage:40': 'node scripts/capability-suite-market-check.mjs --phase=40',
       ...overrides,
     },
   };

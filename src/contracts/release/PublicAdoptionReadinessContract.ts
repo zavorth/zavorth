@@ -38,7 +38,7 @@ export type PublicAdoptionReadinessRunbookStep = {
 };
 
 export type PublicAdoptionReadinessSnapshot = {
-  phase: '53';
+  gate: 'public-adoption-readiness';
   surface: 'public-adoption-readiness';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -64,8 +64,8 @@ export type PublicAdoptionReadinessSnapshot = {
   risks: PublicAdoptionReadinessRisk[];
   demoRunbook: PublicAdoptionReadinessRunbookStep[];
   checks: PublicAdoptionReadinessCheck[];
-  nextRecommendedPhase: {
-    phase: '54';
+  nextRecommendedGate: {
+    gate: 'hosted-site-operations';
     title: string;
     reason: string;
   };
@@ -89,7 +89,7 @@ export const PUBLIC_ADOPTION_REQUIRED_CORE_SCRIPTS = [
   'qa:public-product',
   'public-adoption',
   'qa:public-adoption',
-  'qa:phase:53',
+  'qa:public-adoption-readiness',
 ] as const;
 
 export const PUBLIC_ADOPTION_REQUIRED_DOCS = [

@@ -44,7 +44,7 @@ export class SharedSurfaceLearningCommandPack {
           await ctx.reply('Use /learning <approve|reject|promote|forget|promote-skill|promote-procedure> <candidateId>.');
           return;
         }
-        const execution = this.deps.learningPlaneService.executeAction({
+        const execution = await this.deps.learningPlaneService.executeAction({
           candidateId,
           actionId,
         });
@@ -57,6 +57,12 @@ export class SharedSurfaceLearningCommandPack {
           `Acao: ${execution.actionId}.`,
           ...execution.details.slice(0, 4),
         ];
+        if (execution.silentInstallBlocked) {
+          lines.push('silentInstallBlocked: true');
+        }
+        if (execution.skillCandidateId) {
+          lines.push(`Skill candidate: ${execution.skillCandidateId}`);
+        }
         await ctx.reply(lines.join('\n'));
         return;
       }

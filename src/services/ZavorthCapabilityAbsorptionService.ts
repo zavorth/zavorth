@@ -58,7 +58,7 @@ export class ZavorthCapabilityAbsorptionService {
         inspect: 'npm run zavorth:capability-absorption',
         inspectJson: 'npm run zavorth:capability-absorption:json',
         check: 'npm run zavorth:capability-absorption:check --silent',
-        next: 'Phase 2 - Channel Deepening',
+        next: 'Channel Deepening',
       },
     };
   }

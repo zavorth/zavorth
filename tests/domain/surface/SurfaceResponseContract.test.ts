@@ -16,7 +16,7 @@ import {
 } from '../../../src/domain/surface/application/surface-response';
 import { formatCliSurfaceResponse } from '../../../src/cli/ZavorthCliSurfaceResponseRenderer';
 
-describe('Surface Response Contract phase 2', () => {
+describe('Surface Response Contract', () => {
   it('defines canonical examples for status, models, approvals and tool receipts', () => {
     const examples = buildSurfaceResponseStage2Examples();
 

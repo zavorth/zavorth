@@ -94,7 +94,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
       generatedAt,
       contractVersion: ZAVORTH_TEMPORAL_AUTONOMY_DAILY_USE_CERTIFICATION_CONTRACT_VERSION,
       source: 'ZavorthTemporalAutonomyDailyUseCertificationService',
-      phase: 'checkpoint-8-certification-and-daily-use-gate',
+      gate: 'certification-and-daily-use-gate',
       status,
       dailyOpsReadiness,
       liveTickCertification,

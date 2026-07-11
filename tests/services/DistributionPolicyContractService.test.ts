@@ -5,12 +5,12 @@ describe('DistributionPolicyContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('50');
+    expect(snapshot.phase).toBe('distribution-policy');
     expect(snapshot.surface).toBe('distribution-policy');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/editions');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '51',
       title: 'Release Bundle And Installer Distribution',
     }));
@@ -54,7 +54,7 @@ describe('DistributionPolicyContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
@@ -80,7 +80,6 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'distribution-policy': 'npx tsx scripts/distribution-policy.ts',
         'qa:distribution-policy': 'npx tsx scripts/distribution-policy.ts --require-pass --build --screenshots',
-        'qa:stage:50': 'node scripts/capability-suite-adoption-check.mjs --phase=50',
       },
     }),
     'website:package.json': JSON.stringify({

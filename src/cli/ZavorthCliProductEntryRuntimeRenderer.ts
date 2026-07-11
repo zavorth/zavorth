@@ -131,7 +131,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         requiredArtifacts: [],
         screenshots: [],
         checks: [],
-        nextRecommendedStage: {
+        nextRecommendedGate: {
           stage: '49',
           title: 'External Docs And Examples',
           reason: 'docs externas depois do first-run',

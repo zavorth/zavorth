@@ -1,4 +1,5 @@
 import { fork, spawn, type ChildProcess } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import { config } from './config/index.js';
 import {
@@ -207,7 +208,14 @@ export class ZavorthHost {
     this.stopHeartbeatMonitor();
     this.clearBootTimeout();
 
-    const execArgv = path.extname(this.workerScript) === '.ts' ? ['--import', 'tsx'] : [];
+    const isTsWorker = path.extname(this.workerScript) === '.ts';
+    const pathRegister = path.resolve(__dirname, '..', 'scripts', 'register-zavorth-paths.cjs');
+    // Compiled dist workers need @zavorth/* path aliases (tsconfig paths are not honored by Node).
+    const execArgv = isTsWorker
+      ? ['--import', 'tsx']
+      : fs.existsSync(pathRegister)
+        ? ['-r', pathRegister]
+        : [];
     const workerEnv = { ...sanitizeWindowsEnv(this.processRef.env), ZAVORTH_SUPERVISED: 'true' };
     try {
       this.worker = this.forkImpl(this.workerScript, [], {

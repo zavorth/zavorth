@@ -105,7 +105,7 @@ function writeWebRepoReadme(targetRoot) {
     'Cliente externo do runtime Zavorth.',
     '',
     '- repo runtime oficial: `../Zavorth`',
-    '- este repo hospeda a superficie web extraida na Etapa 2',
+    '- este repo hospeda a superficie web extraida no core gateway',
     '- `legacy/zavorth-ui` fica mantido apenas como sandbox React/arquivo historico',
     '',
   ].join('\n');

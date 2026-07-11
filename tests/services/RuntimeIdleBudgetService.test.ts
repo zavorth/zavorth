@@ -6,12 +6,12 @@ describe('RuntimeIdleBudgetService', () => {
     const service = new RuntimeIdleBudgetService();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('45');
+    expect(snapshot.phase).toBe('runtime-idle-budget');
     expect(snapshot.surface).toBe('runtime-idle-budget');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.metrics.length).toBeGreaterThanOrEqual(7);
     expect(snapshot.commands.inspect).toBe('npm run idle:budget');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '40',
       title: 'Web/App Polish',
     }));
@@ -44,7 +44,7 @@ describe('RuntimeIdleBudgetService', () => {
   it('fails when quiet gates point to persistent background commands', () => {
     const service = new RuntimeIdleBudgetService({
       packageJson: packageJsonFixture({
-        'qa:stage:45': 'npx nodemon --watch src --exec node scripts/check.js',
+        'qa:runtime-idle-budget': 'npx nodemon --watch src --exec node scripts/check.js',
       }),
       alphaBudget: alphaBudgetFixture(),
       deterministicQaMatrix: deterministicQaMatrixFixture(),
@@ -105,7 +105,7 @@ describe('RuntimeIdleBudgetService', () => {
     expect(cache?.status).toBe('warn');
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = new RuntimeIdleBudgetService({
       packageJson: packageJsonFixture(),
       alphaBudget: alphaBudgetFixture(),
@@ -118,7 +118,7 @@ describe('RuntimeIdleBudgetService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 45 - Runtime Performance And Idle Budget');
+    expect(report).toContain('Gate runtime-idle-budget - Runtime Performance And Idle Budget');
     expect(report).toContain('proximo passo recomendada: 40 - Web/App Polish');
   });
 });
@@ -141,13 +141,10 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
       'qa:release-ux': 'npx tsx scripts/release-ux-wizard.ts --require-pass',
       'qa:tenant-team-ops': 'npx tsx scripts/tenant-team-ops.ts --require-pass',
       'qa:deterministic': 'npx tsx scripts/deterministic-qa.ts --require-pass',
-      'qa:stage:39': 'node scripts/capability-suite-market-check.mjs --phase=39',
-      'qa:stage:40': 'node scripts/capability-suite-market-check.mjs --phase=40',
-      'qa:stage:41': 'node scripts/capability-suite-market-check.mjs --phase=41',
-      'qa:stage:42': 'node scripts/capability-suite-market-check.mjs --phase=42',
-      'qa:stage:43': 'node scripts/capability-suite-market-check.mjs --phase=43',
-      'qa:stage:44': 'node scripts/capability-suite-market-check.mjs --phase=44',
-      'qa:stage:45': 'node scripts/capability-suite-market-check.mjs --phase=45',
+      'qa:deterministic-qa': 'node scripts/capability-suite-market-check.mjs --gate=deterministic-qa',
+      'qa:artifact-replay': 'node scripts/capability-suite-market-check.mjs --gate=artifact-replay',
+      'qa:release-ux-wizard': 'node scripts/capability-suite-market-check.mjs --gate=release-ux-wizard',
+      'qa:runtime-idle-budget': 'node scripts/capability-suite-market-check.mjs --gate=runtime-idle-budget',
       ...overrides,
     },
   };

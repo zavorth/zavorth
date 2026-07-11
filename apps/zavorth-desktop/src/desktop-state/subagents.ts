@@ -67,53 +67,8 @@ function sanitizeSubagent(value: unknown): ActiveSubagent | null {
 }
 
 export function defaultSubagents(now: () => number | string = Date.now): ActiveSubagent[] {
-  const current = typeof now() === 'string' ? new Date(now() as string).getTime() : Number(now());
-  const hourAgo = new Date(current - 3600000).toISOString();
-  const twoHoursAgo = new Date(current - 7200000).toISOString();
-  const fourHoursAgo = new Date(current - 14400000).toISOString();
-  return [
-    {
-      id: 'agent_research_default',
-      role: 'Codebase & Docs Researcher',
-      typeName: 'research',
-      status: 'completed',
-      identity: buildDesktopIdentity('agent_research_default', 'research', 'Codebase & Docs Researcher', 'completed'),
-      lastActive: hourAgo,
-      assignedTask: 'Analyze package.json configurations and search for outdated dependencies',
-      messages: [
-        {
-          role: 'parent',
-          text: 'Analyze dependencies in the desktop root and check for old libraries.',
-          timestamp: hourAgo,
-        },
-        {
-          role: 'subagent',
-          text: 'Checked packages. Found 2 dependency alerts. Vite and Electron can be upgraded safely.',
-          timestamp: new Date(current - 3500000).toISOString(),
-        },
-      ],
-    },
-    {
-      id: 'agent_auditor_default',
-      role: 'Security Auditor',
-      typeName: 'auditor',
-      status: 'idle',
-      identity: buildDesktopIdentity('agent_auditor_default', 'auditor', 'Security Auditor', 'idle'),
-      lastActive: twoHoursAgo,
-      assignedTask: 'Audit codebase against OWASP API Security top 10 rules',
-      messages: [],
-    },
-    {
-      id: 'agent_debugger_default',
-      role: 'Test Runner & Debugger',
-      typeName: 'debugger',
-      status: 'idle',
-      identity: buildDesktopIdentity('agent_debugger_default', 'debugger', 'Test Runner & Debugger', 'idle'),
-      lastActive: fourHoursAgo,
-      assignedTask: 'Watch test suites and fix broken assertions automatically',
-      messages: [],
-    },
-  ];
+  void now;
+  return [];
 }
 
 export function loadSubagents(
@@ -126,7 +81,9 @@ export function loadSubagents(
     if (!saved) return defaultSubagents(now);
     const parsed = JSON.parse(saved);
     return Array.isArray(parsed)
-      ? parsed.map(sanitizeSubagent).filter((item): item is ActiveSubagent => Boolean(item))
+      ? parsed
+          .map(sanitizeSubagent)
+          .filter((item): item is ActiveSubagent => item !== null && !item.id.endsWith('_default'))
       : defaultSubagents(now);
   } catch {
     return defaultSubagents(now);
@@ -180,10 +137,64 @@ export function appendSubagentTask(
     : agent);
 }
 
+export function queueSubagentTask(
+  subagents: ActiveSubagent[],
+  id: string,
+  task: string,
+  now: () => number | string = Date.now,
+): ActiveSubagent[] {
+  const timestamp = toIso(now);
+  return subagents.map(agent => agent.id === id
+    ? {
+        ...agent,
+        status: 'queued',
+        identity: buildDesktopIdentity(agent.id, agent.typeName, agent.role, 'queued'),
+        assignedTask: task,
+        lastActive: timestamp,
+        messages: [...agent.messages, { role: 'parent', text: task, timestamp }],
+      }
+    : agent);
+}
+
+export function startQueuedSubagentTask(
+  subagents: ActiveSubagent[],
+  id: string,
+  now: () => number | string = Date.now,
+): ActiveSubagent[] {
+  const timestamp = toIso(now);
+  return subagents.map(agent => agent.id === id
+    ? {
+        ...agent,
+        status: 'running',
+        identity: buildDesktopIdentity(agent.id, agent.typeName, agent.role, 'running'),
+        lastActive: timestamp,
+      }
+    : agent);
+}
+
+export function blockSubagentTask(
+  subagents: ActiveSubagent[],
+  id: string,
+  message: string,
+  now: () => number | string = Date.now,
+): ActiveSubagent[] {
+  const timestamp = toIso(now);
+  return subagents.map(agent => agent.id === id
+    ? {
+        ...agent,
+        status: 'blocked',
+        identity: buildDesktopIdentity(agent.id, agent.typeName, agent.role, 'blocked'),
+        lastActive: timestamp,
+        messages: [...agent.messages, { role: 'subagent', text: message, timestamp }],
+      }
+    : agent);
+}
+
 export function completeSubagentTask(
   subagents: ActiveSubagent[],
   id: string,
   task: string,
+  responseText?: string,
   now: () => number | string = Date.now,
 ): ActiveSubagent[] {
   const timestamp = toIso(now);
@@ -197,7 +208,8 @@ export function completeSubagentTask(
           ...agent.messages,
           {
             role: 'subagent',
-            text: `Execution complete. Executed workspace analysis for: "${task}". No vulnerabilities found. Output: SUCCESS.`,
+            text: responseText?.trim()
+              || `A tarefa "${task}" foi concluída pelo runtime Zavorth. Consulte a conversa para ver as evidências completas.`,
             timestamp,
           },
         ],
@@ -205,8 +217,40 @@ export function completeSubagentTask(
     : agent);
 }
 
+export function failSubagentTask(
+  subagents: ActiveSubagent[],
+  id: string,
+  message: string,
+  now: () => number | string = Date.now,
+): ActiveSubagent[] {
+  const timestamp = toIso(now);
+  return subagents.map(agent => agent.id === id
+    ? {
+        ...agent,
+        status: 'failed',
+        identity: buildDesktopIdentity(agent.id, agent.typeName, agent.role, 'failed'),
+        lastActive: timestamp,
+        messages: [...agent.messages, { role: 'subagent', text: message, timestamp }],
+      }
+    : agent);
+}
+
 export function deleteSubagent(subagents: ActiveSubagent[], id: string): ActiveSubagent[] {
   return subagents.filter(agent => agent.id !== id);
+}
+
+export async function waitForSubagentIdle(
+  isBusy: () => boolean,
+  options: { timeoutMs?: number; pollMs?: number } = {},
+): Promise<boolean> {
+  const timeoutMs = Math.max(0, options.timeoutMs ?? 300_000);
+  const pollMs = Math.max(10, options.pollMs ?? 250);
+  const deadline = Date.now() + timeoutMs;
+  while (isBusy()) {
+    if (Date.now() >= deadline) return false;
+    await new Promise(resolve => setTimeout(resolve, pollMs));
+  }
+  return true;
 }
 
 function buildDesktopIdentity(

@@ -76,7 +76,7 @@ export class ProviderRuntimeActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Connector registry - Provider Runtime Activation P0',
+      gate: 'provider-runtime-activation-p0',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         providers: 24,

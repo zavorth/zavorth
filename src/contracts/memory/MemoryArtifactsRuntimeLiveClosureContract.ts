@@ -143,7 +143,7 @@ export type MemoryArtifactsRuntimeLiveEntry = {
 export type MemoryArtifactsRuntimeLiveClosureSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION;
-  phase: 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure';
+  gate: 'memory-artifacts-runtime-live-closure';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 11;

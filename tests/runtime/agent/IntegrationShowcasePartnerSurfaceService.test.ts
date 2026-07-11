@@ -87,7 +87,7 @@ function integrationShowcase(overrides: Record<string, unknown> = {}) {
       { id: 'integration-showcase:matrix-artifact', status: 'pass' },
       { id: 'integration-showcase:partner-artifact', status: 'pass' },
     ],
-    nextRecommendedStage: { stage: '59', title: 'Release Train', reason: 'release readiness' },
+    nextRecommendedGate: { stage: '59', title: 'Release Train', reason: 'release readiness' },
     ...overrides,
   };
 }

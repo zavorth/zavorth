@@ -202,7 +202,7 @@ export type ZavorthNativeEngineAbsorptionSnapshot = {
   contractVersion: typeof ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION;
   status: ZavorthNativeEngineAbsorptionStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'native-engine-absorption';
+  gate: 'native-engine-absorption';
   previousContractLayerStatus: ZavorthExternalContractLayerStatus;
   features: ZavorthNativeEngineFeatureSpec[];
   fixtureReceipts: {

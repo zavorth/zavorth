@@ -4,7 +4,21 @@ export const DESKTOP_ONBOARDING_STORAGE_KEY = 'zvd:onboarded';
 export const DESKTOP_TRUST_MODE_KEY = 'zvd:trusted-operator-hint';
 export const DESKTOP_ONBOARDING_CELEBRATE_KEY = 'zvd:celebrate-onboarding';
 
-export type DesktopOnboardingProvider = 'openai' | 'anthropic' | 'google' | 'openrouter' | 'ollama';
+export type DesktopOnboardingProvider =
+  | 'openrouter'
+  | 'openai'
+  | 'anthropic'
+  | 'google'
+  | 'xai'
+  | 'deepseek'
+  | 'mistral'
+  | 'groq'
+  | 'together'
+  | 'perplexity'
+  | 'cohere'
+  | 'azure'
+  | 'ollama'
+  | 'custom';
 
 export type DesktopOnboardingStepId = 'provider' | 'trust' | 'channel' | 'first-ask';
 

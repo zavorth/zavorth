@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'canary-promotion-decision-ledger-files',
-    label: 'Canary Promotion Decision Ledger phase files exist',
+    label: 'Canary Promotion Decision Ledger gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/CanaryPromotionDecisionLedgerContract.ts',

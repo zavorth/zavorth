@@ -241,7 +241,7 @@ describe('ZavorthReleasePresenceControlPlaneService', () => {
 
     const snapshot = await service.buildStatus();
 
-    expect(snapshot.phase).toBe('31');
+    expect(snapshot.phase).toBe('release-presence-control-plane');
     expect(snapshot.surface).toBe('release-presence-control-plane');
     expect(snapshot.mode).toBe('status');
     expect(snapshot.release.version).toBe('1.2.3');

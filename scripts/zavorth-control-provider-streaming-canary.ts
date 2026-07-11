@@ -561,7 +561,7 @@ async function installObserver(page: any): Promise<void> {
         const payload = event?.payload || event || {};
         metrics.events.push({
           eventType: payload.eventType || event?.eventType || event?.type || "",
-          phase: payload.phase || "",
+          phase: payload.stage || "",
           done: payload.done === true,
           providerName: payload.providerName || "",
           modelName: payload.modelName || "",

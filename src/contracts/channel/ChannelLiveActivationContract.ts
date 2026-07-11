@@ -80,7 +80,7 @@ export type ChannelLiveActivationEntry = {
 export type ChannelLiveActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Preview engine - Channel Live Activation P0';
+  gate: 'channel-live-activation-p0';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     channels: 6;

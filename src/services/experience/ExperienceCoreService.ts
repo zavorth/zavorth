@@ -559,7 +559,7 @@ export class ExperienceCoreService {
       }
 
       if (command.learning?.decision) {
-        const learning = this.learningOs.decide({
+        const learning = await this.learningOs.decide({
           candidateId: command.learning.candidateId || null,
           decision: command.learning.decision,
           workspace: command.workspace || null,
@@ -980,7 +980,7 @@ export class ExperienceCoreService {
 
   private publishRuntimeLearningDecision(
     command: ExperienceCommand,
-    learning: ReturnType<LearningOSService['decide']>,
+    learning: Awaited<ReturnType<LearningOSService['decide']>>,
   ): void {
     this.safeDispatchRuntimeState({
       type: 'domain-state',
@@ -1479,7 +1479,7 @@ export class ExperienceCoreService {
 
     const learningMatch = /^learn:(approve|reject):(.+)$/.exec(actionId);
     if (learningMatch) {
-      const learning = this.learningOs.decide({
+      const learning = await this.learningOs.decide({
         candidateId: learningMatch[2],
         decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
         workspace: command.workspace || null,

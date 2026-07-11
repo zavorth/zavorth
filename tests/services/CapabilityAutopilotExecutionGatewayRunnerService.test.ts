@@ -174,7 +174,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
       success: true,
       summary: 'ExecutionGateway executou o repair com sucesso.',
       metadata: {
-        stage: 'capability-autopilot-checkpoint-65',
+        stage: 'capability-autopilot-provider-expansion',
         gatewayRunner: true,
         gatewayAllowed: true,
         executionId: 'execution-1',
@@ -196,7 +196,7 @@ describe('CapabilityAutopilotExecutionGatewayRunnerService', () => {
       requires_approval: false,
       workspace: 'C:/workspace',
       metadata: expect.objectContaining({
-        stage: 'capability-autopilot-checkpoint-65',
+        stage: 'capability-autopilot-provider-expansion',
         extra_allowed_commands: ['gemini --version'],
         extra_allowed_command_policies: [
           expect.objectContaining({ command: 'gemini --version', match_type: 'exact', scope: 'once' }),

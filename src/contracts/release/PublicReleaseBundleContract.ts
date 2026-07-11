@@ -19,7 +19,7 @@ export type PublicReleaseBundleScreenshotSpec = {
 };
 
 export type PublicReleaseBundleContractSnapshot = {
-  phase: '51';
+  gate: 'public-release-bundle';
   surface: 'release-bundle';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -35,8 +35,8 @@ export type PublicReleaseBundleContractSnapshot = {
   requiredCommands: string[];
   screenshots: PublicReleaseBundleScreenshotSpec[];
   checks: PublicReleaseBundleCheck[];
-  nextRecommendedPhase: {
-    phase: '52';
+  nextRecommendedGate: {
+    gate: 'feedback-telemetry';
     title: string;
     reason: string;
   };

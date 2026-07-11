@@ -77,7 +77,7 @@ export class ReleaseTrainService {
       this.checkCalendar(),
       this.checkReleaseCandidateChecklist(scripts),
       this.checkHotfixPlaybook(),
-      this.checkPreviousPhaseGates(scripts),
+      this.checkPreviousGates(scripts),
       this.checkWebsiteCoverage(),
       this.checkForbiddenClaims(),
       this.checkPlanArtifact(),
@@ -91,7 +91,7 @@ export class ReleaseTrainService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '59',
+      gate: 'release-train',
       surface: 'release-train',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -335,17 +335,17 @@ export class ReleaseTrainService {
     );
   }
 
-  private checkPreviousPhaseGates(scripts: Record<string, string>): ReleaseTrainCheck {
-    const missing = ['53', '54', '55', '56', '57', '58']
-      .map((phase) => `qa:phase:${phase}`)
+  private checkPreviousGates(scripts: Record<string, string>): ReleaseTrainCheck {
+    const missing = ['public-adoption-readiness', 'hosted-site-operations', 'distribution-hardening', 'public-docs-recipes', 'pilot-loop', 'integration-showcase']
+      .map((gate) => `qa:${gate}`)
       .filter((scriptName) => !String(scripts[scriptName] || '').trim());
     return this.check(
-      'release-train:previous-phase-gates',
-      'gates das etapas 53-58 preservados',
+      'release-train:previous-gates',
+      'gates anteriores preservados',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'release train parte de etapas 53-58 fechadas e ainda executaveis.'
-        : 'algum gate anterior do ciclo 53-59 esta ausente.',
+        ? 'release train parte de gates anteriores fechados e ainda executaveis.'
+        : 'algum gate anterior do ciclo de release esta ausente.',
       'package.json',
       missing,
     );
@@ -475,7 +475,6 @@ export class ReleaseTrainService {
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'etapa 59',
       'release train',
       'lts',
       'v1.0.0',
@@ -486,7 +485,6 @@ export class ReleaseTrainService {
       'rollback',
       'github releases',
       'qa:release-train',
-      'qa:phase:59',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
@@ -506,15 +504,15 @@ export class ReleaseTrainService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
-    const required = ['ciclo 53-59', 'fechado', 'nao objetivos', 'v1.1.0'];
+    const required = ['release train', 'fechado', 'nao objetivos', 'v1.1.0'];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
       'release-train:cycle-closure',
-      'ciclo 53-59 pronto para operacao etapaada',
+      'ciclo de release pronto para operacao guiada',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'documentacao marca o ciclo 53-59 como fechado e direciona novas mudancas para v1.0.x/v1.1.0.'
-        : 'ciclo 53-59 ainda nao esta claramente fechado na documentacao.',
+        ? 'documentacao marca o ciclo de release como fechado e direciona novas mudancas para v1.0.x/v1.1.0.'
+        : 'ciclo de release ainda nao esta claramente fechado na documentacao.',
       'docs/product-direction.md',
       missing,
     );

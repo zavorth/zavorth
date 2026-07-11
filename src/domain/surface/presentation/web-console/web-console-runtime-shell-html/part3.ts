@@ -176,7 +176,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="release-ux-wizard-card" class="handoff-card">
-        <p class="profile-tag">Etapa 44</p>
+        <p class="profile-tag">Gate release-ux-wizard</p>
         <h2>Release wizard</h2>
         <p class="muted-copy section-note">
           Publish, diff, rollback e changelog ficam no mesmo fluxo preview-first para reduzir medo de publicar ou reverter.
@@ -285,7 +285,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="tenant-team-ops-card" class="handoff-card">
-        <p class="profile-tag">Etapa 42</p>
+        <p class="profile-tag">Gate tenant-team-ops</p>
         <h2>Tenant/team ops</h2>
         <p class="muted-copy section-note">
           Identidade, policy, permissoes e isolamento ficam segmentados por workspace, projeto, tenant e time.
@@ -393,7 +393,7 @@ export function buildRuntimeShellHtmlPart3(): string {
       </section>
 
       <section id="artifact-replay-workbench-card" class="handoff-card">
-        <p class="profile-tag">Etapa 43</p>
+        <p class="profile-tag">Gate artifact-replay</p>
         <h2>Artifact and Replay Workbench</h2>
         <p class="muted-copy section-note">
           Esta bancada junta indice de artifacts, comparacao entre runs, replay redigido, learning marks e export controlado de evidencias.

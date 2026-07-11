@@ -106,7 +106,7 @@ export type ProviderRuntimeActivationEntry = {
 export type ProviderRuntimeActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_PROVIDER_RUNTIME_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Connector registry - Provider Runtime Activation P0';
+  gate: 'provider-runtime-activation-p0';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     providers: 24;

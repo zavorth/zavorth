@@ -53,7 +53,7 @@ export type ReleaseTrainArtifactResult = {
 };
 
 export type ReleaseTrainSnapshot = {
-  phase: '59';
+  gate: 'release-train';
   surface: 'release-train';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -91,7 +91,6 @@ export type ReleaseTrainSnapshot = {
 export const RELEASE_TRAIN_REQUIRED_CORE_SCRIPTS = [
   'release-train',
   'qa:release-train',
-  'qa:phase:59',
   'release:status:fast',
   'release:rollback-preview',
   'release:changelog',
@@ -101,12 +100,10 @@ export const RELEASE_TRAIN_REQUIRED_CORE_SCRIPTS = [
   'qa:release-bundle',
   'integration-showcase',
   'qa:integration-showcase',
-  'qa:phase:53',
-  'qa:phase:54',
-  'qa:phase:55',
-  'qa:phase:56',
-  'qa:phase:57',
-  'qa:phase:58',
+  'qa:public-adoption-readiness',
+  'qa:hosted-site-operations',
+  'qa:public-docs-recipes',
+  'qa:pilot-loop',
 ] as const;
 
 export const RELEASE_TRAIN_REQUIRED_WEBSITE_FILES = [
@@ -128,7 +125,6 @@ export const RELEASE_TRAIN_REQUIRED_WEBSITE_TERMS = [
   'GitHub Releases',
   'tags',
   'qa:release-train',
-  'qa:phase:59',
 ] as const;
 
 export const RELEASE_TRAIN_FORBIDDEN_CLAIMS = [
@@ -147,7 +143,7 @@ export const RELEASE_TRAIN_VERSION_POLICIES: ReleaseTrainVersionPolicy[] = [
     allowedScope: ['document baseline', 'reference tags', 'reference GitHub Releases'],
     requiresApprovedPlanning: false,
     requiresRollback: true,
-    gates: ['qa:public-product', 'qa:phase:59', 'release:status:fast'],
+    gates: ['qa:public-product', 'qa:release-train', 'release:status:fast'],
   },
   {
     lane: 'patch',
@@ -165,7 +161,7 @@ export const RELEASE_TRAIN_VERSION_POLICIES: ReleaseTrainVersionPolicy[] = [
     allowedScope: ['approved new stage', 'architecture docs', 'dedicated gate'],
     requiresApprovedPlanning: true,
     requiresRollback: true,
-    gates: ['qa:architecture', 'qa:release-train', 'qa:phase:new-cycle'],
+    gates: ['qa:architecture', 'qa:release-train', 'qa:new-cycle'],
   },
   {
     lane: 'breaking',

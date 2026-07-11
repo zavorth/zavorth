@@ -198,7 +198,7 @@ export class ZavorthSandboxControlPlaneService {
       envelopePreview,
       actions,
       narrative: {
-        headline: 'Etapa 18: Sandbox forte lazy',
+        headline: 'Sandbox forte lazy',
         operatorSummary:
           `${summary.availableProfiles} perfil(is) de sandbox disponiveis, `
           + `${summary.strongProfilesReady} forte(s), runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
@@ -210,7 +210,7 @@ export class ZavorthSandboxControlPlaneService {
   public renderReport(input: ZavorthSandboxEnvelopeInput = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Etapa 18: Sandbox forte lazy',
+      'Sandbox forte lazy',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,

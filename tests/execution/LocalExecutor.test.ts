@@ -1,10 +1,11 @@
 import { LocalExecutor } from '../../src/execution/LocalExecutor';
 import type { ExecutionRequest } from '../../src/contracts/ExecutionContract';
+import { isOperatorContinuityEnvelope } from '../../src/runtime/operator/OperatorContinuityEnvelope';
 
 describe('LocalExecutor', () => {
   const workspace = process.cwd().replace(/\\/g, '/');
 
-  function buildRequest(command: string): ExecutionRequest {
+  function buildRequest(command: string, overrides: Partial<ExecutionRequest> = {}): ExecutionRequest {
     return {
       execution_id: 'exec-1',
       task_id: 'task-1',
@@ -22,6 +23,7 @@ describe('LocalExecutor', () => {
       metadata: {
         sandboxRequired: true,
       },
+      ...overrides,
     };
   }
 
@@ -42,6 +44,51 @@ describe('LocalExecutor', () => {
     expect(result.success).toBe(false);
     expect(result.error_code).toBe('SANDBOX_REQUIRED_DOCKER_UNAVAILABLE');
     expect(shellRunner).not.toHaveBeenCalled();
+    expect(isOperatorContinuityEnvelope(executor.getLastContinuityEnvelope())).toBe(true);
+    expect(result.metadata?.operatorContinuity).toEqual(expect.objectContaining({
+      continuityId: executor.getLastContinuityEnvelope()?.ids.continuityId,
+      terminal: true,
+    }));
+  });
+
+  it('seals dry-run as observation through operator continuity without host execution', async () => {
+    const shellRunner = jest.fn();
+    const executor = new LocalExecutor({ shellRunner });
+
+    const result = await executor.execute(buildRequest('git status', { dry_run: true }));
+
+    expect(result.success).toBe(true);
+    expect(result.metadata?.dry_run).toBe(true);
+    expect(shellRunner).not.toHaveBeenCalled();
+    const envelope = executor.getLastContinuityEnvelope();
+    expect(isOperatorContinuityEnvelope(envelope)).toBe(true);
+    expect(envelope?.request?.operation).toBe('local.execute.preview');
+    expect(envelope?.decision?.allowed).toBe(true);
+    expect(envelope?.result?.status).toBe('observation');
+    expect(envelope?.receipt?.terminal).toBe(true);
+  });
+
+  it('blocks dangerous patterns at continuity decide before host runners run', async () => {
+    const shellRunner = jest.fn();
+    const executor = new LocalExecutor({
+      sandboxExecution: {
+        resolveSandboxTier: () => null,
+        shouldSandbox: () => false,
+        isDockerAvailable: () => true,
+        isFirecrackerAvailable: () => false,
+      } as any,
+      shellRunner,
+    });
+
+    const result = await executor.execute(buildRequest('rm -rf /'));
+
+    expect(result.success).toBe(false);
+    expect(result.error_code).toBe('LOCAL_EXECUTOR_DANGEROUS_PATTERN');
+    expect(shellRunner).not.toHaveBeenCalled();
+    const envelope = executor.getLastContinuityEnvelope();
+    expect(isOperatorContinuityEnvelope(envelope)).toBe(true);
+    expect(envelope?.decision?.allowed).toBe(false);
+    expect(envelope?.result?.status).toBe('blocked');
   });
 
   it('falls back to a direct host command for safe diagnostics only with explicit opt-in', async () => {

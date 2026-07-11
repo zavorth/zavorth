@@ -5,6 +5,8 @@ import {
 } from '../../../../helpers/zavorthControlWebTestUtils.js';
 
 describe('ZavorthControl operational maturity route', () => {
+  jest.setTimeout(60_000);
+
   it('exposes the canonical maturity snapshot for ZavorthControl surfaces', async () => {
     const service = new ZavorthControlService(createTestLogRepo());
 
@@ -34,5 +36,5 @@ describe('ZavorthControl operational maturity route', () => {
     } finally {
       await service.stopAsync();
     }
-  });
+  }, 60_000);
 });

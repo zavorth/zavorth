@@ -3,12 +3,12 @@ import { spawnSync } from 'child_process';
 
 const nodeRunner = process.env.npm_node_execpath || process.execPath;
 const npmCliPath = process.env.npm_execpath || null;
-const selectedPhase = String(process.argv.find((arg) => arg.startsWith('--phase=')) || '')
-  .replace('--phase=', '')
+const selectedGate = String(process.argv.find((arg) => arg.startsWith('--gate=') || arg.startsWith('--stage=')) || '')
+  .replace('--gate=', '').replace('--stage=', '')
   .trim();
 
-const phaseChecks = {
-  '46': [
+const gateChecks = {
+  'website-public': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'website public contract tests',
@@ -22,7 +22,7 @@ const phaseChecks = {
     ],
     ['website public gate', 'npm', ['run', 'qa:website-public', '--silent', '--', '--json'], 420_000],
   ],
-  '47': [
+  'public-demo': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'public demo contract tests',
@@ -36,7 +36,7 @@ const phaseChecks = {
     ],
     ['public demo gate', 'npm', ['run', 'qa:public-demo', '--silent', '--', '--json'], 420_000],
   ],
-  '48': [
+  'first-run-onboarding': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'first-run onboarding contract tests',
@@ -50,7 +50,7 @@ const phaseChecks = {
     ],
     ['first-run onboarding gate', 'npm', ['run', 'qa:first-run', '--silent', '--', '--json'], 420_000],
   ],
-  '49': [
+  'external-docs': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'external docs contract tests',
@@ -64,7 +64,7 @@ const phaseChecks = {
     ],
     ['external docs gate', 'npm', ['run', 'qa:external-docs', '--silent', '--', '--json'], 420_000],
   ],
-  '50': [
+  'distribution-policy': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'distribution policy contract tests',
@@ -78,7 +78,7 @@ const phaseChecks = {
     ],
     ['distribution policy gate', 'npm', ['run', 'qa:distribution-policy', '--silent', '--', '--json'], 420_000],
   ],
-  '51': [
+  'public-release-bundle': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'release bundle contract tests',
@@ -92,7 +92,7 @@ const phaseChecks = {
     ],
     ['release bundle gate', 'npm', ['run', 'qa:release-bundle', '--silent', '--', '--json'], 420_000],
   ],
-  '52': [
+  'feedback-telemetry': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'feedback telemetry contract tests',
@@ -108,18 +108,18 @@ const phaseChecks = {
   ],
 };
 
-const phases = selectedPhase ? [selectedPhase] : Object.keys(phaseChecks);
+const gates = selectedGate ? [selectedGate] : Object.keys(gateChecks);
 
-for (const phase of phases) {
-  const checks = phaseChecks[phase];
+for (const gate of gates) {
+  const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[phase-check] etapa invalida ou ainda nao implementada neste ciclo: ${phase}`);
+    console.error(`[gate-check] gate invalido ou ainda nao implementado neste ciclo: ${gate}`);
     process.exit(1);
   }
 
-  console.log(`\n[phase-check] etapa ${phase}`);
+  console.log(`\n[gate-check] gate ${gate}`);
   for (const [label, command, args, timeoutMs = 180_000] of checks) {
-    console.log(`[phase-check] ${label}`);
+    console.log(`[gate-check] ${label}`);
     const commandLine = buildSpawnCommand(command, args);
     const result = spawnSync(commandLine.executable, commandLine.args, {
       stdio: 'inherit',
@@ -133,21 +133,21 @@ for (const phase of phases) {
     });
 
     if (result.error) {
-      console.error(`[phase-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
-      console.error(`[phase-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
-      console.error(`[phase-check] ${label} encerrado por sinal ${result.signal}`);
+      console.error(`[gate-check] ${label} encerrado por sinal ${result.signal}`);
       process.exit(1);
     }
   }
 }
 
-console.log('\n[phase-check] etapa(s) solicitada(s) concluidas com sucesso.');
+console.log('\n[gate-check] gate(s) solicitado(s) concluidas com sucesso.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath) {

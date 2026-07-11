@@ -14,7 +14,8 @@ import { ZavorthBackgroundTaskService } from '../../services/ZavorthBackgroundTa
 import { ZavorthHomePathService } from '../../services/ZavorthHomePathService.js';
 import { ZavorthMnemosQueryService } from '../../services/ZavorthMnemosQueryService.js';
 import { ZavorthOperationalStateDbService } from '../../services/ZavorthOperationalStateDbService.js';
-import { ZavorthSessionRecallService } from '../../services/ZavorthSessionRecallService.js';
+import { SessionContinuumService, resolveSessionContinuumStorePath } from '../../services/SessionContinuumService.js';
+import { bindAutonomySchedulePlane } from '../../services/AutonomySchedulePlane.js';
 import { ZavorthXaiRuntimeService } from '../../services/ZavorthXaiRuntimeService.js';
 import { ZavorthCapabilityActionExposureService } from '../../services/ZavorthCapabilityActionExposureService.js';
 import { ZavorthCapabilityAtlasService } from '../../services/ZavorthCapabilityAtlasService.js';
@@ -382,20 +383,44 @@ function tasksStatusHandler(input: ZavorthActionHandlerInput): ZavorthActionResu
   }).snapshot();
   const legacyTasks = readJsonFile(path.join(stateDir(input.root), 'tasks.json'), []);
   const cronJobs = readJsonFile(path.join(stateDir(input.root), 'cron-jobs.json'), []);
+  let autonomyRoutines: Array<{ id: string; enabled: boolean; nextRunAt: string | null }> = [];
+  try {
+    // Same plane as CLI cron + bootstrap daemon: runtimeDir/cron + Task Plane materialization.
+    const plane = bindAutonomySchedulePlane({
+      runtimeDir: home.resolvedPaths.runtimeDir,
+      taskPlane: new TaskPlaneService({
+        storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
+        stateDbPath: home.resolvedPaths.dbPath,
+      }),
+    });
+    autonomyRoutines = plane.listRoutines().map((routine) => ({
+      id: routine.id,
+      enabled: routine.enabled,
+      nextRunAt: routine.nextRunAt,
+    }));
+  } catch {
+    autonomyRoutines = [];
+  }
   return result({
     ok: true,
     actionId: input.actionId,
     operation: input.operation,
     status: 'ok',
-    summary: `${taskPlane.items.length} task-plane item(s), ${Array.isArray(cronJobs) ? cronJobs.length : 0} cron job(s).`,
+    summary: `${taskPlane.items.length} task-plane item(s), ${autonomyRoutines.length} autonomy routine(s), ${Array.isArray(cronJobs) ? cronJobs.length : 0} legacy cron job(s).`,
     lines: [
       `Task Plane: ${taskPlane.items.length}`,
       `Queued: ${taskPlane.summary.queued}`,
       `Running: ${taskPlane.summary.running}`,
       `Waiting approval: ${taskPlane.summary.waiting_approval}`,
+      `Autonomy routines: ${autonomyRoutines.length}`,
       `Cron jobs: ${Array.isArray(cronJobs) ? cronJobs.length : 0}`,
     ],
-    data: { taskPlane, legacyTasks: Array.isArray(legacyTasks) ? legacyTasks.length : 0, cronJobs: Array.isArray(cronJobs) ? cronJobs.length : 0 },
+    data: {
+      taskPlane,
+      legacyTasks: Array.isArray(legacyTasks) ? legacyTasks.length : 0,
+      cronJobs: Array.isArray(cronJobs) ? cronJobs.length : 0,
+      autonomyRoutines,
+    },
   });
 }
 
@@ -410,11 +435,11 @@ function taskPlaneForRoot(root: string): TaskPlaneService {
 function sessionRecallHandler(input: ZavorthActionHandlerInput): ZavorthActionResult {
   const home = resolveHome(input.root);
   const query = normalizeText(input.args.query || input.args.q || input.args.text);
-  const service = new ZavorthSessionRecallService({
-    storePath: path.join(home.resolvedPaths.runtimeDir, 'mnemos-session-recall.json'),
+  const continuum = new SessionContinuumService({
+    storePath: resolveSessionContinuumStorePath(home.resolvedPaths.runtimeDir),
     stateDbPath: home.resolvedPaths.dbPath,
   });
-  const snapshot = service.recall({
+  const snapshot = continuum.search({
     query,
     sessionId: normalizeText(input.args.sessionId || input.args.session_id),
     currentSessionId: normalizeText(input.args.currentSessionId || input.args.current_session_id),
@@ -429,9 +454,9 @@ function sessionRecallHandler(input: ZavorthActionHandlerInput): ZavorthActionRe
     status: input.operation === 'action.preview' ? 'preview' : 'ok',
     summary: `Session recall returned ${snapshot.returned} hit(s).`,
     lines: snapshot.hits.length
-      ? snapshot.hits.map((hit) => `${hit.sessionId}: ${hit.title} | ${hit.snippet}`)
+      ? continuum.formatHits(snapshot.hits)
       : ['No session recall entries yet.'],
-    data: { snapshot },
+    data: { snapshot, storePath: continuum.getStorePath() },
   });
 }
 
@@ -1514,7 +1539,7 @@ function generatedCapabilityCandidateHandler(exposureActionId: string): ZavorthA
           `Verification: ${exposure.verificationId}`,
           'Tool execution: disabled',
           'Live activation: disabled',
-          'Next phase must add visible product surfaces and later activation gates.',
+          'Visible product surfaces and activation gates are still required before live use.',
         ],
         data: { exposure },
       });
@@ -1527,7 +1552,7 @@ function generatedCapabilityCandidateHandler(exposureActionId: string): ZavorthA
       summary: `Capability action candidate ${exposure.actionId} cannot execute yet.`,
       lines: [
         'This candidate is discoverable through the Action Harness, but live execution is intentionally disabled.',
-        'Run the next gated phases before any tool call, network call or live activation.',
+        'Complete activation gates before any tool call, network call or live activation.',
       ],
       data: { exposure },
     });

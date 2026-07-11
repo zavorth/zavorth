@@ -84,7 +84,7 @@ export class ZavorthSessionMemoryContinuationService {
       contractVersion: ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'sessions-memory-continuation',
+      gate: 'sessions-memory-continuation',
       previousChannelMessagingStatus,
       historyBridgeReceipt,
       privacyFilteringReceipt,

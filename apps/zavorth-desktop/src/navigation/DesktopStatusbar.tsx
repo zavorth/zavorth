@@ -1,10 +1,11 @@
 import { Core, Folder, Sliders, Terminal } from '../icons';
-import type { RuntimeStatus } from '../global';
+import type { CodeBridgeSummary, RuntimeStatus } from '../global';
 import type { DesktopPanel } from '../slashCommands';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 
 export function DesktopStatusbar(props: {
   bottomPanelOpen: boolean;
+  codeBridge: CodeBridgeSummary;
   effort: string;
   modelLabel: string;
   status: RuntimeStatus;
@@ -14,6 +15,7 @@ export function DesktopStatusbar(props: {
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onPanel(panel: DesktopPanel): void;
   onToggleBottomPanel(): void;
+  onOpenCodeBridge(): void;
 }) {
   const statusRecord = props.status as RuntimeStatus & { model?: unknown; version?: unknown };
   const runtimeLabel = props.status.running ? 'Runtime ready' : 'Runtime offline';
@@ -61,6 +63,16 @@ export function DesktopStatusbar(props: {
       </div>
 
       <div className="zvd-statusbar-group is-right">
+        <button
+          className={`zvd-statusbar-item zvd-code-bridge-status ${props.codeBridge.tone === 'ready' ? 'is-live' : ''}`}
+          type="button"
+          onClick={props.onOpenCodeBridge}
+          title={props.codeBridge.detail}
+          aria-label={`${props.codeBridge.label}. ${props.codeBridge.detail}`}
+        >
+          <span aria-hidden="true" className="zvd-status-dot" />
+          <span>{props.codeBridge.label}</span>
+        </button>
         <button
           className="zvd-statusbar-item"
           type="button"

@@ -10,6 +10,7 @@ export * from './ChannelProgressContract.js';
 export * from './GatewayContract.js';
 export * from './GatewaySpineContract.js';
 export * from './GatewaySurfaceContract.js';
+export * from './ReachChannelSpineContract.js';
 export * from './SourceChannelMeshExpansionContract.js';
 export * from './ZavorthChannelCapabilityAtlasContract.js';
 export * from './ZavorthChannelDeepeningContract.js';

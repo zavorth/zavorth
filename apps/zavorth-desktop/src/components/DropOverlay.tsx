@@ -40,7 +40,9 @@ export const DropOverlay = memo(function DropOverlay({ onFilesDropped }: DropOve
         const paths: string[] = [];
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
           const file = e.dataTransfer.files[i];
-          const path = window.zavorthDesktop?.getPathForFile(file) || file.path || '';
+          const path = window.zavorthDesktop?.getPathForFile(file)
+            || (file as File & { path?: string }).path
+            || '';
           if (path) {
             paths.push(path);
           }

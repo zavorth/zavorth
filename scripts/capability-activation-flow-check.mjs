@@ -54,7 +54,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-activation-flow-package-scripts',
     label: 'Activation Flow package scripts exist',
-    target: 'npm scripts expose activation flow CLI and phase gate',
+    target: 'npm scripts expose activation flow CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-activation-flow',

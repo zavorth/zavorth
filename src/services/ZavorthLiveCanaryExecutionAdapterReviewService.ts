@@ -48,7 +48,7 @@ export class ZavorthLiveCanaryExecutionAdapterReviewService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_EXECUTION_ADAPTER_REVIEW_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryExecutionAdapterReviewService',
-      phase: 'checkpoint-8-live-canary-execution-adapter-review',
+      gate: 'live-canary-execution-adapter-review',
       status,
       mode,
       evidenceCanary,
@@ -351,6 +351,6 @@ function narrativeForStatus(
   return {
     headline: 'Live canary adapter review is blocked.',
     operatorSummary: `${summary.failedChecks} adapter check(s) failed.`,
-    nextAction: 'Fix adapter scope, rollback, timeout or lower phase gates before proceeding.',
+    nextAction: 'Fix adapter scope, rollback, timeout or lower gates before proceeding.',
   };
 }

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import * as apiClient from '../apiClient';
 import { createLogger } from '../logger';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 const logger = createLogger('trust');
 
@@ -22,9 +21,9 @@ export function HostPowerModeControl({ workspaceId }: HostPowerModeControlProps)
     const checkStatus = async () => {
       try {
         const res = await apiClient.getHostPowerStatus(workspaceId);
-        if (active && res.ok && res.data) {
-          setEnabled(res.data.enabled);
-          setTimeLeft(res.data.timeLeftSeconds || 0);
+        if (active) {
+          setEnabled(res.enabled);
+          setTimeLeft(res.timeLeftSeconds || 0);
         }
       } catch (error: unknown) {
         const err = asErrorLike(error);

@@ -1,75 +1,68 @@
 import { useMemo, useState } from 'react';
 import type { ToolItem } from '../../apiClient';
-import { itemId, panelLabels } from '../../primitives/desktopPrimitives';
 import { readinessFromTool } from '../../desktop-state/readiness';
-import { DetailRows, PageFrame, SearchBox } from '../panelChrome';
+import { PageFrame, SearchBox, TextTabs } from '../panelChrome';
+
+type Mode = 'all' | 'ready' | 'review';
 
 export function SkillsView(props: { tools: ToolItem[] }) {
-  const [mode, setMode] = useState<'all' | 'ready' | 'review'>('all');
+  const [mode, setMode] = useState<Mode>('all');
   const [query, setQuery] = useState('');
-  const groups = useMemo(() => {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const filtered = props.tools.filter(tool => {
-      const status = String(tool.status || '').toLowerCase();
-      const risk = String(tool.risk || '').toLowerCase();
-      const hay = `${tool.title || ''} ${tool.name || ''} ${tool.id || ''} ${tool.description || ''} ${tool.source || ''} ${status} ${risk}`.toLowerCase();
-      if (q && !hay.includes(q)) {
-        return false;
-      }
-      if (mode === 'ready') {
-        return status.includes('ready') || status.includes('trusted') || !status;
-      }
-      if (mode === 'review') {
-        return status.includes('review') || status.includes('draft') || risk.includes('high') || risk.includes('medium');
-      }
-      return true;
-    });
-
-    const map = new Map<string, ToolItem[]>();
-    for (const tool of filtered) {
-      const source = tool.source || tool.status || 'runtime';
-      map.set(source, [...(map.get(source) || []), tool]);
-    }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [mode, props.tools, query]);
-
-  const rows = groups.flatMap(([source, tools]) => [
-    {
-      id: `group-${source}`,
-      title: source,
-      description: `${tools.length} ${tools.length === 1 ? 'skill' : 'skills'}`,
-      meta: 'source',
-      tone: 'muted' as const,
-    },
-    ...tools.map((tool, index) => {
+    return props.tools.filter((tool, index) => {
       const badge = readinessFromTool({ status: tool.status, risk: tool.risk });
-      return {
-        id: itemId(tool, `tool-${source}-${index}`),
-        title: tool.title || tool.name || tool.id || 'Skill',
-        description: tool.description || badge.detail || 'Available through the local runtime.',
-        meta: badge.label,
-        tone: badge.tone,
-      };
-    }),
-  ]);
+      if (mode === 'ready' && badge.tone !== 'ready') return false;
+      if (mode === 'review' && badge.tone !== 'warning' && badge.tone !== 'danger') return false;
+      const id = tool.id || tool.name || `tool-${index}`;
+      return !q || `${id} ${tool.title || ''} ${tool.description || ''} ${tool.source || ''}`.toLowerCase().includes(q);
+    });
+  }, [mode, props.tools, query]);
+  const selected = visible.find((tool, index) => (tool.id || tool.name || `tool-${index}`) === selectedId) || visible[0] || null;
+  const readyCount = props.tools.filter(tool => readinessFromTool({ status: tool.status, risk: tool.risk }).tone === 'ready').length;
+  const reviewCount = props.tools.length - readyCount;
 
   return (
     <PageFrame
-      description="Runtime skills, toolsets, sources, and trust state in one workspace view."
-      meta={`${props.tools.length} projected`}
-      title={panelLabels.skills}
-      actions={<SearchBox value={query} onChange={setQuery} placeholder="Search skills" />}
+      eyebrow="RUNTIME"
+      title="Skills"
+      description="Ferramentas e capacidades projetadas pelo runtime, com origem e confiança visíveis."
+      meta={`${props.tools.length} capacidades`}
     >
-      <TextTabs<'all' | 'ready' | 'review'>
-        value={mode}
-        onChange={setMode}
-        items={[
-          { value: 'all', label: 'All', count: props.tools.length },
-          { value: 'ready', label: 'Ready' },
-          { value: 'review', label: 'Needs review' },
-        ]}
-      />
-      <DetailRows rows={rows} empty="No skills are projected by the runtime yet." />
+      <div className="zvd-capability-summary" aria-label="Resumo das skills">
+        <div><strong>{props.tools.length}</strong><span>Total</span></div>
+        <div><strong>{readyCount}</strong><span>Prontas</span></div>
+        <div><strong>{reviewCount}</strong><span>Revisar</span></div>
+      </div>
+      <div className="zvd-capability-toolbar">
+        <TextTabs<Mode> value={mode} onChange={setMode} items={[
+          { value: 'all', label: 'Todas', count: props.tools.length },
+          { value: 'ready', label: 'Prontas', count: readyCount },
+          { value: 'review', label: 'Revisar', count: reviewCount },
+        ]} />
+        <SearchBox value={query} onChange={setQuery} placeholder="Buscar skill" />
+      </div>
+      <div className="zvd-capability-layout">
+        <div className="zvd-capability-list" role="listbox" aria-label="Skills">
+          {visible.length ? visible.map((tool, index) => {
+            const id = tool.id || tool.name || `tool-${index}`;
+            const badge = readinessFromTool({ status: tool.status, risk: tool.risk });
+            return <button type="button" role="option" aria-selected={(selected?.id || selected?.name) === (tool.id || tool.name)} className={`zvd-capability-row ${(selected?.id || selected?.name) === (tool.id || tool.name) ? 'is-active' : ''}`} key={id} onClick={() => setSelectedId(id)}>
+              <span className="zvd-capability-row-icon" aria-hidden="true">{(tool.title || tool.name || 'S').slice(0, 1).toUpperCase()}</span>
+              <span className="zvd-capability-row-copy"><strong>{tool.title || tool.name || tool.id || 'Skill'}</strong><small>{tool.source || 'runtime'}</small></span>
+              <span className="zvd-capability-row-status">{badge.label}</span>
+            </button>;
+          }) : <div className="zvd-capability-empty"><strong>Nenhuma skill encontrada</strong><span>O runtime ainda não projetou capacidades para este filtro.</span></div>}
+        </div>
+        <aside className="zvd-capability-detail">
+          {selected ? <>
+            <div className="zvd-capability-detail-heading"><span className="zvd-capability-detail-icon" aria-hidden="true">{(selected.title || selected.name || 'S').slice(0, 1).toUpperCase()}</span><div><h2>{selected.title || selected.name || selected.id}</h2><p>{selected.source || 'runtime'}</p></div></div>
+            <p className="zvd-capability-description">{selected.description || 'Capacidade exposta pelo runtime Zavorth.'}</p>
+            <dl className="zvd-capability-meta"><div><dt>Estado</dt><dd>{readinessFromTool({ status: selected.status, risk: selected.risk }).label}</dd></div><div><dt>Risco</dt><dd>{selected.risk || 'padrão'}</dd></div><div><dt>Origem</dt><dd>{selected.source || 'runtime'}</dd></div></dl>
+          </> : <div className="zvd-capability-empty"><span>Selecione uma skill para ver os detalhes.</span></div>}
+        </aside>
+      </div>
     </PageFrame>
   );
 }

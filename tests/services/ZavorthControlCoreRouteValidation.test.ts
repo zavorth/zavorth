@@ -35,7 +35,7 @@ jest.mock('../../src/services/HostPowerModeService');
 jest.mock('../../src/services/HostCommandPayloadCache');
 jest.mock('../../src/services/HostCommandRunnerService');
 
-describe('ZavorthControlCoreRouteService Schema Validation Tests (Fase 1)', () => {
+describe('ZavorthControlCoreRouteService Schema Validation Tests', () => {
   let service: ZavorthControlCoreRouteService;
 
   beforeEach(() => {

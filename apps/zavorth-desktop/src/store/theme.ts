@@ -29,7 +29,7 @@ function loadThemeMode(): ThemeMode {
   } catch {
     // ignore
   }
-  return 'system';
+  return 'dark';
 }
 
 export const $themeMode = atom<ThemeMode>(loadThemeMode());

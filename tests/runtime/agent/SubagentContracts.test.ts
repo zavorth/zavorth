@@ -1,8 +1,11 @@
 import {
+  applySubagentBudgetUsage,
   createSubagentApprovalBoundary,
   createSubagentBudget,
   createSubagentCapabilityScope,
   createSubagentResultReceipt,
+  evaluateSubagentBudget,
+  wouldExceedToolCallBudget,
 } from '../../../src/runtime/agent/index.js';
 
 describe('subagent escalation contracts', () => {
@@ -89,5 +92,31 @@ describe('subagent escalation contracts', () => {
       'subagent-result:budget_exceeded',
       'subagent-budget:exceeded:tool_calls',
     ]));
+  });
+
+  it('evaluates wall_clock_ms and output_bytes limits, treating max 0 as unenforced', () => {
+    const unlimited = createSubagentBudget({
+      usedToolCalls: 5,
+      elapsedMs: 50_000,
+      outputBytes: 9_000,
+    });
+    expect(evaluateSubagentBudget(unlimited).ok).toBe(true);
+
+    const wall = createSubagentBudget({ maxWallClockMs: 1_000, elapsedMs: 1_001 });
+    expect(evaluateSubagentBudget(wall)).toEqual(expect.objectContaining({
+      ok: false,
+      exceeded: 'wall_clock_ms',
+    }));
+
+    let bytes = createSubagentBudget({ maxOutputBytes: 100 });
+    bytes = applySubagentBudgetUsage(bytes, { outputBytes: 120 });
+    expect(evaluateSubagentBudget(bytes)).toEqual(expect.objectContaining({
+      ok: false,
+      exceeded: 'output_bytes',
+    }));
+
+    const tools = createSubagentBudget({ maxToolCalls: 2, usedToolCalls: 2 });
+    expect(wouldExceedToolCallBudget(tools, 1)).toBe(true);
+    expect(evaluateSubagentBudget(tools).ok).toBe(true);
   });
 });

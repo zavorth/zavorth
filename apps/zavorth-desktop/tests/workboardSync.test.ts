@@ -67,4 +67,15 @@ describe('workboard runtime sync', () => {
     expect(action.payload.operation).toBe('upsert-card');
     expect(action.payload.card?.taskId).toBe(card.id);
   });
+
+  it('packs a full board into one sync action', () => {
+    const board = createDefaultWorkboard();
+    const action = buildWorkboardRuntimeAction({
+      board,
+      operation: 'sync-board',
+      sessionId: 'desktop-main',
+    });
+    expect(action.payload.cards).toHaveLength(board.cards.length);
+    expect(action.payload.cards?.[0].taskId).toBe(board.cards[0].id);
+  });
 });

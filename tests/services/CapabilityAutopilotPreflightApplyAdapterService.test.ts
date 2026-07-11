@@ -103,7 +103,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
@@ -262,7 +262,7 @@ describe('CapabilityAutopilotPreflightApplyAdapterService', () => {
         dryRun: true,
       },
     });
-    expect(service.renderReport(apply)).toContain('Etapa 73 - Preflight Dispatch Apply Adapter');
+    expect(service.renderReport(apply)).toContain('Gate capability-autopilot-preflight-apply-adapter - Preflight Dispatch Apply Adapter');
     expect(service.renderReport(apply)).toContain('proximo passo recomendada: 74 - Preflight Apply Dry-Run Executor');
   });
 });

@@ -52,7 +52,7 @@ export type SandboxHostTierReadiness = {
 };
 
 export type SandboxHostReadinessSnapshot = {
-  phase: '38';
+  gate: 'sandbox-host-readiness';
   generatedAt: string;
   platform: NodeJS.Platform;
   osRelease: string;
@@ -600,7 +600,7 @@ export class SandboxHostReadinessService {
     const strongSandboxReady = tiers.some((tier) => tier.strongBoundary && tier.canRun);
     const localFallbackReady = tiers.some((tier) => tier.id === 'local-jail' && tier.canRun);
     return {
-      phase: '38',
+      gate: 'sandbox-host-readiness',
       generatedAt: this.now().toISOString(),
       platform: this.platform,
       osRelease: this.osRelease,

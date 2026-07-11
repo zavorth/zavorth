@@ -51,10 +51,10 @@ export type ReleaseCertificationGate = {
 };
 
 export type ReleaseCertificationNextPhase =
-  | 'Etapa 10 - P0 Gap Closure'
-  | 'Etapa 11 - P1 Provider Adapter Runtime'
-  | 'Etapa 12 - Native Capability Closure'
-  | 'Etapa 13 - Remaining Runtime Decisions'
+  | 'P0 Gap Closure'
+  | 'P1 Provider Adapter Runtime'
+  | 'Native Capability Closure'
+  | 'Remaining Runtime Decisions'
   | 'Release certification profile hardening';
 
 export type ReleaseCertificationReceipt = {

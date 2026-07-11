@@ -7,12 +7,12 @@ describe('ArtifactReplayWorkbenchService', () => {
 
     const snapshot = await service.buildSnapshot({ limit: 12 });
 
-    expect(snapshot.phase).toBe('43');
+    expect(snapshot.gate).toBe('artifact-replay');
     expect(snapshot.surface).toBe('artifact-replay-workbench');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.heavyRuntimesStarted).toBe(false);
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
-      stage: '44',
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
+      gate: 'release-ux-wizard',
       title: 'Release UX',
     }));
   });
@@ -87,7 +87,7 @@ describe('ArtifactReplayWorkbenchService', () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture({
         'artifact:workbench': '',
-        'qa:stage:43': '',
+        'qa:artifact-replay': '',
       }),
       html: buildRuntimeShellHtml('/zavorthControl'),
       controlPlaneSnapshot: controlPlaneFixture(),
@@ -101,7 +101,7 @@ describe('ArtifactReplayWorkbenchService', () => {
     expect(snapshot.summary.ok).toBe(false);
     expect(snapshot.checks).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'package:artifact:workbench', status: 'fail' }),
-      expect.objectContaining({ id: 'package:qa:stage:43', status: 'fail' }),
+      expect.objectContaining({ id: 'package:qa:artifact-replay', status: 'fail' }),
     ]));
   });
 
@@ -126,7 +126,7 @@ describe('ArtifactReplayWorkbenchService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', async () => {
+  it('renders a human report with the next gate recommendation', async () => {
     const service = new ArtifactReplayWorkbenchService({
       packageJson: packageJsonFixture(),
       html: buildRuntimeShellHtml('/zavorthControl'),
@@ -137,7 +137,7 @@ describe('ArtifactReplayWorkbenchService', () => {
       now: () => new Date('2026-04-24T00:00:00.000Z'),
     });
 
-    await expect(service.renderReport({ limit: 12 })).resolves.toContain('proximo passo recomendada: 44 - Release UX');
+    await expect(service.renderReport({ limit: 12 })).resolves.toContain('proximo passo recomendada: release-ux-wizard - Release UX');
   });
 });
 
@@ -148,7 +148,7 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
       'ops:replay-learning:json': 'npx tsx scripts/zavorth-replay-learning.ts --json',
       'artifact:workbench': 'npx tsx scripts/artifact-replay-workbench.ts',
       'qa:artifact-workbench': 'npx tsx scripts/artifact-replay-workbench.ts --require-pass',
-      'qa:stage:43': 'node scripts/capability-suite-market-check.mjs --phase=43',
+      'qa:artifact-replay': 'node scripts/capability-suite-market-check.mjs --gate=artifact-replay',
       ...overrides,
     },
   };

@@ -1,5 +1,5 @@
 /**
- * Smoke test — Phase 23-A: Web & Browser Actions
+ * Smoke test — Web & Browser Actions
  *
  * Exercícios práticos das 5 ações, sem mocks, como um usuário real faria.
  * Executa preview (sempre seguro) e, onde possível, um apply leve.
@@ -125,7 +125,7 @@ header('browser.open — apply sem sidecar (deve falhar fechado)');
 /* ─── Resultado Final ───────────────────────────────────────────────── */
 console.log('');
 if (failures === 0) {
-  console.log(`${GREEN}${BOLD}✓ Todos os smoke checks passaram — Phase 23-A operacional.${RESET}`);
+  console.log(`${GREEN}${BOLD}✓ Todos os smoke checks passaram — Web & Browser Actions operacional.${RESET}`);
 } else {
   console.log(`${RED}${BOLD}✗ ${failures} verificação(ões) falharam.${RESET}`);
   process.exit(1);

@@ -46,7 +46,7 @@ function runCommand(command, args, { capture = false } = {}) {
 }
 
 function runStep(label, command, args, options = {}) {
-  console.log(`\n[phases-7-10-check] ${label}`);
+  console.log(`\n[gates-extensions-check] ${label}`);
   const result = runCommand(command, args, options);
   if (options.capture) {
     if (result.stdout) {
@@ -112,15 +112,15 @@ const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const npxCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const powershellCommand = process.platform === 'win32' ? 'powershell' : 'pwsh';
 
-console.log('\n[phases-7-10-check] Artefatos de produto, protocolo e producao presentes');
+console.log('\n[gates-extensions-check] Artefatos de produto, protocolo e producao presentes');
 checkArtifacts();
 
-runStep('Etapa 7 - Gateway smoke', npmCommand, ['run', 'qa:gateway:smoke']);
-runStep('Etapa 7 - Benchmark de boot', npmCommand, ['run', 'qa:bench:boot']);
-runStep('Etapa 7 - Benchmark de runtime', npmCommand, ['run', 'qa:bench:runtime']);
-runStep('Etapa 7 - Benchmark de sidecars', npmCommand, ['run', 'qa:bench:sidecars']);
-runStep('Etapa 7 - Reliability compat', npmCommand, ['run', 'qa:compat']);
-runStep('Etapa 7 - Regressao critica', npmCommand, ['run', 'qa:regression']);
+runStep('Gateway smoke', npmCommand, ['run', 'qa:gateway:smoke']);
+runStep('Benchmark de boot', npmCommand, ['run', 'qa:bench:boot']);
+runStep('Benchmark de runtime', npmCommand, ['run', 'qa:bench:runtime']);
+runStep('Benchmark de sidecars', npmCommand, ['run', 'qa:bench:sidecars']);
+runStep('Reliability compat', npmCommand, ['run', 'qa:compat']);
+runStep('Regressao critica', npmCommand, ['run', 'qa:regression']);
 
 runStep('Etapas 8 a 10 - Testes dedicados', npxCommand, [
   'jest',
@@ -134,9 +134,9 @@ runStep('Etapas 8 a 10 - Testes dedicados', npxCommand, [
   '--runInBand',
 ]);
 
-runStep('Etapa 8 - Onboarding dev', npmCommand, ['run', 'onboarding:start', '--', '--profile', 'dev']);
-runStep('Etapa 8 - Onboarding operator', npmCommand, ['run', 'onboarding:start', '--', '--profile', 'operator']);
-runStep('Etapa 8 - Install profile dev', powershellCommand, [
+runStep('Onboarding dev', npmCommand, ['run', 'onboarding:start', '--', '--profile', 'dev']);
+runStep('Onboarding operator', npmCommand, ['run', 'onboarding:start', '--', '--profile', 'operator']);
+runStep('Install profile dev', powershellCommand, [
   '-ExecutionPolicy',
   'Bypass',
   '-File',
@@ -146,7 +146,7 @@ runStep('Etapa 8 - Install profile dev', powershellCommand, [
   '-SkipDependencies',
   '-SkipBuild',
 ]);
-runStep('Etapa 8 - Install profile operator', powershellCommand, [
+runStep('Install profile operator', powershellCommand, [
   '-ExecutionPolicy',
   'Bypass',
   '-File',
@@ -156,7 +156,7 @@ runStep('Etapa 8 - Install profile operator', powershellCommand, [
   '-SkipDependencies',
   '-SkipBuild',
 ]);
-runStep('Etapa 8 - Companion package', npmCommand, [
+runStep('Companion package', npmCommand, [
   'run',
   'companion:package',
   '--',
@@ -164,18 +164,18 @@ runStep('Etapa 8 - Companion package', npmCommand, [
   'tmp\\qa-companion-bundle',
 ]);
 
-runStep('Etapa 9 - SDK check', npmCommand, ['run', 'sdk:check']);
-runStep('Etapa 9 - Publish sample preparado', npmCommand, ['run', 'platform:publish:sample']);
-runStep('Etapa 9 - Ecosystem control plane', npmCommand, ['run', 'ops:ecosystem']);
-runStep('Etapa 10 - Runtime distribuido', npmCommand, ['run', 'ops:distributed']);
+runStep('SDK check', npmCommand, ['run', 'sdk:check']);
+runStep('Publish sample preparado', npmCommand, ['run', 'platform:publish:sample']);
+runStep('Ecosystem control plane', npmCommand, ['run', 'ops:ecosystem']);
+runStep('Runtime distribuido', npmCommand, ['run', 'ops:distributed']);
 
-const backupResult = runStep('Etapa 10 - Backup operacional', npmCommand, ['run', 'ops:backup', '--', '--json'], {
+const backupResult = runStep('Backup operacional', npmCommand, ['run', 'ops:backup', '--', '--json'], {
   capture: true,
 });
 const backupPayload = parseJsonFromOutput(backupResult.stdout);
 const relativeManifest = path.relative(projectRoot, backupPayload.manifestPath).replace(/\\/g, '/');
 
-runStep('Etapa 10 - Restore dry-run', npmCommand, [
+runStep('Restore dry-run', npmCommand, [
   'run',
   'ops:restore',
   '--',
@@ -183,6 +183,6 @@ runStep('Etapa 10 - Restore dry-run', npmCommand, [
   '--dry-run',
   '--json',
 ]);
-runStep('Etapa 10 - Production hardening check', npmCommand, ['run', 'ops:production:check', '--', '--json']);
+runStep('Production hardening check', npmCommand, ['run', 'ops:production:check', '--', '--json']);
 
-console.log('\n[phases-7-10-check] As etapas 7 a 10 passaram na validacao oficial.');
+console.log('\n[gates-extensions-check] Os gates de extensao passaram na validacao oficial.');

@@ -82,7 +82,7 @@ export type ZavorthScheduledTaskLiveTickCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_LIVE_TICK_CERTIFICATION_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskLiveTickCertificationService';
-  phase: 'checkpoint-6-scheduler-live-tick-certification';
+  gate: 'scheduler-live-tick-certification';
   status: ZavorthScheduledTaskLiveTickCertificationStatus;
   summary: {
     scenarios: number;

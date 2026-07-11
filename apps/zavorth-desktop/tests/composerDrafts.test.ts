@@ -5,6 +5,7 @@ import {
   getDraft,
   loadDrafts,
   saveDraft,
+  shouldClearComposerAfterSend,
 } from '../src/composer/composerDrafts';
 
 function createMemoryStorage(seed?: Record<string, string>) {
@@ -26,6 +27,13 @@ function createMemoryStorage(seed?: Record<string, string>) {
 describe('DRAFT_STORAGE_KEY', () => {
   it('is the stable zvd drafts key', () => {
     expect(DRAFT_STORAGE_KEY).toBe('zvd:composer-drafts');
+  });
+});
+
+describe('shouldClearComposerAfterSend', () => {
+  it('clears only a message originating from the current composer draft', () => {
+    expect(shouldClearComposerAfterSend('my draft', 'my draft')).toBe(true);
+    expect(shouldClearComposerAfterSend('subagent payload', 'my draft')).toBe(false);
   });
 });
 

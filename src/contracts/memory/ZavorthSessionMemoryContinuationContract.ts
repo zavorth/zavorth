@@ -180,7 +180,7 @@ export type ZavorthSessionMemoryContinuationSnapshot = {
   contractVersion: typeof ZAVORTH_SESSION_MEMORY_CONTINUATION_CONTRACT_VERSION;
   status: ZavorthSessionMemoryContinuationStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'sessions-memory-continuation';
+  gate: 'sessions-memory-continuation';
   previousChannelMessagingStatus: ZavorthChannelMessagingBridgeStatus;
   historyBridgeReceipt: ZavorthSessionHistoryBridgeReceipt;
   privacyFilteringReceipt: ZavorthPrivacyFilteringReceipt;

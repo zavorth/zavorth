@@ -1,7 +1,7 @@
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
 import { ZavorthCliTuiPolishService } from '../../src/services/ZavorthCliTuiPolishService';
 
-describe('ZavorthCliExperiencePolish Tests (Phase 21N)', () => {
+describe('ZavorthCliExperiencePolish Tests', () => {
   it('verifies that CLI outputs do not contain undefined, null, or [object Object]', async () => {
     const writes: string[] = [];
     const errors: string[] = [];

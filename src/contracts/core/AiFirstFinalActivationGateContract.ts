@@ -41,7 +41,7 @@ export type AiFirstFinalActivationFinding = {
 };
 
 export type AiFirstFinalActivationPhaseSummary = {
-  phase: 'checkpoint-4' | 'checkpoint-5' | 'checkpoint-6' | 'checkpoint-8' | 'checkpoint-9';
+  gate: 'ai-first-activation-checkpoint-4' | 'checkpoint-5' | 'checkpoint-6' | 'checkpoint-8' | 'checkpoint-9';
   sourceId: string;
   readiness: string;
   action: string;
@@ -99,7 +99,7 @@ export type AiFirstFinalActivationGateSnapshot = {
   receipts: Array<{
     id: string;
     kind:
-      | 'phase-summary'
+      | 'gate-summary'
       | 'activation-decision'
       | 'owner-approval'
       | 'fallback'

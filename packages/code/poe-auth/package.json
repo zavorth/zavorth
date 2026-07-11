@@ -1,0 +1,25 @@
+{
+  "name": "@zavorth/poe-auth",
+  "version": "0.0.1",
+  "description": "Poe OAuth authentication plugin for Zavorth (vendored)",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": ["src", "README.md"],
+  "license": "MIT",
+  "peerDependencies": {
+    "@zavorth/plugin": "*"
+  },
+  "dependencies": {
+    "open": "^10.0.0",
+    "poe-oauth": "*"
+  }
+}

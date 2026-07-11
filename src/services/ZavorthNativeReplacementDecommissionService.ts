@@ -116,7 +116,7 @@ export class ZavorthNativeReplacementDecommissionService {
       contractVersion: ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'native-replacement-decommission',
+      gate: 'native-replacement-decommission',
       previousDelegatedWorkerStatus,
       registryEntries,
       consistencyHarnessReceipts,

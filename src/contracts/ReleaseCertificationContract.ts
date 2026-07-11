@@ -10,7 +10,7 @@ export type ReleaseCertificationPublicAuditVocabulary = {
   waiver: 'ReleaseCertificationWaiver';
   receipt: 'ReleaseCertificationReceipt';
   snapshot: 'ReleaseCertificationSnapshot';
-  nextPhase: 'Etapa 10 - P0 Gap Closure';
+  nextPhase: 'P0 Gap Closure';
   policy: {
     waiversMustBeExplicit: true;
     secretValuesSerialized: false;

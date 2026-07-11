@@ -66,7 +66,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-setup-executor-package-scripts',
     label: 'Setup Executor package scripts exist',
-    target: 'npm scripts expose executor CLI and phase gate',
+    target: 'npm scripts expose executor CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-setup-executor',

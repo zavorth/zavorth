@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { InternalBetaDiagnosticsPanel } from '../../../apps/zavorth-desktop/src/panels/InternalBetaDiagnosticsPanel';
 
-describe('InternalBetaDiagnosticsPanel UI Tests (Phase 21K-B)', () => {
+describe('InternalBetaDiagnosticsPanel UI Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn() as jest.Mock;

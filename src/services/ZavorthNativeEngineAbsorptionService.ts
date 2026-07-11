@@ -113,7 +113,7 @@ export class ZavorthNativeEngineAbsorptionService {
       contractVersion: ZAVORTH_NATIVE_ENGINE_ABSORPTION_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'native-engine-absorption',
+      gate: 'native-engine-absorption',
       previousContractLayerStatus,
       features: FEATURES,
       fixtureReceipts,

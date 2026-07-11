@@ -29,7 +29,7 @@ export type RuntimeIdleBudgetCheck = {
 };
 
 export type RuntimeIdleBudgetSnapshot = {
-  phase: '45';
+  gate: 'runtime-idle-budget';
   surface: 'runtime-idle-budget';
   generatedAt: string;
   status: RuntimeIdleBudgetStatus;
@@ -51,8 +51,8 @@ export type RuntimeIdleBudgetSnapshot = {
     benchmark: string;
     desktopDoctor: string;
   };
-  nextRecommendedPhase: {
-    phase: '40';
+  nextRecommendedGate: {
+    gate: 'web-app-polish';
     title: string;
     reason: string;
   };

@@ -5,13 +5,19 @@ dist/
 
 # === Environment & Secrets ===
 # .env files contain API keys and must never be committed.
-# Use .env.example as a template (it is tracked).
+# Use .env.example / data/setup.env.example as templates (tracked).
+# User-local secrets from `zavorth setup interactive` live under state dir
+# (e.g. $ZAVORTH_HOME/state/setup.local.env) — also ignore any stray copies.
 .env
+**/.env
 .env.local
 .env.development
 .env.production
 .env.test
 .env.staging
+**/setup.local.env
+setup.local.env
+data/setup.local.env
 config/AIGateway-overlay.json
 
 # === Database & Runtime Data ===
@@ -167,3 +173,13 @@ playwright-report/
 blob-report/
 skill-library/native/auto_*/
 
+
+testsprite_tests\tmp\config.json
+
+# Local runtime / test artifacts (do not push)
+.zavorth/
+tmp-*.txt
+tmp-*.json
+tmp-jest-artifacts/
+.testsprite/
+testsprite_tests/tmp/

@@ -9,6 +9,7 @@ declare global {
   interface Window {
     zavorthDesktop?: {
       getRuntimeStatus(): Promise<RuntimeStatus>;
+      getCodeBridgeSummary(): Promise<CodeBridgeSummary>;
       startRuntime(): Promise<RuntimeStatus>;
       apiRequest<T = unknown>(request: DesktopApiRequest): Promise<DesktopApiResult<T>>;
       connectGooglePersonalOps(): Promise<GooglePersonalOpsConnectResult>;
@@ -67,10 +68,46 @@ declare global {
       openWindow(): Promise<{ ok: boolean }>;
       onDeepLink(callback: (url: string) => void): () => void;
       openExternal?(url: string): Promise<{ ok: boolean } | void> | void;
+      automations?: DesktopAutomationsApi;
       kaelOverlay?: KaelOverlayApi;
     };
   }
 }
+
+export type DesktopAutomationTask = {
+  id: string;
+  name: string;
+  project: string;
+  prompt: string;
+  intervalMinutes: number;
+  enabled: boolean;
+  status: 'idle' | 'running' | 'success' | 'failed';
+  nextRun?: number;
+  lastRun?: number;
+  lastSessionId?: string;
+  workspace?: { id?: string; label?: string; path?: string | null };
+  model?: string;
+  profile?: string;
+  effort?: string;
+  createdAt?: number;
+  updatedAt?: number;
+  history: Array<{
+    at: string;
+    ok: boolean;
+    sessionId?: string | null;
+    message?: string | null;
+  }>;
+};
+
+export type DesktopAutomationsApi = {
+  list(): Promise<DesktopAutomationTask[]>;
+  create(input: Partial<DesktopAutomationTask>): Promise<DesktopAutomationTask>;
+  delete(id: string): Promise<{ ok: boolean }>;
+  toggle(id: string, enabled: boolean): Promise<DesktopAutomationTask | null>;
+  run(id: string): Promise<{ ok: boolean; task?: DesktopAutomationTask; sessionId?: string; error?: string }>;
+  logs(sessionId: string): Promise<unknown[]>;
+  onUpdated(callback: (tasks: DesktopAutomationTask[]) => void): () => void;
+};
 
 export type KaelMascotState = 'idle' | 'thinking' | 'working' | 'finished';
 
@@ -136,6 +173,43 @@ export type RuntimeStatus = {
   tokenSource: 'env' | 'file' | 'generated' | 'missing';
   runtimePid: number | null;
   message: string;
+};
+
+export type CodeBridgeCheck = {
+  id?: string;
+  label?: string;
+  detail?: string;
+  ok?: boolean;
+};
+
+export type CodeBridgeOps = {
+  updatedAt?: number;
+  ready?: boolean;
+  providerReady?: boolean;
+  approvals?: number;
+  sessions?: number;
+  modelLabel?: string;
+  headline?: string;
+  nextAction?: string;
+  checks?: CodeBridgeCheck[];
+};
+
+export type CodeBridgeCompanion = {
+  updatedAt?: number;
+  pulse?: { sessions?: number };
+};
+
+export type CodeBridgeSummary = {
+  stateDir?: string;
+  paths?: { stateDir?: string; ops?: string; companion?: string; companionStatus?: string };
+  ops?: CodeBridgeOps;
+  companion?: CodeBridgeCompanion;
+  companionStatus?: { online?: boolean; lastSeen?: number; name?: string };
+  opsFresh: boolean;
+  companionFresh: boolean;
+  tone: 'ready' | 'warning' | 'muted' | string;
+  label: string;
+  detail: string;
 };
 
 export type BootEvent = {

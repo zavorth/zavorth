@@ -107,7 +107,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push(`- Public adoption: ${snapshot.surface.publicAdoptionCommand}`);
   lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
   lines.push(`- Feedback preview: ${snapshot.surface.feedbackPreviewCommand}`);
-  lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
+  lines.push(`- Phase gate: ${snapshot.surface.gateCommand}`);
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
   lines.push(`- CLI: ${snapshot.surface.cliCommand}`);
 
@@ -259,7 +259,7 @@ function buildPublicAdoptionSnapshot() {
       roadmapPath: 'docs/product-direction.md',
       planningPath: 'docs/product-direction.md',
     },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:public-adoption-readiness'],
     launchChecklist: [],
     claims: [
       { id: 'local-first-governed-runtime' },
@@ -283,7 +283,7 @@ function buildPublicAdoptionSnapshot() {
       { minute: '9-10', route: '/feedback' },
     ],
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '54',
       title: 'Hosted Website And Demo Operations',
       reason: 'preview e deploy governados',

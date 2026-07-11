@@ -1,6 +1,7 @@
 export * from '../contracts/capability/CapabilityNormalizationContract.js';
 export * from '../contracts/channel/ChannelLiveActivationContract.js';
 export * from '../contracts/channel/ChannelLongTailActivationContract.js';
+export * from '../contracts/channel/ReachChannelSpineContract.js';
 export * from '../contracts/channel/ChannelCapabilityContract.js';
 export * from '../contracts/channel/ChannelConnectionPlaybookContract.js';
 export * from '../contracts/provider/ProviderConnectionPlaybookContract.js';

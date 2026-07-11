@@ -38,7 +38,7 @@ describe('ZavorthFunctionalClosureService Certification matrix', () => {
       }),
     ]);
     expect(dashboard.report).toContain('Zavorth Functional Closure Dashboard');
-    expect(dashboard.report).toContain('phase 1');
+    expect(dashboard.report).toContain('gate 1');
   });
 
   it('previews ledger decision updates only when receipts exist', () => {
@@ -201,7 +201,7 @@ describe('ZavorthFunctionalClosureService Certification matrix', () => {
       blockers: [],
     }));
     expect(closure.ledgerDecisionUpdater.blockedUpdates).toBe(0);
-    expect(closure.dashboard.report).toContain('phase 8 skill-ecosystem');
+    expect(closure.dashboard.report).toContain('gate 8 skill-ecosystem');
     expect(closure.commands.nextStep).toBe('Functional absorption closure complete');
     expect(text).toContain('Zavorth Functional Closure - Certification matrix');
     expect(text).toContain('Next: Functional absorption closure complete');

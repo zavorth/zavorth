@@ -56,7 +56,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-hub-package-scripts',
     label: 'Capability Hub package scripts exist',
-    target: 'npm scripts expose hub report and phase gate',
+    target: 'npm scripts expose hub report and gate',
     files: ['package.json'],
     needles: [
       'capability-hub',

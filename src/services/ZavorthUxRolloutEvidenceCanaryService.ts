@@ -60,7 +60,7 @@ export class ZavorthUxRolloutEvidenceCanaryService {
       generatedAt,
       contractVersion: ZAVORTH_UX_ROLLOUT_EVIDENCE_CANARY_CONTRACT_VERSION,
       source: 'ZavorthUxRolloutEvidenceCanaryService',
-      phase: 'checkpoint-7-ux-rollout-evidence-canary',
+      gate: 'ux-rollout-evidence-canary',
       status,
       rolloutEval,
       sanitizedEvidence,

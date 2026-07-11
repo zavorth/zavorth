@@ -56,7 +56,7 @@ export type ReleaseUxCheck = {
 };
 
 export type ReleaseUxWizardSnapshot = {
-  phase: '44';
+  gate: 'release-ux-wizard';
   surface: 'release-ux';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -93,8 +93,8 @@ export type ReleaseUxWizardSnapshot = {
     rollbackPreview: string;
     changelog: string;
   };
-  nextRecommendedPhase: {
-    phase: '42';
+  nextRecommendedGate: {
+    gate: 'tenant-team-ops';
     title: string;
     reason: string;
   };
@@ -109,7 +109,7 @@ export const RELEASE_UX_PACKAGE_SCRIPTS = [
   'release:wizard',
   'release:wizard:json',
   'qa:release-ux',
-  'qa:phase:44',
+  'qa:release-ux-wizard',
   'release:scan',
   'release:alpha',
   'release:beta',

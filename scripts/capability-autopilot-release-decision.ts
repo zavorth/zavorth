@@ -31,8 +31,8 @@ const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
 const requirePass = argv.includes('--require-pass') || argv.includes('--gate');
 const allowDefaultOn = argv.includes('--allow-default-on');
-const failPhase = readArg('--fail-phase=') as CapabilityAutopilotReleaseGateEvidence['phase'] | null;
-const omitPhase = readArg('--omit-phase=') as CapabilityAutopilotReleaseGateEvidence['phase'] | null;
+const failPhase = readArg('--fail-stage=') as CapabilityAutopilotReleaseGateEvidence['phase'] | null;
+const omitPhase = readArg('--omit-stage=') as CapabilityAutopilotReleaseGateEvidence['phase'] | null;
 
 main().catch((error) => {
   process.stderr.write(`[capability-autopilot-release-decision] falha: ${error instanceof Error ? error.message : String(error)}\n`);
@@ -69,9 +69,9 @@ function buildEvidence(
   service: CapabilityAutopilotReleaseDecisionService,
 ): CapabilityAutopilotReleaseGateEvidence[] {
   return service.defaultEvidence()
-    .filter((entry) => entry.phase !== omitPhase)
+    .filter((entry) => entry.stage !== omitPhase)
     .map((entry) =>
-      entry.phase === failPhase
+      entry.stage === failPhase
         ? {
             ...entry,
             passed: false,
@@ -113,9 +113,9 @@ function buildChecks(
   return [
     check(
       'capability-autopilot-release:all-phases',
-      'etapas 60-65 com evidencia',
+      'gates de preflight/provider com evidencia',
       decision.missingPhases.length === 0 && decision.failedPhases.length === 0 ? 'pass' : 'fail',
-      'A decisao de v1.1 exige evidencia de todos os gates 60-65.',
+      'A decisao de v1.1 exige evidencia de todos os gates de preflight e provider.',
       [
         `passed=${decision.passedPhases.join(',')}`,
         `missing=${decision.missingPhases.join(',') || '<none>'}`,
@@ -183,7 +183,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotReleaseDecisionGateSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-release-decision] Etapa 66 - v1.1 Release Decision Gate');
+  lines.push('[capability-autopilot-release-decision] v1.1 Release Decision Gate');
   lines.push(`status: ${snapshot.gateStatus}`);
   lines.push(`ok: ${snapshot.gateSummary.ok ? 'yes' : 'no'} | pass=${snapshot.gateSummary.passed} warn=${snapshot.gateSummary.warnings} fail=${snapshot.gateSummary.failed}`);
   lines.push(`decision: ${snapshot.decision}`);

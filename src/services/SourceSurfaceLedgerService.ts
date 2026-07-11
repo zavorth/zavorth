@@ -203,7 +203,7 @@ export class SourceSurfaceLedgerService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SOURCE_SURFACE_LEDGER_CONTRACT_VERSION,
       status,
-      phase: 0,
+      gate: 'source-surface-ledger',
       statement: 'Source full-surface ledger is executable Zavorth governance infrastructure.',
       paths: {
         ledgerPath: normalizePath(ledgerPath),

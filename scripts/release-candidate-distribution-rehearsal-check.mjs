@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-candidate-distribution-rehearsal-files',
-    label: 'Release Candidate Distribution Rehearsal phase files exist',
+    label: 'Release Candidate Distribution Rehearsal gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/ReleaseCandidateDistributionRehearsalContract.ts',

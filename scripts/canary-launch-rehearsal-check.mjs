@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'canary-launch-rehearsal-files',
-    label: 'Canary Launch Rehearsal phase files exist',
+    label: 'Canary Launch Rehearsal gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/CanaryLaunchRehearsalContract.ts',

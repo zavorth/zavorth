@@ -70,7 +70,7 @@ function makeFakeMcpManager(entryId: string, tools: { name: string; parameters?:
   };
 }
 
-// ── Existing connectivity test (updated for Phase 5A namespacing) ─────────────
+// ── Existing connectivity test (updated for namespacing) ─────────────
 
 describe('McpRuntimeService — connectivity', () => {
   it('connects enabled servers, writes runtime state and disconnects them on shutdown', async () => {
@@ -164,9 +164,9 @@ describe('McpRuntimeService — connectivity', () => {
   });
 });
 
-// ── Phase 5A: Drift Protection ───────────────────────────────────────────────
+// ── Drift Protection ───────────────────────────────────────────────
 
-describe('McpRuntimeService — Phase 5A drift protection', () => {
+describe('McpRuntimeService — drift protection', () => {
   const stateFile = path.join(os.tmpdir(), 'zavorth-drift-test-state.json');
   const logRepo = { log: jest.fn() } as any;
   const singleEntry = {

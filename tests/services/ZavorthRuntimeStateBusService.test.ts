@@ -131,6 +131,30 @@ describe('ZavorthRuntimeStateBusService', () => {
     expect(deleted.snapshot.state.workboard.tasks).toHaveLength(0);
   });
 
+  it('applies all cards from a full board sync in one action', () => {
+    const root = makeRoot();
+    const service = new ZavorthRuntimeStateBusService({
+      stateFilePath: path.join(root, 'runtime-state.json'),
+      now: () => new Date('2026-07-09T12:00:00.000Z'),
+    });
+    const result = service.dispatch({
+      type: 'workboard-sync',
+      approved: true,
+      source: 'zavorth-desktop-workboard',
+      sessionId: 'desktop-main',
+      payload: {
+        operation: 'sync-board',
+        board: { id: 'board-daily', name: 'Daily delivery', columns: [] },
+        cards: [
+          { taskId: 'card-1', title: 'First', sessionId: 'desktop-main', status: 'queued' },
+          { taskId: 'card-2', title: 'Second', sessionId: 'desktop-main', status: 'running' },
+        ],
+      },
+    });
+    expect(result.ok).toBe(true);
+    expect(result.snapshot.state.workboard.tasks.map(task => task.taskId)).toEqual(['card-1', 'card-2']);
+  });
+
   it('blocks disconnected models before mutating state', () => {
     const root = makeRoot();
     const service = new ZavorthRuntimeStateBusService({

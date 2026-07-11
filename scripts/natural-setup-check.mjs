@@ -68,7 +68,7 @@ const rules = [
   ruleContainsAll({
     id: 'natural-setup-package-scripts',
     label: 'Natural Setup package scripts exist',
-    target: 'npm scripts expose assistant CLI and phase gate',
+    target: 'npm scripts expose assistant CLI and gate',
     files: ['package.json'],
     needles: [
       'natural-setup',

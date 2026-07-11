@@ -1,3 +1,4 @@
+import { normalizeChannelId } from '../../channels/normalizeChannelId.js';
 import { queryUniversalAgentRuns } from './RunObservatory.js';
 import type {
   UniversalAgentChannel,
@@ -141,11 +142,38 @@ function listRecords(value: unknown): LooseRecord[] {
 }
 
 function normalizeChannel(value: unknown): UniversalAgentChannel {
-  const raw = normalizeText(value).toLowerCase();
-  if (raw === 'web' || raw === 'cli' || raw === 'telegram' || raw === 'discord' || raw === 'api') {
+  const raw = normalizeChannelId(value);
+  if (
+    raw === 'web'
+    || raw === 'cli'
+    || raw === 'telegram'
+    || raw === 'discord'
+    || raw === 'api'
+    || raw === 'slack'
+    || raw === 'whatsapp'
+    || raw === 'signal'
+    || raw === 'email'
+    || raw === 'teams'
+  ) {
     return raw;
   }
-  return 'unknown';
+  if (raw === 'control' || raw === 'zavorth-control' || raw === 'dashboard') {
+    return 'web';
+  }
+  // Remaining mesh fabric channels share continuity via the api reply port.
+  if (
+    raw === 'instagram'
+    || raw === 'imessage'
+    || raw === 'matrix'
+    || raw === 'line'
+    || raw === 'feishu'
+    || raw === 'sms'
+    || raw === 'google-chat'
+    || raw === 'qq'
+  ) {
+    return 'api';
+  }
+  return raw ? 'api' : 'unknown';
 }
 
 function normalizeStatus(value: unknown): UniversalReplyPortStatus {
@@ -547,9 +575,25 @@ export class CrossChannelContinuityService {
     if (channel === 'discord') {
       return 'Discord';
     }
+    if (channel === 'slack') {
+      return 'Slack';
+    }
+    if (channel === 'whatsapp') {
+      return 'WhatsApp';
+    }
+    if (channel === 'signal') {
+      return 'Signal';
+    }
+    if (channel === 'email') {
+      return 'Email';
+    }
+    if (channel === 'teams') {
+      return 'Microsoft Teams';
+    }
     if (channel === 'api') {
-      return 'API';
+      return 'API / channel fabric';
     }
     return 'Canal de origem';
   }
 }
+

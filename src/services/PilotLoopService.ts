@@ -88,7 +88,7 @@ export class PilotLoopService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '57',
+      gate: 'pilot-loop',
       surface: 'pilot-loop',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -112,8 +112,8 @@ export class PilotLoopService {
       supportPolicy: PILOT_SUPPORT_POLICY,
       zavorthControlMetrics: PILOT_ZAVORTH_CONTROL_METRICS,
       checks,
-      nextRecommendedPhase: {
-        phase: '58',
+      nextRecommendedGate: {
+        gate: 'integration-showcase',
         title: 'Integration Showcase And Partner Surface',
         reason:
           'Com feedback, suporte e pilotos auditaveis, o proximo passo e mostrar integracoes reais com fixture e degradacao segura.',
@@ -138,8 +138,8 @@ export class PilotLoopService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -533,7 +533,6 @@ export class PilotLoopService {
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'etapa 57',
       'feedback',
       'support',
       'pilot loop',
@@ -541,7 +540,6 @@ export class PilotLoopService {
       'ledger local',
       'payload sensivel',
       'qa:pilot-loop',
-      'qa:phase:57',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
@@ -561,7 +559,7 @@ export class PilotLoopService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 8 - Integration Showcase And Partner Surface', 'qa:phase:58']
+    const missing = ['Readiness checkpoint 8 - Integration Showcase And Partner Surface', 'qa:integration-showcase']
       .filter((term) => !source.includes(term));
     return this.check(
       'pilot-loop:next-phase',

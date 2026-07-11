@@ -86,6 +86,34 @@ describe('ToolExecutor central security policy', () => {
     })).resolves.toBe('ok');
 
     expect(tool.execute).toHaveBeenCalled();
+    const continuity = executor.getLastContinuityEnvelope();
+    expect(continuity).toBeTruthy();
+    expect(continuity?.receipt?.terminal).toBe(true);
+    expect(continuity?.decision?.action).toBeTruthy();
+    expect(continuity?.ids.correlation?.policyBrokerReceiptId || continuity?.receipt?.receiptId).toBeTruthy();
+  });
+
+  it('finalizes operator continuity receipt when policy blocks a tool', async () => {
+    const registry = {
+      getTool: jest.fn().mockReturnValue({
+        execute: jest.fn().mockResolvedValue('ok'),
+      }),
+      getAllToolSecurityDefinitions: jest.fn().mockReturnValue([
+        resolveDefaultAgentToolSecurityDefinition('create_file'),
+      ]),
+    } as any;
+    const executor = new ToolExecutor(registry, { log: jest.fn() } as any);
+
+    await expect(executor.executeTool('create_file', {
+      target_file: 'out.txt',
+      code_content: 'hello',
+    })).rejects.toThrow('exige confirmacao de seguranca');
+
+    const continuity = executor.getLastContinuityEnvelope();
+    expect(continuity?.request?.target).toBe('create_file');
+    expect(continuity?.decision?.allowed).toBe(false);
+    expect(continuity?.receipt?.terminal).toBe(true);
+    expect(continuity?.receipt?.receiptId).toBeTruthy();
   });
 
   it('ignores approval envelopes carried by untrusted-content metadata', async () => {

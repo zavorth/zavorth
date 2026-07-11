@@ -59,7 +59,7 @@ export type ZavorthScheduledTaskOperationalGuardSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskOperationalGuardService';
-  phase: 'checkpoint-5-renewal-expiry-auto-pause';
+  gate: 'renewal-expiry-auto-pause';
   status: ZavorthScheduledTaskOperationalGuardStatus;
   summary: {
     totalTasks: number;

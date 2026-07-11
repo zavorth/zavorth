@@ -68,7 +68,7 @@ export type IntegrationShowcaseSmokeResult = {
 };
 
 export type IntegrationShowcaseSnapshot = {
-  phase: '58';
+  gate: 'integration-showcase';
   surface: 'integration-showcase';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -91,8 +91,8 @@ export type IntegrationShowcaseSnapshot = {
     partnerSurfacePath: string;
   };
   checks: IntegrationShowcaseCheck[];
-  nextRecommendedPhase: {
-    phase: '59';
+  nextRecommendedGate: {
+    gate: 'release-train';
     title: string;
     reason: string;
   };
@@ -101,7 +101,6 @@ export type IntegrationShowcaseSnapshot = {
 export const INTEGRATION_SHOWCASE_REQUIRED_CORE_SCRIPTS = [
   'integration-showcase',
   'qa:integration-showcase',
-  'qa:phase:58',
   'pilot-loop',
   'qa:pilot-loop',
   'public-docs-recipes',

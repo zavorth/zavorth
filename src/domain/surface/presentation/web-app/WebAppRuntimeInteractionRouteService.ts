@@ -517,10 +517,120 @@ export class WebAppRuntimeInteractionRouteService {
     const body = await deps.readJsonBody(req);
     const candidateId = String(body.candidateId || '').trim();
     const actionId = normalizeLearningDreamActionId(body.actionId);
+    const approvalId = String(body.approvalId || body.approval || '').trim() || null;
     if (!candidateId || !actionId) {
       deps.writeJson(res, { ok: false, error: 'candidateId and supported actionId are required' }, 400);
       return true;
     }
+
+    if (typeof deps.executeLearningAction === 'function') {
+      try {
+        const execution = await deps.executeLearningAction({
+          candidateId,
+          actionId,
+          approvalId,
+        });
+        if (execution) {
+          const now = String(execution.generatedAt || new Date().toISOString());
+          const status = String(execution.status || 'applied');
+          const ok = execution.ok !== false && status !== 'blocked';
+          const lifecycle = status === 'blocked' && (actionId === 'promoteSkill' || actionId === 'promote')
+            ? 'learned_draft'
+            : actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
+              ? (ok ? 'trusted_local' : 'learned_draft')
+              : actionId === 'reject' || actionId === 'forget'
+                ? 'quarantined'
+                : 'learned_draft';
+          const state = this.readLearningState();
+          const current = state.entries[candidateId] || {
+            reviewState: 'pending',
+            lifecycle: 'learned_draft',
+            updatedAt: now,
+          };
+          state.entries[candidateId] = {
+            ...current,
+            reviewState: actionId === 'reject' || actionId === 'forget' ? 'rejected' : 'approved',
+            lifecycle: execution.snapshot
+              ? String(
+                (asLooseRecord(execution.snapshot)?.candidates as LooseRecord[] | undefined)
+                  ?.find((entry) => String(entry?.id || '') === candidateId)?.lifecycle
+                || lifecycle,
+              )
+              : lifecycle,
+            updatedAt: now,
+            promotedAt: lifecycle === 'trusted_local' ? now : current.promotedAt || null,
+            rejectedAt: actionId === 'reject' || actionId === 'forget' ? now : current.rejectedAt || null,
+            skillCandidateId: execution.skillCandidateId || null,
+            silentInstallBlocked: execution.silentInstallBlocked ?? true,
+          };
+          state.updatedAt = now;
+          this.writeLearningState(state);
+          deps.writeJson(res, {
+            ok,
+            generatedAt: now,
+            candidateId,
+            actionId,
+            status,
+            summary: execution.summary || null,
+            details: execution.details || [],
+            approvalId: execution.approvalId || approvalId,
+            skillCandidateId: execution.skillCandidateId || null,
+            silentInstallBlocked: execution.silentInstallBlocked ?? true,
+            skillInstalled: execution.skillInstalled || false,
+            execution,
+          }, ok ? 200 : 409);
+          return true;
+        }
+      } catch (error: unknown) {
+        logger.warn('[Web App Runtime Interaction] learning-dreams gate path failed', error);
+      }
+    }
+
+    if (actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure') {
+      const gateResult = await this.promoteLearningDreamViaSkillGate({
+        candidateId,
+        actionId,
+        approvalId,
+      });
+      const now = new Date().toISOString();
+      const state = this.readLearningState();
+      const current = state.entries[candidateId] || {
+        reviewState: 'pending',
+        lifecycle: 'learned_draft',
+        updatedAt: now,
+      };
+      const lifecycle = gateResult.installed
+        ? 'trusted_local'
+        : actionId === 'promoteSkill'
+          ? 'learned_draft'
+          : 'trusted_local';
+      state.entries[candidateId] = {
+        ...current,
+        reviewState: 'approved',
+        lifecycle,
+        updatedAt: now,
+        promotedAt: lifecycle === 'trusted_local' ? now : current.promotedAt || null,
+        skillCandidateId: gateResult.skillCandidateId,
+        silentInstallBlocked: true,
+      };
+      state.updatedAt = now;
+      this.writeLearningState(state);
+      deps.writeJson(res, {
+        ok: gateResult.ok,
+        generatedAt: now,
+        candidateId,
+        actionId,
+        status: gateResult.status,
+        summary: gateResult.summary,
+        details: gateResult.details,
+        approvalId,
+        skillCandidateId: gateResult.skillCandidateId,
+        silentInstallBlocked: true,
+        skillInstalled: gateResult.installed,
+      }, gateResult.ok ? 200 : 409);
+      return true;
+    }
+
     const now = new Date().toISOString();
     const state = this.readLearningState();
     const current = state.entries[candidateId] || {
@@ -531,15 +641,10 @@ export class WebAppRuntimeInteractionRouteService {
     state.entries[candidateId] = {
       ...current,
       reviewState: actionId === 'reject' || actionId === 'forget' ? 'rejected' : 'approved',
-      lifecycle: actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
-        ? 'trusted_local'
-        : actionId === 'reject' || actionId === 'forget'
-          ? 'quarantined'
-          : current.lifecycle,
+      lifecycle: actionId === 'reject' || actionId === 'forget'
+        ? 'quarantined'
+        : current.lifecycle,
       updatedAt: now,
-      promotedAt: actionId === 'promote' || actionId === 'promoteSkill' || actionId === 'promoteProcedure'
-        ? now
-        : current.promotedAt || null,
       rejectedAt: actionId === 'reject' || actionId === 'forget' ? now : current.rejectedAt || null,
     };
     state.updatedAt = now;
@@ -550,8 +655,102 @@ export class WebAppRuntimeInteractionRouteService {
       candidateId,
       actionId,
       status: 'applied',
+      silentInstallBlocked: true,
     }, 200);
     return true;
+  }
+
+  private async promoteLearningDreamViaSkillGate(input: {
+    candidateId: string;
+    actionId: 'promote' | 'promoteSkill' | 'promoteProcedure';
+    approvalId: string | null;
+  }): Promise<{
+    ok: boolean;
+    status: string;
+    summary: string;
+    details: string[];
+    skillCandidateId: string | null;
+    installed: boolean;
+  }> {
+    try {
+      const { SkillPromotionGate } = await import('../../../../services/SkillPromotionGate.js');
+      const gate = new SkillPromotionGate();
+      const state = this.readLearningState();
+      const entry = state.entries[input.candidateId] || {};
+      const intentText = [
+        String(entry.title || input.candidateId),
+        String(entry.summary || ''),
+        `learning-dreams:${input.candidateId}`,
+      ].filter(Boolean).join('\n');
+      const materialized = gate.materializeCandidate({
+        intentText,
+        candidateKind: input.actionId === 'promoteProcedure' ? 'procedure' : 'auto-skill',
+        requestedBy: 'learning-dreams',
+        sourceSurface: 'web:learning-dreams',
+        approvalRequired: true,
+      });
+      const skillCandidateId = materialized.candidateId;
+      const details = [
+        materialized.summary,
+        'silentInstallBlocked=true',
+        skillCandidateId ? `skillCandidateId=${skillCandidateId}` : 'skillCandidateId=none',
+      ];
+      if (!skillCandidateId) {
+        return {
+          ok: false,
+          status: 'blocked',
+          summary: materialized.summary,
+          details,
+          skillCandidateId: null,
+          installed: false,
+        };
+      }
+      if (input.approvalId) {
+        const applied = await gate.apply({
+          candidateId: skillCandidateId,
+          approvalId: input.approvalId,
+          requestedBy: 'learning-dreams',
+          sourceSurface: 'web:learning-dreams',
+        });
+        return {
+          ok: applied.ok && applied.installed,
+          status: applied.status,
+          summary: applied.summary,
+          details: [...details, applied.summary, ...(applied.details || []).slice(0, 4)],
+          skillCandidateId,
+          installed: applied.installed,
+        };
+      }
+      const previewed = await gate.preview(skillCandidateId, {
+        requestedBy: 'learning-dreams',
+        sourceSurface: 'web:learning-dreams',
+      });
+      return {
+        ok: input.actionId !== 'promoteSkill',
+        status: input.actionId === 'promoteSkill' ? 'blocked' : 'applied',
+        summary: input.actionId === 'promoteSkill'
+          ? `${previewed.summary} Install waits for approvalId.`
+          : previewed.summary,
+        details: [
+          ...details,
+          previewed.summary,
+          previewed.mutationPlanId ? `mutationPlanId=${previewed.mutationPlanId}` : 'mutationPlanId=none',
+          'Provide approvalId to apply SkillPromotionGate install.',
+        ],
+        skillCandidateId,
+        installed: false,
+      };
+    } catch (error: unknown) {
+      logger.warn('[Web App Runtime Interaction] SkillPromotionGate promote failed', error);
+      return {
+        ok: input.actionId !== 'promoteSkill',
+        status: input.actionId === 'promoteSkill' ? 'blocked' : 'applied',
+        summary: error instanceof Error ? error.message : String(error),
+        details: ['SkillPromotionGate unavailable; soft lifecycle may still apply for non-skill promote.'],
+        skillCandidateId: null,
+        installed: false,
+      };
+    }
   }
 
   private buildZavorthControlEvents(input: {

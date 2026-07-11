@@ -30,7 +30,7 @@ export interface TemporaryDirectoryTrustCheckResult {
 }
 
 /**
- * Fase 21E-A — Temporary System Directory Trust
+ * Temporary System Directory Trust
  *
  * Grants scoped filesystem access (read/write/mkdir) to OS temporary directories
  * (/tmp, os.tmpdir(), %TEMP%, %TMP%) on a per-session in-memory basis.

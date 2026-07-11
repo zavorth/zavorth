@@ -362,7 +362,7 @@ function safeText(value: unknown, fallback: string): string {
 function buildQuickSandboxHostReadiness() {
   return {
     inspect: (): SandboxHostReadinessSnapshot => ({
-      phase: '38',
+      gate: 'sandbox-host-readiness',
       generatedAt: new Date().toISOString(),
       platform: process.platform,
       osRelease: 'quick-unified-onboarding',

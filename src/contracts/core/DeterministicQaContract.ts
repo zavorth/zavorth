@@ -34,7 +34,7 @@ export type DeterministicQaCheck = {
 };
 
 export type DeterministicQaMatrixSnapshot = {
-  phase: '41';
+  gate: 'deterministic-qa';
   surface: 'deterministic-qa-matrix';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -55,8 +55,8 @@ export type DeterministicQaMatrixSnapshot = {
   gates: DeterministicQaGateSpec[];
   checks: DeterministicQaCheck[];
   contracts: string[];
-  nextRecommendedPhase: {
-    phase: '45';
+  nextRecommendedGate: {
+    gate: 'runtime-idle-budget';
     title: string;
     reason: string;
   };
@@ -124,8 +124,8 @@ export const DETERMINISTIC_QA_GATES: DeterministicQaGateSpec[] = [
     label: 'Sandbox host readiness',
     tier: 'standard',
     layer: 'smoke',
-    command: 'npm run qa:phase:38 --silent',
-    packageScript: 'qa:phase:38',
+    command: 'npm run qa:sandbox-host-readiness --silent',
+    packageScript: 'qa:sandbox-host-readiness',
     maxDurationMs: 420_000,
     required: true,
     requiresNetwork: false,

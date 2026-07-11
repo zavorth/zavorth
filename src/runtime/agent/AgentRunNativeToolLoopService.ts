@@ -51,6 +51,11 @@ import {
   uniqueToolDefinitions,
 } from './AgentRunNativeToolLoopUtils.js';
 import { asErrorLike } from '../../utils/errorLike.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromEffectBoundary,
+  resultFromToolOutcome,
+} from '../operator/OperatorContinuityEnvelope.js';
 export type NativeToolLoopStats = {
   requested: number;
   executed: number;
@@ -89,6 +94,7 @@ type Runtime = {
   speculativeAutonomyService?: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   canvasSessionService?: CanvasSpeculativeAutonomySyncService | null;
   terminalBackendsService?: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
+  continuityKernel?: OperatorContinuityKernel;
 };
 
 const MAX_NATIVE_TOOL_ROUNDS = 5;
@@ -106,6 +112,9 @@ const ALWAYS_SAFE_NATIVE_TOOLS = new Set([
   'workspace.list',
   'get_datetime',
   'zavorth_action',
+  'session_search',
+  'zavorth_session_search',
+  'sessions.search',
   COMPACT_TOOL_CATALOG_NAME,
   TOOL_PLANNER_NAME,
 ]);
@@ -136,6 +145,7 @@ export class AgentRunNativeToolLoopService {
   private readonly speculativeAutonomy: Pick<ZavorthSpeculativeAutonomyService, 'prepare'> | null;
   private readonly canvasSessions: CanvasSpeculativeAutonomySyncService | null;
   private readonly terminalBackends: Pick<ZavorthTerminalBackendsService, 'execute'> | null;
+  private readonly continuityKernel: OperatorContinuityKernel;
   private readonly profileReceipts = new ProfileEnforcementReceiptService();
   private readonly toolCatalogByRun = new Map<string, ToolCatalogState>();
   private readonly compactionService = new ContextCompactionService();
@@ -156,6 +166,7 @@ export class AgentRunNativeToolLoopService {
     this.terminalBackends = runtime.terminalBackendsService === null
       ? null
       : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
+    this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
   }
 
   public maxRounds(): number {
@@ -382,12 +393,20 @@ export class AgentRunNativeToolLoopService {
             stats.denied += 1;
             stats.effectBoundaryDenied += 1;
             const denied = `Tool ${toolCall.name} bloqueada pela effect boundary: ${effectMapping.decision.reasons.join(' ')}`;
+            const continuity = this.finalizeEffectBoundaryContinuity({
+              run: input.run,
+              toolCall,
+              mapping: effectMapping,
+              status: 'blocked',
+              summary: denied,
+            });
             toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
             events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
               reason: 'effect-boundary-deny',
               toolCallId: toolCall.id,
               sourceTrust,
               effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              operatorContinuity: this.continuityKernel.toPublicView(continuity),
             }));
             continue;
           } else {
@@ -404,6 +423,14 @@ export class AgentRunNativeToolLoopService {
               rehearsalEnvelope,
             });
             const deferred = this.buildDeferredToolEffectMessage(toolCall.name, effectMapping);
+            const continuity = this.finalizeEffectBoundaryContinuity({
+              run: input.run,
+              toolCall,
+              mapping: effectMapping,
+              status: 'deferred',
+              summary: deferred,
+              mutationPlanId: deferredPlan.mutationPlan?.id || null,
+            });
             toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, deferred));
             events.push(this.buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
               reason: 'effect-boundary-deferred',
@@ -411,6 +438,7 @@ export class AgentRunNativeToolLoopService {
               sourceTrust,
               effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
               effectRehearsal: rehearsalEnvelope,
+              operatorContinuity: this.continuityKernel.toPublicView(continuity),
               ...(deferredPlan.mutationPlan ? { mutationPlan: this.buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
               ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
               ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
@@ -419,6 +447,13 @@ export class AgentRunNativeToolLoopService {
             continue;
           }
 
+          const continuitySeed = this.continuityKernel.begin({
+            correlation: {
+              runId: input.run.id,
+              sessionId: String(input.run.sessionId || input.run.metadata?.sessionId || '').trim() || null,
+              toolCallId: toolCall.id,
+            },
+          });
           const rawToolArgs = influencedByUntrustedContent
             ? withUntrustedInputMetadata(toolCall.arguments, 'agent-run-llm-native-loop-contained-untrusted-evidence')
             : toolCall.arguments;
@@ -427,6 +462,12 @@ export class AgentRunNativeToolLoopService {
             args: rawToolArgs,
             providerName: result.providerName,
             modelName: result.modelName,
+            continuity: {
+              continuityId: continuitySeed.ids.continuityId,
+              runId: input.run.id,
+              toolCallId: toolCall.id,
+              sourceSurface: 'agent-native-tool-loop',
+            },
           });
           try {
             const execution = await this.executeToolWithRetry(toolCall.name, toolArgs);
@@ -443,6 +484,12 @@ export class AgentRunNativeToolLoopService {
               sourceTrust,
               ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
               effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              operatorContinuity: this.buildAppliedToolContinuityView({
+                seed: continuitySeed,
+                toolName: toolCall.name,
+                ok: true,
+                summary: `${toolCall.name} applied`,
+              }),
               ...(toolCall.arguments?.providerNativeFallback
                 ? { providerNativeFallback: toolCall.arguments.providerNativeFallback }
                 : {}),
@@ -460,6 +507,12 @@ export class AgentRunNativeToolLoopService {
               toolCallId: toolCall.id,
               sourceTrust,
               effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              operatorContinuity: this.buildAppliedToolContinuityView({
+                seed: continuitySeed,
+                toolName: toolCall.name,
+                ok: false,
+                summary: message,
+              }),
             }));
           }
         }
@@ -858,7 +911,72 @@ export class AgentRunNativeToolLoopService {
     }
     let truncatedToolMessages = 0;
 
-    if (this.llmRuntime) {
+    const toCompactionMessages = () => messages.map((m, index) => ({
+      id: `native-msg-${index + 1}`,
+      role: m.role as any,
+      content: m.content || '',
+      toolName: m.toolName || null,
+      toolCallId: m.toolCallId || null,
+      toolCalls: m.toolCalls || null,
+    })) as import('../../services/ContextCompactionService.js').ContextCompactionMessage[];
+
+    const applyCompactionMessages = (
+      compacted: import('../../services/ContextCompactionService.js').ContextCompactionMessage[],
+    ) => {
+      const originalsByToolCallId = new Map<string, ChatMessage>();
+      for (const original of messages) {
+        if (original.toolCallId) {
+          originalsByToolCallId.set(original.toolCallId, original);
+        }
+      }
+      const mappedMessages: ChatMessage[] = compacted.map((entry) => {
+        const prior = entry.toolCallId ? originalsByToolCallId.get(entry.toolCallId) : undefined;
+        const role = (entry.role === 'system' || entry.role === 'user' || entry.role === 'assistant' || entry.role === 'tool')
+          ? entry.role
+          : (prior?.role || 'system');
+        const mapped: ChatMessage = {
+          role,
+          content: typeof entry.content === 'string' ? entry.content : (prior?.content ?? ''),
+        };
+        const toolName = entry.toolName || prior?.toolName;
+        const toolCallId = entry.toolCallId || prior?.toolCallId;
+        const toolCalls = entry.toolCalls || prior?.toolCalls;
+        if (toolName) mapped.toolName = toolName;
+        if (toolCallId) mapped.toolCallId = toolCallId;
+        if (toolCalls) mapped.toolCalls = toolCalls;
+        if (prior?.inlineData) mapped.inlineData = prior.inlineData;
+        return mapped;
+      }).filter((message) => Boolean(message.content) || Boolean(message.toolCalls?.length));
+      if (mappedMessages.length === 0) {
+        return;
+      }
+      messages.length = 0;
+      messages.push(...mappedMessages);
+    };
+
+    const runStructuralCompact = (): number => {
+      try {
+        const structural = this.compactionService.compact({
+          messages: toCompactionMessages(),
+          now: new Date(),
+          lastActivityAt: new Date(0),
+          usableContextTokens: Math.max(1_000, Math.floor(maxChars / 4)),
+          reservedTokenBuffer: 0,
+          recentVerbatimTurns: 4,
+        });
+        if (structural.triggered && Array.isArray(structural.compactedMessages) && structural.compactedMessages.length > 0) {
+          applyCompactionMessages(structural.compactedMessages);
+          return Number(structural.clearedToolOutputs || 0) + Number(structural.compactedOlderMessages || 0);
+        }
+      } catch {
+        // Fall through to semantic / static compaction.
+      }
+      return 0;
+    };
+
+    truncatedToolMessages += runStructuralCompact();
+
+    if (this.llmRuntime && estimateMessagesChars(messages) > maxChars) {
       const providerAdapter: ILlmProvider = {
         name: this.llmRuntime.getPreferredProviderName?.() || 'active-provider',
         chat: async (msgs, tools, opts) => {
@@ -871,35 +989,24 @@ export class AgentRunNativeToolLoopService {
       };
 
       try {
-        const compMessages = messages.map((m) => ({
-          role: m.role as any,
-          content: m.content || '',
-          toolName: m.toolName || null,
-          toolCallId: m.toolCallId || null,
-          toolCalls: m.toolCalls || null,
-        })) as import('../../services/ContextCompactionService.js').ContextCompactionMessage[];
-
         const result = await this.compactionService.compactSemanticAsync(
-          compMessages,
+          toCompactionMessages(),
           providerAdapter,
           8,
           options?.modelName,
         );
 
         if (result.clearedToolOutputs > 0) {
-          const mappedMessages: ChatMessage[] = result.messages.map((m) => ({
-            role: m.role as any,
-            content: m.content,
-            toolName: m.toolName || undefined,
-            toolCallId: m.toolCallId || undefined,
-            toolCalls: m.toolCalls || undefined,
-          }));
-          messages.length = 0;
-          messages.push(...mappedMessages);
-          truncatedToolMessages = result.clearedToolOutputs;
+          applyCompactionMessages(result.messages);
+          truncatedToolMessages += result.clearedToolOutputs;
         }
-      } catch (error: unknown) {// Fallback cleanly to static compaction
+      } catch {
+        // Fall through to structural re-pass / static truncation.
       }
+    }
+
+    if (estimateMessagesChars(messages) > maxChars) {
+      truncatedToolMessages += runStructuralCompact();
     }
 
     if (estimateMessagesChars(messages) > maxChars) {
@@ -1359,22 +1466,44 @@ export class AgentRunNativeToolLoopService {
     args: Record<string, unknown>;
     providerName: string;
     modelName: string | null;
+    continuity?: {
+      continuityId: string;
+      runId: string;
+      toolCallId: string;
+      sourceSurface: string;
+    };
   }): Record<string, unknown> {
+    const existingMetadata = input.args.metadata && typeof input.args.metadata === 'object' && !Array.isArray(input.args.metadata)
+      ? input.args.metadata as Record<string, unknown>
+      : {};
+    const withContinuity = input.continuity
+      ? {
+          ...input.args,
+          metadata: {
+            ...existingMetadata,
+            continuityId: input.continuity.continuityId,
+            runId: input.continuity.runId,
+            toolCallId: input.continuity.toolCallId,
+            sourceSurface: input.continuity.sourceSurface,
+          },
+        }
+      : input.args;
+
     if (normalizeText(input.toolName).toLowerCase() !== 'web_search') {
-      return input.args;
+      return withContinuity;
     }
-    const providerHints = input.args.providerHints && typeof input.args.providerHints === 'object' && !Array.isArray(input.args.providerHints)
-      ? input.args.providerHints as Record<string, unknown>
+    const providerHints = withContinuity.providerHints && typeof withContinuity.providerHints === 'object' && !Array.isArray(withContinuity.providerHints)
+      ? withContinuity.providerHints as Record<string, unknown>
       : {};
     const providerId = normalizeText(
       providerHints.providerId
       || providerHints.preferredProvider
-      || input.args.provider
-      || input.args.providerId
+      || withContinuity.provider
+      || withContinuity.providerId
       || input.providerName,
     );
     return {
-      ...input.args,
+      ...withContinuity,
       providerHints: {
         ...providerHints,
         ...(providerId ? { providerId } : {}),
@@ -1382,6 +1511,107 @@ export class AgentRunNativeToolLoopService {
         source: 'agent-native-tool-loop',
       },
     };
+  }
+
+  private buildAppliedToolContinuityView(input: {
+    seed: ReturnType<OperatorContinuityKernel['begin']>;
+    toolName: string;
+    ok: boolean;
+    summary: string;
+  }) {
+    const child = this.toolRuntime?.getLastContinuityEnvelope?.() || null;
+    let continuity = this.continuityKernel.correlate(input.seed, {
+      parentContinuityId: input.seed.ids.continuityId,
+      policyBrokerReceiptId: child?.ids.correlation?.policyBrokerReceiptId
+        || child?.decision?.brokerReceipt?.receiptId
+        || null,
+      toolCallId: input.seed.ids.correlation?.toolCallId || null,
+      runId: input.seed.ids.correlation?.runId || null,
+      sessionId: input.seed.ids.correlation?.sessionId || null,
+    });
+    if (!continuity.request) {
+      continuity = this.continuityKernel.recordRequest(continuity, {
+        surface: 'agent-native-tool-loop',
+        operation: 'tool.execute',
+        target: input.toolName,
+        sourceSurface: 'agent-native-tool-loop',
+      });
+    }
+    if (child?.decision) {
+      continuity = this.continuityKernel.attachDecision(continuity, {
+        ...child.decision,
+        reasons: [...(child.decision.reasons || [])],
+      });
+    } else if (!continuity.decision) {
+      continuity = this.continuityKernel.attachDecision(continuity, {
+        source: 'effect-boundary',
+        action: input.ok ? 'allow' : 'deny',
+        allowed: input.ok,
+        rule: input.ok ? 'native-loop:applied' : 'native-loop:failed',
+        reasons: [input.summary],
+      });
+    }
+    if (child?.result) {
+      continuity = this.continuityKernel.attachResult(continuity, { ...child.result });
+    } else {
+      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: input.ok,
+        status: input.ok ? 'applied' : 'failed',
+        summary: input.summary,
+      }));
+    }
+    continuity = this.continuityKernel.finalizeReceipt(continuity, {
+      receiptId: child?.receipt?.receiptId || child?.ids.receiptId || undefined,
+    });
+    return this.continuityKernel.toPublicView(continuity);
+  }
+
+  private finalizeEffectBoundaryContinuity(input: {
+    run: UniversalAgentRun;
+    toolCall: ToolCall;
+    mapping: ToolEffectMapping;
+    status: 'blocked' | 'deferred';
+    summary: string;
+    mutationPlanId?: string | null;
+  }) {
+    let continuity = this.continuityKernel.begin({
+      correlation: {
+        runId: input.run.id,
+        sessionId: String(input.run.sessionId || input.run.metadata?.sessionId || '').trim() || null,
+        toolCallId: input.toolCall.id,
+        mutationPlanId: input.mutationPlanId || null,
+      },
+    });
+    continuity = this.continuityKernel.recordRequest(continuity, {
+      surface: 'agent-native-tool-loop',
+      operation: 'effect-boundary',
+      target: input.toolCall.name,
+      sourceSurface: 'agent-native-tool-loop',
+      metadata: {
+        status: input.status,
+      },
+    });
+    continuity = this.continuityKernel.attachDecision(
+      continuity,
+      decisionFromEffectBoundary({
+        action: input.mapping.decision.action,
+        allowed: input.mapping.decision.allowed,
+        rule: input.mapping.decision.rule,
+        reasons: input.mapping.decision.reasons,
+        risk: input.mapping.decision.risk,
+        requiresApproval: input.mapping.decision.approvalRequired,
+        mutationPlanId: input.mutationPlanId || null,
+      }),
+    );
+    continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+      ok: false,
+      status: input.status,
+      summary: input.summary,
+      data: {
+        ...(input.mutationPlanId ? { mutationPlanId: input.mutationPlanId } : {}),
+      },
+    }));
+    return this.continuityKernel.finalizeReceipt(continuity);
   }
 
   private shouldExposeWebSearch(

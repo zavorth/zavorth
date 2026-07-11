@@ -53,7 +53,7 @@ export type CapabilityAutopilotReleaseRolloutPlanOptions = {
 };
 
 export type CapabilityAutopilotReleaseRolloutPlanSnapshot = {
-  phase: '81';
+  gate: 'capability-autopilot-release-rollout-plan';
   rolloutPlanId: string;
   generatedAt: string;
   surface: 'capability-autopilot-release-rollout-plan';
@@ -66,7 +66,7 @@ export type CapabilityAutopilotReleaseRolloutPlanSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotReleaseCandidateSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotReleaseCandidateSnapshot['gate'];
   sourceStatus: CapabilityAutopilotReleaseCandidateSnapshot['status'];
   sourceRecommendation: CapabilityAutopilotReleaseCandidateSnapshot['recommendation'];
   rolloutPlanApproved: boolean;
@@ -123,8 +123,8 @@ export type CapabilityAutopilotReleaseRolloutPlanSnapshot = {
     reason: string | null;
     rolloutPlanReceiptId: string | null;
   };
-  nextRecommendedPhase: {
-    phase: '82';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-release-execution';
     title: string;
     reason: string;
   };
@@ -188,7 +188,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       : 'hold_release_candidate';
 
     return {
-      phase: '81',
+      gate: 'capability-autopilot-release-rollout-plan',
       rolloutPlanId: this.buildRolloutPlanId(source, generatedAt, options.rolloutPlanReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-release-rollout-plan',
@@ -201,7 +201,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       sourceRecommendation: source.recommendation,
       rolloutPlanApproved: resolved.rolloutPlanApproved,
@@ -258,14 +258,14 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
         reason: options.reason || null,
         rolloutPlanReceiptId: options.rolloutPlanReceiptId || null,
       },
-      nextRecommendedPhase: {
-        phase: '82',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-release-execution',
         title: 'Capability Autopilot v1.1 Release Execution Gate',
         reason:
           'Depois do rollout plan, o proximo passo e executar a release manualmente com tag/publish gated, canary inicial, rollback e observabilidade.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-81',
+        gate: 'capability-autopilot-release-rollout-plan',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -283,7 +283,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
 
   public renderReport(snapshot: CapabilityAutopilotReleaseRolloutPlanSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-release-rollout] Etapa 81 - Capability Autopilot v1.1 Release Rollout Plan');
+    lines.push('[capability-autopilot-release-rollout] Capability Autopilot v1.1 Release Rollout Plan');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -299,8 +299,8 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -514,7 +514,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
           !options.autoRolloutEnabled
           ? 'pass'
           : 'fail',
-        'A Etapa 81 prepara o rollout, mas nao publica tag, nao libera global e nao executa auto-rollout.',
+        'Este gate prepara o rollout, mas nao publica tag, nao libera global e nao executa auto-rollout.',
         [
           `manualPromotionRequired=${options.manualPromotionRequired}`,
           `rcFlagDefaultOff=${options.rcFlagDefaultOff}`,
@@ -556,7 +556,7 @@ export class CapabilityAutopilotReleaseRolloutPlanService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.releaseCandidateGateId,
         source.generatedAt,
         generatedAt,

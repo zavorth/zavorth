@@ -370,7 +370,7 @@ export class ZavorthHardwareActionPlaneService {
       audit: state.audit.slice(0, limit),
       actions,
       narrative: {
-        headline: 'Etapa 23: Hardware Awareness, IoT e Domotica',
+        headline: 'Hardware Awareness, IoT e Domotica',
         operatorSummary:
           `${summary.providers} provider(s), ${summary.devices} device(s), ${summary.allowlistedDevices} allowlisted, `
           + `${summary.pendingHardwarePlans} pending physical plan(s), emergency stop=${summary.emergencyStopActive ? 'active' : 'inactive'}, `

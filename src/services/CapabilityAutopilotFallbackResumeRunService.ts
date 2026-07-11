@@ -175,7 +175,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
         executionResult ? `executionSuccess=${executionResult.success}` : null,
       ].filter(Boolean).join('; '),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         autoFallbackExecuted: false,
         explicitSelectionRequired: true,
         handoffStatus: input.handoff.status,
@@ -253,7 +253,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       error_summary: null,
       rollback_available: false,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         capability_autopilot: true,
         fallback_resume: true,
         capability_id: input.handoff.capabilityId,
@@ -394,12 +394,12 @@ export class CapabilityAutopilotFallbackResumeRunService {
     return {
       ...receipt,
       generatedAt: input.generatedAt,
-      phase: input.status === 'completed' ? 'completed' : 'resume',
+      stage: input.status === 'completed' ? 'completed' : 'resume',
       timeline: [
         ...receipt.timeline,
         {
           at: input.generatedAt,
-          phase: 'resume',
+          stage: 'resume',
           status: timelineStatus,
           summary: this.buildTimelineSummary(input.status, input.selectedFallback, input.dryRun),
           detail: [
@@ -412,7 +412,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       ],
       metadata: {
         ...(receipt.metadata || {}),
-        phase: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         fallbackResumeRunRecorded: true,
         fallbackResumeDryRun: input.dryRun,
       },
@@ -480,7 +480,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       summary: input.summary,
       technicalSummary: input.technicalSummary,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         autoFallbackExecuted: false,
         explicitSelectionRequired: true,
         handoffStatus: input.handoff.status,

@@ -148,7 +148,7 @@ const CATEGORY_PATTERNS: Array<{
   {
     category: 'memory-recall',
     pattern: /\b(lembre|lembrar|memoria|memory|mnemos|historico|preferencia|recorde)\b/i,
-    tools: ['memory.read'],
+    tools: ['memory.read', 'session_search', 'zavorth_session_search'],
     groups: ['memory'],
     reason: 'Pedido pede recall de memoria ou historico.',
   },
@@ -183,7 +183,7 @@ const CATEGORY_PATTERNS: Array<{
   {
     category: 'policy-or-session',
     pattern: /\b(sessao|session|history|historico|policy|policies|reload|recarregue policy)\b/i,
-    tools: ['sessions.history'],
+    tools: ['sessions.history', 'session_search', 'zavorth_session_search'],
     groups: ['memory'],
     reason: 'Pedido toca sessao, historico ou policy.',
   },

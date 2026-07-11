@@ -188,8 +188,8 @@ function buildChecks(
     'sem comando invisivel',
     executableSteps.length === 0 ? 'pass' : 'fail',
     executableSteps.length === 0
-      ? 'A etapa 60 so propõe plano/receipt; nenhum comando de reparo fica armado para execucao.'
-      : 'Repair steps desta etapa nao devem carregar comandos executaveis.',
+      ? 'O gate de preflight diagnosis so propõe plano/receipt; nenhum comando de reparo fica armado para execucao.'
+      : 'Repair steps deste gate nao devem carregar comandos executaveis.',
     executableSteps.map((step) => step.id),
   ));
 
@@ -246,7 +246,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotGateSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot] Etapa 60 - Capability Autopilot Preflight');
+  lines.push('[capability-autopilot] Capability Autopilot Preflight');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);

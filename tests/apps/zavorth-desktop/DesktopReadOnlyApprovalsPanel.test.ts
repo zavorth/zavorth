@@ -1,5 +1,5 @@
 /**
- * Fase 12 — Desktop Read-Only Approvals Panel
+ * Desktop Read-Only Approvals Panel
  *
  * Strategy: same mock-DOM pattern as DesktopReadOnlyFileExplorer.test.ts.
  * Tests are split in two groups:
@@ -249,7 +249,7 @@ const {
 };
 
 // Test suite
-describe('Fase 12 — Desktop Read-Only Approvals Panel', () => {
+describe('Desktop Read-Only Approvals Panel', () => {
   const panelSrc = fs.readFileSync(
     path.resolve('apps/zavorth-desktop/src/views/panels/ApprovalsPanel.tsx'),
     'utf8',

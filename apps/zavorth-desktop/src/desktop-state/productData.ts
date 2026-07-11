@@ -247,6 +247,8 @@ export function mapMarketplaceSkillsToPlugins(skills: unknown[]): PluginItem[] {
         tags: Array.isArray(raw.tags) ? raw.tags.map(tag => String(tag)) : undefined,
         featured: Boolean(raw.featured || Number(raw.downloads || 0) > 100),
         lastUpdated: raw.installedAt ? String(raw.installedAt) : undefined,
+        skillMdContent: raw.skillMdContent ? String(raw.skillMdContent) : undefined,
+        sourceUrl: raw.sourceUrl ? String(raw.sourceUrl) : undefined,
       };
     })
     .filter((item): item is PluginItem => Boolean(item));

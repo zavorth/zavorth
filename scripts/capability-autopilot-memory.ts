@@ -105,7 +105,7 @@ function buildFixtureIntent(): OriginalIntentEnvelope {
     workspace: rawWorkspaceProbe,
     metadata: {
       fixture: true,
-      stage: 'capability-autopilot-checkpoint-64',
+      stage: 'capability-autopilot-memory-replay',
     },
   };
 }
@@ -238,7 +238,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotMemorySnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-memory] Etapa 64 - Capability Memory And Replay Learning');
+  lines.push('[capability-autopilot-memory] Capability Memory And Replay Learning');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);

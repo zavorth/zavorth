@@ -25,6 +25,7 @@ import { FilesView } from './panels/FilesView';
 import { ReceiptsPanel } from './panels/ReceiptsPanel';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
 import { lazyNamed, PanelSuspense } from '../lib/lazyPanel';
+import type { SessionData, TokenUsage, ToolCall } from './panels/UsageAnalyticsPanel';
 
 const MemoryView = lazyNamed(() => import('./panels/MemoryView'), 'MemoryView');
 const SkillsView = lazyNamed(() => import('./panels/SkillsView'), 'SkillsView');
@@ -34,7 +35,7 @@ const AutomationsPanel = lazyNamed(() => import('./panels/AutomationsPanel'), 'A
 const AgentsPanel = lazyNamed(() => import('./panels/AgentsPanel'), 'AgentsPanel');
 const ProfilesPanel = lazyNamed(() => import('./panels/ProfilesPanel'), 'ProfilesPanel');
 const UsageAnalyticsPanel = lazyNamed(() => import('./panels/UsageAnalyticsPanel'), 'default');
-const PluginMarketplacePanel = lazyNamed(() => import('./panels/PluginMarketplacePanel'), 'default');
+const PluginMarketplacePanel = lazyNamed(() => import('./panels/PluginMarketplaceSimple'), 'PluginMarketplacePanel');
 const WorkboardPanel = lazyNamed(() => import('./panels/WorkboardPanel'), 'default');
 
 export { PageFrame } from './panelChrome';
@@ -97,10 +98,11 @@ type WorkspaceViewProps = {
   allProfiles?: AgentProfile[];
   onAddCustomProfile?: (name: string, prompt: string, effort: AgentProfile['effort'], costLimit: number) => void;
   onDeleteCustomProfile?: (id: string) => void;
-  sessions?: unknown[];
-  toolCalls?: unknown[];
-  tokenUsage?: unknown[];
-  currentModel?: string;
+  activeProfileId?: string;
+  onActivateProfile?: (profile: AgentProfile) => void;
+  sessions?: SessionData[];
+  toolCalls?: ToolCall[];
+  tokenUsage?: TokenUsage[];
   marketplacePlugins?: PluginItem[];
   onInstallPlugin?: (pluginId: string) => void;
   onUninstallPlugin?: (pluginId: string) => void;
@@ -256,6 +258,8 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
           allProfiles={props.allProfiles || []}
           onAddCustomProfile={props.onAddCustomProfile}
           onDeleteCustomProfile={props.onDeleteCustomProfile}
+          activeProfileId={props.activeProfileId}
+          onActivateProfile={props.onActivateProfile}
         />
       </PanelSuspense>
     );
@@ -268,7 +272,6 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
           sessions={props.sessions || []}
           toolCalls={props.toolCalls || []}
           tokenUsages={props.tokenUsage || []}
-          currentModel={props.currentModel || 'unknown'}
         />
       </PanelSuspense>
     );
@@ -282,6 +285,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
           onInstall={props.onInstallPlugin}
           onUninstall={props.onUninstallPlugin}
           onUpdate={props.onUpdatePlugin}
+          onRefresh={props.onRefreshMarketplace}
         />
       </PanelSuspense>
     );

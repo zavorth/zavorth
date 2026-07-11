@@ -19,7 +19,7 @@ export type WebAppPolishCheck = {
 };
 
 export type WebAppPolishSnapshot = {
-  phase: '40';
+  gate: 'web-app-polish';
   surface: 'web-app-polish';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -39,8 +39,8 @@ export type WebAppPolishSnapshot = {
     gate: string;
     webQa: string;
   };
-  nextRecommendedPhase: {
-    phase: '43';
+  nextRecommendedGate: {
+    gate: 'artifact-replay';
     title: string;
     reason: string;
   };
@@ -185,7 +185,6 @@ export const WEB_APP_POLISH_PACKAGE_SCRIPTS = [
   'test:web:qa',
   'test:web:smoke',
   'qa:web-app-polish',
-  'qa:phase:40',
 ] as const;
 
 export const WEB_APP_POLISH_CONTRACTS = [
@@ -193,5 +192,5 @@ export const WEB_APP_POLISH_CONTRACTS = [
   'The web/app must expose the same canonical journey as the CLI: onboard, go, chat, status, and doctor.',
   'Approvals, diffs, artifacts, memory, resources, and health must be in the same operational workspace.',
   'Authenticated empty states must explain the release path without stack trace or raw inventory.',
-  'Stage 40 gate validates static source and does not start a persistent server.',
+  'Web app polish gate validates static source and does not start a persistent server.',
 ];

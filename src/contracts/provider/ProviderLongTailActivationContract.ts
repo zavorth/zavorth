@@ -146,7 +146,7 @@ export type ProviderLongTailActivationEntry = {
 export type ProviderLongTailActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Credential vault - Provider Runtime Activation Long Tail';
+  gate: 'provider-runtime-activation-long-tail';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     providers: 29;

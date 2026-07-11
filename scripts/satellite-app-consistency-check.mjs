@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'satellite-app-consistency-files',
-    label: 'Satellite/App consistency phase files exist',
+    label: 'Satellite/App consistency gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/SatelliteAppConsistencyContract.ts',

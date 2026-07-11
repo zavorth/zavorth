@@ -128,7 +128,7 @@ describe('MemoryService', () => {
   it('archives forgotten facts instead of losing them completely', async () => {
     const service = new MemoryService();
 
-    await service.remember('u6', 'workspace_focus', 'fechar a etapa 3', 'workspace');
+    await service.remember('u6', 'workspace_focus', 'fechar o passo 3', 'workspace');
     expect(await service.forget('u6', 'workspace_focus')).toBe(true);
 
     const history = await service.listHistory('u6');
@@ -137,7 +137,7 @@ describe('MemoryService', () => {
     expect(history).toEqual([
       expect.objectContaining({
         key: 'workspace_focus',
-        value: 'fechar a etapa 3',
+        value: 'fechar o passo 3',
         event_type: 'forgotten',
       }),
     ]);

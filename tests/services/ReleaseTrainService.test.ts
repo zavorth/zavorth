@@ -15,7 +15,7 @@ describe('ReleaseTrainService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('59');
+    expect(snapshot.phase).toBe('release-train');
     expect(snapshot.surface).toBe('release-train');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
@@ -240,7 +240,7 @@ function websiteReleaseSource() {
     'GitHub Releases',
     'tags',
     'qa:release-train',
-    'qa:stage:59',
+    'qa:release-train',
   ].join('\n');
 }
 
@@ -259,7 +259,7 @@ function docs76Source() {
     'rollback',
     'GitHub Releases',
     'qa:release-train',
-    'qa:stage:59',
+    'qa:release-train',
     'Nao Objetivos',
     'ciclo 53-59 fechado',
   ].join('\n');
@@ -270,7 +270,7 @@ function roadmapSource() {
     'Readiness checkpoint 9 - v1.x Release Train And LTS Policy: implementada.',
     'release train LTS v1.0.0 stable baseline v1.0.x v1.1.0 hotfix release candidate rollback GitHub Releases',
     'qa:release-train',
-    'qa:stage:59',
+    'qa:release-train',
     'Nao Objetivos',
     'ciclo 53-59 fechado',
   ].join('\n');

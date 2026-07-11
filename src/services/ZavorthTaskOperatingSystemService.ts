@@ -9,7 +9,7 @@ import {
 
 export type ZavorthTaskOsSnapshot = {
   generatedAt: string;
-  phase: '27';
+  gate: 'task-operating-system';
   surface: 'task-os';
   taskLedger: TaskLedgerSnapshot;
   permissionLedger: PermissionScopeLedgerSnapshot;
@@ -42,7 +42,7 @@ export type ZavorthTaskOsSnapshot = {
 
 export type ZavorthTaskArtifactsSnapshot = {
   generatedAt: string;
-  phase: '27';
+  gate: 'task-operating-system';
   surface: 'task-artifacts';
   task: TaskLedgerTaskSnapshot | null;
   manifest: ArtifactManifest | null;
@@ -58,7 +58,7 @@ export type ZavorthTaskContinuationAction = 'resume' | 'retry';
 
 export type ZavorthTaskContinuationPlan = {
   generatedAt: string;
-  phase: '27';
+  gate: 'task-operating-system';
   surface: 'task-continuation';
   action: ZavorthTaskContinuationAction;
   task: TaskLedgerTaskSnapshot | null;
@@ -114,7 +114,7 @@ export class ZavorthTaskOperatingSystemService {
 
     return {
       generatedAt,
-      phase: '27',
+      gate: 'task-operating-system',
       surface: 'task-os',
       taskLedger,
       permissionLedger,
@@ -149,7 +149,7 @@ export class ZavorthTaskOperatingSystemService {
     if (!task) {
       return {
         generatedAt,
-        phase: '27',
+        gate: 'task-operating-system',
         surface: 'task-artifacts',
         task: null,
         manifest: null,
@@ -166,7 +166,7 @@ export class ZavorthTaskOperatingSystemService {
     const manifest = this.resolveArtifactManifest(taskSnapshot, artifacts);
     return {
       generatedAt,
-      phase: '27',
+      gate: 'task-operating-system',
       surface: 'task-artifacts',
       task: taskSnapshot,
       manifest,
@@ -190,7 +190,7 @@ export class ZavorthTaskOperatingSystemService {
     if (!task) {
       return {
         generatedAt,
-        phase: '27',
+        gate: 'task-operating-system',
         surface: 'task-continuation',
         action,
         task: null,
@@ -215,7 +215,7 @@ export class ZavorthTaskOperatingSystemService {
 
     return {
       generatedAt,
-      phase: '27',
+      gate: 'task-operating-system',
       surface: 'task-continuation',
       action,
       task: taskSnapshot,

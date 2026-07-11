@@ -57,7 +57,7 @@ export type PilotZavorthControlMetric = {
 };
 
 export type PilotLoopSnapshot = {
-  phase: '57';
+  gate: 'pilot-loop';
   surface: 'pilot-loop';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -81,8 +81,8 @@ export type PilotLoopSnapshot = {
   supportPolicy: PilotSupportPolicy[];
   zavorthControlMetrics: PilotZavorthControlMetric[];
   checks: PilotLoopCheck[];
-  nextRecommendedPhase: {
-    phase: '58';
+  nextRecommendedGate: {
+    gate: 'integration-showcase';
     title: string;
     reason: string;
   };
@@ -98,7 +98,6 @@ export const PILOT_LOOP_REQUIRED_CORE_SCRIPTS = [
   'qa:public-docs-recipes',
   'pilot-loop',
   'qa:pilot-loop',
-  'qa:phase:57',
 ] as const;
 
 export const PILOT_LOOP_REQUIRED_WEBSITE_FILES = [

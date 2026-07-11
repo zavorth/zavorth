@@ -95,16 +95,16 @@ const stabilityResult = runStep('Snapshot JSON do Runtime Stability', npmCommand
 const snapshot = parseJsonFromOutput(stabilityResult.stdout);
 
 if (!snapshot?.gate || !Array.isArray(snapshot.gate.checks)) {
-  throw new Error('Snapshot de estabilidade nao contem gate/checks da Etapa 11.');
+  throw new Error('Snapshot de estabilidade nao contem gate/checks de release.');
 }
 
 if (snapshot.gate.status === 'failed') {
   console.warn(
-    `[checkpoint-11-check] warning: gate da Etapa 11 esta ${snapshot.gate.status} no ambiente atual: ${(
+    `[checkpoint-11-check] warning: gate de release esta ${snapshot.gate.status} no ambiente atual: ${(
       snapshot.gate.blockingReasons || []
     ).join('; ')}`,
   );
 }
 
-console.log(`\n[checkpoint-11-check] Gate da Etapa 11: ${snapshot.gate.status}.`);
-console.log('[checkpoint-11-check] Etapa 11 passou na validacao oficial.');
+console.log(`\n[checkpoint-11-check] Gate de release: ${snapshot.gate.status}.`);
+console.log('[checkpoint-11-check] Gate de release passou na validacao oficial.');

@@ -12,7 +12,7 @@ const JWT_TOKEN = [
   'signature000000',
 ].join('.');
 
-describe('phase 5 data egress hardening', () => {
+describe('data egress hardening', () => {
   const tempRoots: string[] = [];
 
   afterEach(() => {

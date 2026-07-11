@@ -73,7 +73,19 @@ export function initializeBotGatewayFoundation(
   runtimeComposition?: RuntimeCompositionService,
   runtimeOptions?: BotGatewayRuntimeOptions,
 ): void {
-  gateway.bot = new Bot(token);
+  // Grammy rejects empty tokens at construction. When Telegram is not configured,
+  // still build BotGateway so the web control surface can boot; live polling must
+  // not start until a real TELEGRAM_BOT_TOKEN is present.
+  const resolvedToken = String(token || '').trim();
+  gateway.telegramLiveEnabled = resolvedToken.length > 0;
+  if (!gateway.telegramLiveEnabled) {
+    logger.warn(
+      'Telegram bot token is empty — control surface boots without live Telegram polling.',
+    );
+  }
+  gateway.bot = new Bot(
+    resolvedToken || '0:TELEGRAM_DISABLED_LOCAL_BOOT',
+  );
   gateway.parser = new CommandParser();
   gateway.audioHandler = new AudioHandler();
   gateway.videoHandler = new VideoHandler();
@@ -118,18 +130,18 @@ export function initializeBotGatewayFoundation(
   gateway.executionGateway.registerExecutor(EXTERNAL_EXECUTOR_ID, externalExecutor);
   gateway.executionGateway.registerExecutor(
     'gemini_cli',
-    new (require('../../execution/GeminiCliExecutor.js').GeminiCliExecutor)(),
+    new (require('../../../../execution/GeminiCliExecutor.js').GeminiCliExecutor)(),
   );
   gateway.executionGateway.registerExecutor('aistudio', new AiStudioExecutor());
   gateway.executionGateway.registerExecutor('gemini_managed_agent', new GeminiManagedAgentExecutor());
   gateway.executionGateway.registerExecutor(
     'jules',
-    new (require('../../execution/JulesExecutor.js').JulesExecutor)(),
+    new (require('../../../../execution/JulesExecutor.js').JulesExecutor)(),
   );
   gateway.executionGateway.registerExecutor('stitch', new StitchExecutor());
   gateway.executionGateway.registerExecutor(
     'swarm',
-    new (require('../../execution/SwarmExecutor.js').SwarmExecutor)(
+    new (require('../../../../execution/SwarmExecutor.js').SwarmExecutor)(
       gateway.runtimeComposition.getLlmRuntime(),
     ),
   );

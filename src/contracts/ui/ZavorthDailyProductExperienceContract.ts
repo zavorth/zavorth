@@ -143,5 +143,17 @@ export type ZavorthDailyProductExperienceSnapshot = {
     liveActionsRemainApprovalBound: true;
     memoryChangesRemainReviewable: true;
     externalToolsRemainPreviewUntilApproved: true;
+    operatorContinuityBound: true;
+  };
+  operatorContinuity: {
+    kernel: 'OperatorContinuityKernel';
+    contract: 'operator-continuity-envelope/1';
+    dailyMutationPaths: Array<
+      | 'tool-executor'
+      | 'action-gateway'
+      | 'agent-native-tool-loop'
+      | 'mcp'
+    >;
+    projectionOnly: true;
   };
 };

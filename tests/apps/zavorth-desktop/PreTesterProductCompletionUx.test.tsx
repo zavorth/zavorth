@@ -27,7 +27,7 @@ jest.mock('../../../src/services/ModelSelectionService.js', () => ({
   }
 }));
 
-describe('PreTesterProductCompletionUx — Fase 21R-A', () => {
+describe('PreTesterProductCompletionUx', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn().mockResolvedValue({

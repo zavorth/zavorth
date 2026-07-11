@@ -1,5 +1,6 @@
 import { config } from '../config/index.js';
 import { logger } from '../logger.js';
+import { bindAutonomySchedulePlane } from '../services/AutonomySchedulePlane.js';
 import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
@@ -27,6 +28,10 @@ import { ChannelProgressRuntimeBridgeService } from '../services/ChannelProgress
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { UserModelReviewDaemonService } from '../services/UserModelReviewDaemonService.js';
 import { UserModelTurnCaptureService } from '../services/UserModelTurnCaptureService.js';
+import {
+  SessionContinuumService,
+  resolveSessionContinuumStorePath,
+} from '../services/SessionContinuumService.js';
 import { ModelPickerContractService } from '../domain/providers/index.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import {
@@ -53,7 +58,7 @@ type AgentRunCompletedRequest = {
 };
 
 type AgentRunCompletedCallback = (
-  run: { id?: string | null },
+  run: { id?: string | null; sessionId?: string | null },
   request: AgentRunCompletedRequest,
   replyText: string,
 ) => void;
@@ -209,26 +214,73 @@ export async function initializeBootstrapFoundation(
   agentGateway.addRuntimeEventBus(new ChannelProgressRuntimeBridgeService());
 
   const turnCapture = new UserModelTurnCaptureService({ homeRoot: config.projectRoot });
+  const sessionContinuum = new SessionContinuumService({
+    storePath: resolveSessionContinuumStorePath(config.runtimeDir),
+    stateDbPath: config.dbPath || null,
+  });
   const patchedGateway = agentGateway as unknown as AgentGatewayRunCompletionPatch;
-  const existingOnRunCompleted = patchedGateway.onRunCompleted;
+  const existingGatewayOnRunCompleted = patchedGateway.onRunCompleted;
+  const existingServiceOnRunCompleted = patchedGateway.runService?.onRunCompleted?.bind(patchedGateway.runService);
   patchedGateway.runService.onRunCompleted = (run, request, replyText) => {
-    existingOnRunCompleted?.(run, request, replyText);
-    const userMessage = request?.messages?.find((message) => message.role === 'user')?.content || '';
-    const surface = request?.surface || request?.channel || 'runtime';
+    existingGatewayOnRunCompleted?.(run, request, replyText);
+    existingServiceOnRunCompleted?.(run, request, replyText);
+    const requestRecord = request && typeof request === 'object'
+      ? request as Record<string, unknown>
+      : {};
+    const messageUser = Array.isArray(requestRecord.messages)
+      ? (requestRecord.messages as Array<{ role?: string; content?: string }>)
+          .find((message) => message?.role === 'user')
+          ?.content
+      : '';
+    const runRecord = (run && typeof run === 'object' ? run : {}) as Record<string, unknown>
+    const userMessage = String(
+      requestRecord.text
+      || requestRecord.input
+      || runRecord.input
+      || messageUser
+      || '',
+    ).trim();
+    const surface = requestRecord.surface || requestRecord.channel || 'runtime';
+    const sessionId = run?.sessionId || run?.id || undefined;
     if (userMessage) {
       turnCapture.captureConversation(String(userMessage).slice(0, 5000), replyText.slice(0, 5000), {
         surface: String(surface),
-        sessionId: run?.id || undefined,
+        sessionId,
       });
+    }
+    try {
+      sessionContinuum.appendTurn({
+        sessionId: sessionId || null,
+        title: String(surface || 'runtime'),
+        userMessage: userMessage ? String(userMessage).slice(0, 8000) : null,
+        assistantMessage: replyText ? String(replyText).slice(0, 8000) : null,
+        metadata: {
+          surface: String(surface || 'runtime'),
+          source: 'AgentRunService.onRunCompleted',
+          runId: run?.id || null,
+        },
+      });
+    } catch (error: unknown) {
+      logger.warn('[Session Continuum] local appendTurn failed', error);
     }
   };
   logRepo.log('info', 'TurnCapture', 'User model turn capture ativo.');
+  logRepo.log('info', 'SessionContinuum', `Local session continuum store: ${sessionContinuum.getStorePath()}`);
+  // Always materialize the shared schedule plane storage (restart survival).
+  // Daemon tick is optional; control/cron/action bind this same path when plane is missing.
+  const sharedTaskPlane = new TaskPlaneService({
+    storePath: `${config.runtimeDir}/task-plane.json`,
+    stateDbPath: config.dbPath,
+  });
+  const sharedSchedulePlane = bindAutonomySchedulePlane({
+    runtimeDir: config.runtimeDir,
+    taskPlane: sharedTaskPlane,
+  });
+
   let goalLoopDaemon: GoalLoopDaemonService | null = null;
   if (config.goalLoopDaemonEnabled) {
-    const taskPlane = new TaskPlaneService({
-      storePath: `${config.runtimeDir}/task-plane.json`,
-      stateDbPath: config.dbPath,
-    });
+    const taskPlane = sharedTaskPlane;
+    const schedulePlane = sharedSchedulePlane;
     const goalPlane = new GoalPlaneService({
       storePath: `${config.runtimeDir}/goal-plane.json`,
       taskPlane,
@@ -252,6 +304,7 @@ export async function initializeBootstrapFoundation(
     goalLoopDaemon = new GoalLoopDaemonService({
       taskPlane,
       worker: goalLoopWorker,
+      schedulePlane,
       stateDbPath: config.dbPath,
     });
     goalLoopDaemon.start({
@@ -264,10 +317,20 @@ export async function initializeBootstrapFoundation(
     logRepo.log(
       'info',
       'GoalLoopDaemon',
-      `Goal Loop daemon ativo: interval=${config.goalLoopDaemonIntervalMs}ms maxItems=${config.goalLoopDaemonMaxItems}.`,
+      `Goal Loop daemon ativo: interval=${config.goalLoopDaemonIntervalMs}ms maxItems=${config.goalLoopDaemonMaxItems} schedule=${schedulePlane.getStorageDir()}.`,
+    );
+  } else if ((process.env.ZAVORTH_GOAL_LOOP_DAEMON_ENABLED || 'true').toLowerCase() === 'false') {
+    logRepo.log(
+      'info',
+      'GoalLoopDaemon',
+      `Goal Loop daemon desativado por ZAVORTH_GOAL_LOOP_DAEMON_ENABLED=false (schedule plane remains at ${sharedSchedulePlane.getStorageDir()}).`,
     );
   } else {
-    logRepo.log('info', 'GoalLoopDaemon', 'Goal Loop daemon desativado por ZAVORTH_GOAL_LOOP_DAEMON_ENABLED=false.');
+    logRepo.log(
+      'info',
+      'GoalLoopDaemon',
+      `Goal Loop daemon desativado (schedule plane remains at ${sharedSchedulePlane.getStorageDir()}).`,
+    );
   }
 
   let userModelDaemon: UserModelReviewDaemonService | null = null;

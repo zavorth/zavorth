@@ -142,7 +142,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
@@ -252,7 +252,7 @@ describe('CapabilityAutopilotPreflightControlledRealApplyExecutorService', () =>
     });
 
     expect(result).toMatchObject({
-      phase: '76',
+      gate: 'capability-autopilot-preflight-controlled-real-apply',
       status: 'ready',
       summary: {
         ok: true,
@@ -382,7 +382,7 @@ describe('CapabilityAutopilotPreflightControlledRealApplyExecutorService', () =>
       },
     });
     expect(apiResume?.adapterResult?.rollbackToken).toBe('rollback-api-resume_after_check');
-    expect(service.renderReport(result)).toContain('Etapa 76 - Preflight Controlled Real Apply Executor');
+    expect(service.renderReport(result)).toContain('Gate capability-autopilot-preflight-controlled-real-apply - Preflight Controlled Real Apply Executor');
     expect(service.renderReport(result)).toContain('proximo passo recomendada: 77 - Real Apply Post-Run Verification And Rollback Ledger');
   });
 });

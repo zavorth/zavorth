@@ -175,7 +175,7 @@ describe('CapabilityAutopilotPreflightSurfaceService', () => {
       requiresExplicitUserChoice: true,
       shouldRunAutomatically: false,
       metadata: {
-        stage: 'capability-autopilot-checkpoint-15',
+        stage: 'capability-autopilot-preflight-surface',
         autoExecute: false,
       },
     });

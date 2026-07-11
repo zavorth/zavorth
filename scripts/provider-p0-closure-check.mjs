@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'provider-p0-closure-files',
-    label: 'Provider P0 closure phase files exist',
+    label: 'Provider P0 closure gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/ProviderP0ClosureContract.ts',
@@ -32,7 +32,7 @@ const rules = [
       'ProviderP0ClosureSnapshot',
       'unsupported_anthropic',
       'anthropic-compatible-runtime',
-      'Etapa 11 - P1 Provider Adapter Runtime',
+      'P1 Provider Adapter Runtime',
       'liveExternalCallRequired: false',
       'secretValuesSerialized: false',
     ],

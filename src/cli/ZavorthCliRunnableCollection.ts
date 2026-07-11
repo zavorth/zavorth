@@ -5,6 +5,9 @@ import { createHash } from 'crypto';
 import { ZavorthHomePathService } from '../services/ZavorthHomePathService.js';
 import { TaskPlaneService } from '../services/TaskPlaneService.js';
 import {
+  bindAutonomySchedulePlane,
+} from '../services/AutonomySchedulePlane.js';
+import {
   firstArg,
   readFlag,
   readNumberFlag,
@@ -34,6 +37,13 @@ export async function runRunnableCollection(root: string, collection: string, ar
   }
   if (collection === 'tasks' && ['board', 'taskboard', 'kanban'].includes(action)) {
     return runTaskBoard(root, args.slice(1));
+  }
+  if (
+    collection === 'cron-jobs'
+    && prefersAutonomySchedulePlaneForCron(root, args)
+    && ['list', 'status', 'add', 'create', 'schedule'].includes(action)
+  ) {
+    return bridgeCronCollectionToSchedulePlane(root, args, action);
   }
   const file = path.join(stateDir(root), `${collection}.json`);
   const items = await readArray(file);
@@ -403,4 +413,67 @@ export function sanitizeTaskRecord(value: unknown): JsonObject {
 
 export function findById(items: unknown[], id: string): JsonObject | undefined {
   return items.find((entry) => String((entry as JsonObject).id) === id) as JsonObject | undefined;
+}
+
+function prefersAutonomySchedulePlaneForCron(root: string, args: string[]): boolean {
+  if (args.includes('--legacy-cron') || args.includes('--legacy')) return false;
+  if (args.includes('--schedule-plane')) return true;
+  try {
+    const home = new ZavorthHomePathService({
+      projectRoot: root,
+      explicitHome: readFlag(args, 'home') || null,
+      env: process.env,
+    }).resolveSnapshot();
+    const plane = bindAutonomySchedulePlane({
+      runtimeDir: home.resolvedPaths.runtimeDir,
+      taskPlane: taskPlaneServiceForCli(root, args),
+    });
+    const planePresent = existsSync(plane.getStorageDir());
+    const legacyPresent = existsSync(path.join(stateDir(root), 'cron-jobs.json'));
+    return Boolean(planePresent && (legacyPresent || planePresent));
+  } catch {
+    return false;
+  }
+}
+
+async function bridgeCronCollectionToSchedulePlane(root: string, args: string[], action: string) {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const plane = bindAutonomySchedulePlane({
+    runtimeDir: home.resolvedPaths.runtimeDir,
+    taskPlane: taskPlaneServiceForCli(root, args),
+  });
+  if (action === 'list' || action === 'status') {
+    const snapshot = plane.snapshot();
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      'source: autonomy-schedule-plane (preferred over legacy cron-jobs.json)',
+      `routines: ${snapshot.summary.total}`,
+      `enabled: ${snapshot.summary.enabled}`,
+      `due: ${snapshot.summary.due}`,
+      ...snapshot.routines.slice(0, 20).map((routine) => (
+        `- ${routine.id} | ${routine.enabled ? 'enabled' : 'disabled'} | next ${routine.nextRunAt || 'none'} | ${routine.taskDescription.slice(0, 80)}`
+      )),
+    ], snapshot as unknown as JsonObject);
+  }
+  const result = plane.createRoutine({
+    name: readFlag(args, 'name') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || undefined,
+    schedule: readFlag(args, 'schedule') || readFlag(args, 'cron') || readFlag(args, 'every-ms') || '60000',
+    scheduleType: readFlag(args, 'schedule-type') as 'cron' | 'interval' | 'once' | 'natural_language' | undefined,
+    intervalMs: readNumberFlag(args, 'every-ms') || readNumberFlag(args, 'interval-ms') || undefined,
+    taskDescription: readFlag(args, 'task') || readFlag(args, 'command') || readFlag(args, 'cmd') || readFlag(args, 'description') || 'Scheduled autonomy routine',
+    channel: readFlag(args, 'channel') || undefined,
+    riskLevel: readFlag(args, 'risk') as 'low' | 'medium' | 'high' | 'critical' | undefined,
+    scopeTags: splitList(readFlag(args, 'scope') || ''),
+    actor: 'cli:cron-collection',
+    enabled: !args.includes('--disabled'),
+  });
+  return render(args, 'Zavorth Autonomy Schedule Plane', [
+    'source: autonomy-schedule-plane (list/create bridged from runnable collection)',
+    result.summary,
+    result.routine ? `id: ${result.routine.id}` : 'id: none',
+    result.routine ? `next: ${result.routine.nextRunAt || 'none'}` : 'next: none',
+  ], result as unknown as JsonObject);
 }

@@ -3,12 +3,12 @@ import { spawnSync } from 'child_process';
 
 const nodeRunner = process.env.npm_node_execpath || process.execPath;
 const npmCliPath = process.env.npm_execpath || null;
-const selectedPhase = String(process.argv.find((arg) => arg.startsWith('--phase=')) || '')
-  .replace('--phase=', '')
+const selectedGate = String(process.argv.find((arg) => arg.startsWith('--gate=') || arg.startsWith('--stage=')) || '')
+  .replace('--gate=', '').replace('--stage=', '')
   .trim();
 
-const phaseChecks = {
-  '60': [
+const gateChecks = {
+  'capability-autopilot-preflight-diagnosis': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot tests',
@@ -27,7 +27,7 @@ const phaseChecks = {
     ],
     ['capability autopilot gate', 'npm', ['run', 'qa:capability-autopilot', '--silent', '--', '--json'], 240_000],
   ],
-  '61': [
+  'capability-autopilot-repair-runner': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot runner tests',
@@ -42,7 +42,7 @@ const phaseChecks = {
     ],
     ['capability autopilot runner gate', 'npm', ['run', 'qa:capability-autopilot-runner', '--silent', '--', '--json'], 240_000],
   ],
-  '62': [
+  'capability-autopilot-validation-resume': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot validation resume tests',
@@ -57,7 +57,7 @@ const phaseChecks = {
     ],
     ['capability autopilot resume gate', 'npm', ['run', 'qa:capability-autopilot-resume', '--silent', '--', '--json'], 240_000],
   ],
-  '63': [
+  'capability-autopilot-cross-surface-ux': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot surface ux tests',
@@ -71,7 +71,7 @@ const phaseChecks = {
     ],
     ['capability autopilot surfaces gate', 'npm', ['run', 'qa:capability-autopilot-surfaces', '--silent', '--', '--json'], 240_000],
   ],
-  '64': [
+  'capability-autopilot-memory-replay': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot memory replay tests',
@@ -85,7 +85,7 @@ const phaseChecks = {
     ],
     ['capability autopilot memory gate', 'npm', ['run', 'qa:capability-autopilot-memory', '--silent', '--', '--json'], 240_000],
   ],
-  '65': [
+  'capability-autopilot-provider-expansion': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot provider expansion tests',
@@ -101,7 +101,7 @@ const phaseChecks = {
     ],
     ['capability autopilot providers gate', 'npm', ['run', 'qa:capability-autopilot-providers', '--silent', '--', '--json'], 240_000],
   ],
-  '66': [
+  'capability-autopilot-fallback-handoff': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'capability autopilot release decision tests',
@@ -119,18 +119,18 @@ const phaseChecks = {
   ],
 };
 
-const phases = selectedPhase ? [selectedPhase] : Object.keys(phaseChecks);
+const gates = selectedGate ? [selectedGate] : Object.keys(gateChecks);
 
-for (const phase of phases) {
-  const checks = phaseChecks[phase];
+for (const gate of gates) {
+  const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[phase-check] etapa invalida ou ainda nao implementada neste ciclo: ${phase}`);
+    console.error(`[gate-check] gate invalido ou ainda nao implementado neste ciclo: ${gate}`);
     process.exit(1);
   }
 
-  console.log(`\n[phase-check] etapa ${phase}`);
+  console.log(`\n[gate-check] gate ${gate}`);
   for (const [label, command, args, timeoutMs = 180_000] of checks) {
-    console.log(`[phase-check] ${label}`);
+    console.log(`[gate-check] ${label}`);
     const commandLine = buildSpawnCommand(command, args);
     const result = spawnSync(commandLine.executable, commandLine.args, {
       stdio: 'inherit',
@@ -143,21 +143,21 @@ for (const phase of phases) {
     });
 
     if (result.error) {
-      console.error(`[phase-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
-      console.error(`[phase-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
-      console.error(`[phase-check] ${label} encerrado por sinal ${result.signal}`);
+      console.error(`[gate-check] ${label} encerrado por sinal ${result.signal}`);
       process.exit(1);
     }
   }
 }
 
-console.log('\n[phase-check] etapa(s) solicitada(s) concluidas com sucesso.');
+console.log('\n[gate-check] gate(s) solicitado(s) concluidas com sucesso.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath) {

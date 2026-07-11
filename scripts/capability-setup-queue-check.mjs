@@ -70,7 +70,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-setup-queue-package-scripts',
     label: 'Setup Queue package scripts exist',
-    target: 'npm scripts expose queue CLI and phase gate',
+    target: 'npm scripts expose queue CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-setup-queue',

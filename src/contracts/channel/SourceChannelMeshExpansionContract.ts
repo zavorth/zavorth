@@ -178,7 +178,7 @@ export type SourceChannelMeshExpansionSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SOURCE_CHANNEL_MESH_EXPANSION_CONTRACT_VERSION;
   status: 'passed' | 'failed';
-  phase: 4;
+  gate: 'source-channel-mesh-expansion';
   statement: 'Source channel behavior is absorbed as optional Zavorth Channel Mesh packs, offline simulator coverage, secret policy and live-smoke receipts.';
   sourceRoot: string;
   zavorthRoot: string;

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'provider-mesh-readiness-files',
-    label: 'Provider Mesh consistency phase files exist',
+    label: 'Provider Mesh consistency gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/ProviderMeshReadinessContract.ts',

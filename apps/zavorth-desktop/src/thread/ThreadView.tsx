@@ -22,7 +22,7 @@ import {
 import { PlanCardView } from './PlanCardView';
 import { sliceStreamingMessages } from './streamIsolation';
 import { HunkReviewCard } from './HunkReviewCard';
-import { RunTimeline } from './RunTimeline';
+import { RunTimeline } from './RunTimeline.tsx';
 import { AgentStrip } from './AgentStrip';
 import { looksLikeUnifiedDiff, type HunkReceipt } from '../trust/hunkApproval';
 import {

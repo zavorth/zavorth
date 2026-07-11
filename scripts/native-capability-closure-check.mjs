@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'native-capability-closure-files',
-    label: 'Native Capability Closure phase files exist',
+    label: 'Native Capability Closure gate files exist',
     target: 'Contracts, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/NativeCapabilityClosureContract.ts',
@@ -46,7 +46,7 @@ const rules = [
       'native-speech-contract',
       'native-voice-session-contract',
       'native-document-extract-contract',
-      'Etapa 13 - Remaining Runtime Decisions',
+      'Remaining Runtime Decisions',
       'liveExternalCallRequired: false',
       'filesystemWriteRequired: false',
       'secretValuesSerialized: false',

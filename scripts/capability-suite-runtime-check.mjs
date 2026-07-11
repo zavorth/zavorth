@@ -3,12 +3,12 @@ import { spawnSync } from 'child_process';
 
 const nodeRunner = process.env.npm_node_execpath || process.execPath;
 const npmCliPath = process.env.npm_execpath || null;
-const selectedPhase = String(process.argv.find((arg) => arg.startsWith('--phase=')) || '')
-  .replace('--phase=', '')
+const selectedGate = String(process.argv.find((arg) => arg.startsWith('--gate=') || arg.startsWith('--stage=')) || '')
+  .replace('--gate=', '').replace('--stage=', '')
   .trim();
 
-const phaseChecks = {
-  '12': [
+const gateChecks = {
+  'memory-artifacts-runtime-live': [
     ['mutation/trust/readiness tests', 'npx', ['jest', 'tests/services/ZavorthMutationPlaneService.test.ts', 'tests/services/TrustDecisionService.test.ts', 'tests/services/ZavorthRolloutReadinessControlPlaneService.test.ts', '--runInBand']],
     ['rollout readiness json', 'npx', ['tsx', 'scripts/zavorth-rollout-readiness.ts', '--json', '--scope', 'local']],
   ],
@@ -34,19 +34,19 @@ const phaseChecks = {
   ],
 };
 
-const phases = selectedPhase
-  ? [selectedPhase]
+const gates = selectedGate
+  ? [selectedGate]
   : ['12', '13', '14', '15', '16', '17'];
 
-for (const phase of phases) {
-  const checks = phaseChecks[phase];
+for (const gate of gates) {
+  const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[phase-check] etapa invalida: ${phase}`);
+    console.error(`[gate-check] etapa invalido: ${gate}`);
     process.exit(1);
   }
-  console.log(`\n[phase-check] etapa ${phase}`);
+  console.log(`\n[gate-check] gate ${gate}`);
   for (const [label, command, args] of checks) {
-    console.log(`[phase-check] ${label}`);
+    console.log(`[gate-check] ${label}`);
     const isJsonRead = label.includes('json');
     const commandLine = buildSpawnCommand(command, args);
     const result = spawnSync(commandLine.executable, commandLine.args, {
@@ -60,7 +60,7 @@ for (const phase of phases) {
       },
     });
     if (result.error) {
-      console.error(`[phase-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
@@ -69,18 +69,18 @@ for (const phase of phases) {
           const parsed = parseJsonFromOutput(String(result.stdout || '{}'));
           const posture = parsed.summary?.posture || parsed.gate?.status || parsed.status || 'warning';
           const generatedAt = parsed.generatedAt ? ` generatedAt=${parsed.generatedAt}` : '';
-          console.warn(`[phase-check] ${label} retornou codigo ${result.status}, mas publicou JSON valido (${posture}${generatedAt}).`);
+          console.warn(`[gate-check] ${label} retornou codigo ${result.status}, mas publicou JSON valido (${posture}${generatedAt}).`);
           continue;
         } catch {
           process.stdout.write(String(result.stdout || '').slice(0, 4000));
           process.stderr.write(String(result.stderr || '').slice(0, 4000));
         }
       }
-      console.error(`[phase-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
-      console.error(`[phase-check] ${label} encerrado por sinal ${result.signal}`);
+      console.error(`[gate-check] ${label} encerrado por sinal ${result.signal}`);
       process.exit(1);
     }
     if (isJsonRead) {
@@ -88,18 +88,18 @@ for (const phase of phases) {
         const parsed = parseJsonFromOutput(String(result.stdout || '{}'));
         const generatedAt = parsed.generatedAt ? ` generatedAt=${parsed.generatedAt}` : '';
         const posture = parsed.summary?.posture || parsed.status || parsed.profile || 'ok';
-        console.log(`[phase-check] ${label} ok (${posture}${generatedAt})`);
+        console.log(`[gate-check] ${label} ok (${posture}${generatedAt})`);
       } catch (error) {
         process.stdout.write(String(result.stdout || '').slice(0, 4000));
         process.stderr.write(String(result.stderr || '').slice(0, 4000));
-        console.error(`[phase-check] ${label} nao retornou JSON valido: ${error?.message || error}`);
+        console.error(`[gate-check] ${label} nao retornou JSON valido: ${error?.message || error}`);
         process.exit(1);
       }
     }
   }
 }
 
-console.log('\n[phase-check] etapas concluídas com sucesso.');
+console.log('\n[gate-check] etapas concluídas com sucesso.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath && (command === 'npx' || command === 'npx.cmd')) {

@@ -1204,7 +1204,7 @@ export class ZavorthSubagentRuntimeService {
   }
 
   public formatSnapshotText(snapshot: ZavorthSubagentRuntimeSnapshot): string {
-    // Marker for the subagent phase gate: Auto subagent decision is rendered by the presenter.
+    // Marker for the subagent decision gate: Auto subagent decision is rendered by the presenter.
     void AUTO_SUBAGENT_DECISION_LABEL;
     return formatSubagentRuntimeSnapshotText(snapshot);
   }
@@ -1482,6 +1482,8 @@ export class ZavorthSubagentRuntimeService {
       ),
       maxOutputChars: input.limits.maxOutputChars,
       maxToolCalls: input.limits.maxToolCalls,
+      maxWallClockMs: input.limits.maxWallClockMs,
+      maxOutputBytes: input.limits.maxOutputChars,
     });
   }
 

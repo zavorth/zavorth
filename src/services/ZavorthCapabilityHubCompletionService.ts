@@ -122,12 +122,12 @@ export class ZavorthCapabilityHubCompletionService {
       journeys,
       narrative: {
         headline: status === 'passed'
-          ? 'Capability Hub completo: etapas 0-11 aceitas.'
+          ? 'Capability Hub completo: gates aceitos.'
           : 'Capability Hub ainda tem falhas de aceitacao.',
-        operatorSummary: `${phasesPassed}/${phases.length} etapa(s), ${journeysPassed}/${journeys.length} jornada(s), ${liveViolations} violacao(oes) live.`,
+        operatorSummary: `${phasesPassed}/${phases.length} gate(s), ${journeysPassed}/${journeys.length} jornada(s), ${liveViolations} violacao(oes) live.`,
         nextAction: status === 'passed'
-          ? 'Promover para uso operacional controlado ou iniciar etapa de UI/produto.'
-          : 'Corrigir etapas ou jornadas marcadas como failed antes de promover.',
+          ? 'Promover para uso operacional controlado ou iniciar trabalho de UI/produto.'
+          : 'Corrigir gates ou jornadas marcadas como failed antes de promover.',
       },
     };
   }

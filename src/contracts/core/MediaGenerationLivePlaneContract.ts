@@ -95,7 +95,7 @@ export type MediaGenerationLiveEntry = {
 export type MediaGenerationLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_MEDIA_GENERATION_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Runtime gateway - Media Generation Live Plane';
+  gate: 'media-generation-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 8;

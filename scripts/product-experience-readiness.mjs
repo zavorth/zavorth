@@ -179,7 +179,7 @@ function finish(results, startedAt) {
   } else if (payload.ok) {
     console.log('\n[product-experience] pronto: modos, escalation, ZavorthControl, Telegram/web, memoria hibrida e legado passaram.');
   } else {
-    console.error('\n[product-experience] bloqueado: algum gate da etapa 7 falhou.');
+    console.error('\n[product-experience] bloqueado: algum gate falhou.');
   }
   process.exit(payload.ok ? 0 : 1);
 }

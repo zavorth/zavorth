@@ -20,7 +20,7 @@ export class SourceAbsorptionPlannerService {
   public buildPlan(entries: SourceSurfaceLedgerEntry[]): SourceAbsorptionPlannerSnapshot {
     const items = entries.map((entry) => this.planItem(entry))
       .sort((left, right) => {
-        if (left.phase !== right.phase) return left.phase - right.phase;
+        if (left.gate !== right.gate) return left.gate - right.gate;
         return left.sourcePath.localeCompare(right.sourcePath);
       });
 
@@ -28,7 +28,7 @@ export class SourceAbsorptionPlannerService {
       generatedAt: this.now().toISOString(),
       summary: {
         items: items.length,
-        byPhase: countBy(items, (item) => String(item.phase)),
+        byPhase: countBy(items, (item) => String(item.gate)),
         byTarget: countByTarget(items),
         ownerDecisionRequired: items.filter((item) => item.ownerDecisionRequired).length,
       },
@@ -46,7 +46,7 @@ export class SourceAbsorptionPlannerService {
       decision: entry.decision,
       ownerDecisionRequired: entry.ownerDecisionRequired,
       target,
-      phase: phaseForTarget(entry.category, target),
+      gate: phaseForTarget(entry.category, target),
       reason: reasonForTarget(entry.category, target, entry.ownerDecisionRequired),
     };
   }

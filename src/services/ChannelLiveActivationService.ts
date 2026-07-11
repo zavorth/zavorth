@@ -9,6 +9,7 @@ import type {
 import { ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION } from '../contracts/ChannelLiveActivationContract.js';
 
 import type { LiveReadinessEntry, LiveReadinessStatus } from '../contracts/LiveReadinessContract.js';
+import { channelIdsEqual, normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 
 type ChannelLiveActivationRuntime = {
@@ -150,9 +151,9 @@ const P0_CHANNELS: P0Descriptor[] = [
     channelId: 'discord',
     platformId: 'discord',
     status: 'partial-live',
-    runtimeTarget: 'Discord native bot gateway',
-    gatewayTarget: 'src/gateways/DiscordGateway.ts',
-    adapterTarget: 'src/gateways/DiscordGateway.ts#broadcast',
+    runtimeTarget: 'Discord selective spine gateway (stub mock I/O + native services)',
+    gatewayTarget: 'src/gateways/channels/discord/DiscordGateway.stub.ts',
+    adapterTarget: 'src/gateways/channels/discord/DiscordGateway.stub.ts#broadcast',
     configSchema: schema({
       requiredEnv: ['DISCORD_BOT_TOKEN', 'DISCORD_ALLOWED_CHANNEL_IDS or DISCORD_ALLOWED_GUILD_IDS'],
       optionalEnv: [
@@ -161,6 +162,8 @@ const P0_CHANNELS: P0Descriptor[] = [
         'DISCORD_COMMAND_EXPOSURE',
         'DISCORD_OWNER_USER_IDS',
         'DISCORD_OPERATOR_USER_IDS',
+        'DISCORD_OUTBOX_DIR',
+        'DISCORD_STATUS_FILE',
       ],
       allowlistEnv: ['DISCORD_ALLOWED_CHANNEL_IDS', 'DISCORD_ALLOWED_GUILD_IDS'],
       secretEnv: ['DISCORD_BOT_TOKEN'],
@@ -173,7 +176,7 @@ const P0_CHANNELS: P0Descriptor[] = [
       attachments: true,
       threads: true,
       webhookValidation: false,
-      fallbackOutbox: false,
+      fallbackOutbox: true,
     },
     gaps: ['credential-gated staging live smoke must run against a controlled guild/channel'],
   },
@@ -213,18 +216,36 @@ export class ChannelLiveActivationService {
     this.liveReadiness = runtime.liveReadinessService || new LiveReadinessService({ now: this.now });
   }
 
+  public resolveChannelId(channelId: string): ChannelLiveActivationP0Id | null {
+    const match = P0_CHANNELS.find((entry) =>
+      entry.channelId === channelId
+      || entry.platformId === channelId
+      || channelIdsEqual(entry.channelId, channelId)
+      || channelIdsEqual(entry.platformId, channelId)
+      || normalizeChannelId(entry.channelId) === normalizeChannelId(channelId)
+      || normalizeChannelId(entry.platformId) === normalizeChannelId(channelId));
+    return match?.channelId || null;
+  }
+
   public buildSnapshot(): ChannelLiveActivationSnapshot {
     const readinessSnapshot = this.liveReadiness.buildSnapshot();
     const readinessByName = new Map(readinessSnapshot.entries.map((entry) => [entry.normalizedSourceName, entry]));
     const entries = P0_CHANNELS.map((descriptor) =>
-      this.buildEntry(descriptor, readinessByName.get(descriptor.channelId) || null));
+      this.buildEntry(
+        descriptor,
+        readinessByName.get(descriptor.channelId)
+        || readinessByName.get(descriptor.platformId)
+        || readinessByName.get(normalizeChannelId(descriptor.channelId))
+        || readinessByName.get(normalizeChannelId(descriptor.platformId))
+        || null,
+      ));
     const blocked = entries.filter((entry) => entry.status === 'blocked').length;
     const receipts = entries.map((entry) => entry.receipt);
 
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_LIVE_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Preview engine - Channel Live Activation P0',
+      gate: 'channel-live-activation-p0',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         channels: 6,

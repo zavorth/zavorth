@@ -2,6 +2,7 @@ import type { ZavorthConfig } from '../config/index.js';
 import { config } from '../config/index.js';
 import { GatewayEventBus } from '../gateway/events/GatewayEventBus.js';
 import { ChannelPolicyManager } from '../channels/policies/ChannelPolicyManager.js';
+import { normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import type { WebhookGateway, WebhookGatewayOptions } from './WebhookGateway.js';
@@ -194,8 +195,11 @@ const GATEWAY_REGISTRATIONS: GatewayRegistration[] = [
 
 export class ChannelGatewayFactory {
   static createFromId(channelId: string, options?: Partial<WebhookGatewayOptions>): WebhookGateway | null {
-    const normalized = String(channelId || '').trim().toLowerCase();
-    const registration = GATEWAY_REGISTRATIONS.find((entry) => entry.id === normalized);
+    const normalized = normalizeChannelId(channelId);
+    const registration = GATEWAY_REGISTRATIONS.find((entry) => {
+      const id = normalizeChannelId(entry.id);
+      return id === normalized || entry.id === String(channelId || '').trim().toLowerCase();
+    });
     if (!registration) {
       return null;
     }

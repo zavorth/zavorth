@@ -3,7 +3,7 @@ import path from 'path';
 import { OutboxRetryService } from '../../src/services/OutboxRetryService';
 import { ChannelGatewayRegistry } from '../../src/gateways/ChannelGatewayRegistry';
 
-describe('OutboxRetryService Tests (Fase 2)', () => {
+describe('OutboxRetryService Tests', () => {
   const tempDir = path.resolve(__dirname, 'temp-outbox-test');
 
   beforeAll(() => {

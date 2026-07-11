@@ -115,10 +115,29 @@ async function applyDensityCompact(page) {
   });
 }
 
+async function dismissOnboarding(page) {
+  const skip = page.locator('.zvd-onboarding-overlay button', { hasText: /Pular|Skip/i }).first();
+  if (await skip.isVisible({ timeout: 1500 }).catch(() => false)) {
+    await skip.click({ force: true });
+    await page.waitForSelector('.zvd-onboarding-overlay', { state: 'detached', timeout: 5000 });
+  }
+}
+
 const SCENES = [
+  {
+    id: 'onboarding-providers',
+    prepare: async (page) => {
+      await page.waitForSelector('.zvd-onboarding-overlay .zvd-onboarding-providers-grid', { timeout: 8000 });
+    },
+    assert: async (page) => {
+      const providers = await page.locator('.zvd-onboarding-provider-card').count();
+      if (providers < 10) throw new Error(`Expected broad provider catalog, found ${providers}`);
+    },
+  },
   {
     id: 'shell-chat',
     prepare: async (page) => {
+      await dismissOnboarding(page);
       await openSidebarPanel(page, 'chat');
     },
     assert: async (page) => {
@@ -191,6 +210,25 @@ const SCENES = [
       );
     },
   },
+  ...[
+    ['workboard', '.zvd-workboard-container, .zvd-kanban-board'],
+    ['marketplace', '.zvd-capability-layout'],
+    ['skills', '.zvd-capability-layout'],
+    ['agents', '.zvd-agents-container'],
+    ['profiles', '.zvd-profiles-container'],
+    ['automations', '.zvd-automation-layout'],
+    ['analytics', '.zvd-usage-analytics, .zvd-ua-stats-grid'],
+  ].map(([panel, selector]) => ({
+    id: `panel-${panel}`,
+    prepare: async (page) => {
+      const opened = await openSidebarPanel(page, panel);
+      if (!opened) throw new Error(`Could not open ${panel}`);
+      await page.waitForTimeout(500);
+    },
+    assert: async (page) => {
+      await page.waitForSelector(`${selector}, .zvd-app`, { timeout: 8000 });
+    },
+  })),
   {
     id: 'settings',
     prepare: async (page) => {
@@ -225,6 +263,40 @@ const SCENES = [
       await page.waitForSelector('.zvd-app', { timeout: 5000 });
     },
   },
+  {
+    id: 'code-bridge-checks',
+    prepare: async (page) => {
+      await page.locator('.zvd-code-bridge-status').first().click({ force: true });
+      await page.waitForTimeout(250);
+    },
+    assert: async (page) => {
+      await page.waitForSelector('.zvd-code-bridge-panel__frame', { timeout: 5000 });
+    },
+  },
+  {
+    id: 'terminal-rail',
+    prepare: async (page) => {
+      const closeCodeBridge = page.locator('.zvd-code-bridge-panel__close').first();
+      if (await closeCodeBridge.isVisible().catch(() => false)) await closeCodeBridge.click({ force: true });
+      const terminalToggle = page.locator('.zvd-statusbar [aria-label="Toggle terminal"]').first();
+      await terminalToggle.click({ force: true });
+      await page.waitForTimeout(500);
+    },
+    assert: async (page) => {
+      await page.waitForSelector('.zvd-right-rail .zvd-terminal-tabs-panel', { timeout: 8000 });
+      const floatingTerminal = await page.locator('.zvd-terminal-panel').count();
+      if (floatingTerminal) throw new Error('Legacy floating terminal is still mounted');
+      const geometry = await page.evaluate(() => ({
+        scrollX: window.scrollX,
+        viewport: window.innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        railRight: Math.round(document.querySelector('.zvd-right-rail')?.getBoundingClientRect().right || 0),
+      }));
+      if (geometry.scrollX !== 0 || geometry.documentWidth > geometry.viewport + 2 || geometry.railRight > geometry.viewport + 2) {
+        throw new Error(`Terminal escaped rail bounds: ${JSON.stringify(geometry)}`);
+      }
+    },
+  },
 ];
 
 function comparePng(actualPath, baselinePath, diffPath) {
@@ -251,7 +323,7 @@ function comparePng(actualPath, baselinePath, diffPath) {
   return { ok: ratio <= maxDiffRatio, reason: `${mismatched} pixels (${(ratio * 100).toFixed(3)}%)`, ratio };
 }
 
-const harness = await launchDesktopHarness({ timeoutMs: 25000 });
+const harness = await launchDesktopHarness({ timeoutMs: 25000, dismissOnboarding: false });
 const results = [];
 
 try {

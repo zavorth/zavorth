@@ -10,7 +10,7 @@ jest.mock('../../src/security/SafeFetchService', () => ({
   safeFetch: jest.fn(),
 }));
 
-describe('ProviderConnectionTestService Security Tests (Phase 21H)', () => {
+describe('ProviderConnectionTestService Security Tests', () => {
   let service: ProviderConnectionTestService;
   let mockFetch: jest.Mock;
   let mockSafeFetch: jest.Mock;

@@ -1,7 +1,7 @@
 import { ZavorthCapabilityAbsorptionService } from '../../src/services/ZavorthCapabilityAbsorptionService.js';
 
 describe('ZavorthCapabilityAbsorptionService', () => {
-  it('builds an honest Phase 1 absorption map for external, Zavorth-native and Zavorth-native capabilities', () => {
+  it('builds an honest absorption map for external, Zavorth-native and Zavorth-native capabilities', () => {
     const service = new ZavorthCapabilityAbsorptionService({
       now: () => new Date('2026-05-24T12:00:00.000Z'),
     });

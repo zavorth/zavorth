@@ -37,7 +37,7 @@ const CORE_FEEDBACK_SCRIPTS = [
   'feedback:revoke',
   'feedback:delete',
   'qa:feedback-loop',
-  'qa:phase:52',
+  'qa:feedback-telemetry',
 ] as const;
 
 export class FeedbackTelemetryContractService {
@@ -83,7 +83,7 @@ export class FeedbackTelemetryContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '52',
+      gate: 'feedback-telemetry',
       surface: 'feedback-loop',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -99,7 +99,7 @@ export class FeedbackTelemetryContractService {
       requiredCommands: [...FEEDBACK_TELEMETRY_REQUIRED_COMMANDS],
       screenshots: FEEDBACK_TELEMETRY_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
+      nextRecommendedGate: {
         phase: 'complete',
         title: 'Public Productization Complete',
         reason:
@@ -124,8 +124,8 @@ export class FeedbackTelemetryContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.phase} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

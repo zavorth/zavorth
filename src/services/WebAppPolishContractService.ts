@@ -66,7 +66,7 @@ export class WebAppPolishContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '40',
+      gate: 'web-app-polish',
       surface: 'web-app-polish',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -86,8 +86,8 @@ export class WebAppPolishContractService {
         gate: 'npm run qa:web-app-polish',
         webQa: 'npm run test:web:qa',
       },
-      nextRecommendedPhase: {
-        phase: '43',
+      nextRecommendedGate: {
+        gate: 'artifact-replay',
         title: 'Artifact And Replay Workbench',
         reason:
           'Depois de polir a web/app como superficie de produto, a proximo passo combinada aprofunda artifacts, replay e comparacao de runs.',
@@ -97,7 +97,7 @@ export class WebAppPolishContractService {
 
   public renderReport(snapshot: WebAppPolishSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[web-app-polish] Etapa 40 - Web/App Polish');
+    lines.push('[web-app-polish] Web/App Polish');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push('');
@@ -109,8 +109,8 @@ export class WebAppPolishContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -138,7 +138,7 @@ export class WebAppPolishContractService {
         `script ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `package.json expoe ${scriptName} para a Etapa 40.`
+          ? `package.json expoe ${scriptName} para o gate de web-app polish.`
           : `package.json precisa expor ${scriptName}.`,
         'package',
         [`command=${command || '<ausente>'}`],

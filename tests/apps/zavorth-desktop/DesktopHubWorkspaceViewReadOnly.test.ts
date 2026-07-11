@@ -236,7 +236,7 @@ jest.doMock('../../../apps/zavorth-desktop/src/icons', mockIconsFn);
 // Import components
 const { HubWorkspaceView } = require('../../../apps/zavorth-desktop/src/hub-skin/HubWorkspaceView');
 
-describe('Fase 14B — HubWorkspaceView Safe Integration', () => {
+describe('HubWorkspaceView Safe Integration', () => {
   let container: MockElement | null = null;
   let root: Root | null = null;
 

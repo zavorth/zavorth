@@ -17,7 +17,7 @@ export type NaturalFirstMemoryContinuitySnapshot = {
   contractVersion: typeof NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION;
   source: 'NaturalFirstMemoryContinuityService';
   stage: 6;
-  phase: 6;
+  gate: 'native-companion-device';
   route: 'memory-recall';
   generatedAt: string;
   status: NaturalFirstMemoryContinuityStatus;
@@ -115,7 +115,7 @@ export class NaturalFirstMemoryContinuityService {
       contractVersion: NATURAL_FIRST_MEMORY_CONTINUITY_CONTRACT_VERSION,
       source: 'NaturalFirstMemoryContinuityService',
       stage: 6,
-      phase: 6,
+      gate: 'native-companion-device',
       route: 'memory-recall',
       generatedAt: input.generatedAt,
       status: hasMemory ? 'memory-cited' : 'memory-empty',

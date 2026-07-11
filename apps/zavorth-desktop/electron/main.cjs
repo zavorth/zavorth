@@ -27,10 +27,22 @@ const {
   validateRendererUrl,
 } = require('./api-path.cjs');
 const desktopUpdates = require('./desktop-updates.cjs');
+const {
+  buildAutomationHistoryLogs,
+  createAutomationSweepRunner,
+  createDesktopAutomationStore,
+} = require('./desktop-automations.cjs');
+const {
+  getCodeBridgeSummary,
+  startCodeBridgeHeartbeat,
+  stopCodeBridgeHeartbeat,
+} = require('./code-bridge.cjs');
 
 let mainWindow = null;
 let runtimeProcess = null;
 let lastEvents = [];
+let desktopAutomationStore = null;
+let desktopAutomationTimer = null;
 const trustedWorkspaceRoots = new Set();
 
 /** App renderer dist root — only file: navigation under this path is allowed. */
@@ -449,6 +461,77 @@ async function desktopApiRequest(input = {}) {
     };
   }
 }
+
+function getDesktopAutomationStore() {
+  if (!desktopAutomationStore) {
+    desktopAutomationStore = createDesktopAutomationStore({
+      filePath: path.join(app.getPath('userData'), 'automations.json'),
+    });
+    desktopAutomationStore.recoverRunningTasks();
+  }
+  return desktopAutomationStore;
+}
+
+function emitAutomationUpdate() {
+  const tasks = getDesktopAutomationStore().listTasks();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('zavorth:automations:updated', tasks);
+  }
+  return tasks;
+}
+
+async function runDesktopAutomationTask(taskId) {
+  const store = getDesktopAutomationStore();
+  const task = store.listTasks().find(item => item.id === String(taskId || ''));
+  if (!task) return { ok: false, error: 'Automação não encontrada.' };
+  if (task.status === 'running') return { ok: false, error: 'Esta automação já está em execução.' };
+
+  const sessionId = `automation-${task.id}-${Date.now().toString(36)}`;
+  store.markRunning(task.id, sessionId);
+  emitAutomationUpdate();
+
+  const result = await desktopApiRequest({
+    method: 'POST',
+    path: '/api/experience/ask',
+    body: {
+      text: task.prompt,
+      sessionId,
+      surface: 'api',
+      userId: 'desktop-automation',
+      responseProfile: task.profile,
+      model: task.model,
+      metadata: {
+        client: 'zavorth-desktop',
+        source: 'desktop-automation',
+        automationId: task.id,
+        automationName: task.name,
+        project: task.project,
+        effort: task.effort,
+        profile: task.profile,
+        model: task.model,
+        workspace: task.workspace,
+      },
+    },
+    timeoutMs: 120000,
+  });
+
+  const payload = result.data && typeof result.data === 'object' ? result.data : {};
+  const message = result.ok
+    ? String(payload.error || payload.message || 'Execução concluída pelo runtime Zavorth.')
+    : String(result.error || 'O runtime Zavorth não concluiu a automação.');
+  const completed = store.markCompleted(task.id, {
+    ok: result.ok && !payload.error,
+    sessionId: String(payload.sessionId || sessionId),
+    message,
+  });
+  emitAutomationUpdate();
+  return { ok: Boolean(result.ok && !payload.error), task: completed, sessionId, error: result.ok ? '' : message };
+}
+
+const runDueDesktopAutomations = createAutomationSweepRunner({
+  getDueTasks: () => getDesktopAutomationStore().getDueTasks(),
+  runTask: taskId => runDesktopAutomationTask(taskId),
+});
 
 async function probeRuntime() {
   const result = await desktopApiRequest({
@@ -889,6 +972,47 @@ ipcMain.handle('zavorth:sessions:create', async (_event, input = {}) => {
   };
 });
 
+ipcMain.handle('zavorth:automations:list', async () => getDesktopAutomationStore().listTasks());
+ipcMain.handle('zavorth:automations:create', async (_event, input = {}) => {
+  const task = getDesktopAutomationStore().createTask({
+    name: String(input.name || '').trim(),
+    project: String(input.project || 'Local').trim(),
+    prompt: String(input.prompt || '').trim(),
+    intervalMinutes: Math.max(1, Number(input.intervalMinutes || 60)),
+    workspace: input.workspace,
+    model: input.model,
+    profile: input.profile,
+    effort: input.effort,
+  });
+  emitAutomationUpdate();
+  return task;
+});
+ipcMain.handle('zavorth:automations:delete', async (_event, taskId) => {
+  const ok = getDesktopAutomationStore().deleteTask(String(taskId || ''));
+  emitAutomationUpdate();
+  return { ok };
+});
+ipcMain.handle('zavorth:automations:toggle', async (_event, taskId, enabled) => {
+  const task = getDesktopAutomationStore().toggleTask(String(taskId || ''), Boolean(enabled));
+  emitAutomationUpdate();
+  return task;
+});
+ipcMain.handle('zavorth:automations:run', async (_event, taskId) => runDesktopAutomationTask(taskId));
+ipcMain.handle('zavorth:automations:logs', async (_event, sessionId) => {
+  const safeSessionId = String(sessionId || '');
+  const result = await desktopApiRequest({
+    method: 'GET',
+    path: '/api/experience/home',
+    query: { surface: 'web', sessionId: safeSessionId },
+    timeoutMs: 12000,
+  });
+  const data = result.data && typeof result.data === 'object' ? result.data : {};
+  const runtimeMessages = result.ok ? (data.chat?.messages || data.messages || []) : [];
+  if (Array.isArray(runtimeMessages) && runtimeMessages.length > 0) return runtimeMessages;
+
+  return buildAutomationHistoryLogs(getDesktopAutomationStore().listTasks(), safeSessionId);
+});
+
 ipcMain.handle('zavorth:files:read-tree', async (_event, rootPath) => {
   const safePath = String(rootPath || '').trim();
   if (!safePath || /\.\./.test(safePath) || !path.isAbsolute(path.resolve(safePath))) {
@@ -1247,6 +1371,8 @@ ipcMain.handle('zavorth:open-window', async () => {
   return { ok: true };
 });
 
+ipcMain.handle('zavorth:code-bridge:summary', async () => getCodeBridgeSummary());
+
 // Deep link open-url listener
 app.on('open-url', (event, url) => {
   event.preventDefault();
@@ -1258,6 +1384,13 @@ app.on('open-url', (event, url) => {
 
 app.whenReady().then(() => {
   createWindow();
+  void startCodeBridgeHeartbeat({ name: 'Zavorth Desktop' }).catch((error) => {
+    emitBootEvent('warn', `Code bridge heartbeat unavailable: ${error instanceof Error ? error.message : String(error)}`);
+  });
+  void runDueDesktopAutomations();
+  desktopAutomationTimer = setInterval(() => {
+    void runDueDesktopAutomations();
+  }, 30000);
   try {
     const { globalShortcut } = require('electron');
     const ok = globalShortcut.register('CommandOrControl+Shift+Space', () => {
@@ -1281,6 +1414,11 @@ app.whenReady().then(() => {
 });
 
 app.on('will-quit', () => {
+  stopCodeBridgeHeartbeat();
+  if (desktopAutomationTimer) {
+    clearInterval(desktopAutomationTimer);
+    desktopAutomationTimer = null;
+  }
   try {
     const { globalShortcut } = require('electron');
     globalShortcut.unregisterAll();

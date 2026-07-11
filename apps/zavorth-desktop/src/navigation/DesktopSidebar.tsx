@@ -2,7 +2,6 @@ import { t } from '../i18n';
 import { createLogger } from '../logger';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isSecondaryPanel, PRIMARY_PANELS, SECONDARY_PANELS } from './navConfig';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 const logger = createLogger('shell');
 
@@ -509,7 +508,7 @@ export function DesktopSidebar(props: {
               <Plus aria-hidden="true" size={14} stroke={2} />
             </button>
           </div>
-          <div className="zvd-thread-list">
+          <div className="zvd-thread-list" tabIndex={0} aria-label={t('nav.conversations')}>
             {chatSessions.length === 0 ? (
               <div className="zvd-sidebar-no-threads">{t('nav.noConversations')}</div>
             ) : (

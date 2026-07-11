@@ -1,4 +1,4 @@
-# Workspace MCP Pack — Architecture, Sandbox & Permissions
+﻿# Workspace MCP Pack â€” Architecture, Sandbox & Permissions
 
 The **Workspace MCP Pack** is a specialized, local-only Model Context Protocol (MCP) server designed to run within the Zavorth Desktop application. When a user selects a local folder on their computer, Zavorth initializes a Workspace Session and starts this server, strictly containment-sandboxing the agent's operations within that root directory.
 
@@ -57,12 +57,12 @@ The Workspace MCP Pack requires explicit runtime permissions injected in the age
 | :--- | :--- | :--- |
 | **Git Read-only** | `gitReadOnly: true` | `workspace.git.status`, `workspace.git.diff`, `workspace.git.log`, `workspace.git.branch` |
 | **Filesystem Read** | `filesystemRead: true` | `workspace.filesystem.read`, `workspace.filesystem.list`, `workspace.filesystem.search` |
-| **Filesystem Write** | `filesystemWrite: true` | None (reserved for future phases) |
+| **Filesystem Write** | `filesystemWrite: true` | None (reserved for future stages) |
 
 If the metadata is missing, or if a permission is set to `false`, the matching tools are blocked and the agent is unable to see or execute them.
 
 ### Why Write/Delete do not exist yet
-In this phase (Phase 9C), write, edit, delete, and directory creation tools are explicitly **not implemented** nor registered. This ensures the sandbox containment, symlink validations, and audit mechanisms are proven robust in read-only mode before introducing state-mutating actions in subsequent phases.
+In this phase (gate-9C), write, edit, delete, and directory creation tools are explicitly **not implemented** nor registered. This ensures the sandbox containment, symlink validations, and audit mechanisms are proven robust in read-only mode before introducing state-mutating actions in subsequent stages.
 
 ---
 

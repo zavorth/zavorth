@@ -344,4 +344,34 @@ describe('ZavorthSkillEvolutionService', () => {
     expect(rollback.ok).toBe(true);
     expect(fs.existsSync(apply.record.targetDirPath!)).toBe(false);
   });
+
+  it('blocks silent install when the mutation plan is not approved', async () => {
+    const { service } = buildService(root);
+    const preview = await service.preview({
+      intentText: 'aprenda validar smoke local antes de merge',
+      requestedBy: 'tester',
+      sourceSurface: 'cli',
+    });
+
+    const blocked = await service.apply({
+      planId: preview.mutationPlan!.id,
+      requestedBy: 'tester',
+    });
+
+    expect(blocked.status).toBe('blocked');
+    expect(blocked.ok).toBe(false);
+    expect(blocked.summary).toContain('aguarda approval');
+    expect(blocked.details).toEqual(expect.arrayContaining([
+      'silentInstallBlocked=true',
+      'Nenhum arquivo foi instalado.',
+    ]));
+    expect(fs.existsSync(preview.record.targetDirPath!)).toBe(false);
+  });
+
+  it('keeps silentInstallBlocked true in the evolution snapshot policy', () => {
+    const { service } = buildService(root);
+    const snapshot = service.buildSnapshot();
+    expect(snapshot.policy.silentInstallBlocked).toBe(true);
+    expect(snapshot.policy.draftFirst).toBe(true);
+  });
 });

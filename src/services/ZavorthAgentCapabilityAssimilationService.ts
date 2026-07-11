@@ -61,7 +61,7 @@ export class ZavorthAgentCapabilityAssimilationService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION,
       source: 'ZavorthAgentCapabilityAssimilationService',
-      phase: 'checkpoint-1-capability-assimilation-matrix',
+      gate: 'capability-assimilation-matrix',
       status: blocked ? 'blocked' : attention ? 'attention' : 'passed',
       referenceProfiles,
       matrix,

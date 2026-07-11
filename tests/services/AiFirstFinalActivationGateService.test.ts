@@ -176,7 +176,7 @@ function createFinalService(): AiFirstFinalActivationGateService {
 }
 
 describe('AiFirstFinalActivationGateService', () => {
-  it('returns ready for owner-controlled default when every phase is clean', () => {
+  it('returns ready for owner-controlled default when every gate is clean', () => {
     const service = createFinalService();
     const snapshot = service.buildGate(createCleanInputs());
 

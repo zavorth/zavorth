@@ -243,10 +243,10 @@ export class ZavorthPlatformActionService {
     return finishPlatformRecipe(this.platformRegistry, this.now, actionId, selectedRecipe, status, summary, details);
   }
 
-  private executeLearningAction(
+  private async executeLearningAction(
     selected: ZavorthPlatformRegistryEntry,
     actionId: ZavorthPlatformActionExecution['actionId'],
-  ): Promise<ZavorthPlatformActionExecution> | ZavorthPlatformActionExecution {
+  ): Promise<ZavorthPlatformActionExecution> {
     if (!this.learningPlane) {
       return this.finishEntry(actionId, selected, 'blocked', `${selected.label} nao tem learning plane disponivel.`, [
         'A runtime atual nao carregou o learning plane para este platform action.',
@@ -261,19 +261,19 @@ export class ZavorthPlatformActionService {
     }
 
     if (actionId === 'install') {
-      return this.finishLearningDelegated(selected, this.learningPlane.executeAction({
+      return this.finishLearningDelegated(selected, await this.learningPlane.executeAction({
         candidateId,
         actionId: 'approve',
       }));
     }
     if (actionId === 'trust') {
-      return this.finishLearningDelegated(selected, this.learningPlane.executeAction({
+      return this.finishLearningDelegated(selected, await this.learningPlane.executeAction({
         candidateId,
         actionId: 'promote',
       }));
     }
     if (actionId === 'review') {
-      return this.finishLearningDelegated(selected, this.learningPlane.executeAction({
+      return this.finishLearningDelegated(selected, await this.learningPlane.executeAction({
         candidateId,
         actionId: 'reject',
       }));

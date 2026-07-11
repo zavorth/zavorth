@@ -19,14 +19,28 @@ export class WhatsAppGateway extends WebhookGateway {
   }
 
   public handleWebhookVerification(url: URL): { statusCode: number; textBody: string } {
+    const mode = url.searchParams.get('hub.mode') || '';
+    const token = url.searchParams.get('hub.verify_token') || '';
     const challenge = url.searchParams.get('hub.challenge') || '';
-    return {
-      statusCode: 200,
-      textBody: challenge,
-    };
+    const expected = String(config.whatsappWebhookVerifyToken || '').trim();
+    if (mode === 'subscribe' && expected && token === expected) {
+      return { statusCode: 200, textBody: challenge };
+    }
+    if (!expected) {
+      return { statusCode: 200, textBody: challenge };
+    }
+    return { statusCode: 403, textBody: 'forbidden' };
   }
 
   public async handleWebhookEvent(input: { body: Record<string, unknown> }): Promise<{ statusCode: number; body: unknown }> {
+    const messages = this.extractCloudApiMessages(input.body);
+    if (messages.length > 0) {
+      let any = false;
+      for (const message of messages) {
+        any = (await this.onMessageReceived(message)) || any;
+      }
+      return { statusCode: any ? 200 : 400, body: { ok: any, count: messages.length } };
+    }
     const ok = await this.onMessageReceived(input.body);
     return {
       statusCode: ok ? 200 : 400,
@@ -40,23 +54,22 @@ export class WhatsAppGateway extends WebhookGateway {
       webhookPath: '/api/webhooks/whatsapp',
       doctorCommand: '/channels doctor whatsapp',
       operatorNextStep: this.resolveConfigured()
-        ? 'WhatsApp bridge configurado.'
-        : 'Defina WHATSAPP_BRIDGE_URL ou WHATSAPP_WEBHOOK_URL para ativar.',
+        ? 'WhatsApp live path ready (Cloud API and/or bridge).'
+        : 'Defina WHATSAPP_ACCESS_TOKEN + WHATSAPP_PHONE_NUMBER_ID ou WHATSAPP_BRIDGE_URL.',
     };
   }
 
   public resolveConfigured(): boolean {
     return Boolean(
-      String(config.whatsappBridgeUrl || '').trim() ||
-      String(config.whatsappWebhookUrl || '').trim()
+      (String(config.whatsappAccessToken || config.whatsappBotToken || '').trim()
+        && String(config.whatsappPhoneNumberId || '').trim())
+      || String(config.whatsappBridgeUrl || '').trim()
+      || String(config.whatsappWebhookUrl || '').trim(),
     );
   }
 
   public resolveEnabled(): boolean {
-    return Boolean(
-      String(config.whatsappBridgeUrl || '').trim() ||
-      String(config.whatsappWebhookUrl || '').trim()
-    );
+    return this.resolveConfigured() || Boolean(config.whatsappEnabled);
   }
 
   protected resolveOutboxDir(): string {
@@ -67,9 +80,20 @@ export class WhatsAppGateway extends WebhookGateway {
     return config.whatsappStatusFile;
   }
 
-  /**
-   * Override to add commandless middleware before standard processing.
-   */
+  public override doctorSnapshot() {
+    const base = super.doctorSnapshot();
+    return {
+      ...base,
+      installHint: this.resolveConfigured()
+        ? 'WhatsApp configured for Cloud API or bridge outbound.'
+        : 'Set Cloud API tokens or WHATSAPP_BRIDGE_URL.',
+      allowlist: {
+        ...base.allowlist,
+        chatAllowlistConfigured: Array.isArray(config.whatsappAllowedChatIds) && config.whatsappAllowedChatIds.length > 0,
+      },
+    };
+  }
+
   public override async onMessageReceived(payload: Record<string, unknown>): Promise<boolean> {
     const extracted = this.extractInboundPayload(payload);
     if (!extracted) {
@@ -77,8 +101,6 @@ export class WhatsAppGateway extends WebhookGateway {
     }
 
     const { userId, chatId, rawText } = extracted;
-
-    // Commandless mode: try middleware before standard processing
     const middlewareResult = await hookMiddleware({
       text: rawText,
       channelId: 'whatsapp',
@@ -92,7 +114,6 @@ export class WhatsAppGateway extends WebhookGateway {
       return true;
     }
 
-    // Fall through to standard processing
     return super.onMessageReceived(payload);
   }
 
@@ -104,15 +125,77 @@ export class WhatsAppGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
-    const userId = String(webhookPayload.from || webhookPayload.sender || '');
-    const chatId = String(webhookPayload.chatId || webhookPayload.to || 'whatsapp');
-    const rawText = String(webhookPayload.text || '').trim();
+    // Flat bridge shape
+    const userId = String(
+      webhookPayload.from
+      || webhookPayload.sender
+      || webhookPayload.wa_id
+      || '',
+    ).trim();
+    const chatId = String(
+      webhookPayload.chatId
+      || webhookPayload.to
+      || webhookPayload.from
+      || 'whatsapp',
+    ).trim();
+    let rawText = String(
+      webhookPayload.text
+      || webhookPayload.body
+      || (webhookPayload.text && typeof webhookPayload.text === 'object'
+        ? (webhookPayload.text as Record<string, unknown>).body
+        : '')
+      || '',
+    ).trim();
+
+    // Nested Cloud API message object
+    if (!rawText && webhookPayload.type === 'text' && webhookPayload.text && typeof webhookPayload.text === 'object') {
+      rawText = String((webhookPayload.text as Record<string, unknown>).body || '').trim();
+    }
+
     if (!rawText) return null;
     return {
       userId: userId || 'whatsapp-user',
       chatId: chatId || 'whatsapp',
       rawText,
+      messageId: String(webhookPayload.id || webhookPayload.messageId || '').trim() || null,
       isGroup: chatId.includes('-') || chatId.endsWith('@g.us'),
+      fields: {
+        provider: config.whatsappProvider || 'stub',
+      },
     };
+  }
+
+  private extractCloudApiMessages(body: Record<string, unknown>): Record<string, unknown>[] {
+    const entry = Array.isArray(body.entry) ? body.entry : [];
+    const messages: Record<string, unknown>[] = [];
+    for (const item of entry) {
+      if (!item || typeof item !== 'object') continue;
+      const changes = Array.isArray((item as Record<string, unknown>).changes)
+        ? (item as Record<string, unknown>).changes as unknown[]
+        : [];
+      for (const change of changes) {
+        if (!change || typeof change !== 'object') continue;
+        const value = (change as Record<string, unknown>).value;
+        if (!value || typeof value !== 'object') continue;
+        const list = Array.isArray((value as Record<string, unknown>).messages)
+          ? (value as Record<string, unknown>).messages as unknown[]
+          : [];
+        const contacts = Array.isArray((value as Record<string, unknown>).contacts)
+          ? (value as Record<string, unknown>).contacts as unknown[]
+          : [];
+        const waId = contacts[0] && typeof contacts[0] === 'object'
+          ? String((contacts[0] as Record<string, unknown>).wa_id || '')
+          : '';
+        for (const message of list) {
+          if (!message || typeof message !== 'object') continue;
+          messages.push({
+            ...(message as Record<string, unknown>),
+            from: (message as Record<string, unknown>).from || waId,
+            chatId: (message as Record<string, unknown>).from || waId,
+          });
+        }
+      }
+    }
+    return messages;
   }
 }

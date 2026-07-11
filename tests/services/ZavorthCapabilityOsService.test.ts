@@ -109,7 +109,7 @@ const capabilities: CapabilityDefinition[] = [
 ];
 
 describe('ZavorthCapabilityOsService', () => {
-  it('builds phase 26 manifests with risk, permissions, MCP allowlist and fallback matrix', () => {
+  it('builds capability manifests with risk, permissions, MCP allowlist and fallback matrix', () => {
     const service = new ZavorthCapabilityOsService({
       now: () => new Date('2026-04-24T12:00:00.000Z'),
       capabilityRegistry: createRegistry(capabilities) as any,
@@ -121,7 +121,7 @@ describe('ZavorthCapabilityOsService', () => {
     const mcp = snapshot.manifests.find((manifest) => manifest.id === 'command-mcp');
     const plugin = snapshot.manifests.find((manifest) => manifest.id === 'plugin-ship');
 
-    expect(snapshot.phase).toBe('26');
+    expect(snapshot.phase).toBe('capability-os');
     expect(snapshot.surface).toBe('capability-os');
     expect(snapshot.summary.byType.executor).toBe(1);
     expect(snapshot.summary.highRisk).toBeGreaterThanOrEqual(3);
@@ -148,7 +148,7 @@ describe('ZavorthCapabilityOsService', () => {
       sourceSurface: 'cli',
     });
 
-    expect(decision.phase).toBe('26');
+    expect(decision.phase).toBe('capability-os');
     expect(decision.surface).toBe('capability-route');
     expect(decision.selected?.id).toBe('route-web-research');
     expect(decision.fallbackChain).toEqual(['research', 'conversation']);
@@ -184,7 +184,7 @@ describe('IntentRouterV2 and ExecutionGatewayV2', () => {
       writeLedger: false,
     });
 
-    expect(plan.phase).toBe('26');
+    expect(plan.phase).toBe('capability-os');
     expect(plan.surface).toBe('execution-gateway-v2');
     expect(plan.selectedCapabilityId).toBe('route-codex-auto');
     expect(plan.primaryExecutor).toBe('codex');

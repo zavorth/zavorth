@@ -36,7 +36,7 @@ describe('MediaGenerationLivePlaneService Runtime gateway', () => {
     }).buildSnapshot();
 
     expect(snapshot.contractVersion).toBe('2026-05-04.live-checkpoint-6');
-    expect(snapshot.phase).toBe('Runtime gateway - Media Generation Live Plane');
+    expect(snapshot.gate).toBe('Runtime gateway - Media Generation Live Plane');
     expect(snapshot.status).toBe('closed');
     expect(snapshot.summary).toEqual(
       expect.objectContaining({

@@ -151,7 +151,7 @@ export type SourcePluginOsAbsorptionSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION;
   status: SourcePluginPackageAbsorptionStatus;
-  phase: 1;
+  gate: 'source-plugin-package';
   statement: 'Source Plugin OS and package SDK surfaces are absorbed as Zavorth-native contracts, adapter checks, policy and receipts.';
   matrix: SourcePluginSdkCompatibilityMatrixSnapshot;
   doctor: SourcePluginRuntimeDoctorSnapshot;

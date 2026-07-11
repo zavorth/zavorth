@@ -3,11 +3,11 @@ import { spawnSync } from 'child_process';
 
 const nodeRunner = process.env.npm_node_execpath || process.execPath;
 const npmCliPath = process.env.npm_execpath || null;
-const selectedPhase = String(process.argv.find((arg) => arg.startsWith('--phase=')) || '')
-  .replace('--phase=', '')
+const selectedGate = String(process.argv.find((arg) => arg.startsWith('--gate=') || arg.startsWith('--stage=')) || '')
+  .replace('--gate=', '').replace('--stage=', '')
   .trim();
 
-const phaseChecks = {
+const gateChecks = {
   '32': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent']],
     [
@@ -24,7 +24,7 @@ const phaseChecks = {
       ],
     ],
   ],
-  '33': [
+  'end-to-end-flow': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent']],
     ['end-to-end flow harness', 'npm', ['run', 'qa:flows', '--silent']],
     ['cross-surface continuity', 'npm', ['run', 'test:cross-surface', '--silent']],
@@ -46,7 +46,7 @@ const phaseChecks = {
       ],
     ],
   ],
-  '35': [
+  'boot-integrity': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent']],
     [
       'boot integrity and correlation tests',
@@ -103,7 +103,7 @@ const phaseChecks = {
       240_000,
     ],
   ],
-  '38': [
+  'sandbox-host-readiness': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent']],
     [
       'sandbox host readiness tests',
@@ -119,18 +119,18 @@ const phaseChecks = {
   ],
 };
 
-const phases = selectedPhase ? [selectedPhase] : Object.keys(phaseChecks);
+const gates = selectedGate ? [selectedGate] : Object.keys(gateChecks);
 
-for (const phase of phases) {
-  const checks = phaseChecks[phase];
+for (const gate of gates) {
+  const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[phase-check] etapa invalida: ${phase}`);
+    console.error(`[gate-check] etapa invalido: ${gate}`);
     process.exit(1);
   }
 
-  console.log(`\n[phase-check] etapa ${phase}`);
+  console.log(`\n[gate-check] gate ${gate}`);
   for (const [label, command, args, timeoutMs = 180_000] of checks) {
-    console.log(`[phase-check] ${label}`);
+    console.log(`[gate-check] ${label}`);
     const commandLine = buildSpawnCommand(command, args);
     const result = spawnSync(commandLine.executable, commandLine.args, {
       stdio: 'inherit',
@@ -143,21 +143,21 @@ for (const phase of phases) {
     });
 
     if (result.error) {
-      console.error(`[phase-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
-      console.error(`[phase-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
-      console.error(`[phase-check] ${label} encerrado por sinal ${result.signal}`);
+      console.error(`[gate-check] ${label} encerrado por sinal ${result.signal}`);
       process.exit(1);
     }
   }
 }
 
-console.log('\n[phase-check] etapa(s) solicitada(s) concluidas com sucesso.');
+console.log('\n[gate-check] gate(s) solicitado(s) concluidas com sucesso.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath) {

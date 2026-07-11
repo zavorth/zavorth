@@ -129,7 +129,7 @@ export type ZavorthContextRecoverySnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CONTEXT_RECOVERY_ASSIMILATION_CONTRACT_VERSION;
   source: 'ZavorthContextRecoveryAssimilationService';
-  phase: 'checkpoint-3-context-memory-error-recovery';
+  gate: 'context-memory-error-recovery';
   status: ZavorthContextRecoveryStatus;
   request: {
     surface: string;

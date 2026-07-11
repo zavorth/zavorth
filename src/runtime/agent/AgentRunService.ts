@@ -91,6 +91,7 @@ import {
 } from '../../services/ZavorthLlmBrainService.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import type { ZavorthNativeAutonomySpineService } from '../../services/ZavorthNativeAutonomySpineService.js';
+import { SkillPromotionGate } from '../../services/SkillPromotionGate.js';
 import { PersonalOpsAutopilotService } from './PersonalOpsAutopilotService.js';
 import { AgentTeamCompilerService } from './AgentTeamCompilerService.js';
 import { CrossChannelContinuityService } from './CrossChannelContinuityService.js';
@@ -199,6 +200,10 @@ export type AgentRunServiceRuntime = {
   skillMcpQuarantine?: SkillMcpQuarantineService | null;
   autoSkillInvocation?: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   llmBrain?: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'> | null;
+  skillPromotionGate?: Pick<
+    SkillPromotionGate,
+    'materializeCandidate' | 'dryPreviewFromIntent' | 'preview' | 'apply' | 'reject'
+  > | null;
   nativeAutonomySpine?: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   defaultProviderLabel?: string;
   defaultModelLabel?: string;
@@ -401,6 +406,10 @@ export class AgentRunService {
   readonly skillMcpQuarantine: SkillMcpQuarantineService;
   readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
+  private readonly skillPromotionGate: Pick<
+    SkillPromotionGate,
+    'materializeCandidate' | 'dryPreviewFromIntent' | 'preview' | 'apply' | 'reject'
+  > | null;
   private readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
   private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
   private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
@@ -537,6 +546,9 @@ export class AgentRunService {
     this.llmBrain = runtime.llmBrain || new ZavorthLlmBrainService({
       now: this.now,
     });
+    this.skillPromotionGate = runtime.skillPromotionGate === null
+      ? null
+      : runtime.skillPromotionGate || new SkillPromotionGate({ now: this.now });
     this.nativeAutonomySpine = runtime.nativeAutonomySpine || null;
     this.modelPickerContractService = runtime.modelPickerContractService || null;
     this.naturalFirstApprovalSafety = runtime.naturalFirstApprovalSafety || new NaturalFirstApprovalSafetyService();
@@ -1127,7 +1139,7 @@ export class AgentRunService {
       });
     }
     const llmBrain = this.applyLlmBrainMaturity(run, input, executorResult);
-    await this.publishLlmBrainRuntimeEvents(run, llmBrain);
+    await this.publishLlmBrainRuntimeEvents(run, llmBrain, input);
     await this.publishRuntimeEvent(run, 'agent.execution.completed', {
       status: run.status,
       eventCount: run.events.length,
@@ -1989,7 +2001,7 @@ export class AgentRunService {
       runtimeEventBus: {
         source: 'AgentRunService',
         stage: 2,
-        phase: 2,
+        gate: 'source-agent-runtime-bridge',
         configured: this.getRuntimeEventBuses().length > 0,
         subscriberCount: this.getRuntimeEventBuses().length,
         snapshot: this.readRuntimeEventBusSnapshot(),
@@ -2336,6 +2348,7 @@ export class AgentRunService {
   private async publishLlmBrainRuntimeEvents(
     run: UniversalAgentRun,
     snapshot: ZavorthLlmBrainSnapshot,
+    request?: UniversalAgentRequest,
   ): Promise<void> {
     await this.publishRuntimeEvent(run, 'agent.stream.lifecycle', {
       brainMode: snapshot.brainMode,
@@ -2358,10 +2371,69 @@ export class AgentRunService {
       });
     }
     if (snapshot.skillEvolution.status === 'candidate-ready') {
+      const materializeSource = normalizeText(request?.text)
+        || normalizeText(run.input)
+        || normalizeText(run.summary)
+        || run.id;
+      let candidateId: string | null = null;
+      let registryPersisted = false;
+      if (this.skillPromotionGate) {
+        try {
+          const materialized = this.skillPromotionGate.materializeCandidate({
+            intentText: materializeSource,
+            candidateKind: snapshot.skillEvolution.candidateKind,
+            runId: run.id,
+            sessionId: run.sessionId || null,
+            requestedBy: run.userId || null,
+            sourceSurface: String(run.channel || 'agent-run'),
+            approvalRequired: snapshot.skillEvolution.approvalRequired,
+            suggestedCommand: snapshot.skillEvolution.suggestedCommand,
+          });
+          candidateId = materialized.candidateId;
+          registryPersisted = Boolean(materialized.record);
+          run.metadata = {
+            ...run.metadata,
+            skillEvolutionCandidate: {
+              candidateId,
+              status: materialized.status,
+              registryPersisted,
+              silentInstallBlocked: true,
+              receiptId: materialized.continuity.receipt?.receiptId || null,
+            },
+          };
+        } catch {
+          registryPersisted = false;
+        }
+      }
+      if (this.skillPromotionGate && this.isComplexSkillPromotionRun(run, snapshot)) {
+        try {
+          const dryPreview = await this.skillPromotionGate.dryPreviewFromIntent({
+            intentText: materializeSource,
+            requestedBy: run.userId || null,
+            sourceSurface: 'agent-run:complex-task',
+            procedureOnly: true,
+          });
+          run.metadata = {
+            ...run.metadata,
+            skillPromotionDryPreview: {
+              candidateId: dryPreview.candidateId,
+              status: dryPreview.status,
+              summary: dryPreview.summary,
+              installed: false,
+              silentInstallBlocked: true,
+            },
+          };
+        } catch {
+          // Dry preview is optional and must never fail the agent run.
+        }
+      }
       await this.publishRuntimeEvent(run, 'agent.skill.evolution.candidate', {
         candidateKind: snapshot.skillEvolution.candidateKind,
         approvalRequired: snapshot.skillEvolution.approvalRequired,
         suggestedCommand: snapshot.skillEvolution.suggestedCommand,
+        candidateId,
+        registryPersisted,
+        silentInstallBlocked: true,
       });
     }
     if (snapshot.qa.requiresHumanLiveQa) {
@@ -2372,6 +2444,19 @@ export class AgentRunService {
         longTailFamilies: snapshot.adapterCoverage.longTailFamilies,
       });
     }
+  }
+
+  private isComplexSkillPromotionRun(
+    run: UniversalAgentRun,
+    snapshot: ZavorthLlmBrainSnapshot,
+  ): boolean {
+    const toolEvents = run.events.filter((event) => event.kind === 'tool').length;
+    const textLength = normalizeText(run.input).length + normalizeText(run.summary).length;
+    return snapshot.toolAgency.executed >= 2
+      || snapshot.toolAgency.requested >= 3
+      || toolEvents >= 2
+      || textLength >= 240
+      || run.artifacts.length >= 2;
   }
 
   private defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {

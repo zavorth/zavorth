@@ -36,6 +36,13 @@ import {
   extractToolSecurityApprovalEnvelope,
   verifyToolSecurityApprovalEnvelope,
 } from '../security/ToolApprovalEnvelope.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+  type OperatorContinuityEnvelope,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 
 
 
@@ -44,6 +51,7 @@ type ToolExecutorRuntime = {
   defaultWorkspace?: string | null;
   hookPipelineService?: Pick<ToolHookPipelineService, 'run'>;
   securityPolicyEngine?: Pick<AgentSecurityPolicyEngine, 'evaluateToolInvocation'>;
+  continuityKernel?: OperatorContinuityKernel;
 };
 
 /**
@@ -56,6 +64,8 @@ export class ToolExecutor {
   private defaultWorkspace: string | null;
   private hookPipeline: Pick<ToolHookPipelineService, 'run'>;
   private securityPolicyEngine: Pick<AgentSecurityPolicyEngine, 'evaluateToolInvocation'> | null;
+  private continuityKernel: OperatorContinuityKernel;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
   constructor(
     registry: ToolRegistry,
@@ -69,6 +79,11 @@ export class ToolExecutor {
     this.defaultWorkspace = this.resolveWorkspace(runtime.defaultWorkspace);
     this.hookPipeline = runtime.hookPipelineService || new ToolHookPipelineService();
     this.securityPolicyEngine = runtime.securityPolicyEngine || null;
+    this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
+  }
+
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
   }
 
   /**
@@ -82,11 +97,44 @@ export class ToolExecutor {
       ? input.metadata as Record<string, unknown>
       : {};
 
+    let continuity = this.continuityKernel.begin({
+      continuityId: String(metadata.continuityId || input.continuityId || '').trim() || undefined,
+      correlation: {
+        parentContinuityId: String(metadata.parentContinuityId || '').trim() || null,
+        runId: String(metadata.runId || input.runId || '').trim() || null,
+        sessionId: String(metadata.sessionId || input.sessionId || '').trim() || null,
+        taskId: String(metadata.taskId || input.taskId || '').trim() || null,
+        toolCallId: String(metadata.toolCallId || input.toolCallId || '').trim() || null,
+        traceId: String(metadata.traceId || input.traceId || '').trim() || null,
+      },
+    });
+    continuity = this.continuityKernel.recordRequest(continuity, {
+      surface: 'tool-executor',
+      operation: 'tool.execute',
+      target: toolName,
+      actorId: String(metadata.actorId || input.actorId || '').trim() || null,
+      sourceSurface: String(metadata.sourceSurface || input.sourceSurface || '').trim() || null,
+      argsDigest: digestOperatorPayload({
+        keys: Object.keys(input).filter((key) => key !== 'metadata'),
+      }),
+      metadata: {
+        source: 'tool-executor',
+      },
+    });
+
     if (metadata.channelUserIdAllowed === false || input.channelUserIdAllowed === false) {
+      continuity = this.finalizeBlockedContinuity(continuity, {
+        action: 'deny',
+        allowed: false,
+        rule: 'CHANNEL_USER_NOT_ALLOWED',
+        reasons: ['Tool execution denied: unauthorized channel/user/group context.'],
+        summary: 'Tool execution denied: unauthorized channel/user/group context.',
+      });
       throw new Error('Tool execution denied: unauthorized channel/user/group context.');
     }
 
     const traceId = this.resolveTraceId(toolName, input);
+    continuity = this.continuityKernel.correlate(continuity, { traceId });
     const workspace = this.resolveWorkspace(String(input.workspace || metadata.workspace || '') || null);
     const argKeys = this.describeArgKeys(input);
     const before = await this.hookPipeline.run({
@@ -99,9 +147,17 @@ export class ToolExecutor {
       },
     });
     if (!before.ok) {
+      continuity = this.finalizeBlockedContinuity(continuity, {
+        action: 'deny',
+        allowed: false,
+        rule: 'RUNTIME_HOOK_BLOCKED',
+        reasons: ['A runtime hook blocked tool execution.'],
+        summary: 'Um hook bloqueou a execucao do runtime para essa tool.',
+      });
       await this.recordTelemetry(traceId, 'tool.failed', 'blocked', {
         toolName,
         argKeys,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.exec_failed',
@@ -118,9 +174,17 @@ export class ToolExecutor {
     const tool = this.registry.getTool(toolName);
 
     if (!tool) {
+      continuity = this.finalizeBlockedContinuity(continuity, {
+        action: 'deny',
+        allowed: false,
+        rule: 'TOOL_MISSING',
+        reasons: [`Tool "${toolName}" was not found in the registry.`],
+        summary: `Ferramenta "${toolName}" nao encontrada no registro.`,
+      });
       await this.recordTelemetry(traceId, 'tool.failed', 'tool_missing', {
         toolName,
         argKeys,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.exec_failed',
@@ -143,7 +207,24 @@ export class ToolExecutor {
       workspace,
       securityDecision,
     );
+    continuity = this.continuityKernel.attachDecision(
+      continuity,
+      decisionFromBroker(securityBrokerDecision),
+    );
     if (!securityBrokerDecision.allowed) {
+      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: false,
+        status: securityBrokerDecision.requiresUserConfirmation ? 'approval_required' : 'blocked',
+        summary: this.formatSecurityBlockMessage(securityDecision, securityBrokerDecision),
+        data: {
+          policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+          securityRule: securityDecision.rule,
+        },
+      }));
+      continuity = this.continuityKernel.finalizeReceipt(continuity, {
+        receiptId: securityBrokerDecision.receipt.receiptId,
+      });
+      this.lastContinuityEnvelope = continuity;
       await this.recordTelemetry(traceId, 'tool.failed', 'blocked_by_security_policy', {
         toolName,
         argKeys,
@@ -153,6 +234,7 @@ export class ToolExecutor {
         securityCapabilities: securityDecision.capabilities,
         policyBrokerAction: securityBrokerDecision.action,
         policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.exec_failed',
@@ -186,6 +268,27 @@ export class ToolExecutor {
           ...sensitiveDataFindings.slice(0, 5).map((finding) => `${finding.kind} em ${finding.path}.`),
         ],
       });
+      continuity = this.continuityKernel.attachDecision(
+        continuity,
+        decisionFromBroker(sensitiveDataBrokerDecision),
+      );
+      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: false,
+        status: 'blocked',
+        summary: this.formatSensitiveDataBlockMessage(
+          toolName,
+          sensitiveDataFindings,
+          sensitiveDataBrokerDecision,
+        ),
+        data: {
+          policyBrokerReceiptId: sensitiveDataBrokerDecision.receipt.receiptId,
+          findingCount: sensitiveDataFindings.length,
+        },
+      }));
+      continuity = this.continuityKernel.finalizeReceipt(continuity, {
+        receiptId: sensitiveDataBrokerDecision.receipt.receiptId,
+      });
+      this.lastContinuityEnvelope = continuity;
       await this.recordTelemetry(traceId, 'tool.failed', 'blocked_by_sensitive_data_policy', {
         toolName,
         argKeys,
@@ -194,6 +297,7 @@ export class ToolExecutor {
         findings: sensitiveDataFindings,
         policyBrokerAction: sensitiveDataBrokerDecision.action,
         policyBrokerReceiptId: sensitiveDataBrokerDecision.receipt.receiptId,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.exec_failed',
@@ -225,13 +329,30 @@ export class ToolExecutor {
       securityCapabilities: securityDecision.capabilities,
       policyBrokerAction: securityBrokerDecision.action,
       policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+      operatorContinuity: this.continuityKernel.toPublicView(continuity),
     });
 
     try {
       const result = await tool.execute(input);
+      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: true,
+        status: 'applied',
+        summary: `Tool ${toolName} executed successfully.`,
+        output: result,
+        data: {
+          policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+          resultLength: String(result || '').length,
+        },
+      }));
+      continuity = this.continuityKernel.finalizeReceipt(continuity, {
+        receiptId: securityBrokerDecision.receipt.receiptId,
+      });
+      this.lastContinuityEnvelope = continuity;
       await this.recordTelemetry(traceId, 'tool.completed', 'success', {
         toolName,
         resultLength: String(result || '').length,
+        policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.after_execute',
@@ -337,10 +458,28 @@ Return only the corrected TypeScript file content.`;
                       this.logRepo.log('info', 'ToolExecutor', `Auto-Debugger: Attempting re-execution of healed tool "${toolName}"`);
                       const healedResult = await newToolInstance.execute(input);
 
+                      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+                        ok: true,
+                        status: 'applied',
+                        summary: `Tool ${toolName} executed successfully after self-heal.`,
+                        output: healedResult,
+                        data: {
+                          policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+                          resultLength: String(healedResult || '').length,
+                          selfHealed: true,
+                        },
+                      }));
+                      continuity = this.continuityKernel.finalizeReceipt(continuity, {
+                        receiptId: securityBrokerDecision.receipt.receiptId,
+                      });
+                      this.lastContinuityEnvelope = continuity;
+
                       await this.recordTelemetry(traceId, 'tool.completed', 'success', {
                         toolName,
                         resultLength: String(healedResult || '').length,
                         selfHealed: true,
+                        policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+                        operatorContinuity: this.continuityKernel.toPublicView(continuity),
                       });
 
                       await this.hookPipeline.run({
@@ -368,10 +507,24 @@ Return only the corrected TypeScript file content.`;
       }
 
       const message = redactSensitiveText(err.message || String(error));
+      continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: false,
+        status: 'failed',
+        summary: message,
+        data: {
+          policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+        },
+      }));
+      continuity = this.continuityKernel.finalizeReceipt(continuity, {
+        receiptId: securityBrokerDecision.receipt.receiptId,
+      });
+      this.lastContinuityEnvelope = continuity;
       this.logRepo.log('error', 'ToolExecutor', `Tool ${toolName} failed: ${message}`);
       await this.recordTelemetry(traceId, 'tool.failed', 'failed', {
         toolName,
         errorMessage: message,
+        policyBrokerReceiptId: securityBrokerDecision.receipt.receiptId,
+        operatorContinuity: this.continuityKernel.toPublicView(continuity),
       });
       await this.hookPipeline.run({
         event: 'runtime.exec_failed',
@@ -385,6 +538,39 @@ Return only the corrected TypeScript file content.`;
       });
       throw error;
     }
+  }
+
+  private finalizeBlockedContinuity(
+    envelope: OperatorContinuityEnvelope,
+    input: {
+      action: string;
+      allowed: boolean;
+      rule: string;
+      reasons: string[];
+      summary: string;
+      brokerReceiptId?: string;
+    },
+  ): OperatorContinuityEnvelope {
+    let next = this.continuityKernel.attachDecision(envelope, {
+      source: 'security-policy-broker',
+      action: input.action,
+      allowed: input.allowed,
+      rule: input.rule,
+      reasons: input.reasons,
+    });
+    next = this.continuityKernel.attachResult(next, resultFromToolOutcome({
+      ok: false,
+      status: 'blocked',
+      summary: input.summary,
+      ...(input.brokerReceiptId
+        ? { data: { policyBrokerReceiptId: input.brokerReceiptId } }
+        : {}),
+    }));
+    next = this.continuityKernel.finalizeReceipt(next, {
+      ...(input.brokerReceiptId ? { receiptId: input.brokerReceiptId } : {}),
+    });
+    this.lastContinuityEnvelope = next;
+    return next;
   }
 
   private findToolSourceFile(className: string): string | null {

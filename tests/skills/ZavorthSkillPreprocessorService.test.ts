@@ -174,7 +174,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           riskBlocked: false,
           requiresUserConfirmation: false,
           requiresAdminPolicy: false,
-          receipt: {} as any,
+          receipt: { receiptId: 'broker-receipt-allow-1' } as any,
         });
 
         const content = 'Output is: #[z_eval: node -e "console.log(\'preprocessed command outcome\')"]';
@@ -191,11 +191,14 @@ describe('ZavorthSkillPreprocessorService', () => {
 
         expect(result.content).toBe('Output is: preprocessed command outcome');
         expect(result.executedCommands).toHaveLength(1);
-        expect(result.executedCommands[0]).toEqual({
+        expect(result.executedCommands[0]).toEqual(expect.objectContaining({
           command: 'node -e "console.log(\'preprocessed command outcome\')"',
           allowed: true,
           output: 'preprocessed command outcome',
-        });
+          policyBrokerReceiptId: 'broker-receipt-allow-1',
+          decisionAction: 'allow',
+        }));
+        expect(result.executedCommands[0].continuityId).toBeTruthy();
 
         // Verify broker call metadata
         expect(mockDecide).toHaveBeenCalledWith({
@@ -230,7 +233,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           riskBlocked: true,
           requiresUserConfirmation: false,
           requiresAdminPolicy: false,
-          receipt: {} as any,
+          receipt: { receiptId: 'broker-receipt-deny-1' } as any,
         });
 
         const content = 'Command: #[z_eval: rm -rf /]';
@@ -238,6 +241,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           content,
           sessionId: 'session-abc',
           actorId: 'actor-xyz',
+          provenance: { imported: false },
         };
 
         await expect(preprocessor.preprocess(input)).rejects.toThrow(SecurityPolicyViolationError);
@@ -260,7 +264,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           riskBlocked: true,
           requiresUserConfirmation: false,
           requiresAdminPolicy: false,
-          receipt: {} as any,
+          receipt: { receiptId: 'broker-receipt-deny-2' } as any,
         });
 
         const content = 'Command: #[z_eval: rm -rf /]';
@@ -268,6 +272,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           content,
           sessionId: 'session-abc',
           actorId: 'actor-xyz',
+          provenance: { imported: false },
         };
 
         const result = await preprocessor.preprocess(input);
@@ -276,6 +281,9 @@ describe('ZavorthSkillPreprocessorService', () => {
         expect(result.executedCommands).toHaveLength(1);
         expect(result.executedCommands[0].allowed).toBe(false);
         expect(result.executedCommands[0].error).toContain('Blocked by security policy');
+        expect(result.executedCommands[0].policyBrokerReceiptId).toBe('broker-receipt-deny-2');
+        expect(result.executedCommands[0].continuityId).toBeTruthy();
+        expect(result.executedCommands[0].decisionAction).toBe('deny');
       });
 
       it('gracefully captures syntax/execution errors of allowed commands and replaces with error token', async () => {
@@ -294,7 +302,7 @@ describe('ZavorthSkillPreprocessorService', () => {
           riskBlocked: false,
           requiresUserConfirmation: false,
           requiresAdminPolicy: false,
-          receipt: {} as any,
+          receipt: { receiptId: 'broker-receipt-error-1' } as any,
         });
 
         // Execute non-existent command to trigger syntax error
@@ -431,7 +439,7 @@ describe('ZavorthSkillPreprocessorService', () => {
         riskBlocked: false,
         requiresUserConfirmation: false,
         requiresAdminPolicy: false,
-        receipt: {} as any,
+        receipt: { receiptId: 'broker-receipt-static-allow-1' } as any,
       });
 
       const content = 'Result of echo: #[z_eval: echo hello world]';

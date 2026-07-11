@@ -19,7 +19,7 @@ export type PublicDemoScreenshotSpec = {
 };
 
 export type PublicDemoContractSnapshot = {
-  phase: '47';
+  gate: 'public-demo';
   surface: 'public-demo';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -36,8 +36,8 @@ export type PublicDemoContractSnapshot = {
   requiredArtifacts: string[];
   screenshots: PublicDemoScreenshotSpec[];
   checks: PublicDemoCheck[];
-  nextRecommendedPhase: {
-    phase: '48';
+  nextRecommendedGate: {
+    gate: 'first-run-onboarding';
     title: string;
     reason: string;
   };

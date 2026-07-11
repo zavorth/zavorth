@@ -7,7 +7,7 @@ import type { UniversalAgentRequest, UniversalAgentRun } from './UniversalAgentR
 export type AgentRunIntelligenceFabricMode = 'disabled' | 'shadow' | 'canary' | 'default';
 export type AgentRunIntelligenceFabricCanaryMetadata = {
   source: 'AgentRunIntelligenceFabricCanary';
-  phase: 1;
+  gate: 'source-plugin-package';
   mode: AgentRunIntelligenceFabricMode;
   status: 'observed' | 'disabled' | 'fallback-current-runtime';
   generatedAt: string;
@@ -245,7 +245,7 @@ export class AgentRunIntelligenceFabricCanary {
     const canaryWouldHandle = input.orientation.applied;
     return {
       source: 'AgentRunIntelligenceFabricCanary',
-      phase: 1,
+      gate: 'source-plugin-package',
       mode: input.mode,
       status: 'observed',
       generatedAt: this.now().toISOString(),
@@ -292,7 +292,7 @@ export class AgentRunIntelligenceFabricCanary {
   private disabledMetadata(): AgentRunIntelligenceFabricCanaryMetadata {
     return {
       source: 'AgentRunIntelligenceFabricCanary',
-      phase: 1,
+      gate: 'source-plugin-package',
       mode: 'disabled',
       status: 'disabled',
       generatedAt: this.now().toISOString(),
@@ -353,7 +353,7 @@ export class AgentRunIntelligenceFabricCanary {
   private fallbackMetadata(error: unknown): AgentRunIntelligenceFabricCanaryMetadata {
     return {
       source: 'AgentRunIntelligenceFabricCanary',
-      phase: 1,
+      gate: 'source-plugin-package',
       mode: this.defaultMode,
       status: 'fallback-current-runtime',
       generatedAt: this.now().toISOString(),

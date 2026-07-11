@@ -235,7 +235,7 @@ export class SourceProviderMeshExpansionService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SOURCE_PROVIDER_MESH_EXPANSION_CONTRACT_VERSION,
       status,
-      phase: 3,
+      gate: 'source-provider-mesh-expansion',
       statement: 'Source provider breadth is absorbed as explicit Zavorth Provider Mesh adapters, credential routes, local-provider alternatives and receipts.',
       sourceRoot: normalizePath(sourceRoot),
       zavorthRoot: normalizePath(zavorthRoot),

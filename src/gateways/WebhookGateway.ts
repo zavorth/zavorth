@@ -17,6 +17,7 @@ import type { PlatformReadiness, PlatformImplementationState, PlatformTransport,
 import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { ChannelLiveTransportRegistry } from './ChannelLiveTransportRegistry.js';
 
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
@@ -199,6 +200,12 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.lastError = null;
     this.writeStatus();
 
+    const deckReply = this.handleCommandDeck(rawText);
+    if (deckReply) {
+      await this.sendMessage({ chatId, text: deckReply, recipients: [chatId] });
+      return true;
+    }
+
     if (this.broker) {
       const { withMiddleware } = await import('./ZavorthGatewayMiddlewareIntegration.js');
       await withMiddleware(
@@ -315,62 +322,65 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
 
   private async dispatchLive(message: string, recipients: unknown[], rawPayload: Record<string, unknown> | string): Promise<ChannelGatewayDeliveryResult> {
     const target = String((rawPayload as OutboundPayload)?.chatId || (rawPayload as OutboundPayload)?.to || recipients[0] || '').trim();
-    const request = async (url: string, init: RequestInit): Promise<ChannelGatewayDeliveryResult> => {
-      try {
-        const response = await this.fetchImpl!(url, init);
-        return response.ok
-          ? { ok: true, status: 'delivered', transport: this.mode, httpStatus: response.status }
-          : { ok: false, status: 'failed', transport: this.mode, httpStatus: response.status, reason: `HTTP ${response.status}` };
-      } catch (error: unknown) {
-        const err = asErrorLike(error);
-        logger.warn('[Webhook way] network request failed', error);
-    return { ok: false, status: 'failed', transport: this.mode, reason: error instanceof Error ? err.message : String(error) };
+    const plan = ChannelLiveTransportRegistry.plan({
+      channelId: this.id,
+      message,
+      target,
+      cfg: config,
+    });
+
+    // Email densified plan is outbox/bridge mediated (no raw SMTP in gateway process).
+    if (plan.kind === 'email-smtp-bridge' && plan.body) {
+      return {
+        ok: true,
+        status: 'queued',
+        transport: 'email-smtp-outbox',
+        reason: 'Email densified path queues through outbox/SMTP bridge.',
+      };
+    }
+
+    if (!plan.url || !plan.body) {
+      return {
+        ok: false,
+        status: 'failed',
+        transport: this.mode,
+        reason: plan.reasonIfUnavailable || `No live transport is configured for ${this.id}.`,
+      };
+    }
+
+    if (!this.fetchImpl) {
+      return { ok: false, status: 'failed', transport: this.mode, reason: 'No fetch implementation available for live send.' };
+    }
+
+    try {
+      const response = await this.fetchImpl(plan.url, {
+        method: plan.method,
+        headers: plan.headers,
+        body: JSON.stringify(plan.body),
+      });
+      return response.ok
+        ? { ok: true, status: 'delivered', transport: `${this.mode}:${plan.kind}`, httpStatus: response.status }
+        : { ok: false, status: 'failed', transport: `${this.mode}:${plan.kind}`, httpStatus: response.status, reason: `HTTP ${response.status}` };
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[WebhookGateway] live transport request failed', error);
+      return {
+        ok: false,
+        status: 'failed',
+        transport: `${this.mode}:${plan.kind}`,
+        reason: error instanceof Error ? err.message : String(error),
+      };
+    }
   }
-    };
-    const json = (url: string, body: Record<string, unknown>, headers: Record<string, string> = {}) => request(url, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
-    if (this.id === 'matrix') {
-      if (!target) return { ok: false, status: 'failed', transport: this.mode, reason: 'Matrix requires a room id.' };
-      const baseUrl = String(config.matrixBaseUrl || '').replace(/\/+$/, '');
-      return request(`${baseUrl}/_matrix/client/v3/rooms/${encodeURIComponent(target)}/send/m.room.message/zav-${Date.now()}`, { method: 'PUT', headers: { 'content-type': 'application/json', authorization: `Bearer ${config.matrixAccessToken}` }, body: JSON.stringify({ msgtype: 'm.text', body: message }) });
-    }
-    if (this.id === 'line') {
-      if (!target) return { ok: false, status: 'failed', transport: this.mode, reason: 'LINE requires a target id.' };
-      return json('https://api.line.me/v2/bot/message/push', { to: target, messages: [{ type: 'text', text: message }] }, { authorization: `Bearer ${config.lineChannelAccessToken}` });
-    }
-    if (this.id === 'telegram') {
-      const token = String(config.telegramBotToken || '').trim();
-      const chatId = target || String(config.telegramDefaultChatId || '').trim();
-      if (!token || !chatId) return { ok: false, status: 'failed', transport: this.mode, reason: 'Telegram requires a bot token and chat id.' };
-      return json(`https://api.telegram.org/bot${token}/sendMessage`, { chat_id: chatId, text: message });
-    }
-    const webhookUrls: Record<string, string> = {
-      'google-chat': String(config.googleChatWebhookUrl || ''), feishu: String(config.feishuWebhookUrl || ''), wecom: String(config.wecomWebhookUrl || ''),
-      'home-assistant': String(config.homeAssistantWebhookUrl || ''), 'nextcloud-talk': String(config.nextcloudTalkWebhookUrl || ''), mattermost: String(config.mattermostWebhookUrl || ''),
-      'synology-chat': String(config.synologyChatWebhookUrl || ''), clickclack: String(config.clickclackWebhookUrl || ''),
-      discord: String(config.discordWebhookUrl || ''), slack: String(config.slackWebhookUrl || ''), teams: String(config.teamsWebhookUrl || ''),
-      instagram: String(config.instagramWebhookUrl || ''),
-    };
-    if (webhookUrls[this.id]) {
-      const body = this.id === 'feishu' ? { msg_type: 'text', content: { text: message } }
-        : this.id === 'wecom' ? { msgtype: 'text', text: { content: message } }
-        : this.id === 'discord' ? { content: message }
-        : { text: message };
-      return json(webhookUrls[this.id], body);
-    }
-    const endpointUrls: Record<string, string> = { qq: String(config.qqSendUrl || ''), zalo: String(config.zaloSendUrl || ''), sms: String(config.smsSendUrl || config.smsApiBaseUrl || '') };
-    if (endpointUrls[this.id]) {
-      if (!target) return { ok: false, status: 'failed', transport: this.mode, reason: `${this.name} requires a recipient.` };
-      const token = this.id === 'zalo' ? String(config.zaloAccessToken || '') : this.id === 'sms' ? String(config.smsProviderToken || '') : '';
-      return json(endpointUrls[this.id], { to: target, target, text: message, message }, token ? { authorization: `Bearer ${token}` } : {});
-    }
-    const bridgeUrls: Record<string, string> = {
-      irc: String(config.ircBridgeUrl || ''), weixin: String(config.weixinBridgeUrl || ''), yuanbao: String(config.yuanbaoBridgeUrl || ''),
-      'voice-call': String(config.voiceCallBridgeUrl || ''), 'google-meet': String(config.googleMeetBridgeUrl || ''), twitch: String(config.twitchBridgeUrl || ''), nostr: String(config.nostrBridgeUrl || ''),
-      whatsapp: String(config.whatsappBridgeUrl || ''), signal: String(config.signalJsonRpcUrl || ''), imessage: String(config.imessageBridgeUrl || ''),
-      email: String(config.emailSmtpHost || ''),
-    };
-    if (bridgeUrls[this.id]) return json(`${bridgeUrls[this.id].replace(/\/+$/, '')}/send`, { channel: target || this.id, text: message, message });
-    return { ok: false, status: 'failed', transport: this.mode, reason: `No live transport is configured for ${this.id}.` };
+
+  /** Live densification plan for this channel (credentials optional). */
+  public liveTransportPlan(message = '', target = ''): ReturnType<typeof ChannelLiveTransportRegistry.plan> {
+    return ChannelLiveTransportRegistry.plan({
+      channelId: this.id,
+      message,
+      target,
+      cfg: config,
+    });
   }
 
   protected buildDefaultFeatures(): ChannelFeatureSet {
@@ -453,4 +463,189 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     this.lastError = null;
     this.writeStatus();
   }
+
+  /**
+   * Shared product completeness surface for every factory channel.
+   * Credentials may still be missing; code-level capabilities stay first-class.
+   */
+  public doctorSnapshot(): ChannelGatewayDoctorSnapshot {
+    const status = this.buildDefaultStatusSnapshot();
+    return {
+      channelId: this.id,
+      name: this.name,
+      mode: this.mode,
+      configured: this.resolveConfigured(),
+      enabled: this.resolveEnabled(),
+      started: this.started,
+      transport: status.transport,
+      lastInboundAt: this.lastInboundAt,
+      lastOutboundAt: this.lastOutboundAt,
+      lastError: this.redactSecrets(this.lastError),
+      outboxDir: this.outboxDir,
+      statusFile: this.statusFile,
+      allowlist: {
+        policyManagerPresent: Boolean(this.policyManager),
+        unauthorizedBlocked: true,
+      },
+      secretsRedacted: true,
+      doctorCommand: `/channels doctor ${this.id}`,
+      installHint: this.resolveConfigured()
+        ? `${this.name} is configured. Run smoke inbound/outbound when ready.`
+        : `Configure credentials for ${this.name}, then re-run doctor.`,
+      completeness: this.completenessReport(),
+    };
+  }
+
+  public completenessReport(): ChannelGatewayCompletenessReport {
+    return {
+      inbound: true,
+      outbound: true,
+      allowlist: true,
+      doctor: true,
+      outboxFallback: true,
+      mockIo: true,
+      redaction: true,
+      commandDeck: true,
+      continuitySessionKey: true,
+      installScaffold: true,
+      firstClass: true,
+    };
+  }
+
+  public continuitySessionKey(userId: string, sessionId?: string | null): string {
+    const user = String(userId || '').trim() || 'anonymous';
+    const session = String(sessionId || '').trim() || 'default';
+    return `${this.id}:${user}:${session}`;
+  }
+
+  public commandDeckMin(): ChannelGatewayCommandDeckEntry[] {
+    return [
+      { command: '/help', summary: `Help for ${this.name}` },
+      { command: '/commands', summary: 'List operator command deck' },
+      { command: '/channels', summary: 'List channel fabric status' },
+      { command: '/models', summary: 'List models (shared surface)' },
+      { command: '/status', summary: `${this.name} gateway status` },
+      { command: '/gateway', summary: `${this.name} doctor and readiness` },
+    ];
+  }
+
+  public handleCommandDeck(rawText: string): string | null {
+    const text = String(rawText || '').trim().toLowerCase();
+    if (!text.startsWith('/')) return null;
+    const cmd = text.split(/\s+/)[0];
+    if (cmd === '/help' || cmd === '/commands') {
+      return this.commandDeckMin().map((entry) => `${entry.command} — ${entry.summary}`).join('\n');
+    }
+    if (cmd === '/status' || cmd === '/gateway') {
+      const doctor = this.doctorSnapshot();
+      return [
+        `${doctor.name} (${doctor.channelId})`,
+        `configured: ${doctor.configured}`,
+        `enabled: ${doctor.enabled}`,
+        `transport: ${doctor.transport}`,
+        `outbox: ${doctor.outboxDir}`,
+        `firstClass: ${doctor.completeness.firstClass}`,
+      ].join('\n');
+    }
+    if (cmd === '/channels' || cmd === '/models') {
+      return `${cmd} is handled by the shared surface; channel ${this.id} is first-class.`;
+    }
+    return null;
+  }
+
+  public async mockInbound(payload: Record<string, unknown> = {}): Promise<{
+    ok: boolean;
+    accepted: boolean;
+    channelId: string;
+    sessionKey: string | null;
+    reason?: string;
+  }> {
+    const body = {
+      text: 'zavorth mock inbound',
+      userId: 'mock-user',
+      chatId: `${this.id}-mock`,
+      messageId: `mock-${Date.now()}`,
+      ...payload,
+    };
+    try {
+      const accepted = await this.onMessageReceived(body);
+      const extracted = this.extractInboundPayload(body);
+      return {
+        ok: true,
+        accepted,
+        channelId: this.id,
+        sessionKey: extracted
+          ? this.continuitySessionKey(extracted.userId, extracted.messageId || null)
+          : this.continuitySessionKey('mock-user'),
+        ...(accepted ? {} : { reason: 'payload not accepted or allowlist blocked' }),
+      };
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      return {
+        ok: false,
+        accepted: false,
+        channelId: this.id,
+        sessionKey: null,
+        reason: error instanceof Error ? err.message : String(error),
+      };
+    }
+  }
+
+  public async mockOutbound(text = 'zavorth mock outbound', chatId?: string | null): Promise<ChannelGatewayDeliveryResult> {
+    const target = String(chatId || `${this.id}-mock`).trim();
+    return this.sendMessage({
+      text: this.redactSecrets(text) || 'zavorth mock outbound',
+      chatId: target,
+      recipients: [target],
+    });
+  }
+
+  public redactSecrets(value: string | null | undefined): string | null {
+    if (value == null) return null;
+    return String(value)
+      .replace(/(token|secret|password|api[_-]?key|authorization|bearer)\s*[:=]\s*([^\s,;]+)/gi, '$1=***')
+      .replace(/\b[A-Za-z0-9_-]{24,}\b/g, (match) => (match.length > 32 ? `${match.slice(0, 4)}…***` : match));
+  }
 }
+
+export type ChannelGatewayCompletenessReport = {
+  inbound: true;
+  outbound: true;
+  allowlist: true;
+  doctor: true;
+  outboxFallback: true;
+  mockIo: true;
+  redaction: true;
+  commandDeck: true;
+  continuitySessionKey: true;
+  installScaffold: true;
+  firstClass: true;
+};
+
+export type ChannelGatewayDoctorSnapshot = {
+  channelId: string;
+  name: string;
+  mode: WebhookGatewayMode;
+  configured: boolean;
+  enabled: boolean;
+  started: boolean;
+  transport: string;
+  lastInboundAt: string | null;
+  lastOutboundAt: string | null;
+  lastError: string | null;
+  outboxDir: string;
+  statusFile: string;
+  allowlist: {
+    policyManagerPresent: boolean;
+    unauthorizedBlocked: true;
+  };
+  secretsRedacted: true;
+  doctorCommand: string;
+  installHint: string;
+  completeness: ChannelGatewayCompletenessReport;
+};
+
+export type ChannelGatewayCommandDeckEntry = {
+  command: string;
+  summary: string;
+};

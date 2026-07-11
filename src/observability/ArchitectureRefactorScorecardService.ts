@@ -838,7 +838,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'finish-priority-domain-ownership',
         label: 'Fechar ownership dos dominios prioritarios',
         severity: 'warn',
-        reason: 'Execution, sessions, channels e nodes devem ter use cases reais e camadas explicitas antes de encerrar a Etapa 2.',
+        reason: 'Execution, sessions, channels e nodes devem ter use cases reais e camadas explicitas antes de fechar este gate.',
         command: 'npm run ops:architecture:json',
       });
     }

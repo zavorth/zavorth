@@ -212,7 +212,7 @@ export class SourceMemoryDocumentTerminalPackService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION,
       status,
-      phase: 5,
+      gate: 'source-memory-document-terminal-pack',
       statement: 'Source memory, document, search and terminal behavior is absorbed as governed Zavorth-native runtimes with artifact-first receipts.',
       sourceRoot: normalizePath(sourceRoot),
       zavorthRoot: normalizePath(zavorthRoot),

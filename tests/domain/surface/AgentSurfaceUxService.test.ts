@@ -1,7 +1,7 @@
 import { renderSurfaceResponseForTarget } from '../../../src/domain/surface/application/surface-response';
 import { ZavorthAgentSurfaceUxService } from '../../../src/services/ZavorthAgentSurfaceUxService';
 
-describe('Agent surface UX phase 4', () => {
+describe('Agent surface UX', () => {
   it('renders agent runtime actions across Telegram, Discord and text-only channels', () => {
     const service = new ZavorthAgentSurfaceUxService();
     const response = service.buildSubagentRuntimeResponse(buildSnapshot() as any);

@@ -64,7 +64,7 @@ export class WebResearchLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION,
-      phase: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane',
+      gate: 'web-research-live-plane',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 7,

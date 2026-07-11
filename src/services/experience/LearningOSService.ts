@@ -77,11 +77,11 @@ export class LearningOSService {
     };
   }
 
-  public decide(input: {
+  public async decide(input: {
     candidateId?: string | null;
     decision: ExperienceLearningDecision;
     workspace?: string | null;
-  }): LearningOSDecisionResult {
+  }): Promise<LearningOSDecisionResult> {
     const decision = input.decision;
     if (decision === 'export') {
       const exported = this.export(input);
@@ -151,7 +151,7 @@ export class LearningOSService {
         : decision === 'approve'
           ? 'approve'
           : 'reject';
-    const raw = this.learningPlane.executeAction({ candidateId, actionId });
+    const raw = await Promise.resolve(this.learningPlane.executeAction({ candidateId, actionId }));
     return {
       ok: raw.ok,
       status: raw.status,

@@ -106,7 +106,7 @@ describe('ZavorthExternalRuntimeBridgeService Intent model0', () => {
     ))).toBe(true);
   });
 
-  it('blocks the bridge if Natural First has not reached phase 9 closure', () => {
+  it('blocks the bridge if Natural First has not reached closure', () => {
     const snapshot = new ZavorthExternalRuntimeBridgeService().buildSnapshot({
       naturalFirstPackStatus: 'checkpoint-8-complete',
     });

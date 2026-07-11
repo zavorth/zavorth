@@ -106,7 +106,7 @@ export class RuntimeAdapterClosureService {
         providerConsistency: 'npm run provider-mesh-readiness:check --silent',
         channelConsistency: 'npm run channel-mesh-consistency:check --silent',
         certify: 'npm run release-certify --silent',
-        nextStage: 'Etapa 12 - Native Capability Closure',
+        nextStage: 'Native Capability Closure',
       },
       policy: {
         closureIsRuntimeClassificationOnly: true,

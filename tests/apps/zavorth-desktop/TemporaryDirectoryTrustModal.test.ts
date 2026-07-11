@@ -10,7 +10,7 @@ import { TrustedWorkspaceService } from '../../../src/services/TrustedWorkspaceS
 import { config } from '../../../src/config/index.js';
 
 /**
- * Fase 21E-A — Integration tests for Temporary Directory Trust REST endpoints.
+ * Integration tests for Temporary Directory Trust REST endpoints.
  * These tests exercise the route handler directly, following the same pattern
  * as WorkspaceTaskMandateModal.test.ts (HTTP integration, no JSX).
  */

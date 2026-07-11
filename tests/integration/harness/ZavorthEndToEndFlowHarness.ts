@@ -360,7 +360,7 @@ export class ZavorthEndToEndFlowHarness {
     permission.status = status;
     permission.updated_at = new Date('2026-04-24T12:00:01.000Z').toISOString();
     permission.decided_by = decidedBy;
-    permission.decision_note = status === 'approved' ? 'Approved by phase 33 harness.' : 'Rejected by phase 33 harness.';
+    permission.decision_note = status === 'approved' ? 'Approved by flow harness.' : 'Rejected by flow harness.';
     const task = permission.task_id ? this.tasks.get(permission.task_id) || null : null;
     if (!task) {
       await ctx.reply(`Permissao ${permission.permission_id} resolvida sem task vinculada.`);

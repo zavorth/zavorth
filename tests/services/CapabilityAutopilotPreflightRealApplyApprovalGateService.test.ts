@@ -105,7 +105,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
@@ -328,7 +328,7 @@ describe('CapabilityAutopilotPreflightRealApplyApprovalGateService', () => {
         scopeReceiptId: 'resume-scope',
       },
     });
-    expect(service.renderReport(approval)).toContain('Etapa 75 - Preflight Real Apply Approval Gate');
+    expect(service.renderReport(approval)).toContain('Gate capability-autopilot-preflight-real-apply-approval - Preflight Real Apply Approval Gate');
     expect(service.renderReport(approval)).toContain('proximo passo recomendada: 76 - Preflight Controlled Real Apply Executor');
   });
 });

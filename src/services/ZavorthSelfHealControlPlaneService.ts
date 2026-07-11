@@ -184,7 +184,7 @@ export type ZavorthSelfHealDailyReport = {
 
 export type ZavorthSelfHealPlanSnapshot = {
   generatedAt: string;
-  phase: '30';
+  gate: 'self-heal-control-plane';
   surface: 'self-heal-control-plane';
   mode: ZavorthSelfHealMode;
   status: ZavorthSelfHealStatus;
@@ -473,7 +473,7 @@ export class ZavorthSelfHealControlPlaneService {
 
     return {
       generatedAt,
-      phase: '30',
+      gate: 'self-heal-control-plane',
       surface: 'self-heal-control-plane',
       mode,
       status,
@@ -936,7 +936,7 @@ export class ZavorthSelfHealControlPlaneService {
       force: input.force,
       goal: 'auto',
       requestedBy: input.requestedBy || 'cli-operator',
-      reason: 'Self-Heal Etapa 30 aplicou recuperacao segura e supervisionada.',
+      reason: 'Self-Heal aplicou recuperacao segura e supervisionada.',
     } as AutoRepairRunInput);
 
     return {

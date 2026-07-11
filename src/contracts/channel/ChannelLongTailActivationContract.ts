@@ -130,7 +130,7 @@ export type ChannelLongTailActivationEntry = {
 export type ChannelLongTailActivationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION;
-  phase: 'Approval gate - Channel Live Activation Long Tail';
+  gate: 'channel-live-activation-long-tail';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     channels: number;

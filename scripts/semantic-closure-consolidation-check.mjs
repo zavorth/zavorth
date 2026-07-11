@@ -46,7 +46,7 @@ addCheck(
     'everyClaimMustHaveReceipt',
     'releaseGateBlocksAnyRegression',
   ].every((marker) => contract.includes(marker)),
-  'contract includes phase receipts, release gate, S1-S9 scope and regression-blocking policy',
+  'contract includes gate receipts, release gate, S1-S9 scope and regression-blocking policy',
 );
 
 const service = read('src/services/ZavorthSemanticClosureConsolidationService.ts');
@@ -122,7 +122,7 @@ if (runtime.status !== 0) {
 } else {
   try {
     const snapshot = JSON.parse(runtime.stdout);
-    const phases = snapshot.phaseReceipts.map((receipt) => receipt.phase).join(',');
+    const phases = snapshot.phaseReceipts.map((receipt) => receipt.stage).join(',');
     addCheck(
       'Runtime S1-S9 consolidated receipt passes',
       snapshot.status === 'passed'

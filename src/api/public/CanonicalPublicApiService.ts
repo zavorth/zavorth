@@ -40,6 +40,11 @@ import type {
 import type { PermissionRequest, PermissionStatus } from '../../contracts/PermissionRequest.js';
 import type { SecurityPolicyBrokerRequest } from '../../security/SecurityPolicyBroker.js';
 import { decideSecurityPolicy } from '../../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  resultFromToolOutcome,
+} from '../../runtime/operator/OperatorContinuityEnvelope.js';
 import { readGatewayDomains, readGatewayStatus, readOpsHealth } from './canonical-public-api/gateway-ops.js';
 import { readPlatformCatalog, readPlatformStatus, readNodes, readTransports, readArtifacts } from './canonical-public-api/platform-topology.js';
 import { readOpsQuality } from './canonical-public-api/quality.js';
@@ -436,12 +441,93 @@ export class CanonicalPublicApiService {
       });
     }
 
+    const livePolicy = this.evaluateActionPolicy({
+      surface: 'tool',
+      operation: 'chat.submit.live',
+      target: input.sessionId || 'default',
+      sourceTrust: 'trusted-user',
+      metadata: {
+        sourceSurface: 'public-api',
+        approved: input.approved === true,
+      },
+      reasons: [
+        'Live chat submit is recorded by the operator continuity kernel before mission routing.',
+      ],
+      toolDecision: {
+        action: 'allow',
+        allowed: true,
+        risk: 'safe',
+        toolName: 'chat.submit.live',
+        surface: 'native-tool',
+        capabilities: ['audit'],
+        requiresConfirmation: false,
+        reasons: ['Public API live chat remains gated by mission preview and approvals.'],
+        rule: 'PUBLIC_API_LIVE_CHAT_CONTINUITY',
+      },
+    });
+    const continuityKernel = new OperatorContinuityKernel();
+    let continuity = continuityKernel.begin({
+      correlation: {
+        sessionId: input.sessionId || null,
+        policyBrokerReceiptId: livePolicy.receipt.receiptId,
+      },
+    });
+    continuity = continuityKernel.recordRequest(continuity, {
+      surface: 'public-api',
+      operation: 'chat.submit.live',
+      target: input.sessionId || 'default',
+      sourceSurface: 'api-v1',
+      metadata: { live: true, approved: input.approved === true },
+    });
+    continuity = continuityKernel.attachDecision(continuity, decisionFromBroker(livePolicy));
+    if (!livePolicy.allowed) {
+      continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+        ok: false,
+        status: 'blocked',
+        summary: livePolicy.reasons.join(' '),
+        data: { policyBrokerReceiptId: livePolicy.receipt.receiptId },
+      }));
+      continuity = continuityKernel.finalizeReceipt(continuity, {
+        receiptId: livePolicy.receipt.receiptId,
+      });
+      const blocked = this.buildChatProjection({
+        generatedAt,
+        accepted: false,
+        live: true,
+        sessionId: input.sessionId || null,
+        taskId: null,
+        snapshot,
+        mode: 'blocked',
+        nextAction: `Policy blocked live chat submit (${livePolicy.action}). Receipt: ${livePolicy.receipt.receiptId}`,
+      });
+      blocked.safety = {
+        ...blocked.safety,
+        policyBrokerEvaluatedForLiveSubmit: true,
+        policyBrokerReceiptId: livePolicy.receipt.receiptId,
+        operatorContinuityId: continuity.ids.continuityId,
+      };
+      return blocked;
+    }
+
     const result = await conversation.processChatSend({
       message,
       sessionId: input.sessionId || undefined,
       source: 'api-v1',
     });
-    return this.buildChatProjection({
+    continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+      ok: true,
+      status: 'applied',
+      summary: 'Live chat submitted after policy continuity recording.',
+      data: {
+        policyBrokerReceiptId: livePolicy.receipt.receiptId,
+        taskId: result.taskId || null,
+        sessionId: result.sessionId || null,
+      },
+    }));
+    continuity = continuityKernel.finalizeReceipt(continuity, {
+      receiptId: livePolicy.receipt.receiptId,
+    });
+    const submitted = this.buildChatProjection({
       generatedAt,
       accepted: true,
       live: true,
@@ -452,6 +538,13 @@ export class CanonicalPublicApiService {
       mode: 'submitted',
       nextAction: 'Follow mission progress through events, receipts and approvals.',
     });
+    submitted.safety = {
+      ...submitted.safety,
+      policyBrokerEvaluatedForLiveSubmit: true,
+      policyBrokerReceiptId: livePolicy.receipt.receiptId,
+      operatorContinuityId: continuity.ids.continuityId,
+    };
+    return submitted;
   }
 
   public async readRuntimeEvents(input: {
@@ -843,10 +936,11 @@ export class CanonicalPublicApiService {
     return readLearningCandidates(this.runtime, this.support, input);
   }
 
-  public executeLearningAction(input: {
+  public async executeLearningAction(input: {
     candidateId?: string | null;
     actionId?: string | null;
-  }): LearningActionResultDTO {
+    approvalId?: string | null;
+  }): Promise<LearningActionResultDTO> {
     return executeLearningAction(this.runtime, this.support, input);
   }
 
@@ -1080,6 +1174,56 @@ export class CanonicalPublicApiService {
     nextAction: string;
   }): CanonicalGovernedActionResultDTO<T> {
     const generatedAt = new Date().toISOString();
+    const continuityKernel = new OperatorContinuityKernel();
+    let continuity = continuityKernel.begin({
+      correlation: {
+        policyBrokerReceiptId: input.policyReceipt.receiptId,
+      },
+    });
+    continuity = continuityKernel.recordRequest(continuity, {
+      surface: 'public-api',
+      operation: input.action,
+      target: input.target,
+      sourceSurface: 'api-v1',
+      metadata: {
+        status: input.status,
+        ok: input.ok,
+      },
+    });
+    continuity = continuityKernel.attachDecision(continuity, {
+      source: 'security-policy-broker',
+      action: input.policyReceipt.action || input.action,
+      allowed: input.ok && input.status !== 'blocked' && input.status !== 'needs_approval',
+      rule: input.policyReceipt.rule || 'GOVERNED_PUBLIC_API',
+      reasons: input.policyReceipt.reasons?.length
+        ? [...input.policyReceipt.reasons]
+        : [input.summary],
+      risk: input.policyReceipt.risk,
+      requiresApproval: input.status === 'needs_approval',
+      brokerReceipt: input.policyReceipt,
+    });
+    continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+      ok: input.ok,
+      status: input.status === 'applied'
+        ? 'applied'
+        : input.status === 'needs_approval'
+          ? 'approval_required'
+          : input.status === 'blocked' || input.status === 'denied'
+            ? 'blocked'
+            : input.ok
+              ? 'observation'
+              : 'failed',
+      summary: input.summary,
+      data: {
+        policyBrokerReceiptId: input.policyReceipt.receiptId,
+        governedActionStatus: input.status,
+      },
+    }));
+    continuity = continuityKernel.finalizeReceipt(continuity, {
+      receiptId: input.policyReceipt.receiptId,
+    });
+    const publicView = continuityKernel.toPublicView(continuity);
+
     return {
       schemaVersion: 1,
       surface: 'governed-action-v1',
@@ -1099,12 +1243,23 @@ export class CanonicalPublicApiService {
         policyReceipt: input.policyReceipt,
         rawSecretsSerialized: false,
         zavorthControlCanExecute: false,
+        operatorContinuityId: publicView.continuityId,
+        policyBrokerReceiptId: publicView.policyBrokerReceiptId,
       },
       nextAction: input.nextAction,
       safety: {
         controllerMutatedDirectly: false,
         policyBrokerEvaluated: true,
         rawSecretsSerialized: false,
+      },
+      operatorContinuity: {
+        continuityId: publicView.continuityId,
+        receiptId: publicView.receiptId,
+        decisionAction: publicView.decisionAction,
+        allowed: publicView.allowed,
+        status: publicView.status,
+        policyBrokerReceiptId: publicView.policyBrokerReceiptId,
+        terminal: publicView.terminal,
       },
     };
   }

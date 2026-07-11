@@ -1,5 +1,5 @@
 /**
- * Fase 21K-A — Agent Workspace Runtime UX Smoke Tests
+ * Agent Workspace Runtime UX Smoke Tests
  *
  * Validates UI component states:
  *   - loading / ready / not-ready states render correctly
@@ -21,7 +21,7 @@ const SMOKE_MARKER = 'sk-zavorth-e2e-runtime-smoke-DO-NOT-LEAK-21K-A';
 
 // ─── WorkspaceRuntimeReadinessCard ─────────────────────────────────────────
 
-describe('WorkspaceRuntimeReadinessCard UX Smoke — Fase 21K-A', () => {
+describe('WorkspaceRuntimeReadinessCard UX Smoke', () => {
   it('renders loading state when readiness is null', () => {
     const { container } = render(<WorkspaceRuntimeReadinessCard readiness={null} />);
     expect(container.textContent).toContain('Carregando');
@@ -134,7 +134,7 @@ describe('WorkspaceRuntimeReadinessCard UX Smoke — Fase 21K-A', () => {
 
 // ─── WorkspacePolicyPreview ─────────────────────────────────────────────────
 
-describe('WorkspacePolicyPreview UX Smoke — Fase 21K-A', () => {
+describe('WorkspacePolicyPreview UX Smoke', () => {
   const safePreview: WorkspacePolicyPreviewData = {
     providerId: 'ws-openai',
     modelId: 'gpt-4',

@@ -50,13 +50,13 @@ export class MultiAgentWorkflowStageBuilder {
     return [
       this.buildMakerStage(
         makerStage.executor,
-        'Etapa 1/2: {executor} Maker assumindo a implementacao.',
+        'Passo 1/2: {executor} Maker assumindo a implementacao.',
         makerStage.strategyNote,
         workflow,
       ),
       this.buildReviewerStage(
         reviewerStage.executor,
-        'Etapa 2/2: {executor} Reviewer auditando o resultado.',
+        'Passo 2/2: {executor} Reviewer auditando o resultado.',
         reviewerStage.strategyNote,
         workflow,
         'Procure bugs, regressao, risco tecnico e aderencia ao projeto. Ajuste se necessario.',
@@ -84,7 +84,7 @@ export class MultiAgentWorkflowStageBuilder {
         executor: 'aistudio',
         role: 'researcher',
         label: `${this.support.getExecutorDisplayName('aistudio')} Researcher`,
-        intro: `Etapa 1/2: ${this.support.getExecutorDisplayName('aistudio')} pesquisando e reunindo contexto.`,
+        intro: `Passo 1/2: ${this.support.getExecutorDisplayName('aistudio')} pesquisando e reunindo contexto.`,
         buildObjective: ({ originalObjective, workspaceContext: stageContext }) => this.support.joinObjectiveParts([
           'Pesquise e responda de forma estruturada ao seguinte objetivo:',
           originalObjective,
@@ -96,7 +96,7 @@ export class MultiAgentWorkflowStageBuilder {
         executor: synthesizerStage.executor,
         role: 'synthesizer',
         label: `${this.support.getExecutorDisplayName(synthesizerStage.executor)} Synthesizer`,
-        intro: `Etapa 2/2: ${this.support.getExecutorDisplayName(synthesizerStage.executor)} condensando a pesquisa em um briefing final.`,
+        intro: `Passo 2/2: ${this.support.getExecutorDisplayName(synthesizerStage.executor)} condensando a pesquisa em um briefing final.`,
         strategy_note: synthesizerStage.strategyNote,
         buildObjective: ({ originalObjective, previousResults, workspaceContext: stageContext }) => {
           const researchOut = this.support.summarizeResult(previousResults[0]);
@@ -138,13 +138,13 @@ export class MultiAgentWorkflowStageBuilder {
     return [
       this.buildMakerStage(
         makerStage.executor,
-        'Etapa 1/2: {executor} Maker assumindo a execucao.',
+        'Passo 1/2: {executor} Maker assumindo a execucao.',
         makerStage.strategyNote,
         workflow,
       ),
       this.buildReviewerStage(
         reviewerStage.executor,
-        'Etapa 2/2: {executor} Reviewer auditando o resultado.',
+        'Passo 2/2: {executor} Reviewer auditando o resultado.',
         reviewerStage.strategyNote,
         workflow,
         'Verifique bugs, padroes de projeto e seguranca. Faca alteracoes se necessario.',

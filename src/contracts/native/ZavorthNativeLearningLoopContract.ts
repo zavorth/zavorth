@@ -88,7 +88,7 @@ export type ZavorthNativeLearningLoopSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_NATIVE_LEARNING_LOOP_CONTRACT_VERSION;
   source: 'ZavorthNativeLearningLoopService';
-  phase: 'Phase 3 - Native Learning Loop';
+  gate: 'native-learning-loop';
   status: 'passed' | 'attention' | 'blocked';
   summary: {
     candidates: number;
@@ -134,6 +134,6 @@ export type ZavorthNativeLearningLoopSnapshot = {
     check: 'npm run zavorth:native-learning-loop:check --silent';
     search: 'npm run zavorth:native-learning-loop -- --query "<term>"';
     observe: 'npm run zavorth:native-learning-loop -- --observe "<successful workflow>"';
-    next: 'Phase 4 - ZavorthControl Learning UX';
+    next: 'ZavorthControl Learning UX';
   };
 };

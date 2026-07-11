@@ -52,7 +52,7 @@ export type ZavorthPersistedScheduledTask = {
 
 export type ZavorthPersistedScheduledTaskGovernedMetadata = {
   contractVersion: string;
-  phase: 'checkpoint-3-persisted-scheduled-task-registration';
+  gate: 'persisted-scheduled-task-registration';
   registryStatus: string;
   approvalId: string | null;
   approvalExpiresAt: string | null;
@@ -132,7 +132,7 @@ export type ZavorthScheduledTaskPersistenceSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskPersistenceService';
-  phase: 'checkpoint-3-persisted-scheduled-task-registration';
+  gate: 'persisted-scheduled-task-registration';
   status: ZavorthScheduledTaskPersistenceStatus;
   action: ZavorthScheduledTaskPersistenceAction;
   runtime: ZavorthScheduledTaskRuntimeSnapshot;

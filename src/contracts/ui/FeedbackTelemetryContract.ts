@@ -19,7 +19,7 @@ export type FeedbackTelemetryScreenshotSpec = {
 };
 
 export type FeedbackTelemetryContractSnapshot = {
-  phase: '52';
+  gate: 'feedback-telemetry';
   surface: 'feedback-loop';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -35,7 +35,7 @@ export type FeedbackTelemetryContractSnapshot = {
   requiredCommands: string[];
   screenshots: FeedbackTelemetryScreenshotSpec[];
   checks: FeedbackTelemetryCheck[];
-  nextRecommendedPhase: {
+  nextRecommendedGate: {
     phase: 'complete';
     title: string;
     reason: string;

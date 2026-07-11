@@ -200,7 +200,7 @@ describe('ZavorthWorkspaceMemoryOsService', () => {
 
     const snapshot = await service.buildReview({ userId: 'alice' });
 
-    expect(snapshot.phase).toBe('29');
+    expect(snapshot.phase).toBe('workspace-memory-os');
     expect(snapshot.surface).toBe('workspace-memory-os');
     expect(snapshot.workspaceProfile.stack).toEqual(expect.arrayContaining(['typescript', 'react', 'jest']));
     expect(snapshot.workspaceProfile.buildCommands).toContain('npm run build');

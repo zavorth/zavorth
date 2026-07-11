@@ -232,7 +232,7 @@ jest.doMock('../../../apps/zavorth-desktop/src/icons', mockIconsFn);
 const { SettingsPanel } = require('../../../apps/zavorth-desktop/src/views/panels/SettingsPanel');
 const { MemoryPanel } = require('../../../apps/zavorth-desktop/src/views/panels/MemoryPanel');
 
-describe('Fase 14A — SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
+describe('SettingsPanel and MemoryPanel Read-Only Rewrite', () => {
   let container: MockElement | null = null;
   let root: Root | null = null;
 

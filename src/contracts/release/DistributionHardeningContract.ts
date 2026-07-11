@@ -43,7 +43,7 @@ export type DistributionHardeningSmokeStep = {
 };
 
 export type DistributionHardeningSnapshot = {
-  phase: '55';
+  gate: 'distribution-hardening';
   surface: 'distribution-hardening';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -70,8 +70,8 @@ export type DistributionHardeningSnapshot = {
   installerPreviewSteps: DistributionHardeningInstallerPreviewStep[];
   smokeSteps: DistributionHardeningSmokeStep[];
   checks: DistributionHardeningCheck[];
-  nextRecommendedPhase: {
-    phase: '56';
+  nextRecommendedGate: {
+    gate: 'public-docs-recipes';
     title: string;
     reason: string;
   };
@@ -86,13 +86,11 @@ export const DISTRIBUTION_HARDENING_REQUIRED_CORE_SCRIPTS = [
   'release:rollback-preview',
   'distribution-hardening',
   'qa:distribution-hardening',
-  'qa:phase:55',
 ] as const;
 
 export const DISTRIBUTION_HARDENING_MANIFEST_ITEMS = [
   { path: 'package.json', required: true },
   { path: 'README.md', required: true },
-  { path: 'docs/product-direction.md', required: true },
   { path: 'docs/product-direction.md', required: true },
   { path: 'scripts/release-bundle.ts', required: true },
   { path: 'scripts/distribution-policy.ts', required: true },

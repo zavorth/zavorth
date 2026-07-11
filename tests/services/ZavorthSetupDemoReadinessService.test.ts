@@ -1,7 +1,7 @@
 import { ZavorthSetupDemoReadinessService } from '../../src/services/ZavorthSetupDemoReadinessService';
 
 describe('ZavorthSetupDemoReadinessService', () => {
-  it('builds a ready Phase D setup and demo snapshot under ten minutes', () => {
+  it('builds a ready setup and demo snapshot under ten minutes', () => {
     const snapshot = new ZavorthSetupDemoReadinessService({
       now: () => new Date('2026-05-16T12:00:00.000Z'),
     }).buildSnapshot();

@@ -12,7 +12,7 @@ describe('ZavorthChannelMessagingBridgeService Credential vault', () => {
       contractVersion: ZAVORTH_CHANNEL_MESSAGING_BRIDGE_CONTRACT_VERSION,
       status: 'channel-messaging-bridge-ready',
       planId: 'Zavorth External Runtime Integration',
-      phase: 'checkpoint-5-channels-and-messaging',
+      gate: 'channels-and-messaging',
       previousCapabilityProviderStatus: 'capability-provider-registry-ready',
     }));
     expect(snapshot.summary).toEqual(expect.objectContaining({

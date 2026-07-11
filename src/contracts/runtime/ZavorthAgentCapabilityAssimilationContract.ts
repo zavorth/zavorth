@@ -79,7 +79,7 @@ export type ZavorthAgentCapabilityAssimilationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_AGENT_CAPABILITY_ASSIMILATION_CONTRACT_VERSION;
   source: 'ZavorthAgentCapabilityAssimilationService';
-  phase: 'checkpoint-1-capability-assimilation-matrix';
+  gate: 'capability-assimilation-matrix';
   status: 'passed' | 'attention' | 'blocked';
   referenceProfiles: ZavorthAgentCapabilityAssimilationReferenceProfile[];
   matrix: ZavorthAgentCapabilityAssimilationMatrixItem[];

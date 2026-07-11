@@ -23,7 +23,7 @@ export type CapabilityAutopilotPreflightCheck = {
 };
 
 export type CapabilityAutopilotPreflightSnapshot = {
-  phase: '68';
+  gate: 'capability-autopilot-preflight-entrypoint';
   surface: 'capability-autopilot-preflight-entrypoint';
   generatedAt: string;
   capabilityId: string;
@@ -38,8 +38,8 @@ export type CapabilityAutopilotPreflightSnapshot = {
   records: CapabilityMemoryRecord[];
   payloads: CapabilityPreflightSurfacePayload[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '69';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-action-handler';
     title: string;
     reason: string;
   };
@@ -167,7 +167,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
 
   public renderReport(snapshot: CapabilityAutopilotPreflightSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight] Etapa 68 - Canonical Preflight Entrypoint');
+    lines.push('[capability-autopilot-preflight] Canonical Preflight Entrypoint');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -183,8 +183,8 @@ export class CapabilityAutopilotPreflightEntrypointService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -204,7 +204,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
     const passed = input.checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '68',
+      gate: 'capability-autopilot-preflight-entrypoint',
       surface: 'capability-autopilot-preflight-entrypoint',
       generatedAt: input.generatedAt,
       capabilityId: input.capabilityId,
@@ -219,14 +219,14 @@ export class CapabilityAutopilotPreflightEntrypointService {
       records: input.records,
       payloads: input.payloads,
       checks: input.checks,
-      nextRecommendedPhase: {
-        phase: '69',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-action-handler',
         title: 'Preflight Action Handler Wiring',
         reason:
           'Depois do entrypoint canonico, o proximo passo e ligar actions explicitas a handlers/API/surfaces sem executar repair ou fallback automaticamente.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-17',
+        gate: 'capability-autopilot-preflight-entrypoint-alt',
         audience: input.audience,
         surfaces: input.surfaces,
         expectedSurfaces: input.expectedSurfaces,
@@ -355,7 +355,7 @@ export class CapabilityAutopilotPreflightEntrypointService {
       workspace: input.workspace,
       metadata: {
         generatedBy: 'CapabilityAutopilotPreflightEntrypointService',
-        phase: 'capability-autopilot-checkpoint-17',
+        gate: 'capability-autopilot-preflight-entrypoint-alt',
       },
     };
   }

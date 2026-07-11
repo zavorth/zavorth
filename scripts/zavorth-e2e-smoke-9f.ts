@@ -8,7 +8,7 @@ import { asErrorLike } from '../src/utils/errorLike';
 const MARKER = 'ZAVORTH_9F_SMOKE_CONTENT_DO_NOT_PERSIST_2026';
 
 async function runSmokeTest() {
-  console.log('🚀 Starting E2E Workspace Write Approval Smoke Test (Phase 9F)...');
+  console.log('🚀 Starting E2E Workspace Write Approval Smoke Test...');
 
   // 1. Initialize safe temporary directory context
   const tempDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-smoke-9f-')));
@@ -470,7 +470,7 @@ async function runSmokeTest() {
     }
     console.log('✅ Assert 14 & 15 passed.');
 
-    console.log('\n🎉 ALL AUTOMATED E2E SMOKE TESTS PASSED SUCCESSFULLY! Phase 9F Verified.');
+    console.log('\n🎉 ALL AUTOMATED E2E SMOKE TESTS PASSED SUCCESSFULLY! Workspace write approval verified.');
   } finally {
     // 4. Shutdown HTTP server
     await new Promise<void>((resolve) => {

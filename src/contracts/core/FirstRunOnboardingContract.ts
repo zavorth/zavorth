@@ -19,7 +19,7 @@ export type FirstRunOnboardingScreenshotSpec = {
 };
 
 export type FirstRunOnboardingContractSnapshot = {
-  phase: '48';
+  gate: 'first-run-onboarding';
   surface: 'first-run-onboarding';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -36,8 +36,8 @@ export type FirstRunOnboardingContractSnapshot = {
   requiredArtifacts: string[];
   screenshots: FirstRunOnboardingScreenshotSpec[];
   checks: FirstRunOnboardingCheck[];
-  nextRecommendedPhase: {
-    phase: '49';
+  nextRecommendedGate: {
+    gate: 'external-docs';
     title: string;
     reason: string;
   };

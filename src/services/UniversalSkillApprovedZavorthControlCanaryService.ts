@@ -321,13 +321,13 @@ function buildCards(
   const blockedGates = scale.gates.filter((gate) => gate.status === 'blocked').length;
   const attentionGates = scale.gates.filter((gate) => gate.status === 'attention').length;
   return [
-    card('operational-status', 'Status operacional', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado da Etapa 10 para operar zavorthControl/canary.'),
-    card('scale-status', 'Escala/Etapa 9', scale.status, toneForStatus(scale.status), 'Status bruto da Etapa 9 mantido como evidencia de escala e cobertura.'),
+    card('operational-status', 'Status operacional', operationalStatus, toneForStatus(operationalStatus), 'Status consolidado do canary aprovado para operar zavorthControl/canary.'),
+    card('scale-status', 'Escala/hardening', scale.status, toneForStatus(scale.status), 'Status bruto de scale hardening mantido como evidencia de escala e cobertura.'),
     card('sources', 'Fontes em QA', scale.capacity.includedSourceCount, 'neutral', 'Fontes reais incluidas na certificacao.'),
     card('candidates', 'Candidatos', scale.capacity.candidateCount, 'neutral', 'Candidatos avaliados pela cadeia de intake/QA.'),
     card('batches', 'Batches', scale.capacity.batchCount, scale.capacity.batchCount > 0 ? 'success' : 'warning', 'Batches/canary com approval obrigatorio.'),
-    card('regression', 'Regressoes', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Findings agregados da Etapa 8.'),
-    card('gates', 'Gates com atencao', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention da Etapa 9.'),
+    card('regression', 'Regressoes', scale.onboarding.regression.findings.length, scale.onboarding.regression.findings.length > 0 ? 'warning' : 'success', 'Findings agregados do onboarding/regressao.'),
+    card('gates', 'Gates com atencao', blockedGates + attentionGates, blockedGates > 0 ? 'danger' : attentionGates > 0 ? 'warning' : 'success', 'Gates blocked/attention de scale hardening.'),
   ];
 }
 
@@ -429,7 +429,7 @@ function buildRollout(
       readyForLiveCanary: false,
       nextActions: [
         'Resolver gates blocked antes de renderizar canary operacional.',
-        'Reexecutar Etapa 10 em zavorthControl-only depois da correcao.',
+        'Reexecutar o canary aprovado em zavorthControl-only depois da correcao.',
       ],
     };
   }

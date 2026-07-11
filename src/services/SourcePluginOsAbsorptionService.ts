@@ -47,7 +47,7 @@ export class SourcePluginOsAbsorptionService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SOURCE_PLUGIN_PACKAGE_ABSORPTION_CONTRACT_VERSION,
       status,
-      phase: 1,
+      gate: 'source-plugin-package',
       statement: 'Source Plugin OS and package SDK surfaces are absorbed as Zavorth-native contracts, adapter checks, policy and receipts.',
       matrix,
       doctor,

@@ -1,7 +1,7 @@
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
 import { ZavorthCliTuiPolishService } from '../../src/services/ZavorthCliTuiPolishService';
 
-describe('ZavorthCliDemoFlow Tests (Phase 21O)', () => {
+describe('ZavorthCliDemoFlow Tests', () => {
   it('verifies that CLI status output shows workspace, provider, and security details', async () => {
     const writes: string[] = [];
     const errors: string[] = [];

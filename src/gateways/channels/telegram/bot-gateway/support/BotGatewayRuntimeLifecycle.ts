@@ -171,8 +171,9 @@ export async function start(
   runtime: BotGatewaySupportRuntime,
 ): Promise<void> {
   const DndService = (await import('../../../../../services/DndService.js')).DndService;
+  const { config } = await import('../../../../../config/index.js');
+  const telegramLive = String(config.telegramBotToken || '').trim().length > 0;
 
-  DndService.startWatcher(runtime.bot.api);
   runtime.runtimeDiagnostics.start();
   if (runtime.runtimeProfileService.supportsAdvancedRuntime()) {
     runtime.researchQueueWorker.start();
@@ -200,6 +201,15 @@ export async function start(
     );
   }
   await startZavorthControlSurface(runtime);
+  if (!telegramLive) {
+    runtime.logRepo.log(
+      'info',
+      'BotGateway',
+      'Telegram polling skipped — TELEGRAM_BOT_TOKEN is not configured. Control surface remains available.',
+    );
+    return;
+  }
+  DndService.startWatcher(runtime.bot.api);
   await runtime.lifecycleController.start(runtime.bot);
   await flushPendingSupervisedNotifications(runtime);
   if (!runtime.state.supervisedRuntimeNotificationTimer) {

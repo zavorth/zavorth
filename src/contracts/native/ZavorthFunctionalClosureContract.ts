@@ -17,7 +17,7 @@ export type ZavorthFunctionalClosureRiskLevel = 'none' | 'attention' | 'blocking
 
 export type ZavorthFunctionalClosureReceipt = {
   id: string;
-  phase: number;
+  gate: number;
   itemId: string;
   status: ZavorthFunctionalClosureItemStatus;
   priority: ZavorthFunctionalClosurePriority;
@@ -34,7 +34,7 @@ export type ZavorthFunctionalClosureReceipt = {
 
 export type ZavorthFunctionalClosureItem = {
   id: string;
-  phase: number;
+  gate: number;
   label: string;
   category: string;
   priority: ZavorthFunctionalClosurePriority;
@@ -56,7 +56,7 @@ export type ZavorthFunctionalClosureZavorthControlSnapshot = {
   title: 'Zavorth Functional Closure ZavorthControl';
   categoryRows: Array<{
     category: string;
-    phase: number;
+    gate: number;
     status: ZavorthFunctionalClosureItemStatus;
     priority: ZavorthFunctionalClosurePriority;
     decision: ZavorthFunctionalClosureDecision;
@@ -78,7 +78,7 @@ export type ZavorthFunctionalClosureZavorthControlSnapshot = {
 
 export type ZavorthLedgerDecisionUpdate = {
   itemId: string;
-  phase: number;
+  gate: number;
   currentDecision: ZavorthFunctionalClosureDecision;
   proposedDecision: ZavorthFunctionalClosureDecision;
   canUpdate: boolean;
@@ -134,7 +134,7 @@ export type ZavorthFunctionalClosureSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION;
   status: ZavorthFunctionalClosureStatus;
-  phase: 9;
+  gate: 'functional-closure';
   statement: 'Zavorth functional closure is a live, repeatable, machine-readable receipt over all absorbed and intentionally excluded capability surfaces.';
   runtime: {
     platform: NodeJS.Platform;

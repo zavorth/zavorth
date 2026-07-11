@@ -78,7 +78,7 @@ export class PublicDocsRecipesService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '56',
+      gate: 'public-docs-recipes',
       surface: 'public-docs-recipes',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -99,8 +99,8 @@ export class PublicDocsRecipesService {
         fixtureSmokePath: this.fixtureSmokePath,
       },
       checks,
-      nextRecommendedPhase: {
-        phase: '57',
+      nextRecommendedGate: {
+        gate: 'pilot-loop',
         title: 'Feedback, Support And Pilot Loop',
         reason:
           'Com docs e recipes publicas verificaveis, o proximo passo e transformar feedback e pilotos em loop de produto auditavel.',
@@ -125,8 +125,8 @@ export class PublicDocsRecipesService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -381,7 +381,6 @@ export class PublicDocsRecipesService {
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'etapa 56',
       'public docs',
       'recipes',
       'pre-requisitos',
@@ -389,7 +388,6 @@ export class PublicDocsRecipesService {
       'sem secrets',
       'troubleshooting',
       'qa:public-docs-recipes',
-      'qa:phase:56',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
@@ -409,7 +407,7 @@ export class PublicDocsRecipesService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 7 - Feedback, Support And Pilot Loop', 'qa:phase:57']
+    const missing = ['Readiness checkpoint 7 - Feedback, Support And Pilot Loop', 'qa:pilot-loop']
       .filter((term) => !source.includes(term));
     return this.check(
       'public-docs-recipes:next-phase',

@@ -6,14 +6,14 @@ describe('DeterministicQaMatrixService', () => {
     const service = new DeterministicQaMatrixService();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('41');
+    expect(snapshot.phase).toBe('deterministic-qa');
     expect(snapshot.surface).toBe('deterministic-qa-matrix');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.tiers.quick.gates).toContain('product-quality');
     expect(snapshot.tiers.standard.gates).toEqual(expect.arrayContaining(snapshot.tiers.quick.gates));
     expect(snapshot.tiers.release.gates).toEqual(expect.arrayContaining(snapshot.tiers.standard.gates));
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '45',
       title: 'Runtime Performance And Idle Budget',
     }));
@@ -86,7 +86,7 @@ describe('DeterministicQaMatrixService', () => {
     ]));
   });
 
-  it('renders the selected next phase recommendation', () => {
+  it('renders the selected next gate recommendation', () => {
     const service = new DeterministicQaMatrixService({
       packageJson: {
         scripts: {
@@ -106,7 +106,7 @@ describe('DeterministicQaMatrixService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 41 - QA Deterministico');
+    expect(report).toContain('Gate deterministic-qa - QA Deterministico');
     expect(report).toContain('proximo passo recomendada: 45 - Runtime Performance And Idle Budget');
   });
 });

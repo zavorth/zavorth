@@ -13,7 +13,7 @@ jest.mock('../../src/services/AgentWorkspaceConfigService');
 jest.mock('../../src/services/WorkspaceRuntimeReadinessService');
 jest.mock('../../src/services/ProviderConfigService');
 
-describe('InternalBetaDiagnosticsService Tests (Phase 21K-B)', () => {
+describe('InternalBetaDiagnosticsService Tests', () => {
   let service: InternalBetaDiagnosticsService;
   let mockDb: any;
   let mockAuditLogger: any;

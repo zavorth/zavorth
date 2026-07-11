@@ -1,7 +1,7 @@
 import { ZavorthTransactionPlanePolicyService } from '../../src/services/ZavorthTransactionPlanePolicyService.js';
 
 describe('ZavorthTransactionPlanePolicyService', () => {
-  it('builds a ready phase 0 snapshot', () => {
+  it('builds a ready transaction-plane policy snapshot', () => {
     const service = new ZavorthTransactionPlanePolicyService();
     const snapshot = service.buildSnapshot(new Date('2026-05-11T00:00:00.000Z'));
 

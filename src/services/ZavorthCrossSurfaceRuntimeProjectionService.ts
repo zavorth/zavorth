@@ -68,7 +68,7 @@ export class ZavorthCrossSurfaceRuntimeProjectionService {
       generatedAt,
       contractVersion: ZAVORTH_CROSS_SURFACE_RUNTIME_PROJECTION_CONTRACT_VERSION,
       source: 'ZavorthCrossSurfaceRuntimeProjectionService',
-      phase: 'checkpoint-5-cross-surface-runtime-projection',
+      gate: 'cross-surface-runtime-projection',
       status: toolOrchestration.status,
       request: {
         surface: toolOrchestration.request.surface,

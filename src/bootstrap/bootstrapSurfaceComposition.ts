@@ -162,12 +162,7 @@ export function composeSurfaceRuntime(
   }
 
   const discordGateway = config.discordBotToken
-    ? new DiscordGateway({
-      broker: coreOrchestrator,
-      agentGateway: foundation.agentGateway,
-      logRepo: foundation.logRepo,
-      discordSurfacePolicyService,
-    } as unknown as WebhookGatewayOptions)
+    ? new DiscordGateway(coreOrchestrator)
     : new DiscordBridgeGateway({
       broker: coreOrchestrator,
       agentGateway: foundation.agentGateway,

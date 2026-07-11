@@ -22,7 +22,7 @@ export type CapabilityPreflightDispatchMode =
   | 'memory_hint';
 
 export type CapabilityPreflightDispatchReceipt = {
-  phase: '70';
+  gate: 'capability-autopilot-preflight-dispatch-receipt';
   receiptId: string;
   generatedAt: string;
   surface: 'capability-autopilot-preflight-dispatch-receipt';
@@ -45,7 +45,7 @@ export type CapabilityPreflightDispatchReceipt = {
   blockers: string[];
   safeSummary: string;
   audit: {
-    sourcePlanPhase: CapabilityPreflightActionHandlerResult['phase'];
+    sourcePlanGate: CapabilityPreflightActionHandlerResult['gate'];
     sourcePlanGeneratedAt: string;
     confirmationId: string | null;
     actorId: string | null;
@@ -55,7 +55,7 @@ export type CapabilityPreflightDispatchReceipt = {
 };
 
 export type CapabilityPreflightDispatchReceiptSnapshot = {
-  phase: '70';
+  gate: 'capability-autopilot-preflight-dispatch-receipt';
   surface: 'capability-autopilot-preflight-dispatch-receipt';
   generatedAt: string;
   capabilityId: string;
@@ -66,11 +66,11 @@ export type CapabilityPreflightDispatchReceiptSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotPreflightSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotPreflightSnapshot['gate'];
   receipts: CapabilityPreflightDispatchReceipt[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '71';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-dispatch-adapter';
     title: string;
     reason: string;
   };
@@ -113,7 +113,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
     const receiptId = this.buildReceiptId(plan, generatedAt, options.confirmationId || null);
 
     return {
-      phase: '70',
+      gate: 'capability-autopilot-preflight-dispatch-receipt',
       receiptId,
       generatedAt,
       surface: 'capability-autopilot-preflight-dispatch-receipt',
@@ -136,14 +136,14 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
       blockers,
       safeSummary: this.buildSafeSummary(plan, status),
       audit: {
-        sourcePlanPhase: plan.phase,
+        sourcePlanGate: plan.gate,
         sourcePlanGeneratedAt: plan.generatedAt,
         confirmationId: options.confirmationId || null,
         actorId: options.actorId || null,
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-70',
+        gate: 'capability-autopilot-preflight-dispatch-receipt',
         sourceActionKind: plan.sourceAction?.kind || null,
         sourceHandlerKind: plan.handlerKind,
         autoExecute: false,
@@ -178,7 +178,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '70',
+      gate: 'capability-autopilot-preflight-dispatch-receipt',
       surface: 'capability-autopilot-preflight-dispatch-receipt',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -189,17 +189,17 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       receipts,
       checks,
-      nextRecommendedPhase: {
-        phase: '71',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-dispatch-adapter',
         title: 'Preflight Dispatch Adapter Integration',
         reason:
           'Depois de registrar receipts de dispatch explicito, o proximo passo e conectar adapters reais de CLI, web, chat, Telegram e API sem perder approval, validation e auditoria.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-70',
+        gate: 'capability-autopilot-preflight-dispatch-receipt',
         sourceSnapshotStatus: source.status,
         receiptCount: receipts.length,
         autoExecute: false,
@@ -211,7 +211,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
 
   public renderReport(snapshot: CapabilityPreflightDispatchReceiptSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-dispatch] Etapa 70 - Preflight Handler Execution Receipts');
+    lines.push('[capability-autopilot-preflight-dispatch] Preflight Handler Execution Receipts');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -225,8 +225,8 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -319,7 +319,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
           receipt.requiresExplicitUserAction &&
           receipt.dispatchPrepared
         ) ? 'pass' : 'fail',
-        'A Etapa 70 so prepara receipt pronto quando existe confirmacao explicita.',
+        'Este gate so prepara receipt pronto quando existe confirmacao explicita.',
         receipts.map((receipt) =>
           `${receipt.sourceSurface}:${receipt.sourceAction?.kind || '<none>'}:confirmed=${receipt.explicitlyConfirmed}:prepared=${receipt.dispatchPrepared}`,
         ),

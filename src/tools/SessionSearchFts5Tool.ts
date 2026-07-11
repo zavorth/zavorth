@@ -1,19 +1,13 @@
 /**
  * SessionSearchFts5Tool - zero-LLM-cost full-text session search.
  *
- * Ferramenta unificada com 4 modos: discover, scroll, read, browse.
- * Indexes sessions locally and supports searches by content, metadata,
- * and time period without spending LLM tokens.
- *
- * Uso via tool registry:
- *   const result = await tool.execute({
- *     mode: 'discover',
- *     query: 'authentication bug',
- *     limit: 10,
- *   });
+ * Unified tool with modes: discover, scroll, read, browse.
+ * Prefer SessionContinuumService (shared recall store) when available;
+ * otherwise fall back to an in-memory index for offline/tests.
  */
 
 import { BaseTool } from './BaseTool.js';
+import type { SessionContinuumService } from '../services/SessionContinuumService.js';
 
 export interface SessionEntry {
   id: string;
@@ -41,11 +35,13 @@ export interface SearchResult {
   entries: SessionEntry[];
   total: number;
   hasMore: boolean;
+  storePath?: string;
 }
 
 export class SessionSearchFts5Tool extends BaseTool {
-  public readonly name = 'session_search_fts5';
-  public readonly description = 'Full-text search across stored sessions. Modes: discover (search), scroll (navigate), read (read session), browse (list sessions).';
+  public readonly name = 'session_search';
+  public readonly description =
+    'Full-text search across stored sessions via the local session continuum. Modes: discover (search), scroll (navigate), read (read session), browse (list sessions).';
 
   public readonly parameters = {
     type: 'object' as const,
@@ -91,20 +87,24 @@ export class SessionSearchFts5Tool extends BaseTool {
   private entries: SessionEntry[] = [];
   private sessionIndex = new Map<string, SessionEntry[]>();
   private invertedIndex = new Map<string, Set<number>>();
+  private readonly continuum: SessionContinuumService | null;
+
+  constructor(options?: { continuum?: SessionContinuumService | null }) {
+    super();
+    this.continuum = options?.continuum || null;
+  }
 
   /**
-   * Indexes a session entry.
+   * Indexes a session entry (in-memory fallback path).
    */
   indexEntry(entry: SessionEntry): void {
     const idx = this.entries.length;
     this.entries.push(entry);
 
-    // Index by session.
     const sessionEntries = this.sessionIndex.get(entry.sessionId) ?? [];
     sessionEntries.push(entry);
     this.sessionIndex.set(entry.sessionId, sessionEntries);
 
-    // Index words for full-text search
     const words = this.tokenize(entry.content);
     for (const word of words) {
       const positions = this.invertedIndex.get(word) ?? new Set();
@@ -121,12 +121,6 @@ export class SessionSearchFts5Tool extends BaseTool {
       .filter((w) => w.length > 2);
   }
 
-  private matchesQuery(entry: SessionEntry, query: string): boolean {
-    const queryWords = this.tokenize(query);
-    const entryWords = new Set(this.tokenize(entry.content));
-    return queryWords.some((w) => entryWords.has(w));
-  }
-
   private matchesFilters(
     entry: SessionEntry,
     options: SearchOptions,
@@ -138,9 +132,6 @@ export class SessionSearchFts5Tool extends BaseTool {
     return true;
   }
 
-  /**
-   * Discover mode: text search with scoring.
-   */
   private discover(query: string, options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
     const offset = options.offset ?? 0;
@@ -166,9 +157,6 @@ export class SessionSearchFts5Tool extends BaseTool {
     };
   }
 
-  /**
-   * Scroll mode: navigate through a session with chronological pagination.
-   */
   private scroll(options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
     const offset = options.offset ?? 0;
@@ -186,9 +174,6 @@ export class SessionSearchFts5Tool extends BaseTool {
     };
   }
 
-  /**
-   * Read mode: returns all entries for a session.
-   */
   private read(sessionId: string): SearchResult {
     const entries = this.sessionIndex.get(sessionId) ?? [];
     return {
@@ -198,9 +183,6 @@ export class SessionSearchFts5Tool extends BaseTool {
     };
   }
 
-  /**
-   * Browse mode: lists unique sessions with counts.
-   */
   private browse(options: SearchOptions): SearchResult {
     const limit = options.limit ?? 20;
     const offset = options.offset ?? 0;
@@ -235,6 +217,99 @@ export class SessionSearchFts5Tool extends BaseTool {
     };
   }
 
+  private searchViaContinuum(options: SearchOptions): SearchResult | null {
+    if (!this.continuum) return null;
+
+    const limit = options.limit ?? 20;
+    const offset = options.offset ?? 0;
+    const storePath = this.continuum.getStorePath();
+
+    if (options.mode === 'browse') {
+      const snapshot = this.continuum.browse({
+        currentSessionId: options.sessionId || null,
+        limit: limit + offset,
+      });
+      const hits = snapshot.hits.slice(offset, offset + limit);
+      return {
+        storePath,
+        total: snapshot.returned,
+        hasMore: offset + limit < snapshot.returned,
+        entries: hits.map((hit) => ({
+          id: hit.messageId || hit.sessionId,
+          sessionId: hit.sessionId,
+          role: (hit.role as SessionEntry['role']) || 'system',
+          content: `[${hit.title}] ${hit.snippet}`,
+          timestamp: hit.updatedAt || hit.createdAt || snapshot.generatedAt,
+        })),
+      };
+    }
+
+    if (options.mode === 'read') {
+      const snapshot = this.continuum.scroll({
+        sessionId: options.sessionId,
+        aroundMessageId: null,
+        limit: 50,
+        window: 8,
+      });
+      const hits = snapshot.hits.filter((hit) => hit.sessionId === options.sessionId);
+      return {
+        storePath,
+        total: hits.length,
+        hasMore: false,
+        entries: hits.map((hit) => ({
+          id: hit.messageId || hit.sessionId,
+          sessionId: hit.sessionId,
+          role: (hit.role as SessionEntry['role']) || 'system',
+          content: hit.snippet,
+          timestamp: hit.createdAt || hit.updatedAt || snapshot.generatedAt,
+        })),
+      };
+    }
+
+    if (options.mode === 'scroll') {
+      const snapshot = this.continuum.scroll({
+        sessionId: options.sessionId || null,
+        aroundMessageId: null,
+        limit: limit + offset,
+        window: 2,
+      });
+      const hits = snapshot.hits.slice(offset, offset + limit);
+      return {
+        storePath,
+        total: snapshot.returned,
+        hasMore: offset + limit < snapshot.returned,
+        entries: hits.map((hit) => ({
+          id: hit.messageId || hit.sessionId,
+          sessionId: hit.sessionId,
+          role: (hit.role as SessionEntry['role']) || 'system',
+          content: hit.snippet,
+          timestamp: hit.createdAt || hit.updatedAt || snapshot.generatedAt,
+        })),
+      };
+    }
+
+    const query = String(options.query || '').trim();
+    if (!query) return null;
+    const snapshot = this.continuum.discover(query, {
+      sessionId: options.sessionId || null,
+      limit: limit + offset,
+      window: 2,
+    });
+    const hits = snapshot.hits.slice(offset, offset + limit);
+    return {
+      storePath,
+      total: snapshot.returned,
+      hasMore: offset + limit < snapshot.returned,
+      entries: hits.map((hit) => ({
+        id: hit.messageId || hit.sessionId,
+        sessionId: hit.sessionId,
+        role: (hit.role as SessionEntry['role']) || 'system',
+        content: hit.snippet,
+        timestamp: hit.createdAt || hit.updatedAt || snapshot.generatedAt,
+      })),
+    };
+  }
+
   async execute(args: Record<string, unknown>): Promise<string> {
     const mode = String(args.mode || 'discover') as SearchOptions['mode'];
     const query = String(args.query || '');
@@ -249,31 +324,39 @@ export class SessionSearchFts5Tool extends BaseTool {
       role: args.role as string,
       startDate: args.startDate as string,
       endDate: args.endDate as string,
+      limit,
+      offset,
     };
 
-    let result: SearchResult;
+    if (mode === 'discover' && !query) return 'Erro: modo discover requer campo "query".';
+    if (mode === 'read' && !sessionId) return 'Erro: modo read requer campo "sessionId".';
+    if (!['discover', 'scroll', 'read', 'browse'].includes(mode)) {
+      return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
+    }
 
-    switch (mode) {
-      case 'discover':
-        if (!query) return 'Erro: modo discover requer campo "query".';
-        result = this.discover(query, options);
-        break;
-      case 'scroll':
-        result = this.scroll(options);
-        break;
-      case 'read':
-        if (!sessionId) return 'Erro: modo read requer campo "sessionId".';
-        result = this.read(sessionId);
-        break;
-      case 'browse':
-        result = this.browse(options);
-        break;
-      default:
-        return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
+    let result = this.searchViaContinuum(options);
+    if (!result) {
+      switch (mode) {
+        case 'discover':
+          result = this.discover(query, options);
+          break;
+        case 'scroll':
+          result = this.scroll(options);
+          break;
+        case 'read':
+          result = this.read(sessionId);
+          break;
+        case 'browse':
+          result = this.browse(options);
+          break;
+        default:
+          return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
+      }
     }
 
     const lines: string[] = [
       `Resultados: ${result.total} total, ${result.entries.length} retornados`,
+      result.storePath ? `store: ${result.storePath}` : '',
       result.hasMore ? 'More results available (use offset)' : '',
       '',
     ];

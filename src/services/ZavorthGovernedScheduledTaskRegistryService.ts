@@ -114,7 +114,7 @@ export class ZavorthGovernedScheduledTaskRegistryService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION,
       source: 'ZavorthGovernedScheduledTaskRegistryService',
-      phase: 'checkpoint-1-governed-scheduled-task-contract',
+      gate: 'governed-scheduled-task-contract',
       status,
       schedule,
       scope,

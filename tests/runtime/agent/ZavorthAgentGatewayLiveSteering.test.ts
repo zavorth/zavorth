@@ -123,6 +123,7 @@ describe('ZavorthAgentGateway live LLM steering', () => {
       expect.objectContaining({
         type: 'agent.stream.lifecycle',
         payload: expect.objectContaining({
+          // Product events use phase (legacy tests still said "gate").
           phase: 'executor-started',
           runId: result.run.id,
           sessionId: 'web:live-steering',
@@ -138,11 +139,11 @@ describe('ZavorthAgentGateway live LLM steering', () => {
         }),
       }),
       expect.objectContaining({
-        type: 'agent.stream.assistant',
+        type: 'agent.stream.lifecycle',
         payload: expect.objectContaining({
-          phase: 'done',
-          done: true,
+          phase: 'llm-reissued-after-steering',
           runId: result.run.id,
+          sessionId: 'web:live-steering',
         }),
       }),
     ]));

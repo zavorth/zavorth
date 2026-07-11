@@ -165,7 +165,7 @@ export type ZavorthScheduledTaskSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_CONTRACT_VERSION;
   source: 'ZavorthGovernedScheduledTaskRegistryService';
-  phase: 'checkpoint-1-governed-scheduled-task-contract';
+  gate: 'governed-scheduled-task-contract';
   status: ZavorthScheduledTaskStatus;
   schedule: ZavorthScheduledTaskSchedule | null;
   scope: ZavorthScheduledTaskScope;

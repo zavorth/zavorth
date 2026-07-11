@@ -19,6 +19,7 @@ import type {
 } from '../contracts/ChannelLongTailActivationContract.js';
 
 import type { LiveReadinessEntry } from '../contracts/LiveReadinessContract.js';
+import { channelIdsEqual, normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { LiveReadinessService } from './LiveReadinessService.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
@@ -69,6 +70,12 @@ const LONG_TAIL_CHANNELS: LongTailDescriptor[] = [
   apple('imessage', 'macOS Node Mesh iMessage bridge', ['IMESSAGE_NODE_ID or IMESSAGE_BRIDGE_SCRIPT', 'IMESSAGE_ALLOWED_RECIPIENTS']),
 ];
 
+/**
+ * Live-credential activation catalog for channels that historically sat behind
+ * extra setup gates. Product quality is first-class for every factory channel
+ * via ChannelCompletenessService / WebhookGateway completeness — this service
+ * no longer demotes channels to a permanent second-class product tier.
+ */
 export class ChannelLongTailActivationService {
   private readonly now: () => Date;
   private readonly liveReadiness: LiveReadinessService;
@@ -95,7 +102,7 @@ export class ChannelLongTailActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_CHANNEL_LONG_TAIL_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Approval gate - Channel Live Activation Long Tail',
+      gate: 'channel-live-activation-long-tail',
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         channels: entries.length,
@@ -238,7 +245,7 @@ export class ChannelLongTailActivationService {
         message,
         recipients,
         metadata: {
-          phase: 'Approval gate - Channel Live Activation Long Tail',
+          gate: 'channel-live-activation-long-tail',
           receiptId: id,
         },
       });
@@ -317,8 +324,11 @@ export class ChannelLongTailActivationService {
     return entries.filter((entry) => entry.family === family).length;
   }
 
-  private getDescriptor(channelId: ChannelLongTailActivationId): LongTailDescriptor {
-    const descriptor = LONG_TAIL_CHANNELS.find((entry) => entry.channelId === channelId);
+  private getDescriptor(channelId: ChannelLongTailActivationId | string): LongTailDescriptor {
+    const descriptor = LONG_TAIL_CHANNELS.find((entry) =>
+      entry.channelId === channelId
+      || channelIdsEqual(entry.channelId, channelId)
+      || normalizeChannelId(entry.channelId) === normalizeChannelId(channelId));
     if (!descriptor) {
       throw new Error(`Unknown long-tail channel: ${channelId}`);
     }

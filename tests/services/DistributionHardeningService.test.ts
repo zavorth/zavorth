@@ -14,12 +14,12 @@ describe('DistributionHardeningService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('55');
+    expect(snapshot.phase).toBe('distribution-hardening');
     expect(snapshot.surface).toBe('distribution-hardening');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.release.expectedTag).toBe('v1.0.0');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '56',
       title: 'Public Docs, Examples And Recipes Expansion',
     }));
@@ -127,7 +127,7 @@ describe('DistributionHardeningService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
 
     const report = service.renderReport();
@@ -181,17 +181,17 @@ function filesFixture(): Record<string, string> {
       'install smoke',
       'cleanup',
       'qa:distribution-hardening',
-      'qa:stage:55',
+      'qa:distribution-hardening',
       'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion',
-      'qa:stage:56',
+      'qa:public-docs-recipes',
     ].join('\n'),
     'core:docs/product-direction.md': [
       'Readiness checkpoint 5 - Installer And Distribution Hardening: implementada.',
       'manifest checksum preview install cleanup',
       'qa:distribution-hardening',
-      'qa:stage:55',
+      'qa:distribution-hardening',
       'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion',
-      'qa:stage:56',
+      'qa:public-docs-recipes',
     ].join('\n'),
     'core:src/contracts/PublicReleaseBundleContract.ts': 'sha256:faae33f9400fdaf6a75a359a883d887cd5079ceff9f0b1011bc63f9078f74f91',
     'core:scripts/release-bundle.ts': 'new PublicReleaseBundleContractService()',

@@ -25,13 +25,13 @@ export type CapabilityPreflightRealApplyApprovalOptions = {
 };
 
 export type CapabilityPreflightRealApplyApprovalDecision = {
-  phase: '75';
+  gate: 'capability-autopilot-preflight-real-apply-approval';
   realApplyGateId: string;
   generatedAt: string;
   surface: 'capability-autopilot-preflight-real-apply-approval-gate';
   status: CapabilityPreflightRealApplyApprovalStatus;
   capabilityId: string;
-  sourceDryRunPhase: CapabilityPreflightApplyDryRunExecution['phase'];
+  sourceDryRunGate: CapabilityPreflightApplyDryRunExecution['gate'];
   sourceDryRunExecutionId: string;
   sourceSurface: CapabilityPreflightApplyDryRunExecution['sourceSurface'];
   sourceAction: CapabilityPreflightApplyDryRunExecution['sourceAction'];
@@ -85,7 +85,7 @@ export type CapabilityPreflightRealApplyApprovalDecision = {
 };
 
 export type CapabilityPreflightRealApplyApprovalGateSnapshot = {
-  phase: '75';
+  gate: 'capability-autopilot-preflight-real-apply-approval';
   surface: 'capability-autopilot-preflight-real-apply-approval-gate';
   generatedAt: string;
   capabilityId: string;
@@ -96,11 +96,11 @@ export type CapabilityPreflightRealApplyApprovalGateSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightApplyDryRunExecutorSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightApplyDryRunExecutorSnapshot['gate'];
   decisions: CapabilityPreflightRealApplyApprovalDecision[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '76';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-controlled-real-apply';
     title: string;
     reason: string;
   };
@@ -140,13 +140,13 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
     const realApplyGateId = this.buildRealApplyGateId(execution, generatedAt, options.finalApprovalReceiptId || null);
 
     return {
-      phase: '75',
+      gate: 'capability-autopilot-preflight-real-apply-approval',
       realApplyGateId,
       generatedAt,
       surface: 'capability-autopilot-preflight-real-apply-approval-gate',
       status,
       capabilityId: execution.capabilityId,
-      sourceDryRunPhase: execution.phase,
+      sourceDryRunGate: execution.gate,
       sourceDryRunExecutionId: execution.dryRunExecutionId,
       sourceSurface: execution.sourceSurface,
       sourceAction: execution.sourceAction,
@@ -188,7 +188,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-75',
+        gate: 'capability-autopilot-preflight-real-apply-approval',
         sourceDryRunStatus: execution.status,
         sourceActionKind: execution.sourceAction?.kind || null,
         autoExecute: false,
@@ -216,7 +216,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '75',
+      gate: 'capability-autopilot-preflight-real-apply-approval',
       surface: 'capability-autopilot-preflight-real-apply-approval-gate',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -227,17 +227,17 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       decisions,
       checks,
-      nextRecommendedPhase: {
-        phase: '76',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-controlled-real-apply',
         title: 'Preflight Controlled Real Apply Executor',
         reason:
           'Depois do gate final, o proximo passo e executar apply real somente com adapter injetado, budget travado, auditoria e rollback plan por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-75',
+        gate: 'capability-autopilot-preflight-real-apply-approval',
         sourceSnapshotStatus: source.status,
         dryRunExecutionCount: source.executions.length,
         decisionCount: decisions.length,
@@ -255,7 +255,7 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
 
   public renderReport(snapshot: CapabilityPreflightRealApplyApprovalGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-real-apply] Etapa 75 - Preflight Real Apply Approval Gate');
+    lines.push('[capability-autopilot-preflight-real-apply] Preflight Real Apply Approval Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -269,8 +269,8 @@ export class CapabilityAutopilotPreflightRealApplyApprovalGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

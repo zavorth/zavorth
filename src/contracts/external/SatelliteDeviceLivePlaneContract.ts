@@ -123,7 +123,7 @@ export type SatelliteDeviceLiveEntry = {
 export type SatelliteDeviceLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Intent model1 - Satellite And Device Live Plane';
+  gate: 'satellite-device-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 5;

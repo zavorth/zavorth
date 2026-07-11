@@ -67,8 +67,12 @@ export function useDesktopAutomations(input: {
   }, [refreshScheduledTasks, scheduledTasks]);
 
   const handleRunScheduledTask = useCallback(async (id: string) => {
-    await window.zavorthDesktop?.automations?.run(id);
+    const result = await window.zavorthDesktop?.automations?.run(id);
     await refreshScheduledTasks();
+    if (result && !result.ok) {
+      throw new Error(result.error || 'O runtime não concluiu a automação.');
+    }
+    return result;
   }, [refreshScheduledTasks]);
 
   const loadScheduledTaskLogs = useCallback(async (sessionId: string) => {

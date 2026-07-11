@@ -57,7 +57,7 @@ export type CapabilityAutopilotReleaseExecutionOptions = {
 };
 
 export type CapabilityAutopilotReleaseExecutionSnapshot = {
-  phase: '82';
+  gate: 'capability-autopilot-release-execution';
   releaseExecutionGateId: string;
   generatedAt: string;
   surface: 'capability-autopilot-release-execution-gate';
@@ -70,7 +70,7 @@ export type CapabilityAutopilotReleaseExecutionSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotReleaseRolloutPlanSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotReleaseRolloutPlanSnapshot['gate'];
   sourceStatus: CapabilityAutopilotReleaseRolloutPlanSnapshot['status'];
   sourceRecommendation: CapabilityAutopilotReleaseRolloutPlanSnapshot['recommendation'];
   executionIntent: {
@@ -134,8 +134,8 @@ export type CapabilityAutopilotReleaseExecutionSnapshot = {
     reason: string | null;
     executionGateReceiptId: string | null;
   };
-  nextRecommendedPhase: {
-    phase: '83';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-canary-monitoring-promotion';
     title: string;
     reason: string;
   };
@@ -202,7 +202,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       : 'hold_rollout_plan';
 
     return {
-      phase: '82',
+      gate: 'capability-autopilot-release-execution',
       releaseExecutionGateId: this.buildExecutionGateId(source, generatedAt, options.executionGateReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-release-execution-gate',
@@ -215,7 +215,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       sourceRecommendation: source.recommendation,
       executionIntent: {
@@ -279,14 +279,14 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         reason: options.reason || null,
         executionGateReceiptId: options.executionGateReceiptId || null,
       },
-      nextRecommendedPhase: {
-        phase: '83',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-canary-monitoring-promotion',
         title: 'Capability Autopilot v1.1 Canary Monitoring And Promotion Gate',
         reason:
           'Depois da execucao manual gated, o proximo passo e monitorar o canary e decidir expandir, pausar ou acionar rollback.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-82',
+        gate: 'capability-autopilot-release-execution',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -304,7 +304,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
 
   public renderReport(snapshot: CapabilityAutopilotReleaseExecutionSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-release-execution] Etapa 82 - Capability Autopilot v1.1 Release Execution Gate');
+    lines.push('[capability-autopilot-release-execution] Capability Autopilot v1.1 Release Execution Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -320,8 +320,8 @@ export class CapabilityAutopilotReleaseExecutionGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -578,7 +578,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
         'capability-autopilot-release-execution:safeguards',
         'sem automacao ampla',
         !options.autoExecuteEnabled && !options.globalRolloutEnabled && !options.skipCanaryEnabled ? 'pass' : 'fail',
-        'A Etapa 82 permite execucao manual gated, mas bloqueia auto-execute, rollout global e skip-canary.',
+        'Este gate permite execucao manual gated, mas bloqueia auto-execute, rollout global e skip-canary.',
         [
           `autoExecuteEnabled=${options.autoExecuteEnabled}`,
           `globalRolloutEnabled=${options.globalRolloutEnabled}`,
@@ -622,7 +622,7 @@ export class CapabilityAutopilotReleaseExecutionGateService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.rolloutPlanId,
         source.generatedAt,
         generatedAt,

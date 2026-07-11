@@ -183,6 +183,9 @@ export type CanonicalChatPreviewDTO = {
     liveRequiresExplicitFlag: true;
     zavorthControlCanExecute: false;
     policyBrokerRequiredForTools: true;
+    policyBrokerEvaluatedForLiveSubmit?: boolean;
+    policyBrokerReceiptId?: string | null;
+    operatorContinuityId?: string | null;
   };
 };
 
@@ -204,6 +207,8 @@ export type CanonicalGovernedActionReceiptDTO = {
   policyReceipt: SecurityPolicyBrokerReceipt;
   rawSecretsSerialized: false;
   zavorthControlCanExecute: false;
+  operatorContinuityId?: string | null;
+  policyBrokerReceiptId?: string | null;
 };
 
 export type CanonicalGovernedActionResultDTO<T = unknown> = {
@@ -222,6 +227,15 @@ export type CanonicalGovernedActionResultDTO<T = unknown> = {
     policyBrokerEvaluated: true;
     rawSecretsSerialized: false;
   };
+  operatorContinuity?: {
+    continuityId: string;
+    receiptId: string | null;
+    decisionAction: string | null;
+    allowed: boolean | null;
+    status: string | null;
+    policyBrokerReceiptId: string | null;
+    terminal: boolean;
+  } | null;
 };
 
 export type CanonicalApprovalDecisionResultDTO = CanonicalGovernedActionResultDTO<PermissionRequest>;

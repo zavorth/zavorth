@@ -53,7 +53,7 @@ async function main(): Promise<void> {
     if (!candidateId) {
       throw new Error('Uso: zavorth learn <approve|reject|forget|promote|promote-skill|promote-procedure> <candidateId>.');
     }
-    const execution = learningPlane.executeAction({
+    const execution = await learningPlane.executeAction({
       candidateId,
       actionId,
     });

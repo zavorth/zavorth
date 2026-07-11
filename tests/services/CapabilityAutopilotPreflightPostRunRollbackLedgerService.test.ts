@@ -142,7 +142,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
@@ -392,7 +392,7 @@ describe('CapabilityAutopilotPreflightPostRunRollbackLedgerService', () => {
         auditReceiptId: 'resume-audit',
       },
     });
-    expect(service.renderReport(postRun)).toContain('Etapa 77 - Real Apply Post-Run Verification And Rollback Ledger');
+    expect(service.renderReport(postRun)).toContain('Gate capability-autopilot-preflight-post-run-rollback - Real Apply Post-Run Verification And Rollback Ledger');
     expect(service.renderReport(postRun)).toContain('proximo passo recomendada: 78 - Capability Autopilot v1.1 Beta Readiness Gate');
   });
 });

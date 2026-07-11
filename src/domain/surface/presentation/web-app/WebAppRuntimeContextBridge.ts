@@ -136,12 +136,19 @@ export class WebAppRuntimeContextBridge {
   public async executeLearningPlaneAction(input: {
     candidateId: string;
     actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
-  }): Promise<ReturnType<ZavorthLearningPlaneService['executeAction']> | null> {
+    approvalId?: string | null;
+    requestedBy?: string | null;
+    sourceSurface?: string | null;
+  }): Promise<Awaited<ReturnType<ZavorthLearningPlaneService['executeAction']>> | null> {
     const service = this.getLearningPlaneService();
     if (!service) {
       return null;
     }
-    return service.executeAction(input);
+    return service.executeAction({
+      ...input,
+      requestedBy: input.requestedBy || 'web:learning-dreams',
+      sourceSurface: input.sourceSurface || 'web:learning-dreams',
+    });
   }
 
   public async searchLayeredMemory(input: {

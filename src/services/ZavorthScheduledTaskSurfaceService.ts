@@ -316,7 +316,7 @@ export class ZavorthScheduledTaskSurfaceService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskSurfaceService',
-      phase: 'checkpoint-4-governed-scheduled-task-surfaces',
+      gate: 'governed-scheduled-task-surfaces',
       action: input.action,
       status: input.status,
       ok: input.status === 'completed' || input.status === 'ready' || input.status === 'empty',
@@ -346,7 +346,7 @@ function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTa
   try {
     const parsed = task.guardrail_json ? JSON.parse(task.guardrail_json) : null;
     const metadata = parsed?.governedScheduledTask;
-    return metadata?.phase === 'checkpoint-3-persisted-scheduled-task-registration' ? metadata : null;
+    return metadata?.gate === 'persisted-scheduled-task-registration' ? metadata : null;
   } catch (error: unknown) {logger.warn('[Zavorth Scheduled Task Surface] JSON parse failed', error); return null; }
 }
 

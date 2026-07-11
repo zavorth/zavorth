@@ -38,7 +38,7 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
       preview,
       decision: 'approved',
       actor: 'owner',
-      reason: 'approved for phase 3 test',
+      reason: 'approved for ledger test',
     });
 
     expect(previewEntry.kind).toBe('preview-recorded');
