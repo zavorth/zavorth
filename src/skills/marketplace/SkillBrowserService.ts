@@ -135,13 +135,14 @@ async function fetchFromGitRepo(
   timeoutMs: number,
 ): Promise<SkillCatalogEntry[]> {
   const entries: SkillCatalogEntry[] = [];
+  let tmpDir: string | null = null;
 
   try {
-    const { execSync } = await import('node:child_process');
+    const { execFileSync } = await import('node:child_process');
     const os = await import('node:os');
-    const tmpDir = path.join(os.tmpdir(), `zavorth-browse-${Date.now()}`);
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-browse-'));
 
-    execSync(`git clone --depth 1 ${source.baseUrl} ${tmpDir}`, {
+    execFileSync('git', ['clone', '--depth', '1', '--', source.baseUrl, tmpDir], {
       stdio: 'pipe',
       timeout: timeoutMs,
     });
@@ -200,10 +201,12 @@ async function fetchFromGitRepo(
 
     scanDir(tmpDir, 0);
 
-    // Cleanup
-    fs.rmSync(tmpDir, { recursive: true, force: true });
   } catch (error: unknown) {
     logger.warn(`[SkillBrowser] Git repo fetch failed for ${source.id}:`, error);
+  } finally {
+    if (tmpDir) {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
   }
 
   return entries;
@@ -516,7 +519,8 @@ export class SkillBrowserService {
 
     // Semantic matching for generic queries
     let semanticTerms: string[] = [];
-    if (input.useSemanticMatch !== false && this.isGenericQuery(input.query)) {
+    const semanticMatchUsed = input.useSemanticMatch !== false && this.isGenericQuery(input.query);
+    if (semanticMatchUsed && targetSources.length > 0) {
       semanticTerms = await this.extractSemanticTerms(input.query);
     }
 
@@ -594,7 +598,7 @@ export class SkillBrowserService {
       total: uniqueEntries.length,
       sourcesSearched,
       sourcesFailed,
-      semanticMatchUsed: semanticTerms.length > 0,
+      semanticMatchUsed,
       durationMs,
     };
   }
@@ -641,7 +645,16 @@ Examples:
         },
       ];
 
-      const response = await provider.chat(messages);
+      const timeoutMs = Math.min(this.requestTimeoutMs, 2_000);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const response = await Promise.race([
+        provider.chat(messages),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Semantic term extraction timed out')), timeoutMs);
+        }),
+      ]).finally(() => {
+        if (timer) clearTimeout(timer);
+      });
       const content = response.content || '[]';
 
       // Parse JSON array

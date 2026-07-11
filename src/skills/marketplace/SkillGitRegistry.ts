@@ -13,6 +13,8 @@ import path from 'node:path';
 import os from 'node:os';
 import { pipeline } from 'node:stream/promises';
 import { createWriteStream } from 'node:fs';
+import { Transform } from 'node:stream';
+import { safeFetch } from '../../security/SafeFetchService.js';
 import { validateSkillPackage, computeSkillChecksum } from './SkillPackageValidator.js';
 import { scanSkillForSecurity, recordAuditLog, type SecurityScanResult } from './SkillMarketplaceSecurity.js';
 import { SkillRollback } from './SkillRollback.js';
@@ -22,6 +24,24 @@ import { buildGitCloneUrl, getGitPasswordEnv } from './SkillAuth.js';
 import type { SkillInstallResult, SkillPublishResult } from './SkillPackageTypes.js';
 
 const TRUSTED_DOMAINS = ['github.com', 'gitlab.com', 'bitbucket.org', 'npmjs.org', 'npmjs.com'];
+const MAX_SKILL_ARCHIVE_BYTES = 64 * 1024 * 1024;
+
+function validateArchiveBeforeExtraction(archivePath: string): void {
+  const listing = execFileSync('tar', ['-tf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
+  const entries = listing.split(/\r?\n/).map((entry) => entry.trim()).filter(Boolean);
+  if (entries.length === 0 || entries.length > 5_000) throw new Error('Unsafe or oversized skill archive index');
+  for (const entry of entries) {
+    const normalized = entry.replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!normalized || normalized.includes('\0') || normalized.startsWith('/') || /^[A-Za-z]:\//.test(normalized)
+      || normalized.split('/').some((segment) => segment === '..')) {
+      throw new Error(`Unsafe skill archive entry: ${entry}`);
+    }
+  }
+  const verbose = execFileSync('tar', ['-tvf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
+  if (verbose.split(/\r?\n/).some((line) => /^[lh]/.test(line.trim()))) {
+    throw new Error('Skill archives containing links are not allowed');
+  }
+}
 
 export class SkillGitRegistry {
   private readonly registry: SkillLocalRegistry;
@@ -98,7 +118,7 @@ export class SkillGitRegistry {
       }, dataDir);
 
       return { success: true, skillId, installedPath: targetDir, message: `Installed "${skillId}" v${validation.manifest!.version} from ${repoUrl}` };
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Install failed: ${err instanceof Error ? err.message : String(err)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Install failed: ${err.message}` };
     }
   }
 
@@ -140,7 +160,7 @@ export class SkillGitRegistry {
 
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, repoUrl, targetName);
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${err instanceof Error ? err.message : String(err)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${err.message}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -250,7 +270,9 @@ export class SkillGitRegistry {
         return { success: false, skillId: '', installedPath: '', message: `No package found for "${name}"` };
       }
 
-      safeExec('tar', ['-xzf', path.join(tmpDir, tgz), '-C', tmpDir]);
+      const npmArchive = path.join(tmpDir, tgz);
+      validateArchiveBeforeExtraction(npmArchive);
+      safeExec('tar', ['-xzf', npmArchive, '-C', tmpDir]);
       const extracted = fs.readdirSync(tmpDir).find((d) => d.startsWith('package'));
       const packageDir = extracted ? path.join(tmpDir, extracted) : tmpDir;
 
@@ -261,7 +283,7 @@ export class SkillGitRegistry {
 
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, packageName, targetName);
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `npm install failed: ${err instanceof Error ? err.message : String(err)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `npm install failed: ${err.message}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -275,11 +297,28 @@ export class SkillGitRegistry {
       const isTar = url.endsWith('.tar.gz') || url.endsWith('.tgz');
       const archivePath = path.join(tmpDir, isZip ? 'archive.zip' : 'archive.tar.gz');
 
-      const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+      const res = await safeFetch(url, { signal: AbortSignal.timeout(30000) }, {
+        serviceName: 'Skill marketplace archive download',
+      });
       if (!res.ok) return { success: false, skillId: '', installedPath: '', message: `Download failed: HTTP ${res.status}` };
 
+      const contentLength = Number(res.headers.get('content-length') || 0);
+      if (contentLength > MAX_SKILL_ARCHIVE_BYTES) {
+        return { success: false, skillId: '', installedPath: '', message: 'Download failed: skill archive exceeds 64 MiB' };
+      }
+
       const fileStream = createWriteStream(archivePath);
-      await pipeline(res.body as any, fileStream);
+      let downloadedBytes = 0;
+      const limiter = new Transform({
+        transform(chunk, _encoding, callback) {
+          downloadedBytes += Buffer.byteLength(chunk);
+          callback(downloadedBytes > MAX_SKILL_ARCHIVE_BYTES
+            ? new Error('Skill archive exceeds 64 MiB')
+            : null, chunk);
+        },
+      });
+      await pipeline(res.body as any, limiter, fileStream);
+      validateArchiveBeforeExtraction(archivePath);
 
       if (isZip) {
         safeExec('tar', ['-xf', path.join(tmpDir, 'archive.zip')], { stdio: 'pipe' });
@@ -300,7 +339,7 @@ export class SkillGitRegistry {
       const skillDir = skills[0].dir;
       const r = this.installSkillFromDir(skillDir, url);
       return r;
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Download failed: ${err instanceof Error ? err.message : String(err)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Download failed: ${err.message}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -333,7 +372,7 @@ export class SkillGitRegistry {
       fs.rmSync(tmpDir, { recursive: true, force: true });
 
       return { success: true, skillId, version: validation.manifest.version, location: 'git', message: `Published "${skillId}" v${validation.manifest.version} to ${repoUrl}` };
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', version: '', location: 'git', message: `Publish failed: ${err instanceof Error ? err.message : String(err)}` };
+    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', version: '', location: 'git', message: `Publish failed: ${err.message}` };
     }
   }
 

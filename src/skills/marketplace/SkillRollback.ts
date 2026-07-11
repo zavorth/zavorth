@@ -23,6 +23,16 @@ export class SkillRollback {
     return path.join(this.rollbackDir, 'index.json');
   }
 
+  private resolveInside(root: string, child: string): string | null {
+    const resolvedRoot = path.resolve(root);
+    const resolved = path.resolve(resolvedRoot, child);
+    return resolved.startsWith(`${resolvedRoot}${path.sep}`) ? resolved : null;
+  }
+
+  private safeFilePart(value: string): string {
+    return String(value || '').replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.\.+/g, '_').slice(0, 96);
+  }
+
   private loadIndex(): RollbackEntry[] {
     try {
       const file = this.getRollbackFile();
@@ -38,8 +48,9 @@ export class SkillRollback {
 
   createBackup(skillDir: string, skillId: string, version: string): string {
     this.ensureDir();
-    const backupName = `${skillId}-${version}-${Date.now()}`;
-    const backupPath = path.join(this.rollbackDir, backupName);
+    const backupName = `${this.safeFilePart(skillId)}-${this.safeFilePart(version)}-${Date.now()}`;
+    const backupPath = this.resolveInside(this.rollbackDir, backupName);
+    if (!backupPath) throw new Error('Unsafe skill backup path');
     fs.cpSync(skillDir, backupPath, { recursive: true });
 
     const index = this.loadIndex();
@@ -49,7 +60,10 @@ export class SkillRollback {
     if (index.length > maxBackups) {
       const removed = index.splice(0, index.length - maxBackups);
       for (const entry of removed) {
-        try { fs.rmSync(entry.backupPath, { recursive: true, force: true }); } catch { /* ignore */ }
+        const safeBackupPath = this.resolveInside(this.rollbackDir, path.relative(this.rollbackDir, entry.backupPath));
+        if (safeBackupPath && safeBackupPath === path.resolve(entry.backupPath)) {
+          try { fs.rmSync(safeBackupPath, { recursive: true, force: true }); } catch { /* ignore */ }
+        }
       }
     }
 
@@ -69,15 +83,20 @@ export class SkillRollback {
       return { success: false, message: `No backup found for "${skillId}" version ${version}` };
     }
 
-    if (!fs.existsSync(entry.backupPath)) {
+    const backupPath = this.resolveInside(this.rollbackDir, path.relative(this.rollbackDir, entry.backupPath));
+    if (!backupPath || backupPath !== path.resolve(entry.backupPath) || !fs.existsSync(backupPath)) {
       return { success: false, message: `Backup files missing for "${skillId}" v${version}` };
     }
 
-    const skillsDir = path.join(process.cwd(), 'skills', skillId);
+    const skillsRoot = path.join(process.cwd(), 'skills');
+    const skillsDir = this.resolveInside(skillsRoot, skillId);
+    if (!skillsDir) {
+      return { success: false, message: `Unsafe skill id "${skillId}"` };
+    }
     if (fs.existsSync(skillsDir)) {
       fs.rmSync(skillsDir, { recursive: true, force: true });
     }
-    fs.cpSync(entry.backupPath, skillsDir, { recursive: true });
+    fs.cpSync(backupPath, skillsDir, { recursive: true });
 
     const idx = index.indexOf(entry);
     if (idx >= 0) index.splice(idx, 1);
