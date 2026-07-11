@@ -16,6 +16,23 @@ import { Database } from '../../../src/storage/Database.js';
 import { config } from '../../../src/config/index.js';
 
 describe('Value surfaces testability', () => {
+  it('keeps provider selection copy neutral across control-shell mirrors', () => {
+    const mirrors = [
+      'apps/zavorth-control-vite-shell/public/scripts/pages.js',
+      'assets/zavorth-control/scripts/pages.js',
+      'assets/command-center/scripts/pages.js',
+      'src/zavorth-control/public/zavorth-control-vite-shell/scripts/pages.js',
+      'src/ai-gateway/public/zavorth-control-vite-shell/scripts/pages.js',
+    ];
+
+    for (const relativePath of mirrors) {
+      const source = fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8');
+      expect(source).not.toContain('Auto / Gemini');
+      expect(source).not.toContain('Show Gemini provider');
+      expect(source).toContain('Configured route');
+    }
+  });
+
   it('stores memory drafts without silent promote and blocks cross-user promote', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-drafts-'));
     const store = new MemoryDraftStoreService({ storePath: path.join(dir, 'drafts.json') });
@@ -78,6 +95,7 @@ describe('Value surfaces testability', () => {
     }).run({ live: true });
     expect(report.hermeticOk).toBe(true);
     expect(report.liveOk).toBe(false);
+    expect(report.multiStepOk).toBe(false);
     expect(report.claimsLiveIntelligence).toBe(false);
     expect(report.live.every((entry) => entry.status === 'blocked' || entry.status === 'fail')).toBe(true);
     expect(report.live.some((entry) => entry.status === 'blocked')).toBe(true);

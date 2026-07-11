@@ -288,8 +288,11 @@
     "acp:live-session:check": "node scripts/acp-live-session-check.mjs",
     "qa:acp-live-session": "node scripts/acp-live-session-check.mjs",
     "runtime:build": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
-    "runtime:check": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit",
-    "runtime:check:core": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc --noEmit --pretty false",
+    "runtime:check": "node --max-old-space-size=8192 node_modules/typescript/bin/tsc --noEmit",
+    "runtime:check:core": "node --max-old-space-size=8192 node_modules/typescript/bin/tsc --noEmit --pretty false",
+    "typecheck:desktop": "npm run typecheck --prefix apps/zavorth-desktop",
+    "typecheck:control": "npm run typecheck --prefix apps/zavorth-control-vite-shell --if-present",
+    "typecheck:partitioned": "npm run typecheck:desktop && npm run agent:smartness:check && npm run value:ttfu:check",
     "runtime:check:skills": "npx jest tests/skills/SkillHubGuardService.test.ts tests/skills/SkillContentScannerService.test.ts tests/skills/SkillImportPreviewService.test.ts tests/skills/SkillLoader.test.ts --runInBand",
     "runtime:check:bootstrap": "npx jest tests/bootstrap/bootstrapToolRuntime.test.ts --runInBand && node scripts/architecture-hardening-check.ts",
     "qa:zavorth-operational-cockpit": "npx tsx scripts/zavorth-product-e2e-smoke.mjs",
@@ -1307,7 +1310,12 @@
     "value:test-all": "node scripts/value-test-all.mjs",
     "value:memory-drafts": "npx tsx scripts/memory-drafts-run.ts",
     "value:killer": "npx tsx scripts/killer-missions-run.ts",
-    "value:continuity": "npx tsx scripts/continuity-return-run.ts"
+    "value:killer:execute": "npx tsx scripts/killer-missions-run.ts --execute",
+    "value:continuity": "npx tsx scripts/continuity-return-run.ts",
+    "value:ttfu": "npx tsx scripts/value-ttfu-run.ts",
+    "value:ttfu:check": "npx tsx scripts/value-ttfu-run.ts --check",
+    "value:code-loop": "npx tsx scripts/code-daily-loop-run.ts",
+    "value:code-loop:check": "npx tsx scripts/code-daily-loop-run.ts --check"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",

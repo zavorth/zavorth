@@ -1,7 +1,6 @@
-import { spawnSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 import { AgentSmartnessService, type AgentSmartnessReport } from './AgentSmartnessService.js';
+import { LiveUserProviderHarness } from './LiveUserProviderHarness.js';
+import path from 'node:path';
 
 export type LiveSmartnessMissionResult = {
   id: string;
@@ -19,9 +18,11 @@ export type LiveSmartnessReport = {
   live: LiveSmartnessMissionResult[];
   hermeticOk: boolean;
   liveOk: boolean;
+  multiStepOk: boolean;
   ok: boolean;
   blockedOnly: boolean;
-  claimsLiveIntelligence: false;
+  /** True only when live multi-step tool plan actually passed with user provider credentials. */
+  claimsLiveIntelligence: boolean;
 };
 
 export class AgentSmartnessLiveService {
@@ -30,6 +31,7 @@ export class AgentSmartnessLiveService {
       projectRoot?: string;
       env?: NodeJS.ProcessEnv;
       now?: () => Date;
+      harness?: LiveUserProviderHarness;
     } = {},
   ) {}
 
@@ -60,20 +62,38 @@ export class AgentSmartnessLiveService {
         id: 'live.multi-step.tool-plan',
         name: 'Live multi-step tool plan',
         status: 'blocked',
-        notes: 'Blocked until a live multi-step harness is run with an LLM and tools.',
+        notes: 'Blocked until a live multi-step harness is run with the user-selected provider and tools.',
         evidence: { liveRequested: false },
       });
     } else {
-      live.push(this.runLiveLlmProbe(root, env));
-      live.push(this.runLiveMultiStepCheck(live[0]));
+      const harness = this.options.harness || new LiveUserProviderHarness({
+        projectRoot: root,
+        env,
+      });
+      const probe = await harness.runProbe();
+      live.push({
+        id: 'live.llm.probe',
+        name: 'Live LLM probe',
+        status: probe.status,
+        notes: probe.notes,
+        evidence: probe.evidence,
+      });
+      const multi = await this.runLiveMultiStepCheck(probe, harness);
+      live.push(multi);
     }
 
     const liveFailed = live.some((entry) => entry.status === 'fail');
-    const blockedOnly = live.every((entry) => entry.status === 'blocked') && hermetic.ok;
+    const blockedOnly = !liveFailed
+      && live.some((entry) => entry.status === 'blocked')
+      && hermetic.ok;
     const hermeticOk = hermetic.ok;
+    const multiStepOk = live.some(
+      (entry) => entry.id === 'live.multi-step.tool-plan' && entry.status === 'pass',
+    );
     const liveOkStrict = liveRequested
       && !liveFailed
-      && live.some((entry) => entry.id === 'live.llm.probe' && entry.status === 'pass');
+      && live.some((entry) => entry.id === 'live.llm.probe' && entry.status === 'pass')
+      && multiStepOk;
 
     return {
       generatedAt: now().toISOString(),
@@ -83,95 +103,37 @@ export class AgentSmartnessLiveService {
       live,
       hermeticOk,
       liveOk: liveOkStrict,
+      multiStepOk,
       ok: hermeticOk && !liveFailed && (!liveRequested || liveOkStrict),
       blockedOnly,
-      claimsLiveIntelligence: false,
+      claimsLiveIntelligence: multiStepOk,
     };
   }
 
   public renderText(report: LiveSmartnessReport): string {
     return [
-      'Zavorth Agent Smartness (hermetic unit + optional live probe)',
+      'Zavorth Agent Smartness (hermetic unit + optional live user-provider harness)',
       `hermetic: ${report.hermetic.passed}/${report.hermetic.total} mode=${report.hermetic.mode}`,
       `claimsLiveIntelligence: ${report.claimsLiveIntelligence}`,
       `live requested: ${report.liveRequested ? 'yes' : 'no'}`,
-      `hermeticOk: ${report.hermeticOk ? 'yes' : 'no'} | liveOk: ${report.liveOk ? 'yes' : 'no'} | ok: ${report.ok ? 'yes' : 'no'}`,
+      `hermeticOk: ${report.hermeticOk ? 'yes' : 'no'} | liveOk: ${report.liveOk ? 'yes' : 'no'} | multiStepOk: ${report.multiStepOk ? 'yes' : 'no'} | ok: ${report.ok ? 'yes' : 'no'}`,
       '',
       '[live]',
       ...report.live.map((entry) => `- [${entry.status}] ${entry.id}: ${entry.notes}`),
     ].join('\n');
   }
 
-  private runLiveLlmProbe(root: string, env: NodeJS.ProcessEnv): LiveSmartnessMissionResult {
-    const hasGemini = String(env.GEMINI_API_KEY || '').trim().length >= 12;
-    const hasOpenAi = String(env.OPENAI_API_KEY || '').trim().length >= 12;
-    const hasAnthropic = String(env.ANTHROPIC_API_KEY || '').trim().length >= 12;
-    if (!hasGemini && !hasOpenAi && !hasAnthropic) {
-      return {
-        id: 'live.llm.probe',
-        name: 'Live LLM probe',
-        status: 'blocked',
-        notes: 'No provider key found (GEMINI_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY).',
-        evidence: { hasGemini, hasOpenAi, hasAnthropic },
-      };
-    }
-
-    if (!hasGemini) {
-      return {
-        id: 'live.llm.probe',
-        name: 'Live LLM probe',
-        status: 'blocked',
-        notes: 'Automated live probe requires GEMINI_API_KEY. Other keys need a manual chat first-win.',
-        evidence: { hasOpenAi, hasAnthropic },
-      };
-    }
-
-    const probe = path.join(root, 'scripts', 'probe-live-llm.mjs');
-    if (!fs.existsSync(probe)) {
-      return {
-        id: 'live.llm.probe',
-        name: 'Live LLM probe',
-        status: 'fail',
-        notes: 'probe-live-llm.mjs missing.',
-        evidence: { probe },
-      };
-    }
-
-    const result = spawnSync(process.execPath, [probe], {
-      cwd: root,
-      encoding: 'utf8',
-      env: { ...env },
-      timeout: 60000,
-      windowsHide: true,
-    });
-    const output = `${result.stdout || ''}\n${result.stderr || ''}`.trim();
-    const exact = /ZAVORTH_LIVE_OK/.test(output);
-    const pass = result.status === 0 && exact;
-    return {
-      id: 'live.llm.probe',
-      name: 'Live LLM probe',
-      status: pass
-        ? 'pass'
-        : (result.status === 1 && /no gemini key/i.test(output) ? 'blocked' : 'fail'),
-      notes: pass
-        ? 'Live Gemini probe returned exact token ZAVORTH_LIVE_OK.'
-        : (output.slice(0, 240) || `exit=${result.status}`),
-      evidence: {
-        exitCode: result.status,
-        exactToken: exact,
-        outputPreview: output.slice(0, 400).replace(/key=[^&\s]+/gi, 'key=REDACTED'),
-      },
-    };
-  }
-
-  private runLiveMultiStepCheck(probe: LiveSmartnessMissionResult): LiveSmartnessMissionResult {
+  private async runLiveMultiStepCheck(
+    probe: LiveHarnessProbeLike,
+    harness: LiveUserProviderHarness,
+  ): Promise<LiveSmartnessMissionResult> {
     if (probe.status === 'blocked') {
       return {
         id: 'live.multi-step.tool-plan',
         name: 'Live multi-step tool plan',
         status: 'blocked',
-        notes: 'Blocked until live LLM probe passes and a multi-step tool harness exists.',
-        evidence: { dependsOn: probe.id, probeStatus: probe.status },
+        notes: 'Blocked until live LLM probe can run with a selected/inferred provider and matching key.',
+        evidence: { dependsOn: 'live.llm.probe', probeStatus: probe.status },
       };
     }
     if (probe.status === 'fail') {
@@ -180,21 +142,25 @@ export class AgentSmartnessLiveService {
         name: 'Live multi-step tool plan',
         status: 'fail',
         notes: 'Live probe failed; multi-step tool plan not attempted.',
-        evidence: { dependsOn: probe.id, probeStatus: probe.status },
+        evidence: { dependsOn: 'live.llm.probe', probeStatus: probe.status },
       };
     }
+
+    const multi = await harness.runMultiStepToolPlan();
     return {
       id: 'live.multi-step.tool-plan',
       name: 'Live multi-step tool plan',
-      status: 'blocked',
-      notes: 'Live probe passed. Multi-step tool-use is not auto-certified yet — run killer missions / desktop first-ask manually.',
+      status: multi.status,
+      notes: multi.notes,
       evidence: {
-        autoCertified: false,
-        next: [
-          'npm run value:killer -- --audience=developer',
-          'Paste mission prompt in Desktop chat after provider setup',
-        ],
+        dependsOn: 'live.llm.probe',
+        probeStatus: probe.status,
+        ...multi.evidence,
       },
     };
   }
 }
+
+type LiveHarnessProbeLike = {
+  status: 'pass' | 'fail' | 'blocked';
+};
