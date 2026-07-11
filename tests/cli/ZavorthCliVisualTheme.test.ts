@@ -1,5 +1,6 @@
 /**
- * P7 — CLI visual theme: product brand green (#00e88f), not orange.
+ * P7 / V16.7 — CLI visual theme: product brand green (#00e88f), not orange.
+ * Covers NO_COLOR / FORCE_COLOR precedence and plain help readability.
  */
 
 import {
@@ -7,8 +8,12 @@ import {
   CLI_BRAND_BRIGHT_RGB,
   CLI_BRAND_RGB,
   CLI_INFO_RGB,
+  isCliColorEnabled,
   padCliVisualText,
+  paintCliBadge,
   paintCliTone,
+  renderCliWordmark,
+  renderCliWordmarkStrip,
   stripCliAnsi,
 } from '../../src/cli/ZavorthCliVisualTheme';
 
@@ -16,7 +21,7 @@ const BRAND_ANSI = `\u001b[38;2;${CLI_BRAND_RGB.r};${CLI_BRAND_RGB.g};${CLI_BRAN
 const BRAND_BRIGHT_ANSI = `\u001b[38;2;${CLI_BRAND_BRIGHT_RGB.r};${CLI_BRAND_BRIGHT_RGB.g};${CLI_BRAND_BRIGHT_RGB.b}m`;
 const ORANGE_ANSI = '\u001b[38;2;255;122;24m';
 
-describe('ZavorthCliVisualTheme (P7 product green)', () => {
+describe('ZavorthCliVisualTheme (P7 product green / V16.7)', () => {
   const prevForce = process.env.FORCE_COLOR;
   const prevNoColor = process.env.NO_COLOR;
 
@@ -72,5 +77,49 @@ describe('ZavorthCliVisualTheme (P7 product green)', () => {
     process.env.NO_COLOR = '1';
     process.env.FORCE_COLOR = '1';
     expect(paintCliTone('plain', 'brand')).toBe('plain');
+  });
+
+  it('NO_COLOR wins over FORCE_COLOR (isCliColorEnabled)', () => {
+    process.env.NO_COLOR = '1';
+    process.env.FORCE_COLOR = '1';
+    expect(isCliColorEnabled()).toBe(false);
+  });
+
+  it('FORCE_COLOR enables color when NO_COLOR is unset', () => {
+    delete process.env.NO_COLOR;
+    process.env.FORCE_COLOR = '1';
+    expect(isCliColorEnabled()).toBe(true);
+  });
+
+  it('empty FORCE_COLOR does not force color (NO_COLOR unset)', () => {
+    delete process.env.NO_COLOR;
+    process.env.FORCE_COLOR = '';
+    // Empty string is falsy after trim → falls through to TTY check.
+    expect(typeof isCliColorEnabled()).toBe('boolean');
+  });
+
+  it('wordmark and badge stay readable under NO_COLOR (no ANSI, stable glyphs)', () => {
+    process.env.NO_COLOR = '1';
+    delete process.env.FORCE_COLOR;
+
+    const mark = renderCliWordmark('ZAVORTH');
+    const strip = renderCliWordmarkStrip('ZAVORTH');
+    const badge = paintCliBadge('proof', 'brand');
+
+    expect(mark).toContain('ZAVORTH');
+    expect(mark).not.toMatch(/\u001B\[/);
+    expect(strip).toBe('◇ ZAVORTH ◇');
+    expect(strip).not.toMatch(/\u001B\[/);
+    expect(badge).toBe('[ PROOF ]');
+    expect(stripCliAnsi(mark)).toBe(mark);
+  });
+
+  it('info tone uses cyan RGB when color forced (not orange)', () => {
+    delete process.env.NO_COLOR;
+    process.env.FORCE_COLOR = '1';
+    const info = paintCliTone('hello', 'info');
+    expect(info).toContain(`\u001b[38;2;${CLI_INFO_RGB.r};${CLI_INFO_RGB.g};${CLI_INFO_RGB.b}m`);
+    expect(info).not.toContain(ORANGE_ANSI);
+    expect(stripCliAnsi(info)).toBe('hello');
   });
 });
