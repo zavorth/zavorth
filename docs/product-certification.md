@@ -41,6 +41,11 @@ Missing provider API keys, channel tokens or live canaries are setup state, not
 fake failures. Zavorth should say what is missing instead of pretending a route
 is live.
 
+For a fast hermetic Proof OS trust-loop gate (unit suites + service smoke, no
+live network), run `npm run qa:zavorth-golden-path`. That golden path does not
+replace product certification; use both before release (see
+[product/golden-path.md](./product/golden-path.md)).
+
 ## Daily Product Loop
 
 1. Run `zavorth setup`.
