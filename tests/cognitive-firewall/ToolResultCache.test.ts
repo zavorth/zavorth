@@ -61,6 +61,10 @@ describe('ToolResultCache', () => {
       'desktop_automation',
       'execute_command',
       'run_command',
+      'create_file',
+      'delete_file',
+      'send_message',
+      'unknown_plugin_tool',
     ])('never caches results for %s', (toolName) => {
       cache.set(toolName, { code: 'test' }, 'output');
 

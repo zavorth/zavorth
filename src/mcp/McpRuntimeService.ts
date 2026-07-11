@@ -444,11 +444,25 @@ export class McpRuntimeService {
     return this.buildSnapshot(Array.from(this.entries.values()));
   }
 
-  private computeFingerprint(serverId: string, toolName: string, inputSchema: unknown): string {
+  private normalizeToolDescription(description: unknown): string {
+    return String(description || '')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 4_000);
+  }
+
+  private computeFingerprint(
+    serverId: string,
+    toolName: string,
+    inputSchema: unknown,
+    description: string,
+  ): string {
     const data = canonicalStringify({
       serverId,
       toolName,
       inputSchema: inputSchema || {},
+      description,
     });
     return crypto.createHash('sha256').update(data).digest('hex');
   }
@@ -462,14 +476,15 @@ export class McpRuntimeService {
     const interceptor = new RegistryInterceptor(this.registry, (tool, securityDefinition) => {
       const toolName = (tool as ToolWithRemoteName).remoteName || tool.name;
       const namespacedName = `${serverId}:${toolName}`;
-      const fingerprint = this.computeFingerprint(serverId, toolName, tool.parameters);
+      const description = this.normalizeToolDescription(tool.description);
+      const fingerprint = this.computeFingerprint(serverId, toolName, tool.parameters, description);
       discovered.push({
         tool,
         securityDefinition,
         namespacedName,
         toolName,
         fingerprint,
-        description: tool.description || '',
+        description,
       });
     });
     await manager.connect(interceptor);
@@ -514,22 +529,6 @@ export class McpRuntimeService {
               pendingReason: 'schema_drift',
             });
             // status stays 'pending_approval'
-          } else if (existing.description !== description) {
-            // Description-only drift: warn and update lastSeen, keep approved
-            this.logRepo.log(
-              'warn', 'MCP',
-              `Descricao da ferramenta "${namespacedName}" mudou (description drift). Ferramenta permanece aprovada.`,
-            );
-            this.policyFileService.updateToolLastSeen(policyDoc, namespacedName, description);
-            changed = true;
-            status = 'approved';
-            this.auditLogger.logMcpRuntimeEvent({
-              event: 'mcp_description_drift_detected',
-              serverId,
-              toolName,
-              namespacedToolId: namespacedName,
-              fingerprint,
-            });
           } else {
             status = 'approved';
           }

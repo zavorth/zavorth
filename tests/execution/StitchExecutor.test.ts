@@ -38,6 +38,15 @@ describe('StitchExecutor', () => {
     expect(result.error_message).toContain('falta autenticacao');
   });
 
+  it('confines attacker-controlled task ids to the Stitch artifact root', () => {
+    const executor = new StitchExecutor();
+    const artifactRoot = path.resolve((require('../../src/config').config as any).stitchArtifactsDir);
+    const resolved = (executor as any).resolveArtifactDirectory('../../outside');
+
+    expect(resolved.startsWith(`${artifactRoot}${path.sep}`)).toBe(true);
+    expect(path.relative(artifactRoot, resolved)).not.toMatch(/^\.\.(?:[\\/]|$)/);
+  });
+
   it('generates artifacts and a structured summary on success', async () => {
     const executor = new StitchExecutor();
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-stitch-executor-'));

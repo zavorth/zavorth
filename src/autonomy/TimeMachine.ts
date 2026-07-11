@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { asErrorLike } from '../utils/errorLike';
@@ -71,7 +71,7 @@ export class TimeMachine {
     if (hasGitDir) {
       try {
         // Check if git repository
-        isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
+        isGit = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
       } catch (error: unknown) {// Git command failed or not a repo
@@ -81,10 +81,10 @@ export class TimeMachine {
     if (isGit) {
       try {
         // Save current changes to stash
-        execSync(`git stash push -m "zavorth-snapshot-${snapshotId}" --include-untracked`, { cwd: workspacePath, stdio: 'pipe' });
+        execFileSync('git', ['stash', 'push', '-m', `zavorth-snapshot-${snapshotId}`, '--include-untracked'], { cwd: workspacePath, stdio: 'pipe' });
         // Keep a copy in current state by popping it back so the user doesn't lose progress during run,
         // but now we have a record in the stash history.
-        execSync('git stash apply stash@{0}', { cwd: workspacePath, stdio: 'pipe' });
+        execFileSync('git', ['stash', 'apply', 'stash@{0}'], { cwd: workspacePath, stdio: 'pipe' });
         return snapshotId;
       } catch (error: unknown) {
         const err = asErrorLike(error);
@@ -116,7 +116,7 @@ export class TimeMachine {
     if (!fs.existsSync(workspacePath) || !fs.statSync(workspacePath).isDirectory()) {
       throw new Error('Workspace path does not exist or is not a directory');
     }
-    if (!snapshotId || typeof snapshotId !== 'string' || snapshotId.trim() === '') {
+    if (!snapshotId || typeof snapshotId !== 'string' || !/^tm-\d+$/.test(snapshotId)) {
       throw new Error('Invalid snapshot ID');
     }
 
@@ -125,7 +125,7 @@ export class TimeMachine {
     const hasGitDir = fs.existsSync(path.join(workspacePath, '.git'));
     if (hasGitDir) {
       try {
-        isGit = execSync('git rev-parse --is-inside-work-tree', { cwd: workspacePath, stdio: 'pipe' })
+        isGit = execFileSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: workspacePath, stdio: 'pipe' })
           .toString()
           .trim() === 'true';
       } catch (error: unknown) {// Git command failed or not a repo
@@ -134,21 +134,19 @@ export class TimeMachine {
 
     if (isGit) {
       try {
-        // Reset hard to HEAD, discard untracked files
-        execSync('git reset --hard HEAD', { cwd: workspacePath, stdio: 'pipe' });
-        execSync('git clean -fd', { cwd: workspacePath, stdio: 'pipe' });
-        
-        // Find stash index that matches the snapshotId
-        const list = execSync('git stash list', { cwd: workspacePath }).toString();
-        const lines = list.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].includes(`zavorth-snapshot-${snapshotId}`)) {
-            // Apply this stash and drop it
-            execSync(`git stash apply stash@{${i}}`, { cwd: workspacePath, stdio: 'pipe' });
-            execSync(`git stash drop stash@{${i}}`, { cwd: workspacePath, stdio: 'pipe' });
-            return true;
-          }
+        // Locate and validate the exact snapshot before discarding any workspace data.
+        const list = execFileSync('git', ['stash', 'list', '--format=%gd%x09%gs'], { cwd: workspacePath, stdio: 'pipe' }).toString();
+        const expectedSuffix = `: zavorth-snapshot-${snapshotId}`;
+        const stashRef = list.split(/\r?\n/).map((line) => line.split('\t')).find(([, subject]) => subject?.endsWith(expectedSuffix))?.[0];
+        if (!stashRef || !/^stash@\{\d+\}$/.test(stashRef)) {
+          return false;
         }
+
+        execFileSync('git', ['reset', '--hard', 'HEAD'], { cwd: workspacePath, stdio: 'pipe' });
+        execFileSync('git', ['clean', '-fd'], { cwd: workspacePath, stdio: 'pipe' });
+        execFileSync('git', ['stash', 'apply', stashRef], { cwd: workspacePath, stdio: 'pipe' });
+        execFileSync('git', ['stash', 'drop', stashRef], { cwd: workspacePath, stdio: 'pipe' });
+        return true;
       } catch (error: unknown) {
         const err = asErrorLike(error);
         console.error('Git rollback failed, trying fallback local restore:', err);

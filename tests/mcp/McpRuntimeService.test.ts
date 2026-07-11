@@ -275,7 +275,7 @@ describe('McpRuntimeService — drift protection', () => {
     expect(warnCalls.length).toBeGreaterThan(0);
   });
 
-  it('description drift: approved tool, same schema, changed description → warning but still registered', async () => {
+  it('description drift: approved tool, same schema, changed description is demoted for review', async () => {
     const registry = new ToolRegistry();
     // We let auto-migration approve the tool first, then simulate approved + same fingerprint + different description.
     // Strategy: set the tool as approved with the correct fingerprint (we don't know it upfront),
@@ -341,14 +341,15 @@ describe('McpRuntimeService — drift protection', () => {
     );
     await run2.start();
 
-    // Tool should still be registered (description drift does not block)
-    expect(registry2.getTool('serverA:desc_tool')).toBeDefined();
-    expect(policyService.updateToolLastSeen).toHaveBeenCalledWith(
+    expect(registry2.getTool('serverA:desc_tool')).toBeUndefined();
+    expect(policyService.markToolPending).toHaveBeenCalledWith(
       expect.anything(),
       'serverA:desc_tool',
+      expect.any(String),
+      'schema_drift',
       'CHANGED description',
     );
-    const warnCalls = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('description drift'));
+    const warnCalls = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('Schema drift'));
     expect(warnCalls.length).toBeGreaterThan(0);
   });
 

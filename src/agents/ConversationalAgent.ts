@@ -267,6 +267,7 @@ export class ConversationalAgent {
             toolResult = cachedResult;
           } else {
             const influencedByUntrustedContent = Boolean(webSearchContext)
+              || Boolean(inlineData?.length)
               || containsUntrustedContentMarker(messages)
               || containsUntrustedContentMarker(toolCall.arguments);
             const toolArguments = influencedByUntrustedContent
