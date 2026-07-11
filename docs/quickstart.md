@@ -132,6 +132,29 @@ Minimum live setup signals:
 - `DISCORD_ALLOWED_CHANNEL_IDS`, `DISCORD_OWNER_USER_IDS` or `ZAVORTH_CHANNEL_POLICY_DISCORD_ALLOWED`
 - command exposure left at `minimal` until the channel smoke passes
 
+## Public demo (offline)
+
+Fixture-first product demo (not a live agent session):
+
+```bash
+zavorth demo
+zavorth connectors doctor
+zavorth demo browser
+```
+
+Static Proof OS visual demo (approve → receipt):
+
+- path: `assets/zavorth-demo/index.html`
+- website mirror: `/demo` on zavorth-website
+
+Maintainer smoke for this path:
+
+```bash
+npm run zavorth:demo:check
+```
+
+Also see [public-demo-proof-os.md](./product/public-demo-proof-os.md) and [golden-path.md](./product/golden-path.md).
+
 ## Smoke
 
 The daily readiness check does not need users to know internal scripts:
@@ -156,6 +179,7 @@ Before publishing a build or refreshing the public repository presentation, run:
 ```bash
 npm run release:check
 npm run qa:zavorth-product-certification --silent
+npm run qa:zavorth-release-hardening
 ```
 
 ## Everyday Commands

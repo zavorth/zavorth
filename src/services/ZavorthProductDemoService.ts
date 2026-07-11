@@ -104,7 +104,7 @@ export class ZavorthProductDemoService {
         steps: QUICKSTART_STEPS,
       },
       visualHome: {
-        route: '/zavorthControl',
+        route: '/control',
         title: 'Zavorth Home',
         areas: ['Inbox', 'Tasks', 'Approvals', 'Receipts', 'Connectors'],
         openCommand: 'zavorth go',

@@ -3,58 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Zavorth Demo</title>
+  <title>Zavorth Demo — Proof OS</title>
   <style>
     :root {
-      color-scheme: light;
-      --ink: #18201d;
-      --muted: #64706a;
-      --line: #d7ded8;
-      --paper: #f8faf7;
-      --panel: #ffffff;
-      --green: #1f7a4f;
-      --blue: #315f9f;
-      --amber: #936316;
-      --red: #a83a32;
-      --mint: #e8f5ee;
-      --sky: #edf4ff;
-      --sand: #fff8e8;
+      color-scheme: dark;
+      --bg: #050807;
+      --bg-raised: #0a0f0d;
+      --panel: #0d1411;
+      --panel-2: #111a16;
+      --ink: #e8f5ee;
+      --muted: #8a9a91;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(0, 232, 143, 0.28);
+      --accent: #00e88f;
+      --accent-dim: rgba(0, 232, 143, 0.12);
+      --accent-glow: rgba(0, 232, 143, 0.22);
+      --amber: #f5b942;
+      --amber-dim: rgba(245, 185, 66, 0.12);
+      --red: #f07167;
+      --red-dim: rgba(240, 113, 103, 0.12);
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--paper);
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 232, 143, 0.08), transparent 50%),
+        var(--bg);
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      letter-spacing: 0;
+      font-family: var(--sans);
+    }
+
+    .honesty-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: var(--amber-dim);
+      border-bottom: 1px solid rgba(245, 185, 66, 0.25);
+      color: var(--amber);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .honesty-banner code {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 185, 66, 0.3);
+      background: rgba(0, 0, 0, 0.25);
     }
 
     .shell {
-      min-height: 100vh;
+      min-height: calc(100vh - 42px);
       display: grid;
       grid-template-columns: 248px minmax(0, 1fr);
     }
 
     aside {
       border-right: 1px solid var(--line);
-      background: #ffffff;
+      background: var(--bg-raised);
       padding: 24px 18px;
     }
 
     .brand {
-      font-size: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
       font-weight: 760;
-      margin-bottom: 28px;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .brand-sub {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
     }
 
     nav {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     nav a {
@@ -67,12 +113,19 @@
       color: var(--ink);
       text-decoration: none;
       font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: var(--line);
     }
 
     nav a.active {
-      background: var(--mint);
-      color: var(--green);
+      background: var(--accent-dim);
+      color: var(--accent);
       font-weight: 700;
+      border-color: var(--line-strong);
     }
 
     .pill {
@@ -80,8 +133,14 @@
       border-radius: 999px;
       padding: 2px 8px;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 11px;
       white-space: nowrap;
+      font-family: var(--mono);
+    }
+
+    nav a.active .pill {
+      border-color: var(--line-strong);
+      color: var(--accent);
     }
 
     main {
@@ -100,24 +159,26 @@
 
     h1 {
       margin: 0;
-      font-size: 30px;
-      line-height: 1.14;
+      font-size: 28px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
     }
 
     .sub {
       margin: 8px 0 0;
       color: var(--muted);
-      max-width: 760px;
-      line-height: 1.5;
+      max-width: 720px;
+      line-height: 1.55;
+      font-size: 14px;
     }
 
     .command {
       border: 1px solid var(--line);
-      background: #101512;
-      color: #f4fbf5;
+      background: #000;
+      color: var(--accent);
       border-radius: 8px;
       padding: 12px 14px;
-      font-family: "SFMono-Regular", Consolas, monospace;
+      font-family: var(--mono);
       font-size: 13px;
       white-space: nowrap;
     }
@@ -130,10 +191,10 @@
 
     .card {
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 12px;
       background: var(--panel);
       padding: 16px;
-      min-height: 132px;
+      min-height: 120px;
     }
 
     .card h2,
@@ -156,24 +217,259 @@
       min-height: 24px;
       border-radius: 999px;
       padding: 3px 9px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       margin-top: 12px;
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .ready {
-      background: var(--mint);
-      color: var(--green);
+      background: var(--accent-dim);
+      color: var(--accent);
     }
 
     .setup {
-      background: var(--sand);
+      background: var(--amber-dim);
       color: var(--amber);
     }
 
     .blocked {
-      background: #ffecea;
+      background: var(--red-dim);
       color: var(--red);
+    }
+
+    /* Interactive trust loop */
+    .loop-panel {
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(0, 232, 143, 0.06), transparent 40%),
+        var(--panel);
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .loop-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .loop-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .loop-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 560px;
+      line-height: 1.45;
+    }
+
+    .stepper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .step-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--mono);
+    }
+
+    .step-chip.active {
+      border-color: var(--line-strong);
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .step-chip.done {
+      border-color: rgba(0, 232, 143, 0.18);
+      color: var(--ink);
+    }
+
+    .step-num {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .step-chip.active .step-num {
+      background: var(--accent);
+      color: #04140d;
+      font-weight: 800;
+    }
+
+    .loop-stage {
+      display: none;
+      gap: 14px;
+      animation: fadeIn 0.28s ease;
+    }
+
+    .loop-stage.visible {
+      display: grid;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .request-box,
+    .preview-box,
+    .receipt-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-2);
+      padding: 14px 16px;
+    }
+
+    .request-box label,
+    .preview-box label,
+    .receipt-card label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .request-text {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    .preview-box ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .preview-box li strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 11px 16px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button.primary {
+      background: var(--accent);
+      color: #04140d;
+      box-shadow: 0 0 0 1px rgba(0, 232, 143, 0.3), 0 8px 24px var(--accent-glow);
+    }
+
+    button.primary:hover {
+      box-shadow: 0 0 0 1px rgba(0, 232, 143, 0.45), 0 10px 28px var(--accent-glow);
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    button.ghost:hover {
+      color: var(--ink);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .receipt-card {
+      border-color: var(--line-strong);
+      background:
+        linear-gradient(135deg, rgba(0, 232, 143, 0.08), transparent 50%),
+        var(--panel-2);
+    }
+
+    .receipt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .receipt-field dt {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .receipt-field dd {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--ink);
+      font-family: var(--mono);
+      word-break: break-all;
+    }
+
+    .receipt-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--mono);
     }
 
     .wide {
@@ -182,10 +478,7 @@
       gap: 14px;
     }
 
-    .flow {
-      display: grid;
-      gap: 10px;
-    }
+    .flow { display: grid; gap: 10px; }
 
     .row {
       display: grid;
@@ -193,15 +486,13 @@
       gap: 12px;
       align-items: center;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      border-radius: 10px;
+      background: var(--panel);
       padding: 12px;
       min-height: 60px;
     }
 
-    .row strong {
-      font-size: 14px;
-    }
+    .row strong { font-size: 14px; }
 
     .row span {
       color: var(--muted);
@@ -211,16 +502,17 @@
 
     .row code,
     .card code {
-      background: #edf1ee;
+      background: rgba(255, 255, 255, 0.06);
       border-radius: 6px;
       padding: 2px 6px;
-      color: #223028;
+      color: var(--accent);
       font-size: 12px;
+      font-family: var(--mono);
     }
 
-    .receipt {
-      background: var(--sky);
-      border-color: #c9d9f1;
+    .receipt-static {
+      border-color: rgba(0, 232, 143, 0.2);
+      background: rgba(0, 232, 143, 0.05);
     }
 
     .connector-list {
@@ -229,60 +521,57 @@
       margin-top: 12px;
     }
 
-    @media (max-width: 880px) {
-      .shell {
-        grid-template-columns: 1fr;
-      }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
 
+    @media (max-width: 880px) {
+      .shell { grid-template-columns: 1fr; }
       aside {
         border-right: 0;
         border-bottom: 1px solid var(--line);
       }
-
-      nav {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .topbar,
-      .wide {
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar, .wide {
         grid-template-columns: 1fr;
         display: grid;
       }
-
-      .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .row {
-        grid-template-columns: 1fr;
-      }
-
-      .command {
-        white-space: normal;
-      }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .row { grid-template-columns: 1fr; }
+      .receipt-grid { grid-template-columns: 1fr; }
+      .command { white-space: normal; }
     }
 
     @media (max-width: 560px) {
-      main {
-        padding: 18px;
-      }
-
-      .grid,
-      nav {
-        grid-template-columns: 1fr;
-      }
+      main { padding: 18px; }
+      .grid, nav { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
     }
   </style>
 </head>
 <body>
+  <div class="honesty-banner" role="status">
+    <span>Static product demo — not a live agent session</span>
+    <code>offline · fixture</code>
+  </div>
+
   <div class="shell">
     <aside>
-      <div class="brand">Zavorth</div>
+      <div class="brand"><span class="brand-dot" aria-hidden="true"></span> Zavorth</div>
+      <p class="brand-sub">Proof OS visual surface — approve before mutate, receipt after action.</p>
       <nav aria-label="Demo sections">
         <a class="active" href="#home">Home <span class="pill">ready</span></a>
-        <a href="#tasks">Tasks <span class="pill">3</span></a>
+        <a href="#trust-loop">Trust loop <span class="pill">demo</span></a>
         <a href="#approvals">Approvals <span class="pill">1</span></a>
-        <a href="#receipts">Receipts <span class="pill">audit</span></a>
+        <a href="#proof-receipts">Proof / Receipts <span class="pill">audit</span></a>
+        <a href="#tasks">Tasks <span class="pill">3</span></a>
         <a href="#connectors">Connectors <span class="pill">setup</span></a>
       </nav>
     </aside>
@@ -290,22 +579,105 @@
     <main id="home">
       <section class="topbar" aria-label="Product start">
         <div>
-          <h1>Governed local assistant, visible from the first minute.</h1>
-          <p class="sub">This visual demo shows the daily path: start, ask, approve, receive a receipt, then connect Telegram or Discord without giving the agent silent control.</p>
+          <h1>Governed local assistant — request, approve, receipt.</h1>
+          <p class="sub">
+            This offline demo walks the Proof OS path: a user request becomes a change preview,
+            waits for explicit approval, then returns a receipt with id, time and status.
+            This page is offline fixture UX only — no agent session is connected.
+          </p>
         </div>
         <div class="command">zavorth start</div>
+      </section>
+
+      <section
+        id="trust-loop"
+        class="loop-panel"
+        aria-label="Interactive approve to receipt loop"
+        data-trust-loop-demo
+        data-trust-loop-step="idle"
+      >
+        <div class="loop-header">
+          <div>
+            <h2>20s trust loop</h2>
+            <p>Request → plan preview → <strong>Approve</strong> → <strong>Receipt</strong>. Static fixture only.</p>
+          </div>
+          <div class="stepper" aria-hidden="true">
+            <span class="step-chip active" data-chip="request"><span class="step-num">1</span> Request</span>
+            <span class="step-chip" data-chip="plan"><span class="step-num">2</span> Plan</span>
+            <span class="step-chip" data-chip="approve"><span class="step-num">3</span> Approve</span>
+            <span class="step-chip" data-chip="receipt"><span class="step-num">4</span> Receipt</span>
+          </div>
+        </div>
+
+        <div id="stage-request" class="loop-stage visible" data-stage="request">
+          <div class="request-box">
+            <label>Step 1 · User request</label>
+            <p class="request-text" id="user-request">
+              “Fix the build in the demo workspace, run tests, and show me exactly what changed.”
+            </p>
+          </div>
+          <div class="actions">
+            <button type="button" class="primary" id="btn-start">Start plan</button>
+            <span class="status setup">idle · static</span>
+          </div>
+        </div>
+
+        <div id="stage-plan" class="loop-stage" data-stage="plan">
+          <div class="preview-box" id="approvals">
+            <label>Step 2 · Plan / change preview</label>
+            <ul>
+              <li><strong>Read</strong> package.json and failing test fixture (no write yet)</li>
+              <li><strong>Patch</strong> one source file to restore the build target</li>
+              <li><strong>Validate</strong> with deterministic local check</li>
+              <li><strong>Rollback</strong> path recorded before any mutation applies</li>
+            </ul>
+          </div>
+          <div class="actions">
+            <button type="button" class="primary" id="btn-approve">Approve</button>
+            <button type="button" class="ghost" id="btn-back-request">Back</button>
+            <span class="status setup">awaiting approval</span>
+          </div>
+        </div>
+
+        <div id="stage-receipt" class="loop-stage" data-stage="receipt">
+          <div class="receipt-card" id="proof-receipts">
+            <label>Step 4 · Receipt</label>
+            <p style="margin:0 0 12px;font-size:14px;color:var(--ink);">
+              Action completed under policy. Evidence below is a <strong>fixture receipt</strong>, not live runtime output.
+            </p>
+            <div class="receipt-grid">
+              <div class="receipt-field">
+                <dt>Receipt id</dt>
+                <dd id="receipt-id">rcpt-demo-0001</dd>
+              </div>
+              <div class="receipt-field">
+                <dt>Time</dt>
+                <dd id="receipt-time">—</dd>
+              </div>
+              <div class="receipt-field">
+                <dt>Status</dt>
+                <dd id="receipt-status">approved · applied</dd>
+              </div>
+            </div>
+            <div class="receipt-status">receipt returned · audited</div>
+          </div>
+          <div class="actions">
+            <button type="button" class="ghost" id="btn-reset">Reset loop</button>
+            <span class="status ready">complete · static</span>
+          </div>
+        </div>
       </section>
 
       <section class="grid" aria-label="Home areas">
         <article class="card">
           <h2>Inbox</h2>
           <p>Requests from CLI, browser, Telegram or Discord land in one governed queue.</p>
-          <span class="status ready">ready</span>
+          <span class="status ready">catalog</span>
         </article>
         <article class="card">
           <h2>Tasks</h2>
           <p>Work is tracked as a mission with risk, scope and visible next actions.</p>
-          <span class="status ready">active</span>
+          <span class="status ready">fixture</span>
         </article>
         <article class="card">
           <h2>Approvals</h2>
@@ -313,7 +685,7 @@
           <span class="status setup">waiting</span>
         </article>
         <article class="card">
-          <h2>Receipts</h2>
+          <h2>Proof / Receipts</h2>
           <p>Every important action leaves evidence: decision, tool, result and replay.</p>
           <span class="status ready">audited</span>
         </article>
@@ -343,8 +715,8 @@
           </div>
         </div>
 
-        <article class="card receipt" id="receipts">
-          <h3>Latest receipt</h3>
+        <article class="card receipt-static">
+          <h3>Latest static receipt</h3>
           <p><strong>Action:</strong> Telegram setup preview</p>
           <p><strong>Policy:</strong> no raw secrets accepted; writes require <code>--apply</code></p>
           <p><strong>Replay:</strong> connector doctor can reproduce the exact missing setup.</p>
@@ -354,7 +726,7 @@
 
       <section class="card" id="connectors" aria-label="Connector setup">
         <h2>Connectors</h2>
-        <p>GitHub, Telegram and Discord are shown as real setup paths. A connector is never marked ready from marketing copy; it needs auth, allowlist and doctor signals.</p>
+        <p>GitHub, Telegram and Discord are shown as real setup paths. A connector is never marked live from marketing copy; it needs auth, allowlist and doctor signals.</p>
         <div class="connector-list">
           <div class="row">
             <strong>GitHub</strong>
@@ -375,5 +747,79 @@
       </section>
     </main>
   </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var panel = document.querySelector('[data-trust-loop-demo]');
+      if (!panel) return;
+
+      var stages = {
+        request: document.getElementById('stage-request'),
+        plan: document.getElementById('stage-plan'),
+        receipt: document.getElementById('stage-receipt')
+      };
+      var chips = panel.querySelectorAll('[data-chip]');
+      var receiptIdEl = document.getElementById('receipt-id');
+      var receiptTimeEl = document.getElementById('receipt-time');
+      var receiptSeq = 1;
+
+      function setStep(step) {
+        panel.setAttribute('data-trust-loop-step', step);
+        Object.keys(stages).forEach(function (key) {
+          stages[key].classList.toggle('visible', key === step);
+        });
+        var order = { request: 0, plan: 1, receipt: 2 };
+        var activeIndex = order[step] != null ? order[step] : 0;
+        // Map chips: request=0, plan=1, approve=1 (same as plan), receipt=2
+        chips.forEach(function (chip) {
+          var name = chip.getAttribute('data-chip');
+          var idx = name === 'request' ? 0 : name === 'plan' ? 1 : name === 'approve' ? 1 : 2;
+          chip.classList.remove('active', 'done');
+          if (step === 'receipt' && name === 'approve') {
+            chip.classList.add('done');
+          } else if (idx < activeIndex) {
+            chip.classList.add('done');
+          } else if (
+            (step === 'request' && name === 'request') ||
+            (step === 'plan' && (name === 'plan' || name === 'approve')) ||
+            (step === 'receipt' && name === 'receipt')
+          ) {
+            chip.classList.add('active');
+          }
+        });
+      }
+
+      function formatTime(d) {
+        return d.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+      }
+
+      function makeReceiptId() {
+        var n = String(receiptSeq++).padStart(4, '0');
+        return 'rcpt-demo-' + n;
+      }
+
+      document.getElementById('btn-start').addEventListener('click', function () {
+        setStep('plan');
+      });
+
+      document.getElementById('btn-back-request').addEventListener('click', function () {
+        setStep('request');
+      });
+
+      document.getElementById('btn-approve').addEventListener('click', function () {
+        if (receiptIdEl) receiptIdEl.textContent = makeReceiptId();
+        if (receiptTimeEl) receiptTimeEl.textContent = formatTime(new Date());
+        setStep('receipt');
+      });
+
+      document.getElementById('btn-reset').addEventListener('click', function () {
+        setStep('request');
+      });
+
+      setStep('request');
+    })();
+  </script>
 </body>
 </html>

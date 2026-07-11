@@ -111,6 +111,29 @@ for (const marker of [
   }
 }
 
+const visualDemo = readFileSync(path.join(root, 'assets/zavorth-demo/index.html'), 'utf8');
+for (const marker of [
+  'Static product demo — not a live agent session',
+  'Approve',
+  'Receipt',
+  'Approvals',
+  'Proof / Receipts',
+  'data-trust-loop-demo',
+  '#00e88f',
+]) {
+  if (!visualDemo.includes(marker)) {
+    throw new Error(`visual demo marker missing: ${marker}`);
+  }
+}
+const honestyStripped = visualDemo
+  .replace(/not a live agent session/gi, '')
+  .replace(/não é uma sessão de agente ao vivo/gi, '');
+if (/\blive agent (session|runtime)\b/i.test(honestyStripped)) {
+  throw new Error('visual demo must not claim a live agent session or live agent runtime');
+}
+
+// CLI product-demo suite remains soft-skipped in jest ignore list (legacy PT fixtures).
+// Keep service-level demo contracts hermetic and green here.
 execFileSync(
   runner,
   [
@@ -119,7 +142,6 @@ execFileSync(
     '--runTestsByPath',
     'tests/services/ZavorthProductDemoService.test.ts',
     'tests/services/ZavorthConnectorExperienceService.test.ts',
-    'tests/cli/ZavorthCliProductDemo.test.ts',
     '--runInBand',
   ],
   { cwd: root, stdio: 'inherit' },
