@@ -55,14 +55,16 @@ No silent takeovers. No surprise shell. No “trust me.”
 
 ## ✨ Why Zavorth
 
+**Value order:** useful intelligence → daily habit → trust (approvals & receipts when risk is real).
+
 <table>
 <tr>
 <td width="50%" valign="top">
 
 ### Built for real work
-- Daily ops, code review, research, automation
+- Multi-step plans, tools, and recovery — measured smartness gates
+- Daily Desktop path: open → ask → finish something
 - Multi-channel inbox when you’re ready
-- Desktop app + CLI + Control dashboard
 - Skills, plugins, MCP — absorbed under quarantine
 
 </td>
@@ -80,12 +82,15 @@ No silent takeovers. No surprise shell. No “trust me.”
 
 | | **Zavorth** | Typical agent |
 |---|---|---|
+| **Daily use** | Short path: provider → chat | Long setup before value |
 | **Execution** | Governed gateway + receipts | Run and hope |
 | **Approvals** | Per-action, scoped, revocable | All-or-nothing |
 | **Memory** | Workspace-scoped, consent-aware | Global free-for-all |
 | **Status** | Honest about what’s ready | Pretends everything works |
 | **Self-change** | Preview → approve → apply | Instant or unavailable |
 | **Multi-agent** | Budgeted, isolated, replayable | Free-for-all |
+
+**Value-ready (local)** means dogfood-quality on your machine (Value Waves V0–V7 foundation). **Launch-ready (ops)** means signing, live credentialed cells, and public announce — see `docs/ROADMAP.md` and `docs/product/launch-readiness.md`.
 
 ---
 

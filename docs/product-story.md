@@ -6,7 +6,7 @@ Zavorth is a local-first personal AI operator that does real work on your machin
 
 1. **Useful intelligence** — multi-step work, tool use, recovery plans, measurable smartness gates.
 2. **Daily habit** — open, ask, get work done; return tomorrow with continuity.
-3. **Trust** — approvals, receipts and honesty (catalog is not Live) keep control with you.
+3. **Trust / governance** — approvals, receipts and honesty (catalog is not Live) keep control with you.
 
 Most agent tools optimize for speed or integration count. Zavorth optimizes for **daily trusted operation** without making governance the only story.
 
@@ -25,9 +25,9 @@ Ask naturally. Get real work done. Approve only the risky parts. Keep receipts.
 
 ## Who It Is For
 
-- people who want a private daily AI operator;
-- developers who need a governed coding and ops companion;
-- teams that need auditability without giving up usefulness;
+- people who want a private daily AI operator (**personal**);
+- developers who need a governed coding and ops companion (**developer**);
+- teams and operators who need auditability without giving up usefulness (**business** / power);
 - builders wiring tools, channels, providers and skills under one trust plane.
 
 ## Product Promise
@@ -42,3 +42,8 @@ That is the bar for every public surface.
 - Daily product experience: `npm run zavorth:daily-product-experience:check`
 - Value waves: [product/WAVES-VALUE-INTELLIGENCE-HABIT.md](./product/WAVES-VALUE-INTELLIGENCE-HABIT.md)
 - Launch residual (signing, public announce): [product/launch-readiness.md](./product/launch-readiness.md)
+
+## Value-ready (local) vs Launch-ready (ops)
+
+- **Value-ready (local)** — V0–V7 foundation: useful intelligence, daily path, honest delight, audiences, memory integrity, continuity hooks, narrative order. Safe to dogfood on a local machine.
+- **Launch-ready (ops)** — signed installers, live credentialed cells, calendar R2, public announce. See launch-readiness residual; not claimed by hermetic green alone.

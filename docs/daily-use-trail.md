@@ -2,10 +2,27 @@
 
 Short path for daily work. Full platform setup is optional after chat works.
 
-## Happy path (chat ready)
+Value order: **useful intelligence → daily habit → trust** (approvals/receipts when risk is real).
+
+## Non-developer path (Setup → Desktop → chat)
+
+No CLI required:
+
+1. **Setup app** — install or repair the local runtime (Zavorth Setup / `apps/zavorth-setup`).
+2. **Open Desktop** — Zavorth Desktop starts the runtime when needed and opens native chat.
+3. **First-run audience** — choose **Personal**, **Developer**, or **Business** (tunes copy and first mission; does not grant hidden authority).
+4. **Connect a provider** — one model key or local model; prove it. Catalog presence is not Live.
+5. **First ask** — use the suggested safe request, or ask in plain language.
+6. **Approve only when Review asks** — risky writes, shell, external sends stay gated.
+
+Operators who prefer CLI can still use `zavorth setup` → `zavorth start` / `zavorth open`. Details: [zavorth-desktop-setup.md](./zavorth-desktop-setup.md).
+
+## First pass (≤4 steps)
+
+Enough for daily chat once a provider is proven:
 
 1. **Open Zavorth**
-   Desktop, Control, `zavorth open`, or `zavorth start`.
+   Desktop, Control, `zavorth open`, or `zavorth start` (both open the daily work surface via `ops-go` — not guide-only).
 
 2. **Prove one provider**
    Add a model key or local model, then probe. Catalog presence is not Live.
@@ -18,7 +35,9 @@ Short path for daily work. Full platform setup is optional after chat works.
 
 That is enough for daily chat. Channels, skills, routines and evals can wait.
 
-## Optional platform setup
+## Full platform setup
+
+Optional after chat works (the 8-step Control checklist does **not** gate `chatReady`):
 
 1. Choose experience profile (`personal`, `creator`, `developer`, `business`, `power`).
 2. Connect a channel (Telegram first when available). Live only after proof.
@@ -27,6 +46,7 @@ That is enough for daily chat. Channels, skills, routines and evals can wait.
 5. Add tools and skills through preview → smoke → approval when required.
 6. Schedule a routine with visible final prompt and scope.
 7. Run quality checks (`npm run agent:smartness:check` for agent scoreboard).
+8. Promote useful skills and archive unused ones from the same lifecycle surface.
 
 ## Daily loop
 
@@ -47,7 +67,7 @@ npm run agent:smartness:check
 
 Snapshot fields:
 
-- `chatReady` — provider proven; chat can be useful
+- `chatReady` — provider proven; chat can be useful (does **not** require full platform setup)
 - `platformSetupComplete` — full optional checklist done
 - `happyPath` — short open → provider → first ask → review-if-risky
 
@@ -65,7 +85,7 @@ zavorth health
 
 | Command | Behavior |
 |---------|----------|
-| `start` / `open` | Opens the daily surface (live) |
+| `start` / `open` | Opens the daily surface (live via `ops-go`) |
 | `setup` | Setup Studio (live) |
 | `connect` / `learn` / `tools` | Read-only live status surfaces (no silent installs or sends) |
 | `health` | Diagnostics |

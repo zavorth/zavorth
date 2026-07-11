@@ -39,7 +39,11 @@ export class MemoryService {
   private initialized = false;
   private secureStorage = new SecureStorageService();
   private embeddingService = new VectorEmbeddingService();
-  private draftStore = new MemoryDraftStoreService();
+  private draftStore: MemoryDraftStoreService;
+
+  constructor(options: { draftStore?: MemoryDraftStoreService } = {}) {
+    this.draftStore = options.draftStore || new MemoryDraftStoreService();
+  }
 
   public async init(): Promise<void> {
     if (this.initialized) return;

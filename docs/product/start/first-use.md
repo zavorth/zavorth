@@ -7,7 +7,9 @@ description: "A simple guide to install, chat, connect a model, and understand w
 
 This page is for anyone who wants to start from scratch and use Zavorth without learning its internal architecture.
 
-## The happy path
+## First pass (≤4 steps)
+
+Enough to chat usefully. Full platform setup (channels, skills, routines, evals) can wait.
 
 <Steps>
   <Step title="Install">
@@ -22,28 +24,29 @@ This page is for anyone who wants to start from scratch and use Zavorth without 
     ```
   </Step>
 
-  <Step title="Basic setup">
+  <Step title="Basic setup (prove one provider)">
     ```bash
     zavorth setup
     ```
 
-    Setup asks for the bare minimum: AI model, provider key, language, usage profile, and how Zavorth should act when a task seems sensitive.
+    Setup asks for the bare minimum: AI model, provider key, language, usage profile, and how Zavorth should act when a task seems sensitive. Provider proven is enough for `chatReady` — you do not need the full 8-step platform checklist.
   </Step>
 
-  <Step title="Open the dashboard">
+  <Step title="Open the daily surface">
     ```bash
     zavorth start
+    # or
     zavorth open
     ```
 
-    The dashboard opens directly in the chat. Configuration, memory, skills, receipts, and channels are placed around it, so they won't interrupt your conversation.
+    Both open the daily work surface (live via `ops-go`), not a guide-only help page. Chat is the center; configuration, memory, skills, receipts, and channels sit around it.
   </Step>
 
   <Step title="Send a real message">
-    Start with something simple:
+    Prefer a safe first win:
 
     ```text
-    Review this folder and tell me what this project does. Do not modify files.
+    In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.
     ```
 
     For your first automation:
@@ -53,6 +56,10 @@ This page is for anyone who wants to start from scratch and use Zavorth without 
     ```
   </Step>
 </Steps>
+
+## Full platform setup
+
+Optional after chat works: experience profile, channel proof, runtime profile, learned memory review, tools/skills intake, scheduled routines, and quality evals. See [Daily use trail](/docs/daily-use-trail).
 
 ## What to expect from the first conversation
 

@@ -61,7 +61,12 @@ function markersPresent() {
     ['src/sdk/contracts.ts', ['ZavorthDailyProductExperienceContract']],
     ['src/sdk/index.ts', ['ZavorthDailyProductExperienceService']],
     ['package.json', ['zavorth:daily-product-experience:check']],
-    ['docs/daily-use-trail.md', ['zavorth:daily-product-experience']],
+    ['docs/daily-use-trail.md', [
+      'zavorth:daily-product-experience',
+      'First pass',
+      'Full platform setup',
+      'chatReady',
+    ]],
     ['docs/product-direction.md', ['zavorth:daily-product-experience:check']],
     ['docs/web-zavorthControl.md', ['daily-product-experience']],
   ];

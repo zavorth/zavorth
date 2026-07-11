@@ -52,6 +52,28 @@ Store this as a preference? [yes / no / edit]
 
 You approve it, edit it, or dismiss it. Memory is earned, not assumed.
 
+## Write-path classification
+
+Every path that can write memory is classified. Chat surfaces must not invent recall without evidence.
+
+| Write path | Default behavior | Classification | Notes |
+|---|---|---|---|
+| `MemoryService.remember` | Durable write | **Needs explicit call / promote** | Operator/API only; not auto from chat |
+| `MemoryService.autoExtract` (Telegram / chat hooks) | Draft candidates only | **Draft-only** | `persisted: false`, `mode: 'draft-only'`; no silent promote |
+| `MemoryService.autoExtract({ persist: true })` | Durable under `draft_*` category | **Needs explicit opt-in** | Never the default for first-class chat |
+| `MemoryService.promoteMemoryDraft` | Pending draft → durable | **Needs approval / promote** | Used by `memory-drafts promote` |
+| `MemoryDraftStoreService.addCandidates` | Pending draft file | **Draft-only** | Shared draft ledger under `data/runtime/memory-drafts.json` |
+| Natural First recall (empty receipts) | Reply “no memory found” | **Silent ok (read)** | `noMemoryInvented`; never invents facts |
+| Learning plane / high-impact promote | Approval-gated | **Needs approval** | High-impact prefs and policies |
+| Secrets / tokens in free text | Rejected or redacted | **Forbidden** | Draft store skips secret-like values; context redacts injection |
+
+**Policy summary**
+
+- **Silent ok:** low-risk reads; empty-memory honesty replies; working session context.
+- **Draft:** conversational fact extraction (`autoExtract` default).
+- **Forbidden without consent/promote:** durable user facts, high-impact preferences, cross-user promote.
+- **Forbidden always:** raw secrets, passwords, silent “I remember …” without receipts.
+
 ## The wiki
 
 Semantic memory lives in a local wiki at `.zavorth/wiki/`. These are plain Markdown files — one per topic, readable and editable. You can open them in any text editor, search them with grep, or version-control them with git.

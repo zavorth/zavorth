@@ -16,6 +16,7 @@ import { apiRequest } from '../apiClient';
 import { t } from '../i18n';
 import {
   DESKTOP_ONBOARDING_TRAIL,
+  DESKTOP_ONBOARDING_AUDIENCES,
   DESKTOP_ONBOARDING_STARTER_ASK,
   DESKTOP_TRUST_MODE_KEY,
   buildProviderConnectionRequest,
@@ -26,6 +27,10 @@ import {
   setTrustedOperatorHint,
   getTrustedOperatorHint,
   markOnboardingCelebration,
+  setOnboardingAudience,
+  getOnboardingAudience,
+  starterAskForAudience,
+  type DesktopOnboardingAudienceId,
   type DesktopOnboardingProvider,
   type DesktopOnboardingStepId,
 } from '../onboarding/desktopOnboarding';
@@ -36,6 +41,8 @@ interface OnboardingOverlayProps {
   onSkip?: () => void;
   onStartWithSuggestion?(text: string): void;
   onEnableTrustedOperator?(enabled: boolean): void;
+  /** Persist experience profile (personal / developer / business) for the session. */
+  onAudienceSelected?(audience: DesktopOnboardingAudienceId): void;
 }
 
 type ProviderType = DesktopOnboardingProvider;
@@ -66,6 +73,8 @@ function errorMessage(err: unknown, fallback: string): string {
 
 function trailLabel(id: DesktopOnboardingStepId): string {
   switch (id) {
+    case 'audience':
+      return t('onboarding.stepAudience');
     case 'provider':
       return t('onboarding.stepProvider');
     case 'trust':
@@ -85,8 +94,10 @@ export function OnboardingOverlay({
   onSkip,
   onStartWithSuggestion,
   onEnableTrustedOperator,
+  onAudienceSelected,
 }: OnboardingOverlayProps) {
   const [trailIndex, setTrailIndex] = useState(0);
+  const [audience, setAudience] = useState<DesktopOnboardingAudienceId>(() => getOnboardingAudience());
   const [providerStep, setProviderStep] = useState<ProviderStep>('pick');
   const [providerType, setProviderType] = useState<ProviderType>('openrouter');
   const [providerQuery, setProviderQuery] = useState('');
@@ -103,7 +114,13 @@ export function OnboardingOverlay({
   const [trustedOperator, setTrustedOperator] = useState(() => getTrustedOperatorHint());
 
   const trailStep = DESKTOP_ONBOARDING_TRAIL[trailIndex] ?? DESKTOP_ONBOARDING_TRAIL[0];
-  const starterAsk = t('onboarding.firstAskStarter') || DESKTOP_ONBOARDING_STARTER_ASK;
+  const starterAsk = starterAskForAudience(audience) || t('onboarding.firstAskStarter') || DESKTOP_ONBOARDING_STARTER_ASK;
+
+  const applyAudience = (next: DesktopOnboardingAudienceId) => {
+    setAudience(next);
+    setOnboardingAudience(next);
+    onAudienceSelected?.(next);
+  };
 
   useEffect(() => {
     if (isOnboardingComplete()) {
@@ -255,8 +272,10 @@ export function OnboardingOverlay({
         }
       }
 
-      // Persist trust hint as last-known preference
+      // Persist trust hint + audience as last-known preference
       setTrustedOperatorHint(trustedOperator);
+      setOnboardingAudience(audience);
+      onAudienceSelected?.(audience);
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem(DESKTOP_TRUST_MODE_KEY, trustedOperator ? 'true' : 'false');
       }
@@ -306,6 +325,7 @@ export function OnboardingOverlay({
             </h1>
           </div>
           <p className="zvd-onboarding-welcome">
+            {trailStep.id === 'audience' && t('onboarding.audienceBody')}
             {trailStep.id === 'provider' && t('onboarding.welcomeBody')}
             {trailStep.id === 'trust' && t('onboarding.trustExplain')}
             {trailStep.id === 'channel' && t('onboarding.channelExplain')}
@@ -355,6 +375,31 @@ export function OnboardingOverlay({
             <div className="zvd-onboarding-test-status zvd-onboarding-test-status--error">
               <IconAlertCircle size={16} />
               <span>{error}</span>
+            </div>
+          )}
+
+          {trailStep.id === 'audience' && (
+            <div className="zvd-onboarding-step-panel">
+              <h2 className="zvd-onboarding-step-title">{t('onboarding.stepAudience')}</h2>
+              <p className="zvd-onboarding-step-copy">{t('onboarding.audienceBody')}</p>
+              <div className="zvd-onboarding-providers-grid" role="listbox" aria-label={t('onboarding.stepAudience')}>
+                {DESKTOP_ONBOARDING_AUDIENCES.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="option"
+                    aria-selected={audience === option.id}
+                    className={`zvd-onboarding-provider-card ${audience === option.id ? 'zvd-onboarding-provider-card--active' : ''}`}
+                    onClick={() => applyAudience(option.id)}
+                  >
+                    <IconMessageCircle size={18} aria-hidden="true" />
+                    <span>
+                      <h3>{t(option.titleKey)}</h3>
+                      <small>{t(option.bodyKey)}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -550,6 +595,21 @@ export function OnboardingOverlay({
               >
                 <IconChevronLeft size={16} aria-hidden="true" />
                 {t('onboarding.back')}
+              </button>
+            )}
+
+            {trailStep.id === 'audience' && (
+              <button
+                type="button"
+                className="zvd-btn zvd-btn-primary"
+                onClick={() => {
+                  setOnboardingAudience(audience);
+                  onAudienceSelected?.(audience);
+                  advanceTrail();
+                }}
+              >
+                {t('onboarding.next')}
+                <IconChevronRight size={16} aria-hidden="true" />
               </button>
             )}
 

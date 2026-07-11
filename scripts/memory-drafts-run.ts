@@ -14,31 +14,43 @@ async function main(): Promise<void> {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mdraft-'));
     const storePath = path.join(tempDir, 'memory-drafts.json');
     const store = new MemoryDraftStoreService({ storePath });
-    const memory = new MemoryService();
-    // Inject store via private field is not available; use promote API through a custom path:
-    // Create draft, promote via store only after remember in this check.
-    const created = store.addCandidates({
-      userId: 'check-user',
-      candidates: [{ key: 'preferencia', value: 'dark mode', category: 'preferencia' }],
-    });
-    if (created.length !== 1) {
-      process.stdout.write(asJson ? '{"ok":false}\n' : 'memory-drafts check: fail (create)\n');
+    const memory = new MemoryService({ draftStore: store });
+    // Full promote path: autoExtract draft-only → MemoryService.promoteMemoryDraft → durable recall.
+    const extracted = await memory.autoExtract(
+      'check-user',
+      'Meu nome e Check User e prefiro dark mode.',
+      'Ok.',
+    );
+    const pending = memory.listMemoryDrafts('check-user');
+    const draft = pending.find((item) => item.key === 'preferencia' || item.key === 'nome') || pending[0];
+    if (!draft || extracted.persisted !== false || extracted.mode !== 'draft-only') {
+      process.stdout.write(asJson ? '{"ok":false}\n' : 'memory-drafts check: fail (draft-only extract)\n');
       process.exitCode = 1;
       return;
     }
-    await memory.remember(created[0].userId, created[0].key, created[0].value, created[0].category);
-    const promoted = store.promote(created[0].id, { actorUserId: 'check-user' });
-    const recalled = await memory.recall('check-user', 'preferencia');
-    await memory.forget('check-user', 'preferencia').catch(() => false);
-    const ok = promoted?.status === 'promoted' && recalled === 'dark mode';
+    const beforePromote = await memory.recall('check-user', draft.key);
+    const promoted = await memory.promoteMemoryDraft(draft.id, { actorUserId: 'check-user' });
+    const recalled = await memory.recall('check-user', draft.key);
+    await memory.forget('check-user', draft.key).catch(() => false);
+    const ok = beforePromote === null
+      && promoted?.status === 'promoted'
+      && typeof recalled === 'string'
+      && recalled.length > 0;
     const payload = {
       ok,
+      draftKey: draft.key,
       recalled,
       promoted: promoted?.status || null,
-      note: 'check verifies remember+promote order and ownership',
+      extractMode: extracted.mode,
+      note: 'check verifies autoExtract draft-only + MemoryService.promoteMemoryDraft',
     };
     process.stdout.write(asJson ? `${JSON.stringify(payload, null, 2)}\n` : `memory-drafts check: ${ok ? 'pass' : 'fail'}\n`);
     process.exitCode = ok ? 0 : 1;
+    try {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    } catch {
+      /* ignore cleanup */
+    }
     return;
   }
 

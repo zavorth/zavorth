@@ -4,23 +4,28 @@ import { join } from 'path';
 const root = process.cwd();
 
 describe('Zavorth CLI happy path commands', () => {
-  it('offers simple entry commands that point users to setup, channels, learning and tools', () => {
-    const source = readFileSync(join(root, 'src/cli/ZavorthCliLiveNamespaces.ts'), 'utf8');
+  it('routes start/open to ops-go and keeps connect/learn/tools as read-only live surfaces', () => {
+    const cli = readFileSync(join(root, 'src/zavorth-cli.ts'), 'utf8');
+    const live = readFileSync(join(root, 'src/cli/ZavorthCliLiveNamespaces.ts'), 'utf8');
+    const launcher = readFileSync(join(root, 'src/cli/ZavorthCliBuiltinLauncher.ts'), 'utf8');
 
-    for (const command of ['start', 'setup', 'connect', 'learn', 'tools']) {
-      expect(source).toContain(`'${command}'`);
-      expect(source).toContain(`case '${command}'`);
+    // Daily open surface: start/open are live (ops-go), not guide-only.
+    expect(cli).toMatch(/if \(command === 'start'\)[\s\S]{0,200}?runPromotedScript\('ops-go'/);
+    expect(cli).toMatch(/if \(command === 'open' \|\| command === 'control'\)[\s\S]{0,200}?runPromotedScript\('ops-go'/);
+    expect(launcher).toMatch(/if \(command === 'start' \|\| command === 'quickstart'\)[\s\S]{0,200}?runPromotedScript\('ops-go'/);
+
+    // Secondary daily surfaces stay read-only live status (no silent installs/sends).
+    for (const command of ['connect', 'learn', 'tools']) {
+      expect(live).toContain(`'${command}'`);
+      expect(live).toContain(`case '${command}'`);
     }
+    expect(live).toContain('runDailySurface');
+    expect(live).toContain("sideEffects: 'read-only'");
 
-    expect(source).toContain('runHappyPath');
-    expect(source).toContain('Zavorth start');
-    expect(source).toContain('Connect channels');
-    expect(source).toContain('Review learned memory');
-
-    const happyPathBlock = source.slice(
-      source.indexOf('async function runHappyPath'),
-      source.indexOf('async function runBackground'),
+    const dailySurfaceBlock = live.slice(
+      live.indexOf('async function runDailySurface'),
+      live.indexOf('export async function runBackground'),
     );
-    expect(happyPathBlock).not.toMatch(/transaction plane|policy broker|quarantine/i);
+    expect(dailySurfaceBlock).not.toMatch(/transaction plane|policy broker|quarantine/i);
   });
 });

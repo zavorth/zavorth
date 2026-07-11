@@ -153,7 +153,11 @@ Maintainer smoke for this path:
 npm run zavorth:demo:check
 ```
 
-Also see [public-demo-trust-loop.md](./product/public-demo-trust-loop.md) and [golden-path.md](./product/golden-path.md).
+Also see:
+
+- [demo-scripts.md](./product/demo-scripts.md) — Script A (offline Trust Loop) and Script B (with provider)
+- [public-demo-trust-loop.md](./product/public-demo-trust-loop.md)
+- [golden-path.md](./product/golden-path.md)
 
 ## Smoke
 

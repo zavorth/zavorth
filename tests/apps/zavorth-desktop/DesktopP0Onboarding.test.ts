@@ -1,11 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  DESKTOP_ONBOARDING_AUDIENCES,
+  DESKTOP_ONBOARDING_TRAIL,
   buildModelRoutingRequest,
   buildOnboardingChecklist,
   buildProviderConnectionRequest,
+  getOnboardingAudience,
+  isDesktopOnboardingAudienceId,
   normalizeSelectableModels,
+  setOnboardingAudience,
   shouldOpenDesktopOnboarding,
+  starterAskForAudience,
 } from '../../../apps/zavorth-desktop/src/onboarding/desktopOnboarding';
 
 describe('Zavorth Desktop P0 onboarding contract', () => {
@@ -101,6 +107,29 @@ describe('Zavorth Desktop P0 onboarding contract', () => {
     ]);
   });
 
+  it('starts first-run with an audience step (personal / developer / business) and audience-specific starter asks', () => {
+    expect(DESKTOP_ONBOARDING_TRAIL[0]?.id).toBe('audience');
+    expect(DESKTOP_ONBOARDING_AUDIENCES.map((entry) => entry.id)).toEqual([
+      'personal',
+      'developer',
+      'business',
+    ]);
+    expect(isDesktopOnboardingAudienceId('developer')).toBe(true);
+    expect(isDesktopOnboardingAudienceId('power')).toBe(false);
+
+    const storage = new Map<string, string>();
+    const fakeStorage = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => { storage.set(key, value); },
+      removeItem: (key: string) => { storage.delete(key); },
+    };
+    setOnboardingAudience('business', fakeStorage);
+    expect(getOnboardingAudience(fakeStorage)).toBe('business');
+    expect(starterAskForAudience('developer')).toMatch(/risk/i);
+    expect(starterAskForAudience('business')).toMatch(/approval/i);
+    expect(starterAskForAudience('personal')).toMatch(/without changing any files/i);
+  });
+
   it('does not bypass the Electron desktop bridge with direct /api fetch calls', () => {
     const source = readFileSync(
       join(process.cwd(), 'apps/zavorth-desktop/src/components/OnboardingOverlay.tsx'),
@@ -109,6 +138,8 @@ describe('Zavorth Desktop P0 onboarding contract', () => {
 
     expect(source).not.toMatch(/fetch\(['"]\/api/);
     expect(source).toContain('apiRequest');
+    expect(source).toContain('DESKTOP_ONBOARDING_AUDIENCES');
+    expect(source).toContain('onAudienceSelected');
   });
 
   it('keeps provider settings on the Electron bridge when rendered from file://', () => {

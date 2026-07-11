@@ -2,6 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs';
 import { MemoryDraftStoreService } from '../../../src/services/MemoryDraftStoreService.js';
+import { MemoryService } from '../../../src/services/MemoryService.js';
 import { KillerMissionCatalogService } from '../../../src/services/KillerMissionCatalogService.js';
 import { DailyReturnContinuityService } from '../../../src/services/DailyReturnContinuityService.js';
 import { AgentSmartnessLiveService } from '../../../src/services/agent-smartness/AgentSmartnessLiveService.js';
@@ -11,6 +12,8 @@ import {
   rememberDesktopSession,
   readRememberedDesktopSession,
 } from '../../../apps/zavorth-desktop/src/desktop-state/continuityStorage';
+import { Database } from '../../../src/storage/Database.js';
+import { config } from '../../../src/config/index.js';
 
 describe('Value surfaces testability', () => {
   it('stores memory drafts without silent promote and blocks cross-user promote', () => {
@@ -26,6 +29,40 @@ describe('Value surfaces testability', () => {
     expect(store.list('u1', 'pending')).toHaveLength(1);
     expect(store.promote(created[0].id, { actorUserId: 'u1' })?.status).toBe('promoted');
     expect(store.list('u1', 'pending')).toHaveLength(0);
+  });
+
+  it('routes draft promote through MemoryService.promoteMemoryDraft', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mdraft-svc-'));
+    const originalDbPath = config.dbPath;
+    const originalDbEncryptionKey = config.dbEncryptionKey;
+    (config as any).dbPath = path.join(dir, 'memory.db');
+    (config as any).dbEncryptionKey = 'value-draft-test-key';
+    try {
+      ((Database as any).instance as Database | null)?.close?.();
+      (Database as any).instance = null;
+      const store = new MemoryDraftStoreService({ storePath: path.join(dir, 'drafts.json') });
+      const memory = new MemoryService({ draftStore: store });
+      const extract = await memory.autoExtract(
+        'u-honest',
+        'Meu nome e Ada e prefiro dark mode.',
+        'Ok.',
+      );
+      expect(extract.mode).toBe('draft-only');
+      expect(extract.persisted).toBe(false);
+      const draft = memory.listMemoryDrafts('u-honest')[0];
+      expect(draft).toBeTruthy();
+      expect(await memory.recall('u-honest', draft.key)).toBeNull();
+      const promoted = await memory.promoteMemoryDraft(draft.id, { actorUserId: 'u-honest' });
+      expect(promoted?.status).toBe('promoted');
+      expect(await memory.recall('u-honest', draft.key)).toBeTruthy();
+      await memory.forget('u-honest', draft.key).catch(() => false);
+    } finally {
+      ((Database as any).instance as Database | null)?.close?.();
+      (Database as any).instance = null;
+      (config as any).dbPath = originalDbPath;
+      (config as any).dbEncryptionKey = originalDbEncryptionKey;
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('exposes three safe killer missions', () => {

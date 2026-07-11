@@ -161,22 +161,34 @@ describe('ZavorthAgentEvalTool', () => {
     const result = await tool.execute({ action: 'run', eval_name: 'Test Eval', max_tasks: 3 });
     expect(result).toContain('completed');
     expect(result).toContain('Passed');
+    expect(result).toContain('simulated=true');
+    expect(result).toContain('liveLlmEval=false');
+    expect(result).toContain('claimsLiveIntelligence=false');
   });
   it('generates report', async () => {
     await tool.execute({ action: 'run', eval_name: 'Report Test', max_tasks: 2 });
     const result = await tool.execute({ action: 'report' });
     expect(result).toContain('Evaluation Report');
+    expect(result).toContain('simulated=true');
   });
   it('compares reports', async () => {
     await tool.execute({ action: 'run', eval_name: 'Run 1', max_tasks: 2 });
     await tool.execute({ action: 'run', eval_name: 'Run 2', max_tasks: 2 });
     const result = await tool.execute({ action: 'compare' });
     expect(result).toContain('Comparison');
+    expect(result).toContain('simulated=true');
   });
   it('exports report', async () => {
     await tool.execute({ action: 'run', eval_name: 'Export Test', max_tasks: 1 });
     const result = await tool.execute({ action: 'export' });
     expect(result).toContain('exported');
+    expect(result).toContain('simulated=true');
+    const exported = fs.readdirSync(tempDir).find((name) => name.startsWith('report_') && name.endsWith('.json'));
+    expect(exported).toBeTruthy();
+    const payload = JSON.parse(fs.readFileSync(path.join(tempDir, exported!), 'utf8'));
+    expect(payload.simulated).toBe(true);
+    expect(payload.liveLlmEval).toBe(false);
+    expect(payload.claimsLiveIntelligence).toBe(false);
   });
   it('imports tasks', async () => {
     const tasks = JSON.stringify([{ name: 'Imported', input: 'test', expected_output: 'result' }]);

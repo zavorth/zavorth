@@ -334,9 +334,15 @@ function card(
   };
 }
 
+/**
+ * Chat is ready when a provider is proven.
+ * Runtime/executor may be present but is not required; full 8-step platform
+ * (channel, memory, skills, routines, evals) must never gate chatReady.
+ */
 function resolveChatReady(setup: ZavorthControlSetupChecklistSnapshot): boolean {
   const provider = setup.items.find((item) => item.id === 'connect-provider');
   if (provider) return provider.status === 'done';
+  // Fallback only when the checklist has no provider row: partial progress is not full platform.
   return setup.summary.needsSetup === 0 && setup.summary.blocked === 0 && setup.summary.done > 0;
 }
 

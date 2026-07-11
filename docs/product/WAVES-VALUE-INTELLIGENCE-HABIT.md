@@ -125,15 +125,15 @@ Atualizar esta tabela em **todo** handoff.
 | Wave | Status | Owner (agente/humano) | Última mudança | Evidência (PR/commit/gate) |
 |------|--------|----------------------|----------------|----------------------------|
 | V0 | `DONE` | implementation agent | 2026-07-11 | `docs/product/value-baseline.md` |
-| V1 | `DONE` | implementation agent | 2026-07-11 | `npm run agent:smartness:check` (6/6) |
+| V1 | `DONE` | implementation agent | 2026-07-11 | `agent:smartness:check` 6/6; eval tool `simulated:true`; recovery plan tests; known-limitations live IQ |
 | V2 | `DONE` | implementation agent | 2026-07-11 | start→ops-go; happyPath/chatReady in Daily PE |
 | V3 | `DONE` | implementation agent | 2026-07-11 | `docs/product/demo-scripts.md` + desktop first-win ask |
-| V4 | `DONE` | implementation agent | 2026-07-11 | business/power manifests + ExperienceRuntimeProfileMap |
-| V5 | `DONE` | implementation agent | 2026-07-11 | autoExtract draft-only; no-invent mission |
+| V4 | `DONE` | implementation agent | 2026-07-11 | business/power manifests; Desktop audience first-run; non-dev Setup→Desktop→chat; profileBundleMissing log on fallback |
+| V5 | `DONE` | implementation agent | 2026-07-11 | draft-only autoExtract; promoteMemoryDraft; write-path table; no-invent + promote tests |
 | V6 | `DONE` | implementation agent | 2026-07-11 | `DailyReturnContinuityService` |
-| V7 | `DONE` | implementation agent | 2026-07-11 | product-story + daily-use-trail rebalance |
+| V7 | `DONE` | implementation agent | 2026-07-11 | product-story/ROADMAP/README/what-is utilidade→hábito→confiança; Value-ready vs Launch-ready |
 
-**Programa completo quando:** V0–V6 `DONE` e V7 `DONE` ou `DEFERRED` com motivo explícito.
+**Programa completo (fundação local):** V0–V7 `DONE` → **Value-ready (local)**. Residual de lançamento = Launch-ready (ops): R2 calendar, live cells, signing — ver ROADMAP / launch-readiness.
 
 ---
 
@@ -143,7 +143,7 @@ Atualizar esta tabela em **todo** handoff.
 |-------|--------|
 | **ID** | V0 |
 | **Prioridade** | P0 |
-| **Status** | `READY` |
+| **Status** | `DONE` |
 | **Buckets** | E (clareza solicitação × realidade) |
 | **Dependências** | Nenhuma |
 | **Desbloqueia** | V1, V2, V4, V5 |
@@ -180,10 +180,10 @@ Criar a **baseline mensurável** do gap valor/inteligência/hábito, para que wa
 
 ### Critérios de aceite
 
-- [ ] Baseline documentada (tabela inventário + métricas-alvo).  
-- [ ] ROADMAP aponta para este ficheiro.  
-- [ ] Progresso global atualizado; V1 e V2 passam a `READY`.  
-- [ ] Nenhum claim novo de “agente superior” sem apontar para V1.
+- [x] Baseline documentada (tabela inventário + métricas-alvo).  
+- [x] ROADMAP aponta para este ficheiro.  
+- [x] Progresso global atualizado; V1 e V2 passam a `READY`.  
+- [x] Nenhum claim novo de “agente superior” sem apontar para V1.
 
 ### Pistas de código / docs
 
@@ -221,7 +221,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V1 |
 | **Prioridade** | P0 |
-| **Status** | `LOCKED` (→ `READY` após V0) |
+| **Status** | `DONE` |
 | **Buckets** | A |
 | **Dependências** | V0 |
 | **Desbloqueia** | V5 (parcial), V7 |
@@ -257,11 +257,11 @@ Passar de “runtime multi-step existe” para **“qualidade de agente é mensu
 
 ### Critérios de aceite
 
-- [ ] ≥ 5 missões de smartness com resultado `pass|fail` hermético (não só `blocked` por “falta de framework”).  
-- [ ] Relatório JSON ou gate npm documentado (`agent:smartness:check` ou equivalente).  
-- [ ] `ZavorthAgentEvalTool` deixa de ser a única face de “eval” **ou** deixa explícito `simulated: true` na API pública.  
-- [ ] Pelo menos 1 caminho de recovery **além** de retry 120ms está coberto por teste (replan ou alternate tool ou structured failure to user).  
-- [ ] Handoff atualiza progresso; não afirma “agente superior” sem apontar para o relatório.
+- [x] ≥ 5 missões de smartness com resultado `pass|fail` hermético (não só `blocked` por “falta de framework”).  
+- [x] Relatório JSON ou gate npm documentado (`agent:smartness:check` ou equivalente).  
+- [x] `ZavorthAgentEvalTool` deixa de ser a única face de “eval” **ou** deixa explícito `simulated: true` na API pública.  
+- [x] Pelo menos 1 caminho de recovery **além** de retry 120ms está coberto por teste (replan ou alternate tool ou structured failure to user).  
+- [x] Handoff atualiza progresso; não afirma “agente superior” sem apontar para o relatório.
 
 ### Pistas de código
 
@@ -269,11 +269,11 @@ Passar de “runtime multi-step existe” para **“qualidade de agente é mensu
 - `src/agents/StructuredPlanner.ts`, `UniversalPlanner.ts`, `AgentChainBuilder.ts`  
 - `src/services/GoalLoopService.ts`  
 - `src/tools/ZavorthAgentEvalTool.ts`  
-- `src/services/ZavorthOperationalRolloutEvalService.ts`  
-- `src/services/ZavorthEvalControlPlaneService.ts`  
-- `tests/runtime/agent/AgentRunNativeToolLoopAdvanced.test.ts`  
-- `scripts/run-hermetic-dogfood-matrix.mjs`  
-- `docs/product/dogfood-missions-100.md`
+- `src/services/agent-smartness/AgentSmartnessService.ts`  
+- `src/services/agent-smartness/AgentSmartnessLiveService.ts`  
+- `src/runtime/agent/StructuredToolFailurePlan.ts`  
+- `tests/services/honesty/AgentSmartnessService.test.ts`  
+- `docs/known-limitations.md`
 
 ### Fatias sugeridas (se dividir a wave)
 
@@ -287,6 +287,7 @@ Passar de “runtime multi-step existe” para **“qualidade de agente é mensu
 
 ```
 YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
+2026-07-11 | implementation | AgentSmartnessService 6 missões herméticas; gate agent:smartness:check; StructuredToolFailurePlan + testes; ZavorthAgentEvalTool marca simulated=true/liveLlmEval=false; known-limitations live IQ | live multi-step harness opcional com credencial | —
 ```
 
 ---
@@ -297,7 +298,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V2 |
 | **Prioridade** | P0 |
-| **Status** | `LOCKED` (→ `READY` após V0) |
+| **Status** | `DONE` |
 | **Buckets** | C |
 | **Dependências** | V0 |
 | **Desbloqueia** | V3, V6 |
@@ -335,12 +336,12 @@ Um **único happy path diário** em que o utilizador: abre → sabe o próximo p
 
 ### Critérios de aceite
 
-- [ ] Existe doc “path feliz diário” com ≤ 4 passos até first useful chat (com provider).  
-- [ ] Nenhum comando do path feliz principal é guide-only sem o rótulo explícito “guide”.  
-- [ ] Checklist 8-step não é condição de “pode conversar”.  
-- [ ] Next-action cobre: needs provider, pending approval, ready.  
-- [ ] Teste/gate impede regressão do path curto.  
-- [ ] `daily-use-trail.md` atualizado.
+- [x] Existe doc “path feliz diário” com ≤ 4 passos até first useful chat (com provider).  
+- [x] Nenhum comando do path feliz principal é guide-only sem o rótulo explícito “guide”.  
+- [x] Checklist 8-step não é condição de “pode conversar”.  
+- [x] Next-action cobre: needs provider, pending approval, ready.  
+- [x] Teste/gate impede regressão do path curto.  
+- [x] `daily-use-trail.md` atualizado.
 
 ### Pistas de código
 
@@ -377,7 +378,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V3 |
 | **Prioridade** | P1 |
-| **Status** | `LOCKED` (após V0 + path V2 estável) |
+| **Status** | `DONE` |
 | **Buckets** | B, C |
 | **Dependências** | V0, V2 (pelo menos V2-a path documentado) |
 | **Desbloqueia** | V7 |
@@ -415,11 +416,11 @@ Ter **dois scripts oficiais de demo**:
 
 ### Critérios de aceite
 
-- [ ] Scripts A e B documentados e linkados em getting-started / showcase.  
-- [ ] Script A smoke no CI (ou já coberto por golden path + referência clara).  
-- [ ] First-win mission no onboarding Desktop (copy + prompt default).  
-- [ ] Anti-claims: demo estática não pode ser descrita como “agente live” em UI.  
-- [ ] Time-to-first-useful-work medido manualmente uma vez e registado no log (baseline).
+- [x] Scripts A e B documentados e linkados em getting-started / showcase.  
+- [x] Script A smoke no CI (ou já coberto por golden path + referência clara).  
+- [x] First-win mission no onboarding Desktop (copy + prompt default).  
+- [x] Anti-claims: demo estática não pode ser descrita como “agente live” em UI.  
+- [x] Time-to-first-useful-work medido manualmente uma vez e registado no log (baseline).
 
 ### Pistas de código / assets
 
@@ -444,7 +445,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V4 |
 | **Prioridade** | P1 |
-| **Status** | `LOCKED` (após V0) |
+| **Status** | `DONE` |
 | **Buckets** | D |
 | **Dependências** | V0; ideal V2 para não conflitar com checklist |
 | **Desbloqueia** | V7 |
@@ -478,16 +479,17 @@ Perfis de audiência **fazem diferença real** (ou o produto deixa de fingir que
 
 ### Critérios de aceite
 
-- [ ] Todo experience id resolvido no Control mapeia para manifest compilável.  
-- [ ] Teste unitário impede regressão do mismatch business/power.  
-- [ ] First-run Desktop permite escolher audiência e altera missões/copy.  
-- [ ] Doc “Who is Zavorth for” aponta paths distintos (dev vs personal).  
-- [ ] Jargão técnico não é default na home personal.
+- [x] Todo experience id resolvido no Control mapeia para manifest compilável.  
+- [x] Teste unitário impede regressão do mismatch business/power.  
+- [x] First-run Desktop permite escolher audiência e altera missões/copy.  
+- [x] Doc “Who is Zavorth for” aponta paths distintos (dev vs personal).  
+- [x] Jargão técnico não é default na home personal (baseline; polish residual V4-c opcional). *(residual UX; não bloqueia value-ready local)*
 
 ### Pistas de código
 
 - `src/services/ZavorthExperienceProfileService.ts`  
 - `src/services/ProfileManifestService.ts`  
+- `src/services/ExperienceRuntimeProfileMap.ts`  
 - `config/profile-manifests/*.json`  
 - `src/runtime/agent/AgentRunFactory.ts`  
 - `src/services/ZavorthGuidedMissionsService.ts`  
@@ -508,7 +510,7 @@ Perfis de audiência **fazem diferença real** (ou o produto deixa de fingir que
 ### Log de handoff
 
 ```
-YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
+2026-07-11 | implementation agent | business/power manifests + map tests; Desktop audience step + starter missions; non-dev path docs; profileBundleMissing log on fallback | residual: home jargon abstraction (V4-c) | none
 ```
 
 ---
@@ -519,7 +521,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V5 |
 | **Prioridade** | P1 |
-| **Status** | `LOCKED` (após V0; melhor após V1-a) |
+| **Status** | `DONE` |
 | **Buckets** | A, C |
 | **Dependências** | V0 |
 | **Desbloqueia** | V6 (continuidade honesta) |
@@ -554,27 +556,27 @@ Uma **política única de memória**: o agente não afirma lembrar sem evidênci
 
 ### Critérios de aceite
 
-- [ ] Tabela de write paths no doc da wave (ou memory.md) com classificação.  
-- [ ] Zero path de chat first-class que faça claim de memória sem evidence em teste de contrato.  
-- [ ] autoExtract alinhado à política (desligado, draft, ou consent).  
-- [ ] Doc de produto atualizado.  
-- [ ] Pelo menos 1 teste de regressão anti-alucinação de recall.
+- [x] Tabela de write paths no doc da wave (ou memory.md) com classificação.  
+- [x] Zero path de chat first-class que faça claim de memória sem evidence em teste de contrato.  
+- [x] autoExtract alinhado à política (desligado, draft, ou consent).  
+- [x] Doc de produto atualizado.  
+- [x] Pelo menos 1 teste de regressão anti-alucinação de recall.
 
 ### Pistas de código
 
-- `src/services/MemoryService.ts` (`autoExtract`, `getMemoryContext`)  
+- `src/services/MemoryService.ts` (`autoExtract`, `promoteMemoryDraft`, `getMemoryContext`)  
+- `src/services/MemoryDraftStoreService.ts`  
+- `src/runtime/agent/NaturalFirstMemoryContinuityService.ts`  
 - `src/services/MemoryWithReceiptsService.ts`  
-- `src/services/NaturalFirstMemoryContinuityService.ts` (path real a confirmar no repo)  
-- `src/services/ZavorthLayeredMemoryService.ts`  
-- `src/services/ZavorthLearningPlaneService.ts`  
-- Telegram: `TelegramConversationDirectReplyService`, `TelegramConversationController`  
+- Telegram: `TelegramConversationDirectReplyService` (autoExtract draft-only default)  
 - `docs/product/concepts/memory.md`, `memory-privacy.md`  
-- `docs/adaptive-learning-os.md`
+- `scripts/memory-drafts-run.ts`
 
 ### Log de handoff
 
 ```
 YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
+2026-07-11 | implementation | autoExtract draft-only; promoteMemoryDraft wired; write-path table in memory.md + value-baseline; no-invent + promote tests; memory-drafts --check uses promoteMemoryDraft | monitor channel drift if new writers appear | —
 ```
 
 ---
@@ -585,7 +587,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V6 |
 | **Prioridade** | P1 |
-| **Status** | `LOCKED` (após V2) |
+| **Status** | `DONE` |
 | **Buckets** | C, E |
 | **Dependências** | V2; V5 recomendada |
 | **Desbloqueia** | V7, launch residual R2 |
@@ -619,10 +621,10 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 
 ### Critérios de aceite
 
-- [ ] Reopen Desktop mostra continuidade (sessão ou next action), não empty genérico se houver histórico.  
-- [ ] R2: ou `DONE` com evidência real de day-1, ou harness + doc “how to pass R2” sem soft-lie.  
-- [ ] `launch-readiness.md` / `retention-gate.md` atualizados.  
-- [ ] Ligação explícita a este programa no residual de launch.
+- [x] Reopen Desktop mostra continuidade (sessão ou next action), não empty genérico se houver histórico.  
+- [x] R2: harness + doc “how to pass R2” sem soft-lie (calendar residual ops).  
+- [x] `launch-readiness.md` / `retention-gate.md` atualizados.  
+- [x] Ligação explícita a este programa no residual de launch.
 
 ### Pistas de código / docs
 
@@ -647,7 +649,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |-------|--------|
 | **ID** | V7 |
 | **Prioridade** | P2 |
-| **Status** | `LOCKED` (após V1–V3 no mínimo) |
+| **Status** | `DONE` |
 | **Buckets** | E, B |
 | **Dependências** | V1, V2, V3 (mínimo); ideal V4–V6 |
 | **Desbloqueia** | Comunicação externa coerente |
@@ -671,8 +673,8 @@ em vez de “somos o Trust Loop” como única diferenciação.
 1. Atualizar `product-story.md`, `what-is-zavorth.md`, README (secção valor) com ordem de valor nova — **sem** apagar honesty.  
 2. Secção “How we measure quality” apontando V1 smartness + daily path V2 + demo V3.  
 3. Critério **Value-ready (local)** distinto de **Launch-ready (ops)**:
-   - Value-ready = V1+V2+V3 DONE + honesty intacta.  
-   - Launch-ready = launch-readiness residual.  
+   - Value-ready = V0–V7 foundation DONE + honesty intacta (dogfood local).  
+   - Launch-ready = launch-readiness residual (R2, live cells, signing, public announce).  
 4. Template de resposta para futuros agentes: proibido fechar análise só com “Trust Loop superior” sem score A–E.  
 5. Atualizar este ficheiro: programa `DONE` ou `ACTIVE` com residual explícito.
 
@@ -684,11 +686,11 @@ em vez de “somos o Trust Loop” como única diferenciação.
 
 ### Critérios de aceite
 
-- [ ] product-story e what-is-zavorth refletem ordem utilidade → hábito → confiança.  
-- [ ] README não vende só governance.  
-- [ ] Value-ready vs Launch-ready documentados.  
-- [ ] Progresso global do programa atualizado.  
-- [ ] Nenhuma regressão de honesty claims.
+- [x] product-story e what-is-zavorth refletem ordem utilidade → hábito → confiança.  
+- [x] README não vende só governance.  
+- [x] Value-ready vs Launch-ready documentados.  
+- [x] Progresso global do programa atualizado.  
+- [x] Nenhuma regressão de honesty claims.
 
 ### Pistas
 
@@ -702,7 +704,7 @@ em vez de “somos o Trust Loop” como única diferenciação.
 ### Log de handoff
 
 ```
-YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
+2026-07-11 | implementation agent | product-story/what-is/README/ROADMAP rebalance; Value-ready vs Launch-ready; residual next = R2/live cells/signing | none for V7 | none
 ```
 
 ---
@@ -803,6 +805,7 @@ YYYY-MM-DD | agent/human | o que fez | próximo passo | blockers
 |------|--------|
 | 2026-07-11 | Programa criado a partir do diagnóstico A–E (inteligência, wow, hábito, audiências, solicitações). Trabalho recente Trust Loop/harden reconhecido como base de governança, **não** como fecho do gap de valor. |
 | 2026-07-11 | Pack de testabilidade: `npm run value:test-all` (7/7 hermético), ContinuityBanner Desktop, MemoryDraftStore, killer missions, smartness live blocked-honest, HOW-TO-TEST-VALUE.md. |
+| 2026-07-11 | V4 gaps: Desktop audience first-run; profileBundleMissing log; non-dev Setup→Desktop→chat docs. V7 gaps: narrative order utilidade→hábito→confiança; Value-ready vs Launch-ready; ROADMAP residual R2/live/signing. |
 
 ---
 

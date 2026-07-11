@@ -3,6 +3,7 @@ import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
+import { AgentSmartnessService } from '../services/agent-smartness/AgentSmartnessService.js';
 
 export interface EvalTask {
   id: string;
@@ -28,6 +29,11 @@ export interface EvalResult {
 export interface EvalReport {
   id: string;
   name: string;
+  /** Public honesty: this tool is not a live LLM IQ bench. */
+  simulated: true;
+  claimsLiveIntelligence: false;
+  liveLlmEval: false;
+  mode: 'hermetic-unit-scoreboard';
   total_tasks: number;
   passed: number;
   failed: number;
@@ -41,7 +47,7 @@ export class ZavorthAgentEvalTool extends BaseTool {
   public readonly name = 'zavorth_agent_eval';
 
   public readonly description =
-    'Agent Evaluation — benchmark agent quality, run test suites, compare with baselines, generate evaluation reports.';
+    'Agent Evaluation (honesty: not live LLM IQ) — hermetic unit smartness scoreboard, list/add tasks, compare reports. Free-form coding/reasoning categories are refused; use agent:smartness:live for credentialed live probes.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -166,7 +172,6 @@ export class ZavorthAgentEvalTool extends BaseTool {
       ].join('\n');
     }
 
-    const { AgentSmartnessService } = await import('../services/agent-smartness/AgentSmartnessService.js');
     const smartness = await new AgentSmartnessService().run();
     const results: EvalResult[] = smartness.results.map((entry) => ({
       task_id: entry.id,
@@ -182,6 +187,10 @@ export class ZavorthAgentEvalTool extends BaseTool {
     const report: EvalReport = {
       id: `report_${Date.now()}`,
       name: evalName,
+      simulated: true,
+      claimsLiveIntelligence: false,
+      liveLlmEval: false,
+      mode: 'hermetic-unit-scoreboard',
       total_tasks: results.length,
       passed: results.filter((r) => r.pass).length,
       failed: results.filter((r) => !r.pass).length,
@@ -196,7 +205,9 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     return [
       `Evaluation "${evalName}" completed.`,
-      '  Mode: hermetic unit scoreboard (no live LLM intelligence claim)',
+      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      '  Mode: hermetic-unit-scoreboard (not a live LLM intelligence claim)',
+      '  Live IQ: npm run agent:smartness:live (requires provider credentials)',
       `  Total: ${report.total_tasks}`,
       `  Passed: ${report.passed}`,
       `  Failed: ${report.failed}`,
@@ -253,29 +264,42 @@ export class ZavorthAgentEvalTool extends BaseTool {
     if (!reportId) {
       if (this.reports.length === 0) return 'No evaluation reports.';
       const latest = this.reports[this.reports.length - 1];
-      return this.formatReport(latest);
+      return this.formatReport(this.normalizeReport(latest));
     }
 
     const report = this.reports.find((r) => r.id === reportId);
     if (!report) return `Error: report "${reportId}" not found.`;
-    return this.formatReport(report);
+    return this.formatReport(this.normalizeReport(report));
+  }
+
+  private normalizeReport(report: EvalReport): EvalReport {
+    return {
+      ...report,
+      simulated: true,
+      claimsLiveIntelligence: false,
+      liveLlmEval: false,
+      mode: report.mode || 'hermetic-unit-scoreboard',
+    };
   }
 
   private formatReport(report: EvalReport): string {
+    const honest = this.normalizeReport(report);
     const lines: string[] = [
-      `Evaluation Report: ${report.name}`,
-      `  ID: ${report.id}`,
-      `  Date: ${report.created_at}`,
-      `  Total: ${report.total_tasks}`,
-      `  Passed: ${report.passed}`,
-      `  Failed: ${report.failed}`,
-      `  Score: ${(report.avg_score * 100).toFixed(1)}%`,
-      `  Avg duration: ${report.avg_duration_ms.toFixed(0)}ms`,
+      `Evaluation Report: ${honest.name}`,
+      `  ID: ${honest.id}`,
+      `  Date: ${honest.created_at}`,
+      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+      `  Mode: ${honest.mode}`,
+      `  Total: ${honest.total_tasks}`,
+      `  Passed: ${honest.passed}`,
+      `  Failed: ${honest.failed}`,
+      `  Score: ${(honest.avg_score * 100).toFixed(1)}%`,
+      `  Avg duration: ${honest.avg_duration_ms.toFixed(0)}ms`,
       '',
       'Results:',
     ];
 
-    for (const r of report.results) {
+    for (const r of honest.results) {
       const icon = r.pass ? '✅' : '❌';
       lines.push(`  ${icon} ${r.task_name}: ${(r.score * 100).toFixed(0)}% (${r.duration_ms}ms)`);
     }
@@ -286,14 +310,15 @@ export class ZavorthAgentEvalTool extends BaseTool {
   private compareReports(args: Record<string, unknown>): string {
     if (this.reports.length < 2) return 'Need at least 2 reports to compare.';
 
-    const latest = this.reports[this.reports.length - 1];
-    const previous = this.reports[this.reports.length - 2];
+    const latest = this.normalizeReport(this.reports[this.reports.length - 1]);
+    const previous = this.normalizeReport(this.reports[this.reports.length - 2]);
 
     const scoreDiff = latest.avg_score - previous.avg_score;
     const passDiff = latest.passed - previous.passed;
 
     return [
       'Report Comparison:',
+      '  Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
       `  ${previous.name}: ${(previous.avg_score * 100).toFixed(1)}% (${previous.passed}/${previous.total_tasks} passed)`,
       `  ${latest.name}: ${(latest.avg_score * 100).toFixed(1)}% (${latest.passed}/${latest.total_tasks} passed)`,
       `  Score delta: ${scoreDiff > 0 ? '+' : ''}${(scoreDiff * 100).toFixed(1)}%`,
@@ -310,9 +335,13 @@ export class ZavorthAgentEvalTool extends BaseTool {
 
     if (!report) return 'Error: no report to export.';
 
-    const outputPath = path.join(this.storageDir, `${report.id}.json`);
-    fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), 'utf-8');
-    return `Report exported to ${outputPath}`;
+    const honest = this.normalizeReport(report);
+    const outputPath = path.join(this.storageDir, `${honest.id}.json`);
+    fs.writeFileSync(outputPath, JSON.stringify(honest, null, 2), 'utf-8');
+    return [
+      `Report exported to ${outputPath}`,
+      'Honesty: simulated=true | liveLlmEval=false | claimsLiveIntelligence=false',
+    ].join('\n');
   }
 
   private importTasks(args: Record<string, unknown>): string {
