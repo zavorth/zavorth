@@ -7,6 +7,7 @@ type Filter = 'all' | 'installed' | 'available';
 
 export function PluginMarketplacePanel(props: {
   plugins: PluginItem[];
+  source?: 'api' | 'tools' | 'empty';
   onInstall?: (pluginId: string) => void;
   onUninstall?: (pluginId: string) => void;
   onUpdate?: (pluginId: string) => void;

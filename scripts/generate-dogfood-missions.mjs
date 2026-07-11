@@ -1,0 +1,123 @@
+#!/usr/bin/env node
+/**
+ * Generate / validate docs/product/dogfood-missions-100.md (110 missions).
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const outPath = path.join(root, 'docs', 'product', 'dogfood-missions-100.md');
+const force = process.argv.includes('--force');
+const check = process.argv.includes('--check');
+
+const AREAS = [
+  { area: 'install', count: 8, titles: ['CLI home + version offline', 'doctor ready:yes', 'offline --help', 'status readable', 'supervised host entry present', 'code packaging smoke', 'LocalExecutor workspace boundary', 'process lock service present'] },
+  { area: 'first-run', count: 8, titles: ['setup hybrid summary', 'providers honesty path', 'entry smoke offline', 'desktop product version helper', 'empty/chat showcase docs', 'gateway listening (or blocked)', 'email optional ready/default-off', 'golden-path honesty classify'] },
+  { area: 'chat', count: 10, titles: ['first chat turn (live LLM)', 'missing-provider honesty docs', 'streaming response (live)', 'tool-calling chat turn (live)', 'multi-turn context (live)', 'stop/cancel mid-stream (live)', 'model switch mid-session (live)', 'attachment/file context (live)', 'system prompt honesty (live)', 'rate-limit / error recovery (live)'] },
+  { area: 'tools-read', count: 8, titles: ['read file within workspace', 'list directory within workspace', 'web_search provider (live)', 'session continuum continuity', 'receipt search via golden path', 'workspace boundary deny-read', 'memory privacy via golden path', 'inspect snapshot offline'] },
+  { area: 'tools-write-approval', count: 10, titles: ['write requires approval policy', 'approve single write (UI)', 'deny single write (UI)', 'batch write approval (UI)', 'tool security policy suite', 'elevated path approval (UI)', 'timeout on pending approval (UI)', 'policy allowlist write path', 'shell exec approval (UI)', 'network egress approval (UI)'] },
+  { area: 'rejection', count: 6, titles: ['policy deny path', 'path traversal reject', 'dangerous command reject', 'classic mutation token required', 'loopback auth mutation guard', 'skill/MCP quarantine present'] },
+  { area: 'receipts', count: 8, titles: ['receipt/proof golden path', 'receipt after tool run', 'proof list via golden path', 'receipt search by mission', 'receipt export path', 'receipt integrity hash', 'receipt retention policy', 'receipt surface in Control/CLI'] },
+  { area: 'memory', count: 8, titles: ['memory write with consent', 'memory read scoped', 'memory forget path', 'memory privacy redaction', 'memory privacy golden path', 'mnemos live optional', 'memory export/import honesty', 'memory isolation across agents'] },
+  { area: 'channels', count: 10, titles: ['channels inventory CLI', 'telegram live (credentials)', 'discord live (credentials)', 'whatsapp/live optional', 'email outbox configurable', 'channel factory doctor registry', 'live matrix honesty docs', 'outbox/unconfigured send covered', 'normalizeChannelId aliases', 'cross-channel honesty in matrix'] },
+  { area: 'desktop', count: 8, titles: ['desktop product version surface', 'desktop shell soft-fail bridge', 'approvals components tree', 'marketplace panel present', 'settings panel present', 'constellation/panels tree', 'desktop product version again', 'code bridge soft-fail architecture'] },
+  { area: 'update', count: 6, titles: ['version surface uses product version', 'update UI version helper', 'update/rollback readiness check', 'supervised restart path present', 'update/rollback docs+scripts', 'doctor after update path'] },
+  { area: 'crash-recovery', count: 6, titles: ['host supervisor restart unit', 'host recovery after child exit', 'session restore after crash', 'live crash simulation (blocked)', 'lock release on crash', 'receipt continuity after restart'] },
+  { area: 'multiagent', count: 6, titles: ['subagent budget enforcement', 'delegate task structural', 'parent-child session link', 'budget exhaustion honesty', 'multiagent services present', 'swarm/scale plane structural'] },
+  { area: 'security', count: 8, titles: ['hostauth/host status', 'host presence unit', 'ABAC engine suite', 'classic XSS hardening', 'classic access token suite', 'classic audit/logs auth', 'privacy redactor suite', 'security:ci gate'] },
+];
+
+function buildMissions() {
+  const missions = [];
+  let n = 0;
+  for (const a of AREAS) {
+    for (let i = 1; i <= a.count; i++) {
+      n += 1;
+      missions.push({
+        n,
+        id: `dogfood.${a.area}.${String(i).padStart(2, '0')}`,
+        area: a.area,
+        title: a.titles[i - 1] || `${a.area} mission ${i}`,
+      });
+    }
+  }
+  return missions;
+}
+
+function renderMarkdown(missions) {
+  const lines = [
+    '# Dogfood missions (110)',
+    '',
+    '> Canonical hermetic + live dogfood mission catalog for Zavorth beta.',
+    '> Generated by `scripts/generate-dogfood-missions.mjs`. Do not hand-edit IDs.',
+    '',
+    `- **Count:** ${missions.length}`,
+    `- **Generated:** ${new Date().toISOString().slice(0, 10)}`,
+    '',
+    '## Mission table',
+    '',
+    '| # | ID | Area | Title |',
+    '|---|----|------|-------|',
+  ];
+  for (const m of missions) {
+    lines.push(`| ${m.n} | \`${m.id}\` | ${m.area} | ${m.title} |`);
+  }
+  lines.push(
+    '',
+    '## Notes',
+    '',
+    '- Hermetic matrix: `npm run dogfood:hermetic` maps each ID to pass/fail/blocked without inventing live cert.',
+    '- Day-0 session: `npm run dogfood:day0`.',
+    '- Retention R2 (`day1Return`) is calendar-gated and must not be faked.',
+    '',
+  );
+  return lines.join('\n');
+}
+
+function parseIds(text) {
+  const ids = [];
+  for (const line of text.split(/\r?\n/)) {
+    const m = line.match(/\|\s*\d+\s*\|\s*`([^`]+)`/);
+    if (m) ids.push(m[1]);
+  }
+  return ids;
+}
+
+const missions = buildMissions();
+if (missions.length !== 110) {
+  console.error(`[dogfood-missions] internal error: expected 110, got ${missions.length}`);
+  process.exit(1);
+}
+
+if (check) {
+  if (!fs.existsSync(outPath)) {
+    console.error(`[dogfood-missions] missing ${path.relative(root, outPath)}`);
+    process.exit(1);
+  }
+  const text = fs.readFileSync(outPath, 'utf8');
+  const ids = parseIds(text);
+  const expected = missions.map((m) => m.id);
+  const missing = expected.filter((id) => !ids.includes(id));
+  const extra = ids.filter((id) => !expected.includes(id));
+  if (ids.length !== 110 || missing.length || extra.length) {
+    console.error(
+      `[dogfood-missions] check failed: found=${ids.length} missing=${missing.length} extra=${extra.length}`,
+    );
+    process.exit(1);
+  }
+  console.log('[dogfood-missions] check ok (110 missions)');
+  process.exit(0);
+}
+
+if (!force && fs.existsSync(outPath)) {
+  const existing = parseIds(fs.readFileSync(outPath, 'utf8'));
+  if (existing.length === 110) {
+    console.log(`[dogfood-missions] already present (${existing.length}); use --force to regenerate`);
+    process.exit(0);
+  }
+}
+
+fs.mkdirSync(path.dirname(outPath), { recursive: true });
+fs.writeFileSync(outPath, renderMarkdown(missions), 'utf8');
+console.log(`[dogfood-missions] wrote ${path.relative(root, outPath)} (${missions.length} missions)`);

@@ -280,7 +280,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
 
     expect(order).toEqual(['agent', 'dispatcher']);
     expect(agentGateway.handle).toHaveBeenCalledWith(expect.objectContaining({
-      channel: 'api',
+      channel: 'slack',
       text: 'liste a pasta downloads',
       requestedTools: ['read_file'],
       metadata: expect.objectContaining({

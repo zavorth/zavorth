@@ -24,9 +24,9 @@ type ZavorthPaneProps = {
 
 export function ZavorthPaneShell({ children, className = '', dataThemeAccentVar, style }: ZavorthPaneShellProps) {
   return (
-    <main className={`zvd-pane-shell zavorth-pane-shell ${className}`} data-theme-accent-var={dataThemeAccentVar} style={style}>
+    <div className={`zvd-pane-shell zavorth-pane-shell ${className}`} data-theme-accent-var={dataThemeAccentVar} style={style}>
       {children}
-    </main>
+    </div>
   );
 }
 

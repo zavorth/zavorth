@@ -1422,7 +1422,7 @@ async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
   const { ZavorthReadyToGoService } = await import('./services/ZavorthReadyToGoService.js');
   const service = new ZavorthReadyToGoService();
   const snapshot = await service.buildSnapshot({
-    refreshProviders: !rawArgs.includes('--offline') || rawArgs.includes('--refresh-providers'),
+    refreshProviders: rawArgs.includes('--refresh-providers') || rawArgs.includes('--live'),
     includeAdvancedProviders: rawArgs.includes('--advanced'),
     userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'ready-to-go',

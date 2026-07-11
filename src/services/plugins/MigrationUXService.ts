@@ -70,13 +70,15 @@ const PROFILE_ALIASES: Record<string, UniversalWorkspaceProfileId | 'auto'> = {
 
 export class MigrationUXService {
   private readonly storageDir: string;
+  private readonly projectRoot: string;
   private readonly importer: UniversalWorkspaceImportService;
 
   constructor(options?: { storageDir?: string; projectRoot?: string }) {
     this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'migration-ux');
+    this.projectRoot = path.resolve(options?.projectRoot || process.cwd());
     if (!fs.existsSync(this.storageDir)) fs.mkdirSync(this.storageDir, { recursive: true });
     this.importer = new UniversalWorkspaceImportService({
-      projectRoot: options?.projectRoot || process.cwd(),
+      projectRoot: this.projectRoot,
     });
   }
 
@@ -125,7 +127,7 @@ export class MigrationUXService {
     const snapshot = this.importer.buildSnapshot({
       sourcePath: detection.path,
       apply: false,
-      projectRoot: process.cwd(),
+      projectRoot: this.projectRoot,
       targetRoot: path.join(this.storageDir, 'imported', detection.name),
       ...options,
     });

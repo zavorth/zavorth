@@ -7,6 +7,10 @@ describe('ZavorthWebhookReceiverTool', () => {
     tool = new ZavorthWebhookReceiverTool();
   });
 
+  afterEach(async () => {
+    await tool.dispose();
+  });
+
   it('lists webhooks as empty initially', async () => {
     const result = await tool.execute({ action: 'list' });
     expect(result).toContain('No active');

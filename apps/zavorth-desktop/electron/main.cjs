@@ -45,6 +45,41 @@ let desktopAutomationStore = null;
 let desktopAutomationTimer = null;
 const trustedWorkspaceRoots = new Set();
 
+/**
+ * Product version for update/settings surfaces (not only Electron app.getVersion()).
+ * Prefer monorepo package.json when running from source; fall back to Electron package.
+ */
+const DESKTOP_PRODUCT_VERSION = resolveDesktopProductVersion();
+
+function resolveDesktopProductVersion() {
+  /** @type {string[]} */
+  const candidates = [
+    path.join(__dirname, '..', 'package.json'),
+    path.join(__dirname, '..', '..', '..', 'package.json'),
+  ];
+  try {
+    candidates.unshift(path.join(resolveRepoRoot(), 'package.json'));
+  } catch {
+    // resolveRepoRoot may throw outside Electron app ready
+  }
+  for (const pkgPath of candidates) {
+    try {
+      if (!fs.existsSync(pkgPath)) continue;
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      if (pkg && typeof pkg.version === 'string' && pkg.version.trim()) {
+        return pkg.version.trim();
+      }
+    } catch {
+      // try next
+    }
+  }
+  try {
+    return app.getVersion();
+  } catch {
+    return '0.0.0';
+  }
+}
+
 /** App renderer dist root — only file: navigation under this path is allowed. */
 function getAllowedFileNavigationRoots() {
   return [path.join(__dirname, '..', 'dist')];
@@ -1217,14 +1252,14 @@ function updateHomeDir() {
 
 ipcMain.handle('zavorth:check-updates', async () => {
   return desktopUpdates.checkUpdates({
-    currentVersion: app.getVersion(),
+    currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
     homeDir: updateHomeDir(),
   });
 });
 
 ipcMain.handle('zavorth:updates:download', async () => {
   return desktopUpdates.downloadUpdate({
-    currentVersion: app.getVersion(),
+    currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
     homeDir: updateHomeDir(),
   });
 });
@@ -1238,7 +1273,7 @@ ipcMain.handle('zavorth:updates:defer', async (_event, input = {}) => {
 
 ipcMain.handle('zavorth:updates:install', async () => {
   return desktopUpdates.installUpdate({
-    currentVersion: app.getVersion(),
+    currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
     homeDir: updateHomeDir(),
     allowSetupFallback: true,
     startSetup: async (extra = {}) => launchGuidedSetup(extra),
