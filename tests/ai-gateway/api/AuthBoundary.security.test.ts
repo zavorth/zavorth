@@ -82,9 +82,12 @@ describe('auth boundary hardening', () => {
     const dbBackupsRoute = readApiRoute('db-backups');
     const providersClientRoute = readApiRoute('providers', 'client');
     const codexAuthExportRoute = readApiRoute('providers', '[id]', 'codex-auth', 'export');
+    const drainRoute = readApiRoute('infra', 'drain');
+    const restartRoute = readApiRoute('restart');
 
     expect(apiAuth).toContain('isStrictlyAuthenticated');
     expect(requireManagementAuth).toContain('requireStrictManagementAuth');
+    expect(requireManagementAuth).toContain('requireManagementAuth');
     for (const route of [
       exportAllRoute,
       auditRoute,
@@ -94,6 +97,8 @@ describe('auth boundary hardening', () => {
       dbBackupsRoute,
       providersClientRoute,
       codexAuthExportRoute,
+      drainRoute,
+      restartRoute,
     ]) {
       expect(route).toContain('requireStrictManagementAuth');
       expect(route).toContain('const authError = await requireStrictManagementAuth');
@@ -210,5 +215,34 @@ describe('auth boundary hardening', () => {
     expect(proxy).toContain('settings.requireLogin === false && isLoopbackRequest(request)');
     expect(proxy).toContain('"/control/:path*"');
     expect(proxy).not.toContain('isLocalZavorthControlRequest');
+  });
+
+  it('requires management auth on marketplace skills and external-executor settings (S5)', () => {
+    const marketplace = readApiRoute('marketplace', 'skills');
+    const externalExecutorShared = readGatewayFile(
+      'app',
+      'api',
+      'cli-tools',
+      '_shared',
+      'externalExecutorSettingsRoute.ts',
+    );
+
+    for (const route of [marketplace, externalExecutorShared]) {
+      expect(route).toContain('requireManagementAuth');
+      expect(route).toContain('const authError = await requireManagementAuth');
+    }
+    // Each exported handler must check auth before work.
+    expect(marketplace.match(/export async function (GET|POST)/g)?.length).toBeGreaterThanOrEqual(2);
+    expect((marketplace.match(/requireManagementAuth\(request\)/g) || []).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('does not allow silent open admin: public allowlist has no catch-all management prefixes (S5)', () => {
+    const apiAuth = readGatewayFile('shared/utils/apiAuth.ts');
+    expect(apiAuth).toContain('PUBLIC_API_EXACT_ROUTES');
+    expect(apiAuth).not.toContain('"/api/marketplace"');
+    expect(apiAuth).not.toContain('"/api/infra/"');
+    expect(apiAuth).not.toContain('"/api/db-backups"');
+    expect(apiAuth).not.toContain('"/api/audit"');
+    expect(apiAuth).not.toContain('"/api/restart"');
   });
 });

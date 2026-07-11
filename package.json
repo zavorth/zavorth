@@ -11,12 +11,8 @@
       "default": "./dist/index.js"
     },
     "./sdk": {
-      "types": "./dist/sdk/public.d.ts",
-      "default": "./dist/sdk/public.js"
-    },
-    "./sdk/internal": {
-      "types": "./dist/sdk/internal.d.ts",
-      "default": "./dist/sdk/internal.js"
+      "types": "./dist/sdk/index.d.ts",
+      "default": "./dist/sdk/index.js"
     },
     "./sdk/agent-runtime-bridge": {
       "types": "./dist/sdk/agent-runtime-bridge.d.ts",
@@ -34,9 +30,25 @@
       "types": "./dist/sdk/contracts.d.ts",
       "default": "./dist/sdk/contracts.js"
     },
+    "./sdk/CustomToolDescriptor": {
+      "types": "./dist/sdk/CustomToolDescriptor.d.ts",
+      "default": "./dist/sdk/CustomToolDescriptor.js"
+    },
+    "./sdk/ExtensionToolFingerprint": {
+      "types": "./dist/sdk/ExtensionToolFingerprint.d.ts",
+      "default": "./dist/sdk/ExtensionToolFingerprint.js"
+    },
+    "./sdk/ExtensionToolValidation": {
+      "types": "./dist/sdk/ExtensionToolValidation.d.ts",
+      "default": "./dist/sdk/ExtensionToolValidation.js"
+    },
     "./sdk/functional-closure": {
       "types": "./dist/sdk/functional-closure.d.ts",
       "default": "./dist/sdk/functional-closure.js"
+    },
+    "./sdk/internal": {
+      "types": "./dist/sdk/internal.d.ts",
+      "default": "./dist/sdk/internal.js"
     },
     "./sdk/memory-document-terminal-pack": {
       "types": "./dist/sdk/memory-document-terminal-pack.d.ts",
@@ -61,6 +73,10 @@
     "./sdk/provider-mesh-expansion": {
       "types": "./dist/sdk/provider-mesh-expansion.d.ts",
       "default": "./dist/sdk/provider-mesh-expansion.js"
+    },
+    "./sdk/public": {
+      "types": "./dist/sdk/public.d.ts",
+      "default": "./dist/sdk/public.js"
     },
     "./sdk/qa-security-release-certification-pack": {
       "types": "./dist/sdk/qa-security-release-certification-pack.d.ts",
@@ -125,6 +141,10 @@
     "./sdk/version": {
       "types": "./dist/sdk/version.d.ts",
       "default": "./dist/sdk/version.js"
+    },
+    "./sdk/ZavorthExtensionFacade": {
+      "types": "./dist/sdk/ZavorthExtensionFacade.d.ts",
+      "default": "./dist/sdk/ZavorthExtensionFacade.js"
     },
     "./package.json": "./package.json"
   },
@@ -970,6 +990,7 @@
     "security:secrets": "node scripts/secret-guard-check.mjs",
     "security:supply-chain": "node scripts/supply-chain-guard.mjs",
     "security:audit": "node scripts/security-ci-check.mjs",
+    "security:audit-triage": "node scripts/security-audit-triage.mjs --omit-dev",
     "security:ci": "node scripts/security-ci-check.mjs",
     "security:doctor": "npx tsx scripts/security-doctor.ts",
     "security:continuous": "npx tsx scripts/security-continuous.ts",
@@ -1107,6 +1128,8 @@
     "qa:zavorth-golden-path": "node scripts/zavorth-golden-path.mjs",
     "zavorth:release-hardening": "node scripts/zavorth-release-hardening-check.mjs",
     "qa:zavorth-release-hardening": "node scripts/zavorth-release-hardening-check.mjs",
+    "wave2:docs:check": "node scripts/check-wave2-docs.mjs",
+    "wave3:launch:check": "node scripts/check-wave3-launch-gate.mjs",
     "zavorth:product-readiness": "npx tsx scripts/zavorth-product-certification.ts",
     "zavorth:product-readiness:json": "npx tsx scripts/zavorth-product-certification.ts --json",
     "zavorth:product-readiness:check": "node scripts/zavorth-product-certification-check.mjs",
@@ -1254,7 +1277,17 @@
     "code:postinstall": "node scripts/ensure-code-runtime.mjs || exit 0",
     "postinstall": "node scripts/ensure-code-runtime.mjs || true",
     "start:supervised:raw": "node dist/host.js",
-    "ai-gateway:start": "npx tsx scripts/start-ai-gateway.ts"
+    "ai-gateway:start": "npx tsx scripts/start-ai-gateway.ts",
+    "dogfood:missions:check": "node scripts/generate-dogfood-missions.mjs --check",
+    "dogfood:missions:generate": "node scripts/generate-dogfood-missions.mjs --force",
+    "dogfood:runner": "node scripts/dogfood-runner.mjs",
+    "retention:log": "node scripts/retention-log.mjs",
+    "retention:check": "node scripts/retention-log.mjs --check",
+    "update:rollback:check": "node scripts/check-update-rollback.mjs",
+    "wave2:check": "npm run wave2:docs:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent",
+    "wave3:check": "npm run wave3:launch:check --silent",
+    "waves:check": "npm run wave2:check --silent && npm run wave3:check --silent",
+    "residual:waves:check": "npm run waves:check --silent && npm run dogfood:missions:check --silent && npm run update:rollback:check --silent && node scripts/retention-log.mjs --check --soft"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",
@@ -1305,6 +1338,7 @@
     "pdfjs-dist": "^5.7.284",
     "picocolors": "^1.1.1",
     "playwright": "^1.54.2",
+    "prismjs": "^1.30.0",
     "prop-types": "^15.8.1",
     "proxy-agent": "^8.0.1",
     "qrcode": "^1.5.4",
@@ -1334,6 +1368,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/marked-terminal": "^6.1.1",
     "@types/node": "^22.13.0",
+    "@types/prismjs": "^1.26.6",
     "@types/react": "^19.2.16",
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^6.0.2",
