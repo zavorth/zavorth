@@ -27,6 +27,8 @@ npm run value:test-all -- --live
 
 See [product/HOW-TO-TEST-VALUE.md](./product/HOW-TO-TEST-VALUE.md).
 
+**Session handoff (done + residual):** [product/SESSION-STATUS-HANDOFF.md](./product/SESSION-STATUS-HANDOFF.md)
+
 ## Value-ready (local) vs Launch-ready (ops)
 
 | Bar | Meaning | Evidence |
