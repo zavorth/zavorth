@@ -1,3 +1,5 @@
+> Archived from public docs tree on 2026-07-11. Historical program notes — not current user documentation.
+
 # Status do Plano de Auditoria - Zavorth
 
 **Última atualização:** 2026-07-02

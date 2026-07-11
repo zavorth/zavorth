@@ -17,7 +17,7 @@ This is **not** a second CLI. The TUI remains the only interactive shell; monore
 **Related:**
 
 - Code file bridges: [zavorth-code-bridge.md](./zavorth-code-bridge.md)
-- Merge program: [code-cli-integration.md](../product/code-cli-integration.md)
+- Merge program (archived): [code-cli-integration.md](../archive/product/code-cli-integration.md)
 - Implementation (Node, no TS build): `scripts/lib/zavorth-runtime-bridge.mjs`
 - TUI reader: `packages/code/cli/src/util/host-runtime.ts`
 

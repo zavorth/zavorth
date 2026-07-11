@@ -171,6 +171,7 @@ const CAPABILITY_DEFS = [
   { command: 'retry', cluster: 'operator', strategy: 'delegated', summary: 'Retry work' },
   { command: 'cancel', cluster: 'operator', strategy: 'delegated', summary: 'Cancel work' },
   { command: 'mock-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
+  { command: 'proof', aliases: ['proof-ledger', 'proof-os'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Proof OS unified receipt ledger (list/show/export)' },
 
   // Meta
   { command: 'capabilities', aliases: ['caps'], cluster: 'setup-health', strategy: 'native', summary: 'List product terminal capabilities' },

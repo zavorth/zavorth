@@ -28,6 +28,7 @@ import { runCapabilityFabricCli, runImportWorkspaceCli } from './cli/CapabilityF
 import { runReachFabricCli } from './cli/ReachFabricCli.js';
 import { runPowerFabricCli } from './cli/PowerFabricCli.js';
 import { runProductFabricCli } from './cli/ProductFabricCli.js';
+import { runProofLedgerCli } from './cli/ProofLedgerCli.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -2562,6 +2563,14 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     || command === 'daily-product'
   ) {
     return runProductFabricCli(restArgs);
+  }
+
+  if (
+    command === 'proof'
+    || command === 'proof-ledger'
+    || command === 'proof-os'
+  ) {
+    return runProofLedgerCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

@@ -2,7 +2,8 @@
 
 How the monorepo ships and develops the **Zavorth terminal CLI** (Code TUI + monorepo capabilities).
 
-**Related:** [AUDIT-code-cli.md](./AUDIT-code-cli.md) · [code-cli-integration.md](./code-cli-integration.md) · [cli-capabilities.md](./cli-capabilities.md)
+**Related:** [cli-capabilities.md](./cli-capabilities.md) · [zavorth-runtime-bridge.md](../protocol/zavorth-runtime-bridge.md)  
+**Historical (archived):** [AUDIT-code-cli.md](../archive/product/AUDIT-code-cli.md) · [code-cli-integration.md](../archive/product/code-cli-integration.md)
 
 ---
 

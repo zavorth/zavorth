@@ -30,10 +30,17 @@ understand, operate and integrate the agent.
 | [Provider Mesh](/docs/provider-mesh.md) | Provider selection and live readiness |
 | [Channel Mesh](/docs/channel-mesh.md) | Multi-channel status, setup and connection playbooks |
 | [Memory](/docs/mnemos-memory-os.md) | Local memory and recall |
+| [Mnemos Dream Cycle](/docs/mnemos-dream-cycle.md) | Consolidate memory into reviewable candidate stores |
+
+## Advanced / internal architecture
+
+Power-user and maintainer docs. Useful for deep runtime work; not required for first-run or daily operation.
+
+| Doc | Use it for |
+| --- | --- |
 | [Native Evolution, Runtime Profiles and MCP Intake](/docs/native-evolution-runtime-mcp.md) | Daily capability flow, governed prompt candidates, lightweight runtime playbooks and MCP review |
 | [Native Autonomy Spine](/docs/native-autonomy-spine.md) | Turn-end learning, Skill Forge, live channel proof, backend proof and review center |
 | [Dynamic Mission Harness](/docs/dynamic-mission-harness.md) | Preview, approve and materialize deep multi-worker missions |
-| [Mnemos Dream Cycle](/docs/mnemos-dream-cycle.md) | Consolidate memory into reviewable candidate stores |
 
 ## Product Readiness
 
@@ -65,3 +72,7 @@ understand, operate and integrate the agent.
 - Public docs describe real current behavior.
 - Temporary plans and private audits do not belong here.
 - Commands in docs should be user-facing commands or stable maintainer commands.
+
+## Historical plans
+
+Phase plans, audits, and delivery briefs that are no longer first-class public docs live under **[docs/archive/](./archive/)**. See the [archive inventory](./archive/README.md) for what moved and why.
