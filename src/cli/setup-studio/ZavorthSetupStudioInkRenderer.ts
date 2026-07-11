@@ -3,13 +3,13 @@ import { createElement } from 'react';
 import { ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS } from '../ZavorthSetupStudioService.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
-// Premium gradient palette for the minimalist logo
+// Premium gradient palette for the minimalist logo (product brand green family)
 const GRADIENT_COLORS = [
-  '#c084fc', // purple/violet
-  '#d946ef', // fuchsia
-  '#f43f5e', // rose
-  '#ff7a18', // orange
-  '#fbbf24', // amber
+  '#34ffb4', // brand bright
+  '#00e88f', // product brand green
+  '#00b46e', // brand deep
+  '#06b6d4', // info cyan accent
+  '#4ade80', // success green
 ];
 
 import { buildZavorthSetupStudioSnapshot } from './ZavorthSetupStudioState.js';
@@ -36,7 +36,8 @@ const COLORS = {
   bg: '#0d0d11',
   text: '#f5f7fb',
   muted: '#7d8597',
-  orange: '#ff7a18',
+  /** Product brand green (legacy key name `orange` kept for call sites). */
+  orange: '#00e88f',
   cyan: '#63e6ff',
   blue: '#7aa2ff',
   green: '#4ade80',
@@ -645,7 +646,7 @@ function LeftRail({ Box, Text, snapshot, selectedStepIndex, page, compactLayout 
     createElement(Text, { color: COLORS.text }, truncateMiddle(snapshot.projectRoot, 22)),
     createElement(Text, { color: COLORS.muted }, ''),
     createElement(Text, { color: COLORS.green }, 'Progress saved'),
-    createElement(Text, { color: COLORS.orange }, 'Vortex-orange safety rail'),
+    createElement(Text, { color: COLORS.orange }, 'Brand-green safety rail'),
   );
 }
 

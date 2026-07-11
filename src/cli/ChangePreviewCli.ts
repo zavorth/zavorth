@@ -19,6 +19,11 @@ import {
   type ChangePreviewImpactLike,
   type ChangePreviewPlanStepInput,
 } from '../services/preview/ChangePreviewPresenter.js';
+import {
+  paintCliBadge,
+  paintCliTone,
+  renderCliWordmarkStrip,
+} from './ZavorthCliVisualTheme.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -36,23 +41,22 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    '=== Zavorth Change Preview (Proof OS) ===',
+    `${paintCliBadge('CHANGE PREVIEW', 'brand')} ${paintCliTone('Zavorth Change Preview (Proof OS)', 'brand')}`,
+    paintCliTone('Counterfactual / "If you approve, what changes?" product face.', 'muted'),
+    paintCliTone('Productizes ImpactSimulatorService + UniversalPreviewModeService.', 'muted'),
+    paintCliTone('Never claims a full world twin when data is insufficient.', 'muted'),
     '',
-    'Counterfactual / "If you approve, what changes?" product face.',
-    'Productizes ImpactSimulatorService + UniversalPreviewModeService.',
-    'Never claims a full world twin when data is insufficient.',
-    '',
-    'Usage:',
+    paintCliTone('Usage:', 'info'),
     '  zavorth change-preview',
     '  zavorth change-preview demo [--json] [--markdown]',
     '  zavorth change-preview from-json --file <path> [--json] [--markdown]',
     '  zavorth change-preview status',
     '  zavorth change-preview --help',
     '',
-    'Aliases: preview-change, what-changes',
-    `Contract: ${CHANGE_PREVIEW_CONTRACT_VERSION}`,
+    paintCliTone('Aliases: preview-change, what-changes', 'muted'),
+    `${paintCliTone('Contract:', 'info')} ${CHANGE_PREVIEW_CONTRACT_VERSION}`,
     '',
-    'Examples:',
+    paintCliTone('Examples:', 'info'),
     '  zavorth change-preview demo',
     '  zavorth what-changes demo --markdown',
     '  zavorth change-preview from-json --file ./preview.json',
@@ -90,7 +94,8 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
   const presenter = new ChangePreviewPresenter();
 
   if (!first || first.startsWith('--') || first === 'status' || first === 'summary') {
-    console.log('Change Preview (Proof OS)');
+    console.log(`${renderCliWordmarkStrip()} ${paintCliTone('Change preview', 'muted')}`);
+    console.log(paintCliTone('Change Preview (Proof OS)', 'brand'));
     console.log(`  contract: ${CHANGE_PREVIEW_CONTRACT_VERSION}`);
     console.log('  honesty: never claims a full world twin without plan + impact data');
     console.log('');

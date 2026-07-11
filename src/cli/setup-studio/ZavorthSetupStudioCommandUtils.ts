@@ -39,5 +39,6 @@ export function orange(value: string): string {
   if (!process.stdout?.isTTY && !String(process.env.FORCE_COLOR || '').trim()) {
     return value;
   }
-  return `\u001b[38;2;255;122;24m${value}\u001b[0m`;
+  // Product brand green `#00e88f` (orange brand retired)
+  return `\u001b[38;2;0;232;143m${value}\u001b[0m`;
 }

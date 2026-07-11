@@ -17,6 +17,12 @@ import { createRuntimeRefresh } from './runtime-refresh';
 import { createRuntimeRealtime } from './runtime-realtime';
 import { createRuntimeRunReplay } from './runtime-run-replay';
 import { createRuntimeSessionUi } from './runtime-session-ui';
+import {
+  buildControlReadinessItems,
+  classifyControlReadiness,
+  composeProofOsPanelModel,
+} from './proof-os-model';
+import { refreshProofOsUi } from './proof-os-ui';
 import { shellWarn } from './shell-debug';
 
 export function initRuntimeBridge() {
@@ -751,6 +757,62 @@ export function initRuntimeBridge() {
     `).join('');
   }
 
+  function updateProofOsSurface() {
+    const snapshot = getGatewaySnapshot();
+    const runs = getRuns();
+    const providerSummary = state.providerModelCatalog?.summary || state.providerModelCatalog || null;
+    const liveReadyRoutes = Number(providerSummary?.liveReadyRoutes || providerSummary?.liveReady || 0);
+    const catalogOnly = Number(
+      providerSummary?.catalogReadyButNotLive
+      || providerSummary?.needsLiveProof
+      || 0,
+    );
+
+    const readinessItems = buildControlReadinessItems({
+      live: Boolean(state.zavorthControl?.live),
+      authRequired: Boolean(state.zavorthControl?.authRequired),
+    });
+
+    if (providerSummary) {
+      const providerBadge = classifyControlReadiness({
+        liveReady: liveReadyRoutes > 0,
+        catalogReady: liveReadyRoutes === 0 && catalogOnly > 0,
+        configured: liveReadyRoutes > 0 || catalogOnly > 0 ? true : false,
+      });
+      readinessItems.push({
+        ...providerBadge,
+        detail: providerBadge.state === 'live'
+          ? 'Provider proven live.'
+          : providerBadge.state === 'catalog'
+            ? 'Provider catalog ≠ live.'
+            : providerBadge.detail,
+      });
+    }
+
+    const riskBudgetState =
+      (state as { riskBudget?: unknown }).riskBudget
+      || snapshot.riskBudget
+      || state.zavorthControl?.riskBudget
+      || null;
+
+    const proofs = Array.isArray(snapshot.proofEvents)
+      ? snapshot.proofEvents
+      : Array.isArray(state.zavorthControl?.proofEvents)
+        ? state.zavorthControl.proofEvents
+        : [];
+
+    const model = composeProofOsPanelModel({
+      proofs,
+      runs,
+      riskBudgetState,
+      readinessItems,
+      latest: 8,
+      useCacheFallback: true,
+    });
+    refreshProofOsUi(model);
+    return model;
+  }
+
   function updateInstancesTable() {
     const section = document.getElementById('sector-instances');
     const tbody = section?.querySelector('tbody');
@@ -772,6 +834,9 @@ export function initRuntimeBridge() {
         : '';
       if (historySummary instanceof HTMLElement) historySummary.hidden = !runs.length;
     }
+
+    // Keep Proof OS panel language in sync with receipts (thin companion, not a second agent).
+    updateProofOsSurface();
 
     if (runs.length === 0) {
       tbody.innerHTML = `

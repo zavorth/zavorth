@@ -17,6 +17,11 @@ import {
   defaultProofLedgerJsonlPath,
 } from '../services/proof/ProofLedgerService.js';
 import type { ProofEventKind, ProofEventStatus } from '../contracts/proof/ProofLedgerContract.js';
+import {
+  paintCliBadge,
+  paintCliTone,
+  renderCliWordmarkStrip,
+} from './ZavorthCliVisualTheme.js';
 
 function hasFlag(args: string[], name: string): boolean {
   return args.includes(name);
@@ -34,12 +39,11 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    '=== Zavorth Proof Ledger (Proof OS) ===',
+    `${paintCliBadge('PROOF OS', 'brand')} ${paintCliTone('Zavorth Proof Ledger', 'brand')}`,
+    paintCliTone('Unified receipt / evidence projection facade.', 'muted'),
+    paintCliTone('Does not replace desktop receipts, agent evidence store, or AI-first ledgers.', 'muted'),
     '',
-    'Unified receipt / evidence projection facade.',
-    'Does not replace desktop receipts, agent evidence store, or AI-first ledgers.',
-    '',
-    'Usage:',
+    paintCliTone('Usage:', 'info'),
     '  zavorth proof',
     '  zavorth proof list [--kind <kind>] [--status <status>] [--run-id <id>] [--query <text>] [--limit N] [--json]',
     '  zavorth proof show <id> [--json]',
@@ -48,15 +52,15 @@ function printHelp(): void {
     '  zavorth proof status',
     '  zavorth proof --help',
     '',
-    'Storage:',
+    paintCliTone('Storage:', 'info'),
     `  Default local ledger: ${defaultProofLedgerJsonlPath()}`,
     '  Override with env ZAVORTH_PROOF_LEDGER_PATH',
     '',
-    'Kinds:',
+    paintCliTone('Kinds:', 'info'),
     '  chat | approval | runtime | system | channel | memory | marketplace |',
     '  workboard | action | evidence | unknown',
     '',
-    'Examples:',
+    paintCliTone('Examples:', 'info'),
     '  zavorth proof list --limit 20',
     '  zavorth proof list --kind approval --json',
     '  zavorth proof show proof-demo-chat-1',
@@ -151,7 +155,8 @@ function runStatus(args: string[], json: boolean): number {
   }
 
   const ledgerPath = resolveLedgerPath();
-  console.log('Proof ledger status');
+  console.log(`${renderCliWordmarkStrip()} ${paintCliTone('Proof ledger', 'muted')}`);
+  console.log(paintCliTone('Proof ledger status', 'brand'));
   console.log(`  contract: ${snapshot.contractVersion}`);
   console.log(`  ledgerId: ${snapshot.ledgerId}`);
   console.log(`  path: ${ledgerPath}`);

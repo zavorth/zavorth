@@ -1,8 +1,11 @@
 /**
  * Primary next-action CTA from live signals.
+ * Proof OS chrome (risk budget + honesty badges) mounts beside next-action via proof-os-ui.
  */
 
 import { translate, translateCount } from './locale';
+import type { ProofOsPanelModel } from './proof-os-model';
+import { mountProofOsChrome } from './proof-os-ui';
 
 export type NextActionKind =
   | 'review'
@@ -107,7 +110,10 @@ export function computeNextAction(input: NextActionInput = {}): NextActionModel 
   };
 }
 
-export function renderNextActionBar(model: NextActionModel): void {
+export function renderNextActionBar(
+  model: NextActionModel,
+  proofOs?: Pick<ProofOsPanelModel, 'riskBudget' | 'readinessItems'> | null,
+): void {
   const roots = document.querySelectorAll<HTMLElement>('[data-next-action]');
   if (!roots.length) return;
 
@@ -146,6 +152,10 @@ export function renderNextActionBar(model: NextActionModel): void {
     node.textContent = model.kind === 'review' ? String(pending) : show ? '!' : '';
     node.dataset.tone = model.tone;
   });
+
+  if (proofOs) {
+    mountProofOsChrome(proofOs);
+  }
 }
 
 function escapeHtml(value: string): string {

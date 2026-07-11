@@ -1,4 +1,6 @@
 > Archived from public docs tree on 2026-07-11. Historical program notes — not current user documentation.
+>
+> **P7 completed (2026-07-11):** residual orange brand ANSI replaced with **product brand green** `#00e88f` (website/desktop), not orange. Cyan remains optional for informational accents (`#06B6D4`). This plan is archived history — brand primary is product green.
 
 # Zavorth CLI Visual Overhaul Plan
 

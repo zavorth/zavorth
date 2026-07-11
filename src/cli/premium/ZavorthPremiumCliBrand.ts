@@ -7,10 +7,11 @@ import {
 const ANSI_RESET = '\u001b[0m';
 
 function gradientText(text: string): string {
+  // Product brand green ramp (`#00e88f` family)
   const colors = [
-    '\u001b[38;2;255;191;105m',  // #FFBF69
-    '\u001b[38;2;255;122;24m',   // #FF7A18
-    '\u001b[38;2;230;100;20m',   // #E66414
+    '\u001b[38;2;52;255;180m',  // bright #34FFB4
+    '\u001b[38;2;0;232;143m',   // brand  #00e88f
+    '\u001b[38;2;0;180;110m',   // deep   #00B46E
   ];
 
   let result = '';
@@ -35,7 +36,7 @@ export function renderPremiumBrand(
 
   if (isAsciiOnly) {
     return [
-      paintPremiumAccent('  ZAVORTH', 'orange', theme),
+      paintPremiumAccent('  ZAVORTH', 'neural', theme),
       '',
       paintPremiumAccent(`  ${theme.tagline}`, 'muted', theme),
     ].join('\n');
@@ -46,7 +47,7 @@ export function renderPremiumBrand(
     : '  Z A V O R T H';
 
   const divider = theme.colorEnabled
-    ? `  \u001b[38;2;255;122;24m${'─'.repeat(40)}${ANSI_RESET}`
+    ? `  \u001b[38;2;0;232;143m${'─'.repeat(40)}${ANSI_RESET}`
     : '  ' + '─'.repeat(40);
 
   return [

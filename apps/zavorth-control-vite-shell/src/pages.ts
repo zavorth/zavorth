@@ -29,6 +29,7 @@ export function initControlPages() {
         <button class="daily-button" type="button" data-dashboard-doctor>Doctor</button>
       `)}
       <section class="next-action-host" data-next-action aria-label="Next action"></section>
+      <div class="proof-os-chrome-host" data-proof-os-chrome-host aria-label="Proof OS status"></div>
       <section class="daily-panel daily-panel--attention" aria-label="Attention">
         <div class="daily-panel__head">
           <div><span>Attention</span><h2 data-dashboard-approval-title>Nothing needs you</h2></div>
@@ -180,6 +181,7 @@ export function initControlPages() {
         <button class="daily-button daily-button--primary" type="button" data-export-receipts data-dashboard-prompt="Export recent receipts and run history.">Export</button>
         <button class="daily-button" type="button" data-dashboard-sector="terminal">Open chat</button>
       `)}
+      <div data-proof-os-host class="proof-os-host" aria-live="polite"></div>
       <section class="daily-panel daily-panel--primary">
         <div class="daily-panel__head">
           <div><span>History</span><h2 data-history-title>No completed work yet</h2></div>
