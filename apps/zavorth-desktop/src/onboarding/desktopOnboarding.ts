@@ -1,25 +1,18 @@
 import type { DesktopApiRequest } from '../global';
+import {
+  DESKTOP_ONBOARDING_PROVIDER_IDS,
+  type DesktopOnboardingProviderId,
+} from '../selection/userSelectionCatalog';
 
 export const DESKTOP_ONBOARDING_STORAGE_KEY = 'zvd:onboarded';
 export const DESKTOP_TRUST_MODE_KEY = 'zvd:trusted-operator-hint';
 export const DESKTOP_ONBOARDING_CELEBRATE_KEY = 'zvd:celebrate-onboarding';
 export const DESKTOP_AUDIENCE_STORAGE_KEY = 'zvd:experience-audience';
 
-export type DesktopOnboardingProvider =
-  | 'openrouter'
-  | 'openai'
-  | 'anthropic'
-  | 'google'
-  | 'xai'
-  | 'deepseek'
-  | 'mistral'
-  | 'groq'
-  | 'together'
-  | 'perplexity'
-  | 'cohere'
-  | 'azure'
-  | 'ollama'
-  | 'custom';
+/** Shared with settings via userSelectionCatalog (single provider schema). */
+export type DesktopOnboardingProvider = DesktopOnboardingProviderId;
+
+export const DESKTOP_ONBOARDING_PROVIDERS = DESKTOP_ONBOARDING_PROVIDER_IDS;
 
 /** First-run audience ids (maps 1:1 to config/profile-manifests). */
 export type DesktopOnboardingAudienceId = 'personal' | 'developer' | 'business';

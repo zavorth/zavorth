@@ -16,9 +16,12 @@ export async function fetchModelPreference(): Promise<any> {
 export async function updateModelPreference(input: {
   providerId: string;
   modelId?: string;
+  secondaryModelId?: string;
   routeId?: string;
+  channelId?: string;
   confirm?: boolean;
   dryRun?: boolean;
+  directWrite?: boolean;
 }): Promise<any> {
   const res = await fetch(API_BASE, {
     method: 'POST',
@@ -42,14 +45,20 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
   fetchModelPreference()
     .then((data) => {
       const pref = data?.preference;
-      if (pref) {
-        const providerSelect = document.getElementById('pref-provider') as HTMLSelectElement | null;
-        const modelInput = document.getElementById('pref-model') as HTMLInputElement | null;
-        const routeSelect = document.getElementById('pref-route') as HTMLSelectElement | null;
+      const providerSelect = document.getElementById('pref-provider') as HTMLSelectElement | null;
+      const modelInput = document.getElementById('pref-model') as HTMLInputElement | null;
+      const secondaryInput = document.getElementById('pref-secondary-model') as HTMLInputElement | null;
+      const routeSelect = document.getElementById('pref-route') as HTMLSelectElement | HTMLInputElement | null;
+      const channelSelect = document.getElementById('pref-channel') as HTMLSelectElement | null;
 
+      if (pref) {
         if (providerSelect && pref.providerId) providerSelect.value = pref.providerId;
         if (modelInput && pref.modelId) modelInput.value = pref.modelId;
+        if (secondaryInput && pref.secondaryModelId) secondaryInput.value = pref.secondaryModelId;
         if (routeSelect && pref.routeId) routeSelect.value = pref.routeId;
+      }
+      if (channelSelect && data?.channel?.channelId) {
+        channelSelect.value = data.channel.channelId;
       }
     })
     .catch((err) => {
@@ -68,7 +77,9 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
     const data = new FormData(form);
     const providerId = (data.get('providerId') as string) || '';
     const modelId = (data.get('modelId') as string) || '';
+    const secondaryModelId = (data.get('secondaryModelId') as string) || '';
     const routeId = (data.get('routeId') as string) || '';
+    const channelId = (data.get('channelId') as string) || '';
 
     if (!providerId) return;
 
@@ -76,9 +87,12 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
       const result = await updateModelPreference({
         providerId,
         modelId,
+        secondaryModelId,
         routeId,
+        channelId,
         confirm: true,
         dryRun: false,
+        directWrite: true,
       });
 
       resultPanel.style.display = 'block';
@@ -90,9 +104,10 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
         <p style="margin:4px 0; color:rgba(255,255,255,0.7);">
           Active provider: <strong>${escapeHtml(result.preference?.providerId || 'none')}</strong><br/>
           Active model: <strong>${escapeHtml(result.preference?.modelId || 'none')}</strong><br/>
-          Routing policy: <strong>${escapeHtml(result.preference?.routeId || 'none')}</strong>
+          Secondary model: <strong>${escapeHtml(result.preference?.secondaryModelId || 'none')}</strong><br/>
+          Primary channel: <strong>${escapeHtml(result.channel?.channelId || channelId || 'none')}</strong>
         </p>
-        <span style="font-size:11px; color:rgba(255,255,255,0.4);">Receipt ID: ${escapeHtml(result.receipt?.id || 'none')}</span>
+        <span style="font-size:11px; color:rgba(255,255,255,0.4);">Source: ${escapeHtml(result.source || result.receipt?.id || 'preference')}</span>
       `;
 
       refreshCallback();
@@ -119,7 +134,9 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
       const data = new FormData(form);
       const providerId = (data.get('providerId') as string) || '';
       const modelId = (data.get('modelId') as string) || '';
+      const secondaryModelId = (data.get('secondaryModelId') as string) || '';
       const routeId = (data.get('routeId') as string) || '';
+      const channelId = (data.get('channelId') as string) || '';
 
       if (!providerId) return;
 
@@ -127,7 +144,9 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
         const result = await updateModelPreference({
           providerId,
           modelId,
+          secondaryModelId,
           routeId,
+          channelId,
           confirm: false,
           dryRun: true,
         });

@@ -21,6 +21,7 @@ import {
 
 import { ProviderNativeCapabilityMatrixService } from './ProviderNativeCapabilityMatrixService.js';
 import { logger } from '../../logger.js';
+import { resolveUserProviderSelection } from '../UserSelectionResolver.js';
 
 export type LlmRunOptions = {
   providerName?: string;
@@ -102,7 +103,7 @@ type AIGatewayHealthSnapshot = {
 
 const AIGATEWAY_STATUS_MAX_AGE_MS = 10 * 60 * 1000;
 
-const DEFAULT_FALLBACK_ORDER = [
+const DEFAULT_FALLBACK_ORDER: string[] = [
   // User-configured only (config.echoLlmFallbackOrder / options.fallbackOrder). No product vendor chain.
 ];
 
@@ -142,13 +143,14 @@ export class LlmRuntimeService {
     const primaryProviderName = providerChain[0] || this.getPreferredProviderName();
     const requestedProviderName = this.normalizeProviderName(options?.providerName || this.getPreferredProviderName());
     const fallbackAllowed = options?.allowFallback === true;
+    const secondaryModelId = this.resolveSecondaryModelId(options);
     const attempts: LlmRuntimeProviderAttempt[] = [];
     let lastError: unknown = null;
 
     for (const providerName of providerChain) {
       this.throwIfAborted(options?.signal);
       const providerOptions = this.resolveProviderChatOptions(providerName, primaryProviderName, options);
-      const modelName = providerOptions?.modelName || null;
+      let modelName = providerOptions?.modelName || null;
       const attemptStartedAt = Date.now();
       if (!this.isProviderAvailable(providerName)) {
         this.recordAttempt(attempts, {
@@ -166,23 +168,90 @@ export class LlmRuntimeService {
         continue;
       }
 
-      try {
-        if (this.isClaudeAgentSdkProvider(providerName)) {
-          const adapter = createClaudeAgentSdkRuntimeFromEnv();
-          const result = await adapter.chatDetailed(safeMessages, safeTools, {
+      const modelAttempts = [modelName];
+      if (
+        secondaryModelId
+        && this.normalizeProviderName(providerName) === this.normalizeProviderName(primaryProviderName)
+        && secondaryModelId !== modelName
+      ) {
+        modelAttempts.push(secondaryModelId);
+      }
+
+      for (let modelIndex = 0; modelIndex < modelAttempts.length; modelIndex += 1) {
+        const candidateModel = modelAttempts[modelIndex];
+        modelName = candidateModel;
+        const modelAttemptStartedAt = Date.now();
+        const usingSecondary = Boolean(secondaryModelId && candidateModel === secondaryModelId);
+        try {
+          if (this.isClaudeAgentSdkProvider(providerName)) {
+            const adapter = createClaudeAgentSdkRuntimeFromEnv();
+            const result = await adapter.chatDetailed(safeMessages, safeTools, {
+              providerName,
+              ...(modelName ? { modelName } : {}),
+              allowFallback: false,
+              ...(options?.signal ? { signal: options.signal } : {}),
+              ...(options?.toolPolicy ? { toolPolicy: options.toolPolicy } : {}),
+              ...(options?.stream ? { stream: options.stream } : {}),
+            });
+            this.recordAttempt(attempts, {
+              providerName,
+              modelName,
+              status: 'succeeded',
+              fallback: providerName !== primaryProviderName || usingSecondary,
+              durationMs: Date.now() - modelAttemptStartedAt,
+            }, {
+              options,
+              requestedProviderName,
+              primaryProviderName,
+              fallbackAllowed,
+            });
+            return {
+              ...result,
+              metadata: this.mergeMetadata(
+                result.metadata,
+                egressGuardMetadata,
+                this.buildProviderNativeCapabilityMetadata({
+                  providerName,
+                  modelName,
+                  metadata: result.metadata,
+                  content: result.response.content,
+                }),
+                usingSecondary ? { usedSecondaryModel: true, secondaryModelId } : undefined,
+              ),
+              route: this.buildRouteReceipt({
+                messages: safeMessages,
+                tools: safeTools,
+                requestedProviderName,
+                primaryProviderName,
+                providerName,
+                modelName,
+                fallbackAllowed,
+                providerChain,
+                attempts,
+              }),
+            };
+          }
+
+          const provider = this.createProvider(providerName);
+          const response = await this.chatProvider({
+            provider,
             providerName,
-            ...(modelName ? { modelName } : {}),
-            allowFallback: false,
-            ...(options?.signal ? { signal: options.signal } : {}),
-            ...(options?.toolPolicy ? { toolPolicy: options.toolPolicy } : {}),
-            ...(options?.stream ? { stream: options.stream } : {}),
+            modelName,
+            primaryProviderName,
+            messages: safeMessages,
+            tools: safeTools,
+            providerOptions: {
+              ...(providerOptions || {}),
+              ...(modelName ? { modelName } : {}),
+            },
+            options,
           });
           this.recordAttempt(attempts, {
             providerName,
             modelName,
             status: 'succeeded',
-            fallback: providerName !== primaryProviderName,
-            durationMs: Date.now() - attemptStartedAt,
+            fallback: providerName !== primaryProviderName || usingSecondary,
+            durationMs: Date.now() - modelAttemptStartedAt,
           }, {
             options,
             requestedProviderName,
@@ -190,16 +259,19 @@ export class LlmRuntimeService {
             fallbackAllowed,
           });
           return {
-            ...result,
+            providerName,
+            modelName,
+            response,
             metadata: this.mergeMetadata(
-              result.metadata,
+              (response as unknown as { metadata?: Record<string, unknown> }).metadata,
               egressGuardMetadata,
               this.buildProviderNativeCapabilityMetadata({
                 providerName,
                 modelName,
-                metadata: result.metadata,
-                content: result.response.content,
+                metadata: (response as unknown as { metadata?: Record<string, unknown> }).metadata,
+                content: response.content,
               }),
+              usingSecondary ? { usedSecondaryModel: true, secondaryModelId } : undefined,
             ),
             route: this.buildRouteReceipt({
               messages: safeMessages,
@@ -213,89 +285,44 @@ export class LlmRuntimeService {
               attempts,
             }),
           };
-        }
-
-        const provider = this.createProvider(providerName);
-        const response = await this.chatProvider({
-          provider,
-          providerName,
-          modelName,
-          primaryProviderName,
-          messages: safeMessages,
-          tools: safeTools,
-          providerOptions,
-          options,
-        });
-        this.recordAttempt(attempts, {
-          providerName,
-          modelName,
-          status: 'succeeded',
-          fallback: providerName !== primaryProviderName,
-          durationMs: Date.now() - attemptStartedAt,
-        }, {
-          options,
-          requestedProviderName,
-          primaryProviderName,
-          fallbackAllowed,
-        });
-        return {
-          providerName,
-          modelName,
-          response,
-          metadata: this.mergeMetadata(
-            (response as unknown as { metadata?: Record<string, unknown> }).metadata,
-            egressGuardMetadata,
-            this.buildProviderNativeCapabilityMetadata({
+        } catch (error: unknown) {
+          lastError = error;
+          if (this.isAbortError(error, options?.signal)) {
+            this.recordAttempt(attempts, {
               providerName,
               modelName,
-              metadata: (response as unknown as { metadata?: Record<string, unknown> }).metadata,
-              content: response.content,
-            }),
-          ),
-          route: this.buildRouteReceipt({
-            messages: safeMessages,
-            tools: safeTools,
-            requestedProviderName,
-            primaryProviderName,
-            providerName,
-            modelName,
-            fallbackAllowed,
-            providerChain,
-            attempts,
-          }),
-        };
-      } catch (error: unknown) {lastError = error;
-        if (this.isAbortError(error, options?.signal)) {
+              status: 'failed',
+              fallback: providerName !== primaryProviderName || usingSecondary,
+              durationMs: Date.now() - modelAttemptStartedAt,
+              error: 'llm_request_aborted',
+            }, {
+              options,
+              requestedProviderName,
+              primaryProviderName,
+              fallbackAllowed,
+            });
+            throw this.toAbortError(error);
+          }
           this.recordAttempt(attempts, {
             providerName,
             modelName,
             status: 'failed',
-            fallback: providerName !== primaryProviderName,
-            durationMs: Date.now() - attemptStartedAt,
-            error: 'llm_request_aborted',
+            fallback: providerName !== primaryProviderName || usingSecondary,
+            durationMs: Date.now() - modelAttemptStartedAt,
+            error: this.errorMessage(error),
           }, {
             options,
             requestedProviderName,
             primaryProviderName,
             fallbackAllowed,
           });
-          throw this.toAbortError(error);
-        }
-        this.recordAttempt(attempts, {
-          providerName,
-          modelName,
-          status: 'failed',
-          fallback: providerName !== primaryProviderName,
-          durationMs: Date.now() - attemptStartedAt,
-          error: this.errorMessage(error),
-        }, {
-          options,
-          requestedProviderName,
-          primaryProviderName,
-          fallbackAllowed,
-        });
-        if (!options?.allowFallback) {
-          throw error;
+          const hasMoreModels = modelIndex < modelAttempts.length - 1;
+          if (hasMoreModels) {
+            continue;
+          }
+          if (!options?.allowFallback) {
+            throw error;
+          }
         }
       }
     }
@@ -305,6 +332,14 @@ export class LlmRuntimeService {
     }
 
     throw new Error('Nenhum provedor LLM disponivel para esta execucao.');
+  }
+
+  private resolveSecondaryModelId(_options?: LlmRunOptions): string | null {
+    const selection = resolveUserProviderSelection({});
+    const fromSelection = String(selection.secondaryModelId || '').trim();
+    if (fromSelection) return fromSelection;
+    const fromConfig = String((config as { secondaryModelId?: string }).secondaryModelId || '').trim();
+    return fromConfig || null;
   }
 
   private recordAttempt(

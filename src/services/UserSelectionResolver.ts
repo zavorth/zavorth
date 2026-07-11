@@ -60,9 +60,9 @@ function normalizeId(value: unknown): string | null {
   return normalized;
 }
 
-function envFirst(...keys: string[]): string | null {
+function envFirst(env: NodeJS.ProcessEnv, ...keys: string[]): string | null {
   for (const key of keys) {
-    const value = normalizeId(process.env[key]);
+    const value = normalizeId(env[key]);
     if (value) return value;
   }
   return null;
@@ -110,6 +110,92 @@ export function writeChannelPreference(
   return { channelId: normalized, source: 'preference', configured: true };
 }
 
+export type WriteProviderPreferenceInput = {
+  providerId: string;
+  modelId?: string | null;
+  secondaryModelId?: string | null;
+  routeId?: string | null;
+  familyId?: string | null;
+  fallbackProviderIds?: string[] | null;
+  projectRoot?: string;
+};
+
+/**
+ * Persist user provider selection to the same preference file the runtime reads.
+ * Does not invent Gemini/Telegram defaults.
+ */
+export function writeProviderPreference(input: WriteProviderPreferenceInput): UserProviderSelection {
+  const root = input.projectRoot || projectRootFromCwd();
+  const file = preferencePath(root, 'provider-selection-preferences.json');
+  const providerId = normalizeId(input.providerId);
+  if (!providerId) {
+    return {
+      providerId: null,
+      modelId: null,
+      routeId: null,
+      familyId: null,
+      secondaryModelId: null,
+      fallbackProviderIds: [],
+      source: 'none',
+      configured: false,
+    };
+  }
+
+  const previous = readProviderPreference(root) || {};
+  const next: ProviderPreferenceFile = {
+    providerId,
+    modelId: normalizeId(input.modelId) ?? normalizeId(previous.modelId),
+    secondaryModelId: input.secondaryModelId === undefined
+      ? normalizeId(previous.secondaryModelId)
+      : normalizeId(input.secondaryModelId),
+    routeId: input.routeId === undefined
+      ? normalizeId(previous.routeId)
+      : normalizeId(input.routeId),
+    familyId: input.familyId === undefined
+      ? normalizeId(previous.familyId)
+      : normalizeId(input.familyId),
+    fallbackProviderIds: Array.isArray(input.fallbackProviderIds)
+      ? input.fallbackProviderIds.map(normalizeId).filter(Boolean) as string[]
+      : Array.isArray(previous.fallbackProviderIds)
+        ? previous.fallbackProviderIds.map(normalizeId).filter(Boolean) as string[]
+        : [],
+  };
+
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+
+  return {
+    providerId: next.providerId || providerId,
+    modelId: next.modelId || null,
+    routeId: next.routeId || null,
+    familyId: next.familyId || null,
+    secondaryModelId: next.secondaryModelId || null,
+    fallbackProviderIds: next.fallbackProviderIds || [],
+    source: 'preference',
+    configured: true,
+  };
+}
+
+/** Combined read of provider + channel selection for product UIs. */
+export function resolveUserSelectionBundle(input: {
+  projectRoot?: string;
+  env?: NodeJS.ProcessEnv;
+} = {}): {
+  provider: UserProviderSelection;
+  channel: UserChannelSelection;
+} {
+  return {
+    provider: resolveUserProviderSelection({
+      projectRoot: input.projectRoot,
+      env: input.env,
+    }),
+    channel: resolveUserChannelSelection({
+      projectRoot: input.projectRoot,
+      env: input.env,
+    }),
+  };
+}
+
 /**
  * Resolve the provider the user has chosen. Never falls back to gemini/aigateway.
  */
@@ -117,15 +203,17 @@ export function resolveUserProviderSelection(input: {
   projectRoot?: string;
   requestedProviderId?: string | null;
   configProviderId?: string | null;
+  env?: NodeJS.ProcessEnv;
 } = {}): UserProviderSelection {
+  const env = input.env || process.env;
   const requested = normalizeId(input.requestedProviderId);
   if (requested) {
-    return completeProviderSelection(requested, input.projectRoot, 'request');
+    return completeProviderSelection(requested, input.projectRoot, 'request', env);
   }
 
-  const fromEnv = envFirst('LLM_PROVIDER', 'ZAVORTH_PROVIDER', 'ZAVORTH_LLM_PROVIDER');
+  const fromEnv = envFirst(env, 'LLM_PROVIDER', 'ZAVORTH_PROVIDER', 'ZAVORTH_LLM_PROVIDER');
   if (fromEnv) {
-    return completeProviderSelection(fromEnv, input.projectRoot, 'env');
+    return completeProviderSelection(fromEnv, input.projectRoot, 'env', env);
   }
 
   const fromConfig = normalizeId(input.configProviderId);
@@ -136,33 +224,33 @@ export function resolveUserProviderSelection(input: {
     return {
       providerId: preferred,
       modelId: normalizeId(preference?.modelId)
-        || envFirst('ZAVORTH_MODEL_ID', 'ZAVORTH_MODEL')
+        || envFirst(env, 'ZAVORTH_MODEL_ID', 'ZAVORTH_MODEL')
         || null,
       routeId: normalizeId(preference?.routeId)
-        || envFirst('ZAVORTH_MODEL_ROUTE_ID', 'ZAVORTH_MODEL_ROUTE')
+        || envFirst(env, 'ZAVORTH_MODEL_ROUTE_ID', 'ZAVORTH_MODEL_ROUTE')
         || null,
       familyId: normalizeId(preference?.familyId)
-        || envFirst('ZAVORTH_MODEL_FAMILY_ID', 'ZAVORTH_MODEL_FAMILY')
+        || envFirst(env, 'ZAVORTH_MODEL_FAMILY_ID', 'ZAVORTH_MODEL_FAMILY')
         || null,
       secondaryModelId: normalizeId(preference?.secondaryModelId)
-        || envFirst('ZAVORTH_SECONDARY_MODEL_ID', 'ZAVORTH_SECONDARY_MODEL')
+        || envFirst(env, 'ZAVORTH_SECONDARY_MODEL_ID', 'ZAVORTH_SECONDARY_MODEL')
         || null,
       fallbackProviderIds: Array.isArray(preference?.fallbackProviderIds)
         ? preference!.fallbackProviderIds!.map(normalizeId).filter(Boolean) as string[]
-        : parseFallbackList(process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || process.env.ZAVORTH_PROVIDER_FALLBACK_ORDER),
+        : parseFallbackList(env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || env.ZAVORTH_PROVIDER_FALLBACK_ORDER),
       source: 'preference',
       configured: true,
     };
   }
 
   if (fromConfig && fromConfig !== 'aigateway' && fromConfig !== 'gemini') {
-    return completeProviderSelection(fromConfig, input.projectRoot, 'env');
+    return completeProviderSelection(fromConfig, input.projectRoot, 'env', env);
   }
 
   // Allow explicit aigateway/gemini only when set via env (already handled) or config
   // when preference is absent but config was intentionally set by applySelection.
   if (fromConfig) {
-    return completeProviderSelection(fromConfig, input.projectRoot, 'env');
+    return completeProviderSelection(fromConfig, input.projectRoot, 'env', env);
   }
 
   return {
@@ -172,7 +260,7 @@ export function resolveUserProviderSelection(input: {
     familyId: null,
     secondaryModelId: null,
     fallbackProviderIds: parseFallbackList(
-      process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || process.env.ZAVORTH_PROVIDER_FALLBACK_ORDER,
+      env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || env.ZAVORTH_PROVIDER_FALLBACK_ORDER,
     ),
     source: 'none',
     configured: false,
@@ -183,25 +271,26 @@ function completeProviderSelection(
   providerId: string,
   projectRoot: string | undefined,
   source: UserProviderSelection['source'],
+  env: NodeJS.ProcessEnv,
 ): UserProviderSelection {
   const preference = readProviderPreference(projectRoot);
   return {
     providerId,
     modelId: normalizeId(preference?.modelId)
-      || envFirst('ZAVORTH_MODEL_ID', 'ZAVORTH_MODEL')
+      || envFirst(env, 'ZAVORTH_MODEL_ID', 'ZAVORTH_MODEL')
       || null,
     routeId: normalizeId(preference?.routeId)
-      || envFirst('ZAVORTH_MODEL_ROUTE_ID', 'ZAVORTH_MODEL_ROUTE')
+      || envFirst(env, 'ZAVORTH_MODEL_ROUTE_ID', 'ZAVORTH_MODEL_ROUTE')
       || null,
     familyId: normalizeId(preference?.familyId)
-      || envFirst('ZAVORTH_MODEL_FAMILY_ID', 'ZAVORTH_MODEL_FAMILY')
+      || envFirst(env, 'ZAVORTH_MODEL_FAMILY_ID', 'ZAVORTH_MODEL_FAMILY')
       || null,
     secondaryModelId: normalizeId(preference?.secondaryModelId)
-      || envFirst('ZAVORTH_SECONDARY_MODEL_ID', 'ZAVORTH_SECONDARY_MODEL')
+      || envFirst(env, 'ZAVORTH_SECONDARY_MODEL_ID', 'ZAVORTH_SECONDARY_MODEL')
       || null,
     fallbackProviderIds: Array.isArray(preference?.fallbackProviderIds)
       ? (preference!.fallbackProviderIds!.map(normalizeId).filter(Boolean) as string[])
-      : parseFallbackList(process.env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || process.env.ZAVORTH_PROVIDER_FALLBACK_ORDER),
+      : parseFallbackList(env.ZAVORTH_ECHO_LLM_FALLBACK_ORDER || env.ZAVORTH_PROVIDER_FALLBACK_ORDER),
     source,
     configured: true,
   };
@@ -213,12 +302,14 @@ function completeProviderSelection(
 export function resolveUserChannelSelection(input: {
   projectRoot?: string;
   requestedChannelId?: string | null;
+  env?: NodeJS.ProcessEnv;
 } = {}): UserChannelSelection {
+  const env = input.env || process.env;
   const requested = normalizeId(input.requestedChannelId);
   if (requested) {
     return { channelId: requested, source: 'request', configured: true };
   }
-  const fromEnv = envFirst('ZAVORTH_PRIMARY_CHANNEL', 'ZAVORTH_CHANNEL', 'DEFAULT_CHANNEL');
+  const fromEnv = envFirst(env, 'ZAVORTH_PRIMARY_CHANNEL', 'ZAVORTH_CHANNEL', 'DEFAULT_CHANNEL');
   if (fromEnv) {
     return { channelId: fromEnv, source: 'env', configured: true };
   }
@@ -236,6 +327,7 @@ export function resolveConfiguredProviderName(input?: {
   requestedProviderId?: string | null;
   configProviderId?: string | null;
   fallback?: string | null;
+  env?: NodeJS.ProcessEnv;
 }): string | null {
   const selection = resolveUserProviderSelection(input || {});
   if (selection.providerId) return selection.providerId;
@@ -247,6 +339,7 @@ export function requireConfiguredProviderName(input?: {
   projectRoot?: string;
   requestedProviderId?: string | null;
   configProviderId?: string | null;
+  env?: NodeJS.ProcessEnv;
 }): string {
   const name = resolveConfiguredProviderName(input);
   if (!name) {
