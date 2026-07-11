@@ -99,7 +99,7 @@ export class CapabilityAutopilotRepairPlannerService {
       fallbackOptions: draft.fallbackOptions,
       resumeIntent: context.resumeIntent || null,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-4',
+        gate: 'capability-autopilot-repair-planner',
         readOnly: true,
         failureKind: diagnosis.failureKind,
         readinessStatus: readiness?.status || diagnosis.status,

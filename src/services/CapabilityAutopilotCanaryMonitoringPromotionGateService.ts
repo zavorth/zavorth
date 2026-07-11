@@ -57,7 +57,7 @@ export type CapabilityAutopilotCanaryPromotionOptions = {
 };
 
 export type CapabilityAutopilotCanaryPromotionSnapshot = {
-  phase: '83';
+  gate: 'capability-autopilot-canary-monitoring-promotion';
   canaryPromotionId: string;
   generatedAt: string;
   surface: 'capability-autopilot-canary-monitoring-promotion-gate';
@@ -70,7 +70,7 @@ export type CapabilityAutopilotCanaryPromotionSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotReleaseExecutionSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotReleaseExecutionSnapshot['gate'];
   sourceStatus: CapabilityAutopilotReleaseExecutionSnapshot['status'];
   sourceRecommendation: CapabilityAutopilotReleaseExecutionSnapshot['recommendation'];
   observation: {
@@ -134,8 +134,8 @@ export type CapabilityAutopilotCanaryPromotionSnapshot = {
     reason: string | null;
     canaryPromotionReceiptId: string | null;
   };
-  nextRecommendedPhase: {
-    phase: 'consolidation';
+  nextRecommendedGate: {
+    gate: 'consolidation';
     title: string;
     reason: string;
   };
@@ -206,7 +206,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       : 'hold_canary_or_rollback';
 
     return {
-      phase: '83',
+      gate: 'capability-autopilot-canary-monitoring-promotion',
       canaryPromotionId: this.buildCanaryPromotionId(source, generatedAt, options.canaryPromotionReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-canary-monitoring-promotion-gate',
@@ -219,7 +219,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       sourceRecommendation: source.recommendation,
       observation: {
@@ -283,14 +283,14 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
         reason: options.reason || null,
         canaryPromotionReceiptId: options.canaryPromotionReceiptId || null,
       },
-      nextRecommendedPhase: {
-        phase: 'consolidation',
+      nextRecommendedGate: {
+        gate: 'consolidation',
         title: 'Capability Autopilot Release Readiness Consolidation',
         reason:
           'Nao ha nova etapa automatica recomendada; o proximo passo e integrar o release readiness consolidado ao produto real e medir uso antes de criar novos gates.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-83',
+        gate: 'capability-autopilot-canary-monitoring-promotion',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -308,7 +308,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
 
   public renderReport(snapshot: CapabilityAutopilotCanaryPromotionSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-canary-promotion] Etapa 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
+    lines.push('[capability-autopilot-canary-promotion] Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -325,8 +325,8 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima etapa recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proxima etapa recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -566,7 +566,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
           !options.skipApprovalEnabled
           ? 'pass'
           : 'fail',
-        'Etapa 83 permite promocao controlada, mas bloqueia auto-promote, rollout global e skip-approval.',
+        'Este gate permite promocao controlada, mas bloqueia auto-promote, rollout global e skip-approval.',
         [
           `rollbackRunbookReady=${options.rollbackRunbookReady}`,
           `observabilityReviewReady=${options.observabilityReviewReady}`,
@@ -603,7 +603,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.releaseExecutionGateId,
         source.generatedAt,
         generatedAt,

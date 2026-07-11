@@ -279,7 +279,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
         });
       }
       return response({
-        choices: [{ message: { content: 'phase 5 ok' } }],
+        choices: [{ message: { content: 'provider smoke ok' } }],
         usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
       });
     }) as typeof fetch;
@@ -300,7 +300,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
     const compatible = await service.runStagingLiveSmoke({
       providerId: 'alibaba',
       confirmLiveIo: true,
-      prompt: 'phase 5 compatible smoke',
+      prompt: 'provider compatible smoke',
     });
     expect(compatible).toEqual(
       expect.objectContaining({
@@ -348,7 +348,7 @@ describe('ProviderLongTailActivationService Credential vault', () => {
     const embedding = await service.runStagingLiveSmoke({
       providerId: 'voyage',
       confirmLiveIo: true,
-      embeddingInput: 'phase 5 embedding smoke',
+      embeddingInput: 'provider embedding smoke',
     });
     expect(embedding.status).toBe('passed');
     expect(embedding.smokeReceipt).toEqual(

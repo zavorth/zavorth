@@ -69,7 +69,7 @@ export type TaskLedgerSummary = {
 
 export type TaskLedgerSnapshot = {
   generatedAt: string;
-  phase: '27';
+  gate: 'task-operating-system';
   surface: 'task-ledger';
   summary: TaskLedgerSummary;
   tasks: TaskLedgerTaskSnapshot[];
@@ -99,7 +99,7 @@ export class TaskLedgerService {
 
     return {
       generatedAt: input.generatedAt,
-      phase: '27',
+      gate: 'task-operating-system',
       surface: 'task-ledger',
       summary: this.summarize(tasks),
       tasks,

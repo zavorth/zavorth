@@ -9,6 +9,10 @@ export const SAFE_OBSERVATION_TOOL_NAMES = [
   'memory.read',
   'sessions.history',
   'sessions.list',
+  'session_search',
+  'session_search_fts5',
+  'zavorth_session_search',
+  'sessions.search',
 ] as const;
 
 export function isSafeObservationTool(toolName: string, registry = new ToolEffectRegistry()): boolean {

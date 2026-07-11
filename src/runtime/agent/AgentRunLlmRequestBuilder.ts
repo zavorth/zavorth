@@ -76,6 +76,7 @@ export class AgentRunLlmRequestBuilder {
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
       this.buildAutoSkillInvocationPrompt(run.metadata),
+      this.buildDesktopProfilePrompt(run.metadata),
     ].filter(Boolean).join('\n');
     const systemPrompt = [
       'You are Zavorth, a local-first governed runtime for AI agents.',
@@ -102,6 +103,19 @@ export class AgentRunLlmRequestBuilder {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: request.text },
     ];
+  }
+
+  private buildDesktopProfilePrompt(metadata: Record<string, unknown>): string {
+    const profile = recordOrNull(metadata.profileConfig);
+    const instructions = normalizeText(profile?.systemPrompt).slice(0, 8_000);
+    if (!instructions) return '';
+
+    const profileName = safeContextText(normalizeText(profile?.name, normalizeText(profile?.id, 'desktop')));
+    return [
+      `User-selected desktop agent profile (${profileName}).`,
+      'Apply these response and working preferences only when they do not conflict with safety, governance, tool, truthfulness, or higher-priority instructions:',
+      safeContextText(instructions),
+    ].join('\n');
   }
 
   private buildContextPrompt(metadata: Record<string, unknown>): string {

@@ -336,7 +336,7 @@ describe('ZavorthPersonalOpsRuntimeService', () => {
     expect(adapter.taskUpdates).toHaveLength(1);
     expect(event.receipt.operation).toBe('calendar.create-event');
     expect(task.receipt.operation).toBe('task.update');
-    expect(event.receipt.phase).toBe('receipt');
+    expect(event.receipt.stage).toBe('receipt');
     expect(task.receipt.approval.approved).toBe(true);
   });
 });

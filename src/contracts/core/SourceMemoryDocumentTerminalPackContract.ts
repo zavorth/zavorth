@@ -198,7 +198,7 @@ export type SourceMemoryDocumentTerminalPackSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SOURCE_MEMORY_DOCUMENT_TERMINAL_PACK_CONTRACT_VERSION;
   status: 'passed' | 'failed';
-  phase: 5;
+  gate: 'source-memory-document-terminal-pack';
   statement: 'Source memory, document, search and terminal behavior is absorbed as governed Zavorth-native runtimes with artifact-first receipts.';
   sourceRoot: string;
   zavorthRoot: string;

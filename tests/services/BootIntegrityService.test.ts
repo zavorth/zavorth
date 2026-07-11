@@ -45,7 +45,7 @@ describe('BootIntegrityService', () => {
 
     const snapshot = service.inspect({ repair: true });
 
-    expect(snapshot.phase).toBe('35');
+    expect(snapshot.phase).toBe('boot-integrity');
     expect(snapshot.contracts).toEqual(expect.objectContaining({
       noExternalNetwork: true,
       startsBackgroundProcesses: false,

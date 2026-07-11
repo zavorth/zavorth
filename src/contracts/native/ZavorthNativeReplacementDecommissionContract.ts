@@ -149,7 +149,7 @@ export type ZavorthNativeReplacementDecommissionSnapshot = {
   contractVersion: typeof ZAVORTH_NATIVE_REPLACEMENT_DECOMMISSION_CONTRACT_VERSION;
   status: ZavorthNativeReplacementDecommissionStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'native-replacement-decommission';
+  gate: 'native-replacement-decommission';
   previousDelegatedWorkerStatus: ZavorthDelegatedWorkerBridgeStatus;
   registryEntries: ZavorthNativeReplacementRegistryEntry[];
   consistencyHarnessReceipts: ZavorthConsistencyTestHarnessReceipt[];

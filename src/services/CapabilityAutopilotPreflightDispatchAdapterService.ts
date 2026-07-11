@@ -18,7 +18,7 @@ export type CapabilityPreflightDispatchAdapterStatus =
   | 'blocked';
 
 export type CapabilityPreflightDispatchAdapterEnvelope = {
-  phase: '71';
+  gate: 'capability-autopilot-preflight-dispatch-adapter';
   generatedAt: string;
   surface: 'capability-autopilot-preflight-dispatch-adapter';
   status: CapabilityPreflightDispatchAdapterStatus;
@@ -50,7 +50,7 @@ export type CapabilityPreflightDispatchAdapterEnvelope = {
 };
 
 export type CapabilityPreflightDispatchAdapterSnapshot = {
-  phase: '71';
+  gate: 'capability-autopilot-preflight-dispatch-adapter';
   surface: 'capability-autopilot-preflight-dispatch-adapter';
   generatedAt: string;
   capabilityId: string;
@@ -61,11 +61,11 @@ export type CapabilityPreflightDispatchAdapterSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightDispatchReceiptSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightDispatchReceiptSnapshot['gate'];
   envelopes: CapabilityPreflightDispatchAdapterEnvelope[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '72';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-side-effect-gate';
     title: string;
     reason: string;
   };
@@ -92,7 +92,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
     const status: CapabilityPreflightDispatchAdapterStatus = blockers.length > 0 ? 'blocked' : 'adapter_ready';
 
     return {
-      phase: '71',
+      gate: 'capability-autopilot-preflight-dispatch-adapter',
       generatedAt,
       surface: 'capability-autopilot-preflight-dispatch-adapter',
       status,
@@ -121,8 +121,8 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       blockers,
       safeSummary: this.buildSafeSummary(receipt, adapterKind, status),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-71',
-        sourceReceiptPhase: receipt.phase,
+        gate: 'capability-autopilot-preflight-dispatch-adapter',
+        sourceReceiptPhase: receipt.gate,
         sourceReceiptStatus: receipt.status,
         sourceActionKind: receipt.sourceAction?.kind || null,
         adapterKind,
@@ -144,7 +144,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '71',
+      gate: 'capability-autopilot-preflight-dispatch-adapter',
       surface: 'capability-autopilot-preflight-dispatch-adapter',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -155,17 +155,17 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       envelopes,
       checks,
-      nextRecommendedPhase: {
-        phase: '72',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-side-effect-gate',
         title: 'Preflight Dispatch Side-Effect Gate',
         reason:
           'Depois de preparar adapters por superficie, o proximo passo e criar um gate de side effect que exige approval/validation antes de qualquer invocacao real.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-71',
+        gate: 'capability-autopilot-preflight-dispatch-adapter',
         sourceSnapshotStatus: source.status,
         receiptCount: source.receipts.length,
         envelopeCount: envelopes.length,
@@ -178,7 +178,7 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
 
   public renderReport(snapshot: CapabilityPreflightDispatchAdapterSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-adapters] Etapa 71 - Preflight Dispatch Adapter Integration');
+    lines.push('[capability-autopilot-preflight-adapters] Preflight Dispatch Adapter Integration');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -192,8 +192,8 @@ export class CapabilityAutopilotPreflightDispatchAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

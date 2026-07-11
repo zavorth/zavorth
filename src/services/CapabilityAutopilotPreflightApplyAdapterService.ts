@@ -25,13 +25,13 @@ export type CapabilityPreflightApplyAdapterOptions = {
 };
 
 export type CapabilityPreflightApplyReceipt = {
-  phase: '73';
+  gate: 'capability-autopilot-preflight-apply-adapter';
   applyReceiptId: string;
   generatedAt: string;
   surface: 'capability-autopilot-preflight-apply-adapter';
   status: CapabilityPreflightApplyAdapterStatus;
   capabilityId: string;
-  sourceDecisionPhase: CapabilityPreflightSideEffectGateDecision['phase'];
+  sourceDecisionGate: CapabilityPreflightSideEffectGateDecision['gate'];
   sourceSurface: CapabilityPreflightSideEffectGateDecision['sourceSurface'];
   sourceReceiptId: string;
   sourceAction: CapabilityPreflightSideEffectGateDecision['sourceAction'];
@@ -73,7 +73,7 @@ export type CapabilityPreflightApplyReceipt = {
 };
 
 export type CapabilityPreflightApplyAdapterSnapshot = {
-  phase: '73';
+  gate: 'capability-autopilot-preflight-apply-adapter';
   surface: 'capability-autopilot-preflight-apply-adapter';
   generatedAt: string;
   capabilityId: string;
@@ -84,11 +84,11 @@ export type CapabilityPreflightApplyAdapterSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightSideEffectGateSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightSideEffectGateSnapshot['gate'];
   applyReceipts: CapabilityPreflightApplyReceipt[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '74';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-apply-dry-run';
     title: string;
     reason: string;
   };
@@ -118,13 +118,13 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
     const applyReceiptId = this.buildApplyReceiptId(decision, generatedAt, options.applyConfirmationId || null);
 
     return {
-      phase: '73',
+      gate: 'capability-autopilot-preflight-apply-adapter',
       applyReceiptId,
       generatedAt,
       surface: 'capability-autopilot-preflight-apply-adapter',
       status,
       capabilityId: decision.capabilityId,
-      sourceDecisionPhase: decision.phase,
+      sourceDecisionGate: decision.gate,
       sourceSurface: decision.sourceSurface,
       sourceReceiptId: decision.sourceReceiptId,
       sourceAction: decision.sourceAction,
@@ -163,7 +163,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-73',
+        gate: 'capability-autopilot-preflight-apply-adapter',
         sourceDecisionStatus: decision.status,
         sourceActionKind: decision.sourceAction?.kind || null,
         autoExecute: false,
@@ -187,7 +187,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '73',
+      gate: 'capability-autopilot-preflight-apply-adapter',
       surface: 'capability-autopilot-preflight-apply-adapter',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -198,17 +198,17 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       applyReceipts,
       checks,
-      nextRecommendedPhase: {
-        phase: '74',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-apply-dry-run',
         title: 'Preflight Apply Dry-Run Executor',
         reason:
           'Depois de preparar receipts de apply, o proximo passo e executar somente dry-runs instrumentados antes de permitir side effects reais por superficie.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-73',
+        gate: 'capability-autopilot-preflight-apply-adapter',
         sourceSnapshotStatus: source.status,
         decisionCount: source.decisions.length,
         applyReceiptCount: applyReceipts.length,
@@ -223,7 +223,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
 
   public renderReport(snapshot: CapabilityPreflightApplyAdapterSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-apply] Etapa 73 - Preflight Dispatch Apply Adapter');
+    lines.push('[capability-autopilot-preflight-apply] Preflight Dispatch Apply Adapter');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -237,8 +237,8 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -335,7 +335,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
         'capability-autopilot-preflight-apply:dry-run-plan',
         'plano dry-run',
         applyReceipts.every((receipt) => receipt.invocationPlan.dryRun === true) ? 'pass' : 'fail',
-        'A Etapa 73 so prepara plano dry-run para a proximo passo.',
+        'Este gate so prepara plano dry-run para o proximo passo.',
         applyReceipts.map((receipt) => `${receipt.sourceSurface}:${receipt.applyAdapterKind}:dryRun=${receipt.invocationPlan.dryRun}`),
       ),
       this.check(

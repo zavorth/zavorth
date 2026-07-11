@@ -48,6 +48,14 @@ const SURFACES = [
   { id: 'review', panel: 'approvals' },
   { id: 'proof', panel: 'receipts' },
   { id: 'settings', panel: 'settings' },
+  {
+    id: 'code-bridge',
+    panel: 'chat',
+    prepare: async (page) => {
+      await page.locator('.zvd-code-bridge-status').first().click({ force: true });
+      await page.waitForSelector('.zvd-code-bridge-panel__frame', { timeout: 5000 });
+    },
+  },
 ];
 
 function isFailingImpact(impact) {
@@ -168,6 +176,7 @@ try {
       if (!opened) {
         throw new Error(`Could not open panel ${surface.panel}`);
       }
+      await surface.prepare?.(page);
       await page.waitForTimeout(300);
       await stabilizePage(page);
 

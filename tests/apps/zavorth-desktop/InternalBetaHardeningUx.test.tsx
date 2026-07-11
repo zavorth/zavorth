@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import { InternalBetaDiagnosticsPanel } from '../../../apps/zavorth-desktop/src/panels/InternalBetaDiagnosticsPanel';
 import { ErrorNormalizationService } from '../../../src/services/ErrorNormalizationService';
 
-describe('InternalBetaHardeningUx Tests (Phase 21K-B)', () => {
+describe('InternalBetaHardeningUx Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn() as jest.Mock;

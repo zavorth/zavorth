@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('zavorthDesktop', {
   getRuntimeStatus: () => ipcRenderer.invoke('zavorth:runtime:status'),
   startRuntime: () => ipcRenderer.invoke('zavorth:runtime:start'),
+  getCodeBridgeSummary: () => ipcRenderer.invoke('zavorth:code-bridge:summary'),
   apiRequest: request => ipcRenderer.invoke('zavorth:api:request', request),
   connectGooglePersonalOps: () => ipcRenderer.invoke('zavorth:personal-ops:google-connect'),
   repairAccess: () => ipcRenderer.invoke('zavorth:access:repair'),
@@ -39,12 +40,26 @@ contextBridge.exposeInMainWorld('zavorthDesktop', {
     ipcRenderer.on('zavorth:boot:event', listener);
     return () => ipcRenderer.removeListener('zavorth:boot:event', listener);
   },
+  automations: {
+    list: () => ipcRenderer.invoke('zavorth:automations:list'),
+    create: input => ipcRenderer.invoke('zavorth:automations:create', input),
+    delete: id => ipcRenderer.invoke('zavorth:automations:delete', id),
+    toggle: (id, enabled) => ipcRenderer.invoke('zavorth:automations:toggle', id, enabled),
+    run: id => ipcRenderer.invoke('zavorth:automations:run', id),
+    logs: sessionId => ipcRenderer.invoke('zavorth:automations:logs', sessionId),
+    onUpdated: callback => {
+      const listener = (_event, tasks) => callback(tasks);
+      ipcRenderer.on('zavorth:automations:updated', listener);
+      return () => ipcRenderer.removeListener('zavorth:automations:updated', listener);
+    },
+  },
   kaelOverlay: {
     open: (bounds) => ipcRenderer.invoke('zavorth:kael-overlay:open', bounds),
     close: () => ipcRenderer.invoke('zavorth:kael-overlay:close'),
     setBounds: (bounds) => ipcRenderer.send('zavorth:kael-overlay:set-bounds', bounds),
     setIgnoreMouse: (ignore) => ipcRenderer.send('zavorth:kael-overlay:ignore-mouse', ignore),
     setFocusable: (focusable) => ipcRenderer.send('zavorth:kael-overlay:set-focusable', focusable),
+    state: payload => ipcRenderer.send('zavorth:kael-overlay:state', payload),
     onState: (callback) => {
       const listener = (_event, state) => callback(state);
       ipcRenderer.on('zavorth:kael-overlay:state', listener);

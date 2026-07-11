@@ -54,7 +54,7 @@ export type PublicDocsRecipesFixtureResult = {
 };
 
 export type PublicDocsRecipesSnapshot = {
-  phase: '56';
+  gate: 'public-docs-recipes';
   surface: 'public-docs-recipes';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -75,8 +75,8 @@ export type PublicDocsRecipesSnapshot = {
     fixtureSmokePath: string;
   };
   checks: PublicDocsRecipesCheck[];
-  nextRecommendedPhase: {
-    phase: '57';
+  nextRecommendedGate: {
+    gate: 'pilot-loop';
     title: string;
     reason: string;
   };
@@ -87,7 +87,6 @@ export const PUBLIC_DOCS_RECIPES_REQUIRED_CORE_SCRIPTS = [
   'qa:external-docs',
   'public-docs-recipes',
   'qa:public-docs-recipes',
-  'qa:phase:56',
   'go',
   'chat',
   'doctor',

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import child_process from 'node:child_process';
 
-describe('Fase 15 — Terminal and HubNativeShell Defer/Hard-Disable', () => {
+describe('Terminal and HubNativeShell Defer/Hard-Disable', () => {
   let versionedFiles: string[] = [];
 
   beforeAll(() => {

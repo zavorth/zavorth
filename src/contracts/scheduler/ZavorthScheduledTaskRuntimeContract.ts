@@ -104,7 +104,7 @@ export type ZavorthScheduledTaskRuntimeSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_RUNTIME_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskExecutionGatewayRuntimeService';
-  phase: 'checkpoint-2-scheduled-task-execution-gateway';
+  gate: 'scheduled-task-execution-gateway';
   status: ZavorthScheduledTaskRuntimeStatus;
   mode: ZavorthScheduledTaskRuntimeMode;
   registry: ZavorthScheduledTaskSnapshot;

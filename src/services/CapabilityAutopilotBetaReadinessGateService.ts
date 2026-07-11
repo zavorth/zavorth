@@ -43,7 +43,7 @@ export type CapabilityAutopilotBetaReadinessEntrySummary = {
 };
 
 export type CapabilityAutopilotBetaReadinessSnapshot = {
-  phase: '78';
+  gate: 'capability-autopilot-beta-readiness';
   betaReadinessId: string;
   generatedAt: string;
   surface: 'capability-autopilot-beta-readiness-gate';
@@ -56,7 +56,7 @@ export type CapabilityAutopilotBetaReadinessSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightPostRunRollbackLedgerSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightPostRunRollbackLedgerSnapshot['gate'];
   sourceStatus: CapabilityPreflightPostRunRollbackLedgerSnapshot['status'];
   betaChecklistApproved: boolean;
   releaseNotesReady: boolean;
@@ -87,8 +87,8 @@ export type CapabilityAutopilotBetaReadinessSnapshot = {
     actorId: string | null;
     reason: string | null;
   };
-  nextRecommendedPhase: {
-    phase: '79';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-beta-field-trial';
     title: string;
     reason: string;
   };
@@ -154,7 +154,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
       : 'stay_alpha';
 
     return {
-      phase: '78',
+      gate: 'capability-autopilot-beta-readiness',
       betaReadinessId: this.buildBetaReadinessId(source, generatedAt, options.betaReadinessReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-beta-readiness-gate',
@@ -167,7 +167,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       betaChecklistApproved: gateBooleans.betaChecklistApproved,
       releaseNotesReady: gateBooleans.releaseNotesReady,
@@ -198,14 +198,14 @@ export class CapabilityAutopilotBetaReadinessGateService {
         actorId: options.actorId || null,
         reason: options.reason || null,
       },
-      nextRecommendedPhase: {
-        phase: '79',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-beta-field-trial',
         title: 'Capability Autopilot Beta Field Trial Loop',
         reason:
           'Depois do beta readiness, o proximo passo e operar um field trial limitado com feedback, rollback rehearsal e criterio de promocao para release candidate.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-78',
+        gate: 'capability-autopilot-beta-readiness',
         sourceSnapshotStatus: source.status,
         autoExecute: false,
         recommendation,
@@ -220,7 +220,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
 
   public renderReport(snapshot: CapabilityAutopilotBetaReadinessSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-beta-readiness] Etapa 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    lines.push('[capability-autopilot-beta-readiness] Capability Autopilot v1.1 Beta Readiness Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -235,8 +235,8 @@ export class CapabilityAutopilotBetaReadinessGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -453,7 +453,7 @@ export class CapabilityAutopilotBetaReadinessGateService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.generatedAt,
         source.entries.length,
         generatedAt,

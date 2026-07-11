@@ -6,6 +6,10 @@ import { AutomaticBrowserTool } from './tools/AutomaticBrowserTool.js';
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
 import { McpToolPolicy } from './McpToolPolicy.js';
 import type { ToolExecutor } from '../execution/ToolExecutor.js';
+import {
+  decideSecurityPolicy,
+  formatSecurityPolicyReceipt,
+} from '../security/SecurityPolicyBroker.js';
 import { asErrorLike } from '../utils/errorLike';
 
 type ZavorthMcpServerOptions = {
@@ -81,6 +85,37 @@ export class ZavorthMcpServer {
         
         const browserToolNames = this.browserTool.getToolDefinitions().map(def => def.name);
         if (browserToolNames.includes(name)) {
+          const brokerDecision = decideSecurityPolicy({
+            surface: 'mcp',
+            operation: name,
+            target: name,
+            profile: decision.profile,
+            mcpDecision: {
+              allowed: decision.allowed,
+              profile: decision.profile,
+              reason: decision.reason,
+            },
+            rule: decision.allowed
+              ? 'MCP_BROWSER_TOOL_ALLOWED'
+              : 'MCP_BROWSER_TOOL_BLOCKED',
+            reasons: [decision.reason],
+          });
+          if (
+            !brokerDecision.allowed
+            || brokerDecision.action === 'require_user_confirmation'
+            || brokerDecision.action === 'deny'
+          ) {
+            logger.error(`[MCP browser policy] ${formatSecurityPolicyReceipt(brokerDecision.receipt)}`);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: formatSecurityPolicyReceipt(brokerDecision.receipt),
+                },
+              ],
+              isError: true,
+            };
+          }
           return this.browserTool.handleToolCall(name, args);
         }
 

@@ -43,7 +43,7 @@ describe('DemoFlowService', () => {
     expect(service.formatShortPresentation()).toContain('Apresentacao curta do Zavorth');
     expect(service.formatGuidedStart()).toContain('Sequencia guiada iniciada.');
     expect(service.formatGuidedCompletion()).toContain('Fechamento sugerido:');
-    expect(service.formatGuidedStep(0)).toContain('Etapa 1/4: Pesquisa web');
+    expect(service.formatGuidedStep(0)).toContain('Passo 1/4: Pesquisa web');
     expect(service.formatGuidedStep(1)).toContain('Se aparecer permissao:');
     expect(service.formatGuidedStep(99)).toBeNull();
   });

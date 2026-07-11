@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'operational-readiness-tooling-files',
-    label: 'Operational readiness tooling phase files exist',
+    label: 'Operational readiness tooling gate files exist',
     target: 'Contract, service, tests, doctor, docs and package scripts are present',
     files: [
       'src/contracts/OperationalReadinessToolingContract.ts',
@@ -61,7 +61,7 @@ const rules = [
       'channel-template-routes',
       'satellite-native-wrapper-decision',
       'memory-wiki-template',
-      'Etapa 9 - Certification',
+      'Certification',
     ],
   }),
   ruleContainsAll({

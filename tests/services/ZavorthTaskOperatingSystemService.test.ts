@@ -84,7 +84,7 @@ function createPermission(input: Partial<PermissionRequest>): PermissionRequest 
 }
 
 describe('TaskStateMachine', () => {
-  it('maps legacy states into the formal phase 27 states', () => {
+  it('maps legacy states into the formal task operating system states', () => {
     expect(TaskStateMachine.toFormalState(createTask({ status: 'pending' }))).toBe('queued');
     expect(TaskStateMachine.toFormalState(createTask({ status: 'planned' }))).toBe('planning');
     expect(TaskStateMachine.toFormalState(createTask({
@@ -152,7 +152,7 @@ describe('ZavorthTaskOperatingSystemService', () => {
 
     const snapshot = await service.buildSnapshot({ userId: 'alice' });
 
-    expect(snapshot.phase).toBe('27');
+    expect(snapshot.phase).toBe('task-operating-system');
     expect(snapshot.surface).toBe('task-os');
     expect(snapshot.taskLedger.summary.byState.awaiting_permission).toBe(1);
     expect(snapshot.summary.artifacts).toBe(1);
@@ -169,7 +169,7 @@ describe('ZavorthTaskOperatingSystemService', () => {
 
     const snapshot = await service.listArtifactsForTask('task-completed');
 
-    expect(snapshot.phase).toBe('27');
+    expect(snapshot.phase).toBe('task-operating-system');
     expect(snapshot.surface).toBe('task-artifacts');
     expect(snapshot.task?.taskId).toBe('task-completed');
     expect(snapshot.artifacts).toHaveLength(1);

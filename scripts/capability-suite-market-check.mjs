@@ -3,12 +3,12 @@ import { spawnSync } from 'child_process';
 
 const nodeRunner = process.env.npm_node_execpath || process.execPath;
 const npmCliPath = process.env.npm_execpath || null;
-const selectedPhase = String(process.argv.find((arg) => arg.startsWith('--phase=')) || '')
-  .replace('--phase=', '')
+const selectedGate = String(process.argv.find((arg) => arg.startsWith('--gate=') || arg.startsWith('--stage=')) || '')
+  .replace('--gate=', '').replace('--stage=', '')
   .trim();
 
-const phaseChecks = {
-  '39': [
+const gateChecks = {
+  'product-quality': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'product quality contract tests',
@@ -23,7 +23,7 @@ const phaseChecks = {
     ],
     ['product quality gate', 'npm', ['run', 'qa:product-quality', '--silent', '--', '--json'], 180_000],
   ],
-  '40': [
+  'web-app-polish': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     ['web surface syntax', 'npm', ['run', 'web-surface:check', '--silent'], 240_000],
     [
@@ -39,7 +39,7 @@ const phaseChecks = {
     ],
     ['web/app polish gate', 'npm', ['run', 'qa:web-app-polish', '--silent', '--', '--json'], 180_000],
   ],
-  '41': [
+  'deterministic-qa': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'deterministic QA matrix tests',
@@ -55,7 +55,7 @@ const phaseChecks = {
     ['product quality gate', 'npm', ['run', 'qa:product-quality', '--silent', '--', '--json'], 180_000],
     ['deterministic QA gate', 'npm', ['run', 'qa:deterministic', '--silent', '--', '--json', '--tier=quick'], 180_000],
   ],
-  '42': [
+  'tenant-team-ops': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'tenant/team ops tests',
@@ -70,7 +70,7 @@ const phaseChecks = {
     ],
     ['tenant/team ops gate', 'npm', ['run', 'qa:tenant-team-ops', '--silent', '--', '--json'], 180_000],
   ],
-  '43': [
+  'artifact-replay': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'artifact/replay workbench tests',
@@ -85,7 +85,7 @@ const phaseChecks = {
     ],
     ['artifact/replay workbench gate', 'npm', ['run', 'qa:artifact-workbench', '--silent', '--', '--json'], 180_000],
   ],
-  '44': [
+  'release-ux-wizard': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'release UX tests',
@@ -100,7 +100,7 @@ const phaseChecks = {
     ],
     ['release UX gate', 'npm', ['run', 'qa:release-ux', '--silent', '--', '--json'], 180_000],
   ],
-  '45': [
+  'runtime-idle-budget': [
     ['runtime check', 'npm', ['run', 'runtime:check', '--silent'], 360_000],
     [
       'idle budget tests',
@@ -118,18 +118,18 @@ const phaseChecks = {
   ],
 };
 
-const phases = selectedPhase ? [selectedPhase] : Object.keys(phaseChecks);
+const gates = selectedGate ? [selectedGate] : Object.keys(gateChecks);
 
-for (const phase of phases) {
-  const checks = phaseChecks[phase];
+for (const gate of gates) {
+  const checks = gateChecks[gate];
   if (!checks) {
-    console.error(`[phase-check] etapa invalida: ${phase}`);
+    console.error(`[gate-check] etapa invalido: ${gate}`);
     process.exit(1);
   }
 
-  console.log(`\n[phase-check] etapa ${phase}`);
+  console.log(`\n[gate-check] gate ${gate}`);
   for (const [label, command, args, timeoutMs = 180_000] of checks) {
-    console.log(`[phase-check] ${label}`);
+    console.log(`[gate-check] ${label}`);
     const commandLine = buildSpawnCommand(command, args);
     const result = spawnSync(commandLine.executable, commandLine.args, {
       stdio: 'inherit',
@@ -142,21 +142,21 @@ for (const phase of phases) {
     });
 
     if (result.error) {
-      console.error(`[phase-check] falha ao executar ${label}: ${result.error.message}`);
+      console.error(`[gate-check] falha ao executar ${label}: ${result.error.message}`);
       process.exit(1);
     }
     if (typeof result.status === 'number' && result.status !== 0) {
-      console.error(`[phase-check] ${label} saiu com codigo ${result.status}`);
+      console.error(`[gate-check] ${label} saiu com codigo ${result.status}`);
       process.exit(result.status);
     }
     if (result.signal) {
-      console.error(`[phase-check] ${label} encerrado por sinal ${result.signal}`);
+      console.error(`[gate-check] ${label} encerrado por sinal ${result.signal}`);
       process.exit(1);
     }
   }
 }
 
-console.log('\n[phase-check] etapa(s) solicitada(s) concluidas com sucesso.');
+console.log('\n[gate-check] gate(s) solicitado(s) concluidas com sucesso.');
 
 function buildSpawnCommand(command, args) {
   if (process.platform === 'win32' && npmCliPath) {

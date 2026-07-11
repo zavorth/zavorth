@@ -92,6 +92,40 @@ if (-not $SkipBuild) {
     Write-Step "SkipBuild ativo; compilacao pulada."
 }
 
+Write-Section "Host presence (soft)"
+$ensureScript = Join-Path $repoRoot "scripts\ensure-code-runtime.mjs"
+if (Test-Path $ensureScript) {
+    Write-Step "Soft code:ensure (prebuilt binary when available; Bun only monorepo/dev fallback)"
+    Push-Location $repoRoot
+    try {
+        & $nodeExe $ensureScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-Step "code:ensure soft-skipped (exit $LASTEXITCODE) — zavorth still works with Bun+sources when present."
+        } else {
+            Write-Step "code:ensure completed."
+        }
+    } catch {
+        Write-Step ("code:ensure soft-skipped: " + $_.Exception.Message)
+    } finally {
+        Pop-Location
+    }
+} else {
+    Write-Step "ensure-code-runtime.mjs ausente; pulando soft ensure."
+}
+
+Write-Step "Soft doctor (non-fatal)"
+Push-Location $repoRoot
+try {
+    & $nodeExe (Join-Path $repoRoot "bin\zavorth.js") @("doctor")
+    if ($LASTEXITCODE -ne 0) {
+        Write-Step "doctor reported attention (exit $LASTEXITCODE) — continue; run: zavorth host status"
+    }
+} catch {
+    Write-Step ("doctor soft-skipped: " + $_.Exception.Message)
+} finally {
+    Pop-Location
+}
+
 $guideFile = Join-Path $localConfigRoot "onboarding-guide.txt"
 $guideLines = @(
     "Zavorth Onboarding Guide",
@@ -109,14 +143,16 @@ if ($Profile -eq "Dev") {
     $guideLines += @(
         "Passos sugeridos:",
         "  1. npm run cli:fast -- status --json",
-        "  2. npm run test:smoke",
-        "  3. npm run qa:bench:boot",
-        "  4. npm run qa:regression",
-        "  5. Abra $BaseUrl/dashboard"
+        "  2. zavorth host status",
+        "  3. npm run test:smoke",
+        "  4. npm run qa:bench:boot",
+        "  5. npm run qa:regression",
+        "  6. Abra $BaseUrl/dashboard"
     )
 } else {
     $guideLines += @(
         "Passos sugeridos:",
+        "  0. zavorth host install && zavorth host status",
         "  1. npm run ops:ready",
         "  2. npm run cli:fast -- doctor --json",
         "  3. npm run cli:fast -- nodepair desktop MeuDesktop",

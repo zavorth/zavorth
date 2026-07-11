@@ -90,7 +90,7 @@ export class ZavorthCapabilityProviderRegistryService {
       contractVersion: ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'capability-providers',
+      gate: 'capability-providers',
       previousSidecarAdapterStatus,
       normalizedCapabilities,
       manifestImportReceipts,

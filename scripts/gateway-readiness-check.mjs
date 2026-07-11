@@ -1,7 +1,7 @@
 import { spawnSync } from 'child_process';
 
-const phaseArg = process.argv.find((entry) => entry.startsWith('--phase='));
-const phase = phaseArg ? Number(phaseArg.split('=')[1]) : null;
+const gateArg = process.argv.find((entry) => entry.startsWith('--gate=') || entry.startsWith('--stage='));
+const gate = gateArg ? Number(gateArg.split('=')[1]) : null;
 
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 
@@ -44,7 +44,7 @@ const webAppRuntimeRouteTests = [
   'tests/domain/surface/presentation/web-app/WebAppRuntimeRouteService.state.test.ts',
 ];
 
-const phaseTests = {
+const gateTests = {
   1: [
     'tests/services/ZavorthGatewayControlSocketService.test.ts',
     'tests/services/GatewaySessionLedgerService.test.ts',
@@ -88,26 +88,26 @@ const phaseTests = {
   ],
 };
 
-const phases = phase ? [phase] : [1, 2, 3, 4, 5, 6, 7, 8];
+const gates = gate ? [gate] : [1, 2, 3, 4, 5, 6, 7, 8];
 
-for (const selectedPhase of phases) {
-  const tests = phaseTests[selectedPhase];
+for (const selectedGate of gates) {
+  const tests = gateTests[selectedGate];
   if (!tests) {
-    console.error(`[gateway-check] etapa invalida: ${selectedPhase}`);
+    console.error(`[gateway-check] gate invalido: ${selectedGate}`);
     process.exit(1);
   }
 
-  console.log(`[gateway-check] etapa ${selectedPhase}: build`);
+  console.log(`[gateway-check] gate ${selectedGate}: build`);
   const buildResult = runNpm(['run', 'build', '--silent']);
   if (buildResult.status !== 0) {
     process.exit(buildResult.status || 1);
   }
 
-  console.log(`[gateway-check] etapa ${selectedPhase}: testes`);
+  console.log(`[gateway-check] gate ${selectedGate}: testes`);
   const testResult = runNpm(['test', '--', ...tests, '--runInBand']);
   if (testResult.status !== 0) {
     process.exit(testResult.status || 1);
   }
 }
 
-console.log('[gateway-check] todas as etapas solicitadas passaram.');
+console.log('[gateway-check] todos os gates solicitados passaram.');

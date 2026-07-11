@@ -10,6 +10,8 @@ export function ProfilesPanel(props: {
   allProfiles: AgentProfile[];
   onAddCustomProfile?: (name: string, prompt: string, effort: AgentProfile['effort'], costLimit: number) => void;
   onDeleteCustomProfile?: (id: string) => void;
+  activeProfileId?: string;
+  onActivateProfile?: (profile: AgentProfile) => void;
 }) {
   const [name, setName] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -29,7 +31,7 @@ export function ProfilesPanel(props: {
   return (
     <PageFrame
       eyebrow={t('profileManagement')}
-      description="Manage custom agent profiles, system instructions, processing weight and cost limits."
+      description={t('profileManagementDescription')}
       meta="profiles"
       title={t('profiles')}
     >
@@ -192,6 +194,29 @@ export function ProfilesPanel(props: {
           color: #ef4444;
         }
 
+        .zvd-profile-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .zvd-profile-activate-btn {
+          min-height: 30px;
+          padding: 0 11px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 7px;
+          color: #e4e4e7;
+          background: rgba(255, 255, 255, 0.035);
+          cursor: pointer;
+        }
+
+        .zvd-profile-activate-btn.is-active {
+          color: var(--zvd-accent, #00e88f);
+          border-color: color-mix(in srgb, var(--zvd-accent, #00e88f) 35%, transparent);
+          background: color-mix(in srgb, var(--zvd-accent, #00e88f) 9%, transparent);
+          cursor: default;
+        }
+
         .zvd-profiles-form-card {
           background: rgba(255, 255, 255, 0.01);
           border: 1px solid rgba(255, 255, 255, 0.05);
@@ -271,7 +296,7 @@ export function ProfilesPanel(props: {
         <div className="zvd-profiles-left">
           <h2 className="zvd-profiles-title">
             <IconUserCircle size={18} />
-            {t('activeSubagents')}
+            {t('availableProfiles')}
           </h2>
 
           <div className="zvd-profiles-list">
@@ -300,16 +325,29 @@ export function ProfilesPanel(props: {
                     {t('costLimit')}: ${profile.costLimit.toFixed(2)} USD
                   </span>
 
-                  {profile.isCustom && props.onDeleteCustomProfile && (
-                    <button
-                      type="button"
-                      className="zvd-profile-delete-btn"
-                      onClick={() => props.onDeleteCustomProfile?.(profile.id)}
-                      title="Excluir perfil"
-                    >
-                      <IconTrash size={15} />
-                    </button>
-                  )}
+                  <div className="zvd-profile-actions">
+                    {props.onActivateProfile ? (
+                      <button
+                        type="button"
+                        className={`zvd-profile-activate-btn ${props.activeProfileId === profile.id ? 'is-active' : ''}`}
+                        disabled={props.activeProfileId === profile.id}
+                        onClick={() => props.onActivateProfile?.(profile)}
+                      >
+                        {props.activeProfileId === profile.id ? t('profileInUse') : t('useProfile')}
+                      </button>
+                    ) : null}
+                    {profile.isCustom && props.onDeleteCustomProfile ? (
+                      <button
+                        type="button"
+                        className="zvd-profile-delete-btn"
+                        onClick={() => props.onDeleteCustomProfile?.(profile.id)}
+                        title="Excluir perfil"
+                        aria-label={`Excluir perfil ${profile.name}`}
+                      >
+                        <IconTrash size={15} />
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             ))}

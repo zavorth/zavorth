@@ -90,7 +90,7 @@ describe('ZavorthControlShellWiring', () => {
     expect(chatSurface).toContain('ZavorthControlChatContextStrip');
   });
 
-  it('adds the phase 6 operation layer without creating destructive automatic actions', () => {
+  it('adds the operation layer without creating destructive automatic actions', () => {
     const shell = readFileSync(
       join(controlDir, 'zavorth-control/components/ZavorthControlControlShell.tsx'),
       'utf8',

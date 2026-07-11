@@ -98,7 +98,7 @@ export function AgentsPanel(props: {
   return (
     <PageFrame
       eyebrow={t('orchestration')}
-      description="Manage and monitor the autonomous subagent team assigned to solve problems in your workspace."
+      description={t('agentTeamDescription')}
       meta="agents"
       title={t('agentTeam')}
     >

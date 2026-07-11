@@ -102,7 +102,7 @@ export class ProviderLongTailActivationService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_PROVIDER_LONG_TAIL_ACTIVATION_CONTRACT_VERSION,
-      phase: 'Credential vault - Provider Runtime Activation Long Tail',
+      gate: 'provider-runtime-activation-long-tail',
       status: blocked > 0 || generatedProviderManifests > 0 ? 'blocked' : 'closed',
       summary: {
         providers: 29,

@@ -35,7 +35,7 @@ describe('TelegramSchedulerController', () => {
         budget_json: '{}',
         guardrail_json: JSON.stringify({
           governedScheduledTask: {
-          phase: 'checkpoint-3-persisted-scheduled-task-registration',
+          gate: 'persisted-scheduled-task-registration',
             approvalId: 'telegram-report-99',
             approvedScope: {
               intent: 'Relatorio recorrente: noticias de IA',
@@ -60,7 +60,7 @@ describe('TelegramSchedulerController', () => {
       '99',
       expect.objectContaining({
         governedScheduledTask: expect.objectContaining({
-          phase: 'checkpoint-3-persisted-scheduled-task-registration',
+          gate: 'persisted-scheduled-task-registration',
         }),
       }),
     );

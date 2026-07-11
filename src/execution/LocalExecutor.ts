@@ -8,6 +8,15 @@ import {
   spawnShellCommand,
 } from '../core/CommandSpawn.js';
 import { DangerousCommandBlocker } from '../security/DangerousCommandBlocker.js';
+import { decideSecurityPolicy } from '../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+  type OperatorContinuityDecision,
+  type OperatorContinuityEnvelope,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 
 import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
 import { SandboxExecutionService } from '../services/SandboxExecutionService.js';
@@ -32,6 +41,7 @@ type LocalExecutorOptions = {
   sandboxExecution?: SandboxExecutionService;
   shellRunner?: ShellRunner;
   commandRunner?: StructuredCommandRunner;
+  continuityKernel?: OperatorContinuityKernel;
 };
 
 export class LocalExecutor implements IExecutor {
@@ -39,11 +49,18 @@ export class LocalExecutor implements IExecutor {
   private readonly sandboxExecution: SandboxExecutionService;
   private readonly shellRunner: ShellRunner;
   private readonly commandRunner: StructuredCommandRunner;
+  private readonly continuityKernel: OperatorContinuityKernel;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
   constructor(options: LocalExecutorOptions = {}) {
     this.sandboxExecution = options.sandboxExecution || new SandboxExecutionService();
     this.shellRunner = options.shellRunner || this.runShellCommand.bind(this);
     this.commandRunner = options.commandRunner || this.runStructuredCommand.bind(this);
+    this.continuityKernel = options.continuityKernel || new OperatorContinuityKernel();
+  }
+
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
   }
 
   public async executeDirect(
@@ -82,6 +99,161 @@ export class LocalExecutor implements IExecutor {
 
   public async executeTask(request: ExecutionRequest): Promise<ExecutionResult> {
     const startTime = new Date();
+    const primaryTarget = String(request.instructions[0] || request.objective || request.task_id || 'local').trim();
+    const sealed = await this.continuityKernel.runMutation({
+      request: {
+        surface: 'execution-gateway',
+        operation: request.dry_run ? 'local.execute.preview' : 'local.execute',
+        target: primaryTarget.slice(0, 240) || 'local',
+        actorId: String(request.metadata?.actorId || '').trim() || null,
+        sourceSurface: String(request.metadata?.sourceSurface || 'local-executor').trim() || 'local-executor',
+        argsDigest: digestOperatorPayload({
+          instructionCount: request.instructions.length,
+          dryRun: request.dry_run === true,
+          workspace: request.workspace,
+        }),
+        metadata: {
+          taskId: request.task_id,
+          executor: request.executor,
+          dryRun: request.dry_run === true,
+        },
+      },
+      correlation: {
+        taskId: request.task_id || null,
+        runId: String(request.metadata?.runId || request.execution_id || '').trim() || null,
+        sessionId: String(request.metadata?.sessionId || '').trim() || null,
+        traceId: String(request.metadata?.traceId || '').trim() || null,
+      },
+      decide: () => this.decideLocalExecutionPolicy(request),
+      execute: async () => this.runLocalExecutionBody(request, startTime),
+      mapResult: (value) => resultFromToolOutcome({
+        ok: value.success === true,
+        status: request.dry_run
+          ? 'observation'
+          : value.success
+            ? 'applied'
+            : 'failed',
+        summary: value.success
+          ? (request.dry_run
+            ? 'Local executor dry-run recorded without host mutation.'
+            : `Local executor completed ${value.commands_executed.length} command(s).`)
+          : (value.error_message || 'Local executor failed.'),
+        output: {
+          commands: value.commands_executed.slice(0, 8),
+          errorCode: value.error_code,
+        },
+        data: {
+          taskId: value.task_id,
+          success: value.success,
+          commandCount: value.commands_executed.length,
+        },
+      }),
+    });
+
+    this.lastContinuityEnvelope = sealed.envelope;
+    const publicView = this.continuityKernel.toPublicView(sealed.envelope);
+
+    if (sealed.value) {
+      return {
+        ...sealed.value,
+        metadata: {
+          ...(sealed.value.metadata || {}),
+          operatorContinuity: publicView,
+        },
+      };
+    }
+
+    const blocked: ExecutionResult = {
+      execution_id: uuidv4(),
+      task_id: request.task_id,
+      executor: 'local_executor',
+      success: false,
+      started_at: startTime.toISOString(),
+      finished_at: new Date().toISOString(),
+      actions_executed: [],
+      files_read: [],
+      files_written: [],
+      files_deleted: [],
+      commands_executed: [],
+      stdout: null,
+      stderr: null,
+      diff_summary: null,
+      artifacts: [],
+      rollback_available: false,
+      error_code: String(sealed.envelope.decision?.rule || 'LOCAL_EXECUTOR_POLICY_BLOCKED'),
+      error_message: sealed.envelope.result?.summary
+        || sealed.envelope.decision?.reasons.join(' ')
+        || 'Local execution blocked by security policy.',
+      metadata: {
+        operatorContinuity: publicView,
+      },
+    };
+    return blocked;
+  }
+
+  private decideLocalExecutionPolicy(request: ExecutionRequest): OperatorContinuityDecision {
+    for (const cmd of request.instructions) {
+      const safety = DangerousCommandBlocker.explain(cmd);
+      if (!safety.safe && safety.reason === 'dangerous-pattern') {
+        return decisionFromBroker(decideSecurityPolicy({
+          surface: 'tool',
+          operation: 'local.execute',
+          target: safety.commandName || String(cmd || '').slice(0, 120) || 'local',
+          workspace: request.workspace,
+          blocked: true,
+          risk: 'forbidden',
+          rule: 'LOCAL_EXECUTOR_DANGEROUS_PATTERN',
+          reasons: [
+            `Command blocked by dangerous-pattern policy (${safety.reason}).`,
+            String(cmd || '').slice(0, 200),
+          ],
+          metadata: {
+            sourceSurface: 'local-executor',
+            taskId: request.task_id,
+          },
+        }));
+      }
+    }
+
+    return decisionFromBroker(decideSecurityPolicy({
+      surface: 'tool',
+      operation: request.dry_run ? 'local.execute.preview' : 'local.execute',
+      target: String(request.instructions[0] || request.objective || 'local').slice(0, 120),
+      workspace: request.workspace,
+      sourceTrust: 'trusted-user',
+      metadata: {
+        sourceSurface: 'local-executor',
+        taskId: request.task_id,
+        dryRun: request.dry_run === true,
+        instructionCount: request.instructions.length,
+      },
+      toolDecision: {
+        action: 'allow',
+        allowed: true,
+        risk: request.dry_run ? 'safe' : 'review',
+        toolName: 'local_executor',
+        surface: 'native-tool',
+        capabilities: ['shell', 'audit'],
+        requiresConfirmation: false,
+        reasons: [
+          request.dry_run
+            ? 'Local executor dry-run is observation-only and sealed by operator continuity.'
+            : 'Local executor entry is sealed by operator continuity; allowlist and sandbox gates remain in the body.',
+        ],
+        rule: request.dry_run ? 'LOCAL_EXECUTOR_OBSERVATION' : 'LOCAL_EXECUTOR_CONTINUITY',
+      },
+      reasons: [
+        request.dry_run
+          ? 'Local executor dry-run recorded by operator continuity kernel.'
+          : 'Local executor execution sealed by operator continuity kernel.',
+      ],
+    }));
+  }
+
+  private async runLocalExecutionBody(
+    request: ExecutionRequest,
+    startTime: Date,
+  ): Promise<ExecutionResult> {
     const result: ExecutionResult = {
       execution_id: uuidv4(),
       task_id: request.task_id,

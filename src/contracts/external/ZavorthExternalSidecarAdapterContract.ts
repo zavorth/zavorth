@@ -226,7 +226,7 @@ export type ZavorthExternalSidecarAdapterSnapshot = {
   contractVersion: typeof ZAVORTH_EXTERNAL_SIDECAR_ADAPTER_CONTRACT_VERSION;
   status: ZavorthExternalSidecarAdapterStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'sidecar-adapter';
+  gate: 'sidecar-adapter';
   previousNativeEngineStatus: ZavorthNativeEngineAbsorptionStatus;
   readOnlyProbe: ZavorthExternalSidecarReadOnlyProbeSnapshot;
   inboundGatewayReceipt: ZavorthExternalSidecarInboundGatewayReceipt;

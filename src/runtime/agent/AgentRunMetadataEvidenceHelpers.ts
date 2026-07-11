@@ -203,7 +203,7 @@ export class AgentRunMetadataEvidenceHelpers {
       coreDietBaseline: {
         source: 'AgentRunService',
         stage: 0,
-        phase: 0,
+        gate: 'source-surface-ledger',
         profile,
         elapsedMs: Math.max(0, Date.now() - baseline.startedAtMs),
         metadataBytes,
@@ -276,7 +276,7 @@ export class AgentRunMetadataEvidenceHelpers {
       metadataDiet: {
         source: 'AgentRunService',
         stage: 5,
-        phase: 5,
+        gate: 'source-memory-document-terminal-pack',
         operationalKeys,
         auditKeys,
         debugKeys,

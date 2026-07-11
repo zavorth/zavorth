@@ -56,7 +56,7 @@ export class CapabilityAutopilotMemoryReplayService {
       workspaceHash: workspace ? this.hashValue('workspace', workspace) : null,
       intentFingerprint: rawIntent ? this.hashValue('intent', this.normalizeIntent(rawIntent)) : null,
       outcome,
-      phase: receipt.phase,
+      stage: receipt.stage,
       failureKind: receipt.diagnosis?.failureKind || null,
       readinessStatus: receipt.readiness?.status || null,
       permissionCount: receipt.repairPlan?.permissionRequirements.length || 0,
@@ -75,7 +75,7 @@ export class CapabilityAutopilotMemoryReplayService {
         validationGeneratedAt: validation?.generatedAt || null,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-64',
+        gate: 'capability-autopilot-memory-replay',
         signalCount: signals.length,
         hasWorkspaceHash: Boolean(workspace),
         hasIntentFingerprint: Boolean(rawIntent),
@@ -128,13 +128,13 @@ export class CapabilityAutopilotMemoryReplayService {
     if (receipt.selectedFallback) {
       return 'fallback_selected';
     }
-    if (validation?.success || receipt.phase === 'resume' || receipt.phase === 'completed') {
+    if (validation?.success || receipt.stage === 'resume' || receipt.stage === 'completed') {
       return 'ready';
     }
-    if (receipt.phase === 'failed' || validation?.success === false || repairRun?.status === 'failed') {
+    if (receipt.stage === 'failed' || validation?.success === false || repairRun?.status === 'failed') {
       return 'failed';
     }
-    if (receipt.phase === 'permission') {
+    if (receipt.stage === 'permission') {
       return 'permission_required';
     }
     return 'needs_repair';
@@ -260,7 +260,7 @@ export class CapabilityAutopilotMemoryReplayService {
       {
         surface: receipt.surface,
         audience: receipt.audience,
-        phase: receipt.phase,
+        stage: receipt.stage,
       },
     ));
 

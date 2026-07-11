@@ -9,13 +9,13 @@ describe('HostedSiteOperationsService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('54');
+    expect(snapshot.phase).toBe('hosted-site-operations');
     expect(snapshot.surface).toBe('hosted-site-operations');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.failed).toBe(0);
     expect(snapshot.summary.warnings).toBeGreaterThanOrEqual(1);
     expect(snapshot.release.expectedVersion).toBe('v1.0.0');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '55',
       title: 'Installer And Distribution Hardening',
     }));
@@ -119,7 +119,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       'rollback',
       'smoke',
       'Readiness checkpoint 5 - Installer And Distribution Hardening',
-      'qa:stage:55',
+      'qa:distribution-hardening',
     ].join('\n'),
     'website:package.json': JSON.stringify({
       name: 'zavorth-website',
@@ -161,7 +161,7 @@ function coreScriptsFixture() {
   }
   scripts['hosted-site'] = 'npx tsx scripts/hosted-site.ts';
   scripts['qa:hosted-site'] = 'npx tsx scripts/hosted-site.ts --require-pass --build --smoke --screenshots';
-  scripts['qa:stage:54'] = 'node scripts/capability-suite-growth-check.mjs --phase=54';
+  scripts['qa:hosted-site-operations'] = 'node scripts/capability-suite-growth-check.mjs --gate=hosted-site-operations';
   return scripts;
 }
 

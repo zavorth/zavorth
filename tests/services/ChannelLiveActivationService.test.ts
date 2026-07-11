@@ -12,6 +12,15 @@ const response = (payload: Record<string, unknown>, init: { status?: number } = 
   });
 
 describe('ChannelLiveActivationService Preview engine', () => {
+  it('resolves teams/msteams aliases to the live activation channel id', () => {
+    const service = new ChannelLiveActivationService();
+    expect(service.resolveChannelId('teams')).toBe('msteams');
+    expect(service.resolveChannelId('msteams')).toBe('msteams');
+    expect(service.resolveChannelId('ms-teams')).toBe('msteams');
+    expect(service.resolveChannelId('slack')).toBe('slack');
+    expect(service.resolveChannelId('unknown-channel')).toBeNull();
+  });
+
   it('closes Preview engine P0 channel activation gates without live IO', () => {
     const snapshot = new ChannelLiveActivationService({
       now: () => new Date('2026-05-04T19:00:00.000Z'),

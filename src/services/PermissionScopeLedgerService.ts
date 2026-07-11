@@ -44,7 +44,7 @@ export type PermissionScopeLedgerSummary = {
 
 export type PermissionScopeLedgerSnapshot = {
   generatedAt: string;
-  phase: '27';
+  gate: 'task-operating-system';
   surface: 'permission-scope-ledger';
   summary: PermissionScopeLedgerSummary;
   entries: PermissionScopeLedgerEntry[];
@@ -61,7 +61,7 @@ export class PermissionScopeLedgerService {
       .map((permission) => this.toEntry(permission));
     return {
       generatedAt: input.generatedAt,
-      phase: '27',
+      gate: 'task-operating-system',
       surface: 'permission-scope-ledger',
       summary: this.summarize(entries),
       entries,

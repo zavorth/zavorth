@@ -13,7 +13,6 @@ import type { DesktopAuditEntry, DesktopTrustSnapshot } from '../global';
 import type { DesktopUpdateStatus } from '../desktop-state/desktopUpdate';
 import type { RuntimeDoctorSnapshot } from '../desktop-state/runtimeDoctor';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 export function DesktopP6Panel(props: {
   section?: 'doctor' | 'updates' | 'trust';

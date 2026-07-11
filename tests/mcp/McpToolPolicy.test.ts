@@ -55,7 +55,7 @@ describe('McpToolPolicy', () => {
     }));
   });
 
-  // ── Phase 5A: Namespace & Legacy Allowlist ──────────────────────────────────
+  // ── Namespace & Legacy Allowlist ──────────────────────────────────
 
   it('approves namespaced tool by exact case-sensitive allowlist entry', () => {
     const policy = new McpToolPolicy({ profile: 'safe', allowlist: ['serverA:Calendar.Query'] });

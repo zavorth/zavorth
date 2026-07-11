@@ -58,6 +58,13 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   const { ZavorthComputerUseTool } = require('../tools/ZavorthComputerUseTool.js');
   const { ZavorthVoiceModeTool } = require('../tools/ZavorthVoiceModeTool.js');
   const { ZavorthSessionSearchTool } = require('../tools/ZavorthSessionSearchTool.js');
+  const { SessionSearchFts5Tool } = require('../tools/SessionSearchFts5Tool.js');
+  const {
+    SessionContinuumService,
+    resolveSessionContinuumStorePath,
+  } = require('../services/SessionContinuumService.js');
+  const { config: runtimeConfig } = require('../config/index.js');
+  const path = require('node:path');
   const { ZavorthChannelSendTool } = require('../tools/ZavorthChannelSendTool.js');
   const { ZavorthDocumentExtractorTool } = require('../tools/ZavorthDocumentExtractorTool.js');
   const { ZavorthTtsTool } = require('../tools/ZavorthTtsTool.js');
@@ -224,11 +231,36 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   toolRegistry.register(new CalendarTool());
   toolRegistry.register(new CodeReviewTool());
   toolRegistry.register(new DatabaseQueryTool());
-  toolRegistry.register(new ZavorthCronSchedulerTool());
+  {
+    const { TaskPlaneService } = require('../services/TaskPlaneService.js');
+    const { bindAutonomySchedulePlane } = require('../services/AutonomySchedulePlane.js');
+    const runtimeDir = runtimeConfig.runtimeDir
+      || path.join(runtimeConfig.projectRoot || process.cwd(), 'data', 'runtime');
+    const taskPlane = new TaskPlaneService({
+      storePath: path.join(runtimeDir, 'task-plane.json'),
+      stateDbPath: runtimeConfig.dbPath || null,
+    });
+    const schedulePlane = bindAutonomySchedulePlane({
+      runtimeDir,
+      taskPlane,
+    });
+    toolRegistry.register(new ZavorthCronSchedulerTool({
+      plane: schedulePlane,
+      taskPlane,
+      runtimeDir,
+    }));
+  }
   toolRegistry.register(new ZavorthDelegateTool());
   toolRegistry.register(new ZavorthComputerUseTool());
   toolRegistry.register(new ZavorthVoiceModeTool());
-  toolRegistry.register(new ZavorthSessionSearchTool());
+  const sessionContinuum = new SessionContinuumService({
+    storePath: resolveSessionContinuumStorePath(
+      runtimeConfig.runtimeDir || path.join(runtimeConfig.projectRoot || process.cwd(), 'runtime'),
+    ),
+    stateDbPath: runtimeConfig.dbPath || null,
+  });
+  toolRegistry.register(new SessionSearchFts5Tool({ continuum: sessionContinuum }));
+  toolRegistry.register(new ZavorthSessionSearchTool({ continuum: sessionContinuum }));
   toolRegistry.register(new ZavorthChannelSendTool());
   toolRegistry.register(new ZavorthDocumentExtractorTool());
   toolRegistry.register(new ZavorthTtsTool());

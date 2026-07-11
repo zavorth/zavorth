@@ -48,7 +48,6 @@ const REQUIRED_QA_ALIASES = [
   'qa:product-experience',
   'qa:flows',
   'qa:product-quality',
-  'qa:phase:39',
 ];
 
 const VISUAL_CONTRACT_PATH = 'tests/cli/ZavorthCliVisualContract.test.ts';
@@ -91,7 +90,7 @@ export class ProductQualityContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '39',
+      gate: 'product-quality',
       surface: 'product-quality-contract',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -105,8 +104,8 @@ export class ProductQualityContractService {
       commandSpecs: PRODUCT_QUALITY_COMMANDS,
       rules: PRODUCT_QUALITY_RULES,
       checks,
-      nextRecommendedPhase: {
-        phase: '41',
+      nextRecommendedGate: {
+        gate: 'deterministic-qa',
         title: 'QA Deterministico',
         reason:
           'Depois de travar a qualidade de produto, o proximo passo da ordem escolhida e transformar os gates em uma matriz deterministica e menos sujeita a flakiness.',
@@ -116,7 +115,7 @@ export class ProductQualityContractService {
 
   public renderReport(snapshot: ProductQualityContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[product-quality] Etapa 39 - Product Quality Contract');
+    lines.push('[product-quality] Product Quality Contract');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`jornada: ${snapshot.officialJourney.join(' -> ')}`);
@@ -130,8 +129,8 @@ export class ProductQualityContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

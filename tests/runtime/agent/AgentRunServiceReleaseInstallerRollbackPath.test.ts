@@ -77,7 +77,7 @@ function releaseBundle() {
     requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
     screenshots: [],
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '52',
       title: 'Feedback, Telemetry Opt-In And Product Loop',
       reason: 'proximo passo',

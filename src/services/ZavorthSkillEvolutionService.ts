@@ -542,7 +542,19 @@ export class ZavorthSkillEvolutionService {
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      throw new Error(`Plano ${plan.id} ainda aguarda approval.`);
+      return {
+        generatedAt: this.now().toISOString(),
+        status: 'blocked',
+        ok: false,
+        summary: `Plano ${plan.id} ainda aguarda approval (silent install blocked).`,
+        details: [
+          'silentInstallBlocked=true',
+          'Nenhum arquivo foi instalado.',
+          'Aprove o MutationPlan e reenvie o apply com approval canonico.',
+        ],
+        record,
+        mutationPlan: plan,
+      };
     }
 
     const targetDir = this.ensureInside(this.targetRoot, record.targetDirPath || path.join(this.targetRoot, record.skillName));

@@ -13,7 +13,7 @@ jest.mock('../../../apps/zavorth-desktop/src/apiClient', () => ({
   loadActiveMandate: jest.fn().mockResolvedValue(null)
 }));
 
-describe('ProductDemoFlow UX Tests (Phase 21O)', () => {
+describe('ProductDemoFlow UX Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn().mockResolvedValue({

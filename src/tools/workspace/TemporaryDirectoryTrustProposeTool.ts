@@ -9,7 +9,7 @@ import { logger } from '../../logger.js';
 /**
  * Agent tool: workspace.temp_dir_trust.propose
  *
- * Proposes a Temporary System Directory Trust (Fase 21E-A).
+ * Proposes a Temporary System Directory Trust (etapa).
  *
  * Scope: OS temp directories only (/tmp, os.tmpdir(), %TEMP%, %TMP%).
  * NEVER authorizes command.run, shell:true, PTY, or Host Power Mode.

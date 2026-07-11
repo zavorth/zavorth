@@ -12,7 +12,7 @@ function createService() {
 }
 
 describe('CapabilityAutopilotReleaseDecisionService', () => {
-  it('ships v1.1 behind a feature flag when every required phase passed with medium risk', () => {
+  it('ships v1.1 behind a feature flag when every required gate passed with medium risk', () => {
     const service = createService();
 
     const snapshot = service.buildDecision({
@@ -29,29 +29,36 @@ describe('CapabilityAutopilotReleaseDecisionService', () => {
         defaultEnabled: false,
       },
       metadata: {
-        stage: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         baseline: 'v1.0.0',
       },
     });
-    expect(snapshot.passedPhases).toEqual(['60', '61', '62', '63', '64', '65']);
-    expect(snapshot.missingPhases).toEqual([]);
-    expect(snapshot.failedPhases).toEqual([]);
+    expect(snapshot.passedCheckpoints).toEqual([
+      'capability-autopilot-preflight-diagnosis',
+      'capability-autopilot-repair-runner',
+      'capability-autopilot-validation-resume',
+      'capability-autopilot-cross-surface-ux',
+      'capability-autopilot-memory-replay',
+      'capability-autopilot-provider-expansion',
+    ]);
+    expect(snapshot.missingCheckpoints).toEqual([]);
+    expect(snapshot.failedCheckpoints).toEqual([]);
     expect(snapshot.guardrails).toEqual(expect.arrayContaining([
       'Fallback requires explicit user selection and permission when sensitive.',
       'Memory/replay stores hashes and redacted lessons, not raw intent or workspace.',
     ]));
   });
 
-  it('requires more evidence when a phase gate is missing', () => {
+  it('requires more evidence when a gate is missing', () => {
     const service = createService();
-    const evidence = service.defaultEvidence().filter((entry) => entry.phase !== '64');
+    const evidence = service.defaultEvidence().filter((entry) => entry.id !== 'capability-autopilot-memory-replay');
 
     const snapshot = service.buildDecision({ evidence });
 
     expect(snapshot).toMatchObject({
       decision: 'needs_more_evidence',
       releaseChannel: 'backlog',
-      missingPhases: ['64'],
+      missingCheckpoints: ['capability-autopilot-memory-replay'],
       featureFlag: {
         defaultEnabled: false,
       },
@@ -62,7 +69,7 @@ describe('CapabilityAutopilotReleaseDecisionService', () => {
   it('holds the feature in backlog when a required gate failed', () => {
     const service = createService();
     const evidence: CapabilityAutopilotReleaseGateEvidence[] = service.defaultEvidence().map((entry) =>
-      entry.phase === '65'
+      entry.id === 'capability-autopilot-provider-expansion'
         ? { ...entry, passed: false, summary: 'Provider expansion gate failed.', risk: 'high' }
         : entry,
     );
@@ -73,7 +80,7 @@ describe('CapabilityAutopilotReleaseDecisionService', () => {
       decision: 'hold_backlog',
       riskPosture: 'high',
       releaseChannel: 'backlog',
-      failedPhases: ['65'],
+      failedCheckpoints: ['capability-autopilot-provider-expansion'],
       featureFlag: {
         defaultEnabled: false,
       },

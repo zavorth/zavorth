@@ -51,7 +51,7 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   {
     name: 'memory',
     description: 'Semantic memory, graph memory, and session search.',
-    toolNames: ['semantic_memory', 'memory_graph', 'session_search'],
+    toolNames: ['semantic_memory', 'memory_graph', 'session_search', 'session_search_fts5', 'zavorth_session_search', 'sessions.search'],
     intentHints: ['memory'],
   },
   {

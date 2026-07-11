@@ -3,7 +3,6 @@ import { WorkspaceRuntimeReadinessCard, WorkspaceRuntimeReadiness } from '../com
 import { WorkspacePolicyPreview, WorkspacePolicyPreviewData } from '../components/WorkspacePolicyPreview';
 import { ActionHint } from '../components/ProductPolishComponents.js';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 export interface AgentWorkspaceConfig {
   workspaceId: string;

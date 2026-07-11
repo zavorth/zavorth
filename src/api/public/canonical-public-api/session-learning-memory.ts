@@ -105,14 +105,15 @@ export function readLearningCandidates(
   };
 }
 
-export function executeLearningAction(
+export async function executeLearningAction(
   runtime: CanonicalPublicApiRuntime,
   support: CanonicalPublicApiSharedSupport,
   input: {
     candidateId?: string | null;
     actionId?: string | null;
+    approvalId?: string | null;
   },
-): LearningActionResultDTO {
+): Promise<LearningActionResultDTO> {
   const learningPlane = runtime.getLearningPlane();
   if (!learningPlane || typeof learningPlane.executeAction !== 'function') {
     throw new Error('Learning plane is unavailable.');
@@ -126,9 +127,10 @@ export function executeLearningAction(
     throw new Error('Invalid actionId for learning plane.');
   }
 
-  const execution = learningPlane.executeAction({
+  const execution = await learningPlane.executeAction({
     candidateId,
     actionId,
+    approvalId: support.normalizeValue(input.approvalId) || null,
   });
   return {
     generatedAt: execution.generatedAt,

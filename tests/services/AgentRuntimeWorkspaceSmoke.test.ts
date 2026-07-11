@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../src/utils/errorLike';
 /**
- * Fase 21K-A — Agent Runtime Workspace Smoke Tests
+ * Agent Runtime Workspace Smoke Tests
  *
  * Validates the full integration path:
  *   AgentWorkspaceConfigService → ProviderRuntimeRouter → capability enforcement
@@ -36,7 +36,7 @@ jest.mock('../../src/services/ProviderConfigService', () => ({
 const SMOKE_MARKER = 'sk-zavorth-e2e-runtime-smoke-DO-NOT-LEAK-21K-A';
 const WS_ID = 'test-workspace-21k-a';
 
-describe('AgentRuntimeWorkspaceSmoke — Fase 21K-A', () => {
+describe('AgentRuntimeWorkspaceSmoke', () => {
   let mockSelectProvider: jest.Mock;
 
   beforeEach(() => {

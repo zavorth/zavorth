@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'capability-normalization-files',
-    label: 'Capability Normalization phase files exist',
+    label: 'Capability Normalization gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/CapabilityNormalizationContract.ts',

@@ -265,10 +265,10 @@ export class UniversalSkillScaleHardeningService {
     return [
       gate({
         id: 'zavorthControl-controls-onboarding',
-        label: 'Etapa 8 como autoridade',
+        label: 'Onboarding como autoridade',
         status: input.onboarding.status === 'blocked' ? 'blocked' : input.onboarding.status,
         observed: input.onboarding.status,
-        target: 'Etapa 8 nao pode estar blocked',
+        target: 'Onboarding nao pode estar blocked',
         summary: `Onboarding real retornou ${input.onboarding.status}.`,
       }),
       gate({
@@ -321,7 +321,7 @@ export class UniversalSkillScaleHardeningService {
         status: 'passed',
         observed: true,
         target: 'nenhuma mudanca de layout/CSS nesta etapa',
-        summary: 'Etapa 9 produz contrato e evidencia, nao altera layout do ZavorthControl.',
+        summary: 'Scale hardening produz contrato e evidencia, nao altera layout do ZavorthControl.',
       }),
       gate({
         id: 'no-execution',
@@ -409,7 +409,7 @@ export class UniversalSkillScaleHardeningService {
         recommendedMode: 'hold',
         nextActions: [
           'Resolver gates blocked antes de qualquer apply em escala.',
-          'Rodar novamente a Etapa 9 em preview para atualizar batches e ZavorthControl review.',
+          'Rodar novamente scale hardening em preview para atualizar batches e ZavorthControl review.',
         ],
       };
     }

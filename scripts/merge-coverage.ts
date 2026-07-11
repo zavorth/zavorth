@@ -2,7 +2,7 @@
 /**
  * scripts/merge-coverage.ts
  *
- * Fase 4: Unified Code Coverage Report
+ * Unified Code Coverage Report
  *
  * Este script lê o relatório de cobertura JSON gerado pelo Jest em
  * `coverage/jest/coverage-final.json`, processa os dados usando
@@ -88,7 +88,7 @@ interface CoverageSummary {
 async function main(): Promise<void> {
   if (!JSON_FLAG) {
     console.log(`\n${c.bold}${c.cyan}╔═══════════════════════════════════════════════════╗${c.reset}`);
-    console.log(`${c.bold}${c.cyan}║  Zavorth · Unified Code Coverage Report (Fase 4)  ║${c.reset}`);
+    console.log(`${c.bold}${c.cyan}║  Zavorth · Unified Code Coverage Report  ║${c.reset}`);
     console.log(`${c.bold}${c.cyan}╚═══════════════════════════════════════════════════╝${c.reset}\n`);
   }
 

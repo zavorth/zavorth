@@ -465,7 +465,7 @@ export class ZavorthExternalCapabilityInventoryService {
       contractVersion: ZAVORTH_EXTERNAL_CAPABILITY_INVENTORY_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'checkpoint-0-freeze-and-inventory',
+      gate: 'external-capability-inventory',
       bridgeContractVersion: ZAVORTH_EXTERNAL_RUNTIME_BRIDGE_CONTRACT_VERSION,
       bridgeStatus: input.bridgeStatus || this.defaultBridgeStatus,
       sourceProbes,

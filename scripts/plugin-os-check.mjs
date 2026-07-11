@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'plugin-os-files',
-    label: 'Plugin OS phase files exist',
+    label: 'Plugin OS gate files exist',
     target: 'Contract, sandbox, registry, tests, docs and package scripts are present',
     files: [
       'src/contracts/PluginManifestContract.ts',

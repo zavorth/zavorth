@@ -30,7 +30,7 @@ type MemoryArtifactsRuntimeLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Intent model2 - Memory, Artifacts And Runtime Executor Live Closure' as const;
+const PHASE = 'memory-artifacts-runtime-live-closure' as const;
 
 const TARGETS: MemoryArtifactsRuntimeLiveDescriptor[] = [
   target('memory-core', 'memory-live', ['memory.active'], 'file-backed-memory-ledger', ['memory-remember', 'memory-recall', 'memory-cite', 'memory-forget'], [], ['ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_DIR']),
@@ -70,7 +70,7 @@ export class MemoryArtifactsRuntimeLiveClosureService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_MEMORY_ARTIFACTS_RUNTIME_LIVE_CLOSURE_CONTRACT_VERSION,
-      phase: PHASE,
+      gate: PHASE,
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 11,

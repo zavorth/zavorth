@@ -68,7 +68,7 @@ export class ZavorthLiveCanaryControlledExecutorService {
       generatedAt,
       contractVersion: ZAVORTH_LIVE_CANARY_CONTROLLED_EXECUTOR_CONTRACT_VERSION,
       source: 'ZavorthLiveCanaryControlledExecutorService',
-      phase: 'checkpoint-10-live-canary-controlled-executor',
+      gate: 'live-canary-controlled-executor',
       status,
       mode,
       applyGate,

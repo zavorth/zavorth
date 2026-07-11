@@ -72,7 +72,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
   releaseTrain: {
     linked: boolean;
     status: ReleaseTrainSnapshot['status'] | 'unknown';
-    phase: ReleaseTrainSnapshot['phase'] | null;
+    gate: ReleaseTrainSnapshot['gate'] | null;
     baselineVersion: string | null;
     packageVersion: string | null;
     policyCount: number;
@@ -85,7 +85,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
   publicAdoption: {
     linked: boolean;
     status: PublicAdoptionReadinessSnapshot['status'] | 'unknown';
-    phase: PublicAdoptionReadinessSnapshot['phase'] | null;
+    gate: PublicAdoptionReadinessSnapshot['gate'] | null;
     readinessScore: number;
     claimCount: number;
     riskCount: number;
@@ -140,7 +140,7 @@ export type ReleaseAdoptionReadinessSnapshot = {
     publicAdoptionCommand: 'npm run qa:public-adoption';
     pilotLoopCommand: 'npm run qa:pilot-loop';
     feedbackPreviewCommand: 'npm run feedback:preview';
-    phaseGateCommand: 'npm run qa:phase:59';
+    gateCommand: 'npm run qa:release-train';
   };
   nextSafeAction: string;
 };
@@ -315,7 +315,7 @@ export class ReleaseAdoptionReadinessService {
       releaseTrain: {
         linked: Boolean(releaseTrain),
         status: releaseTrain?.status || 'unknown',
-        phase: releaseTrain?.phase || null,
+        gate: releaseTrain?.gate || null,
         baselineVersion: normalizeText(releaseTrain?.baseline?.version) || null,
         packageVersion: normalizeText(releaseTrain?.baseline?.packageVersion) || null,
         policyCount: releasePolicies.length,
@@ -328,7 +328,7 @@ export class ReleaseAdoptionReadinessService {
       publicAdoption: {
         linked: Boolean(publicAdoption),
         status: publicAdoption?.status || 'unknown',
-        phase: publicAdoption?.phase || null,
+        gate: publicAdoption?.gate || null,
         readinessScore: numberOrZero(adoptionSummary?.readinessScore),
         claimCount: adoptionClaims.length,
         riskCount: adoptionRisks.length,
@@ -397,7 +397,7 @@ export class ReleaseAdoptionReadinessService {
         publicAdoptionCommand: 'npm run qa:public-adoption',
         pilotLoopCommand: 'npm run qa:pilot-loop',
         feedbackPreviewCommand: 'npm run feedback:preview',
-        phaseGateCommand: 'npm run qa:phase:59',
+        gateCommand: 'npm run qa:release-train',
       },
       nextSafeAction: this.resolveNextSafeAction(status),
     };
@@ -526,7 +526,7 @@ export class ReleaseAdoptionReadinessService {
         label: 'LTS e hotfix policy',
         status: gateStatus(input.ltsHotfixPolicyReady, input.releaseLinked),
         source: 'ReleaseTrainService',
-        command: 'npm run qa:phase:59',
+        command: 'npm run qa:release-train',
         detail: input.ltsHotfixPolicyReady
           ? 'Patch, minor, breaking, calendario e hotfix playbook estao definidos.'
           : 'Release train precisa politica LTS/hotfix antes de publicacao forte.',

@@ -65,7 +65,7 @@ export class PublicAdoptionReadinessService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '53',
+      gate: 'public-adoption-readiness',
       surface: 'public-adoption-readiness',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -91,8 +91,8 @@ export class PublicAdoptionReadinessService {
       risks: PUBLIC_ADOPTION_RISKS,
       demoRunbook: PUBLIC_ADOPTION_DEMO_RUNBOOK,
       checks,
-      nextRecommendedPhase: {
-        phase: '54',
+      nextRecommendedGate: {
+        gate: 'hosted-site-operations',
         title: 'Hosted Website And Demo Operations',
         reason:
           'Com a prontidao publica pos-v1.0.0 protegida por scorecard, claims, riscos e runbook, o proximo passo e fechar preview, deploy e rollback do site/demo.',
@@ -123,8 +123,8 @@ export class PublicAdoptionReadinessService {
       lines.push(`- ${step.minute} ${step.route}: ${step.label}`);
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -281,7 +281,7 @@ export class PublicAdoptionReadinessService {
   private checkNextPhasePlanning(): PublicAdoptionReadinessCheck {
     const content = this.readCoreText('docs/product-direction.md') || '';
     const hasPhase = content.includes('Readiness checkpoint 4 - Hosted Website And Demo Operations');
-    const hasGate = content.includes('qa:phase:54');
+    const hasGate = content.includes('qa:hosted-site-operations');
     const ok = hasPhase && hasGate;
     return this.check(
       'public-adoption:next-phase',

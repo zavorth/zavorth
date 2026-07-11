@@ -59,7 +59,7 @@ export type NativeCapabilityClosureSnapshot = {
     check: string;
     capabilityNormalization: string;
     certify: string;
-    nextStage: 'Etapa 13 - Remaining Runtime Decisions';
+    nextStage: 'Remaining Runtime Decisions';
   };
   policy: {
     closureIsContractDeclarationOnly: true;

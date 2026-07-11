@@ -1,6 +1,6 @@
 import { ZavorthCli } from '../../src/cli/ZavorthCli';
 
-describe('PreTesterCliComprehension — Fase 21R-A', () => {
+describe('PreTesterCliComprehension', () => {
   it('deve validar descobrabilidade do help e status na CLI e acoes acionaveis', async () => {
     const writes: string[] = [];
     const errors: string[] = [];

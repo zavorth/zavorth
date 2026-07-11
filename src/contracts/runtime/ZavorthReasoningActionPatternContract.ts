@@ -108,7 +108,7 @@ export type ZavorthReasoningActionPatternSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION;
   source: 'ZavorthReasoningActionPatternService';
-  phase: 'checkpoint-2-reasoning-action-patterns';
+  gate: 'reasoning-action-patterns';
   status: ZavorthReasoningActionPatternStatus;
   request: {
     surface: string;

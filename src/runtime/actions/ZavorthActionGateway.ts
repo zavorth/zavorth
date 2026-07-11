@@ -11,14 +11,25 @@ import {
   type ZavorthActionReceipt,
 } from './ZavorthActionContracts.js';
 import { ZavorthActionCatalog } from './ZavorthActionCatalog.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromActionResult,
+  decisionFromBroker,
+  requestFromActionGatewayInput,
+  resultFromActionResult,
+  type OperatorContinuityEnvelope,
+} from '../operator/OperatorContinuityEnvelope.js';
+import { decideSecurityPolicy } from '../../security/SecurityPolicyBroker.js';
 
 import type { GoalLoopLlmRuntime } from '../../services/GoalLoopService.js';
-import type { GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';type Runtime = {
+import type { GoalLoopAgentRunner } from '../../services/GoalLoopWorkerService.js';
+type Runtime = {
   root?: string;
   catalog?: ZavorthActionCatalog;
   llmRuntime?: GoalLoopLlmRuntime | null;
   goalLoopAgentRunner?: GoalLoopAgentRunner | null;
   mutationPlane?: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan'> | null;
+  continuityKernel?: OperatorContinuityKernel;
   now?: () => Date;
 };
 
@@ -71,7 +82,9 @@ export class ZavorthActionGateway {
   private readonly root: string;
   private readonly catalog: ZavorthActionCatalog;
   private readonly mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan' | 'readPlan'> | null;
+  private readonly continuityKernel: OperatorContinuityKernel;
   private readonly now: () => Date;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
   constructor(runtime: Runtime = {}) {
     this.root = path.resolve(runtime.root || config.projectRoot || process.cwd());
@@ -85,6 +98,7 @@ export class ZavorthActionGateway {
       : runtime.mutationPlane || new ZavorthMutationPlaneService({
         plansDir: path.join(stateDir(this.root), 'mutation-plans'),
       });
+    this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel({ now: runtime.now });
     this.now = runtime.now || (() => new Date());
   }
 
@@ -96,6 +110,10 @@ export class ZavorthActionGateway {
     return this.catalog.lookup(input);
   }
 
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
+  }
+
   public async run(input: ZavorthActionGatewayInput): Promise<ZavorthActionResult> {
     if (input.operation === 'action.schema.lookup') {
       return this.lookupResult(input);
@@ -104,16 +122,84 @@ export class ZavorthActionGateway {
       return this.receiptsResult(input);
     }
 
+    let continuity = this.continuityKernel.begin({
+      correlation: {
+        actionId: input.actionId || null,
+      },
+    });
+    continuity = this.continuityKernel.recordRequest(
+      continuity,
+      requestFromActionGatewayInput(input),
+    );
+
     const action = this.resolveAction(input);
     if (!action) {
-      return this.notFound(input.operation, input.actionId || input.query || '');
+      const missing = this.notFound(input.operation, input.actionId || input.query || '');
+      return this.sealActionContinuity(continuity, missing);
     }
 
+    continuity = this.continuityKernel.correlate(continuity, {
+      actionId: action.id,
+    });
+
+    let brokerReceiptId: string | undefined;
     if (input.operation === 'action.apply') {
+      const brokerDecision = decideSecurityPolicy({
+        surface: 'tool',
+        operation: 'action.apply',
+        target: action.id,
+        workspace: this.root,
+        sourceTrust: 'trusted-user',
+        metadata: {
+          sourceSurface: input.sourceSurface || 'action-gateway',
+          actorId: input.actorId || null,
+          requiresApproval: action.requiresApproval,
+          mutationRisk: action.mutationRisk || action.risk,
+          trustedOperatorConfirmation: input.trustedOperatorConfirmation === true,
+        },
+        toolDecision: {
+          action: 'allow',
+          allowed: true,
+          risk: 'safe',
+          toolName: action.id,
+          surface: 'native-tool',
+          capabilities: ['audit'],
+          requiresConfirmation: false,
+          reasons: [
+            'Action apply is governed by ActionGateway approval and mutation plane; broker records continuity receipt.',
+          ],
+          rule: 'ACTION_GATEWAY_CONTINUITY',
+        },
+        reasons: [
+          'Action apply was recorded by the operator continuity kernel through the central policy broker.',
+        ],
+      });
+      brokerReceiptId = brokerDecision.receipt.receiptId;
+      continuity = this.continuityKernel.attachDecision(
+        continuity,
+        decisionFromBroker(brokerDecision, {
+          requiresApproval: action.requiresApproval
+            && !input.trustedOperatorConfirmation
+            && !String(input.approvalId || '').trim(),
+        }),
+      );
+
       const approvalCheck = await this.checkApplyPermission(action, input);
       if (approvalCheck) {
-        return approvalCheck;
+        return this.sealActionContinuity(
+          continuity,
+          approvalCheck,
+          brokerReceiptId,
+        );
       }
+    } else {
+      continuity = this.continuityKernel.attachDecision(continuity, {
+        source: 'action-gateway',
+        action: input.operation,
+        allowed: true,
+        rule: `action-gateway:${input.operation}`,
+        reasons: [`Action ${action.id} ${input.operation} is available.`],
+      });
     }
 
     const result = await action.handler({
@@ -128,10 +214,61 @@ export class ZavorthActionGateway {
     });
 
     if (result.receipt || input.operation === 'action.apply') {
-      await this.recordReceipt(result.receipt || this.buildReceipt(action, input, result));
+      const receipt = result.receipt || this.buildReceipt(action, input, result);
+      await this.recordReceipt(receipt);
+      result.receipt = receipt;
     }
 
-    return result;
+    return this.sealActionContinuity(continuity, result, brokerReceiptId);
+  }
+
+  private sealActionContinuity(
+    envelope: OperatorContinuityEnvelope,
+    result: ZavorthActionResult,
+    preferredReceiptId?: string,
+  ): ZavorthActionResult {
+    let continuity = envelope;
+    if (!continuity.decision) {
+      continuity = this.continuityKernel.attachDecision(
+        continuity,
+        decisionFromActionResult(result),
+      );
+    } else if (result.status === 'approval_required' || result.status === 'blocked') {
+      continuity = this.continuityKernel.attachDecision(
+        continuity,
+        {
+          ...decisionFromActionResult(result),
+          brokerReceipt: continuity.decision.brokerReceipt || null,
+        },
+      );
+    }
+
+    const mappedResult = resultFromActionResult(result);
+    continuity = this.continuityKernel.attachResult(continuity, mappedResult);
+    if (result.receipt?.id) {
+      continuity = this.continuityKernel.correlate(continuity, {
+        actionReceiptId: result.receipt.id,
+        mutationPlanId: typeof result.data?.mutationPlanId === 'string'
+          ? result.data.mutationPlanId
+          : continuity.ids.correlation?.mutationPlanId || null,
+      });
+    }
+    continuity = this.continuityKernel.finalizeReceipt(continuity, {
+      receiptId: preferredReceiptId
+        || result.receipt?.id
+        || continuity.decision?.brokerReceipt?.receiptId
+        || undefined,
+    });
+    this.lastContinuityEnvelope = continuity;
+
+    const publicView = this.continuityKernel.toPublicView(continuity);
+    return {
+      ...result,
+      data: {
+        ...(result.data || {}),
+        operatorContinuity: publicView,
+      },
+    };
   }
 
   public async status(actionId: string, args: Record<string, unknown> = {}): Promise<ZavorthActionResult> {

@@ -5,6 +5,7 @@ import { KaelOverlayApp } from './kael-overlay/KaelOverlayApp';
 import './styles.css';
 import './styles/design-system.css';
 import './styles/right-rail.css';
+import './styles/premium-shell.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

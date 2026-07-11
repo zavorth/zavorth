@@ -97,7 +97,7 @@ export class ZavorthExternalSidecarAdapterService {
       contractVersion: ZAVORTH_EXTERNAL_SIDECAR_ADAPTER_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'sidecar-adapter',
+      gate: 'sidecar-adapter',
       previousNativeEngineStatus,
       readOnlyProbe,
       inboundGatewayReceipt,

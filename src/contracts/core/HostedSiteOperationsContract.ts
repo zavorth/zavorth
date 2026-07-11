@@ -43,7 +43,7 @@ export type HostedSiteRunbookStep = {
 };
 
 export type HostedSiteOperationsSnapshot = {
-  phase: '54';
+  gate: 'hosted-site-operations';
   surface: 'hosted-site-operations';
   generatedAt: string;
   projectRoot: string;
@@ -65,8 +65,8 @@ export type HostedSiteOperationsSnapshot = {
   rollbackRunbook: HostedSiteRunbookStep[];
   screenshots: HostedSiteScreenshotSpec[];
   checks: HostedSiteOperationsCheck[];
-  nextRecommendedPhase: {
-    phase: '55';
+  nextRecommendedGate: {
+    gate: 'distribution-hardening';
     title: string;
     reason: string;
   };
@@ -80,7 +80,7 @@ export const HOSTED_SITE_REQUIRED_CORE_SCRIPTS = [
   'qa:public-demo',
   'hosted-site',
   'qa:hosted-site',
-  'qa:phase:54',
+  'qa:hosted-site-operations',
 ] as const;
 
 export const HOSTED_SITE_REQUIRED_WEBSITE_SCRIPTS = [

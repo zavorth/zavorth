@@ -263,7 +263,7 @@ describe('CapabilityAutopilotFallbackResumeRunService', () => {
       dryRun: true,
       summary: "Retomada via 'Tentar ExternalExecutor' validada em dry-run.",
       metadata: {
-        stage: 'capability-autopilot-checkpoint-66',
+        stage: 'capability-autopilot-fallback-handoff',
         autoFallbackExecuted: false,
         fallbackId: 'fallback-external-executor',
         executorName: 'external_executor',

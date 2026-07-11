@@ -98,7 +98,7 @@ export type ZavorthReleaseCostPanel = {
 
 export type ZavorthReleasePresenceSnapshot = {
   generatedAt: string;
-  phase: '31';
+  gate: 'release-presence-control-plane';
   surface: 'release-presence-control-plane';
   mode: ZavorthReleasePresenceMode;
   status: ZavorthReleasePresenceStatus;
@@ -290,7 +290,7 @@ export class ZavorthReleasePresenceControlPlaneService {
 
     return {
       generatedAt,
-      phase: '31',
+      gate: 'release-presence-control-plane',
       surface: 'release-presence-control-plane',
       mode: input.mode,
       status,

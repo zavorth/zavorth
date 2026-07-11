@@ -34,6 +34,14 @@ export async function runSkills(root: string, args: string[]) {
   if (action === 'curator' || action === 'curate') {
     return runSkillsCurator(args);
   }
+  if (
+    action === 'evolve'
+    || action === 'promote'
+    || action === 'promotion'
+    || action === 'reject'
+  ) {
+    return runSkillsPromotion(root, args);
+  }
   if (action === 'quarantine') {
     const { SkillQuarantinePipelineService } = await import('../../services/SkillQuarantinePipelineService.js');
     const service = new SkillQuarantinePipelineService({ projectRoot: root });
@@ -186,6 +194,166 @@ export async function runSkillsGovernance(root: string, args: string[]) {
     actionId: applied.actionId,
     ...(applied.data || {}),
     envKey: 'ZAVORTH_SKILLS_GOVERNANCE_MODE',
+  });
+}
+
+export async function runSkillsPromotion(root: string, args: string[]) {
+  const { SkillPromotionGate } = await import('../../services/SkillPromotionGate.js');
+  const gate = new SkillPromotionGate({
+    evolutionService: undefined,
+    registryService: undefined,
+  });
+  const top = firstArg(args, 'evolve');
+  const subcommand = top === 'promote' || top === 'promotion' || top === 'reject'
+    ? top
+    : String(args[1] || 'list').trim().toLowerCase();
+  const candidateId = String(
+    args[2]
+    || readFlag(args, 'candidate')
+    || readFlag(args, 'id')
+    || (top === 'promote' || top === 'promotion' || top === 'reject' ? args[1] : '')
+    || '',
+  ).trim();
+  const approvalId = readFlag(args, 'approval-id') || readFlag(args, 'approval') || '';
+  const reason = readFlag(args, 'reason') || 'Rejected by operator via CLI.';
+  const requestedBy = readFlag(args, 'requested-by') || 'operator';
+
+  if (subcommand === 'list' || subcommand === 'status') {
+    const records = gate.listCandidates({ limit: readNumberFlag(args, 'limit') || 30 });
+    return render(args, 'Zavorth skills evolve', records.length
+      ? records.map((record) => `- ${record.id} | ${record.status} | ${record.skillName} | plan=${record.mutationPlanId || 'none'}`)
+      : ['No skill evolution candidates in registry.'], {
+      records,
+      silentInstallBlocked: true,
+      commands: [
+        'zavorth skills evolve preview <candidateId>',
+        'zavorth skills evolve reject <candidateId> --reason "..."',
+        'zavorth skills evolve promote <candidateId> --approval-id <id>',
+        'zavorth skills evolve rollback <candidateId>',
+      ],
+    });
+  }
+
+  if (subcommand === 'preview') {
+    if (!candidateId) {
+      return render(args, 'Zavorth skills evolve', [
+        'Missing candidate id.',
+        'Usage: zavorth skills evolve preview <candidateId>',
+      ], { ok: false });
+    }
+    const result = await gate.preview(candidateId, {
+      requestedBy,
+      sourceSurface: 'cli:skills-evolve',
+      retest: args.includes('--retest'),
+    });
+    return render(args, 'Zavorth skills evolve preview', [
+      `Status: ${result.status}`,
+      `Candidate: ${result.candidateId || candidateId}`,
+      result.summary,
+      ...result.details.slice(0, 8),
+      `silentInstallBlocked: ${String(result.silentInstallBlocked)}`,
+      result.continuity.receipt ? `Receipt: ${result.continuity.receipt.receiptId}` : 'Receipt: none',
+    ], result as unknown as JsonObject);
+  }
+
+  if (subcommand === 'reject') {
+    if (!candidateId) {
+      return render(args, 'Zavorth skills evolve', [
+        'Missing candidate id.',
+        'Usage: zavorth skills evolve reject <candidateId> --reason "..."',
+      ], { ok: false });
+    }
+    const result = gate.reject(candidateId, reason, {
+      requestedBy,
+      sourceSurface: 'cli:skills-evolve',
+    });
+    return render(args, 'Zavorth skills evolve reject', [
+      `Status: ${result.status}`,
+      result.summary,
+      ...result.details.slice(0, 6),
+      result.continuity.receipt ? `Receipt: ${result.continuity.receipt.receiptId}` : 'Receipt: none',
+    ], result as unknown as JsonObject);
+  }
+
+  if (
+    subcommand === 'promote'
+    || subcommand === 'promotion'
+    || subcommand === 'apply'
+    || subcommand === 'install'
+  ) {
+    if (!candidateId) {
+      return render(args, 'Zavorth skills evolve', [
+        'Missing candidate id.',
+        'Usage: zavorth skills evolve promote <candidateId> --approval-id <id>',
+      ], { ok: false });
+    }
+    const result = await gate.apply({
+      candidateId,
+      approvalId: approvalId || null,
+      requestedBy,
+      sourceSurface: 'cli:skills-evolve',
+    });
+    return render(args, 'Zavorth skills evolve promote', [
+      `Status: ${result.status}`,
+      result.summary,
+      ...result.details.slice(0, 8),
+      `Installed: ${result.installed ? 'yes' : 'no'}`,
+      `silentInstallBlocked: ${String(result.silentInstallBlocked)}`,
+      result.continuity.receipt ? `Receipt: ${result.continuity.receipt.receiptId}` : 'Receipt: none',
+    ], result as unknown as JsonObject);
+  }
+
+  if (subcommand === 'rollback') {
+    if (!candidateId) {
+      return render(args, 'Zavorth skills evolve', [
+        'Missing candidate id.',
+        'Usage: zavorth skills evolve rollback <candidateId>',
+      ], { ok: false });
+    }
+    const result = gate.rollback({
+      candidateId,
+      requestedBy,
+      sourceSurface: 'cli:skills-evolve',
+    });
+    return render(args, 'Zavorth skills evolve rollback', [
+      `Status: ${result.status}`,
+      result.summary,
+      ...result.details.slice(0, 6),
+      result.continuity.receipt ? `Receipt: ${result.continuity.receipt.receiptId}` : 'Receipt: none',
+    ], result as unknown as JsonObject);
+  }
+
+  if (subcommand === 'materialize') {
+    const intent = readFlag(args, 'intent') || args.slice(2).join(' ').trim();
+    if (!intent) {
+      return render(args, 'Zavorth skills evolve', [
+        'Missing intent.',
+        'Usage: zavorth skills evolve materialize --intent "<pedido>"',
+      ], { ok: false });
+    }
+    const result = gate.materializeCandidate({
+      intentText: intent,
+      requestedBy,
+      sourceSurface: 'cli:skills-evolve',
+      candidateKind: readFlag(args, 'kind') || 'auto-skill',
+    });
+    return render(args, 'Zavorth skills evolve materialize', [
+      `Status: ${result.status}`,
+      `Candidate: ${result.candidateId || 'none'}`,
+      result.summary,
+      ...result.details.slice(0, 6),
+    ], result as unknown as JsonObject);
+  }
+
+  return render(args, 'Zavorth skills evolve', [
+    `Unsupported evolve command: ${subcommand}`,
+    'Allowed: list, preview, reject, promote, apply, rollback, materialize',
+    'Install always requires --approval-id (silent install blocked).',
+  ], {
+    ok: false,
+    subcommand,
+    root,
+    silentInstallBlocked: true,
   });
 }
 

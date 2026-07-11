@@ -114,11 +114,11 @@ import {
   $gatewayResilience, setGatewayResilience,
   $runtimeCapabilities, setRuntimeCapabilities,
 } from './store';
-import { asErrorLike } from '../../../src/utils/errorLike.js';
 
 import { parseSlashCommand, slashCommands } from './slashCommands';
 import { workspaceScopeForMetadata, type DesktopWorkspaceScope } from './workspaceScopes';
 import { createLogger } from './logger.js';
+import { shouldClearComposerAfterSend } from './composer/composerDrafts';
 
 const logger = createLogger('shell');
 
@@ -127,7 +127,12 @@ import {
   persistSubagents,
   createSubagent,
   appendSubagentTask,
+  queueSubagentTask,
+  startQueuedSubagentTask,
+  blockSubagentTask,
+  waitForSubagentIdle,
   completeSubagentTask,
+  failSubagentTask,
   deleteSubagent,
   type ActiveSubagent,
 } from './desktop-state/subagents';
@@ -200,6 +205,10 @@ export function useDesktopAppState() {
   const sessionId = useStore($sessionId);
   const responseProfile = responseProfileByExperience[experienceProfile] || 'short';
   const allProfiles = useMemo(() => mergeProfiles(customProfiles), [customProfiles]);
+  const activeAgentProfile = useMemo(
+    () => allProfiles.find(profile => profile.id === experienceProfile) || allProfiles[0],
+    [allProfiles, experienceProfile],
+  );
 
   const connectedModelOptions = useMemo(() => {
     if (runtimeCapabilities) {
@@ -671,33 +680,35 @@ export function useDesktopAppState() {
     }
   }
 
-  async function sendMessage(rawText = input) {
+  async function sendMessage(rawText = input): Promise<{ ok: boolean; assistantText?: string }> {
     const text = rawText.trim();
-    if (!text || busy) {
-      return;
+    if (!text || $busy.get()) {
+      return { ok: false };
     }
 
     const parsed = parseSlashCommand(text);
-    setComposerInput('');
+    if (shouldClearComposerAfterSend(rawText, input)) {
+      setComposerInput('');
+    }
     setNotice('');
 
     if (parsed.kind === 'help') {
       appendLocalMessage(setMessages, 'system', slashCommands.map(command => `${command.usage} - ${command.description}`).join('\n'));
-      return;
+      return { ok: true };
     }
     if (parsed.kind === 'panel') {
       setActivePanel(parsed.panel);
-      return;
+      return { ok: true };
     }
     if (parsed.kind === 'set-effort') {
       setEffort(parsed.effort);
       appendLocalMessage(setMessages, 'system', `Effort set to ${parsed.effort}.`);
-      return;
+      return { ok: true };
     }
     if (parsed.kind === 'set-profile') {
       setExperienceProfile(parsed.profile);
       appendLocalMessage(setMessages, 'system', `Profile set to ${parsed.profile}.`);
-      return;
+      return { ok: true };
     }
     if (parsed.kind === 'stop') {
       setBusy(true);
@@ -716,6 +727,13 @@ export function useDesktopAppState() {
           model: selectedModel,
           connectedModelIds: connectedModelOptions.map(model => model.id),
           profile: experienceProfile,
+          profileConfig: {
+            id: activeAgentProfile.id,
+            name: activeAgentProfile.name,
+            systemPrompt: activeAgentProfile.systemPrompt,
+            effort: activeAgentProfile.effort,
+            costLimit: activeAgentProfile.costLimit,
+          },
           workspace: workspaceScopeForMetadata(activeWorkspaceScope),
         });
         const projectedSnapshot = result.snapshot || snapshot;
@@ -726,7 +744,7 @@ export function useDesktopAppState() {
         setBusy(false);
         void refreshPanels();
       }
-      return;
+      return { ok: true };
     }
 
     const outbound = parsed.kind === 'send' ? parsed.text : parsed.text;
@@ -741,6 +759,13 @@ export function useDesktopAppState() {
         model: selectedModel,
         connectedModelIds: connectedModelOptions.map(model => model.id),
         profile: experienceProfile,
+        profileConfig: {
+          id: activeAgentProfile.id,
+          name: activeAgentProfile.name,
+          systemPrompt: activeAgentProfile.systemPrompt,
+          effort: activeAgentProfile.effort,
+          costLimit: activeAgentProfile.costLimit,
+        },
         workspace: workspaceScopeForMetadata(activeWorkspaceScope),
       });
       if (result.snapshot) {
@@ -749,12 +774,17 @@ export function useDesktopAppState() {
       }
       const nextMessages = normalizeMessages(result.snapshot?.chat?.messages);
       const replies = normalizeMessages(result.replies || result.messages);
+      let assistantText = '';
       if (nextMessages.length > 0) {
         setMessages(nextMessages);
+        assistantText = [...nextMessages].reverse().find(message => message.role === 'assistant')?.content || '';
       } else if (replies.length > 0) {
         setMessages(current => [...current, ...replies]);
+        assistantText = [...replies].reverse().find(message => message.role === 'assistant')?.content || '';
       } else {
-        appendLocalMessage(setMessages, 'assistant', result.error || 'Zavorth received the request.');
+        const fallback = result.error || 'Zavorth received the request.';
+        appendLocalMessage(setMessages, 'assistant', fallback);
+        assistantText = fallback;
       }
       if (result.receiptId) {
         recordReceipt({
@@ -767,8 +797,10 @@ export function useDesktopAppState() {
           source: 'experience',
         });
       }
-      trackDesktopEvent('chat_send', { ok: !result.error });
+      const ok = !result.error;
+      trackDesktopEvent('chat_send', { ok });
       await refreshPanels();
+      return { ok, assistantText: assistantText || undefined };
     } catch (error: unknown) {
       const err = asErrorLike(error);
 
@@ -782,6 +814,7 @@ export function useDesktopAppState() {
         sessionId,
         source: 'zavorth-desktop',
       });
+      return { ok: false };
     } finally {
       setBusy(false);
     }
@@ -1265,15 +1298,45 @@ export function useDesktopAppState() {
     setSubagents(current => persistSubagents(deleteSubagent(current, id)));
   }, []);
 
-  const handleTriggerSubagentTask = useCallback((id: string, task: string) => {
-    setSubagents(current => {
-      const running = persistSubagents(appendSubagentTask(current, id, task));
-      window.setTimeout(() => {
-        setSubagents(latest => persistSubagents(completeSubagentTask(latest, id, task)));
-      }, 1200);
-      return running;
-    });
-  }, []);
+  async function handleTriggerSubagentTask(id: string, task: string) {
+    const agent = subagents.find(item => item.id === id);
+    if (!agent || !task.trim()) return;
+    const safeTask = task.trim();
+    const queued = $busy.get();
+    setSubagents(current => persistSubagents(queued
+      ? queueSubagentTask(current, id, safeTask)
+      : appendSubagentTask(current, id, safeTask)));
+    setActivePanel('chat');
+    if (queued) {
+      const ready = await waitForSubagentIdle(() => $busy.get());
+      if (!ready) {
+        setSubagents(current => persistSubagents(blockSubagentTask(
+          current,
+          id,
+          'A tarefa continua na fila porque a execução atual ainda não terminou.',
+        )));
+        return;
+      }
+      setSubagents(current => persistSubagents(startQueuedSubagentTask(current, id)));
+    }
+    if ($busy.get()) {
+      const ready = await waitForSubagentIdle(() => $busy.get());
+      if (!ready) {
+        setSubagents(current => persistSubagents(failSubagentTask(
+          current,
+          id,
+          'O runtime ainda está ocupado. Tente novamente em instantes.',
+        )));
+        return;
+      }
+    }
+    const delivery = await sendMessage(
+      `[Agente especializado: ${agent.role} / ${agent.typeName}]\n\nExecute esta tarefa e responda com evidências claras:\n${safeTask}`,
+    );
+    setSubagents(current => persistSubagents(delivery.ok
+      ? completeSubagentTask(current, id, safeTask, delivery.assistantText)
+      : failSubagentTask(current, id, 'O runtime não recebeu a tarefa. Verifique a conexão e tente novamente.')));
+  }
 
   const handleAddCustomProfile = useCallback((
     name: string,
@@ -1292,6 +1355,16 @@ export function useDesktopAppState() {
 
   const handleDeleteCustomProfile = useCallback((id: string) => {
     setCustomProfiles(current => persistCustomProfiles(deleteCustomProfile(current, id)));
+    if (experienceProfile === id) {
+      setExperienceProfile('personal');
+      setEffort('medium');
+    }
+  }, [experienceProfile]);
+
+  const handleActivateProfile = useCallback((profile: AgentProfile) => {
+    setExperienceProfile(profile.id);
+    setEffort(profile.effort);
+    setNotice(`Perfil ${profile.name} ativado para as próximas mensagens.`);
   }, []);
 
   const handleToggleKael = useCallback(async () => {
@@ -1435,6 +1508,7 @@ export function useDesktopAppState() {
     allProfiles,
     onAddCustomProfile: handleAddCustomProfile,
     onDeleteCustomProfile: handleDeleteCustomProfile,
+    onActivateProfile: handleActivateProfile,
     scheduledTasks: automations.scheduledTasks,
     onAddScheduledTask: automations.handleAddScheduledTask,
     onDeleteScheduledTask: automations.handleDeleteScheduledTask,

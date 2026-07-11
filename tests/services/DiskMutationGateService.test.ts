@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { DiskMutationGateService } from '../../src/services/DiskMutationGateService.js';
 import { ZavorthMutationPlaneService } from '../../src/services/ZavorthMutationPlaneService.js';
+import { isOperatorContinuityEnvelope } from '../../src/runtime/operator/OperatorContinuityEnvelope.js';
 
 describe('DiskMutationGateService', () => {
   let workspaceRoot: string;
@@ -47,12 +48,19 @@ describe('DiskMutationGateService', () => {
     expect(preview.operations[0].diffPatch).toContain('+two');
     expect(fs.readFileSync(path.join(workspaceRoot, 'notes.txt'), 'utf8')).toBe('one\n');
     expect(mutationPlane.readPlan(preview.mutationPlanId)?.status).toBe('waiting_approval');
+    const previewEnvelope = service.getLastContinuityEnvelope();
+    expect(isOperatorContinuityEnvelope(previewEnvelope)).toBe(true);
+    expect(previewEnvelope?.request?.surface).toBe('disk-mutation');
+    expect(previewEnvelope?.request?.operation).toBe('disk-mutation.preview');
+    expect(previewEnvelope?.result?.status).toBe('preview');
+    expect(previewEnvelope?.receipt?.terminal).toBe(true);
 
     expect(() => service.applyPreview({
       workspaceRoot,
       previewId: preview.previewId,
       approvalPhrase: 'wrong phrase',
     })).toThrow(/Approval phrase invalida/);
+    expect(service.getLastContinuityEnvelope()?.result?.status).toBe('blocked');
 
     const result = service.applyPreview({
       workspaceRoot,
@@ -71,6 +79,13 @@ describe('DiskMutationGateService', () => {
     }));
     expect(mutationPlane.readPlan(preview.mutationPlanId)?.status).toBe('applied');
     expect(service.buildStatus({ workspaceRoot }).receipts).toHaveLength(1);
+    const applyEnvelope = service.getLastContinuityEnvelope();
+    expect(isOperatorContinuityEnvelope(applyEnvelope)).toBe(true);
+    expect(applyEnvelope?.request?.operation).toBe('disk-mutation.apply');
+    expect(applyEnvelope?.decision?.allowed).toBe(true);
+    expect(applyEnvelope?.result?.status).toBe('applied');
+    expect(applyEnvelope?.ids.correlation?.mutationPlanId).toBe(preview.mutationPlanId);
+    expect(applyEnvelope?.ids.correlation?.actionReceiptId).toBe(result.receipt.receiptId);
   });
 
   it('blocks protected paths and refuses apply for blocked previews', () => {
@@ -91,11 +106,14 @@ describe('DiskMutationGateService', () => {
       'secret-like-content',
     ]));
     expect(mutationPlane.readPlan(preview.mutationPlanId)?.status).toBe('blocked');
+    expect(service.getLastContinuityEnvelope()?.decision?.allowed).toBe(false);
+    expect(service.getLastContinuityEnvelope()?.result?.status).toBe('blocked');
     expect(() => service.applyPreview({
       workspaceRoot,
       previewId: preview.previewId,
       approvalPhrase: preview.approval.phrase,
     })).toThrow(/Preview bloqueado/);
+    expect(service.getLastContinuityEnvelope()?.result?.status).toBe('blocked');
     expect(fs.existsSync(path.join(workspaceRoot, '.env'))).toBe(false);
   });
 

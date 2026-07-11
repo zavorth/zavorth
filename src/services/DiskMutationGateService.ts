@@ -16,6 +16,14 @@ import {
   type DiskMutationGateRequestedOperation,
   type DiskMutationGateStatus,
 } from '../contracts/DiskMutationGateContract.js';
+import { decideSecurityPolicy } from '../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+  type OperatorContinuityEnvelope,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
@@ -51,6 +59,7 @@ export type DiskMutationGateRuntime = Partial<DiskMutationGateFsRuntime> & {
   now?: () => Date;
   idFactory?: (prefix: string, seed: string) => string;
   mutationPlane?: Pick<ZavorthMutationPlaneService, 'createPlan' | 'approvePlan' | 'markApplied' | 'markBlocked'>;
+  continuityKernel?: OperatorContinuityKernel;
 };
 
 export type CreateDiskMutationGatePreviewInput = {
@@ -73,6 +82,8 @@ export class DiskMutationGateService {
   private readonly now: () => Date;
   private readonly idFactory: (prefix: string, seed: string) => string;
   private readonly mutationPlane: Pick<ZavorthMutationPlaneService, 'createPlan' | 'approvePlan' | 'markApplied' | 'markBlocked'>;
+  private readonly continuityKernel: OperatorContinuityKernel;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
   constructor(runtime: DiskMutationGateRuntime = {}) {
     this.fsRuntime = {
@@ -88,6 +99,11 @@ export class DiskMutationGateService {
     this.now = runtime.now || (() => new Date());
     this.idFactory = runtime.idFactory || ((prefix, seed) => `${prefix}-${sha256(seed).slice(0, 16)}`);
     this.mutationPlane = runtime.mutationPlane || new ZavorthMutationPlaneService();
+    this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel({ now: this.now });
+  }
+
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
   }
 
   public buildStatus(input: { workspaceRoot: string; limit?: number | null }): DiskMutationGateStatus {
@@ -211,6 +227,27 @@ export class DiskMutationGateService {
         ? []
         : prepared.map((entry) => entry.stored),
     });
+    this.sealGateContinuity({
+      operation: 'disk-mutation.preview',
+      target: previewId,
+      actorId: this.nullableText(input.requestedBy),
+      sourceSurface: this.nullableText(input.sourceSurface) || 'disk-mutation-gate',
+      mutationPlanId: mutationPlan.id,
+      blocked: status === 'blocked',
+      status: status === 'blocked' ? 'blocked' : 'preview',
+      summary: preview.summary,
+      argsDigest: digestOperatorPayload({
+        operationCount: previews.length,
+        status,
+        paths: previews.map((operation) => operation.relativePath).slice(0, 12),
+      }),
+      data: {
+        previewId,
+        mutationPlanId: mutationPlan.id,
+        status,
+        findingCount: findings.length,
+      },
+    });
     return preview;
   }
 
@@ -219,12 +256,59 @@ export class DiskMutationGateService {
     const stored = this.readPreview(workspaceRoot, input.previewId);
     const { preview } = stored;
     if (preview.status === 'blocked') {
+      this.sealGateContinuity({
+        operation: 'disk-mutation.apply',
+        target: preview.previewId,
+        actorId: this.nullableText(input.approvedBy),
+        sourceSurface: 'disk-mutation-gate',
+        mutationPlanId: preview.mutationPlanId,
+        blocked: true,
+        status: 'blocked',
+        summary: 'Preview blocked by Disk Mutation Gate; apply refused.',
+        argsDigest: digestOperatorPayload({ previewId: preview.previewId }),
+        data: {
+          previewId: preview.previewId,
+          mutationPlanId: preview.mutationPlanId,
+        },
+      });
       throw new Error('Preview bloqueado pelo Disk Mutation Gate; nenhum apply permitido.');
     }
     if (String(input.approvalPhrase || '').trim() !== preview.approval.phrase) {
+      this.sealGateContinuity({
+        operation: 'disk-mutation.apply',
+        target: preview.previewId,
+        actorId: this.nullableText(input.approvedBy),
+        sourceSurface: 'disk-mutation-gate',
+        mutationPlanId: preview.mutationPlanId,
+        blocked: true,
+        status: 'blocked',
+        summary: 'Invalid approval phrase for disk mutation apply.',
+        argsDigest: digestOperatorPayload({ previewId: preview.previewId }),
+        data: {
+          previewId: preview.previewId,
+          mutationPlanId: preview.mutationPlanId,
+          reason: 'invalid-approval-phrase',
+        },
+      });
       throw new Error(`Approval phrase invalida. Use: ${preview.approval.phrase}`);
     }
     if (path.resolve(preview.workspaceRoot) !== workspaceRoot) {
+      this.sealGateContinuity({
+        operation: 'disk-mutation.apply',
+        target: preview.previewId,
+        actorId: this.nullableText(input.approvedBy),
+        sourceSurface: 'disk-mutation-gate',
+        mutationPlanId: preview.mutationPlanId,
+        blocked: true,
+        status: 'blocked',
+        summary: 'Disk mutation preview belongs to another workspace.',
+        argsDigest: digestOperatorPayload({ previewId: preview.previewId }),
+        data: {
+          previewId: preview.previewId,
+          mutationPlanId: preview.mutationPlanId,
+          reason: 'workspace-mismatch',
+        },
+      });
       throw new Error('Preview pertence a outro workspace.');
     }
 
@@ -251,6 +335,21 @@ export class DiskMutationGateService {
         preview.mutationPlanId,
         error instanceof Error ? err.message : String(error),
       );
+      this.sealGateContinuity({
+        operation: 'disk-mutation.apply',
+        target: preview.previewId,
+        actorId: this.nullableText(input.approvedBy),
+        sourceSurface: 'disk-mutation-gate',
+        mutationPlanId: preview.mutationPlanId,
+        blocked: true,
+        status: 'failed',
+        summary: error instanceof Error ? err.message : String(error),
+        argsDigest: digestOperatorPayload({ previewId: preview.previewId }),
+        data: {
+          previewId: preview.previewId,
+          mutationPlanId: preview.mutationPlanId,
+        },
+      });
       throw error;
     }
 
@@ -281,12 +380,131 @@ export class DiskMutationGateService {
       receipt.summary,
       appliedOperations.map((operation) => `${operation.kind}:${operation.relativePath}`),
     );
+    const applyStatus = appliedOperations.some((operation) => operation.status === 'applied') ? 'applied' : 'noop';
+    this.sealGateContinuity({
+      operation: 'disk-mutation.apply',
+      target: preview.previewId,
+      actorId: this.nullableText(input.approvedBy) || 'operator',
+      sourceSurface: 'disk-mutation-gate',
+      mutationPlanId: preview.mutationPlanId,
+      blocked: false,
+      status: applyStatus === 'applied' ? 'applied' : 'observation',
+      summary: receipt.summary,
+      argsDigest: digestOperatorPayload({
+        previewId: preview.previewId,
+        receiptId: receipt.receiptId,
+        operationCount: appliedOperations.length,
+      }),
+      data: {
+        previewId: preview.previewId,
+        mutationPlanId: preview.mutationPlanId,
+        receiptId: receipt.receiptId,
+        status: applyStatus,
+      },
+      actionReceiptId: receipt.receiptId,
+    });
     return {
       ok: true,
-      status: appliedOperations.some((operation) => operation.status === 'applied') ? 'applied' : 'noop',
+      status: applyStatus,
       preview,
       receipt,
     };
+  }
+
+  private sealGateContinuity(input: {
+    operation: string;
+    target: string;
+    actorId?: string | null;
+    sourceSurface: string;
+    mutationPlanId?: string | null;
+    blocked: boolean;
+    status: 'preview' | 'blocked' | 'applied' | 'observation' | 'failed';
+    summary: string;
+    argsDigest: string;
+    data?: Record<string, unknown>;
+    actionReceiptId?: string | null;
+  }): void {
+    const brokerDecision = decideSecurityPolicy({
+      surface: 'local-write',
+      operation: input.operation,
+      target: input.target,
+      sourceTrust: 'trusted-user',
+      blocked: input.blocked,
+      risk: input.blocked ? 'forbidden' : 'review',
+      rule: input.blocked ? 'DISK_MUTATION_GATE_BLOCKED' : 'DISK_MUTATION_GATE_CONTINUITY',
+      reasons: [
+        input.blocked
+          ? 'Disk mutation gate decision blocked the request.'
+          : 'Disk mutation gate decision sealed by operator continuity.',
+        input.summary,
+      ],
+      metadata: {
+        sourceSurface: input.sourceSurface,
+        mutationPlanId: input.mutationPlanId || null,
+      },
+      toolDecision: input.blocked
+        ? {
+            action: 'deny',
+            allowed: false,
+            risk: 'forbidden',
+            toolName: 'disk_mutation_gate',
+            surface: 'native-tool',
+            capabilities: ['filesystem', 'destructive'],
+            requiresConfirmation: false,
+            reasons: [input.summary],
+            rule: 'DISK_MUTATION_GATE_BLOCKED',
+          }
+        : {
+            action: 'allow',
+            allowed: true,
+            risk: 'review',
+            toolName: 'disk_mutation_gate',
+            surface: 'native-tool',
+            capabilities: ['filesystem', 'audit'],
+            requiresConfirmation: false,
+            reasons: [input.summary],
+            rule: 'DISK_MUTATION_GATE_CONTINUITY',
+          },
+    });
+
+    let continuity = this.continuityKernel.begin({
+      correlation: {
+        mutationPlanId: input.mutationPlanId || null,
+        policyBrokerReceiptId: brokerDecision.receipt.receiptId,
+        actionReceiptId: input.actionReceiptId || null,
+      },
+    });
+    continuity = this.continuityKernel.recordRequest(continuity, {
+      surface: 'disk-mutation',
+      operation: input.operation,
+      target: input.target,
+      actorId: input.actorId || null,
+      sourceSurface: input.sourceSurface,
+      argsDigest: input.argsDigest,
+      metadata: {
+        mutationPlanId: input.mutationPlanId || null,
+      },
+    });
+    continuity = this.continuityKernel.attachDecision(
+      continuity,
+      decisionFromBroker(brokerDecision, {
+        mutationPlanId: input.mutationPlanId || null,
+        requiresApproval: input.operation === 'disk-mutation.preview' && !input.blocked,
+      }),
+    );
+    continuity = this.continuityKernel.attachResult(continuity, resultFromToolOutcome({
+      ok: !input.blocked && input.status !== 'failed',
+      status: input.status,
+      summary: input.summary,
+      data: {
+        ...(input.data || {}),
+        policyBrokerReceiptId: brokerDecision.receipt.receiptId,
+      },
+    }));
+    continuity = this.continuityKernel.finalizeReceipt(continuity, {
+      receiptId: input.actionReceiptId || brokerDecision.receipt.receiptId,
+    });
+    this.lastContinuityEnvelope = continuity;
   }
 
   private prepareOperation(

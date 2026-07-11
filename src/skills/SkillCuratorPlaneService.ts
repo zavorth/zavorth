@@ -509,14 +509,18 @@ export class SkillCuratorPlaneService {
       const currentState = state.skillStates[entry.name]?.state || 'active';
 
       if (ageDays >= this.archiveAfterDays) {
+        const archiveAllowed = this.lowRiskArchiveAllowed();
+        const archiveDryRun = dryRun || !archiveAllowed;
         transitions.push({
           skillId: entry.name,
           from: currentState,
           to: 'archived',
-          reason: `inactive-for-${Math.floor(ageDays)}-days`,
-          dryRun,
+          reason: archiveAllowed
+            ? `inactive-for-${Math.floor(ageDays)}-days`
+            : `inactive-for-${Math.floor(ageDays)}-days; destructive-archive-requires-approval`,
+          dryRun: archiveDryRun,
         });
-        if (!dryRun) {
+        if (!archiveDryRun) {
           await this.curationService.archiveSkill(entry.name);
           state.skillStates[entry.name] = {
             state: 'archived',

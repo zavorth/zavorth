@@ -379,9 +379,10 @@ export function configureCanonicalPublicApi(
 
   router.register('POST', /^\/api\/v1\/learning\/actions$/, async (req, res) => {
     const body = await readJsonBody(req);
-    PublicApiRouter.sendJson(res, 200, service.executeLearningAction({
+    PublicApiRouter.sendJson(res, 200, await service.executeLearningAction({
       candidateId: body.candidateId,
       actionId: body.actionId,
+      approvalId: body.approvalId,
     }));
   }, { access: 'admin' });
 

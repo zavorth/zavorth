@@ -71,7 +71,7 @@ export class ZavorthScheduledTaskOperationalGuardService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_OPERATIONAL_GUARD_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskOperationalGuardService',
-      phase: 'checkpoint-5-renewal-expiry-auto-pause',
+      gate: 'renewal-expiry-auto-pause',
       status,
       summary,
       tasks: taskCards,
@@ -329,7 +329,7 @@ function readGuardrails(task: ScheduledTask): Record<string, any> {
 
 function readGovernedMetadata(task: ScheduledTask): SchedulerGovernedScheduledTaskMetadata | null {
   const metadata = readGuardrails(task).governedScheduledTask;
-  return metadata?.phase === 'checkpoint-3-persisted-scheduled-task-registration'
+  return metadata?.gate === 'persisted-scheduled-task-registration'
     ? metadata as SchedulerGovernedScheduledTaskMetadata
     : null;
 }

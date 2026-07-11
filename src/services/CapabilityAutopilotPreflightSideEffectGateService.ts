@@ -28,7 +28,7 @@ export type CapabilityPreflightSideEffectGateOptions = {
 };
 
 export type CapabilityPreflightSideEffectGateDecision = {
-  phase: '72';
+  gate: 'capability-autopilot-preflight-side-effect-gate';
   generatedAt: string;
   surface: 'capability-autopilot-preflight-side-effect-gate';
   status: CapabilityPreflightSideEffectGateStatus;
@@ -53,7 +53,7 @@ export type CapabilityPreflightSideEffectGateDecision = {
   blockers: string[];
   safeSummary: string;
   audit: {
-    sourceAdapterPhase: CapabilityPreflightDispatchAdapterEnvelope['phase'];
+    sourceAdapterGate: CapabilityPreflightDispatchAdapterEnvelope['gate'];
     sourceAdapterGeneratedAt: string;
     actorId: string | null;
     approvalReceiptId: string | null;
@@ -64,7 +64,7 @@ export type CapabilityPreflightSideEffectGateDecision = {
 };
 
 export type CapabilityPreflightSideEffectGateSnapshot = {
-  phase: '72';
+  gate: 'capability-autopilot-preflight-side-effect-gate';
   surface: 'capability-autopilot-preflight-side-effect-gate';
   generatedAt: string;
   capabilityId: string;
@@ -75,11 +75,11 @@ export type CapabilityPreflightSideEffectGateSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightDispatchAdapterSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightDispatchAdapterSnapshot['gate'];
   decisions: CapabilityPreflightSideEffectGateDecision[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '73';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-apply-adapter';
     title: string;
     reason: string;
   };
@@ -108,7 +108,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
     const status: CapabilityPreflightSideEffectGateStatus = blockers.length > 0 ? 'blocked' : 'side_effect_ready';
 
     return {
-      phase: '72',
+      gate: 'capability-autopilot-preflight-side-effect-gate',
       generatedAt,
       surface: 'capability-autopilot-preflight-side-effect-gate',
       status,
@@ -133,7 +133,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       blockers,
       safeSummary: this.buildSafeSummary(envelope, status),
       audit: {
-        sourceAdapterPhase: envelope.phase,
+        sourceAdapterGate: envelope.gate,
         sourceAdapterGeneratedAt: envelope.generatedAt,
         actorId: options.actorId || null,
         approvalReceiptId: options.approvalReceiptId || null,
@@ -141,7 +141,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         reason: options.reason || null,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-72',
+        gate: 'capability-autopilot-preflight-side-effect-gate',
         sourceAdapterKind: envelope.adapterKind,
         sourceActionKind: envelope.sourceAction?.kind || null,
         autoExecute: false,
@@ -164,7 +164,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '72',
+      gate: 'capability-autopilot-preflight-side-effect-gate',
       surface: 'capability-autopilot-preflight-side-effect-gate',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -175,17 +175,17 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       decisions,
       checks,
-      nextRecommendedPhase: {
-        phase: '73',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-apply-adapter',
         title: 'Preflight Dispatch Apply Adapter',
         reason:
           'Depois do side-effect gate, o proximo passo e criar adapters de apply que recebam uma decisao autorizada e ainda emitam receipt antes de invocar qualquer superficie real.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-72',
+        gate: 'capability-autopilot-preflight-side-effect-gate',
         sourceSnapshotStatus: source.status,
         envelopeCount: source.envelopes.length,
         decisionCount: decisions.length,
@@ -199,7 +199,7 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
 
   public renderReport(snapshot: CapabilityPreflightSideEffectGateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-side-effect] Etapa 72 - Preflight Dispatch Side-Effect Gate');
+    lines.push('[capability-autopilot-preflight-side-effect] Preflight Dispatch Side-Effect Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -213,8 +213,8 @@ export class CapabilityAutopilotPreflightSideEffectGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

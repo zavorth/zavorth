@@ -121,7 +121,7 @@ export type ZavorthLiveCanaryApplyGateRollbackDrillSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_CANARY_APPLY_GATE_ROLLBACK_DRILL_CONTRACT_VERSION;
   source: 'ZavorthLiveCanaryApplyGateRollbackDrillService';
-  phase: 'checkpoint-9-live-canary-apply-gate-rollback-drill';
+  gate: 'live-canary-apply-gate-rollback-drill';
   status: ZavorthLiveCanaryApplyGateStatus;
   mode: ZavorthLiveCanaryApplyGateMode;
   adapterReview: ZavorthLiveCanaryExecutionAdapterReviewSnapshot;

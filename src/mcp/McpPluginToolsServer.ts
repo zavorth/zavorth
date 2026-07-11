@@ -12,6 +12,7 @@
  */
 
 import type { ToolRegistry } from '../tools/ToolRegistry.js';
+import type { ToolExecutor } from '../execution/ToolExecutor.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 export interface McpToolDefinition {
@@ -39,12 +40,18 @@ export interface McpResponse {
   error?: { code: number; message: string; data?: unknown };
 }
 
+type McpPluginToolsServerOptions = {
+  toolExecutor?: Pick<ToolExecutor, 'executeTool'> | null;
+};
+
 export class McpPluginToolsServer {
   private readonly registry: ToolRegistry;
+  private readonly toolExecutor: Pick<ToolExecutor, 'executeTool'> | null;
   private running = false;
 
-  constructor(registry: ToolRegistry) {
+  constructor(registry: ToolRegistry, options: McpPluginToolsServerOptions = {}) {
     this.registry = registry;
+    this.toolExecutor = options.toolExecutor ?? null;
   }
 
   /**
@@ -75,7 +82,7 @@ export class McpPluginToolsServer {
   }
 
   /**
-   * Executes a tool via the registry.
+   * Executes a tool via the central ToolExecutor.
    */
   async callTool(
     name: string,
@@ -89,8 +96,20 @@ export class McpPluginToolsServer {
       };
     }
 
+    if (!this.toolExecutor) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Tool ${name} requires the central ToolExecutor, but no executor is configured for this MCP server.`,
+          },
+        ],
+        isError: true,
+      };
+    }
+
     try {
-      const result = await tool.execute(args);
+      const result = await this.toolExecutor.executeTool(name, args);
       return {
         content: [{ type: 'text', text: String(result) }],
       };
@@ -98,7 +117,7 @@ export class McpPluginToolsServer {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
       return {
-        content: [{ type: 'text', text: `Erro ao executar ${name}: ${message}` }],
+        content: [{ type: 'text', text: `Error executing ${name}: ${message}` }],
         isError: true,
       };
     }

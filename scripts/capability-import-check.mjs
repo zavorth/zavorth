@@ -66,7 +66,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-import-package-scripts',
     label: 'Capability Import package scripts exist',
-    target: 'npm scripts expose importer CLI and phase gate',
+    target: 'npm scripts expose importer CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-import',

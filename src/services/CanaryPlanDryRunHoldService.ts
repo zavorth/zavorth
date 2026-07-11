@@ -220,7 +220,7 @@ export class CanaryPlanDryRunHoldService {
       dryRunControl({
         id: 'feature-flag-default-off-plan',
         surface: 'feature-flag',
-        command: 'dry-run:phase-feature-flag --key zavorth.rc.1.1.canary --default off --cohort dry-run-canary-cohort',
+        command: 'dry-run:gate-feature-flag --key zavorth.rc.1.1.canary --default off --cohort dry-run-canary-cohort',
         evidence: 'RC canary flag remains default-off and scoped to the planned cohort.',
       }),
       dryRunControl({

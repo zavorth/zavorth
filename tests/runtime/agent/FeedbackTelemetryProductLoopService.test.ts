@@ -75,7 +75,7 @@ function feedbackTelemetry(status = 'ready') {
         evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
       },
     ],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: 'complete',
       title: 'Product feedback loop ready',
       reason: 'opt-in preview sem envio externo',

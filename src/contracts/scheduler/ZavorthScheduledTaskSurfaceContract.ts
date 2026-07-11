@@ -68,7 +68,7 @@ export type ZavorthScheduledTaskSurfaceResult = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SCHEDULED_TASK_SURFACE_CONTRACT_VERSION;
   source: 'ZavorthScheduledTaskSurfaceService';
-  phase: 'checkpoint-4-governed-scheduled-task-surfaces';
+  gate: 'governed-scheduled-task-surfaces';
   action: ZavorthScheduledTaskSurfaceAction;
   status: ZavorthScheduledTaskSurfaceStatus;
   ok: boolean;

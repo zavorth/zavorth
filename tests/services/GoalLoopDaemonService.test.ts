@@ -65,7 +65,7 @@ describe('GoalLoopDaemonService', () => {
       stateDb,
       now,
     });
-    return { agentRunner, taskPlane, goalPlane, loop, daemon };
+    return { agentRunner, taskPlane, goalPlane, loop, worker, daemon };
   }
 
   it('records heartbeat and drains queued Goal Loop continuations', async () => {
@@ -110,6 +110,42 @@ describe('GoalLoopDaemonService', () => {
     expect(result.lastDrain?.processed).toBe(1);
     expect(taskPlane.listTasks().find((task) => task.id === taskId)?.status).toBe('done');
     expect(stateDb.listEvents({ stream: 'goal-loop' }).map((event) => event.type)).toContain('goal.loop.daemon.stale_recovered');
+  });
+
+  it('calls schedulePlane.processDue during tick when schedule plane is wired', async () => {
+    const { agentRunner, taskPlane, goalPlane, loop, worker } = makeServices();
+    const processDue = jest.fn(() => ({
+      ok: true,
+      summary: 'Processed 1 due routine(s).',
+      processed: 1,
+      materialized: [{ routineId: 'routine-a', taskId: 'task-a', nextRunAt: null }],
+      receipt: null,
+      continuity: null,
+    }));
+    const daemon = new GoalLoopDaemonService({
+      taskPlane,
+      worker,
+      schedulePlane: { processDue },
+      stateDb,
+      now,
+    });
+    const goal = goalPlane.createGoal({ objective: 'Process schedule due work.', maxTurns: 2 });
+    await loop.evaluate({ goalId: goal.id, turnSummary: 'Need one separated worker step.' });
+
+    const result = await daemon.tick({ daemonId: 'daemon-schedule', maxItems: 2, intervalMs: 1000 });
+
+    expect(processDue).toHaveBeenCalledTimes(1);
+    expect(processDue).toHaveBeenCalledWith(expect.objectContaining({
+      actor: 'daemon-schedule:schedule',
+      maxItems: 2,
+    }));
+    expect(result.safety.schedulePlaneWired).toBe(true);
+    expect(result.receipt?.data).toEqual(expect.objectContaining({
+      scheduleDueProcessed: 1,
+      scheduleDueOk: true,
+    }));
+    expect(result.scheduleDue?.processed).toBe(1);
+    expect(agentRunner.run).toHaveBeenCalled();
   });
 });
 

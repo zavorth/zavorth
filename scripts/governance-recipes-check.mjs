@@ -53,7 +53,7 @@ const rules = [
   ruleContainsAll({
     id: 'governance-recipe-package-scripts',
     label: 'Governance Recipes package scripts exist',
-    target: 'npm scripts expose list and phase gate',
+    target: 'npm scripts expose list and gate',
     files: ['package.json'],
     needles: [
       'governance-recipes',

@@ -1,6 +1,8 @@
 import { logger } from '../logger.js';
 import fs from 'fs';
 import { config } from '../config/index.js';
+import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
+import { normalizeChannelId } from '../channels/normalizeChannelId.js';
 import {
   inspectDiscordChannel,
   inspectSlackChannel,
@@ -19,7 +21,7 @@ inspectEmailChannel,
 } from './channel-provider-doctor/ChannelProviderDoctorSupport.js';
 
 export type ChannelProviderDoctorItem = {
-  channelId: 'slack' | 'whatsapp' | 'discord' | 'telegram' | 'signal' | 'imessage' | 'teams' | 'email';
+  channelId: 'slack' | 'whatsapp' | 'discord' | 'telegram' | 'signal' | 'imessage' | 'teams' | 'email' | string;
   mode:
     | 'native'
     | 'cloud-api'
@@ -31,10 +33,11 @@ export type ChannelProviderDoctorItem = {
     | 'mac-bridge'
     | 'graph-bot'
     | 'smtp-imap'
-    | 'unknown';
+    | 'unknown'
+    | 'factory-partial';
   enabled: boolean;
   configured: boolean;
-  status: 'passed' | 'failed' | 'skipped';
+  status: 'passed' | 'failed' | 'skipped' | 'partial';
   summary: string;
   error: string | null;
   recommendedAction: string | null;
@@ -47,6 +50,12 @@ export type ChannelProviderDoctorReport = {
   summary: string;
   command: string;
   items: ChannelProviderDoctorItem[];
+  fabric: {
+    factoryIds: string[];
+    doctorCoveredIds: string[];
+    partialFactoryIds: string[];
+    allFactoryIdsReported: true;
+  };
 };
 
 type ChannelProviderDoctorOptions = {
@@ -82,7 +91,7 @@ export class ChannelProviderDoctorService {
 
   public async run(options: { localOnly?: boolean } = {}): Promise<ChannelProviderDoctorReport> {
     const localOnly = options.localOnly === true;
-    const items = [
+    const nativeItems = [
       await this.inspectTelegram(localOnly),
       await this.inspectDiscord(localOnly),
       await this.inspectSlack(localOnly),
@@ -92,6 +101,24 @@ export class ChannelProviderDoctorService {
       await this.inspectTeams(localOnly),
       await this.inspectEmail(localOnly),
     ];
+    const covered = new Set(nativeItems.map((item) => normalizeChannelId(item.channelId, item.channelId)));
+    const factoryIds = ChannelGatewayFactory.listSupportedChannelIds();
+    const partialFactoryIds = factoryIds.filter((id) => !covered.has(normalizeChannelId(id, id)));
+    const fabricItems: ChannelProviderDoctorItem[] = partialFactoryIds.map((channelId) => ({
+      channelId,
+      mode: 'factory-partial',
+      enabled: false,
+      configured: false,
+      status: 'partial',
+      summary: `${channelId} is first-class in the factory fabric; native deep doctor is not required for inventory.`,
+      error: null,
+      recommendedAction: `Use ChannelCompletenessService / channels:install for ${channelId}.`,
+      details: [
+        'Reported so every ChannelGatewayFactory.listSupportedChannelIds() entry appears in doctor inventory.',
+        'Status is partial until channel-specific credentials and live smoke are configured.',
+      ],
+    }));
+    const items = [...nativeItems, ...fabricItems];
 
     const failed = items.filter((item) => item.status === 'failed');
     const passed = items.filter((item) => item.status === 'passed');
@@ -114,6 +141,12 @@ export class ChannelProviderDoctorService {
       summary,
       command: 'npm run test:channels:smoke',
       items,
+      fabric: {
+        factoryIds,
+        doctorCoveredIds: nativeItems.map((item) => item.channelId),
+        partialFactoryIds,
+        allFactoryIdsReported: true,
+      },
     };
 
     await this.writeReport(report);

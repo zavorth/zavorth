@@ -238,6 +238,35 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     };
   }
 
+  public doctorSnapshot(): {
+    channelId: 'slack';
+    mode: 'stub' | 'native';
+    enabled: boolean;
+    configured: boolean;
+    allowlistConfigured: boolean;
+    outboxDir: string;
+    statusFile: string;
+    summary: string;
+  } {
+    const recipients = this.resolveBroadcastRecipients();
+    const mode = this.resolveMode();
+    const tokenConfigured = Boolean(String(config.slackBotToken || '').trim());
+    const allowlistConfigured = recipients.length > 0;
+    const enabled = tokenConfigured || allowlistConfigured || this.started || Boolean(config.slackEnabled);
+    return {
+      channelId: 'slack',
+      mode,
+      enabled,
+      configured: allowlistConfigured || tokenConfigured,
+      allowlistConfigured,
+      outboxDir: config.slackOutboxDir,
+      statusFile: config.slackStatusFile,
+      summary: allowlistConfigured
+        ? `Slack spine ${mode} ready for mock inbound/outbound with allowlist.`
+        : 'Slack spine needs SLACK_ALLOWED_CHANNEL_IDS (and token for native mode).',
+    };
+  }
+
   private ensureRuntimePaths(): void {
     fs.mkdirSync(config.slackOutboxDir, { recursive: true });
     fs.mkdirSync(path.dirname(config.slackStatusFile), { recursive: true });

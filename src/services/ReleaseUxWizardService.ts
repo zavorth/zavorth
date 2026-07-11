@@ -91,7 +91,7 @@ export class ReleaseUxWizardService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '44',
+      gate: 'release-ux-wizard',
       surface: 'release-ux',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -128,8 +128,8 @@ export class ReleaseUxWizardService {
         rollbackPreview: 'npm run release:rollback-preview',
         changelog: 'npm run release:changelog',
       },
-      nextRecommendedPhase: {
-        phase: '42',
+      nextRecommendedGate: {
+        gate: 'tenant-team-ops',
         title: 'Tenant/Team Ops',
         reason:
           'Depois de transformar release em fluxo de produto, a ultima etapa desta ordem fecha operacao segmentada por workspace, tenant e time.',
@@ -140,7 +140,7 @@ export class ReleaseUxWizardService {
   public async renderReport(snapshot: ReleaseUxWizardSnapshot | null = null): Promise<string> {
     const resolved = snapshot || await this.buildSnapshot();
     const lines: string[] = [];
-    lines.push('[release-ux] Etapa 44 - Release UX');
+    lines.push('[release-ux] Release UX');
     lines.push(`status: ${resolved.status}`);
     lines.push(`ok: ${resolved.summary.ok ? 'yes' : 'no'} | pass=${resolved.summary.passed} warn=${resolved.summary.warnings} fail=${resolved.summary.failed}`);
     lines.push(`steps=${resolved.summary.steps} approvals=${resolved.summary.approvalsRequired} changelog=${resolved.summary.changelogEntries} rollbackEvidence=${resolved.summary.rollbackEvidence}`);
@@ -161,8 +161,8 @@ export class ReleaseUxWizardService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${resolved.nextRecommendedPhase.phase} - ${resolved.nextRecommendedPhase.title}`);
-    lines.push(resolved.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${resolved.nextRecommendedGate.gate} - ${resolved.nextRecommendedGate.title}`);
+    lines.push(resolved.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -471,7 +471,7 @@ export class ReleaseUxWizardService {
 
   private checkQuietCommands(): ReleaseUxCheck {
     const scripts = this.readPackageJson()?.scripts || {};
-    const quietScripts = ['release:wizard', 'release:wizard:json', 'qa:release-ux', 'qa:phase:44'];
+    const quietScripts = ['release:wizard', 'release:wizard:json', 'qa:release-ux', 'qa:release-ux-wizard'];
     const backgroundWords = ['nodemon', '--watch', ' dev', 'node-mesh-host', 'ops-maintain-recurring', 'start-ai-gateway-runtime'];
     const offenders = quietScripts.filter((scriptName) => {
       const command = ` ${String(scripts[scriptName] || '').toLowerCase()} `;
@@ -482,7 +482,7 @@ export class ReleaseUxWizardService {
       'release UX nao inicia background persistente',
       offenders.length === 0 ? 'pass' : 'fail',
       offenders.length === 0
-        ? 'Wizard e gate da Etapa 44 sao leituras sob demanda.'
+        ? 'Wizard e gate de release UX sao leituras sob demanda.'
         : 'Wizard ou gate de release UX apontam para processo persistente.',
       'wizard',
       offenders,

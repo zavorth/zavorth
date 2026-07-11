@@ -62,7 +62,7 @@ export type RuntimeAdapterClosureSnapshot = {
     providerConsistency: string;
     channelConsistency: string;
     certify: string;
-    nextStage: 'Etapa 12 - Native Capability Closure';
+    nextStage: 'Native Capability Closure';
   };
   policy: {
     closureIsRuntimeClassificationOnly: true;

@@ -128,7 +128,7 @@ describe('SkillInstallPlanPresentationService', () => {
     }));
     expect(snapshot.steps).toEqual(expect.arrayContaining([
       expect.objectContaining({ label: 'Abrir recipe', command: '/skills recipe security-hardening' }),
-      expect.objectContaining({ label: 'Etapa 1', detail: 'Modele ameacas.' }),
+      expect.objectContaining({ label: 'Passo 1', detail: 'Modele ameacas.' }),
       expect.objectContaining({ label: 'Preparar Zavorth Bridge Remote Chat', optional: true }),
     ]));
     expect(snapshot.narrative.caution).toContain('permanece isolado por licenca');

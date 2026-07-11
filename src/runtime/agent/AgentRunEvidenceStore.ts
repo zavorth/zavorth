@@ -20,7 +20,7 @@ export type AgentRunEvidenceSerializedRecord = AgentRunEvidenceSnapshotRef & {
 export type AgentRunEvidenceStoreSnapshot = {
   source: 'AgentRunEvidenceStore';
   stage: 4;
-  phase: 4;
+  gate: 'source-channel-mesh-expansion';
   refs: AgentRunEvidenceSnapshotRef[];
   records?: AgentRunEvidenceSerializedRecord[];
 };
@@ -176,7 +176,7 @@ export class AgentRunEvidenceStore {
     return {
       source: 'AgentRunEvidenceStore',
       stage: 4,
-      phase: 4,
+      gate: 'source-channel-mesh-expansion',
       refs,
       ...(serializedRecords.length > 0 ? { records: serializedRecords } : {}),
     };

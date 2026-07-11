@@ -10,7 +10,7 @@ export type NaturalFirstLlmRuntimeSnapshot = {
   contractVersion: typeof NATURAL_FIRST_LLM_RUNTIME_CONTRACT_VERSION;
   source: 'NaturalFirstLlmRuntime';
   stage: 5;
-  phase: 5;
+  gate: 'source-memory-document-terminal-pack';
   route: 'llm-reply';
   providerConfigured: boolean;
   providerUsed: boolean;
@@ -57,7 +57,7 @@ export function buildNaturalFirstLlmRuntimeSnapshot(input: {
     contractVersion: NATURAL_FIRST_LLM_RUNTIME_CONTRACT_VERSION,
     source: 'NaturalFirstLlmRuntime',
     stage: 5,
-    phase: 5,
+    gate: 'source-memory-document-terminal-pack',
     route: 'llm-reply',
     providerConfigured: input.providerConfigured,
     providerUsed: input.providerUsed,

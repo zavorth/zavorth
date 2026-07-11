@@ -52,7 +52,7 @@ export type ArtifactReplayWorkbenchCheck = {
 };
 
 export type ArtifactReplayWorkbenchSnapshot = {
-  phase: '43';
+  gate: 'artifact-replay';
   surface: 'artifact-replay-workbench';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -82,8 +82,8 @@ export type ArtifactReplayWorkbenchSnapshot = {
     gate: string;
     replayLearning: string;
   };
-  nextRecommendedPhase: {
-    phase: '44';
+  nextRecommendedGate: {
+    gate: 'release-ux-wizard';
     title: string;
     reason: string;
   };
@@ -94,7 +94,7 @@ export const ARTIFACT_REPLAY_WORKBENCH_PACKAGE_SCRIPTS = [
   'ops:replay-learning:json',
   'artifact:workbench',
   'qa:artifact-workbench',
-  'qa:phase:43',
+  'qa:artifact-replay',
 ] as const;
 
 export const ARTIFACT_REPLAY_WORKBENCH_WEB_MARKERS = [

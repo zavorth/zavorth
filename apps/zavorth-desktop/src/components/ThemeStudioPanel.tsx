@@ -3,7 +3,6 @@ import type { PremiumTheme } from '../theme/premiumThemes';
 import { exportPremiumThemeState, premiumThemeFonts, premiumThemeMarketplace, type PremiumThemeState } from '../theme/premiumThemes';
 import { t } from '../i18n';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type AccentPreset = 'orange' | 'purple' | 'navy';

@@ -6,7 +6,7 @@ import {
   StatusBadge,
 } from '../../../apps/zavorth-desktop/src/components/ProductPolishComponents';
 
-describe('ProductEmptyStates UX Tests (Phase 21N)', () => {
+describe('ProductEmptyStates UX Tests', () => {
   it('renders EmptyState for missing workspace scenario', () => {
     const { container } = render(
       <EmptyState

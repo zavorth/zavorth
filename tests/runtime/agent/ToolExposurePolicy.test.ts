@@ -323,7 +323,7 @@ describe('ToolExposurePolicy', () => {
   });
 
   it('exposes workspace.temp_dir_trust.propose when workspace permissions allow it', () => {
-    // Fase 21E-A: verify that the temporary directory trust propose tool is recognized
+    // verify that the temporary directory trust propose tool is recognized
     // and can be exposed through the policy (basic registry coverage test)
     const policy = new ToolExposurePolicy();
     const profile = policy.buildProfile({

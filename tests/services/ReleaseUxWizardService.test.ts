@@ -9,7 +9,7 @@ describe('ReleaseUxWizardService', () => {
 
     const snapshot = await service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('44');
+    expect(snapshot.gate).toBe('release-ux-wizard');
     expect(snapshot.surface).toBe('release-ux');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.heavyRuntimesStarted).toBe(false);
@@ -117,7 +117,7 @@ describe('ReleaseUxWizardService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', async () => {
+  it('renders a human report with the next gate recommendation', async () => {
     const service = new ReleaseUxWizardService({
       packageJson: packageJsonFixture(),
       html: buildRuntimeShellHtml('/zavorthControl'),
@@ -126,7 +126,7 @@ describe('ReleaseUxWizardService', () => {
 
     const report = await service.renderReport();
 
-    expect(report).toContain('Etapa 44 - Release UX');
+    expect(report).toContain('Gate release-ux-wizard - Release UX');
     expect(report).toContain('proximo passo recomendada: 42 - Tenant/Team Ops');
   });
 });
@@ -154,7 +154,7 @@ function scriptCommandFixture(scriptName: string): string {
     'release:wizard': 'npx tsx scripts/release-ux-wizard.ts',
     'release:wizard:json': 'npx tsx scripts/release-ux-wizard.ts --json',
     'qa:release-ux': 'npx tsx scripts/release-ux-wizard.ts --require-pass',
-    'qa:stage:44': 'node scripts/capability-suite-market-check.mjs --phase=44',
+    'qa:release-ux-wizard': 'node scripts/capability-suite-market-check.mjs --gate=release-ux-wizard',
     'release:scan': 'npx tsx scripts/release-hygiene-scan.ts',
     'release:alpha': 'node scripts/release-train.mjs --profile=alpha',
     'release:beta': 'node scripts/release-train.mjs --profile=beta',

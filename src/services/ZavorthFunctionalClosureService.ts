@@ -52,7 +52,7 @@ type Runtime = {
 
 type PhaseInput = {
   id: string;
-  phase: number;
+  gate: number;
   label: string;
   category: string;
   priority: ZavorthFunctionalClosurePriority;
@@ -183,7 +183,7 @@ export class ZavorthFunctionalClosureService {
       generatedAt,
       contractVersion: ZAVORTH_FUNCTIONAL_CLOSURE_CONTRACT_VERSION,
       status,
-      phase: 9,
+      gate: 'functional-closure',
       statement: 'Zavorth functional closure is a live, repeatable, machine-readable receipt over all absorbed and intentionally excluded capability surfaces.',
       runtime: {
         platform: process.platform,
@@ -250,7 +250,7 @@ export class ZavorthFunctionalClosureService {
       `Machine-readable receipt: ${snapshot.summary.machineReadableReceipt}`,
       'Closure items:',
       ...snapshot.items.map((item) => (
-        `- ${item.status} phase ${item.phase} ${item.id}: ${item.priority}, decision=${item.decision}, receipts=${item.receiptCount}`
+        `- ${item.status} phase ${item.gate} ${item.id}: ${item.priority}, decision=${item.decision}, receipts=${item.receiptCount}`
       )),
       'Release gate:',
       `- P0 closed: ${snapshot.releaseGate.p0.closed}/${snapshot.releaseGate.p0.total}`,
@@ -280,7 +280,7 @@ export class ZavorthFunctionalClosureService {
     return [
       this.item({
         id: 'checkpoint-0-ledger-governance',
-        phase: 0,
+        gate: 0,
         label: 'Executable full-surface ledger governance',
         category: 'ledger-governance',
         priority: 'P0',
@@ -294,7 +294,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-1-plugin-os-package-sdk',
-        phase: 1,
+        gate: 1,
         label: 'Plugin OS and package SDK absorption',
         category: 'plugin-os',
         priority: 'P0',
@@ -308,7 +308,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-2-agent-runtime-bridge',
-        phase: 2,
+        gate: 2,
         label: 'Agent runtime bridge pack',
         category: 'agent-runtime',
         priority: 'P0',
@@ -322,7 +322,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-3-provider-mesh',
-        phase: 3,
+        gate: 3,
         label: 'Provider mesh expansion pack',
         category: 'provider-mesh',
         priority: 'P1',
@@ -336,7 +336,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-4-channel-mesh',
-        phase: 4,
+        gate: 4,
         label: 'Channel mesh expansion pack',
         category: 'channel-mesh',
         priority: 'P1',
@@ -350,7 +350,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-5-memory-document-terminal',
-        phase: 5,
+        gate: 5,
         label: 'Memory, document, search and terminal pack',
         category: 'memory-document-terminal',
         priority: 'P1',
@@ -364,7 +364,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-6-native-companion-device',
-        phase: 6,
+        gate: 6,
         label: 'Native companion and device capability pack',
         category: 'native-companion-device',
         priority: 'P0',
@@ -378,7 +378,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-7-qa-security-release',
-        phase: 7,
+        gate: 7,
         label: 'QA, security and release certification pack',
         category: 'qa-security-release',
         priority: 'P0',
@@ -392,7 +392,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-8-skill-ecosystem',
-        phase: 8,
+        gate: 8,
         label: 'Skill ecosystem pack',
         category: 'skill-ecosystem',
         priority: 'P2',
@@ -406,7 +406,7 @@ export class ZavorthFunctionalClosureService {
       }),
       this.item({
         id: 'checkpoint-9-baseline-worker-chain',
-        phase: 9,
+        gate: 9,
         label: 'Baseline worker closure chain',
         category: 'baseline-certification',
         priority: 'P0',
@@ -430,7 +430,7 @@ export class ZavorthFunctionalClosureService {
 
     return {
       id: input.id,
-      phase: input.phase,
+      gate: input.gate,
       label: input.label,
       category: input.category,
       priority: input.priority,
@@ -453,7 +453,7 @@ export class ZavorthFunctionalClosureService {
   ): ZavorthFunctionalClosureReceipt {
     return {
       id: item.receiptIds[0] || `zavorth.certification-matrix.functional-closure.${item.id}.${generatedAt}.receipt`,
-      phase: item.phase,
+      gate: item.gate,
       itemId: item.id,
       status: item.status,
       priority: item.priority,

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'public-launch-smoke-evidence-ledger-files',
-    label: 'Public Launch Smoke Evidence Ledger phase files exist',
+    label: 'Public Launch Smoke Evidence Ledger gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/PublicLaunchSmokeEvidenceLedgerContract.ts',

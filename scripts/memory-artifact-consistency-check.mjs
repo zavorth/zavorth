@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'memory-artifact-consistency-files',
-    label: 'Memory/Artifact consistency phase files exist',
+    label: 'Memory/Artifact consistency gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/MemoryArtifactConsistencyContract.ts',

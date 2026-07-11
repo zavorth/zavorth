@@ -48,7 +48,7 @@ describe('SpeechVoiceLivePlaneService Surface controls', () => {
   beforeEach(async () => {
     artifactDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'zavorth-speech-live-plane-'));
     inputAudio = path.join(artifactDir, 'input.wav');
-    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF....TRACK phase 7'));
+    await fs.promises.writeFile(inputAudio, Buffer.from('RIFF....TRACK voice-smoke'));
   });
 
   afterEach(async () => {

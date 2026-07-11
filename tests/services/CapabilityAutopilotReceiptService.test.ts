@@ -211,7 +211,7 @@ describe('CapabilityAutopilotReceiptService', () => {
       selectedFallback: null,
       metadata: {
         readOnly: true,
-        stage: 'capability-autopilot-checkpoint-5',
+        gate: 'capability-autopilot-receipt',
       },
     });
     expect(receipt.headline).toBe('Gemini CLI precisa da sua permissao antes de eu mexer nisso.');

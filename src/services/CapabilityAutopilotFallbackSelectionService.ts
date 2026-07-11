@@ -86,7 +86,7 @@ export class CapabilityAutopilotFallbackSelectionService {
       summary: this.buildMenuSummary(candidates, input.audience || input.receipt?.audience || 'everyday_user'),
       technicalSummary: `fallbacks=${candidates.length}; selectable=${candidates.filter((entry) => entry.selectable).length}`,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-65',
+        gate: 'capability-autopilot-provider-expansion',
         explicitSelectionRequired: true,
         autoFallbackExecuted: false,
         surface: input.surface || input.receipt?.surface || null,
@@ -250,14 +250,14 @@ export class CapabilityAutopilotFallbackSelectionService {
     return {
       ...receipt,
       generatedAt,
-      phase: 'fallback',
+      stage: 'fallback',
       repairPlan,
       selectedFallback,
       timeline: [
         ...receipt.timeline,
         {
           at: generatedAt,
-          phase: 'fallback',
+          stage: 'fallback',
           status: timelineStatus,
           summary: selectedFallback
             ? `Fallback escolhido: ${selectedFallback.label}.`
@@ -269,7 +269,7 @@ export class CapabilityAutopilotFallbackSelectionService {
       ],
       metadata: {
         ...(receipt.metadata || {}),
-        phase: 'capability-autopilot-checkpoint-65',
+        gate: 'capability-autopilot-provider-expansion',
         fallbackSelectionRecorded: Boolean(selectedFallback),
         autoFallbackExecuted: false,
       },
@@ -327,7 +327,7 @@ export class CapabilityAutopilotFallbackSelectionService {
       summary: input.summary,
       technicalSummary: input.technicalSummary,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-65',
+        gate: 'capability-autopilot-provider-expansion',
         explicitSelectionRequired: true,
         autoFallbackExecuted: false,
         requestedBy: input.requestedBy,

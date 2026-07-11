@@ -30,7 +30,7 @@ type DiagnosticsQaMigrationLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Intent model0 - Diagnostics, QA And Migration Live Plane' as const;
+const PHASE = 'diagnostics-qa-migration-live-plane' as const;
 
 const TARGETS: DiagnosticsQaMigrationLiveDescriptor[] = [
   target('diagnostics-otel', 'diagnostics-live', ['diagnostics.trace'], 'otel-json-export', ['otel-export', 'health-metrics'], [], ['ZAVORTH_DIAGNOSTICS_ARTIFACT_DIR']),
@@ -68,7 +68,7 @@ export class DiagnosticsQaMigrationLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION,
-      phase: PHASE,
+      gate: PHASE,
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 9,

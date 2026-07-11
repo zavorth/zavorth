@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import type { TaskPlaneItem, TaskPlaneStatus } from '../contracts/TaskPlaneContract.js';
 import { GoalLoopWorkerService, type GoalLoopWorkerDrainSnapshot } from './GoalLoopWorkerService.js';
+import type { AutonomySchedulePlane, AutonomyScheduleProcessDueResult } from './AutonomySchedulePlane.js';
 import type { TaskPlaneService } from './TaskPlaneService.js';
 import { ZavorthOperationalStateDbService, type ZavorthOperationalReceipt } from './ZavorthOperationalStateDbService.js';
 import { asErrorLike } from '../utils/errorLike.js';
@@ -27,18 +28,21 @@ export type GoalLoopDaemonSnapshot = {
   runningContinuations: number;
   staleRecovered: number;
   lastDrain: GoalLoopWorkerDrainSnapshot | null;
+  scheduleDue: AutonomyScheduleProcessDueResult | null;
   receipt: ZavorthOperationalReceipt | null;
   safety: {
     heartbeatRecorded: boolean;
     backoffEnabled: true;
     staleClaimRecovery: true;
     workerOwnsExecution: true;
+    schedulePlaneWired: boolean;
   };
 };
 
 type GoalLoopDaemonOptions = {
   taskPlane: TaskPlaneService;
   worker: GoalLoopWorkerService;
+  schedulePlane?: Pick<AutonomySchedulePlane, 'processDue'> | null;
   stateDb?: ZavorthOperationalStateDbService | null;
   stateDbPath?: string | null;
   now?: () => Date;
@@ -76,6 +80,7 @@ const DEFAULT_MAX_BACKOFF_MS = 5 * 60_000;
 export class GoalLoopDaemonService {
   private readonly taskPlane: TaskPlaneService;
   private readonly worker: GoalLoopWorkerService;
+  private readonly schedulePlane: Pick<AutonomySchedulePlane, 'processDue'> | null;
   private readonly stateDb: ZavorthOperationalStateDbService | null;
   private readonly stateDbPath: string | null;
   private readonly now: () => Date;
@@ -83,6 +88,7 @@ export class GoalLoopDaemonService {
   private readonly clearTimeoutFn: typeof clearTimeout;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private running = false;
+  private lastScheduleDue: AutonomyScheduleProcessDueResult | null = null;
   private state: GoalLoopDaemonRuntimeState = {
     status: 'idle',
     lastHeartbeatAt: null,
@@ -97,6 +103,7 @@ export class GoalLoopDaemonService {
   constructor(options: GoalLoopDaemonOptions) {
     this.taskPlane = options.taskPlane;
     this.worker = options.worker;
+    this.schedulePlane = options.schedulePlane || null;
     this.stateDb = options.stateDb || null;
     this.stateDbPath = options.stateDbPath ? path.resolve(options.stateDbPath) : null;
     this.now = options.now || (() => new Date());
@@ -123,6 +130,14 @@ export class GoalLoopDaemonService {
     this.heartbeat(daemonId, config, 'tick.started');
     try {
       const staleRecovered = input.dryRun ? 0 : this.recoverStaleContinuations(daemonId, config);
+      const scheduleDue = this.schedulePlane
+        ? this.schedulePlane.processDue({
+          actor: `${daemonId}:schedule`,
+          maxItems: config.maxItems,
+          dryRun: input.dryRun,
+        })
+        : null;
+      this.lastScheduleDue = scheduleDue;
       const drain = await this.worker.drain({
         workerId: `${daemonId}:worker`,
         leaseMs: config.leaseMs,
@@ -141,6 +156,8 @@ export class GoalLoopDaemonService {
         staleRecovered,
         pending,
         dryRun: Boolean(input.dryRun),
+        scheduleDueProcessed: scheduleDue?.processed || 0,
+        scheduleDueOk: scheduleDue ? scheduleDue.ok : null,
       });
       this.heartbeat(daemonId, config, 'tick.completed');
       this.state.status = this.timer ? 'running' : 'idle';
@@ -286,12 +303,14 @@ export class GoalLoopDaemonService {
       runningContinuations: tasks.filter((task) => task.status === 'claimed' || task.status === 'running').length,
       staleRecovered: this.state.staleRecovered,
       lastDrain: this.state.lastDrain,
+      scheduleDue: this.lastScheduleDue,
       receipt,
       safety: {
         heartbeatRecorded: Boolean(this.state.lastHeartbeatAt),
         backoffEnabled: true,
         staleClaimRecovery: true,
         workerOwnsExecution: true,
+        schedulePlaneWired: Boolean(this.schedulePlane),
       },
     };
   }

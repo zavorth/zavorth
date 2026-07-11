@@ -997,7 +997,7 @@ function buildQuickSandboxHostReadiness() {
     inspect: () => {
       const generatedAt = new Date().toISOString();
       return {
-        phase: '38' as const,
+        gate: 'sandbox-host-readiness' as const,
         generatedAt,
         platform: process.platform,
         osRelease: 'quick-projection',

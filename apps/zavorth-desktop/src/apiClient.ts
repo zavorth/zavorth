@@ -155,34 +155,47 @@ export type GatewayResilienceSnapshot = {
 };
 
 export type WorkspaceWriteApprovalItem = {
-  operationId?: string;
+  operationId: string;
   operation_id?: string;
   id?: string;
-  title?: string;
-  summary?: string;
-  path?: string;
-  risk?: string;
-  status?: string;
+  toolName: string;
+  pathSuffix: string;
+  path: string | null;
+  createdAt: string;
+  expiresAt: string;
   [key: string]: unknown;
 };
 
 export type TaskMandate = {
-  id?: string;
-  title?: string;
-  summary?: string;
-  status?: string;
-  workspaceId?: string;
+  mandateId: string;
+  workspaceId: string;
+  taskId?: string;
+  description: string;
+  targetDirectories: string[];
+  allowedOperations: string[];
+  allowedBinaries: string[];
+  maxRiskLevel: string;
+  allowPackageInstall: boolean;
+  allowNetwork: boolean;
+  expiresAt: string;
+  createdAt: string;
   [key: string]: unknown;
 };
 
 export type HostCommandItem = {
+  operationId: string;
   operation_id?: string;
-  operationId?: string;
-  title?: string;
-  command?: string;
-  risk?: string;
-  status?: string;
-  strongConfirmationPhrase?: string;
+  workspaceId: string;
+  commandPreview: string;
+  argsPreview: string;
+  cwdSuffix: string;
+  shell: boolean;
+  riskLevel: string;
+  reasonRedacted: string;
+  createdAt: string;
+  expiresAt: string;
+  requiresStrongConfirmation: boolean;
+  strongConfirmationPhrase: string | null;
   [key: string]: unknown;
 };
 
@@ -517,6 +530,13 @@ export async function sendExperienceMessage(input: {
   responseProfile?: string;
   effort?: string;
   profile?: string;
+  profileConfig?: {
+    id: string;
+    name: string;
+    systemPrompt: string;
+    effort: string;
+    costLimit: number;
+  };
   model?: string;
   connectedModelIds?: string[];
   workspace?: {
@@ -543,6 +563,7 @@ export async function sendExperienceMessage(input: {
         model: input.model,
         connectedModelIds: input.connectedModelIds || [],
         profile: input.profile,
+        profileConfig: input.profileConfig,
         workspace: input.workspace,
       },
     },

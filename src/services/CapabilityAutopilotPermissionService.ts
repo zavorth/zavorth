@@ -217,7 +217,7 @@ export class CapabilityAutopilotPermissionService {
     return {
       ...(input.requirement.metadata || {}),
       capability_autopilot: true,
-      phase: 'capability-autopilot-checkpoint-6',
+      gate: 'capability-autopilot-permission',
       generated_at: input.generatedAt,
       capability_id: input.repairPlan.capabilityId,
       repair_plan_id: input.repairPlan.repairPlanId,
@@ -236,7 +236,7 @@ export class CapabilityAutopilotPermissionService {
       resume_task_id: input.resumeIntent?.taskId || input.resumeIntent?.task?.task_id || null,
       requested_capability_id: input.resumeIntent?.requestedCapabilityId || null,
       requested_executor_name: input.resumeIntent?.requestedExecutorName || null,
-      permission_receipt_stage: input.receipt?.phase || null,
+      permission_receipt_stage: input.receipt?.stage || null,
       permission_user_summary: input.receipt?.userSummary || null,
     };
   }

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'canary-monitoring-rollback-gate-files',
-    label: 'Canary Monitoring Rollback Gate phase files exist',
+    label: 'Canary Monitoring Rollback Gate gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/CanaryMonitoringRollbackGateContract.ts',

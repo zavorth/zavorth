@@ -61,7 +61,13 @@ function createDesktopAutomationStore(options = {}) {
       version: STORE_VERSION,
       tasks: state.tasks.map(normalizeTask),
     };
-    fs.writeFileSync(filePath, `${JSON.stringify(safeState, null, 2)}\n`, 'utf8');
+    const temporaryPath = `${filePath}.${process.pid}.${crypto.randomUUID()}.tmp`;
+    try {
+      fs.writeFileSync(temporaryPath, `${JSON.stringify(safeState, null, 2)}\n`, 'utf8');
+      fs.renameSync(temporaryPath, filePath);
+    } finally {
+      fs.rmSync(temporaryPath, { force: true });
+    }
     return safeState;
   }
 
@@ -90,7 +96,7 @@ function createDesktopAutomationStore(options = {}) {
       status: 'idle',
       createdAt,
       updatedAt: createdAt,
-      nextRun: createdAt + Math.max(1, Number(input.intervalMinutes || 60)) * 60000,
+      nextRun: createdAt,
       history: [],
     });
     const state = readState();
@@ -114,7 +120,7 @@ function createDesktopAutomationStore(options = {}) {
         enabled: isEnabled,
         status: 'idle',
         updatedAt,
-        nextRun: isEnabled ? updatedAt + task.intervalMinutes * 60000 : undefined,
+        nextRun: isEnabled ? updatedAt : undefined,
       };
     });
   }
@@ -159,6 +165,33 @@ function createDesktopAutomationStore(options = {}) {
     });
   }
 
+  function recoverRunningTasks() {
+    const state = readState();
+    const recoveredAt = now();
+    let changed = false;
+    const tasks = state.tasks.map(task => {
+      if (task.status !== 'running') return task;
+      changed = true;
+      return normalizeTask({
+        ...task,
+        status: 'failed',
+        nextRun: task.enabled ? recoveredAt + task.intervalMinutes * 60000 : undefined,
+        updatedAt: recoveredAt,
+        history: [
+          ...task.history,
+          {
+            at: new Date(recoveredAt).toISOString(),
+            ok: false,
+            sessionId: task.lastSessionId || null,
+            message: 'Execução interrompida pelo encerramento do aplicativo.',
+          },
+        ].slice(-30),
+      });
+    });
+    if (changed) writeState({ ...state, tasks });
+    return tasks;
+  }
+
   return {
     listTasks,
     createTask,
@@ -167,9 +200,50 @@ function createDesktopAutomationStore(options = {}) {
     getDueTasks,
     markRunning,
     markCompleted,
+    recoverRunningTasks,
   };
 }
 
+function createAutomationSweepRunner(options = {}) {
+  if (typeof options.getDueTasks !== 'function' || typeof options.runTask !== 'function') {
+    throw new Error('getDueTasks and runTask are required.');
+  }
+  let activeSweep = null;
+  return async function runSweep() {
+    if (activeSweep) return activeSweep;
+    activeSweep = (async () => {
+      const due = await options.getDueTasks();
+      for (const task of due) await options.runTask(task.id);
+    })();
+    try {
+      await activeSweep;
+    } finally {
+      activeSweep = null;
+    }
+  };
+}
+
+function buildAutomationHistoryLogs(tasks, sessionId) {
+  const safeSessionId = String(sessionId || '');
+  const task = (Array.isArray(tasks) ? tasks : []).find(item => (
+    item.lastSessionId === safeSessionId
+    || item.history?.some(entry => entry.sessionId === safeSessionId)
+  ));
+  return (task?.history || [])
+    .filter(entry => !safeSessionId || entry.sessionId === safeSessionId)
+    .map((entry, index) => ({
+      id: `automation-history-${task.id}-${index}`,
+      role: 'system',
+      content: entry.message || (entry.ok ? 'Automação concluída.' : 'Automação falhou.'),
+      createdAt: entry.at,
+      sessionId: entry.sessionId || safeSessionId,
+      source: 'desktop-automation-history',
+      ok: Boolean(entry.ok),
+    }));
+}
+
 module.exports = {
+  buildAutomationHistoryLogs,
   createDesktopAutomationStore,
+  createAutomationSweepRunner,
 };

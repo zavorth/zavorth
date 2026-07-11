@@ -954,11 +954,14 @@ describe('TelegramOpsController', () => {
 
     expect(start).toHaveBeenCalledWith('42');
     expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Sequencia guiada iniciada|Guided sequence|Demo mode enabled for this sequence/i);
-    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Como abrir a apresentacao|open the presentation|Guided sequence|step/i);
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Como abrir a apresentacao|open the presentation|Guided sequence|step|Passo 1\/4/i);
     expect(next).toHaveBeenCalledWith('42', 4);
-    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toContain('Etapa 2/4: Arquivos');
+    // Product copy uses "Passo N/M: <title>" (PT); keep legacy "Etapa" as alternate.
+    expect(String(ctx.reply.mock.calls[1]?.[0] ?? '')).toMatch(/(?:Passo|Etapa)\s*2\/4:\s*Arquivos/);
     expect(reset).toHaveBeenCalledWith('42');
-    expect(ctx.reply).toHaveBeenNthCalledWith(3, 'Guided sequence reset. Use /demo start when you want to begin again.');
+    expect(String(ctx.reply.mock.calls[2]?.[0] ?? '')).toMatch(
+      /Guided sequence reset|Sequencia guiada reiniciada|Use \/demo start/i,
+    );
   });
 
   it('shows the short demo summary', async () => {

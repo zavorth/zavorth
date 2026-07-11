@@ -140,7 +140,7 @@ export type SourceAbsorptionPlannerItem = {
   decision: SourceSurfaceDecision;
   ownerDecisionRequired: boolean;
   target: SourceAbsorptionTarget;
-  phase: number;
+  gate: number;
   reason: string;
 };
 
@@ -164,7 +164,7 @@ export type SourceSurfaceLedgerReceipt = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SOURCE_SURFACE_LEDGER_CONTRACT_VERSION;
   status: SourceSurfaceLedgerReceiptStatus;
-  phase: 0;
+  gate: 'source-surface-ledger';
   statement: 'Source full-surface ledger is executable Zavorth governance infrastructure.';
   paths: {
     ledgerPath: string;

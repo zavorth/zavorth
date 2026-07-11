@@ -84,7 +84,7 @@ export class DistributionHardeningService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '55',
+      gate: 'distribution-hardening',
       surface: 'distribution-hardening',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -111,8 +111,8 @@ export class DistributionHardeningService {
       installerPreviewSteps: DISTRIBUTION_HARDENING_INSTALLER_PREVIEW_STEPS,
       smokeSteps: DISTRIBUTION_HARDENING_SMOKE_STEPS,
       checks,
-      nextRecommendedPhase: {
-        phase: '56',
+      nextRecommendedGate: {
+        gate: 'public-docs-recipes',
         title: 'Public Docs, Examples And Recipes Expansion',
         reason:
           'Com distribuicao v1.x verificavel, o proximo passo e expandir docs e recipes publicas que uma pessoa externa consiga seguir sem historico interno.',
@@ -137,8 +137,8 @@ export class DistributionHardeningService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -447,14 +447,12 @@ export class DistributionHardeningService {
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'etapa 55',
       'manifest',
       'checksum',
       'preview',
       'install',
       'cleanup',
       'qa:distribution-hardening',
-      'qa:phase:55',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
@@ -474,7 +472,7 @@ export class DistributionHardeningService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion', 'qa:phase:56']
+    const missing = ['Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion', 'qa:public-docs-recipes']
       .filter((term) => !source.includes(term));
     return this.check(
       'distribution-hardening:next-phase',

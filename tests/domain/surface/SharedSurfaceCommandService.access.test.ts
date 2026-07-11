@@ -620,7 +620,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/codexremote start Demo -- continue from phase 2',
+      rawText: '/codexremote start Demo -- continue from step 2',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };
@@ -650,7 +650,7 @@ describe('SharedSurfaceCommandService', () => {
     expect(execute).toHaveBeenCalledWith(expect.objectContaining({
       actionId: 'start-session',
       title: 'Demo',
-      prompt: 'continue from phase 2',
+      prompt: 'continue from step 2',
     }));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao iniciada.'));
   });
@@ -668,7 +668,7 @@ describe('SharedSurfaceCommandService', () => {
       userId: 'telegram-user',
       chatId: 'telegram:chat-1',
       isGroup: false,
-      rawText: '/codexremote start Demo -- continue from phase 2',
+      rawText: '/codexremote start Demo -- continue from step 2',
       reply: jest.fn(async () => undefined),
       editMessage: jest.fn(async () => undefined),
     };

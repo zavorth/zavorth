@@ -35,7 +35,6 @@ import type { BootEvent, RuntimeStatus } from '../global';
 import { DesktopSidebar } from '../navigation/DesktopSidebar';
 import { DesktopStatusbar } from '../navigation/DesktopStatusbar';
 import { DesktopTopbar } from '../navigation/DesktopTopbar';
-import { X } from '../icons';
 import type { ModelOption } from '../modelCatalog';
 import { CommandPalette } from '../overlays/CommandPalette';
 import { CommandCenterOverlay } from '../command-center/CommandCenterOverlay';
@@ -54,7 +53,7 @@ import {
 import type { DesktopPanel } from '../slashCommands';
 import { ThreadView } from '../thread/ThreadView';
 import { DesktopWorkspaceView } from '../views/DesktopWorkspaceView';
-import { DesktopRightRail, TerminalTabsPanel } from './DesktopRightRail';
+import { DesktopRightRail } from './DesktopRightRail';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { zavorthThemePresets, type ZavorthAccent } from '../themePresets';
 import type { ActiveSubagent } from '../desktop-state/subagents';
@@ -66,7 +65,6 @@ import type { PluginItem } from '../views/panels/PluginMarketplacePanel';
 import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardProjection';
 import { t } from '../i18n';
 import { useVoiceDictation } from '../voice/useVoiceDictation';
-import { RuntimeSetupBanner } from '../components/RuntimeSetupBanner';
 import { NextActionBanner } from '../components/NextActionBanner';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
 import {
@@ -75,8 +73,9 @@ import {
 } from '../trust/trustedOperator';
 import type { HunkReceipt } from '../trust/hunkApproval';
 import { appendReceipt } from '../desktop-state/receiptsLedger';
+import { useCodeBridge } from '../desktop-state/useCodeBridge';
+import { CodeBridgeChecksPanel } from '../components/CodeBridgeChecksPanel';
 
-type BottomTerminalTab = 'logs' | 'shell';
 
 export function DesktopShell(props: {
   accent: ZavorthAccent;
@@ -142,7 +141,7 @@ export function DesktopShell(props: {
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onSidebarCollapsed(updater: (value: boolean) => boolean): void;
-  onSubmit(value?: string): void | Promise<void>;
+  onSubmit(value?: string): unknown | Promise<unknown>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
@@ -160,6 +159,8 @@ export function DesktopShell(props: {
   allProfiles?: AgentProfile[];
   onAddCustomProfile?: (name: string, prompt: string, effort: AgentProfile['effort'], costLimit: number) => void;
   onDeleteCustomProfile?: (id: string) => void;
+  activeProfileId?: string;
+  onActivateProfile?: (profile: AgentProfile) => void;
   scheduledTasks?: ScheduledTask[];
   onAddScheduledTask?: (name: string, project: string, prompt: string, intervalMinutes: number) => void;
   onDeleteScheduledTask?: (id: string) => void;
@@ -197,7 +198,7 @@ export function DesktopShell(props: {
   workboardSyncDetail?: string | null;
   workboardSyncBusy?: boolean;
   onSyncWorkboard?: (boardId?: string) => void | Promise<boolean | void>;
-  onCheckUpdates?: () => void | Promise<void>;
+  onCheckUpdates?: () => unknown | Promise<unknown>;
   onDownloadUpdate?: () => void | Promise<void>;
   onInstallUpdate?: () => void | Promise<void>;
   onDeferUpdate?: () => void | Promise<void>;
@@ -217,6 +218,8 @@ export function DesktopShell(props: {
     readStoredRightRailState(typeof localStorage !== 'undefined' ? localStorage : null),
   );
   const [focusFilePath, setFocusFilePath] = useState<string | null>(null);
+  const [codeBridgeOpen, setCodeBridgeOpen] = useState(false);
+  const codeBridge = useCodeBridge();
   const rightRailResizeRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const appClassName = [
     'zvd-app',
@@ -230,8 +233,6 @@ export function DesktopShell(props: {
     isMac ? 'is-mac' : '',
     `zvd-sidebar-side-${sidebarSide}`,
   ].filter(Boolean).join(' ');
-  const [bottomPanelOpen, setBottomPanelOpen] = useState(false);
-  const [bottomTab, setBottomTab] = useState<BottomTerminalTab>('logs');
   const [localCommandCenterOpen, setLocalCommandCenterOpen] = useState(false);
   const [constellationOpen, setConstellationOpen] = useState(false);
   const [trustedOperator, setTrustedOperator] = useState(() =>
@@ -353,12 +354,7 @@ export function DesktopShell(props: {
   ]);
 
   const openRightRailTab = useCallback((tab: RightRailTab) => {
-    // Prefer the side rail for files/git/preview; keep bottom panel for logs/terminal.
     updateRightRail({ open: true, tab });
-    if (tab === 'logs' || tab === 'terminal') {
-      setBottomPanelOpen(true);
-      setBottomTab(tab === 'terminal' ? 'shell' : 'logs');
-    }
   }, [updateRightRail]);
 
   const handleOpenPath = useCallback(
@@ -503,6 +499,28 @@ export function DesktopShell(props: {
     document.documentElement.dataset.accent = props.accent;
   }, [resolvedTheme, density, props.accent]);
 
+  const analyticsSessions = useMemo(() => {
+    if (!props.messages.length) return [];
+    const firstTimestamp = Date.parse(props.messages.find(message => message.at)?.at || '');
+    const lastTimestamp = Date.parse([...props.messages].reverse().find(message => message.at)?.at || '');
+    const startedAt = Number.isFinite(firstTimestamp) ? firstTimestamp : Date.now();
+    return [{
+      id: props.currentSessionId || 'desktop-main',
+      startedAt,
+      endedAt: props.busy ? undefined : (Number.isFinite(lastTimestamp) ? lastTimestamp : Date.now()),
+      status: props.busy ? 'active' as const : 'completed' as const,
+      model: props.selectedModel,
+    }];
+  }, [props.busy, props.currentSessionId, props.messages, props.selectedModel]);
+
+  const analyticsToolCalls = useMemo(() => props.messages
+    .filter(message => message.role === 'tool')
+    .map(message => ({
+      name: message.title || 'Runtime tool',
+      success: !/\b(error|failed|failure)\b/i.test(message.content),
+      timestamp: Number.isFinite(Date.parse(message.at || '')) ? Date.parse(message.at || '') : undefined,
+    })), [props.messages]);
+
   useEffect(() => {
     setTrustedOperator(
       loadTrustedOperator(typeof localStorage !== 'undefined' ? localStorage : null),
@@ -537,7 +555,10 @@ export function DesktopShell(props: {
     function handleKeyDown(event: KeyboardEvent) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'j') {
         event.preventDefault();
-        setBottomPanelOpen(prev => !prev);
+        updateRightRail({
+          open: !(rightRail.open && rightRail.tab === 'terminal'),
+          tab: 'terminal',
+        });
       }
       if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'k') {
         event.preventDefault();
@@ -551,7 +572,7 @@ export function DesktopShell(props: {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [props.onCommandPalette, setCommandCenterOpen]);
+  }, [props.onCommandPalette, rightRail.open, rightRail.tab, setCommandCenterOpen, updateRightRail]);
 
   useEffect(() => {
     const media = window.matchMedia?.('(prefers-color-scheme: dark)');
@@ -609,6 +630,17 @@ export function DesktopShell(props: {
           onCommandPalette={() => props.onCommandPalette(true)}
           onOpenCommandCenter={() => setCommandCenterOpen(true)}
           onModel={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
+          onRuntime={() => {
+            if (!props.status.running) {
+              void props.onRuntimeStart();
+              return;
+            }
+            if (!props.status.tokenReady) {
+              void props.onAccessRepair();
+              return;
+            }
+            props.onOpenSettingsOverlay?.() ?? props.onPanel('settings');
+          }}
           onRefresh={props.onRefresh}
           onStop={() => void props.onSubmit('/stop')}
           trustedOperator={trustedOperator}
@@ -617,16 +649,6 @@ export function DesktopShell(props: {
 
         <section id="zvd-main-content" className="zvd-content-stage" aria-label="Workspace content" tabIndex={-1}>
           <div className="zvd-ambient-field" aria-hidden="true" />
-          <RuntimeSetupBanner
-            status={props.status}
-            busy={props.busy}
-            updateMessage={props.updateStatusMessage}
-            onStart={props.onRuntimeStart}
-            onRepair={props.onAccessRepair}
-            onOpenSetup={props.onOpenSetup}
-            onOpenLogs={props.onOpenLogs}
-            onCheckUpdates={props.onCheckUpdates}
-          />
           {props.activePanel === 'chat' ? (
             <>
               <NextActionBanner
@@ -667,7 +689,7 @@ export function DesktopShell(props: {
                 onModel={props.onModel}
                 onProviderSetup={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
                 onStop={() => void props.onSubmit('/stop')}
-                onSubmit={props.onSubmit}
+                onSubmit={async value => { await props.onSubmit(value); }}
                 onVoice={voice.toggle}
                 voiceListening={voice.listening}
                 onWorkspaceFolder={props.onWorkspaceFolder}
@@ -742,6 +764,11 @@ export function DesktopShell(props: {
               allProfiles={props.allProfiles}
               onAddCustomProfile={props.onAddCustomProfile}
               onDeleteCustomProfile={props.onDeleteCustomProfile}
+              activeProfileId={props.activeProfileId}
+              onActivateProfile={props.onActivateProfile}
+              sessions={analyticsSessions}
+              toolCalls={analyticsToolCalls}
+              tokenUsage={[]}
               boards={props.boards}
               runtimeWorkboard={props.runtimeWorkboard}
               marketplacePlugins={props.marketplacePlugins}
@@ -767,7 +794,7 @@ export function DesktopShell(props: {
               updateStatusMessage={props.updateStatusMessage}
               updateStatus={props.updateStatus}
               voiceAgentStatus={props.voiceAgentStatus}
-              onCheckUpdates={props.onCheckUpdates}
+              onCheckUpdates={props.onCheckUpdates ? async () => { await props.onCheckUpdates?.(); } : undefined}
               onDownloadUpdate={props.onDownloadUpdate}
               onInstallUpdate={props.onInstallUpdate}
               onDeferUpdate={props.onDeferUpdate}
@@ -780,62 +807,11 @@ export function DesktopShell(props: {
             />
           )}
 
-          {bottomPanelOpen && (
-            <div className="zvd-terminal-panel zvd-terminal-panel--unified" aria-label="Terminal">
-              <header className="zvd-terminal-panel__header">
-                <div className="zvd-terminal-tabs" role="tablist" aria-label="Terminal views">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={bottomTab === 'logs'}
-                    className={bottomTab === 'logs' ? 'is-active' : ''}
-                    onClick={() => setBottomTab('logs')}
-                  >
-                    {t('terminal.logs')}
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={bottomTab === 'shell'}
-                    className={bottomTab === 'shell' ? 'is-active' : ''}
-                    onClick={() => setBottomTab('shell')}
-                  >
-                    {t('terminal.shell')}
-                  </button>
-                </div>
-                <button type="button" onClick={() => setBottomPanelOpen(false)} aria-label={t('terminal.close')}>
-                  <X aria-hidden="true" size={16} stroke={2} />
-                </button>
-              </header>
-              {bottomTab === 'logs' ? (
-                <div className="zvd-terminal-logs" role="tabpanel">
-                  {props.events.length === 0 ? (
-                    <span className="zvd-terminal-empty">{t('terminal.emptyLogs')}</span>
-                  ) : (
-                    props.events.map((event, index) => (
-                      <div className="zvd-terminal-line" key={`${event.at}-${index}`}>
-                        <span className="zvd-terminal-timestamp">[{new Date(event.at).toLocaleTimeString()}]</span>
-                        <span className={`zvd-terminal-type type-${event.type}`}>{event.type.toUpperCase()}:</span>
-                        <span className="zvd-terminal-msg">{event.message}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              ) : (
-                <div className="zvd-terminal-shell" role="tabpanel">
-                  <TerminalTabsPanel
-                    workspaceId={props.workspaceScope.id}
-                    agentBusy={props.busy}
-                    trustLabel={props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}
-                  />
-                </div>
-              )}
-            </div>
-          )}
         </section>
 
         <DesktopStatusbar
-          bottomPanelOpen={bottomPanelOpen}
+          bottomPanelOpen={rightRail.open && (rightRail.tab === 'terminal' || rightRail.tab === 'logs')}
+          codeBridge={codeBridge}
           effort={props.effort}
           modelLabel={activeModel?.label || 'Zavorth Core'}
           status={props.status}
@@ -844,7 +820,11 @@ export function DesktopShell(props: {
           onOpenSettings={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
           onRuntimeStateAction={props.onRuntimeStateAction}
           onPanel={props.onPanel}
-          onToggleBottomPanel={() => setBottomPanelOpen(prev => !prev)}
+          onToggleBottomPanel={() => updateRightRail({
+            open: !(rightRail.open && (rightRail.tab === 'terminal' || rightRail.tab === 'logs')),
+            tab: rightRail.tab === 'logs' ? 'logs' : 'terminal',
+          })}
+          onOpenCodeBridge={() => setCodeBridgeOpen(true)}
         />
       </section>
 
@@ -868,7 +848,7 @@ export function DesktopShell(props: {
         onPanel={props.onPanel}
         onResizeMouseDown={handleRightRailResizeMouseDown}
         onRuntimeStateAction={props.onRuntimeStateAction}
-        onSubmit={props.onSubmit}
+        onSubmit={async value => { await props.onSubmit(value); }}
         onTab={tab => updateRightRail({ open: true, tab })}
       />
 
@@ -894,6 +874,12 @@ export function DesktopShell(props: {
         onStart={props.onRuntimeStart}
       />
 
+      <CodeBridgeChecksPanel
+        open={codeBridgeOpen}
+        summary={codeBridge}
+        onClose={() => setCodeBridgeOpen(false)}
+      />
+
       <CommandPalette
         activePanel={props.activePanel}
         open={props.commandPaletteOpen}
@@ -901,7 +887,7 @@ export function DesktopShell(props: {
         onClose={() => props.onCommandPalette(false)}
         onInsert={props.onInput}
         onPanel={props.onPanel}
-        onRun={props.onSubmit}
+        onRun={async value => { await props.onSubmit(value); }}
         onSwitchSession={props.onSwitchSession}
         onNewSession={props.onNewSession}
         onOpenSettings={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}

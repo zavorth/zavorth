@@ -113,7 +113,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     decision_note: 'Fixture local do gate Runtime gateway2; nao persiste no ledger.',
     metadata: {
       capability_autopilot: true,
-      stage: 'capability-autopilot-checkpoint-62',
+      stage: 'capability-autopilot-validation-resume',
       requirement_id: requirement.id,
       fixture: true,
     },
@@ -170,7 +170,7 @@ function buildChecks(
       'capability-autopilot-resume:readiness-recomputed',
       'readiness recalculado',
       result.readiness ? 'pass' : 'fail',
-      'Depois do gate de permissao, a Etapa 62 recalcula readiness antes de retomar.',
+      'Depois do gate de permissao, o gate de validation/resume recalcula readiness antes de retomar.',
       [`readiness=${result.readiness?.status || '<ausente>'}`, `safeToRun=${String(result.readiness?.safeToRun ?? '<ausente>')}`],
     ),
     check(
@@ -219,7 +219,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotResumeSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-resume] Etapa 62 - Validation And Resume Loop');
+  lines.push('[capability-autopilot-resume] Validation And Resume Loop');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);

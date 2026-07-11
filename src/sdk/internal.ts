@@ -7,6 +7,8 @@ export * from '../services/SalesPackChannelIoService.js';
 export * from '../services/ArtifactDiffService.js';
 export * from '../services/ChannelLiveActivationService.js';
 export * from '../services/ChannelLongTailActivationService.js';
+export * from '../services/ReachChannelSpineService.js';
+
 export * from '../services/ZavorthChannelCapabilityAwarenessService.js';
 export * from '../services/ChannelConnectionPlaybookService.js';
 export * from '../services/ProviderConnectionPlaybookService.js';
@@ -141,6 +143,7 @@ export * from '../services/ZavorthProductCertificationService.js';
 export * from '../services/GoalLoopService.js';
 export * from '../services/GoalLoopWorkerService.js';
 export * from '../services/TaskPlaneService.js';
+export * from '../services/AutonomySchedulePlane.js';
 export * from '../services/ZavorthFriendlyWorkCommandService.js';
 export * from '../services/ChannelGovernanceEnvelopeService.js';
 export * from '../services/SandboxExecutionReceiptService.js';

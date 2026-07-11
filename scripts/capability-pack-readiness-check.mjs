@@ -72,7 +72,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-pack-readiness-package-scripts',
     label: 'Readiness package scripts exist',
-    target: 'npm scripts expose readiness doctor CLI and phase gate',
+    target: 'npm scripts expose readiness doctor CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-pack-readiness',

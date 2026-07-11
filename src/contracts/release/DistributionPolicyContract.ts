@@ -19,7 +19,7 @@ export type DistributionPolicyScreenshotSpec = {
 };
 
 export type DistributionPolicyContractSnapshot = {
-  phase: '50';
+  gate: 'distribution-policy';
   surface: 'distribution-policy';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -36,8 +36,8 @@ export type DistributionPolicyContractSnapshot = {
   requiredPolicies: string[];
   screenshots: DistributionPolicyScreenshotSpec[];
   checks: DistributionPolicyCheck[];
-  nextRecommendedPhase: {
-    phase: '51';
+  nextRecommendedGate: {
+    gate: 'public-release-bundle';
     title: string;
     reason: string;
   };

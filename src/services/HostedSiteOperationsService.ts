@@ -94,14 +94,14 @@ export class HostedSiteOperationsService {
       this.checkExportedRoutes(),
       this.checkSmokeArtifact(),
       this.checkScreenshots(),
-      this.checkNextPhasePlanning(),
+      this.checkNextGatePlanning(),
     ];
     const failed = checks.filter((check) => check.status === 'fail').length;
     const warnings = checks.filter((check) => check.status === 'warn').length;
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '54',
+      gate: 'hosted-site-operations',
       surface: 'hosted-site-operations',
       generatedAt: this.now().toISOString(),
       projectRoot: this.projectRoot,
@@ -123,8 +123,8 @@ export class HostedSiteOperationsService {
       rollbackRunbook: HOSTED_SITE_ROLLBACK_RUNBOOK,
       screenshots: HOSTED_SITE_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
-        phase: '55',
+      nextRecommendedGate: {
+        gate: 'distribution-hardening',
         title: 'Installer And Distribution Hardening',
         reason:
           'Com site e demo operaveis por build, smoke, screenshots e rollback, o proximo passo e endurecer bundle, installer e distribuicao.',
@@ -154,8 +154,8 @@ export class HostedSiteOperationsService {
       lines.push(`- ${step.id}: ${step.command} | rollback: ${step.rollback}`);
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -466,19 +466,19 @@ export class HostedSiteOperationsService {
     );
   }
 
-  private checkNextPhasePlanning(): HostedSiteOperationsCheck {
+  private checkNextGatePlanning(): HostedSiteOperationsCheck {
     const doc = this.readCoreText('docs/product-direction.md') || '';
-    const hasPhase = doc.includes('Readiness checkpoint 5 - Installer And Distribution Hardening');
-    const hasGate = doc.includes('qa:phase:55');
+    const hasNextDoc = doc.includes('Readiness checkpoint 5 - Installer And Distribution Hardening');
+    const hasGate = doc.includes('qa:distribution-hardening');
     return this.check(
-      'hosted-site:next-phase',
+      'hosted-site:next-gate',
       'proximo passo planejada',
-      hasPhase && hasGate ? 'pass' : 'fail',
-      hasPhase && hasGate
-        ? 'planejamento aponta para Readiness checkpoint 5 e gate qa:release:55.'
-        : 'docs/product-direction precisa manter Readiness checkpoint 5 e gate qa:release:55 planejados.',
+      hasNextDoc && hasGate ? 'pass' : 'fail',
+      hasNextDoc && hasGate
+        ? 'planejamento aponta para Readiness checkpoint 5 e gate qa:distribution-hardening.'
+        : 'docs/product-direction precisa manter Readiness checkpoint 5 e gate qa:distribution-hardening planejados.',
       'docs/product-direction.md',
-      [`credential-vault5=${hasPhase}`, `gate55=${hasGate}`],
+      [`nextDoc=${hasNextDoc}`, `gate=${hasGate}`],
     );
   }
 

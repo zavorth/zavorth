@@ -102,7 +102,7 @@ function createSnapshot(hint: CapabilityPreflightHintResult): CapabilityAutopilo
     records: [],
     payloads,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '69',
       title: 'Preflight Action Handler Wiring',
       reason: 'Wire explicit actions.',
@@ -238,7 +238,7 @@ describe('CapabilityAutopilotPreflightSideEffectGateService', () => {
 
     expect(gate.status).toBe('blocked');
     expect(gate.decisions.some((decision) => decision.blockers.includes('receipt_confirmation_missing'))).toBe(true);
-    expect(service.renderReport(gate)).toContain('Etapa 72 - Preflight Dispatch Side-Effect Gate');
+    expect(service.renderReport(gate)).toContain('Gate capability-autopilot-preflight-side-effect-gate - Preflight Dispatch Side-Effect Gate');
     expect(service.renderReport(gate)).toContain('proximo passo recomendada: 73 - Preflight Dispatch Apply Adapter');
   });
 });

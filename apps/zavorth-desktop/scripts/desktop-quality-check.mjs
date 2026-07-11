@@ -372,9 +372,9 @@ requireMarkers('automations model', automationsModel, [
 ]);
 requireMarkers('automations panel', automationsPanel, [
   'AutomationsPanel',
-  'zvd-auto-layout',
-  'mergeAutomationJobs',
-  'EmptyState',
+  'zvd-automation-layout',
+  'statusLabel',
+  'zvd-capability-empty',
 ]);
 requireMarkers('constellation shell wiring', shell, [
   'ConstellationOverlay',
@@ -385,8 +385,11 @@ requireMarkers('constellation shell wiring', shell, [
 requireMarkers('constellation css', designCss, [
   '.zvd-constellation-overlay',
   '.zvd-constellation-panel',
-  '.zvd-auto-layout',
-  '.zvd-auto-row',
+]);
+requireMarkers('automations premium css', requireFile('src/styles/premium-shell.css'), [
+  '.zvd-automation-layout',
+  '.zvd-automation-row',
+  '.zvd-automation-create',
 ]);
 requireMarkers('constellation i18n', i18n, [
   'constellation.title',
@@ -396,6 +399,42 @@ requireMarkers('constellation i18n', i18n, [
 requireMarkers('marketplace secondary nav', navConfig, [
   "'marketplace'",
   'SECONDARY_PANELS',
+]);
+
+const electronMain = requireFile('electron/main.cjs');
+const electronPreload = requireFile('electron/preload.cjs');
+const globalTypes = requireFile('src/global.d.ts');
+const codeBridgeModule = requireFile('electron/code-bridge.cjs');
+requireMarkers('Code Bridge main wiring', electronMain, [
+  "require('./code-bridge.cjs')",
+  "ipcMain.handle('zavorth:code-bridge:summary'",
+  'startCodeBridgeHeartbeat',
+  'stopCodeBridgeHeartbeat',
+]);
+requireMarkers('Code Bridge preload and types', `${electronPreload}\n${globalTypes}`, [
+  'getCodeBridgeSummary',
+  'CodeBridgeSummary',
+  'CodeBridgeCheck',
+]);
+requireMarkers('Code Bridge renderer wiring', shell, [
+  'useCodeBridge',
+  'CodeBridgeChecksPanel',
+  'codeBridgeOpen',
+]);
+requireMarkers('Code Bridge self-contained heartbeat', codeBridgeModule, [
+  'writeJsonAtomic',
+  'startCodeBridgeHeartbeat',
+  'getCodeBridgeSummary',
+]);
+requireMarkers('automation persistence and sweep safety', requireFile('electron/desktop-automations.cjs'), [
+  'temporaryPath',
+  'createAutomationSweepRunner',
+  'activeSweep',
+  'buildAutomationHistoryLogs',
+]);
+requireMarkers('workboard batch sync', requireFile('src/workboard/workboardRuntimeSync.ts'), [
+  "input.operation === 'sync-board'",
+  'input.board.cards.map',
 ]);
 
 if (!/prefers-reduced-motion/.test(`${designCss}\n${stylesCss}`)) {

@@ -433,7 +433,7 @@ export class ReleaseInstallerRollbackPathService {
       },
       {
         id: 'canary-dormant',
-        label: 'Etapa 84 / canary dormente',
+        label: 'Canary dormente',
         status: 'ready',
         source: 'ReleaseInstallerRollbackPathService',
         command: 'zavorth release canary --dry-run',
@@ -560,7 +560,7 @@ export class ReleaseInstallerRollbackPathService {
       return 'Rebaixar para preview e corrigir stable, bundle ou rollback antes de qualquer publicacao.';
     }
     if (status === 'dormant-canary') {
-      return 'Manter Etapa 84 dormente ate produto operavel e usuarios reais.';
+      return 'Manter canary dormente ate produto operavel e usuarios reais.';
     }
     return 'Manter release em preview; use dry-run de installer e rollback antes da Channel mesh9.';
   }

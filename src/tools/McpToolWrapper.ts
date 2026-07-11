@@ -2,6 +2,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { ToolDefinition } from '../providers/ILlmProvider.js';
 import { BaseTool } from './BaseTool.js';
 import { WorkspaceWriteApprovalPayloadCache } from '../services/WorkspaceWriteApprovalPayloadCache.js';
+import {
+  decideSecurityPolicy,
+  formatSecurityPolicyReceipt,
+} from '../security/SecurityPolicyBroker.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
@@ -30,6 +34,21 @@ export class McpToolWrapper extends BaseTool {
     console.log(`[MCP] Executando ferramenta remota: ${this.name}...`);
     const opId = args.operationId as string;
     try {
+      const policyDecision = decideSecurityPolicy({
+        surface: 'mcp',
+        operation: this.name,
+        target: this.remoteName,
+        mcpDecision: {
+          allowed: true,
+          reason: `Remote MCP tool call: ${this.name}`,
+        },
+        rule: 'MCP_REMOTE_TOOL_CALL',
+        reasons: [`Remote MCP tool call: ${this.name}`],
+      });
+      if (!policyDecision.allowed) {
+        return `Error executing tool: blocked by security policy. ${formatSecurityPolicyReceipt(policyDecision.receipt)}`;
+      }
+
       const response = await this.mcpClient.callTool({
         name: this.remoteName,
         arguments: args,

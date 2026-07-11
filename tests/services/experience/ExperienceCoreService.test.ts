@@ -138,7 +138,7 @@ function makeLearningPlane() {
         operatorSummary: '1 pendente, 0 aprovado, 0 promovido.',
       },
     })),
-    executeAction: jest.fn(() => ({
+    executeAction: jest.fn(async () => ({
       generatedAt: '2026-05-21T12:00:00.000Z',
       candidateId: 'candidate:run-1',
       actionId: 'approve',
@@ -754,12 +754,12 @@ describe('Experience Core Layer', () => {
     expect(result.snapshot.raw?.selfHealing).toBeTruthy();
   });
 
-  it('keeps learning decisions explicit and reviewable', () => {
+  it('keeps learning decisions explicit and reviewable', async () => {
     const learningPlane = makeLearningPlane();
     const learningOs = new LearningOSService({ now, learningPlane });
 
     const before = learningOs.buildCandidates();
-    const decision = learningOs.decide({
+    const decision = await learningOs.decide({
       candidateId: 'candidate:run-1',
       decision: 'approve',
     });
@@ -776,7 +776,7 @@ describe('Experience Core Layer', () => {
     });
   });
 
-  it('quarantines learning candidates that try to change core security policy', () => {
+  it('quarantines learning candidates that try to change core security policy', async () => {
     const unsafePlane = makeLearningPlane();
     unsafePlane.buildSnapshot.mockReturnValue({
       generatedAt: '2026-05-21T12:00:00.000Z',
@@ -824,7 +824,7 @@ describe('Experience Core Layer', () => {
     const learningOs = new LearningOSService({ now, learningPlane: unsafePlane });
 
     const candidates = learningOs.buildCandidates();
-    const decision = learningOs.decide({
+    const decision = await learningOs.decide({
       candidateId: 'candidate:unsafe-policy',
       decision: 'approve',
     });

@@ -133,7 +133,7 @@ function createSource(
       reason: 'checkpoint-82-test',
       executionGateReceiptId: 'execution-gate-1',
     },
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '83',
       title: 'Capability Autopilot v1.1 Canary Monitoring And Promotion Gate',
       reason: 'Monitor canary.',
@@ -322,7 +322,7 @@ describe('CapabilityAutopilotCanaryMonitoringPromotionGateService', () => {
     const service = createService();
     const snapshot = service.buildCanaryPromotionSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 83 - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-canary-monitoring-promotion - Capability Autopilot v1.1 Canary Monitoring And Promotion Gate');
     expect(service.renderReport(snapshot)).toContain('proxima etapa recomendada: consolidation - Capability Autopilot Release Readiness Consolidation');
   });
 });

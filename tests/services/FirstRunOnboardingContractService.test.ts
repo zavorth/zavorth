@@ -5,12 +5,12 @@ describe('FirstRunOnboardingContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('48');
+    expect(snapshot.phase).toBe('first-run-onboarding');
     expect(snapshot.surface).toBe('first-run-onboarding');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/start');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '49',
       title: 'External Docs And Examples',
     }));
@@ -53,11 +53,11 @@ describe('FirstRunOnboardingContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 48 - Public Onboarding And First Run');
+    expect(report).toContain('Gate first-run-onboarding - Public Onboarding And First Run');
     expect(report).toContain('proximo passo recomendada: 49 - External Docs And Examples');
   });
 });
@@ -79,7 +79,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       scripts: {
         'first-run': 'npx tsx scripts/first-run.ts',
         'qa:first-run': 'npx tsx scripts/first-run.ts --require-pass --build --screenshots',
-        'qa:stage:48': 'node scripts/capability-suite-adoption-check.mjs --phase=48',
+        'qa:first-run-onboarding': 'node scripts/capability-suite-adoption-check.mjs --gate=first-run-onboarding',
       },
     }),
     'website:package.json': JSON.stringify({

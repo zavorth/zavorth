@@ -118,7 +118,7 @@ export type ZavorthToolOrchestrationVerificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION;
   source: 'ZavorthToolOrchestrationVerificationService';
-  phase: 'checkpoint-4-tool-orchestration-verification';
+  gate: 'tool-orchestration-verification';
   status: ZavorthToolOrchestrationVerificationStatus;
   request: {
     surface: string;

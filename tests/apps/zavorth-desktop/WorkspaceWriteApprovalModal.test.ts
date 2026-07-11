@@ -11,7 +11,7 @@ import { LogRepository } from '../../../src/storage/LogRepository.js';
 import { McpToolWrapper } from '../../../src/tools/McpToolWrapper.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
-describe('WorkspaceWriteApproval Phase 9E Integration Tests', () => {
+describe('WorkspaceWriteApproval Integration Tests', () => {
   let tempDir: string;
   let db: Database;
   let auditLogger: SecurityAuditLogger;

@@ -5,13 +5,13 @@ describe('WebsitePublicContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('46');
+    expect(snapshot.phase).toBe('website-public');
     expect(snapshot.surface).toBe('website-public');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.failed).toBe(0);
     expect(snapshot.canonicalBase.repoName).toBe('zavorth-website');
-    expect(snapshot.nextRecommendedPhase).toEqual(expect.objectContaining({
-      phase: '47',
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
+      gate: 'public-demo',
       title: 'Public Demo And Guided Story',
     }));
   });
@@ -56,14 +56,14 @@ describe('WebsitePublicContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture({
       now: new Date('2026-04-25T00:00:00.000Z').toISOString(),
     });
 
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 46 - Website/Landing Real');
+    expect(report).toContain('Gate website-public - Website/Landing Real');
     expect(report).toContain('proximo passo recomendada: 47 - Public Demo And Guided Story');
   });
 });
@@ -88,7 +88,6 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'website:build': 'node scripts/run-external-surface.mjs website npm run website:build',
         'website:public': 'npx tsx scripts/website-public.ts',
         'qa:website-public': 'npx tsx scripts/website-public.ts --require-pass --build --screenshots',
-        'qa:stage:46': 'node scripts/capability-suite-adoption-check.mjs --phase=46',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -112,7 +111,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
       '<Footer />',
     ].join('\n'),
     'website:app/docs/page.tsx': 'Quickstart npm install npm run go npm run chat replay',
-    'website:app/changelog/page.tsx': 'v0.1 Preview Etapa 46',
+    'website:app/changelog/page.tsx': 'v0.1 Preview Gate website-public',
     'website:app/security/page.tsx': 'Seguranca Aprovacoes opt-in preview',
     'website:app/privacy/page.tsx': 'Privacidade local-first Telemetria opt-in',
     'website:app/terms/page.tsx': 'Termos preview publico',

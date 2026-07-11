@@ -39,7 +39,7 @@ function createEntry(
     surface: 'capability-autopilot-preflight-post-run-rollback-ledger',
     status: 'post_run_verified',
     capabilityId: 'executor-gemini-cli',
-    sourceExecutionPhase: '76',
+    sourceExecutionGate: '76',
     sourceControlledExecutionId: `execution-${sourceSurface}-${sourceActionKind}`,
     sourceSurface,
     sourceAction: {
@@ -128,7 +128,7 @@ function createSource(
     sourceSnapshotStage: '76',
     entries,
     checks: [],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '78',
       title: 'Capability Autopilot v1.1 Beta Readiness Gate',
       reason: 'Decide beta readiness.',
@@ -266,11 +266,11 @@ describe('CapabilityAutopilotBetaReadinessGateService', () => {
     ]));
   });
 
-  it('renders the next phase for beta field trial loop', () => {
+  it('renders the next gate for beta field trial loop', () => {
     const service = createService();
     const snapshot = service.buildReadinessSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 78 - Capability Autopilot v1.1 Beta Readiness Gate');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-beta-readiness - Capability Autopilot v1.1 Beta Readiness Gate');
     expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 79 - Capability Autopilot Beta Field Trial Loop');
   });
 });

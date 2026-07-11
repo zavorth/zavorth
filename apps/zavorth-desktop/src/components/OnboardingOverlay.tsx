@@ -39,7 +39,24 @@ interface OnboardingOverlayProps {
 }
 
 type ProviderType = DesktopOnboardingProvider;
-type ProviderPhase = 'pick' | 'credentials' | 'model';
+type ProviderStep = 'pick' | 'credentials' | 'model';
+
+const PROVIDER_CATALOG: Array<{ id: ProviderType; name: string; baseUrl: string; summary: string; recommended?: boolean }> = [
+  { id: 'openrouter', name: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', summary: 'Vários modelos em uma única chave.', recommended: true },
+  { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1', summary: 'GPT e modelos de raciocínio.' },
+  { id: 'anthropic', name: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', summary: 'Modelos Claude.' },
+  { id: 'google', name: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', summary: 'Modelos Gemini e multimodais.' },
+  { id: 'xai', name: 'xAI Grok', baseUrl: 'https://api.x.ai/v1', summary: 'Modelos Grok via API.' },
+  { id: 'deepseek', name: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', summary: 'Raciocínio e código.' },
+  { id: 'mistral', name: 'Mistral AI', baseUrl: 'https://api.mistral.ai/v1', summary: 'Modelos Mistral hospedados.' },
+  { id: 'groq', name: 'Groq', baseUrl: 'https://api.groq.com/openai/v1', summary: 'Inferência de baixa latência.' },
+  { id: 'together', name: 'Together AI', baseUrl: 'https://api.together.xyz/v1', summary: 'Catálogo amplo de modelos abertos.' },
+  { id: 'perplexity', name: 'Perplexity', baseUrl: 'https://api.perplexity.ai', summary: 'Modelos com pesquisa conectada.' },
+  { id: 'cohere', name: 'Cohere', baseUrl: 'https://api.cohere.com/v2', summary: 'Geração e recuperação corporativa.' },
+  { id: 'azure', name: 'Azure OpenAI', baseUrl: 'https://YOUR_RESOURCE.openai.azure.com', summary: 'Endpoint corporativo do Azure.' },
+  { id: 'ollama', name: 'Ollama local', baseUrl: 'http://localhost:11434', summary: 'Modelos locais nesta máquina.' },
+  { id: 'custom', name: 'Endpoint personalizado', baseUrl: 'http://127.0.0.1:8000/v1', summary: 'Qualquer API compatível com OpenAI.' },
+];
 
 function errorMessage(err: unknown, fallback: string): string {
   if (err instanceof Error && err.message) return err.message;
@@ -70,11 +87,12 @@ export function OnboardingOverlay({
   onEnableTrustedOperator,
 }: OnboardingOverlayProps) {
   const [trailIndex, setTrailIndex] = useState(0);
-  const [providerPhase, setProviderPhase] = useState<ProviderPhase>('pick');
-  const [providerType, setProviderType] = useState<ProviderType>('openai');
+  const [providerStep, setProviderStep] = useState<ProviderStep>('pick');
+  const [providerType, setProviderType] = useState<ProviderType>('openrouter');
+  const [providerQuery, setProviderQuery] = useState('');
   const [apiKey, setApiKey] = useState('');
-  const [baseUrl, setBaseUrl] = useState('https://api.openai.com/v1');
-  const [displayName, setDisplayName] = useState('OpenAI');
+  const [baseUrl, setBaseUrl] = useState('https://openrouter.ai/api/v1');
+  const [displayName, setDisplayName] = useState('OpenRouter');
 
   const [loading, setLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -97,22 +115,9 @@ export function OnboardingOverlay({
 
   const handleProviderSelect = (type: ProviderType) => {
     setProviderType(type);
-    const urls: Record<ProviderType, string> = {
-      openai: 'https://api.openai.com/v1',
-      anthropic: 'https://api.anthropic.com/v1',
-      google: 'https://generativelanguage.googleapis.com/v1beta',
-      openrouter: 'https://openrouter.ai/api/v1',
-      ollama: 'http://localhost:11434',
-    };
-    const names: Record<ProviderType, string> = {
-      openai: 'OpenAI',
-      anthropic: 'Anthropic',
-      google: 'Google Gemini',
-      openrouter: 'OpenRouter',
-      ollama: 'Ollama Local',
-    };
-    setBaseUrl(urls[type]);
-    setDisplayName(names[type]);
+    const provider = PROVIDER_CATALOG.find(item => item.id === type) || PROVIDER_CATALOG[0];
+    setBaseUrl(provider.baseUrl);
+    setDisplayName(provider.name);
     setApiKey('');
     setTestResult(null);
     setError(null);
@@ -125,7 +130,7 @@ export function OnboardingOverlay({
       const res = await window.zavorthDesktop?.connectGooglePersonalOps();
       if (res?.ok) {
         setTestResult({ ok: true, message: t('onboarding.providerConnected') });
-        setProviderPhase('model');
+        setProviderStep('model');
       } else {
         throw new Error(res?.error || 'Connection failed.');
       }
@@ -197,7 +202,7 @@ export function OnboardingOverlay({
         setSelectedModel(resolvedModels[0]);
       }
 
-      setTimeout(() => setProviderPhase('model'), 500);
+      setTimeout(() => setProviderStep('model'), 500);
     } catch (err: unknown) {
       const message = errorMessage(err, t('onboarding.providerTestFailed'));
       setError(message);
@@ -221,12 +226,12 @@ export function OnboardingOverlay({
   const goBack = () => {
     setError(null);
     if (trailStep.id === 'provider') {
-      if (providerPhase === 'model') {
-        setProviderPhase('credentials');
+      if (providerStep === 'model') {
+        setProviderStep('credentials');
         return;
       }
-      if (providerPhase === 'credentials') {
-        setProviderPhase('pick');
+      if (providerStep === 'credentials') {
+        setProviderStep('pick');
         return;
       }
       return;
@@ -283,15 +288,12 @@ export function OnboardingOverlay({
   };
 
   const canGoBack =
-    trailIndex > 0 || (trailStep.id === 'provider' && providerPhase !== 'pick');
+    trailIndex > 0 || (trailStep.id === 'provider' && providerStep !== 'pick');
 
-  const providerNames: Record<ProviderType, string> = {
-    openai: 'OpenAI',
-    anthropic: 'Anthropic',
-    google: 'Google Gemini',
-    openrouter: 'OpenRouter',
-    ollama: 'Ollama (Local)',
-  };
+  const visibleProviders = PROVIDER_CATALOG.filter(provider => {
+    const q = providerQuery.trim().toLowerCase();
+    return !q || `${provider.name} ${provider.summary} ${provider.id}`.toLowerCase().includes(q);
+  });
 
   return (
     <div className="zvd-onboarding-overlay zvd-onboarding-shell" role="dialog" aria-modal="true" aria-labelledby="zvd-onboarding-title">
@@ -358,28 +360,32 @@ export function OnboardingOverlay({
 
           {trailStep.id === 'provider' && (
             <>
-              {providerPhase === 'pick' && (
+              {providerStep === 'pick' && (
                 <div className="zvd-onboarding-step-panel">
                   <h2 className="zvd-onboarding-step-title">{t('onboarding.welcomeTitle')}</h2>
                   <p className="zvd-onboarding-step-copy">{t('onboarding.providerPickBody')}</p>
-                  <label className="zvd-onboarding-field-label">{t('onboarding.chooseProvider')}</label>
+                  <div className="zvd-onboarding-provider-toolbar">
+                    <label className="zvd-onboarding-field-label">{t('onboarding.chooseProvider')}</label>
+                    <input className="zvd-onboarding-provider-search" value={providerQuery} onChange={event => setProviderQuery(event.target.value)} placeholder="Buscar provedor" />
+                  </div>
                   <div className="zvd-onboarding-providers-grid">
-                    {(['openai', 'anthropic', 'google', 'openrouter', 'ollama'] as ProviderType[]).map(type => (
+                    {visibleProviders.map(provider => (
                       <button
-                        key={type}
+                        key={provider.id}
                         type="button"
-                        className={`zvd-onboarding-provider-card ${providerType === type ? 'zvd-onboarding-provider-card--active' : ''}`}
-                        onClick={() => handleProviderSelect(type)}
+                        className={`zvd-onboarding-provider-card ${providerType === provider.id ? 'zvd-onboarding-provider-card--active' : ''}`}
+                        onClick={() => handleProviderSelect(provider.id)}
                       >
-                        <IconServer size={22} aria-hidden="true" />
-                        <h3>{providerNames[type]}</h3>
+                        <IconServer size={18} aria-hidden="true" />
+                        <span><h3>{provider.name}</h3><small>{provider.summary}</small></span>
+                        {provider.recommended ? <em>Recomendado</em> : null}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              {providerPhase === 'credentials' && (
+              {providerStep === 'credentials' && (
                 <div className="zvd-onboarding-form">
                   <h2 className="zvd-onboarding-step-title">{t('onboarding.providerCredentialsTitle')}</h2>
                   <div className="zvd-onboarding-form-group">
@@ -428,6 +434,13 @@ export function OnboardingOverlay({
                     </div>
                   )}
 
+                  {providerType !== 'ollama' ? (
+                    <div className="zvd-onboarding-form-group">
+                      <label htmlFor="zvd-onboarding-base-url">Endpoint</label>
+                      <input id="zvd-onboarding-base-url" type="url" className="zvd-onboarding-input" value={baseUrl} onChange={e => setBaseUrl(e.target.value)} />
+                    </div>
+                  ) : null}
+
                   {testResult && (
                     <div className={`zvd-onboarding-test-status zvd-onboarding-test-status--${testResult.ok ? 'success' : 'error'}`}>
                       {testResult.ok ? <IconCheck size={16} /> : <IconAlertCircle size={16} />}
@@ -437,7 +450,7 @@ export function OnboardingOverlay({
                 </div>
               )}
 
-              {providerPhase === 'model' && (
+              {providerStep === 'model' && (
                 <div className="zvd-onboarding-form">
                   <h2 className="zvd-onboarding-step-title">{t('onboarding.chooseModel')}</h2>
                   <p className="zvd-onboarding-step-copy">{t('onboarding.modelBody')}</p>
@@ -540,18 +553,18 @@ export function OnboardingOverlay({
               </button>
             )}
 
-            {trailStep.id === 'provider' && providerPhase === 'pick' && (
+            {trailStep.id === 'provider' && providerStep === 'pick' && (
               <button
                 type="button"
                 className="zvd-btn zvd-btn-primary"
-                onClick={() => setProviderPhase('credentials')}
+                onClick={() => setProviderStep('credentials')}
               >
                 {t('onboarding.next')}
                 <IconChevronRight size={16} aria-hidden="true" />
               </button>
             )}
 
-            {trailStep.id === 'provider' && providerPhase === 'credentials' && (
+            {trailStep.id === 'provider' && providerStep === 'credentials' && (
               <button
                 type="button"
                 className="zvd-btn zvd-btn-primary"
@@ -572,7 +585,7 @@ export function OnboardingOverlay({
               </button>
             )}
 
-            {trailStep.id === 'provider' && providerPhase === 'model' && (
+            {trailStep.id === 'provider' && providerStep === 'model' && (
               <button
                 type="button"
                 className="zvd-btn zvd-btn-primary"

@@ -31,7 +31,7 @@ export type PublicDemoContractServiceOptions = {
 };
 
 const WEBSITE_DEMO_SCRIPTS = ['public-demo', 'qa:public-demo'] as const;
-const CORE_DEMO_SCRIPTS = ['public-demo', 'qa:public-demo', 'qa:phase:47'] as const;
+const CORE_DEMO_SCRIPTS = ['public-demo', 'qa:public-demo', 'qa:public-demo'] as const;
 
 export class PublicDemoContractService {
   private readonly projectRoot: string;
@@ -76,7 +76,7 @@ export class PublicDemoContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '47',
+      gate: 'public-demo',
       surface: 'public-demo',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -93,8 +93,8 @@ export class PublicDemoContractService {
       requiredArtifacts: [...PUBLIC_DEMO_REQUIRED_ARTIFACTS],
       screenshots: PUBLIC_DEMO_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
-        phase: '48',
+      nextRecommendedGate: {
+        gate: 'first-run-onboarding',
         title: 'Public Onboarding And First Run',
         reason:
           'Depois da demo fixture-first provar a historia publica, o proximo passo e transformar interesse em primeiro uso local guiado.',
@@ -104,7 +104,7 @@ export class PublicDemoContractService {
 
   public renderReport(snapshot: PublicDemoContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[public-demo] Etapa 47 - Public Demo And Guided Story');
+    lines.push('[public-demo] Public Demo And Guided Story');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -118,8 +118,8 @@ export class PublicDemoContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -162,7 +162,7 @@ export class PublicDemoContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Etapa 47.`
+          ? `repo principal expoe "${scriptName}" para o gate public-demo.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],

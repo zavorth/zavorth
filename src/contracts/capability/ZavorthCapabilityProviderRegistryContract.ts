@@ -151,7 +151,7 @@ export type ZavorthCapabilityProviderRegistrySnapshot = {
   contractVersion: typeof ZAVORTH_CAPABILITY_PROVIDER_REGISTRY_CONTRACT_VERSION;
   status: ZavorthCapabilityProviderRegistryStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'capability-providers';
+  gate: 'capability-providers';
   previousSidecarAdapterStatus: ZavorthExternalSidecarAdapterStatus;
   normalizedCapabilities: ZavorthCapabilityProviderNormalizedCapability[];
   manifestImportReceipts: ZavorthCapabilityProviderManifestImportReceipt[];

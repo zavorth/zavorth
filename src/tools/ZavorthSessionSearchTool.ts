@@ -5,6 +5,7 @@ import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import type { SessionContinuumService } from '../services/SessionContinuumService.js';
 
 interface SearchResult {
   session_id: string;
@@ -19,7 +20,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
   public readonly name = 'zavorth_session_search';
 
   public readonly description =
-    'Searches past Zavorth conversations and sessions. Supports full-text search, date filtering, channel filtering, message type filtering, and relevance ranking. Backed by the Mnemos FTS Index and session logs.';
+    'Searches past Zavorth conversations and sessions. Supports full-text search, date filtering, channel filtering, message type filtering, and relevance ranking. Backed by the session continuum / Mnemos recall store when available.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -74,11 +75,17 @@ export class ZavorthSessionSearchTool extends BaseTool {
 
   private readonly sessionsDir: string;
   private readonly memoryDir: string;
+  private readonly continuum: SessionContinuumService | null;
 
-  constructor(options?: { sessionsDir?: string; memoryDir?: string }) {
+  constructor(options?: {
+    sessionsDir?: string;
+    memoryDir?: string;
+    continuum?: SessionContinuumService | null;
+  }) {
     super();
     this.sessionsDir = options?.sessionsDir || path.join(process.cwd(), 'data', 'sessions');
     this.memoryDir = options?.memoryDir || path.join(process.cwd(), 'data', 'runtime', 'memory');
+    this.continuum = options?.continuum || null;
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
@@ -91,6 +98,33 @@ export class ZavorthSessionSearchTool extends BaseTool {
     const sortBy = String(args.sort_by || 'relevance');
 
     try {
+      if (this.continuum) {
+        const snapshot = this.continuum.search({
+          query,
+          sessionId: typeof args.session_id === 'string' ? args.session_id : null,
+          limit: maxResults,
+          window: contextLines,
+        });
+        if (snapshot.returned === 0) {
+          return `No results found for "${query}" in sessions. store=${this.continuum.getStorePath()}`;
+        }
+        const lines: string[] = [
+          `Encontrados ${snapshot.returned} result(s) para "${query}":`,
+          `store: ${this.continuum.getStorePath()}`,
+        ];
+        for (const hit of snapshot.hits) {
+          lines.push('');
+          lines.push(`--- Session: ${hit.sessionId} (${hit.title}) ---`);
+          if (hit.createdAt) lines.push(`  Timestamp: ${hit.createdAt}`);
+          lines.push(`  Relevancia: ${hit.score.toFixed(2)}`);
+          if (hit.snippet) lines.push(`  Contexto: ${hit.snippet.slice(0, 120)}`);
+          for (const neighbor of hit.neighbors.slice(0, Math.max(1, contextLines * 2 + 1))) {
+            lines.push(`  > ${neighbor.role}: ${neighbor.content.slice(0, 200)}`);
+          }
+        }
+        return lines.join('\n');
+      }
+
       const results = this.performSearch({
         query,
         sessionId: typeof args.session_id === 'string' ? args.session_id : undefined,
@@ -125,9 +159,9 @@ export class ZavorthSessionSearchTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Session Search] operation failed', error);
-    const message = error instanceof Error ? err.message : String(error);
+      const message = error instanceof Error ? err.message : String(error);
       return `Search error: ${message}`;
-  }
+    }
   }
 
   private performSearch(params: {
@@ -149,7 +183,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
       { dir: this.memoryDir, type: 'memory' },
     ];
 
-    for (const { dir, type } of searchDirs) {
+    for (const { dir } of searchDirs) {
       if (!fs.existsSync(dir)) continue;
 
       const files = this.listFilesRecursively(dir);
@@ -183,7 +217,8 @@ export class ZavorthSessionSearchTool extends BaseTool {
               context: matchResult.contextSnippet,
             });
           }
-        } catch (error: unknown) {continue;
+        } catch (error: unknown) {
+          continue;
         }
       }
     }
@@ -213,9 +248,10 @@ export class ZavorthSessionSearchTool extends BaseTool {
     if (mode === 'regex') {
       try {
         pattern = new RegExp(query, 'i');
-      } catch (error: unknown) {logger.warn('[Zavorth Session Search] search failed', error);
-    return { matchedLines: [], score: 0, contextSnippet: '' };
-  }
+      } catch (error: unknown) {
+        logger.warn('[Zavorth Session Search] search failed', error);
+        return { matchedLines: [], score: 0, contextSnippet: '' };
+      }
     }
 
     for (let i = 0; i < lines.length; i++) {
@@ -277,7 +313,7 @@ export class ZavorthSessionSearchTool extends BaseTool {
           results.push(fullPath);
         }
       }
-    } catch (error: unknown) {// ignore permission errors
+    } catch (error: unknown) {
       logger.warn('[Zavorth Session Search] filesystem operation failed', error);
     }
     return results;

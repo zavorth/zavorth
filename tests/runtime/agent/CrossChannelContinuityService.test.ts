@@ -96,4 +96,48 @@ describe('CrossChannelContinuityService Channel mesh1', () => {
     expect(snapshot.summary.handoffCount).toBe(0);
     expect(snapshot.policy.noCrossChannelMessageSent).toBe(true);
   });
+
+  it('maps slack, whatsapp, signal, email and teams as first-class continuity kinds', () => {
+    const run = new AgentRunService({
+      now: () => new Date('2026-05-04T00:41:00.000Z'),
+    }).createRun({
+      userId: 'grey',
+      channel: 'slack',
+      sessionId: 'session-cross-channel-fabric',
+      text: 'resume across mesh',
+      requestedTools: ['workspace.read'],
+      metadata: {
+        channels: [
+          { id: 'wa:ops', kind: 'whatsapp', label: 'WhatsApp Ops', status: 'available' },
+          { id: 'sig:ops', kind: 'signal', label: 'Signal Ops', status: 'available' },
+          { id: 'mail:ops', kind: 'email', label: 'Email Ops', status: 'degraded' },
+          { id: 'teams:ops', kind: 'msteams', label: 'Teams Ops', status: 'available' },
+        ],
+        crossChannelHandoffs: [
+          {
+            id: 'handoff:slack-to-teams',
+            fromChannel: 'slack',
+            toChannel: 'teams',
+            reason: 'Operator wants Teams',
+            requiresApproval: true,
+          },
+        ],
+      },
+    });
+
+    const snapshot = new CrossChannelContinuityService().buildSnapshot({
+      run,
+      generatedAt: run.updatedAt,
+    });
+
+    expect(snapshot.session.activeChannel).toBe('slack');
+    expect(snapshot.channels.some((channel) => channel.kind === 'whatsapp')).toBe(true);
+    expect(snapshot.channels.some((channel) => channel.kind === 'signal')).toBe(true);
+    expect(snapshot.channels.some((channel) => channel.kind === 'email')).toBe(true);
+    expect(snapshot.channels.some((channel) => channel.kind === 'teams')).toBe(true);
+    expect(snapshot.handoffs.some((handoff) =>
+      handoff.toChannel === 'teams' && handoff.requiresApproval === true)).toBe(true);
+    expect(snapshot.policy.noCrossChannelMessageSent).toBe(true);
+    expect(snapshot.policy.approvalRequiredForChannelSwitch).toBe(true);
+  });
 });

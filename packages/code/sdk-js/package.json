@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@zavorth/sdk",
+  "version": "0.1.4",
+  "description": "TypeScript SDK for the Zavorth API",
+  "keywords": ["zavorth", "ai", "sdk", "coding-assistant", "cli"],
+  "type": "module",
+  "license": "MIT",
+  "author": "Zavorth",
+  "homepage": "https://zavorth.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zavorth/zavorth.git",
+    "directory": "packages/sdk/js"
+  },
+  "bugs": {
+    "url": "https://github.com/zavorth/zavorth/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "typecheck": "tsgo --noEmit",
+    "build": "bun ./script/build.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./server": "./src/server.ts",
+    "./v2": "./src/v2/index.ts",
+    "./v2/client": "./src/v2/client.ts",
+    "./v2/gen/client": "./src/v2/gen/client/index.ts",
+    "./v2/server": "./src/v2/server.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.90.10",
+    "@tsconfig/node22": "catalog:",
+    "@types/cross-spawn": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "cross-spawn": "catalog:"
+  }
+}

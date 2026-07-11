@@ -23,7 +23,7 @@ const staticRules = [
   }),
   ruleContainsAll({
     id: 'capability-hub-completion-contract',
-    label: 'Completion contract captures phase matrix and journey assertions',
+    label: 'Completion contract captures gate matrix and journey assertions',
     target: 'contract exposes phases, journeys, no-live and no-secret acceptance',
     files: ['src/contracts/CapabilityHubCompletionContract.ts'],
     needles: [
@@ -71,7 +71,7 @@ const dynamicRule = {
   label: 'Completion dynamic gate passes',
   status: dynamic.status === 0 ? 'passed' : 'failed',
   observed: dynamic.status === 0 ? 'dynamic acceptance passed' : `dynamic acceptance failed (${dynamic.status})`,
-  target: 'phase matrix and natural journeys pass with no live or secret violations',
+  target: 'gate matrix and natural journeys pass with no live or secret violations',
   details: dynamic.status === 0 ? [] : [
     dynamic.error ? String(dynamic.error.message || dynamic.error) : '',
     dynamic.stdout,

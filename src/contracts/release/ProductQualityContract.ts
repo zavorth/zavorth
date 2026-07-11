@@ -41,7 +41,7 @@ export type ProductQualityCheck = {
 };
 
 export type ProductQualityContractSnapshot = {
-  phase: '39';
+  gate: 'product-quality';
   surface: 'product-quality-contract';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -55,8 +55,8 @@ export type ProductQualityContractSnapshot = {
   commandSpecs: ProductQualityCommandSpec[];
   rules: ProductQualityRule[];
   checks: ProductQualityCheck[];
-  nextRecommendedPhase: {
-    phase: '41';
+  nextRecommendedGate: {
+    gate: 'deterministic-qa';
     title: string;
     reason: string;
   };

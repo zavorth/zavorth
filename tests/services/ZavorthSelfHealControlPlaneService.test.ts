@@ -76,7 +76,7 @@ describe('ZavorthSelfHealControlPlaneService', () => {
 
     const snapshot = await service.buildPreview();
 
-    expect(snapshot.phase).toBe('30');
+    expect(snapshot.phase).toBe('self-heal-control-plane');
     expect(snapshot.surface).toBe('self-heal-control-plane');
     expect(snapshot.mode).toBe('preview');
     expect(snapshot.plan).toEqual(

@@ -150,7 +150,7 @@ export function ApprovalsPanel(props: ApprovalsPanelProps) {
       actions={<SearchBox value={query} onChange={setQuery} placeholder="Search approvals" />}
     >
       <div className="zavorth-approvals-panel">
-        <TextTabs value={tab} items={tabsWithCount} onChange={setTab} />
+        <TextTabs value={tab} items={tabsWithCount} onChange={value => setTab(value as TabValue)} />
         <div className="zavorth-approvals-list">
           <DetailRows
             rows={rows}

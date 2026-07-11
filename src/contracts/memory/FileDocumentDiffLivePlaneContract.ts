@@ -114,7 +114,7 @@ export type FileDocumentDiffLiveEntry = {
 export type FileDocumentDiffLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Certification matrix - File, Document, Diff And Prose Live Plane';
+  gate: 'file-document-diff-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 5;

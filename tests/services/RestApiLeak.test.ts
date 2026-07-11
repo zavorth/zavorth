@@ -4,7 +4,7 @@ import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSe
 import { ProviderConnectionTestService } from '../../src/services/ProviderConnectionTestService';
 import * as http from 'http';
 
-describe('REST API Leak Test (Phase 21H)', () => {
+describe('REST API Leak Test', () => {
   const testSecret = 'sk-zavorth-rest-leak-test-21H';
 
   it('never exposes the API key in any REST API response', async () => {

@@ -83,7 +83,7 @@ function pilotLoop(status = 'ready') {
       { id: 'pilot-loop:pilot-ledger', status: 'pass' },
       { id: 'pilot-loop:dashboard', status: 'pass' },
     ],
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '58',
       title: 'Integration Showcase And Partner Surface',
       reason: 'fixture e degradacao segura',

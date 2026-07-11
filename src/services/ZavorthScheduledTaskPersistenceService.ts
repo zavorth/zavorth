@@ -111,7 +111,7 @@ export class ZavorthScheduledTaskPersistenceService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskPersistenceService',
-      phase: 'checkpoint-3-persisted-scheduled-task-registration',
+      gate: 'persisted-scheduled-task-registration',
       status,
       action,
       runtime,
@@ -325,7 +325,7 @@ function buildGovernedMetadata(
   });
   return {
     contractVersion: ZAVORTH_SCHEDULED_TASK_PERSISTENCE_CONTRACT_VERSION,
-    phase: 'checkpoint-3-persisted-scheduled-task-registration',
+    gate: 'persisted-scheduled-task-registration',
     registryStatus: registry.status,
     approvalId: registry.approvalEnvelope?.approvalId || null,
     approvalExpiresAt: registry.approvalEnvelope?.expiresAt || null,
@@ -409,7 +409,7 @@ function readGovernedMetadata(task: ScheduledTask | null): SchedulerGovernedSche
     const metadata = parsed?.governedScheduledTask;
     if (
       metadata
-      && metadata.phase === 'checkpoint-3-persisted-scheduled-task-registration'
+      && metadata.gate === 'persisted-scheduled-task-registration'
       && typeof metadata.approvedScopeHash === 'string'
     ) {
       return metadata as SchedulerGovernedScheduledTaskMetadata;

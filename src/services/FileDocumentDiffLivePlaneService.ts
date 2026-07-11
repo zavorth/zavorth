@@ -30,7 +30,7 @@ type FileDocumentDiffLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Certification matrix - File, Document, Diff And Prose Live Plane' as const;
+const PHASE = 'file-document-diff-live-plane' as const;
 
 const FILE_DOCUMENT_DIFF_TARGETS: FileDocumentDiffLiveDescriptor[] = [
   target('file-transfer', 'file-transfer-live', ['file.transfer'], 'local-filesystem-transfer', ['import', 'export', 'copy', 'move'], [], ['ZAVORTH_FILE_TRANSFER_WORKSPACE_ROOT']),
@@ -64,7 +64,7 @@ export class FileDocumentDiffLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_FILE_DOCUMENT_DIFF_LIVE_PLANE_CONTRACT_VERSION,
-      phase: PHASE,
+      gate: PHASE,
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 5,

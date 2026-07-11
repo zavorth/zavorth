@@ -99,6 +99,7 @@ export class ZavorthDailyProductExperienceService {
           'channels and providers do not claim fake live readiness',
           'execution backends stay dry-run until strong smoke passes',
           'approval fatigue is tested as a product risk',
+          'daily mutations emit operator continuity receipt ids and policy decisions',
         ],
       },
       safety: {
@@ -109,6 +110,18 @@ export class ZavorthDailyProductExperienceService {
         liveActionsRemainApprovalBound: true,
         memoryChangesRemainReviewable: true,
         externalToolsRemainPreviewUntilApproved: true,
+        operatorContinuityBound: true,
+      },
+      operatorContinuity: {
+        kernel: 'OperatorContinuityKernel',
+        contract: 'operator-continuity-envelope/1',
+        dailyMutationPaths: [
+          'tool-executor',
+          'action-gateway',
+          'agent-native-tool-loop',
+          'mcp',
+        ],
+        projectionOnly: true,
       },
     };
   }

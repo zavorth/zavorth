@@ -155,7 +155,7 @@ describe('WebResearchLivePlaneService Dashboard controls', () => {
     });
 
     const result = await service.search({
-      query: 'phase 8 provider choice',
+      query: 'provider choice smoke',
       mode: 'quick',
       extractPages: false,
       providerHints: {

@@ -88,7 +88,7 @@ describe('SourceSurfaceLedgerService Security contract', () => {
 
     expect(receipt.status).toBe('passed');
     expect(receipt.contractVersion).toBe('2026-05-05.checkpoint-0');
-    expect(receipt.phase).toBe(0);
+    expect(receipt.stage).toBe(0);
     expect(receipt.summary.total).toBe(20);
     expect(receipt.summary.unclassifiedSurfaces).toBe(0);
     expect(receipt.summary.validationErrors).toBe(0);

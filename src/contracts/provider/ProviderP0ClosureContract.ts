@@ -40,7 +40,7 @@ export type ProviderP0ClosureSnapshot = {
     check: string;
     providerConsistency: string;
     certify: string;
-    nextStage: 'Etapa 11 - P1 Provider Adapter Runtime';
+    nextStage: 'P1 Provider Adapter Runtime';
   };
   policy: {
     closureIsClassificationOnly: true;

@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "sourceOfTruth": "monorepo",
+  "monorepoPath": "packages/code",
+  "monorepoRoot": "C:\\TESTES DEV\\1_PROJETOS_ATIVOS\\Zavorth",
+  "siblingRoot": "C:\\TESTES DEV\\1_PROJETOS_ATIVOS\\zavorth-code",
+  "lastOperation": {
+    "direction": "check",
+    "at": "2026-07-10T05:11:01.690Z"
+  },
+  "allowlist": [
+    {
+      "monorepo": "cli",
+      "sibling": "packages/cli"
+    },
+    {
+      "monorepo": "shared",
+      "sibling": "packages/shared"
+    },
+    {
+      "monorepo": "plugin",
+      "sibling": "packages/plugin"
+    },
+    {
+      "monorepo": "script",
+      "sibling": "packages/script"
+    },
+    {
+      "monorepo": "sdk-js",
+      "sibling": "packages/sdk/js"
+    },
+    {
+      "monorepo": "ui",
+      "sibling": "packages/ui"
+    },
+    {
+      "monorepo": "gitlab-auth",
+      "sibling": "packages/gitlab-auth"
+    },
+    {
+      "monorepo": "poe-auth",
+      "sibling": "packages/poe-auth"
+    },
+    {
+      "monorepo": "patches",
+      "sibling": "patches"
+    }
+  ],
+  "binaryPolicy": {
+    "publicBin": "zavorth",
+    "codeEntry": "bin/zavorth.js",
+    "separateCodingBin": false
+  },
+  "siblingRole": "mirror-or-archive",
+  "toolchain": "bun"
+}

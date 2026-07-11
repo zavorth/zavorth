@@ -20,7 +20,7 @@ export type ExternalDocsScreenshotSpec = {
 };
 
 export type ExternalDocsContractSnapshot = {
-  phase: '49';
+  gate: 'external-docs';
   surface: 'external-docs';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -37,8 +37,8 @@ export type ExternalDocsContractSnapshot = {
   requiredCommands: string[];
   screenshots: ExternalDocsScreenshotSpec[];
   checks: ExternalDocsCheck[];
-  nextRecommendedPhase: {
-    phase: '50';
+  nextRecommendedGate: {
+    gate: 'distribution-policy';
     title: string;
     reason: string;
   };

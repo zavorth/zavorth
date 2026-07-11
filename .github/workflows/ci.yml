@@ -82,6 +82,45 @@ jobs:
       - name: Runtime other tests
         run: npm run test:ci:runtime-other --silent
 
+      - name: Channels tests
+        run: npm run test:ci:channels --silent
+
+      - name: Telegram tests
+        run: npm run test:ci:telegram --silent
+
+      - name: Channel completeness (all factory channels first-class)
+        run: npx jest tests/gateways/ChannelCompletenessService.test.ts tests/gateways/WebhookGateway.completeness.test.ts tests/gateways/ReachChannelSpineService.test.ts --runInBand --forceExit --coverage=false
+
+  monorepo-suite:
+    name: Monorepo Suite (grouped)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Rebuild native modules
+        run: |
+          npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers --silent \
+            || npm rebuild better-sqlite3 better-sqlite3-multiple-ciphers
+
+      - name: Full grouped monorepo suite
+        run: npm run test:ci --silent -- --timeout-ms=600000
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
+
   test-surfaces:
     name: Surface Tests
     runs-on: ubuntu-latest

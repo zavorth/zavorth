@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createLogger } from '../logger';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 const logger = createLogger('trust');
 

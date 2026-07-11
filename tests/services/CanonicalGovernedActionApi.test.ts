@@ -72,6 +72,13 @@ describe('Canonical governed action API', () => {
           surface: 'tool',
           operation: 'approval.approve',
         }),
+        operatorContinuityId: expect.any(String),
+        policyBrokerReceiptId: expect.any(String),
+      }),
+      operatorContinuity: expect.objectContaining({
+        continuityId: expect.any(String),
+        receiptId: expect.any(String),
+        terminal: true,
       }),
     }));
     expect(denied).toEqual(expect.objectContaining({
@@ -80,6 +87,11 @@ describe('Canonical governed action API', () => {
         policyReceipt: expect.objectContaining({
           operation: 'approval.deny',
         }),
+        operatorContinuityId: expect.any(String),
+      }),
+      operatorContinuity: expect.objectContaining({
+        continuityId: expect.any(String),
+        terminal: true,
       }),
     }));
   });

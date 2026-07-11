@@ -366,7 +366,7 @@ export class ZavorthFederatedMeshControlPlaneService {
       },
       actions: this.buildActions(remoteNodes, infrastructureState),
       narrative: {
-        headline: 'Etapa 21: Federated Node Mesh 2.0',
+        headline: 'Federated Node Mesh 2.0',
         operatorSummary: this.buildOperatorSummary(summary),
         nextAction: this.buildNextAction(remoteNodes, infrastructureState),
       },

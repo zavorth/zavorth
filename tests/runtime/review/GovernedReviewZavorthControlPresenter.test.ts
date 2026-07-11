@@ -3,7 +3,7 @@ import {
   GovernedReviewService,
 } from '../../../src/runtime/review';
 
-describe('GovernedReviewZavorthControlPresenter phase 4', () => {
+describe('GovernedReviewZavorthControlPresenter', () => {
   it('projects governed review results into zavorthControl-ready lanes, actions and counters', () => {
     const review = new GovernedReviewService().run({
       reviewId: 'review-zavorthControl-1',

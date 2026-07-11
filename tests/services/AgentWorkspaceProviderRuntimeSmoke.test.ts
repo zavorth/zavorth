@@ -1,6 +1,6 @@
 import { asErrorLike } from '../../src/utils/errorLike';
 /**
- * Fase 21K-A — Provider Runtime Integration Smoke Tests
+ * Provider Runtime Integration Smoke Tests
  *
  * Validates that provider runtime respects workspace config:
  *   - workspace provider/model used if no explicit request override
@@ -21,7 +21,7 @@ jest.mock('../../src/services/ProviderRuntimeClientFactory');
 
 const SMOKE_MARKER = 'sk-zavorth-e2e-runtime-smoke-DO-NOT-LEAK-21K-A';
 
-describe('AgentWorkspaceProviderRuntimeSmoke — Fase 21K-A', () => {
+describe('AgentWorkspaceProviderRuntimeSmoke', () => {
   let mockRoute: jest.Mock;
   let mockCreateInvoker: jest.Mock;
   let mockInvoke: jest.Mock;

@@ -2,10 +2,7 @@ import { useState, useMemo } from 'react';
 import { atom } from 'nanostores';
 import { useStore } from '@nanostores/react';
 import { PageFrame, SearchBox, TextTabs } from './panelPrimitives';
-import {
-  mapRuntimeWorkboardToBoard,
-  type RuntimeWorkboardProjection,
-} from '../../workboard/runtimeWorkboardProjection';
+import type { RuntimeWorkboardProjection } from '../../workboard/runtimeWorkboardProjection';
 import {
   IconPlus,
   IconTrash,
@@ -86,13 +83,13 @@ const $filterLabels = atom<string[]>([]);
 const $showFilters = atom(false);
 
 const PRIORITY_COLORS: Record<CardPriority, { bg: string; text: string; label: string }> = {
-  low: { bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', label: 'Low' },
-  medium: { bg: 'rgba(250, 204, 21, 0.15)', text: '#facc15', label: 'Medium' },
-  high: { bg: 'rgba(251, 146, 60, 0.15)', text: '#fb923c', label: 'High' },
-  critical: { bg: 'rgba(239, 68, 68, 0.15)', text: '#f87171', label: 'Critical' },
+  low: { bg: 'rgba(255, 255, 255, 0.035)', text: '#87928d', label: 'Low' },
+  medium: { bg: 'rgba(255, 255, 255, 0.05)', text: '#9aa49f', label: 'Medium' },
+  high: { bg: 'rgba(255, 255, 255, 0.065)', text: '#adb6b1', label: 'High' },
+  critical: { bg: 'rgba(255, 255, 255, 0.085)', text: '#c5cdc9', label: 'Critical' },
 };
 
-const COLUMN_COLORS = ['#60a5fa', '#a78bfa', '#f472b6', '#4ade80', '#facc15', '#22d3ee'];
+const COLUMN_COLORS = ['#59645f', '#626d68', '#6a756f', '#737d78', '#7b8580', '#848e89'];
 
 function generateId(): string {
   return `card-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
@@ -277,6 +274,7 @@ function KanbanColumn({
   onCardClick,
   onCardMove,
   onAddCard,
+  readOnly = false,
 }: {
   column: WorkboardColumn;
   cards: WorkboardCard[];
@@ -285,6 +283,7 @@ function KanbanColumn({
   onCardClick: (card: WorkboardCard) => void;
   onCardMove: (cardId: string, targetColumnId: string) => void;
   onAddCard: () => void;
+  readOnly?: boolean;
 }) {
   return (
     <div className="zvd-kanban-column">
@@ -296,9 +295,11 @@ function KanbanColumn({
           <h4 className="zvd-kanban-column-title">{column.name}</h4>
           <span className="zvd-kanban-column-count">{cards.length}</span>
         </div>
-        <button className="zvd-icon-btn-sm" onClick={onAddCard} title="Add card">
-          <IconPlus size={14} />
-        </button>
+        {!readOnly ? (
+          <button className="zvd-icon-btn-sm" onClick={onAddCard} title="Add card">
+            <IconPlus size={14} />
+          </button>
+        ) : null}
       </div>
       <div className="zvd-kanban-column-cards">
         {cards.length === 0 ? (
@@ -314,12 +315,12 @@ function KanbanColumn({
               onClick={() => onCardClick(card)}
               columnCount={allColumns.length}
               columnIndex={columnIndex}
-              onMoveLeft={
+              onMoveLeft={!readOnly &&
                 columnIndex > 0
                   ? () => onCardMove(card.id, allColumns[columnIndex - 1].id)
                   : undefined
               }
-              onMoveRight={
+              onMoveRight={!readOnly &&
                 columnIndex < allColumns.length - 1
                   ? () => onCardMove(card.id, allColumns[columnIndex + 1].id)
                   : undefined
@@ -339,6 +340,7 @@ function CardDetailModal({
   onUpdate,
   onDelete,
   onOpenInChat,
+  readOnly = false,
 }: {
   card: WorkboardCard;
   columns: WorkboardColumn[];
@@ -346,6 +348,7 @@ function CardDetailModal({
   onClose: () => void;
   onUpdate: (card: WorkboardCard) => void;
   onDelete: () => void;
+  readOnly?: boolean;
 }) {
   const [editTitle, setEditTitle] = useState(card.title);
   const [editDesc, setEditDesc] = useState(card.description || '');
@@ -370,7 +373,7 @@ function CardDetailModal({
     <div className="zvd-modal-overlay" onClick={onClose}>
       <div className="zvd-modal" onClick={e => e.stopPropagation()}>
         <div className="zvd-modal-header">
-          <h3>Edit Card</h3>
+          <h3>{readOnly ? 'Runtime card' : 'Edit Card'}</h3>
           <button className="zvd-icon-btn" onClick={onClose}>
             <IconX size={16} />
           </button>
@@ -381,6 +384,7 @@ function CardDetailModal({
             <input
               className="zvd-input"
               value={editTitle}
+              disabled={readOnly}
               onChange={e => setEditTitle(e.target.value)}
             />
           </div>
@@ -389,6 +393,7 @@ function CardDetailModal({
             <textarea
               className="zvd-input zvd-textarea"
               value={editDesc}
+              disabled={readOnly}
               onChange={e => setEditDesc(e.target.value)}
               rows={3}
             />
@@ -399,6 +404,7 @@ function CardDetailModal({
               <select
                 className="zvd-select"
                 value={editPriority}
+                disabled={readOnly}
                 onChange={e => setEditPriority(e.target.value as CardPriority)}
               >
                 {Object.entries(PRIORITY_COLORS).map(([key, val]) => (
@@ -413,6 +419,7 @@ function CardDetailModal({
               <select
                 className="zvd-select"
                 value={editColumnId}
+                disabled={readOnly}
                 onChange={e => setEditColumnId(e.target.value)}
               >
                 {columns.map(col => (
@@ -428,16 +435,17 @@ function CardDetailModal({
             <input
               className="zvd-input"
               value={editAssignee}
+              disabled={readOnly}
               onChange={e => setEditAssignee(e.target.value)}
               placeholder="e.g. John Doe"
             />
           </div>
         </div>
         <div className="zvd-modal-footer">
-          <button className="zvd-btn-danger" onClick={onDelete}>
+          {!readOnly ? <button className="zvd-btn-danger" onClick={onDelete}>
             <IconTrash size={14} />
             Delete
-          </button>
+          </button> : <span className="zvd-muted">Projeção somente leitura</span>}
           <div className="zvd-modal-footer-right">
             {onOpenInChat && (
               <button
@@ -454,10 +462,10 @@ function CardDetailModal({
             <button className="zvd-btn-secondary" onClick={onClose}>
               Cancel
             </button>
-            <button className="zvd-btn-primary" onClick={handleSave}>
+            {!readOnly ? <button className="zvd-btn-primary" onClick={handleSave}>
               <IconCheck size={14} />
               Save
-            </button>
+            </button> : null}
           </div>
         </div>
       </div>
@@ -734,15 +742,13 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [newColumnName, setNewColumnName] = useState('');
 
-  const boards = useMemo(
-    () => props.runtimeWorkboard ? [mapRuntimeWorkboardToBoard(props.runtimeWorkboard)] : props.boards,
-    [props.runtimeWorkboard, props.boards]
-  );
+  const boards = props.boards;
 
   const board = useMemo(
     () => boards.find(b => b.id === selectedBoardId) || boards[0] || null,
     [boards, selectedBoardId]
   );
+  const runtimeReadOnly = board?.id === 'runtime-workboard';
 
   const filteredCards = useMemo(() => {
     if (!board) return [];
@@ -794,43 +800,43 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
   };
 
   const handleCreateCard = (cardData: Omit<WorkboardCard, 'id' | 'createdAt'>) => {
-    if (!board) return;
+    if (!board || runtimeReadOnly) return;
     props.onCardCreate?.(board.id, cardData);
   };
 
   const handleUpdateCard = (card: WorkboardCard) => {
-    if (!board) return;
+    if (!board || runtimeReadOnly) return;
     props.onCardUpdate?.(board.id, card);
   };
 
   const handleDeleteCard = (cardId: string) => {
-    if (!board) return;
+    if (!board || runtimeReadOnly) return;
     props.onCardDelete?.(board.id, cardId);
     $selectedCard.set(null);
   };
 
   const handleMoveCard = (cardId: string, targetColumnId: string) => {
-    if (!board) return;
+    if (!board || runtimeReadOnly) return;
     const card = board.cards.find(c => c.id === cardId);
     if (!card) return;
     props.onCardUpdate?.(board.id, { ...card, columnId: targetColumnId });
   };
 
   const handleAddColumn = () => {
-    if (!board || !newColumnName.trim()) return;
+    if (!board || runtimeReadOnly || !newColumnName.trim()) return;
     props.onColumnCreate?.(board.id, newColumnName.trim());
     setNewColumnName('');
   };
 
   const handleRenameColumn = (columnId: string) => {
-    if (!board || !newColumnName.trim()) return;
+    if (!board || runtimeReadOnly || !newColumnName.trim()) return;
     props.onColumnUpdate?.(board.id, columnId, newColumnName.trim());
     setEditingColumn(null);
     setNewColumnName('');
   };
 
   const handleDeleteColumn = (columnId: string) => {
-    if (!board) return;
+    if (!board || runtimeReadOnly) return;
     props.onColumnDelete?.(board.id, columnId);
   };
 
@@ -856,7 +862,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
         <button
           type="button"
           className="zvd-btn-secondary"
-          disabled={props.syncBusy}
+          disabled={props.syncBusy || runtimeReadOnly}
           onClick={() => void props.onSyncNow?.(board?.id)}
           aria-label="Sync workboard to runtime"
         >
@@ -864,6 +870,11 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
         </button>
       ) : undefined}
     >
+      {runtimeReadOnly ? (
+        <div className="zvd-inline-alert is-info">
+          Esta é a projeção do runtime. Abra um card no chat para agir sobre ele; edições diretas ficam desativadas.
+        </div>
+      ) : null}
       <style>{`
         .zvd-kanban-board {
           display: flex;
@@ -1553,9 +1564,10 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
                 onCardClick={card => $selectedCard.set(card)}
                 onCardMove={handleMoveCard}
                 onAddCard={() => setCreateCardColumnId(col.id)}
+                readOnly={runtimeReadOnly}
               />
             ))}
-            <div className="zvd-kanban-column" style={{ minWidth: '200px', maxWidth: '240px', borderStyle: 'dashed' }}>
+            {!runtimeReadOnly ? <div className="zvd-kanban-column" style={{ minWidth: '200px', maxWidth: '240px', borderStyle: 'dashed' }}>
               <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <span style={{ fontSize: '12px', color: '#71717a', fontWeight: 500 }}>Add Column</span>
                 <div className="zvd-add-column-form">
@@ -1579,7 +1591,7 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> : null}
           </div>
         )}
 
@@ -1607,10 +1619,11 @@ export function WorkboardPanel(props: WorkboardPanelProps) {
             onUpdate={handleUpdateCard}
             onDelete={() => handleDeleteCard(selectedCard.id)}
             onOpenInChat={props.onOpenCardInChat ? handleOpenSelectedInChat : undefined}
+            readOnly={runtimeReadOnly}
           />
         )}
 
-        {createCardColumnId && board && (
+        {createCardColumnId && board && !runtimeReadOnly && (
           <CreateCardModal
             columnId={createCardColumnId}
             columns={board.columns}

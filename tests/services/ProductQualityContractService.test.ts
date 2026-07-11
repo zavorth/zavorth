@@ -5,19 +5,19 @@ describe('ProductQualityContractService', () => {
     const service = new ProductQualityContractService();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('39');
+    expect(snapshot.gate).toBe('product-quality');
     expect(snapshot.surface).toBe('product-quality-contract');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.officialJourney).toEqual([
-      'zavorth onboard',
+      'zavorth setup',
       'zavorth go',
       'zavorth chat',
       'zavorth status',
       'zavorth doctor',
     ]);
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
-      stage: '41',
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
+      gate: 'deterministic-qa',
       title: 'QA Deterministico',
     }));
   });
@@ -49,12 +49,13 @@ describe('ProductQualityContractService', () => {
       'README.md': [
         '# Zavorth',
         'npm run ops:start',
-        'zavorth onboard',
+        'First Use In 60 Seconds',
+        'zavorth setup',
         'zavorth go',
         'zavorth chat',
         'zavorth doctor',
         '--json',
-        'Trilha Avancada E De Manutencao',
+        'Advanced And Maintenance Track',
       ].join('\n'),
     });
     const service = new ProductQualityContractService({
@@ -71,7 +72,7 @@ describe('ProductQualityContractService', () => {
     expect(readme?.evidence?.join('\n')).toContain('npm run ops:* aparece antes');
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = new ProductQualityContractService({
       packageJson: packageJsonFixture(),
       files: filesFixture(),
@@ -82,8 +83,8 @@ describe('ProductQualityContractService', () => {
 
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 39 - Product Quality Contract');
-    expect(report).toContain('proximo passo recomendada: 41 - QA Deterministico');
+    expect(report).toContain('[product-quality] Product Quality Contract');
+    expect(report).toContain('proximo passo recomendada: deterministic-qa - QA Deterministico');
   });
 });
 
@@ -106,7 +107,6 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
     'qa:product-experience': 'node scripts/product-experience-readiness.mjs',
     'qa:flows': 'jest tests/integration/EndToEndFlowHarness.test.ts --runInBand',
     'qa:product-quality': 'npx tsx scripts/product-quality-contract.ts --require-pass',
-    'qa:stage:39': 'node scripts/capability-suite-market-check.mjs --phase=39',
     ...overrides,
   };
 
@@ -121,40 +121,40 @@ function packageJsonFixture(overrides: Record<string, string> = {}) {
 function filesFixture(overrides: Record<string, string> = {}) {
   const readme = [
     '# Zavorth',
-    'Primeiro Uso Em 60 Segundos',
-    'zavorth onboard',
+    'First Use In 60 Seconds',
+    'zavorth setup',
     'zavorth go',
     'zavorth chat',
     'zavorth doctor',
     '--json',
-    'Trilha Avancada E De Manutencao',
+    'Advanced And Maintenance Track',
     'npm run ops:*',
   ].join('\n');
   const quickstart = [
-    'zavorth onboard',
+    'zavorth setup',
     'zavorth go',
     'zavorth chat',
     'zavorth doctor',
     '--json',
   ].join('\n');
   const cli = [
-    'Caminho Feliz',
-    'Saida Humana Vs JSON',
-    'Checklist De Qualidade Da CLI',
+    'Happy Path',
+    'Human Output Vs JSON',
+    'CLI Quality Checklist',
     'Sem `--json`, a CLI deve ser produto',
     'Com `--json`, a CLI deve ser previsivel para automacao',
     'Regra: humano bonito; JSON limpo.',
-    'zavorth onboard',
+    'zavorth setup',
     'zavorth go',
     'zavorth chat',
     'zavorth doctor',
   ].join('\n');
   const diagnosis = [
-    'uma trilha oficial curta',
-    'zavorth onboard',
+    'a short official path',
+    'zavorth setup',
     'zavorth go',
     'zavorth chat',
-    'Checklist de aceitacao da etapa CLI',
+    'CLI stage acceptance checklist',
   ].join('\n');
   const visual = [
     'FORBIDDEN_FIRST_LAYER_PATTERNS',

@@ -116,7 +116,7 @@ function buildFixtureApprovals(receipt: CapabilityReceipt): PermissionRequest[] 
     decision_note: 'Fixture local do gate Runtime gateway1; nao persiste no ledger.',
     metadata: {
       capability_autopilot: true,
-      stage: 'capability-autopilot-checkpoint-61',
+      stage: 'capability-autopilot-repair-runner',
       requirement_id: requirement.id,
       fixture: true,
     },
@@ -222,7 +222,7 @@ function check(
 
 function renderReport(snapshot: CapabilityAutopilotRunnerSnapshot): string {
   const lines: string[] = [];
-  lines.push('[capability-autopilot-runner] Etapa 61 - Approved Repair Runner');
+  lines.push('[capability-autopilot-runner] Approved Repair Runner');
   lines.push(`status: ${snapshot.status}`);
   lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
   lines.push(`capability: ${snapshot.capabilityId}`);

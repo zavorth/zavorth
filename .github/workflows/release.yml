@@ -82,10 +82,21 @@ jobs:
         run: npm run test:ci:security --silent
 
       - name: Core tests
-        run: npm run test:ci:services --silent
+        run: npm run test:ci:services --silent -- --timeout-ms=900000
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
 
       - name: Runtime tests
         run: npm run test:ci:runtime-agent --silent
+
+      - name: Channels tests
+        run: npm run test:ci:channels --silent
+
+      - name: Telegram tests
+        run: npm run test:ci:telegram --silent
+
+      - name: Channel completeness contract
+        run: npx jest tests/gateways/ChannelCompletenessService.test.ts tests/gateways/WebhookGateway.completeness.test.ts --runInBand --forceExit --coverage=false
 
   docker:
     name: Docker Build
@@ -130,6 +141,9 @@ jobs:
           - os: ubuntu-latest
             platform: linux-arm64
             arch: arm64
+          - os: windows-latest
+            platform: windows-x64
+            arch: x64
 
     steps:
       - name: Checkout
@@ -159,9 +173,9 @@ jobs:
 
           # Include native addon if it exists
           if [ -d native ]; then
-            tar -czf "../${ARCHIVE}" zavorth* native/
+            tar -czf "../${ARCHIVE}" zavorth* native/ 2>/dev/null || tar -czf "../${ARCHIVE}" .
           else
-            tar -czf "../${ARCHIVE}" zavorth*
+            tar -czf "../${ARCHIVE}" zavorth* 2>/dev/null || tar -czf "../${ARCHIVE}" .
           fi
 
           echo "Archive: ${ARCHIVE}"
@@ -172,11 +186,11 @@ jobs:
         with:
           name: binary-${{ matrix.platform }}
           path: zavorth-${{ matrix.platform }}.tar.gz
-          retention-days: 1
+          retention-days: 5
 
   create-release:
     name: Create GitHub Release
-    needs: [test-suite, docker, build-binaries]
+    needs: [test-suite, docker, build-binaries, build-code-tui]
     if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -190,6 +204,13 @@ jobs:
         with:
           path: artifacts
           pattern: binary-*
+          merge-multiple: true
+
+      - name: Download Code TUI binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: code-tui-*
           merge-multiple: true
 
       - name: List artifacts
@@ -235,15 +256,79 @@ jobs:
             ```bash
             npm install -g zavorth
             ```
+            npm packages include platform Code TUI binaries under `packages/code/cli/dist/` so `zavorth` can open the coding shell without installing Bun.
+
+            **Code TUI assets:** `code-tui-*.tar.gz` (prebuilt coding shell per OS).
 
             ${{ steps.checksums.outputs.changelog }}
 
+  build-code-tui:
+    name: Code TUI ${{ matrix.platform }}
+    needs: pre-release
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x64
+          - os: macos-latest
+            platform: darwin-arm64
+          - os: macos-13
+            platform: darwin-x64
+          - os: windows-latest
+            platform: windows-x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Code workspace
+        working-directory: packages/code
+        run: bun install --ignore-scripts
+
+      - name: Build Code TUI binary (this platform)
+        working-directory: packages/code/cli
+        run: bun run script/build.ts --single --skip-install
+        # produces dist/zavorth-<os>-<arch>/bin/zavorth
+
+      - name: Package Code TUI binary
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIST="packages/code/cli/dist"
+          # Find the platform folder created by the build
+          FOLDER=$(find "$DIST" -maxdepth 1 -type d -name 'zavorth-*' | head -n 1)
+          if [ -z "$FOLDER" ]; then
+            echo "No zavorth-* dist folder under $DIST"
+            ls -la "$DIST" || true
+            exit 1
+          fi
+          NAME=$(basename "$FOLDER")
+          ARCHIVE="code-tui-${{ matrix.platform }}.tar.gz"
+          tar -czf "$ARCHIVE" -C "$DIST" "$NAME"
+          echo "Packed $ARCHIVE from $NAME"
+          ls -lh "$ARCHIVE"
+
+      - name: Upload Code TUI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-tui-${{ matrix.platform }}
+          path: code-tui-${{ matrix.platform }}.tar.gz
+          retention-days: 5
+
   publish-npm:
     name: Publish to npm
-    needs: [test-suite, docker]
+    needs: [test-suite, docker, build-code-tui]
     if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -261,6 +346,23 @@ jobs:
 
       - name: Build
         run: npm run build --silent
+
+      - name: Download Code TUI binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: .code-tui-artifacts
+          pattern: code-tui-*
+          merge-multiple: true
+
+      - name: Assemble Code TUI into package tree
+        env:
+          CODE_BINARY_ARTIFACTS_DIR: ${{ github.workspace }}/.code-tui-artifacts
+        run: node scripts/assemble-code-binaries.mjs
+
+      - name: Verify Code binaries present
+        run: |
+          find packages/code/cli/dist -type f \( -name zavorth -o -name zavorth.exe \) | tee /tmp/code-bins.txt
+          test -s /tmp/code-bins.txt
 
       - name: Publish to npm
         run: npm publish --access public

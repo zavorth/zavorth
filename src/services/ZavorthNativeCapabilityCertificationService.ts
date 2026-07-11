@@ -126,11 +126,14 @@ const FEATURES: FeatureSpec[] = [
     zavorthFiles: [
       'src/services/ZavorthOperationalStateDbService.ts',
       'src/services/ZavorthSessionRecallService.ts',
+      'src/services/SessionContinuumService.ts',
       'tests/services/ZavorthOperationalStateDbService.test.ts',
+      'tests/runtime/sessions/SessionContinuumService.test.ts',
     ],
     notes: [
       'State is durable in SQLite with FTS fallback, sessions, messages, events, receipts, goals, tasks and locks.',
       'Recall is an operational service instead of a loose JSON note store.',
+      'Session continuum unifies compaction receipts and local session recall for CLI and tools.',
     ],
   },
   {

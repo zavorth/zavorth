@@ -65,7 +65,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
   pilot: {
     contractLinked: boolean;
     contractStatus: 'ready' | 'attention' | 'blocked' | 'unknown';
-    phase: '57' | null;
+    gate: 'pilot-loop' | null;
     artifactDir: string | null;
     templateCount: number;
     triageRuleCount: number;
@@ -126,7 +126,7 @@ export type PublicAdoptionPilotLoopSnapshot = {
     docsAnchor: '/docs#pilot-loop';
     pilotLoopCommand: 'npm run pilot-loop';
     qaCommand: 'npm run qa:pilot-loop';
-    phaseGateCommand: 'npm run qa:phase:57';
+    gateCommand: 'npm run qa:pilot-loop';
     ledgerArtifact: 'pilot-ledger.json';
     zavorthControlArtifact: 'support-zavorthControl.json';
   };
@@ -278,14 +278,14 @@ export class PublicAdoptionPilotLoopService {
       pilot: {
         contractLinked: Boolean(pilot),
         contractStatus: pilotStatus,
-        phase: pilot?.phase === '57' ? '57' : null,
+        gate: pilot?.gate === 'pilot-loop' ? 'pilot-loop' : null,
         artifactDir: normalizeText(pilot?.artifactDir) || null,
         templateCount,
         triageRuleCount,
         ledgerEntryCount: ledgerEntries.length,
         supportPolicyCount,
         zavorthControlMetricCount: zavorthControlMetrics.length,
-        nextStage: normalizeText(pilot?.nextRecommendedPhase?.phase) || null,
+        nextStage: normalizeText(pilot?.nextRecommendedGate?.gate) || null,
       },
       artifacts: {
         feedbackPreviewPath: normalizeText(pilot?.artifacts.feedbackPreviewPath) || null,
@@ -353,7 +353,7 @@ export class PublicAdoptionPilotLoopService {
         docsAnchor: '/docs#pilot-loop',
         pilotLoopCommand: 'npm run pilot-loop',
         qaCommand: 'npm run qa:pilot-loop',
-        phaseGateCommand: 'npm run qa:phase:57',
+        gateCommand: 'npm run qa:pilot-loop',
         ledgerArtifact: 'pilot-ledger.json',
         zavorthControlArtifact: 'support-zavorthControl.json',
       },
@@ -475,7 +475,7 @@ export class PublicAdoptionPilotLoopService {
         label: 'Templates, triagem e suporte',
         status: input.templatesReady && input.triageReady && input.supportReady ? 'ready' : 'needs-action',
         source: 'PublicAdoptionPilotLoopService',
-        command: 'npm run qa:phase:57',
+        command: 'npm run qa:pilot-loop',
         detail: input.templatesReady && input.triageReady && input.supportReady
           ? 'Templates, triagem e suporte cobrem o piloto controlado.'
           : 'Completar templates, triagem e suporte antes do piloto.',
@@ -537,7 +537,7 @@ export class PublicAdoptionPilotLoopService {
       {
         id: 'next-phase',
         label: 'Integration showcase',
-        routeOrCommand: 'npm run qa:phase:58',
+        routeOrCommand: 'npm run qa:integration-showcase',
         status: input.canStartControlledPilot ? 'ready' : 'needs-action',
         detail: 'Readiness checkpoint 8 so deve abrir depois do piloto estar pronto.',
       },

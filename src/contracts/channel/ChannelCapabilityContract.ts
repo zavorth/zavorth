@@ -103,7 +103,7 @@ export type ChannelCapabilitySnapshot = {
   generatedAt: string;
   contractVersion: typeof CHANNEL_CAPABILITY_CONTRACT_VERSION;
   source: 'ZavorthChannelCapabilityAwarenessService';
-  phase: 'checkpoint-7-channel-capability-awareness';
+  gate: 'channel-capability-awareness';
   status: 'ready' | 'attention' | 'blocked';
   profiles: ChannelCapabilityProfile[];
   adaptedExamples: ChannelCapabilityAdaptedResponse[];

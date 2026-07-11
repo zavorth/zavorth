@@ -71,7 +71,7 @@ describe('LegacySurfaceContainmentService', () => {
 
     expect(service.decideFeatureDestination('/zavorthControl', 'product-feature')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        gate: 'P3-003',
         allowed: true,
         featureKind: 'product-feature',
         requestedPath: '/zavorthControl',
@@ -81,7 +81,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/app', 'business-rule')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        gate: 'P3-003',
         allowed: false,
         featureKind: 'business-rule',
         requestedPath: '/app',
@@ -91,7 +91,7 @@ describe('LegacySurfaceContainmentService', () => {
     );
     expect(service.decideFeatureDestination('/classic', 'observability-maintenance')).toEqual(
       expect.objectContaining({
-        phase: 'P3-003',
+        gate: 'P3-003',
         allowed: false,
         featureKind: 'observability-maintenance',
         requestedPath: '/classic',

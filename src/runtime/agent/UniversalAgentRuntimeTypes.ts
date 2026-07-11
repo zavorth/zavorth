@@ -1,6 +1,17 @@
 import type { ModelPickerReadiness, SelectedModelProfile } from '../../contracts/ModelPickerContract.js';
 
-export type UniversalAgentChannel = 'web' | 'cli' | 'telegram' | 'discord' | 'api' | 'unknown';
+export type UniversalAgentChannel =
+  | 'web'
+  | 'cli'
+  | 'telegram'
+  | 'discord'
+  | 'api'
+  | 'slack'
+  | 'whatsapp'
+  | 'signal'
+  | 'email'
+  | 'teams'
+  | 'unknown';
 
 export type UniversalAgentRunStatus =
   | 'queued'

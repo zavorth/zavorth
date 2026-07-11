@@ -4,7 +4,6 @@ import type {
   RuntimeCapabilitiesSnapshot,
 } from '../../apiClient';
 import { connectGooglePersonalOps } from '../../apiClient';
-import { asErrorLike } from '../../../../../src/utils/errorLike.js';
 
 import type { BootEvent, RuntimeStatus } from '../../global';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../../primitives/desktopPrimitives';

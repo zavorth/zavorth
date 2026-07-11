@@ -67,7 +67,7 @@ export class ZavorthExternalContractLayerService {
       contractVersion: ZAVORTH_EXTERNAL_CONTRACT_LAYER_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'contract-layer',
+      gate: 'contract-layer',
       previousInventoryStatus,
       runtimeDescriptors,
       envelopeSchemas: ENVELOPE_SCHEMAS,

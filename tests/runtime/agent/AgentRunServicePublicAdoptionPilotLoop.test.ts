@@ -156,7 +156,7 @@ function publicMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',
@@ -201,7 +201,7 @@ function publicMetadata() {
         { id: 'pilot-loop:pilot-ledger', status: 'pass' },
         { id: 'pilot-loop:dashboard', status: 'pass' },
       ],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: '58',
         title: 'Integration Showcase And Partner Surface',
         reason: 'fixture e degradacao segura',

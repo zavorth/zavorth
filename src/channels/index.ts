@@ -6,3 +6,8 @@ export * from '../gateways/channels/teams/TeamsChannelAdapter.js';
 export * from '../gateways/channels/email/EmailChannelAdapter.js';
 export * from './contracts/ChannelMessageContract.js';
 export * from './policies/ChannelPolicyManager.js';
+export {
+  channelIdsEqual,
+  listChannelIdAliases,
+  normalizeChannelId,
+} from './normalizeChannelId.js';

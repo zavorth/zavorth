@@ -16,6 +16,7 @@ import { errorResponse } from "@ZavorthGateway/open-sse/utils/error.ts";
 import { HTTP_STATUS } from "@ZavorthGateway/open-sse/config/constants.ts";
 import * as log from "@/sse/utils/logger";
 import { logger } from '@/shared/utils/logger';
+import { isTrustedLoopbackRequest } from './loopbackRequest';
 
 interface AccessSchedule {
   enabled: boolean;
@@ -175,46 +176,6 @@ export interface ApiKeyPolicyResult {
   rejection: Response | null;
 }
 
-function normalizeRequestHostname(value: string | null | undefined): string {
-  const raw = String(value || "").trim().toLowerCase();
-  if (!raw) return "";
-
-  try {
-    return new URL(raw.includes("://") ? raw : `http://${raw}`)
-      .hostname.toLowerCase()
-      .replace(/^\[/, "")
-      .replace(/\]$/, "");
-  } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-    logger.warn('[api Key] network request failed', error);
-    return raw.replace(/^\[/, "").replace(/\]$/, "").split(":")[0] || "";
-  }
-}
-
-function isLoopbackHostname(hostname: string): boolean {
-  const normalized = normalizeRequestHostname(hostname);
-  return (
-    normalized === "localhost" ||
-    normalized === "127.0.0.1" ||
-    normalized === "::1" ||
-    normalized === "0:0:0:0:0:0:0:1"
-  );
-}
-
-function isLoopbackGatewayRequest(request: Request): boolean {
-  const hostCandidates = [
-    (() => {
-      try {
-        return new URL(request.url).hostname;
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[api Key] operation failed', error); return ''; }
-    })(),
-    request.headers.get("host"),
-    request.headers.get("x-forwarded-host"),
-  ].filter(Boolean) as string[];
-
-  if (hostCandidates.length === 0) return false;
-  return hostCandidates.every((host) => isLoopbackHostname(host));
-}
-
 /**
  * Enforce API key policies for a request.
  *
@@ -242,7 +203,7 @@ export async function enforceApiKeyPolicy(
   // No API key = localhost-only local mode. Non-loopback/LAN/public hosts require a key
   // even when REQUIRE_API_KEY was not explicitly enabled.
   if (!apiKey) {
-    if (!isLoopbackGatewayRequest(request)) {
+    if (!isTrustedLoopbackRequest(request)) {
       return {
         apiKey: null,
         apiKeyInfo: null,

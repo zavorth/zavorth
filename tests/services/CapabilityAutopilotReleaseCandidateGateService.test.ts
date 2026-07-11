@@ -99,8 +99,8 @@ function createSource(
       reason: 'checkpoint-79-test',
       fieldTrialReceiptId: 'field-trial-1',
     },
-    nextRecommendedPhase: {
-      phase: '80',
+    nextRecommendedGate: {
+      gate: 'capability-autopilot-release-candidate',
       title: 'Capability Autopilot Release Candidate Gate',
       reason: 'Decide release candidate.',
     },
@@ -124,7 +124,7 @@ describe('CapabilityAutopilotReleaseCandidateGateService', () => {
     const snapshot = service.buildReleaseCandidateSnapshot(createSource(), readyOptions);
 
     expect(snapshot).toMatchObject({
-      phase: '80',
+      gate: 'capability-autopilot-release-candidate',
       status: 'release_candidate_ready',
       recommendation: 'promote_to_release_candidate',
       summary: {
@@ -249,11 +249,11 @@ describe('CapabilityAutopilotReleaseCandidateGateService', () => {
     ]));
   });
 
-  it('renders the next phase for v1.1 release rollout plan', () => {
+  it('renders the next gate for v1.1 release rollout plan', () => {
     const service = createService();
     const snapshot = service.buildReleaseCandidateSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 80 - Capability Autopilot Release Candidate Gate');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-release-candidate - Capability Autopilot Release Candidate Gate');
     expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 81 - Capability Autopilot v1.1 Release Rollout Plan');
   });
 });

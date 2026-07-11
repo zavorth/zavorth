@@ -47,7 +47,7 @@ export type CapabilityAutopilotReleaseCandidateOptions = {
 };
 
 export type CapabilityAutopilotReleaseCandidateSnapshot = {
-  phase: '80';
+  gate: 'capability-autopilot-release-candidate';
   releaseCandidateGateId: string;
   generatedAt: string;
   surface: 'capability-autopilot-release-candidate-gate';
@@ -60,7 +60,7 @@ export type CapabilityAutopilotReleaseCandidateSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotBetaFieldTrialSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotBetaFieldTrialSnapshot['gate'];
   sourceStatus: CapabilityAutopilotBetaFieldTrialSnapshot['status'];
   sourceRecommendation: CapabilityAutopilotBetaFieldTrialSnapshot['recommendation'];
   releaseCandidateApproved: boolean;
@@ -110,8 +110,8 @@ export type CapabilityAutopilotReleaseCandidateSnapshot = {
     reason: string | null;
     releaseCandidateReceiptId: string | null;
   };
-  nextRecommendedPhase: {
-    phase: '81';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-release-rollout-plan';
     title: string;
     reason: string;
   };
@@ -175,7 +175,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       : 'extend_beta';
 
     return {
-      phase: '80',
+      gate: 'capability-autopilot-release-candidate',
       releaseCandidateGateId: this.buildReleaseCandidateGateId(source, generatedAt, options.releaseCandidateReceiptId || null),
       generatedAt,
       surface: 'capability-autopilot-release-candidate-gate',
@@ -188,7 +188,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       sourceStatus: source.status,
       sourceRecommendation: source.recommendation,
       releaseCandidateApproved: resolved.releaseCandidateApproved,
@@ -238,14 +238,14 @@ export class CapabilityAutopilotReleaseCandidateGateService {
         reason: options.reason || null,
         releaseCandidateReceiptId: options.releaseCandidateReceiptId || null,
       },
-      nextRecommendedPhase: {
-        phase: '81',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-release-rollout-plan',
         title: 'Capability Autopilot v1.1 Release Rollout Plan',
         reason:
           'Depois do release candidate, o proximo passo e preparar rollout gradual de v1.1 com cohorts, rollback, changelog e promocao manual.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-80',
+        gate: 'capability-autopilot-release-candidate',
         sourceSnapshotStatus: source.status,
         sourceRecommendation: source.recommendation,
         autoExecute: false,
@@ -264,7 +264,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
 
   public renderReport(snapshot: CapabilityAutopilotReleaseCandidateSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-release-candidate] Etapa 80 - Capability Autopilot Release Candidate Gate');
+    lines.push('[capability-autopilot-release-candidate] Capability Autopilot Release Candidate Gate');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`recommendation: ${snapshot.recommendation}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
@@ -280,8 +280,8 @@ export class CapabilityAutopilotReleaseCandidateGateService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -522,7 +522,7 @@ export class CapabilityAutopilotReleaseCandidateGateService {
     const digest = createHash('sha256')
       .update([
         source.capabilityId,
-        source.phase,
+        source.gate,
         source.fieldTrialId,
         source.generatedAt,
         generatedAt,

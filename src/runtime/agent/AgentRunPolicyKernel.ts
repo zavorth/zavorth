@@ -104,7 +104,7 @@ export class AgentRunPolicyKernel {
       policyKernel: {
         source: 'AgentRunPolicyKernel',
         stage: 6,
-        phase: 6,
+        gate: 'native-companion-device',
         lastStage: phase,
         receipts: [
           ...receipts,

@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'release-certification-files',
-    label: 'Consistency certification phase files exist',
+    label: 'Consistency certification gate files exist',
     target: 'Contract, service, tests, certifier, docs and package scripts are present',
     files: [
       'src/contracts/ReleaseCertificationContract.ts',
@@ -34,7 +34,7 @@ const rules = [
       'ReleaseCertificationWaiver',
       'ReleaseCertificationReceipt',
       'ReleaseCertificationSnapshot',
-      'Etapa 10 - P0 Gap Closure',
+      'P0 Gap Closure',
       'waiversMustBeExplicit: true',
       'secretValuesSerialized: false',
     ],

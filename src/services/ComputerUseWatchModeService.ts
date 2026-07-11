@@ -215,7 +215,19 @@ export class ComputerUseWatchModeService {
   public async applyMutationPlan(input: {
     planId: string;
     requestedBy?: string | null;
-  }): Promise<{ ok: true; status: 'applied'; mutationPlan: ZavorthMutationPlan; snapshot: WatchModeSnapshot; run: WatchModeRunSnapshot | null }> {
+  }): Promise<{
+    ok: true;
+    status: 'applied';
+    mutationPlan: ZavorthMutationPlan;
+    snapshot: WatchModeSnapshot;
+    run: WatchModeRunSnapshot | null;
+    operatorContinuity?: {
+      continuityId: string;
+      receiptId: string | null;
+      decisionAction: string | null;
+      policyBrokerReceiptId: string | null;
+    };
+  }> {
     return this.mutationSupport.applyMutationPlan(input);
   }
 

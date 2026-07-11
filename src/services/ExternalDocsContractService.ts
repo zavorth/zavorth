@@ -32,7 +32,7 @@ export type ExternalDocsContractServiceOptions = {
 };
 
 const WEBSITE_EXTERNAL_DOCS_SCRIPTS = ['external-docs', 'qa:external-docs'] as const;
-const CORE_EXTERNAL_DOCS_SCRIPTS = ['external-docs', 'qa:external-docs', 'qa:phase:49'] as const;
+const CORE_EXTERNAL_DOCS_SCRIPTS = ['external-docs', 'qa:external-docs', 'qa:external-docs'] as const;
 
 export class ExternalDocsContractService {
   private readonly projectRoot: string;
@@ -78,7 +78,7 @@ export class ExternalDocsContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '49',
+      gate: 'external-docs',
       surface: 'external-docs',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -95,8 +95,8 @@ export class ExternalDocsContractService {
       requiredCommands: [...EXTERNAL_DOCS_REQUIRED_COMMANDS],
       screenshots: EXTERNAL_DOCS_SCREENSHOTS,
       checks,
-      nextRecommendedPhase: {
-        phase: '50',
+      nextRecommendedGate: {
+        gate: 'distribution-policy',
         title: 'Editions, Plans And Distribution Policy',
         reason:
           'Com docs externas e exemplos publicos organizados, o proximo passo e explicar edicoes, limites e politica de distribuicao.',
@@ -106,7 +106,7 @@ export class ExternalDocsContractService {
 
   public renderReport(snapshot: ExternalDocsContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[external-docs] Etapa 49 - External Docs And Examples');
+    lines.push('[external-docs] External Docs And Examples');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -120,8 +120,8 @@ export class ExternalDocsContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -164,7 +164,7 @@ export class ExternalDocsContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Etapa 49.`
+          ? `repo principal expoe "${scriptName}" para o gate external-docs.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],

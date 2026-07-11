@@ -153,7 +153,7 @@ export type SourceAgentRuntimeBridgePackSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SOURCE_AGENT_RUNTIME_BRIDGE_CONTRACT_VERSION;
   status: SourceAgentRuntimeBridgeSnapshotStatus;
-  phase: 2;
+  gate: 'source-agent-runtime-bridge';
   statement: 'Source agent runtimes are absorbed as optional Zavorth-native runtime bridges with policy, cwd control and artifact-first receipts.';
   sourceRoot: string;
   zavorthRoot: string;

@@ -74,7 +74,7 @@ describe('ContextCompactionService', () => {
       { role: 'user', content: 'Implement memory compaction in src/services/ContextCompactionService.ts.' },
       { role: 'assistant', content: 'Tried a raw vector-only approach, but it was discarded because it loses decisions.' },
       { role: 'tool', toolName: 'jest', status: 'error', content: 'tests failed with timeout while checking docs/security.md' },
-      { role: 'user', content: 'Next, preserve recent turns verbatim and continue phase 2 later.' },
+      { role: 'user', content: 'Next, preserve recent turns verbatim and continue later.' },
       { role: 'assistant', content: 'Recent turn 1' },
       { role: 'user', content: 'Recent turn 2' },
     ];

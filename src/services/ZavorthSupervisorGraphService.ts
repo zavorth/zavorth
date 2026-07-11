@@ -77,7 +77,7 @@ export type ZavorthSupervisorGraphCorrectionAttempt = {
 
 export type ZavorthSupervisorGraphSnapshot = {
   generatedAt: string;
-  phase: '28';
+  gate: 'supervisor-graph';
   surface: 'supervisor-graph';
   objective: {
     preview: string;
@@ -314,7 +314,7 @@ export class ZavorthSupervisorGraphService {
 
     return {
       generatedAt,
-      phase: '28',
+      gate: 'supervisor-graph',
       surface: 'supervisor-graph',
       objective: {
         preview: objectivePreview,

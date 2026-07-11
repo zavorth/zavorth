@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'canary-plan-dry-run-hold-files',
-    label: 'Canary Plan Dry-Run Hold phase files exist',
+    label: 'Canary Plan Dry-Run Hold gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/CanaryPlanDryRunHoldContract.ts',

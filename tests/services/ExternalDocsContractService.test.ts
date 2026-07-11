@@ -5,12 +5,12 @@ describe('ExternalDocsContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('49');
+    expect(snapshot.phase).toBe('external-docs');
     expect(snapshot.surface).toBe('external-docs');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.routes).toEqual(['/docs', '/examples']);
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '50',
       title: 'Editions, Plans And Distribution Policy',
     }));
@@ -42,7 +42,6 @@ describe('ExternalDocsContractService', () => {
           'status:fast': 'npm run cli:fast -- status',
           'external-docs': 'npx tsx scripts/external-docs.ts',
           'qa:external-docs': 'npx tsx scripts/external-docs.ts --require-pass --build --screenshots',
-          'qa:stage:49': 'node scripts/capability-suite-adoption-check.mjs --phase=49',
         },
       }),
     });
@@ -58,11 +57,11 @@ describe('ExternalDocsContractService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
     const report = service.renderReport();
 
-    expect(report).toContain('Etapa 49 - External Docs And Examples');
+    expect(report).toContain('Gate external-docs - External Docs And Examples');
     expect(report).toContain('proximo passo recomendada: 50 - Editions, Plans And Distribution Policy');
   });
 });
@@ -89,7 +88,6 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'release:status:fast': 'npm run cli:fast -- release status',
         'external-docs': 'npx tsx scripts/external-docs.ts',
         'qa:external-docs': 'npx tsx scripts/external-docs.ts --require-pass --build --screenshots',
-        'qa:stage:49': 'node scripts/capability-suite-adoption-check.mjs --phase=49',
       },
     }),
     'website:package.json': JSON.stringify({
@@ -105,7 +103,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
     'website:components/Navbar.tsx': '<a href="/examples">Exemplos</a>',
     'website:components/CTASection.tsx': '<a href="/examples">Examples</a>',
     'website:components/Footer.tsx': '<a href="/examples">Exemplos</a>',
-    'website:app/changelog/page.tsx': 'Etapa 49 /docs#external-docs',
+    'website:app/changelog/page.tsx': 'Gate external-docs /docs#external-docs',
     ...overrides,
   };
 }

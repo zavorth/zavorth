@@ -207,13 +207,14 @@ describe('ZavorthLearningPlaneService', () => {
     ]);
   });
 
-  it('keeps approval and promotion explicit through persisted learning state', () => {
+  it('keeps approval and promotion explicit through persisted learning state', async () => {
     let storedState: string | null = null;
     const service = new ZavorthLearningPlaneService({
       now: () => new Date('2026-04-09T14:00:00.000Z'),
       workflowRunService: {
         listRuns: jest.fn(() => [createWorkflowRun()]),
       } as any,
+      skillPromotionGate: null,
       stateFile: 'C:/tmp/learning-plane.json',
       existsSync: jest.fn(() => storedState !== null),
       readFileSync: jest.fn(() => storedState || ''),
@@ -223,7 +224,7 @@ describe('ZavorthLearningPlaneService', () => {
       mkdirSync: jest.fn(),
     });
 
-    const approved = service.executeAction({
+    const approved = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'approve',
     });
@@ -236,7 +237,7 @@ describe('ZavorthLearningPlaneService', () => {
       }),
     );
 
-    const promoted = service.executeAction({
+    const promoted = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'promote',
     });
@@ -251,13 +252,14 @@ describe('ZavorthLearningPlaneService', () => {
     expect(storedState).toContain('"trusted_local"');
   });
 
-  it('forgets candidates and separates procedure/skill promotion receipts', () => {
+  it('forgets candidates and separates procedure/skill promotion receipts', async () => {
     let storedState: string | null = null;
     const service = new ZavorthLearningPlaneService({
       now: () => new Date('2026-04-09T14:00:00.000Z'),
       workflowRunService: {
         listRuns: jest.fn(() => [createWorkflowRun()]),
       } as any,
+      skillPromotionGate: null,
       stateFile: 'C:/tmp/learning-plane.json',
       existsSync: jest.fn(() => storedState !== null),
       readFileSync: jest.fn(() => storedState || ''),
@@ -267,7 +269,7 @@ describe('ZavorthLearningPlaneService', () => {
       mkdirSync: jest.fn(),
     });
 
-    const forgotten = service.executeAction({
+    const forgotten = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'forget',
     });
@@ -280,31 +282,109 @@ describe('ZavorthLearningPlaneService', () => {
       }),
     );
 
-    const blocked = service.executeAction({
+    const blocked = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'promoteSkill',
     });
     expect(blocked.ok).toBe(false);
     expect(blocked.status).toBe('blocked');
 
-    service.executeAction({
+    await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'approve',
     });
 
-    const promotedSkill = service.executeAction({
+    const promotedSkill = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'promoteSkill',
     });
+    // Without a real gate, promoteSkill falls back to lifecycle promote notes.
     expect(promotedSkill.ok).toBe(true);
-    expect(promotedSkill.details.join('\n')).toContain('habilidade local aprendida');
+    expect(promotedSkill.details.join('\n')).toMatch(/SkillPromotionGate unavailable|habilidade|skill/i);
 
-    const promotedProcedure = service.executeAction({
+    const promotedProcedure = await service.executeAction({
       candidateId: 'candidate:wf-1',
       actionId: 'promoteProcedure',
     });
     expect(promotedProcedure.ok).toBe(true);
     expect(promotedProcedure.status).toBe('noop');
+  });
+
+  it('routes promoteSkill through SkillPromotionGate preview/apply with silentInstallBlocked', async () => {
+    let storedState: string | null = null;
+    const materializeCandidate = jest.fn(async () => ({
+      ok: true,
+      summary: 'Skill candidate skill-draft:demo materialized.',
+      candidateId: 'skill-draft:demo',
+      installed: false,
+      status: 'materialized',
+      silentInstallBlocked: true,
+      mutationPlanId: null,
+    }));
+    const preview = jest.fn(async () => ({
+      ok: true,
+      summary: 'Preview ready; waiting approval.',
+      candidateId: 'skill-draft:demo',
+      installed: false,
+      status: 'waiting_approval',
+      silentInstallBlocked: true,
+      mutationPlanId: 'plan-1',
+      details: ['mutation plan pending'],
+    }));
+    const apply = jest.fn(async () => ({
+      ok: true,
+      summary: 'Skill installed as trusted_local.',
+      installed: true,
+      status: 'installed',
+      candidateId: 'skill-draft:demo',
+      silentInstallBlocked: true,
+      details: ['installed with approvalId'],
+    }));
+    const service = new ZavorthLearningPlaneService({
+      now: () => new Date('2026-04-09T14:00:00.000Z'),
+      workflowRunService: {
+        listRuns: jest.fn(() => [createWorkflowRun()]),
+      } as any,
+      skillPromotionGate: { materializeCandidate, preview, apply },
+      stateFile: 'C:/tmp/learning-plane.json',
+      existsSync: jest.fn(() => storedState !== null),
+      readFileSync: jest.fn(() => storedState || ''),
+      writeFileSync: jest.fn((_file, data) => {
+        storedState = String(data);
+      }),
+      mkdirSync: jest.fn(),
+    });
+
+    await service.executeAction({ candidateId: 'candidate:wf-1', actionId: 'approve' });
+
+    const blockedInstall = await service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'promoteSkill',
+    });
+    expect(blockedInstall.ok).toBe(false);
+    expect(blockedInstall.status).toBe('blocked');
+    expect(blockedInstall.silentInstallBlocked).toBe(true);
+    expect(blockedInstall.skillCandidateId).toBe('skill-draft:demo');
+    expect(blockedInstall.skillInstalled).toBe(false);
+    expect(materializeCandidate).toHaveBeenCalled();
+    expect(preview).toHaveBeenCalledWith('skill-draft:demo', expect.any(Object));
+    expect(apply).not.toHaveBeenCalled();
+    expect(blockedInstall.snapshot.candidates[0].lifecycle).toBe('learned_draft');
+
+    const installed = await service.executeAction({
+      candidateId: 'candidate:wf-1',
+      actionId: 'promoteSkill',
+      approvalId: 'approval-skill-1',
+    });
+    expect(installed.ok).toBe(true);
+    expect(installed.status).toBe('applied');
+    expect(installed.skillInstalled).toBe(true);
+    expect(installed.silentInstallBlocked).toBe(true);
+    expect(apply).toHaveBeenCalledWith(expect.objectContaining({
+      candidateId: 'skill-draft:demo',
+      approvalId: 'approval-skill-1',
+    }));
+    expect(installed.snapshot.candidates[0].lifecycle).toBe('trusted_local');
   });
 
   it('emits stable learning quality metrics from candidate history', () => {

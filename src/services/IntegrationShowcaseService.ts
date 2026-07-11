@@ -89,7 +89,7 @@ export class IntegrationShowcaseService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '58',
+      gate: 'integration-showcase',
       surface: 'integration-showcase',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -112,8 +112,8 @@ export class IntegrationShowcaseService {
         partnerSurfacePath: this.partnerSurfacePath,
       },
       checks,
-      nextRecommendedPhase: {
-        phase: '59',
+      nextRecommendedGate: {
+        gate: 'release-train',
         title: 'v1.x Release Train And LTS Policy',
         reason:
           'Com integracoes publicas descritas por fixture, Trust Plane e partner surface auditavel, o proximo passo e estabilizar cadencia v1.x e politica LTS.',
@@ -138,8 +138,8 @@ export class IntegrationShowcaseService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -505,7 +505,6 @@ export class IntegrationShowcaseService {
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n').toLowerCase();
     const required = [
-      'etapa 58',
       'integration showcase',
       'partner surface',
       'slack',
@@ -516,7 +515,6 @@ export class IntegrationShowcaseService {
       'degradacao segura',
       'trust plane',
       'qa:integration-showcase',
-      'qa:phase:58',
     ];
     const missing = required.filter((term) => !source.includes(term));
     return this.check(
@@ -536,7 +534,7 @@ export class IntegrationShowcaseService {
       this.readCoreText('docs/product-direction.md') || '',
       this.readCoreText('docs/product-direction.md') || '',
     ].join('\n');
-    const missing = ['Readiness checkpoint 9 - v1.x Release Train And LTS Policy', 'qa:phase:59']
+    const missing = ['Readiness checkpoint 9 - v1.x Release Train And LTS Policy', 'qa:release-train']
       .filter((term) => !source.includes(term));
     return this.check(
       'integration-showcase:next-phase',

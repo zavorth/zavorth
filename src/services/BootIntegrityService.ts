@@ -28,7 +28,7 @@ export type BootIntegrityCheck = {
 };
 
 export type BootIntegritySnapshot = {
-  phase: '35';
+  gate: 'boot-integrity';
   surface: 'boot-integrity';
   generatedAt: string;
   status: BootIntegrityOverallStatus;
@@ -115,7 +115,7 @@ export class BootIntegrityService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '35',
+      gate: 'boot-integrity',
       surface: 'boot-integrity',
       generatedAt: this.now().toISOString(),
       status: failures > 0 ? 'blocked' : warnings > 0 ? 'degraded' : 'ready',

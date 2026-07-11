@@ -117,7 +117,7 @@ export type DiagnosticsQaMigrationLiveEntry = {
 export type DiagnosticsQaMigrationLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_DIAGNOSTICS_QA_MIGRATION_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Intent model0 - Diagnostics, QA And Migration Live Plane';
+  gate: 'diagnostics-qa-migration-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 9;

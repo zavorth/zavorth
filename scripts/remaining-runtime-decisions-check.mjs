@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'remaining-runtime-decisions-files',
-    label: 'Remaining Runtime Decisions phase files exist',
+    label: 'Remaining Runtime Decisions gate files exist',
     target: 'Contract, service, tests, docs and package scripts are present',
     files: [
       'src/contracts/RemainingRuntimeDecisionsContract.ts',

@@ -618,7 +618,7 @@ export function SettingsOverlay({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {[
                     { name: 'walkthrough.md', size: '1.2 KB', desc: 'Executive summary of the visual redesign' },
-                    { name: 'implementation_plan.md', size: '13.4 KB', desc: 'Phase delivery timeline' }
+                    { name: 'implementation_plan.md', size: '13.4 KB', desc: 'Delivery timeline' }
                   ].map((file, idx) => (
                     <div key={idx} className="zvd-settings-card flex justify-between items-center" style={{ margin: 0 }}>
                       <div>
@@ -661,7 +661,7 @@ export function SettingsOverlay({
                         <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + B</kbd></td>
                       </tr>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>
-                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Show / Hide Terminal Panel</td>
+                        <td style={{ padding: '12px 16px', color: '#e4e4e7' }}>Open / Close Terminal Rail</td>
                         <td style={{ padding: '12px 16px' }}><kbd style={{ background: '#27272a', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #3f3f46' }}>Ctrl / Cmd + J</kbd></td>
                       </tr>
                       <tr style={{ borderBottom: '1px solid #27272a' }}>

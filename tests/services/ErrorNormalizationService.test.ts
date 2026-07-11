@@ -1,6 +1,6 @@
 import { ErrorNormalizationService } from '../../src/services/ErrorNormalizationService';
 
-describe('ErrorNormalizationService Tests (Phase 21K-B)', () => {
+describe('ErrorNormalizationService Tests', () => {
   let service: ErrorNormalizationService;
 
   beforeEach(() => {

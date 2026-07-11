@@ -117,7 +117,7 @@ export type ZavorthOperationalRolloutEvalSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_OPERATIONAL_ROLLOUT_EVAL_CONTRACT_VERSION;
   source: 'ZavorthOperationalRolloutEvalService';
-  phase: 'checkpoint-6-operational-rollout-eval';
+  gate: 'operational-rollout-eval';
   status: ZavorthOperationalRolloutEvalStatus;
   rolloutMode: ZavorthOperationalRolloutMode;
   strict: boolean;

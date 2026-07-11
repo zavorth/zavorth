@@ -43,17 +43,14 @@ const QUIET_GATE_SCRIPTS = [
   'runtime:check',
   'qa:product-quality',
   'qa:web-app-polish',
+  'qa:deterministic-qa',
+  'qa:tenant-team-ops',
+  'qa:artifact-replay',
+  'qa:release-ux-wizard',
+  'qa:runtime-idle-budget',
   'qa:artifact-workbench',
   'qa:release-ux',
-  'qa:tenant-team-ops',
   'qa:deterministic',
-  'qa:phase:39',
-  'qa:phase:40',
-  'qa:phase:41',
-  'qa:phase:42',
-  'qa:phase:43',
-  'qa:phase:44',
-  'qa:phase:45',
 ];
 
 const BACKGROUND_WORDS = [
@@ -104,7 +101,7 @@ export class RuntimeIdleBudgetService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '45',
+      gate: 'runtime-idle-budget',
       surface: 'runtime-idle-budget',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -126,8 +123,8 @@ export class RuntimeIdleBudgetService {
         benchmark: 'npm run qa:bench:boot',
         desktopDoctor: 'npm run ops:doctor:desktop',
       },
-      nextRecommendedPhase: {
-        phase: '40',
+      nextRecommendedGate: {
+        gate: 'web-app-polish',
         title: 'Web/App Polish',
         reason:
           'Depois de travar qualidade, QA e peso operacional, a ordem combinada volta para polir a experiencia web/app sem carregar o core.',
@@ -137,7 +134,7 @@ export class RuntimeIdleBudgetService {
 
   public renderReport(snapshot: RuntimeIdleBudgetSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[idle-budget] Etapa 45 - Runtime Performance And Idle Budget');
+    lines.push('[idle-budget] Runtime Performance And Idle Budget');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push('');
@@ -154,8 +151,8 @@ export class RuntimeIdleBudgetService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

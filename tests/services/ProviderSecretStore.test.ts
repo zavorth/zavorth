@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import { LocalEncryptedProviderSecretStore } from '../../src/services/ProviderSecretStore';
 import { Database } from '../../src/storage/Database';
 
-describe('ProviderSecretStore Security Tests (Phase 21H)', () => {
+describe('ProviderSecretStore Security Tests', () => {
   let store: LocalEncryptedProviderSecretStore;
   const testProviderId = 'test-provider-123';
   const testSecret = 'sk-zavorth-test-secret-DO-NOT-LEAK-21H';

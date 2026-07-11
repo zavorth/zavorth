@@ -22,6 +22,12 @@ export interface SubagentBudgetInput {
   metadata?: Record<string, unknown> | null;
 }
 
+export interface SubagentBudgetUsage {
+  toolCalls?: number | null;
+  elapsedMs?: number | null;
+  outputBytes?: number | null;
+}
+
 export interface SubagentBudgetDecision {
   ok: boolean;
   exceeded: SubagentBudgetExceededReason | null;
@@ -44,30 +50,78 @@ export function createSubagentBudget(input: SubagentBudgetInput = {}): SubagentB
   };
 }
 
+/**
+ * Apply live usage counters. Zero max values mean "dimension not enforced".
+ */
+export function applySubagentBudgetUsage(
+  budget: SubagentBudget,
+  usage: SubagentBudgetUsage = {},
+): SubagentBudget {
+  return {
+    ...budget,
+    usedToolCalls: nonNegativeInteger(
+      typeof usage.toolCalls === 'number'
+        ? budget.usedToolCalls + usage.toolCalls
+        : budget.usedToolCalls,
+      budget.usedToolCalls,
+    ),
+    elapsedMs: nonNegativeInteger(
+      typeof usage.elapsedMs === 'number' ? usage.elapsedMs : budget.elapsedMs,
+      budget.elapsedMs,
+    ),
+    outputBytes: nonNegativeInteger(
+      typeof usage.outputBytes === 'number'
+        ? budget.outputBytes + usage.outputBytes
+        : budget.outputBytes,
+      budget.outputBytes,
+    ),
+    metadata: { ...budget.metadata },
+    policyTags: [...budget.policyTags],
+  };
+}
+
 export function evaluateSubagentBudget(budget: SubagentBudget): SubagentBudgetDecision {
-  const remainingToolCalls = budget.maxToolCalls - budget.usedToolCalls;
-  const remainingWallClockMs = budget.maxWallClockMs - budget.elapsedMs;
-  const remainingOutputBytes = budget.maxOutputBytes - budget.outputBytes;
+  const remainingToolCalls = budget.maxToolCalls > 0
+    ? budget.maxToolCalls - budget.usedToolCalls
+    : Number.POSITIVE_INFINITY;
+  const remainingWallClockMs = budget.maxWallClockMs > 0
+    ? budget.maxWallClockMs - budget.elapsedMs
+    : Number.POSITIVE_INFINITY;
+  const remainingOutputBytes = budget.maxOutputBytes > 0
+    ? budget.maxOutputBytes - budget.outputBytes
+    : Number.POSITIVE_INFINITY;
+
   const exceeded =
-    remainingToolCalls < 0
+    budget.maxToolCalls > 0 && budget.usedToolCalls > budget.maxToolCalls
       ? 'tool_calls'
-      : remainingWallClockMs < 0
+      : budget.maxWallClockMs > 0 && budget.elapsedMs > budget.maxWallClockMs
         ? 'wall_clock_ms'
-        : remainingOutputBytes < 0
+        : budget.maxOutputBytes > 0 && budget.outputBytes > budget.maxOutputBytes
           ? 'output_bytes'
           : null;
 
   return {
     ok: exceeded === null,
     exceeded,
-    remainingToolCalls,
-    remainingWallClockMs,
-    remainingOutputBytes,
+    remainingToolCalls: Number.isFinite(remainingToolCalls) ? remainingToolCalls : Number.MAX_SAFE_INTEGER,
+    remainingWallClockMs: Number.isFinite(remainingWallClockMs) ? remainingWallClockMs : Number.MAX_SAFE_INTEGER,
+    remainingOutputBytes: Number.isFinite(remainingOutputBytes) ? remainingOutputBytes : Number.MAX_SAFE_INTEGER,
     policyTags: uniqueSorted([
       ...budget.policyTags,
       exceeded ? `subagent-budget:exceeded:${exceeded}` : 'subagent-budget:ok',
     ]),
   };
+}
+
+/**
+ * True when another tool call would exceed the tool-call budget.
+ * Used to stop before the next round when remaining is already zero.
+ */
+export function wouldExceedToolCallBudget(budget: SubagentBudget, additionalCalls = 1): boolean {
+  if (budget.maxToolCalls <= 0) {
+    return false;
+  }
+  return budget.usedToolCalls + Math.max(0, additionalCalls) > budget.maxToolCalls;
 }
 
 function nonNegativeInteger(value: number | null | undefined, fallback: number): number {

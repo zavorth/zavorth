@@ -219,7 +219,7 @@ export class CapabilityAutopilotReadinessService {
       evidence,
       suggestedNextAction: this.buildSuggestedNextAction(evaluation, missingRequirements, probe, executor),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-2',
+        gate: 'capability-autopilot-readiness',
         readOnly: true,
         installedIntegrationStatus: installedIntegration?.status || null,
       },
@@ -298,7 +298,7 @@ export class CapabilityAutopilotReadinessService {
       fallbackMode: 'ask_before_switch',
       metadata: {
         readOnly: true,
-        phase: 'capability-autopilot-checkpoint-2',
+        gate: 'capability-autopilot-readiness',
       },
     };
   }
@@ -639,7 +639,7 @@ export class CapabilityAutopilotReadinessService {
         ready: false,
         safeToRun: false,
         summary: `${input.descriptor.label} foi encontrado, mas ainda nao tem probe recente.`,
-        detail: 'A Etapa 2 e read-only: ela nao dispara probes automaticamente.',
+        detail: 'Este gate e read-only: ele nao dispara probes automaticamente.',
         blockingReason: 'probe_not_run',
       };
     }
@@ -729,7 +729,7 @@ export class CapabilityAutopilotReadinessService {
         repairable: false,
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-2',
+        gate: 'capability-autopilot-readiness',
         readOnly: true,
       },
     };

@@ -5,6 +5,12 @@ import { execSync, spawnSync } from 'child_process';
 import yaml from 'js-yaml';
 import { config as defaultConfig } from '../config/index.js';
 import { decideSecurityPolicy } from '../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 import { Database } from '../storage/Database.js';
 import type { SkillMetadata } from './SkillCatalogContract.js';
 import { ZavorthPathCompactor } from './ZavorthPathCompactor.js';
@@ -90,6 +96,10 @@ export interface ExecutedCommandResult {
    * The error description if execution failed or was blocked.
    */
   error?: string;
+
+  policyBrokerReceiptId?: string | null;
+  continuityId?: string | null;
+  decisionAction?: string | null;
 }
 
 /**
@@ -247,7 +257,7 @@ export class ZavorthSkillPreprocessorService {
         continue;
       }
 
-      // Validate against the SecurityPolicyBroker
+      // Validate against the SecurityPolicyBroker + operator continuity envelope
       const decision = decideSecurityPolicy({
         surface: 'skill',
         operation: 'governed-capability-eval',
@@ -260,10 +270,30 @@ export class ZavorthSkillPreprocessorService {
           provenance: input.provenance,
         },
       });
+      const continuityKernel = new OperatorContinuityKernel();
+      let continuity = continuityKernel.begin({
+        correlation: {
+          sessionId: input.sessionId || null,
+          policyBrokerReceiptId: decision.receipt.receiptId,
+        },
+      });
+      continuity = continuityKernel.recordRequest(continuity, {
+        surface: 'skill',
+        operation: 'skill.z_eval',
+        target: command.slice(0, 120),
+        actorId: input.actorId || null,
+        sourceSurface: 'skill-preprocessor',
+        argsDigest: digestOperatorPayload({ command: command.slice(0, 80) }),
+        metadata: {
+          skillName: input.skillName || null,
+          sourcePath: input.sourcePath || null,
+        },
+      });
+      continuity = continuityKernel.attachDecision(continuity, decisionFromBroker(decision));
 
       if (decision.allowed) {
         try {
-          // Execute command inside the project root workspace
+          // Governed shell eval stays under broker + continuity; workspace-bounded.
           const output = execSync(command, {
             cwd: this.projectRoot,
             encoding: 'utf8',
@@ -271,29 +301,66 @@ export class ZavorthSkillPreprocessorService {
           });
           const trimmedOutput = output.trim();
           finalBody += trimmedOutput;
+          continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+            ok: true,
+            status: 'applied',
+            summary: 'Skill z_eval executed after broker allow.',
+            output: trimmedOutput,
+            data: { policyBrokerReceiptId: decision.receipt.receiptId },
+          }));
+          continuity = continuityKernel.finalizeReceipt(continuity, {
+            receiptId: decision.receipt.receiptId,
+          });
 
           executedCommands.push({
             command,
             allowed: true,
             output: trimmedOutput,
+            policyBrokerReceiptId: decision.receipt.receiptId,
+            continuityId: continuity.ids.continuityId,
+            decisionAction: decision.action,
           });
         } catch (error: unknown) {
           const err = asErrorLike(error);
           const errMsg = err?.message || String(err);
           finalBody += `[Error: ${errMsg}]`;
+          continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+            ok: false,
+            status: 'failed',
+            summary: errMsg,
+            data: { policyBrokerReceiptId: decision.receipt.receiptId },
+          }));
+          continuity = continuityKernel.finalizeReceipt(continuity, {
+            receiptId: decision.receipt.receiptId,
+          });
 
           executedCommands.push({
             command,
             allowed: true,
             error: errMsg,
+            policyBrokerReceiptId: decision.receipt.receiptId,
+            continuityId: continuity.ids.continuityId,
+            decisionAction: decision.action,
           });
         }
       } else {
         const errorReason = `Blocked by security policy: ${decision.reasons.join(' ')}`;
+        continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+          ok: false,
+          status: decision.requiresUserConfirmation ? 'approval_required' : 'blocked',
+          summary: errorReason,
+          data: { policyBrokerReceiptId: decision.receipt.receiptId },
+        }));
+        continuity = continuityKernel.finalizeReceipt(continuity, {
+          receiptId: decision.receipt.receiptId,
+        });
         executedCommands.push({
           command,
           allowed: false,
           error: errorReason,
+          policyBrokerReceiptId: decision.receipt.receiptId,
+          continuityId: continuity.ids.continuityId,
+          decisionAction: decision.action,
         });
 
         if (this.strictSecurity) {
@@ -495,7 +562,7 @@ export class ZavorthSkillPreprocessorService {
         return `[Zavorth capability evaluation blocked: untrusted source]`;
       }
 
-      // Check with the Central Security Policy Broker
+      // Check with the Central Security Policy Broker + seal operator continuity
       const decision = decideSecurityPolicy({
         surface: 'skill',
         operation: 'governed-capability-eval',
@@ -505,8 +572,37 @@ export class ZavorthSkillPreprocessorService {
         risk: 'review',
         blocked: false
       });
+      const continuityKernel = new OperatorContinuityKernel();
+      let continuity = continuityKernel.begin({
+        correlation: {
+          sessionId: input.sessionId || null,
+          policyBrokerReceiptId: decision.receipt.receiptId,
+        },
+      });
+      continuity = continuityKernel.recordRequest(continuity, {
+        surface: 'skill',
+        operation: 'skill.z_eval',
+        target: trimmedCommand.slice(0, 120),
+        actorId: input.actorId || null,
+        sourceSurface: 'skill-preprocessor-static',
+        argsDigest: digestOperatorPayload({ command: trimmedCommand.slice(0, 80) }),
+        metadata: {
+          skillName: input.skill?.name || null,
+          dirPath: input.skill?.dirPath || null,
+        },
+      });
+      continuity = continuityKernel.attachDecision(continuity, decisionFromBroker(decision));
 
       if (!decision.allowed) {
+        continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+          ok: false,
+          status: 'blocked',
+          summary: decision.reasons.join(', '),
+          data: { policyBrokerReceiptId: decision.receipt.receiptId },
+        }));
+        continuityKernel.finalizeReceipt(continuity, {
+          receiptId: decision.receipt.receiptId,
+        });
         return `[Zavorth capability evaluation blocked by policy broker: ${decision.reasons.join(', ')}]`;
       }
 
@@ -529,12 +625,40 @@ export class ZavorthSkillPreprocessorService {
 
         const output = (result.stdout || '').trim() || (result.stderr || '').trim();
         if (result.status !== 0 && result.error) {
+          continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+            ok: false,
+            status: 'failed',
+            summary: result.error.message,
+            data: { policyBrokerReceiptId: decision.receipt.receiptId },
+          }));
+          continuityKernel.finalizeReceipt(continuity, {
+            receiptId: decision.receipt.receiptId,
+          });
           return `[Zavorth capability evaluation error: ${result.error.message}]`;
         }
 
+        continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+          ok: true,
+          status: 'applied',
+          summary: 'Skill z_eval executed after broker allow.',
+          output,
+          data: { policyBrokerReceiptId: decision.receipt.receiptId },
+        }));
+        continuityKernel.finalizeReceipt(continuity, {
+          receiptId: decision.receipt.receiptId,
+        });
         return output || `[Zavorth capability execution finished with exit code ${result.status}]`;
       } catch (error: unknown) {
         const err = asErrorLike(error);
+        continuity = continuityKernel.attachResult(continuity, resultFromToolOutcome({
+          ok: false,
+          status: 'failed',
+          summary: err.message,
+          data: { policyBrokerReceiptId: decision.receipt.receiptId },
+        }));
+        continuityKernel.finalizeReceipt(continuity, {
+          receiptId: decision.receipt.receiptId,
+        });
         return `[Zavorth capability evaluation error: ${err.message}]`;
       }
     });

@@ -81,7 +81,7 @@ function createSource(
       actorId: 'release-operator',
       reason: 'checkpoint-78-test',
     },
-    nextRecommendedStage: {
+    nextRecommendedGate: {
       stage: '79',
       title: 'Capability Autopilot Beta Field Trial Loop',
       reason: 'Operate limited beta field trial.',
@@ -207,11 +207,11 @@ describe('CapabilityAutopilotBetaFieldTrialLoopService', () => {
     ]));
   });
 
-  it('renders the next phase for release candidate gate', () => {
+  it('renders the next gate for release candidate gate', () => {
     const service = createService();
     const snapshot = service.buildFieldTrialSnapshot(createSource(), readyOptions);
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 79 - Capability Autopilot Beta Field Trial Loop');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-beta-field-trial - Capability Autopilot Beta Field Trial Loop');
     expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 80 - Capability Autopilot Release Candidate Gate');
   });
 });

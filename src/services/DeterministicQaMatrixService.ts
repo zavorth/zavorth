@@ -59,7 +59,7 @@ export class DeterministicQaMatrixService {
     const tiers = this.buildTiers();
 
     return {
-      phase: '41',
+      gate: 'deterministic-qa',
       surface: 'deterministic-qa-matrix',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -76,8 +76,8 @@ export class DeterministicQaMatrixService {
       gates: this.gates,
       checks,
       contracts: DETERMINISTIC_QA_CONTRACTS,
-      nextRecommendedPhase: {
-        phase: '45',
+      nextRecommendedGate: {
+        gate: 'runtime-idle-budget',
         title: 'Runtime Performance And Idle Budget',
         reason:
           'Com a matriz de QA travada, a proxima prioridade combinada e medir e reduzir peso de startup/background antes de polir mais superficies.',
@@ -87,7 +87,7 @@ export class DeterministicQaMatrixService {
 
   public renderReport(snapshot: DeterministicQaMatrixSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[deterministic-qa] Etapa 41 - QA Deterministico');
+    lines.push('[deterministic-qa] QA Deterministico');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | gates=${snapshot.summary.gates} required=${snapshot.summary.required}`);
     for (const tier of TIER_ORDER) {
@@ -103,8 +103,8 @@ export class DeterministicQaMatrixService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

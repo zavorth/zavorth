@@ -118,7 +118,7 @@ export type SpeechVoiceLiveEntry = {
 export type SpeechVoiceLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_SPEECH_VOICE_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'Surface controls - Speech, TTS And Voice Live Plane';
+  gate: 'speech-voice-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 10;

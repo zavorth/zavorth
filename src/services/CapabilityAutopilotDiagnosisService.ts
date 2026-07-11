@@ -63,7 +63,7 @@ export class CapabilityAutopilotDiagnosisService {
       evidence: readiness.evidence,
       relatedExecution: null,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-3',
+        gate: 'capability-autopilot-diagnosis',
         readOnly: true,
         readinessStatus: readiness.status,
         blockingReason: readiness.blockingReason || null,

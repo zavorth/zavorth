@@ -1,4 +1,5 @@
 import { SupervisedDesktopAutomationAdapter } from '../../../src/adapters/overlord/SupervisedDesktopAutomationAdapter.js';
+import { isOperatorContinuityEnvelope } from '../../../src/runtime/operator/OperatorContinuityEnvelope.js';
 
 describe('SupervisedDesktopAutomationAdapter', () => {
   it('executes scoped desktop actions through DesktopAutomationTool', async () => {
@@ -32,6 +33,17 @@ describe('SupervisedDesktopAutomationAdapter', () => {
       action: 'click-element',
       windowTitle: 'Notepad',
       targetText: 'Save',
+    }));
+    const envelope = adapter.getLastContinuityEnvelope();
+    expect(isOperatorContinuityEnvelope(envelope)).toBe(true);
+    expect(envelope?.request?.surface).toBe('desktop-automation');
+    expect(envelope?.request?.operation).toBe('desktop.mutate');
+    expect(envelope?.decision?.allowed).toBe(true);
+    expect(envelope?.result?.status).toBe('applied');
+    expect(envelope?.receipt?.terminal).toBe(true);
+    expect(result.metadata?.operatorContinuity).toEqual(expect.objectContaining({
+      continuityId: envelope?.ids.continuityId,
+      terminal: true,
     }));
   });
 

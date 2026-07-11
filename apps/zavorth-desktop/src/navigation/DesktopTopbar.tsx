@@ -1,4 +1,4 @@
-import { Command, Refresh, Search, Sliders, Stop, Sparkles } from '../icons';
+import { Search, Sliders, Stop, Sparkles } from '../icons';
 import type { RuntimeStatus } from '../global';
 import { t } from '../i18n';
 import { trustedOperatorBadge } from '../trust/trustedOperator';
@@ -12,6 +12,7 @@ export function DesktopTopbar(props: {
   onCommandPalette(): void;
   onOpenCommandCenter?(): void;
   onModel(): void;
+  onRuntime(): void;
   onRefresh(): void;
   onStop(): void;
   trustedOperator?: boolean;
@@ -19,7 +20,6 @@ export function DesktopTopbar(props: {
 }) {
   const isMac = navigator.userAgent.includes('Macintosh');
   const shortcutHint = isMac ? '⌘K' : 'Ctrl+K';
-  const ccShortcutHint = isMac ? '⌘⇧K' : 'Ctrl+Shift+K';
   const trustEnabled = Boolean(props.trustedOperator);
   const trustBadge = trustedOperatorBadge(trustEnabled);
 
@@ -49,7 +49,7 @@ export function DesktopTopbar(props: {
       <div className="zvd-topbar-right" aria-label={t('a11y.windowActions')}>
         <button
           className={`zvd-status-pill ${props.status.running ? 'is-live' : ''}`}
-          onClick={props.onModel}
+          onClick={props.onRuntime}
           type="button"
           title={props.status.message}
           aria-label={`${props.status.running ? t('topbar.localReady') : t('topbar.localOffline')}. ${props.modelLabel}`}
@@ -83,15 +83,6 @@ export function DesktopTopbar(props: {
         </button>
         <button
           className="zvd-icon-button"
-          onClick={props.onRefresh}
-          type="button"
-          aria-label={t('topbar.refresh')}
-          title={t('topbar.refresh')}
-        >
-          <Refresh aria-hidden="true" size={18} stroke={1.8} />
-        </button>
-        <button
-          className="zvd-icon-button"
           onClick={props.onModel}
           type="button"
           aria-label={t('settings')}
@@ -99,17 +90,6 @@ export function DesktopTopbar(props: {
         >
           <Sliders aria-hidden="true" size={18} stroke={1.8} />
         </button>
-        {props.onOpenCommandCenter ? (
-          <button
-            className="zvd-icon-button"
-            onClick={props.onOpenCommandCenter}
-            type="button"
-            aria-label={`${t('nav.commandCenter')} (${ccShortcutHint})`}
-            title={`${t('nav.commandCenter')} (${ccShortcutHint})`}
-          >
-            <Command aria-hidden="true" size={18} stroke={1.8} />
-          </button>
-        ) : null}
         <button
           className="zvd-icon-button"
           onClick={props.onCommandPalette}

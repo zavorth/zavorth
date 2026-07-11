@@ -102,7 +102,7 @@ export type WebResearchLiveEntry = {
 export type WebResearchLivePlaneSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_WEB_RESEARCH_LIVE_PLANE_CONTRACT_VERSION;
-  phase: 'ZavorthControl controls - Research, Web Extraction And Browser Live Plane';
+  gate: 'web-research-live-plane';
   status: 'closed' | 'attention' | 'blocked';
   summary: {
     targets: 7;

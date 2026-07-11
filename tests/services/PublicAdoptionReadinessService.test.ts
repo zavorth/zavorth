@@ -6,7 +6,7 @@ describe('PublicAdoptionReadinessService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('53');
+    expect(snapshot.phase).toBe('public-adoption-readiness');
     expect(snapshot.surface).toBe('public-adoption-readiness');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.summary.failed).toBe(0);
@@ -17,7 +17,7 @@ describe('PublicAdoptionReadinessService', () => {
         status: 'warn',
       }),
     ]));
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '54',
       title: 'Hosted Website And Demo Operations',
     }));
@@ -142,7 +142,7 @@ function coreScriptsFixture(scriptOverrides: Record<string, string | null> = {})
   }
   scripts['public-adoption'] = 'npx tsx scripts/public-adoption.ts';
   scripts['qa:public-adoption'] = 'npx tsx scripts/public-adoption.ts --require-pass';
-  scripts['qa:stage:53'] = 'node scripts/capability-suite-growth-check.mjs --phase=53';
+  scripts['qa:public-adoption-readiness'] = 'node scripts/capability-suite-growth-check.mjs --gate=public-adoption-readiness';
 
   for (const [scriptName, command] of Object.entries(scriptOverrides)) {
     if (command === null) {

@@ -199,7 +199,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       ],
       forbiddenClaims: [],
       checks: [],
-      nextRecommendedStage: { stage: '47', title: 'Public Demo', reason: 'demo fixture-first' },
+      nextRecommendedGate: { stage: '47', title: 'Public Demo', reason: 'demo fixture-first' },
     },
     publicDocsRecipes: {
       stage: '56',
@@ -223,7 +223,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       ],
       artifacts: { fixtureSmokePath: '<artifact>' },
       checks: [],
-      nextRecommendedStage: { stage: '57', title: 'Feedback', reason: 'feedback opt-in' },
+      nextRecommendedGate: { stage: '57', title: 'Feedback', reason: 'feedback opt-in' },
     },
     publicDemo: {
       stage: '47',
@@ -238,7 +238,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       requiredArtifacts: ['demo-build-fix-report.md', 'demo-run-2026-04-25.json'],
       screenshots: [],
       checks: [],
-      nextRecommendedStage: { stage: '48', title: 'Public Onboarding', reason: 'first-run publico' },
+      nextRecommendedGate: { stage: '48', title: 'Public Onboarding', reason: 'first-run publico' },
     },
     publicReleaseBundle: {
       stage: '51',
@@ -252,7 +252,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
       requiredCommands: ['release:status:fast', 'doctor:fast', 'release:changelog', 'release:rollback-preview'],
       screenshots: [],
       checks: [],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: '52',
         title: 'Feedback, Telemetry Opt-In And Product Loop',
         reason: 'loop publico',
@@ -278,7 +278,7 @@ function buildFeedbackTelemetryProductLoopFixtureMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',

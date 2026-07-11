@@ -5,7 +5,7 @@ import { SecurityAuditLogger } from '../../src/services/SecurityAuditLogger';
 import { LogRepository } from '../../src/storage/LogRepository';
 import { asErrorLike } from '../../src/utils/errorLike';
 
-describe('Logs/Audit/Console Leak Test (Phase 21H)', () => {
+describe('Logs/Audit/Console Leak Test', () => {
   const testSecret = 'sk-zavorth-audit-leak-test-21H';
 
   it('never leaks the API key in logs, audit or connection errors', async () => {

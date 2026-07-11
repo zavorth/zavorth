@@ -68,7 +68,7 @@ export type ZavorthCapabilityOsManifest = {
 };
 
 export type ZavorthCapabilityOsRouteDecision = {
-  phase: '26';
+  gate: 'capability-os';
   surface: 'capability-route';
   generatedAt: string;
   input: string;
@@ -94,7 +94,7 @@ export type ZavorthCapabilityOsRouteDecision = {
 
 export type ZavorthCapabilityOsSnapshot = {
   generatedAt: string;
-  phase: '26';
+  gate: 'capability-os';
   surface: 'capability-os';
   summary: CapabilitySummary & {
     byType: Record<CapabilityType, number>;
@@ -179,7 +179,7 @@ export class ZavorthCapabilityOsService {
 
     return {
       generatedAt: this.now().toISOString(),
-      phase: '26',
+      gate: 'capability-os',
       surface: 'capability-os',
       summary: {
         ...summary,
@@ -249,7 +249,7 @@ export class ZavorthCapabilityOsService {
         });
 
     return {
-      phase: '26',
+      gate: 'capability-os',
       surface: 'capability-route',
       generatedAt,
       input: normalizedInput,

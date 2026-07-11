@@ -76,7 +76,7 @@ describe('ZavorthSupervisorGraphService', () => {
       objective: 'corrija um bug no projeto e rode os testes',
     });
 
-    expect(snapshot.phase).toBe('28');
+    expect(snapshot.phase).toBe('supervisor-graph');
     expect(snapshot.surface).toBe('supervisor-graph');
     expect(snapshot.mode).toBe('graph');
     expect(snapshot.status).toBe('ready');

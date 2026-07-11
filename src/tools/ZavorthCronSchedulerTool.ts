@@ -1,29 +1,16 @@
-
-import fs from 'fs';
 import path from 'path';
 import { BaseTool } from './BaseTool.js';
 import type { ToolDefinition } from '@zavorth/providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
-
-interface CronJob {
-  id: string;
-  name: string;
-  schedule: string;
-  schedule_type: 'cron' | 'interval' | 'once' | 'natural_language';
-  interval_ms?: number;
-  task_description: string;
-  channel?: string;
-  enabled: boolean;
-  last_run: string | null;
-  next_run: string | null;
-  run_count: number;
-  last_result: string | null;
-  created_at: string;
-  updated_at: string;
-  risk_level: 'low' | 'medium' | 'high' | 'critical';
-  requires_approval: boolean;
-}
+import {
+  AutonomySchedulePlane,
+  bindAutonomySchedulePlane,
+  resolveAutonomyScheduleStorageDir,
+  type AutonomyRoutineRiskLevel,
+  type AutonomyRoutineScheduleType,
+} from '../services/AutonomySchedulePlane.js';
+import type { TaskPlaneService } from '../services/TaskPlaneService.js';
 
 export class ZavorthCronSchedulerTool extends BaseTool {
   public readonly name = 'zavorth_cron_scheduler';
@@ -36,7 +23,7 @@ export class ZavorthCronSchedulerTool extends BaseTool {
     properties: {
       action: {
         type: 'string',
-        description: "Action: 'create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update'.",
+        description: "Action: 'create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update', 'process_due', 'kill_switch', 'freeze_scope'.",
       },
       job_id: {
         type: 'string',
@@ -74,175 +61,134 @@ export class ZavorthCronSchedulerTool extends BaseTool {
         type: 'boolean',
         description: 'If true, requires approval before execution. Default: based on risk_level.',
       },
+      scope: {
+        type: 'string',
+        description: 'Scope tag for freeze/unfreeze, or kill_switch value activate/clear.',
+      },
     },
     required: ['action'],
   };
 
-  private readonly storageDir: string;
+  private readonly plane: AutonomySchedulePlane;
 
-  constructor(options?: { storageDir?: string }) {
+  constructor(options?: {
+    storageDir?: string;
+    runtimeDir?: string;
+    taskPlane?: TaskPlaneService | null;
+    plane?: AutonomySchedulePlane | null;
+  }) {
     super();
-    this.storageDir = options?.storageDir || path.join(process.cwd(), 'data', 'runtime', 'cron');
+    // Prefer injected plane; otherwise bind the canonical runtimeDir/cron plane (same as CLI/control/daemon).
+    let plane: AutonomySchedulePlane;
+    if (options?.plane) {
+      plane = options.plane;
+    } else if (options?.storageDir) {
+      // Explicit storageDir wins when callers need a test isolation root.
+      plane = new AutonomySchedulePlane({
+        storageDir: options.storageDir,
+        taskPlane: options?.taskPlane || null,
+      });
+    } else {
+      const runtimeDir = options?.runtimeDir || path.join(process.cwd(), 'data', 'runtime');
+      plane = bindAutonomySchedulePlane({
+        runtimeDir,
+        taskPlane: options?.taskPlane || null,
+        plane: null,
+      });
+    }
+    this.plane = plane;
+  }
+
+  public getSchedulePlane(): AutonomySchedulePlane {
+    return this.plane;
+  }
+
+  public getStorageDir(): string {
+    return this.plane.getStorageDir();
+  }
+
+  public static canonicalStorageDir(runtimeDir: string): string {
+    return resolveAutonomyScheduleStorageDir(runtimeDir);
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '');
     if (!action) return 'Error: the "action" parameter is required.';
 
-    const validActions = ['create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update'];
+    const validActions = [
+      'create', 'list', 'delete', 'enable', 'disable', 'run_now', 'status', 'update',
+      'process_due', 'kill_switch', 'freeze_scope', 'unfreeze_scope',
+    ];
     if (!validActions.includes(action)) {
       return `Error: invalid action "${action}". Use: ${validActions.join(', ')}.`;
     }
 
-    this.ensureStorageDir();
-
     try {
       switch (action) {
         case 'create': return this.createJob(args);
-        case 'list': return this.listJobs(args);
+        case 'list': return this.listJobs();
         case 'delete': return this.deleteJob(args);
         case 'enable': return this.toggleJob(args, true);
         case 'disable': return this.toggleJob(args, false);
         case 'run_now': return this.runNow(args);
         case 'status': return this.jobStatus(args);
         case 'update': return this.updateJob(args);
+        case 'process_due': return this.processDue();
+        case 'kill_switch': return this.killSwitch(args);
+        case 'freeze_scope': return this.freezeScope(args, true);
+        case 'unfreeze_scope': return this.freezeScope(args, false);
         default: return `Error: action "${action}" not implemented.`;
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      logger.warn('[Zavorth Cron] delete operation failed', error);
-    const message = error instanceof Error ? err.message : String(error);
+      logger.warn('[Zavorth Cron] operation failed', error);
+      const message = error instanceof Error ? err.message : String(error);
       return `CronScheduler error: ${message}`;
-  }
-  }
-
-  private ensureStorageDir(): void {
-    if (!fs.existsSync(this.storageDir)) {
-      fs.mkdirSync(this.storageDir, { recursive: true });
     }
-  }
-
-  private jobPath(jobId: string): string {
-    return path.join(this.storageDir, `${jobId}.json`);
-  }
-
-  private loadJob(jobId: string): CronJob | null {
-    const filePath = this.jobPath(jobId);
-    if (!fs.existsSync(filePath)) return null;
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as CronJob;
-  }
-
-  private saveJob(job: CronJob): void {
-    fs.writeFileSync(this.jobPath(job.id), JSON.stringify(job, null, 2), 'utf-8');
-  }
-
-  private listAllJobIds(): string[] {
-    if (!fs.existsSync(this.storageDir)) return [];
-    return fs.readdirSync(this.storageDir)
-      .filter((f) => f.endsWith('.json'))
-      .map((f) => f.replace('.json', ''));
-  }
-
-  private detectScheduleType(schedule: string, intervalMs?: number): CronJob['schedule_type'] {
-    if (intervalMs !== undefined) return 'interval';
-    if (/^[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+\s+[\d/*,\-]+$/.test(schedule.trim())) return 'cron';
-    if (/^\d{4}-\d{2}-\d{2}T/.test(schedule.trim())) return 'once';
-    return 'natural_language';
-  }
-
-  private computeNextRun(job: CronJob): string | null {
-    if (!job.enabled) return null;
-    const now = Date.now();
-
-    if (job.schedule_type === 'interval' && job.interval_ms) {
-      return new Date(now + job.interval_ms).toISOString();
-    }
-
-    if (job.schedule_type === 'once') {
-      const target = new Date(job.schedule).getTime();
-      return target > now ? new Date(target).toISOString() : null;
-    }
-
-    return null;
-  }
-
-  private inferRiskLevel(taskDescription: string): CronJob['risk_level'] {
-    const desc = taskDescription.toLowerCase();
-    if (/\b(delete|remove|drop|destroy|kill|rm\s+-rf)\b/u.test(desc)) return 'critical';
-    if (/\b(send|post|publish|deploy|execute|run|modify|write|edit)\b/u.test(desc)) return 'high';
-    if (/\b(read|check|monitor|scan|list|query|search)\b/u.test(desc)) return 'low';
-    return 'medium';
   }
 
   private createJob(args: Record<string, unknown>): string {
-    const schedule = String(args.schedule || '');
-    if (!schedule) return 'Error: the "schedule" parameter is required.';
-
-    const taskDescription = String(args.task_description || '');
-    if (!taskDescription) return 'Error: the "task_description" parameter is required.';
-
-    const name = String(args.name || `job_${Date.now()}`);
-    const jobId = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 48);
-
-    if (this.loadJob(jobId)) {
-      return `Error: job "${jobId}" already exists. Use "update" to modify.`;
-    }
-
-    const scheduleType = this.detectScheduleType(schedule, args.interval_ms as number | undefined);
-    const riskLevel = args.risk_level
-      ? String(args.risk_level) as CronJob['risk_level']
-      : this.inferRiskLevel(taskDescription);
-    const requiresApproval = typeof args.requires_approval === 'boolean'
-      ? args.requires_approval
-      : ['high', 'critical'].includes(riskLevel);
-
-    const job: CronJob = {
-      id: jobId,
-      name,
-      schedule,
-      schedule_type: scheduleType,
-      interval_ms: typeof args.interval_ms === 'number' ? args.interval_ms : undefined,
-      task_description: taskDescription,
+    const result = this.plane.createRoutine({
+      name: typeof args.name === 'string' ? args.name : undefined,
+      schedule: String(args.schedule || ''),
+      scheduleType: args.schedule_type
+        ? String(args.schedule_type) as AutonomyRoutineScheduleType
+        : undefined,
+      intervalMs: typeof args.interval_ms === 'number' ? args.interval_ms : undefined,
+      taskDescription: String(args.task_description || ''),
       channel: typeof args.channel === 'string' ? args.channel : undefined,
-      enabled: !requiresApproval,
-      last_run: null,
-      next_run: null,
-      run_count: 0,
-      last_result: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      risk_level: riskLevel,
-      requires_approval: requiresApproval,
-    };
-
-    job.next_run = this.computeNextRun(job);
-    this.saveJob(job);
-
+      riskLevel: args.risk_level
+        ? String(args.risk_level) as AutonomyRoutineRiskLevel
+        : undefined,
+      requiresApproval: typeof args.requires_approval === 'boolean' ? args.requires_approval : undefined,
+      actor: 'zavorth_cron_scheduler',
+    });
+    if (!result.ok || !result.routine) {
+      return `Error: ${result.blockedReason || result.summary}`;
+    }
+    const job = result.routine;
     const lines: string[] = [
-      `Job "${name}" created successfully.`,
-      `  - ID: ${jobId}`,
-      `  - Schedule: ${schedule} (${scheduleType})`,
-      `  - Risk: ${riskLevel}`,
-      `  - Approval required: ${requiresApproval ? 'Yes' : 'No'}`,
+      `Job "${job.name}" created successfully.`,
+      `  - ID: ${job.id}`,
+      `  - Schedule: ${job.schedule} (${job.scheduleType})`,
+      `  - Risk: ${job.riskLevel}`,
+      `  - Approval required: ${job.requiresApproval ? 'Yes' : 'No'}`,
       `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
     ];
-    if (requiresApproval) {
-      lines.push(`  - ⚠️ Job created DISABLED. Use "enable" after reviewing and approving.`);
+    if (job.requiresApproval && !job.enabled) {
+      lines.push('  - ⚠️ Job created DISABLED. Use "enable" after reviewing and approving.');
     }
     return lines.join('\n');
   }
 
-  private listJobs(_args: Record<string, unknown>): string {
-    const jobIds = this.listAllJobIds();
-    if (jobIds.length === 0) return 'No scheduled jobs.';
-
-    const lines: string[] = [`Scheduled jobs (${jobIds.length}):`];
-    for (const id of jobIds) {
-      const job = this.loadJob(id);
-      if (!job) continue;
+  private listJobs(): string {
+    const snapshot = this.plane.snapshot();
+    if (snapshot.routines.length === 0) return 'No scheduled jobs.';
+    const lines: string[] = [`Scheduled jobs (${snapshot.routines.length}):`];
+    for (const job of snapshot.routines) {
       const status = job.enabled ? '✅' : '⏸️';
-      const risk = { low: '🟢', medium: '🟡', high: '🟠', critical: '🔴' }[job.risk_level];
-      lines.push(`  ${status} ${risk} [${job.id}] ${job.name} — ${job.schedule} (${job.schedule_type}) runs:${job.run_count}`);
+      const risk = { low: '🟢', medium: '🟡', high: '🟠', critical: '🔴' }[job.riskLevel];
+      lines.push(`  ${status} ${risk} [${job.id}] ${job.name} — ${job.schedule} (${job.scheduleType}) runs:${job.runCount}`);
     }
     return lines.join('\n');
   }
@@ -250,76 +196,60 @@ export class ZavorthCronSchedulerTool extends BaseTool {
   private deleteJob(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
     if (!jobId) return 'Error: "job_id" is required.';
-
-    const job = this.loadJob(jobId);
-    if (!job) return `Error: job "${jobId}" not found.`;
-
-    if (job.risk_level === 'critical' || job.run_count > 0) {
-      fs.unlinkSync(this.jobPath(jobId));
-      return `Job "${job.name}" (${jobId}) deleted. Warning: job had risk ${job.risk_level} and ${job.run_count} previous executions.`;
+    const result = this.plane.deleteRoutine({ routineId: jobId, actor: 'zavorth_cron_scheduler' });
+    if (!result.ok || !result.routine) {
+      return `Error: ${result.blockedReason || result.summary}`;
     }
-
-    fs.unlinkSync(this.jobPath(jobId));
+    const job = result.routine;
+    if (job.riskLevel === 'critical' || job.runCount > 0) {
+      return `Job "${job.name}" (${jobId}) deleted. Warning: job had risk ${job.riskLevel} and ${job.runCount} previous executions.`;
+    }
     return `Job "${job.name}" (${jobId}) deleted.`;
   }
 
   private toggleJob(args: Record<string, unknown>, enabled: boolean): string {
     const jobId = String(args.job_id || '');
     if (!jobId) return 'Error: "job_id" is required.';
-
-    const job = this.loadJob(jobId);
-    if (!job) return `Error: job "${jobId}" not found.`;
-
-    if (enabled && job.requires_approval) {
-      job.requires_approval = false;
+    const result = enabled
+      ? this.plane.enableRoutine({ routineId: jobId, actor: 'zavorth_cron_scheduler' })
+      : this.plane.disableRoutine({ routineId: jobId, actor: 'zavorth_cron_scheduler' });
+    if (!result.ok || !result.routine) {
+      return `Error: ${result.blockedReason || result.summary}`;
     }
-
-    job.enabled = enabled;
-    job.next_run = this.computeNextRun(job);
-    job.updated_at = new Date().toISOString();
-    this.saveJob(job);
-
-    return `Job "${job.name}" (${jobId}) ${enabled ? 'enabled' : 'disabled'}.${job.next_run ? ` Next execution: ${job.next_run}` : ''}`;
+    const job = result.routine;
+    return `Job "${job.name}" (${jobId}) ${enabled ? 'enabled' : 'disabled'}.${job.nextRunAt ? ` Next execution: ${job.nextRunAt}` : ''}`;
   }
 
   private runNow(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
     if (!jobId) return 'Error: "job_id" is required.';
-
-    const job = this.loadJob(jobId);
-    if (!job) return `Error: job "${jobId}" not found.`;
-
-    job.last_run = new Date().toISOString();
-    job.run_count += 1;
-    job.last_result = 'manual_trigger_pending';
-    job.next_run = this.computeNextRun(job);
-    job.updated_at = new Date().toISOString();
-    this.saveJob(job);
-
-    return `Job "${job.name}" (${jobId}) manually triggered. Task: "${job.task_description}". Execution #${job.run_count}.`;
+    const result = this.plane.runNow({ routineId: jobId, actor: 'zavorth_cron_scheduler' });
+    if (!result.ok || !result.routine) {
+      return `Error: ${result.blockedReason || result.summary}`;
+    }
+    const job = result.routine;
+    return `Job "${job.name}" (${jobId}) manually triggered. Task: "${job.taskDescription}". Execution #${job.runCount}.`;
   }
 
   private jobStatus(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
     if (!jobId) return 'Error: "job_id" is required.';
-
-    const job = this.loadJob(jobId);
+    const job = this.plane.getRoutine(jobId);
     if (!job) return `Error: job "${jobId}" not found.`;
-
     const lines: string[] = [
       `Job: ${job.name} (${job.id})`,
-      `  - Schedule: ${job.schedule} (${job.schedule_type})`,
-      `  - Task: ${job.task_description}`,
+      `  - Schedule: ${job.schedule} (${job.scheduleType})`,
+      `  - Task: ${job.taskDescription}`,
       `  - Channel: ${job.channel || 'none'}`,
       `  - Enabled: ${job.enabled ? 'Yes' : 'No'}`,
-      `  - Risk: ${job.risk_level}`,
-      `  - Approval: ${job.requires_approval ? 'Required' : 'Not required'}`,
-      `  - Executions: ${job.run_count}`,
-      `  - Last execution: ${job.last_run || 'never'}`,
-      `  - Next execution: ${job.next_run || 'not scheduled'}`,
-      `  - Last result: ${job.last_result || 'none'}`,
-      `  - Created: ${job.created_at}`,
-      `  - Updated: ${job.updated_at}`,
+      `  - Risk: ${job.riskLevel}`,
+      `  - Approval: ${job.requiresApproval ? 'Required' : 'Not required'}`,
+      `  - Executions: ${job.runCount}`,
+      `  - Last execution: ${job.lastRunAt || 'never'}`,
+      `  - Next execution: ${job.nextRunAt || 'not scheduled'}`,
+      `  - Last result: ${job.lastResult || 'none'}`,
+      `  - Created: ${job.createdAt}`,
+      `  - Updated: ${job.updatedAt}`,
     ];
     return lines.join('\n');
   }
@@ -327,35 +257,53 @@ export class ZavorthCronSchedulerTool extends BaseTool {
   private updateJob(args: Record<string, unknown>): string {
     const jobId = String(args.job_id || '');
     if (!jobId) return 'Error: "job_id" is required.';
-
-    const job = this.loadJob(jobId);
-    if (!job) return `Error: job "${jobId}" not found.`;
-
-    if (args.name) job.name = String(args.name);
-    if (args.schedule) {
-      job.schedule = String(args.schedule);
-      job.schedule_type = this.detectScheduleType(job.schedule, args.interval_ms as number | undefined);
+    const result = this.plane.updateRoutine({
+      routineId: jobId,
+      name: typeof args.name === 'string' ? args.name : undefined,
+      schedule: args.schedule ? String(args.schedule) : '',
+      scheduleType: args.schedule_type
+        ? String(args.schedule_type) as AutonomyRoutineScheduleType
+        : undefined,
+      intervalMs: typeof args.interval_ms === 'number' ? args.interval_ms : undefined,
+      taskDescription: args.task_description ? String(args.task_description) : '',
+      channel: typeof args.channel === 'string' ? args.channel : undefined,
+      riskLevel: args.risk_level
+        ? String(args.risk_level) as AutonomyRoutineRiskLevel
+        : undefined,
+      requiresApproval: typeof args.requires_approval === 'boolean' ? args.requires_approval : undefined,
+      actor: 'zavorth_cron_scheduler',
+    });
+    if (!result.ok || !result.routine) {
+      return `Error: ${result.blockedReason || result.summary}`;
     }
-    if (typeof args.interval_ms === 'number') {
-      job.interval_ms = args.interval_ms;
-      if (job.schedule_type !== 'interval') job.schedule_type = 'interval';
-    }
-    if (args.task_description) job.task_description = String(args.task_description);
-    if (args.channel) job.channel = String(args.channel);
-    if (args.risk_level) {
-      job.risk_level = String(args.risk_level) as CronJob['risk_level'];
-      if (['high', 'critical'].includes(job.risk_level)) {
-        job.requires_approval = true;
-      }
-    }
-    if (typeof args.requires_approval === 'boolean') {
-      job.requires_approval = args.requires_approval;
-    }
+    return `Job "${result.routine.name}" (${jobId}) updated successfully.`;
+  }
 
-    job.next_run = this.computeNextRun(job);
-    job.updated_at = new Date().toISOString();
-    this.saveJob(job);
+  private processDue(): string {
+    const result = this.plane.processDue({ actor: 'zavorth_cron_scheduler' });
+    if (!result.ok) {
+      return `Error: ${result.blockedReason || result.summary}`;
+    }
+    return [
+      result.summary,
+      ...result.materialized.map((entry) => `- ${entry.routineId} -> task ${entry.taskId || 'preview'} next=${entry.nextRunAt || 'none'}`),
+    ].join('\n');
+  }
 
-    return `Job "${job.name}" (${jobId}) updated successfully.`;
+  private killSwitch(args: Record<string, unknown>): string {
+    const mode = String(args.scope || args.mode || args.value || 'activate').toLowerCase();
+    const result = mode === 'clear' || mode === 'off' || mode === 'disable'
+      ? this.plane.clearKillSwitch('zavorth_cron_scheduler')
+      : this.plane.activateKillSwitch('zavorth_cron_scheduler');
+    return result.summary;
+  }
+
+  private freezeScope(args: Record<string, unknown>, freeze: boolean): string {
+    const scope = String(args.scope || args.job_id || '');
+    if (!scope) return 'Error: "scope" is required.';
+    const result = freeze
+      ? this.plane.freezeScope(scope, 'zavorth_cron_scheduler')
+      : this.plane.unfreezeScope(scope, 'zavorth_cron_scheduler');
+    return result.summary;
   }
 }

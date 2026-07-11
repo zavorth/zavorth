@@ -3,7 +3,7 @@ import {
   GovernedReviewService,
 } from '../../../src/runtime/review';
 
-describe('GovernedReviewService phase 4', () => {
+describe('GovernedReviewService', () => {
   it('creates a read-only governed review result with agent runtime plan, verifier and policy gate', () => {
     const result = new GovernedReviewService().run({
       reviewId: 'review-test-1',

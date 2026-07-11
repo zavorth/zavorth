@@ -76,6 +76,9 @@ function parseResponseProfileText(value: unknown): ExperienceCommand["responsePr
 
 export function buildExperienceCommand(body: Record<string, unknown>): Partial<ExperienceCommand> & { text: string } {
   const text = String(body.text || body.message || body.prompt || "").trim();
+  const requestMetadata = body.metadata && typeof body.metadata === "object" && !Array.isArray(body.metadata)
+    ? body.metadata as Record<string, unknown>
+    : {};
   const responseProfile = body.responseProfile === "short"
     || body.responseProfile === "dev"
     || body.responseProfile === "executive"
@@ -110,6 +113,7 @@ export function buildExperienceCommand(body: Record<string, unknown>): Partial<E
     contextRecoveryDecision,
     responseProfile,
     metadata: {
+      ...requestMetadata,
       requestedBy: body.requestedBy || "control-ui",
       source: "api/experience",
       responseProfile: responseProfile || undefined,

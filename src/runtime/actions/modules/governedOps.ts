@@ -317,7 +317,7 @@ function mcpInspect(input: ZavorthActionHandlerInput): ZavorthActionResult {
     operation: input.operation,
     status: input.operation === 'action.preview' ? 'preview' : 'ok',
     summary: `MCP inspect preview for ${server}; execution remains disabled.`,
-    lines: [...listed.lines, 'MCP execution is intentionally not available in this phase.'],
+    lines: [...listed.lines, 'MCP execution is intentionally not available until quarantine activation is approved.'],
     data: { ...(listed.data || {}), server, executionEnabled: false, quarantineRequired: true },
   });
 }

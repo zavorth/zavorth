@@ -113,7 +113,7 @@ export function ChannelsView(props: {
                             <button
                               disabled={props.busy}
                               onClick={() => {
-                                const extraEntries = option.missingEnvKeys.map((key: string) => ({
+                                const extraEntries = missingKeys.map((key: string) => ({
                                   key,
                                   value: credentials[key] || '',
                                 }));
@@ -148,14 +148,14 @@ export function ChannelsView(props: {
                         <>
                           {hasMissing && (
                             <p style={{ color: 'var(--zvd-text-warn, #b45309)', fontSize: '0.9em', marginTop: '4px' }}>
-                              Missing: {option.missingEnvKeys.join(', ')}
+                              Missing: {missingKeys.join(', ')}
                             </p>
                           )}
                         </>
                       )}
                       
-                      {option.webhookUrl && <p>Webhook: {String(option.webhookUrl)}</p>}
-                      {option.qrCode && <p>QR: {String(option.qrCode)}</p>}
+                      {Boolean(option.webhookUrl) && <p>Webhook: {String(option.webhookUrl)}</p>}
+                      {Boolean(option.qrCode) && <p>QR: {String(option.qrCode)}</p>}
                     </div>
                   </div>
                   <div className="zvd-detail-side">
@@ -168,7 +168,7 @@ export function ChannelsView(props: {
                             onClick={() => {
                               setConfiguringChannelId(channelId);
                               const initial: Record<string, string> = {};
-                              option.missingEnvKeys.forEach((key: string) => {
+                              missingKeys.forEach((key: string) => {
                                 initial[key] = '';
                               });
                               setCredentials(initial);

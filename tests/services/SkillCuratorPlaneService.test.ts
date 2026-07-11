@@ -98,7 +98,7 @@ describe('SkillCuratorPlaneService', () => {
     expect(fs.existsSync(state.lastReportPath)).toBe(true);
   });
 
-  it('marks stale skills and archives old unpinned managed skills', async () => {
+  it('marks stale skills and holds destructive archive until low-risk archive policy allows it', async () => {
     db.rows.set('alpha-stale', {
       skill_id: 'alpha-stale',
       use_count: 2,
@@ -134,11 +134,16 @@ describe('SkillCuratorPlaneService', () => {
 
     expect(report.transitions).toEqual(expect.arrayContaining([
       expect.objectContaining({ skillId: 'alpha-stale', to: 'stale', dryRun: false }),
-      expect.objectContaining({ skillId: 'alpha-archive', to: 'archived', dryRun: false }),
+      expect.objectContaining({
+        skillId: 'alpha-archive',
+        to: 'archived',
+        dryRun: true,
+        reason: expect.stringContaining('destructive-archive-requires-approval'),
+      }),
     ]));
-    expect(archiveCalls).toEqual(['alpha-archive']);
+    expect(archiveCalls).toEqual([]);
     expect(status.stats.stale).toBe(1);
-    expect(status.stats.archived).toBe(1);
+    expect(status.stats.archived).toBe(0);
     expect(status.pinned).toEqual(['alpha-pinned']);
   });
 

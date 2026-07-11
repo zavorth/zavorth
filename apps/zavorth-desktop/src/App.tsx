@@ -102,6 +102,7 @@ export function App() {
     allProfiles,
     onAddCustomProfile,
     onDeleteCustomProfile,
+    onActivateProfile,
     scheduledTasks,
     onAddScheduledTask,
     onDeleteScheduledTask,
@@ -306,6 +307,8 @@ export function App() {
           allProfiles={allProfiles}
           onAddCustomProfile={onAddCustomProfile}
           onDeleteCustomProfile={onDeleteCustomProfile}
+          activeProfileId={experienceProfile}
+          onActivateProfile={onActivateProfile}
           scheduledTasks={scheduledTasks}
           onAddScheduledTask={onAddScheduledTask}
           onDeleteScheduledTask={onDeleteScheduledTask}

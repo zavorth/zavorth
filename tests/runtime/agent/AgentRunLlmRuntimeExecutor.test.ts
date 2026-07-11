@@ -146,7 +146,14 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([
       expect.objectContaining({ name: 'read_file' }),
     ]);
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('read_file', { filePath: 'README.md' });
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('read_file', expect.objectContaining({
+      filePath: 'README.md',
+      metadata: expect.objectContaining({
+        runId: 'run-1',
+        sourceSurface: 'agent-native-tool-loop',
+        toolCallId: 'call-read',
+      }),
+    }));
     expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(expect.arrayContaining([
       expect.objectContaining({
         role: 'tool',
@@ -635,7 +642,7 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         requiredEvidence: 'grounding_metadata',
       })],
     }));
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', {
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
       query: 'latest technology news today',
       mode: 'grounded',
       providerHints: {
@@ -643,7 +650,12 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         modelName: 'test-model',
         source: 'agent-native-tool-loop',
       },
-    });
+      metadata: expect.objectContaining({
+        runId: 'run-1',
+        sourceSurface: 'agent-native-tool-loop',
+        toolCallId: 'call-search',
+      }),
+    }));
     expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
       requested: 1,
       executed: 1,

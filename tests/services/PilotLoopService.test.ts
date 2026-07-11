@@ -17,11 +17,11 @@ describe('PilotLoopService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('57');
+    expect(snapshot.phase).toBe('pilot-loop');
     expect(snapshot.surface).toBe('pilot-loop');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '58',
       title: 'Integration Showcase And Partner Surface',
     }));
@@ -127,7 +127,7 @@ describe('PilotLoopService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
 
     const report = service.renderReport();
@@ -232,9 +232,9 @@ function docs76Source() {
     'ledger local',
     'payload sensivel',
     'qa:pilot-loop',
-    'qa:stage:57',
+    'qa:pilot-loop',
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
-    'qa:stage:58',
+    'qa:integration-showcase',
   ].join('\n');
 }
 
@@ -243,9 +243,9 @@ function roadmapSource() {
     'Readiness checkpoint 7 - Feedback, Support And Pilot Loop: implementada.',
     'feedback support pilot loop triagem ledger local payload sensivel',
     'qa:pilot-loop',
-    'qa:stage:57',
+    'qa:pilot-loop',
     'Readiness checkpoint 8 - Integration Showcase And Partner Surface',
-    'qa:stage:58',
+    'qa:integration-showcase',
   ].join('\n');
 }
 

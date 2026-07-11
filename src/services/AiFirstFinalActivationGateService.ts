@@ -66,8 +66,8 @@ export class AiFirstFinalActivationGateService {
       receipts: [
         {
           id: this.idFactory('receipt'),
-          kind: 'phase-summary',
-          detail: `${phaseSummaries.length} AI-first promotion phase(s) consolidated into the activation gate.`,
+          kind: 'gate-summary',
+          detail: `${phaseSummaries.length} AI-first promotion gate(s) consolidated into the activation gate.`,
         },
         {
           id: this.idFactory('receipt'),
@@ -95,15 +95,15 @@ export class AiFirstFinalActivationGateService {
           id: 'checkpoint-10-receipts-present',
           status: aggregate.allReceiptsPresent ? 'passed' : 'warning',
           detail: aggregate.allReceiptsPresent
-            ? 'Required phase receipts are present.'
-            : 'One or more phase snapshots has no receipts.',
+            ? 'Required gate receipts are present.'
+            : 'One or more gate snapshots has no receipts.',
         },
         {
           id: 'checkpoint-10-runtime-invariants-preserved',
           status: aggregate.allRuntimeInvariantsPreserved ? 'passed' : 'blocked',
           detail: aggregate.allRuntimeInvariantsPreserved
-            ? 'All phase recommendations preserve runtime invariants.'
-            : 'One or more phase recommendation violates runtime invariants.',
+            ? 'All gate recommendations preserve runtime invariants.'
+            : 'One or more gate recommendation violates runtime invariants.',
         },
         {
           id: 'checkpoint-10-owner-controlled-only',
@@ -151,9 +151,9 @@ export class AiFirstFinalActivationGateService {
       }
     }
     lines.push('');
-    lines.push('## Phase summaries');
+    lines.push('## Gate summaries');
     for (const summary of snapshot.phaseSummaries) {
-      lines.push(`- ${summary.phase}: ${summary.status} / ${summary.readiness} - ${summary.detail}`);
+      lines.push(`- ${summary.gate}: ${summary.status} / ${summary.readiness} - ${summary.detail}`);
     }
     return lines.join('\n');
   }
@@ -164,7 +164,7 @@ type AggregateDraft = Omit<AiFirstFinalActivationGateSnapshot['aggregate'], 'fin
 function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFinalActivationPhaseSummary[] {
   return [
     {
-      phase: 'checkpoint-4',
+      gate: 'ai-first-activation-checkpoint-4',
       sourceId: safeId(input.batchSnapshot.batchId),
       readiness: input.batchSnapshot.recommendation.readiness,
       action: input.batchSnapshot.recommendation.action,
@@ -178,7 +178,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.batchSnapshot.score.sampleCount} shadow sample(s), passRate=${formatRate(input.batchSnapshot.score.passRate)}.`,
     },
     {
-      phase: 'checkpoint-5',
+      gate: 'checkpoint-5',
       sourceId: safeId(input.registrySnapshot.registryId),
       readiness: input.registrySnapshot.recommendation.readiness,
       action: input.registrySnapshot.recommendation.action,
@@ -192,7 +192,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.registrySnapshot.summary.eligibleFamilies} eligible family/families and ${input.registrySnapshot.summary.proposedAllowlistEntries} allowlist proposal(s).`,
     },
     {
-      phase: 'checkpoint-6',
+      gate: 'checkpoint-6',
       sourceId: safeId(input.switchboardSnapshot.switchboardId),
       readiness: input.switchboardSnapshot.recommendation.readiness,
       action: input.switchboardSnapshot.recommendation.action,
@@ -204,7 +204,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.switchboardSnapshot.summary.canaryEnabledRoutes} route(s) enabled and ${input.switchboardSnapshot.summary.aiFirstCanarySelections} canary selection(s).`,
     },
     {
-      phase: 'checkpoint-8',
+      gate: 'checkpoint-8',
       sourceId: safeId(input.ledgerSnapshot.ledgerId),
       readiness: input.ledgerSnapshot.recommendation.readiness,
       action: input.ledgerSnapshot.recommendation.action,
@@ -216,7 +216,7 @@ function buildPhaseSummaries(input: AiFirstFinalActivationGateInput): AiFirstFin
       detail: `${input.ledgerSnapshot.summary.totalEntries} runtime receipt entrie(s) captured.`,
     },
     {
-      phase: 'checkpoint-9',
+      gate: 'checkpoint-9',
       sourceId: safeId(input.historicalGateSnapshot.gateId),
       readiness: input.historicalGateSnapshot.recommendation.status,
       action: input.historicalGateSnapshot.recommendation.action,
@@ -316,7 +316,7 @@ function buildFindings(
     add('historical-gate-blocked', 'high', `Historical gate blocked activation: ${input.historicalGateSnapshot.recommendation.reason}`);
   }
   if (!aggregate.allRuntimeInvariantsPreserved) {
-    add('runtime-invariant-violation', 'high', 'At least one phase snapshot does not preserve default runtime invariants.');
+    add('runtime-invariant-violation', 'high', 'At least one gate snapshot does not preserve default runtime invariants.');
   }
   return findings;
 }

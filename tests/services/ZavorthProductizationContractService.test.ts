@@ -266,7 +266,7 @@ describe('ZavorthProductizationContractService', () => {
         requiredArtifacts: ['fixture/zavorth-first-run-workspace'],
         screenshots: [],
         checks: [],
-        nextRecommendedStage: {
+        nextRecommendedGate: {
           stage: '49',
           title: 'External Docs',
           reason: 'fixture',
@@ -306,7 +306,7 @@ describe('ZavorthProductizationContractService', () => {
             reason: 'sem claims proibidas',
           },
         ],
-        nextRecommendedStage: {
+        nextRecommendedGate: {
           stage: '47',
           title: 'Public demo',
           reason: 'fixture',

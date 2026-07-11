@@ -391,7 +391,7 @@ describe('Zavorth CLI visual anti-regression contract', () => {
     expectNoFirstLayerNoise(output);
   });
 
-  it('keeps the phase 25 cockpit consolidated without leaking internal commands', () => {
+  it('keeps the operations cockpit consolidated without leaking internal commands', () => {
     const output = formatCliOperationsCockpitSnapshot({
       generatedAt: '2026-04-24T00:00:00.000Z',
       stage: '25',

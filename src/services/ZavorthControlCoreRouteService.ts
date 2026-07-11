@@ -1313,7 +1313,7 @@ export class ZavorthControlCoreRouteService {
       return true;
     }
 
-    // ── Fase 21E-A: Temporary Directory Trust routes ─────────────────────────────
+    // ── Temporary Directory Trust routes ─────────────────────────────
     // GET /api/v2/workspace/temporary-directory-trusts/pendingisworkspaceId=X
     if (pathname === '/api/v2/workspace/temporary-directory-trusts/pending' && req.method === 'GET') {
       if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {

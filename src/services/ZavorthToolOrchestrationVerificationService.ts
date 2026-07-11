@@ -66,7 +66,7 @@ export class ZavorthToolOrchestrationVerificationService {
       generatedAt,
       contractVersion: ZAVORTH_TOOL_ORCHESTRATION_VERIFICATION_CONTRACT_VERSION,
       source: 'ZavorthToolOrchestrationVerificationService',
-      phase: 'checkpoint-4-tool-orchestration-verification',
+      gate: 'tool-orchestration-verification',
       status,
       request: {
         surface: contextRecovery.request.surface,

@@ -104,6 +104,10 @@ export type LearningPlaneActionExecution = {
   summary: string;
   details: string[];
   snapshot: LearningPlaneSnapshot;
+  approvalId?: string | null;
+  skillCandidateId?: string | null;
+  silentInstallBlocked?: boolean;
+  skillInstalled?: boolean;
 };
 
 export type LearningPlaneStateExport = {
@@ -127,12 +131,67 @@ type LearningStateFile = {
   entries: Record<string, LearningStateEntry>;
 };
 
+type SkillPromotionGateAdapter = {
+  materializeCandidate: (input: {
+    intentText: string;
+    candidateKind?: string | null;
+    requestedBy?: string | null;
+    sourceSurface?: string | null;
+    approvalRequired?: boolean;
+  }) => Promise<{
+    ok: boolean;
+    summary: string;
+    candidateId: string | null;
+    installed: boolean;
+    status?: string;
+    silentInstallBlocked?: boolean;
+    mutationPlanId?: string | null;
+  }> | {
+    ok: boolean;
+    summary: string;
+    candidateId: string | null;
+    installed: boolean;
+    status?: string;
+    silentInstallBlocked?: boolean;
+    mutationPlanId?: string | null;
+  };
+  preview?: (
+    candidateId: string,
+    options?: { requestedBy?: string | null; sourceSurface?: string | null; retest?: boolean },
+  ) => Promise<{
+    ok: boolean;
+    summary: string;
+    candidateId: string | null;
+    installed: boolean;
+    status?: string;
+    silentInstallBlocked?: boolean;
+    mutationPlanId?: string | null;
+    approvalId?: string | null;
+    details?: string[];
+  }>;
+  apply: (input: {
+    candidateId: string;
+    approvalId: string;
+    requestedBy?: string | null;
+    sourceSurface?: string | null;
+  }) => Promise<{
+    ok: boolean;
+    summary: string;
+    installed: boolean;
+    status: string;
+    candidateId?: string | null;
+    silentInstallBlocked?: boolean;
+    details?: string[];
+  }>;
+};
+
 type LearningPlaneRuntime = {
   now?: () => Date;
   workflowRunService?: Pick<WorkflowRunService, 'listRuns'>;
   nativeRunStore?: Pick<AgentRunStore, 'loadRuns'> | null;
   stateFile?: string;
   maxCandidates?: number;
+  skillPromotionGate?: SkillPromotionGateAdapter | null;
   existsSync?: typeof fs.existsSync;
   readFileSync?: typeof fs.readFileSync;
   writeFileSync?: typeof fs.writeFileSync;
@@ -145,6 +204,7 @@ export class ZavorthLearningPlaneService {
   private readonly nativeRunStore: Pick<AgentRunStore, 'loadRuns'> | null;
   private readonly stateFile: string;
   private readonly maxCandidates: number;
+  private readonly skillPromotionGate: SkillPromotionGateAdapter | null;
   private readonly existsSyncImpl: typeof fs.existsSync;
   private readonly readFileSyncImpl: typeof fs.readFileSync;
   private readonly writeFileSyncImpl: typeof fs.writeFileSync;
@@ -156,6 +216,9 @@ export class ZavorthLearningPlaneService {
     this.nativeRunStore = runtime.nativeRunStore || null;
     this.stateFile = runtime.stateFile || config.learningPlaneStateFile;
     this.maxCandidates = Math.max(1, runtime.maxCandidates || config.learningPlaneMaxCandidates || 40);
+    this.skillPromotionGate = runtime.skillPromotionGate === undefined
+      ? createDefaultSkillPromotionGateAdapter()
+      : runtime.skillPromotionGate;
     this.existsSyncImpl = runtime.existsSync || fs.existsSync.bind(fs);
     this.readFileSyncImpl = runtime.readFileSync || fs.readFileSync.bind(fs);
     this.writeFileSyncImpl = runtime.writeFileSync || fs.writeFileSync.bind(fs);
@@ -238,12 +301,18 @@ export class ZavorthLearningPlaneService {
     };
   }
 
-  public executeAction(input: {
+  public async executeAction(input: {
     candidateId: string;
     actionId: LearningPlaneActionId;
-  }): LearningPlaneActionExecution {
+    approvalId?: string | null;
+    requestedBy?: string | null;
+    sourceSurface?: string | null;
+  }): Promise<LearningPlaneActionExecution> {
     const candidateId = this.normalizeValue(input.candidateId);
     const actionId = input.actionId;
+    const approvalId = String(input.approvalId || '').trim() || null;
+    const requestedBy = String(input.requestedBy || 'learning-plane').trim() || 'learning-plane';
+    const sourceSurface = String(input.sourceSurface || 'learning-plane').trim() || 'learning-plane';
     const state = this.readState();
     const candidate = this.buildSnapshot().candidates.find((entry) => this.normalizeValue(entry.id) === candidateId) || null;
 
@@ -265,6 +334,9 @@ export class ZavorthLearningPlaneService {
     let status: LearningPlaneActionExecution['status'] = 'applied';
     let summary = '';
     const details: string[] = [];
+    let skillCandidateId: string | null = null;
+    let skillInstalled = false;
+    let silentInstallBlocked: boolean | undefined;
 
     if (actionId === 'approve') {
       if (current.reviewState === 'approved' && current.lifecycle !== 'quarantined') {
@@ -314,21 +386,65 @@ export class ZavorthLearningPlaneService {
         summary = `${candidate.title} esta em quarentena e precisa de aprovacao antes da promocao.`;
         details.push('Use approve para tirar o candidato da quarentena antes de promover.');
       } else {
-        next = {
-          ...current,
-          reviewState: 'approved',
-          lifecycle: 'trusted_local',
-          updatedAt: now,
-          promotedAt: now,
-          rejectedAt: null,
-        };
-        summary = `${candidate.title} promovido para trusted local.`;
-        if (actionId === 'promoteProcedure') {
-          details.push('O candidato agora pode aparecer como procedimento local aprendido no platform plane.');
-        } else if (actionId === 'promoteSkill') {
-          details.push('O candidato agora pode aparecer como habilidade local aprendida no platform plane.');
+        const wantsSkillInstall = actionId === 'promoteSkill';
+        const gateResult = await this.runSkillPromotionGate({
+          candidate,
+          actionId,
+          approvalId,
+          requestedBy,
+          sourceSurface,
+        });
+        skillCandidateId = gateResult.skillCandidateId;
+        skillInstalled = gateResult.installed;
+        silentInstallBlocked = gateResult.silentInstallBlocked;
+        details.push(...gateResult.details);
+
+        if (wantsSkillInstall && this.skillPromotionGate) {
+          if (gateResult.installed) {
+            next = {
+              ...current,
+              reviewState: 'approved',
+              lifecycle: 'trusted_local',
+              updatedAt: now,
+              promotedAt: now,
+              rejectedAt: null,
+            };
+            status = 'applied';
+            summary = `${candidate.title} promoted and skill installed via SkillPromotionGate.`;
+            details.push('silentInstallBlocked=true was honored; install required explicit approvalId.');
+          } else if (approvalId) {
+            status = 'blocked';
+            summary = `${candidate.title} skill install blocked by SkillPromotionGate.`;
+            details.push(gateResult.summary || 'Apply did not install skill files.');
+          } else {
+            next = {
+              ...current,
+              reviewState: 'approved',
+              lifecycle: 'learned_draft',
+              updatedAt: now,
+              rejectedAt: null,
+            };
+            status = 'blocked';
+            summary = `${candidate.title} skill install waits for approvalId (silent install blocked).`;
+            details.push('Provide approvalId to apply the SkillPromotionGate mutation plan.');
+            details.push('Learning lifecycle stays learned_draft until approved install.');
+          }
         } else {
-          details.push('O candidato agora pode aparecer como habilidade aprendida no platform plane.');
+          next = {
+            ...current,
+            reviewState: 'approved',
+            lifecycle: 'trusted_local',
+            updatedAt: now,
+            promotedAt: now,
+            rejectedAt: null,
+          };
+          status = 'applied';
+          summary = `${candidate.title} promovido para trusted local.`;
+          if (actionId === 'promoteProcedure') {
+            details.push('O candidato agora pode aparecer como procedimento local aprendido no platform plane.');
+          } else {
+            details.push('O candidato agora pode aparecer como habilidade aprendida no platform plane.');
+          }
         }
       }
     } else {
@@ -351,7 +467,141 @@ export class ZavorthLearningPlaneService {
       summary,
       details,
       snapshot: this.buildSnapshot(),
+      approvalId,
+      skillCandidateId,
+      silentInstallBlocked,
+      skillInstalled,
     };
+  }
+
+  private async runSkillPromotionGate(input: {
+    candidate: LearningCandidateSnapshot;
+    actionId: LearningPlaneActionId;
+    approvalId: string | null;
+    requestedBy: string;
+    sourceSurface: string;
+  }): Promise<{
+    skillCandidateId: string | null;
+    installed: boolean;
+    silentInstallBlocked: boolean;
+    summary: string;
+    details: string[];
+  }> {
+    const gate = this.skillPromotionGate;
+    if (!gate) {
+      return {
+        skillCandidateId: null,
+        installed: false,
+        silentInstallBlocked: true,
+        summary: 'SkillPromotionGate unavailable.',
+        details: [
+          'SkillPromotionGate unavailable; promote stayed learning-plane lifecycle only.',
+          'Install skill via: zavorth skills evolve promote <candidateId> --approval-id <id>',
+        ],
+      };
+    }
+
+    const details: string[] = [];
+    const intentText = [
+      input.candidate.title,
+      input.candidate.summary,
+      ...input.candidate.steps.slice(0, 8),
+    ].filter(Boolean).join('\n');
+    const candidateKind = input.actionId === 'promoteProcedure'
+      ? 'procedure'
+      : input.candidate.kind === 'skill' || input.actionId === 'promoteSkill'
+        ? 'auto-skill'
+        : input.candidate.kind;
+
+    try {
+      const materialized = await Promise.resolve(gate.materializeCandidate({
+        intentText,
+        candidateKind,
+        requestedBy: input.requestedBy,
+        sourceSurface: input.sourceSurface,
+        approvalRequired: true,
+      }));
+      const skillCandidateId = materialized.candidateId || null;
+      details.push(materialized.summary || 'Skill promotion candidate materialized.');
+      details.push('silentInstallBlocked=true');
+      if (skillCandidateId) {
+        details.push(`skillCandidateId=${skillCandidateId}`);
+      }
+
+      if (!skillCandidateId) {
+        return {
+          skillCandidateId: null,
+          installed: false,
+          silentInstallBlocked: true,
+          summary: materialized.summary || 'Skill promotion materialize failed.',
+          details,
+        };
+      }
+
+      if (input.approvalId) {
+        const applied = await gate.apply({
+          candidateId: skillCandidateId,
+          approvalId: input.approvalId,
+          requestedBy: input.requestedBy,
+          sourceSurface: input.sourceSurface,
+        });
+        details.push(applied.summary);
+        if (Array.isArray(applied.details)) {
+          details.push(...applied.details.slice(0, 6));
+        }
+        details.push(`skillInstalled=${applied.installed ? 'yes' : 'no'}`);
+        return {
+          skillCandidateId,
+          installed: Boolean(applied.installed),
+          silentInstallBlocked: true,
+          summary: applied.summary,
+          details,
+        };
+      }
+
+      if (typeof gate.preview === 'function') {
+        const previewed = await gate.preview(skillCandidateId, {
+          requestedBy: input.requestedBy,
+          sourceSurface: input.sourceSurface,
+        });
+        details.push(previewed.summary);
+        if (previewed.mutationPlanId) {
+          details.push(`mutationPlanId=${previewed.mutationPlanId}`);
+        }
+        if (Array.isArray(previewed.details)) {
+          details.push(...previewed.details.slice(0, 4));
+        }
+        details.push('Install requires explicit approvalId (preview/apply path).');
+        return {
+          skillCandidateId,
+          installed: false,
+          silentInstallBlocked: true,
+          summary: previewed.summary,
+          details,
+        };
+      }
+
+      details.push('Skill candidate drafted; install requires approvalId.');
+      return {
+        skillCandidateId,
+        installed: false,
+        silentInstallBlocked: true,
+        summary: materialized.summary,
+        details,
+      };
+    } catch (error: unknown) {
+      logger.warn('[LearningPlane] skill promotion gate failed', error);
+      return {
+        skillCandidateId: null,
+        installed: false,
+        silentInstallBlocked: true,
+        summary: 'SkillPromotionGate failed during promote.',
+        details: [
+          error instanceof Error ? error.message : String(error),
+          'silentInstallBlocked=true',
+        ],
+      };
+    }
   }
 
   public exportState(): LearningPlaneStateExport {
@@ -745,5 +995,75 @@ export class ZavorthLearningPlaneService {
   private capitalize(value: string): string {
     const normalized = String(value || '').trim();
     return normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1) : 'Learning';
+  }
+}
+
+function createDefaultSkillPromotionGateAdapter(): SkillPromotionGateAdapter | null {
+  try {
+    // Lazy require keeps learning plane usable when skill evolution graph is unavailable.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('./SkillPromotionGate.js') as {
+      SkillPromotionGate?: new (runtime?: Record<string, unknown>) => {
+        materializeCandidate: (input: Record<string, unknown>) => {
+          ok: boolean;
+          summary: string;
+          candidateId: string | null;
+          installed: boolean;
+          status?: string;
+          silentInstallBlocked?: boolean;
+          mutationPlanId?: string | null;
+        };
+        preview: (
+          candidateId: string,
+          options?: { requestedBy?: string | null; sourceSurface?: string | null; retest?: boolean },
+        ) => Promise<{
+          ok: boolean;
+          summary: string;
+          candidateId: string | null;
+          installed: boolean;
+          status?: string;
+          silentInstallBlocked?: boolean;
+          mutationPlanId?: string | null;
+          approvalId?: string | null;
+          details?: string[];
+        }>;
+        apply: (input: {
+          candidateId: string;
+          approvalId?: string | null;
+          requestedBy?: string | null;
+          sourceSurface?: string | null;
+        }) => Promise<{
+          ok: boolean;
+          summary: string;
+          installed: boolean;
+          status: string;
+          candidateId?: string | null;
+          silentInstallBlocked?: boolean;
+          details?: string[];
+        }>;
+      };
+    };
+    if (typeof mod.SkillPromotionGate !== 'function') {
+      return null;
+    }
+    const gate = new mod.SkillPromotionGate();
+    return {
+      materializeCandidate: async (input) => {
+        const result = gate.materializeCandidate(input as Record<string, unknown>);
+        return {
+          ok: result.ok,
+          summary: result.summary,
+          candidateId: result.candidateId,
+          installed: result.installed,
+          status: result.status,
+          silentInstallBlocked: result.silentInstallBlocked ?? true,
+          mutationPlanId: result.mutationPlanId || null,
+        };
+      },
+      preview: async (candidateId, options) => gate.preview(candidateId, options),
+      apply: async (input) => gate.apply(input),
+    };
+  } catch {
+    return null;
   }
 }

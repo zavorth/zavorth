@@ -4,6 +4,7 @@ import type {
   UniversalAgentRun,
 } from './UniversalAgentRuntimeTypes.js';
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
+import type { OperatorContinuityEnvelope } from '../operator/OperatorContinuityEnvelope.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 export type UniversalAgentToolRuntime = {
@@ -11,6 +12,7 @@ export type UniversalAgentToolRuntime = {
   getToolDefinitions?: () => ToolDefinition[];
   hasTool?: (toolName: string) => boolean;
   isAvailable?: () => boolean;
+  getLastContinuityEnvelope?: () => OperatorContinuityEnvelope | null;
 };
 
 function normalizeText(value: unknown, fallback = ''): string {

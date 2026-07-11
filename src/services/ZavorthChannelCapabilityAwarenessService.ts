@@ -67,7 +67,7 @@ export class ZavorthChannelCapabilityAwarenessService {
       generatedAt,
       contractVersion: CHANNEL_CAPABILITY_CONTRACT_VERSION,
       source: 'ZavorthChannelCapabilityAwarenessService',
-      phase: 'checkpoint-7-channel-capability-awareness',
+      gate: 'channel-capability-awareness',
       status,
       profiles: visibleProfiles,
       adaptedExamples,

@@ -159,7 +159,7 @@ export type ZavorthExternalContractLayerSnapshot = {
   contractVersion: typeof ZAVORTH_EXTERNAL_CONTRACT_LAYER_VERSION;
   status: ZavorthExternalContractLayerStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'contract-layer';
+  gate: 'contract-layer';
   previousInventoryStatus: ZavorthExternalCapabilityInventoryStatus;
   runtimeDescriptors: ZavorthExternalRuntimeExternalRuntimeDescriptor[];
   envelopeSchemas: ZavorthExternalRuntimeEnvelopeSchema[];

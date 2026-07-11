@@ -51,7 +51,15 @@ export function WorkspaceWriteApprovalModal({
           sessionId,
           workspacePath || undefined
         );
-        setPayload(res.data || res);
+        const raw = (res.data && typeof res.data === 'object' ? res.data : res) as Record<string, unknown>;
+        setPayload({
+          operationId: String(raw.operationId || activeApproval.operationId),
+          file: String(raw.file || activeApproval.path || ''),
+          toolName: String(raw.toolName || activeApproval.toolName),
+          currentContent: typeof raw.currentContent === 'string' ? raw.currentContent : undefined,
+          proposedContent: typeof raw.proposedContent === 'string' ? raw.proposedContent : undefined,
+          currentContentExists: Boolean(raw.currentContentExists),
+        });
       } catch (err: unknown) {
         setError(errorMessage(err, 'Failed to load proposed content payload.'));
       } finally {

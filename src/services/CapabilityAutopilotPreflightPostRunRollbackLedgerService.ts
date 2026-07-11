@@ -24,13 +24,13 @@ export type CapabilityPreflightPostRunRollbackLedgerOptions = {
 };
 
 export type CapabilityPreflightPostRunRollbackLedgerEntry = {
-  phase: '77';
+  gate: 'capability-autopilot-preflight-post-run-rollback';
   postRunLedgerEntryId: string;
   generatedAt: string;
   surface: 'capability-autopilot-preflight-post-run-rollback-ledger';
   status: CapabilityPreflightPostRunRollbackLedgerStatus;
   capabilityId: string;
-  sourceExecutionPhase: CapabilityPreflightControlledRealApplyExecution['phase'];
+  sourceExecutionGate: CapabilityPreflightControlledRealApplyExecution['gate'];
   sourceControlledExecutionId: string;
   sourceSurface: CapabilityPreflightControlledRealApplyExecution['sourceSurface'];
   sourceAction: CapabilityPreflightControlledRealApplyExecution['sourceAction'];
@@ -73,7 +73,7 @@ export type CapabilityPreflightPostRunRollbackLedgerEntry = {
 };
 
 export type CapabilityPreflightPostRunRollbackLedgerSnapshot = {
-  phase: '77';
+  gate: 'capability-autopilot-preflight-post-run-rollback';
   surface: 'capability-autopilot-preflight-post-run-rollback-ledger';
   generatedAt: string;
   capabilityId: string;
@@ -84,11 +84,11 @@ export type CapabilityPreflightPostRunRollbackLedgerSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityPreflightControlledRealApplyExecutorSnapshot['phase'];
+  sourceSnapshotGate: CapabilityPreflightControlledRealApplyExecutorSnapshot['gate'];
   entries: CapabilityPreflightPostRunRollbackLedgerEntry[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '78';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-beta-readiness';
     title: string;
     reason: string;
   };
@@ -129,13 +129,13 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
     const postRunLedgerEntryId = this.buildPostRunLedgerEntryId(execution, generatedAt, options.postRunReceiptId || null);
 
     return {
-      phase: '77',
+      gate: 'capability-autopilot-preflight-post-run-rollback',
       postRunLedgerEntryId,
       generatedAt,
       surface: 'capability-autopilot-preflight-post-run-rollback-ledger',
       status,
       capabilityId: execution.capabilityId,
-      sourceExecutionPhase: execution.phase,
+      sourceExecutionGate: execution.gate,
       sourceControlledExecutionId: execution.controlledExecutionId,
       sourceSurface: execution.sourceSurface,
       sourceAction: execution.sourceAction,
@@ -182,7 +182,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       }),
       safeSummary: this.buildSafeSummary(execution, status),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-77',
+        gate: 'capability-autopilot-preflight-post-run-rollback',
         sourceExecutionStatus: execution.status,
         sourceActionKind: execution.sourceAction?.kind || null,
         autoExecute: false,
@@ -208,7 +208,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '77',
+      gate: 'capability-autopilot-preflight-post-run-rollback',
       surface: 'capability-autopilot-preflight-post-run-rollback-ledger',
       generatedAt,
       capabilityId: source.capabilityId,
@@ -219,17 +219,17 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: source.phase,
+      sourceSnapshotGate: source.gate,
       entries,
       checks,
-      nextRecommendedPhase: {
-        phase: '78',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-beta-readiness',
         title: 'Capability Autopilot v1.1 Beta Readiness Gate',
         reason:
           'Depois da verificacao pos-run e rollback ledger, o proximo passo e decidir se o Capability Autopilot pode avancar do alpha para beta com gates agregados.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-77',
+        gate: 'capability-autopilot-preflight-post-run-rollback',
         sourceSnapshotStatus: source.status,
         executionCount: source.executions.length,
         ledgerEntryCount: entries.length,
@@ -243,7 +243,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
 
   public renderReport(snapshot: CapabilityPreflightPostRunRollbackLedgerSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-post-run] Etapa 77 - Real Apply Post-Run Verification And Rollback Ledger');
+    lines.push('[capability-autopilot-preflight-post-run] Real Apply Post-Run Verification And Rollback Ledger');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -257,8 +257,8 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -407,7 +407,7 @@ export class CapabilityAutopilotPreflightPostRunRollbackLedgerService {
           entry.shouldRunAutomatically === false &&
           entry.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'A Etapa 77 registra rollback ledger, mas nao dispara rollback automatico.',
+        'Este gate registra rollback ledger, mas nao dispara rollback automatico.',
         entries.map((entry) =>
           `${entry.sourceSurface}:rollbackInvoked=${entry.rollback.rollbackInvoked}:auto=${entry.shouldRunAutomatically}`,
         ),

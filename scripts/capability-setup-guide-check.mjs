@@ -52,7 +52,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-setup-guide-package-scripts',
     label: 'Setup Guide package scripts exist',
-    target: 'npm scripts expose setup guide CLI and phase gate',
+    target: 'npm scripts expose setup guide CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-setup-guide',

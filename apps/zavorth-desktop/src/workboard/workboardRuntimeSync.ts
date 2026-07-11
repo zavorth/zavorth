@@ -129,6 +129,9 @@ export function buildWorkboardRuntimeAction(input: {
       card: input.card
         ? buildRuntimeTaskFromCard(input.card, input.sessionId || 'desktop-main')
         : null,
+      cards: input.operation === 'sync-board'
+        ? input.board.cards.map(card => buildRuntimeTaskFromCard(card, input.sessionId || 'desktop-main'))
+        : undefined,
       metadata: {
         trustedDesktopBridge: true,
         localFirst: true,

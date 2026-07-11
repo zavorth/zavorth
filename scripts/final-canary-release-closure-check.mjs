@@ -8,7 +8,7 @@ const asJson = process.argv.includes('--json');
 const rules = [
   ruleFilesExist({
     id: 'final-canary-release-closure-files',
-    label: 'Final Canary Release Closure phase files exist',
+    label: 'Final Canary Release Closure gate files exist',
     target: 'Contract, service, tests, runner, docs and package scripts are present',
     files: [
       'src/contracts/FinalCanaryReleaseClosureContract.ts',

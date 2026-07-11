@@ -158,7 +158,7 @@ export class DemoFlowService {
     const lines = ['Demo completa do Zavorth', ''];
 
     for (const scenario of this.scenarios) {
-      lines.push(`Etapa: ${scenario.title}`);
+      lines.push(`Passo: ${scenario.title}`);
       lines.push(`Objetivo: ${scenario.objective}`);
       lines.push(`Prompt: ${scenario.prompt}`);
       lines.push(`Frase de apoio: ${scenario.speakerNote}`);
@@ -208,7 +208,7 @@ export class DemoFlowService {
     }
 
     return [
-      `Etapa ${index + 1}/${this.scenarios.length}: ${scenario.title}`,
+      `Passo ${index + 1}/${this.scenarios.length}: ${scenario.title}`,
       '',
       `Objetivo: ${scenario.objective}`,
       '',

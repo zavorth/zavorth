@@ -1,7 +1,7 @@
 import { ZavorthProductDemoService } from '../../src/services/ZavorthProductDemoService';
 
 describe('ZavorthProductDemoService', () => {
-  it('builds the Phase F product demo around start, visual demo and connector doctor', () => {
+  it('builds the product demo around start, visual demo and connector doctor', () => {
     const snapshot = new ZavorthProductDemoService({
       now: () => new Date('2026-05-16T14:00:00.000Z'),
       env: {},

@@ -62,9 +62,18 @@ describe('Effect Boundary regression coverage', () => {
       requestedTools: ['get_datetime'],
     });
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('get_datetime', {
-      timezone: 'America/Sao_Paulo',
-    });
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'get_datetime',
+      expect.objectContaining({
+        timezone: 'America/Sao_Paulo',
+        metadata: expect.objectContaining({
+          sourceSurface: 'agent-native-tool-loop',
+          runId: 'run-effect-regression',
+          toolCallId: 'call-time',
+          continuityId: expect.any(String),
+        }),
+      }),
+    );
     expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
       requested: 1,
       executed: 1,

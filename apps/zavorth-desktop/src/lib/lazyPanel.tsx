@@ -20,16 +20,20 @@ export function PanelSuspense(props: { children: ReactNode; label?: string }) {
 }
 
 /** Factory for React.lazy panel modules that default-export or named-export a component. */
-export function lazyNamed<T extends ComponentType<unknown>>(
-  loader: () => Promise<Record<string, unknown>>,
-  exportName: string,
-): React.LazyExoticComponent<T> {
+export function lazyNamed<TModule extends Record<string, unknown>, TKey extends keyof TModule>(
+  loader: () => Promise<TModule>,
+  exportName: TKey,
+): TModule[TKey] extends ComponentType<infer Props>
+  ? React.LazyExoticComponent<ComponentType<Props>>
+  : never {
   return lazy(async () => {
     const mod = await loader();
     const Comp = mod[exportName] || mod.default;
     if (!Comp) {
-      throw new Error(`Lazy panel export missing: ${exportName}`);
+      throw new Error(`Lazy panel export missing: ${String(exportName)}`);
     }
-    return { default: Comp as T };
-  });
+    return { default: Comp as ComponentType<unknown> };
+  }) as TModule[TKey] extends ComponentType<infer Props>
+    ? React.LazyExoticComponent<ComponentType<Props>>
+    : never;
 }

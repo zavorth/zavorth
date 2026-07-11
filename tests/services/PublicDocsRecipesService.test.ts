@@ -13,12 +13,12 @@ describe('PublicDocsRecipesService', () => {
 
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('56');
+    expect(snapshot.phase).toBe('public-docs-recipes');
     expect(snapshot.surface).toBe('public-docs-recipes');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.recipes.length).toBeGreaterThanOrEqual(3);
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: '57',
       title: 'Feedback, Support And Pilot Loop',
     }));
@@ -120,7 +120,7 @@ describe('PublicDocsRecipesService', () => {
     ]));
   });
 
-  it('renders a human report with the next phase recommendation', () => {
+  it('renders a human report with the next gate recommendation', () => {
     const service = serviceFromFixture();
 
     const report = service.renderReport();
@@ -254,9 +254,9 @@ function docs76Source() {
     'sem secrets',
     'troubleshooting',
     'qa:public-docs-recipes',
-    'qa:stage:56',
+    'qa:public-docs-recipes',
     'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
-    'qa:stage:57',
+    'qa:pilot-loop',
   ].join('\n');
 }
 
@@ -265,9 +265,9 @@ function roadmapSource() {
     'Readiness checkpoint 6 - Public Docs, Examples And Recipes Expansion: implementada.',
     'Public docs recipes pre-requisitos fixture sem secrets troubleshooting',
     'qa:public-docs-recipes',
-    'qa:stage:56',
+    'qa:public-docs-recipes',
     'Readiness checkpoint 7 - Feedback, Support And Pilot Loop',
-    'qa:stage:57',
+    'qa:pilot-loop',
   ].join('\n');
 }
 

@@ -1,6 +1,6 @@
 export type CapabilityAutopilotReleaseGateEvidence = {
-  phase: '60' | '61' | '62' | '63' | '64' | '65';
-  gate: string;
+  id: 'capability-autopilot-preflight-diagnosis' | 'capability-autopilot-repair-runner' | 'capability-autopilot-validation-resume' | 'capability-autopilot-cross-surface-ux' | 'capability-autopilot-memory-replay' | 'capability-autopilot-provider-expansion';
+  script: string;
   passed: boolean;
   summary: string;
   risk: 'low' | 'medium' | 'high';
@@ -44,13 +44,13 @@ export type CapabilityAutopilotReleaseDecisionRuntime = {
   now?: () => Date;
 };
 
-const REQUIRED_STAGES: Array<CapabilityAutopilotReleaseGateEvidence['phase']> = [
-  '60',
-  '61',
-  '62',
-  '63',
-  '64',
-  '65',
+const REQUIRED_PHASES: Array<CapabilityAutopilotReleaseGateEvidence['id']> = [
+  'capability-autopilot-preflight-diagnosis',
+  'capability-autopilot-repair-runner',
+  'capability-autopilot-validation-resume',
+  'capability-autopilot-cross-surface-ux',
+  'capability-autopilot-memory-replay',
+  'capability-autopilot-provider-expansion',
 ];
 
 export class CapabilityAutopilotReleaseDecisionService {
@@ -64,14 +64,14 @@ export class CapabilityAutopilotReleaseDecisionService {
     input: CapabilityAutopilotReleaseDecisionInput,
   ): CapabilityAutopilotReleaseDecisionSnapshot {
     const evidence = this.normalizeEvidence(input.evidence);
-    const passedCheckpoints = REQUIRED_STAGES.filter((phase) =>
-      evidence.some((entry) => entry.phase === phase && entry.passed),
+    const passedCheckpoints = REQUIRED_PHASES.filter((id) =>
+      evidence.some((entry) => entry.id === id && entry.passed),
     );
-    const failedCheckpoints = REQUIRED_STAGES.filter((phase) =>
-      evidence.some((entry) => entry.phase === phase && !entry.passed),
+    const failedCheckpoints = REQUIRED_PHASES.filter((id) =>
+      evidence.some((entry) => entry.id === id && !entry.passed),
     );
-    const missingCheckpoints = REQUIRED_STAGES.filter((phase) =>
-      !evidence.some((entry) => entry.phase === phase),
+    const missingCheckpoints = REQUIRED_PHASES.filter((id) =>
+      !evidence.some((entry) => entry.id === id),
     );
     const riskPosture = this.resolveRiskPosture(evidence, failedCheckpoints, missingCheckpoints);
     const decision = this.resolveDecision({
@@ -90,7 +90,7 @@ export class CapabilityAutopilotReleaseDecisionService {
         defaultEnabled: decision === 'ship_v1_1_default_on',
         reason: this.featureFlagReason(decision, riskPosture),
       },
-      requiredCheckpoints: REQUIRED_STAGES.slice(),
+      requiredCheckpoints: REQUIRED_PHASES.slice(),
       passedCheckpoints,
       missingCheckpoints,
       failedCheckpoints,
@@ -102,35 +102,35 @@ export class CapabilityAutopilotReleaseDecisionService {
       evidence,
       summary: this.buildSummary(decision, passedCheckpoints, missingCheckpoints, failedCheckpoints, riskPosture),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-66',
+        gate: 'capability-autopilot-fallback-handoff',
         baseline: 'v1.0.0',
         candidate: 'v1.1.0',
         defaultOnAllowed: Boolean(input.allowDefaultOn),
-        requiredCheckpointCount: REQUIRED_STAGES.length,
+        requiredCheckpointCount: REQUIRED_PHASES.length,
       },
     };
   }
 
   public defaultEvidence(): CapabilityAutopilotReleaseGateEvidence[] {
     return [
-      this.evidence('60', 'qa:phase:60', 'Preflight, diagnosis, repair plan, receipt and permission mapping are deterministic.', 'medium'),
-      this.evidence('61', 'qa:phase:61', 'Approved repair runner blocks missing permission and defaults to dry-run.', 'medium'),
-      this.evidence('62', 'qa:phase:62', 'Validation/resume loop recomputes readiness before resuming intent.', 'medium'),
-      this.evidence('63', 'qa:phase:63', 'Cross-surface UX preserves canonical receipt and explicit actions.', 'low'),
-      this.evidence('64', 'qa:phase:64', 'Memory/replay stores hashes and redacted lessons only.', 'low'),
-      this.evidence('65', 'qa:phase:65', 'Provider expansion covers executors, providers, local runtimes and channels with explicit fallback.', 'medium'),
+      this.evidence('capability-autopilot-preflight-diagnosis', 'qa:capability-autopilot-preflight-diagnosis', 'Preflight, diagnosis, repair plan, receipt and permission mapping are deterministic.', 'medium'),
+      this.evidence('capability-autopilot-repair-runner', 'qa:capability-autopilot-repair-runner', 'Approved repair runner blocks missing permission and defaults to dry-run.', 'medium'),
+      this.evidence('capability-autopilot-validation-resume', 'qa:capability-autopilot-validation-resume', 'Validation/resume loop recomputes readiness before resuming intent.', 'medium'),
+      this.evidence('capability-autopilot-cross-surface-ux', 'qa:capability-autopilot-cross-surface-ux', 'Cross-surface UX preserves canonical receipt and explicit actions.', 'low'),
+      this.evidence('capability-autopilot-memory-replay', 'qa:capability-autopilot-memory-replay', 'Memory/replay stores hashes and redacted lessons only.', 'low'),
+      this.evidence('capability-autopilot-provider-expansion', 'qa:capability-autopilot-provider-expansion', 'Provider expansion covers executors, providers, local runtimes and channels with explicit fallback.', 'medium'),
     ];
   }
 
   private evidence(
-    phase: CapabilityAutopilotReleaseGateEvidence['phase'],
-    gate: string,
+    id: CapabilityAutopilotReleaseGateEvidence['id'],
+    script: string,
     summary: string,
     risk: CapabilityAutopilotReleaseGateEvidence['risk'],
   ): CapabilityAutopilotReleaseGateEvidence {
     return {
-      phase,
-      gate,
+      id,
+      script,
       passed: true,
       summary,
       risk,
@@ -141,8 +141,8 @@ export class CapabilityAutopilotReleaseDecisionService {
     evidence: CapabilityAutopilotReleaseGateEvidence[],
   ): CapabilityAutopilotReleaseGateEvidence[] {
     return evidence
-      .filter((entry): entry is CapabilityAutopilotReleaseGateEvidence => Boolean(entry?.phase && entry.gate))
-      .sort((left, right) => left.phase.localeCompare(right.phase));
+      .filter((entry): entry is CapabilityAutopilotReleaseGateEvidence => Boolean(entry?.id && entry.script))
+      .sort((left, right) => left.id.localeCompare(right.id));
   }
 
   private resolveRiskPosture(
@@ -264,7 +264,7 @@ export class CapabilityAutopilotReleaseDecisionService {
     riskPosture: CapabilityAutopilotReleaseDecisionSnapshot['riskPosture'],
   ): string {
     if (decision === 'ship_v1_1_flagged') {
-      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedCheckpoints.length}/${REQUIRED_STAGES.length} checkpoint gates passed; risk=${riskPosture}.`;
+      return `Capability Autopilot can enter v1.1.0 behind flag: ${passedCheckpoints.length}/${REQUIRED_PHASES.length} checkpoint gates passed; risk=${riskPosture}.`;
     }
     if (decision === 'ship_v1_1_default_on') {
       return 'Capability Autopilot can enter v1.1.0 default-on because all evidence is low risk.';

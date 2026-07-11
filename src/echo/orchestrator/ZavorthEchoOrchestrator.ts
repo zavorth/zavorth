@@ -1,4 +1,4 @@
-import { IZavorthTool, ToolCategory } from '../types/IZavorthTool';
+import { IZavorthTool, ToolCategory, type ToolExecutionResult } from '../types/IZavorthTool';
 import { ToolSchemaHelper } from '../types/ToolSchemaHelper';
 import { SecurityEngine } from '../security/SecurityEngine';
 import { SystemOpenAppTool } from '../tools/os/SystemOpenAppTool';
@@ -14,6 +14,14 @@ import type { ToolDefinition } from '../../providers/ILlmProvider';
 import type { EchoExecutionEntry, EchoToolCall } from '../types/EchoTypes';
 import { EchoCompatibilityExecutionLogService } from '../../domain/execution/infrastructure/EchoCompatibilityExecutionLogService.js';
 import type { ZavorthActionGateway } from '../../runtime/actions/ZavorthActionGateway.js';
+import { decideSecurityPolicy } from '../../security/SecurityPolicyBroker.js';
+import {
+    OperatorContinuityKernel,
+    decisionFromBroker,
+    digestOperatorPayload,
+    resultFromToolOutcome,
+    type OperatorContinuityEnvelope,
+} from '../../runtime/operator/OperatorContinuityEnvelope.js';
 import { asErrorLike } from '../../utils/errorLike.js';
 
 type ZavorthEchoOrchestratorOptions = {
@@ -21,6 +29,7 @@ type ZavorthEchoOrchestratorOptions = {
     compatibilityLog?: Pick<EchoCompatibilityExecutionLogService, 'append' | 'list'>;
     startBackgroundBridges?: boolean;
     actionGateway?: ZavorthActionGateway;
+    continuityKernel?: OperatorContinuityKernel;
 };
 
 export class ZavorthEchoOrchestrator {
@@ -28,11 +37,14 @@ export class ZavorthEchoOrchestrator {
     private readonly capturePipelineHistory: boolean;
     private readonly compatibilityLog: Pick<EchoCompatibilityExecutionLogService, 'append' | 'list'>;
     private readonly startBackgroundBridges: boolean;
+    private readonly continuityKernel: OperatorContinuityKernel;
+    private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
 
     constructor(options: ZavorthEchoOrchestratorOptions = {}) {
         this.capturePipelineHistory = options.capturePipelineHistory !== false;
         this.compatibilityLog = options.compatibilityLog || new EchoCompatibilityExecutionLogService();
         this.startBackgroundBridges = options.startBackgroundBridges !== false;
+        this.continuityKernel = options.continuityKernel || new OperatorContinuityKernel();
 
         this.registerTool(new SystemOpenAppTool());
         this.registerTool(new SystemMediaTool());
@@ -120,6 +132,10 @@ export class ZavorthEchoOrchestrator {
         this.compatibilityLog.append(entry);
     }
 
+    public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+        return this.lastContinuityEnvelope;
+    }
+
     /**
      * Tool execution pipeline after function calling.
      */
@@ -147,8 +163,13 @@ export class ZavorthEchoOrchestrator {
                 return { response: `Error: tool ${functionName} does not exist.` };
             }
 
-            const safeParams = SecurityEngine.authorizeExecution(originalPrompt, tool, rawParams);
-            const result = await tool.execute(safeParams, context);
+            const result = await this.executeToolWithContinuity(
+                originalPrompt,
+                tool,
+                functionName,
+                rawParams,
+                context,
+            );
             toolCall.durationMs = Date.now() - startTime;
             toolCall.data = result.data;
 
@@ -156,6 +177,23 @@ export class ZavorthEchoOrchestrator {
                 toolCall.result = result.message || 'Success';
                 this.logExecution(originalPrompt, [toolCall], 'success', startTime);
                 return { response: `OK: ${result.message}`, data: result.data };
+            }
+
+            const continuityStatus = result.data && typeof result.data === 'object'
+                ? String((result.data as { operatorContinuity?: { status?: string | null } }).operatorContinuity?.status || '')
+                : '';
+            if (
+                continuityStatus === 'blocked'
+                || continuityStatus === 'approval_required'
+                || (result.error && /^(SanitizationBlock|SchemaValidationBlock|SandboxBlock):/u.test(result.error))
+            ) {
+                toolCall.securityDecision = 'blocked';
+                toolCall.result = result.error || 'Blocked by operator continuity.';
+                this.logExecution(originalPrompt, [toolCall], 'blocked', startTime);
+                return {
+                    response: `SECURITY BLOCK. Respond to the user with this justification: ${toolCall.result}`,
+                    data: result.data,
+                };
             }
 
             toolCall.result = result.error || 'Failure';
@@ -169,6 +207,123 @@ export class ZavorthEchoOrchestrator {
             this.logExecution(originalPrompt, [toolCall], 'blocked', startTime);
             return { response: `SECURITY BLOCK. Respond to the user with this justification: ${err.message}` };
         }
+    }
+
+    private async executeToolWithContinuity(
+        originalPrompt: string,
+        tool: IZavorthTool,
+        functionName: string,
+        rawParams: unknown,
+        context?: Record<string, any>,
+    ): Promise<ToolExecutionResult> {
+        let safeParams: Record<string, any> | null = null;
+        const actorId = String(context?.traceId || context?.actorId || '').trim() || null;
+        const sealed = await this.continuityKernel.runMutation({
+            request: {
+                surface: 'echo',
+                operation: 'echo.tool.execute',
+                target: functionName,
+                actorId,
+                sourceSurface: String(context?.sourceSurface || 'echo').trim() || 'echo',
+                argsDigest: digestOperatorPayload(rawParams),
+                metadata: {
+                    category: tool.category,
+                    dangerLevel: tool.dangerLevel,
+                    requiresPermission: tool.requiresPermission,
+                },
+            },
+            correlation: {
+                toolCallId: String(context?.toolCallId || '').trim() || null,
+                runId: String(context?.runId || '').trim() || null,
+                sessionId: String(context?.sessionId || '').trim() || null,
+                taskId: String(context?.taskId || '').trim() || null,
+                traceId: String(context?.traceId || '').trim() || null,
+            },
+            decide: () => {
+                try {
+                    safeParams = SecurityEngine.authorizeExecution(originalPrompt, tool, rawParams);
+                    return decisionFromBroker(decideSecurityPolicy({
+                        surface: 'tool',
+                        operation: 'echo.tool.execute',
+                        target: functionName,
+                        sourceTrust: 'trusted-user',
+                        metadata: {
+                            sourceSurface: 'echo',
+                            actorId,
+                            category: tool.category,
+                            dangerLevel: tool.dangerLevel,
+                        },
+                        toolDecision: {
+                            action: 'allow',
+                            allowed: true,
+                            risk: tool.dangerLevel === 'dangerous' ? 'review' : 'safe',
+                            toolName: functionName,
+                            surface: 'native-tool',
+                            capabilities: ['audit'],
+                            requiresConfirmation: false,
+                            reasons: [
+                                'Echo tool execution is authorized by SecurityEngine and sealed by operator continuity.',
+                            ],
+                            rule: 'ECHO_TOOL_CONTINUITY',
+                        },
+                        reasons: [
+                            'Echo tool execution was sealed by the operator continuity kernel.',
+                        ],
+                    }));
+                } catch (error: unknown) {
+                    const err = asErrorLike(error);
+                    return decisionFromBroker(decideSecurityPolicy({
+                        surface: 'tool',
+                        operation: 'echo.tool.execute',
+                        target: functionName,
+                        blocked: true,
+                        risk: 'forbidden',
+                        rule: 'ECHO_SECURITY_ENGINE_BLOCK',
+                        reasons: [err.message || String(error)],
+                        metadata: {
+                            sourceSurface: 'echo',
+                            actorId,
+                        },
+                    }));
+                }
+            },
+            execute: async () => tool.execute(safeParams || {}, context),
+            mapResult: (value) => resultFromToolOutcome({
+                ok: value.success === true,
+                status: value.success ? 'applied' : 'failed',
+                summary: value.success
+                    ? (value.message || `Echo tool ${functionName} executed successfully.`)
+                    : (value.error || value.message || `Echo tool ${functionName} failed.`),
+                output: value.data ?? value.message ?? value.error,
+                data: {
+                    tool: functionName,
+                    success: value.success === true,
+                },
+            }),
+        });
+
+        this.lastContinuityEnvelope = sealed.envelope;
+        const publicView = this.continuityKernel.toPublicView(sealed.envelope);
+
+        if (!sealed.envelope.decision?.allowed || sealed.value === undefined) {
+            const summary = sealed.envelope.result?.summary
+                || sealed.envelope.decision?.reasons.join(' ')
+                || `Tool ${functionName} blocked by operator continuity.`;
+            return {
+                success: false,
+                error: summary,
+                data: { operatorContinuity: publicView },
+            };
+        }
+
+        const value = sealed.value;
+        return {
+            ...value,
+            data: {
+                ...(value.data && typeof value.data === 'object' ? value.data : value.data !== undefined ? { value: value.data } : {}),
+                operatorContinuity: publicView,
+            },
+        };
     }
 
     /**

@@ -15,7 +15,7 @@ describe('ReliabilityCompat', () => {
     }
   });
 
-  it('passes when the minimum phase 7 metrics are present', () => {
+  it('passes when the minimum reliability metrics are present', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-reliability-compat-'));
     tempDirs.push(root);
 

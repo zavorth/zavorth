@@ -62,7 +62,7 @@ export class ZavorthScheduledTaskDailyOpsReadinessService {
       generatedAt,
       contractVersion: ZAVORTH_SCHEDULED_TASK_DAILY_OPS_READINESS_CONTRACT_VERSION,
       source: 'ZavorthScheduledTaskDailyOpsReadinessService',
-      phase: 'checkpoint-7-scheduled-task-daily-ops-readiness',
+      gate: 'scheduled-task-daily-ops-readiness',
       status,
       liveTickCertification,
       hostTaskCertification,

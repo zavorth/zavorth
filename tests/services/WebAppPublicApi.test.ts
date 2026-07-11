@@ -347,7 +347,7 @@ describe('Web app canonical public api', () => {
           highConfidence: 1,
         },
       })),
-      executeAction: jest.fn(() => ({
+      executeAction: jest.fn(async () => ({
         generatedAt: '2026-04-08T20:01:00.000Z',
         candidateId: 'candidate:wf-1',
         actionId: 'approve',
@@ -865,6 +865,7 @@ describe('Web app canonical public api', () => {
     expect(learningPlaneService.executeAction).toHaveBeenCalledWith({
       candidateId: 'candidate:wf-1',
       actionId: 'approve',
+      approvalId: null,
     });
     expect(layeredMemoryService.buildStatus).toHaveBeenCalled();
     expect(layeredMemoryService.readMetrics).toHaveBeenCalled();

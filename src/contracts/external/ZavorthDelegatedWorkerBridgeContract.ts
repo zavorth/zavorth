@@ -199,7 +199,7 @@ export type ZavorthDelegatedWorkerBridgeSnapshot = {
   contractVersion: typeof ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION;
   status: ZavorthDelegatedWorkerBridgeStatus;
   planId: 'Zavorth External Runtime Integration';
-  phase: 'delegated-workers';
+  gate: 'delegated-workers';
   previousSessionMemoryStatus: ZavorthSessionMemoryContinuationStatus;
   workerDescriptors: ZavorthWorkerDescriptor[];
   delegatedTaskEnvelope: ZavorthDelegatedTaskEnvelope;

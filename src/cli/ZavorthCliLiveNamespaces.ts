@@ -9,6 +9,10 @@ import { formatZavorthCertificationHelp } from './ZavorthCliCertificationCommand
 import { ZavorthOperationalReadinessService } from '../services/ZavorthOperationalReadinessService.js';
 import { ZavorthNativeCapabilityCertificationService } from '../services/ZavorthNativeCapabilityCertificationService.js';
 import { ZavorthProductExcellenceService } from '../services/ZavorthProductExcellenceService.js';
+import {
+  AutonomySchedulePlane,
+  bindAutonomySchedulePlane,
+} from '../services/AutonomySchedulePlane.js';
 import { GoalLoopService } from '../services/GoalLoopService.js';
 import { GoalLoopDaemonService } from '../services/GoalLoopDaemonService.js';
 import { GoalLoopWorkerService } from '../services/GoalLoopWorkerService.js';
@@ -22,11 +26,15 @@ import { ZavorthCapabilityUsageSignalsService } from '../services/ZavorthCapabil
 import { ZavorthCapabilityAtlasService } from '../services/ZavorthCapabilityAtlasService.js';
 import { ZavorthDailyProductQuietAutonomyService } from '../services/ZavorthDailyProductQuietAutonomyService.js';
 import { ZavorthActionGateway, type ZavorthActionOperation } from '../runtime/actions/index.js';
-import { ZavorthSessionRecallService } from '../services/ZavorthSessionRecallService.js';
+import {
+  SessionContinuumService,
+  resolveSessionContinuumStorePath,
+} from '../services/SessionContinuumService.js';
 import { ZavorthXaiRuntimeService } from '../services/ZavorthXaiRuntimeService.js';
 import { ZavorthOperationalStateDbService } from '../services/ZavorthOperationalStateDbService.js';
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
+import { runSkills as runSkillsNamespace } from './skills/ZavorthCliSkillsNamespace.js';
 import { AgentRunService } from '../runtime/agent/AgentRunService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
 import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
@@ -67,7 +75,7 @@ import type { ZavorthAppsSatelliteAction, ZavorthAppsSatelliteNodeKind } from '.
 import type { ZavorthTerminalBackendId } from '../contracts/runtime/ZavorthTerminalBackendsContract.js';
 import type { SwarmScaleExecutionMode, SwarmScaleExecutionBackendId } from '../domain/execution/infrastructure/SwarmScalePlaneService.js';
 import { logger } from '../logger.js';
-import { asErrorLike } from '../utils/errorLike.js';
+import { asErrorLike, errorMessage } from '../utils/errorLike.js';
 
 type JsonObject = Record<string, unknown>;
 const gzipAsync = promisify(gzip);
@@ -75,7 +83,7 @@ const gunzipAsync = promisify(gunzip);
 
 const LIVE_COMMANDS = new Set([
   'actions', 'atlas', 'autonomy', 'background', 'backup', 'board', 'commitments', 'config', 'cron', 'daily', 'daemon', 'devices', 'directory', 'dns',
-  'docs', 'exec-policy', 'gateway', 'go', 'goals', 'health', 'hooks', 'infer', 'logs', 'mcp', 'message', 'node',
+  'docs', 'exec-policy', 'gateway', 'go', 'goals', 'health', 'hooks', 'host', 'infer', 'logs', 'mcp', 'message', 'node',
   'nodes', 'pairing', 'plugins', 'proxy', 'qr', 'reset', 'secrets', 'sessions', 'skills',
   'mnemos', 'sandbox', 'satellite', 'start', 'setup', 'connect', 'learn', 'tools', 'state', 'swarm', 'system', 'taskboard', 'tasks', 'uninstall', 'webhooks', 'certify', 'xai',
 ]);
@@ -105,7 +113,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'certify': return runCertify(input.projectRoot, args);
     case 'commitments': return runCollection(input.projectRoot, 'commitments', args, 'commitment');
     case 'config': return runConfig(input.projectRoot, args);
-    case 'cron': return runRunnableCollection(input.projectRoot, 'cron-jobs', args, 'job');
+    case 'cron': return runCronNamespace(input.projectRoot, args);
     case 'daily': return runDailyProduct(input.projectRoot, args);
     case 'daemon': return runServiceCommand(input.projectRoot, 'daemon', args);
     case 'devices': return runCollection(input.projectRoot, 'devices', args, 'device');
@@ -117,6 +125,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'go': return runGoals(input.projectRoot, args);
     case 'goals': return runGoals(input.projectRoot, args);
     case 'hooks': return runHooks(input.projectRoot, args);
+    case 'host': return runHostPresence(input.projectRoot, args);
     case 'infer': return runInfer(input.projectRoot, args);
     case 'logs': return runLogs(input.projectRoot, args);
     case 'mcp': return runMcp(input.projectRoot, args);
@@ -140,7 +149,7 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'state': return runState(input.projectRoot, args);
     case 'secrets': return runSecrets(input.projectRoot, args);
     case 'sessions': return runCollection(input.projectRoot, 'sessions', args, 'session');
-    case 'skills': return runSkills(input.projectRoot, args);
+    case 'skills': return runSkillsNamespace(input.projectRoot, args);
     case 'system': return runSystem(input.projectRoot, args);
     case 'swarm': return runSwarm(input.projectRoot, args);
     case 'taskboard': return runTaskBoard(input.projectRoot, args);
@@ -612,6 +621,19 @@ export function taskPlaneServiceForCli(root: string, args: string[]): TaskPlaneS
   });
 }
 
+export function autonomySchedulePlaneForCli(root: string, args: string[]): AutonomySchedulePlane {
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  // Same canonical plane as action catalog, cron tool, and goal-loop daemon.
+  return bindAutonomySchedulePlane({
+    runtimeDir: home.resolvedPaths.runtimeDir,
+    taskPlane: taskPlaneServiceForCli(root, args),
+  });
+}
+
 function goalPlaneServiceForCli(root: string, args: string[]): GoalPlaneService {
   const home = new ZavorthHomePathService({
     projectRoot: root,
@@ -693,6 +715,10 @@ function goalLoopDaemonServiceForCli(root: string, args: string[]): GoalLoopDaem
     storePath: path.join(home.resolvedPaths.runtimeDir, 'task-plane.json'),
     stateDbPath: home.resolvedPaths.dbPath,
   });
+  const schedulePlane = bindAutonomySchedulePlane({
+    runtimeDir: home.resolvedPaths.runtimeDir,
+    taskPlane,
+  });
   const goalPlane = new GoalPlaneService({
     storePath: path.join(home.resolvedPaths.runtimeDir, 'goal-plane.json'),
     taskPlane,
@@ -720,8 +746,170 @@ function goalLoopDaemonServiceForCli(root: string, args: string[]): GoalLoopDaem
   return new GoalLoopDaemonService({
     taskPlane,
     worker,
+    schedulePlane,
     stateDbPath: home.resolvedPaths.dbPath,
   });
+}
+
+async function runCronNamespace(root: string, args: string[]) {
+  const action = firstArg(args, 'list');
+  const planeActions = new Set([
+    'create-routine',
+    'routines',
+    'enable-routine',
+    'disable-routine',
+    'run-now',
+    'process-due',
+    'kill-switch',
+    'clear-kill-switch',
+    'freeze-scope',
+    'unfreeze-scope',
+    'plane',
+    'schedule-plane',
+  ]);
+  const bridgeActions = new Set(['list', 'status', 'add', 'create', 'schedule', 'create-routine']);
+  const forceLegacy = args.includes('--legacy-cron') || args.includes('--legacy');
+  const forcePlane = args.includes('--schedule-plane') || planeActions.has(action);
+  const plane = autonomySchedulePlaneForCli(root, args);
+  const legacyFile = path.join(stateDir(root), 'cron-jobs.json');
+  const planePresent = existsSync(plane.getStorageDir());
+  const legacyPresent = existsSync(legacyFile);
+  const preferPlane = !forceLegacy && (
+    forcePlane
+    || (planePresent && legacyPresent)
+    || (planePresent && !legacyPresent)
+  );
+
+  if (!preferPlane && !forcePlane) {
+    return runRunnableCollection(root, 'cron-jobs', args, 'job');
+  }
+
+  if (preferPlane && bridgeActions.has(action) && !planeActions.has(action)) {
+    if (action === 'list' || action === 'status') {
+      const snapshot = plane.snapshot();
+      return render(args, 'Zavorth Autonomy Schedule Plane', [
+        `source: autonomy-schedule-plane (preferred over legacy .zavorth/cron-jobs.json)`,
+        `routines: ${snapshot.summary.total}`,
+        `enabled: ${snapshot.summary.enabled}`,
+        `due: ${snapshot.summary.due}`,
+        `kill-switch: ${snapshot.killSwitchActive ? 'ACTIVE' : 'off'}`,
+        `task-plane-backed: ${snapshot.safety.taskPlaneBacked}`,
+        `legacy-cron-jobs-present: ${legacyPresent}`,
+        ...snapshot.routines.slice(0, 20).map((routine) => (
+          `- ${routine.id} | ${routine.enabled ? 'enabled' : 'disabled'} | next ${routine.nextRunAt || 'none'} | ${routine.taskDescription.slice(0, 80)}`
+        )),
+      ], {
+        ...(snapshot as unknown as JsonObject),
+        preferredSource: 'autonomy-schedule-plane',
+        legacyPresent,
+      });
+    }
+    if (action === 'add' || action === 'create' || action === 'schedule') {
+      const result = plane.createRoutine({
+        name: readFlag(args, 'name') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || undefined,
+        schedule: readFlag(args, 'schedule') || readFlag(args, 'cron') || readFlag(args, 'every-ms') || '60000',
+        scheduleType: readFlag(args, 'schedule-type') as 'cron' | 'interval' | 'once' | 'natural_language' | undefined,
+        intervalMs: readNumberFlag(args, 'every-ms') || readNumberFlag(args, 'interval-ms') || undefined,
+        taskDescription: readFlag(args, 'task') || readFlag(args, 'command') || readFlag(args, 'cmd') || readFlag(args, 'description') || 'Scheduled autonomy routine',
+        channel: readFlag(args, 'channel') || undefined,
+        riskLevel: readFlag(args, 'risk') as 'low' | 'medium' | 'high' | 'critical' | undefined,
+        scopeTags: splitList(readFlag(args, 'scope') || ''),
+        actor: 'cli:cron',
+        enabled: !args.includes('--disabled'),
+      });
+      return render(args, 'Zavorth Autonomy Schedule Plane', [
+        'source: autonomy-schedule-plane (list/create bridged from default cron path)',
+        result.summary,
+        result.routine ? `id: ${result.routine.id}` : 'id: none',
+        result.routine ? `next: ${result.routine.nextRunAt || 'none'}` : 'next: none',
+        result.receipt ? `receipt: ${result.receipt.receiptId}` : 'receipt: none',
+      ], result as unknown as JsonObject);
+    }
+  }
+
+  if (action === 'plane' || action === 'schedule-plane' || action === 'routines') {
+    const snapshot = plane.snapshot();
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      `routines: ${snapshot.summary.total}`,
+      `enabled: ${snapshot.summary.enabled}`,
+      `due: ${snapshot.summary.due}`,
+      `kill-switch: ${snapshot.killSwitchActive ? 'ACTIVE' : 'off'}`,
+      `task-plane-backed: ${snapshot.safety.taskPlaneBacked}`,
+      ...snapshot.routines.slice(0, 20).map((routine) => (
+        `- ${routine.id} | ${routine.enabled ? 'enabled' : 'disabled'} | next ${routine.nextRunAt || 'none'} | ${routine.taskDescription.slice(0, 80)}`
+      )),
+    ], snapshot as unknown as JsonObject);
+  }
+  if (action === 'create-routine') {
+    const result = plane.createRoutine({
+      name: readFlag(args, 'name') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ') || undefined,
+      schedule: readFlag(args, 'schedule') || readFlag(args, 'cron') || readFlag(args, 'every-ms') || '60000',
+      scheduleType: readFlag(args, 'schedule-type') as 'cron' | 'interval' | 'once' | 'natural_language' | undefined,
+      intervalMs: readNumberFlag(args, 'every-ms') || readNumberFlag(args, 'interval-ms') || undefined,
+      taskDescription: readFlag(args, 'task') || readFlag(args, 'command') || readFlag(args, 'description') || 'Scheduled autonomy routine',
+      channel: readFlag(args, 'channel') || undefined,
+      riskLevel: readFlag(args, 'risk') as 'low' | 'medium' | 'high' | 'critical' | undefined,
+      scopeTags: splitList(readFlag(args, 'scope') || ''),
+      actor: 'cli:cron',
+      enabled: !args.includes('--disabled'),
+    });
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      result.summary,
+      result.routine ? `id: ${result.routine.id}` : 'id: none',
+      result.routine ? `next: ${result.routine.nextRunAt || 'none'}` : 'next: none',
+      result.receipt ? `receipt: ${result.receipt.receiptId}` : 'receipt: none',
+    ], result as unknown as JsonObject);
+  }
+  if (action === 'enable-routine' || action === 'disable-routine') {
+    const id = args[1] || readFlag(args, 'id') || '';
+    const result = action === 'enable-routine'
+      ? plane.enableRoutine({ routineId: id, actor: 'cli:cron' })
+      : plane.disableRoutine({ routineId: id, actor: 'cli:cron' });
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      result.summary,
+      result.receipt ? `receipt: ${result.receipt.receiptId}` : 'receipt: none',
+    ], result as unknown as JsonObject);
+  }
+  if (action === 'run-now') {
+    const id = args[1] || readFlag(args, 'id') || '';
+    const result = plane.runNow({ routineId: id, actor: 'cli:cron' });
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      result.summary,
+      result.task ? `task-plane: ${result.task.id}` : 'task-plane: none',
+      result.routine ? `next: ${result.routine.nextRunAt || 'none'}` : 'next: none',
+      result.receipt ? `receipt: ${result.receipt.receiptId}` : 'receipt: none',
+    ], result as unknown as JsonObject);
+  }
+  if (action === 'process-due') {
+    const result = plane.processDue({
+      actor: 'cli:cron',
+      maxItems: readNumberFlag(args, 'limit') || 25,
+      dryRun: args.includes('--dry-run') || args.includes('--preview'),
+    });
+    return render(args, 'Zavorth Autonomy Schedule Plane', [
+      result.summary,
+      `processed: ${result.processed}`,
+      ...result.materialized.slice(0, 20).map((entry) => `- ${entry.routineId} -> ${entry.taskId || 'preview'}`),
+      result.receipt ? `receipt: ${result.receipt.receiptId}` : 'receipt: none',
+    ], result as unknown as JsonObject);
+  }
+  if (action === 'kill-switch') {
+    const result = plane.activateKillSwitch('cli:cron');
+    return render(args, 'Zavorth Autonomy Schedule Plane', [result.summary], result as unknown as JsonObject);
+  }
+  if (action === 'clear-kill-switch') {
+    const result = plane.clearKillSwitch('cli:cron');
+    return render(args, 'Zavorth Autonomy Schedule Plane', [result.summary], result as unknown as JsonObject);
+  }
+  if (action === 'freeze-scope') {
+    const result = plane.freezeScope(args[1] || readFlag(args, 'scope') || '', 'cli:cron');
+    return render(args, 'Zavorth Autonomy Schedule Plane', [result.summary], result as unknown as JsonObject);
+  }
+  if (action === 'unfreeze-scope') {
+    const result = plane.unfreezeScope(args[1] || readFlag(args, 'scope') || '', 'cli:cron');
+    return render(args, 'Zavorth Autonomy Schedule Plane', [result.summary], result as unknown as JsonObject);
+  }
+  return runRunnableCollection(root, 'cron-jobs', args, 'job');
 }
 
 function taskBoardServiceForCli(root: string, args: string[]): TaskBoardPlaneService {
@@ -827,13 +1015,13 @@ async function runMnemos(root: string, args: string[]) {
       explicitHome: readFlag(args, 'home') || null,
       env: process.env,
     }).resolveSnapshot();
-    const service = new ZavorthSessionRecallService({
-      storePath: path.join(home.resolvedPaths.runtimeDir, 'mnemos-session-recall.json'),
+    const continuum = new SessionContinuumService({
+      storePath: resolveSessionContinuumStorePath(home.resolvedPaths.runtimeDir),
       stateDbPath: home.resolvedPaths.dbPath,
     });
     const content = readFlag(args, 'text') || args.slice(1).filter((arg) => !arg.startsWith('--')).join(' ');
     if (!content) return render(args, 'Zavorth Mnemos session recall', ['Missing --text for session-append.'], { ok: false });
-    const session = service.appendMessage({
+    const session = continuum.appendMessage({
       sessionId: readFlag(args, 'session-id') || null,
       title: readFlag(args, 'title') || null,
       role: readFlag(args, 'role') || 'user',
@@ -842,7 +1030,8 @@ async function runMnemos(root: string, args: string[]) {
     return render(args, 'Zavorth Mnemos session recall', [
       `session: ${session.id}`,
       `messages: ${session.messages.length}`,
-    ], { session });
+      `store: ${continuum.getStorePath()}`,
+    ], { session, storePath: continuum.getStorePath() });
   }
   if (action === 'forget') {
     const memoryId = readFlag(args, 'id') || args[1] || '';
@@ -3342,6 +3531,114 @@ async function runStatusLike(root: string, command: string, args: string[], acti
     `supported actions: ${actions.join(', ')}`,
     'live service control requires configured backend evidence.',
   ], { command, actions, stateDir: stateDir(root) });
+}
+
+async function runHostPresence(root: string, args: string[]) {
+  const { HostPresenceUnit, renderHostPresenceText } = await import('../host/HostPresenceUnit.js');
+  const home = new ZavorthHomePathService({
+    projectRoot: root,
+    explicitHome: readFlag(args, 'home') || null,
+    env: process.env,
+  }).resolveSnapshot();
+  const unit = new HostPresenceUnit({
+    projectRoot: root,
+    env: process.env,
+    stateDir: path.join(stateDir(root), 'host-presence'),
+    stateDbPath: home.resolvedPaths.dbPath,
+    readGoalLoopHeartbeat: () => {
+      try {
+        const daemon = goalLoopDaemonServiceForCli(root, args);
+        const snap = daemon.snapshot({
+          daemonId: readFlag(args, 'daemon-id') || 'cli-goal-loop-daemon',
+        });
+        return {
+          daemonId: snap.daemonId,
+          status: snap.status,
+          lastHeartbeatAt: snap.lastHeartbeatAt,
+          source: snap.lastHeartbeatAt ? 'state-db' as const : 'none' as const,
+          heartbeatRecorded: snap.safety.heartbeatRecorded,
+        };
+      } catch {
+        return null;
+      }
+    },
+    probeGateway: async (baseUrl) => {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 1800);
+        const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/health`, {
+          signal: controller.signal,
+        }).catch(async () =>
+          fetch(`${baseUrl.replace(/\/+$/, '')}/api/health`, {
+            signal: controller.signal,
+          }),
+        );
+        clearTimeout(timer);
+        const status = response?.status || 0;
+        const ok = status >= 200 && status < 500;
+        return { ok, summary: ok ? `HTTP ${status}` : `unreachable (${status || 'error'})` };
+      } catch (error: unknown) {
+        return { ok: false, summary: errorMessage(error) };
+      }
+    },
+  });
+
+  const action = firstArg(args, 'status');
+  const dryRun = args.includes('--dry-run');
+  const yes = args.includes('--yes') || args.includes('-y');
+
+  if (action === 'install') {
+    const result = await unit.install({
+      dryRun,
+      ensureBinary: !args.includes('--skip-ensure'),
+      osService: !args.includes('--no-os-service'),
+      command: readFlag(args, 'command') || null,
+    });
+    return render(args, 'Zavorth host', [result.summary, ...result.snapshot.lines], {
+      host: result.snapshot as unknown as JsonObject,
+      ok: result.ok,
+      dryRun: result.dryRun,
+    });
+  }
+  if (action === 'start') {
+    const result = await unit.start({
+      dryRun: dryRun || !yes,
+      yes,
+      command: readFlag(args, 'command') || null,
+    });
+    return render(args, 'Zavorth host', [result.summary, ...result.snapshot.lines], {
+      host: result.snapshot as unknown as JsonObject,
+      ok: result.ok,
+      dryRun: result.dryRun,
+    });
+  }
+  if (action === 'stop') {
+    const result = await unit.stop({
+      dryRun: dryRun || !yes,
+      yes,
+    });
+    return render(args, 'Zavorth host', [result.summary, ...result.snapshot.lines], {
+      host: result.snapshot as unknown as JsonObject,
+      ok: result.ok,
+      dryRun: result.dryRun,
+    });
+  }
+  if (action === 'status' || action === 'health') {
+    const result = await unit.status();
+    return render(args, 'Zavorth host', [result.summary, ...result.snapshot.lines], {
+      host: result.snapshot as unknown as JsonObject,
+      ok: result.ok,
+      text: renderHostPresenceText(result.snapshot),
+    });
+  }
+  return render(args, 'Zavorth host', [
+    'HostPresenceUnit controls local host packaging.',
+    'Supported: install, start, stop, status',
+    '  zavorth host install',
+    '  zavorth host start --yes',
+    '  zavorth host stop --yes',
+    '  zavorth host status',
+  ], { ok: true });
 }
 
 async function runServiceCommand(root: string, serviceName: 'daemon' | 'gateway', args: string[]) {

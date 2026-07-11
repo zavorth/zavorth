@@ -92,7 +92,7 @@ function publicAdoption(status = 'ready') {
     status,
     summary: { ok: status === 'ready', passed: 20, warnings: 0, failed: status === 'ready' ? 0 : 1, readinessScore: status === 'ready' ? 95 : 40 },
     baseline: { release: 'v1.0.0', packageName: 'zavorth', packageVersion: '1.1.0' },
-    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:stage:53'],
+    requiredScripts: ['public-adoption', 'qa:public-adoption', 'qa:public-adoption-readiness'],
     launchChecklist: [],
     claims: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { id: 'e' }],
     risks: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],

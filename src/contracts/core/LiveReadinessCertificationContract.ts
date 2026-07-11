@@ -95,7 +95,7 @@ export type LiveReadinessCertificationReceipt = {
 export type LiveReadinessCertificationSnapshot = {
   generatedAt: string;
   contractVersion: typeof ZAVORTH_LIVE_READINESS_CERTIFICATION_CONTRACT_VERSION;
-  phase: 'Intent model3 - Live Consistency Certification';
+  gate: 'live-consistency-certification';
   profile: LiveReadinessCertificationProfile;
   status: LiveReadinessCertificationStatus;
   claim: 'tracked-source-surface-live-consistency-certified';

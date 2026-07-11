@@ -269,7 +269,7 @@ describe('CapabilityAutopilotPreflightEntrypointService', () => {
       expectedSurfaces: ['cli'],
     });
 
-    expect(service.renderReport(snapshot)).toContain('Etapa 68 - Canonical Preflight Entrypoint');
+    expect(service.renderReport(snapshot)).toContain('Gate capability-autopilot-preflight-entrypoint - Canonical Preflight Entrypoint');
     expect(service.renderReport(snapshot)).toContain('proximo passo recomendada: 69 - Preflight Action Handler Wiring');
   });
 });

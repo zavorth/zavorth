@@ -5,6 +5,10 @@
 
 export const DRAFT_STORAGE_KEY = 'zvd:composer-drafts';
 
+export function shouldClearComposerAfterSend(rawText: string, currentInput: string): boolean {
+  return rawText === currentInput;
+}
+
 type StorageReader = Pick<Storage, 'getItem'>;
 type StorageWriter = Pick<Storage, 'getItem' | 'setItem'>;
 type StorageMutator = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;

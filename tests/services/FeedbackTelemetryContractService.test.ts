@@ -5,12 +5,12 @@ describe('FeedbackTelemetryContractService', () => {
     const service = serviceFromFixture();
     const snapshot = service.buildSnapshot();
 
-    expect(snapshot.phase).toBe('52');
+    expect(snapshot.phase).toBe('feedback-telemetry');
     expect(snapshot.surface).toBe('feedback-loop');
     expect(snapshot.summary.ok).toBe(true);
     expect(snapshot.status).toBe('ready');
     expect(snapshot.route).toBe('/feedback');
-    expect(snapshot.nextRecommendedStage).toEqual(expect.objectContaining({
+    expect(snapshot.nextRecommendedGate).toEqual(expect.objectContaining({
       stage: 'complete',
       title: 'Public Productization Complete',
     }));
@@ -41,7 +41,7 @@ describe('FeedbackTelemetryContractService', () => {
           'feedback:preview': 'npx tsx scripts/feedback-loop.ts --preview',
           'feedback:revoke': 'npx tsx scripts/feedback-loop.ts --revoke',
           'qa:feedback-loop': 'npx tsx scripts/feedback-loop.ts --require-pass --build --screenshots',
-          'qa:stage:52': 'node scripts/capability-suite-adoption-check.mjs --phase=52',
+          'qa:feedback-telemetry': 'node scripts/capability-suite-adoption-check.mjs --gate=feedback-telemetry',
         },
       }),
     });
@@ -109,7 +109,7 @@ function filesFixture(overrides: Record<string, string> = {}) {
         'feedback:revoke': 'npx tsx scripts/feedback-loop.ts --revoke',
         'feedback:delete': 'npx tsx scripts/feedback-loop.ts --delete',
         'qa:feedback-loop': 'npx tsx scripts/feedback-loop.ts --require-pass --build --screenshots',
-        'qa:stage:52': 'node scripts/capability-suite-adoption-check.mjs --phase=52',
+        'qa:feedback-telemetry': 'node scripts/capability-suite-adoption-check.mjs --gate=feedback-telemetry',
       },
     }),
     'website:package.json': JSON.stringify({

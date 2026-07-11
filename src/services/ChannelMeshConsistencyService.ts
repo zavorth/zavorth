@@ -13,6 +13,7 @@ import type {
 } from '../contracts/ChannelMeshConsistencyContract.js';
 import { ZAVORTH_CHANNEL_MESH_CONSISTENCY_CONTRACT_VERSION } from '../contracts/ChannelMeshConsistencyContract.js';
 
+import { normalizeChannelId } from '../channels/normalizeChannelId.js';
 import { CapabilityNormalizationService, DEFAULT_PRIVATE_CAPABILITY_SOURCE_MODULES } from './CapabilityNormalizationService.js';
 import { GatewayChannelAdapterRegistryService } from './GatewayChannelAdapterRegistryService.js';
 import type { ChannelGatewayRegistry } from '../gateways/ChannelGatewayRegistry.js';
@@ -59,10 +60,7 @@ const DEFAULT_FEATURES: ChannelFeatureSet = {
 
 const CHANNEL_ALIASES: Record<string, string> = {
   bluebubbles: 'imessage',
-  googlechat: 'google-chat',
-  msteams: 'teams',
   'nextcloud-talk': 'nextcloud-talk',
-  qqbot: 'qq',
   'synology-chat': 'synology-chat',
   webhooks: 'webhook',
   wechat: 'weixin',
@@ -406,7 +404,11 @@ export class ChannelMeshConsistencyService {
   }
 
   private resolveCanonicalChannelId(sourceName: string): string {
-    return CHANNEL_ALIASES[this.normalizeId(sourceName)] || this.normalizeId(sourceName);
+    const normalized = this.normalizeId(sourceName);
+    if (CHANNEL_ALIASES[normalized]) {
+      return CHANNEL_ALIASES[normalized];
+    }
+    return normalizeChannelId(sourceName, normalized);
   }
 
   private resolveWebhookPath(

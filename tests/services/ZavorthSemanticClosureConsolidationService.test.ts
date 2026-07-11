@@ -37,7 +37,7 @@ describe('ZavorthSemanticClosureConsolidationService', () => {
       sourceCodeCopied: false,
       enabledByDefault: false,
     }));
-    expect(snapshot.phaseReceipts.map((receipt) => receipt.phase)).toEqual([
+    expect(snapshot.phaseReceipts.map((receipt) => receipt.stage)).toEqual([
       'S1',
       'S2',
       'S3',
@@ -100,7 +100,7 @@ describe('ZavorthSemanticClosureConsolidationService', () => {
 
     expect(text).toContain('Zavorth Semantic Closure Consolidation - S1-S9');
     expect(text).toContain('Status: passed');
-    expect(text).toContain('Phase receipts:');
+    expect(text).toContain('Gate receipts:');
     expect(gateText).toContain('Zavorth Semantic Closure Consolidation Release Gate: passed');
     expect(gateText).toContain('Phases passed: 9/9');
   });

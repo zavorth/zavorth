@@ -159,7 +159,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push(`- Docs: ${snapshot.surface.docsAnchor}`);
   lines.push(`- Pilot loop: ${snapshot.surface.pilotLoopCommand}`);
   lines.push(`- QA: ${snapshot.surface.qaCommand}`);
-  lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);
+  lines.push(`- Phase gate: ${snapshot.surface.gateCommand}`);
   lines.push(`- Ledger: ${snapshot.surface.ledgerArtifact}`);
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlArtifact}`);
   lines.push(`- ZavorthControl: ${snapshot.surface.zavorthControlPath}`);
@@ -272,7 +272,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
           evidence: ['product-feedback-ledger.json', 'feedback-preview-redacted.json', 'issue/report template'],
         },
       ],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: 'complete',
         title: 'Product feedback loop ready',
         reason: 'opt-in preview sem envio externo',
@@ -326,7 +326,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
         { id: 'pilot-loop:pilot-ledger', title: 'ledger local de pilotos', status: 'pass', reason: 'ledger local sem payload', evidence: ['pilot-ledger.json'] },
         { id: 'pilot-loop:zavorthControl', title: 'zavorthControl agregado de suporte', status: 'pass', reason: 'zavorthControl agregado sem payload', evidence: ['support-zavorthControl.json'] },
       ],
-      nextRecommendedStage: {
+      nextRecommendedGate: {
         stage: '58',
         title: 'Integration Showcase And Partner Surface',
         reason: 'mostrar integracoes com fixture e degradacao segura',

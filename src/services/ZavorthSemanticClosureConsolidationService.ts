@@ -187,7 +187,7 @@ export class ZavorthSemanticClosureConsolidationService {
       `Live external I/O performed: ${snapshot.summary.liveExternalIoPerformed}`,
       `Runtime execution performed: ${snapshot.summary.runtimeExecutionPerformed}`,
       `Secret values serialized: ${snapshot.summary.secretValuesSerialized}`,
-      'Phase receipts:',
+      'Gate receipts:',
       ...snapshot.phaseReceipts.map((receipt) =>
         `- ${receipt.phase} ${receipt.status} ${receipt.label}: claims=${receipt.semanticClaims}, gaps=${receipt.gaps}, receipts=${receipt.receiptBackedClaims}, next=${receipt.next}`,
       ),

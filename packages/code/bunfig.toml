@@ -1,0 +1,5 @@
+[install]
+exact = true
+
+[test]
+# Prefer package-level tests: bun test --cwd cli

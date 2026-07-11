@@ -2508,39 +2508,37 @@ function applyWorkboardSync(
 
   let tasks = [...current.tasks];
   const card = coerceWorkboardTask(payload.card);
+  const cards = Array.isArray(payload.cards)
+    ? payload.cards.flatMap((candidate) => {
+        const normalized = coerceWorkboardTask(candidate);
+        return normalized ? [normalized] : [];
+      })
+    : [];
+
+  const upsertTask = (candidate: ZavorthRuntimeWorkboardTask) => {
+    const nextCard: ZavorthRuntimeWorkboardTask = {
+      ...candidate,
+      sessionId: candidate.sessionId || meta.sessionId,
+      updatedAt: meta.now,
+      createdAt: candidate.createdAt || meta.now,
+    };
+    const existingIndex = tasks.findIndex((task) => task.taskId === nextCard.taskId);
+    if (existingIndex >= 0) tasks[existingIndex] = { ...tasks[existingIndex], ...nextCard };
+    else tasks.push(nextCard);
+  };
 
   if (operation === 'upsert-card') {
     if (!card) return { ok: false, error: 'workboard_card_required' };
-    const nextCard: ZavorthRuntimeWorkboardTask = {
-      ...card,
-      sessionId: card.sessionId || meta.sessionId,
-      updatedAt: meta.now,
-      createdAt: card.createdAt || meta.now,
-    };
-    const existingIndex = tasks.findIndex((task) => task.taskId === nextCard.taskId);
-    if (existingIndex >= 0) {
-      tasks[existingIndex] = { ...tasks[existingIndex], ...nextCard };
-    } else {
-      tasks.push(nextCard);
-    }
+    upsertTask(card);
   } else if (operation === 'delete-card') {
     const taskId = card?.taskId || clean(record(payload.card)?.taskId) || clean(record(payload.card)?.id);
     if (!taskId) return { ok: false, error: 'workboard_card_id_required' };
     tasks = tasks.filter((task) => task.taskId !== taskId);
-  } else if (operation === 'sync-board' && card) {
-    // Full board sync may still include an optional focus card.
-    const nextCard: ZavorthRuntimeWorkboardTask = {
-      ...card,
-      sessionId: card.sessionId || meta.sessionId,
-      updatedAt: meta.now,
-      createdAt: card.createdAt || meta.now,
-    };
-    const existingIndex = tasks.findIndex((task) => task.taskId === nextCard.taskId);
-    if (existingIndex >= 0) {
-      tasks[existingIndex] = { ...tasks[existingIndex], ...nextCard };
-    } else {
-      tasks.push(nextCard);
-    }
+  } else if (operation === 'sync-board') {
+    // A full board is applied in one runtime action. This avoids one request per
+    // card while retaining the same upsert semantics as the former N+1 flow.
+    const incoming = card ? [card, ...cards.filter(item => item.taskId !== card.taskId)] : cards;
+    incoming.forEach(upsertTask);
   }
 
   const sessions = (() => {

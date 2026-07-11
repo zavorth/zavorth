@@ -69,7 +69,7 @@ export function validateGateReceipt(
 /**
  * Integration order constants for documentation and test assertions.
  * The numeric values match the required step order described in the
- * Phase 21S-F specification.
+ * approval-lease integration specification.
  */
 export const APPROVAL_LEASE_INTEGRATION_ORDER = {
   RECEIVE_TOOL_REQUEST_CONTEXT: 1,

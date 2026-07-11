@@ -1,6 +1,7 @@
 import type { ToolDefinition } from '../../providers/ILlmProvider.js';
 import type { ToolExecutor } from '../../execution/ToolExecutor.js';
 import type { ToolRegistry } from '../../tools/ToolRegistry.js';
+import type { OperatorContinuityEnvelope } from '../../runtime/operator/OperatorContinuityEnvelope.js';
 import { ToolResultCache } from '../../cognitive-firewall/ToolResultCache.js';
 import {
   ToolCatalogService,
@@ -8,7 +9,7 @@ import {
   type RuntimeToolGroup,
 } from './ToolCatalogService.js';
 
-type ToolExecutorLike = Pick<ToolExecutor, 'executeTool'>;
+type ToolExecutorLike = Pick<ToolExecutor, 'executeTool' | 'getLastContinuityEnvelope'>;
 type ToolRegistryLike = Pick<
   ToolRegistry,
   | 'getTool'
@@ -16,6 +17,8 @@ type ToolRegistryLike = Pick<
   | 'getToolDefinitions'
   | 'getToolSecurityDefinition'
 >;
+
+const NON_CACHEABLE_TOOL_PATTERN = /(write|delete|apply|exec|shell|spawn|mutation|send|install|uninstall|deploy|commit|patch|edit)/i;
 
 export interface ToolRuntimeServiceOptions {
   /** Enable tool result caching. Default: true */
@@ -72,13 +75,22 @@ export class ToolRuntimeService {
     return this.catalog.count() > 0 && Boolean(this.executor);
   }
 
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    if (!this.executor || typeof this.executor.getLastContinuityEnvelope !== 'function') {
+      return null;
+    }
+    return this.executor.getLastContinuityEnvelope();
+  }
+
   public async executeTool(toolName: string, args: unknown): Promise<string> {
     if (!this.executor) {
       throw new Error('Tool runtime sem executor configurado nesta sessao.');
     }
 
-    // Only cache when enabled and args are objects (primitives cause key collisions)
-    const canCache = this.cacheEnabled && typeof args === 'object' && args !== null;
+    const canCache = this.cacheEnabled
+      && typeof args === 'object'
+      && args !== null
+      && !NON_CACHEABLE_TOOL_PATTERN.test(String(toolName || ''));
 
     if (canCache) {
       const cached = this.cache.get(toolName, args as Record<string, unknown>);
@@ -87,10 +99,8 @@ export class ToolRuntimeService {
       }
     }
 
-    // Execute the tool
     const result = await this.executor.executeTool(toolName, args);
 
-    // Cache the result only when enabled and for object args
     if (canCache) {
       this.cache.set(toolName, args as Record<string, unknown>, result);
     }

@@ -1,7 +1,11 @@
 import { useState, useRef } from 'react';
 import { IconArrowLeft, IconArrowRight, IconRefresh, IconExternalLink } from '@tabler/icons-react';
 
-export function WebPreviewView() {
+export function WebPreviewView(_props: {
+  mode?: 'page' | 'rail';
+  runtimeCapabilities?: unknown;
+  workspaceScope?: unknown;
+}) {
   const [url, setUrl] = useState('http://localhost:5173');
   const [inputUrl, setInputUrl] = useState('http://localhost:5173');
   const iframeRef = useRef<HTMLIFrameElement>(null);

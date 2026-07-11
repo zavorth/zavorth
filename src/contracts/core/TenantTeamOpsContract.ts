@@ -62,7 +62,7 @@ export type TenantTeamOpsCheck = {
 };
 
 export type TenantTeamOpsSnapshot = {
-  phase: '42';
+  gate: 'tenant-team-ops';
   surface: 'tenant-team-ops';
   generatedAt: string;
   status: 'ready' | 'attention' | 'blocked';
@@ -96,7 +96,7 @@ export type TenantTeamOpsSnapshot = {
     governance: string;
     tenants: string;
   };
-  nextRecommendedPhase: {
+  nextRecommendedGate: {
     phase: 'complete';
     title: string;
     reason: string;
@@ -109,7 +109,6 @@ export const TENANT_TEAM_OPS_PACKAGE_SCRIPTS = [
   'tenant:ops',
   'tenant:ops:json',
   'qa:tenant-team-ops',
-  'qa:phase:42',
 ] as const;
 
 export const TENANT_TEAM_OPS_WEB_MARKERS = [

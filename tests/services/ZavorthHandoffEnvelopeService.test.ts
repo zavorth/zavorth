@@ -16,8 +16,8 @@ describe('ZavorthHandoffEnvelopeService', () => {
       modifiedPaths: ['src/services/ZavorthHandoffEnvelopeService.ts'],
       securityApprovals: ['No break-glass permission granted.'],
       remainingTodos: ['Implement wiki baseline.'],
-      simulatedStatePreview: ['Preview engine ready, phase 3 pending.'],
-      nextPrescribedAction: 'Start phase 3.',
+      simulatedStatePreview: ['Preview engine ready, follow-up pending.'],
+      nextPrescribedAction: 'Start follow-up.',
       messages: [
         { role: 'user', content: 'Preserve this directive verbatim.' },
         { role: 'tool', toolName: 'jest', status: 'error', content: 'timeout in tests/services/Foo.test.ts' },

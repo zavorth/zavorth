@@ -72,7 +72,7 @@ export class ZavorthNativeCompanionDevicePackService {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_NATIVE_COMPANION_DEVICE_CONTRACT_VERSION,
       status,
-      phase: 6,
+      gate: 'native-companion-device',
       statement: 'Zavorth native companion and device capabilities are exposed through browser-first, desktop and optional runtime bridges with artifact-first receipts.',
       runtime: {
         platform: process.platform,

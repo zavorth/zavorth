@@ -475,7 +475,7 @@ export class MemoryArtifactsRuntimeLiveService {
       error_code: null,
       error_message: null,
       metadata: {
-        phase: '12',
+        gate: 'memory-artifacts-runtime-live',
       },
     };
   }

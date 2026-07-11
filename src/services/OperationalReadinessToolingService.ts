@@ -143,7 +143,7 @@ export class OperationalReadinessToolingService {
           'npm run release-readiness-doctor --silent',
         ],
         typecheck: 'npm run runtime:check --silent',
-        nextStage: 'Etapa 9 - Certification',
+        nextStage: 'Certification',
       },
       certification: {
         releaseReady: gapTotals.total === 0 && status === 'passed',
@@ -223,7 +223,7 @@ export class OperationalReadinessToolingService {
         },
         gapCount: 0,
         generatedPluginManifests: 0,
-        notes: ['Private source inventory is normalized into later phase gates.'],
+        notes: ['Private source inventory is normalized into later gates.'],
       },
       {
         id: 'checkpoint-2-plugin-os',

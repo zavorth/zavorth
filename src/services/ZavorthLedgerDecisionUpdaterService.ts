@@ -19,7 +19,7 @@ export class ZavorthLedgerDecisionUpdaterService {
       const receiptBacked = item.receiptIds.length > 0;
       return {
         itemId: item.id,
-        phase: item.phase,
+        gate: item.gate,
         currentDecision: item.decision,
         proposedDecision: item.decision,
         canUpdate: receiptBacked && item.status !== 'fail',

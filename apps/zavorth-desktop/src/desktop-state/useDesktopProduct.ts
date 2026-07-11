@@ -24,7 +24,6 @@ import {
   upsertCard,
 } from './productData';
 import { asErrorLike } from '../lib/errors';
-import { asErrorLike } from '../../../../src/utils/errorLike.js';
 
 
 export function useDesktopProduct(input: {
@@ -110,11 +109,26 @@ export function useDesktopProduct(input: {
     }
     setSyncBusy(true);
     try {
-      const ok = await pushBoardMutation(board, 'sync-board');
-      input.setNotice(ok
+      const boardOk = await pushBoardMutation(board, 'sync-board');
+      if (!boardOk) {
+        input.setNotice('Workboard sync failed. Local board kept; runtime push unavailable.');
+        return false;
+      }
+      const cards = board.cards.slice();
+      const batchSize = 5;
+      let cardsOk = true;
+      for (let index = 0; index < cards.length; index += batchSize) {
+        const batch = cards.slice(index, index + batchSize);
+        const results = await Promise.all(batch.map(card => pushBoardMutation(board, 'upsert-card', card)));
+        if (!results.every(Boolean)) {
+          cardsOk = false;
+          break;
+        }
+      }
+      input.setNotice(cardsOk
         ? `Workboard “${board.name}” synced to runtime.`
-        : 'Workboard sync failed. Local board kept; runtime push unavailable.');
-      return ok;
+        : `Workboard “${board.name}” partially synced. Some cards stayed local.`);
+      return cardsOk;
     } finally {
       setSyncBusy(false);
     }
@@ -123,19 +137,26 @@ export function useDesktopProduct(input: {
   const refreshMarketplace = useCallback(async () => {
     setMarketplaceLoading(true);
     try {
-      const result = await apiRequest<{ ok?: boolean; skills?: unknown[]; data?: { skills?: unknown[] } }>({
-        method: 'GET',
-        path: '/api/marketplace/skills',
-        query: { action: 'list' },
-        timeoutMs: 15000,
-      });
-      const skills = Array.isArray(result.data?.skills)
-        ? result.data?.skills
-        : Array.isArray((result.data as { data?: { skills?: unknown[] } } | null)?.data?.skills)
-          ? (result.data as { data: { skills: unknown[] } }).data.skills
+      const [installedResult, marketplaceResult, localMarketplaceResult] = await Promise.all([
+        apiRequest<{ skills?: unknown[] }>({ method: 'GET', path: '/api/skills', timeoutMs: 15000 }),
+        apiRequest<{ skills?: unknown[] }>({ method: 'GET', path: '/api/skills/marketplace', timeoutMs: 15000 }),
+        apiRequest<{ skills?: unknown[] }>({ method: 'GET', path: '/api/marketplace/skills', timeoutMs: 15000 }),
+      ]);
+      const installed = installedResult.ok && Array.isArray(installedResult.data?.skills)
+        ? mapMarketplaceSkillsToPlugins(installedResult.data.skills).map(plugin => ({ ...plugin, status: 'installed' as const }))
+        : [];
+      const marketplaceSkills = marketplaceResult.ok
+        && Array.isArray(marketplaceResult.data?.skills)
+        && marketplaceResult.data.skills.length > 0
+        ? marketplaceResult.data.skills
+        : localMarketplaceResult.ok && Array.isArray(localMarketplaceResult.data?.skills)
+          ? localMarketplaceResult.data.skills
           : [];
-      if (result.ok && skills.length > 0) {
-        setMarketplacePlugins(mapMarketplaceSkillsToPlugins(skills));
+      const available = mapMarketplaceSkillsToPlugins(marketplaceSkills);
+      const merged = new Map(available.map(plugin => [plugin.id, plugin]));
+      installed.forEach(plugin => merged.set(plugin.id, plugin));
+      if (merged.size > 0) {
+        setMarketplacePlugins([...merged.values()]);
         setMarketplaceSource('api');
         return;
       }
@@ -220,7 +241,7 @@ export function useDesktopProduct(input: {
   }, [boards, commitBoards, pushBoardMutation]);
 
   const handleOpenCardInChat = useCallback((boardId: string, cardId: string) => {
-    const board = boards.find(item => item.id === boardId);
+    const board = displayBoards.find(item => item.id === boardId);
     const card = board?.cards.find(item => item.id === cardId);
     if (!board || !card) return;
     const context = buildCardChatContext(board, card);
@@ -228,56 +249,65 @@ export function useDesktopProduct(input: {
     input.setInput(current ? `${current}\n\n${context}` : context);
     input.setActivePanel('chat');
     input.setNotice(`Loaded workboard card “${card.title}” into the composer.`);
-  }, [boards, input]);
+  }, [displayBoards, input]);
 
   const handleInstallPlugin = useCallback(async (pluginId: string) => {
     const plugin = marketplacePlugins.find(item => item.id === pluginId);
     try {
-      const result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
+      let result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
         method: 'POST',
-        path: '/api/marketplace/skills',
+        path: '/api/skills/marketplace/install',
         body: {
-          action: 'install',
-          skillId: pluginId,
-          source: pluginId,
+          name: plugin?.name || pluginId,
+          description: plugin?.description || 'Skill instalada pelo Zavorth Desktop.',
+          version: plugin?.version || '1.0.0',
+          skillMdContent: plugin?.skillMdContent || `# ${plugin?.name || pluginId}\n\n${plugin?.description || ''}`,
+          sourceUrl: plugin?.sourceUrl,
         },
         timeoutMs: 60000,
       });
-      if (!result.ok) {
+      if (!result.ok || result.data?.ok === false) {
+        result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
+          method: 'POST',
+          path: '/api/marketplace/skills',
+          body: { action: 'install', source: plugin?.sourceUrl || pluginId },
+          timeoutMs: 60000,
+        });
+      }
+      if (!result.ok || result.data?.ok === false) {
         throw new Error(result.error || result.data?.error || result.data?.message || 'Install failed.');
       }
       input.setNotice(result.data?.message || `Installed ${plugin?.name || pluginId}.`);
       await refreshMarketplace();
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      // Optimistic local mark when API is unavailable but tool already exists.
-      setMarketplacePlugins(current => current.map(item => item.id === pluginId
-        ? { ...item, status: 'installed' }
-        : item));
-      input.setNotice(error instanceof Error
-        ? `${err.message} (marked installed locally if the skill is already present).`
-        : 'Could not install skill.');
+      input.setNotice(error instanceof Error ? err.message : 'Could not install skill.');
     }
   }, [input, marketplacePlugins, refreshMarketplace]);
 
   const handleUninstallPlugin = useCallback(async (pluginId: string) => {
     try {
-      const result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
-        method: 'POST',
-        path: '/api/marketplace/skills',
-        body: { action: 'uninstall', skillId: pluginId },
+      let result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
+        method: 'DELETE',
+        path: `/api/skills/${encodeURIComponent(pluginId)}`,
+        body: undefined,
         timeoutMs: 30000,
       });
-      if (!result.ok) {
+      if (!result.ok || result.data?.ok === false) {
+        result = await apiRequest<{ ok?: boolean; message?: string; error?: string }>({
+          method: 'POST',
+          path: '/api/marketplace/skills',
+          body: { action: 'uninstall', skillId: pluginId },
+          timeoutMs: 30000,
+        });
+      }
+      if (!result.ok || result.data?.ok === false) {
         throw new Error(result.error || result.data?.error || 'Uninstall failed.');
       }
       input.setNotice(result.data?.message || `Uninstalled ${pluginId}.`);
       await refreshMarketplace();
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      setMarketplacePlugins(current => current.map(item => item.id === pluginId
-        ? { ...item, status: 'available' }
-        : item));
       input.setNotice(error instanceof Error ? err.message : 'Could not uninstall skill.');
     }
   }, [input, refreshMarketplace]);

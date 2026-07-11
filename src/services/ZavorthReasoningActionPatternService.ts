@@ -104,7 +104,7 @@ export class ZavorthReasoningActionPatternService {
       generatedAt,
       contractVersion: ZAVORTH_REASONING_ACTION_PATTERN_CONTRACT_VERSION,
       source: 'ZavorthReasoningActionPatternService',
-      phase: 'checkpoint-2-reasoning-action-patterns',
+      gate: 'reasoning-action-patterns',
       status,
       request: {
         surface: normalizeSurface(input.surface),

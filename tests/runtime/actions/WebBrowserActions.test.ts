@@ -13,7 +13,7 @@ jest.mock('../../../src/security/SafeFetchService');
 jest.mock('../../../src/security/EgressGuard');
 jest.mock('../../../src/core/MinimalBrowserSidecarClient');
 
-describe('Web & Browser Actions Harness (Phase 23-A)', () => {
+describe('Web & Browser Actions Harness', () => {
   const roots: string[] = [];
   const mockSearch = jest.fn();
   const mockSafeFetch = safeFetch as jest.MockedFunction<typeof safeFetch>;

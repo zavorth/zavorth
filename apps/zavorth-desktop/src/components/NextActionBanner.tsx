@@ -35,20 +35,9 @@ function resolveNextAction(props: NextActionBannerProps): NextActionModel | null
   }
 
   if (props.runtimeOnline === false) {
-    if (props.onDoctor) {
-      return {
-        title: t('nextAction.runtimeOffline', lang),
-        cta: t('nextAction.doctor', lang),
-        onClick: props.onDoctor,
-        tone: 'danger',
-      };
-    }
-    return {
-      title: t('nextAction.runtimeOffline', lang),
-      cta: t('nextAction.review', lang),
-      onClick: props.onOpenReview,
-      tone: 'danger',
-    };
+    // Runtime recovery is owned by the compact clickable status pill in the
+    // top bar. Repeating it here used to push a large warning into the chat.
+    return null;
   }
 
   if (props.busy) {

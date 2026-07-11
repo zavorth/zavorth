@@ -25,7 +25,7 @@ function parseBootstrapRegisteredConstructors(source: string): string[] {
     .sort();
 }
 
-describe('Agent security phase 1 inventory gate', () => {
+describe('Agent security inventory gate', () => {
   it('keeps the central inventory complete and explicit', () => {
     const inventory = buildAgentSecurityInventory();
     const findings = validateAgentSecurityInventory(inventory);

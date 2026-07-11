@@ -239,7 +239,7 @@ export class ZavorthAutomationControlPlaneService {
         'a cada 30m verifique os transports via webhook https://example.com/hook',
       ],
       narrative: {
-        headline: 'Etapa 17: Automations e scheduled runs',
+        headline: 'Automations e scheduled runs',
         operatorSummary:
           `${summary.activeTasks} automacao(oes) ativa(s), ${summary.failedTasks} com falha recente, `
           + `${summary.autoPausedTasks} auto-pausada(s) e ${summary.outboxQueued} entrega(s) pendente(s) no outbox.`,

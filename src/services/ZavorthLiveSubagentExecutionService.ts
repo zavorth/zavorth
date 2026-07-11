@@ -15,6 +15,19 @@ import {
 decideSecurityPolicy,
   type SecurityPolicyBrokerDecision,
 } from '../security/SecurityPolicyBroker.js';
+import {
+  applySubagentBudgetUsage,
+  createSubagentBudget,
+  evaluateSubagentBudget,
+  wouldExceedToolCallBudget,
+  type SubagentBudget,
+  type SubagentBudgetDecision,
+} from '../runtime/agent/subagents/SubagentBudget.js';
+import {
+  OperatorContinuityKernel,
+  resultFromToolOutcome,
+  type OperatorContinuityEnvelope,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 type LlmRuntimeLike = Pick<LlmRuntimeService, 'chatDetailed' | 'getPreferredProviderName'>;
@@ -36,6 +49,8 @@ export type ZavorthLiveSubagentWorkerInput = {
   modelName?: string | null;
   maxOutputChars: number;
   maxToolCalls: number;
+  maxWallClockMs?: number | null;
+  maxOutputBytes?: number | null;
 };
 
 export type ZavorthLiveSubagentBackend = {
@@ -58,6 +73,8 @@ export type ZavorthLiveSubagentExecutionInput = {
   maxWorkers: number;
   maxOutputChars: number;
   maxToolCalls: number;
+  maxWallClockMs?: number | null;
+  maxOutputBytes?: number | null;
 };
 
 export type ZavorthLiveSubagentExecutionResult = {
@@ -112,6 +129,8 @@ export class ZavorthLiveSubagentExecutionService {
           modelName: input.modelName,
           maxOutputChars: input.maxOutputChars,
           maxToolCalls: input.maxToolCalls,
+          maxWallClockMs: input.maxWallClockMs ?? profile.budget?.maxWallClockMs ?? null,
+          maxOutputBytes: input.maxOutputBytes ?? profile.budget?.maxOutputBytes ?? null,
         });
       } catch (error: unknown) {
         const err = asErrorLike(error);
@@ -214,7 +233,10 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
   }
 
   public async runWorker(input: ZavorthLiveSubagentWorkerInput): Promise<ZavorthSubagentRuntimeWorkerResult> {
-    const startedAt = this.now().toISOString();
+    const startedAtDate = this.now();
+    const startedAt = startedAtDate.toISOString();
+    const startedMs = startedAtDate.getTime();
+    let budget = createLiveWorkerBudget(input);
     const messages = this.buildMessages(input);
     const tools = this.selectReadOnlyTools(input);
     const toolStats = {
@@ -224,6 +246,60 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
       executed: 0,
       policyReceiptId: null as string | null,
     };
+
+    const stopForBudget = (
+      reason: NonNullable<SubagentBudgetDecision['exceeded']>,
+      decision: SubagentBudgetDecision,
+      partialOutput = '',
+    ): ZavorthSubagentRuntimeWorkerResult => {
+      const completedAt = this.now().toISOString();
+      const continuity = buildBudgetExceededContinuity({
+        input,
+        budget,
+        decision,
+        reason,
+        now: this.now,
+      });
+      const summary = `Worker stopped: subagent budget exceeded (${reason}).`;
+      return {
+        workerId: input.workerId,
+        roleId: input.profile.id,
+        status: 'failed',
+        backend: this.id,
+        startedAt,
+        completedAt,
+        providerName: input.providerName || null,
+        modelName: input.modelName || null,
+        summary,
+        output: clampText(partialOutput || summary, input.maxOutputChars),
+        error: summary,
+        receiptId: continuity.receipt?.receiptId || null,
+        metadata: {
+          channel: input.channel,
+          mode: input.mode,
+          budgetExceeded: reason,
+          budgetOk: false,
+          usedToolCalls: budget.usedToolCalls,
+          elapsedMs: budget.elapsedMs,
+          outputBytes: budget.outputBytes,
+          maxToolCalls: budget.maxToolCalls,
+          maxWallClockMs: budget.maxWallClockMs,
+          maxOutputBytes: budget.maxOutputBytes,
+          continuityId: continuity.ids.continuityId,
+          toolCallsRequested: toolStats.requested,
+          toolCallsApproved: toolStats.approved,
+          toolCallsDenied: toolStats.denied,
+          toolCallsExecuted: toolStats.executed,
+        },
+      };
+    };
+
+    budget = applySubagentBudgetUsage(budget, { elapsedMs: Math.max(0, this.now().getTime() - startedMs) });
+    let preflight = evaluateSubagentBudget(budget);
+    if (!preflight.ok && preflight.exceeded) {
+      return stopForBudget(preflight.exceeded, preflight);
+    }
+
     let result = await this.llmRuntime.chatDetailed(messages, tools.length > 0 ? tools : [], {
       providerName: input.providerName || undefined,
       modelName: input.modelName || undefined,
@@ -244,15 +320,51 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         })),
       },
     });
-    for (let round = 0; round < Math.max(0, input.maxToolCalls); round += 1) {
+
+    const maxRounds = Math.max(0, input.maxToolCalls || budget.maxToolCalls || 0);
+    for (let round = 0; round < maxRounds; round += 1) {
+      budget = applySubagentBudgetUsage(budget, { elapsedMs: Math.max(0, this.now().getTime() - startedMs) });
+      const budgetDecision = evaluateSubagentBudget(budget);
+      if (!budgetDecision.ok && budgetDecision.exceeded) {
+        return stopForBudget(
+          budgetDecision.exceeded,
+          budgetDecision,
+          String(result.response.content || ''),
+        );
+      }
+
       const toolCalls = result.response.toolCalls || [];
       if (toolCalls.length === 0 || !this.toolRuntime || tools.length === 0) {
         break;
       }
+      if (wouldExceedToolCallBudget(budget, 1)) {
+        const blocked = evaluateSubagentBudget(applySubagentBudgetUsage(budget, { toolCalls: 1 }));
+        return stopForBudget(
+          blocked.exceeded || 'tool_calls',
+          blocked,
+          String(result.response.content || ''),
+        );
+      }
+
       const knownTools = new Set(tools.map((tool) => tool.name));
       const toolMessages: ChatMessage[] = [];
-      for (const toolCall of toolCalls.slice(0, Math.max(1, input.maxToolCalls - toolStats.requested))) {
+      const remainingSlots = budget.maxToolCalls > 0
+        ? Math.max(0, budget.maxToolCalls - budget.usedToolCalls)
+        : toolCalls.length;
+      for (const toolCall of toolCalls.slice(0, Math.max(1, remainingSlots || 0))) {
+        if (wouldExceedToolCallBudget(budget, 1)) {
+          break;
+        }
         toolStats.requested += 1;
+        budget = applySubagentBudgetUsage(budget, {
+          toolCalls: 1,
+          elapsedMs: Math.max(0, this.now().getTime() - startedMs),
+        });
+        const afterCall = evaluateSubagentBudget(budget);
+        if (!afterCall.ok && afterCall.exceeded) {
+          return stopForBudget(afterCall.exceeded, afterCall, String(result.response.content || ''));
+        }
+
         const toolDecision = this.decideToolCall(input, toolCall.name, toolCall.arguments, knownTools);
         toolStats.policyReceiptId = toolDecision.receipt.receiptId;
         if (!toolDecision.allowed) {
@@ -276,8 +388,17 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           logger.warn('[Zavorth Live Subagent Execution] process execution failed', error);
-    toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? err.message : String(error)}`;
-  }
+          toolResult = `Tool ${toolCall.name} failed: ${error instanceof Error ? err.message : String(error)}`;
+        }
+        const toolBytes = Buffer.byteLength(String(toolResult || ''), 'utf8');
+        budget = applySubagentBudgetUsage(budget, {
+          outputBytes: toolBytes,
+          elapsedMs: Math.max(0, this.now().getTime() - startedMs),
+        });
+        const afterOutput = evaluateSubagentBudget(budget);
+        if (!afterOutput.ok && afterOutput.exceeded) {
+          return stopForBudget(afterOutput.exceeded, afterOutput, String(result.response.content || ''));
+        }
         toolMessages.push({
           role: 'tool',
           toolCallId: toolCall.id,
@@ -317,10 +438,20 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
           })),
         },
       });
-      if (toolStats.requested >= input.maxToolCalls) {
+      if (budget.maxToolCalls > 0 && budget.usedToolCalls >= budget.maxToolCalls) {
         break;
       }
     }
+
+    budget = applySubagentBudgetUsage(budget, {
+      elapsedMs: Math.max(0, this.now().getTime() - startedMs),
+      outputBytes: Buffer.byteLength(String(result.response.content || ''), 'utf8'),
+    });
+    const finalDecision = evaluateSubagentBudget(budget);
+    if (!finalDecision.ok && finalDecision.exceeded) {
+      return stopForBudget(finalDecision.exceeded, finalDecision, String(result.response.content || ''));
+    }
+
     const completedAt = this.now().toISOString();
     const output = clampText(
       appendToolUseSummary(String(result.response.content || '').trim() || 'Worker completed with an empty provider response.', toolStats),
@@ -349,6 +480,10 @@ class LlmRuntimeSubagentBackend implements ZavorthLiveSubagentBackend {
         toolCallsApproved: toolStats.approved,
         toolCallsDenied: toolStats.denied,
         toolCallsExecuted: toolStats.executed,
+        budgetOk: true,
+        usedToolCalls: budget.usedToolCalls,
+        elapsedMs: budget.elapsedMs,
+        outputBytes: budget.outputBytes,
       },
     };
   }
@@ -543,6 +678,94 @@ function firstLine(value: string): string {
 
 function stripAccents(value: string): string {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function createLiveWorkerBudget(input: ZavorthLiveSubagentWorkerInput): SubagentBudget {
+  const profileBudget = input.profile.budget;
+  return createSubagentBudget({
+    maxToolCalls: Math.max(
+      0,
+      Number(input.maxToolCalls || profileBudget?.maxToolCalls || 0),
+    ),
+    maxWallClockMs: Math.max(
+      0,
+      Number(input.maxWallClockMs ?? profileBudget?.maxWallClockMs ?? 0),
+    ),
+    maxOutputBytes: Math.max(
+      0,
+      Number(
+        input.maxOutputBytes
+        ?? profileBudget?.maxOutputBytes
+        ?? (input.maxOutputChars > 0 ? input.maxOutputChars : 0),
+      ),
+    ),
+    metadata: {
+      source: 'ZavorthLiveSubagentExecutionService',
+      workerId: input.workerId,
+      roleId: input.profile.id,
+      runId: input.runId,
+    },
+  });
+}
+
+function buildBudgetExceededContinuity(input: {
+  input: ZavorthLiveSubagentWorkerInput;
+  budget: SubagentBudget;
+  decision: SubagentBudgetDecision;
+  reason: NonNullable<SubagentBudgetDecision['exceeded']>;
+  now: () => Date;
+}): OperatorContinuityEnvelope {
+  const kernel = new OperatorContinuityKernel({ now: input.now });
+  let envelope = kernel.begin({
+    correlation: {
+      runId: input.input.runId,
+      sessionId: input.input.sessionId,
+      toolCallId: input.input.workerId,
+    },
+  });
+  envelope = kernel.recordRequest(envelope, {
+    surface: 'tool-executor',
+    operation: 'subagent.live.budget.enforce',
+    target: input.input.profile.id,
+    actorId: input.input.actorId,
+    sourceSurface: `subagent:${input.input.channel}`,
+    metadata: {
+      workerId: input.input.workerId,
+      reason: input.reason,
+      usedToolCalls: input.budget.usedToolCalls,
+      elapsedMs: input.budget.elapsedMs,
+      outputBytes: input.budget.outputBytes,
+    },
+  });
+  envelope = kernel.attachDecision(envelope, {
+    source: 'effect-boundary',
+    action: 'deny',
+    allowed: false,
+    rule: `subagent-budget:exceeded:${input.reason}`,
+    reasons: [
+      `Live subagent budget exceeded: ${input.reason}.`,
+      `usedToolCalls=${input.budget.usedToolCalls}/${input.budget.maxToolCalls}`,
+      `elapsedMs=${input.budget.elapsedMs}/${input.budget.maxWallClockMs}`,
+      `outputBytes=${input.budget.outputBytes}/${input.budget.maxOutputBytes}`,
+    ],
+    risk: 'review',
+  });
+  envelope = kernel.attachResult(envelope, resultFromToolOutcome({
+    ok: false,
+    status: 'blocked',
+    summary: `Subagent stopped because budget exceeded ${input.reason}.`,
+    data: {
+      exceeded: input.reason,
+      budgetDecision: {
+        ok: input.decision.ok,
+        exceeded: input.decision.exceeded,
+        remainingToolCalls: input.decision.remainingToolCalls,
+        remainingWallClockMs: input.decision.remainingWallClockMs,
+        remainingOutputBytes: input.decision.remainingOutputBytes,
+      },
+    },
+  }));
+  return kernel.finalizeReceipt(envelope);
 }
 
 function stableId(...parts: string[]): string {

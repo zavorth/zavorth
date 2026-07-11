@@ -42,7 +42,7 @@ export type CapabilityPreflightActionHandlerRequest = {
 };
 
 export type CapabilityPreflightActionHandlerResult = {
-  phase: '69';
+  gate: 'capability-autopilot-preflight-action-handler';
   generatedAt: string;
   surface: 'capability-autopilot-preflight-action-handler';
   status: CapabilityPreflightActionHandlerStatus;
@@ -73,7 +73,7 @@ export type CapabilityPreflightActionHandlerResult = {
 };
 
 export type CapabilityPreflightActionHandlerSnapshot = {
-  phase: '69';
+  gate: 'capability-autopilot-preflight-action-handler';
   surface: 'capability-autopilot-preflight-action-handler';
   generatedAt: string;
   capabilityId: string;
@@ -84,11 +84,11 @@ export type CapabilityPreflightActionHandlerSnapshot = {
     warnings: number;
     failed: number;
   };
-  sourceSnapshotPhase: CapabilityAutopilotPreflightSnapshot['phase'];
+  sourceSnapshotGate: CapabilityAutopilotPreflightSnapshot['gate'];
   plans: CapabilityPreflightActionHandlerResult[];
   checks: CapabilityAutopilotPreflightCheck[];
-  nextRecommendedPhase: {
-    phase: '70';
+  nextRecommendedGate: {
+    gate: 'capability-autopilot-preflight-dispatch-receipt';
     title: string;
     reason: string;
   };
@@ -180,7 +180,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
     const userConfirmed = request.userConfirmed === true;
 
     return {
-      phase: '69',
+      gate: 'capability-autopilot-preflight-action-handler',
       generatedAt,
       surface: 'capability-autopilot-preflight-action-handler',
       status,
@@ -208,8 +208,8 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       blockers,
       safeSummary: this.buildSafeSummary(action, mapping?.handlerKind || null, status),
       metadata: {
-        phase: 'capability-autopilot-checkpoint-69',
-        sourceSnapshotPhase: snapshot.phase,
+        gate: 'capability-autopilot-preflight-action-handler',
+        sourceSnapshotGate: snapshot.gate,
         sourcePayloadSurface: payload.surface,
         sourceActionId: action.id,
         sourceActionKind: action.kind,
@@ -237,7 +237,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '69',
+      gate: 'capability-autopilot-preflight-action-handler',
       surface: 'capability-autopilot-preflight-action-handler',
       generatedAt,
       capabilityId: snapshot.capabilityId,
@@ -248,17 +248,17 @@ export class CapabilityAutopilotPreflightActionHandlerService {
         warnings,
         failed,
       },
-      sourceSnapshotPhase: snapshot.phase,
+      sourceSnapshotGate: snapshot.gate,
       plans,
       checks,
-      nextRecommendedPhase: {
-        phase: '70',
+      nextRecommendedGate: {
+        gate: 'capability-autopilot-preflight-dispatch-receipt',
         title: 'Preflight Handler Execution Receipts',
         reason:
           'Depois de mapear actions para handlers explicitos, o proximo passo e gerar receipts de dispatch sem executar repair, fallback ou resume automaticamente.',
       },
       metadata: {
-        phase: 'capability-autopilot-checkpoint-69',
+        gate: 'capability-autopilot-preflight-action-handler',
         sourceSnapshotStatus: snapshot.status,
         payloadCount: snapshot.payloads.length,
         actionPlanCount: plans.length,
@@ -270,7 +270,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
 
   public renderReport(snapshot: CapabilityPreflightActionHandlerSnapshot): string {
     const lines: string[] = [];
-    lines.push('[capability-autopilot-preflight-actions] Etapa 69 - Preflight Action Handler Wiring');
+    lines.push('[capability-autopilot-preflight-actions] Preflight Action Handler Wiring');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`capability: ${snapshot.capabilityId}`);
@@ -284,8 +284,8 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -348,7 +348,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
           plan.dispatchAttempted === false &&
           plan.metadata.autoExecute === false
         ) ? 'pass' : 'fail',
-        'A Etapa 69 so prepara wiring; nenhum handler pode despachar execucao automaticamente.',
+        'Este gate so prepara wiring; nenhum handler pode despachar execucao automaticamente.',
         plans.map((plan) =>
           `${plan.sourceSurface}:${plan.sourceAction?.kind || '<none>'}:auto=${plan.shouldRunAutomatically}:dispatch=${plan.dispatchAttempted}`,
         ),
@@ -402,7 +402,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
     blockers: string[],
   ): CapabilityPreflightActionHandlerResult {
     return {
-      phase: '69',
+      gate: 'capability-autopilot-preflight-action-handler',
       generatedAt,
       surface: 'capability-autopilot-preflight-action-handler',
       status: 'blocked',
@@ -426,8 +426,8 @@ export class CapabilityAutopilotPreflightActionHandlerService {
       blockers,
       safeSummary: `Action handler bloqueado: ${blockers.join(', ')}.`,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-69',
-        sourceSnapshotPhase: snapshot.phase,
+        gate: 'capability-autopilot-preflight-action-handler',
+        sourceSnapshotGate: snapshot.gate,
         requestedSurface: request.surface,
         requestedActionId: request.actionId || null,
         requestedActionKind: request.actionKind || null,

@@ -16,22 +16,22 @@ const steps = [
     args: ['run', 'build'],
   },
   {
-    label: 'Etapa 1 - Contrato publico canonico',
+    label: 'Contrato publico canonico',
     command: commandFor('npx'),
     args: ['jest', 'tests/contracts/PublicContractsCompatibility.test.ts', '--runInBand'],
   },
   {
-    label: 'Etapa 2 - Gateway core canonico',
+    label: 'Gateway core canonico',
     command: commandFor('npx'),
     args: ['jest', 'tests/gateway/GatewayHostService.test.ts', '--runInBand'],
   },
   {
-    label: 'Etapa 3 - Reorganizacao por dominio',
+    label: 'Reorganizacao por dominio',
     command: commandFor('npx'),
     args: ['jest', 'tests/domain/DomainRegistry.test.ts', '--runInBand'],
   },
   {
-    label: 'Etapa 4 - Platform ecosystem real',
+    label: 'Platform ecosystem real',
     command: commandFor('npx'),
     args: [
       'jest',
@@ -57,7 +57,7 @@ const steps = [
     ],
   },
   {
-    label: 'Etapa 6 - Channel Mesh 2.0',
+    label: 'Channel Mesh 2.0',
     command: commandFor('npx'),
     args: [
       'jest',
@@ -72,7 +72,7 @@ const steps = [
 ];
 
 for (const step of steps) {
-  console.log(`\n[phases-1-6-check] ${step.label}`);
+  console.log(`\n[gates-core-check] ${step.label}`);
   const result = process.platform === 'win32'
     ? spawnSync(
       process.env.ComSpec || 'cmd.exe',
@@ -81,7 +81,7 @@ for (const step of steps) {
     )
     : spawnSync(step.command, step.args, { stdio: 'inherit' });
   if (result.error) {
-    console.error(`[phases-1-6-check] Falha ao executar ${step.label}:`, result.error.message);
+    console.error(`[gates-core-check] Falha ao executar ${step.label}:`, result.error.message);
     process.exit(1);
   }
   if (result.status !== 0) {
@@ -89,4 +89,4 @@ for (const step of steps) {
   }
 }
 
-console.log('\n[phases-1-6-check] As etapas 1 a 6 passaram na validacao oficial.');
+console.log('\n[gates-core-check] Os gates core passaram na validacao oficial.');

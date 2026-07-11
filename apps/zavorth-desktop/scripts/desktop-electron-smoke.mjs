@@ -1,6 +1,8 @@
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
 import http from 'node:http';
+import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron as electron } from 'playwright';
@@ -11,6 +13,7 @@ const electronExecutable = require('electron');
 const mainPath = resolve(root, 'electron', 'main.cjs');
 const receivedRuntimeActions = [];
 const receivedApiPaths = [];
+let marketplaceInstalled = false;
 
 function runtimeStateSnapshot() {
   return {
@@ -243,6 +246,40 @@ const server = http.createServer(async (req, res) => {
     res.end(JSON.stringify(data));
   };
 
+  const smokeSkill = {
+    id: 'smoke-marketplace-skill',
+    name: 'Smoke Marketplace Skill',
+    description: 'Exercises the Desktop marketplace fallback contract.',
+    author: 'Zavorth',
+    version: '1.0.0',
+    category: 'development',
+    tags: ['smoke'],
+    sourceUrl: 'https://example.invalid/smoke-marketplace-skill.git',
+    installed: marketplaceInstalled,
+  };
+  if (url.pathname === '/api/skills' && req.method === 'GET') {
+    send(200, { skills: marketplaceInstalled ? [smokeSkill] : [] });
+    return;
+  }
+  if (url.pathname === '/api/skills/marketplace' && req.method === 'GET') {
+    send(400, { error: 'SkillsMP key intentionally absent in smoke.' });
+    return;
+  }
+  if (url.pathname === '/api/marketplace/skills' && req.method === 'GET') {
+    send(200, { ok: true, skills: [smokeSkill] });
+    return;
+  }
+  if (url.pathname === '/api/skills/marketplace/install' && req.method === 'POST') {
+    send(503, { error: 'Primary marketplace intentionally unavailable in smoke.' });
+    return;
+  }
+  if (url.pathname === '/api/marketplace/skills' && req.method === 'POST') {
+    if (body.action === 'install') marketplaceInstalled = true;
+    if (body.action === 'uninstall') marketplaceInstalled = false;
+    send(200, { ok: true, message: 'Marketplace fallback applied.' });
+    return;
+  }
+
   if (url.pathname === '/api/experience/runtime-state/action' && req.method === 'POST') {
     receivedRuntimeActions.push(body);
     const base = runtimeStateSnapshot();
@@ -355,14 +392,16 @@ await new Promise((resolveListen) => {
   server.listen(0, '127.0.0.1', resolveListen);
 });
 const port = server.address().port;
+const userDataDir = mkdtempSync(resolve(tmpdir(), 'zavorth-desktop-smoke-'));
 
 const app = await electron.launch({
   executablePath: electronExecutable,
-  args: [mainPath],
+  args: [`--user-data-dir=${userDataDir}`, mainPath],
   cwd: root,
   env: {
     ...process.env,
     ZAVORTH_ROOT: resolve(root, '..', '..'),
+    ZAVORTH_HOME: userDataDir,
     ZAVORTH_WEB_HOST: '127.0.0.1',
     ZAVORTH_WEB_PORT: String(port),
     ZAVORTH_WEB_AUTH_TOKEN: randomBytes(36).toString('base64url'),
@@ -395,15 +434,27 @@ try {
     throw new Error(`Unexpected window title: ${title}`);
   }
 
+  const codeBridge = await window.evaluate(() => window.zavorthDesktop?.getCodeBridgeSummary?.());
+  if (!codeBridge || typeof codeBridge.label !== 'string' || !String(codeBridge.stateDir || '').trim()) {
+    throw new Error('Code Bridge IPC/preload contract is not operational.');
+  }
+  const codeBridgeButton = window.locator('.zvd-code-bridge-status').first();
+  await codeBridgeButton.click({ force: true });
+  await window.waitForSelector('.zvd-code-bridge-panel__frame', { timeout: 5000 });
+  await window.locator('.zvd-code-bridge-panel__close').click({ force: true });
+
   const statusbarItems = await window.locator('.zvd-statusbar button').count();
   if (statusbarItems < 4) {
     throw new Error(`Expected runtime statusbar controls, found ${statusbarItems}.`);
   }
 
   await window.getByTitle('Toggle terminal (Ctrl+J)').click({ force: true });
-  await window.waitForSelector('.zvd-terminal-panel', { timeout: 5000 });
-  // Unified terminal: Logs tab should be present.
-  await window.waitForSelector('.zvd-terminal-tabs', { timeout: 3000 });
+  await window.waitForSelector('.zvd-right-rail .zvd-terminal-tabs-panel', { timeout: 5000 });
+  // The terminal belongs to the persistent side rail; the floating overlay must stay gone.
+  await window.waitForSelector('.zvd-term-tab-strip', { timeout: 3000 });
+  if (await window.locator('.zvd-terminal-panel').count()) {
+    throw new Error('Legacy floating terminal is still mounted.');
+  }
   await waitForRuntimeAction('session', 'open');
 
   await window.getByTitle('Model settings').click({ force: true });
@@ -475,6 +526,19 @@ try {
   await window.locator('.zvd-detail-row', { hasText: 'Primary email' }).locator('button', { hasText: 'Connect Google' }).waitFor();
 
   // Product journey: workboard → sync push → settings update → receipt → voice
+  // Marketplace falls back to the local catalog when SkillsMP is not configured.
+  const marketplaceButton = window.locator('.zvd-sidebar-nav button[data-panel="marketplace"]').first();
+  if (!(await marketplaceButton.isVisible().catch(() => false))) {
+    await window.locator('.zvd-sidebar-more-toggle').click({ force: true }).catch(() => undefined);
+  }
+  await marketplaceButton.click({ force: true });
+  await window.getByText('Smoke Marketplace Skill').first().waitFor({ state: 'visible', timeout: 5000 });
+  await window.getByRole('button', { name: /Instalar|Install/i }).first().click({ force: true });
+  await window.getByText(/Instalada|Installed/i).first().waitFor({ state: 'visible', timeout: 8000 });
+  if (!receivedApiPaths.includes('POST /api/marketplace/skills')) {
+    throw new Error('Marketplace fallback mutation was not called.');
+  }
+
   await window.locator('.zvd-sidebar-nav button', { hasText: /Workboard/i }).click({ force: true });
   await window.waitForSelector('text=Workboard', { timeout: 5000 });
   const workboardBody = await window.locator('body').innerText();
@@ -496,9 +560,9 @@ try {
   await window.getByText(/Workboard sync/i).first().waitFor({ state: 'visible', timeout: 5000 }).catch(() => undefined);
   await window.getByRole('button', { name: /Open GitHub Releases|Install via Setup|Open Setup|GitHub/i }).first().waitFor({ state: 'visible', timeout: 5000 });
 
-  // Receipts should include the update check ledger entry
-  await window.locator('.zvd-sidebar-nav button', { hasText: /Receipts|Recibos/i }).click({ force: true });
-  await window.waitForSelector('text=Receipts', { timeout: 5000 });
+  // Proof should include the update check ledger entry.
+  await window.locator('.zvd-sidebar-nav button', { hasText: /Proof|Prova|Receipts|Recibos/i }).click({ force: true });
+  await window.waitForSelector('.zvd-proof-timeline, [data-panel="receipts"].is-active', { timeout: 5000 });
   const receiptsText = await window.locator('body').innerText();
   if (!/Receipt|Update check|No receipts yet|recibo/i.test(receiptsText)) {
     throw new Error('Receipts panel did not render after product journey.');
@@ -506,7 +570,7 @@ try {
 
   // Mic / voice affordance remains present for dictation + hotkey bridge
   await window.locator('.zvd-sidebar-nav button', { hasText: /Chat|Conversa/i }).click({ force: true });
-  await window.waitForSelector('.zvd-composer-icon-btn[aria-label*="Voice"]', { timeout: 5000 });
+  await window.getByRole('button', { name: /Voice|voz/i }).first().waitFor({ state: 'visible', timeout: 5000 });
 
   console.log(JSON.stringify({
     status: 'pass',
@@ -517,7 +581,8 @@ try {
       'electron-window',
       'renderer-loaded',
       'statusbar-present',
-      'bottom-terminal-toggle',
+      'code-bridge-heartbeat-ipc-ui',
+      'terminal-side-rail-toggle',
       'desktop-bridge-runtime-action',
       'gateway-model-control-action',
       'agents-effort-control-action',
@@ -528,6 +593,7 @@ try {
       'settings-skill-lifecycle-action',
       'settings-job-recovery-action',
       'settings-stream-resume-action',
+      'marketplace-read-and-install-fallback',
       'workboard-surface',
       'workboard-sync-action',
       'update-control-panel',
@@ -540,6 +606,7 @@ try {
 } finally {
   await app.close();
   await new Promise((resolveClose) => server.close(resolveClose));
+  rmSync(userDataDir, { recursive: true, force: true });
 }
 
 async function waitForRuntimeActionType(type) {

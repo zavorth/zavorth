@@ -23,23 +23,20 @@ export class SignalGateway extends WebhookGateway {
       webhookPath: '/api/webhooks/signal',
       doctorCommand: '/channels doctor signal',
       operatorNextStep: this.resolveConfigured()
-        ? 'Signal bridge configurado.'
-        : 'Defina SIGNAL_JSONRPC_URL ou SIGNAL_CLI_PATH para ativar.',
+        ? 'Signal live path ready (JSON-RPC and/or signal-cli).'
+        : 'Defina SIGNAL_JSONRPC_URL (+ account) ou SIGNAL_CLI_PATH.',
     };
   }
 
   public resolveConfigured(): boolean {
     return Boolean(
-      String(config.signalJsonRpcUrl || '').trim() ||
-      String(config.signalCliPath || '').trim()
+      String(config.signalJsonRpcUrl || '').trim()
+      || String(config.signalCliPath || '').trim(),
     );
   }
 
   public resolveEnabled(): boolean {
-    return Boolean(
-      String(config.signalJsonRpcUrl || '').trim() ||
-      String(config.signalCliPath || '').trim()
-    );
+    return this.resolveConfigured() || Boolean(config.signalEnabled);
   }
 
   protected resolveOutboxDir(): string {
@@ -50,6 +47,20 @@ export class SignalGateway extends WebhookGateway {
     return config.signalStatusFile;
   }
 
+  public override doctorSnapshot() {
+    const base = super.doctorSnapshot();
+    return {
+      ...base,
+      installHint: this.resolveConfigured()
+        ? 'Signal configured. Prefer JSON-RPC send for always-on bridge.'
+        : 'Set SIGNAL_JSONRPC_URL and SIGNAL_ALLOWED_RECIPIENTS.',
+      allowlist: {
+        ...base.allowlist,
+        recipientAllowlistConfigured: Array.isArray(config.signalAllowedRecipients) && config.signalAllowedRecipients.length > 0,
+      },
+    };
+  }
+
   protected extractInboundPayload(webhookPayload: Record<string, unknown>): {
     userId: string;
     chatId: string;
@@ -58,15 +69,46 @@ export class SignalGateway extends WebhookGateway {
     isGroup?: boolean;
     fields?: Record<string, unknown>;
   } | null {
-    const userId = String(webhookPayload.sender || webhookPayload.from || '');
-    const chatId = String(webhookPayload.chatId || webhookPayload.to || 'signal');
-    const rawText = String(webhookPayload.text || '').trim();
+    // signal-cli receive envelope: envelope.source / dataMessage.message
+    const envelope = webhookPayload.envelope && typeof webhookPayload.envelope === 'object'
+      ? webhookPayload.envelope as Record<string, unknown>
+      : webhookPayload;
+    const dataMessage = envelope.dataMessage && typeof envelope.dataMessage === 'object'
+      ? envelope.dataMessage as Record<string, unknown>
+      : null;
+    const userId = String(
+      envelope.source
+      || envelope.sourceNumber
+      || webhookPayload.sender
+      || webhookPayload.from
+      || '',
+    ).trim();
+    const groupInfo = dataMessage?.groupInfo && typeof dataMessage.groupInfo === 'object'
+      ? dataMessage.groupInfo as Record<string, unknown>
+      : null;
+    const chatId = String(
+      groupInfo?.groupId
+      || webhookPayload.chatId
+      || webhookPayload.to
+      || userId
+      || 'signal',
+    ).trim();
+    const rawText = String(
+      dataMessage?.message
+      || webhookPayload.text
+      || webhookPayload.message
+      || '',
+    ).trim();
     if (!rawText) return null;
     return {
       userId: userId || 'signal-user',
       chatId: chatId || 'signal',
       rawText,
-      isGroup: false,
+      messageId: String(envelope.timestamp || webhookPayload.messageId || '').trim() || null,
+      isGroup: Boolean(groupInfo?.groupId),
+      fields: {
+        account: String(config.signalAccountNumber || '').trim() || null,
+      },
     };
   }
 }

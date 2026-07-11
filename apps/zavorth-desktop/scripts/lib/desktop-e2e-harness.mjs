@@ -3,7 +3,9 @@
  */
 import { createRequire } from 'node:module';
 import { randomBytes } from 'node:crypto';
+import { mkdtempSync, rmSync } from 'node:fs';
 import http from 'node:http';
+import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { _electron as electron } from 'playwright';
@@ -192,13 +194,15 @@ export function createMockRuntimeServer() {
 export async function launchDesktopHarness(options = {}) {
   const mock = createMockRuntimeServer();
   const port = await mock.listen();
+  const userDataDir = mkdtempSync(resolve(tmpdir(), 'zavorth-desktop-e2e-'));
   const app = await electron.launch({
     executablePath: electronExecutable,
-    args: [mainPath],
+    args: [`--user-data-dir=${userDataDir}`, mainPath],
     cwd: root,
     env: {
       ...process.env,
       ZAVORTH_ROOT: resolve(root, '..', '..'),
+      ZAVORTH_HOME: userDataDir,
       ZAVORTH_WEB_HOST: '127.0.0.1',
       ZAVORTH_WEB_PORT: String(port),
       ZAVORTH_WEB_AUTH_TOKEN: randomBytes(36).toString('base64url'),
@@ -214,15 +218,18 @@ export async function launchDesktopHarness(options = {}) {
 
   await window.waitForSelector('.zvd-app', { timeout: options.timeoutMs || 20000 });
 
-  // Dismiss first-run onboarding so shell surfaces are reachable.
-  try {
-    const skip = window.locator('.zvd-onboarding-overlay button', { hasText: /Pular|Skip/i }).first();
-    if (await skip.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await skip.click({ force: true });
-      await window.waitForSelector('.zvd-onboarding-overlay', { state: 'detached', timeout: 5000 }).catch(() => undefined);
+  // Dismiss first-run onboarding so shell surfaces are reachable unless a visual
+  // check explicitly needs to capture the onboarding itself.
+  if (options.dismissOnboarding !== false) {
+    try {
+      const skip = window.locator('.zvd-onboarding-overlay button', { hasText: /Pular|Skip/i }).first();
+      if (await skip.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await skip.click({ force: true });
+        await window.waitForSelector('.zvd-onboarding-overlay', { state: 'detached', timeout: 5000 }).catch(() => undefined);
+      }
+    } catch {
+      // already onboarded
     }
-  } catch {
-    // already onboarded
   }
 
   await window.waitForSelector('.zvd-statusbar, .zvd-thread, .zvd-sidebar', { timeout: 8000 }).catch(() => undefined);
@@ -235,6 +242,7 @@ export async function launchDesktopHarness(options = {}) {
     async close() {
       await app.close().catch(() => undefined);
       await mock.close().catch(() => undefined);
+      rmSync(userDataDir, { recursive: true, force: true });
     },
   };
 }

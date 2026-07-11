@@ -30,7 +30,7 @@ type SatelliteDeviceLiveDescriptor = {
   gaps: string[];
 };
 
-const PHASE = 'Intent model1 - Satellite And Device Live Plane' as const;
+const PHASE = 'satellite-device-live-plane' as const;
 
 const TARGETS: SatelliteDeviceLiveDescriptor[] = [
   target(
@@ -105,7 +105,7 @@ export class SatelliteDeviceLivePlaneService {
     return {
       generatedAt: this.now().toISOString(),
       contractVersion: ZAVORTH_SATELLITE_DEVICE_LIVE_PLANE_CONTRACT_VERSION,
-      phase: PHASE,
+      gate: PHASE,
       status: blocked > 0 ? 'blocked' : 'closed',
       summary: {
         targets: 5,

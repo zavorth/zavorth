@@ -109,18 +109,18 @@ export class CapabilityAutopilotReceiptService {
     const capabilityLabel = parts.descriptor?.label || capabilityId;
     const surface = parts.surface || parts.resumeIntent?.surface || 'chat';
     const audience = parts.audience || parts.resumeIntent?.audience || 'everyday_user';
-    const phase = this.resolveStage(parts);
+    const stage = this.resolveStage(parts);
     const timeline = this.buildTimeline(parts, generatedAt);
 
     return {
       receiptId: this.buildReceiptId(capabilityId, generatedAt),
       generatedAt,
-      phase,
+      stage,
       surface,
       audience,
       capabilityId,
       capabilityLabel,
-      headline: this.buildHeadline(capabilityLabel, parts, phase, audience),
+      headline: this.buildHeadline(capabilityLabel, parts, stage, audience),
       userSummary: this.buildUserSummary(capabilityLabel, parts),
       technicalSummary: this.buildTechnicalSummary(capabilityLabel, parts),
       trustLevel: parts.repairPlan?.trustLevelRequired || 'protected',
@@ -132,7 +132,7 @@ export class CapabilityAutopilotReceiptService {
       resumeIntent: parts.resumeIntent || parts.repairPlan?.resumeIntent || null,
       timeline,
       metadata: {
-        phase: 'capability-autopilot-checkpoint-5',
+        gate: 'capability-autopilot-receipt',
         readOnly: true,
         receiptAudience: audience,
         receiptSurface: surface,
@@ -172,14 +172,14 @@ export class CapabilityAutopilotReceiptService {
   private buildHeadline(
     capabilityLabel: string,
     parts: CapabilityReceiptParts,
-    phase: CapabilityReceiptStage,
+    stage: CapabilityReceiptStage,
     audience: CapabilityAutopilotAudience,
   ): string {
     if (audience === 'technical_operator') {
-      return this.buildTechnicalHeadline(capabilityLabel, parts, phase);
+      return this.buildTechnicalHeadline(capabilityLabel, parts, stage);
     }
 
-    switch (phase) {
+    switch (stage) {
       case 'completed':
         return `${capabilityLabel} esta pronto.`;
       case 'resume':
@@ -203,12 +203,12 @@ export class CapabilityAutopilotReceiptService {
   private buildTechnicalHeadline(
     capabilityLabel: string,
     parts: CapabilityReceiptParts,
-    phase: CapabilityReceiptStage,
+    stage: CapabilityReceiptStage,
   ): string {
     const readiness = parts.readiness?.status || 'n/a';
     const failure = parts.diagnosis?.failureKind || 'n/a';
     const plan = parts.repairPlan?.status || 'n/a';
-    return `${capabilityLabel}: phase=${phase}; readiness=${readiness}; failure=${failure}; plan=${plan}`;
+    return `${capabilityLabel}: stage=${stage}; readiness=${readiness}; failure=${failure}; plan=${plan}`;
   }
 
   private buildUserSummary(
@@ -350,14 +350,14 @@ export class CapabilityAutopilotReceiptService {
 
   private timeline(
     at: string,
-    phase: CapabilityReceiptStage,
+    stage: CapabilityReceiptStage,
     status: CapabilityReceiptTimelineEntry['status'],
     summary: string,
     detail?: string | null,
   ): CapabilityReceiptTimelineEntry {
     return {
       at,
-      phase,
+      stage,
       status,
       summary,
       detail: detail || null,

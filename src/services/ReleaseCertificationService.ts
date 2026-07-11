@@ -57,11 +57,11 @@ export class ReleaseCertificationService {
     const status = this.resolveStatus({ blockingFailures, failed, warned, waived });
     const releaseReady = status === 'certified';
     const nextStage = operational.summary.p0Gaps > 0
-      ? 'Etapa 10 - P0 Gap Closure'
+      ? 'P0 Gap Closure'
       : operational.summary.p1Gaps > 2
-        ? 'Etapa 12 - Native Capability Closure'
+        ? 'Native Capability Closure'
         : operational.summary.p1Gaps > 0 || operational.summary.p2Gaps > 0
-          ? 'Etapa 13 - Remaining Runtime Decisions'
+          ? 'Remaining Runtime Decisions'
         : 'Release certification profile hardening';
 
     return {

@@ -80,7 +80,7 @@ const rules = [
   ruleContainsAll({
     id: 'capability-packs-package-scripts',
     label: 'Capability Packs package scripts exist',
-    target: 'npm scripts expose pack catalog CLI and phase gate',
+    target: 'npm scripts expose pack catalog CLI and gate',
     files: ['package.json'],
     needles: [
       'capability-packs',

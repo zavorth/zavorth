@@ -9,7 +9,7 @@ describe('ZavorthTemporalAutonomyDailyUseCertificationService', () => {
     const snapshot = await service.buildSnapshot();
 
     expect(snapshot.status).toBe('certified');
-    expect(snapshot.phase).toBe('checkpoint-8-certification-and-daily-use-gate');
+    expect(snapshot.gate).toBe('checkpoint-8-certification-and-daily-use-gate');
     expect(snapshot.summary).toMatchObject({
       matrixAreas: 7,
       passedMatrixAreas: 7,

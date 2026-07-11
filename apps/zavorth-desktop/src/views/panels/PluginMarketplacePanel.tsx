@@ -57,6 +57,8 @@ export type PluginItem = {
   featured?: boolean;
   lastUpdated?: string;
   tags?: string[];
+  skillMdContent?: string;
+  sourceUrl?: string;
 };
 
 export type PluginMarketplacePanelProps = {

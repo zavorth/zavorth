@@ -85,6 +85,9 @@ type BuildMetricsSnapshot = (sessionId: string) => Promise<Record<string, unknow
 type ExecuteLearningAction = (input: {
   candidateId: string;
   actionId: 'approve' | 'reject' | 'promote' | 'forget' | 'promoteProcedure' | 'promoteSkill';
+  approvalId?: string | null;
+  requestedBy?: string | null;
+  sourceSurface?: string | null;
 }) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null;
 type SearchLayeredMemory = (input: {
   sessionId: string;

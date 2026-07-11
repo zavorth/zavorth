@@ -97,7 +97,7 @@ export class ArtifactReplayWorkbenchService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '43',
+      gate: 'artifact-replay',
       surface: 'artifact-replay-workbench',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -127,8 +127,8 @@ export class ArtifactReplayWorkbenchService {
         gate: 'npm run qa:artifact-workbench',
         replayLearning: 'npm run ops:replay-learning',
       },
-      nextRecommendedPhase: {
-        phase: '44',
+      nextRecommendedGate: {
+        gate: 'release-ux-wizard',
         title: 'Release UX',
         reason:
           'Depois de tornar artifacts e replay navegaveis, o proximo passo da ordem combinada e transformar publish, rollback e changelog em um fluxo guiado.',
@@ -137,11 +137,11 @@ export class ArtifactReplayWorkbenchService {
   }
 
   public async renderReport(snapshotOrInput: ArtifactReplayWorkbenchSnapshot | { limit?: number } = {}): Promise<string> {
-    const snapshot = 'phase' in snapshotOrInput
+    const snapshot = 'status' in snapshotOrInput && 'checks' in snapshotOrInput
       ? snapshotOrInput
       : await this.buildSnapshot(snapshotOrInput);
     const lines: string[] = [];
-    lines.push('[artifact-workbench] Etapa 43 - Artifact And Replay Workbench');
+    lines.push('[artifact-workbench] Artifact And Replay Workbench');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`artifacts=${snapshot.summary.indexedArtifacts} reusable=${snapshot.summary.reusableArtifacts} compare=${snapshot.summary.compareCandidates} learning=${snapshot.summary.learningMarks} exports=${snapshot.summary.evidenceExports}`);
@@ -160,8 +160,8 @@ export class ArtifactReplayWorkbenchService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 

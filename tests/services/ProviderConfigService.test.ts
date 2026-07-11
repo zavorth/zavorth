@@ -1,6 +1,6 @@
 import { ProviderConfigService } from '../../src/services/ProviderConfigService';
 
-describe('ProviderConfigService Security Tests (Phase 21H)', () => {
+describe('ProviderConfigService Security Tests', () => {
   let service: ProviderConfigService;
 
   beforeAll(() => {

@@ -108,7 +108,7 @@ export class ZavorthDelegatedWorkerBridgeService {
       contractVersion: ZAVORTH_DELEGATED_WORKER_BRIDGE_CONTRACT_VERSION,
       status,
       planId: 'Zavorth External Runtime Integration',
-      phase: 'delegated-workers',
+      gate: 'delegated-workers',
       previousSessionMemoryStatus,
       workerDescriptors,
       delegatedTaskEnvelope,

@@ -3,6 +3,14 @@ import type { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { DesktopAutomationTool } from '../tools/DesktopAutomationTool.js';
 import fs from 'fs';
 import { logger } from '../logger.js';
+import { decideSecurityPolicy } from '../security/SecurityPolicyBroker.js';
+import {
+  OperatorContinuityKernel,
+  decisionFromBroker,
+  digestOperatorPayload,
+  resultFromToolOutcome,
+  type OperatorContinuityEnvelope,
+} from '../runtime/operator/OperatorContinuityEnvelope.js';
 import { asErrorLike } from '../utils/errorLike';
 
 export type ComputerUseAction = {
@@ -12,6 +20,12 @@ export type ComputerUseAction = {
   payload?: string;
   reasoning?: string;
 };
+
+const COMPUTER_USE_READ_ONLY_ACTIONS = new Set([
+  'screenshot',
+  'list-elements',
+  'focus-window',
+]);
 
 export type ComputerUseAgentHooks = {
   onScreenshot?: (input: {
@@ -79,17 +93,29 @@ export class ComputerUseAgent extends EventEmitter {
   private error: string | null = null;
   private stopRequested = false;
 
-  private readonly desktopTool = new DesktopAutomationTool();
+  private readonly desktopTool: Pick<DesktopAutomationTool, 'execute'>;
+  private readonly continuityKernel: OperatorContinuityKernel;
+  private lastContinuityEnvelope: OperatorContinuityEnvelope | null = null;
   private pauseRequested = false;
   private resumePromise: Promise<void> | null = null;
   private resumeResolver: (() => void) | null = null;
 
   constructor(
     private readonly llmRuntime: LlmRuntimeService,
-    private readonly config: { delayMs?: number } = {},
+    private readonly config: {
+      delayMs?: number;
+      desktopTool?: Pick<DesktopAutomationTool, 'execute'>;
+      continuityKernel?: OperatorContinuityKernel;
+    } = {},
   ) {
     super();
     this.maxIterations = 25;
+    this.desktopTool = config.desktopTool || new DesktopAutomationTool();
+    this.continuityKernel = config.continuityKernel || new OperatorContinuityKernel();
+  }
+
+  public getLastContinuityEnvelope(): OperatorContinuityEnvelope | null {
+    return this.lastContinuityEnvelope;
   }
 
   public getSnapshot(): ComputerUseSnapshot {
@@ -144,7 +170,7 @@ export class ComputerUseAgent extends EventEmitter {
         this.emit('agent:iteration', { iteration: this.iteration });
 
         // Step 1: screenshot the target window.
-        const screenshotResult = await this.desktopTool.execute({
+        const screenshotResult = await this.executeDesktopAction({
           action: 'screenshot',
           windowTitle: this.targetWindow,
         });
@@ -186,7 +212,7 @@ export class ComputerUseAgent extends EventEmitter {
         }
 
         // Step 4: execute the action.
-        const actionResult = await this.desktopTool.execute({
+        const actionResult = await this.executeDesktopAction({
           action: nextAction.action,
           windowTitle: nextAction.windowTitle || this.targetWindow,
           targetText: nextAction.targetText || '',
@@ -322,6 +348,101 @@ If the objective has already been reached, return: {"action": "done", "reasoning
     } catch (error: unknown) {logger.warn('[Computer Use Agent] JSON parse failed', error);
     return { action: 'done', reasoning: 'Failed to parse LLM response, stopping for safety.' };
   }
+  }
+
+  private async executeDesktopAction(args: {
+    action: string;
+    windowTitle?: string;
+    targetText?: string;
+    payload?: string;
+  }): Promise<string> {
+    const action = String(args.action || '').trim() || 'unknown';
+    const readOnly = COMPUTER_USE_READ_ONLY_ACTIONS.has(action);
+    const sealed = await this.continuityKernel.runMutation({
+      request: {
+        surface: 'desktop-automation',
+        operation: readOnly ? 'computer-use.observe' : 'computer-use.mutate',
+        target: action,
+        sourceSurface: 'computer-use-agent',
+        argsDigest: digestOperatorPayload({
+          action,
+          windowTitle: args.windowTitle || null,
+          hasTargetText: Boolean(args.targetText),
+          payloadLength: args.payload ? String(args.payload).length : 0,
+          iteration: this.iteration,
+        }),
+        metadata: {
+          objective: this.objective,
+          targetWindow: this.targetWindow,
+          iteration: this.iteration,
+        },
+      },
+      correlation: {
+        runId: this.startedAt,
+        toolCallId: `computer-use-${this.iteration}-${action}`,
+      },
+      decide: () => decisionFromBroker(decideSecurityPolicy({
+        surface: 'desktop-automation',
+        operation: readOnly ? 'computer-use.observe' : 'computer-use.mutate',
+        target: action,
+        sourceTrust: 'trusted-user',
+        metadata: {
+          sourceSurface: 'computer-use-agent',
+          objective: this.objective,
+          targetWindow: this.targetWindow,
+          iteration: this.iteration,
+        },
+        toolDecision: {
+          action: 'allow',
+          allowed: true,
+          risk: readOnly ? 'safe' : 'review',
+          toolName: 'computer_use_desktop',
+          surface: 'native-tool',
+          capabilities: readOnly ? ['desktop', 'local-observation'] : ['desktop'],
+          requiresConfirmation: false,
+          reasons: [
+            readOnly
+              ? 'Computer Use observation is sealed by operator continuity.'
+              : 'Computer Use mutation is sealed by operator continuity after explicit enablement.',
+          ],
+          rule: 'COMPUTER_USE_DESKTOP_CONTINUITY',
+        },
+        reasons: [
+          'Computer Use desktop tool execution was sealed by the operator continuity kernel.',
+        ],
+      })),
+      execute: async () => this.desktopTool.execute({
+        action: args.action,
+        windowTitle: args.windowTitle,
+        targetText: args.targetText,
+        payload: args.payload,
+      }),
+      mapResult: (output) => {
+        const failed = /^(error|erro)\b/i.test(String(output || '').trim());
+        return resultFromToolOutcome({
+          ok: !failed,
+          status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),
+          summary: failed
+            ? `Computer Use action "${action}" failed.`
+            : `Computer Use action "${action}" completed.`,
+          output,
+          data: {
+            action,
+            iteration: this.iteration,
+          },
+        });
+      },
+    });
+
+    this.lastContinuityEnvelope = sealed.envelope;
+    if (sealed.value === undefined) {
+      throw new Error(
+        sealed.envelope.result?.summary
+        || sealed.envelope.decision?.reasons.join(' ')
+        || `Computer Use action "${action}" blocked by continuity policy.`,
+      );
+    }
+    return String(sealed.value);
   }
 
   private extractScreenshotPath(result: string): string | null {

@@ -42,7 +42,6 @@ const CORE_PACKAGE_SCRIPTS = [
   'website:build',
   'website:public',
   'qa:website-public',
-  'qa:stage:46',
 ] as const;
 
 export class WebsitePublicContractService {
@@ -92,7 +91,7 @@ export class WebsitePublicContractService {
     const passed = checks.filter((check) => check.status === 'pass').length;
 
     return {
-      phase: '46',
+      gate: 'website-public',
       surface: 'website-public',
       generatedAt: this.now().toISOString(),
       status: failed > 0 ? 'blocked' : warnings > 0 ? 'attention' : 'ready',
@@ -119,8 +118,8 @@ export class WebsitePublicContractService {
       screenshots: WEBSITE_PUBLIC_SCREENSHOTS,
       forbiddenClaims: [...WEBSITE_PUBLIC_FORBIDDEN_CLAIMS],
       checks,
-      nextRecommendedPhase: {
-        phase: '47',
+      nextRecommendedGate: {
+        gate: 'public-demo',
         title: 'Public Demo And Guided Story',
         reason:
           'Com a landing real protegida por build, links, narrativa e screenshots, o proximo passo e provar a promessa em uma demo publica fixture-first.',
@@ -130,7 +129,7 @@ export class WebsitePublicContractService {
 
   public renderReport(snapshot: WebsitePublicContractSnapshot = this.buildSnapshot()): string {
     const lines: string[] = [];
-    lines.push('[website-public] Etapa 46 - Website/Landing Real');
+    lines.push('[website-public] Website/Landing Real');
     lines.push(`status: ${snapshot.status}`);
     lines.push(`ok: ${snapshot.summary.ok ? 'yes' : 'no'} | pass=${snapshot.summary.passed} warn=${snapshot.summary.warnings} fail=${snapshot.summary.failed}`);
     lines.push(`website: ${snapshot.websiteRoot}`);
@@ -144,8 +143,8 @@ export class WebsitePublicContractService {
       }
     }
     lines.push('');
-    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedPhase.phase} - ${snapshot.nextRecommendedPhase.title}`);
-    lines.push(snapshot.nextRecommendedPhase.reason);
+    lines.push(`proximo passo recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
 
@@ -206,7 +205,7 @@ export class WebsitePublicContractService {
         `script canonico ${scriptName}`,
         command ? 'pass' : 'fail',
         command
-          ? `repo principal expoe "${scriptName}" para a Etapa 46.`
+          ? `repo principal expoe "${scriptName}" para o gate website-public.`
           : `repo principal precisa expor "${scriptName}" no package.json.`,
         'package.json',
         [`script=${command || '<ausente>'}`],
@@ -299,7 +298,7 @@ export class WebsitePublicContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'copy publica cobre produto, local-first, approvals, evidencia, replay e opt-in.'
-        : 'copy publica ainda nao cobre toda a narrativa minima da Etapa 46.',
+        : 'copy publica ainda nao cobre toda a narrativa minima do website publico.',
       undefined,
       missing.map((phrase) => `faltando: ${phrase}`),
     );
