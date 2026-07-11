@@ -2446,8 +2446,8 @@ async function runMcpJsonRpcSequence(command: string, methods: string[], cwd: st
       child.kill();
       resolve({ ok: false, responses, durationMs: Date.now() - startedAt, error: 'mcp-timeout' });
     }, timeoutMs);
-    child.stderr.on('data', (chunk) => { stderr += String(chunk); });
-    child.stdout.on('data', (chunk) => {
+    child.stderr?.on('data', (chunk) => { stderr += String(chunk); });
+    child.stdout?.on('data', (chunk) => {
       stdout = Buffer.concat([stdout, Buffer.from(chunk)]);
       const parsed = parseMcpFrames(stdout);
       stdout = parsed.remaining;
@@ -2471,7 +2471,7 @@ async function runMcpJsonRpcSequence(command: string, methods: string[], cwd: st
         ? { jsonrpc: '2.0', id: nextId, method, params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'zavorth-cli', version: '1' } } }
         : { jsonrpc: '2.0', id: nextId, method, params: {} };
       nextId += 1;
-      child.stdin.write(encodeMcpFrame(payload));
+      child.stdin?.write(encodeMcpFrame(payload));
     }
   });
 }
