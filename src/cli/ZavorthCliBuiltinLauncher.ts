@@ -150,12 +150,12 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   if (
     command === 'proof'
     || command === 'proof-ledger'
-    || command === 'proof-os'
+    || command === 'trust-loop'
   ) {
     return runProofLedgerCli(restArgs);
   }
 
-  // Proof OS approval presentation facade (does not replace premium approve flow).
+  // Trust Loop approval presentation facade (does not replace premium approve flow).
   if (
     command === 'approval-presentation'
     || command === 'approval-os'
@@ -176,7 +176,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runRiskBudgetCli(restArgs);
   }
 
-  // Proof OS change preview / counterfactual product face.
+  // Trust Loop change preview / counterfactual product face.
   if (
     command === 'change-preview'
     || command === 'preview-change'

@@ -1,5 +1,5 @@
 /**
- * Hermetic golden-path service smoke for Proof OS trust loop.
+ * Hermetic golden-path service smoke for Trust Loop.
  * No external network. Uses temp dirs for file-backed adapters.
  *
  * Run via: npx tsx scripts/zavorth-golden-path-smoke.ts

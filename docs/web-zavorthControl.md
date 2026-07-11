@@ -108,15 +108,15 @@ manually.
 - blocked actions and the reason;
 - artifacts and receipts.
 
-## Proof OS language (Control shell)
+## Trust Loop language (Control shell)
 
-The browser Control Vite shell keeps the same Proof OS language as Desktop:
+The browser Control Vite shell keeps the same Trust Loop language as Desktop:
 
-- **Proof list** — recent receipt/run projections (`data-proof-os-list`), not a second agent timeline;
+- **Proof list** — recent receipt/run projections (`data-trust-loop-list`), not a second agent timeline;
 - **Risk budget** — mode + counters chip (`data-risk-budget-chip`); frozen budgets stay visible;
 - **Honesty badges** — readiness states are `live` | `catalog` | `needs_setup` | `blocked` | `unknown`.
 
-Catalog readiness must never render as live. Labels stay explicit: "Live", "Catalog only", "Needs setup", "Blocked". Optional client cache key: `zavorth.control.proof-os.v1`. Satellite remains a thin companion and must not grow into a second Control/agent surface.
+Catalog readiness must never render as live. Labels stay explicit: "Live", "Catalog only", "Needs setup", "Blocked". Optional client cache key: `zavorth.control.trust-loop.v1`. Satellite remains a thin companion and must not grow into a second Control/agent surface.
 
 ## Compatibility
 

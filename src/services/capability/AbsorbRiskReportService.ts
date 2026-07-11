@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Absorb Risk Report — operator UX for safe capability install under quarantine.
  *
  * Builds a preview risk report from Universal Capability Fabric snapshots
@@ -678,7 +678,7 @@ function defaultNextSafeAction(input: {
 }
 
 /**
- * Map absorb CLI outcome to a Proof OS action.
+ * Map absorb CLI outcome to a Trust Loop action.
  *
  * Rules:
  * - deny receipts always count as reject (policy blocked the candidate set)

@@ -1,5 +1,5 @@
 /**
- * Proof OS unified receipt ledger CLI.
+ * Trust Loop unified receipt ledger CLI.
  *
  *   zavorth proof
  *   zavorth proof list [--kind ...] [--status ...] [--limit N] [--json]
@@ -42,11 +42,11 @@ function printHelp(): void {
   const i18n = getI18nService({
     locale: resolveFromEnv(process.env) || undefined,
   });
-  const ledgerTitle = i18n.t('proof-os.proof.ledger', {
+  const ledgerTitle = i18n.t('trust-loop.proof.ledger', {
     fallback: 'Proof ledger',
   });
   console.log([
-    `${paintCliBadge('PROOF OS', 'brand')} ${paintCliTone(`Zavorth ${ledgerTitle}`, 'brand')}`,
+    `${paintCliBadge('TRUST LOOP', 'brand')} ${paintCliTone(`Zavorth ${ledgerTitle}`, 'brand')}`,
     paintCliTone('Unified receipt / evidence projection facade.', 'muted'),
     paintCliTone('Does not replace desktop receipts, agent evidence store, or AI-first ledgers.', 'muted'),
     '',

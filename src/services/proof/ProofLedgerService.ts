@@ -1,5 +1,5 @@
 /**
- * Proof OS unified receipt ledger service.
+ * Trust Loop unified receipt ledger service.
  *
  * Facade/projection over existing receipt systems. In-memory by default;
  * optional JSONL file adapter for local CLI persistence.

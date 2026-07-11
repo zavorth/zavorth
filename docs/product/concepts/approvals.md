@@ -105,7 +105,7 @@ zavorth receipts --json   # machine-readable output
 
 This makes Zavorth safe to use for anything important. You always know what it did and when.
 
-## Proof OS presentation model
+## Trust Loop presentation model
 
 Approvals follow a single product lifecycle across surfaces (Desktop cards, CLI, Control, ACP, runtime leases):
 
@@ -119,7 +119,7 @@ Request → Scope → Lease → Decision → Receipt
 | **Scope** | Subject, workspace, channel, tool, and allowed operations are bound |
 | **Lease** | A time-boxed grant may be issued (see approval-leases) |
 | **Decision** | Operator chooses approve / deny / defer (or revoke / expire) |
-| **Receipt** | Outcome is logged as a Proof OS event (`kind=approval`) |
+| **Receipt** | Outcome is logged as a Trust Loop event (`kind=approval`) |
 
 The **presentation layer** unifies card shapes for UI without replacing existing systems:
 
@@ -139,7 +139,7 @@ zavorth approval format-lease --json
 zavorth proof list --kind approval
 ```
 
-Contract version: `2026-07-11.proof-os-approval-v1`  
+Contract version: `2026-07-11.trust-loop-approval-v1`
 (`src/contracts/approval/ApprovalPresentationContract.ts`)
 
 ## Related

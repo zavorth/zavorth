@@ -1,7 +1,7 @@
-# Golden Path (Proof OS Trust Loop)
+# Golden Path (Trust Loop)
 
 The **golden path** is a hermetic, single-command gate that proves the core
-Zavorth Proof OS trust loop without live network:
+Zavorth Trust Loop without live network:
 
 **seed/setup path → plan/preview → approval → receipt/proof → optional forget → honesty checks.**
 
@@ -13,7 +13,7 @@ remains required before release.
 
 | Stage | Coverage |
 | --- | --- |
-| Unit gate | Critical Jest suites for proof, approval, risk budget, change preview, honesty readiness, memory privacy, and Control Proof OS model |
+| Unit gate | Critical Jest suites for proof, approval, risk budget, change preview, honesty readiness, memory privacy, and Control Trust Loop model |
 | Proof ledger | Append demo event, list, markdown export title |
 | Approval | `fromLooseRequest` + `recordDecision` with in-memory proof ledger |
 | Risk budget | Temp state file; observer mode blocks disk spend |
@@ -48,7 +48,7 @@ When `.zavorth/` exists, the runner best-effort writes
 
 | Gate | Purpose | Speed | Network |
 | --- | --- | --- | --- |
-| **Golden path** | Hermetic Proof OS trust loop | Fast (target &lt; 3 min) | None |
+| **Golden path** | Hermetic Trust Loop | Fast (target &lt; 3 min) | None |
 | **Product certification** (`qa:zavorth-product-certification`) | Full user-facing readiness: agent kernel, channels, HUD, streaming E2E, release scan, etc. | Longer | May include live/canary steps where configured |
 
 **Full product certification is still required for release.** Golden path does
@@ -95,7 +95,7 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm ci
-      - name: Hermetic Proof OS golden path
+      - name: Hermetic Trust Loop golden path
         run: npm run qa:zavorth-golden-path
         env:
           CI: '1'

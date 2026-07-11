@@ -1,5 +1,5 @@
 /**
- * Desktop bridge for Proof OS unified ledger events.
+ * Desktop bridge for Trust Loop unified ledger events.
  *
  * Thin pure mappers so ReceiptsPanel (DesktopReceipt[]) can consume
  * projected ProofEvent shapes without pulling Node-only ledger I/O.

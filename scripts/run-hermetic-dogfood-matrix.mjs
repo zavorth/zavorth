@@ -233,9 +233,10 @@ async function evaluate(id) {
       return r.ok ? ['pass', 'loopback mutation token required'] : ['fail', 'access'];
     }
     case 'dogfood.rejection.06':
-      return exists('src', 'services', 'SkillMcpQuarantineService.ts')
-        || exists('dist', 'services', 'SkillMcpQuarantineService.js')
-        ? ['pass', 'skill quarantine service present']
+      return exists('src', 'runtime', 'agent', 'SkillMcpQuarantineService.ts')
+        || exists('dist', 'runtime', 'agent', 'SkillMcpQuarantineService.js')
+        || exists('src', 'cli', 'ZavorthCliSkillMcpQuarantineRenderer.ts')
+        ? ['pass', 'skill/MCP quarantine service present']
         : ['blocked', 'quarantine service not found'];
     case 'dogfood.receipts.01':
     case 'dogfood.receipts.02':
@@ -246,7 +247,7 @@ async function evaluate(id) {
     case 'dogfood.receipts.07':
     case 'dogfood.receipts.08': {
       const r = cached('golden', () => npmRun('qa:zavorth-golden-path'));
-      return r.ok ? ['pass', 'proof OS golden path'] : ['fail', 'golden'];
+      return r.ok ? ['pass', 'Trust Loop golden path'] : ['fail', 'golden'];
     }
     case 'dogfood.memory.01':
     case 'dogfood.memory.02':

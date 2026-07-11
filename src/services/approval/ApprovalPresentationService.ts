@@ -2,7 +2,7 @@
  * Unified approval presentation service (product face).
  *
  * Facade over approval-leases and loose desktop/control shapes.
- * Optionally emits Proof OS events (kind=approval) via ProofLedgerService.
+ * Optionally emits Trust Loop events (kind=approval) via ProofLedgerService.
  */
 
 import {

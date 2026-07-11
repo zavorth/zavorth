@@ -5,9 +5,9 @@ description: "Latest updates and improvements to Zavorth."
 
 # What's New
 
-## Proof OS — July 2026
+## Trust Loop — July 2026
 
-User-visible Proof OS and trust-loop improvements shipped for operators and daily use:
+User-visible Trust Loop improvements shipped for operators and daily use:
 
 - **Proof ledger CLI** — Inspect and export auditable events with `zavorth proof` (list, show, export, demo ingest).
 - **Approvals presentation** — Unified request → scope → lease → decision → receipt cards across CLI and surfaces.
@@ -18,7 +18,7 @@ User-visible Proof OS and trust-loop improvements shipped for operators and dail
 - **Absorb risk report** — Capability absorb previews report risk, quarantine, and blocked issues before apply.
 - **Migration profiles** — Workspace import detects structured profiles and reports migration posture honestly.
 - **Memory privacy** — Demo seed, forget, and proof of forget flows keep memory consent-aware.
-- **Golden path + i18n check** — Hermetic Proof OS gate (`npm run qa:zavorth-golden-path`) and locale completeness (`npm run i18n:check`), plus release hardening (`npm run qa:zavorth-release-hardening`).
+- **Golden path + i18n check** — Hermetic Trust Loop gate (`npm run qa:zavorth-golden-path`) and locale completeness (`npm run i18n:check`), plus release hardening (`npm run qa:zavorth-release-hardening`).
 
 ## v2.0 — June 2026
 - Multi-tab documentation structure

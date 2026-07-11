@@ -142,7 +142,7 @@ zavorth connectors doctor
 zavorth demo browser
 ```
 
-Static Proof OS visual demo (approve → receipt):
+Static Trust Loop visual demo (approve → receipt):
 
 - path: `assets/zavorth-demo/index.html`
 - website mirror: `/demo` on zavorth-website
@@ -153,7 +153,7 @@ Maintainer smoke for this path:
 npm run zavorth:demo:check
 ```
 
-Also see [public-demo-proof-os.md](./product/public-demo-proof-os.md) and [golden-path.md](./product/golden-path.md).
+Also see [public-demo-trust-loop.md](./product/public-demo-trust-loop.md) and [golden-path.md](./product/golden-path.md).
 
 ## Smoke
 

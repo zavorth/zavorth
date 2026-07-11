@@ -6,7 +6,7 @@
  */
 
 export const WORKSPACE_MIGRATION_PROFILE_CONTRACT_VERSION =
-  '2026-07-11.proof-os-migration-v1' as const;
+  '2026-07-11.trust-loop-migration-v1' as const;
 
 export type WorkspaceMigrationProfileId =
   | 'auto'

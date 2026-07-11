@@ -66,7 +66,7 @@ zavorth import-workspace ./home --include-secret-like --apply --consent
 2. **Apply requires `--consent`** (or `--yes`).
 3. Secret-like items stay held unless explicitly included.
 4. Executable plugins / MCP remain held or disabled until higher-trust enable.
-5. Optional Proof OS receipt is appended for the migration report (`system` / `marketplace` kind); use `--no-proof` to skip.
+5. Optional Trust Loop receipt is appended for the migration report (`system` / `marketplace` kind); use `--no-proof` to skip.
 
 ## Related
 

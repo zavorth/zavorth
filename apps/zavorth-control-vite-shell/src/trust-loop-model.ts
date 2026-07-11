@@ -1,48 +1,48 @@
 /**
- * Control shell Proof OS pure model.
- * Single source: monorepo `src/services/control/ControlProofOsModel.ts`.
+ * Control shell Trust Loop pure model.
+ * Single source: monorepo `src/services/control/ControlTrustLoopModel.ts`.
  * Browser-safe re-export + localStorage helpers for the Vite shell.
  */
 
 export {
-  CONTROL_PROOF_OS_CACHE_KEY,
-  CONTROL_PROOF_OS_CACHE_VERSION,
+  CONTROL_TRUST_LOOP_CACHE_KEY,
+  CONTROL_TRUST_LOOP_CACHE_VERSION,
   buildRiskBudgetView,
   classifyControlReadiness,
   formatProofLine,
   formatRiskBudgetLine,
   normalizeProofEvents,
-  parseProofOsCache,
+  parseTrustLoopCache,
   readHonestBoolean,
   riskBudgetModeLabel,
   sanitizeCachedReadinessBadge,
   selectLatestProof,
-  serializeProofOsCache,
+  serializeTrustLoopCache,
   type ControlProofEvent,
   type ControlProofEventKind,
   type ControlProofEventStatus,
-  type ControlProofOsCache,
+  type ControlTrustLoopCache,
   type ControlReadinessBadge,
   type ControlReadinessState,
   type ControlRiskBudgetMode,
   type ControlRiskBudgetView,
-} from '../../../src/services/control/ControlProofOsModel';
+} from '../../../src/services/control/ControlTrustLoopModel';
 
 import {
-  CONTROL_PROOF_OS_CACHE_KEY,
+  CONTROL_TRUST_LOOP_CACHE_KEY,
   buildRiskBudgetView,
   classifyControlReadiness,
   normalizeProofEvents,
-  parseProofOsCache,
+  parseTrustLoopCache,
   selectLatestProof,
-  serializeProofOsCache,
+  serializeTrustLoopCache,
   type ControlProofEvent,
-  type ControlProofOsCache,
+  type ControlTrustLoopCache,
   type ControlReadinessBadge,
   type ControlRiskBudgetView,
-} from '../../../src/services/control/ControlProofOsModel';
+} from '../../../src/services/control/ControlTrustLoopModel';
 
-export type ProofOsPanelModel = {
+export type TrustLoopPanelModel = {
   proofs: ControlProofEvent[];
   riskBudget: ControlRiskBudgetView | null;
   readinessItems?: ControlReadinessBadge[];
@@ -63,34 +63,34 @@ function resolveStorage(storage?: StorageLike | null): StorageLike | null {
   return null;
 }
 
-/** Read optional Proof OS cache from localStorage. */
-export function readProofOsCache(storage?: StorageLike | null): ControlProofOsCache | null {
+/** Read optional Trust Loop cache from localStorage. */
+export function readTrustLoopCache(storage?: StorageLike | null): ControlTrustLoopCache | null {
   const store = resolveStorage(storage);
   if (!store) return null;
   try {
-    const raw = store.getItem(CONTROL_PROOF_OS_CACHE_KEY);
+    const raw = store.getItem(CONTROL_TRUST_LOOP_CACHE_KEY);
     if (!raw) return null;
-    return parseProofOsCache(JSON.parse(raw));
+    return parseTrustLoopCache(JSON.parse(raw));
   } catch {
     // Corrupt JSON / poisoned payload → fail closed (no cache).
     return null;
   }
 }
 
-/** Persist Proof OS model snapshot for offline/honest fallback. */
-export function writeProofOsCache(
-  model: ProofOsPanelModel,
+/** Persist Trust Loop model snapshot for offline/honest fallback. */
+export function writeTrustLoopCache(
+  model: TrustLoopPanelModel,
   storage?: StorageLike | null,
 ): boolean {
   const store = resolveStorage(storage);
   if (!store) return false;
   try {
-    const payload = serializeProofOsCache({
+    const payload = serializeTrustLoopCache({
       proofs: model.proofs,
       riskBudget: model.riskBudget,
       readinessItems: model.readinessItems,
     });
-    store.setItem(CONTROL_PROOF_OS_CACHE_KEY, JSON.stringify(payload));
+    store.setItem(CONTROL_TRUST_LOOP_CACHE_KEY, JSON.stringify(payload));
     return true;
   } catch {
     return false;
@@ -207,9 +207,9 @@ export function buildControlReadinessItems(input: {
  * - Explicit empty live proofs/runs stay empty (do not resurrect poisoned cache proofs).
  * - Explicit riskBudgetState / readinessItems win over cache.
  * - Cache only fills dimensions that were not provided by the caller.
- * - parseProofOsCache already demotes cached "live" badges.
+ * - parseTrustLoopCache already demotes cached "live" badges.
  */
-export function composeProofOsPanelModel(input: {
+export function composeTrustLoopPanelModel(input: {
   proofs?: unknown[];
   runs?: unknown[];
   riskBudgetState?: unknown;
@@ -217,7 +217,7 @@ export function composeProofOsPanelModel(input: {
   useCacheFallback?: boolean;
   storage?: StorageLike | null;
   latest?: number;
-} = {}): ProofOsPanelModel {
+} = {}): TrustLoopPanelModel {
   const proofsProvided = Array.isArray(input.proofs) || Array.isArray(input.runs);
   const riskBudgetProvided = Object.prototype.hasOwnProperty.call(input, 'riskBudgetState');
   const readinessProvided = Array.isArray(input.readinessItems);
@@ -234,7 +234,7 @@ export function composeProofOsPanelModel(input: {
     const needReadiness = !readinessProvided && !readinessItems?.length;
 
     if (needProofs || needBudget || needReadiness) {
-      const cached = readProofOsCache(input.storage);
+      const cached = readTrustLoopCache(input.storage);
       if (cached) {
         if (needProofs) proofs = cached.proofs;
         if (needBudget) riskBudget = cached.riskBudget;
@@ -246,11 +246,11 @@ export function composeProofOsPanelModel(input: {
   }
 
   proofs = selectLatestProof(proofs, input.latest ?? 12);
-  const model: ProofOsPanelModel = {
+  const model: TrustLoopPanelModel = {
     proofs,
     riskBudget,
     readinessItems,
   };
-  writeProofOsCache(model, input.storage);
+  writeTrustLoopCache(model, input.storage);
   return model;
 }

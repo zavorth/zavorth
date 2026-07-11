@@ -93,7 +93,7 @@ export function formatScopeLine(scope: Partial<ApprovalPresentationScope> | null
 }
 
 /**
- * Map approval-lease riskClass to Proof OS risk levels.
+ * Map approval-lease riskClass to Trust Loop risk levels.
  * Lease `safe` → proof `none`; `unknown` → proof `none` (ProofRiskLevel has no unknown).
  */
 export function mapLeaseRiskToProofRisk(

@@ -1,5 +1,5 @@
 /**
- * Q5 — Control Proof OS golden path (automated):
+ * Q5 — Control Trust Loop golden path (automated):
  * Live-like snapshot → proof list + risk chip + honesty badges → panel HTML + cache.
  *
  * Hermetic stand-in for manual Control browser open of the Proof panel.
@@ -11,15 +11,15 @@ import {
   formatRiskBudgetLine,
   normalizeProofEvents,
   selectLatestProof,
-} from '../../src/services/control/ControlProofOsModel.js';
+} from '../../src/services/control/ControlTrustLoopModel.js';
 import {
   buildControlReadinessItems,
-  composeProofOsPanelModel,
-} from '../../apps/zavorth-control-vite-shell/src/proof-os-model.js';
+  composeTrustLoopPanelModel,
+} from '../../apps/zavorth-control-vite-shell/src/trust-loop-model.js';
 import {
-  renderProofOsPanelHtml,
-  renderProofOsChromeHtml,
-} from '../../apps/zavorth-control-vite-shell/src/proof-os-ui.js';
+  renderTrustLoopPanelHtml,
+  renderTrustLoopChromeHtml,
+} from '../../apps/zavorth-control-vite-shell/src/trust-loop-ui.js';
 
 function memoryStorage(seed: Record<string, string> = {}) {
   const map = new Map(Object.entries(seed));
@@ -34,7 +34,7 @@ function memoryStorage(seed: Record<string, string> = {}) {
   };
 }
 
-describe('Q5 Control Proof OS golden loop', () => {
+describe('Q5 Control Trust Loop golden loop', () => {
   it('mounts proof list + risk chip from live snapshot without catalog→live lies', () => {
     const storage = memoryStorage();
 
@@ -90,7 +90,7 @@ describe('Q5 Control Proof OS golden loop', () => {
     expect(classifyControlReadiness({ liveReady: true }).state).toBe('live');
     expect(classifyControlReadiness({ configured: true, liveReady: false }).state).not.toBe('live');
 
-    const model = composeProofOsPanelModel({
+    const model = composeTrustLoopPanelModel({
       proofs: liveProofs,
       riskBudgetState,
       readinessItems,
@@ -106,20 +106,20 @@ describe('Q5 Control Proof OS golden loop', () => {
     expect(formatRiskBudgetLine(model.riskBudget)).not.toMatch(/FROZEN/i);
 
     // XSS-safe HTML mount (string contract)
-    const panelHtml = renderProofOsPanelHtml(model);
-    expect(panelHtml).toContain('data-proof-os-panel');
+    const panelHtml = renderTrustLoopPanelHtml(model);
+    expect(panelHtml).toContain('data-trust-loop-panel');
     expect(panelHtml).toContain('data-risk-budget-chip');
-    expect(panelHtml).toContain('data-proof-os-list');
+    expect(panelHtml).toContain('data-trust-loop-list');
     expect(panelHtml).toMatch(/Chat receipt|Disk write approved/);
     // Escaped: no raw script from titles
     expect(panelHtml).not.toContain('<script');
 
-    const chromeHtml = renderProofOsChromeHtml(model);
-    expect(chromeHtml).toContain('data-proof-os-chrome');
+    const chromeHtml = renderTrustLoopChromeHtml(model);
+    expect(chromeHtml).toContain('data-trust-loop-chrome');
     expect(chromeHtml).toContain('data-risk-budget-chip');
 
     // Cache round-trip: empty live proofs stay empty (no poison resurrection)
-    const emptyLive = composeProofOsPanelModel({
+    const emptyLive = composeTrustLoopPanelModel({
       proofs: [],
       runs: [],
       riskBudgetState: null,
@@ -131,7 +131,7 @@ describe('Q5 Control Proof OS golden loop', () => {
     expect(emptyLive.proofs).toEqual([]);
 
     // Cache still available for dimensions not provided
-    const cacheOnly = composeProofOsPanelModel({
+    const cacheOnly = composeTrustLoopPanelModel({
       useCacheFallback: true,
       storage,
     });

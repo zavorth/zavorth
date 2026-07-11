@@ -1,6 +1,6 @@
 # Release Hardening (P15)
 
-Ship confidence for Zavorth Proof OS and the wider monorepo: **feature preservation**, **public identity clean**, and **gates documented + partially automated**.
+Ship confidence for Zavorth Trust Loop and the wider monorepo: **feature preservation**, **public identity clean**, and **gates documented + partially automated**.
 
 This package does **not** force full product certification (that remains `qa:zavorth-product-certification`). It is a focused pre-ship gate.
 
@@ -9,20 +9,20 @@ This package does **not** force full product certification (that remains `qa:zav
 - **Zero intentional removals** of product features (chat, approvals, receipts, absorb, import, mnemos, channels honesty, certification matrix, demo, desktop panels).
 - Public identity surfaces stay Zavorth-native (`identity:public`).
 - Historical phase plans stay under `docs/archive/` only — not as live public stubs.
-- Golden path proves the hermetic Proof OS trust loop; full product certification is still required before a formal release.
+- Golden path proves the hermetic Trust Loop; full product certification is still required before a formal release.
 
 ## Checklist (master plan §15)
 
 | # | Check | How |
 | --- | --- | --- |
 | 1 | i18n completeness (en-US + pt-BR product namespaces) | `npm run i18n:check` |
-| 2 | Golden path (Proof OS trust loop) | `npm run qa:zavorth-golden-path` |
+| 2 | Golden path (Trust Loop) | `npm run qa:zavorth-golden-path` |
 | 3 | Public identity clean | `npm run identity:public` |
 | 4 | Surface syntax / packaging sanity | `npm run surfaces:check` |
 | 5 | Governance docs present | `SECURITY.md`, `CONTRIBUTING.md` |
 | 6 | Archive + golden-path docs present | `docs/archive/README.md`, `docs/product/golden-path.md` |
 | 7 | No public phase-plan stubs | e.g. `docs/CLI-VISUAL-OVERHAUL-PLAN.md` must not exist outside archive |
-| 8 | Proof OS modules present | ledger, approval presentation, risk budget, change preview, memory privacy, honesty, golden path script |
+| 8 | Trust Loop modules present | ledger, approval presentation, risk budget, change preview, memory privacy, honesty, golden path script |
 | 9 | Feature preservation inventory | chat, approvals, receipts, absorb, import, mnemos, channels honesty, cert matrix, demo, desktop panels |
 
 ## Commands
@@ -84,7 +84,7 @@ On success the runner best-effort writes `.zavorth/release-hardening-last.json`.
 
 **Note: zero intentional removals.** Release hardening only *verifies* these surfaces still exist. It does not delete, retire, or feature-flag them off.
 
-## Proof OS modules (static inventory)
+## Trust Loop modules (static inventory)
 
 | Module | Path |
 | --- | --- |
@@ -101,7 +101,7 @@ On success the runner best-effort writes `.zavorth/release-hardening-last.json`.
 | Gate | Role |
 | --- | --- |
 | **Release hardening** (`qa:zavorth-release-hardening`) | Pre-ship confidence: i18n, identity, surfaces, docs hygiene, feature inventory, optional/full golden path |
-| **Golden path** (`qa:zavorth-golden-path`) | Hermetic Proof OS unit + smoke trust loop |
+| **Golden path** (`qa:zavorth-golden-path`) | Hermetic Trust Loop unit + smoke |
 | **Product certification** (`qa:zavorth-product-certification`) | Full user-facing readiness (heavier; still required for formal release) |
 
 ## Related docs

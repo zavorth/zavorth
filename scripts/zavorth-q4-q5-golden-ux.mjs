@@ -3,7 +3,7 @@
  * Q4 + Q5 — Golden UX gates (automated stand-ins for manual Desktop/Control loops).
  *
  * Q4: Desktop vitest goldenTrustLoop.q4 (+ home/proof/next-action units)
- * Q5: Jest GoldenControlProofOs.q5 (+ ProofOsModel)
+ * Q5: Jest GoldenControlTrustLoop.q5 (+ TrustLoopModel)
  * Also re-runs hermetic product golden-path for spine confidence.
  *
  * Exit non-zero on any failure. No live Electron/browser required.
@@ -70,15 +70,15 @@ function runNpx(npxArgs, opts = {}) {
   );
 }
 
-// Q5 — Control Proof OS panel + risk chip
+// Q5 — Control Trust Loop panel + risk chip
 {
   const t0 = Date.now();
   const result = runNpx(
     [
       'jest',
-      'tests/control/GoldenControlProofOs.q5.test.ts',
-      'tests/control/ProofOsModel.test.ts',
-      'tests/control/ProofOsUi.xss.test.ts',
+      'tests/control/GoldenControlTrustLoop.q5.test.ts',
+      'tests/control/TrustLoopModel.test.ts',
+      'tests/control/TrustLoopUi.xss.test.ts',
       '--runInBand',
       '--no-coverage',
     ],
@@ -86,9 +86,9 @@ function runNpx(npxArgs, opts = {}) {
   );
   const ok = result.status === 0;
   record(
-    'q5-control-proof-os',
+    'q5-control-trust-loop',
     ok,
-    ok ? 'Control Proof OS + risk chip + XSS' : (result.stderr || result.stdout || 'jest failed').slice(0, 400),
+    ok ? 'Control Trust Loop + risk chip + XSS' : (result.stderr || result.stdout || 'jest failed').slice(0, 400),
     Date.now() - t0,
   );
 }
@@ -103,7 +103,7 @@ function runNpx(npxArgs, opts = {}) {
   record(
     'golden-path-spine',
     ok,
-    ok ? 'hermetic Proof OS spine' : (result.stderr || result.stdout || 'golden-path failed').slice(0, 400),
+    ok ? 'hermetic Trust Loop spine' : (result.stderr || result.stdout || 'golden-path failed').slice(0, 400),
     Date.now() - t0,
   );
 }

@@ -1,5 +1,5 @@
 /**
- * Change Preview CLI (Proof OS counterfactual product face).
+ * Change Preview CLI (Trust Loop counterfactual product face).
  *
  *   zavorth change-preview
  *   zavorth change-preview demo
@@ -41,7 +41,7 @@ function readOption(args: string[], name: string): string | null {
 
 function printHelp(): void {
   console.log([
-    `${paintCliBadge('CHANGE PREVIEW', 'brand')} ${paintCliTone('Zavorth Change Preview (Proof OS)', 'brand')}`,
+    `${paintCliBadge('CHANGE PREVIEW', 'brand')} ${paintCliTone('Zavorth Change Preview (Trust Loop)', 'brand')}`,
     paintCliTone('Counterfactual / "If you approve, what changes?" product face.', 'muted'),
     paintCliTone('Productizes ImpactSimulatorService + UniversalPreviewModeService.', 'muted'),
     paintCliTone('Never claims a full world twin when data is insufficient.', 'muted'),
@@ -95,7 +95,7 @@ export async function runChangePreviewCli(rawArgs: string[] = []): Promise<numbe
 
   if (!first || first.startsWith('--') || first === 'status' || first === 'summary') {
     console.log(`${renderCliWordmarkStrip()} ${paintCliTone('Change preview', 'muted')}`);
-    console.log(paintCliTone('Change Preview (Proof OS)', 'brand'));
+    console.log(paintCliTone('Change Preview (Trust Loop)', 'brand'));
     console.log(`  contract: ${CHANGE_PREVIEW_CONTRACT_VERSION}`);
     console.log('  honesty: never claims a full world twin without plan + impact data');
     console.log('');
