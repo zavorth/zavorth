@@ -63,6 +63,17 @@ describe('quality bar — readiness honesty', () => {
     const blocked = classifyReadiness({ blocked: true, reason: 'policy' });
     expect(blocked.state).toBe('blocked');
   });
+
+  it('never grants live from status-only strings (available/ready/ok/healthy/active)', () => {
+    for (const status of ['available', 'ready', 'ok', 'healthy', 'active', 'live', 'connected', 'trusted']) {
+      const badge = classifyReadiness({ status });
+      expect(badge.state, `status=${status}`).not.toBe('live');
+      expect(badge.tone, `status=${status}`).not.toBe('ready');
+    }
+    // Explicit liveReady is the only live path.
+    expect(classifyReadiness({ status: 'available', liveReady: true }).state).toBe('live');
+    expect(classifyReadiness({ status: 'ready', liveReady: false }).state).not.toBe('live');
+  });
 });
 
 describe('quality bar — brand & density tokens', () => {

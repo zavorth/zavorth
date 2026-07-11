@@ -41,7 +41,10 @@ export type CommandCenterGroup = {
 
 export type CommandCenterInput = {
   settingsGroups: SettingsModuleGroup[];
+  /** Providers present in catalog / configured list (not proof of live). */
   providerCount?: number;
+  /** Providers with live proof — only this may label the action as Live. */
+  providerLiveCount?: number;
   mcpServerCount?: number;
   automationCount?: number;
   sessionCount?: number;
@@ -258,10 +261,19 @@ export function buildCommandCenterItems(input: CommandCenterInput): CommandCente
     {
       id: 'providers:add',
       category: 'Power',
-      title: input.providerCount ? 'Manage providers' : 'Add provider',
-      subtitle: input.providerCount ? `${input.providerCount} provider(s) connected` : 'Connect OpenAI, local or compatible providers',
+      // Honesty: never bare "Ready" from catalog count alone.
+      title: input.providerLiveCount || input.providerCount ? 'Manage providers' : 'Add provider',
+      subtitle: input.providerLiveCount
+        ? `${input.providerLiveCount} provider(s) live`
+        : input.providerCount
+          ? `${input.providerCount} provider(s) in catalog`
+          : 'Connect OpenAI, local or compatible providers',
       keywords: ['provider', 'modelo', 'api key', 'llm', 'openai', 'local'],
-      statusLabel: input.providerCount ? 'Ready' : 'Needs setup',
+      statusLabel: input.providerLiveCount
+        ? 'Live'
+        : input.providerCount
+          ? 'Catalog only'
+          : 'Needs setup',
       action: { type: 'settings', tab: 'providers' },
     },
     {

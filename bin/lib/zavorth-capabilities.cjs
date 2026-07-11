@@ -172,6 +172,13 @@ const CAPABILITY_DEFS = [
   { command: 'cancel', cluster: 'operator', strategy: 'delegated', summary: 'Cancel work' },
   { command: 'mock-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
   { command: 'proof', aliases: ['proof-ledger', 'proof-os'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Proof OS unified receipt ledger (list/show/export)' },
+  {
+    command: 'memory-privacy',
+    aliases: ['memory-privacy-os', 'privacy-memory'],
+    cluster: 'channels-memory',
+    strategy: 'delegated',
+    summary: 'Memory Privacy OS — what it remembers, why, forget with proof',
+  },
 
   // Meta
   { command: 'capabilities', aliases: ['caps'], cluster: 'setup-health', strategy: 'native', summary: 'List product terminal capabilities' },

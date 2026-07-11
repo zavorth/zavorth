@@ -90,24 +90,24 @@ export function CockpitDashboard({
     );
   }
 
-  // Determine Overall Status
-  const isProviderConfigured = !!runtimeCapabilities?.providers?.connected?.length;
-  const activeProvider = runtimeCapabilities?.providers?.selectedModelId ? runtimeCapabilities.providers.selectedModelId : 'None';
-  const isRuntimeReady = status.running && isProviderConfigured && trusted;
+  // Honesty (P11): connected list + runtime running is an operational signal,
+  // not bare "Ready/Live" without an explicit liveReady proof boolean.
+  const hasConnectedProvider = !!runtimeCapabilities?.providers?.connected?.length;
+  const isOperational = status.running && hasConnectedProvider && trusted;
 
   let overallStatus: 'success' | 'warning' | 'error' = 'warning';
   let overallTitle = 'Zavorth: Modo Restrito';
   let overallMessage = 'The agent is operating under strict policies. Every command outside the workspace requires manual approval.';
 
-  if (isRuntimeReady) {
+  if (isOperational) {
     overallStatus = 'success';
-    overallTitle = 'Zavorth: Pronto para Operar';
-    overallMessage = 'Workspace confiável e provedor de IA ativo. O agente está pronto para realizar tarefas.';
+    overallTitle = 'Zavorth: Runtime online';
+    overallMessage = 'Workspace trusted, runtime running, and a provider connection is present. Live capability still depends on provider health checks.';
   } else if (!trusted) {
     overallStatus = 'error';
     overallTitle = 'Untrusted Workspace';
     overallMessage = 'To enable the agent natively and safely, you need to trust this workspace.';
-  } else if (!isProviderConfigured) {
+  } else if (!hasConnectedProvider) {
     overallStatus = 'warning';
     overallTitle = 'Aguardando Provedor de IA';
     overallMessage = 'Nenhuma chave de API ou provedor de IA configurado. Configure um provedor nas abas para iniciar.';

@@ -31,6 +31,7 @@ import {
 } from './ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './RiskBudgetCli.js';
 import { runChangePreviewCli } from './ChangePreviewCli.js';
+import { runMemoryPrivacyCli } from './MemoryPrivacyCli.js';
 
 // Shared infrastructure imports
 import {
@@ -182,6 +183,15 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'what-changes'
   ) {
     return runChangePreviewCli(restArgs);
+  }
+
+  // Memory Privacy OS (Mnemos product narrative — does not replace dream/forget engine).
+  if (
+    command === 'memory-privacy'
+    || command === 'memory-privacy-os'
+    || command === 'privacy-memory'
+  ) {
+    return runMemoryPrivacyCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

@@ -76,8 +76,20 @@ From the ZavorthControl dashboard, you can browse memory, promote or demote entr
 
 Sensitive values are referenced by name, never stored in full.
 
+## Memory Privacy OS
+
+For the product face that answers *What does it remember? Why? Forget it* — with proof events on forget — see [Memory Privacy OS](/docs/product/concepts/memory-privacy). That layer sits on top of Mnemos/dream/forget without replacing the engine.
+
+```bash
+zavorth memory-privacy seed-demo
+zavorth memory-privacy list
+zavorth memory-privacy explain <id>
+zavorth memory-privacy forget <id> --yes
+```
+
 ## Related
 
+- [Memory Privacy OS](/docs/product/concepts/memory-privacy)
 - [Approvals](/docs/product/concepts/approvals)
 - [Skills](/docs/product/skills)
 - [ZavorthControl](/docs/product/interfaces/zavorthcontrol)
