@@ -9,6 +9,9 @@
  *  - delegated  → internal agent runtime (dist/zavorth-cli.js)
  *  - coding     → Code TUI / yargs owns these
  *
+ * Offline first-contact (no capability token): printProductHelp / printProductVersion
+ * handle bare invoke, --help/-h/help, and --version/-V without ensuring Code TUI.
+ *
  * Inventory: docs/product/cli-capabilities.md
  */
 
@@ -171,6 +174,8 @@ const CAPABILITY_DEFS = [
   { command: 'retry', cluster: 'operator', strategy: 'delegated', summary: 'Retry work' },
   { command: 'cancel', cluster: 'operator', strategy: 'delegated', summary: 'Cancel work' },
   { command: 'mock-gateway', cluster: 'operator', strategy: 'delegated', summary: 'Mock gateway helper' },
+  // Proof OS product commands — always delegated to agent runtime (builtin CLI),
+  // never fall through to Code TUI ensure/download.
   { command: 'proof', aliases: ['proof-ledger', 'proof-os'], cluster: 'approvals-trust', strategy: 'delegated', summary: 'Proof OS unified receipt ledger (list/show/export)' },
   {
     command: 'memory-privacy',
@@ -178,6 +183,41 @@ const CAPABILITY_DEFS = [
     cluster: 'channels-memory',
     strategy: 'delegated',
     summary: 'Memory Privacy OS — what it remembers, why, forget with proof',
+  },
+  {
+    command: 'absorb',
+    aliases: ['capability-absorb', 'capabilities-absorb', 'fetch-capability'],
+    cluster: 'operator',
+    strategy: 'delegated',
+    summary: 'Absorb skill/plugin/MCP under quarantine with risk report',
+  },
+  {
+    command: 'import-workspace',
+    aliases: ['workspace-import', 'universal-import'],
+    cluster: 'operator',
+    strategy: 'delegated',
+    summary: 'Universal workspace import + optional migration profiles',
+  },
+  {
+    command: 'risk-budget',
+    aliases: ['riskbudget'],
+    cluster: 'approvals-trust',
+    strategy: 'delegated',
+    summary: 'Risk Budget OS — observer / operator / autopilot ceilings',
+  },
+  {
+    command: 'change-preview',
+    aliases: ['preview-change', 'what-changes'],
+    cluster: 'approvals-trust',
+    strategy: 'delegated',
+    summary: 'Counterfactual change preview before approve',
+  },
+  {
+    command: 'approval',
+    aliases: ['approval-presentation', 'approval-os'],
+    cluster: 'approvals-trust',
+    strategy: 'delegated',
+    summary: 'Proof OS approval presentation (list/decide)',
   },
 
   // Meta
@@ -1564,6 +1604,97 @@ function printPanel(title, lines) {
 }
 
 /**
+ * Read product version from package.json (offline; no network / no Code ensure).
+ * @param {string} [projectRoot]
+ * @returns {string}
+ */
+function readProductVersion(projectRoot) {
+  const root = path.resolve(projectRoot || defaultProjectRoot());
+  try {
+    const raw = fs.readFileSync(path.join(root, 'package.json'), 'utf8');
+    const pkg = JSON.parse(raw);
+    if (pkg && typeof pkg.version === 'string' && pkg.version.trim()) {
+      return pkg.version.trim();
+    }
+  } catch {
+    // ignore
+  }
+  return '0.0.0';
+}
+
+/**
+ * Offline product version for `zavorth --version` / `-V` (no Code TUI ensure).
+ * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv }} [opts]
+ * @returns {number}
+ */
+function printProductVersion(opts) {
+  const projectRoot = path.resolve((opts && opts.projectRoot) || defaultProjectRoot());
+  process.stdout.write(`${readProductVersion(projectRoot)}\n`);
+  return 0;
+}
+
+/**
+ * Offline product home/help for bare `zavorth` and `--help`/`-h`/`help`.
+ * Uses the native capabilities inventory; never downloads or ensures Code binaries.
+ * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv, kind?: 'home'|'help' }} [opts]
+ * @returns {number}
+ */
+function printProductHelp(opts) {
+  const projectRoot = path.resolve((opts && opts.projectRoot) || defaultProjectRoot());
+  const kind = opts && opts.kind === 'home' ? 'home' : 'help';
+  const version = readProductVersion(projectRoot);
+  const clusters = [
+    'setup-health',
+    'models-providers',
+    'channels-memory',
+    'approvals-trust',
+    'operator',
+  ];
+
+  /** @type {string[]} */
+  const lines = [
+    `Zavorth ${version} — local-first governed AI agent runtime`,
+    '',
+    'Usage:',
+    '  zavorth                     product home (offline; no Code download)',
+    '  zavorth <command> [args]    product capability',
+    '  zavorth code [args]         open Code TUI (may ensure binary)',
+    '  zavorth --help | -h | help  this help',
+    '  zavorth --version | -V      print product version',
+    '',
+    'Getting started:',
+    '  zavorth doctor              diagnose terminal readiness',
+    '  zavorth setup               configure providers / trust',
+    '  zavorth providers           provider status',
+    '  zavorth home                short status + next step',
+    '  zavorth capabilities        full terminal command list',
+    '  zavorth open                open Control panel URL',
+    '',
+    'Code TUI (explicit):',
+    '  zavorth code                coding shell',
+    '  zavorth code --version      Code TUI version (ensure OK)',
+    '',
+    'Capabilities by cluster (native | hybrid | delegated):',
+  ];
+
+  for (const cluster of clusters) {
+    const cmds = listCapabilitiesByCluster(/** @type {CapabilityCluster} */ (cluster))
+      .map((d) => d.command)
+      .join(', ');
+    if (cmds) lines.push(`  [${cluster}] ${cmds}`);
+  }
+
+  lines.push('');
+  lines.push('More: zavorth capabilities   ·   docs/product/cli-capabilities.md');
+  if (kind === 'home') {
+    lines.push('Tip:  zavorth code   opens the coding shell when you want the TUI.');
+  }
+
+  printPanel(kind === 'home' ? 'Zavorth' : 'Zavorth help', lines);
+  return 0;
+}
+
+/**
  * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv }} [opts]
  */
 async function runNativeStatus(opts) {
@@ -1594,15 +1725,16 @@ async function runNativeStatus(opts) {
 async function runNativeHome(opts) {
   const snap = await collectHealthSnapshot(opts);
   const lines = [
-    snap.ready ? 'Terminal ready (Code TUI is the default shell).' : 'Terminal not fully ready.',
+    snap.ready ? 'Terminal ready.' : 'Terminal not fully ready.',
     `Next: ${snap.nextAction}`,
     '',
     'Daily:',
-    '  zavorth              open Code TUI',
-    '  zavorth doctor       health checks',
-    '  zavorth providers    provider status (native summary)',
-    '  zavorth setup        configure providers / trust',
-    '  zavorth capabilities list terminal commands',
+    '  zavorth                 product home / help (offline)',
+    '  zavorth code            open Code TUI',
+    '  zavorth doctor          health checks',
+    '  zavorth providers       provider status (native summary)',
+    '  zavorth setup           configure providers / trust',
+    '  zavorth capabilities    list terminal commands',
   ];
   printPanel('Zavorth home', lines);
   return 0;
@@ -2517,7 +2649,7 @@ function runNativeCapabilities(rest) {
     }
     lines.push('');
   }
-  lines.push('Public entry: zavorth  → Code TUI (default) or capability above');
+  lines.push('Public entry: zavorth → product home; zavorth code → Code TUI; or capability above');
   lines.push('hybrid = bare summary native; positional subcommands → agent runtime');
   lines.push('Delegated rows use the internal agent runtime build when needed.');
   printPanel('Zavorth capabilities', lines.filter((l, i, a) => !(l === '' && a[i - 1] === '')));
@@ -2830,11 +2962,92 @@ async function runNativeHost(rest, opts) {
  * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv, exit?: boolean }} [opts]
  * @returns {Promise<number>}
  */
+/** Proof OS commands that must never fall through to LLM chat or Code TUI. */
+const PROOF_OS_COMMANDS = new Set([
+  'proof',
+  'proof-ledger',
+  'proof-os',
+  'memory-privacy',
+  'memory-privacy-os',
+  'privacy-memory',
+  'absorb',
+  'capability-absorb',
+  'capabilities-absorb',
+  'fetch-capability',
+  'import-workspace',
+  'workspace-import',
+  'universal-import',
+  'risk-budget',
+  'riskbudget',
+  'change-preview',
+  'preview-change',
+  'what-changes',
+  'approval',
+  'approval-presentation',
+  'approval-os',
+]);
+
+/**
+ * Prefer src CLI via tsx when dist is stale/missing Proof OS handlers.
+ * Falls back to dist agent runtime.
+ * @param {string} command
+ * @param {string[]} rest
+ * @param {{ projectRoot?: string, env?: NodeJS.ProcessEnv, exit?: boolean }} [opts]
+ * @returns {number}
+ */
+function runProofOsCli(command, rest, opts) {
+  const projectRoot = path.resolve((opts && opts.projectRoot) || defaultProjectRoot());
+  const env = (opts && opts.env) || process.env;
+  const shouldExit = !opts || opts.exit !== false;
+  const args = [command, ...(Array.isArray(rest) ? rest : [])];
+
+  const tsxCli = path.join(projectRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs');
+  const tsEntry = path.join(projectRoot, 'src', 'zavorth-cli.ts');
+  const distCli = path.join(projectRoot, 'dist', 'zavorth-cli.js');
+
+  /** @type {{ file: string, argv: string[] } | null} */
+  let launch = null;
+  if (fs.existsSync(tsxCli) && fs.existsSync(tsEntry)) {
+    launch = { file: process.execPath, argv: [tsxCli, tsEntry, ...args] };
+  } else if (fs.existsSync(distCli)) {
+    launch = { file: process.execPath, argv: [distCli, ...args] };
+  }
+
+  if (!launch) {
+    process.stderr.write(
+      'Proof OS CLI unavailable (need node_modules/tsx + src/zavorth-cli.ts, or dist/zavorth-cli.js).\n',
+    );
+    if (shouldExit) process.exit(1);
+    return 1;
+  }
+
+  const result = spawnSync(launch.file, launch.argv, {
+    cwd: process.cwd(),
+    env: {
+      ...env,
+      ZAVORTH_PUBLIC_CLI: '1',
+      ZAVORTH_CAPABILITY_DELEGATED: command,
+    },
+    stdio: 'inherit',
+    windowsHide: false,
+  });
+  const code = result && typeof result.status === 'number' ? result.status : 1;
+  if (shouldExit) process.exit(code);
+  return code;
+}
+
 async function runDelegated(def, rest, opts) {
   const projectRoot = path.resolve((opts && opts.projectRoot) || defaultProjectRoot());
   const env = (opts && opts.env) || process.env;
   const shouldExit = !opts || opts.exit !== false;
   const notice = env.ZAVORTH_CAPABILITY_NOTICE === '1' || env.ZAVORTH_CAPABILITY_NOTICE === 'true';
+
+  // Proof OS: always run dedicated CLI (tsx/src preferred over stale dist).
+  if (PROOF_OS_COMMANDS.has(def.command) || PROOF_OS_COMMANDS.has(String(def.command || '').toLowerCase())) {
+    if (notice) process.stderr.write(`[capability] ${def.command} → proof-os cli\n`);
+    return runProofOsCli(def.command, rest, opts);
+  }
+
   if (notice) process.stderr.write(`[capability] ${def.command} → agent runtime\n`);
   const { launchAgentRuntime } = require('./launch-agent-runtime.cjs');
   const ret = launchAgentRuntime([def.command, ...rest], {
@@ -2924,6 +3137,9 @@ module.exports = {
   setupPreferencePath,
   writeSetupLocalEnvKey,
   readEnvFileSilent,
+  readProductVersion,
+  printProductVersion,
+  printProductHelp,
   runNativeSetupApply,
   runNativeSetupToken,
   runNativeInspect,

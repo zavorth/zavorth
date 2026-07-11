@@ -18,6 +18,8 @@
 | Shared monorepo helper | `src/services/honesty/ReadinessHonesty.ts` | **Added** — same rules; keep in sync with desktop |
 | Control Proof OS | `src/services/control/ControlProofOsModel.ts` (`classifyControlReadiness`) | **Already honest** — live only via `liveReady`; covered by `tests/control/ProofOsModel.test.ts` |
 | Command Center providers label | `apps/zavorth-desktop/src/command-center/commandCenter.ts` | **Fixed** — `Live` / `Catalog only` / `Needs setup` (never bare Ready from count) |
+| Command Center `providerLiveCount` wiring | `apps/zavorth-desktop/src/shell/DesktopShell.tsx` | **Fixed** — from `runtimeCapabilities.providers.connected` |
+| Skills panel / view | `SkillsPanel.tsx`, `SkillsView.tsx` | **Fixed** — badges via `readinessFromTool`; Live tab requires live state |
 | Cockpit dashboard | `apps/zavorth-desktop/src/components/CockpitDashboard.tsx` | **Reviewed** — no longer claims “Pronto/Ready”; operational signal uses “Runtime online” + connection present, not bare Live |
 
 ## Labels to prefer
@@ -31,12 +33,12 @@
 
 ## Tests
 
-- Desktop: `apps/zavorth-desktop/tests/qualityBar.test.ts`, `trustShip.test.ts`
+- Desktop: `apps/zavorth-desktop/tests/qualityBar.test.ts`, `trustShip.test.ts`, `commandCenterHonesty.test.ts`, `constellationLayout.test.ts`
 - Monorepo: `tests/services/honesty/ReadinessHonesty.test.ts`
 - Control: `tests/control/ProofOsModel.test.ts`
 
 ## Remaining risks
 
-- Other desktop panels may still hard-code tone maps (e.g. Skills panel status → `ready` tone) outside `readiness.ts`. Prefer routing all badges through honesty helpers.
-- Settings modules may still show “active”/“ready” module status from counts — operational chrome, not the readiness badge path.
-- Wire `providerLiveCount` into Command Center input from runtime when live provider proofs are available; until then counts stay “Catalog only”.
+- Settings modules may still show operational counts (e.g. “N active”) — chrome, not Live certification of provider health checks.
+- WorkspaceRuntimeReadinessCard uses API workspace flags (`ready` boolean for provider/model/autonomy/policy) — separate from catalog Live badges.
+- Desktop UI still hard-codes many English strings in components; monorepo YAML (`proof-os.honesty.*`) is the product-namespace source of truth for CLI/control.

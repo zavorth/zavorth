@@ -285,22 +285,30 @@ export class WorkspaceMigrationProfileService {
     const profileId: WorkspaceMigrationProfileId =
       requested === 'auto' ? detected.profileId : requested;
 
+    // Forced profile that matches detection earns high confidence; mismatch is capped (never inflated).
+    const profileForced = requested !== 'auto';
+    const profileMismatch = profileForced && requested !== detected.profileId;
     const confidence =
       requested === 'auto'
         ? detected.confidence
-        : requested === detected.profileId
+        : !profileMismatch
           ? Math.max(detected.confidence, 0.85)
-          : Math.min(detected.confidence + 0.1, 0.55);
+          : Math.min(detected.confidence * 0.5, 0.4);
 
     const snapshot =
       input.importSnapshot ||
       this.importer.buildSnapshot({
         sourcePath,
+        // Migration report is always dry-run / preview. Apply only happens in the import CLI path.
         apply: false,
         includeSecretLike: input.includeSecretLike === true,
       });
 
-    const findings = this.buildFindings(sourcePath, snapshot, detected);
+    const findings = this.buildFindings(sourcePath, snapshot, detected, {
+      requestedProfileId: requested,
+      profileId,
+      profileMismatch,
+    });
     const itemCounts = {
       total: snapshot.summary?.items ?? snapshot.items?.length ?? 0,
       secretLike: snapshot.summary?.secretLike ?? snapshot.items?.filter((i) => i.secretLike).length ?? 0,
@@ -454,8 +462,24 @@ export class WorkspaceMigrationProfileService {
     sourcePath: string,
     snapshot: UniversalWorkspaceImportSnapshot,
     detected: ProfileDetectionResult,
+    profileContext?: {
+      requestedProfileId?: WorkspaceMigrationProfileId;
+      profileId?: WorkspaceMigrationProfileId;
+      profileMismatch?: boolean;
+    },
   ): MigrationRiskFinding[] {
     const findings: MigrationRiskFinding[] = [];
+
+    if (profileContext?.profileMismatch) {
+      findings.push({
+        id: 'forced-profile-mismatch',
+        severity: 'medium',
+        title: 'Forced profile differs from detection',
+        detail:
+          `Operator requested '${profileContext.requestedProfileId}' but structural detection found '${detected.profileId}'. ` +
+          'Confidence is capped; review the home layout before apply.',
+      });
+    }
 
     const secretItems = (snapshot.items || []).filter((i) => i.secretLike);
     if (secretItems.length > 0) {
@@ -570,6 +594,11 @@ export class WorkspaceMigrationProfileService {
       `Structural import snapshot status: ${input.snapshotStatus} (preview; no files copied by the report).`,
       `Planned items: ${input.itemCounts.total} total · ${input.itemCounts.skills} skills · ${input.itemCounts.memory} memory · ${input.itemCounts.config} config.`,
     ];
+    if (input.profileId !== input.detectedProfileId) {
+      bullets.push(
+        `Forced profile \`${input.profileId}\` differs from detected \`${input.detectedProfileId}\` — treat labels carefully.`,
+      );
+    }
     if (input.secretLikePresent) {
       bullets.push(
         `Secret-like material present (${input.itemCounts.secretLike} item(s)); values redacted — not auto-imported without --include-secret-like.`,
@@ -612,9 +641,11 @@ export class WorkspaceMigrationProfileService {
       '$1=[REDACTED]',
     );
     // sk-... tokens
-    out = out.replace(/\bsk-[a-zA-Z0-9]{8,}\b/g, 'sk-[REDACTED]');
+    out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
     // bare secret123-style leftovers from fixtures if ever embedded
     out = out.replace(/\bsecret\d+\b/gi, '[REDACTED]');
+    // fixture / synthetic values that must never appear in report bodies
+    out = out.replace(/\bshould-never-appear[^\s'"]*/gi, '[REDACTED]');
     return out;
   }
 

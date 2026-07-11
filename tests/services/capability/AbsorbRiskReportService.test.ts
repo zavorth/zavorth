@@ -326,4 +326,74 @@ describe('AbsorbRiskReportService', () => {
     expect(report.findings.length).toBeGreaterThan(0);
     expect(service.toMarkdown(report)).toContain('Risk report:');
   });
+
+
+  test('apply without consent never promotes; consent alone never promotes', () => {
+    expect(
+      resolveAbsorbProofAction({ apply: true, consent: false, status: 'passed' }),
+    ).toBe('preview');
+    expect(
+      resolveAbsorbProofAction({ apply: false, consent: true, status: 'passed' }),
+    ).toBe('preview');
+    expect(
+      resolveAbsorbProofAction({ apply: true, consent: true, status: 'passed' }),
+    ).toBe('promote');
+  });
+
+  test('promote/reject proof events carry distinct status and absorbAction', () => {
+    const service = createService();
+    const report = service.fromFabricSnapshot(
+      baseSnapshot({
+        candidates: [
+          {
+            id: 'c1',
+            kind: 'skill',
+            name: 'hello',
+            risk: 'low',
+            executableCodeDetected: false,
+          },
+        ],
+      }),
+    );
+    const promote = service.toProofEventInput(report, 'promote');
+    const reject = service.toProofEventInput(report, 'reject');
+    expect(promote.status).toBe('ok');
+    expect(promote.metadata?.absorbAction).toBe('promote');
+    expect(String(promote.title)).toMatch(/promote/i);
+    expect(reject.status).toBe('failed');
+    expect(reject.metadata?.absorbAction).toBe('reject');
+    expect(String(reject.title)).toMatch(/reject/i);
+  });
+
+  test('executable high path is never promoteReady', () => {
+    const service = createService();
+    const report = service.fromFabricSnapshot(
+      baseSnapshot({
+        candidates: [
+          {
+            id: 'p1',
+            kind: 'plugin',
+            name: 'exec-plugin',
+            risk: 'high',
+            executableCodeDetected: true,
+            relativeEntry: 'index.js',
+          },
+        ],
+        summary: {
+          candidates: 1,
+          skills: 0,
+          plugins: 1,
+          mcp: 0,
+          highRisk: 1,
+          executableCode: 1,
+          denied: 0,
+          heldForApproval: 1,
+        },
+      }),
+    );
+    expect(report.overallRisk).toBe('high');
+    expect(report.executableDetected).toBe(true);
+    expect(report.promoteReady).toBe(false);
+  });
+
 });

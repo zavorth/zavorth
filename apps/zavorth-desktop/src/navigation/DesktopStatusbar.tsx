@@ -18,7 +18,7 @@ export function DesktopStatusbar(props: {
   onOpenCodeBridge(): void;
 }) {
   const statusRecord = props.status as RuntimeStatus & { model?: unknown; version?: unknown };
-  const runtimeLabel = props.status.running ? 'Runtime ready' : 'Runtime offline';
+  const runtimeLabel = props.status.running ? 'Runtime online' : 'Runtime offline';
   const modelLabel = statusRecord.model ? String(statusRecord.model) : props.modelLabel;
   const versionLabel = statusRecord.version ? String(statusRecord.version) : 'Desktop local';
   const effortLabel = props.effort === 'ultra'

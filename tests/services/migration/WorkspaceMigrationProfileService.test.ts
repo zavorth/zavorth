@@ -126,4 +126,31 @@ describe('WorkspaceMigrationProfileService', () => {
     expect(result.profileId).toBe('unknown');
     expect(result.confidence).toBe(0);
   });
+
+
+  it('forced wrong profile caps confidence and emits mismatch finding', () => {
+    const hermes = fixture('hermes-like');
+    const report = service.buildReport({ sourcePath: hermes, profile: 'openclaw-home' });
+
+    expect(report.profileId).toBe('openclaw-home');
+    expect(report.detectedProfileId).toBe('hermes-home');
+    expect(report.confidence).toBeLessThanOrEqual(0.4);
+    expect(report.findings.some((f) => f.id === 'forced-profile-mismatch')).toBe(true);
+    expect(report.summaryBullets.some((b) => /differs from detected/i.test(b))).toBe(true);
+    // Report path remains dry-run only
+    expect(report.safeToPreview).toBe(true);
+    expect(report.applyBlockedWithoutConsent).toBe(true);
+  });
+
+  it('buildReport never applies / remains dry-run even with secret-like present', () => {
+    const home = fixture('openclaw-like');
+    const report = service.buildReport({ sourcePath: home, profile: 'auto' });
+    expect(report.applyBlockedWithoutConsent).toBe(true);
+    expect(report.safeToPreview).toBe(true);
+    // Presence only — fixture values must not appear
+    const body = JSON.stringify(report) + service.toMarkdown(report);
+    expect(body).not.toContain('secret123');
+    expect(body).not.toContain('should-never-appear-in-report');
+  });
+
 });

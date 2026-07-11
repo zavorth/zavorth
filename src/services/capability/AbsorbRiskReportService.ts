@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Absorb Risk Report — operator UX for safe capability install under quarantine.
  *
  * Builds a preview risk report from Universal Capability Fabric snapshots
@@ -677,6 +677,14 @@ function defaultNextSafeAction(input: {
   return 'Keep preview-only; inspect candidates and quarantine before promoting.';
 }
 
+/**
+ * Map absorb CLI outcome to a Proof OS action.
+ *
+ * Rules:
+ * - deny receipts always count as reject (policy blocked the candidate set)
+ * - promote requires BOTH apply intent AND consent (consent alone never promotes)
+ * - apply without consent stays preview (CLI also forces fabric apply=false)
+ */
 export function resolveAbsorbProofAction(input: {
   apply?: boolean;
   consent?: boolean;
@@ -691,7 +699,8 @@ export function resolveAbsorbProofAction(input: {
       normalizeText(r.status).toLowerCase() === 'deny',
   );
   if (hasDeny) return 'reject';
-  if (input.apply && input.consent) {
+  // Consent authorizes apply of already-allowed candidates only — never elevates risk flags.
+  if (input.apply === true && input.consent === true) {
     if (status === 'blocked') return 'reject';
     return 'promote';
   }
