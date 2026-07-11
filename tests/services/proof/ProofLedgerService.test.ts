@@ -516,12 +516,42 @@ describe('ProofLedgerService', () => {
       expect(service.list()).toHaveLength(2);
       const json = service.toJson(service.buildSnapshot());
       const md = service.toMarkdown(service.buildSnapshot());
-      // JSON export currently preserves metadata (documented gap / S1 follow-up)
-      expect(json).toContain('sk-secret-12345');
-      // Markdown export stays surface-level (no metadata dump)
+      // S1: secret-like metadata redacted on load + JSON/markdown export
+      expect(json).not.toContain('sk-secret-12345');
+      expect(json).toMatch(/apiKey["']?\s*:\s*["']\[REDACTED\]["']/);
       expect(md).not.toContain('sk-secret-12345');
+      const stored = service.get('good-2');
+      expect(stored?.metadata?.apiKey).toBe('[REDACTED]');
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  test('append and export redact secret-like title/summary and nested metadata', () => {
+    const service = createService();
+    const event = service.append({
+      kind: 'action',
+      surface: 'cli',
+      title: 'Called with api_key=sk-live-LEAKEDTOKEN999',
+      summary: 'Authorization: Bearer supersecrettokenvalue',
+      status: 'ok',
+      riskLevel: 'low',
+      metadata: {
+        nested: { token: 'raw-token-value', safe: 'ok' },
+        authorization: 'Bearer abcdefghijklmnop',
+      },
+    });
+
+    expect(event.title).not.toContain('LEAKEDTOKEN999');
+    expect(event.summary).not.toContain('supersecrettokenvalue');
+    expect(event.metadata?.authorization).toBe('[REDACTED]');
+    expect((event.metadata?.nested as { token?: string })?.token).toBe('[REDACTED]');
+    expect((event.metadata?.nested as { safe?: string })?.safe).toBe('ok');
+
+    const json = service.toJson(service.buildSnapshot());
+    expect(json).not.toContain('LEAKEDTOKEN999');
+    expect(json).not.toContain('supersecrettokenvalue');
+    expect(json).not.toContain('raw-token-value');
+    expect(service.toPublicEvent(event).title).not.toContain('sk-live-');
   });
 });

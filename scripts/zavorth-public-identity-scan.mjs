@@ -28,6 +28,7 @@ const ACTIVE_RETIRED_EXECUTOR_PATTERN = new RegExp(
   `\\b(${RETIRED_EXECUTOR_TERMS.join('|')})\\b|(${RETIRED_EXECUTOR_TERMS.join('|')})[_-]|[_-](${RETIRED_EXECUTOR_TERMS.join('|')})\\b`,
   'i',
 );
+// Launch-facing surfaces after Control moved under ai-gateway (S8: keep list real).
 const LAUNCH_FACING_RETIRED_EXECUTOR_FILES = [
   '.env.example',
   'config/platform-registry.json',
@@ -36,10 +37,10 @@ const LAUNCH_FACING_RETIRED_EXECUTOR_FILES = [
   'src/services/ZavorthCapabilityOsService.ts',
   'src/execution/ExternalExecutor.ts',
   'src/execution/execution-gateway/ExecutionGatewayAliases.ts',
-  'src/zavorth-control/shared/constants/cliTools.ts',
-  'src/zavorth-control/shared/services/cli-runtime/cliRuntimeTools.ts',
-  'src/zavorth-control/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
-  'src/zavorth-control/lib/acp/registry.ts',
+  'src/ai-gateway/shared/constants/cliTools.ts',
+  'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
+  'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
+  'src/ai-gateway/lib/acp/registry.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/catalog-local.ts',
   'src/domain/platform-ecosystem/infrastructure/integration-registry/IntegrationRegistryCatalogLocalRuntime.ts',
 ];
@@ -147,9 +148,12 @@ function resolvePublicIdentityPaths(manifest) {
     'scripts/setup-v3.ts',
     'scripts/install-zavorth.ps1',
     'scripts/install-zavorth.sh',
-    'src/zavorth-control/app/(zavorthControl)/control/page.tsx',
-    'src/zavorth-control/app/(zavorthControl)/control/zavorthControlPageClient.header.tsx',
-    'src/zavorth-control/app/(zavorthControl)/control/zavorth-control/projections/zavorthAgentGatewayRuntimeProjection.ts',
+    // Control lives under ai-gateway (paths updated for S8 identity scan).
+    'src/ai-gateway/app/(zavorthControl)/control/page.tsx',
+    'src/ai-gateway/shared/constants/cliTools.ts',
+    'src/ai-gateway/shared/services/cli-runtime/cliRuntimeTools.ts',
+    'src/ai-gateway/app/api/cli-tools/_shared/externalExecutorSettingsRoute.ts',
+    'src/ai-gateway/lib/acp/registry.ts',
   ]);
 
   for (const entry of manifest.files || []) {

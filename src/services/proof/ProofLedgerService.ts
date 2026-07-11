@@ -48,6 +48,82 @@ export type ProofEventAppendInput = Omit<ProofEvent, 'id' | 'createdAt'> & {
   createdAt?: string;
 };
 
+/** Keys that must never appear with raw secret values in proof exports (S1). */
+const SECRET_METADATA_KEY_RE =
+  /^(?:api[_-]?key|token|password|secret|authorization|auth|credential|private[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret)$/i;
+
+/**
+ * Redact secret-like substrings in operator-facing proof text.
+ * Presence-oriented: never echo raw tokens into export/show surfaces.
+ */
+export function redactProofSecretLikeText(text: string): string {
+  let out = String(text ?? '');
+  // Headers / bearer first (value may contain spaces).
+  out = out.replace(/\bAuthorization\s*:\s*[^\n\r]+/gi, 'Authorization: [REDACTED]');
+  out = out.replace(/\bBearer\s+[A-Za-z0-9._\-+/=]{8,}\b/gi, 'Bearer [REDACTED]');
+  out = out.replace(
+    /\b(api[_-]?key|secret|token|password|credential|auth)\s*[=:]\s*['"]?[^\s'"]+/gi,
+    '$1=[REDACTED]',
+  );
+  out = out.replace(/\bsk-[a-zA-Z0-9_-]{8,}\b/g, 'sk-[REDACTED]');
+  out = out.replace(/\bgh[pousr]_[A-Za-z0-9_]{8,}\b/g, 'gh*_[REDACTED]');
+  out = out.replace(/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, 'xox*-[REDACTED]');
+  return out;
+}
+
+function isSecretMetadataKey(key: string): boolean {
+  const k = String(key || '');
+  return SECRET_METADATA_KEY_RE.test(k) || /secret|token|password|api[_-]?key|credential/i.test(k);
+}
+
+/** Deep-redact proof metadata for storage and public export (S1). */
+export function redactProofMetadata(
+  meta: Record<string, unknown> | undefined | null,
+): Record<string, unknown> | undefined {
+  if (!meta || typeof meta !== 'object' || Array.isArray(meta)) {
+    return meta === null || meta === undefined ? undefined : undefined;
+  }
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(meta)) {
+    if (isSecretMetadataKey(key)) {
+      out[key] = '[REDACTED]';
+      continue;
+    }
+    if (typeof value === 'string') {
+      out[key] = redactProofSecretLikeText(value);
+      continue;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      out[key] = redactProofMetadata(value as Record<string, unknown>) ?? {};
+      continue;
+    }
+    if (Array.isArray(value)) {
+      out[key] = value.map((item) => {
+        if (typeof item === 'string') return redactProofSecretLikeText(item);
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+          return redactProofMetadata(item as Record<string, unknown>) ?? item;
+        }
+        return item;
+      });
+      continue;
+    }
+    out[key] = value;
+  }
+  return out;
+}
+
+function redactProofEventForExport(event: ProofEvent): ProofEvent {
+  const redactedMeta = event.metadata
+    ? redactProofMetadata(event.metadata as Record<string, unknown>)
+    : undefined;
+  return {
+    ...event,
+    title: redactProofSecretLikeText(event.title),
+    summary: redactProofSecretLikeText(event.summary),
+    ...(redactedMeta ? { metadata: redactedMeta } : {}),
+  };
+}
+
 const HIGH_RISK: ReadonlySet<ProofRiskLevel> = new Set(['high', 'critical']);
 
 export class InMemoryProofLedgerAdapter implements ProofLedgerPersistenceAdapter {
@@ -264,7 +340,12 @@ export class ProofLedgerService {
   }
 
   public toJson(snapshot: ProofLedgerSnapshot): string {
-    return JSON.stringify(snapshot, null, 2);
+    // Always redact secret-like content for public/CLI JSON export (S1).
+    const safe: ProofLedgerSnapshot = {
+      ...snapshot,
+      events: snapshot.events.map((event) => redactProofEventForExport(event)),
+    };
+    return JSON.stringify(safe, null, 2);
   }
 
   public toMarkdown(snapshot: ProofLedgerSnapshot): string {
@@ -301,7 +382,7 @@ export class ProofLedgerService {
     if (snapshot.events.length === 0) {
       lines.push('- none');
     } else {
-      for (const event of snapshot.events) {
+      for (const event of snapshot.events.map((e) => redactProofEventForExport(e))) {
         lines.push(
           `- **${event.title}** · \`${event.kind}\` · ${event.status} · risk=${event.riskLevel} · ${event.createdAt}`,
         );
@@ -319,6 +400,11 @@ export class ProofLedgerService {
     return lines.join('\n');
   }
 
+  /** Public-safe view of a single event (CLI show --json, etc.). */
+  public toPublicEvent(event: ProofEvent): ProofEvent {
+    return redactProofEventForExport(event);
+  }
+
   public toDesktopReceipt(event: ProofEvent): ProofDesktopReceiptShape {
     return desktopReceiptFromProofEvent(event);
   }
@@ -331,6 +417,11 @@ export class ProofLedgerService {
     const kind = normalizeProofEventKind(input.kind) as ProofEventKind;
     const status = normalizeProofEventStatus(input.status) as ProofEventStatus;
     const riskLevel = normalizeProofRiskLevel(input.riskLevel);
+    const title = redactProofSecretLikeText(String(input.title || 'Proof event').trim() || 'Proof event');
+    const summary = redactProofSecretLikeText(String(input.summary || '').trim() || 'No details.');
+    const metadata = input.metadata
+      ? redactProofMetadata(input.metadata as Record<string, unknown>)
+      : undefined;
     return {
       id: String(input.id || '').trim() || this.idFactory('proof'),
       runId: input.runId === undefined || input.runId === null || !String(input.runId).trim()
@@ -338,8 +429,8 @@ export class ProofLedgerService {
         : String(input.runId).trim(),
       kind,
       surface: String(input.surface || 'runtime').trim() || 'runtime',
-      title: String(input.title || 'Proof event').trim() || 'Proof event',
-      summary: String(input.summary || '').trim() || 'No details.',
+      title,
+      summary,
       status,
       riskLevel,
       approvalId: input.approvalId === undefined || input.approvalId === null || !String(input.approvalId).trim()
@@ -354,7 +445,7 @@ export class ProofLedgerService {
         : [],
       createdAt: String(input.createdAt || this.now().toISOString()),
       source: String(input.source || 'proof-ledger').trim() || 'proof-ledger',
-      ...(input.metadata ? { metadata: { ...input.metadata } } : {}),
+      ...(metadata ? { metadata } : {}),
     };
   }
 
@@ -364,6 +455,9 @@ export class ProofLedgerService {
 }
 
 function sanitizeStoredEvent(raw: ProofEvent): ProofEvent {
+  const metadata = raw.metadata
+    ? redactProofMetadata(raw.metadata as Record<string, unknown>)
+    : undefined;
   return {
     id: String(raw.id || '').trim() || `proof-orphan-${Date.now().toString(36)}`,
     runId: raw.runId === undefined || raw.runId === null || !String(raw.runId).trim()
@@ -371,8 +465,8 @@ function sanitizeStoredEvent(raw: ProofEvent): ProofEvent {
       : String(raw.runId).trim(),
     kind: normalizeProofEventKind(raw.kind),
     surface: String(raw.surface || 'runtime').trim() || 'runtime',
-    title: String(raw.title || 'Proof event').trim() || 'Proof event',
-    summary: String(raw.summary || '').trim() || 'No details.',
+    title: redactProofSecretLikeText(String(raw.title || 'Proof event').trim() || 'Proof event'),
+    summary: redactProofSecretLikeText(String(raw.summary || '').trim() || 'No details.'),
     status: normalizeProofEventStatus(raw.status),
     riskLevel: normalizeProofRiskLevel(raw.riskLevel),
     approvalId: raw.approvalId === undefined || raw.approvalId === null || !String(raw.approvalId).trim()
@@ -389,7 +483,7 @@ function sanitizeStoredEvent(raw: ProofEvent): ProofEvent {
       : [],
     createdAt: String(raw.createdAt || new Date().toISOString()),
     source: String(raw.source || 'proof-ledger').trim() || 'proof-ledger',
-    ...(raw.metadata ? { metadata: { ...raw.metadata } } : {}),
+    ...(metadata ? { metadata } : {}),
   };
 }
 
