@@ -75,12 +75,29 @@ steps.push(run('continuity-model', [
   '--check',
 ], { kind: 'unit' }));
 
+steps.push(run('ttfu-structural', [
+  tsx,
+  path.join(root, 'scripts', 'value-ttfu-run.ts'),
+  '--check',
+], { kind: 'unit' }));
+
+steps.push(run('code-daily-loop', [
+  tsx,
+  path.join(root, 'scripts', 'code-daily-loop-run.ts'),
+  '--check',
+], { kind: 'unit' }));
+
 const requiredFiles = [
   'docs/product/HOW-TO-TEST-VALUE.md',
   'docs/product/demo-scripts.md',
   'apps/zavorth-desktop/src/components/ContinuityBanner.tsx',
   'src/services/MemoryDraftStoreService.ts',
   'src/services/KillerMissionCatalogService.ts',
+  'src/services/agent-smartness/LiveUserProviderHarness.ts',
+  'src/services/agent-smartness/TimeToFirstUsefulWorkService.ts',
+  'src/services/CapabilityAutopilotSelection.ts',
+  'src/services/KillerMissionExecuteService.ts',
+  'src/services/ZavorthCodeDailyLoopService.ts',
 ];
 const missing = requiredFiles.filter((file) => !fs.existsSync(path.join(root, file)));
 steps.push({
