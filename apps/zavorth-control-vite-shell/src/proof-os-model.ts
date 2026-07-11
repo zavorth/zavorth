@@ -6,13 +6,16 @@
 
 export {
   CONTROL_PROOF_OS_CACHE_KEY,
+  CONTROL_PROOF_OS_CACHE_VERSION,
   buildRiskBudgetView,
   classifyControlReadiness,
   formatProofLine,
   formatRiskBudgetLine,
   normalizeProofEvents,
   parseProofOsCache,
+  readHonestBoolean,
   riskBudgetModeLabel,
+  sanitizeCachedReadinessBadge,
   selectLatestProof,
   serializeProofOsCache,
   type ControlProofEvent,
@@ -69,6 +72,7 @@ export function readProofOsCache(storage?: StorageLike | null): ControlProofOsCa
     if (!raw) return null;
     return parseProofOsCache(JSON.parse(raw));
   } catch {
+    // Corrupt JSON / poisoned payload → fail closed (no cache).
     return null;
   }
 }
@@ -140,7 +144,7 @@ export function buildControlReadinessItems(input: {
 
   const runtime = classifyControlReadiness({
     blocked: Boolean(input.authRequired),
-    liveReady: Boolean(input.live) && !input.authRequired,
+    liveReady: input.live === true && !input.authRequired,
     catalogReady: false,
     configured: input.live === false ? false : undefined,
   });
@@ -198,6 +202,12 @@ export function buildControlReadinessItems(input: {
 
 /**
  * Compose panel model from live inputs + optional cache fallback.
+ *
+ * Honesty rules:
+ * - Explicit empty live proofs/runs stay empty (do not resurrect poisoned cache proofs).
+ * - Explicit riskBudgetState / readinessItems win over cache.
+ * - Cache only fills dimensions that were not provided by the caller.
+ * - parseProofOsCache already demotes cached "live" badges.
  */
 export function composeProofOsPanelModel(input: {
   proofs?: unknown[];
@@ -208,19 +218,29 @@ export function composeProofOsPanelModel(input: {
   storage?: StorageLike | null;
   latest?: number;
 } = {}): ProofOsPanelModel {
+  const proofsProvided = Array.isArray(input.proofs) || Array.isArray(input.runs);
+  const riskBudgetProvided = Object.prototype.hasOwnProperty.call(input, 'riskBudgetState');
+  const readinessProvided = Array.isArray(input.readinessItems);
+
   const fromProofs = normalizeProofEvents(Array.isArray(input.proofs) ? input.proofs : []);
   const fromRuns = proofEventsFromRuns(Array.isArray(input.runs) ? input.runs : []);
   let proofs = [...fromProofs, ...fromRuns];
   let riskBudget = buildRiskBudgetView(input.riskBudgetState);
   let readinessItems = input.readinessItems;
 
-  if ((proofs.length === 0 || !riskBudget || !readinessItems?.length) && input.useCacheFallback !== false) {
-    const cached = readProofOsCache(input.storage);
-    if (cached) {
-      if (proofs.length === 0) proofs = cached.proofs;
-      if (!riskBudget) riskBudget = cached.riskBudget;
-      if (!readinessItems?.length && cached.readinessItems?.length) {
-        readinessItems = cached.readinessItems;
+  if (input.useCacheFallback !== false) {
+    const needProofs = !proofsProvided && proofs.length === 0;
+    const needBudget = !riskBudgetProvided && !riskBudget;
+    const needReadiness = !readinessProvided && !readinessItems?.length;
+
+    if (needProofs || needBudget || needReadiness) {
+      const cached = readProofOsCache(input.storage);
+      if (cached) {
+        if (needProofs) proofs = cached.proofs;
+        if (needBudget) riskBudget = cached.riskBudget;
+        if (needReadiness && cached.readinessItems?.length) {
+          readinessItems = cached.readinessItems;
+        }
       }
     }
   }
