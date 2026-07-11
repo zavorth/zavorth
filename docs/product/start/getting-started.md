@@ -56,27 +56,21 @@ Need Node? [nodejs.org](https://nodejs.org) has installers for every platform.
     This takes about 3 minutes. You can change everything later.
   </Step>
 
-  <Step title="Start the runtime">
+  <Step title="Open the daily surface">
     ```bash
     zavorth start
-    ```
-
-    Zavorth starts a local runtime process that handles requests, channels, and approvals.
-  </Step>
-
-  <Step title="Open the dashboard">
-    ```bash
+    # or
     zavorth open
     ```
 
-    This opens **ZavorthControl** in your browser — the main interface where you chat, approve tasks, and see what Zavorth is doing.
+    Both commands open the daily work surface (via `ops-go`) — Desktop / Control / launcher when available. They are **not** guide-only printouts.
   </Step>
 
   <Step title="Send your first message">
-    Type anything in the chat. Try:
+    Prefer a safe first win (no file changes):
 
     ```
-    What can you do?
+    In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.
     ```
 
     Or something real:
@@ -88,6 +82,11 @@ Need Node? [nodejs.org](https://nodejs.org) has installers for every platform.
     Want to chat from your phone instead? Connect [Telegram](/docs/product/channels/telegram) — it only takes a bot token.
   </Step>
 </Steps>
+
+## Demo scripts
+
+- [Script A — offline Trust Loop](/docs/product/demo-scripts) (no credentials, not a live agent)
+- [Script B — with provider](/docs/product/demo-scripts) (first useful work + optional approval)
 
 ## Check everything is working
 
@@ -117,5 +116,7 @@ This tells you if your provider, channels, and runtime are all set up correctly.
 ## Related
 
 - [What is Zavorth?](/docs/product/start/what-is-zavorth)
+- [Demo scripts](/docs/product/demo-scripts)
+- [Daily use trail](/docs/daily-use-trail)
 - [Channels](/docs/product/channels)
 - [ZavorthControl dashboard](/docs/product/interfaces/zavorthcontrol)

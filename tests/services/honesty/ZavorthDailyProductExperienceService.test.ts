@@ -220,6 +220,31 @@ describe('ZavorthDailyProductExperienceService', () => {
     expect(JSON.stringify(snapshot)).not.toContain('sk-test-123');
   });
 
+  it('marks chatReady when only provider is done (full platform not required)', async () => {
+    const partial = setupSnapshot({
+      status: 'attention',
+      summary: { total: 7, done: 1, next: 4, needsSetup: 2, blocked: 0 },
+    });
+    partial.items = partial.items.map((item) => (
+      item.id === 'connect-provider'
+        ? { ...item, status: 'done' }
+        : item
+    ));
+
+    const snapshot = await new ZavorthDailyProductExperienceService({
+      now,
+      setupChecklist: { buildSnapshot: () => partial },
+      capabilityFlow: { buildSnapshot: async () => capabilitySnapshot({ status: 'attention' }) },
+    }).buildSnapshot();
+
+    expect(snapshot.chatReady).toBe(true);
+    expect(snapshot.platformSetupComplete).toBe(false);
+    expect(snapshot.happyPath.steps).toHaveLength(4);
+    expect(snapshot.firstRun.steps).toHaveLength(8);
+    expect(snapshot.happyPath.nextCommand).toBe('zavorth open');
+    expect(snapshot.status).toBe('attention');
+  });
+
   it('maps blocked, attention and ready states from setup and capability sources', async () => {
     const blocked = await new ZavorthDailyProductExperienceService({
       now,

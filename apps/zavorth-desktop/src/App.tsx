@@ -196,6 +196,9 @@ export function App() {
           setOnboardingOpen(false);
           void sendMessage(text);
         }}
+        onAudienceSelected={(audience) => {
+          setExperienceProfile(audience);
+        }}
       />
       <SettingsOverlay
         isOpen={settingsOpen}

@@ -3,6 +3,7 @@ import type { DesktopApiRequest } from '../global';
 export const DESKTOP_ONBOARDING_STORAGE_KEY = 'zvd:onboarded';
 export const DESKTOP_TRUST_MODE_KEY = 'zvd:trusted-operator-hint';
 export const DESKTOP_ONBOARDING_CELEBRATE_KEY = 'zvd:celebrate-onboarding';
+export const DESKTOP_AUDIENCE_STORAGE_KEY = 'zvd:experience-audience';
 
 export type DesktopOnboardingProvider =
   | 'openrouter'
@@ -20,7 +21,10 @@ export type DesktopOnboardingProvider =
   | 'ollama'
   | 'custom';
 
-export type DesktopOnboardingStepId = 'provider' | 'trust' | 'channel' | 'first-ask';
+/** First-run audience ids (maps 1:1 to config/profile-manifests). */
+export type DesktopOnboardingAudienceId = 'personal' | 'developer' | 'business';
+
+export type DesktopOnboardingStepId = 'audience' | 'provider' | 'trust' | 'channel' | 'first-ask';
 
 export type DesktopOnboardingTrailStep = {
   id: DesktopOnboardingStepId;
@@ -29,14 +33,71 @@ export type DesktopOnboardingTrailStep = {
 };
 
 export const DESKTOP_ONBOARDING_TRAIL: DesktopOnboardingTrailStep[] = [
+  { id: 'audience', label: 'Audience' },
   { id: 'provider', label: 'Provider' },
   { id: 'trust', label: 'Trust' },
   { id: 'channel', label: 'Channels', optional: true },
   { id: 'first-ask', label: 'First ask' },
 ];
 
+export type DesktopOnboardingAudienceOption = {
+  id: DesktopOnboardingAudienceId;
+  /** i18n key suffix under onboarding.audience.* */
+  titleKey: string;
+  bodyKey: string;
+  starterAsk: string;
+};
+
+export const DESKTOP_ONBOARDING_AUDIENCES: DesktopOnboardingAudienceOption[] = [
+  {
+    id: 'personal',
+    titleKey: 'onboarding.audiencePersonalTitle',
+    bodyKey: 'onboarding.audiencePersonalBody',
+    starterAsk:
+      'In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.',
+  },
+  {
+    id: 'developer',
+    titleKey: 'onboarding.audienceDeveloperTitle',
+    bodyKey: 'onboarding.audienceDeveloperBody',
+    starterAsk:
+      'Review this workspace for risk and propose a safe first plan I can approve step by step.',
+  },
+  {
+    id: 'business',
+    titleKey: 'onboarding.audienceBusinessTitle',
+    bodyKey: 'onboarding.audienceBusinessBody',
+    starterAsk:
+      'Summarize what this workspace is for in business terms, list the top risks that need approval, and suggest one read-only next step.',
+  },
+];
+
 export const DESKTOP_ONBOARDING_STARTER_ASK =
-  'In plain language, explain what this project does and suggest three useful things you can help me with today without changing any files.';
+  DESKTOP_ONBOARDING_AUDIENCES.find((entry) => entry.id === 'personal')!.starterAsk;
+
+export function isDesktopOnboardingAudienceId(value: unknown): value is DesktopOnboardingAudienceId {
+  return value === 'personal' || value === 'developer' || value === 'business';
+}
+
+export function getAudienceOption(id: DesktopOnboardingAudienceId | null | undefined): DesktopOnboardingAudienceOption {
+  const normalized = isDesktopOnboardingAudienceId(id) ? id : 'personal';
+  return DESKTOP_ONBOARDING_AUDIENCES.find((entry) => entry.id === normalized)
+    || DESKTOP_ONBOARDING_AUDIENCES[0];
+}
+
+export function starterAskForAudience(id: DesktopOnboardingAudienceId | null | undefined): string {
+  return getAudienceOption(id).starterAsk;
+}
+
+export function setOnboardingAudience(id: DesktopOnboardingAudienceId, storage?: StorageLike): void {
+  const normalized = isDesktopOnboardingAudienceId(id) ? id : 'personal';
+  resolveStorage(storage)?.setItem(DESKTOP_AUDIENCE_STORAGE_KEY, normalized);
+}
+
+export function getOnboardingAudience(storage?: StorageLike): DesktopOnboardingAudienceId {
+  const raw = resolveStorage(storage)?.getItem(DESKTOP_AUDIENCE_STORAGE_KEY);
+  return isDesktopOnboardingAudienceId(raw) ? raw : 'personal';
+}
 
 export type OnboardingChecklistItem = {
   id: 'runtime' | 'provider' | 'model' | 'workspace' | 'identity' | 'trust';

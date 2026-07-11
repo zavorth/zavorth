@@ -359,12 +359,18 @@ export class AgentRunFactory {
         cognitiveContextBundle: profileResolution.profileBundle.cognitiveContextBundle,
         runtimePolicyBundle: profileResolution.profileBundle.runtimePolicyBundle,
         surfaceExperienceBundle: profileResolution.profileBundle.surfaceExperienceBundle,
-      } : {
+      } : {}),
+      // Always surface missing-profile telemetry when the requested id could not compile
+      // (including when we fell back to personal/developer — never silent).
+      ...(profileResolution.profileBundleMissing ? {
+        profileBundleMissing: profileResolution.profileBundleMissing,
+      } : !profileResolution.profileBundle ? {
         profileBundleMissing: {
           requested: profileResolution.profileId,
           source: profileResolution.source,
+          fellBackTo: null,
         },
-      }),
+      } : {}),
     };
     const importedCapabilityTrust = buildImportedCapabilityTrustMetadata(metadataForPolicy);
     const discoveryMetadata = importedCapabilityTrust
@@ -655,6 +661,11 @@ export class AgentRunFactory {
     profileId: string;
     source: 'request' | 'metadata' | 'environment' | 'default' | 'fallback';
     profileBundle: ProfileRuntimeBundle | null;
+    profileBundleMissing?: {
+      requested: string;
+      source: 'request' | 'metadata' | 'environment' | 'default' | 'fallback' | null;
+      fellBackTo: string | null;
+    };
   } {
     const requested = this.resolveRequestedProfileId(input, metadata);
     const selectedId = requested.profileId || 'personal';
@@ -669,10 +680,20 @@ export class AgentRunFactory {
 
     const fallback = this.profileManifestService.compileProfileById('personal')
       || this.profileManifestService.compileProfileById('developer');
+    const fellBackTo = fallback?.id || null;
+    // Explicit log + metadata — never silently substitute personal without a signal.
+    console.warn(
+      `[ProfileManifest] profileBundleMissing requested=${selectedId} source=${requested.source || 'default'} fellBackTo=${fellBackTo || 'none'}`,
+    );
     return {
-      profileId: fallback?.id || selectedId,
+      profileId: fellBackTo || selectedId,
       source: fallback ? 'fallback' : (requested.source || 'default'),
       profileBundle: fallback,
+      profileBundleMissing: {
+        requested: selectedId,
+        source: requested.source || 'default',
+        fellBackTo,
+      },
     };
   }
 

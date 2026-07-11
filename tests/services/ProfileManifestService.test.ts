@@ -24,7 +24,16 @@ describe('ProfileManifestService', () => {
       'operator',
       'team',
       'creator',
+      'business',
+      'power',
     ]));
+    expect(bundles.find((bundle) => bundle.id === 'business')?.runtimePolicy).toEqual(expect.objectContaining({
+      trustMode: 'strict',
+      approvalMode: 'always',
+    }));
+    expect(bundles.find((bundle) => bundle.id === 'power')?.cognitivePolicy).toEqual(expect.objectContaining({
+      planningDepth: 'deep',
+    }));
     expect(bundles.every((bundle) => bundle.version === ZAVORTH_PROFILE_BUNDLE_VERSION)).toBe(true);
     expect(bundles.find((bundle) => bundle.id === 'developer')).toEqual(expect.objectContaining({
       cognitiveContextBundle: expect.objectContaining({

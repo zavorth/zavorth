@@ -28,6 +28,10 @@ describe('AgentSmartnessService', () => {
     expect(resolveRuntimeProfileId('power')).toBe('power');
     expect(service.compileProfileById('business')?.id).toBe('business');
     expect(service.compileProfileById('power')?.id).toBe('power');
+    expect(service.compileProfileById('business')?.id).not.toBe('personal');
+    expect(service.compileAll().map((b) => b.id)).toEqual(expect.arrayContaining([
+      'personal', 'developer', 'business', 'power', 'creator', 'operator', 'team',
+    ]));
   });
 
   it('builds structured recovery plans for permanent tool failures', () => {
@@ -38,7 +42,25 @@ describe('AgentSmartnessService', () => {
     });
     expect(plan.shouldRetry).toBe(false);
     expect(plan.preferredAlternative).toBe('list_directory');
-    expect(plan.nextActions).toEqual(expect.arrayContaining(['report_failure', 'try_alternative:list_directory']));
+    expect(plan.nextActions).toEqual(expect.arrayContaining([
+      'report_failure',
+      'try_alternative:list_directory',
+      'ask_user_if_blocked',
+    ]));
+    expect(plan.userVisibleSummary).toContain('read_file');
+    // Beyond transient 120ms retry: permanent failures replan to alternate tools + user-visible summary.
+    expect(plan.nextActions).not.toContain('retry_once');
+  });
+
+  it('only retries transient failures once in the structured plan', () => {
+    const plan = buildStructuredToolFailurePlan({
+      toolName: 'web_search',
+      errorMessage: 'ETIMEDOUT: connection timeout',
+      availableAlternatives: ['web_fetch'],
+    });
+    expect(plan.shouldRetry).toBe(true);
+    expect(plan.nextActions).toEqual(['retry_once']);
+    expect(plan.preferredAlternative).toBeNull();
   });
 });
 

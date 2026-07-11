@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { MemoryService } from '../../src/services/MemoryService';
+import { MemoryDraftStoreService } from '../../src/services/MemoryDraftStoreService';
 import { Database } from '../../src/storage/Database';
 import { config } from '../../src/config/index';
 
@@ -36,7 +37,10 @@ describe('MemoryService', () => {
   });
 
   it('extracts richer conversational facts without silent promote by default', async () => {
-    const service = new MemoryService();
+    const draftStore = new MemoryDraftStoreService({
+      storePath: path.join(tempDir, 'memory-drafts.json'),
+    });
+    const service = new MemoryService({ draftStore });
 
     const draft = await service.autoExtract(
       'u2',
@@ -48,6 +52,7 @@ describe('MemoryService', () => {
     expect(draft.mode).toBe('draft-only');
     expect(draft.candidates.length).toBeGreaterThan(0);
     expect(await service.recall('u2', 'nome')).toBeNull();
+    expect(service.listMemoryDrafts('u2').length).toBeGreaterThan(0);
 
     const promoted = await service.autoExtract(
       'u2',
@@ -63,6 +68,32 @@ describe('MemoryService', () => {
     expect(await service.recall('u2', 'idioma_preferido')).toContain('portugues');
     expect(await service.recall('u2', 'stack_principal')).toContain('TypeScript');
     expect(await service.recall('u2', 'topicos_recentes')).toContain('telegram');
+  });
+
+  it('promotes pending drafts only through promoteMemoryDraft', async () => {
+    const draftStore = new MemoryDraftStoreService({
+      storePath: path.join(tempDir, 'memory-drafts-promote.json'),
+    });
+    const service = new MemoryService({ draftStore });
+
+    await service.autoExtract(
+      'u-promote',
+      'Meu nome e Ada e prefiro dark mode.',
+      'Entendido.',
+    );
+
+    const pending = service.listMemoryDrafts('u-promote');
+    expect(pending.length).toBeGreaterThan(0);
+    const draft = pending.find((item: { key: string }) => item.key === 'nome') || pending[0];
+    expect(await service.recall('u-promote', draft.key)).toBeNull();
+
+    const blocked = await service.promoteMemoryDraft(draft.id, { actorUserId: 'other-user' });
+    expect(blocked).toBeNull();
+    expect(await service.recall('u-promote', draft.key)).toBeNull();
+
+    const promoted = await service.promoteMemoryDraft(draft.id, { actorUserId: 'u-promote' });
+    expect(promoted?.status).toBe('promoted');
+    expect(await service.recall('u-promote', draft.key)).toBeTruthy();
   });
 
   it('builds a more relevant memory context for the current query', async () => {
