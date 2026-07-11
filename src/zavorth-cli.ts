@@ -35,6 +35,7 @@ import {
   normalizeApprovalPresentationArgs,
 } from './cli/ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './cli/RiskBudgetCli.js';
+import { runChangePreviewCli } from './cli/ChangePreviewCli.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -2597,6 +2598,15 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
   if (command === 'budget' && String(restArgs[0] || '').trim().toLowerCase() !== 'runtime') {
     return runRiskBudgetCli(restArgs);
+  }
+
+  // Proof OS change preview / counterfactual product face.
+  if (
+    command === 'change-preview'
+    || command === 'preview-change'
+    || command === 'what-changes'
+  ) {
+    return runChangePreviewCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

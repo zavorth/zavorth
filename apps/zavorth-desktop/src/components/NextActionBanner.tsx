@@ -24,10 +24,15 @@ function resolveNextAction(props: NextActionBannerProps): NextActionModel | null
   const lang = props.language;
 
   if (n > 0) {
+    // Emphasize the daily loop: review the gate, then inspect proof receipts.
+    const base = n === 1
+      ? t('nextAction.oneApproval', lang)
+      : t('nextAction.nApprovals', lang).replace('{n}', String(n));
+    const withProof = t('home.nextApproval', lang)
+      .replace('{n}', String(n))
+      .replace('{base}', base);
     return {
-      title: n === 1
-        ? t('nextAction.oneApproval', lang)
-        : t('nextAction.nApprovals', lang).replace('{n}', String(n)),
+      title: withProof.includes('{') ? `${base} · ${t('home.latestProof', lang)}` : withProof,
       cta: t('nextAction.review', lang),
       onClick: props.onOpenReview,
       tone: 'warn',

@@ -60,6 +60,9 @@ Two densities via `.zvd-app.density-compact` (and `comfortable` default). Densit
 ### 8. Primary nav slim
 Primary sidebar nav (`.zvd-sidebar-nav-primary`) holds ~6 first-class items max (chat, review, proof, projects, overflow). Secondary destinations use `.zvd-nav-secondary-link` or Command Center / overlays.
 
+### 9. Chat home trust loop
+Daily home is **Thread + Next Action + Proof strip** (not a metrics dashboard). Primary CTA path: review approvals → open proof (receipts). Preferred keys when shortcuts gain panel bindings: **R** or `g p` for proof; until then use sidebar Proof, Command Center, or the strip CTA.
+
 ---
 
 ## Type scale
