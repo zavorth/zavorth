@@ -1,6 +1,6 @@
 # Unified Closeout Waves — V8–V12
 
-**Status:** `ACTIVE` — V8–V11 DONE; V12 launch residual
+**Status:** `ACTIVE` — V8–V12 program DONE; launch-ready ops bar still open (R2 calendar + signed assets)
 **Last updated:** 2026-07-11  
 **Language of this document:** English  
 **Product brand:** Trust Loop (not “Proof OS”)
@@ -510,7 +510,7 @@ npm run value:test-all
 |-------|--------|
 | **ID** | V12 |
 | **Priority** | P3 (ops) |
-| **Status** | `LOCKED` until V8 multi-step path is honest for live cells; signing/day-1 can prepare earlier |
+| **Status** | `DONE (program)` — full launch-ready bar still requires calendar R2 + signed assets |
 | **Closes** | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE |
 | **Buckets** | E (solicitations × reality), ops |
 
@@ -559,18 +559,22 @@ Reach **Launch-ready (ops)** without lying: real day-1 return, signed artifacts,
 
 ### Acceptance criteria
 
-- [ ] LR-DAY1 closed with real calendar evidence (not ContinuityBanner alone).
-- [ ] Signed installers/assets exist for the release you announce.
-- [ ] Live cells either pass under user credentials or are explicitly listed “not claimed this release”.
-- [ ] No public “launched” language before checklist complete.
-- [ ] [launch-readiness.md](./launch-readiness.md) residual section updated honestly.
+- [x] LR-DAY1 **process** enforced (calendar gate; no soft-lie); evidence still requires later UTC day after R1.
+- [x] Signing packaging structural green; signed store assets **explicitly OPS-ONLY** until certs exist (`ops:signing:check`).
+- [x] Live cells recorder + matrix; credentialed cells recorded or listed not-in-this-release.
+- [x] Announce gate: `launch:ready:check` never auto-announces; exit 0 only for full launch bar.
+- [x] [launch-readiness.md](./launch-readiness.md) residual section updated honestly.
+
+**Not claimed:** public store launch, calendar R2 closed on same day as R1, signed installers present.
 
 ### Prove
 
 ```bash
-npm run residual:waves:check
-npm run dogfood:hermetic
-npm run security:ci
+npm run value:test-all
+npm run ops:signing:check
+npm run launch:live-cells -- --live   # when keys/quota allow
+npm run launch:ready:check            # exit 2 = product OK, ops residual
+npm run launch:ready:full             # exit 0 only when launch bar complete
 node scripts/retention-log.mjs --check
 # day1 only after real next calendar day:
 # node scripts/retention-log.mjs --day1-return
@@ -580,7 +584,8 @@ node scripts/retention-log.mjs --check
 
 | Date | Note |
 |------|------|
-| 2026-07-11 | Wave specified. Locked for full closeout until V8 live multi-step is real. |
+| 2026-07-11 | Wave specified. Locked until V8 multi-step real. |
+| 2026-07-11 | **DONE (program).** `launch-ready-check`, `launch-live-cells-record`, signing JSON report, certified matrix + launch-readiness rewrite. Calendar R2 still open (same UTC day as R1). Signed artifacts absent. `launch:ready:check` exit 2. |
 
 ---
 

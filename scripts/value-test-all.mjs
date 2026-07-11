@@ -87,6 +87,10 @@ steps.push(run('code-daily-loop', [
   '--check',
 ], { kind: 'unit' }));
 
+steps.push(run('launch-signing-structural', [
+  path.join(root, 'scripts', 'ops-signing-readiness.mjs'),
+], { kind: 'ops-structural' }));
+
 const requiredFiles = [
   'docs/product/HOW-TO-TEST-VALUE.md',
   'docs/product/demo-scripts.md',
@@ -98,6 +102,10 @@ const requiredFiles = [
   'src/services/CapabilityAutopilotSelection.ts',
   'src/services/KillerMissionExecuteService.ts',
   'src/services/ZavorthCodeDailyLoopService.ts',
+  'scripts/launch-ready-check.mjs',
+  'scripts/launch-live-cells-record.mjs',
+  'docs/product/launch-readiness.md',
+  'docs/product/certified-live-matrix.md',
 ];
 const missing = requiredFiles.filter((file) => !fs.existsSync(path.join(root, file)));
 steps.push({

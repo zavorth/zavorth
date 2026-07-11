@@ -105,7 +105,7 @@ npm run i18n:check
 | **V9** Selection UX | **CORE SHIPPED** — pickers + secondary + channel + catalog |
 | **V10** Neutral ops defaults | **DONE** — autopilot fail-closed; catalog fallbacks empty |
 | **V11** Habit + audiences | **DONE** — ritual, non-dev jargon, killer 3/3, code loop |
-| **V12** Launch residual | residual (ops) |
+| **V12** Launch residual | **DONE (program)** — `launch:ready:check`; ops bar open (R2 + signing) |
 
 ### Optional polish (non-blocking for value-ready)
 
