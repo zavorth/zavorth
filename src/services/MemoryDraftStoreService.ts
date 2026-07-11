@@ -29,14 +29,18 @@ type StoreFile = {
   items: MemoryDraftCandidate[];
 };
 
+const MAX_VALUE_CHARS = 1000;
+const MAX_KEY_CHARS = 96;
+const MAX_PENDING_PER_USER = 200;
+
 export class MemoryDraftStoreService {
   private readonly storePath: string;
   private readonly now: () => Date;
 
   constructor(options: { projectRoot?: string; storePath?: string; now?: () => Date } = {}) {
-    const root = options.projectRoot || process.cwd();
+    const projectRoot = options.projectRoot || process.cwd();
     this.storePath = options.storePath
-      || path.join(root, 'data', 'runtime', 'memory-drafts.json');
+      || path.join(projectRoot, 'data', 'runtime', 'memory-drafts.json');
     this.now = options.now || (() => new Date());
   }
 
@@ -47,6 +51,10 @@ export class MemoryDraftStoreService {
       if (status !== 'all' && item.status !== status) return false;
       return true;
     });
+  }
+
+  public getById(id: string): MemoryDraftCandidate | null {
+    return this.read().items.find((item) => item.id === id) || null;
   }
 
   public snapshot(userId?: string): MemoryDraftStoreSnapshot {
@@ -70,11 +78,18 @@ export class MemoryDraftStoreService {
     const store = this.read();
     const created: MemoryDraftCandidate[] = [];
     const stamp = this.now().toISOString();
+    const pendingForUser = store.items.filter(
+      (item) => item.userId === input.userId && item.status === 'pending',
+    ).length;
+
     for (const candidate of input.candidates) {
-      const key = String(candidate.key || '').trim().toLowerCase();
-      const value = String(candidate.value || '').trim();
-      const category = String(candidate.category || 'general').trim().toLowerCase() || 'general';
+      if (pendingForUser + created.length >= MAX_PENDING_PER_USER) break;
+      const key = String(candidate.key || '').trim().toLowerCase().slice(0, MAX_KEY_CHARS);
+      const value = sanitizeDraftValue(candidate.value);
+      const category = String(candidate.category || 'general').trim().toLowerCase().slice(0, 64) || 'general';
       if (!key || !value) continue;
+      if (looksLikeSecret(value)) continue;
+
       const existing = store.items.find((item) =>
         item.userId === input.userId
         && item.key === key
@@ -86,6 +101,7 @@ export class MemoryDraftStoreService {
         created.push(existing);
         continue;
       }
+
       const entry: MemoryDraftCandidate = {
         id: `mdraft_${crypto.randomBytes(6).toString('hex')}`,
         userId: input.userId,
@@ -104,12 +120,12 @@ export class MemoryDraftStoreService {
     return created;
   }
 
-  public promote(id: string): MemoryDraftCandidate | null {
-    return this.transition(id, 'promoted');
+  public promote(id: string, options: { actorUserId?: string } = {}): MemoryDraftCandidate | null {
+    return this.transition(id, 'promoted', options.actorUserId);
   }
 
-  public forget(id: string): MemoryDraftCandidate | null {
-    return this.transition(id, 'forgotten');
+  public forget(id: string, options: { actorUserId?: string } = {}): MemoryDraftCandidate | null {
+    return this.transition(id, 'forgotten', options.actorUserId);
   }
 
   public renderText(snapshot: MemoryDraftStoreSnapshot): string {
@@ -123,10 +139,16 @@ export class MemoryDraftStoreService {
     ].join('\n');
   }
 
-  private transition(id: string, status: 'promoted' | 'forgotten'): MemoryDraftCandidate | null {
+  private transition(
+    id: string,
+    status: 'promoted' | 'forgotten',
+    actorUserId?: string,
+  ): MemoryDraftCandidate | null {
     const store = this.read();
     const item = store.items.find((entry) => entry.id === id);
     if (!item) return null;
+    if (item.status !== 'pending') return null;
+    if (actorUserId && item.userId !== actorUserId) return null;
     item.status = status;
     item.updatedAt = this.now().toISOString();
     this.write(store);
@@ -150,6 +172,20 @@ export class MemoryDraftStoreService {
 
   private write(store: StoreFile): void {
     fs.mkdirSync(path.dirname(this.storePath), { recursive: true });
-    fs.writeFileSync(this.storePath, `${JSON.stringify(store, null, 2)}\n`, 'utf8');
+    const tmp = `${this.storePath}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, `${JSON.stringify(store, null, 2)}\n`, 'utf8');
+    fs.renameSync(tmp, this.storePath);
   }
+}
+
+function sanitizeDraftValue(value: unknown): string {
+  return String(value || '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, MAX_VALUE_CHARS);
+}
+
+function looksLikeSecret(value: string): boolean {
+  return /\b(sk-[A-Za-z0-9_-]{10,}|api[_-]?key\s*[:=]|bearer\s+[A-Za-z0-9._-]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----)/i.test(value);
 }

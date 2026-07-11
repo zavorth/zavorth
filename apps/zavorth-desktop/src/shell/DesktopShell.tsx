@@ -301,25 +301,26 @@ export function DesktopShell(props: {
   }, [props.currentSessionId]);
 
   const continuityModel = useMemo(() => {
+    if (props.busy) return null;
     const clock = readDesktopOpenClock();
     const remembered = readRememberedDesktopSession();
-    const sessionId = props.currentSessionId || remembered.id;
-    const providerReady = Boolean(
-      props.runtimeCapabilities?.providers?.connected?.length
-      || props.status.running,
-    );
+    const providerReady = Boolean(props.runtimeCapabilities?.providers?.connected?.length);
+    // Prefer return continuity only when returning to a prior session, not the active one.
+    const lastSessionId = remembered.id && remembered.id !== props.currentSessionId
+      ? remembered.id
+      : (props.currentSessionId ? null : remembered.id);
     return buildContinuityBannerModel({
       pendingApprovals: pendingApprovalCount,
       providerReady,
-      lastSessionId: sessionId,
+      lastSessionId,
       lastSessionTitle: remembered.title,
       day1ReturnEligible: isDay1ReturnEligible(clock.previousOpenAt, clock.currentOpenAt),
     });
   }, [
     pendingApprovalCount,
+    props.busy,
     props.currentSessionId,
     props.runtimeCapabilities,
-    props.status.running,
   ]);
 
   const voice = useVoiceDictation({
@@ -729,19 +730,21 @@ export function DesktopShell(props: {
                 onOpenProof={() => props.onPanel('receipts')}
                 onDoctor={() => void props.onAccessRepair()}
               />
-              <ContinuityBanner
-                model={continuityModel}
-                onReview={() => props.onPanel('approvals')}
-                onContinueSession={(sessionId) => {
-                  if (props.onSwitchSession) {
-                    props.onSwitchSession(sessionId);
-                    return;
-                  }
-                  props.onPanel('chat');
-                }}
-                onStartChat={() => props.onPanel('chat')}
-                onSetupProvider={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
-              />
+              {pendingApprovalCount === 0 && !props.busy ? (
+                <ContinuityBanner
+                  model={continuityModel}
+                  onReview={() => props.onPanel('approvals')}
+                  onContinueSession={(sessionId) => {
+                    if (props.onSwitchSession) {
+                      props.onSwitchSession(sessionId);
+                      return;
+                    }
+                    props.onPanel('chat');
+                  }}
+                  onStartChat={() => props.onPanel('chat')}
+                  onSetupProvider={() => props.onOpenSettingsOverlay?.() ?? props.onPanel('settings')}
+                />
+              ) : null}
               <ProofStrip
                 receipts={Array.isArray(props.receipts) ? props.receipts : []}
                 onOpenProof={() => props.onPanel('receipts')}

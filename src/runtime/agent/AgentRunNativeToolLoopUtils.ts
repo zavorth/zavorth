@@ -94,7 +94,10 @@ export function estimateMessagesChars(messages: ChatMessage[]): number {
 
 export function isTransientToolError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error ?? '');
-  return /\b(timeout|timed out|temporar|rate limit|429|503|502|econnreset|enetunreach|network|busy|try again)\b/i.test(message);
+  if (/\b(permission|denied|policy blocked|schema validation|unknown tool|unauthorized|forbidden)\b/i.test(message)) {
+    return false;
+  }
+  return /\b(timeout|timed out|temporar(?:y|ily)?|rate limit|429|503|502|econnreset|enetunreach|econnrefused|try again later|service unavailable)\b/i.test(message);
 }
 
 export function delay(ms: number): Promise<void> {

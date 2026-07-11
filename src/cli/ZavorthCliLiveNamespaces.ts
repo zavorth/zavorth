@@ -84,7 +84,7 @@ const gunzipAsync = promisify(gunzip);
 
 const LIVE_COMMANDS = new Set([
   'actions', 'atlas', 'autonomy', 'background', 'backup', 'board', 'commitments', 'config', 'cron', 'daily', 'daemon', 'devices', 'directory', 'dns',
-  'docs', 'exec-policy', 'gateway', 'go', 'goals', 'health', 'hooks', 'host', 'infer', 'logs', 'mcp', 'message', 'node',
+  'docs', 'exec-policy', 'gateway', 'goals', 'health', 'hooks', 'host', 'infer', 'logs', 'mcp', 'message', 'node',
   'nodes', 'pairing', 'plugins', 'proxy', 'qr', 'reset', 'secrets', 'sessions', 'skills',
   'mnemos', 'sandbox', 'satellite', 'connect', 'learn', 'tools', 'state', 'swarm', 'system', 'taskboard', 'tasks', 'uninstall', 'webhooks', 'certify', 'xai',
 ]);
@@ -123,7 +123,6 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'docs': return runDocs(input.projectRoot, args);
     case 'exec-policy': return runExecPolicy(input.projectRoot, args);
     case 'health': return runHealth(input.projectRoot, args);
-    case 'go': return runGoals(input.projectRoot, args);
     case 'goals': return runGoals(input.projectRoot, args);
     case 'hooks': return runHooks(input.projectRoot, args);
     case 'host': return runHostPresence(input.projectRoot, args);

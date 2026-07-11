@@ -112,9 +112,19 @@ for (const candidate of models) {
         return r.body;
       }
     })();
-  ok = r.status >= 200 && r.status < 300 && /ZAVORTH_LIVE_OK|[A-Za-z]{3,}/.test(text);
-  console.log('gemini try', model, 'status', r.status, 'ok', ok);
-  if (ok) break;
+  let modelText = '';
+  try {
+    const j = JSON.parse(r.body);
+    modelText = String(j?.candidates?.[0]?.content?.parts?.[0]?.text || '');
+  } catch {
+    modelText = '';
+  }
+  ok = r.status >= 200 && r.status < 300 && /ZAVORTH_LIVE_OK/.test(modelText);
+  console.log('gemini try', model, 'status', r.status, 'exactToken', /ZAVORTH_LIVE_OK/.test(modelText));
+  if (ok) {
+    console.log('ZAVORTH_LIVE_OK');
+    break;
+  }
 }
 
 if (!ok) {
@@ -123,12 +133,11 @@ if (!ok) {
   process.exit(1);
 }
 
-// Pass if we got any model text response (live path works)
-const hasExact = /ZAVORTH_LIVE_OK/i.test(r.body);
-mark('pass', 'dogfood.chat.01', `direct gemini live ${model}${hasExact ? ' exact-token' : ' text-ok'}`);
-mark('pass', 'dogfood.chat.03', 'live completion path proven via direct provider');
+// Exact token only — do not mark tool-calling missions from a completion probe.
+mark('pass', 'dogfood.chat.01', `direct gemini live ${model} exact-token ZAVORTH_LIVE_OK`);
+mark('blocked', 'dogfood.chat.03', 'needs multi-turn chat proof; only exact-token completion proven');
 mark('blocked', 'dogfood.chat.04', 'needs tool-calling chat turn; only completion proven');
-mark('pass', 'dogfood.chat.05', 'single-turn live proven via provider API');
+mark('blocked', 'dogfood.chat.05', 'single-turn completion proven; not full first-run chat product path');
 
 // gateway optional
 const port = Number(process.env.ZAVORTH_AIGateway_GATEWAY_PORT || 20128);

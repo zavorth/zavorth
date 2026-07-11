@@ -13,7 +13,6 @@ export type DailyReturnContinuitySnapshot = {
     command: string;
   };
   day1ReturnEligible: boolean;
-  day1ReturnRecorded: boolean;
 };
 
 export type DailyReturnContinuityInput = {
@@ -93,7 +92,6 @@ export class DailyReturnContinuityService {
       pendingApprovals,
       nextAction,
       day1ReturnEligible,
-      day1ReturnRecorded: false,
     };
   }
 

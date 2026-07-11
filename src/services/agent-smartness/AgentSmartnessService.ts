@@ -29,7 +29,9 @@ export type AgentSmartnessMissionResult = {
 export type AgentSmartnessReport = {
   generatedAt: string;
   version: 'agent-smartness/v1';
+  mode: 'hermetic-unit';
   simulated: false;
+  claimsLiveIntelligence: false;
   total: number;
   passed: number;
   failed: number;
@@ -83,7 +85,9 @@ export class AgentSmartnessService {
     return {
       generatedAt: this.now().toISOString(),
       version: 'agent-smartness/v1',
+      mode: 'hermetic-unit',
       simulated: false,
+      claimsLiveIntelligence: false,
       total: results.length,
       passed,
       failed,
@@ -95,9 +99,9 @@ export class AgentSmartnessService {
 
   public renderText(report: AgentSmartnessReport): string {
     return [
-      'Zavorth Agent Smartness',
+      'Zavorth Agent Smartness (hermetic unit scoreboard)',
       `passed ${report.passed}/${report.total} (${Math.round(report.missionSuccessRate * 100)}%)`,
-      `simulated: ${report.simulated}`,
+      `mode: ${report.mode} | claimsLiveIntelligence: ${report.claimsLiveIntelligence}`,
       '',
       ...report.results.map((entry) => `- [${entry.pass ? 'pass' : 'fail'}] ${entry.id}: ${entry.notes}`),
     ].join('\n');
@@ -108,7 +112,7 @@ export class AgentSmartnessService {
     const samples = [
       'ETIMEDOUT: connection timeout',
       '429 Too Many Requests rate limit',
-      'network busy, try again',
+      'service unavailable, try again later',
       '503 Service Unavailable',
     ];
     const allTransient = samples.every((sample) => isTransientToolError(new Error(sample)));
@@ -130,6 +134,8 @@ export class AgentSmartnessService {
       'unknown tool: foo_bar',
       'schema validation failed',
       'policy blocked shell.exec',
+      'network policy blocked egress',
+      'resource busy waiting for approval',
     ];
     const noneTransient = samples.every((sample) => !isTransientToolError(new Error(sample)));
     return mission(
@@ -196,14 +202,12 @@ export class AgentSmartnessService {
 
   private async runAutoExtractDraftOnly(userId: string): Promise<AgentSmartnessMissionResult> {
     const started = Date.now();
+    const userText = 'Meu nome e SmartnessProbe, prefiro dark mode e moro em Sao Paulo.';
+    const botText = 'Ok, posso guardar como rascunho se voce aprovar.';
     if (!this.memoryService) {
       const local = new MemoryService();
       const before = await local.listAll(userId).catch(() => []);
-      const result = await local.autoExtract(
-        userId,
-        'My name is SmartnessProbe and I prefer dark mode.',
-        'Noted, SmartnessProbe. I can keep that as a draft preference.',
-      );
+      const result = await local.autoExtract(userId, userText, botText);
       const after = await local.listAll(userId).catch(() => []);
       const persistedKeys = after
         .map((entry) => entry.key)
@@ -211,26 +215,30 @@ export class AgentSmartnessService {
       for (const key of persistedKeys) {
         await local.forget(userId, key).catch(() => false);
       }
+      const drafts = local.listMemoryDrafts(userId);
+      for (const draft of drafts) {
+        local.forgetMemoryDraft(draft.id);
+      }
       const pass = Array.isArray(result?.candidates)
+        && result.candidates.length >= 1
         && result.persisted === false
-        && persistedKeys.length === 0;
+        && persistedKeys.length === 0
+        && drafts.length >= 1;
       return mission(
         'smartness.memory.auto-extract-draft-only',
         'autoExtract does not silently promote memory',
         pass,
         pass ? 1 : 0,
         started,
-        pass ? 'Candidates extracted without silent persistence.' : 'autoExtract persisted memory without explicit promote.',
-        { candidateCount: result?.candidates?.length || 0, persistedKeys },
+        pass
+          ? 'Candidates extracted to draft store without durable persistence.'
+          : 'autoExtract failed honesty (empty extract, silent persist, or missing drafts).',
+        { candidateCount: result?.candidates?.length || 0, draftCount: drafts.length, persistedKeys },
       );
     }
 
     const before = await this.memoryService.listAll(userId);
-    const result = await this.memoryService.autoExtract(
-      userId,
-      'My name is SmartnessProbe and I prefer dark mode.',
-      'Noted, SmartnessProbe.',
-    );
+    const result = await this.memoryService.autoExtract(userId, userText, botText);
     const after = await this.memoryService.listAll(userId);
     const persistedKeys = after
       .map((entry) => entry.key)
@@ -238,14 +246,16 @@ export class AgentSmartnessService {
     for (const key of persistedKeys) {
       await this.memoryService.forget(userId, key).catch(() => false);
     }
-    const pass = result?.persisted === false && persistedKeys.length === 0;
+    const pass = Boolean(result?.persisted === false && (result?.candidates?.length || 0) >= 1 && persistedKeys.length === 0);
     return mission(
       'smartness.memory.auto-extract-draft-only',
       'autoExtract does not silently promote memory',
       pass,
       pass ? 1 : 0,
       started,
-      pass ? 'Candidates extracted without silent persistence.' : 'autoExtract persisted memory without explicit promote.',
+      pass
+        ? 'Candidates extracted without silent persistence.'
+        : 'autoExtract failed honesty (empty extract or silent persist).',
       { candidateCount: result?.candidates?.length || 0, persistedKeys },
     );
   }

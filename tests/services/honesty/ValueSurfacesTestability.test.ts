@@ -13,7 +13,7 @@ import {
 } from '../../../apps/zavorth-desktop/src/desktop-state/continuityStorage';
 
 describe('Value surfaces testability', () => {
-  it('stores memory drafts without silent promote', () => {
+  it('stores memory drafts without silent promote and blocks cross-user promote', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-drafts-'));
     const store = new MemoryDraftStoreService({ storePath: path.join(dir, 'drafts.json') });
     const created = store.addCandidates({
@@ -22,7 +22,9 @@ describe('Value surfaces testability', () => {
     });
     expect(created).toHaveLength(1);
     expect(store.list('u1', 'pending')).toHaveLength(1);
-    expect(store.promote(created[0].id)?.status).toBe('promoted');
+    expect(store.promote(created[0].id, { actorUserId: 'other' })).toBeNull();
+    expect(store.list('u1', 'pending')).toHaveLength(1);
+    expect(store.promote(created[0].id, { actorUserId: 'u1' })?.status).toBe('promoted');
     expect(store.list('u1', 'pending')).toHaveLength(0);
   });
 
@@ -32,14 +34,18 @@ describe('Value surfaces testability', () => {
     expect(missions.every((mission) => mission.mutatesFiles === false)).toBe(true);
   });
 
-  it('marks live smartness blocked without credentials', async () => {
+  it('marks live smartness blocked without credentials and never fakes multi-step pass', async () => {
     const report = await new AgentSmartnessLiveService({
       projectRoot: process.cwd(),
       env: {},
     }).run({ live: true });
-    expect(report.hermetic.ok).toBe(true);
+    expect(report.hermeticOk).toBe(true);
+    expect(report.liveOk).toBe(false);
+    expect(report.claimsLiveIntelligence).toBe(false);
     expect(report.live.every((entry) => entry.status === 'blocked' || entry.status === 'fail')).toBe(true);
     expect(report.live.some((entry) => entry.status === 'blocked')).toBe(true);
+    const multi = report.live.find((entry) => entry.id === 'live.multi-step.tool-plan');
+    expect(multi?.status).not.toBe('pass');
   });
 
   it('builds desktop continuity banner models', () => {

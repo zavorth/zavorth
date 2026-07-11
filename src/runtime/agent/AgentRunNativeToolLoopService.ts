@@ -501,7 +501,10 @@ export class AgentRunNativeToolLoopService {
             if (isTransientToolError(error)) {
               stats.retriedToolCalls += 1;
             }
-            const failureMessage = error instanceof Error ? err.message : String(error);
+            const failureMessage = clampText(
+              error instanceof Error ? err.message : String(error),
+              400,
+            );
             const recoveryPlan = buildStructuredToolFailurePlan({
               toolName: toolCall.name,
               errorMessage: failureMessage,
