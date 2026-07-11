@@ -25,4 +25,12 @@ describe('command center provider honesty', () => {
     expect(liveItem?.statusLabel).toBe('Live');
     expect(liveItem?.subtitle).toMatch(/live/i);
   });
+
+  it('hides MCP jargon actions for personal audience', () => {
+    const personal = buildCommandCenterItems(baseInput({ audience: 'personal', mcpServerCount: 2 }));
+    expect(personal.some((item) => item.id === 'mcp:trust')).toBe(false);
+
+    const developer = buildCommandCenterItems(baseInput({ audience: 'developer', mcpServerCount: 2 }));
+    expect(developer.some((item) => item.id === 'mcp:trust')).toBe(true);
+  });
 });

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Honest ops signing / store readiness — does NOT claim signed artifacts exist.
+ * Honest ops signing / store readiness — does NOT claim signed artifacts exist
+ * merely because a directory folder is present.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,26 +20,89 @@ const structural = [
   '.github/workflows/release.yml',
 ];
 
-const signedHints = [
+const artifactDirHints = [
   'dist-release',
   'release-assets',
   'out/make',
   'apps/zavorth-desktop/out',
 ];
 
+/** Real installer / package extensions (not empty dirs). */
+const ARTIFACT_EXT = new Set([
+  '.exe', '.msi', '.dmg', '.pkg', '.appimage', '.deb', '.rpm',
+  '.zip', '.tar', '.gz', '.tgz', '.AppImage',
+]);
+
+function listReleaseArtifacts(rel, maxDepth = 3) {
+  const abs = path.join(root, rel);
+  if (!fs.existsSync(abs)) return [];
+  const found = [];
+  const walk = (dir, depth) => {
+    if (depth > maxDepth || found.length >= 20) return;
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full, depth + 1);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      const ext = path.extname(entry.name);
+      const lower = entry.name.toLowerCase();
+      const looksSigned =
+        ARTIFACT_EXT.has(ext)
+        || ARTIFACT_EXT.has(ext.toLowerCase())
+        || lower.endsWith('.appimage')
+        || lower.includes('setup')
+        || lower.includes('installer')
+        || lower.endsWith('.sig')
+        || lower.endsWith('.asc')
+        || lower === 'sha256sums'
+        || lower.endsWith('.blockmap');
+      if (looksSigned) {
+        const st = fs.statSync(full);
+        if (st.size > 0) {
+          found.push(path.relative(root, full).replace(/\\/g, '/'));
+        }
+      }
+    }
+  };
+  const st = fs.statSync(abs);
+  if (st.isFile() && st.size > 0) {
+    found.push(rel);
+    return found;
+  }
+  if (st.isDirectory()) walk(abs, 0);
+  return found;
+}
+
 const missing = structural.filter((rel) => !fs.existsSync(path.join(root, rel)));
-const foundSigned = signedHints.filter((rel) => fs.existsSync(path.join(root, rel)));
+const dirsPresent = artifactDirHints.filter((rel) => fs.existsSync(path.join(root, rel)));
+const verifiedArtifacts = artifactDirHints.flatMap((rel) => listReleaseArtifacts(rel));
+const signedArtifactsVerified = verifiedArtifacts.length > 0;
+
 const report = {
   generatedAt: new Date().toISOString(),
-  version: 'ops-signing/v1',
+  version: 'ops-signing/v2',
   structuralOk: missing.length === 0,
-  signedArtifactsPresent: foundSigned.length > 0,
+  artifactDirsPresent: dirsPresent,
+  /** Directory presence only — NOT proof of signed release. */
+  signedArtifactDirsPresent: dirsPresent.length > 0,
+  /** Non-empty installer/package files under known release dirs. */
+  signedArtifactsVerified,
+  signedArtifactsFound: verifiedArtifacts.slice(0, 20),
   claimsStoreLaunch: false,
   missingStructural: missing,
-  signedPathsFound: foundSigned,
-  notes: foundSigned.length
-    ? 'Signed/store paths present — still verify cert identity and notarization before store language.'
-    : 'Packaging scripts OK; signed store assets remain OPS-ONLY.',
+  notes: signedArtifactsVerified
+    ? 'Installer/package files found under release dirs — still verify cert identity and notarization before store language.'
+    : dirsPresent.length
+      ? 'Release dirs exist but contain no non-empty installer/package files — not signed-store evidence.'
+      : 'Packaging scripts OK; signed store assets remain OPS-ONLY.',
 };
 
 const outPath = path.join(root, '.zavorth', 'ops-signing-report.json');
@@ -53,11 +117,18 @@ if (asJson) {
     console.log(`  ${fs.existsSync(path.join(root, rel)) ? 'ok' : 'MISS'} ${rel}`);
   }
 
-  console.log('[ops-signing] signed/store artifact dirs (optional)');
-  if (foundSigned.length === 0) {
-    console.log('  none present — expected until ops produces signed installers');
+  console.log('[ops-signing] release artifact dirs');
+  if (dirsPresent.length === 0) {
+    console.log('  none present — expected until ops produces installers');
   } else {
-    for (const rel of foundSigned) console.log(`  present ${rel}`);
+    for (const rel of dirsPresent) console.log(`  dir present ${rel}`);
+  }
+
+  console.log('[ops-signing] verified installer/package files');
+  if (!signedArtifactsVerified) {
+    console.log('  none — directory presence alone is not signed evidence');
+  } else {
+    for (const rel of verifiedArtifacts.slice(0, 10)) console.log(`  file ${rel}`);
   }
 
   if (missing.length) {
@@ -70,5 +141,5 @@ if (asJson) {
 }
 
 if (missing.length) process.exit(1);
-if (requireSigned && !foundSigned.length) process.exit(2);
+if (requireSigned && !signedArtifactsVerified) process.exit(2);
 process.exit(0);

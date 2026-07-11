@@ -30,6 +30,10 @@ type ProviderPreferenceFile = {
   routeId?: string | null;
   familyId?: string | null;
   fallbackProviderIds?: string[] | null;
+  /** Optional governed-path metadata preserved across writers. */
+  source?: string | null;
+  updatedAt?: string | null;
+  receiptId?: string | null;
 };
 
 type ChannelPreferenceFile = {
@@ -142,9 +146,14 @@ export function writeProviderPreference(input: WriteProviderPreferenceInput): Us
   }
 
   const previous = readProviderPreference(root) || {};
+  // undefined = keep previous; null/empty = clear (aligned with secondary/route).
   const next: ProviderPreferenceFile = {
+    // Preserve governed-path metadata when present so dual writers do not clobber receipts.
+    ...previous,
     providerId,
-    modelId: normalizeId(input.modelId) ?? normalizeId(previous.modelId),
+    modelId: input.modelId === undefined
+      ? normalizeId(previous.modelId)
+      : normalizeId(input.modelId),
     secondaryModelId: input.secondaryModelId === undefined
       ? normalizeId(previous.secondaryModelId)
       : normalizeId(input.secondaryModelId),
@@ -159,10 +168,16 @@ export function writeProviderPreference(input: WriteProviderPreferenceInput): Us
       : Array.isArray(previous.fallbackProviderIds)
         ? previous.fallbackProviderIds.map(normalizeId).filter(Boolean) as string[]
         : [],
+    updatedAt: new Date().toISOString(),
+    source: typeof previous.source === 'string' && previous.source
+      ? previous.source
+      : 'user-selection-direct',
   };
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  const tmpPath = `${file}.${process.pid}.${Date.now()}.tmp`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  fs.renameSync(tmpPath, file);
 
   return {
     providerId: next.providerId || providerId,

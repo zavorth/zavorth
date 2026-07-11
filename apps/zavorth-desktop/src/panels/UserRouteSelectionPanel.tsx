@@ -47,7 +47,8 @@ export function UserRouteSelectionPanel() {
       providerId: draft.providerId || '',
       modelId: draft.modelId || '',
       secondaryModelId: draft.secondaryModelId || '',
-      channelId: draft.channelId || 'desktop',
+      // Empty = not configured (never invent "desktop" as a silent default).
+      channelId: draft.channelId || '',
     };
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'saving' | 'saved' | 'error'>('idle');
@@ -65,12 +66,14 @@ export function UserRouteSelectionPanel() {
       if (res.ok) {
         const data = await res.json();
         const pref = data?.preference || {};
-        const channelId = data?.channel?.channelId || state.channelId || 'desktop';
+        // Trust server nulls — do not rehydrate empty fields from local draft.
         const next: SelectionState = {
-          providerId: String(pref.providerId || state.providerId || ''),
-          modelId: String(pref.modelId || state.modelId || ''),
-          secondaryModelId: String(pref.secondaryModelId || state.secondaryModelId || ''),
-          channelId: String(channelId || 'desktop'),
+          providerId: String(pref.providerId ?? ''),
+          modelId: String(pref.modelId ?? ''),
+          secondaryModelId: String(pref.secondaryModelId ?? ''),
+          channelId: data?.channel?.channelId != null
+            ? String(data.channel.channelId)
+            : '',
         };
         setState(next);
         writeLocalDraft(next);
@@ -79,12 +82,12 @@ export function UserRouteSelectionPanel() {
         return;
       }
       setStatus('idle');
-        setMessage(t('route.loadFallback'));
+      setMessage(t('route.loadFallback'));
     } catch {
       setStatus('idle');
       setMessage(t('route.runtimeUnavailable'));
     }
-  }, [state.channelId, state.modelId, state.providerId, state.secondaryModelId]);
+  }, []);
 
   useEffect(() => {
     void load();
@@ -108,23 +111,20 @@ export function UserRouteSelectionPanel() {
           modelId: state.modelId.trim() || null,
           secondaryModelId: state.secondaryModelId.trim() || null,
           channelId: state.channelId.trim() || null,
+          // Persist channel only when the user picked one (never invent desktop).
+          setChannel: Boolean(state.channelId.trim()),
           confirm: true,
           directWrite: true,
         }),
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error || `Save failed (${res.status})`);
+        throw new Error(t('route.saveFailed'));
       }
       setStatus('saved');
       setMessage(t('route.saved'));
-    } catch (error) {
+    } catch {
       setStatus('error');
-      setMessage(
-        error instanceof Error
-          ? `${error.message} ${t('route.localDraftKept')}`
-          : t('route.saveFailed'),
-      );
+      setMessage(`${t('route.saveFailed')} ${t('route.localDraftKept')}`);
     }
   };
 
@@ -207,6 +207,7 @@ export function UserRouteSelectionPanel() {
             value={state.channelId}
             onChange={(event) => setState((prev) => ({ ...prev, channelId: event.target.value }))}
           >
+            <option value="">{t('route.notConfigured')}</option>
             {channels.map((entry: UserSelectionChannelOption) => (
               <option key={entry.id} value={entry.id}>{entry.label}</option>
             ))}

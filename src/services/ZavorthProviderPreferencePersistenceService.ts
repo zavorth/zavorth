@@ -21,6 +21,8 @@ export type ZavorthProviderPreferencePersistenceInput = ZavorthProviderSelection
   providerId?: string | null;
   modelId?: string | null;
   secondaryModelId?: string | null;
+  routeId?: string | null;
+  familyId?: string | null;
   approvalId?: string | null;
   confirm?: boolean;
   dryRun?: boolean;
@@ -193,6 +195,8 @@ export class ZavorthProviderPreferencePersistenceService {
         selection,
         input.modelId,
         input.secondaryModelId,
+        input.routeId,
+        input.familyId,
         generatedAt,
         createReceiptId(action, selection.selected?.providerId || 'none', generatedAt),
         previous,
@@ -362,6 +366,8 @@ function buildPreference(
   selection: ZavorthProviderSelectionUxSnapshot,
   modelId: string | null | undefined,
   secondaryModelId: string | null | undefined,
+  routeId: string | null | undefined,
+  familyId: string | null | undefined,
   updatedAt: string,
   receiptId: string,
   previous: ZavorthProviderPreferenceValue | null,
@@ -371,12 +377,18 @@ function buildPreference(
   }
   return {
     providerId: selection.selected.providerId,
-    modelId: normalizeNullable(modelId) || normalizeNullable(selection.selected.model),
+    modelId: modelId === undefined
+      ? (normalizeNullable(previous?.modelId) || normalizeNullable(selection.selected.model))
+      : normalizeNullable(modelId),
     secondaryModelId: secondaryModelId === undefined
       ? normalizeNullable(previous?.secondaryModelId)
       : normalizeNullable(secondaryModelId),
-    routeId: selection.selected.providerId,
-    familyId: selection.selected.providerId,
+    routeId: routeId === undefined
+      ? (normalizeNullable(previous?.routeId) || selection.selected.providerId)
+      : (normalizeNullable(routeId) || selection.selected.providerId),
+    familyId: familyId === undefined
+      ? (normalizeNullable(previous?.familyId) || selection.selected.providerId)
+      : (normalizeNullable(familyId) || selection.selected.providerId),
     source: 'provider-selection-ux',
     updatedAt,
     receiptId,

@@ -7,10 +7,11 @@ const API_BASE = '/api/providers/preference';
 
 type ModelPreferenceInput = {
   providerId: string;
-  modelId?: string;
-  secondaryModelId?: string;
-  routeId?: string;
-  channelId?: string;
+  modelId?: string | null;
+  secondaryModelId?: string | null;
+  routeId?: string | null;
+  channelId?: string | null;
+  setChannel?: boolean;
   confirm?: boolean;
   dryRun?: boolean;
   directWrite?: boolean;
@@ -37,12 +38,14 @@ export async function updateModelPreference(input: ModelPreferenceInput): Promis
 
 function readForm(form: HTMLFormElement): ModelPreferenceInput {
   const data = new FormData(form);
+  const channelId = String(data.get('channelId') || '').trim();
   return {
     providerId: String(data.get('providerId') || '').trim(),
-    modelId: String(data.get('modelId') || '').trim(),
-    secondaryModelId: String(data.get('secondaryModelId') || '').trim(),
-    routeId: String(data.get('routeId') || '').trim(),
-    channelId: String(data.get('channelId') || '').trim(),
+    modelId: String(data.get('modelId') || '').trim() || null,
+    secondaryModelId: String(data.get('secondaryModelId') || '').trim() || null,
+    routeId: String(data.get('routeId') || '').trim() || null,
+    channelId: channelId || null,
+    setChannel: Boolean(channelId),
   };
 }
 
@@ -78,7 +81,9 @@ export function bindModelPreferenceEvents(refreshCallback: () => void): void {
       };
       Object.entries(values).forEach(([id, value]) => {
         const field = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
-        if (field && value) field.value = String(value);
+        if (!field) return;
+        // Always apply server values including null/empty so cleared fields stay cleared.
+        field.value = value == null || value === '' ? '' : String(value);
       });
     })
     .catch((error) => {

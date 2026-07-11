@@ -317,8 +317,13 @@ export class LlmRuntimeService {
             fallbackAllowed,
           });
           const hasMoreModels = modelIndex < modelAttempts.length - 1;
-          if (hasMoreModels) {
+          // Secondary model only on model-scoped / transient failures — not auth, schema, or client 4xx.
+          if (hasMoreModels && this.isSecondaryModelRetryableError(error)) {
             continue;
+          }
+          if (hasMoreModels) {
+            // Non-retryable primary model error: stop model chain and surface the error.
+            throw error;
           }
           if (!options?.allowFallback) {
             throw error;
@@ -331,7 +336,19 @@ export class LlmRuntimeService {
       throw lastError;
     }
 
-    throw new Error('Nenhum provedor LLM disponivel para esta execucao.');
+    throw new Error('No LLM provider is available for this execution.');
+  }
+
+  /** Secondary-model retry: model missing/unsupported/overloaded — not auth or request-shape bugs. */
+  private isSecondaryModelRetryableError(error: unknown): boolean {
+    const message = this.errorMessage(error).toLowerCase();
+    if (/api[_ ]?key|invalid[_ ]?api|unauthorized|authentication|auth|forbidden|permission denied|401|403/.test(message)) {
+      return false;
+    }
+    if (/invalid[_ ]?request|tool.?schema|json.?schema|context.?length|too many tokens|payload/.test(message)) {
+      return false;
+    }
+    return /model.?not.?found|unsupported.?model|invalid.?model|unknown.?model|model_not_found|does not exist|model.?unavailable|overloaded|rate.?limit|resource.?exhausted|capacity|timeout|temporar|503|502|500|529|econnreset|etimedout|socket/.test(message);
   }
 
   private resolveSecondaryModelId(_options?: LlmRunOptions): string | null {
@@ -394,7 +411,9 @@ export class LlmRuntimeService {
       providerName: input.providerName,
       modelName: input.modelName,
       fallbackAllowed: input.fallbackAllowed,
-      fallbackUsed: input.providerName !== input.primaryProviderName,
+      fallbackUsed:
+        input.providerName !== input.primaryProviderName
+        || input.attempts.some((attempt) => attempt.fallback === true && attempt.status === 'succeeded'),
       providerChain: input.providerChain,
       attempts: input.attempts.map((attempt) => ({ ...attempt })),
       request: {
@@ -732,11 +751,15 @@ export class LlmRuntimeService {
     const customFallbacks = (options?.fallbackOrder || []).map((entry) =>
       this.normalizeProviderName(entry),
     );
+    const selectionFallbacks = resolveUserProviderSelection({})
+      .fallbackProviderIds
+      .map((entry) => this.normalizeProviderName(entry));
 
     return Array.from(
       new Set([
         preferredProvider,
         ...customFallbacks,
+        ...selectionFallbacks,
         ...DEFAULT_FALLBACK_ORDER.filter((entry) => entry !== preferredProvider).map((entry) =>
           this.normalizeProviderName(entry),
         ),

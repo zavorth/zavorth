@@ -48,7 +48,8 @@ if (!live) {
     notes: 'Pass --live to execute killer missions for all audiences.',
   });
 } else {
-  const smartness = runTsx('scripts/agent-smartness-live-run.ts', ['--live', '--json']);
+  // --check ensures non-zero exit when live fails; never invent pass from bare exit 0.
+  const smartness = runTsx('scripts/agent-smartness-live-run.ts', ['--live', '--json', '--check', '--allow-blocked']);
   let smartnessReport = null;
   try {
     smartnessReport = JSON.parse(smartness.stdout || '{}');
@@ -69,9 +70,9 @@ if (!live) {
   if (!liveRows.length) {
     cells.push({
       id: 'live.smartness',
-      status: smartness.status === 0 ? 'pass' : 'fail',
+      status: 'fail',
       live: true,
-      notes: (smartness.stderr || smartness.stdout || 'no json').slice(0, 400),
+      notes: 'Missing structured live[] report from agent-smartness-live-run — fail closed.',
     });
   }
 
@@ -105,7 +106,8 @@ if (!live) {
   }
 }
 
-// Merge prior credentialed passes so a rate-limit flake does not erase launch evidence.
+// Keep historical passes for audit, but current status always reflects latest attempt.
+// Exit code uses latestAttempt so a real fail is never masked by a prior pass.
 const primaryPath = path.join(root, '.zavorth', 'launch-live-cells.json');
 let priorCells = [];
 try {
@@ -116,40 +118,50 @@ try {
 } catch {
   priorCells = [];
 }
-const mergedById = new Map();
+const historyById = new Map();
 for (const cell of priorCells) {
-  if (cell && cell.id) mergedById.set(cell.id, cell);
+  if (cell && cell.id) historyById.set(cell.id, cell);
 }
-for (const cell of cells) {
-  const previous = mergedById.get(cell.id);
-  if (cell.status === 'pass') {
-    mergedById.set(cell.id, cell);
-  } else if (previous?.status === 'pass' && cell.status === 'fail') {
-    mergedById.set(cell.id, {
+const mergedCells = cells.map((cell) => {
+  const previous = historyById.get(cell.id);
+  if (previous?.status === 'pass' && cell.status !== 'pass') {
+    return {
+      ...cell,
+      priorPass: {
+        generatedAt: previous.generatedAt || null,
+        notes: previous.notes,
+        evidence: previous.evidence || null,
+      },
+      notes: `${cell.notes} (prior pass retained in history only; latest status=${cell.status})`,
+    };
+  }
+  return cell;
+});
+// Also keep prior cells not re-run this session (audit trail), marked stale.
+for (const [id, previous] of historyById.entries()) {
+  if (!mergedCells.some((c) => c.id === id)) {
+    mergedCells.push({
       ...previous,
-      lastAttempt: cell,
-      notes: `${previous.notes} (kept prior pass; latest attempt ${cell.status}: ${String(cell.notes || '').slice(0, 120)})`,
+      stale: true,
+      notes: `${previous.notes || ''} (stale: not re-run this session)`.trim(),
     });
-  } else {
-    mergedById.set(cell.id, cell);
   }
 }
-const mergedCells = Array.from(mergedById.values());
 
 const report = {
   generatedAt,
-  version: 'launch-live-cells/v1',
+  version: 'launch-live-cells/v2',
   liveRequested: live,
-  claimsLiveIntelligence: mergedCells.some(
+  claimsLiveIntelligence: cells.some(
     (cell) => cell.id === 'live.multi-step.tool-plan' && cell.status === 'pass',
   ),
   cells: mergedCells,
   latestAttempt: cells,
   summary: {
-    pass: mergedCells.filter((c) => c.status === 'pass').length,
-    fail: mergedCells.filter((c) => c.status === 'fail').length,
-    blocked: mergedCells.filter((c) => c.status === 'blocked').length,
-    skipped: mergedCells.filter((c) => c.status === 'skipped').length,
+    pass: cells.filter((c) => c.status === 'pass').length,
+    fail: cells.filter((c) => c.status === 'fail').length,
+    blocked: cells.filter((c) => c.status === 'blocked').length,
+    skipped: cells.filter((c) => c.status === 'skipped').length,
   },
 };
 
@@ -176,5 +188,8 @@ if (asJson) {
   process.stdout.write(`\nwrote ${path.relative(root, primary)}\n`);
 }
 
-const hardFail = live && report.summary.fail > 0;
-process.exit(hardFail ? 1 : 0);
+const latestFail = live && (
+  cells.some((c) => c.status === 'fail' || c.status === 'blocked')
+  || !cells.some((c) => c.id === 'live.multi-step.tool-plan' && c.status === 'pass')
+);
+process.exit(latestFail ? 1 : 0);

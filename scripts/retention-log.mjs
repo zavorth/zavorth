@@ -114,11 +114,21 @@ if (has('--day1-return')) {
     );
     process.exit(2);
   }
+  const usedFake = day0Day === today && process.env.ZAVORTH_ALLOW_FAKE_DAY1 === '1';
   doc.criteria.day1Return = true;
-  pushHistory(doc, 'day1Return', 'flag --day1-return');
+  doc.day1Method = usedFake ? 'fake-env' : 'calendar';
+  pushHistory(
+    doc,
+    'day1Return',
+    usedFake ? 'flag --day1-return with ZAVORTH_ALLOW_FAKE_DAY1 (not launch evidence)' : 'flag --day1-return',
+  );
   applyNotes(doc);
   mutated = true;
-  console.log('[retention] R2 day1Return = true');
+  console.log(
+    usedFake
+      ? '[retention] R2 day1Return = true (FAKE — not launch evidence)'
+      : '[retention] R2 day1Return = true',
+  );
 }
 
 if (has('--notes') && !mutated) {
