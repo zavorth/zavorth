@@ -2,6 +2,7 @@ import { Database } from '../storage/Database.js';
 import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
+import { MemoryDraftStoreService } from './MemoryDraftStoreService.js';
 import { logger } from '../logger.js';const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
 
 export interface MemoryEntry {
@@ -38,6 +39,7 @@ export class MemoryService {
   private initialized = false;
   private secureStorage = new SecureStorageService();
   private embeddingService = new VectorEmbeddingService();
+  private draftStore = new MemoryDraftStoreService();
 
   public async init(): Promise<void> {
     if (this.initialized) return;
@@ -278,6 +280,13 @@ export class MemoryService {
   ): Promise<AutoExtractResult> {
     const candidates = this.extractMemoryCandidates(userMessage, botResponse);
     if (!options.persist) {
+      if (candidates.length > 0) {
+        this.draftStore.addCandidates({
+          userId,
+          candidates,
+          source: 'auto-extract',
+        });
+      }
       return {
         candidates,
         persisted: false,
@@ -295,6 +304,18 @@ export class MemoryService {
       persisted: candidates.length > 0,
       mode: 'persist',
     };
+  }
+
+  public listMemoryDrafts(userId?: string) {
+    return this.draftStore.list(userId, 'pending');
+  }
+
+  public promoteMemoryDraft(id: string) {
+    return this.draftStore.promote(id);
+  }
+
+  public forgetMemoryDraft(id: string) {
+    return this.draftStore.forget(id);
   }
 
   private mapEntry(entry: MemoryEntry): MemoryEntry {

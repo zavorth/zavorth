@@ -116,6 +116,9 @@ if (failures.length === 0) {
     read('apps/zavorth-desktop/src/views/DesktopWorkspaceView.tsx'),
     read('apps/zavorth-desktop/src/thread/ThreadView.tsx'),
     read('apps/zavorth-desktop/src/useDesktopAppState.ts'),
+    read('apps/zavorth-desktop/src/views/panels/MemoryView.tsx'),
+    read('apps/zavorth-desktop/src/views/panels/MemoryPanel.tsx'),
+    read('apps/zavorth-desktop/src/components/ContinuityBanner.tsx'),
   ].join('\n');
   for (const needle of [
     'sendMessage',
@@ -129,6 +132,8 @@ if (failures.length === 0) {
     'SkillsView',
     'ChannelsView',
     'SettingsView',
+    'ContinuityBanner',
+    'buildContinuityBannerModel',
   ]) {
     if (!app.includes(needle)) {
       failures.push(`desktop app missing native surface: ${needle}`);
