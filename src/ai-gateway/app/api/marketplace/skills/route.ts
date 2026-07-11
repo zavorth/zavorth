@@ -8,7 +8,17 @@ import { SkillDependencyResolver } from "../../../../../../skills/marketplace/Sk
 import { SkillRollback } from "../../../../../../skills/marketplace/SkillRollback.js";
 import { searchGitHubReposBroad } from "../../../../../../skills/marketplace/SkillGitHubSearch.js";
 import { logger } from "@/shared/utils/logger";
+import path from "node:path";
 export const runtime = "nodejs";
+
+function resolveInstalledSkillPath(skillId: string): string | null {
+  const root = path.resolve(process.cwd(), "skills");
+  const candidate = path.resolve(root, skillId);
+  if (!skillId || skillId.includes("\0") || candidate === root || !candidate.startsWith(`${root}${path.sep}`)) {
+    return null;
+  }
+  return candidate;
+}
 
 function buildMarketplaceResponse(registry: SkillLocalRegistry) {
   const all = registry.listAll();
@@ -78,7 +88,8 @@ export async function GET(request: Request) {
       if (!entry) {
         return NextResponse.json({ ok: false, error: `Skill "${skillId}" not found` }, { status: 404 });
       }
-      const skillsDir = `${process.cwd()}/skills/${skillId}`;
+      const skillsDir = resolveInstalledSkillPath(skillId);
+      if (!skillsDir) return NextResponse.json({ ok: false, error: "Invalid skill id" }, { status: 400 });
       const depResolver = new SkillDependencyResolver();
       const depCheck = require("fs").existsSync(skillsDir) ? depResolver.checkDependencies(skillsDir) : null;
       return NextResponse.json({
@@ -135,7 +146,8 @@ export async function POST(request: Request) {
     }
 
     if (action === "uninstall" && skillId) {
-      const skillsDir = `${process.cwd()}/skills/${skillId}`;
+      const skillsDir = resolveInstalledSkillPath(skillId);
+      if (!skillsDir) return NextResponse.json({ ok: false, error: "Invalid skill id" }, { status: 400 });
       const fs = require("fs");
       if (!fs.existsSync(skillsDir)) {
         return NextResponse.json({ ok: false, error: `Skill "${skillId}" not installed` }, { status: 404 });

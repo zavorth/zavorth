@@ -9,7 +9,7 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { getChecksums, getReleaseByVersion } from "./releaseChecker.ts";
 import { safeFetch } from "../../../security/SafeFetchService.js";
-import { logger } from '../logger.js';
+import { logger } from '../../shared/utils/logger.js';
 import { asErrorLike } from '../../../utils/errorLike';
 
 const execFileAsync = promisify(execFile);
@@ -17,6 +17,14 @@ const DEFAULT_DATA_DIR = process.env.DATA_DIR || path.join(os.homedir(), ".Zavor
 
 type Platform = "linux" | "darwin" | "windows" | "freebsd";
 type Arch = "amd64" | "arm64";
+
+function assertSafeVersion(version: string): string {
+  const normalized = String(version || "").trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(normalized) || normalized.includes("..")) {
+    throw new Error("Invalid release version");
+  }
+  return normalized;
+}
 
 function detectPlatform(): Platform {
   const p = process.platform;
@@ -112,8 +120,10 @@ export async function downloadRelease(
   targetDir: string,
   signal?: AbortSignal
 ): Promise<string> {
+  version = assertSafeVersion(version);
   const release = await getReleaseByVersion(version);
   if (!release) throw new Error(`Version ${version} not found`);
+  assertSafeVersion(release.version);
 
   const { platform, arch } = getTargetPlatform();
   const ext = platform === "windows" ? ".zip" : ".tar.gz";
@@ -128,15 +138,15 @@ export async function downloadRelease(
   await downloadFile(asset.url, archivePath, signal);
 
   const checksums = await getChecksums(version);
-  if (checksums.size > 0) {
-    const expected = checksums.get(assetName);
-    if (expected) {
-      const valid = await verifyChecksum(archivePath, expected);
-      if (!valid) {
-        await fs.unlink(archivePath);
-        throw new Error(`SHA256 checksum mismatch for ${assetName}`);
-      }
-    }
+  const expected = checksums.get(assetName);
+  if (!expected || !/^[a-f0-9]{64}$/i.test(expected)) {
+    await fs.unlink(archivePath).catch(() => undefined);
+    throw new Error(`Trusted SHA256 checksum missing for ${assetName}`);
+  }
+  const valid = await verifyChecksum(archivePath, expected);
+  if (!valid) {
+    await fs.unlink(archivePath).catch(() => undefined);
+    throw new Error(`SHA256 checksum mismatch for ${assetName}`);
   }
 
   if (platform === "windows") {
@@ -226,6 +236,11 @@ export async function rollbackVersion(dataDir?: string): Promise<string | null> 
 }
 
 export async function removeVersion(version: string, dataDir?: string): Promise<boolean> {
+  try {
+    version = assertSafeVersion(version);
+  } catch {
+    return false;
+  }
   const dir = dataDir || DEFAULT_DATA_DIR;
   const versionDir = path.join(dir, "bin", `cliproxyapi-${version}`);
   try {

@@ -62,8 +62,10 @@ export async function verifyAuth(request: any): Promise<string | null> {
   if (token && process.env.JWT_SECRET) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-      await jwtVerify(token, secret);
-      return null; // ✔ Authenticated via cookie
+      const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
+      if (payload.authenticated === true) {
+        return null; // ✔ Authenticated via cookie
+      }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Invalid/expired token — fall through to API key check
       logger.warn('[api Auth] encoding failed', error);
@@ -136,8 +138,10 @@ export async function isStrictlyAuthenticated(request: Request): Promise<boolean
       const token = cookieStore.get("auth_token")?.value;
       if (token) {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-        await jwtVerify(token, secret);
-        return true;
+        const { payload } = await jwtVerify(token, secret, { algorithms: ['HS256'] });
+        if (payload.authenticated === true) {
+          return true;
+        }
       }
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
       // Invalid/expired token or cookies not available
