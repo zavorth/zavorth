@@ -144,7 +144,7 @@ User device locale
 | **V9** | Selection UX complete | P1 | `DONE` | V8 may run in parallel | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY |
 | **V10** | Neutral ops defaults | P1 | `DONE` | parallel with V9 | VR-AUTOPILOT, VR-CATALOG-FB |
 | **V11** | Habit + audiences closeout | P0/P2 | `DONE` | V8 path + V9 preferred | VR-RITUAL, VR-NONDEV, VR-JARGON, VR-KILLER-RUN, VR-CODE-LOOP |
-| **V12** | Launch residual | P3 | `LOCKED` until V8 live path honest | V8 (for cells), product habit optional | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE |
+| **V12** | Launch residual | P3 | `DONE (program)` — launch bar ops-gated | V8 (for cells), product habit optional | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE |
 
 **Recommended order**
 
@@ -629,7 +629,7 @@ node scripts/retention-log.mjs --check
 | V9 DONE | Pickers write prefs; no Auto/Gemini product default copy; secondary wired; i18n |
 | V10 DONE | Autopilot + catalog neutral |
 | V11 DONE | Ritual + non-dev + killer execute path + Code loop semantics |
-| V12 DONE | LR-DAY1 + LR-SIGN + LR-CELLS + announce gate |
+| V12 DONE (program) | Launch gates + live-cell recorder + signing report + announce checklist; full launch bar still needs calendar R2 + signed artifacts |
 | **Program complete** | Selection-honest + Live-quality + Habit-closed + Launch-ready — each claim backed by gate evidence |
 
 ---
