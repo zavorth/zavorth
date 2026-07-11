@@ -104,7 +104,7 @@ npm run i18n:check
 | **V8** Live multi-step + TTFU | **DONE** — multi-step live pass + TTFU ~15s measured |
 | **V9** Selection UX | **CORE SHIPPED** — pickers + secondary + channel + catalog |
 | **V10** Neutral ops defaults | **DONE** — autopilot fail-closed; catalog fallbacks empty |
-| **V11** Habit + audiences | **IN PROGRESS** — ritual + killer execute + code daily loop |
+| **V11** Habit + audiences | **DONE** — ritual, non-dev jargon, killer 3/3, code loop |
 | **V12** Launch residual | residual (ops) |
 
 ### Optional polish (non-blocking for value-ready)

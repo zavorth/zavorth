@@ -32,6 +32,8 @@ import {
   rememberDesktopSession,
   touchDesktopOpenClock,
 } from '../desktop-state/continuityStorage';
+import { getOnboardingAudience } from '../onboarding/desktopOnboarding';
+import { DailyReturnContinuityService } from '../../../src/services/DailyReturnContinuityService';
 
 import {
   clearQueue,
@@ -309,17 +311,34 @@ export function DesktopShell(props: {
     const lastSessionId = remembered.id && remembered.id !== props.currentSessionId
       ? remembered.id
       : (props.currentSessionId ? null : remembered.id);
+    const learningPending = (props.learningItems || []).filter((item) => {
+      const status = String(item.status || '').toLowerCase();
+      return status !== 'promoted' && status !== 'accepted' && status !== 'rejected';
+    }).length;
+    const snapshot = new DailyReturnContinuityService().buildSnapshot({
+      pendingApprovals: pendingApprovalCount,
+      providerReady,
+      memoryDraftCount: learningPending,
+      previousOpenAt: clock.previousOpenAt,
+      currentOpenAt: clock.currentOpenAt,
+      sessions: lastSessionId
+        ? [{ id: lastSessionId, title: remembered.title, updatedAt: clock.previousOpenAt || undefined }]
+        : [],
+    });
     return buildContinuityBannerModel({
       pendingApprovals: pendingApprovalCount,
       providerReady,
       lastSessionId,
       lastSessionTitle: remembered.title,
-      day1ReturnEligible: isDay1ReturnEligible(clock.previousOpenAt, clock.currentOpenAt),
+      pendingTasks: snapshot.pendingTasks,
+      day1ReturnEligible: isDay1ReturnEligible(clock.previousOpenAt, clock.currentOpenAt)
+        || snapshot.day1ReturnEligible,
     });
   }, [
     pendingApprovalCount,
     props.busy,
     props.currentSessionId,
+    props.learningItems,
     props.runtimeCapabilities,
   ]);
 
@@ -375,6 +394,7 @@ export function DesktopShell(props: {
       memoryCount: props.memoryItems?.length,
       channelCount: props.channels?.length,
       workspacePath: props.workspaceScope?.path || props.workspaceScope?.label || null,
+      audience: getOnboardingAudience(),
     });
     return {
       settingsGroups,

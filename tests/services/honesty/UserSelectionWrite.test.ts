@@ -86,5 +86,40 @@ describe('V11 killer execute + code loop', () => {
     expect(snapshot.alignsWithDailyPe).toBe(true);
     expect(snapshot.happyPath.steps).toHaveLength(4);
     expect(snapshot.surface).toBe('code');
+    expect(snapshot.peAligned.chatReady).toBe(snapshot.chatReady);
+    expect(snapshot.peAligned.happyPathSteps).toBe(4);
+  });
+
+  it('executes killer live path with injected runtime (no network)', async () => {
+    const report = await new KillerMissionExecuteService({
+      projectRoot: process.cwd(),
+      env: { LLM_PROVIDER: 'openai' } as NodeJS.ProcessEnv,
+      runtimeFactory: () => ({
+        chatDetailed: async () => ({
+          providerName: 'openai',
+          modelName: 'gpt-test',
+          response: {
+            content: 'Today plan: 1) review inbox action 2) write notes 3) approval only if sending email.',
+            toolCalls: [],
+            finishReason: 'stop',
+          },
+          route: {
+            source: 'test',
+            requestedProviderName: 'openai',
+            primaryProviderName: 'openai',
+            providerName: 'openai',
+            modelName: 'gpt-test',
+            fallbackAllowed: true,
+            fallbackUsed: false,
+            providerChain: ['openai'],
+            attempts: [],
+            request: { messageCount: 1, toolCount: 0, inputChars: 10 },
+          },
+        } as any),
+      }),
+    }).run({ live: true, audience: 'personal' });
+    expect(report.liveRequested).toBe(true);
+    expect(report.executed).toBe(1);
+    expect(report.receipts[0]?.status).toBe('pass');
   });
 });

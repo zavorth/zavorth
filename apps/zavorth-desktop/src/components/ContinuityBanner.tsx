@@ -92,7 +92,7 @@ export function buildContinuityBannerModel(input: {
       kind: 'resume-task',
       title: primaryTask,
       detail: t('continuity.resumeTaskDetail', lang) || 'Primary next action from last session.',
-      cta: t('continuity.continueCta', lang) || 'Continue',
+      cta: t('continuity.resumeTaskCta', lang) || t('continuity.continueCta', lang) || 'Continue',
       sessionId: input.lastSessionId || null,
       day1ReturnEligible: Boolean(input.day1ReturnEligible),
     };

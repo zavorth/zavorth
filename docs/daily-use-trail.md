@@ -46,16 +46,32 @@ Optional after chat works (the 8-step Control checklist does **not** gate `chatR
 4. Review learned memory (draft-only learning until you promote).
 5. Add tools and skills through preview → smoke → approval when required.
 6. Schedule a routine with visible final prompt and scope.
-7. Run quality checks (`npm run agent:smartness:check` for agent scoreboard).
+7. Run quality checks when you care about agent scoreboard health (operators: `npm run agent:smartness:check`).
 8. Promote useful skills and archive unused ones from the same lifecycle surface.
 
-## Daily loop
+Personal users can stay on the short path above without these operator steps.
 
-- Ask normally in the inbox.
+## Daily loop (Desktop · Control · Code)
+
+Same product meaning on every surface:
+
+| Step | Desktop | Control | Code |
+|------|---------|---------|------|
+| Open | Desktop app | Browser Control | Code CLI/TUI (`zavorth`) |
+| Provider ready | Settings → AI models / Your route | Settings → Model route | Same preference files (`UserSelectionResolver`) |
+| First ask | Chat inbox / starter | Chat / daily cards | TUI prompt |
+| Review | Approvals rail | Review / receipts | Diff / approve before risky edits |
+
+- Ask normally in the inbox (or Code TUI).
 - Let safe, reversible work run quietly.
 - Review clear previews for important changes.
 - Check receipts and learned memory when something looks surprising.
-- Promote useful skills and archive unused ones from the same lifecycle surface.
+- On reopen, Continuity shows **one** primary next action (pending approvals, drafts, or last session).
+
+```bash
+npm run value:code-loop -- --check
+npm run value:continuity -- --check
+```
 
 ## Daily product experience
 
