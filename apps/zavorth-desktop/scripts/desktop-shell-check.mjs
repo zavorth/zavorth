@@ -80,7 +80,7 @@ const requiredSkinMarkers = [
   'Projects',
   'Conversations',
   'What should we work on?',
-  'Plan, review, or deliver a task with local runtime',
+  'onboarding.welcomeBody',
   'Ask anything',
   'Completion sounds',
   'workspacePath',

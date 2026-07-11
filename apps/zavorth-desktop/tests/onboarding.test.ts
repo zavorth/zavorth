@@ -76,9 +76,10 @@ describe('desktop onboarding helpers', () => {
     expect(consumeOnboardingCelebration(session)).toBe(false);
   });
 
-  it('defines a 4-step trail with optional channels', () => {
-    expect(DESKTOP_ONBOARDING_TRAIL).toHaveLength(4);
+  it('defines a 5-step audience-first trail with optional channels', () => {
+    expect(DESKTOP_ONBOARDING_TRAIL).toHaveLength(5);
     expect(DESKTOP_ONBOARDING_TRAIL.map(step => step.id)).toEqual([
+      'audience',
       'provider',
       'trust',
       'channel',

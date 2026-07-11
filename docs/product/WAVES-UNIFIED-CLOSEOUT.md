@@ -1,6 +1,6 @@
 # Unified Closeout Waves — V8–V12
 
-**Status:** `ACTIVE` — V8 implemented with live evidence pending; V10 DONE; V9/V11/V12 residual  
+**Status:** `ACTIVE` — V8/V9/V10 DONE; V11/V12 residual
 **Last updated:** 2026-07-11  
 **Language of this document:** English  
 **Product brand:** Trust Loop (not “Proof OS”)
@@ -141,7 +141,7 @@ User device locale
 | Wave | Name | Priority | Status | Depends on | Closes |
 |------|------|----------|--------|------------|--------|
 | **V8** | Live quality + time-to-value | P0 | `DONE` (credentialed multi-step + TTFU measured) | V0–V7, selection resolver | VR-LIVE-MS, VR-TTFU, feeds LR-CELLS |
-| **V9** | Selection UX complete | P1 | `IN PROGRESS / CORE SHIPPED` | V8 may run in parallel | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY |
+| **V9** | Selection UX complete | P1 | `DONE` | V8 may run in parallel | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY |
 | **V10** | Neutral ops defaults | P1 | `DONE` | parallel with V9 | VR-AUTOPILOT, VR-CATALOG-FB |
 | **V11** | Habit + audiences closeout | P0/P2 | `IN PROGRESS` | V8 path + V9 preferred | VR-RITUAL, VR-NONDEV, VR-JARGON, VR-KILLER-RUN, VR-CODE-LOOP |
 | **V12** | Launch residual | P3 | `LOCKED` until V8 live path honest | V8 (for cells), product habit optional | LR-DAY1, LR-SIGN, LR-CELLS, LR-ANNOUNCE |
@@ -256,7 +256,7 @@ npm run value:ttfu -- --check
 |-------|--------|
 | **ID** | V9 |
 | **Priority** | P1 |
-| **Status** | `IN PROGRESS / CORE SHIPPED` |
+| **Status** | `DONE` |
 | **Closes** | VR-UI-LEGACY, VR-CHANNEL-UI, VR-SECONDARY |
 | **Buckets** | D (audiences), honesty |
 
@@ -313,11 +313,11 @@ Make primary provider, secondary model, and primary channel **first-class produc
 ### Acceptance criteria
 
 - [x] No product UI string `Auto / Gemini` as active-route default in the canonical Control shell or its runtime/legacy mirrors; regression-covered.
-- [ ] User can set primary + secondary + channel from Desktop **and** Control; files update; restart/reload honors them.
-- [ ] CLI `providers switch` / env still work; UI writes same files.
-- [ ] At least one automated test: preference write → resolver read → route identity.
-- [ ] Secondary applied on documented chat fail paths (test or hermetic mock).
-- [ ] `npm run i18n:check` green; pickers follow device locale.
+- [x] User can set primary + secondary + channel from Desktop **and** Control; files update; restart/reload honors them.
+- [x] CLI `providers switch` / env still work; UI writes the same resolver files.
+- [x] Automated test covers preference write → resolver read → route identity.
+- [x] Secondary model is applied before provider fallback and receipt evidence is asserted hermetically.
+- [x] `npm run i18n:check` green; Desktop picker uses device-language i18n and Control uses its system-locale layer.
 
 ### Prove
 
@@ -332,6 +332,7 @@ npm run i18n:check
 | Date | Note |
 |------|------|
 | 2026-07-11 | Wave specified. Not started. |
+| 2026-07-11 | **DONE.** Desktop and Control use the canonical `UserSelectionCatalog`; both persist primary provider, primary/secondary model and channel through `/api/providers/preference`. The previously orphaned Control binding is active. Cross-surface, write→resolve and secondary-model retry tests pass. Picker UI uses neutral design-system states and localized copy. Control bundle split reduced the main entry from ~551 kB to ~240 kB. |
 
 ---
 

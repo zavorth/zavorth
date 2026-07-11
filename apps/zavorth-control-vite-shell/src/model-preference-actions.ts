@@ -1,19 +1,11 @@
 import { escapeHtml } from './html-utils';
-import { asErrorLike } from '../../../src/utils/errorLike';
 import { createShellLogger, surfaceShellError } from './shell-debug';
 import { translate } from './locale';
 
 const log = createShellLogger('model-pref');
-
 const API_BASE = '/api/providers/preference';
 
-export async function fetchModelPreference(): Promise<any> {
-  const res = await fetch(API_BASE);
-  if (!res.ok) throw new Error(`Failed to fetch model preference: ${res.status}`);
-  return res.json();
-}
-
-export async function updateModelPreference(input: {
+type ModelPreferenceInput = {
   providerId: string;
   modelId?: string;
   secondaryModelId?: string;
@@ -22,178 +14,147 @@ export async function updateModelPreference(input: {
   confirm?: boolean;
   dryRun?: boolean;
   directWrite?: boolean;
-}): Promise<any> {
+};
+
+export async function fetchModelPreference(): Promise<any> {
+  const res = await fetch(API_BASE);
+  if (!res.ok) throw new Error(`Failed to fetch model preference: ${res.status}`);
+  return res.json();
+}
+
+export async function updateModelPreference(input: ModelPreferenceInput): Promise<any> {
   const res = await fetch(API_BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error(`Failed to update model preference: ${res.status}`);
+  if (!res.ok) {
+    const payload = await res.json().catch(() => ({}));
+    throw new Error(payload?.error || `Failed to update model preference: ${res.status}`);
+  }
   return res.json();
+}
+
+function readForm(form: HTMLFormElement): ModelPreferenceInput {
+  const data = new FormData(form);
+  return {
+    providerId: String(data.get('providerId') || '').trim(),
+    modelId: String(data.get('modelId') || '').trim(),
+    secondaryModelId: String(data.get('secondaryModelId') || '').trim(),
+    routeId: String(data.get('routeId') || '').trim(),
+    channelId: String(data.get('channelId') || '').trim(),
+  };
+}
+
+function showResult(panel: HTMLElement, title: string, body: string, meta = ''): void {
+  panel.hidden = false;
+  panel.innerHTML = `
+    <div class="daily-route-result__head">
+      <strong>${escapeHtml(translate(title))}</strong>
+      <button class="cron-action-btn" type="button" id="btn-clear-pref-result">${escapeHtml(translate('Clear'))}</button>
+    </div>
+    <div>${body}</div>
+    ${meta ? `<span class="daily-route-result__meta">${meta}</span>` : ''}
+  `;
 }
 
 export function bindModelPreferenceEvents(refreshCallback: () => void): void {
   if (document.documentElement.dataset.modelPrefBound === '1') return;
-  document.documentElement.dataset.modelPrefBound = '1';
 
   const form = document.getElementById('model-preference-form') as HTMLFormElement | null;
   const resultPanel = document.getElementById('pref-result-panel');
-
   if (!form || !resultPanel) return;
+  document.documentElement.dataset.modelPrefBound = '1';
 
-  // 1. Initial Load: Populate form fields from persisted preferences
   fetchModelPreference()
     .then((data) => {
-      const pref = data?.preference;
-      const providerSelect = document.getElementById('pref-provider') as HTMLSelectElement | null;
-      const modelInput = document.getElementById('pref-model') as HTMLInputElement | null;
-      const secondaryInput = document.getElementById('pref-secondary-model') as HTMLInputElement | null;
-      const routeSelect = document.getElementById('pref-route') as HTMLSelectElement | HTMLInputElement | null;
-      const channelSelect = document.getElementById('pref-channel') as HTMLSelectElement | null;
-
-      if (pref) {
-        if (providerSelect && pref.providerId) providerSelect.value = pref.providerId;
-        if (modelInput && pref.modelId) modelInput.value = pref.modelId;
-        if (secondaryInput && pref.secondaryModelId) secondaryInput.value = pref.secondaryModelId;
-        if (routeSelect && pref.routeId) routeSelect.value = pref.routeId;
-      }
-      if (channelSelect && data?.channel?.channelId) {
-        channelSelect.value = data.channel.channelId;
-      }
+      const pref = data?.preference || {};
+      const values: Record<string, unknown> = {
+        'pref-provider': pref.providerId,
+        'pref-model': pref.modelId,
+        'pref-secondary-model': pref.secondaryModelId,
+        'pref-route': pref.routeId,
+        'pref-channel': data?.channel?.channelId,
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const field = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | null;
+        if (field && value) field.value = String(value);
+      });
     })
-    .catch((err) => {
-      log.error('failed to load initial preference', err);
-      const message = err instanceof Error ? err.message : String(err);
+    .catch((error) => {
+      log.error('failed to load initial preference', error);
       surfaceShellError(
         translate('Model preference'),
-        message || translate('Could not load the saved model preference.'),
+        error instanceof Error ? error.message : translate('Could not load the saved model preference.'),
         'info',
       );
     });
 
-  // 2. Submit Event (Save Preference)
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = new FormData(form);
-    const providerId = (data.get('providerId') as string) || '';
-    const modelId = (data.get('modelId') as string) || '';
-    const secondaryModelId = (data.get('secondaryModelId') as string) || '';
-    const routeId = (data.get('routeId') as string) || '';
-    const channelId = (data.get('channelId') as string) || '';
-
-    if (!providerId) return;
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = readForm(form);
+    if (!input.providerId) return;
 
     try {
       const result = await updateModelPreference({
-        providerId,
-        modelId,
-        secondaryModelId,
-        routeId,
-        channelId,
+        ...input,
         confirm: true,
         dryRun: false,
         directWrite: true,
       });
-
-      resultPanel.style.display = 'block';
-      resultPanel.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <strong style="color:#34d399;">✅ Preference Saved Successfully</strong>
-          <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
-        </div>
-        <p style="margin:4px 0; color:rgba(255,255,255,0.7);">
-          Active provider: <strong>${escapeHtml(result.preference?.providerId || 'none')}</strong><br/>
-          Active model: <strong>${escapeHtml(result.preference?.modelId || 'none')}</strong><br/>
-          Secondary model: <strong>${escapeHtml(result.preference?.secondaryModelId || 'none')}</strong><br/>
-          Primary channel: <strong>${escapeHtml(result.channel?.channelId || channelId || 'none')}</strong>
-        </p>
-        <span style="font-size:11px; color:rgba(255,255,255,0.4);">Source: ${escapeHtml(result.source || result.receipt?.id || 'preference')}</span>
-      `;
-
+      showResult(
+        resultPanel,
+        'Route saved',
+        `<p>
+          ${escapeHtml(translate('Primary provider'))}: <strong>${escapeHtml(result.preference?.providerId || 'none')}</strong><br/>
+          ${escapeHtml(translate('Primary model'))}: <strong>${escapeHtml(result.preference?.modelId || 'none')}</strong><br/>
+          ${escapeHtml(translate('Secondary model'))}: <strong>${escapeHtml(result.preference?.secondaryModelId || 'none')}</strong><br/>
+          ${escapeHtml(translate('Primary channel'))}: <strong>${escapeHtml(result.channel?.channelId || input.channelId || 'none')}</strong>
+        </p>`,
+        `${escapeHtml(translate('Source'))}: ${escapeHtml(result.source || result.receipt?.id || 'preference')}`,
+      );
       refreshCallback();
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const message = err instanceof Error ? err.message : String(err);
-      log.error('failed to save preference', err);
-      surfaceShellError(translate('Model preference'), message || translate('Could not save the model preference.'));
-      resultPanel.style.display = 'block';
-      resultPanel.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <strong style="color:#f87171;">❌ Save Failed</strong>
-          <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
-        </div>
-        <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(message)}</p>
-      `;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.error('failed to save preference', error);
+      surfaceShellError(translate('Model preference'), message);
+      showResult(resultPanel, 'Route not saved', `<p>${escapeHtml(message)}</p>`);
     }
   });
 
-  // 3. Preview Button Click Event
-  const previewBtn = document.getElementById('btn-preview-pref');
-  if (previewBtn) {
-    previewBtn.addEventListener('click', async () => {
-      const data = new FormData(form);
-      const providerId = (data.get('providerId') as string) || '';
-      const modelId = (data.get('modelId') as string) || '';
-      const secondaryModelId = (data.get('secondaryModelId') as string) || '';
-      const routeId = (data.get('routeId') as string) || '';
-      const channelId = (data.get('channelId') as string) || '';
+  document.getElementById('btn-preview-pref')?.addEventListener('click', async () => {
+    const input = readForm(form);
+    if (!input.providerId) return;
 
-      if (!providerId) return;
-
-      try {
-        const result = await updateModelPreference({
-          providerId,
-          modelId,
-          secondaryModelId,
-          routeId,
-          channelId,
-          confirm: false,
-          dryRun: true,
-        });
-
-        const statusColor = result.status === 'denied' ? '#f87171' : result.status === 'preview' ? '#60a5fa' : '#34d399';
-        const decisionText = result.receipt?.decision || result.decision || 'unknown';
-
-        resultPanel.style.display = 'block';
-        resultPanel.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <strong style="color:${statusColor};">🔍 Decision Preview (${escapeHtml(result.status || 'preview')})</strong>
-            <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
-          </div>
-          <p style="margin:4px 0; color:rgba(255,255,255,0.85); font-family:monospace; line-height:1.4;">
-            - Proposed target: <strong>${escapeHtml(result.request?.providerId || 'none')}</strong><br/>
-            - Model ID: <strong>${escapeHtml(result.request?.modelId || 'auto')}</strong><br/>
-            - Routing decision: <strong>${escapeHtml(decisionText)}</strong><br/>
-            - Approval status: <strong>${result.receipt?.approval?.satisfied ? 'Satisfied' : 'Pending Confirmation'}</strong><br/>
-            - Reversible: <strong>${result.receipt?.safety?.reversible ? 'Yes' : 'No'}</strong>
-          </p>
-          <div style="margin-top:8px; padding:6px; background:rgba(255,255,255,0.03); border-radius:4px; font-size:12px; color:rgba(255,255,255,0.6);">
-            💡 <strong>Next Action:</strong> ${escapeHtml(result.nextAction || 'Preview ready.')}
-          </div>
-        `;
-      } catch (error: unknown) {
-        const err = asErrorLike(error);
-        const message = err instanceof Error ? err.message : String(err);
-        log.error('failed to preview preference', err);
-        surfaceShellError(translate('Model preference'), message || translate('Could not preview the model preference.'));
-        resultPanel.style.display = 'block';
-        resultPanel.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <strong style="color:#f87171;">❌ Preview Failed</strong>
-            <button class="cron-action-btn" type="button" id="btn-clear-pref-result">Clear</button>
-          </div>
-          <p style="margin:4px 0; color:rgba(255,255,255,0.7);">${escapeHtml(message)}</p>
-        `;
-      }
-    });
-  }
-
-  // 4. Delegated Click to Clear Result Panel
-  document.addEventListener('click', (e) => {
-    const clearBtn = (e.target as HTMLElement).closest<HTMLElement>('#btn-clear-pref-result');
-    if (clearBtn && resultPanel) {
-      resultPanel.style.display = 'none';
-      resultPanel.innerHTML = '';
+    try {
+      const result = await updateModelPreference({
+        ...input,
+        confirm: false,
+        dryRun: true,
+      });
+      const decision = result.receipt?.decision || result.decision || 'unknown';
+      showResult(
+        resultPanel,
+        'Route preview',
+        `<p class="mono">
+          ${escapeHtml(translate('Provider'))}: <strong>${escapeHtml(result.request?.providerId || 'none')}</strong><br/>
+          ${escapeHtml(translate('Model'))}: <strong>${escapeHtml(result.request?.modelId || 'none')}</strong><br/>
+          ${escapeHtml(translate('Decision'))}: <strong>${escapeHtml(decision)}</strong><br/>
+          ${escapeHtml(translate('Approval'))}: <strong>${escapeHtml(result.receipt?.approval?.satisfied ? 'satisfied' : 'pending')}</strong>
+        </p>`,
+        escapeHtml(result.nextAction || translate('Preview ready.')),
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.error('failed to preview preference', error);
+      surfaceShellError(translate('Model preference'), message);
+      showResult(resultPanel, 'Preview unavailable', `<p>${escapeHtml(message)}</p>`);
     }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!(event.target as HTMLElement).closest('#btn-clear-pref-result')) return;
+    resultPanel.hidden = true;
+    resultPanel.innerHTML = '';
   });
 }

@@ -28,6 +28,26 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       input: resolve(appDir, "index.html"),
+      output: {
+        manualChunks(id) {
+          const normalized = id.replace(/\\/g, "/");
+          if (normalized.includes("/node_modules/pdfjs-dist/")) return "vendor-pdf";
+          if (normalized.includes("/node_modules/jszip/")) return "vendor-archive";
+          if (normalized.includes("/src/runtime-") || normalized.endsWith("/src/runtime-bridge.ts")) {
+            return "runtime-control";
+          }
+          if (
+            normalized.endsWith("/src/pages.ts")
+            || normalized.endsWith("/src/model-preference-actions.ts")
+            || normalized.endsWith("/src/learning-dreams-ui.ts")
+            || normalized.endsWith("/src/memory-browser-ui.ts")
+            || normalized.endsWith("/src/policy-simulator-ui.ts")
+          ) {
+            return "settings-control";
+          }
+          return undefined;
+        },
+      },
     },
   },
 });

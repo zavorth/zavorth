@@ -48,3 +48,12 @@ voice:
   transcription: "Transcrição: {text}"
   tts_generating: "Gerando fala..."
   tts_generated: "Fala gerada."
+
+live_smartness:
+  no_selected_provider: "Nenhum provider foi selecionado pelo usuário."
+  runtime_probe_pass: "O probe live de {provider} passou pelo runtime LLM de produção."
+  runtime_probe_token_mismatch: "O provider {provider} respondeu, mas não retornou o token exato de certificação."
+  runtime_tool_missing: "O provider {provider} não emitiu a chamada de ferramenta obrigatória."
+  runtime_multi_pass: "A rodada live multi-step com ferramenta passou pelo runtime de produção usando {provider}."
+  runtime_multi_token_mismatch: "O provider {provider} concluiu a rodada com ferramenta, mas não retornou o token final exato."
+  runtime_failure: "{phase} pelo runtime de produção: {message}"

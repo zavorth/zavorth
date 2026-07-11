@@ -221,7 +221,7 @@ export function UserRouteSelectionPanel() {
           disabled={status === 'saving' || status === 'loading'}
           onClick={() => void save()}
         >
-          {status === 'saving' ? 'Saving…' : 'Save route'}
+          {status === 'saving' ? t('route.saving') : t('route.save')}
         </button>
         <button
           type="button"
