@@ -29,6 +29,12 @@ import { runReachFabricCli } from './cli/ReachFabricCli.js';
 import { runPowerFabricCli } from './cli/PowerFabricCli.js';
 import { runProductFabricCli } from './cli/ProductFabricCli.js';
 import { runProofLedgerCli } from './cli/ProofLedgerCli.js';
+import {
+  runApprovalPresentationCli,
+  shouldRunApprovalPresentationCli,
+  normalizeApprovalPresentationArgs,
+} from './cli/ApprovalPresentationCli.js';
+import { runRiskBudgetCli } from './cli/RiskBudgetCli.js';
 
 async function logCliError(message: string, title = 'Zavorth Error'): Promise<void> {
   const isTTY = process.stderr.isTTY && !process.argv.includes('--json');
@@ -2573,6 +2579,26 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runProofLedgerCli(restArgs);
   }
 
+  // Proof OS approval presentation facade (does not replace premium approve flow).
+  if (
+    command === 'approval-presentation'
+    || command === 'approval-os'
+    || shouldRunApprovalPresentationCli(command, restArgs)
+  ) {
+    const args = command === 'approval-presentation' || command === 'approval-os'
+      ? restArgs
+      : normalizeApprovalPresentationArgs(restArgs);
+    return runApprovalPresentationCli(args);
+  }
+
+  // Proof OS Risk Budget (compose autonomy/trusted-operator; do not replace them).
+  if (command === 'risk-budget' || command === 'riskbudget') {
+    return runRiskBudgetCli(restArgs);
+  }
+  if (command === 'budget' && String(restArgs[0] || '').trim().toLowerCase() !== 'runtime') {
+    return runRiskBudgetCli(restArgs);
+  }
+
   const helpTopic = resolveCliHelpTopic(command);
   if (helpTopic !== 'root' && (restArgs.includes('--help') || restArgs.includes('-h'))) {
     return printBuiltinHelp(command);
@@ -3004,10 +3030,16 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
   }
 
   if (command === 'trust' || command === 'trust-approval' || command === 'approval-ux') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'budget') {
+      return runRiskBudgetCli(restArgs.slice(1));
+    }
     return runTrustApprovalUxFinal(restArgs);
   }
 
   if (command === 'trust-panel' || command === 'safety-panel') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'budget') {
+      return runRiskBudgetCli(restArgs.slice(1));
+    }
     return runTrustPanel(restArgs);
   }
 

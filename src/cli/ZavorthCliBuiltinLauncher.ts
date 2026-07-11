@@ -24,6 +24,12 @@ import { runReachFabricCli } from './ReachFabricCli.js';
 import { runPowerFabricCli } from './PowerFabricCli.js';
 import { runProductFabricCli } from './ProductFabricCli.js';
 import { runProofLedgerCli } from './ProofLedgerCli.js';
+import {
+  runApprovalPresentationCli,
+  shouldRunApprovalPresentationCli,
+  normalizeApprovalPresentationArgs,
+} from './ApprovalPresentationCli.js';
+import { runRiskBudgetCli } from './RiskBudgetCli.js';
 
 // Shared infrastructure imports
 import {
@@ -145,6 +151,27 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'proof-os'
   ) {
     return runProofLedgerCli(restArgs);
+  }
+
+  // Proof OS approval presentation facade (does not replace premium approve flow).
+  if (
+    command === 'approval-presentation'
+    || command === 'approval-os'
+    || shouldRunApprovalPresentationCli(command, restArgs)
+  ) {
+    const args = command === 'approval-presentation' || command === 'approval-os'
+      ? restArgs
+      : normalizeApprovalPresentationArgs(restArgs);
+    return runApprovalPresentationCli(args);
+  }
+
+  if (command === 'risk-budget' || command === 'riskbudget') {
+    return runRiskBudgetCli(restArgs);
+  }
+
+  // Top-level budget → Risk Budget OS (preserve `budget runtime` for resource doctor in Part2).
+  if (command === 'budget' && String(restArgs[0] || '').trim().toLowerCase() !== 'runtime') {
+    return runRiskBudgetCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);
@@ -569,10 +596,16 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   }
 
   if (command === 'trust' || command === 'trust-approval' || command === 'approval-ux') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'budget') {
+      return runRiskBudgetCli(restArgs.slice(1));
+    }
     return runTrustApprovalUxFinal(restArgs);
   }
 
   if (command === 'trust-panel' || command === 'safety-panel') {
+    if (String(restArgs[0] || '').trim().toLowerCase() === 'budget') {
+      return runRiskBudgetCli(restArgs.slice(1));
+    }
     return runTrustPanel(restArgs);
   }
 
