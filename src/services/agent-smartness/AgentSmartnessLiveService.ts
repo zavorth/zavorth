@@ -53,7 +53,7 @@ export class AgentSmartnessLiveService {
         id: 'live.llm.probe',
         name: 'Live LLM probe',
         status: 'blocked',
-        notes: 'Live not requested. Re-run with --live or ZAVORTH_LIVE_SMARTNESS=1 and GEMINI_API_KEY.',
+        notes: 'Live not requested. Re-run with --live or ZAVORTH_LIVE_SMARTNESS=1 and a configured provider key.',
         evidence: { liveRequested: false },
       });
       live.push({

@@ -248,11 +248,14 @@ export class ProviderControlPlaneService {
   }
 
   public getCurrentConversationalProvider(): string {
-    return String(config.llmProvider || 'gemini').trim().toLowerCase() || 'gemini';
+    const configured = String(config.llmProvider || '').trim().toLowerCase();
+    return configured || '';
   }
 
   public getCurrentConversationalModel(): string {
-    return this.getCurrentModelForProvider(this.getCurrentConversationalProvider()) || 'gemini-2.5-flash';
+    const provider = this.getCurrentConversationalProvider();
+    if (!provider) return '';
+    return this.getCurrentModelForProvider(provider) || '';
   }
 
   public getCurrentModelForProvider(providerName: string): string | null {

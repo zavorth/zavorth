@@ -48,7 +48,7 @@ export class ProviderStrategyService {
   }
 
   public resolve(input: ResolveProviderStrategyInput): ProviderStrategyDecision {
-    const configuredProviderName = ProviderFactory.normalizeProviderName(input.configuredProviderName || 'gemini');
+    const configuredProviderName = ProviderFactory.normalizeProviderName((input.configuredProviderName || ''));
     const strategy = resolveWorkspaceLlmStrategy(input.taskKind, input.taskSubtype, {
       configuredProviderName,
       isProviderUsable: input.isProviderUsable,

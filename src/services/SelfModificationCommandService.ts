@@ -315,7 +315,7 @@ export class SelfModificationCommandService {
 
   private getProvider(): ILlmProvider {
     if (!this.provider) {
-      this.provider = ProviderFactory.create(config.llmProvider || 'gemini');
+      this.provider = ProviderFactory.create((config.llmProvider || ''));
     }
     return this.provider;
   }

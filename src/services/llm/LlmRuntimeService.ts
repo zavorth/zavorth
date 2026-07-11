@@ -103,14 +103,7 @@ type AIGatewayHealthSnapshot = {
 const AIGATEWAY_STATUS_MAX_AGE_MS = 10 * 60 * 1000;
 
 const DEFAULT_FALLBACK_ORDER = [
-  'aigateway',
-  'gemini',
-  'deepseek',
-  'minimax',
-  'qwen',
-  'openrouter',
-  'openai',
-  'opencode',
+  // User-configured only (config.echoLlmFallbackOrder / options.fallbackOrder). No product vendor chain.
 ];
 
 const PROVIDER_NATIVE_CAPABILITY_MATRIX = new ProviderNativeCapabilityMatrixService();
@@ -119,7 +112,11 @@ export class LlmRuntimeService {
   constructor(private readonly preferredProviderName?: string) {}
 
   public getPreferredProviderName(): string {
-    return this.normalizeProviderName(this.preferredProviderName || config.llmProvider || 'gemini');
+    const preferred = String(this.preferredProviderName || config.llmProvider || '').trim();
+    if (!preferred) {
+      throw new Error('No provider selected. Choose a provider with setup or `zavorth providers switch`.');
+    }
+    return this.normalizeProviderName(preferred);
   }
 
   public async chat(

@@ -85,7 +85,7 @@ export class RuntimeBootstrapService {
     this.supervisedRuntimeService = options.supervisedRuntimeService || new SupervisedRuntimeService();
     this.platformCapabilityService = options.platformCapabilityService || new PlatformCapabilityService();
     this.modelPickerContractService = options.modelPickerContractService || new ModelPickerContractService();
-    this.llmProvider = String(options.llmProvider || config.llmProvider || 'gemini').trim().toLowerCase();
+    this.llmProvider = String(options.llmProvider || (config.llmProvider || '')).trim().toLowerCase();
     this.llmCredentialReadyOverride = typeof options.llmCredentialReady === 'boolean'
       ? options.llmCredentialReady
       : null;

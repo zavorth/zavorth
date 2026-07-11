@@ -1306,7 +1306,7 @@ export class WebAppConversationService {
       return runtimeProvider;
     }
 
-    switch (this.normalizeProviderName(config.llmProvider || 'gemini')) {
+    switch (this.normalizeProviderName((config.llmProvider || ''))) {
       case 'aigateway':
         return 'Zavorth Gateway';
       case 'gemini':
@@ -1341,7 +1341,7 @@ export class WebAppConversationService {
       return runtimeModel;
     }
 
-    switch (this.normalizeProviderName(config.llmProvider || 'gemini')) {
+    switch (this.normalizeProviderName((config.llmProvider || ''))) {
       case 'aigateway':
         return config.AIGatewayModel || 'modelo atual nao informado';
       case 'gemini':

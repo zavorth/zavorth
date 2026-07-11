@@ -24,8 +24,9 @@ Enough for daily chat once a provider is proven:
 1. **Open Zavorth**
    Desktop, Control, `zavorth open`, or `zavorth start` (both open the daily work surface via `ops-go` — not guide-only).
 
-2. **Prove one provider**
-   Add a model key or local model, then probe. Catalog presence is not Live.
+2. **Choose your default provider and model**
+   You pick the primary (and optional secondary/fallbacks). Zavorth does not invent Gemini or any other vendor.
+   Example: `zavorth providers switch` then prove with a live probe when ready.
 
 3. **First useful ask**
    Ask normally. Prefer a read-only first win (explain the project, plan the day).
@@ -33,7 +34,7 @@ Enough for daily chat once a provider is proven:
 4. **Approve only when risky**
    Writes, shell, external sends and sensitive memory stay on explicit approval.
 
-That is enough for daily chat. Channels, skills, routines and evals can wait.
+That is enough for daily chat. Connecting a channel is optional and uses the channel *you* choose (not Telegram-first).
 
 ## Full platform setup
 

@@ -55,7 +55,7 @@ export class StructuredPlanner {
     const providerDecision = this.providerStrategyService.resolve({
       taskKind: intentDecision.taskKind,
       taskSubtype: intentDecision.taskSubtype,
-      configuredProviderName: config.llmProvider || 'gemini',
+      configuredProviderName: (config.llmProvider || ''),
       isProviderUsable: (name) => this.isProviderAvailable(name),
       workspaceMemory: task.metadata?.workspaceOperationalMemory,
     });

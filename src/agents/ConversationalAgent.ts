@@ -157,7 +157,10 @@ export class ConversationalAgent {
     options?: ConversationalChatOptions,
   ): Promise<ConversationalResponse> {
     const userMessage = this.stripInternalVoicePreamble(message);
-    const primaryProvider = config.llmProvider || 'gemini';
+    const primaryProvider = String(config.llmProvider || '').trim();
+    if (!primaryProvider) {
+      throw new Error('No provider selected. Choose your default model/provider before chatting.');
+    }
     const mode = options?.mode || 'default';
     const llmStrategy = resolveWorkspaceLlmStrategy(
       options?.taskKind || 'unknown',

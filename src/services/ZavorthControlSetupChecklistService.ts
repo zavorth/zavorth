@@ -35,15 +35,15 @@ export class ZavorthControlSetupChecklistService {
     const backends = this.backendPlaybook.buildSnapshot();
     const items: ZavorthControlSetupChecklistItem[] = [
       {
-        id: 'connect-telegram',
-        label: 'Conectar Telegram',
+        id: 'connect-channel',
+        label: 'Connect a channel (optional)',
         area: 'channel',
         status: statusFromReady(channels.summary.defaultRouteAllowed > 0, channels.summary.readyToValidate > 0),
         summary: channels.summary.defaultRouteAllowed > 0
-          ? 'Ha pelo menos um canal live pronto para rota padrao.'
-          : 'Configure um canal e prove live readiness antes de usar envio real.',
-        nextAction: channels.selected?.nextAction || 'Abrir playbook de canal.',
-        command: 'npm run zavorth:channel-connection-playbook -- --channel telegram',
+          ? 'At least one channel is live-ready for default routing.'
+          : 'Optional: connect any channel you choose and prove live readiness before real send.',
+        nextAction: channels.selected?.nextAction || 'Open channel playbook for the channel you want.',
+        command: 'npm run zavorth:channel-connection-playbook',
         href: '/control/providers?setup=channel',
         proof: `${channels.summary.defaultRouteAllowed} default route(s), ${channels.summary.liveReady} live-ready.`,
       },

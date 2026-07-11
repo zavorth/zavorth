@@ -37,21 +37,12 @@ function getEnvUrl(key: string, fallback = ''): string {
   return normalizeUrl(process.env[key] || fallback);
 }
 
-export const DEFAULT_ECHO_LLM_FALLBACK_ORDER = [
-  'aigateway',
-  'gemini',
-  'ollama',
-  'lmstudio',
-  'vllm',
-  'deepseek',
-  'openrouter',
-  'openai',
-  'opencode',
-] as const;
+/** Empty by default — fallbacks only when the user configures them. */
+export const DEFAULT_ECHO_LLM_FALLBACK_ORDER = [] as const;
 
 export function parseEchoLlmFallbackOrder(rawValue: string | undefined): string[] {
   const seen = new Set<string>();
-  const parsed = parseList(rawValue || '')
+  return parseList(rawValue || '')
     .map((provider) => provider.trim().toLowerCase())
     .filter((provider) => {
       if (!provider || seen.has(provider)) {
@@ -60,7 +51,6 @@ export function parseEchoLlmFallbackOrder(rawValue: string | undefined): string[
       seen.add(provider);
       return true;
     });
-  return parsed.length > 0 ? parsed : [...DEFAULT_ECHO_LLM_FALLBACK_ORDER];
 }
 
 type PersistedProviderPreference = {
@@ -94,18 +84,21 @@ function readPersistedProviderPreference(projectRoot?: string): PersistedProvide
 export function buildProviderConfig(projectRoot?: string) {
   const persistedPreference = readPersistedProviderPreference(projectRoot);
   const directProviderDebug = getEnvBool('ZAVORTH_DIRECT_PROVIDER_DEBUG', false);
-  const selectedProvider = String(
-    directProviderDebug
-      ? (getEnv('LLM_PROVIDER', persistedPreference?.providerId || 'gemini'))
-      : 'aigateway',
-  ).trim();
+  // User choice only: env LLM_PROVIDER / preference file. Never invent gemini or aigateway.
+  const envProvider = getEnv('LLM_PROVIDER', getEnv('ZAVORTH_PROVIDER', getEnv('ZAVORTH_LLM_PROVIDER', ''))).trim().toLowerCase();
+  const preferredProvider = String(persistedPreference?.providerId || '').trim().toLowerCase();
+  const selectedProvider = String(envProvider || preferredProvider || '').trim();
   const selectedModel = String(getEnv('ZAVORTH_MODEL_ID', getEnv('ZAVORTH_MODEL', persistedPreference?.modelId || ''))).trim();
   return {
-    // LLM Provider
+    // LLM Provider — empty string means not configured (surfaces must not invent a vendor)
     llmProvider: selectedProvider,
+    providerConfigured: Boolean(selectedProvider),
+    secondaryModelId: String(
+      getEnv('ZAVORTH_SECONDARY_MODEL_ID', getEnv('ZAVORTH_SECONDARY_MODEL', (persistedPreference as { secondaryModelId?: string | null })?.secondaryModelId || '')),
+    ).trim() || null,
     directProviderDebug,
     echoLlmFallbackOrder: parseEchoLlmFallbackOrder(
-      getEnv('ZAVORTH_ECHO_LLM_FALLBACK_ORDER', getEnv('ZAVORTH_ECHO_FALLBACK_ORDER')),
+      getEnv('ZAVORTH_ECHO_LLM_FALLBACK_ORDER', getEnv('ZAVORTH_ECHO_FALLBACK_ORDER', getEnv('ZAVORTH_PROVIDER_FALLBACK_ORDER'))),
     ),
 
     // API Keys

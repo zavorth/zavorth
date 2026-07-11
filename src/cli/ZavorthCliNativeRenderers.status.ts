@@ -438,16 +438,20 @@ async function buildCliStatusSnapshot(
   const remoteTransportDoctor = cockpit?.operations?.remoteTransportDoctor || null;
   const remoteTransportItems = Array.isArray(remoteTransportDoctor?.items) ? remoteTransportDoctor.items : [];
 
-  const llmProvider = config.llmProvider || 'gemini';
-  let llmModel = 'unknown';
+  const llmProvider = String(config.llmProvider || '').trim() || 'not configured';
+  let llmModel = 'not configured';
   if (llmProvider === 'gemini') {
-    llmModel = config.geminiModel || 'gemini-2.5-flash';
+    llmModel = config.geminiModel || config.geminiDefaultModel || 'provider-default';
   } else if (llmProvider === 'openai') {
-    llmModel = config.openaiModel || 'gpt-4o-mini';
+    llmModel = config.openaiModel || 'provider-default';
   } else if (llmProvider === 'deepseek') {
-    llmModel = config.deepseekModel || 'deepseek-chat';
+    llmModel = config.deepseekModel || 'provider-default';
   } else if (llmProvider === 'aigateway') {
-    llmModel = config.AIGatewayModel || 'gpt-4o-mini';
+    llmModel = config.AIGatewayModel || 'provider-default';
+  } else if (llmProvider === 'openrouter') {
+    llmModel = config.openRouterModel || 'provider-default';
+  } else if (llmProvider !== 'not configured') {
+    llmModel = 'provider-default';
   }
 
   const memoryMetricsRaw = runtime.layeredMemoryService

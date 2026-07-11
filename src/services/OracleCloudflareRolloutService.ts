@@ -58,7 +58,7 @@ export class OracleCloudflareRolloutService {
     this.now = options.now || (() => new Date());
     this.existsSync = options.existsSync || fs.existsSync.bind(fs);
     this.projectRoot = options.projectRoot || config.projectRoot;
-    this.llmProvider = String(options.llmProvider || config.llmProvider || 'gemini').trim().toLowerCase();
+    this.llmProvider = String(options.llmProvider || (config.llmProvider || '')).trim().toLowerCase();
     this.geminiCredentialReady = typeof options.geminiCredentialReady === 'boolean'
       ? options.geminiCredentialReady
       : Boolean(config.geminiApiKey || config.aiStudioApiKey);

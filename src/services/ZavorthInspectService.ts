@@ -121,7 +121,7 @@ export class ZavorthInspectService {
   }
 
   private resolveProvider(): ZavorthInspectSnapshot['provider'] {
-    const providerId = String(this.config.llmProvider || process.env.LLM_PROVIDER || 'gemini').trim().toLowerCase();
+    const providerId = String((this.config.llmProvider || process.env.LLM_PROVIDER || '')).trim().toLowerCase();
     const model = String(
       this.config.modelSelectionModelId
       || this.modelForProvider(providerId)
