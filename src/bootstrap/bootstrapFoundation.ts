@@ -204,7 +204,7 @@ export async function initializeBootstrapFoundation(
   );
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
-    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'current model',
+    defaultModelLabel: config.geminiModel || config.openaiModel || config.AIGatewayModel || config.openRouterModel || 'current model',
     modelPickerContractService: new ModelPickerContractService(),
     llmRuntime: new LlmRuntimeService(),
     toolRuntime: toolRuntimeServices.toolRuntime,

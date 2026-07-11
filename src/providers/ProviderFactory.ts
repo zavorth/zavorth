@@ -124,7 +124,8 @@ export class ProviderFactory {
       return 'lmstudio';
     }
 
-    return normalized || 'gemini';
+    // Never invent a product default provider (e.g. gemini). Empty means unconfigured.
+    return normalized;
   }
 
   public static resolveRuntimeTarget(input: ProviderFactoryCreateInput): ProviderFactoryRuntimeTarget {

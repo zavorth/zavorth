@@ -209,7 +209,7 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
     || rawArgs.find((arg) => !arg.startsWith('--') && arg !== 'live-proof' && arg !== 'provider')
     || baseSnapshot.activeProvider
     || baseSnapshot.entries.find((entry: any) => entry.status === 'ready')?.id
-    || 'gemini';
+    || '';
   const liveProofStore = new ZavorthProviderLiveProofStoreService();
   const service = new ZavorthProviderReadinessMatrixService({ liveProofStore });
   const snapshot = await service.buildLiveSnapshot({

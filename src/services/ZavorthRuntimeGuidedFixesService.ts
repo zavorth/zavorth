@@ -280,7 +280,21 @@ function providerFix(
   providerSnapshot: ZavorthProviderReadinessMatrixSnapshot | null,
 ): ZavorthRuntimeGuidedFix {
   const readyEntry = providerSnapshot?.entries.find((entry) => entry.status === 'ready');
-  const providerId = normalizeId(providerSnapshot?.activeProvider) || readyEntry?.id || 'gemini';
+  const providerId = normalizeId(providerSnapshot?.activeProvider) || readyEntry?.id || '';
+  if (!providerId) {
+    return fix({
+      check,
+      id: 'choose-provider',
+      label: 'Choose a provider',
+      kind: 'provider-setup',
+      risk: 'low',
+      summary: 'No default provider is selected. Pick the provider and model you want before live proof.',
+      command: 'zavorth providers switch',
+      route: '/zavorthControl/providers',
+      telegramCommand: '/models',
+      requiresExplicitOperatorAction: true,
+    });
+  }
   if (providerSnapshot && providerSnapshot.summary.ready > 0 && providerSnapshot.summary.defaultRouteAllowed === 0) {
     return fix({
       check,

@@ -13,11 +13,18 @@ export class UniversalPlanner {
   }
 
   public async generatePlan(task: Task): Promise<Plan> {
-    const providerName = config.llmProvider || 'gemini';
-    const modelName = providerName === 'gemini' ? (config.geminiModel || 'gemini-2.0-flash') : 'default';
+    const providerName = String(config.llmProvider || '').trim() || 'not-configured';
+    const modelName = providerName === 'not-configured'
+      ? 'none'
+      : (providerName === 'gemini'
+        ? (config.geminiModel || config.geminiDefaultModel || 'provider-default')
+        : 'provider-default');
     const prompt = this.buildPrompt(task);
 
     try {
+      if (providerName === 'not-configured') {
+        throw new Error('No provider selected. Choose a provider before planning.');
+      }
       const result = await this.planner.generatePlan(task, prompt);
       return result.plan;
     } catch (error: unknown) {

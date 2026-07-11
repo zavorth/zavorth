@@ -1754,8 +1754,16 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
   const providerId = readFlexibleStringFlag(rawArgs, 'provider')
     || rawArgs.find((arg) => !arg.startsWith('--') && arg !== 'live-proof' && arg !== 'provider')
     || baseSnapshot.activeProvider
-    || baseSnapshot.entries.find((entry) => entry.status === 'ready')?.id
-    || 'gemini';
+    || '';
+  if (!providerId) {
+    const msg = 'No provider selected. Pass --provider <id> or set your default with `zavorth providers switch`.';
+    if (asJson) {
+      process.stdout.write(`${JSON.stringify({ ok: false, error: msg }, null, 2)}\n`);
+    } else {
+      process.stdout.write(`${msg}\n`);
+    }
+    return 1;
+  }
   const liveProofStore = new ZavorthProviderLiveProofStoreService();
   const service = new ZavorthProviderReadinessMatrixService({ liveProofStore });
   const snapshot = await service.buildLiveSnapshot({

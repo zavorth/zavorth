@@ -22,7 +22,7 @@ const bool = (fallback: boolean) =>
 
 // ── LLM Provider ──────────────────────────────────────────────────────────────
 const providerSchema = z.object({
-  LLM_PROVIDER: str('gemini'),
+  LLM_PROVIDER: str(),
   GEMINI_API_KEY: str(),
   GEMINI_API_KEY_2: str(),
   GEMINI_API_KEY_3: str(),

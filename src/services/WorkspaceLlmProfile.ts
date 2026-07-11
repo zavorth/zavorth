@@ -20,7 +20,7 @@ export function resolveWorkspaceLlmStrategy(
   taskSubtype: WorkspaceTaskSubtype,
   options: ResolveWorkspaceLlmStrategyOptions = {},
 ): WorkspaceLlmStrategy {
-  const configured = String(options.configuredProviderName || config.llmProvider || 'gemini')
+  const configured = String(options.configuredProviderName || (config.llmProvider || ''))
     .trim()
     .toLowerCase();
   const isProviderUsable = (name: string) => {
@@ -38,20 +38,11 @@ export function resolveWorkspaceLlmStrategy(
   );
   const learnedProvider = ProviderFactory.normalizeProviderName(String(learnedRecommendation?.preferred_provider || ''));
 
-  let candidates: string[] = [configured, 'aigateway', 'gemini', 'deepseek', 'qwen', 'openrouter', 'openai', 'minimax'];
-
-  if (taskKind === 'research' && (taskSubtype === 'comparison' || taskSubtype === 'web_research')) {
-    candidates = ['openrouter', 'openai', 'aigateway', 'gemini', 'minimax', configured];
-  } else if (taskKind === 'research' && taskSubtype === 'summarization') {
-    candidates = ['gemini', 'aigateway', 'openrouter', 'openai', 'minimax', configured];
-  } else if (
-    taskKind === 'code'
-    && (taskSubtype === 'review' || taskSubtype === 'testing' || taskSubtype === 'debugging')
-  ) {
-    candidates = ['aigateway', 'openai', 'openrouter', 'minimax', 'gemini', configured];
-  } else if (taskKind === 'automation') {
-    candidates = ['aigateway', 'gemini', 'openai', 'minimax', configured];
-  }
+  // Only the user-configured provider plus explicit user fallback order — never invent vendors.
+  const userFallbacks = Array.isArray((config as { echoLlmFallbackOrder?: string[] }).echoLlmFallbackOrder)
+    ? (config as { echoLlmFallbackOrder?: string[] }).echoLlmFallbackOrder!
+    : [];
+  const candidates: string[] = [configured, ...userFallbacks];
 
   const ordered = Array.from(
     new Set(candidates.map((entry) => ProviderFactory.normalizeProviderName(entry)).filter(Boolean)),

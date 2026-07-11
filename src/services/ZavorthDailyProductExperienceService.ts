@@ -194,7 +194,7 @@ export class ZavorthDailyProductExperienceService {
 function buildSetupSteps(setup: ZavorthControlSetupChecklistSnapshot): ZavorthDailyProductExperienceSetupStep[] {
   const byId = new Map(setup.items.map((item) => [item.id, item]));
   const provider = byId.get('connect-provider');
-  const channel = byId.get('connect-telegram');
+  const channel = byId.get('connect-channel') || byId.get('connect-telegram');
   const backend = byId.get('configure-executor');
   const memory = byId.get('review-memory');
   const skills = byId.get('install-skills-governed');

@@ -256,7 +256,7 @@ export class ZavorthProviderLiveCanaryService {
 
   private buildProviderEntries(requestedProviderName?: string | null): ZavorthProviderLiveCanaryProviderEntry[] {
     const requested = normalizeNullable(requestedProviderName);
-    const preferred = normalizeNullable(this.llmRuntime.getPreferredProviderName?.()) || normalizeNullable(config.llmProvider) || 'gemini';
+    const preferred = normalizeNullable(this.llmRuntime.getPreferredProviderName?.()) || normalizeNullable(config.llmProvider) || '';
     const candidates = unique([
       requested,
       preferred,

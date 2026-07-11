@@ -204,7 +204,7 @@ export class DeepSearchService {
   }
 
   private async summarizeWithAvailableProvider(prompt: string): Promise<string | null> {
-    const primaryProvider = config.llmProvider || 'gemini';
+    const primaryProvider = (config.llmProvider || '');
     const providerChain = [primaryProvider, ...SEARCH_FALLBACK_ORDER.filter((provider) => provider !== primaryProvider)];
 
     for (const providerName of providerChain) {

@@ -1859,7 +1859,7 @@ export class WebAppRuntimeStateRouteService {
       : this.isKnownModelProfile(latestRunProfile)
         ? latestRunProfile
         : null;
-    const configuredProvider = this.normalizeProviderName(config.llmProvider || 'gemini');
+    const configuredProvider = this.normalizeProviderName((config.llmProvider || ''));
     const configuredModel = this.resolveConfiguredModel(configuredProvider);
 
     return {
