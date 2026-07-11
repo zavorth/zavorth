@@ -30,6 +30,7 @@ import {
   normalizeApprovalPresentationArgs,
 } from './ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './RiskBudgetCli.js';
+import { runChangePreviewCli } from './ChangePreviewCli.js';
 
 // Shared infrastructure imports
 import {
@@ -172,6 +173,15 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   // Top-level budget → Risk Budget OS (preserve `budget runtime` for resource doctor in Part2).
   if (command === 'budget' && String(restArgs[0] || '').trim().toLowerCase() !== 'runtime') {
     return runRiskBudgetCli(restArgs);
+  }
+
+  // Proof OS change preview / counterfactual product face.
+  if (
+    command === 'change-preview'
+    || command === 'preview-change'
+    || command === 'what-changes'
+  ) {
+    return runChangePreviewCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

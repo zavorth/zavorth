@@ -66,7 +66,9 @@ import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardPr
 import { t } from '../i18n';
 import { useVoiceDictation } from '../voice/useVoiceDictation';
 import { NextActionBanner } from '../components/NextActionBanner';
+import { ProofStrip } from '../components/ProofStrip';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
+import type { DesktopRiskBudgetState } from '../desktop-state/riskBudgetBridge';
 import {
   loadTrustedOperator,
   toggleTrustedOperator,
@@ -184,6 +186,8 @@ export function DesktopShell(props: {
   onAttachFile?: (relativePath: string) => void;
   onRefreshMarketplace?: () => void | Promise<void>;
   receipts?: DesktopReceipt[];
+  /** Optional risk budget snapshot for chat-home chip (pure props, no fs). */
+  riskBudgetState?: DesktopRiskBudgetState | null;
   onClearReceipts?: () => void;
   updateStatusMessage?: string | null;
   updateStatus?: import('../desktop-state/desktopUpdate').DesktopUpdateStatus | null;
@@ -659,6 +663,12 @@ export function DesktopShell(props: {
                 onOpenChat={() => props.onPanel('chat')}
                 onOpenProof={() => props.onPanel('receipts')}
                 onDoctor={() => void props.onAccessRepair()}
+              />
+              <ProofStrip
+                receipts={Array.isArray(props.receipts) ? props.receipts : []}
+                onOpenProof={() => props.onPanel('receipts')}
+                onOpenReceipt={() => props.onPanel('receipts')}
+                riskBudgetState={props.riskBudgetState}
               />
               <ThreadView
                 approvals={props.approvals}

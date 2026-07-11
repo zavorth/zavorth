@@ -28,6 +28,19 @@ describe('quality bar — IA', () => {
     expect(isSecondaryPanel('marketplace')).toBe(true);
   });
 
+  it('ships chat-home proof strip (P5)', () => {
+    expect(existsSync(resolve(root, 'src/components/ProofStrip.tsx'))).toBe(true);
+    expect(existsSync(resolve(root, 'src/desktop-state/homeTrustModel.ts'))).toBe(true);
+    expect(existsSync(resolve(root, 'src/desktop-state/proofStripModel.ts'))).toBe(true);
+    const shell = read('src/shell/DesktopShell.tsx');
+    expect(shell).toMatch(/ProofStrip/);
+    expect(shell).toMatch(/from ['"]\.\.\/components\/ProofStrip['"]/);
+    const i18n = read('src/i18n.ts');
+    expect(i18n).toMatch(/proof\.stripEmpty/);
+    expect(i18n).toMatch(/proof\.stripOpen/);
+    expect(i18n).toMatch(/home\.nextApproval/);
+  });
+
   it('groups panels for palette without dropping domains', () => {
     const all = Object.values(PANEL_NAV_GROUPS).flat();
     expect(all).toContain('chat');
