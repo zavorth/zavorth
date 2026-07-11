@@ -1,4 +1,6 @@
-﻿# Zavorth terminal CLI: Code TUI replaces monorepo agent CLI
+> Archived from public docs tree on 2026-07-11. Historical program notes — not current user documentation.
+
+# Zavorth terminal CLI: Code TUI replaces monorepo agent CLI
 
 **Decision (revised):** Option **C — replacement**  
 Bring the **Zavorth Code coding CLI/TUI** into this monorepo as the **only** terminal product, then **retire** the legacy monorepo agent CLI surface. Runtime tools, policy, and gateway stay in the monorepo; they are **hosted behind / inside** the Code TUI, not exposed as a second user-facing CLI forever.
@@ -6,7 +8,7 @@ Bring the **Zavorth Code coding CLI/TUI** into this monorepo as the **only** ter
 **Date:** 2026-07-10 (revised from 2026-07-09 dual-bin plan)  
 **Status:** Fases A–**G** done (monorepo source of truth + single public bin + capabilities)
 
-**Related:** [surfaces-code-control-desktop.md](./surfaces-code-control-desktop.md) · **Audit:** [AUDIT-code-cli.md](./AUDIT-code-cli.md)
+**Related:** [surfaces-code-control-desktop.md](../../product/surfaces-code-control-desktop.md) · **Audit:** [AUDIT-code-cli.md](./AUDIT-code-cli.md)
 
 ---
 
@@ -212,7 +214,7 @@ User-facing agent commands work on bare **`zavorth <cmd>`** via the monorepo cap
 | Coding workflows | default TUI, `run`/`mcp`/… | coding-owned (not intercepted) |
 | Operator escapes | `open` native; rest delegated | `legacy` still available |
 
-- [x] Inventory: [cli-capabilities.md](./cli-capabilities.md) + `bin/lib/zavorth-capabilities.cjs`
+- [x] Inventory: [cli-capabilities.md](../../product/cli-capabilities.md) + `bin/lib/zavorth-capabilities.cjs`
 - [x] Migrate by cluster: entry routing in `bin/zavorth.js`; native `doctor`/`status`/`home`/`open`/`capabilities`
 - [x] Deprecate daily `legacy` requirement: delegated commands run agent dist under the same public names
 - Smoke: `npm run code:capabilities:smoke` · Jest: `tests/cli/ZavorthCapabilities.test.ts`
@@ -227,7 +229,6 @@ User-facing agent commands work on bare **`zavorth <cmd>`** via the monorepo cap
 - [x] Agent `dist/zavorth-cli.js` is **internal** (delegated capabilities + maintainer hatch `ZAVORTH_LEGACY_CLI` / `zavorth __agent` / compat `legacy`)
 - [x] Dual-bin smokes reframed; `npm run code:single-bin:smoke`
 - [x] Docs: single-bin product story (this file, surfaces, capabilities inventory)
-
 **Not deleted:** `src/zavorth-cli.ts` source / dist remain as **backend** for delegated commands until deeper embedding.
 
 ### Stage G — Cutover & cleanup — **DONE**

@@ -23,6 +23,7 @@ import { runCapabilityFabricCli, runImportWorkspaceCli } from './CapabilityFabri
 import { runReachFabricCli } from './ReachFabricCli.js';
 import { runPowerFabricCli } from './PowerFabricCli.js';
 import { runProductFabricCli } from './ProductFabricCli.js';
+import { runProofLedgerCli } from './ProofLedgerCli.js';
 
 // Shared infrastructure imports
 import {
@@ -136,6 +137,14 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'daily-product'
   ) {
     return runProductFabricCli(restArgs);
+  }
+
+  if (
+    command === 'proof'
+    || command === 'proof-ledger'
+    || command === 'proof-os'
+  ) {
+    return runProofLedgerCli(restArgs);
   }
 
   const helpTopic = resolveCliHelpTopic(command);

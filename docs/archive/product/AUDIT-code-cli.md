@@ -1,13 +1,15 @@
-﻿# Auditoria: Zavorth Code CLI no monorepo (Option C)
+> Archived from public docs tree on 2026-07-11. Historical program notes — not current user documentation.
+
+# Auditoria: Zavorth Code CLI no monorepo (Option C)
 
 **Data:** 2026-07-10  
 **Repo:** monorepo Zavorth (`1_PROJETOS_ATIVOS/Zavorth`)  
 **Status do programa:** A–G feitos + pós-G: rename `packages/code` / `@zavorth/cli`; hybrid setup/providers/approve; multi-provider opt-in; gateway approvals API client; packaging selective no tarball + typecheck resiliente.
 
 **Plano vivo:** [code-cli-integration.md](./code-cli-integration.md)  
-**Superfícies:** [surfaces-code-control-desktop.md](./surfaces-code-control-desktop.md)  
-**Capabilities:** [cli-capabilities.md](./cli-capabilities.md)  
-**Runtime bridge:** [../protocol/zavorth-runtime-bridge.md](../protocol/zavorth-runtime-bridge.md)
+**Superfícies:** [surfaces-code-control-desktop.md](../../product/surfaces-code-control-desktop.md)  
+**Capabilities:** [cli-capabilities.md](../../product/cli-capabilities.md)  
+**Runtime bridge:** [zavorth-runtime-bridge.md](../../protocol/zavorth-runtime-bridge.md)
 
 ---
 
@@ -126,11 +128,11 @@ zavorth <capability> …   → bin/lib/zavorth-capabilities.cjs
 
 | Path | Papel |
 |------|--------|
-| `docs/product/code-cli-integration.md` | Plano A–G |
+| `docs/archive/product/code-cli-integration.md` | Plano A–G (archived) |
 | `docs/product/code-cli-packaging.md` | Packaging: dev Bun, tarball root, opções release, Windows |
 | `docs/product/cli-capabilities.md` | Inventário capabilities |
 | `docs/product/surfaces-code-control-desktop.md` | Code ≠ Control ≠ Desktop |
-| **este arquivo** | Auditoria consolidada |
+| **este arquivo** | Auditoria consolidada (archived) |
 
 ---
 
@@ -139,7 +141,7 @@ zavorth <capability> …   → bin/lib/zavorth-capabilities.cjs
 1. **Capabilities delegated** ainda executam `dist/zavorth-cli.js` — UX de um bin, não um único processo in-process.
 2. **Stage D** = contrato (env + `runtime-bridge.json` + check ops); **não** todo LLM/approvals já roteiam pelo ai-gateway monorepo.
 3. **Stage B residual:** monorepo como primary edit path / CI forte / freeze do sibling ainda incompletos.
-4. **Package publish:** monorepo `files` **não** empacota `packages/code` (rename/home canônico: **`packages/code`**, não `packages/zavorth-code`). TUI nativa no **clone + Bun**; tarball npm root leva só entry `zavorth` + dist agent. Estratégia e opções de release: [code-cli-packaging.md](./code-cli-packaging.md).
+4. **Package publish:** monorepo `files` **não** empacota `packages/code` (rename/home canônico: **`packages/code`**, não `packages/zavorth-code`). TUI nativa no **clone + Bun**; tarball npm root leva só entry `zavorth` + dist agent. Estratégia e opções de release: [code-cli-packaging.md](../../product/code-cli-packaging.md).
 5. **Desktop visual** não foi redesenhado (correto por política).
 6. **Código agent** (`src/zavorth-cli.ts`) **não foi apagado** — internalizado como backend (Fase F).
 
@@ -179,7 +181,7 @@ node bin/zavorth.js capabilities
 
 1. **Reduzir delegated:** portar setup/providers/approve para nativo ou gateway até `dist/zavorth-cli` ser opcional.
 2. **Execution truth:** TUI LLM/approvals alinhados ao monorepo gateway/policy (além do contrato env/file).
-3. **Packaging/release:** ver [code-cli-packaging.md](./code-cli-packaging.md) — opções A (ship `packages/code`), B (publish `@zavorth/cli` sem segundo bin), C (monorepo+Bun only, default honesto).
+3. **Packaging/release:** ver [code-cli-packaging.md](../../product/code-cli-packaging.md) — opções A (ship `packages/code`), B (publish `@zavorth/cli` sem segundo bin), C (monorepo+Bun only, default honesto).
 4. **CI:** workflow `code-cli.yml` já roda cutover gates + workspace smoke + **typecheck** (`bun run --cwd packages/code typecheck`). Hard-fail se typecheck quebrar no GHA; falhas locais Windows documentadas no packaging doc.
 5. **Opcional:** branding path já é `packages/code` (não reverter para `packages/zavorth-code`); remover compat `legacy` do user surface; arquivar AUDIT-TEMP no sibling apontando aqui.
 

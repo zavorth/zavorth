@@ -1,3 +1,5 @@
+> Archived from public docs tree on 2026-07-11. Historical program notes — not current user documentation.
+
 # Zavorth Security Audit and Quality Assurance Certification Report
 
 This document presents a comprehensive security audit and quality assurance analysis of the newly implemented modules in Zavorth (Fases 2, 3, 5, and 7). All identified security risks, boundary conditions, and logic flaws have been resolved directly in the source files, and unit tests have been added to verify compliance and prevent regression.

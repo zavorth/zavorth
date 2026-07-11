@@ -142,6 +142,6 @@ npx jest tests/cli/ZavorthCapabilities.test.ts --runInBand
 
 ## Related
 
-- [code-cli-integration.md](./code-cli-integration.md)
+- [code-cli-integration.md](../archive/product/code-cli-integration.md) (archived program plan)
 - [zavorth-runtime-bridge.md](../protocol/zavorth-runtime-bridge.md)
 - [surfaces-code-control-desktop.md](./surfaces-code-control-desktop.md)
