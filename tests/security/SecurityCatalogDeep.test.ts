@@ -30,6 +30,7 @@ const SECURITY_FILES = [
   'PolicyEngine.ts',
   'RbacEngine.ts',
   'SafeFetchService.ts',
+  'SafeProcessExec.ts',
   'SecurityOperationalPreset.ts',
   'SecurityPolicyBroker.ts',
   'SecurityProfile.ts',
