@@ -198,7 +198,7 @@ function redact(text: string): string {
 }
 
 /** Detect 429 / quota / rate-limit signals so notes recommend alternate provider, not greenwash. */
-function looksLikeRateLimit(text: string | number | null | undefined): boolean {
+export function looksLikeRateLimit(text: string | number | null | undefined): boolean {
   const s = String(text ?? '');
   return (
     /\b429\b/.test(s)
@@ -208,6 +208,84 @@ function looksLikeRateLimit(text: string | number | null | undefined): boolean {
     || /quota exceeded/i.test(s)
     || /exceeded your current quota/i.test(s)
   );
+}
+
+/** Model id missing / not supported — try next fallback model, not hard-fail the whole family. */
+export function looksLikeModelNotFound(body: string, status?: number): boolean {
+  const s = String(body || '');
+  return (
+    status === 404
+    || /model[s]?\/[^\s"]+\s+is not found/i.test(s)
+    || /not found for API version/i.test(s)
+    || /does not exist|model_not_found|not supported for generateContent/i.test(s)
+  );
+}
+
+/** Parse provider "retry in N.Ns" hints (Gemini free tier). Caps at 90s. */
+export function parseRetryAfterMs(body: string, status?: number): number {
+  const m = String(body || '').match(/retry in\s+([\d.]+)\s*s/i);
+  if (m) {
+    const sec = Number(m[1]);
+    if (Number.isFinite(sec) && sec > 0) {
+      return Math.min(Math.ceil(sec * 1000) + 300, 90_000);
+    }
+  }
+  if (status === 429 || looksLikeRateLimit(body)) return 0;
+  return 0;
+}
+
+const RATE_LIMIT_BACKOFF_MS = [2_000, 5_000, 12_000] as const;
+
+function defaultSleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+/** Gemini keys: primary + GEMINI_API_KEY_2.._7 (only non-empty ≥12 chars). */
+export function listGeminiApiKeys(env: NodeJS.ProcessEnv): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const candidates = [
+    env.GEMINI_API_KEY,
+    env.GOOGLE_API_KEY,
+    env.GEMINI_API_KEY_2,
+    env.GEMINI_API_KEY_3,
+    env.GEMINI_API_KEY_4,
+    env.GEMINI_API_KEY_5,
+    env.GEMINI_API_KEY_6,
+    env.GEMINI_API_KEY_7,
+  ];
+  for (const raw of candidates) {
+    const key = String(raw || '').trim();
+    if (key.length < 12 || seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  return out;
+}
+
+/** Same-family model fallbacks after rate-limit exhaustion (never invents other vendors). */
+export function listModelFallbacks(
+  family: LiveProviderFamily,
+  preferredModel: string | null | undefined,
+): string[] {
+  const preferred = String(preferredModel || DEFAULT_MODELS[family]).trim();
+  const pool: Record<LiveProviderFamily, string[]> = {
+    // Prefer current free-tier flash ids; avoid retired 1.5-flash (404 on v1beta).
+    gemini: [preferred, 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'],
+    openai: [preferred, 'gpt-4o-mini', 'gpt-4o'],
+    anthropic: [preferred, 'claude-3-5-haiku-latest', 'claude-3-5-sonnet-latest'],
+  };
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const model of pool[family]) {
+    const id = String(model || '').trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
 }
 
 function multiStepNoToolNotes(providerLabel: string, body: string, status?: number): {
@@ -240,6 +318,12 @@ export class LiveUserProviderHarness {
       env?: NodeJS.ProcessEnv;
       transport?: LiveHttpTransport;
       runtimeFactory?: (providerId: string) => LiveLlmRuntime;
+      /** Injectable sleep for hermetic rate-limit retry tests. */
+      sleep?: (ms: number) => Promise<void>;
+      /** Max 429 retries per HTTP call (default 3). */
+      maxRateLimitRetries?: number;
+      /** When true (default), try same-family alternate models after rate-limit exhaustion. */
+      enableModelFallbackOnRateLimit?: boolean;
     } = {},
   ) {
     this.i18n = new ZavorthI18nService();
@@ -248,6 +332,47 @@ export class LiveUserProviderHarness {
 
   private transport(): LiveHttpTransport {
     return this.options.transport || defaultTransport;
+  }
+
+  private async sleep(ms: number): Promise<void> {
+    if (ms <= 0) return;
+    const sleeper = this.options.sleep || defaultSleep;
+    await sleeper(ms);
+  }
+
+  private maxRateLimitRetries(): number {
+    const n = this.options.maxRateLimitRetries;
+    if (typeof n === 'number' && Number.isFinite(n) && n >= 0) return Math.min(Math.floor(n), 6);
+    return RATE_LIMIT_BACKOFF_MS.length;
+  }
+
+  /**
+   * HTTP with rate-limit retries. Honors "retry in Ns" when present; otherwise exponential backoff.
+   * Does not invent success — exhausted 429 still returns the last response.
+   */
+  private async requestWithRateLimitRetry(
+    req: LiveHttpRequest,
+  ): Promise<LiveHttpResponse & { rateLimitRetries: number }> {
+    const max = this.maxRateLimitRetries();
+    let last: LiveHttpResponse = { status: 0, body: 'no response' };
+    let rateLimitRetries = 0;
+    for (let attempt = 0; attempt <= max; attempt += 1) {
+      last = await this.transport()(req);
+      const limited = last.status === 429 || looksLikeRateLimit(last.body);
+      if (!limited) {
+        return { ...last, rateLimitRetries };
+      }
+      if (attempt >= max) {
+        return { ...last, rateLimitRetries };
+      }
+      const hinted = parseRetryAfterMs(last.body, last.status);
+      const backoff = hinted > 0
+        ? hinted
+        : RATE_LIMIT_BACKOFF_MS[Math.min(attempt, RATE_LIMIT_BACKOFF_MS.length - 1)];
+      rateLimitRetries += 1;
+      await this.sleep(backoff);
+    }
+    return { ...last, rateLimitRetries };
   }
 
   public resolveCredentials(): ResolvedLiveCredentials {
@@ -520,107 +645,244 @@ export class LiveUserProviderHarness {
   }
 
   private async probeGemini(creds: ResolvedLiveCredentials): Promise<LiveHarnessResult> {
-    // Probe only the selected/default model — never certify a fallback model as the user's route.
-    const model = creds.modelId || DEFAULT_MODELS.gemini;
-    const url =
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-      + `?key=${encodeURIComponent(creds.apiKey)}`;
-    const body = JSON.stringify({
-      contents: [{ parts: [{ text: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }] }],
-      generationConfig: { maxOutputTokens: 64, temperature: 0 },
-    });
-    const res = await this.transport()({
-      url,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      timeoutMs: 45000,
-    });
-    const text = extractGeminiText(res.body);
-    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+    const env = this.options.env || process.env;
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('gemini', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.gemini];
+    const keys = listGeminiApiKeys(env);
+    const keyList = keys.length ? keys : (creds.apiKey ? [creds.apiKey] : []);
+    if (!keyList.length) {
+      return {
+        status: 'blocked',
+        notes: 'No Gemini API key configured for live probe.',
+        evidence: { family: 'gemini', providerId: creds.providerId },
+      };
+    }
+
+    let lastStatus = 0;
+    let lastBody = '';
+    let totalRetries = 0;
+    let modelUsed = models[0];
+    let keyIndex = 0;
+    let rateLimited = false;
+
+    for (let ki = 0; ki < keyList.length; ki += 1) {
+      const apiKey = keyList[ki];
+      for (let mi = 0; mi < models.length; mi += 1) {
+        const model = models[mi];
+        const url =
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
+          + `?key=${encodeURIComponent(apiKey)}`;
+        const res = await this.requestWithRateLimitRetry({
+          url,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }] }],
+            generationConfig: { maxOutputTokens: 64, temperature: 0 },
+          }),
+          timeoutMs: 45000,
+        });
+        lastStatus = res.status;
+        lastBody = res.body;
+        totalRetries += res.rateLimitRetries;
+        modelUsed = model;
+        keyIndex = ki;
+        const text = extractGeminiText(res.body);
+        const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+        if (exact) {
+          const modelFallbackUsed = model !== (creds.modelId || DEFAULT_MODELS.gemini);
+          const keyRotated = ki > 0;
+          return {
+            status: 'pass',
+            notes: `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
+              + (modelFallbackUsed ? ` (model fallback → ${model})` : '')
+              + (keyRotated ? ` (gemini key slot ${ki + 1})` : ''),
+            evidence: {
+              family: 'gemini',
+              providerId: creds.providerId,
+              model,
+              requestedModel: creds.modelId || DEFAULT_MODELS.gemini,
+              modelFallbackUsed,
+              keyRotated,
+              geminiKeySlot: ki + 1,
+              rateLimitRetries: totalRetries,
+              exactToken: true,
+              credentialSource: creds.credentialSource,
+            },
+          };
+        }
+        rateLimited = res.status === 429 || looksLikeRateLimit(res.body);
+        const modelMissing = looksLikeModelNotFound(res.body, res.status);
+        // Auth / hard errors stop cascade; 404 model-not-found tries next model.
+        if (!rateLimited && !modelMissing) {
+          if (mi === 0 && ki === 0) break;
+          break;
+        }
+      }
+      if (!rateLimited && !looksLikeModelNotFound(lastBody, lastStatus)) break;
+    }
+
     return {
-      status: exact ? 'pass' : 'fail',
-      notes: exact
-        ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
-        : `Gemini probe failed status=${res.status}`,
+      status: 'fail',
+      notes: rateLimited
+        ? `Gemini probe rate-limited/quota exhausted after retries (status=${lastStatus}). Try another provider key or wait.`
+        : `Gemini probe failed status=${lastStatus}`,
       evidence: {
         family: 'gemini',
         providerId: creds.providerId,
-        model,
-        exactToken: exact,
+        model: modelUsed,
+        rateLimited,
+        rateLimitRetries: totalRetries,
+        geminiKeySlot: keyIndex + 1,
         credentialSource: creds.credentialSource,
-        outputPreview: redact(res.body),
+        outputPreview: redact(lastBody),
       },
     };
   }
 
   private async probeOpenAi(creds: ResolvedLiveCredentials): Promise<LiveHarnessResult> {
-    const body = JSON.stringify({
-      model: creds.modelId || DEFAULT_MODELS.openai,
-      messages: [{ role: 'user', content: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }],
-      max_tokens: 32,
-      temperature: 0,
-    });
-    const res = await this.transport()({
-      url: 'https://api.openai.com/v1/chat/completions',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${creds.apiKey}`,
-      },
-      body,
-      timeoutMs: 45000,
-    });
-    const text = extractOpenAiText(res.body);
-    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('openai', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.openai];
+    let lastStatus = 0;
+    let lastBody = '';
+    let totalRetries = 0;
+    let modelUsed = models[0];
+    let rateLimited = false;
+
+    for (const model of models) {
+      const res = await this.requestWithRateLimitRetry({
+        url: 'https://api.openai.com/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${creds.apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: 'user', content: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }],
+          max_tokens: 32,
+          temperature: 0,
+        }),
+        timeoutMs: 45000,
+      });
+      lastStatus = res.status;
+      lastBody = res.body;
+      totalRetries += res.rateLimitRetries;
+      modelUsed = model;
+      const text = extractOpenAiText(res.body);
+      const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+      if (exact) {
+        const modelFallbackUsed = model !== (creds.modelId || DEFAULT_MODELS.openai);
+        return {
+          status: 'pass',
+          notes: `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
+            + (modelFallbackUsed ? ` (model fallback → ${model})` : ''),
+          evidence: {
+            family: 'openai',
+            providerId: creds.providerId,
+            model,
+            requestedModel: creds.modelId || DEFAULT_MODELS.openai,
+            modelFallbackUsed,
+            rateLimitRetries: totalRetries,
+            exactToken: true,
+            credentialSource: creds.credentialSource,
+          },
+        };
+      }
+      rateLimited = res.status === 429 || looksLikeRateLimit(res.body);
+      if (!rateLimited) break;
+    }
+
     return {
-      status: exact ? 'pass' : 'fail',
-      notes: exact
-        ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
-        : `OpenAI probe failed status=${res.status}`,
+      status: 'fail',
+      notes: rateLimited
+        ? `OpenAI probe rate-limited after retries (status=${lastStatus}).`
+        : `OpenAI probe failed status=${lastStatus}`,
       evidence: {
         family: 'openai',
         providerId: creds.providerId,
-        model: creds.modelId,
-        exactToken: exact,
+        model: modelUsed,
+        rateLimited,
+        rateLimitRetries: totalRetries,
         credentialSource: creds.credentialSource,
-        outputPreview: redact(res.body),
+        outputPreview: redact(lastBody),
       },
     };
   }
 
   private async probeAnthropic(creds: ResolvedLiveCredentials): Promise<LiveHarnessResult> {
-    const body = JSON.stringify({
-      model: creds.modelId || DEFAULT_MODELS.anthropic,
-      max_tokens: 32,
-      temperature: 0,
-      messages: [{ role: 'user', content: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }],
-    });
-    const res = await this.transport()({
-      url: 'https://api.anthropic.com/v1/messages',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': creds.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body,
-      timeoutMs: 45000,
-    });
-    const text = extractAnthropicText(res.body);
-    const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('anthropic', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.anthropic];
+    let lastStatus = 0;
+    let lastBody = '';
+    let totalRetries = 0;
+    let modelUsed = models[0];
+    let rateLimited = false;
+
+    for (const model of models) {
+      const res = await this.requestWithRateLimitRetry({
+        url: 'https://api.anthropic.com/v1/messages',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': creds.apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 32,
+          temperature: 0,
+          messages: [{ role: 'user', content: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }],
+        }),
+        timeoutMs: 45000,
+      });
+      lastStatus = res.status;
+      lastBody = res.body;
+      totalRetries += res.rateLimitRetries;
+      modelUsed = model;
+      const text = extractAnthropicText(res.body);
+      const exact = res.status >= 200 && res.status < 300 && exactProbeToken(text);
+      if (exact) {
+        const modelFallbackUsed = model !== (creds.modelId || DEFAULT_MODELS.anthropic);
+        return {
+          status: 'pass',
+          notes: `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
+            + (modelFallbackUsed ? ` (model fallback → ${model})` : ''),
+          evidence: {
+            family: 'anthropic',
+            providerId: creds.providerId,
+            model,
+            requestedModel: creds.modelId || DEFAULT_MODELS.anthropic,
+            modelFallbackUsed,
+            rateLimitRetries: totalRetries,
+            exactToken: true,
+            credentialSource: creds.credentialSource,
+          },
+        };
+      }
+      rateLimited = res.status === 429 || looksLikeRateLimit(res.body);
+      if (!rateLimited) break;
+    }
+
     return {
-      status: exact ? 'pass' : 'fail',
-      notes: exact
-        ? `Live ${creds.providerId} probe returned exact token ${LIVE_PROBE_TOKEN}.`
-        : `Anthropic probe failed status=${res.status}`,
+      status: 'fail',
+      notes: rateLimited
+        ? `Anthropic probe rate-limited after retries (status=${lastStatus}).`
+        : `Anthropic probe failed status=${lastStatus}`,
       evidence: {
         family: 'anthropic',
         providerId: creds.providerId,
-        model: creds.modelId,
-        exactToken: exact,
+        model: modelUsed,
+        rateLimited,
+        rateLimitRetries: totalRetries,
         credentialSource: creds.credentialSource,
-        outputPreview: redact(res.body),
+        outputPreview: redact(lastBody),
       },
     };
   }
@@ -630,10 +892,13 @@ export class LiveUserProviderHarness {
     expectedMarker: string,
     toolResult: () => string,
   ): Promise<LiveHarnessResult> {
-    const model = creds.modelId || DEFAULT_MODELS.gemini;
-    const url =
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-      + `?key=${encodeURIComponent(creds.apiKey)}`;
+    const env = this.options.env || process.env;
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('gemini', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.gemini];
+    const keys = listGeminiApiKeys(env);
+    const keyList = keys.length ? keys : (creds.apiKey ? [creds.apiKey] : []);
     const toolDecl = {
       functionDeclarations: [{
         name: 'zavorth_live_marker',
@@ -641,134 +906,220 @@ export class LiveUserProviderHarness {
         parameters: { type: 'object', properties: {} },
       }],
     };
-    const round1 = await this.transport()({
-      url,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [{
-            text:
-              'You must call the tool zavorth_live_marker first. '
-              + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`,
-          }],
-        }],
-        tools: [toolDecl],
-        toolConfig: { functionCallingConfig: { mode: 'ANY' } },
-        generationConfig: { maxOutputTokens: 128, temperature: 0 },
-      }),
-      timeoutMs: 60000,
-    });
+    const userText =
+      'You must call the tool zavorth_live_marker first. '
+      + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`;
 
-    const call = extractGeminiFunctionCall(round1.body);
-    if (!call || call.name !== 'zavorth_live_marker') {
-      const fail = multiStepNoToolNotes('Gemini', round1.body, round1.status);
-      return {
-        status: 'fail',
-        notes: fail.notes,
-        evidence: {
-          family: 'gemini',
-          providerId: creds.providerId,
-          round: 1,
-          outputPreview: redact(round1.body),
-          autoCertified: false,
-          rateLimited: fail.rateLimited,
-          httpStatus: round1.status,
-        },
-      };
-    }
+    let lastFail: LiveHarnessResult | null = null;
+    let totalRetries = 0;
 
-    const markerValue = toolResult();
-    if (!markerValue || markerValue !== expectedMarker) {
-      return {
-        status: 'fail',
-        notes: 'Workspace marker tool execution failed.',
-        evidence: { expectedMarker, markerValue, autoCertified: false },
-      };
-    }
+    for (let ki = 0; ki < keyList.length; ki += 1) {
+      const apiKey = keyList[ki];
+      for (let mi = 0; mi < models.length; mi += 1) {
+        const model = models[mi];
+        const url =
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
+          + `?key=${encodeURIComponent(apiKey)}`;
 
-    // Keep the user turn placeholder-only; secret marker lives only in functionResponse.
-    const history = [
-      {
-        role: 'user',
-        parts: [{
-          text:
-            'You must call the tool zavorth_live_marker first. '
-            + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`,
-        }],
-      },
-      {
-        role: 'model',
-        parts: [{ functionCall: { name: call.name, args: call.args || {} } }],
-      },
-      {
-        role: 'user',
-        parts: [{
-          functionResponse: {
-            name: call.name,
-            response: { marker: markerValue, status: 'ok' },
-          },
-        }],
-      },
-    ];
+        const round1 = await this.requestWithRateLimitRetry({
+          url,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: userText }] }],
+            tools: [toolDecl],
+            toolConfig: { functionCallingConfig: { mode: 'ANY' } },
+            generationConfig: { maxOutputTokens: 128, temperature: 0 },
+          }),
+          timeoutMs: 60000,
+        });
+        totalRetries += round1.rateLimitRetries;
 
-    let round2 = await this.transport()({
-      url,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: history,
-        generationConfig: { maxOutputTokens: 96, temperature: 0 },
-      }),
-      timeoutMs: 60000,
-    });
-
-    let finalText = extractGeminiText(round2.body);
-    // Forced finish: some models emit tool follow-ups instead of the token; one plain turn is still a real multi-step completion.
-    if (!multiStepTextPasses(finalText, markerValue)) {
-      const forced = await this.transport()({
-        url,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            ...history,
-            { role: 'model', parts: [{ text: finalText || '(no text)' }] },
-            {
-              role: 'user',
-              parts: [{
-                text:
-                  'Read the marker from the tool functionResponse only. '
-                  + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value> and nothing else.`,
-              }],
+        const call = extractGeminiFunctionCall(round1.body);
+        if (!call || call.name !== 'zavorth_live_marker') {
+          const fail = multiStepNoToolNotes('Gemini', round1.body, round1.status);
+          lastFail = {
+            status: 'fail',
+            notes: fail.notes,
+            evidence: {
+              family: 'gemini',
+              providerId: creds.providerId,
+              model,
+              round: 1,
+              outputPreview: redact(round1.body),
+              autoCertified: false,
+              rateLimited: fail.rateLimited,
+              rateLimitRetries: totalRetries,
+              httpStatus: round1.status,
+              geminiKeySlot: ki + 1,
             },
-          ],
-          generationConfig: { maxOutputTokens: 48, temperature: 0 },
-        }),
-        timeoutMs: 60000,
-      });
-      round2 = forced;
-      finalText = extractGeminiText(forced.body);
+          };
+          // Rate-limit or missing model id → try next model/key; auth/other hard fail stops.
+          if (fail.rateLimited || looksLikeModelNotFound(round1.body, round1.status)) continue;
+          return lastFail;
+        }
+
+        const markerValue = toolResult();
+        if (!markerValue || markerValue !== expectedMarker) {
+          return {
+            status: 'fail',
+            notes: 'Workspace marker tool execution failed.',
+            evidence: { expectedMarker, markerValue, autoCertified: false },
+          };
+        }
+
+        // Placeholder-only user turn; marker only in functionResponse.
+        const history = [
+          { role: 'user', parts: [{ text: userText }] },
+          { role: 'model', parts: [{ functionCall: { name: call.name, args: call.args || {} } }] },
+          {
+            role: 'user',
+            parts: [{
+              functionResponse: {
+                name: call.name,
+                response: { marker: markerValue, status: 'ok' },
+              },
+            }],
+          },
+        ];
+
+        let round2 = await this.requestWithRateLimitRetry({
+          url,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: history,
+            generationConfig: { maxOutputTokens: 96, temperature: 0 },
+          }),
+          timeoutMs: 60000,
+        });
+        totalRetries += round2.rateLimitRetries;
+
+        let finalText = extractGeminiText(round2.body);
+        if (!multiStepTextPasses(finalText, markerValue)) {
+          if (round2.status === 429 || looksLikeRateLimit(round2.body)) {
+            lastFail = {
+              status: 'fail',
+              notes: multiStepNoToolNotes('Gemini', round2.body, round2.status).notes.replace('round 1', 'round 2'),
+              evidence: {
+                family: 'gemini',
+                providerId: creds.providerId,
+                model,
+                round: 2,
+                rateLimited: true,
+                rateLimitRetries: totalRetries,
+                autoCertified: false,
+                outputPreview: redact(round2.body),
+                geminiKeySlot: ki + 1,
+              },
+            };
+            continue;
+          }
+          const forced = await this.requestWithRateLimitRetry({
+            url,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                ...history,
+                { role: 'model', parts: [{ text: finalText || '(no text)' }] },
+                {
+                  role: 'user',
+                  parts: [{
+                    text:
+                      'Read the marker from the tool functionResponse only. '
+                      + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value> and nothing else.`,
+                  }],
+                },
+              ],
+              generationConfig: { maxOutputTokens: 48, temperature: 0 },
+            }),
+            timeoutMs: 60000,
+          });
+          totalRetries += forced.rateLimitRetries;
+          round2 = forced;
+          finalText = extractGeminiText(forced.body);
+          if (!multiStepTextPasses(finalText, markerValue)
+            && (forced.status === 429 || looksLikeRateLimit(forced.body))) {
+            lastFail = {
+              status: 'fail',
+              notes: 'Multi-step forced-finish rate-limited after retries (Gemini).',
+              evidence: {
+                family: 'gemini',
+                providerId: creds.providerId,
+                model,
+                rateLimited: true,
+                rateLimitRetries: totalRetries,
+                autoCertified: false,
+                outputPreview: redact(forced.body),
+                geminiKeySlot: ki + 1,
+              },
+            };
+            continue;
+          }
+        }
+
+        const pass = multiStepTextPasses(finalText, markerValue);
+        if (pass) {
+          const requestedModel = creds.modelId || DEFAULT_MODELS.gemini;
+          return {
+            status: 'pass',
+            notes: `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
+              + (model !== requestedModel ? ` modelFallback=${model}` : '')
+              + (ki > 0 ? ` geminiKeySlot=${ki + 1}` : '')
+              + (totalRetries > 0 ? ` rateLimitRetries=${totalRetries}` : ''),
+            evidence: {
+              family: 'gemini',
+              providerId: creds.providerId,
+              model,
+              requestedModel,
+              modelFallbackUsed: model !== requestedModel,
+              keyRotated: ki > 0,
+              geminiKeySlot: ki + 1,
+              rateLimitRetries: totalRetries,
+              toolName: call.name,
+              toolRounds: 1,
+              exactToken: true,
+              markerMatched: true,
+              autoCertified: true,
+              credentialSource: creds.credentialSource,
+              outputPreview: redact(finalText || round2.body),
+            },
+          };
+        }
+
+        lastFail = {
+          status: 'fail',
+          notes: 'Multi-step round 2 did not return required token + marker.',
+          evidence: {
+            family: 'gemini',
+            providerId: creds.providerId,
+            model,
+            toolName: call.name,
+            toolRounds: 1,
+            exactToken: false,
+            markerMatched: false,
+            autoCertified: false,
+            rateLimitRetries: totalRetries,
+            credentialSource: creds.credentialSource,
+            outputPreview: redact(finalText || round2.body),
+            geminiKeySlot: ki + 1,
+          },
+        };
+        // Token mismatch is not fixed by another key/model usually — stop cascade.
+        return lastFail;
+      }
     }
 
-    const pass = multiStepTextPasses(finalText, markerValue);
-    return {
-      status: pass ? 'pass' : 'fail',
-      notes: pass
-        ? `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
-        : 'Multi-step round 2 did not return required token + marker.',
+    return lastFail || {
+      status: 'fail',
+      notes: 'Multi-step Gemini failed after rate-limit retries and model/key fallbacks.',
       evidence: {
         family: 'gemini',
         providerId: creds.providerId,
-        model,
-        toolName: call.name,
-        toolRounds: 1,
-        exactToken: finalText.includes(LIVE_MULTI_STEP_TOKEN),
-        markerMatched: finalText.includes(markerValue),
-        autoCertified: pass,
-        credentialSource: creds.credentialSource,
-        outputPreview: redact(finalText || round2.body),
+        rateLimited: true,
+        rateLimitRetries: totalRetries,
+        autoCertified: false,
       },
     };
   }
@@ -778,7 +1129,10 @@ export class LiveUserProviderHarness {
     expectedMarker: string,
     toolResult: () => string,
   ): Promise<LiveHarnessResult> {
-    const model = creds.modelId || DEFAULT_MODELS.openai;
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('openai', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.openai];
     const tools = [{
       type: 'function',
       function: {
@@ -794,92 +1148,74 @@ export class LiveUserProviderHarness {
         + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`,
     };
 
-    const round1 = await this.transport()({
-      url: 'https://api.openai.com/v1/chat/completions',
-      method: 'POST',
-      headers: {
+    let lastFail: LiveHarnessResult | null = null;
+    let totalRetries = 0;
+
+    for (const model of models) {
+      const authHeaders = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${creds.apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [userMsg],
-        tools,
-        tool_choice: 'required',
-        temperature: 0,
-        max_tokens: 128,
-      }),
-      timeoutMs: 60000,
-    });
-
-    const toolCall = extractOpenAiToolCall(round1.body);
-    if (!toolCall) {
-      const fail = multiStepNoToolNotes('OpenAI', round1.body, round1.status);
-      return {
-        status: 'fail',
-        notes: fail.notes,
-        evidence: {
-          family: 'openai',
-          providerId: creds.providerId,
-          round: 1,
-          outputPreview: redact(round1.body),
-          autoCertified: false,
-          rateLimited: fail.rateLimited,
-          httpStatus: round1.status,
-        },
       };
-    }
 
-    const markerValue = toolResult();
-    if (!markerValue || markerValue !== expectedMarker) {
-      return {
-        status: 'fail',
-        notes: 'Workspace marker tool execution failed.',
-        evidence: { expectedMarker, markerValue, autoCertified: false },
-      };
-    }
-
-    let assistantMessage: Record<string, unknown> = { role: 'assistant', tool_calls: [toolCall.raw] };
-    try {
-      const parsed = JSON.parse(round1.body);
-      assistantMessage = parsed?.choices?.[0]?.message || assistantMessage;
-    } catch {
-      // keep fallback
-    }
-
-    const round2 = await this.transport()({
-      url: 'https://api.openai.com/v1/chat/completions',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${creds.apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          userMsg,
-          assistantMessage,
-          {
-            role: 'tool',
-            tool_call_id: toolCall.id,
-            content: JSON.stringify({ marker: markerValue }),
-          },
-        ],
-        temperature: 0,
-        max_tokens: 64,
-      }),
-      timeoutMs: 60000,
-    });
-
-    let finalText = extractOpenAiText(round2.body);
-    if (!multiStepTextPasses(finalText, markerValue)) {
-      const forced = await this.transport()({
+      const round1 = await this.requestWithRateLimitRetry({
         url: 'https://api.openai.com/v1/chat/completions',
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${creds.apiKey}`,
-        },
+        headers: authHeaders,
+        body: JSON.stringify({
+          model,
+          messages: [userMsg],
+          tools,
+          tool_choice: 'required',
+          temperature: 0,
+          max_tokens: 128,
+        }),
+        timeoutMs: 60000,
+      });
+      totalRetries += round1.rateLimitRetries;
+
+      const toolCall = extractOpenAiToolCall(round1.body);
+      if (!toolCall) {
+        const fail = multiStepNoToolNotes('OpenAI', round1.body, round1.status);
+        lastFail = {
+          status: 'fail',
+          notes: fail.notes,
+          evidence: {
+            family: 'openai',
+            providerId: creds.providerId,
+            model,
+            round: 1,
+            outputPreview: redact(round1.body),
+            autoCertified: false,
+            rateLimited: fail.rateLimited,
+            rateLimitRetries: totalRetries,
+            httpStatus: round1.status,
+          },
+        };
+        if (fail.rateLimited) continue;
+        return lastFail;
+      }
+
+      const markerValue = toolResult();
+      if (!markerValue || markerValue !== expectedMarker) {
+        return {
+          status: 'fail',
+          notes: 'Workspace marker tool execution failed.',
+          evidence: { expectedMarker, markerValue, autoCertified: false },
+        };
+      }
+
+      let assistantMessage: Record<string, unknown> = { role: 'assistant', tool_calls: [toolCall.raw] };
+      try {
+        const parsed = JSON.parse(round1.body);
+        assistantMessage = parsed?.choices?.[0]?.message || assistantMessage;
+      } catch {
+        // keep fallback
+      }
+
+      let round2 = await this.requestWithRateLimitRetry({
+        url: 'https://api.openai.com/v1/chat/completions',
+        method: 'POST',
+        headers: authHeaders,
         body: JSON.stringify({
           model,
           messages: [
@@ -890,37 +1226,109 @@ export class LiveUserProviderHarness {
               tool_call_id: toolCall.id,
               content: JSON.stringify({ marker: markerValue }),
             },
-            {
-              role: 'user',
-              content:
-                `Read the marker from the tool message only. `
-                + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value.`,
-            },
           ],
           temperature: 0,
-          max_tokens: 48,
+          max_tokens: 64,
         }),
         timeoutMs: 60000,
       });
-      finalText = extractOpenAiText(forced.body);
+      totalRetries += round2.rateLimitRetries;
+
+      let finalText = extractOpenAiText(round2.body);
+      if (!multiStepTextPasses(finalText, markerValue)) {
+        if (round2.status === 429 || looksLikeRateLimit(round2.body)) {
+          lastFail = {
+            status: 'fail',
+            notes: 'Multi-step round 2 rate-limited after retries (OpenAI).',
+            evidence: {
+              family: 'openai',
+              providerId: creds.providerId,
+              model,
+              rateLimited: true,
+              rateLimitRetries: totalRetries,
+              autoCertified: false,
+            },
+          };
+          continue;
+        }
+        round2 = await this.requestWithRateLimitRetry({
+          url: 'https://api.openai.com/v1/chat/completions',
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({
+            model,
+            messages: [
+              userMsg,
+              assistantMessage,
+              {
+                role: 'tool',
+                tool_call_id: toolCall.id,
+                content: JSON.stringify({ marker: markerValue }),
+              },
+              {
+                role: 'user',
+                content:
+                  'Read the marker from the tool message only. '
+                  + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value.`,
+              },
+            ],
+            temperature: 0,
+            max_tokens: 48,
+          }),
+          timeoutMs: 60000,
+        });
+        totalRetries += round2.rateLimitRetries;
+        finalText = extractOpenAiText(round2.body);
+      }
+      const pass = multiStepTextPasses(finalText, markerValue);
+      if (pass) {
+        const requestedModel = creds.modelId || DEFAULT_MODELS.openai;
+        return {
+          status: 'pass',
+          notes: `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
+            + (model !== requestedModel ? ` modelFallback=${model}` : '')
+            + (totalRetries > 0 ? ` rateLimitRetries=${totalRetries}` : ''),
+          evidence: {
+            family: 'openai',
+            providerId: creds.providerId,
+            model,
+            requestedModel,
+            modelFallbackUsed: model !== requestedModel,
+            rateLimitRetries: totalRetries,
+            toolName: toolCall.name,
+            toolRounds: 1,
+            exactToken: true,
+            markerMatched: true,
+            autoCertified: true,
+            credentialSource: creds.credentialSource,
+            outputPreview: redact(finalText || round2.body),
+          },
+        };
+      }
+      lastFail = {
+        status: 'fail',
+        notes: 'Multi-step round 2 did not return required token + marker.',
+        evidence: {
+          family: 'openai',
+          providerId: creds.providerId,
+          model,
+          rateLimitRetries: totalRetries,
+          autoCertified: false,
+          outputPreview: redact(finalText || round2.body),
+        },
+      };
+      return lastFail;
     }
-    const pass = multiStepTextPasses(finalText, markerValue);
-    return {
-      status: pass ? 'pass' : 'fail',
-      notes: pass
-        ? `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
-        : 'Multi-step round 2 did not return required token + marker.',
+
+    return lastFail || {
+      status: 'fail',
+      notes: 'Multi-step OpenAI failed after rate-limit retries.',
       evidence: {
         family: 'openai',
         providerId: creds.providerId,
-        model,
-        toolName: toolCall.name,
-        toolRounds: 1,
-        exactToken: finalText.includes(LIVE_MULTI_STEP_TOKEN),
-        markerMatched: finalText.includes(markerValue),
-        autoCertified: pass,
-        credentialSource: creds.credentialSource,
-        outputPreview: redact(finalText || round2.body),
+        rateLimited: true,
+        rateLimitRetries: totalRetries,
+        autoCertified: false,
       },
     };
   }
@@ -930,7 +1338,10 @@ export class LiveUserProviderHarness {
     expectedMarker: string,
     toolResult: () => string,
   ): Promise<LiveHarnessResult> {
-    const model = creds.modelId || DEFAULT_MODELS.anthropic;
+    const allowModelFb = this.options.enableModelFallbackOnRateLimit !== false;
+    const models = allowModelFb
+      ? listModelFallbacks('anthropic', creds.modelId)
+      : [creds.modelId || DEFAULT_MODELS.anthropic];
     const tools = [{
       name: 'zavorth_live_marker',
       description: 'Read the live multi-step workspace marker. Call this before answering.',
@@ -940,145 +1351,200 @@ export class LiveUserProviderHarness {
       'Call zavorth_live_marker exactly once. '
       + `After the tool result, reply with exactly: ${LIVE_MULTI_STEP_TOKEN} <marker-value>`;
 
-    const round1 = await this.transport()({
-      url: 'https://api.anthropic.com/v1/messages',
-      method: 'POST',
-      headers: {
+    let lastFail: LiveHarnessResult | null = null;
+    let totalRetries = 0;
+
+    for (const model of models) {
+      const headers = {
         'Content-Type': 'application/json',
         'x-api-key': creds.apiKey,
         'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 128,
-        temperature: 0,
-        tools,
-        tool_choice: { type: 'any' },
-        messages: [{ role: 'user', content: userText }],
-      }),
-      timeoutMs: 60000,
-    });
-
-    const toolUse = extractAnthropicToolUse(round1.body);
-    if (!toolUse) {
-      const fail = multiStepNoToolNotes('Anthropic', round1.body, round1.status);
-      return {
-        status: 'fail',
-        notes: fail.notes,
-        evidence: {
-          family: 'anthropic',
-          providerId: creds.providerId,
-          round: 1,
-          outputPreview: redact(round1.body),
-          autoCertified: false,
-          rateLimited: fail.rateLimited,
-          httpStatus: round1.status,
-        },
       };
-    }
 
-    const markerValue = toolResult();
-    if (!markerValue || markerValue !== expectedMarker) {
-      return {
-        status: 'fail',
-        notes: 'Workspace marker tool execution failed.',
-        evidence: { expectedMarker, markerValue, autoCertified: false },
-      };
-    }
-
-    let assistantContent: unknown[] = [toolUse.raw];
-    try {
-      const parsed = JSON.parse(round1.body);
-      if (Array.isArray(parsed?.content)) assistantContent = parsed.content;
-    } catch {
-      // keep fallback
-    }
-
-    const round2 = await this.transport()({
-      url: 'https://api.anthropic.com/v1/messages',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': creds.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 64,
-        temperature: 0,
-        messages: [
-          { role: 'user', content: userText },
-          { role: 'assistant', content: assistantContent },
-          {
-            role: 'user',
-            content: [{
-              type: 'tool_result',
-              tool_use_id: toolUse.id,
-              content: JSON.stringify({ marker: markerValue }),
-            }],
-          },
-        ],
-      }),
-      timeoutMs: 60000,
-    });
-
-    let finalText = extractAnthropicText(round2.body);
-    if (!multiStepTextPasses(finalText, markerValue)) {
-      const forced = await this.transport()({
+      const round1 = await this.requestWithRateLimitRetry({
         url: 'https://api.anthropic.com/v1/messages',
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': creds.apiKey,
-          'anthropic-version': '2023-06-01',
-        },
+        headers,
         body: JSON.stringify({
           model,
-          max_tokens: 48,
+          max_tokens: 128,
+          temperature: 0,
+          tools,
+          tool_choice: { type: 'any' },
+          messages: [{ role: 'user', content: userText }],
+        }),
+        timeoutMs: 60000,
+      });
+      totalRetries += round1.rateLimitRetries;
+
+      const toolUse = extractAnthropicToolUse(round1.body);
+      if (!toolUse) {
+        const fail = multiStepNoToolNotes('Anthropic', round1.body, round1.status);
+        lastFail = {
+          status: 'fail',
+          notes: fail.notes,
+          evidence: {
+            family: 'anthropic',
+            providerId: creds.providerId,
+            model,
+            round: 1,
+            outputPreview: redact(round1.body),
+            autoCertified: false,
+            rateLimited: fail.rateLimited,
+            rateLimitRetries: totalRetries,
+            httpStatus: round1.status,
+          },
+        };
+        if (fail.rateLimited) continue;
+        return lastFail;
+      }
+
+      const markerValue = toolResult();
+      if (!markerValue || markerValue !== expectedMarker) {
+        return {
+          status: 'fail',
+          notes: 'Workspace marker tool execution failed.',
+          evidence: { expectedMarker, markerValue, autoCertified: false },
+        };
+      }
+
+      let assistantContent: unknown[] = [toolUse.raw];
+      try {
+        const parsed = JSON.parse(round1.body);
+        if (Array.isArray(parsed?.content)) assistantContent = parsed.content;
+      } catch {
+        // keep fallback
+      }
+
+      let round2 = await this.requestWithRateLimitRetry({
+        url: 'https://api.anthropic.com/v1/messages',
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model,
+          max_tokens: 64,
           temperature: 0,
           messages: [
             { role: 'user', content: userText },
             { role: 'assistant', content: assistantContent },
-            // Single user turn: tool_result + finish instruction (Anthropic forbids consecutive users).
             {
               role: 'user',
-              content: [
-                {
-                  type: 'tool_result',
-                  tool_use_id: toolUse.id,
-                  content: JSON.stringify({ marker: markerValue }),
-                },
-                {
-                  type: 'text',
-                  text:
-                    'Read the tool result marker. '
-                    + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value only.`,
-                },
-              ],
+              content: [{
+                type: 'tool_result',
+                tool_use_id: toolUse.id,
+                content: JSON.stringify({ marker: markerValue }),
+              }],
             },
           ],
         }),
         timeoutMs: 60000,
       });
-      finalText = extractAnthropicText(forced.body);
+      totalRetries += round2.rateLimitRetries;
+
+      let finalText = extractAnthropicText(round2.body);
+      if (!multiStepTextPasses(finalText, markerValue)) {
+        if (round2.status === 429 || looksLikeRateLimit(round2.body)) {
+          lastFail = {
+            status: 'fail',
+            notes: 'Multi-step round 2 rate-limited after retries (Anthropic).',
+            evidence: {
+              family: 'anthropic',
+              providerId: creds.providerId,
+              model,
+              rateLimited: true,
+              rateLimitRetries: totalRetries,
+              autoCertified: false,
+            },
+          };
+          continue;
+        }
+        round2 = await this.requestWithRateLimitRetry({
+          url: 'https://api.anthropic.com/v1/messages',
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model,
+            max_tokens: 48,
+            temperature: 0,
+            messages: [
+              { role: 'user', content: userText },
+              { role: 'assistant', content: assistantContent },
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'tool_result',
+                    tool_use_id: toolUse.id,
+                    content: JSON.stringify({ marker: markerValue }),
+                  },
+                  {
+                    type: 'text',
+                    text:
+                      'Read the tool result marker. '
+                      + `Reply with exactly: ${LIVE_MULTI_STEP_TOKEN} and that marker value only.`,
+                  },
+                ],
+              },
+            ],
+          }),
+          timeoutMs: 60000,
+        });
+        totalRetries += round2.rateLimitRetries;
+        finalText = extractAnthropicText(round2.body);
+      }
+      const pass = multiStepTextPasses(finalText, markerValue);
+      if (pass) {
+        const requestedModel = creds.modelId || DEFAULT_MODELS.anthropic;
+        return {
+          status: 'pass',
+          notes: `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
+            + (model !== requestedModel ? ` modelFallback=${model}` : '')
+            + (totalRetries > 0 ? ` rateLimitRetries=${totalRetries}` : ''),
+          evidence: {
+            family: 'anthropic',
+            providerId: creds.providerId,
+            model,
+            requestedModel,
+            modelFallbackUsed: model !== requestedModel,
+            rateLimitRetries: totalRetries,
+            toolName: toolUse.name,
+            toolRounds: 1,
+            exactToken: true,
+            markerMatched: true,
+            autoCertified: true,
+            credentialSource: creds.credentialSource,
+            outputPreview: redact(finalText || round2.body),
+          },
+        };
+      }
+      return {
+        status: 'fail',
+        notes: 'Multi-step round 2 did not return required token + marker.',
+        evidence: {
+          family: 'anthropic',
+          providerId: creds.providerId,
+          model,
+          toolName: toolUse.name,
+          toolRounds: 1,
+          exactToken: false,
+          markerMatched: false,
+          autoCertified: false,
+          rateLimitRetries: totalRetries,
+          credentialSource: creds.credentialSource,
+          outputPreview: redact(finalText || round2.body),
+        },
+      };
     }
-    const pass = multiStepTextPasses(finalText, markerValue);
-    return {
-      status: pass ? 'pass' : 'fail',
-      notes: pass
-        ? `Live multi-step tool plan passed with ${creds.providerId} (real tool round + model finish).`
-        : 'Multi-step round 2 did not return required token + marker.',
+
+    return lastFail || {
+      status: 'fail',
+      notes: 'Multi-step Anthropic failed after rate-limit retries.',
       evidence: {
         family: 'anthropic',
         providerId: creds.providerId,
-        model,
-        toolName: toolUse.name,
-        toolRounds: 1,
-        exactToken: pass,
-        markerMatched: pass,
-        autoCertified: pass,
-        credentialSource: creds.credentialSource,
-        outputPreview: redact(finalText || round2.body),
+        rateLimited: true,
+        rateLimitRetries: totalRetries,
+        autoCertified: false,
       },
     };
   }
