@@ -1,6 +1,9 @@
 import type { WebAppSupervisionRouteContext, WebAppSupervisionRouteHandler } from './types.js';
 import { buildWebOperatorApprovalSafety } from './helpers.js';
-import type { SwarmScalePlannerMode, SwarmScaleExecutionMode } from '../../../../execution/infrastructure/SwarmScalePlaneService.js';
+import type {
+  SwarmScaleExecutionMode,
+  SwarmScalePlannerMode,
+} from '../../../../../contracts/execution/SwarmScalePlaneContract.js';
 import type { SwarmV2IsolationMode } from '../../../../agents/SwarmV2Service.js';
 
 interface RoleBodyInput {

@@ -288,6 +288,7 @@ describe('V8 LiveUserProviderHarness', () => {
 
   it('falls back to alternate model after rate-limit on primary (gemini mock)', async () => {
     const modelsHit: string[] = [];
+    const requests: Array<{ url: string; headers?: Record<string, string> }> = [];
     const harness = new LiveUserProviderHarness({
       projectRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mf-')),
       env: {
@@ -299,6 +300,7 @@ describe('V8 LiveUserProviderHarness', () => {
       enableModelFallbackOnRateLimit: true,
       sleep: async () => {},
       transport: async (req) => {
+        requests.push({ url: String(req.url), headers: req.headers });
         const m = String(req.url).match(/models\/([^:]+):/);
         const model = decodeURIComponent(m?.[1] || '');
         modelsHit.push(model);
@@ -323,6 +325,8 @@ describe('V8 LiveUserProviderHarness', () => {
     expect(modelsHit).toContain('gemini-2.5-flash');
     expect(String(probe.evidence.model)).not.toBe('gemini-2.5-flash');
     expect(probe.evidence.modelFallbackUsed).toBe(true);
+    expect(requests.every((request) => !request.url.includes('key='))).toBe(true);
+    expect(requests.every((request) => request.headers?.['x-goog-api-key'] === 'AIzaSy-test-key-for-harness-123456')).toBe(true);
   });
 });
 

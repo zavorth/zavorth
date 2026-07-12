@@ -99,18 +99,37 @@ export function readChannelPreference(projectRoot?: string): ChannelPreferenceFi
   );
 }
 
+function atomicWriteJson(file: string, payload: unknown): void {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const tmpPath = `${file}.${process.pid}.${Date.now()}.tmp`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  fs.renameSync(tmpPath, file);
+}
+
+function removePreferenceFile(file: string): void {
+  try {
+    if (fs.existsSync(file)) {
+      fs.unlinkSync(file);
+    }
+  } catch {
+    // Best-effort clear: missing file already means unconfigured.
+  }
+}
+
 export function writeChannelPreference(
   channelId: string,
   projectRoot?: string,
 ): UserChannelSelection {
   const root = projectRoot || projectRootFromCwd();
   const file = preferencePath(root, 'channel-selection-preferences.json');
-  fs.mkdirSync(path.dirname(file), { recursive: true });
   const normalized = normalizeId(channelId);
   if (!normalized) {
+    // Empty / unconfigured / none must clear persisted preference so all
+    // surfaces (Code, Control, Desktop) observe the same unconfigured state.
+    removePreferenceFile(file);
     return { channelId: null, source: 'none', configured: false };
   }
-  fs.writeFileSync(file, `${JSON.stringify({ channelId: normalized }, null, 2)}\n`, 'utf8');
+  atomicWriteJson(file, { channelId: normalized });
   return { channelId: normalized, source: 'preference', configured: true };
 }
 
@@ -133,6 +152,9 @@ export function writeProviderPreference(input: WriteProviderPreferenceInput): Us
   const file = preferencePath(root, 'provider-selection-preferences.json');
   const providerId = normalizeId(input.providerId);
   if (!providerId) {
+    // Mirror channel clear: empty / unconfigured must drop the preference file
+    // so resolvers do not keep serving a prior surface's selection.
+    removePreferenceFile(file);
     return {
       providerId: null,
       modelId: null,
@@ -174,10 +196,7 @@ export function writeProviderPreference(input: WriteProviderPreferenceInput): Us
       : 'user-selection-direct',
   };
 
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  const tmpPath = `${file}.${process.pid}.${Date.now()}.tmp`;
-  fs.writeFileSync(tmpPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
-  fs.renameSync(tmpPath, file);
+  atomicWriteJson(file, next);
 
   return {
     providerId: next.providerId || providerId,

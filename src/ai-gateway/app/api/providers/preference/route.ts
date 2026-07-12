@@ -1,60 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { logger } from '@/shared/utils/logger';
-import { asErrorLike } from '../../../../../utils/errorLike.js';
+import {
+  validatePreferenceMutationOrigin,
+  validateSelectionIds,
+} from '../../../../../services/selection/ProviderPreferenceRequestSecurity.js';
 
 /**
  * Block cross-site cookie-authenticated preference mutations (CSRF).
  * Bearer/automation without Origin still allowed after management auth.
  */
-function assertSameOriginMutation(request: NextRequest): NextResponse | null {
-  const origin = request.headers.get('origin');
-  const host = request.headers.get('host');
-  if (!origin || !host) {
-    return null;
-  }
-  try {
-    const originHost = new URL(origin).host;
-    if (originHost !== host) {
-      return NextResponse.json(
-        { error: 'Cross-origin preference mutation denied' },
-        { status: 403 },
-      );
-    }
-  } catch {
-    return NextResponse.json({ error: 'Invalid Origin header' }, { status: 403 });
-  }
-  return null;
-}
-
-function validateSelectionIds(input: {
-  providerId: unknown;
-  modelId?: unknown;
-  secondaryModelId?: unknown;
-  routeId?: unknown;
-  channelId?: unknown;
-}): string | null {
-  const providerId = String(input.providerId ?? '').trim();
-  if (!providerId || providerId.length > 128) {
-    return 'providerId is required and must be at most 128 characters';
-  }
-  if (/[\u0000-\u001f]/.test(providerId)) {
-    return 'providerId contains invalid control characters';
-  }
-  for (const [key, value] of Object.entries({
-    modelId: input.modelId,
-    secondaryModelId: input.secondaryModelId,
-    routeId: input.routeId,
-    channelId: input.channelId,
-  })) {
-    if (value == null || value === '') continue;
-    const text = String(value);
-    if (text.length > 256) return `${key} is too long`;
-    if (/[\u0000-\u001f]/.test(text)) return `${key} contains invalid control characters`;
-  }
-  return null;
-}
-
 export async function GET(request: NextRequest) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
@@ -88,10 +43,9 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: unknown) {
-    const err = asErrorLike(error);
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
-      { error: error instanceof Error ? err.message : String(error) },
+      { error: 'Unable to read provider preference' },
       { status: 500 }
     );
   }
@@ -101,11 +55,15 @@ export async function POST(request: NextRequest) {
   const authError = await requireManagementAuth(request);
   if (authError) return authError;
 
-  const csrfError = assertSameOriginMutation(request);
-  if (csrfError) return csrfError;
+  const originError = validatePreferenceMutationOrigin(request.headers);
+  if (originError) return NextResponse.json({ error: originError }, { status: 403 });
 
   try {
-    const body = await request.json().catch(() => ({}));
+    const parsedBody: unknown = await request.json().catch(() => ({}));
+    if (!parsedBody || typeof parsedBody !== 'object' || Array.isArray(parsedBody)) {
+      return NextResponse.json({ error: 'Request body must be a JSON object' }, { status: 400 });
+    }
+    const body = parsedBody as Record<string, unknown>;
     const {
       providerId,
       modelId,
@@ -129,6 +87,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
+    // Accept the full provider/channel mesh, not only the compact product
+    // suggestion catalog. Syntax validation above keeps persisted ids safe.
+    const normalizedProviderId = (providerId as string).trim().toLowerCase();
+
     // Direct write path: product UI saves preferences without the full selection UX gate.
     // Still requires explicit confirm and never invents a default provider.
     if (directWrite === true && confirm === true && dryRun !== true) {
@@ -137,8 +99,8 @@ export async function POST(request: NextRequest) {
         writeChannelPreference,
         resolveUserSelectionBundle,
       } = await import('../../../../../services/UserSelectionResolver.js');
-      const provider = writeProviderPreference({
-        providerId,
+      const savedProvider = writeProviderPreference({
+        providerId: normalizedProviderId,
         modelId: modelId ?? null,
         secondaryModelId: secondaryModelId ?? null,
         routeId: routeId ?? null,
@@ -153,11 +115,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         status: 'applied',
         preference: {
-          providerId: provider.providerId,
-          modelId: provider.modelId,
-          secondaryModelId: provider.secondaryModelId,
-          routeId: provider.routeId,
-          familyId: provider.familyId,
+          providerId: savedProvider.providerId,
+          modelId: savedProvider.modelId,
+          secondaryModelId: savedProvider.secondaryModelId,
+          routeId: savedProvider.routeId,
+          familyId: savedProvider.familyId,
         },
         channel: bundle.channel,
         source: 'user-selection-direct',
@@ -171,7 +133,7 @@ export async function POST(request: NextRequest) {
 
     let result;
     const input = {
-      providerId,
+      providerId: normalizedProviderId,
       modelId,
       secondaryModelId,
       routeId,
@@ -197,10 +159,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error: unknown) {
-    const err = asErrorLike(error);
     logger.warn('[route] operation failed', error);
     return NextResponse.json(
-      { error: error instanceof Error ? err.message : String(error) },
+      { error: 'Unable to update provider preference' },
       { status: 500 }
     );
   }

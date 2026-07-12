@@ -1,14 +1,1633 @@
 {
-  "schemaVersion": "zavorth.marketplace-index/v1",
+  "schemaVersion": "zavorth.marketplace-index/v2",
   "categories": [
-    {"id": "development", "label": "Development", "description": "Code review, testing, debugging", "skillCount": 14},
-    {"id": "research", "label": "Research", "description": "Web search, analysis, summarization", "skillCount": 26},
-    {"id": "productivity", "label": "Productivity", "description": "Tasks, calendar, reminders", "skillCount": 21},
-    {"id": "media", "label": "Media", "description": "Image, audio, video generation", "skillCount": 24},
-    {"id": "security", "label": "Security", "description": "Auditing, scanning, hardening", "skillCount": 15},
-    {"id": "devops", "label": "DevOps", "description": "Docker, deployment, monitoring", "skillCount": 34},
-    {"id": "communication", "label": "Communication", "description": "Email, messaging, notifications", "skillCount": 9},
-    {"id": "data", "label": "Data", "description": "Databases, analytics, visualization", "skillCount": 34}
+    {
+      "id": "development",
+      "label": "Development",
+      "description": "Code review, testing, debugging, frameworks",
+      "skillCount": 81
+    },
+    {
+      "id": "research",
+      "label": "Research",
+      "description": "Web search, analysis, summarization, academic",
+      "skillCount": 12
+    },
+    {
+      "id": "productivity",
+      "label": "Productivity",
+      "description": "Tasks, calendar, reminders, project management",
+      "skillCount": 20
+    },
+    {
+      "id": "media",
+      "label": "Media",
+      "description": "Image, audio, video generation and editing",
+      "skillCount": 26
+    },
+    {
+      "id": "security",
+      "label": "Security",
+      "description": "Auditing, scanning, hardening, penetration testing",
+      "skillCount": 11
+    },
+    {
+      "id": "devops",
+      "label": "DevOps",
+      "description": "Docker, Kubernetes, Terraform, deployment, CI/CD",
+      "skillCount": 25
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "description": "Email, messaging, notifications, social media",
+      "skillCount": 12
+    },
+    {
+      "id": "data",
+      "label": "Data",
+      "description": "Databases, analytics, visualization, BI",
+      "skillCount": 13
+    },
+    {
+      "id": "ai-ml",
+      "label": "AI & Machine Learning",
+      "description": "Training, fine-tuning, inference, RAG, agents",
+      "skillCount": 25
+    },
+    {
+      "id": "finance-legal",
+      "label": "Finance & Legal",
+      "description": "Financial modeling, trading, contracts, compliance",
+      "skillCount": 12
+    },
+    {
+      "id": "creative",
+      "label": "Creative & Design",
+      "description": "Branding, design kits, visual identity, aesthetics",
+      "skillCount": 14
+    },
+    {
+      "id": "blockchain",
+      "label": "Blockchain & Web3",
+      "description": "EVM, Solana, NFTs, smart contracts",
+      "skillCount": 5
+    }
   ],
-  "remoteRegistry": null
+  "remoteRegistry": null,
+  "skills": [
+    {
+      "dir": "agent-orchestrator",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1782786746833_ldxi",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1782786938629_uo88",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1782788466183_uywa",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783464408220_c6o1",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783469254502_50ty",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783481855054_rfds",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783485356186_7yow",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783521367720_asdi",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783622174932_vbbx",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783630234903_qmoe",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783630755155_vk7i",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783631686742_0pps",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783632187310_dyxw",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783632922545_8yhm",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633109655_sfqr",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633191901_zci6",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633251085_hpkr",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633291961_ac1q",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633361329_gt2a",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633473459_iqsl",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783633790622_fqlu",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783634002754_1pyl",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783636083296_sxvb",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783672417920_2ygk",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783672553917_e172",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783672794502_5szi",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783787157665_on88",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783787198959_kkf2",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783787306497_1cf7",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790342002_u59m",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790354387_63ej",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790377843_bj1t",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790674215_pfak",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790690382_r6er",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "auto_1783790703569_7lsa",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "channel-response-design",
+      "categories": [
+        "media",
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "code-review",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "compact-channel-reply",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "dashboard-ops",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "document-analysis",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "governed-test-loop",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "guided-plan-review",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "incident-triage",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "large-skill-absorption",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "memory-curator",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "prompt-injection-defense",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "provider-doctor",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "repo-map",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "security-audit",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "task-planning",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "user-onboarding",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "web-research-governed",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-3d-model-generator",
+      "categories": [
+        "media",
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-academic-citation",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-academic-scholar",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-aesthetic-style-factory",
+      "categories": [
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-agent-evaluator",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-ai-safety-researcher",
+      "categories": [
+        "research",
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-airflow-orchestrator",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-airtable-ops",
+      "categories": [
+        "devops",
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-algorithmic-svg-designer",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-animation-maker",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-ansible-automation",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-apache-spark",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-api-ledger-control",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-api-security-tester",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-app-launcher",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-argocd-deployer",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-arxiv-researcher",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-audio-editor",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-audio-signal-editor",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-audio-whisper-transcribe",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-aws-cloud-ops",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-axolotl-trainer",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-azure-cloud-ops",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-better-auth-engineer",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-bioinformatics",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-blender-3d",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-blockchain-auditor",
+      "categories": [
+        "security",
+        "blockchain"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-brand-kit-compiler",
+      "categories": [
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-browser-operator",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-business-writer",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-canva-creator",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-clickhouse-analytics",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-cloudflare-workers",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-cognitive-prompt-optimizer",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-communication-control",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-compliance-checker",
+      "categories": [
+        "security",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-content-calendar",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-contract-reviewer",
+      "categories": [
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-conversation-review",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-credential-vault-bridge",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-data-analysis",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-data-science-plot",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-data-storyteller",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dataset-preparer",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dbt-transformer",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dcf-modeler",
+      "categories": [
+        "ai-ml",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dependency-auditor",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-design-system-manager",
+      "categories": [
+        "development",
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dev-workbench",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-devops-docker-manager",
+      "categories": [
+        "development",
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-diagram-generator",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-discord-server-ops",
+      "categories": [
+        "devops",
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-documentation-coauthor",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-dspy-builder",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-edge-computing-specialist",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-email-campaign",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-email-client-manager",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-etl-pipeline",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-evm-developer",
+      "categories": [
+        "blockchain"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-figma-design",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-figma-to-code",
+      "categories": [
+        "development",
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-file-document-understanding",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-financial-reporter",
+      "categories": [
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-flutter-app-builder",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-gcp-cloud-ops",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-git-workflow-governor",
+      "categories": [
+        "development",
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-google-workspace",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-grafana-dashboard",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-hyperliquid-trader",
+      "categories": [
+        "finance-legal",
+        "blockchain"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-interactive-debugging",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-istio-mesh",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-jira-connector",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-jupyter-notebook",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-kafka-streamer",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-kubernetes-orchestrator",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-lbo-modeler",
+      "categories": [
+        "ai-ml",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-linear-issues",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-market-research",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-media-generation-review",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-media-watermarker",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-meeting-facilitator",
+      "categories": [
+        "productivity",
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-meme-generator",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-merger-modeler",
+      "categories": [
+        "ai-ml",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-microsoft-365",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-ml-experiment-tracker",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-mlflow-manager",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-model-fine-tuner",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-model-routing",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-multiagent-swarm",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-music-composer",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-netlify-edge-deployer",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-nft-creator",
+      "categories": [
+        "creative",
+        "blockchain"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-notion-coordinator",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-notion-database",
+      "categories": [
+        "productivity",
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-obsidian-sync",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-office-pdf-extractor",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-ops-runtime",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-osint-investigator",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-package-runtime-solver",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-pandas-dataframe",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-patent-searcher",
+      "categories": [
+        "research",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-peft-lora",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-penetration-tester",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-personal-finance",
+      "categories": [
+        "productivity",
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-physical-ai-engineer",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-playwright-qa-engineer",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-podcast-producer",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-postgres-sql-wizard",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-presentation-builder",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-prometheus-alerting",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-prometheus-queries",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-prompt-optimizer",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-rag-builder",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-react-flow-node-editor",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-redteam-simulator",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-remotion-video-compiler",
+      "categories": [
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-research-synthesis",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-resume-coach",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-sanity-content-modeler",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-screenshot-to-code",
+      "categories": [
+        "development",
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-security-review",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-seo-optimizer",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-shadcn-component-curator",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-slack-workflow",
+      "categories": [
+        "productivity",
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-smart-home-iot",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-social-media-analytics",
+      "categories": [
+        "media",
+        "communication",
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-social-media-publisher",
+      "categories": [
+        "media",
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-solana-developer",
+      "categories": [
+        "blockchain"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-spark-optimizer",
+      "categories": [
+        "devops",
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-speech-tts-generator",
+      "categories": [
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-sql-visualizer",
+      "categories": [
+        "data"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-static-html-optimizer",
+      "categories": [
+        "development",
+        "media",
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-static-security-audit",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-stock-analyzer",
+      "categories": [
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-stripe-integration",
+      "categories": [
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-subagent-development",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-system-power-dnd",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-task-inbox-triage",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-taskflow",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-telegram-bot-manager",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-tensorrt-optimize",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-terraform-iac-architect",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-terraform-modules",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-theme-customizer",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-transaction-safe-finance",
+      "categories": [
+        "finance-legal"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-trello-board",
+      "categories": [
+        "productivity"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-tunnel-cloudflare",
+      "categories": [
+        "devops"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-unsloth-finetune",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-video-editor",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-video-intelligence",
+      "categories": [
+        "media",
+        "creative"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-vllm-inference",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-vulnerability-scanner",
+      "categories": [
+        "security"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-wandb-tracker",
+      "categories": [
+        "ai-ml"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-weather-location",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-web-artifacts-generator",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-web-feed-watcher",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-webhook-router",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-whatsapp-business",
+      "categories": [
+        "communication"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-wikipedia-deep-dive",
+      "categories": [
+        "research"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-workflow-designer",
+      "categories": [
+        "development",
+        "productivity",
+        "media"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-workspace-scope",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-zapier-connector",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    },
+    {
+      "dir": "zavorth-zustand-store-coordinator",
+      "categories": [
+        "development"
+      ],
+      "hasSkillMd": true
+    }
+  ],
+  "generatedAt": "2026-07-12T04:09:12.608Z"
 }

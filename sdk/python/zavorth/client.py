@@ -1,10 +1,26 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Optional
+import math
+from typing import Any, Optional
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.parse import urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+
+def _origin(url: str) -> tuple[str, str, int]:
+    parsed = urlsplit(url)
+    default_port = 443 if parsed.scheme == "https" else 80
+    return parsed.scheme.lower(), (parsed.hostname or "").lower(), parsed.port or default_port
+
+
+class _SameOriginRedirectHandler(HTTPRedirectHandler):
+    """Never forward SDK credentials or requests to a different origin."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001
+        if _origin(req.full_url) != _origin(newurl):
+            raise URLError("Cross-origin redirect refused by Zavorth SDK")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 class ZavorthApiError(RuntimeError):
@@ -30,104 +46,110 @@ class ZavorthClient:
         base_url: str,
         token: Optional[str] = None,
         timeout: float = 10.0,
-        default_headers: Optional[Dict[str, str]] = None,
+        default_headers: Optional[dict[str, str]] = None,
         sdk_label: str = "zavorth-python-sdk/1.0",
     ):
         self.base_url = base_url.rstrip("/")
+        parsed_base = urlsplit(self.base_url)
+        if parsed_base.scheme not in {"http", "https"} or not parsed_base.hostname:
+            raise ValueError("ZavorthClient base_url must be an absolute http(s) URL")
+        if parsed_base.username or parsed_base.password:
+            raise ValueError("ZavorthClient base_url must not contain embedded credentials")
         self.token = token.strip() if token else None
-        self.timeout = timeout
+        self.timeout = float(timeout)
+        if not math.isfinite(self.timeout) or self.timeout <= 0:
+            raise ValueError("ZavorthClient timeout must be a positive finite number")
         self.default_headers = dict(default_headers or {})
         self.sdk_label = sdk_label.strip() or "zavorth-python-sdk/1.0"
-        if not self.base_url:
-            raise ValueError("ZavorthClient requires base_url")
+        self._opener = build_opener(_SameOriginRedirectHandler())
 
-    def get_gateway_status(self) -> Dict[str, Any]:
+    def get_gateway_status(self) -> dict[str, Any]:
         return self._get_json("/api/v1/gateway/status")
 
-    def get_gateway_domains(self, detail: str = "summary", **query: Any) -> Dict[str, Any]:
+    def get_gateway_domains(self, detail: str = "summary", **query: Any) -> dict[str, Any]:
         payload = dict(query)
         payload["detail"] = detail
         return self._get_json("/api/v1/gateway/domains", payload)
 
-    def get_ops_health(self, live: bool = False) -> Dict[str, Any]:
+    def get_ops_health(self, live: bool = False) -> dict[str, Any]:
         return self._get_json("/api/v1/ops/health", {"live": "true" if live else None})
 
-    def get_ops_quality(self, live: bool = False, **query: Any) -> Dict[str, Any]:
+    def get_ops_quality(self, live: bool = False, **query: Any) -> dict[str, Any]:
         payload = dict(query)
         payload["live"] = "true" if live else None
         if "workspaceHint" in payload:
             payload["workspace"] = payload.pop("workspaceHint")
         return self._get_json("/api/v1/ops/quality", payload)
 
-    def list_sessions(self, **query: Any) -> Dict[str, Any]:
+    def list_sessions(self, **query: Any) -> dict[str, Any]:
         return self._get_json("/api/v1/sessions", query)
 
-    def get_platform_status(self) -> Dict[str, Any]:
+    def get_platform_status(self) -> dict[str, Any]:
         return self._get_json("/api/v1/platform/status")
 
     def get_platform_catalog(
         self,
         selected_id: Optional[str] = None,
         query: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         return self._get_json(
             "/api/v1/platform/catalog",
             {"selectedId": selected_id, "q": query},
         )
 
-    def get_learning_status(self, **query: Any) -> Dict[str, Any]:
+    def get_learning_status(self, **query: Any) -> dict[str, Any]:
         return self._get_json("/api/v1/learning/status", query)
 
-    def get_learning_candidates(self, **query: Any) -> Dict[str, Any]:
+    def get_learning_candidates(self, **query: Any) -> dict[str, Any]:
         return self._get_json("/api/v1/learning/candidates", query)
 
-    def get_learning_metrics(self, **query: Any) -> Dict[str, Any]:
+    def get_learning_metrics(self, **query: Any) -> dict[str, Any]:
         return self._get_json("/api/v1/learning/metrics", query)
 
-    def run_learning_action(self, candidate_id: str, action_id: str) -> Dict[str, Any]:
+    def run_learning_action(self, candidate_id: str, action_id: str) -> dict[str, Any]:
         return self._post_json(
             "/api/v1/learning/actions",
             {"candidateId": candidate_id, "actionId": action_id},
         )
 
-    def approve_learning_candidate(self, candidate_id: str) -> Dict[str, Any]:
+    def approve_learning_candidate(self, candidate_id: str) -> dict[str, Any]:
         return self.run_learning_action(candidate_id, "approve")
 
-    def reject_learning_candidate(self, candidate_id: str) -> Dict[str, Any]:
+    def reject_learning_candidate(self, candidate_id: str) -> dict[str, Any]:
         return self.run_learning_action(candidate_id, "reject")
 
-    def promote_learning_candidate(self, candidate_id: str) -> Dict[str, Any]:
+    def promote_learning_candidate(self, candidate_id: str) -> dict[str, Any]:
         return self.run_learning_action(candidate_id, "promote")
 
-    def get_memory_status(self, **query: Any) -> Dict[str, Any]:
+    def get_memory_status(self, **query: Any) -> dict[str, Any]:
         if "workspaceHint" in query:
             query["workspace"] = query.pop("workspaceHint")
         return self._get_json("/api/v1/memory/status", query)
 
-    def get_memory_metrics(self, **query: Any) -> Dict[str, Any]:
+    def get_memory_metrics(self, **query: Any) -> dict[str, Any]:
         if "workspaceHint" in query:
             query["workspace"] = query.pop("workspaceHint")
         return self._get_json("/api/v1/memory/metrics", query)
 
-    def search_memory(self, query: str, **extra: Any) -> Dict[str, Any]:
+    def search_memory(self, query: str, **extra: Any) -> dict[str, Any]:
         payload = dict(extra)
         if "workspaceHint" in payload:
             payload["workspace"] = payload.pop("workspaceHint")
         payload["q"] = query
         return self._get_json("/api/v1/memory/search", payload)
 
-    def get_memory_procedures(self, **query: Any) -> Dict[str, Any]:
+    def get_memory_procedures(self, **query: Any) -> dict[str, Any]:
         if "workspaceHint" in query:
             query["workspace"] = query.pop("workspaceHint")
         return self._get_json("/api/v1/memory/procedures", query)
 
-    def list_nodes(self, selected_id: Optional[str] = None) -> Dict[str, Any]:
+    def list_nodes(self, selected_id: Optional[str] = None) -> dict[str, Any]:
         return self._get_json("/api/v1/nodes", {"selectedId": selected_id})
 
-    def list_transports(self, selected_id: Optional[str] = None) -> Dict[str, Any]:
+    def list_transports(self, selected_id: Optional[str] = None) -> dict[str, Any]:
         return self._get_json("/api/v1/transports", {"selectedId": selected_id})
 
-    def list_artifacts(self, **query: Any) -> Dict[str, Any]:
+    def list_artifacts(self, **query: Any) -> dict[str, Any]:
         return self._get_json("/api/v1/artifacts", query)
 
     def request_json(
@@ -135,10 +157,10 @@ class ZavorthClient:
         method: str,
         pathname: str,
         *,
-        query: Optional[Dict[str, Any]] = None,
-        payload: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-    ) -> Dict[str, Any]:
+        query: Optional[dict[str, Any]] = None,
+        payload: Optional[dict[str, Any]] = None,
+        headers: Optional[dict[str, str]] = None,
+    ) -> dict[str, Any]:
         params = {
             key: value
             for key, value in (query or {}).items()
@@ -152,26 +174,29 @@ class ZavorthClient:
         body = json.dumps(payload).encode("utf-8") if payload is not None else None
         request = Request(url, headers=request_headers, data=body, method=method.upper())
         try:
-            with urlopen(request, timeout=self.timeout) as response:
-                return self._parse_json_payload(response.read().decode("utf-8"), status=getattr(response, "status", 200))
+            with self._opener.open(request, timeout=self.timeout) as response:
+                return self._parse_json_payload(
+                    response.read().decode("utf-8"),
+                    status=getattr(response, "status", 200),
+                )
         except HTTPError as error:
             raw = error.read().decode("utf-8", errors="replace")
             raise self._build_api_error(raw, status=error.code) from error
         except URLError as error:
             raise ZavorthApiError(str(error.reason or error), body=None) from error
 
-    def _get_json(self, pathname: str, query: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _get_json(self, pathname: str, query: Optional[dict[str, Any]] = None) -> dict[str, Any]:
         return self.request_json("GET", pathname, query=query)
 
-    def _post_json(self, pathname: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _post_json(self, pathname: str, payload: dict[str, Any]) -> dict[str, Any]:
         return self.request_json("POST", pathname, payload=payload)
 
     def _build_headers(
         self,
         *,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         has_body: bool = False,
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         merged = {
             "Accept": "application/json",
             "X-Zavorth-SDK": self.sdk_label,
@@ -184,7 +209,7 @@ class ZavorthClient:
             merged["Content-Type"] = "application/json"
         return merged
 
-    def _parse_json_payload(self, raw: str, *, status: int) -> Dict[str, Any]:
+    def _parse_json_payload(self, raw: str, *, status: int) -> dict[str, Any]:
         text = raw.strip()
         if not text:
             return {}
@@ -206,4 +231,8 @@ class ZavorthClient:
                 details=error_payload.get("details"),
                 body=payload,
             )
-        return ZavorthApiError(str(payload.get("raw") or f"HTTP {status}"), status=status, body=payload)
+        return ZavorthApiError(
+            str(payload.get("raw") or f"HTTP {status}"),
+            status=status,
+            body=payload,
+        )

@@ -26,13 +26,13 @@ import { DesktopInspector } from '../panels/DesktopInspector';
 import { ContinuityBanner, buildContinuityBannerModel } from '../components/ContinuityBanner';
 import { NextActionBanner } from '../components/NextActionBanner';
 import {
+  buildDesktopPendingTasks,
   isDay1ReturnEligible,
   readRememberedDesktopSession,
   rememberDesktopSession,
   touchDesktopOpenClock,
 } from '../desktop-state/continuityStorage';
 import { getOnboardingAudience } from '../onboarding/desktopOnboarding';
-import { DailyReturnContinuityService } from '../../../src/services/DailyReturnContinuityService';
 
 import {
   clearQueue,
@@ -313,24 +313,14 @@ export function DesktopShell(props: {
       const status = String(item.status || '').toLowerCase();
       return status !== 'promoted' && status !== 'accepted' && status !== 'rejected';
     }).length;
-    const snapshot = new DailyReturnContinuityService().buildSnapshot({
-      pendingApprovals: pendingApprovalCount,
-      providerReady,
-      memoryDraftCount: learningPending,
-      previousOpenAt: openClock.previousOpenAt,
-      currentOpenAt: openClock.currentOpenAt,
-      sessions: lastSessionId
-        ? [{ id: lastSessionId, title: remembered.title, updatedAt: openClock.previousOpenAt || undefined }]
-        : [],
-    });
+    const pendingTasks = buildDesktopPendingTasks(pendingApprovalCount, learningPending);
     return buildContinuityBannerModel({
       pendingApprovals: pendingApprovalCount,
       providerReady,
       lastSessionId,
       lastSessionTitle: remembered.title,
-      pendingTasks: snapshot.pendingTasks,
-      day1ReturnEligible: isDay1ReturnEligible(openClock.previousOpenAt, openClock.currentOpenAt)
-        || snapshot.day1ReturnEligible,
+      pendingTasks,
+      day1ReturnEligible: isDay1ReturnEligible(openClock.previousOpenAt, openClock.currentOpenAt),
     });
   }, [
     pendingApprovalCount,

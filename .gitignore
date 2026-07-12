@@ -163,6 +163,8 @@ AUDIT_FIX_LOG.md
 .superpowers/
 **/__pycache__/
 *.pyc
+*.egg-info/
+sdk/python/build/
 
 # === Coverage & reports (extra) ===
 htmlcov/

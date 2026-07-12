@@ -5,7 +5,7 @@ import type {
   SwarmScaleExecutionMode,
   SwarmScaleExecutionBackendId,
   SwarmScaleControlSurface,
-} from '../../../../execution/infrastructure/SwarmScalePlaneService.js';
+} from '../../../../../contracts/execution/SwarmScalePlaneContract.js';
 import type {
   SwarmV2CreateInput,
   SwarmV2IsolationMode,
