@@ -672,12 +672,13 @@ export class LiveUserProviderHarness {
       for (let mi = 0; mi < models.length; mi += 1) {
         const model = models[mi];
         const url =
-          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-          + `?key=${encodeURIComponent(apiKey)}`;
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
         const res = await this.requestWithRateLimitRetry({
           url,
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          // Keep credentials out of URLs so proxies, access logs, and error traces
+          // cannot persist the Gemini key as part of the request target.
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify({
             contents: [{ parts: [{ text: `Reply with exactly the token ${LIVE_PROBE_TOKEN} and nothing else.` }] }],
             generationConfig: { maxOutputTokens: 64, temperature: 0 },
@@ -918,13 +919,13 @@ export class LiveUserProviderHarness {
       for (let mi = 0; mi < models.length; mi += 1) {
         const model = models[mi];
         const url =
-          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
-          + `?key=${encodeURIComponent(apiKey)}`;
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+        const headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
 
         const round1 = await this.requestWithRateLimitRetry({
           url,
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             contents: [{ role: 'user', parts: [{ text: userText }] }],
             tools: [toolDecl],
@@ -986,7 +987,7 @@ export class LiveUserProviderHarness {
         let round2 = await this.requestWithRateLimitRetry({
           url,
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             contents: history,
             generationConfig: { maxOutputTokens: 96, temperature: 0 },
@@ -1018,7 +1019,7 @@ export class LiveUserProviderHarness {
           const forced = await this.requestWithRateLimitRetry({
             url,
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({
               contents: [
                 ...history,

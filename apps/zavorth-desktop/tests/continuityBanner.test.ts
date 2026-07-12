@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildContinuityBannerModel } from '../src/components/ContinuityBanner';
 import {
+  buildDesktopPendingTasks,
   isDay1ReturnEligible,
   rememberDesktopSession,
   readRememberedDesktopSession,
@@ -59,5 +60,13 @@ describe('continuity banner and storage', () => {
     rememberDesktopSession({ id: 'abc', title: 'Work' }, storage);
     expect(readRememberedDesktopSession(storage)).toEqual({ id: 'abc', title: 'Work' });
     expect(isDay1ReturnEligible(second.previousOpenAt, second.currentOpenAt)).toBe(true);
+  });
+
+  it('projects pending approvals and memory drafts without importing server services', () => {
+    expect(buildDesktopPendingTasks(2, 1)).toEqual([
+      'Review 2 pending approvals',
+      'Review 1 memory draft',
+    ]);
+    expect(buildDesktopPendingTasks(0, 0)).toEqual([]);
   });
 });

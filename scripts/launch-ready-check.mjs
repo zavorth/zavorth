@@ -73,10 +73,7 @@ const installer = runNode('scripts/installer-readiness-check.mjs');
 const valueSuite = runNode('scripts/value-test-all.mjs');
 
 const signingReport = readJson('.zavorth/ops-signing-report.json');
-const signedArtifactsVerified = Boolean(
-  signingReport?.signedArtifactsVerified
-  || (Array.isArray(signingReport?.signedArtifactsFound) && signingReport.signedArtifactsFound.length > 0),
-);
+const signedArtifactsVerified = signingReport?.signedArtifactsVerified === true;
 // Fallback: re-check via signing script field after runNode already executed.
 const signedFromRun = (() => {
   try {
@@ -148,8 +145,8 @@ const checks = [
     bar: 'launch',
     ok: signedOk,
     notes: signedOk
-      ? 'non-empty installer/package files verified under release dirs'
-      : 'no verified installer/package files — directory presence alone is not signed evidence',
+      ? 'installer signature cryptographically verified by a platform-native verifier'
+      : 'no installer signature verified — file or directory presence is not signing evidence',
   },
   {
     id: 'live-cells-recorded',

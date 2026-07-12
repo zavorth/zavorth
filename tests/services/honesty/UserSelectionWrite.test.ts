@@ -42,6 +42,8 @@ describe('V9 user selection write path', () => {
     const bundle = resolveUserSelectionBundle({ projectRoot: dir, env: {} });
     expect(bundle.provider.providerId).toBe('openai');
     expect(bundle.channel.channelId).toBe('discord');
+    const runtimeDir = path.join(dir, 'data', 'runtime');
+    expect(fs.readdirSync(runtimeDir).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 
   it('keeps a single catalog for providers and channels', () => {
@@ -71,6 +73,41 @@ describe('V9 user selection write path', () => {
     expect(resolved.providerId).toBe('openai');
     expect(resolved.modelId).toBeNull();
     expect(resolved.secondaryModelId).toBeNull();
+  });
+
+  it('clears persisted channel preference so resolvers stop serving prior channel', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-sel-ch-clear-'));
+    writeChannelPreference('telegram', dir);
+    expect(resolveUserChannelSelection({ projectRoot: dir, env: {} }).channelId).toBe('telegram');
+
+    const cleared = writeChannelPreference('', dir);
+    expect(cleared.channelId).toBeNull();
+    expect(cleared.configured).toBe(false);
+    expect(resolveUserChannelSelection({ projectRoot: dir, env: {} }).channelId).toBeNull();
+    expect(
+      fs.existsSync(path.join(dir, 'data', 'runtime', 'channel-selection-preferences.json')),
+    ).toBe(false);
+  });
+
+  it('clears persisted provider preference when providerId is unconfigured', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-sel-pr-clear-'));
+    writeProviderPreference({
+      projectRoot: dir,
+      providerId: 'openai',
+      modelId: 'gpt-4o',
+    });
+    expect(resolveUserProviderSelection({ projectRoot: dir, env: {} }).providerId).toBe('openai');
+
+    const cleared = writeProviderPreference({
+      projectRoot: dir,
+      providerId: 'unconfigured',
+    });
+    expect(cleared.providerId).toBeNull();
+    expect(cleared.configured).toBe(false);
+    expect(resolveUserProviderSelection({ projectRoot: dir, env: {} }).providerId).toBeNull();
+    expect(
+      fs.existsSync(path.join(dir, 'data', 'runtime', 'provider-selection-preferences.json')),
+    ).toBe(false);
   });
 
   it('preserves receipt metadata when direct write merges over governed preference', () => {

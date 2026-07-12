@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,6 +8,42 @@ version = "1.0.0"
 description = "Official Python SDK for Zavorth REST API v1"
 readme = "README.md"
 requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "Zavorth Team" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/zavorth/zavorth"
+Documentation = "https://github.com/zavorth/zavorth/tree/main/sdk/python"
+
+[project.optional-dependencies]
+dev = ["build>=1.2", "pytest>=8", "ruff>=0.11"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "W"]
+# PEP 604 `X | None` syntax requires Python 3.10; the SDK promises 3.9.
+ignore = ["UP045"]
+
+[tool.pytest.ini_options]
+minversion = "8"
+testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 include = ["zavorth*"]

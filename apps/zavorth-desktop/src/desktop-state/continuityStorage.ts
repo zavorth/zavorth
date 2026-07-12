@@ -85,3 +85,24 @@ export function isDay1ReturnEligible(previousOpenAt: string | null, currentOpenA
   const delta = current.getTime() - previous.getTime();
   return delta >= 12 * 60 * 60 * 1000 && delta <= 48 * 60 * 60 * 1000;
 }
+
+/** Browser-safe projection of unfinished continuity work for the banner. */
+export function buildDesktopPendingTasks(
+  pendingApprovals: number,
+  memoryDraftCount: number,
+): string[] {
+  const tasks: string[] = [];
+  const approvals = Math.max(0, Number(pendingApprovals || 0));
+  if (approvals > 0) {
+    tasks.push(approvals === 1
+      ? 'Review 1 pending approval'
+      : `Review ${approvals} pending approvals`);
+  }
+  const drafts = Math.max(0, Number(memoryDraftCount || 0));
+  if (drafts > 0) {
+    tasks.push(drafts === 1
+      ? 'Review 1 memory draft'
+      : `Review ${drafts} memory drafts`);
+  }
+  return tasks;
+}

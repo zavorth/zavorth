@@ -3,22 +3,22 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '../../../logger.js';
 import { asErrorLike } from '../../../utils/errorLike';
+import type {
+  SwarmScaleControlSurface,
+  SwarmScaleExecutionBackendId,
+  SwarmScaleExecutionMode,
+  SwarmScalePlannerMode,
+} from '../../../contracts/execution/SwarmScalePlaneContract.js';
+
+export type {
+  SwarmScaleControlSurface,
+  SwarmScaleExecutionBackendId,
+  SwarmScaleExecutionMode,
+  SwarmScalePlannerMode,
+} from '../../../contracts/execution/SwarmScalePlaneContract.js';
 
 export const SWARM_SCALE_PLANE_CONTRACT_VERSION = '2026-06-01.swarm-scale-plane' as const;
 
-export type SwarmScalePlannerMode = 'heuristic' | 'llm' | 'custom';
-export type SwarmScaleExecutionMode = 'deterministic' | 'llm-live' | 'custom';
-export type SwarmScaleExecutionBackendId =
-  | 'auto'
-  | 'local'
-  | 'docker'
-  | 'ssh'
-  | 'wsl'
-  | 'vercel-sandbox'
-  | 'modal'
-  | 'daytona'
-  | 'singularity';
-export type SwarmScaleControlSurface = 'cli' | 'tui' | 'desktop' | 'zavorthControl' | 'api' | 'agent' | 'system';
 export type SwarmScaleRunStatus = 'planned' | 'running' | 'paused' | 'completed' | 'failed' | 'cancelled';
 export type SwarmScaleAgentStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 export type SwarmScaleStepStatus = 'running' | 'completed' | 'failed' | 'skipped';

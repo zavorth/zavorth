@@ -5,6 +5,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,9 +41,6 @@ const artifactDirHints = [
 const INSTALLER_EXT = new Set([
   '.exe', '.msi', '.dmg', '.pkg', '.appimage', '.deb', '.rpm',
 ]);
-/** Companion signing/manifest files only accepted next to installers context. */
-const COMPANION_EXT = new Set(['.blockmap', '.sig', '.asc']);
-
 function isInstallerArtifact(name) {
   const lower = String(name || '').toLowerCase();
   const ext = path.extname(lower);
@@ -52,10 +50,46 @@ function isInstallerArtifact(name) {
   if (['.zip', '.tar', '.gz', '.tgz'].includes(ext)) {
     return /setup|installer|zavorth|release|portable|win|mac|linux|nsis/i.test(lower);
   }
-  if (COMPANION_EXT.has(ext) || lower === 'sha256sums' || lower.endsWith('.sha256')) {
-    return true;
-  }
   return false;
+}
+
+/** Verify signatures only with a platform-native verifier; file presence is not proof. */
+function verifyNativeSignature(absPath) {
+  const ext = path.extname(absPath).toLowerCase();
+  if (process.platform === 'win32' && (ext === '.exe' || ext === '.msi')) {
+    const escaped = absPath.replace(/'/g, "''");
+    const result = spawnSync(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command',
+        `$s=Get-AuthenticodeSignature -LiteralPath '${escaped}'; `
+        + `if($s.Status -eq 'Valid'){Write-Output $s.SignerCertificate.Subject; exit 0}; `
+        + `Write-Error $s.StatusMessage; exit 1`],
+      { encoding: 'utf8', windowsHide: true, timeout: 30000 },
+    );
+    return {
+      verified: result.status === 0,
+      verifier: 'Get-AuthenticodeSignature',
+      signer: result.status === 0 ? String(result.stdout || '').trim().slice(0, 300) : null,
+    };
+  }
+  if (process.platform === 'darwin' && (ext === '.dmg' || ext === '.pkg')) {
+    const command = ext === '.pkg' ? 'pkgutil' : 'codesign';
+    const args = ext === '.pkg'
+      ? ['--check-signature', absPath]
+      : ['--verify', '--deep', '--strict', absPath];
+    const result = spawnSync(command, args, { encoding: 'utf8', timeout: 30000 });
+    return { verified: result.status === 0, verifier: command, signer: null };
+  }
+  if (process.platform === 'linux' && ext === '.rpm') {
+    const result = spawnSync('rpm', ['--checksig', absPath], { encoding: 'utf8', timeout: 30000 });
+    const output = `${result.stdout || ''}\n${result.stderr || ''}`;
+    return {
+      verified: result.status === 0 && /pgp|rsa|signature.*ok/i.test(output),
+      verifier: 'rpm --checksig',
+      signer: null,
+    };
+  }
+  return { verified: false, verifier: 'unavailable-on-current-platform', signer: null };
 }
 
 function listReleaseArtifacts(rel, maxDepth = 3) {
@@ -97,24 +131,32 @@ function listReleaseArtifacts(rel, maxDepth = 3) {
 
 const missing = structural.filter((rel) => !fs.existsSync(path.join(root, rel)));
 const dirsPresent = artifactDirHints.filter((rel) => fs.existsSync(path.join(root, rel)));
-const verifiedArtifacts = artifactDirHints.flatMap((rel) => listReleaseArtifacts(rel));
+const installerArtifacts = artifactDirHints.flatMap((rel) => listReleaseArtifacts(rel));
 // Dedupe while preserving order
-const verifiedUnique = [...new Set(verifiedArtifacts)];
+const installerUnique = [...new Set(installerArtifacts)];
+const signatureChecks = installerUnique.map((rel) => ({
+  path: rel,
+  ...verifyNativeSignature(path.join(root, rel)),
+}));
+const verifiedUnique = signatureChecks.filter((entry) => entry.verified);
 const signedArtifactsVerified = verifiedUnique.length > 0;
-/** True until non-empty installers exist AND cert/notarization still needs human ops. */
+/** True until at least one installer signature is cryptographically verified. */
 const needsCert = !signedArtifactsVerified;
 
 const report = {
   generatedAt: new Date().toISOString(),
-  version: 'ops-signing/v3',
+  version: 'ops-signing/v4',
   structuralOk: missing.length === 0,
   /** Directory presence only — NOT proof of signed release. */
   artifactDirsPresent: dirsPresent,
   /** @deprecated alias of artifactDirsPresent for older consumers */
   signedArtifactDirsPresent: dirsPresent.length > 0,
-  /** Non-empty installer/package files under known release dirs. */
+  /** Non-empty installer/package files under known release dirs (presence only). */
+  installerArtifactsFound: installerUnique.slice(0, 20),
+  /** True only after a native signature verifier succeeds. */
   signedArtifactsVerified,
-  signedArtifactsFound: verifiedUnique.slice(0, 20),
+  signedArtifactsFound: verifiedUnique.map((entry) => entry.path).slice(0, 20),
+  signatureChecks: signatureChecks.slice(0, 20),
   /**
    * needsCert: no verified non-empty installer/package files yet.
    * Even when files exist, operator must still verify cert identity / notarization
@@ -129,9 +171,9 @@ const report = {
     needsCert,
   },
   notes: signedArtifactsVerified
-    ? 'Installer/package files found under release dirs — still verify cert identity and notarization before store language.'
+    ? 'At least one installer signature passed a native cryptographic verifier; store publication still requires operator review.'
     : dirsPresent.length
-      ? 'Release dirs exist but contain no non-empty installer/package files — not signed-store evidence. needsCert=true.'
+      ? 'Release outputs may exist, but no installer signature was cryptographically verified on this platform. needsCert=true.'
       : 'Packaging scripts OK; signed store assets remain OPS-ONLY. needsCert=true.',
 };
 
@@ -154,14 +196,18 @@ if (asJson) {
     for (const rel of dirsPresent) console.log(`  dir present ${rel}`);
   }
 
-  console.log('[ops-signing] signedArtifactsVerified (non-empty installer/package files)');
+  console.log('[ops-signing] installer artifacts (presence only)');
+  for (const rel of installerUnique.slice(0, 10)) console.log(`  file ${rel}`);
+  console.log('[ops-signing] signedArtifactsVerified (native cryptographic verification)');
   if (!signedArtifactsVerified) {
     console.log('  none — directory presence alone is not signed evidence');
   } else {
-    for (const rel of verifiedUnique.slice(0, 10)) console.log(`  file ${rel}`);
+    for (const entry of verifiedUnique.slice(0, 10)) {
+      console.log(`  verified ${entry.path} via ${entry.verifier}`);
+    }
   }
 
-  console.log(`[ops-signing] needsCert=${needsCert ? 'yes' : 'no (files present — still verify cert/notarization)'}`);
+  console.log(`[ops-signing] needsCert=${needsCert ? 'yes' : 'no (signature verified; still review store publication)'}`);
   console.log('[ops-signing] claimsStoreLaunch=false');
 
   if (missing.length) {
