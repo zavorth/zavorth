@@ -248,6 +248,82 @@ describe('V8 LiveUserProviderHarness', () => {
     expect(report.claimsLiveIntelligence).toBe(false);
     expect(report.blockedOnly).toBe(true);
   });
+
+  it('retries 429 on probe then passes (openai mock)', async () => {
+    let calls = 0;
+    const sleeps: number[] = [];
+    const harness = new LiveUserProviderHarness({
+      projectRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-rl-')),
+      env: {
+        LLM_PROVIDER: 'openai',
+        OPENAI_API_KEY: 'sk-test-openai-key-123456',
+        ZAVORTH_MODEL_ID: 'gpt-4o-mini',
+      } as NodeJS.ProcessEnv,
+      maxRateLimitRetries: 2,
+      sleep: async (ms) => {
+        sleeps.push(ms);
+      },
+      transport: async () => {
+        calls += 1;
+        if (calls === 1) {
+          return {
+            status: 429,
+            body: JSON.stringify({ error: { message: 'Rate limit exceeded. Please retry in 0.01s.' } }),
+          };
+        }
+        return {
+          status: 200,
+          body: JSON.stringify({
+            choices: [{ message: { content: LIVE_PROBE_TOKEN } }],
+          }),
+        };
+      },
+    });
+    const probe = await harness.runProbe();
+    expect(probe.status).toBe('pass');
+    expect(calls).toBe(2);
+    expect(sleeps.length).toBe(1);
+    expect(Number(probe.evidence.rateLimitRetries)).toBeGreaterThanOrEqual(1);
+  });
+
+  it('falls back to alternate model after rate-limit on primary (gemini mock)', async () => {
+    const modelsHit: string[] = [];
+    const harness = new LiveUserProviderHarness({
+      projectRoot: fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-mf-')),
+      env: {
+        LLM_PROVIDER: 'gemini',
+        GEMINI_API_KEY: 'AIzaSy-test-key-for-harness-123456',
+        ZAVORTH_MODEL_ID: 'gemini-2.5-flash',
+      } as NodeJS.ProcessEnv,
+      maxRateLimitRetries: 0,
+      enableModelFallbackOnRateLimit: true,
+      sleep: async () => {},
+      transport: async (req) => {
+        const m = String(req.url).match(/models\/([^:]+):/);
+        const model = decodeURIComponent(m?.[1] || '');
+        modelsHit.push(model);
+        if (model === 'gemini-2.5-flash') {
+          return {
+            status: 429,
+            body: JSON.stringify({
+              error: { code: 429, message: 'You exceeded your current quota', status: 'RESOURCE_EXHAUSTED' },
+            }),
+          };
+        }
+        return {
+          status: 200,
+          body: JSON.stringify({
+            candidates: [{ content: { parts: [{ text: LIVE_PROBE_TOKEN }] } }],
+          }),
+        };
+      },
+    });
+    const probe = await harness.runProbe();
+    expect(probe.status).toBe('pass');
+    expect(modelsHit).toContain('gemini-2.5-flash');
+    expect(String(probe.evidence.model)).not.toBe('gemini-2.5-flash');
+    expect(probe.evidence.modelFallbackUsed).toBe(true);
+  });
 });
 
 describe('V8 TTFU', () => {
