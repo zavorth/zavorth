@@ -8,8 +8,9 @@ This package does **not** force full product certification (that remains `qa:zav
 
 - **Zero intentional removals** of product features (chat, approvals, receipts, absorb, import, mnemos, channels honesty, certification matrix, demo, desktop panels).
 - Public identity surfaces stay Zavorth-native (`identity:public`).
-- Historical phase plans stay under `docs/archive/` only — not as live public stubs.
+- Historical phase plans are **not** public product docs (no phase stubs under `docs/` root).
 - Golden path proves the hermetic Trust Loop; full product certification is still required before a formal release.
+- Live residual program lives under `docs/product/WAVES-UNIFIED-CLOSEOUT.md` and `docs/product/launch-readiness.md`.
 
 ## Checklist (master plan §15)
 
@@ -20,8 +21,8 @@ This package does **not** force full product certification (that remains `qa:zav
 | 3 | Public identity clean | `npm run identity:public` |
 | 4 | Surface syntax / packaging sanity | `npm run surfaces:check` |
 | 5 | Governance docs present | `SECURITY.md`, `CONTRIBUTING.md` |
-| 6 | Archive + golden-path docs present | `docs/archive/README.md`, `docs/product/golden-path.md` |
-| 7 | No public phase-plan stubs | e.g. `docs/CLI-VISUAL-OVERHAUL-PLAN.md` must not exist outside archive |
+| 6 | Golden-path + launch residual docs present | `docs/product/golden-path.md`, `docs/product/launch-readiness.md` |
+| 7 | No public phase-plan stubs | e.g. `docs/CLI-VISUAL-OVERHAUL-PLAN.md` must not exist at docs root |
 | 8 | Trust Loop modules present | ledger, approval presentation, risk budget, change preview, memory privacy, honesty, golden path script |
 | 9 | Feature preservation inventory | chat, approvals, receipts, absorb, import, mnemos, channels honesty, cert matrix, demo, desktop panels |
 

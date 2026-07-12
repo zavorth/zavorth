@@ -75,4 +75,4 @@ Power-user and maintainer docs. Useful for deep runtime work; not required for f
 
 ## Historical plans
 
-Phase plans, audits, and delivery briefs that are no longer first-class public docs live under **[docs/archive/](./archive/)**. See the [archive inventory](./archive/README.md) for what moved and why.
+Historical audits and phase-plan stubs were removed from the public tree. Live residual work (Value Waves V8–V12, launch bar) lives under **[docs/product/](./product/)** — start with [WAVES-UNIFIED-CLOSEOUT.md](./product/WAVES-UNIFIED-CLOSEOUT.md) and [launch-readiness.md](./product/launch-readiness.md).

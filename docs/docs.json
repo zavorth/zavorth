@@ -31,17 +31,13 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/zavorth/zavorth-core"
-      },
-      {
-        "label": "Discord",
-        "href": "https://discord.gg/zavorth"
+        "href": "https://github.com/zavorth/zavorth"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get started",
-      "href": "/produto/start/getting-started"
+      "href": "/product/start/getting-started"
     }
   },
   "navigation": {
@@ -52,24 +48,25 @@
           {
             "group": "Overview",
             "pages": [
-              "produto/index",
-              "produto/start/what-is-zavorth",
-              "produto/start/showcase"
+              "product/index",
+              "product/start/what-is-zavorth",
+              "product/start/showcase"
             ]
           },
           {
             "group": "First steps",
             "pages": [
-              "produto/start/getting-started",
-              "produto/start/onboarding"
+              "product/start/getting-started",
+              "product/start/first-use",
+              "product/start/onboarding"
             ]
           },
           {
             "group": "Core concepts",
             "pages": [
-              "produto/conceitos/features",
-              "produto/conceitos/aprovacoes",
-              "produto/conceitos/memoria"
+              "product/concepts/features",
+              "product/concepts/approvals",
+              "product/concepts/memory"
             ]
           }
         ]
@@ -80,13 +77,13 @@
           {
             "group": "Channels",
             "pages": [
-              "produto/canais/index",
-              "produto/canais/telegram",
-              "produto/canais/discord",
-              "produto/canais/whatsapp",
-              "produto/canais/slack",
-              "produto/canais/signal",
-              "produto/canais/email"
+              "product/channels/index",
+              "product/channels/telegram",
+              "product/channels/discord",
+              "product/channels/whatsapp",
+              "product/channels/slack",
+              "product/channels/signal",
+              "product/channels/email"
             ]
           }
         ]
@@ -97,11 +94,11 @@
           {
             "group": "AI Providers",
             "pages": [
-              "produto/providers/index",
-              "produto/providers/gemini",
-              "produto/providers/anthropic",
-              "produto/providers/local",
-              "produto/providers/custom"
+              "product/providers/index",
+              "product/providers/gemini",
+              "product/providers/anthropic",
+              "product/providers/local",
+              "product/providers/custom"
             ]
           }
         ]
@@ -112,9 +109,9 @@
           {
             "group": "Skills",
             "pages": [
-              "produto/skills/index",
-              "produto/skills/instalar",
-              "produto/skills/criar"
+              "product/skills/index",
+              "product/skills/install",
+              "product/skills/create"
             ]
           }
         ]
@@ -125,22 +122,22 @@
           {
             "group": "Interfaces",
             "pages": [
-              "produto/interfaces/zavorthcontrol",
-              "produto/interfaces/cli"
+              "product/interfaces/zavorthcontrol",
+              "product/interfaces/cli"
             ]
           },
           {
             "group": "Help",
             "pages": [
-              "produto/ajuda/troubleshooting",
-              "produto/ajuda/faq",
-              "produto/ajuda/glossario"
+              "product/help/troubleshooting",
+              "product/help/faq",
+              "product/help/glossary"
             ]
           },
           {
             "group": "What's New",
             "pages": [
-              "produto/changelog"
+              "product/changelog"
             ]
           }
         ]
@@ -149,7 +146,7 @@
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/zavorth/zavorth-core"
+      "github": "https://github.com/zavorth/zavorth"
     }
   }
 }

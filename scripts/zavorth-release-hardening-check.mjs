@@ -46,12 +46,16 @@ const startedAt = Date.now();
 const REQUIRED_DOCS = [
   'SECURITY.md',
   'CONTRIBUTING.md',
-  'docs/archive/README.md',
   'docs/product/golden-path.md',
+  'docs/product/launch-readiness.md',
 ];
 
-/** Public phase-plan stubs that must NOT exist outside archive. */
-const FORBIDDEN_PUBLIC_PLANS = ['docs/CLI-VISUAL-OVERHAUL-PLAN.md'];
+/** Public phase-plan stubs that must NOT reappear at docs root. */
+const FORBIDDEN_PUBLIC_PLANS = [
+  'docs/CLI-VISUAL-OVERHAUL-PLAN.md',
+  'docs/AUDIT-code-cli.md',
+  'docs/code-cli-integration.md',
+];
 
 /** Key Trust Loop modules that must ship. */
 const TRUST_LOOP_MODULES = [
