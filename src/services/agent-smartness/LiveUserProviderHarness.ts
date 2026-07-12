@@ -197,6 +197,32 @@ function redact(text: string): string {
     .slice(0, 500);
 }
 
+/** Detect 429 / quota / rate-limit signals so notes recommend alternate provider, not greenwash. */
+function looksLikeRateLimit(text: string | number | null | undefined): boolean {
+  const s = String(text ?? '');
+  return (
+    /\b429\b/.test(s)
+    || /too many requests/i.test(s)
+    || /RESOURCE_EXHAUSTED/i.test(s)
+    || /rate[- ]?limit/i.test(s)
+    || /quota exceeded/i.test(s)
+    || /exceeded your current quota/i.test(s)
+  );
+}
+
+function multiStepNoToolNotes(providerLabel: string, body: string, status?: number): {
+  notes: string;
+  rateLimited: boolean;
+} {
+  const rateLimited = looksLikeRateLimit(body) || status === 429;
+  return {
+    rateLimited,
+    notes: rateLimited
+      ? `Multi-step round 1 failed: rate limited / quota exhausted (429) on ${providerLabel}. Retry with an alternate provider or API key — do not treat as multi-step pass.`
+      : `Multi-step round 1 did not produce a tool call (${providerLabel}).`,
+  };
+}
+
 function exactProbeToken(text: string): boolean {
   return String(text || '').trim() === LIVE_PROBE_TOKEN;
 }
@@ -468,17 +494,23 @@ export class LiveUserProviderHarness {
   private runtimeFailure(selection: UserProviderSelection, error: unknown, phase: string): LiveHarnessResult {
     const message = error instanceof Error ? error.message : String(error);
     const missingConfiguration = /api key|credential|not configured|not available|unavailable|no provider/i.test(message);
+    const rateLimited = looksLikeRateLimit(message);
+    const base = this.t('runtime_failure', '{phase} via production runtime: {message}', {
+      phase,
+      message: redact(message),
+    });
+    const notes = rateLimited
+      ? `${base} Rate limited / quota exhausted (429). Retry with an alternate provider or API key — do not treat as multi-step pass.`
+      : base;
     return {
       status: missingConfiguration ? 'blocked' : 'fail',
-      notes: this.t('runtime_failure', '{phase} via production runtime: {message}', {
-        phase,
-        message: redact(message),
-      }),
+      notes,
       evidence: {
         providerId: selection.providerId,
         configured: selection.configured,
         runtimePath: true,
         phase,
+        rateLimited,
       },
     };
   }
@@ -631,15 +663,18 @@ export class LiveUserProviderHarness {
 
     const call = extractGeminiFunctionCall(round1.body);
     if (!call || call.name !== 'zavorth_live_marker') {
+      const fail = multiStepNoToolNotes('Gemini', round1.body, round1.status);
       return {
         status: 'fail',
-        notes: 'Multi-step round 1 did not produce a tool call (Gemini).',
+        notes: fail.notes,
         evidence: {
           family: 'gemini',
           providerId: creds.providerId,
           round: 1,
           outputPreview: redact(round1.body),
           autoCertified: false,
+          rateLimited: fail.rateLimited,
+          httpStatus: round1.status,
         },
       };
     }
@@ -779,15 +814,18 @@ export class LiveUserProviderHarness {
 
     const toolCall = extractOpenAiToolCall(round1.body);
     if (!toolCall) {
+      const fail = multiStepNoToolNotes('OpenAI', round1.body, round1.status);
       return {
         status: 'fail',
-        notes: 'Multi-step round 1 did not produce a tool call (OpenAI).',
+        notes: fail.notes,
         evidence: {
           family: 'openai',
           providerId: creds.providerId,
           round: 1,
           outputPreview: redact(round1.body),
           autoCertified: false,
+          rateLimited: fail.rateLimited,
+          httpStatus: round1.status,
         },
       };
     }
@@ -923,15 +961,18 @@ export class LiveUserProviderHarness {
 
     const toolUse = extractAnthropicToolUse(round1.body);
     if (!toolUse) {
+      const fail = multiStepNoToolNotes('Anthropic', round1.body, round1.status);
       return {
         status: 'fail',
-        notes: 'Multi-step round 1 did not produce a tool call (Anthropic).',
+        notes: fail.notes,
         evidence: {
           family: 'anthropic',
           providerId: creds.providerId,
           round: 1,
           outputPreview: redact(round1.body),
           autoCertified: false,
+          rateLimited: fail.rateLimited,
+          httpStatus: round1.status,
         },
       };
     }

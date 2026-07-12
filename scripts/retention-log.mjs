@@ -18,7 +18,25 @@ function argValue(flag) {
   return args[i + 1] ?? null;
 }
 
-const logPath = path.resolve(argValue('--log') || path.join(root, '.zavorth', 'retention-log.json'));
+/** Resolve --log under project root only (no path escape). */
+function resolveLogPath(raw) {
+  const candidate = path.resolve(root, raw || path.join('.zavorth', 'retention-log.json'));
+  const relative = path.relative(root, candidate);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
+    console.error(`[retention] refusing --log outside project root: ${candidate}`);
+    process.exit(3);
+  }
+  // Normalize to absolute under root (handles already-absolute paths under root).
+  const underRoot = path.resolve(root, relative);
+  const underRel = path.relative(root, underRoot);
+  if (!underRel || underRel.startsWith('..') || path.isAbsolute(underRel)) {
+    console.error(`[retention] refusing --log outside project root: ${candidate}`);
+    process.exit(3);
+  }
+  return underRoot;
+}
+
+const logPath = resolveLogPath(argValue('--log'));
 const dogfoodPath = path.join(root, '.zavorth', 'dogfood-runs.json');
 
 function load() {

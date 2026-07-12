@@ -28,6 +28,53 @@ function runTsx(script, args = []) {
 const cells = [];
 const generatedAt = new Date().toISOString();
 
+/** Detect rate-limit / quota exhaustion signals in free-form notes + evidence. */
+function looksLike429(text) {
+  const s = String(text || '');
+  return (
+    /\b429\b/.test(s)
+    || /too many requests/i.test(s)
+    || /RESOURCE_EXHAUSTED/i.test(s)
+    || /rate[- ]?limit/i.test(s)
+    || /quota exceeded/i.test(s)
+    || /exceeded your current quota/i.test(s)
+  );
+}
+
+function evidenceBlob(evidence) {
+  if (!evidence || typeof evidence !== 'object') return '';
+  try {
+    return JSON.stringify(evidence);
+  } catch {
+    return String(evidence.outputPreview || evidence.message || '');
+  }
+}
+
+/**
+ * If multi-step (or any cell) failed due to 429/quota, rewrite notes honestly:
+ * recommend alternate provider/key — never greenwash as "tool call missing" alone.
+ */
+function enrichRateLimitNotes(cell) {
+  if (!cell || cell.status === 'pass' || cell.status === 'skipped') return cell;
+  const blob = `${cell.notes || ''}\n${evidenceBlob(cell.evidence)}`;
+  if (!looksLike429(blob)) return cell;
+  const advice =
+    'Rate limited / quota exhausted (429). '
+    + 'Retry with an alternate provider or API key '
+    + '(e.g. OPENAI_API_KEY / ANTHROPIC_API_KEY / different Gemini project). '
+    + 'Do not treat this as multi-step pass.';
+  const base = String(cell.notes || '').trim();
+  // Avoid duplicating if harness already appended similar advice.
+  if (/alternate provider|quota exhausted|rate limited/i.test(base)) {
+    return { ...cell, rateLimited: true };
+  }
+  return {
+    ...cell,
+    rateLimited: true,
+    notes: base ? `${base} — ${advice}` : advice,
+  };
+}
+
 if (!live) {
   cells.push({
     id: 'live.llm.probe',
@@ -58,14 +105,14 @@ if (!live) {
   }
   const liveRows = Array.isArray(smartnessReport?.live) ? smartnessReport.live : [];
   for (const row of liveRows) {
-    cells.push({
+    cells.push(enrichRateLimitNotes({
       id: row.id,
       status: row.status,
       live: true,
       notes: row.notes,
       evidence: row.evidence || {},
       claimsLiveIntelligence: Boolean(smartnessReport?.claimsLiveIntelligence),
-    });
+    }));
   }
   if (!liveRows.length) {
     cells.push({
@@ -86,7 +133,7 @@ if (!live) {
   const receipts = Array.isArray(killerReport?.receipts) ? killerReport.receipts : [];
   if (receipts.length) {
     for (const receipt of receipts) {
-      cells.push({
+      cells.push(enrichRateLimitNotes({
         id: `killer.${receipt.missionId}`,
         status: receipt.status,
         live: true,
@@ -94,15 +141,15 @@ if (!live) {
         audience: receipt.audience,
         providerId: receipt.providerId,
         signalsMatched: receipt.signalsMatched,
-      });
+      }));
     }
   } else {
-    cells.push({
+    cells.push(enrichRateLimitNotes({
       id: 'killer.audiences',
       status: killer.status === 0 ? 'pass' : 'fail',
       live: true,
       notes: (killer.stderr || killer.stdout || 'killer execute failed').slice(0, 400),
-    });
+    }));
   }
 }
 
