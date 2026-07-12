@@ -101,8 +101,8 @@ Always confirm with `git log --oneline -15`.
 
 | # | Work | Status | Why / notes |
 |---|------|--------|-------------|
-| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **HARNESS SHIPPED / CELL OPEN** | Code path live; retain multi-step **pass** in `launch-live-cells.json` before residual close (last retained was fail/429) |
-| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **RECORDER SHIPPED / CLAIM OPEN** | `value:ttfu` structural OK; product-path TTFU claim only with honest measured record under 180s |
+| R1 | **Live multi-step tool harness** (real tool rounds with *user-selected* provider) | **HARNESS SHIPPED / CELL OPEN** | Wall-clock + TTFU hooks live; retain multi-step **pass** still needs non-429 provider quota |
+| R2 | **First useful work &lt; 3 min** measured with *user’s* provider already set | **PATH SHIPPED / CLAIM OPEN** | `value:ttfu -- --from-live-json` + `--record-ttfu` on live multi-step; claim flips only after multi-step pass |
 | R3 | **Desktop reopen continuity ritual** (pending tasks from yesterday, one primary next action) | **FIXED (V11+)** | Continuity uses `props.learning` + mount open-clock state (was dead `learningItems` typo) |
 
 ### P1 — Dynamic selection polish
@@ -127,9 +127,9 @@ Always confirm with `git log --oneline -15`.
 
 | # | Work | Why |
 |---|------|-----|
-| R12 | Retention R2 real calendar day-1 | **OPEN** | Process ready; same UTC day as R1 — wait next day then `--day1-return` |
-| R13 | Signed desktop/installers, store assets | **OPEN (structural OK)** | `ops:signing:check` packaging green; no signed dirs yet |
-| R14 | Live credentialed provider/channel certification cells | **PARTIAL** | Provider multi-step/killer recorded when quota allows; channels not claimed |
+| R12 | Retention R2 real calendar day-1 | **DONE (calendar)** | Recorded 2026-07-12 UTC with `day1Method=calendar` (not FAKE) via `schedule-day1-retention` |
+| R13 | Signed desktop/installers, store assets | **OPEN (structural OK)** | Collect script + signing scan ready; **no signed installer files yet** (needs cert/ops) |
+| R14 | Live credentialed provider/channel certification cells | **PARTIAL** | Probe path live; multi-step **blocked by provider 429 quota** at last run — re-run `launch:live-cells -- --live` when quota allows |
 
 ---
 

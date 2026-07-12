@@ -265,7 +265,7 @@ describe('V8 TTFU', () => {
       projectRoot: dir,
       codeRoot: process.cwd(),
     });
-    const measurement = isolated.record({
+    const measurement = isolated.recordFromWallClock({
       startedAt: '2026-07-11T12:00:00.000Z',
       firstUsefulAt: '2026-07-11T12:01:30.000Z',
       surface: 'desktop',
@@ -278,6 +278,186 @@ describe('V8 TTFU', () => {
     expect(report.structural.ok).toBe(true);
     expect(report.claimsMeasuredUnder3Min).toBe(true);
     expect(report.ok).toBe(true);
+  });
+
+  it('recordFromWallClock accepts Date objects and computes duration honestly', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-wc-'));
+    const service = new TimeToFirstUsefulWorkService({
+      projectRoot: dir,
+      codeRoot: process.cwd(),
+    });
+    const started = new Date('2026-07-11T12:00:00.000Z');
+    const useful = new Date('2026-07-11T12:00:15.400Z');
+    const measurement = service.recordFromWallClock({
+      startedAt: started,
+      firstUsefulAt: useful,
+      surface: 'cli',
+      providerId: 'openai',
+      providerAlreadyConfigured: true,
+      notes: 'wall-clock unit',
+      sourceRunId: 'test-run-1',
+    });
+    expect(measurement.durationMs).toBe(15_400);
+    expect(measurement.sourceRunId).toBe('test-run-1');
+    expect(measurement.underBudget).toBe(true);
+  });
+
+  it('recordFromLiveSmartnessReport refuses when multi-step did not pass', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-refuse-'));
+    const service = new TimeToFirstUsefulWorkService({
+      projectRoot: dir,
+      codeRoot: process.cwd(),
+    });
+
+    const blockedReport = {
+      generatedAt: '2026-07-11T12:00:00.000Z',
+      claimsLiveIntelligence: false,
+      multiStepOk: false,
+      live: [
+        {
+          id: 'live.llm.probe',
+          status: 'pass',
+          evidence: { providerId: 'openai', credentialSource: 'selection' },
+        },
+        {
+          id: 'live.multi-step.tool-plan',
+          status: 'blocked',
+          evidence: { providerId: 'openai' },
+        },
+      ],
+    };
+
+    expect(() => service.recordFromLiveSmartnessReport(
+      blockedReport,
+      {
+        startedAt: '2026-07-11T12:00:00.000Z',
+        firstUsefulAt: '2026-07-11T12:00:10.000Z',
+      },
+    )).toThrow(/refuses to record/i);
+
+    const probeOnly = {
+      generatedAt: '2026-07-11T12:00:00.000Z',
+      claimsLiveIntelligence: false,
+      multiStepOk: false,
+      live: [
+        {
+          id: 'live.llm.probe',
+          status: 'pass',
+          evidence: { providerId: 'openai', credentialSource: 'selection' },
+        },
+        {
+          id: 'live.multi-step.tool-plan',
+          status: 'fail',
+          evidence: { providerId: 'openai' },
+        },
+      ],
+    };
+
+    expect(() => service.recordFromLiveSmartnessReport(
+      probeOnly,
+      {
+        startedAt: '2026-07-11T12:00:00.000Z',
+        firstUsefulAt: '2026-07-11T12:00:10.000Z',
+      },
+    )).toThrow(/multi-step/i);
+
+    expect(service.listMeasurements()).toHaveLength(0);
+  });
+
+  it('recordFromLiveSmartnessReport succeeds only with multi-step pass + wall-clock', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-live-'));
+    const service = new TimeToFirstUsefulWorkService({
+      projectRoot: dir,
+      codeRoot: process.cwd(),
+      env: {} as NodeJS.ProcessEnv,
+    });
+
+    const liveReport = {
+      generatedAt: '2026-07-11T12:00:00.000Z',
+      claimsLiveIntelligence: true,
+      multiStepOk: true,
+      live: [
+        {
+          id: 'live.llm.probe',
+          status: 'pass',
+          evidence: { providerId: 'openai', credentialSource: 'selection' },
+        },
+        {
+          id: 'live.multi-step.tool-plan',
+          status: 'pass',
+          evidence: {
+            providerId: 'openai',
+            credentialSource: 'selection',
+            multiStepToken: true,
+          },
+        },
+      ],
+      timing: {
+        startedAt: '2026-07-11T12:00:00.000Z',
+        firstUsefulAt: '2026-07-11T12:00:15.400Z',
+        durationMs: 15_400,
+      },
+    };
+
+    const measurement = service.recordFromLiveSmartnessReport(
+      liveReport,
+      {
+        startedAt: liveReport.timing.startedAt,
+        firstUsefulAt: liveReport.timing.firstUsefulAt,
+      },
+      { surface: 'cli' },
+    );
+
+    expect(measurement.durationMs).toBe(15_400);
+    expect(measurement.underBudget).toBe(true);
+    expect(measurement.providerId).toBe('openai');
+    // credentialSource=selection on report evidence → providerAlreadyConfigured true
+    expect(measurement.providerAlreadyConfigured).toBe(true);
+    expect(measurement.surface).toBe('cli');
+    expect(measurement.notes).toMatch(/live-smartness-multi-step/);
+    expect(measurement.sourceRunId).toMatch(/live-smartness@/);
+
+    const report = service.run();
+    expect(report.claimsMeasuredUnder3Min).toBe(true);
+    expect(report.latestMeasurement?.durationMs).toBe(15_400);
+  });
+
+  it('recordFromLiveSmartnessReport marks not-preconfigured without selection evidence', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-ttfu-infer-'));
+    const service = new TimeToFirstUsefulWorkService({
+      projectRoot: dir,
+      codeRoot: process.cwd(),
+      env: {} as NodeJS.ProcessEnv,
+    });
+
+    const liveReport = {
+      generatedAt: '2026-07-11T12:00:00.000Z',
+      claimsLiveIntelligence: true,
+      multiStepOk: true,
+      live: [
+        {
+          id: 'live.multi-step.tool-plan',
+          status: 'pass',
+          evidence: {
+            providerId: 'openai',
+            credentialSource: 'single-key-infer',
+          },
+        },
+      ],
+    };
+
+    const measurement = service.recordFromLiveSmartnessReport(
+      liveReport,
+      {
+        startedAt: '2026-07-11T12:00:00.000Z',
+        firstUsefulAt: '2026-07-11T12:00:20.000Z',
+      },
+    );
+
+    expect(measurement.providerAlreadyConfigured).toBe(false);
+    // underBudget requires providerAlreadyConfigured
+    expect(measurement.underBudget).toBe(false);
+    expect(measurement.durationMs).toBe(20_000);
   });
 });
 

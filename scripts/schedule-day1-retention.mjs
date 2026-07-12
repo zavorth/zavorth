@@ -2,9 +2,13 @@
 /**
  * Record R2 only when UTC calendar day is after first day0Install.
  * Safe to run repeatedly (no-op or fail closed on same day).
+ * Does NOT use ZAVORTH_ALLOW_FAKE_DAY1 (strips it from child env).
  *
  *   node scripts/schedule-day1-retention.mjs
  *   node scripts/schedule-day1-retention.mjs --force-check
+ *
+ * Desktop-clock optional bridge:
+ *   node scripts/record-day1-from-desktop-clock.mjs
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -26,6 +30,7 @@ if (!fs.existsSync(retPath)) {
 const doc = JSON.parse(fs.readFileSync(retPath, 'utf8'));
 if (doc.criteria?.day1Return) {
   console.log('[day1] R2 already recorded');
+  if (doc.day1Method) console.log(`[day1] day1Method=${doc.day1Method}`);
   process.exit(0);
 }
 
@@ -42,6 +47,7 @@ if (day0Day === today) {
   console.log(`[day1] still same UTC day as day0 (${day0Day}). Not recording R2.`);
   console.log('[day1] re-run this script tomorrow:');
   console.log('  node scripts/schedule-day1-retention.mjs');
+  console.log('  # optional desktop bridge: node scripts/record-day1-from-desktop-clock.mjs');
   process.exit(2);
 }
 
@@ -53,7 +59,12 @@ const r = spawnSync(
     '--notes',
     `calendar day1 return ${today} (day0=${day0Day})`,
   ],
-  { cwd: root, encoding: 'utf8', windowsHide: true },
+  {
+    cwd: root,
+    encoding: 'utf8',
+    windowsHide: true,
+    env: { ...process.env, ZAVORTH_ALLOW_FAKE_DAY1: '' },
+  },
 );
 process.stdout.write(r.stdout || '');
 process.stderr.write(r.stderr || '');

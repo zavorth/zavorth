@@ -15,7 +15,39 @@ export type TtfuMeasurement = {
   durationMs: number;
   underBudget: boolean;
   notes?: string;
+  /** Optional link back to a live smartness run / receipt id. */
+  sourceRunId?: string;
   recordedAt: string;
+};
+
+export type TtfuWallClockInput = {
+  surface?: TtfuMeasurement['surface'];
+  providerId?: string | null;
+  providerAlreadyConfigured?: boolean;
+  startedAt: Date | string;
+  firstUsefulAt: Date | string;
+  notes?: string;
+  sourceRunId?: string;
+};
+
+/** Minimal live smartness report shape accepted by TTFU product-path recording. */
+export type LiveSmartnessReportForTtfu = {
+  generatedAt?: string;
+  claimsLiveIntelligence?: boolean;
+  multiStepOk?: boolean;
+  liveOk?: boolean;
+  live?: Array<{
+    id: string;
+    status: string;
+    notes?: string;
+    evidence?: Record<string, unknown>;
+  }>;
+  timing?: {
+    startedAt?: string;
+    firstUsefulAt?: string;
+    durationMs?: number;
+  };
+  [key: string]: unknown;
 };
 
 export type TtfuStructuralCheck = {
@@ -58,6 +90,53 @@ function writeMeasurements(projectRoot: string, measurements: TtfuMeasurement[])
     `${JSON.stringify({ version: 1, measurements }, null, 2)}\n`,
     'utf8',
   );
+}
+
+function toIsoTimestamp(value: Date | string, label: string): string {
+  if (value instanceof Date) {
+    if (!Number.isFinite(value.getTime())) {
+      throw new Error(`Invalid ${label} Date for TTFU measurement.`);
+    }
+    return value.toISOString();
+  }
+  const parsed = Date.parse(String(value));
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Invalid ${label} timestamp for TTFU measurement.`);
+  }
+  return new Date(parsed).toISOString();
+}
+
+function multiStepPassed(report: LiveSmartnessReportForTtfu): boolean {
+  if (report.multiStepOk === true || report.claimsLiveIntelligence === true) {
+    return true;
+  }
+  const live = Array.isArray(report.live) ? report.live : [];
+  return live.some(
+    (entry) => entry.id === 'live.multi-step.tool-plan' && entry.status === 'pass',
+  );
+}
+
+function evidenceCredentialSourceIsSelection(report: LiveSmartnessReportForTtfu): boolean {
+  const live = Array.isArray(report.live) ? report.live : [];
+  for (const entry of live) {
+    const source = entry.evidence?.credentialSource;
+    if (source === 'selection') return true;
+  }
+  return false;
+}
+
+function providerIdFromLiveReport(report: LiveSmartnessReportForTtfu): string | null {
+  const live = Array.isArray(report.live) ? report.live : [];
+  const preferred = [
+    ...live.filter((entry) => entry.id === 'live.multi-step.tool-plan'),
+    ...live.filter((entry) => entry.id === 'live.llm.probe'),
+    ...live,
+  ];
+  for (const entry of preferred) {
+    const id = entry.evidence?.providerId;
+    if (typeof id === 'string' && id.trim()) return id.trim();
+  }
+  return null;
 }
 
 export class TimeToFirstUsefulWorkService {
@@ -129,6 +208,80 @@ export class TimeToFirstUsefulWorkService {
     return readMeasurements(this.options.projectRoot || process.cwd());
   }
 
+  /**
+   * Canonical wall-clock write path for product TTFU measurements.
+   * Accepts Date or ISO string timestamps; never invents durations.
+   */
+  public recordFromWallClock(input: TtfuWallClockInput): TtfuMeasurement {
+    return this.record({
+      surface: input.surface,
+      providerId: input.providerId,
+      providerAlreadyConfigured: input.providerAlreadyConfigured,
+      startedAt: toIsoTimestamp(input.startedAt, 'startedAt'),
+      firstUsefulAt: toIsoTimestamp(input.firstUsefulAt, 'firstUsefulAt'),
+      notes: input.notes,
+      sourceRunId: input.sourceRunId,
+    });
+  }
+
+  /**
+   * Record TTFU only from a live smartness report that actually passed multi-step
+   * (claimsLiveIntelligence / multiStepOk). Refuses probe-only or failed runs.
+   *
+   * `providerAlreadyConfigured` is true only when user selection is configured
+   * or live evidence shows credentialSource === 'selection'.
+   */
+  public recordFromLiveSmartnessReport(
+    report: LiveSmartnessReportForTtfu,
+    timings: { startedAt: string; firstUsefulAt: string },
+    options: {
+      surface?: TtfuMeasurement['surface'];
+      notes?: string;
+      sourceRunId?: string;
+      providerId?: string | null;
+    } = {},
+  ): TtfuMeasurement {
+    if (!multiStepPassed(report)) {
+      throw new Error(
+        'TTFU refuses to record: live multi-step tool-plan did not pass '
+        + '(multiStepOk/claimsLiveIntelligence required). '
+        + 'Do not invent fake TTFU measurements from probe-only or failed runs.',
+      );
+    }
+
+    const root = this.options.projectRoot || process.cwd();
+    const selection = resolveUserProviderSelection({
+      projectRoot: root,
+      env: this.options.env,
+    });
+    const selectionConfigured = Boolean(selection.configured && selection.providerId);
+    const evidenceSelection = evidenceCredentialSourceIsSelection(report);
+    const providerAlreadyConfigured = selectionConfigured || evidenceSelection;
+
+    const providerId = options.providerId
+      || providerIdFromLiveReport(report)
+      || selection.providerId
+      || null;
+
+    const timingNotes = [
+      options.notes,
+      'source=live-smartness-multi-step',
+      report.generatedAt ? `reportGeneratedAt=${report.generatedAt}` : null,
+    ].filter(Boolean).join('; ');
+
+    return this.recordFromWallClock({
+      surface: options.surface || 'cli',
+      providerId,
+      providerAlreadyConfigured,
+      startedAt: timings.startedAt,
+      firstUsefulAt: timings.firstUsefulAt,
+      notes: timingNotes || undefined,
+      sourceRunId: options.sourceRunId || (
+        typeof report.generatedAt === 'string' ? `live-smartness@${report.generatedAt}` : undefined
+      ),
+    });
+  }
+
   public record(input: {
     surface?: TtfuMeasurement['surface'];
     providerId?: string | null;
@@ -136,6 +289,7 @@ export class TimeToFirstUsefulWorkService {
     startedAt: string;
     firstUsefulAt: string;
     notes?: string;
+    sourceRunId?: string;
   }): TtfuMeasurement {
     const root = this.options.projectRoot || process.cwd();
     const now = (this.options.now || (() => new Date()))().toISOString();
@@ -150,8 +304,9 @@ export class TimeToFirstUsefulWorkService {
       env: this.options.env,
     });
     const providerId = String(input.providerId || selection.providerId || 'unconfigured');
+    // Honesty: default true only when selection is actually configured — never invent preconfigured.
     const providerAlreadyConfigured = input.providerAlreadyConfigured
-      ?? (selection.configured || Boolean(selection.providerId));
+      ?? Boolean(selection.configured && selection.providerId);
 
     const measurement: TtfuMeasurement = {
       id: `ttfu-${Date.now().toString(36)}`,
@@ -163,6 +318,7 @@ export class TimeToFirstUsefulWorkService {
       durationMs,
       underBudget: providerAlreadyConfigured && durationMs <= TTFU_BUDGET_MS,
       notes: input.notes,
+      sourceRunId: input.sourceRunId,
       recordedAt: now,
     };
 
