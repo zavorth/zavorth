@@ -152,12 +152,14 @@ function checkFixtureResidues() {
 }
 
 function checkSharedSurfaceAliases() {
-  const aliasPath = 'src/domain/surface/presentation/shared-surface/SharedSurfaceNaturalTransportCommandPack.ts';
+  // Free-text natural transport pack was deleted (agent-first).
+  // Keep slash shared-surface free of legacy zavorthBridge product naming.
+  const aliasPath = 'src/domain/surface/presentation/shared-surface/SharedSurfaceCommandDispatch.ts';
   const source = readIfExists(aliasPath);
   if (!source) return;
 
-  if (/zavorthBridge/i.test(source)) {
-    failures.push(`${aliasPath}: shared-surface natural aliases must use Zavorth-native naming or an explicit compat boundary`);
+  if (/github-openclaw|openclaw\s+inspired/i.test(source)) {
+    failures.push(`${aliasPath}: shared-surface must not reintroduce competitor brand hardcoding`);
   }
 }
 

@@ -13,39 +13,65 @@ import { ZavorthDynamicMissionHarnessService } from './ZavorthDynamicMissionHarn
 import { ZavorthExecutionBackendProviderService } from './ZavorthExecutionBackendProviderService.js';
 import { ZavorthExperienceLearningDaemonService } from './ZavorthExperienceLearningDaemonService.js';
 import { ZavorthSkillForgeRuntimeService } from './ZavorthSkillForgeRuntimeService.js';
+import { ZavorthAutonomousLearningWriteService } from './ZavorthAutonomousLearningWriteService.js';
+import { resolveLearningRuntimePolicy } from './ZavorthLearningRuntimePolicy.js';
 
 type NativeAutonomySpineDeps = {
   now?: () => Date;
+  projectRoot?: string | null;
+  userId?: string | null;
   learning?: ZavorthExperienceLearningDaemonService;
   skillForge?: ZavorthSkillForgeRuntimeService;
   channelCertification?: ZavorthChannelLiveCertificationService;
   backendProvider?: ZavorthExecutionBackendProviderService;
   dynamicMission?: ZavorthDynamicMissionHarnessService;
   dreamCycle?: MnemosDreamCycleService;
+  learningWrite?: ZavorthAutonomousLearningWriteService;
 };
 
 export class ZavorthNativeAutonomySpineService {
   private readonly now: () => Date;
+  private readonly projectRoot: string;
+  private readonly userId: string | null;
   private readonly learning: ZavorthExperienceLearningDaemonService;
   private readonly skillForge: ZavorthSkillForgeRuntimeService;
   private readonly channelCertification: ZavorthChannelLiveCertificationService;
   private readonly backendProvider: ZavorthExecutionBackendProviderService;
   private readonly dynamicMission: ZavorthDynamicMissionHarnessService;
   private readonly dreamCycle: MnemosDreamCycleService;
+  private readonly learningWriteOverride: ZavorthAutonomousLearningWriteService | null;
 
   public constructor(deps: NativeAutonomySpineDeps = {}) {
     this.now = deps.now || (() => new Date());
+    this.projectRoot = String(deps.projectRoot || process.cwd());
+    this.userId = deps.userId == null ? null : String(deps.userId);
     this.learning = deps.learning || new ZavorthExperienceLearningDaemonService({ now: this.now });
     this.skillForge = deps.skillForge || new ZavorthSkillForgeRuntimeService({ now: this.now });
     this.channelCertification = deps.channelCertification || new ZavorthChannelLiveCertificationService({ now: this.now });
     this.backendProvider = deps.backendProvider || new ZavorthExecutionBackendProviderService({ now: this.now });
     this.dynamicMission = deps.dynamicMission || new ZavorthDynamicMissionHarnessService({ now: this.now });
     this.dreamCycle = deps.dreamCycle || new MnemosDreamCycleService({ now: this.now });
+    this.learningWriteOverride = deps.learningWrite || null;
   }
 
   public async buildSnapshot(input: ZavorthNativeAutonomySpineInput): Promise<ZavorthNativeAutonomySpineSnapshot> {
     const learning = await this.learning.reviewTurn(input.turn);
     const skillForge = this.skillForge.reviewSkillOpportunity(this.skillInputFromTurn(input.turn));
+    const scopedUserId = input.turn.userId != null ? input.turn.userId : this.userId;
+    const learningWrite = this.learningWriteOverride || new ZavorthAutonomousLearningWriteService({
+      now: this.now,
+      projectRoot: this.projectRoot,
+      userId: scopedUserId,
+      policy: resolveLearningRuntimePolicy({
+        projectRoot: this.projectRoot,
+        userId: scopedUserId,
+      }),
+    });
+    const writeResult = learningWrite.applyFromSpine({
+      learning,
+      skillForge,
+      sourceSurface: input.turn.sourceSurface || 'runtime',
+    });
     const dynamicMission = input.mission ? this.dynamicMission.buildPreview(input.mission) : null;
     const dreamCycle = input.dreamCycle ? this.dreamCycle.buildCycle(input.dreamCycle) : null;
     const channel = input.channel ? this.channelCertification.certify(input.channel) : null;
@@ -56,6 +82,7 @@ export class ZavorthNativeAutonomySpineService {
     const dreamCycleReady = dreamCycle === null || dreamCycle.status === 'ready';
     const liveChannelReady = channel?.readiness.liveReady === true;
     const backendProviderReady = backend?.readiness.liveReady === true;
+    const learningWriteApplied = writeResult.appliedPreferences > 0 || writeResult.draftedSkills > 0;
     const blocked = learning.status === 'blocked'
       || dynamicMission?.status === 'blocked'
       || dreamCycle?.status === 'blocked';
@@ -81,12 +108,16 @@ export class ZavorthNativeAutonomySpineService {
         {
           id: 'post-turn-learning',
           status: learning.status === 'ready' ? 'ready' : 'attention',
-          summary: `${learning.candidates.length} learning candidate(s) reviewed after the turn.`,
+          summary: writeResult.mode === 'autonomous'
+            ? `${learning.candidates.length} candidate(s); wrote ${writeResult.appliedPreferences} preference(s) and ${writeResult.draftedSkills} skill draft(s).`
+            : `${learning.candidates.length} learning candidate(s) reviewed after the turn.`,
         },
         {
           id: 'skill-forge',
           status: skillForge.status === 'attention' ? 'attention' : 'ready',
-          summary: `${skillForge.drafts.length} skill draft(s), no direct materialization.`,
+          summary: writeResult.draftedSkills > 0
+            ? `${skillForge.drafts.length} skill draft(s); ${writeResult.draftedSkills} materialized under learning/skill-drafts (install still blocked).`
+            : `${skillForge.drafts.length} skill draft(s), no skill-library install.`,
         },
         {
           id: 'dynamic-mission-harness',
@@ -120,6 +151,15 @@ export class ZavorthNativeAutonomySpineService {
       ],
       learning,
       skillForge,
+      learningWrite: {
+        mode: writeResult.mode,
+        appliedPreferences: writeResult.appliedPreferences,
+        draftedSkills: writeResult.draftedSkills,
+        blocked: writeResult.blocked,
+        receiptIds: writeResult.receipts.map((receipt) => receipt.id),
+        preferenceStorePath: writeResult.preferenceStorePath,
+        skillDraftRoot: writeResult.skillDraftRoot,
+      },
       dynamicMission,
       dreamCycle,
       channel,
@@ -131,6 +171,7 @@ export class ZavorthNativeAutonomySpineService {
         dreamCycleReady,
         liveChannelReady,
         backendProviderReady,
+        learningWriteApplied,
       },
       reviewCenter: {
         actions: [
@@ -147,6 +188,7 @@ export class ZavorthNativeAutonomySpineService {
         ],
         receipts: [
           ...learning.candidates.map((candidate) => candidate.receiptId),
+          ...writeResult.receipts.map((receipt) => receipt.id),
           ...(dynamicMission?.approval.approvalId ? [dynamicMission.approval.approvalId] : []),
           ...(dreamCycle ? [dreamCycle.review.receiptId] : []),
           ...(channel?.readiness.proofRefs || []),

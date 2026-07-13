@@ -10,6 +10,10 @@ import {
   resultFromToolOutcome,
 } from '../runtime/operator/OperatorContinuityEnvelope.js';
 import type { TaskPlaneService } from './TaskPlaneService.js';
+import {
+  nextRunFromNaturalSchedule,
+  parseNaturalSchedule,
+} from './scheduling/NaturalScheduleParser.js';
 
 export type AutonomyRoutineScheduleType = 'cron' | 'interval' | 'once' | 'natural_language';
 export type AutonomyRoutineRiskLevel = 'low' | 'medium' | 'high' | 'critical';
@@ -146,11 +150,21 @@ export function bindAutonomySchedulePlane(options: {
   });
 }
 
+export type AutonomyScheduleDrainStatus = {
+  processDueInFlight: number;
+  killSwitchActive: boolean;
+  dueRoutines: AutonomyRoutine[];
+  enabledCount: number;
+  totalRoutines: number;
+};
+
 export class AutonomySchedulePlane {
   private readonly storageDir: string;
   private readonly taskPlane: TaskPlaneService | null;
   private readonly now: () => Date;
   private readonly continuity: OperatorContinuityKernel;
+  /** Cooperative drain visibility for shutdown. */
+  private processDueInFlight = 0;
 
   constructor(options: AutonomySchedulePlaneOptions) {
     this.storageDir = path.resolve(options.storageDir);
@@ -161,6 +175,20 @@ export class AutonomySchedulePlane {
 
   public getStorageDir(): string {
     return this.storageDir;
+  }
+
+  /** Snapshot of in-flight processDue + due routines for shutdown drain. */
+  public getDrainStatus(): AutonomyScheduleDrainStatus {
+    const control = this.readControl();
+    const routines = this.listRoutines();
+    const dueRoutines = routines.filter((routine) => this.isDue(routine, control));
+    return {
+      processDueInFlight: this.processDueInFlight,
+      killSwitchActive: Boolean(control.killSwitchActive),
+      dueRoutines,
+      enabledCount: routines.filter((routine) => routine.enabled).length,
+      totalRoutines: routines.length,
+    };
   }
 
   /** Alias used by action/control surfaces that expect a short list API. */
@@ -227,7 +255,13 @@ export class AutonomySchedulePlane {
     const requiresApproval = typeof input.requiresApproval === 'boolean'
       ? input.requiresApproval
       : ['high', 'critical'].includes(riskLevel);
-    const scheduleType = input.scheduleType || detectScheduleType(schedule, input.intervalMs);
+    // Phase 5: resolve intervalMs from NL phrases (every 30m / a cada 2h) when not explicit
+    const natural = parseNaturalSchedule(schedule);
+    const resolvedIntervalMs = typeof input.intervalMs === 'number'
+      ? Math.max(1, Math.floor(input.intervalMs))
+      : (natural?.kind === 'interval' && natural.intervalMs ? natural.intervalMs : undefined);
+    const scheduleType = input.scheduleType
+      || (typeof resolvedIntervalMs === 'number' ? 'interval' : detectScheduleType(schedule, resolvedIntervalMs));
     const enabled = typeof input.enabled === 'boolean'
       ? input.enabled
       : !requiresApproval;
@@ -236,9 +270,9 @@ export class AutonomySchedulePlane {
       contractVersion: 'autonomy-routine/1',
       id: routineId,
       name,
-      schedule,
+      schedule: natural?.normalized || schedule,
       scheduleType,
-      ...(typeof input.intervalMs === 'number' ? { intervalMs: Math.max(1, Math.floor(input.intervalMs)) } : {}),
+      ...(typeof resolvedIntervalMs === 'number' ? { intervalMs: resolvedIntervalMs } : {}),
       taskDescription,
       ...(input.channel ? { channel: String(input.channel) } : {}),
       enabled,
@@ -332,6 +366,15 @@ export class AutonomySchedulePlane {
   }
 
   public processDue(input: ProcessDueInput = {}): AutonomyScheduleProcessDueResult {
+    this.processDueInFlight += 1;
+    try {
+      return this.processDueInner(input);
+    } finally {
+      this.processDueInFlight = Math.max(0, this.processDueInFlight - 1);
+    }
+  }
+
+  private processDueInner(input: ProcessDueInput = {}): AutonomyScheduleProcessDueResult {
     const control = this.readControl();
     if (control.killSwitchActive) {
       const blocked = this.blockedProcessDue('Autonomy kill switch is active.');
@@ -708,7 +751,8 @@ export class AutonomySchedulePlane {
     if (!routine.enabled || routine.frozen) {
       return null;
     }
-    const nowMs = this.now().getTime();
+    const now = this.now();
+    const nowMs = now.getTime();
     if (routine.scheduleType === 'interval' && routine.intervalMs) {
       return new Date(nowMs + Math.max(1, routine.intervalMs)).toISOString();
     }
@@ -716,7 +760,12 @@ export class AutonomySchedulePlane {
       const target = Date.parse(routine.schedule);
       return Number.isFinite(target) && target > nowMs ? new Date(target).toISOString() : null;
     }
-    // cron / natural_language: keep a conservative forward pointer; host daemon re-evaluates.
+    // Phase 5: cron / natural_language via shared PT/EN parser (fallback +1 min)
+    const natural = parseNaturalSchedule(routine.schedule, now);
+    if (natural) {
+      const next = nextRunFromNaturalSchedule(natural, now);
+      if (next) return next.toISOString();
+    }
     return new Date(nowMs + 60_000).toISOString();
   }
 

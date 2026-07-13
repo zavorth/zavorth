@@ -1455,7 +1455,7 @@
   background-clip: padding-box;
 }
 
-/* Calm capability surfaces — inspired by Hermes' compact master/detail panes. */
+/* Calm capability surfaces — compact master/detail panes. */
 .zvd-app .zvd-capability-summary {
   display: flex;
   align-items: center;

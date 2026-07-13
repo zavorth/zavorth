@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-anthropic",
+  "label": "Anthropic Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail Anthropic Messages API completions.",
+  "description": "Wave 1 provider pack. Uses ANTHROPIC_API_KEY. Soft-fail without network permission.",
+  "tags": ["provider", "anthropic", "claude", "llm", "wave1"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-anthropic",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.anthropic.status",
+      "intent": "provider.anthropic.status",
+      "label": "Status",
+      "summary": "Report Anthropic key presence.",
+      "artifactKinds": [],
+      "command": { "name": "provider_anthropic_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "provider.anthropic.complete",
+      "intent": "provider.anthropic.complete",
+      "label": "Complete",
+      "summary": "Soft Anthropic Messages completion.",
+      "artifactKinds": [],
+      "command": { "name": "provider_anthropic_complete", "aliases": [], "usage": "{ prompt, model? }" }
+    }
+  ],
+  "permissions": [
+    { "kind": "network.external", "scope": "external", "reason": "Call Anthropic Messages API.", "required": false },
+    { "kind": "provider.call", "scope": "external", "reason": "Invoke Claude completion.", "required": false },
+    { "kind": "secret.read", "scope": "local", "reason": "Detect ANTHROPIC_API_KEY presence.", "required": false }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-anthropic.receipt"]
+}

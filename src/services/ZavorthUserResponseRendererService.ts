@@ -59,10 +59,12 @@ export class ZavorthUserResponseRendererService {
     const approval = pendingApproval(run);
     const approvalId = input.approvalId || approval?.id || null;
     const approvalStatus = input.approvalStatus || approval?.status || null;
-    const simplifiedBody = this.simplifyBody(normalizeReply(input.text), {
+    let simplifiedBody = this.simplifyBody(normalizeReply(input.text), {
       hasApproval: Boolean(approvalId),
       run,
     });
+    // Light channel-aware markdown (tables/links/blocks) without a new service.
+    simplifiedBody = this.adaptForChannel(simplifiedBody, input.channel);
     const includeFooter = this.shouldIncludeFooter({
       audience,
       run,
@@ -84,6 +86,17 @@ export class ZavorthUserResponseRendererService {
       simplified: simplifiedBody !== normalizeReply(input.text),
       footerIncluded: footer.length > 0,
     };
+  }
+
+  private adaptForChannel(text: string, channel: ZavorthUserResponseChannel): string {
+    try {
+      // Lazy require keeps renderer usable in minimal test contexts without presentation deps.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ZavorthPresentationAdapterService } = require('./ZavorthPresentationAdapterService.js') as typeof import('./ZavorthPresentationAdapterService.js');
+      return new ZavorthPresentationAdapterService().adaptMarkdownForChannel(text, String(channel || 'web'));
+    } catch {
+      return text;
+    }
   }
 
   private defaultAudience(channel: ZavorthUserResponseChannel): ZavorthUserResponseAudience {

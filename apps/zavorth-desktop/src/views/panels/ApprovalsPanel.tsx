@@ -10,7 +10,7 @@ export type SafeApprovalRecord = {
   id: string;
   title: string;
   action: string;
-  risk: 'low' | 'medium' | 'high' | 'unknown';
+  risk: 'low' | 'medium' | 'high' | 'critical' | 'danger' | 'unknown';
   status: 'pending' | 'approved' | 'rejected' | 'expired';
   createdAt: string;
 };
@@ -34,7 +34,7 @@ function sanitizeText(raw: string): string {
   return raw.replace(CONTROL_CHAR_RE, ' ').trim().slice(0, MAX_TEXT_LENGTH);
 }
 
-const SAFE_RISK = new Set<string>(['low', 'medium', 'high', 'unknown']);
+const SAFE_RISK = new Set<string>(['low', 'medium', 'high', 'critical', 'danger', 'unknown']);
 const SAFE_STATUS = new Set<string>(['pending', 'approved', 'rejected', 'expired']);
 
 /**
@@ -70,7 +70,7 @@ export function sanitizeApproval(
 }
 
 function riskTone(risk: SafeApprovalRecord['risk']): DetailRowTone {
-  if (risk === 'high') return 'danger';
+  if (risk === 'high' || risk === 'critical' || risk === 'danger') return 'danger';
   if (risk === 'medium') return 'warning';
   return 'muted';
 }

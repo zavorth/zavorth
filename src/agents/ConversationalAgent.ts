@@ -81,6 +81,8 @@ type ConversationalChatOptions = {
   workspaceContext?: string | null;
   requireContextEngine?: boolean;
   executionEscalation?: ConversationalStructuredEscalation | null;
+  /** When false, post-turn durable learning write is skipped (e.g. non-operator Telegram). */
+  allowLearningWrite?: boolean | null;
 };
 type ConversationalToolRuntime = {
   getToolDefinitions(): ToolDefinition[];
@@ -187,7 +189,10 @@ export class ConversationalAgent {
     }
 
     const allTools = this.getConversationalToolDefinitions();
-    const systemInstruction = this.buildSystemInstruction(mode, options?.styleHints);
+    const systemInstruction = this.appendProductRuntimeContext(
+      this.buildSystemInstruction(mode, options?.styleHints),
+      options,
+    );
     const contextDecision = await this.prepareContextDecision(
       userMessage,
       allTools,
@@ -356,7 +361,7 @@ export class ConversationalAgent {
 
     if (providerName !== llmStrategy.providerName) {
       logger.info(
-        `[Fallback] Requisicao servida por ${providerName} (preferencial ${llmStrategy.providerName} falhou)`,
+        `[Fallback] Request served by ${providerName} (preferred ${llmStrategy.providerName} failed)`,
       );
     }
 
@@ -373,6 +378,15 @@ export class ConversationalAgent {
       };
     }
 
+    this.schedulePostTurnLearning(
+      userMessage,
+      safeResponseText,
+      toolReceiptCount,
+      options?.surface || 'conversational',
+      options?.userId,
+      options?.allowLearningWrite,
+    );
+
     return {
       text: safeResponseText,
       escalation,
@@ -381,6 +395,43 @@ export class ConversationalAgent {
         modelName: llmStrategy.modelName,
       },
     };
+  }
+
+  private appendProductRuntimeContext(
+    systemInstruction: string,
+    options?: ConversationalChatOptions | null,
+  ): string {
+    try {
+      const { getProductSurfaceRuntime } = require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
+      return getProductSurfaceRuntime(process.cwd()).appendInjectBlocks(systemInstruction, {
+        userId: options?.userId || null,
+      });
+    } catch {
+      return systemInstruction;
+    }
+  }
+
+  private schedulePostTurnLearning(
+    userMessage: string,
+    assistantText: string,
+    toolReceiptCount: number,
+    sourceSurface: string,
+    userId?: string | null,
+    allowLearningWrite?: boolean | null,
+  ): void {
+    if (!String(assistantText || '').trim()) return;
+    try {
+      const { getProductSurfaceRuntime } = require('../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../services/ZavorthProductSurfaceRuntimeService.js');
+      getProductSurfaceRuntime(process.cwd()).scheduleSuccessfulTurn({
+        userId: userId || null,
+        surface: sourceSurface || 'conversational',
+        userMessage: String(userMessage || ''),
+        assistantText: String(assistantText || ''),
+        toolCallCount: toolReceiptCount,
+        allowLearningWrite,
+      });
+    } catch {
+    }
   }
 
   public buildSystemInstruction(mode: ConversationalMode = 'default', styleHints?: string[]): string {

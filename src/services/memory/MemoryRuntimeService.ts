@@ -1,21 +1,35 @@
 import { MemoryService, type MemoryEntry } from '../MemoryService.js';
-import type { IMemoryBackend } from './IMemoryBackend.js';
+import {
+  normalizeMemoryQueryOptions,
+  type IMemoryBackend,
+  type MemoryDeleteOptions,
+  type MemoryHit,
+  type MemoryQueryOptions,
+  type MemoryRecord,
+  type MemoryWriteOptions,
+} from './IMemoryBackend.js';
+import { asMemoryBackendV2, type IMemoryBackendV2 } from './MemoryBackendCompat.js';
 import { LocalMemoryBackend } from './LocalMemoryBackend.js';
 import { Mem0MemoryBackend } from './Mem0MemoryBackend.js';
 import { logger } from '../../logger.js';
+import { tService } from '../../i18n/services.js';
 
 type MemoryAddOptions = {
   backend?: 'auto' | 'local' | 'mem0';
+  write?: MemoryWriteOptions;
 };
 
 type MemorySearchOptions = {
   backend?: 'auto' | 'local' | 'mem0';
   limit?: number;
+  filter?: MemoryQueryOptions['filter'];
 };
 
 export class MemoryRuntimeService {
   private readonly localBackend: LocalMemoryBackend;
   private readonly mem0Backend: IMemoryBackend;
+  private readonly localV2: IMemoryBackendV2;
+  private readonly mem0V2: IMemoryBackendV2;
 
   constructor(
     localBackend: LocalMemoryBackend = new LocalMemoryBackend(),
@@ -23,6 +37,8 @@ export class MemoryRuntimeService {
   ) {
     this.localBackend = localBackend;
     this.mem0Backend = mem0Backend;
+    this.localV2 = asMemoryBackendV2(localBackend);
+    this.mem0V2 = asMemoryBackendV2(mem0Backend);
   }
 
   public async addMemory(
@@ -31,30 +47,60 @@ export class MemoryRuntimeService {
     options: MemoryAddOptions = {},
   ): Promise<string> {
     const backend = options.backend || 'auto';
+    const write = options.write;
 
     if (backend === 'local') {
-      await this.localBackend.addMemory(userId, content);
-      return '[LocalMemory] Fato guardado na memoria local com sucesso.';
+      await this.localBackend.addMemory(userId, content, write);
+      return tService('memory_runtime.local_saved');
     }
 
     if (backend === 'mem0') {
-      await this.mem0Backend.addMemory(userId, content);
-      await this.localBackend.addMemory(userId, content);
-      return '[Mem0] Fato guardado no backend remoto e sincronizado localmente.';
+      await this.mem0Backend.addMemory(userId, content, write);
+      await this.localBackend.addMemory(userId, content, write);
+      return tService('memory_runtime.mem0_saved');
     }
 
-    await this.localBackend.addMemory(userId, content);
+    await this.localBackend.addMemory(userId, content, write);
 
     if (await this.mem0Backend.isAvailable()) {
       try {
-        await this.mem0Backend.addMemory(userId, content);
-        return '[MemoryRuntime] Fato guardado localmente e sincronizado com Mem0.';
-      } catch (error: unknown) {logger.warn('[Memory Runtime] operation failed', error);
-    return '[MemoryRuntime] Fato guardado localmente. Sincronizacao com Mem0 indisponivel nesta sessao.';
-  }
+        await this.mem0Backend.addMemory(userId, content, write);
+        return tService('memory_runtime.auto_synced');
+      } catch (error: unknown) {
+        logger.warn('[Memory Runtime] operation failed', error);
+        return tService('memory_runtime.auto_local_only');
+      }
     }
 
-    return '[LocalMemory] Fato guardado na memoria local com sucesso.';
+    return tService('memory_runtime.local_saved');
+  }
+
+  /** Phase 6 — structured write via local (and optional mem0 sync in auto). */
+  public async addMemoryRecord(
+    userId: string,
+    content: string,
+    options: MemoryAddOptions = {},
+  ): Promise<MemoryRecord> {
+    const backend = options.backend || 'auto';
+    const write = options.write;
+
+    if (backend === 'mem0') {
+      const remote = await this.mem0V2.addMemoryRecord(userId, content, write);
+      await this.localV2.addMemoryRecord(userId, content, write);
+      return remote;
+    }
+
+    const local = await this.localV2.addMemoryRecord(userId, content, write);
+    if (backend === 'local') return local;
+
+    if (await this.mem0Backend.isAvailable()) {
+      try {
+        await this.mem0V2.addMemoryRecord(userId, content, write);
+      } catch (error: unknown) {
+        logger.warn('[Memory Runtime] v2 remote sync failed', error);
+      }
+    }
+    return local;
   }
 
   public async searchMemory(
@@ -63,25 +109,107 @@ export class MemoryRuntimeService {
     options: MemorySearchOptions = {},
   ): Promise<string[]> {
     const backend = options.backend || 'auto';
-    const limit = options.limit || 5;
+    const queryOptions: MemoryQueryOptions = {
+      limit: options.limit || 5,
+      filter: options.filter,
+    };
 
     if (backend === 'local') {
-      return this.localBackend.searchMemory(userId, query, limit);
+      return this.localBackend.searchMemory(userId, query, queryOptions);
     }
 
     if (backend === 'mem0') {
-      return this.mem0Backend.searchMemory(userId, query, limit);
+      return this.mem0Backend.searchMemory(userId, query, queryOptions);
     }
 
-    const localResults = await this.localBackend.searchMemory(userId, query, limit);
+    const localResults = await this.localBackend.searchMemory(userId, query, queryOptions);
     if (!(await this.mem0Backend.isAvailable())) {
       return localResults;
     }
 
     try {
-      const remoteResults = await this.mem0Backend.searchMemory(userId, query, limit);
-      return Array.from(new Set([...localResults, ...remoteResults])).slice(0, limit);
-    } catch (error: unknown) {logger.warn('[Memory Runtime] search failed', error); return localResults; }
+      const remoteResults = await this.mem0Backend.searchMemory(userId, query, queryOptions);
+      return Array.from(new Set([...localResults, ...remoteResults])).slice(
+        0,
+        resolveMemoryQueryLimitSafe(options.limit || 5),
+      );
+    } catch (error: unknown) {
+      logger.warn('[Memory Runtime] search failed', error);
+      return localResults;
+    }
+  }
+
+  /** Phase 6 — structured search with filters. */
+  public async searchMemoryRecords(
+    userId: string,
+    query: string,
+    options: MemorySearchOptions = {},
+  ): Promise<MemoryHit[]> {
+    const backend = options.backend || 'auto';
+    const queryOptions = {
+      limit: options.limit || 5,
+      filter: options.filter,
+    };
+
+    if (backend === 'local') {
+      return this.localV2.searchMemoryRecords(userId, query, queryOptions);
+    }
+    if (backend === 'mem0') {
+      return this.mem0V2.searchMemoryRecords(userId, query, queryOptions);
+    }
+
+    const localHits = await this.localV2.searchMemoryRecords(userId, query, queryOptions);
+    if (!(await this.mem0Backend.isAvailable())) {
+      return localHits;
+    }
+    try {
+      const remoteHits = await this.mem0V2.searchMemoryRecords(userId, query, queryOptions);
+      const seen = new Set(localHits.map((h) => h.content));
+      const merged = [...localHits];
+      for (const hit of remoteHits) {
+        if (seen.has(hit.content)) continue;
+        seen.add(hit.content);
+        merged.push(hit);
+      }
+      return merged.slice(0, resolveMemoryQueryLimitSafe(options.limit || 5));
+    } catch (error: unknown) {
+      logger.warn('[Memory Runtime] v2 search failed', error);
+      return localHits;
+    }
+  }
+
+  public async deleteMemory(
+    userId: string,
+    idOrKey: string,
+    options: MemoryDeleteOptions & { backend?: 'local' | 'mem0' | 'auto' } = {},
+  ): Promise<boolean> {
+    const backend = options.backend || 'local';
+    if (backend === 'mem0') {
+      return this.mem0V2.deleteMemory(userId, idOrKey, options);
+    }
+    return this.localV2.deleteMemory(userId, idOrKey, options);
+  }
+
+  public async restoreMemory(
+    userId: string,
+    idOrKey: string,
+    options: { backend?: 'local' | 'mem0' | 'auto' } = {},
+  ): Promise<boolean> {
+    const backend = options.backend || 'local';
+    if (backend === 'mem0') {
+      return this.mem0V2.restoreMemory(userId, idOrKey);
+    }
+    return this.localV2.restoreMemory(userId, idOrKey);
+  }
+
+  public async listMemoryRecords(
+    userId: string,
+    options: MemorySearchOptions = {},
+  ): Promise<MemoryRecord[]> {
+    return this.localV2.listMemoryRecords(userId, {
+      limit: options.limit,
+      filter: options.filter,
+    });
   }
 
   public async isBackendAvailable(name: 'local' | 'mem0'): Promise<boolean> {
@@ -90,6 +218,14 @@ export class MemoryRuntimeService {
     }
 
     return this.mem0Backend.isAvailable();
+  }
+
+  public getLocalBackendV2(): IMemoryBackendV2 {
+    return this.localV2;
+  }
+
+  public getMem0BackendV2(): IMemoryBackendV2 {
+    return this.mem0V2;
   }
 
   public async getMemoryContext(userId: string, currentMessage = ''): Promise<string> {
@@ -132,3 +268,13 @@ export class MemoryRuntimeService {
     return this.localBackend.getMemoryService();
   }
 }
+
+function resolveMemoryQueryLimitSafe(limit: number): number {
+  const n = Number(limit);
+  if (!Number.isFinite(n) || n <= 0) return 5;
+  return Math.min(Math.floor(n), 100);
+}
+
+// re-export for callers that only import runtime
+export type { MemoryQueryOptions, MemoryWriteOptions, MemoryRecord, MemoryHit };
+export { normalizeMemoryQueryOptions };

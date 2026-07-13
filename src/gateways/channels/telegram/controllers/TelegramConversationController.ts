@@ -33,6 +33,11 @@ import type { ExperienceCoreService } from '@zavorth/services/experience/Experie
 import type { ChatMessage } from '@zavorth/providers/ILlmProvider.js';
 import type { TaskManagerLike, PermissionServiceLike } from '@zavorth/services/GatewaySessionService.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import {
+  isTelegramHostMutationCommand,
+  canTelegramActorWriteLearning,
+  isZavorthTelegramOperator,
+} from '../../../../services/ZavorthTelegramOperatorAuth.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type TelegramAgentGateway = Pick<ZavorthAgentGateway, 'handle'>;
@@ -173,15 +178,8 @@ export class TelegramConversationController {
         return;
       }
 
-      const experienceShortcutHandled = await this.handleExperienceCoreShortcut({
-        ctx,
-        task,
-        messageText,
-        canonicalTarget,
-      });
-      if (experienceShortcutHandled) {
-        return;
-      }
+      // Hermes-style: free text always goes to the agent.
+      // First-run is only via /start + buttons (TelegramHubController), not free-text wizard answers.
 
       const memoryContext = userId ? await memoryService.getMemoryContext(userId, messageText) : '';
       const summaryContext =
@@ -241,6 +239,10 @@ export class TelegramConversationController {
         taskKind: messageProfile.kind,
         taskSubtype: messageProfile.subtype,
         workspaceOperationalMemory: task.metadata?.workspace_operational_memory || null,
+        userId,
+        chatId,
+        surface: 'telegram',
+        allowLearningWrite: canTelegramActorWriteLearning(userId),
       });
 
       if (isStructuredAgentRunAction(response.action)) {
@@ -334,7 +336,7 @@ export class TelegramConversationController {
       });
       const ok = Boolean(result?.ok);
       const replyText = String(result?.finalReply || result?.criticFeedback || result?.error || '').trim()
-        || (ok ? 'Graph backend concluiu a execucao governada.' : 'Graph backend falhou na execucao governada.');
+        || (ok ? 'Graph backend completed the governed execution.' : 'Graph backend failed during governed execution.');
 
       return {
         status: ok ? 'completed' : 'failed',
@@ -405,50 +407,20 @@ export class TelegramConversationController {
     });
   }
 
-  private async handleExperienceCoreShortcut(input: {
-    ctx: Context;
-    task: Task;
-    messageText: string;
-    canonicalTarget: ReturnType<TelegramConversationController['resolveCanonicalTarget']>;
-  }): Promise<boolean> {
-    if (!this.experienceCoreService) return false;
-    const normalized = String(input.messageText || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const isShortcut = /^(status|ver diff|o que esta bloqueado\??|o que voce aprendeu\??|o que aprendeu\??|rode validacao)$/i.test(normalized);
-    if (!isShortcut) return false;
-
-    const workspace = String(input.task.metadata?.workspace || input.task.metadata?.workspacePath || '').trim() || null;
-    const renderOptions = {
-      scope: {
-        userId: String(input.ctx.from?.id || input.task.user_id || '').trim() || null,
-        chatId: String(input.ctx.chat?.id || input.task.chat_id || '').trim() || null,
-      },
-    };
-    const snapshot = this.experienceCoreService.buildHome({
-      surface: 'telegram',
-      sessionId: input.task.task_id || null,
-      workspace,
-    });
-    const rendered = normalized.includes('diff')
-      ? this.experienceFormatter.formatDiffSummary(snapshot, renderOptions)
-      : normalized.includes('aprendeu')
-        ? this.experienceFormatter.formatLearningSummary(snapshot, renderOptions)
-        : this.experienceFormatter.formatSnapshot(snapshot, renderOptions);
-
-    await input.ctx.reply(rendered.text, rendered.replyOptions as any);
-    this.recordLedgerMessage(input.canonicalTarget, {
-      id: randomUUID(),
-      role: 'assistant',
-      content: rendered.text,
-      createdAt: new Date().toISOString(),
-      taskId: input.task.task_id || null,
-      kind: 'experience-core-shortcut',
-      surface: 'telegram',
-    });
-    return true;
+  private ensureTelegramOperator(
+    ctx: Context,
+    messageText: string,
+    alwaysRequire = false,
+  ): boolean {
+    const userId = ctx.from?.id?.toString() || '';
+    if (isZavorthTelegramOperator(userId)) {
+      return true;
+    }
+    if (!alwaysRequire && !isTelegramHostMutationCommand(messageText)) {
+      return true;
+    }
+    void ctx.reply('Only authorized Zavorth operators can change setup or learning on this host.');
+    return false;
   }
 
   private recordLedgerMessage(

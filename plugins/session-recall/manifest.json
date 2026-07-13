@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "session-recall",
+  "label": "Session Recall",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Search past receipts, memory, and Plugin OS artifacts under .zavorth.",
+  "description": "Workspace-local session recall: full-text-ish scan of ledgers so the agent can recall what happened without a remote memory SaaS.",
+  "tags": ["recall", "session", "search", "memory", "receipts", "history", "local"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://session-recall",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "recall.search",
+      "intent": "recall.search",
+      "label": "Search Recall",
+      "summary": "Search .zavorth artifacts for a query.",
+      "artifactKinds": [],
+      "command": { "name": "recall_search", "aliases": ["session_search"], "usage": "{ query, limit? }" }
+    },
+    {
+      "id": "recall.recent",
+      "intent": "recall.recent",
+      "label": "Recent Artifacts",
+      "summary": "List recently modified recall sources.",
+      "artifactKinds": [],
+      "command": { "name": "recall_recent", "aliases": [], "usage": "{ limit? }" }
+    },
+    {
+      "id": "recall.sources",
+      "intent": "recall.sources",
+      "label": "Recall Sources",
+      "summary": "List indexed source directories.",
+      "artifactKinds": [],
+      "command": { "name": "recall_sources", "aliases": [], "usage": "{}" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read .zavorth receipts, memory, and ledgers.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["session-recall.receipt"]
+}

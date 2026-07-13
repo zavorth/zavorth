@@ -5,14 +5,14 @@ import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 
 /**
- * MnemosCallbackPayload — Estrutura do callback embutido nos botões inline.
+ * MnemosCallbackPayload — inline button callback payload structure.
  *
- * FORMATO: mnemos:<action>:<encoded_data>
+ * FORMAT: mnemos:<action>:<encoded_data>
  *
- * Ações:
- *  - mnemos:index_confirm:<base64_filepath>  → Confirma indexação de um arquivo
- *  - mnemos:index_reject:<requestId>         → Rejeita indexação
- *  - mnemos:vault_status                     → Solicita status do cofre
+ * Actions:
+ *  - mnemos:index_confirm:<base64_filepath>  → confirm file indexing
+ *  - mnemos:index_reject:<requestId>         → reject indexing
+ *  - mnemos:vault_status                     → request vault status
  */
 export type MnemosCallbackAction = 'index_confirm' | 'index_reject' | 'vault_status';
 
@@ -42,16 +42,14 @@ export type MnemosHumanInTheLoopContext = {
 };
 
 /**
- * MnemosHumanInTheLoopService
+ * Human-in-the-loop orchestration between Mnemos memory and the user
+ * (Telegram inline buttons or any compatible surface).
  *
- * Orquestra o fluxo de Human-in-the-Loop entre o motor de memória Mnemos e
- * o usuário, via botões inline do Telegram ou qualquer superfície compatível.
- *
- * Fluxo:
- *  1. O agente chama search_memory → sem resultados
- *  2. O agente chama scan_local_metadata → encontra candidatos
- *  3. Este service monta a mensagem com botões inline para o usuário
- *  4. O callback processa a resposta do botão e aciona index_file se confirmado
+ * Flow:
+ *  1. Agent calls search_memory → no results
+ *  2. Agent calls scan_local_metadata → finds candidates
+ *  3. This service builds the message with inline buttons
+ *  4. Callback processes the button and runs index_file if confirmed
  */
 export class MnemosHumanInTheLoopService {
   constructor(
@@ -60,8 +58,7 @@ export class MnemosHumanInTheLoopService {
   ) {}
 
   /**
-   * Monta a mensagem interativa com botões inline para o Telegram.
-   * Retorna o texto formatado e o array de botões no formato InlineKeyboard do grammY.
+   * Build interactive prompt + inline keyboard rows for Telegram/grammY.
    */
   public buildCandidatePrompt(context: MnemosHumanInTheLoopContext): {
     text: string;
@@ -72,14 +69,14 @@ export class MnemosHumanInTheLoopService {
     if (candidates.length === 0) {
       return {
         text: [
-          '🔍 **Busca no Cofre Mnemos**',
+          '🔍 **Mnemos Vault Search**',
           '',
-          `Procurei no cofre vetorial e nas pastas autorizadas do seu computador, mas não encontrei nenhum arquivo relacionado a "${originalQuery}".`,
+          `I searched the vector vault and your authorized folders, but found no file related to "${originalQuery}".`,
           '',
-          '💡 Você pode:',
-          '• Enviar o arquivo diretamente neste chat',
-          '• Me dizer o nome exato do arquivo',
-          '• Adicionar o diretório correto nas configurações do Mnemos',
+          '💡 You can:',
+          '• Send the file directly in this chat',
+          '• Tell me the exact file name',
+          '• Add the correct directory in Mnemos settings',
         ].join('\n'),
         buttons: [],
       };
@@ -91,33 +88,31 @@ export class MnemosHumanInTheLoopService {
     }).join('\n');
 
     const text = [
-      '🔍 **Busca no Cofre Mnemos**',
+      '🔍 **Mnemos Vault Search**',
       '',
-      `Não encontrei resultados no cofre para "${originalQuery}".`,
-      `Porém, encontrei ${candidates.length} arquivo(s) potencial(is) nas suas pastas autorizadas:`,
+      `I found no vault results for "${originalQuery}".`,
+      `However, I found ${candidates.length} potential file(s) in your authorized folders:`,
       '',
       candidateList,
       '',
-      '📌 Deseja que eu indexe algum deles para responder sua pergunta?',
+      '📌 Should I index any of them so I can answer your question?',
     ].join('\n');
 
     const buttons: Array<{ text: string; callback_data: string }[]> = [];
 
-    // Cada candidato gera uma linha de botões [Indexar] | [Pular]
     for (const candidate of candidates.slice(0, 3)) {
       const encodedPath = Buffer.from(candidate.path).toString('base64url');
       buttons.push([
         {
-          text: `✅ Indexar "${candidate.name}"`,
+          text: `✅ Index "${candidate.name}"`,
           callback_data: `mnemos:index_confirm:${encodedPath}`,
         },
       ]);
     }
 
-    // Botão de rejeição global
     buttons.push([
       {
-        text: '❌ Nenhum desses é correto',
+        text: '❌ None of these are correct',
         callback_data: 'mnemos:index_reject:all',
       },
     ]);
@@ -126,8 +121,8 @@ export class MnemosHumanInTheLoopService {
   }
 
   /**
-   * Processa um callback vindo do TelegramCallbackController.
-   * Formato esperado: mnemos:<action>:<data>
+   * Process a callback from TelegramCallbackController.
+   * Expected format: mnemos:<action>:<data>
    */
   public async processCallback(
     data: string,
@@ -139,7 +134,7 @@ export class MnemosHumanInTheLoopService {
         handled: false,
         responseText: '',
         action: 'unknown',
-        error: 'Callback não pertence ao Mnemos.',
+        error: 'Callback does not belong to Mnemos.',
       };
     }
 
@@ -156,9 +151,9 @@ export class MnemosHumanInTheLoopService {
       default:
         return {
           handled: false,
-          responseText: 'Ação do Mnemos não reconhecida.',
+          responseText: 'Unrecognized Mnemos action.',
           action: 'unknown',
-          error: `Ação desconhecida: ${action}`,
+          error: `Unknown action: ${action}`,
         };
     }
   }
@@ -170,27 +165,27 @@ export class MnemosHumanInTheLoopService {
     let filePath: string;
     try {
       filePath = Buffer.from(encodedPath, 'base64url').toString('utf-8');
-    } catch (error: unknown) {logger.warn('[Mnemos Human In The Loop] encoding failed', error);
-    return {
+    } catch (error: unknown) {
+      logger.warn('[Mnemos Human In The Loop] encoding failed', error);
+      return {
         handled: true,
-        responseText: '❌ Caminho do arquivo corrompido.',
+        responseText: '❌ Corrupted file path.',
         action: 'index_confirm',
         error: 'Base64 decode failure',
       };
-  }
+    }
 
     const fileName = filePath.split('/').pop() || filePath;
-    this.logRepo.log('info', 'Mnemos', `Indexação confirmada pelo usuário: ${fileName}`);
+    this.logRepo.log('info', 'Mnemos', `Indexing confirmed by user: ${fileName}`);
 
-    // Verificar se o Mnemos está conectado
     const snapshot = mcpRuntime.readSnapshot();
     const mnemosEntry = snapshot.entries.find((e) => e.id === 'mnemos');
     if (!mnemosEntry || mnemosEntry.status !== 'connected') {
       return {
         handled: true,
         responseText: [
-          '⚠️ O motor Mnemos não está conectado no momento.',
-          'Verifique se o container Docker está rodando.',
+          '⚠️ The Mnemos engine is not connected right now.',
+          'Check that the Docker container is running.',
         ].join('\n'),
         action: 'index_confirm',
         error: 'Mnemos not connected',
@@ -201,8 +196,8 @@ export class MnemosHumanInTheLoopService {
       return {
         handled: true,
         responseText: [
-          '⚠️ O runtime de tools do Mnemos não está disponível nesta sessão.',
-          'Reinicie o Zavorth ou recarregue o runtime antes de confirmar indexações.',
+          '⚠️ Mnemos tool runtime is not available in this session.',
+          'Restart Zavorth or reload the runtime before confirming indexing.',
         ].join('\n'),
         action: 'index_confirm',
         error: 'Mnemos tool runtime not available',
@@ -215,10 +210,10 @@ export class MnemosHumanInTheLoopService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
-      this.logRepo.log('error', 'Mnemos', `Falha ao indexar ${fileName}: ${message}`);
+      this.logRepo.log('error', 'Mnemos', `Failed to index ${fileName}: ${message}`);
       return {
         handled: true,
-        responseText: `❌ Falha ao indexar **${fileName}**: ${message}`,
+        responseText: `❌ Failed to index **${fileName}**: ${message}`,
         action: 'index_confirm',
         error: message,
       };
@@ -226,24 +221,24 @@ export class MnemosHumanInTheLoopService {
 
     const parsed = this.parseToolResult(toolResult);
     if (parsed.error) {
-      this.logRepo.log('error', 'Mnemos', `Falha retornada pelo index_file para ${fileName}: ${parsed.error}`);
+      this.logRepo.log('error', 'Mnemos', `index_file returned failure for ${fileName}: ${parsed.error}`);
       return {
         handled: true,
-        responseText: `❌ Falha ao indexar **${fileName}**: ${parsed.error}`,
+        responseText: `❌ Failed to index **${fileName}**: ${parsed.error}`,
         action: 'index_confirm',
         error: parsed.error,
       };
     }
 
     const chunks = typeof parsed.chunksIndexed === 'number'
-      ? ` (${parsed.chunksIndexed} fragmento(s))`
+      ? ` (${parsed.chunksIndexed} chunk(s))`
       : '';
     return {
       handled: true,
       responseText: [
-        `✅ **${fileName}** foi indexado no Mnemos${chunks}.`,
+        `✅ **${fileName}** was indexed in Mnemos${chunks}.`,
         '',
-        'Você já pode repetir sua pergunta original; agora vou conseguir consultar esse conteúdo pelo cofre local.',
+        'You can repeat your original question; I can now look that content up in the local vault.',
       ].join('\n'),
       action: 'index_confirm',
       error: null,
@@ -253,7 +248,7 @@ export class MnemosHumanInTheLoopService {
   private parseToolResult(raw: string): { error: string | null; chunksIndexed: number | null } {
     const text = String(raw || '').trim();
     if (!text) {
-      return { error: 'index_file retornou uma resposta vazia.', chunksIndexed: null };
+      return { error: 'index_file returned an empty response.', chunksIndexed: null };
     }
 
     try {
@@ -266,13 +261,14 @@ export class MnemosHumanInTheLoopService {
         return { error: String(parsed.error), chunksIndexed: null };
       }
       if (parsed.status && parsed.status !== 'success') {
-        return { error: `index_file retornou status inesperado: ${String(parsed.status)}`, chunksIndexed: null };
+        return { error: `index_file returned unexpected status: ${String(parsed.status)}`, chunksIndexed: null };
       }
       return {
         error: null,
         chunksIndexed: typeof parsed.chunks_indexed === 'number' ? parsed.chunks_indexed : null,
       };
-    } catch (error: unknown) {if (/error executing tool|erro/i.test(text)) {
+    } catch (error: unknown) {
+      if (/error executing tool|erro/i.test(text)) {
         return { error: text, chunksIndexed: null };
       }
       return { error: null, chunksIndexed: null };
@@ -280,14 +276,14 @@ export class MnemosHumanInTheLoopService {
   }
 
   private async handleIndexReject(payload: string): Promise<MnemosCallbackResult> {
-    this.logRepo.log('info', 'Mnemos', `Indexação rejeitada pelo usuário: ${payload}`);
+    this.logRepo.log('info', 'Mnemos', `Indexing rejected by user: ${payload}`);
 
     return {
       handled: true,
       responseText: [
-        '👌 Entendido! Não vou indexar esses arquivos.',
+        '👌 Understood — I will not index those files.',
         '',
-        'Você pode me enviar o documento correto diretamente neste chat ou me dizer o nome exato do arquivo.',
+        'You can send the correct document in this chat or tell me the exact file name.',
       ].join('\n'),
       action: 'index_reject',
       error: null,
@@ -301,7 +297,7 @@ export class MnemosHumanInTheLoopService {
     if (!mnemosEntry || mnemosEntry.status !== 'connected') {
       return {
         handled: true,
-        responseText: '⚠️ Mnemos desconectado. Não é possível obter o status do cofre.',
+        responseText: '⚠️ Mnemos is disconnected. Cannot fetch vault status.',
         action: 'vault_status',
         error: 'Mnemos not connected',
       };
@@ -310,9 +306,9 @@ export class MnemosHumanInTheLoopService {
     return {
       handled: true,
       responseText: [
-        '📦 Status do Cofre Mnemos:',
+        '📦 Mnemos Vault Status:',
         `• Status: ${mnemosEntry.status}`,
-        `• Tools disponíveis: ${mnemosEntry.toolCount}`,
+        `• Available tools: ${mnemosEntry.toolCount}`,
         `• Tools: ${mnemosEntry.toolNames.join(', ')}`,
       ].join('\n'),
       action: 'vault_status',

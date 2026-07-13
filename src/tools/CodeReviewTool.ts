@@ -48,13 +48,13 @@ export class CodeReviewTool extends BaseTool {
     const focus = String(args.focus || 'all') as FocusArea;
     const validFocus: FocusArea[] = ['security', 'performance', 'style', 'all'];
     if (!validFocus.includes(focus)) {
-      return `Erro: foco "${focus}" invalido. Use: ${validFocus.join(', ')}.`;
+      return `Error: invalid focus "${focus}" is invalid. Use: ${validFocus.join(', ')}.`;
     }
 
     const severityThreshold = String(args.severity_threshold || 'info') as Severity;
     const validSeverities: Severity[] = ['info', 'warning', 'error', 'critical'];
     if (!validSeverities.includes(severityThreshold)) {
-      return `Erro: severidade "${severityThreshold}" invalida. Use: ${validSeverities.join(', ')}.`;
+      return `Error: invalid severity "${severityThreshold}" is invalid. Use: ${validSeverities.join(', ')}.`;
     }
 
     let code: string;
@@ -81,7 +81,7 @@ export class CodeReviewTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Code] filesystem operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro na analise de codigo: ${message}`;
+      return `Code analysis error: ${message}`;
   }
   }
 
@@ -121,7 +121,7 @@ export class CodeReviewTool extends BaseTool {
           addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'forEach with await does not run in parallel.', suggestion: 'Use Promise.all with map or for...of for sequential execution.' });
         }
         if (/SELECT\s+\*\s+FROM/i.test(line)) {
-          addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'SELECT * detectado.', suggestion: 'Selecione apenas as colunas necessarias.' });
+          addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'SELECT * detected.', suggestion: 'Select only the columns you need.' });
         }
         if (/JSON\.parse.*JSON\.stringify/.test(line)) {
           addFinding({ severity: 'info', category: 'performance', line: lineNum, message: 'Deep clone via JSON parse/stringify.', suggestion: 'Considere structuredClone() para melhor performance.' });
@@ -130,10 +130,10 @@ export class CodeReviewTool extends BaseTool {
 
       if (focus === 'style' || focus === 'all') {
         if (line.length > 120) {
-          addFinding({ severity: 'info', category: 'style', line: lineNum, message: `Linha com ${line.length} caracteres (>120).`, suggestion: 'Considere quebrar em multiplas linhas.' });
+          addFinding({ severity: 'info', category: 'style', line: lineNum, message: `Linha com ${line.length} caracteres (>120).`, suggestion: 'Considere quebrar em multiple linhas.' });
         }
         if (/\t/.test(line) && /^ /.test(line)) {
-          addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'Indentacao mista (tabs e espacos).', suggestion: 'Use consistencia na indentacao.' });
+          addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'Mixed indentation (tabs and spaces).', suggestion: 'Use consistent indentation.' });
         }
         if (/console\.log\s*\(/.test(line)) {
           addFinding({ severity: 'info', category: 'style', line: lineNum, message: 'console.log() encontrado.', suggestion: 'Remova logs de debug antes de commit.' });

@@ -12,3 +12,4 @@ export * from './ZavorthUniversalSkillImportContract.js';
 export * from './ZavorthUniversalSkillIntakeContract.js';
 export * from './ZavorthUniversalSkillRealSourceOnboardingContract.js';
 export * from './ZavorthUniversalSkillScaleHardeningContract.js';
+export * from './ZavorthSkillWorkerMeshContract.js';

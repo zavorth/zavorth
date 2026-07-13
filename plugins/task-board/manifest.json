@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "task-board",
+  "label": "Task Board",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Local kanban/todo board for agent plans — no SaaS required.",
+  "description": "Workspace-local task board under .zavorth/task-board. Columns backlog → doing → blocked → done. Survives sessions so multi-step agent work stays visible and recoverable.",
+  "tags": ["todo", "kanban", "tasks", "planning", "board", "local", "agent"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://task-board",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "task.status",
+      "intent": "task.status",
+      "label": "Board Status",
+      "summary": "Counts per column and store path.",
+      "artifactKinds": [],
+      "command": { "name": "task_status", "aliases": ["board_status"], "usage": "{}" }
+    },
+    {
+      "id": "task.list",
+      "intent": "task.list",
+      "label": "List Tasks",
+      "summary": "List tasks, optionally filtered by column.",
+      "artifactKinds": [],
+      "command": { "name": "task_list", "aliases": ["board_list"], "usage": "{ column?, limit? }" }
+    },
+    {
+      "id": "task.add",
+      "intent": "task.add",
+      "label": "Add Task",
+      "summary": "Add a task to the board.",
+      "artifactKinds": [],
+      "command": { "name": "task_add", "aliases": ["board_add"], "usage": "{ title, column?, priority?, tags? }" }
+    },
+    {
+      "id": "task.move",
+      "intent": "task.move",
+      "label": "Move Task",
+      "summary": "Move a task between columns.",
+      "artifactKinds": [],
+      "command": { "name": "task_move", "aliases": ["board_move"], "usage": "{ id, column }" }
+    },
+    {
+      "id": "task.complete",
+      "intent": "task.complete",
+      "label": "Complete Task",
+      "summary": "Mark a task done.",
+      "artifactKinds": [],
+      "command": { "name": "task_complete", "aliases": ["board_done"], "usage": "{ id }" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read local task board store.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Update local task board under .zavorth/task-board.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": true,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["task-board.receipt"]
+}

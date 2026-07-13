@@ -7,8 +7,6 @@ import { HostCommandApprovalModal } from './components/HostCommandApprovalModal'
 import { WorkspaceTrustPromptModal } from './components/WorkspaceTrustPromptModal';
 import { ZavorthPaneShell } from './shell/ZavorthPaneShell';
 import { DropOverlay } from './components/DropOverlay';
-import { OnboardingOverlay } from './components/OnboardingOverlay';
-import { SettingsOverlay } from './components/SettingsOverlay';
 import {
   DESKTOP_ONBOARDING_STORAGE_KEY,
   shouldOpenDesktopOnboarding,
@@ -16,8 +14,15 @@ import {
 } from './onboarding/desktopOnboarding';
 import { t } from './i18n';
 
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { playDingSound } from './lib/haptics';
+
+const OnboardingOverlay = lazy(() => import('./components/OnboardingOverlay').then((module) => ({
+  default: module.OnboardingOverlay,
+})));
+const SettingsOverlay = lazy(() => import('./components/SettingsOverlay').then((module) => ({
+  default: module.SettingsOverlay,
+})));
 
 export function App() {
   const {
@@ -113,6 +118,21 @@ export function App() {
     runtimeWorkboard,
     marketplacePlugins,
     marketplaceSource,
+    pluginOsData,
+    pluginOsLabels,
+    pluginOsError,
+    onEnablePluginOs,
+    onDisablePluginOs,
+    onInspectPluginOs,
+    onRecommendPluginOs,
+    onCatalogApplyPluginOs,
+    onOnboardingPluginOs,
+    onUndoOnboardingPluginOs,
+    onSuggestActionPluginOs,
+    pluginOsSuggest,
+    pluginOsReceipts,
+    pluginOsInjectMode,
+    onRefreshPluginOs,
     onBoardSelect,
     onCardCreate,
     onCardUpdate,
@@ -181,7 +201,7 @@ export function App() {
 
   return (
     <>
-      <OnboardingOverlay
+      {onboardingOpen ? <Suspense fallback={null}><OnboardingOverlay
         isOpen={onboardingOpen}
         onCompleted={(notice) => {
           setOnboardingOpen(false);
@@ -199,8 +219,8 @@ export function App() {
         onAudienceSelected={(audience) => {
           setExperienceProfile(audience);
         }}
-      />
-      <SettingsOverlay
+      /></Suspense> : null}
+      {settingsOpen ? <Suspense fallback={null}><SettingsOverlay
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         accent={accent}
@@ -222,7 +242,7 @@ export function App() {
         onStart={requestRuntimeStart}
         onRuntimeStateAction={requestRuntimeInstrument}
         onTheme={setTheme}
-      />
+      /></Suspense> : null}
       <DropOverlay onFilesDropped={(paths) => {
         const currentInput = input;
         const newRefs = paths.map(p => `@file:"${p}"`).join(' ');
@@ -324,6 +344,21 @@ export function App() {
           runtimeWorkboard={runtimeWorkboard}
           marketplacePlugins={marketplacePlugins}
           marketplaceSource={marketplaceSource}
+          pluginOsData={pluginOsData}
+          pluginOsLabels={pluginOsLabels}
+          pluginOsError={pluginOsError}
+          onEnablePluginOs={onEnablePluginOs}
+          onDisablePluginOs={onDisablePluginOs}
+          onInspectPluginOs={onInspectPluginOs}
+          onRecommendPluginOs={onRecommendPluginOs}
+          onCatalogApplyPluginOs={onCatalogApplyPluginOs}
+          onOnboardingPluginOs={onOnboardingPluginOs}
+          onUndoOnboardingPluginOs={onUndoOnboardingPluginOs}
+          onSuggestActionPluginOs={onSuggestActionPluginOs}
+          pluginOsSuggest={pluginOsSuggest}
+          pluginOsReceipts={pluginOsReceipts}
+          pluginOsInjectMode={pluginOsInjectMode}
+          onRefreshPluginOs={onRefreshPluginOs}
           onBoardSelect={onBoardSelect}
           onCardCreate={onCardCreate}
           onCardUpdate={onCardUpdate}

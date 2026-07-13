@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "media-tts",
+  "label": "Media TTS",
+  "version": "1.0.0",
+  "moduleKind": "voice",
+  "summary": "Soft-fail OpenAI-compatible text-to-speech (audio/speech).",
+  "description": "Wave 4 media pack. Uses OPENAI_API_KEY / optional OPENAI_BASE_URL for OpenAI-compatible TTS. Presence-only status (never returns secret values). Soft-fail without key or network.external. Optionally writes audio under .zavorth/media-tts/.",
+  "tags": ["media", "tts", "speech", "wave4", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://media-tts",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.tts.status",
+      "intent": "media.tts.status",
+      "label": "TTS Status",
+      "summary": "Report OpenAI key/base URL presence for TTS (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_tts_status",
+        "aliases": ["tts_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "media.tts.synthesize",
+      "intent": "media.tts.synthesize",
+      "label": "Synthesize Speech",
+      "summary": "Soft OpenAI-compatible audio/speech synthesis; may write workspace audio file.",
+      "artifactKinds": ["media.audio", "speech.audio"],
+      "command": {
+        "name": "media_tts_synthesize",
+        "aliases": ["tts_speak", "speak"],
+        "usage": "{ text|input, voice?, model?, format? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call OpenAI-compatible /audio/speech endpoint.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Optionally save synthesized audio under .zavorth/media-tts/.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Resolve workspace output path for audio artifacts.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether OPENAI_API_KEY is set (not the value).",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke TTS provider endpoint.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["media.audio", "speech.audio"],
+  "receiptKinds": ["media-tts.receipt"]
+}

@@ -1,3 +1,8 @@
+import {
+  tPluginOs as tPluginOsKey,
+  resolveDesktopLocale as resolvePluginOsLocale,
+} from './i18n/pluginOsPlane';
+
 const translations: Record<string, Record<string, string>> = {
   en: {
     chat: 'Chat',
@@ -27,6 +32,10 @@ const translations: Record<string, Record<string, string>> = {
     'route.saveFailed': 'The route could not be saved.',
     webPreview: 'Web Preview',
     marketplace: 'Marketplace',
+    'pluginOs.tab': 'Plugin OS',
+    'pluginOs.marketplaceTab': 'Marketplace',
+    'pluginOs.title': 'Plugin OS',
+    'pluginOs.description': 'Installed Plugin OS packages, trust, eligibility, and doctor findings.',
     workboard: 'Workboard',
     scheduledTasks: 'Automations',
     analytics: 'Analytics',
@@ -573,6 +582,10 @@ const translations: Record<string, Record<string, string>> = {
     'route.saveFailed': 'Não foi possível salvar a rota.',
     webPreview: 'Visualizador Web',
     marketplace: 'Marketplace',
+    'pluginOs.tab': 'Plugin OS',
+    'pluginOs.marketplaceTab': 'Marketplace',
+    'pluginOs.title': 'Plugin OS',
+    'pluginOs.description': 'Pacotes Plugin OS instalados, confianca, elegibilidade e achados do doctor.',
     workboard: 'Workboard',
     scheduledTasks: 'Automações',
     analytics: 'Analytics',
@@ -1103,7 +1116,18 @@ export function resolveLanguage(language?: string | null): AppLanguage {
 
 export function t(key: string, language?: string | null): string {
   const lang = resolveLanguage(language);
-  return translations[lang][key] || translations.en[key] || key;
+  if (translations[lang]?.[key]) {
+    return translations[lang][key];
+  }
+  if (translations.en[key]) {
+    return translations.en[key];
+  }
+  // Fall through to full Plugin OS plane catalogs for any locale.
+  const resolved = tPluginOsKey(key, resolvePluginOsLocale(language));
+  if (resolved && resolved !== key) {
+    return resolved;
+  }
+  return key;
 }
 
 export function panelLabel(panel: string, language?: string | null): string {
@@ -1126,3 +1150,11 @@ export function panelLabel(panel: string, language?: string | null): string {
   };
   return t(map[panel] || panel, language);
 }
+
+export {
+  tPluginOs,
+  pluginOsPlaneLabels,
+  getPluginOsPlaneLabels,
+  resolveDesktopLocale,
+  PLUGIN_OS_PLANE_I18N,
+} from './i18n/pluginOsPlane';

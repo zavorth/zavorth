@@ -32,6 +32,7 @@ export * from './ZavorthDepthModeContract.js';
 export * from './ZavorthDynamicMissionHarnessContract.js';
 export * from './ZavorthDynamicWorkflowContract.js';
 export * from './ZavorthEffortControlContract.js';
+export * from './ZavorthSessionTranscriptExportContract.js';
 export * from './ZavorthGovernedSubagentContract.js';
 export * from './ZavorthHandoffEnvelopeContract.js';
 export * from './ZavorthInvocationReceiptContract.js';

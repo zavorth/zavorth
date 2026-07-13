@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-hook",
+  "label": "Example Hook",
+  "version": "0.1.0",
+  "moduleKind": "agent",
+  "summary": "Agent-focused plugin demonstrating runtime hooks.",
+  "description": "Bundled example that registers tool.before_execute and agent.after_turn hooks.",
+  "tags": ["agent", "hooks", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-hook",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "agent.ping",
+      "intent": "agent.ping",
+      "label": "Agent Ping",
+      "summary": "Lightweight agent capability used with hooks.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_hook_ping",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

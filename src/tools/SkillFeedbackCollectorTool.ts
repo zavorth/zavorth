@@ -42,7 +42,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
       },
       rating: {
         type: 'number',
-        description: 'Avaliacao de 1 a 5 (apenas para action=record).',
+        description: 'Rating from 1 to 5 (only for action=record).',
       },
       notes: {
         type: 'string',
@@ -72,7 +72,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
     const action = String(args.action || 'record');
     const validActions = ['record', 'review', 'optimize'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -92,7 +92,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Skill Feedback Collector] operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro no skill feedback: ${message}`;
+      return `Skill feedback error: ${message}`;
   }
   }
 
@@ -129,7 +129,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   private recordMetric(args: Record<string, unknown>, skillName: string): string {
     const rating = typeof args.rating === 'number' ? args.rating : 3;
     if (rating < 1 || rating > 5) {
-      return 'Erro: rating deve estar entre 1 e 5.';
+      return 'Error: rating deve estar entre 1 e 5.';
     }
 
     const executionTimeMs = typeof args.execution_time_ms === 'number' ? args.execution_time_ms : 0;
@@ -157,7 +157,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   private reviewMetrics(skillName: string): string {
     const data = this.loadMetrics(skillName);
     if (data.metrics.length === 0) {
-      return `Nenhum metrica registrada para skill "${skillName}".`;
+      return `No metrics recorded for skill "${skillName}".`;
     }
 
     const lines: string[] = [];
@@ -179,11 +179,11 @@ export class SkillFeedbackCollectorTool extends BaseTool {
   private optimizeSuggestion(skillName: string): string {
     const data = this.loadMetrics(skillName);
     if (data.metrics.length < 3) {
-      return `Dados insuficientes para otimizacao da skill "${skillName}". Minimo de 3 execucoes necessarias.`;
+      return `Insufficient data to optimize skill "${skillName}". At least 3 runs required.`;
     }
 
     const lines: string[] = [];
-    lines.push(`Sugestoes de otimizacao para skill: ${skillName}`);
+    lines.push(`Optimization suggestions for skill: ${skillName}`);
     lines.push('');
 
     if (data.average_rating < 3) {
@@ -208,7 +208,7 @@ export class SkillFeedbackCollectorTool extends BaseTool {
 
     const lowRatingNotes = data.metrics.filter((m) => m.rating <= 2 && m.notes).map((m) => m.notes);
     if (lowRatingNotes.length > 0) {
-      lines.push(`\nNotas de execucoes com baixa avaliacao (${lowRatingNotes.length}):`);
+      lines.push(`\nNotes from low-rated runs (${lowRatingNotes.length}):`);
       for (const note of lowRatingNotes.slice(0, 3)) {
         lines.push(`  - ${note}`);
       }

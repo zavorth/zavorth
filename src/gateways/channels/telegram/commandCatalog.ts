@@ -80,7 +80,7 @@ const CAPABILITY_COMMAND_CATALOG: CommandCatalogEntry[] = capabilityRegistry
   }));
 
 const STATIC_COMMAND_CATALOG: CommandCatalogEntry[] = [
-  { command: 'start', description: 'Starts Zavorth and opens the hub.', section: 'entry', usage: '[tour|recipes|security|settings]', privateMenu: false, groupMenu: false },
+  { command: 'start', description: 'Welcome / hub (speak naturally after this).', section: 'entry', usage: '[fix|recipes|security|settings]', privateMenu: true, groupMenu: false },
   { command: 'zavorth', description: 'Interactive hub with dashboard, actions, and settings.', section: 'entry', privateMenu: true, groupMenu: true },
   { command: 'dashboard', description: 'Legacy alias for the web control surface.', section: 'entry', privateMenu: false, groupMenu: false, hidden: true },
   { command: 'help', description: 'Complete command guide.', section: 'entry', privateMenu: true, groupMenu: true },

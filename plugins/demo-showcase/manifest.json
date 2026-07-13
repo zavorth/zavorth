@@ -1,0 +1,241 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "demo-showcase",
+  "label": "Demo Showcase",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Wave 7 showcase exercising specialized register_* APIs in one soft-fail package.",
+  "description": "Lifestyle & demos pack. Binds demo.showcase.* capabilities and soft-calls Wave 0 specialized registrars (skill, cli, auxiliary, web search, browser, media, secret, auth, context, slack, middleware) when present. No real network. Suitable for demos and surface-parity tables.",
+  "tags": ["demo", "showcase", "wave7", "surface-parity", "lifestyle"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://demo-showcase",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "demo.showcase.status",
+      "intent": "demo.showcase.status",
+      "label": "Showcase Status",
+      "summary": "Report which specialized registrars were available at register time plus wave tags.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_status",
+        "aliases": ["showcase_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "demo.showcase.ping",
+      "intent": "demo.showcase.ping",
+      "label": "Showcase Ping",
+      "summary": "Echo a message with wave tag W7.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_ping",
+        "aliases": ["showcase_ping"],
+        "usage": "{ message? }"
+      }
+    },
+    {
+      "id": "demo.showcase.skill",
+      "intent": "demo.showcase.skill",
+      "label": "Showcase Skill",
+      "summary": "Soft skill demo handler (registerSkill when available).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_skill",
+        "aliases": [],
+        "usage": "{ input? }"
+      }
+    },
+    {
+      "id": "demo.showcase.cli",
+      "intent": "demo.showcase.cli",
+      "label": "Showcase CLI",
+      "summary": "Soft CLI command demo (registerCliCommand when available).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_cli",
+        "aliases": [],
+        "usage": "{ args? }"
+      }
+    },
+    {
+      "id": "demo.showcase.auxiliary",
+      "intent": "demo.showcase.auxiliary",
+      "label": "Showcase Auxiliary",
+      "summary": "Soft auxiliary task demo (registerAuxiliaryTask when available).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_auxiliary",
+        "aliases": [],
+        "usage": "{ task? }"
+      }
+    },
+    {
+      "id": "demo.showcase.web_search",
+      "intent": "demo.showcase.web_search",
+      "label": "Showcase Web Search",
+      "summary": "Soft stub search results (no network). { query } → fake results.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_web_search",
+        "aliases": ["showcase_search"],
+        "usage": "{ query }"
+      }
+    },
+    {
+      "id": "demo.showcase.browser",
+      "intent": "demo.showcase.browser",
+      "label": "Showcase Browser",
+      "summary": "Soft stub browser navigate (no network).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_browser",
+        "aliases": [],
+        "usage": "{ url? }"
+      }
+    },
+    {
+      "id": "demo.showcase.image_gen",
+      "intent": "demo.showcase.image_gen",
+      "label": "Showcase Image Gen",
+      "summary": "Soft stub image generation message (no network).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_image_gen",
+        "aliases": [],
+        "usage": "{ prompt? }"
+      }
+    },
+    {
+      "id": "demo.showcase.video_gen",
+      "intent": "demo.showcase.video_gen",
+      "label": "Showcase Video Gen",
+      "summary": "Soft stub video generation message (no network).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_video_gen",
+        "aliases": [],
+        "usage": "{ prompt? }"
+      }
+    },
+    {
+      "id": "demo.showcase.tts",
+      "intent": "demo.showcase.tts",
+      "label": "Showcase TTS",
+      "summary": "Soft stub text-to-speech message (no network).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_tts",
+        "aliases": [],
+        "usage": "{ text? }"
+      }
+    },
+    {
+      "id": "demo.showcase.transcription",
+      "intent": "demo.showcase.transcription",
+      "label": "Showcase Transcription",
+      "summary": "Soft stub transcription message (no network).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_transcription",
+        "aliases": [],
+        "usage": "{ audio? }"
+      }
+    },
+    {
+      "id": "demo.showcase.secret",
+      "intent": "demo.showcase.secret",
+      "label": "Showcase Secret",
+      "summary": "Presence-only check of DEMO_SHOWCASE_SECRET env (never returns value).",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_secret",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "demo.showcase.auth",
+      "intent": "demo.showcase.auth",
+      "label": "Showcase Auth",
+      "summary": "Soft dashboard auth stub: authenticated when token==='demo'.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_auth",
+        "aliases": [],
+        "usage": "{ token }"
+      }
+    },
+    {
+      "id": "demo.showcase.context",
+      "intent": "demo.showcase.context",
+      "label": "Showcase Context",
+      "summary": "Soft context engine stub.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_context",
+        "aliases": [],
+        "usage": "{ query? }"
+      }
+    },
+    {
+      "id": "demo.showcase.slack_action",
+      "intent": "demo.showcase.slack_action",
+      "label": "Showcase Slack Action",
+      "summary": "Soft Slack action stub.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_slack_action",
+        "aliases": [],
+        "usage": "{ action? }"
+      }
+    },
+    {
+      "id": "demo.showcase.middleware_note",
+      "intent": "demo.showcase.middleware_note",
+      "label": "Showcase Middleware Note",
+      "summary": "Documents whether agent.after_turn middleware was registered.",
+      "artifactKinds": [],
+      "command": {
+        "name": "demo_showcase_middleware_note",
+        "aliases": [],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether DEMO_SHOWCASE_SECRET is set (value never returned).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

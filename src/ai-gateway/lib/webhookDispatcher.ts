@@ -137,6 +137,7 @@ export async function dispatchEvent(event: WebhookEvent, data: Record<string, an
   // Lazy import to avoid circular deps
   const { getEnabledWebhooks, recordWebhookDelivery, disableWebhooksWithHighFailures } =
     await import("./db/webhooks");
+  const { WebhookRouteMatcher } = await import("../../services/WebhookFilterService.js");
 
   const webhooks = getEnabledWebhooks();
   const payload: WebhookPayload = {
@@ -144,11 +145,20 @@ export async function dispatchEvent(event: WebhookEvent, data: Record<string, an
     timestamp: new Date().toISOString(),
     data,
   };
+  const filterService = new WebhookRouteMatcher();
 
   const deliveries = webhooks
     .filter((wh) => {
       const events = wh.events;
-      return events.includes("*") || events.includes(event);
+      if (!(events.includes("*") || events.includes(event))) {
+        return false;
+      }
+      // Declarative payload filters (field/regex/and/or/not)
+      const filter = filterService.parsePredicate((wh as { filter?: unknown }).filter);
+      return filterService.matches(filter, {
+        event,
+        payload: data && typeof data === "object" ? data : { value: data },
+      });
     })
     .map(async (wh) => {
       const result = await deliverWebhook(wh.url, payload, wh.secret);

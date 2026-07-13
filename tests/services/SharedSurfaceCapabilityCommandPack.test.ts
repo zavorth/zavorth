@@ -139,6 +139,30 @@ describe('SharedSurfaceCapabilityCommandPack', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Escopo: once.'));
   });
 
+  it('accepts free capability name as primary enable payload', async () => {
+    const enableCapability = jest.fn(() => ({ fallbackBehavior: null }));
+    const pack = buildPack({
+      capabilityLifecycleService: {
+        getManifest: jest.fn(() => buildManifest({ approvalRequired: false })),
+        registerCapabilityDemand: jest.fn(() => ({
+          capability: { capabilityId: 'sandbox', state: 'provisioning' },
+          approval: null,
+        })),
+        enableCapability,
+        disableCapability: jest.fn(),
+        markCapabilityState: jest.fn(),
+        registerCapabilityUsage: jest.fn(),
+      } as any,
+    });
+    const ctx = buildCtx('/enable sandbox');
+
+    await pack.handleEnable(ctx as any, 'sandbox');
+
+    expect(enableCapability).toHaveBeenCalledWith('sandbox', 'telegram-user', 'host');
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capability Sandbox habilitada.'));
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/^Uso:/));
+  });
+
   it('disables non-core capabilities and suggests rollback', async () => {
     const disableCapability = jest.fn(() => ({ notes: 'Desabilitada pelo operador.' }));
     const pack = buildPack({

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-provider",
+  "label": "Example Provider",
+  "version": "0.1.0",
+  "moduleKind": "provider",
+  "summary": "Minimal provider complete stub for Plugin OS.",
+  "description": "Bundled example provider plugin using bindProvider.",
+  "tags": ["provider", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-provider",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.complete",
+      "intent": "provider.complete",
+      "label": "Provider Complete",
+      "summary": "Stub completion response.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_provider_complete",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Providers may call remote models when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

@@ -17,7 +17,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       buildHydratedSnapshot: jest.fn(async () => ({
         generatedAt: '2026-04-12T14:00:00.000Z',
         summary: { channelsReady: 2, sessionTargets: 1 },
-        narrative: { headline: 'Gateway', operatorSummary: 'Gateway pronto.' },
+        narrative: { headline: 'Gateway', operatorSummary: 'Gateway ready.' },
       })),
       buildShellSnapshot: jest.fn(() => ({
         generatedAt: '2026-04-12T14:00:00.000Z',
@@ -332,7 +332,7 @@ describe('ZavorthGatewayRuntimeService', () => {
       buildHydratedSnapshot: jest.fn(async () => ({
         generatedAt: '2026-05-03T18:10:00.000Z',
         summary: { channelsReady: 1, sessionTargets: 1 },
-        narrative: { headline: 'Gateway', operatorSummary: 'Gateway pronto.' },
+        narrative: { headline: 'Gateway', operatorSummary: 'Gateway ready.' },
       })),
       buildShellSnapshot: jest.fn(() => ({
         generatedAt: '2026-05-03T18:10:00.000Z',

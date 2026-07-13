@@ -22,13 +22,31 @@ import {
 import { ProviderNativeCapabilityMatrixService } from './ProviderNativeCapabilityMatrixService.js';
 import { logger } from '../../logger.js';
 import { resolveUserProviderSelection } from '../UserSelectionResolver.js';
+import {
+  modelsForProvider,
+  resolveUserStackProviderChain,
+  uniqueProvidersFromHops,
+  type UserStackProviderHop,
+} from './UserStackProviderChain.js';
+import { ProviderHotPathCircuitBreaker } from './ProviderHotPathCircuitBreaker.js';
+import { runPluginOsHook } from '../PluginOsHookPipelineAccess.js';
 
 export type LlmRunOptions = {
   providerName?: string;
   modelName?: string;
+  workspace?: string | null;
+  /**
+   * When true (default), fail over across the **user** provider stack
+   * (primary → secondary model → user fallbacks). Set false to pin a single hop.
+   */
   allowFallback?: boolean;
   fallbackOrder?: string[];
   providerNativeTools?: ProviderChatOptions['providerNativeTools'];
+  /** Provider-facing reasoning effort parameter. */
+  reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh';
+  /** Cost route classification applied by AgentRunCostEffortRouting. */
+  costRouteClass?: 'premium' | 'standard' | 'background';
+  costRouteReason?: string;
   signal?: AbortSignal;
   stream?: {
     mode?: 'auto' | 'off';
@@ -139,23 +157,57 @@ export class LlmRuntimeService {
     const safeMessages = guardedPayload.messages;
     const safeTools = guardedPayload.tools;
     const egressGuardMetadata = buildLlmEgressGuardMetadata(guardedPayload.report);
-    const providerChain = this.resolveProviderChain(options);
+    // Phase 1: default fallback ON unless explicitly disabled (user stack only).
+    const fallbackAllowed = options?.allowFallback !== false;
+    const stackHops = this.resolveUserStackHops(options, fallbackAllowed);
+    const providerChain = uniqueProvidersFromHops(stackHops);
     const primaryProviderName = providerChain[0] || this.getPreferredProviderName();
-    const requestedProviderName = this.normalizeProviderName(options?.providerName || this.getPreferredProviderName());
-    const fallbackAllowed = options?.allowFallback === true;
+    const requestedProviderName = this.normalizeProviderName(
+      options?.providerName || this.getPreferredProviderName(),
+    );
+
+    await runPluginOsHook({
+      event: 'llm.before_request',
+      workspace: options?.workspace ?? null,
+      context: {
+        messageCount: safeMessages.length,
+        toolCount: Array.isArray(safeTools) ? safeTools.length : 0,
+        requestedProviderName,
+        primaryProviderName,
+        providerChain,
+      },
+    });
     const secondaryModelId = this.resolveSecondaryModelId(options);
+    const circuit = ProviderHotPathCircuitBreaker.getInstance();
     const attempts: LlmRuntimeProviderAttempt[] = [];
     let lastError: unknown = null;
 
     for (const providerName of providerChain) {
       this.throwIfAborted(options?.signal);
       const providerOptions = this.resolveProviderChatOptions(providerName, primaryProviderName, options);
-      let modelName = providerOptions?.modelName || null;
       const attemptStartedAt = Date.now();
+
+      if (!circuit.canAttempt(providerName)) {
+        this.recordAttempt(attempts, {
+          providerName,
+          modelName: providerOptions?.modelName || null,
+          status: 'skipped_unavailable',
+          fallback: providerName !== primaryProviderName,
+          durationMs: Date.now() - attemptStartedAt,
+          error: 'circuit_breaker_open',
+        }, {
+          options,
+          requestedProviderName,
+          primaryProviderName,
+          fallbackAllowed,
+        });
+        continue;
+      }
+
       if (!this.isProviderAvailable(providerName)) {
         this.recordAttempt(attempts, {
           providerName,
-          modelName,
+          modelName: providerOptions?.modelName || null,
           status: 'skipped_unavailable',
           fallback: providerName !== primaryProviderName,
           durationMs: Date.now() - attemptStartedAt,
@@ -168,20 +220,20 @@ export class LlmRuntimeService {
         continue;
       }
 
-      const modelAttempts = [modelName];
-      if (
-        secondaryModelId
-        && this.normalizeProviderName(providerName) === this.normalizeProviderName(primaryProviderName)
-        && secondaryModelId !== modelName
-      ) {
-        modelAttempts.push(secondaryModelId);
-      }
+      const modelAttempts = this.resolveModelAttemptsForProvider(
+        stackHops,
+        providerName,
+        primaryProviderName,
+        providerOptions?.modelName || options?.modelName || null,
+        secondaryModelId,
+      );
 
       for (let modelIndex = 0; modelIndex < modelAttempts.length; modelIndex += 1) {
-        const candidateModel = modelAttempts[modelIndex];
-        modelName = candidateModel;
+        let modelName = modelAttempts[modelIndex];
         const modelAttemptStartedAt = Date.now();
-        const usingSecondary = Boolean(secondaryModelId && candidateModel === secondaryModelId);
+        const usingSecondary = Boolean(
+          secondaryModelId && modelName && modelName === secondaryModelId,
+        );
         try {
           if (this.isClaudeAgentSdkProvider(providerName)) {
             const adapter = createClaudeAgentSdkRuntimeFromEnv();
@@ -193,6 +245,7 @@ export class LlmRuntimeService {
               ...(options?.toolPolicy ? { toolPolicy: options.toolPolicy } : {}),
               ...(options?.stream ? { stream: options.stream } : {}),
             });
+            void circuit.recordSuccess(providerName);
             this.recordAttempt(attempts, {
               providerName,
               modelName,
@@ -205,7 +258,7 @@ export class LlmRuntimeService {
               primaryProviderName,
               fallbackAllowed,
             });
-            return {
+            const claudeResult = {
               ...result,
               metadata: this.mergeMetadata(
                 result.metadata,
@@ -217,6 +270,11 @@ export class LlmRuntimeService {
                   content: result.response.content,
                 }),
                 usingSecondary ? { usedSecondaryModel: true, secondaryModelId } : undefined,
+                {
+                  userStackFallback: true,
+                  fallbackAllowed,
+                  circuitBreakers: circuit.snapshot(),
+                },
               ),
               route: this.buildRouteReceipt({
                 messages: safeMessages,
@@ -230,6 +288,17 @@ export class LlmRuntimeService {
                 attempts,
               }),
             };
+            await runPluginOsHook({
+              event: 'llm.after_request',
+              workspace: options?.workspace ?? null,
+              context: {
+                ok: true,
+                providerName,
+                modelName,
+                durationMs: Date.now() - modelAttemptStartedAt,
+              },
+            });
+            return claudeResult;
           }
 
           const provider = this.createProvider(providerName);
@@ -246,6 +315,7 @@ export class LlmRuntimeService {
             },
             options,
           });
+          void circuit.recordSuccess(providerName);
           this.recordAttempt(attempts, {
             providerName,
             modelName,
@@ -258,7 +328,7 @@ export class LlmRuntimeService {
             primaryProviderName,
             fallbackAllowed,
           });
-          return {
+          const providerResult = {
             providerName,
             modelName,
             response,
@@ -272,6 +342,11 @@ export class LlmRuntimeService {
                 content: response.content,
               }),
               usingSecondary ? { usedSecondaryModel: true, secondaryModelId } : undefined,
+              {
+                userStackFallback: true,
+                fallbackAllowed,
+                circuitBreakers: circuit.snapshot(),
+              },
             ),
             route: this.buildRouteReceipt({
               messages: safeMessages,
@@ -285,6 +360,17 @@ export class LlmRuntimeService {
               attempts,
             }),
           };
+          await runPluginOsHook({
+            event: 'llm.after_request',
+            workspace: options?.workspace ?? null,
+            context: {
+              ok: true,
+              providerName,
+              modelName,
+              durationMs: Date.now() - modelAttemptStartedAt,
+            },
+          });
+          return providerResult;
         } catch (error: unknown) {
           lastError = error;
           if (this.isAbortError(error, options?.signal)) {
@@ -303,6 +389,7 @@ export class LlmRuntimeService {
             });
             throw this.toAbortError(error);
           }
+          void circuit.recordFailure(providerName, error);
           this.recordAttempt(attempts, {
             providerName,
             modelName,
@@ -321,21 +408,43 @@ export class LlmRuntimeService {
           if (hasMoreModels && this.isSecondaryModelRetryableError(error)) {
             continue;
           }
-          if (hasMoreModels) {
-            // Non-retryable primary model error: stop model chain and surface the error.
+          if (hasMoreModels && !this.isSecondaryModelRetryableError(error)) {
+            // Non-retryable primary model error: still try next provider if fallback allowed.
+            if (!fallbackAllowed) {
+              throw error;
+            }
+            break;
+          }
+          if (!fallbackAllowed) {
             throw error;
           }
-          if (!options?.allowFallback) {
-            throw error;
-          }
+          // Continue to next provider in user stack
         }
       }
     }
 
     if (lastError instanceof Error) {
+      await runPluginOsHook({
+        event: 'llm.after_request',
+        workspace: options?.workspace ?? null,
+        context: {
+          ok: false,
+          error: lastError.message,
+          attempts: attempts.length,
+        },
+      });
       throw lastError;
     }
 
+    await runPluginOsHook({
+      event: 'llm.after_request',
+      workspace: options?.workspace ?? null,
+      context: {
+        ok: false,
+        error: 'No LLM provider is available for this execution.',
+        attempts: attempts.length,
+      },
+    });
     throw new Error('No LLM provider is available for this execution.');
   }
 
@@ -691,6 +800,7 @@ export class LlmRuntimeService {
       modelName,
       ...(options?.providerNativeTools?.length ? { providerNativeTools: options.providerNativeTools } : {}),
       ...(options?.signal ? { signal: options.signal } : {}),
+      ...(options?.reasoningEffort ? { reasoningEffort: options.reasoningEffort } : {}),
     };
   }
 
@@ -739,32 +849,105 @@ export class LlmRuntimeService {
     } catch (error: unknown) {logger.warn('[Llm Runtime] operation failed', error); return ''; }
   }
 
-  private resolveProviderChain(options?: LlmRunOptions): string[] {
-    const preferredProvider = this.normalizeProviderName(
-      options?.providerName || this.getPreferredProviderName(),
-    );
-
-    if (!options?.allowFallback) {
-      return [preferredProvider];
+  /**
+   * Phase 1: user-stack hops (primary + secondary model + user/option fallbacks).
+   * Never injects product catalog providers.
+   */
+  private resolveUserStackHops(
+    options?: LlmRunOptions,
+    fallbackAllowed = true,
+  ): UserStackProviderHop[] {
+    let preferredProvider: string;
+    try {
+      preferredProvider = this.normalizeProviderName(
+        options?.providerName || this.getPreferredProviderName(),
+      );
+    } catch {
+      preferredProvider = this.normalizeProviderName(options?.providerName || '');
     }
 
-    const customFallbacks = (options?.fallbackOrder || []).map((entry) =>
-      this.normalizeProviderName(entry),
-    );
-    const selectionFallbacks = resolveUserProviderSelection({})
-      .fallbackProviderIds
-      .map((entry) => this.normalizeProviderName(entry));
+    const hops = resolveUserStackProviderChain({
+      requestedProviderName: preferredProvider || options?.providerName || null,
+      requestedModelName: options?.modelName || null,
+      optionFallbackOrder: fallbackAllowed ? (options?.fallbackOrder || null) : null,
+      selection: resolveUserProviderSelection({
+        requestedProviderId: preferredProvider || null,
+      }),
+      normalizeProviderName: (n) => this.normalizeProviderName(n),
+    });
 
-    return Array.from(
-      new Set([
-        preferredProvider,
-        ...customFallbacks,
-        ...selectionFallbacks,
-        ...DEFAULT_FALLBACK_ORDER.filter((entry) => entry !== preferredProvider).map((entry) =>
-          this.normalizeProviderName(entry),
-        ),
-      ]),
+    if (!fallbackAllowed) {
+      return hops.slice(0, 1);
+    }
+
+    // If user has no selection fallbacks, still try DEFAULT_FALLBACK_ORDER only when
+    // explicitly configured (empty by product policy).
+    if (hops.length <= 1 && DEFAULT_FALLBACK_ORDER.length > 0 && preferredProvider) {
+      for (const entry of DEFAULT_FALLBACK_ORDER) {
+        const name = this.normalizeProviderName(entry);
+        if (name && name !== preferredProvider && !hops.some((h) => h.providerName === name)) {
+          hops.push({
+            providerName: name,
+            modelName: null,
+            source: 'options',
+          });
+        }
+      }
+    }
+
+    if (hops.length === 0 && preferredProvider) {
+      return [{
+        providerName: preferredProvider,
+        modelName: options?.modelName || null,
+        source: 'request',
+      }];
+    }
+    return hops;
+  }
+
+  private resolveModelAttemptsForProvider(
+    hops: UserStackProviderHop[],
+    providerName: string,
+    primaryProviderName: string,
+    requestModelName: string | null,
+    secondaryModelId: string | null,
+  ): Array<string | null> {
+    const fromHops = modelsForProvider(
+      hops,
+      providerName,
+      (n) => this.normalizeProviderName(n),
     );
+    const models: Array<string | null> = [];
+    const seen = new Set<string>();
+    const push = (m: string | null | undefined) => {
+      const key = m || '*';
+      if (seen.has(key)) return;
+      seen.add(key);
+      models.push(m || null);
+    };
+
+    // Prefer request model when this is the primary provider hop
+    if (
+      this.normalizeProviderName(providerName) === this.normalizeProviderName(primaryProviderName)
+      && requestModelName
+    ) {
+      push(requestModelName);
+    }
+    for (const m of fromHops) push(m);
+    if (
+      this.normalizeProviderName(providerName) === this.normalizeProviderName(primaryProviderName)
+      && secondaryModelId
+    ) {
+      push(secondaryModelId);
+    }
+    if (models.length === 0) push(requestModelName);
+    return models;
+  }
+
+  /** @deprecated Prefer resolveUserStackHops — kept for internal callers. */
+  private resolveProviderChain(options?: LlmRunOptions): string[] {
+    const fallbackAllowed = options?.allowFallback !== false;
+    return uniqueProvidersFromHops(this.resolveUserStackHops(options, fallbackAllowed));
   }
 
   private normalizeProviderName(name: string): string {

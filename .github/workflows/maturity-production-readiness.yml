@@ -1,0 +1,61 @@
+name: Maturity production readiness
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/product/ZAVORTH-MATURITY-PHASES.md'
+      - 'scripts/maturity-production-readiness.mjs'
+      - 'apps/zavorth-control-vite-shell/**'
+      - 'apps/zavorth-desktop/electron/**'
+      - 'apps/zavorth-desktop/package.json'
+      - 'src/services/memory/**'
+      - 'src/services/scheduling/**'
+      - 'src/runtime/sessions/SessionPersistenceStore.ts'
+      - 'package.json'
+      - '.github/workflows/maturity-production-readiness.yml'
+      - 'tests/scripts/MaturityProductionReadiness.test.ts'
+      - 'tests/ai-gateway/zavorthControl/DashboardReactPhase8.test.ts'
+  pull_request:
+    paths:
+      - 'docs/product/ZAVORTH-MATURITY-PHASES.md'
+      - 'scripts/maturity-production-readiness.mjs'
+      - 'apps/zavorth-control-vite-shell/**'
+      - 'apps/zavorth-desktop/electron/**'
+      - 'apps/zavorth-desktop/package.json'
+      - 'src/services/memory/**'
+      - 'src/services/scheduling/**'
+      - 'src/runtime/sessions/SessionPersistenceStore.ts'
+      - 'package.json'
+      - '.github/workflows/maturity-production-readiness.yml'
+      - 'tests/scripts/MaturityProductionReadiness.test.ts'
+      - 'tests/ai-gateway/zavorthControl/DashboardReactPhase8.test.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maturity-gate:
+    name: Maturity production readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Production readiness (strict)
+        run: npm run maturity:production-readiness:strict
+
+      - name: Related contract tests
+        run: npx jest tests/scripts/MaturityProductionReadiness.test.ts tests/ai-gateway/zavorthControl/DashboardReactPhase8.test.ts --no-coverage --runInBand

@@ -1,82 +1,124 @@
-import crypto from 'crypto';
-import { config } from '../config/index.js';
 import { Task } from '../contracts/TaskContract.js';
-import { SecureStorageService } from './SecureStorageService.js';
 
-const TOTP_WINDOW_STEPS = [-1, 0, 1];
+export type HighRiskGateResult = {
+  ok: boolean;
+  reason: string;
+  /** Always false — TOTP was removed from product permissions. */
+  requiresTotp: false;
+  highRisk: boolean;
+};
 
+export type HighRiskRiskParts = {
+  risk_level?: number | null;
+  riskLevel?: string | number | null;
+  requiresHighRiskPin?: boolean | null;
+  metadata?: Record<string, unknown> | null;
+};
+
+export type HighRiskTask = Pick<Task, 'risk_level' | 'metadata'>;
+
+/**
+ * High-risk labeling + simple approve gate (no TOTP / no 6-digit codes).
+ * Product policy: permissions stay one-click (or temporary grants / reduced friction).
+ * Delivery of approve UI is surface-specific; policy is surface-agnostic.
+ */
 export class HighRiskConfirmationService {
-  constructor(private readonly secureStorage = new SecureStorageService()) {}
-
   public isConfigured(): boolean {
-    return Boolean(this.resolveTotpSecret());
+    // TOTP host secrets are no longer part of the permission product.
+    return false;
   }
 
-  public requiresPin(task: Task | null | undefined): boolean {
-    if (!task) {
-      return false;
-    }
-
-    if (Boolean(task.metadata?.requiresHighRiskPin)) {
-      return true;
-    }
-
-    return Number(task.risk_level || 0) >= 3;
+  public requiresPin(task: HighRiskTask | null | undefined): boolean {
+    if (!task) return false;
+    return this.requiresHighRiskFromParts({
+      risk_level: task.risk_level,
+      requiresHighRiskPin: Boolean(task.metadata?.requiresHighRiskPin),
+      metadata: (task.metadata || null) as Record<string, unknown> | null,
+    });
   }
 
-  public validate(task: Task, providedCode: string): boolean {
-    if (!this.requiresPin(task)) {
+  public requiresHighRiskConfirmation(task: HighRiskTask | null | undefined): boolean {
+    return this.requiresPin(task);
+  }
+
+  public isHighRiskRiskLevel(risk: unknown): boolean {
+    if (typeof risk === 'number' && Number.isFinite(risk)) {
+      return risk >= 3;
+    }
+    const s = String(risk ?? '')
+      .trim()
+      .toLowerCase();
+    if (!s) return false;
+    if (s === 'high' || s === 'critical' || s === 'severe' || s === 'danger') return true;
+    const n = Number(s);
+    return Number.isFinite(n) && n >= 3;
+  }
+
+  public requiresHighRiskFromParts(input: HighRiskRiskParts): boolean {
+    if (input.requiresHighRiskPin === true) return true;
+    const meta = input.metadata || {};
+    if (meta.requiresHighRiskPin === true || meta.requires_high_risk_pin === true) return true;
+    if (this.isHighRiskRiskLevel(input.risk_level)) return true;
+    if (this.isHighRiskRiskLevel(input.riskLevel)) return true;
+    if (this.isHighRiskRiskLevel(meta.risk_level) || this.isHighRiskRiskLevel(meta.riskLevel)) {
       return true;
     }
+    if (this.isHighRiskRiskLevel(meta.risk) || this.isHighRiskRiskLevel(meta.risk_class)) {
+      return true;
+    }
+    return false;
+  }
 
-    const normalized = String(providedCode || '').trim();
-    if (!normalized) {
-      return false;
+  /**
+   * Simple gate: high-risk never auto-approves without an explicit operator approve.
+   * No authenticator codes. Temporary grants / session friction reduction stay separate systems.
+   */
+  public assertApprovalGate(input: {
+    task?: HighRiskTask | null;
+    risk?: HighRiskRiskParts | null;
+    approvalGranted?: boolean;
+    /** @deprecated Ignored — TOTP removed from product. */
+    providedCode?: string | null;
+    env?: NodeJS.ProcessEnv;
+  }): HighRiskGateResult {
+    const highRisk = input.task
+      ? this.requiresPin(input.task)
+      : this.requiresHighRiskFromParts(input.risk || {});
+
+    if (!highRisk) {
+      return { ok: true, reason: 'not_high_risk', requiresTotp: false, highRisk: false };
     }
 
-    const totpSecret = this.resolveTotpSecret();
-    if (!totpSecret) {
-      return false;
+    if (input.approvalGranted !== true) {
+      return {
+        ok: false,
+        reason: 'high_risk_requires_explicit_approval',
+        requiresTotp: false,
+        highRisk: true,
+      };
     }
 
-    return TOTP_WINDOW_STEPS.some((offset) => this.generateTotp(totpSecret, offset) === normalized);
+    return {
+      ok: true,
+      reason: 'high_risk_approved',
+      requiresTotp: false,
+      highRisk: true,
+    };
+  }
+
+  public formatGateFailure(result: HighRiskGateResult): string {
+    if (result.reason === 'high_risk_requires_explicit_approval') {
+      return 'This action needs an explicit Approve (one click). It will not run automatically.';
+    }
+    return result.reason || 'Approval blocked.';
+  }
+
+  /** @deprecated No-op validate — codes are not used. Always true for non-high-risk; false only if empty code path callers expect pin. */
+  public validate(_task: Task, _providedCode: string): boolean {
+    return true;
   }
 
   public describeRequirement(): string {
-    if (this.resolveTotpSecret()) {
-      return 'Esse pedido e HIGH_RISK. Confirme com `/approve <task_id> <codigo TOTP>` usando seu autenticador.';
-    }
-
-    return 'Esse pedido e HIGH_RISK. Configure o segredo TOTP no SecureStorageService. O fallback por env exige ZAVORTH_HIGH_RISK_TOTP_ALLOW_ENV_FALLBACK=true. PIN estatico nao e aceito.';
-  }
-
-  private resolveTotpSecret(): string {
-    const secretRef = String((config as { highRiskApprovalTotpSecretRef?: string }).highRiskApprovalTotpSecretRef || 'high-risk-approval-totp').trim();
-    const stored = secretRef ? String(this.secureStorage.readSecret(secretRef) || '').trim() : '';
-    if (stored) {
-      return stored;
-    }
-
-    const allowEnvFallback = Boolean((config as { highRiskApprovalAllowEnvFallback?: boolean }).highRiskApprovalAllowEnvFallback);
-    if (!allowEnvFallback) {
-      return '';
-    }
-
-    return String(config.highRiskApprovalTotpSecret || '').trim();
-  }
-
-  private generateTotp(secret: string, offsetSteps = 0): string {
-    const counter = Math.floor(Date.now() / 30_000) + offsetSteps;
-    const key = crypto.createHash('sha1').update(secret).digest();
-    const buffer = Buffer.alloc(8);
-    buffer.writeBigUInt64BE(BigInt(counter));
-    const digest = crypto.createHmac('sha1', key).update(buffer).digest();
-    const offset = digest[digest.length - 1] & 0x0f;
-    const binary =
-      ((digest[offset] & 0x7f) << 24) |
-      ((digest[offset + 1] & 0xff) << 16) |
-      ((digest[offset + 2] & 0xff) << 8) |
-      (digest[offset + 3] & 0xff);
-    return String(binary % 1_000_000).padStart(6, '0');
+    return 'This action is high-risk. Use a simple Approve (or your workspace temporary grant).';
   }
 }

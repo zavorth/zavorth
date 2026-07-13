@@ -1,4 +1,5 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';function zavorthControlClassicClientDataAudit() {
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+function zavorthControlClassicClientDataAudit() {
     let auditOffset = 0;
     const auditLimit = 50;
     type AuditTypeSummary = { event_type: string; c: number };
@@ -46,29 +47,29 @@ import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';fun
         const data = await res.json();
         const tbody = document.getElementById('audit-table-body')!;
         if (!data.logs || data.logs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">Nenhum evento de audit.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">No audit events.</td></tr>';
         } else {
           tbody.innerHTML = data.logs.map((r: AuditRow) => {
             const policyClass = r.policy_decision === 'ALLOWED' ? 'badge-allowed' : (r.policy_decision === 'BLOCKED' ? 'badge-blocked' : 'badge-warning');
-            const successIcon = r.execution_success === 1 ? 'Ã¢Å“â€¦' : (r.execution_success === 0 ? 'Ã¢ÂÅ’' : 'Ã¢â‚¬â€');
+            const successIcon = r.execution_success === 1 ? '✓' : (r.execution_success === 0 ? '✗' : '—');
             const ts = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
             return `<tr>
               <td style="white-space:nowrap;color:var(--muted);font-size:12px">${ts}</td>
-              <td><span class="badge">${r.event_type || 'Ã¢â‚¬â€'}</span></td>
+              <td><span class="badge">${r.event_type || '—'}</span></td>
               <td style="font-family:monospace;font-size:12px">${(r.task_id||'').substring(0,12)}</td>
-              <td><span class="badge ${policyClass}">${r.policy_decision || 'Ã¢â‚¬â€'}</span></td>
-              <td style="text-align:center">${r.risk_level ?? 'Ã¢â‚¬â€'}</td>
-              <td>${r.executor || 'Ã¢â‚¬â€'}</td>
+              <td><span class="badge ${policyClass}">${r.policy_decision || '—'}</span></td>
+              <td style="text-align:center">${r.risk_level ?? '—'}</td>
+              <td>${r.executor || '—'}</td>
               <td>${successIcon} <span style="color:var(--muted);font-size:12px">${(r.execution_summary||'').substring(0,60)}</span></td>
             </tr>`;
           }).join('');
         }
         const page = Math.floor(auditOffset / auditLimit) + 1;
         const totalPages = Math.ceil((data.total || 0) / auditLimit);
-        document.getElementById('audit-page-info')!.textContent = `Pagina ${page} de ${totalPages || 1}`;
+        document.getElementById('audit-page-info')!.textContent = `Page ${page} of ${totalPages || 1}`;
         (document.getElementById('audit-prev-btn') as HTMLButtonElement).disabled = auditOffset <= 0;
         (document.getElementById('audit-next-btn') as HTMLButtonElement).disabled = auditOffset + auditLimit >= (data.total || 0);
-      } catch (error: unknown) {document.getElementById('audit-table-body')!.innerHTML = '<tr><td colspan="7" style="color:var(--danger)">Falha ao carregar audit log.</td></tr>';
+      } catch (error: unknown) {document.getElementById('audit-table-body')!.innerHTML = '<tr><td colspan="7" style="color:var(--danger)">Failed to load audit log.</td></tr>';
       }
     }
 
@@ -79,4 +80,3 @@ import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';fun
 export function getZavorthControlClassicClientDataAuditScript(): string {
   return extractFunctionBody(zavorthControlClassicClientDataAudit);
 }
-

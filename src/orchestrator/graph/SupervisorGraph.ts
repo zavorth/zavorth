@@ -253,7 +253,7 @@ async function runCriticStep(
  * em InlineData para o pipeline VLM do provedor (Gemini, etc.).
  *
  * Padrões reconhecidos:
- *   Screenshot: C:\caminho\arquivo.png (1920x1080px)
+ *   Screenshot: C:\path\file.png (1920x1080px)
  *   Screenshot local: /tmp/capture.jpg
  *
  * Limites de segurança:
@@ -330,7 +330,7 @@ async function executeToolCall(
       toolName,
     };
 
-    // ZavorthControl controls: Injeção de visão computacional
+    // ZavorthControl controls: Computer vision injection
     const visionPayload = extractVisionPayload(contentStr);
     if (visionPayload) {
       chatMsg.inlineData = [visionPayload];
@@ -368,8 +368,8 @@ function trimMessagesForContext(messages: ChatMessage[]): ChatMessage[] {
       64_000,
     )
   ) {
-    // ZavorthControl controls: Encontrar um par de mensagens para remover que NÃO contenha
-    // inlineData (screenshots), para não perder o payload visual.
+    // ZavorthControl controls: Find a pair of messages to remove that does NOT contain
+    // inlineData (screenshots), to avoid losing the visual payload.
     let spliceIndex = 1;
     while (spliceIndex < trimmed.length - 2) {
       const hasVision =
@@ -378,8 +378,8 @@ function trimMessagesForContext(messages: ChatMessage[]): ChatMessage[] {
       if (!hasVision) break;
       spliceIndex += 1;
     }
-    // Se todas as mensagens restantes tiverem visão, removemos mesmo assim
-    // para não entrar em loop infinito.
+    // If all remaining messages have vision data, remove them anyway
+    // to avoid entering an infinite loop.
     trimmed.splice(spliceIndex, 2);
   }
 

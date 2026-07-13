@@ -1,0 +1,118 @@
+name: Publish Plugin SDK
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'plugin-sdk-v*'
+    paths:
+      - 'packages/plugin-sdk/**'
+      - '.github/workflows/publish-plugin-sdk.yml'
+  pull_request:
+    paths:
+      - 'packages/plugin-sdk/**'
+      - '.github/workflows/publish-plugin-sdk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PLUGIN_SDK_DIR: packages/plugin-sdk
+
+jobs:
+  build-test:
+    name: Build & Test (@zavorth/plugin-sdk)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install package deps (if any)
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --no-package-lock || true; fi
+
+      - name: Build dist
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm run build
+
+      - name: Test definePlugin export
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm test
+
+      - name: SDK harness (definePlugin + register + inference)
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm run harness
+
+      - name: Smoke require dist
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: node -e "const s=require('./dist/index.js'); if(typeof s.definePlugin!=='function') process.exit(1); console.log('dist ok')"
+
+      - name: Publish dry-run
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm publish --dry-run --access public
+
+      - name: Verify package files
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: |
+          test -f dist/index.js
+          test -f dist/index.d.ts
+          test -f README.md
+          test -f CHANGELOG.md
+          node -e "const p=require('./package.json'); if(!p.version) process.exit(1); console.log('version', p.version)"
+
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build-test
+    if: startsWith(github.ref, 'refs/tags/plugin-sdk-v')
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@zavorth/plugin-sdk
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Assert tag matches package.json version
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          EXPECTED="plugin-sdk-v$(node -p "require('./package.json').version")"
+          echo "tag=$TAG expected=$EXPECTED"
+          test "$TAG" = "$EXPECTED"
+
+      - name: Build dist
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm run build
+
+      - name: Harness
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        run: npm run harness
+
+      - name: Publish
+        working-directory: ${{ env.PLUGIN_SDK_DIR }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || secrets.NODE_AUTH_TOKEN }}
+        run: npm publish --access public

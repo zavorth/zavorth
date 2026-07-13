@@ -255,7 +255,7 @@ ${memoryContext || 'Sem contexto relevante recuperado.'}
 --- WARNINGS ---
 ${warningText}
 
---- JANELA TEMPORAL ---
+--- TIME WINDOW ---
 ${executionHistoryText}
 `;
   }

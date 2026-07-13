@@ -10,7 +10,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
     const node = document.getElementById('operations-teams');
     if (!node) return;
     if (!teamCatalog || 'error' in teamCatalog) {
-      node.innerHTML = '<div class="muted">Nao foi possivel carregar o catalogo de teams.</div>';
+      node.innerHTML = '<div class="muted">No foi possivel carregar o catalogo de teams.</div>';
       return;
     }
 
@@ -28,7 +28,7 @@ function zavorthControlClassicClientOverviewMeshTeams() {
                       (member) =>
                         '<li><strong>' +
                         escapeHtml(member.label || member.role || 'Membro') +
-                        '</strong> Ã‚Â· ' +
+                        '</strong> · ' +
                         escapeHtml(member.responsibility || member.executor || 'Sem resumo adicional.') +
                         '</li>',
                     )
@@ -37,9 +37,9 @@ function zavorthControlClassicClientOverviewMeshTeams() {
             const runSummary = latestRun
               ? 'Ultimo run: ' +
                 escapeHtml(latestRun.workflowRunId || 'workflow') +
-                ' Ã‚Â· ' +
+                ' · ' +
                 escapeHtml(latestRun.status || 'n/d') +
-                (latestRun.resumeAvailable ? ' Ã‚Â· retomada pronta' : '')
+                (latestRun.resumeAvailable ? ' · resume ready' : '')
               : 'Sem runs recentes.';
             return (
               '' +

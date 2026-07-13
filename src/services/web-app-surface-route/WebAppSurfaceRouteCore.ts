@@ -11,7 +11,7 @@ export async function handleWebAppSurfaceCoreRoutes(
 ): Promise<boolean> {
   if (pathname === '/api/web/capabilities' && req.method === 'GET') {
     if (!deps.capabilityCatalog) {
-      deps.writeJson(res, { ok: false, error: 'Catalogo de capacidades indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Capability catalog unavailable.' }, 503);
       return true;
     }
 

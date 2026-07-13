@@ -64,7 +64,7 @@ export class MultiBackendTerminalTool extends BaseTool {
     const backend = String(args.backend || this.detectDefaultShell()) as ShellBackend;
     const validBackends: ShellBackend[] = ['bash', 'zsh', 'powershell', 'cmd', 'fish', 'nushell'];
     if (!validBackends.includes(backend)) {
-      return `Erro: backend "${backend}" invalido. Use: ${validBackends.join(', ')}.`;
+      return `Error: invalid backend "${backend}" is invalid. Use: ${validBackends.join(', ')}.`;
     }
 
     let timeoutMs = typeof args.timeout_ms === 'number' ? args.timeout_ms : 30000;
@@ -77,7 +77,7 @@ export class MultiBackendTerminalTool extends BaseTool {
       const relative = path.relative(workspaceRoot, resolvedCwd);
       const isContained = !relative.startsWith('..') && !path.isAbsolute(relative);
       if (!isContained && resolvedCwd !== workspaceRoot) {
-        return `Erro: o diretorio de trabalho "${args.working_directory}" esta fora da raiz do workspace permitida (${workspaceRoot}).`;
+        return `Error: working directory "${args.working_directory}" is outside the allowed workspace root (${workspaceRoot}).`;
       }
       cwd = resolvedCwd;
     }
@@ -123,26 +123,26 @@ export class MultiBackendTerminalTool extends BaseTool {
 
       let output = '';
       if (originalBackend) {
-        output += `[AVISO: backend "${originalBackend}" indisponivel. Usando "${backend}" como fallback.]\n`;
+        output += `[WARNING: backend "${originalBackend}" unavailable. Using "${backend}" as fallback.]\n`;
       }
       output += `[Backend: ${backend}]\n`;
       if (stdout) output += `[STDOUT]\n${stdout}\n`;
       if (stderr) output += `[STDERR]\n${stderr}\n`;
 
       if (!output.includes('[STDOUT]') && !output.includes('[STDERR]')) {
-        output += 'Comando executado com sucesso sem saida.';
+        output += 'Command completed successfully with no output.';
       }
 
       return output.trim();
     } catch (error: unknown) {const execError = error as { code?: unknown; stdout?: unknown; stderr?: unknown; killed?: unknown };
       let errorOutput = '';
       if (originalBackend) {
-        errorOutput += `[AVISO: backend "${originalBackend}" indisponivel. Tentativa com "${backend}".]\n`;
+        errorOutput += `[WARNING: backend "${originalBackend}" unavailable. Retrying with "${backend}".]\n`;
       }
-      errorOutput += `Erro ao executar no backend "${backend}":\n`;
+      errorOutput += `Error running command on backend "${backend}":\n`;
       errorOutput += `Return Code: ${execError.code ?? 'unknown'}\n`;
-      if (execError.stdout) errorOutput += `[STDOUT PARCIAL]\n${String(execError.stdout)}`;
-      if (execError.stderr) errorOutput += `[STDERR PARCIAL]\n${String(execError.stderr)}`;
+      if (execError.stdout) errorOutput += `[STDOUT PARTIAL]\n${String(execError.stdout)}`;
+      if (execError.stderr) errorOutput += `[STDERR PARTIAL]\n${String(execError.stderr)}`;
       if (execError.killed) {
         errorOutput += `[WARNING: command ended by timeout (${timeoutMs}ms).]`;
       }

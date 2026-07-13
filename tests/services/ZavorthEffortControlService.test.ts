@@ -10,6 +10,7 @@ describe('ZavorthEffortControlService', () => {
     expect(snapshot.contractVersion).toBe('zavorth-effort-control/1');
     expect(snapshot.effectiveLevel).toBe('low');
     expect(snapshot.runtime.internalEffort).toBe('light');
+    expect(snapshot.runtime.providerReasoningEffort).toBe('low');
     expect(snapshot.routing.workerModelClass).toBe('cheap');
     expect(snapshot.routing.synthesisModelClass).toBe('standard');
     expect(snapshot.budget.maxSubagents).toBe(1);
@@ -47,5 +48,8 @@ describe('ZavorthEffortControlService', () => {
     expect(service.buildSnapshot({ level: 'ultra_code' }).effectiveLevel).toBe('ultra-code');
     expect(service.buildSnapshot({ level: 'max' }).effectiveLevel).toBe('ultra-code');
     expect(service.buildSnapshot({ level: 'unknown-mode' }).effectiveLevel).toBe('standard');
+    expect(service.toProviderReasoningEffort('max')).toBe('xhigh');
+    expect(service.toProviderReasoningEffort('high')).toBe('high');
+    expect(service.toProviderReasoningEffort('standard')).toBe('medium');
   });
 });

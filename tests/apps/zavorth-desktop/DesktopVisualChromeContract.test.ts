@@ -33,7 +33,8 @@ describe('Zavorth desktop visual chrome contract', () => {
     const shell = read('apps/zavorth-desktop/src/shell/DesktopShell.tsx');
     const styles = read('apps/zavorth-desktop/src/styles.css');
 
-    expect(main).toContain("icon: path.join(__dirname, '../public/icon.png')");
+    expect(main).toContain('function resolveAppIcon');
+    expect(main).toContain('icon: resolveAppIcon()');
     expect(main).toContain("titleBarStyle: 'hidden'");
     expect(main).toContain('titleBarOverlay');
     expect(shell).toContain("navigator.userAgent.includes('Windows')");

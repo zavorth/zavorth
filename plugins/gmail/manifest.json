@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "gmail",
+  "label": "Gmail",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Gmail bridge: status, list, draft locally, send only with approval.",
+  "description": "First-party Gmail Plugin OS package. Drafts are stored under .zavorth/gmail/drafts/. Send never auto-runs without approved===true or permission grant.",
+  "tags": ["gmail", "email", "google", "bridge", "draft"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://gmail",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "gmail.status",
+      "intent": "gmail.status",
+      "label": "Gmail Status",
+      "summary": "Check whether GMAIL_ACCESS_TOKEN or GOOGLE_ACCESS_TOKEN is present.",
+      "artifactKinds": [],
+      "command": {
+        "name": "gmail_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "gmail.list",
+      "intent": "gmail.list",
+      "label": "Gmail List",
+      "summary": "List recent messages via Gmail API when a token is present.",
+      "artifactKinds": [],
+      "command": {
+        "name": "gmail_list",
+        "aliases": [],
+        "usage": "{ max? }"
+      }
+    },
+    {
+      "id": "gmail.draft",
+      "intent": "gmail.draft",
+      "label": "Gmail Draft",
+      "summary": "Create a local draft record (never sends).",
+      "artifactKinds": [],
+      "command": {
+        "name": "gmail_draft",
+        "aliases": [],
+        "usage": "{ to, subject, body }"
+      }
+    },
+    {
+      "id": "gmail.send",
+      "intent": "gmail.send",
+      "label": "Gmail Send",
+      "summary": "Send a previously created draft. Requires approval.",
+      "artifactKinds": [],
+      "command": {
+        "name": "gmail_send",
+        "aliases": [],
+        "usage": "{ draftId, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Gmail REST API when a token is configured.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read local draft records under .zavorth/gmail.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Persist local draft records under .zavorth/gmail.",
+      "required": true
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["gmail.draft", "gmail.send"]
+}

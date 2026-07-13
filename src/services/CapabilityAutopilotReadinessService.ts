@@ -650,7 +650,7 @@ export class CapabilityAutopilotReadinessService {
       ready: true,
       safeToRun: true,
       summary: `${input.descriptor.label} esta pronto para uso.`,
-      detail: 'Nenhum bloqueio foi encontrado pelos adapters read-only atuais.',
+      detail: 'No blockers found by the current read-only adapters.',
       blockingReason: null,
     };
   }

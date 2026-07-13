@@ -172,6 +172,7 @@ export function configureCanonicalPublicApi(
       approvalId: readPathId(url.pathname, /^\/api\/v1\/approvals\/([^/]+)\/approve$/),
       decidedBy: auth.userId,
       note: body.note || body.reason || body.decisionNote,
+      totp: body.totp || body.code || body.approvalCode || body.approval_code || null,
     }));
   });
 

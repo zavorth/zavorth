@@ -24,7 +24,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
   public readonly name = 'zavorth_voice_mode';
 
   public readonly description =
-    'Gerencia sessoes de voz do Zavorth: STT (speech-to-text), TTS (text-to-speech), wake word detection, e modo de conversa por voz em tempo real. Suporta multiplos backends (Whisper, Azure, ElevenLabs, MLX, Gemini, Deepgram).';
+    'Manage Zavorth voice sessions: STT (speech-to-text), TTS (text-to-speech), wake-word detection, and real-time voice conversation. Supports multiple backends (Whisper, Azure, ElevenLabs, MLX, Gemini, Deepgram).';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -383,7 +383,7 @@ export class ZavorthVoiceModeTool extends BaseTool {
       { id: 'deepgram', name: 'Deepgram Nova', type: 'STT', envKey: 'DEEPGRAM_API_KEY' },
       { id: 'gemini', name: 'Gemini', type: 'STT+TTS', envKey: 'GEMINI_API_KEY' },
       { id: 'azure', name: 'Azure Speech', type: 'STT+TTS', envKey: 'AZURE_SPEECH_KEY' },
-      { id: 'local', name: 'Local (OS nativo)', type: 'TTS', envKey: '' },
+      { id: 'local', name: 'Local (native OS)', type: 'TTS', envKey: '' },
       { id: 'elevenlabs', name: 'ElevenLabs', type: 'TTS', envKey: 'ELEVENLABS_API_KEY' },
       { id: 'mlx', name: 'MLX (Apple Silicon)', type: 'TTS', envKey: '' },
     ];

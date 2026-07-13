@@ -38,6 +38,7 @@ import { StructuredWorkspaceDraftParser, type StructuredWorkspaceDraft } from '.
 import { AgentRunNativeToolLoopService } from './AgentRunNativeToolLoopService.js';
 import type { AgentRunSteeringStream, AgentRunSteeringStreamFrame } from './AgentRunSteeringStream.js';
 import { asErrorLike } from '../../utils/errorLike.js';
+import { SessionModelRouteService } from '../../services/SessionModelRouteService.js';
 export type UniversalAgentLlmRuntime = {
   chatDetailed(
     messages: ChatMessage[],
@@ -259,6 +260,9 @@ export class AgentRunLlmRuntimeExecutor {
         modelName: result.modelName || null,
       })
       : null;
+
+    // Per-session model usage ledger (best-effort)
+    this.recordSessionModelUsage(run, request, result, options);
 
     return {
       status: 'completed',
@@ -555,6 +559,44 @@ export class AgentRunLlmRuntimeExecutor {
       interruptCount,
       abortSignalUsed,
     };
+  }
+
+  private recordSessionModelUsage(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+    result: LlmRuntimeResult,
+    options?: { costRouteClass?: string; costRouteReason?: string },
+  ): void {
+    try {
+      const sessionId = String(request.sessionId || run.sessionId || '').trim();
+      if (!sessionId) return;
+      const modelName = String(result.modelName || run.modelProfile?.modelLabel || 'unknown').trim() || 'unknown';
+      const providerName = String(result.providerName || run.modelProfile?.providerLabel || '').trim() || null;
+      const meta = result.metadata && typeof result.metadata === 'object'
+        ? result.metadata as Record<string, unknown>
+        : {};
+      const usage = meta.usage && typeof meta.usage === 'object'
+        ? meta.usage as Record<string, unknown>
+        : meta;
+      const inputTokens = Number(usage.input_tokens ?? usage.prompt_tokens ?? usage.inputTokens ?? 0) || 0;
+      const outputTokens = Number(usage.output_tokens ?? usage.completion_tokens ?? usage.outputTokens ?? 0) || 0;
+      const costClass = String(options?.costRouteClass || meta.costRouteClass || '').trim();
+      const noteParts = [
+        result.route?.fallbackUsed ? 'fallback-route' : '',
+        costClass ? `cost-route:${costClass}` : '',
+      ].filter(Boolean);
+      SessionModelRouteService.getInstance().recordUsage({
+        sessionId,
+        modelName,
+        providerName,
+        inputTokens,
+        outputTokens,
+        estimatedCostUsd: Number(usage.cost_usd ?? usage.estimatedCostUsd ?? 0) || 0,
+        note: noteParts.length ? noteParts.join('|') : null,
+      });
+    } catch {
+      // best-effort ledger; never break the agent turn
+    }
   }
 
   private async publishStreamEvent(

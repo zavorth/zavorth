@@ -45,6 +45,9 @@ import type {
   UniversalReplyPacket,
 } from './UniversalAgentRuntimeTypes.js';
 import { errorMessage } from '../../utils/errorLike.js';
+import { normalizeAgentPermissionChoice } from '../../contracts/permission/AgentPermissionContract.js';
+import { getAgentPermissionService } from '../../services/permission/AgentPermissionService.js';
+import { assertSurfaceApproveGate } from '../../services/surface/SurfaceApprovalGate.js';
 export type ZavorthAgentGatewayRuntime = AgentRunServiceRuntime & {
   runStore?: AgentRunStore | null;
   workflowQueueStore?: AgentWorkflowQueueStore | null;
@@ -289,7 +292,14 @@ export class ZavorthAgentGateway {
 
   public async approve(
     ref: string,
-    options: AgentRunExecutionOptions = {},
+    options: AgentRunExecutionOptions & {
+      totp?: string | null;
+      surface?: string | null;
+      /** Hermes/MiMo style: once | session | always | deny */
+      choice?: string | null;
+      workspaceId?: string | null;
+      sessionId?: string | null;
+    } = {},
   ): Promise<UniversalAgentApprovalDecisionResult | null> {
     const target = this.findPendingApproval(ref);
     if (!target) {
@@ -297,6 +307,32 @@ export class ZavorthAgentGateway {
     }
 
     const { run, approval } = target;
+
+    const choice = normalizeAgentPermissionChoice(options.choice) || 'once';
+
+    if (choice === 'deny') {
+      return this.reject(ref);
+    }
+
+    // Standard permission memory (session / always) then explicit approve.
+    const permissions = getAgentPermissionService({ projectRoot: process.cwd() });
+    const remembered = permissions.respond({
+      choice,
+      toolName: String((approval as { toolName?: string }).toolName || approval.title || 'tool'),
+      pattern: String(approval.reason || approval.id),
+      risk: approval.risk,
+      workspaceId: options.workspaceId || run.sessionId || null,
+      sessionId: options.sessionId || run.sessionId || null,
+      actorId: 'operator',
+      surface: options.surface || 'agent-gateway',
+    });
+
+    assertSurfaceApproveGate({
+      surface: options.surface || 'agent-gateway',
+      riskLevel: approval.risk,
+      approvalGranted: remembered.allowed,
+    });
+
     const now = this.nowIso();
     approval.status = 'approved';
     run.updatedAt = now;
@@ -305,11 +341,14 @@ export class ZavorthAgentGateway {
       runId: run.id,
       kind: 'approval',
       title: 'Aprovacao recebida',
-      detail: approval.title,
+      detail: `${approval.title} (${choice})`,
       status: 'done',
       createdAt: now,
       metadata: {
         approvalId: approval.id,
+        choice,
+        permissionScope: remembered.scope,
+        permissionMessage: remembered.message,
       },
     });
 

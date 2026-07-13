@@ -107,7 +107,7 @@ export class ZavorthOneCommandOperatorCheckService {
       this.readyToGo.buildSnapshot({
         refreshProviders: live,
         includeAdvancedProviders: false,
-        userId: input.userId || 'operator',
+        userId: input.userId || 'local-user',
         sessionId: input.sessionId || 'operator-check',
         workspaceHint: input.workspaceHint || process.cwd(),
       }),

@@ -9,6 +9,7 @@ import { TaskSecurityPostureService } from '../../../../services/TaskSecurityPos
 import type { WorkflowRunService } from '../../../../runtime/workflows/WorkflowRunService.js';
 import { logger } from '../../../../logger';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { getAgentPermissionService } from '../../../../services/permission/AgentPermissionService.js';
 
 export type TelegramTaskApprovalServiceDeps = {
   taskManager: TaskManager;
@@ -37,7 +38,7 @@ export class TelegramTaskApprovalService {
 
   public async handleApproval(ctx: Context, args: string): Promise<void> {
     const approvalManager = new ApprovalManager(this.deps.taskManager);
-    const { taskId, approvalCode } = this.parseTaskApprovalInput(args);
+    const { taskId, choice } = this.parseTaskApprovalInput(args);
     const userId = ctx.from?.id?.toString() || null;
 
     try {
@@ -46,19 +47,30 @@ export class TelegramTaskApprovalService {
         throw new Error(`Task ${taskId} was not found.`);
       }
 
-      if (this.highRiskConfirmation.requiresPin(currentTask)) {
-        if (!this.highRiskConfirmation.isConfigured()) {
-          throw new Error(
-            'HIGH_RISK approval requires PIN/TOTP, but this host has not been configured for it yet.',
-          );
-        }
-        if (!this.highRiskConfirmation.validate(currentTask, approvalCode)) {
-          throw new Error(this.highRiskConfirmation.describeRequirement());
-        }
+      if (choice === 'deny') {
+        await this.handleRejection(ctx, taskId);
+        return;
       }
 
+      // Agent-wide permission memory (once | session | always)
+      const permissions = getAgentPermissionService({ projectRoot: process.cwd() });
+      const remembered = permissions.respond({
+        choice: choice === 'approve' ? 'once' : choice,
+        toolName: String(currentTask.executor_used || currentTask.command_type || 'task'),
+        pattern: String(currentTask.normalized_message || currentTask.task_id),
+        risk: this.highRiskConfirmation.requiresPin(currentTask) ? 'danger' : 'attention',
+        workspaceId: currentTask.workspace || null,
+        sessionId: currentTask.chat_id || null,
+        actorId: userId,
+        surface: 'telegram',
+      });
+
       const requiredHighRiskPin = this.highRiskConfirmation.requiresPin(currentTask);
-      const task = approvalManager.processApproval(taskId, 'approve');
+      const task = approvalManager.processApproval(taskId, 'approve', {
+        surface: 'telegram',
+        actor: userId,
+        highRiskConfirmation: this.highRiskConfirmation,
+      });
       task.requires_approval = false;
       task.approval_status = 'approved';
       task.metadata = this.deps.taskSecurityPosture.appendApprovalDecision(task.metadata, {
@@ -67,22 +79,32 @@ export class TelegramTaskApprovalService {
         at: new Date().toISOString(),
         required_high_risk_pin: requiredHighRiskPin,
         source: 'telegram_approve',
+        permissionChoice: remembered.choice,
+        permissionScope: remembered.scope,
       });
       task.metadata = {
         ...(task.metadata || {}),
         highRiskApprovedAt: new Date().toISOString(),
         explicitTaskApprovalAt: new Date().toISOString(),
+        permissionChoice: remembered.choice,
       };
       this.deps.persistTask(task);
       await this.recordTaskApprovalAudit(task, 'approve', userId, {
         requiredHighRiskPin,
+        choice: remembered.choice,
       });
-      this.syncWorkflowApprovalDecision(task, 'approve', 'Approval recorded by the operator.');
+      this.syncWorkflowApprovalDecision(task, 'approve', `Approval recorded (${remembered.choice}).`);
       await ctx.reply(
-        `Task approval recorded.\n\nShort reference: ${task.task_id.substring(0, 8)}\nI will resume execution now. If the executor needs specific extra access, I will open another request with buttons.`,
+        [
+          `Allowed (${remembered.choice}).`,
+          remembered.message,
+          `Short reference: ${task.task_id.substring(0, 8)}`,
+          'Resuming execution now.',
+        ].join('\n'),
       );
       await this.recordTaskApprovalTelemetry(task, 'approve', 'approved', userId, {
         requiredHighRiskPin,
+        choice: remembered.choice,
       });
       await this.resumeApprovedTaskOrWorkflow(ctx, task);
     } catch (error: unknown) {
@@ -129,22 +151,32 @@ export class TelegramTaskApprovalService {
     }
   }
 
-  private parseTaskApprovalInput(args: string): { taskId: string; approvalCode: string } {
+  private parseTaskApprovalInput(args: string): {
+    taskId: string;
+    choice: 'once' | 'session' | 'always' | 'deny' | 'approve';
+  } {
     const parts = String(args || '')
       .trim()
       .split(/\s+/)
       .filter(Boolean);
     const taskId = String(parts.shift() || '').trim();
-    const codeToken = parts.find((part) => /^(pin|code|totp)=/i.test(part));
-    const approvalCode = codeToken
-      ? codeToken.split('=').slice(1).join('=').trim()
-      : String(parts[0] || '').trim();
+    const choiceRaw = String(parts[0] || 'once')
+      .trim()
+      .toLowerCase();
+    const choice =
+      choiceRaw === 'session' ||
+      choiceRaw === 'always' ||
+      choiceRaw === 'deny' ||
+      choiceRaw === 'once' ||
+      choiceRaw === 'approve'
+        ? (choiceRaw as 'once' | 'session' | 'always' | 'deny' | 'approve')
+        : 'once';
 
     if (!taskId) {
-      throw new Error('Use /approve <task_id> [pin=123456].');
+      throw new Error('Use /approve <task_id> [once|session|always].');
     }
 
-    return { taskId, approvalCode };
+    return { taskId, choice };
   }
 
   private async recordTaskApprovalTelemetry(

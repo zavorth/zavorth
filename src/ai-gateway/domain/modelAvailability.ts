@@ -98,9 +98,9 @@ export function setModelUnavailable(provider, model, cooldownMs = 60000, reason)
 }
 
 /**
- * Marca provider/model como problemático com cooldown adaptativo.
- * Mantém retrocompatibilidade: não altera o comportamento de setModelUnavailable,
- * apenas oferece uma estratégia mais agressiva para falhas recorrentes.
+ * Mark provider/model as problematic with adaptive cooldown.
+ * Maintains backward compatibility: does not alter setModelUnavailable behavior,
+ * only offers a more aggressive strategy for recurring failures.
  *
  * @param {string} provider
  * @param {string} model

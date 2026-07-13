@@ -37,7 +37,10 @@ export function DesktopInspector(props: {
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
   onRepair(): void | Promise<void>;
-  onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onReviewDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   onStart(): void | Promise<void>;
 }) {
   if (!props.open) {
@@ -88,7 +91,10 @@ export function DesktopInspector(props: {
 function ApprovalsPanel(props: {
   approvals: ApprovalItem[];
   busy: boolean;
-  onDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
 }) {
   return (
     <PanelScaffold title="Review" subtitle="Actions waiting for a decision.">
@@ -99,8 +105,18 @@ function ApprovalsPanel(props: {
             <strong>{approval.title || approval.action || 'Pending approval'}</strong>
             <span>{approval.summary || approval.risk || approval.status || 'Review the requested action.'}</span>
             <div className="zvd-card-actions">
-              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'approve')}>Approve</button>
-              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'reject')}>Reject</button>
+              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'once')}>
+                Run
+              </button>
+              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'session')}>
+                Session
+              </button>
+              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'always')}>
+                Always
+              </button>
+              <button disabled={props.busy} onClick={() => void props.onDecision(id, 'deny')}>
+                Deny
+              </button>
             </div>
           </div>
         );

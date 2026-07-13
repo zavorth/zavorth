@@ -14,7 +14,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname === '/api/web/system-overlord' && req.method === 'GET') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const limit = Number(url.searchParams.get('limit') || 25) || 25;
@@ -25,7 +25,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname === '/api/web/system-overlord/approvals' && req.method === 'GET') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const limit = Number(url.searchParams.get('limit') || 25) || 25;
@@ -40,7 +40,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname.startsWith('/api/web/system-overlord/approvals/') && req.method === 'POST') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const actionId = decodeURIComponent(pathname.replace('/api/web/system-overlord/approvals/', '')).trim();
@@ -61,7 +61,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       deps.writeJson(res, { ok: true, ...result }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Falha ao decidir approval do Overlord.' }, 409);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Failed to decide Overlord approval.' }, 409);
     }
     return true;
   }
@@ -69,7 +69,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname === '/api/web/system-overlord/actions' && req.method === 'POST') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -102,7 +102,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname === '/api/web/system-overlord/kill-switch' && req.method === 'POST') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -119,7 +119,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
   if (pathname.startsWith('/api/web/system-overlord/actions/') && req.method === 'POST') {
     const service = deps.systemOverlordControl;
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'System Overlord control plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'System Overlord control plane unavailable.' }, 503);
       return true;
     }
     const match = pathname.match(/^\/api\/web\/system-overlord\/actions\/([^/]+)\/(cancel|rollback)$/);
@@ -147,7 +147,7 @@ export const handleSystemOverlordRoutes: WebAppSupervisionRouteHandler = async (
       deps.writeJson(res, { ok: true, ...result }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Acao supervisionada indisponivel.' }, 400);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Supervised action unavailable.' }, 400);
     }
     return true;
   }

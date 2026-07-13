@@ -1,4 +1,5 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';declare function loadLogs(): void;
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+declare function loadLogs(): void;
 declare function loadAudit(): void;
 declare function loadSnippets(): void;
 declare function renderOperatorBrief(brief: Record<string, unknown>): void;
@@ -31,7 +32,7 @@ function zavorthControlClassicClientCore() {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       (window.event as MouseEvent).target && ((window.event as MouseEvent).target as HTMLElement).classList.add('active');
       document.getElementById('view-' + tabId)!.classList.add('active');
-      
+
       if(tabId === 'logs') loadLogs();
       if(tabId === 'audit') loadAudit();
       if(tabId === 'snippets') loadSnippets();
@@ -110,7 +111,7 @@ function zavorthControlClassicClientCore() {
         if (stats.error) {
            cnt.innerHTML = `<div class="metric-card" style="grid-column: 1/-1"><strong>Erro</strong><div>${stats.error}</div></div>`;
            if (sidecarNode) {
-             sidecarNode.innerHTML = '<div class="muted">Nao foi possivel carregar sidecars.</div>';
+             sidecarNode.innerHTML = '<div class="muted">No foi possivel carregar sidecars.</div>';
            }
            return;
         }

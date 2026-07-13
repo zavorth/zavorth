@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-memory",
+  "label": "Example Memory",
+  "version": "0.1.0",
+  "moduleKind": "memory",
+  "summary": "Minimal memory backend stub for Plugin OS.",
+  "description": "Bundled example memory plugin using bindMemoryBackend.",
+  "tags": ["memory", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-memory",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.read",
+      "intent": "memory.read",
+      "label": "Memory Read",
+      "summary": "Stub memory read/write.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_memory_read",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "memory.read",
+      "scope": "workspace",
+      "reason": "Memory backends may read workspace-scoped stores when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

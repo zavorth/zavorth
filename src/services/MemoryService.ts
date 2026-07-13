@@ -3,7 +3,8 @@ import { buildUntrustedContextBlock, sanitizeTrustPlaneText } from '../runtime/a
 import { SecureStorageService } from './SecureStorageService.js';
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
 import { MemoryDraftStoreService } from './MemoryDraftStoreService.js';
-import { logger } from '../logger.js';const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
+import { logger } from '../logger.js';
+const VECTOR_DIMENSIONS = 768; // text-embedding-04 utiliza 768 dimens??es
 
 export interface MemoryEntry {
   id: number;
@@ -16,7 +17,21 @@ export interface MemoryEntry {
   updated_at: string;
   archived_at?: string | null;
   event_type?: string | null;
+  /** Phase 6 — soft delete timestamp (ISO); null/empty = active */
+  deleted_at?: string | null;
+  /** Phase 6 — JSON metadata blob (tags, source, …) */
+  metadata_json?: string | null;
 }
+
+export type MemoryRememberOptions = {
+  metadata?: Record<string, unknown> | null;
+};
+
+export type MemoryListOptions = {
+  includeDeleted?: boolean;
+  category?: string | string[] | null;
+  limit?: number;
+};
 
 type MemoryCandidate = {
   key: string;
@@ -62,6 +77,10 @@ export class MemoryService {
       )
     `);
     this.ensureColumn('user_memory', 'embedding', 'TEXT');
+    // Phase 6 — soft delete + metadata for IMemoryBackend v2
+    this.ensureColumn('user_memory', 'deleted_at', 'TEXT');
+    this.ensureColumn('user_memory', 'metadata_json', 'TEXT');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_deleted_at ON user_memory(user_id, deleted_at)');
     this.db.run(`
       CREATE TABLE IF NOT EXISTS user_memory_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -81,7 +100,7 @@ export class MemoryService {
     this.ensureColumn('user_memory_history', 'archived_at', "TEXT NOT NULL DEFAULT (datetime('now'))");
     this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_history_user_key ON user_memory_history(user_id, key)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_user_memory_history_archived_at ON user_memory_history(archived_at DESC)');
-    
+
     // Nexo Cognitivo - MCC Schema
     this.db.run(`
       CREATE TABLE IF NOT EXISTS mcc_nodes (
@@ -108,7 +127,13 @@ export class MemoryService {
     this.initialized = true;
   }
 
-  public async remember(userId: string, key: string, value: string, category = 'general'): Promise<void> {
+  public async remember(
+    userId: string,
+    key: string,
+    value: string,
+    category = 'general',
+    options: MemoryRememberOptions = {},
+  ): Promise<void> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const normalizedValue = value.trim();
@@ -121,7 +146,11 @@ export class MemoryService {
     const encryptedValue = this.secureStorage.encryptString(normalizedValue);
     const vector = await this.generateEmbedding(`${normalizedKey}\n${normalizedCategory}\n${normalizedValue}`);
     const embedding = this.serializeEmbedding(vector);
-    
+    const metadataJson = options.metadata
+      ? JSON.stringify(options.metadata)
+      : null;
+    const now = new Date().toISOString();
+
     const existing = this.db.get<MemoryEntry>(
       'SELECT * FROM user_memory WHERE user_id = ? AND key = ?',
       [userId, normalizedKey],
@@ -133,14 +162,15 @@ export class MemoryService {
       if (existingValue !== normalizedValue || existingCategory !== normalizedCategory) {
         this.archiveEntry(existing, 'superseded');
       }
+      // Re-write clears soft-delete (undelete on remember)
       this.db.run(
-        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ? WHERE user_id = ? AND key = ?',
-        [encryptedValue, normalizedCategory, embedding, new Date().toISOString(), userId, normalizedKey],
+        'UPDATE user_memory SET value = ?, category = ?, embedding = ?, updated_at = ?, deleted_at = NULL, metadata_json = COALESCE(?, metadata_json) WHERE user_id = ? AND key = ?',
+        [encryptedValue, normalizedCategory, embedding, now, metadataJson, userId, normalizedKey],
       );
     } else {
       this.db.run(
-        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, new Date().toISOString(), new Date().toISOString()],
+        'INSERT INTO user_memory (user_id, key, value, category, embedding, created_at, updated_at, deleted_at, metadata_json) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?)',
+        [userId, normalizedKey, encryptedValue, normalizedCategory, embedding, now, now, metadataJson],
       );
     }
   }
@@ -155,15 +185,25 @@ export class MemoryService {
     return entry ? this.mapEntry(entry).value : null;
   }
 
-  public async listAll(userId: string): Promise<MemoryEntry[]> {
+  public async listAll(userId: string, options: MemoryListOptions = {}): Promise<MemoryEntry[]> {
     await this.init();
-    return this.db.all<MemoryEntry>(
-      'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 50',
-      [userId],
+    const limit = Math.max(1, Math.min(Number(options.limit) || 50, 200));
+    const includeDeleted = options.includeDeleted === true;
+    const rows = this.db.all<MemoryEntry>(
+      includeDeleted
+        ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?'
+        : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT ?",
+      [userId, limit],
     ).map((entry) => this.mapEntry(entry));
+    return this.filterEntriesByCategory(rows, options.category);
   }
 
-  public async listRelevant(userId: string, query: string, limit: number = 8): Promise<MemoryEntry[]> {
+  public async listRelevant(
+    userId: string,
+    query: string,
+    limit: number = 8,
+    options: MemoryListOptions = {},
+  ): Promise<MemoryEntry[]> {
     await this.init();
     const normalizedQuery = String(query || '').trim().toLowerCase();
     if (!normalizedQuery) {
@@ -176,12 +216,17 @@ export class MemoryService {
     }
 
     const queryEmbedding = await this.generateEmbedding(normalizedQuery);
+    const includeDeleted = options.includeDeleted === true;
     const entries = this.db.all<MemoryEntry>(
-      'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 80',
+      includeDeleted
+        ? 'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 80'
+        : "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 80",
       [userId],
     ).map((entry) => this.mapEntry(entry));
 
-    return entries
+    const filtered = this.filterEntriesByCategory(entries, options.category);
+
+    return filtered
       .map((entry) => ({
         entry,
         score: this.scoreMemoryEntry(entry, queryTokens, queryEmbedding),
@@ -229,7 +274,49 @@ export class MemoryService {
       .map((item) => item.entry);
   }
 
+  /**
+   * Hard delete: archive to history and remove the active row.
+   * Prefer softDelete for reversible removal (Phase 6 / IMemoryBackend v2).
+   */
   public async forget(userId: string, key: string): Promise<boolean> {
+    return this.hardDelete(userId, key);
+  }
+
+  /** Phase 6 — mark deleted without removing the row. */
+  public async softDelete(userId: string, key: string): Promise<boolean> {
+    await this.init();
+    const normalizedKey = key.trim().toLowerCase();
+    const existing = this.db.get<MemoryEntry>(
+      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND (deleted_at IS NULL OR deleted_at = '')",
+      [userId, normalizedKey],
+    );
+    if (!existing) return false;
+    const now = new Date().toISOString();
+    this.db.run(
+      'UPDATE user_memory SET deleted_at = ?, updated_at = ? WHERE user_id = ? AND key = ?',
+      [now, now, userId, normalizedKey],
+    );
+    return true;
+  }
+
+  /** Phase 6 — clear soft-delete marker. */
+  public async restore(userId: string, key: string): Promise<boolean> {
+    await this.init();
+    const normalizedKey = key.trim().toLowerCase();
+    const existing = this.db.get<MemoryEntry>(
+      "SELECT * FROM user_memory WHERE user_id = ? AND key = ? AND deleted_at IS NOT NULL AND deleted_at != ''",
+      [userId, normalizedKey],
+    );
+    if (!existing) return false;
+    this.db.run(
+      'UPDATE user_memory SET deleted_at = NULL, updated_at = ? WHERE user_id = ? AND key = ?',
+      [new Date().toISOString(), userId, normalizedKey],
+    );
+    return true;
+  }
+
+  /** Phase 6 — permanent removal (archive + delete). */
+  public async hardDelete(userId: string, key: string): Promise<boolean> {
     await this.init();
     const normalizedKey = key.trim().toLowerCase();
     const existing = this.db.get<MemoryEntry>(
@@ -242,10 +329,22 @@ export class MemoryService {
     return true;
   }
 
+  public async getByKey(userId: string, key: string, options: { includeDeleted?: boolean } = {}): Promise<MemoryEntry | null> {
+    await this.init();
+    const normalizedKey = key.trim().toLowerCase();
+    const entry = this.db.get<MemoryEntry>(
+      'SELECT * FROM user_memory WHERE user_id = ? AND key = ?',
+      [userId, normalizedKey],
+    );
+    if (!entry) return null;
+    if (!options.includeDeleted && entry.deleted_at) return null;
+    return this.mapEntry(entry);
+  }
+
   public async getMemoryContext(userId: string, currentMessage: string = ''): Promise<string> {
     await this.init();
     const recentEntries = this.db.all<MemoryEntry>(
-      'SELECT * FROM user_memory WHERE user_id = ? ORDER BY updated_at DESC LIMIT 20',
+      "SELECT * FROM user_memory WHERE user_id = ? AND (deleted_at IS NULL OR deleted_at = '') ORDER BY updated_at DESC LIMIT 20",
       [userId],
     ).map((entry) => this.mapEntry(entry));
 
@@ -332,7 +431,33 @@ export class MemoryService {
     return {
       ...entry,
       value: this.secureStorage.decryptString(entry.value) || '',
+      deleted_at: entry.deleted_at || null,
+      metadata_json: entry.metadata_json || null,
     };
+  }
+
+  private filterEntriesByCategory(
+    entries: MemoryEntry[],
+    category?: string | string[] | null,
+  ): MemoryEntry[] {
+    if (category === undefined || category === null) return entries;
+    const wanted = (Array.isArray(category) ? category : [category])
+      .map((c) => String(c).trim().toLowerCase())
+      .filter(Boolean);
+    if (wanted.length === 0) return entries;
+    return entries.filter((entry) => wanted.includes(String(entry.category || 'general').toLowerCase()));
+  }
+
+  public parseMetadata(entry: MemoryEntry): Record<string, unknown> {
+    if (!entry.metadata_json) return {};
+    try {
+      const parsed = JSON.parse(entry.metadata_json);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? parsed as Record<string, unknown>
+        : {};
+    } catch {
+      return {};
+    }
   }
 
   private renderMemoryContextLine(entry: MemoryEntry): string {
@@ -449,7 +574,7 @@ export class MemoryService {
     const storedEmbedding = this.parseEmbedding(entry.embedding);
     // Se n??o houver embedding (ex: entrada antiga), ignoramos o score vetorial ou poder??amos gerar agora
     const vectorScore = storedEmbedding ? this.cosineSimilarity(queryEmbedding, storedEmbedding) : 0;
-    
+
     // Pesos: Vetorial tem mais peso que l??xico no RAG real
     let score = (lexicalScore * 0.3) + (vectorScore * 10);
 

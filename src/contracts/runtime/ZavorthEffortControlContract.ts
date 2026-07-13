@@ -6,6 +6,14 @@ export type ZavorthInternalEffort = 'light' | 'standard' | 'heavy';
 
 export type ZavorthEffortModelClass = 'cheap' | 'standard' | 'premium';
 
+/** Provider-facing reasoning effort (OpenAI/Anthropic/Codex-style). */
+export type ZavorthProviderReasoningEffort =
+  | 'none'
+  | 'low'
+  | 'medium'
+  | 'high'
+  | 'xhigh';
+
 export type ZavorthEffortControlSnapshot = {
   contractVersion: typeof ZAVORTH_EFFORT_CONTROL_CONTRACT_VERSION;
   generatedAt: string;
@@ -17,6 +25,8 @@ export type ZavorthEffortControlSnapshot = {
     internalEffort: ZavorthInternalEffort;
     operationalReasoningSummary: string;
     exposeChainOfThought: false;
+    /** Mapped provider reasoning_effort parameter. */
+    providerReasoningEffort: ZavorthProviderReasoningEffort;
   };
   routing: {
     workerModelClass: ZavorthEffortModelClass;

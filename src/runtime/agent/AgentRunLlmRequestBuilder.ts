@@ -9,6 +9,12 @@ import { sanitizeTrustPlaneText } from './security/index.js';
 import { isNaturalFirstLlmReplyRun } from './NaturalFirstLlmFallbackService.js';
 import { planProviderNativeTools } from '../../services/llm/ProviderNativeToolPlanner.js';
 import { ZavorthAgentMaturityService } from '../../services/ZavorthAgentMaturityService.js';
+import {
+  applyCostEffortRouteToLlmOptions,
+  classifyAgentRunCostEffortRoute,
+} from './AgentRunCostEffortRouting.js';
+import { SessionModelRouteService } from '../../services/SessionModelRouteService.js';
+import { softInjectPluginOsPrompt } from '../../services/PluginOsPromptInjectionService.js';
 
 export type AgentRunLlmRequestBuilderRuntime = {
   hallucinationInstruction: () => string;
@@ -72,13 +78,16 @@ export class AgentRunLlmRequestBuilder {
       this.buildSteeringPrompt(run),
       this.buildAgentKernelPrompt(run.metadata),
       this.buildCognitiveContextPrompt(run.metadata),
+      this.buildLearnedPreferencesPrompt(run.metadata, run.userId || request.userId),
+      this.buildHumanSuperpowersPrompt(run.metadata),
+      this.buildHumanReachPrompt(run.metadata),
       this.buildContextPrompt(run.metadata),
       this.buildIntelligenceFabricContextPrompt(run.metadata),
       this.buildIntelligenceFabricDraftGuidancePrompt(run.metadata),
       this.buildAutoSkillInvocationPrompt(run.metadata),
       this.buildDesktopProfilePrompt(run.metadata),
     ].filter(Boolean).join('\n');
-    const systemPrompt = [
+    const systemPromptBase = [
       'You are Zavorth, a local-first governed runtime for AI agents.',
       'Reply in the same language the user used. If the user explicitly asks for another language, follow that request.',
       userLanguageInstruction,
@@ -99,6 +108,26 @@ export class AgentRunLlmRequestBuilder {
       contextPrompt,
     ].filter(Boolean).join('\n');
 
+    // Soft-inject Plugin OS agent surface when enabled (kill-switch: ZAVORTH_PLUGIN_OS_PROMPT=0).
+    let systemPrompt = softInjectPluginOsPrompt(systemPromptBase, {
+      projectRoot: resolvePluginOsProjectRoot(run.metadata),
+      recordTelemetry: false,
+    });
+    // P1: clear credential readiness (presence only — never secret values).
+    try {
+      const { formatCredentialReadinessBlock } = require('../../services/AgentHarnessCredentialHints.js');
+      systemPrompt = `${systemPrompt}\n\n${formatCredentialReadinessBlock()}`;
+    } catch {
+      /* soft */
+    }
+    // P2: unify direct tools vs zavorth_action mental model.
+    try {
+      const { formatAgentToolModelGuidance } = require('../../services/AgentToolModelGuidance.js');
+      systemPrompt = `${systemPrompt}\n\n${formatAgentToolModelGuidance()}`;
+    } catch {
+      /* soft */
+    }
+
     return [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: request.text },
@@ -116,6 +145,41 @@ export class AgentRunLlmRequestBuilder {
       'Apply these response and working preferences only when they do not conflict with safety, governance, tool, truthfulness, or higher-priority instructions:',
       safeContextText(instructions),
     ].join('\n');
+  }
+
+  private buildLearnedPreferencesPrompt(
+    metadata: Record<string, unknown>,
+    runUserId?: string | null,
+  ): string {
+    return this.buildUnifiedProductSurfacePrompt(metadata, runUserId);
+  }
+
+  private buildHumanSuperpowersPrompt(_metadata: Record<string, unknown>): string {
+    return '';
+  }
+
+  private buildHumanReachPrompt(_metadata: Record<string, unknown>): string {
+    return '';
+  }
+
+  private buildUnifiedProductSurfacePrompt(
+    metadata: Record<string, unknown>,
+    runUserId?: string | null,
+  ): string {
+    try {
+      const fromMetadata = normalizeText(metadata.productSurfacePrompt);
+      if (fromMetadata) return safeContextText(fromMetadata);
+      const { getProductSurfaceRuntime } = require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
+      const projectRoot = resolvePluginOsProjectRoot(metadata);
+      const userId = normalizeText(
+        runUserId,
+        normalizeText(metadata.userId, normalizeText(metadata.ownerUserId, 'local-user')),
+      );
+      const block = getProductSurfaceRuntime(projectRoot).formatInjectBlocks({ userId });
+      return block ? safeContextText(block) : '';
+    } catch {
+      return '';
+    }
   }
 
   private buildContextPrompt(metadata: Record<string, unknown>): string {
@@ -286,7 +350,7 @@ export class AgentRunLlmRequestBuilder {
       || run.metadata?.allowProviderFallback === false
       ? false
       : true;
-    return {
+    const base: LlmRunOptions = {
       ...(providerName ? { providerName } : {}),
       ...(modelName ? { modelName } : {}),
       ...(fallbackOrder.length > 0 ? { fallbackOrder } : {}),
@@ -294,6 +358,10 @@ export class AgentRunLlmRequestBuilder {
       allowFallback,
       toolPolicy: this.buildToolPolicyContext(run, request),
     };
+
+    // Consume useFastModel / effort on the hot path (no parallel CostOptimizedRoutingService).
+    const costEffortRoute = classifyAgentRunCostEffortRoute(run, request);
+    return applyCostEffortRouteToLlmOptions(base, costEffortRoute);
   }
 
   private buildEvidenceTexts(run: UniversalAgentRun): string[] {
@@ -326,6 +394,10 @@ export class AgentRunLlmRequestBuilder {
       return profileProvider;
     }
 
+    // Mid-session model route (CLI /model or session model set)
+    const sessionRoute = this.resolveSessionModelRoute(run, request);
+    if (sessionRoute?.providerName) return sessionRoute.providerName;
+
     const selected = recordOrNull(run.metadata.modelPickerSelection);
     const selectedProvider = normalizeText(selected?.providerName) || normalizeText(selected?.routeId);
     return selectedProvider || undefined;
@@ -346,9 +418,42 @@ export class AgentRunLlmRequestBuilder {
       return profileModel;
     }
 
+    // Mid-session model route
+    const sessionRoute = this.resolveSessionModelRoute(run, request);
+    if (sessionRoute?.modelName) return sessionRoute.modelName;
+
     const selected = recordOrNull(run.metadata.modelPickerSelection);
     const selectedModel = normalizeText(selected?.modelName);
     return selectedModel || undefined;
+  }
+
+  private resolveSessionModelRoute(
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): { modelName: string; providerName: string | null } | null {
+    const explicit = recordOrNull(request.metadata?.sessionModelRoute) || recordOrNull(run.metadata.sessionModelRoute);
+    if (explicit) {
+      const modelName = normalizeText(explicit.modelName);
+      if (modelName) {
+        return {
+          modelName,
+          providerName: normalizeText(explicit.providerName) || null,
+        };
+      }
+    }
+
+    const sessionId = normalizeText(request.sessionId || run.sessionId);
+    if (!sessionId) return null;
+    try {
+      const route = SessionModelRouteService.getInstance().getSessionModel(sessionId);
+      if (!route?.modelName) return null;
+      return {
+        modelName: route.modelName,
+        providerName: route.providerName,
+      };
+    } catch {
+      return null;
+    }
   }
 
   private resolveFallbackOrder(run: UniversalAgentRun): string[] {
@@ -381,6 +486,22 @@ export class AgentRunLlmRequestBuilder {
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
   return text || fallback;
+}
+
+function resolvePluginOsProjectRoot(metadata: Record<string, unknown>): string | undefined {
+  const candidates = [
+    metadata.projectRoot,
+    metadata.workspaceRoot,
+    metadata.cwd,
+    recordOrNull(metadata.canonicalContext)?.workspaceRoot,
+    recordOrNull(metadata.canonicalContext)?.projectRoot,
+    process.env.ZAVORTH_PROJECT_ROOT,
+  ];
+  for (const candidate of candidates) {
+    const text = normalizeText(candidate);
+    if (text) return text;
+  }
+  return undefined;
 }
 
 function buildUserLanguageInstruction(text: unknown): string {

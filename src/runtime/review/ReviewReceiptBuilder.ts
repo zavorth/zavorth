@@ -34,7 +34,7 @@ export class ReviewReceiptBuilder {
         generatedAt,
         source: 'GovernedReviewService',
         status: 'ready',
-        detail: 'Governed review run was created in read-only phase 4 mode.',
+        detail: 'Governed review run was created in read-only mode.',
         metadata: { readOnlyPhase: true },
       }),
       this.receipt({

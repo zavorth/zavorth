@@ -164,22 +164,22 @@ export class DockerSandboxRuntime implements ISandboxRuntime {
     // Rede desabilitada — nenhum acesso externo
     args.push('--network', 'none');
 
-    // Limites de recursos
+    // Resource limits
     args.push('--memory', `${Math.max(256, config.dockerSandboxMemoryMb)}m`);
     args.push('--cpus', String(config.dockerSandboxCpuLimit));
     args.push('--pids-limit', String(Math.max(16, config.dockerSandboxPidsLimit)));
 
-    // Drop ALL capabilities — container nao precisa de nenhuma
+    // Drop ALL capabilities — container doesn't need any
     if (config.dockerSandboxCapDropAll) {
       args.push('--cap-drop', 'ALL');
     }
 
-    // Impede escalacao de privilegios (suid, setuid, etc.)
+    // Prevents privilege escalation (suid, setuid, etc.)
     if (config.dockerSandboxNoNewPrivileges) {
       args.push('--security-opt', 'no-new-privileges');
     }
 
-    // Filesystem read-only com tmpfs para /tmp (unico lugar onde pode escrever)
+    // Read-only filesystem with tmpfs for /tmp (the only place it can write)
     if (config.dockerSandboxReadOnly) {
       args.push('--read-only');
       args.push('--tmpfs', '/tmp:rw,noexec,nosuid,size=64m');

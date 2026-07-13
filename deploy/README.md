@@ -1,5 +1,38 @@
 # Deploy Profiles
 
+## Idle cost model (honest)
+
+| Layer | What it does | How to enable |
+|-------|----------------|---------------|
+| **Code sandbox** | Run snippets in Docker/Daytona/Modal | `zavorth_sandbox_cloud` / terminal backends |
+| **Gateway adapter idle** | Shut down ociose channel adapters inside the process | `ZAVORTH_SCALE_TO_ZERO=1` |
+| **Host hibernation** | Platform freezes the machine/container when traffic stops | Fly autostop, Render sleep, or equivalent — requires webhook/wake path |
+
+Do not claim “$0 idle cloud agent” from `ScaleToZeroManager` alone. Prove idle → wake → reply on the chosen host.
+
+## Docker image publish (GHCR / Docker Hub)
+
+Release CI (`.github/workflows/release.yml`) builds and can push images on tags `v*`:
+
+```bash
+# GHCR (automatic with GITHUB_TOKEN)
+docker pull ghcr.io/<owner>/zavorth:vX.Y.Z
+
+# Docker Hub (optional — set repo secrets)
+# DOCKERHUB_USERNAME
+# DOCKERHUB_TOKEN
+docker pull <DOCKERHUB_USERNAME>/zavorth:vX.Y.Z
+```
+
+Local tag helper:
+
+```bash
+npm run release:docker-tags
+# or: node scripts/docker-release-tags.mjs v2.0.0
+```
+
+Dry-run release (`workflow_dispatch` with dry_run=true) builds without pushing.
+
 ## Docker Compose Production
 
 Arquivo oficial:

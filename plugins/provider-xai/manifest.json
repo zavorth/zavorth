@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-xai",
+  "label": "xAI / Grok Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail xAI Grok chat completions via OpenAI-compatible API.",
+  "description": "Wave 1 provider pack. Uses XAI_API_KEY / GROK_API_KEY. Completions go to api.x.ai when permitted.",
+  "tags": ["provider", "xai", "grok", "llm", "wave1"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-xai",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.xai.status",
+      "intent": "provider.xai.status",
+      "label": "Status",
+      "summary": "Report xAI key presence.",
+      "artifactKinds": [],
+      "command": { "name": "provider_xai_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "provider.xai.complete",
+      "intent": "provider.xai.complete",
+      "label": "Complete",
+      "summary": "Soft Grok completion.",
+      "artifactKinds": [],
+      "command": { "name": "provider_xai_complete", "aliases": [], "usage": "{ prompt, model? }" }
+    }
+  ],
+  "permissions": [
+    { "kind": "network.external", "scope": "external", "reason": "Call xAI chat API.", "required": false },
+    { "kind": "provider.call", "scope": "external", "reason": "Invoke Grok completion.", "required": false },
+    { "kind": "secret.read", "scope": "local", "reason": "Detect XAI_API_KEY presence.", "required": false }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-xai.receipt"]
+}

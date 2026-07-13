@@ -57,4 +57,26 @@ describe('desktop update status', () => {
     expect(status.state).toBe('available');
     expect(status.message).toMatch(/0\.2\.0|GitHub/i);
   });
+
+  it('Phase 7: surfaces electron-updater channel messaging', () => {
+    const available = buildDesktopUpdateStatus({
+      currentVersion: '0.1.0',
+      latestVersion: '0.2.0',
+      source: 'electron-updater',
+      providerConfigured: true,
+    });
+    expect(available.source).toBe('electron-updater');
+    expect(available.state).toBe('available');
+    expect(available.message).toMatch(/Installer update|in-app/i);
+
+    const ready = buildDesktopUpdateStatus({
+      currentVersion: '0.1.0',
+      latestVersion: '0.2.0',
+      source: 'electron-updater',
+      providerConfigured: true,
+      downloaded: true,
+    });
+    expect(ready.state).toBe('ready-to-install');
+    expect(ready.message).toMatch(/downloaded|relaunch/i);
+  });
 });

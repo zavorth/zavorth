@@ -22,7 +22,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
     }
     const agent = deps.computerUseAgent;
     if (!agent) {
-      deps.writeJson(res, { ok: false, error: 'Computer Use Agent indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Computer Use Agent unavailable.' }, 503);
       return true;
     }
     deps.writeJson(res, { ok: true, experimental: true, snapshot: agent.getSnapshot() }, 200);
@@ -94,7 +94,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
         );
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'Falha ao iniciar o Computer Use experimental.';
+        const message = error instanceof Error ? err.message : 'Failed to iniciar o Computer Use experimental.';
         const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
         deps.writeJson(res, { ok: false, error: message }, statusCode);
       }
@@ -103,7 +103,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
 
     const agent = deps.computerUseAgent;
     if (!agent) {
-      deps.writeJson(res, { ok: false, error: 'Computer Use Agent indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Computer Use Agent unavailable.' }, 503);
       return true;
     }
     if (!isComputerUseAllowed()) {
@@ -153,7 +153,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
 
     const agent = deps.computerUseAgent;
     if (!agent) {
-      deps.writeJson(res, { ok: false, error: 'Computer Use Agent indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Computer Use Agent unavailable.' }, 503);
       return true;
     }
     agent.stop();

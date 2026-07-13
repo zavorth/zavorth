@@ -118,7 +118,7 @@ export class WorkspaceEditTool extends BaseTool {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Parametros "filepath" e "search" sao obrigatorios.',
+        error: 'Parameters "filepath" and "search" are required.',
       });
     }
 

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "search-firecrawl",
+  "label": "Search Firecrawl",
+  "version": "1.0.0",
+  "moduleKind": "search",
+  "summary": "Firecrawl extract/scrape search backend (soft-fail).",
+  "description": "Wave 5 search pack. Soft Firecrawl scrape (and optional search) via FIRECRAWL_API_KEY. Presence-only status (never returns secret values). SSRF-safe scrape targets (HTTPS public hosts only). Soft-fail without key, network.external permission, or on HTTP errors.",
+  "tags": ["search", "firecrawl", "crawl", "extract", "wave5"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://search-firecrawl",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "search.firecrawl.status",
+      "intent": "search.firecrawl.status",
+      "label": "Firecrawl Status",
+      "summary": "Report FIRECRAWL_API_KEY presence and base host (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_firecrawl_status",
+        "aliases": ["firecrawl_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "search.firecrawl.scrape",
+      "intent": "search.firecrawl.scrape",
+      "label": "Firecrawl Scrape",
+      "summary": "Scrape a public HTTPS URL via Firecrawl /v1/scrape (SSRF-safe).",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_firecrawl_scrape",
+        "aliases": ["firecrawl_scrape", "scrape_url"],
+        "usage": "{ url, formats? }"
+      }
+    },
+    {
+      "id": "search.firecrawl.search",
+      "intent": "search.firecrawl.search",
+      "label": "Firecrawl Search",
+      "summary": "Soft-try Firecrawl /v1/search when available; otherwise tip to use scrape.",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_firecrawl_search",
+        "aliases": ["firecrawl_search"],
+        "usage": "{ query|q, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Firecrawl scrape/search HTTP APIs.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether FIRECRAWL_API_KEY is set (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

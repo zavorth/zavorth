@@ -116,6 +116,18 @@ export class DynamicSystemPromptService {
       prompt = this.tierPrompts[tier];
     }
 
+    // Soft-inject Plugin OS surface on standard/full tiers (not minimal greetings).
+    if (tier !== 'minimal') {
+      try {
+        const { softInjectPluginOsPrompt } = require('./PluginOsPromptInjectionService.js') as {
+          softInjectPluginOsPrompt: (systemPrompt: string) => string;
+        };
+        prompt = softInjectPluginOsPrompt(prompt);
+      } catch {
+        /* soft-fail */
+      }
+    }
+
     return {
       prompt,
       tier,

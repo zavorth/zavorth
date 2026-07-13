@@ -52,7 +52,7 @@ export class ReviewPolicyGate {
           ? `Live subagent launch approved by ${approvalId}.`
           : input.agentRuntimePlan.policy.approvalRequiredBeforeLaunch
             ? 'Compiled subagents cannot launch before explicit approval.'
-          : 'Live launch is not enabled for governed review phase 4.',
+          : 'Live launch is not enabled for governed review.',
       ),
     ];
     const requestedMutationActions = decisions.filter((decision) =>

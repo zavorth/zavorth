@@ -8,8 +8,8 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((err) => {
-  // Nao manter o temporizador de progresso ativo em caso de falha fatal.
-  console.error('Erro fatal:', err);
+  // Do not keep the progress timer alive on fatal failure.
+  console.error('Fatal error:', err);
   if (err?.code === 'ZAVORTH_PROCESS_LOCK_CONFLICT') {
     process.exit(ZAVORTH_PROCESS_LOCK_CONFLICT_EXIT_CODE);
   }

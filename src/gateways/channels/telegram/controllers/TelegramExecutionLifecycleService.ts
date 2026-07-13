@@ -41,7 +41,10 @@ export class TelegramExecutionLifecycleService {
       this.deps.taskManager.advanceState(task, success ? 'completed' : 'failed');
     }
     this.deps.captureExecutionEnvelope(task, output, success);
-    await SmartOutputService.reply(ctx, output, { includeDeleteAction: false });
+    await SmartOutputService.reply(ctx, output, {
+      includeDeleteAction: false,
+      reply_markup: this.buildPostExecutionKeyboard(task),
+    });
     await this.deps.sendTaskArtifacts(ctx, task);
   }
 
@@ -69,7 +72,7 @@ export class TelegramExecutionLifecycleService {
         operational_mode: this.deps.executionGateway.getModeManager().getMode(),
         executor: task.executor_used || 'local',
         execution_success: success,
-        execution_summary: success ? 'Execucao concluida com sucesso' : 'Execucao falhou',
+        execution_summary: success ? 'Execucao concluida com sucesso' : 'Execucao failed',
         metadata: { dry_run: isDryRun },
       }).catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
 
@@ -84,7 +87,10 @@ export class TelegramExecutionLifecycleService {
         }
       }
 
-      await SmartOutputService.reply(ctx, output, { includeDeleteAction: false });
+      await SmartOutputService.reply(ctx, output, {
+        includeDeleteAction: false,
+        reply_markup: this.buildPostExecutionKeyboard(task),
+      });
       await this.deps.sendTaskArtifacts(ctx, task);
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -105,5 +111,16 @@ export class TelegramExecutionLifecycleService {
       });
       await SmartOutputService.reply(ctx, userFacingText);
     }
+  }
+
+  /**
+   * Inline undo when the executor reported rollback_available.
+   * Callback is handled by TelegramPermissionController.handleTaskCallback (task:undo:<id>).
+   */
+  private buildPostExecutionKeyboard(task: Task): InlineKeyboard | undefined {
+    if (!task.rollback_available || !task.task_id) {
+      return undefined;
+    }
+    return new InlineKeyboard().text('Desfazer', `task:undo:${task.task_id}`);
   }
 }

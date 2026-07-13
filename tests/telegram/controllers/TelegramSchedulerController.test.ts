@@ -74,12 +74,12 @@ describe('TelegramSchedulerController', () => {
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'create',
-      summary: 'Automacao criada com entrega no app.',
-      details: ['Rotina diaria registrada.'],
+      summary: 'Automation created with in-app delivery.',
+      details: ['Daily routine registered.'],
       snapshot: {
         narrative: {
-          operatorSummary: 'Uma automacao ativa.',
-          nextAction: 'Aguardar a primeira execucao.',
+          operatorSummary: 'One active automation.',
+          nextAction: 'Wait for the first run.',
         },
       },
     }));
@@ -96,7 +96,9 @@ describe('TelegramSchedulerController', () => {
       requestedBy: '99',
       sourceSurface: 'telegram',
     });
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Automacao criada com entrega no app.');
+    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(
+      'Automation created with in-app delivery.',
+    );
   });
 
   it('runs maintenance actions through the automation action service', async () => {

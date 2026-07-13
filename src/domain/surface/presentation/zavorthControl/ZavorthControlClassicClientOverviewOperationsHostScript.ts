@@ -193,7 +193,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       const node = document.getElementById('operations-health');
       if (!node) return;
       if (!operations || operations.error) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar saude operacional.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar saude operacional.</div>';
         return;
       }
 
@@ -217,7 +217,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       const publishHistory: PublishHistoryEntry[] = publish.history || [];
 
       const dockerBadgeClass = docker.canRun ? 'badge-allowed' : (docker.required ? 'badge-blocked' : 'badge-warning');
-      const dockerBadgeLabel = docker.canRun ? 'pronto' : (docker.required ? 'bloqueado' : 'degradado');
+      const dockerBadgeLabel = docker.canRun ? 'ready' : (docker.required ? 'bloqueado' : 'degradado');
       const securityBadgeClass = security.needsAttention ? 'badge-warning' : 'badge-allowed';
       const securityBadgeLabel = security.needsAttention ? 'atencao' : 'ok';
       const publishPublishedAt = publish.publishedAt ? new Date(publish.publishedAt).toLocaleString() : 'Sem publish registrado';
@@ -226,7 +226,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         : '<small>Execute remote:publish para registrar o ultimo deploy.</small>';
       const maintenanceSummary = maintenance.available
         ? 'Ultima execucao ' + formatRelativeTime(maintenance.finishedAt || maintenance.startedAt) + ' | ' + String(maintenance.completedSteps || 0) + '/' + String(maintenance.stepCount || 0) + ' etapas'
-        : 'Nenhuma manutencao consolidada registrada.';
+        : 'No manutencao consolidada registrada.';
       const maintenanceAutomationSummary = maintenanceAutomation.enabled
         ? 'Ativa | proxima janela ' + escapeHtml(formatRelativeTime(maintenanceAutomation.nextPlannedAt)) + ' | ultimo disparo ' + escapeHtml(formatRelativeTime(maintenanceAutomation.lastTriggeredAt))
         : 'Desativada neste host.';
@@ -246,7 +246,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         ? 'validado'
         : (nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale
           ? 'vencido'
-          : (nodeMeshSmoke.status === 'failed' ? 'falhou' : (nodeMeshSmoke.status === 'running' ? 'rodando' : 'pendente')));
+          : (nodeMeshSmoke.status === 'failed' ? 'failed' : (nodeMeshSmoke.status === 'running' ? 'running' : 'pending')));
       const nodeMeshSmokeSummary = nodeMeshSmoke.summary
         ? escapeHtml(nodeMeshSmoke.summary)
         : (nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale
@@ -254,7 +254,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
           : (nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale
             ? 'Ultimo smoke real venceu e precisa ser renovado.'
             : (nodeMeshSmoke.status === 'failed'
-              ? 'Ultimo smoke real falhou.'
+              ? 'Last real smoke failed.'
               : 'Ainda sem smoke real recente.')));
       const channelProviderDoctorBadgeClass = channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale
         ? 'badge-allowed'
@@ -264,8 +264,8 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         : (channelProviderDoctor.status === 'passed' && channelProviderDoctor.stale
           ? 'vencido'
           : (channelProviderDoctor.status === 'failed'
-            ? 'falhou'
-            : (channelProviderDoctor.status === 'skipped' ? 'pulado' : 'pendente')));
+            ? 'failed'
+            : (channelProviderDoctor.status === 'skipped' ? 'skipped' : 'pending')));
       const channelProviderDoctorSummary = channelProviderDoctor.summary
         ? escapeHtml(channelProviderDoctor.summary)
         : (channelProviderDoctor.status === 'passed' && !channelProviderDoctor.stale
@@ -275,8 +275,8 @@ function zavorthControlClassicClientOverviewOperationsHost() {
             : (channelProviderDoctor.status === 'failed'
               ? 'Doctor dos canais nativos encontrou pendencias em Slack native ou WhatsApp Cloud API.'
               : (channelProviderDoctor.status === 'skipped'
-                ? 'Doctor dos canais nativos foi pulado porque nenhum provider real esta configurado.'
-                : 'Doctor dos canais nativos ainda nao foi executado neste host.'))));
+                ? 'Doctor dos canais nativos foi pulado porque no real provider is configured.'
+                : 'Doctor dos canais nativos not yet foi executado neste host.'))));
       const channelProviderDoctorItems = Array.isArray(channelProviderDoctor.items)
         ? channelProviderDoctor.items
           .map((item: ChannelProviderItem) => {
@@ -285,7 +285,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
               : (item.mode === 'native' ? 'Slack native' : 'Slack');
             const statusLabel = item.status === 'passed'
               ? 'ok'
-              : (item.status === 'failed' ? 'falhou' : 'pulado');
+              : (item.status === 'failed' ? 'failed' : 'skipped');
             return channelLabel + ': ' + statusLabel;
           })
           .join(' | ')
@@ -298,10 +298,10 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         : (remoteTransportDoctor.status === 'passed' && remoteTransportDoctor.stale
           ? 'vencido'
           : (remoteTransportDoctor.status === 'failed'
-            ? 'falhou'
+            ? 'failed'
             : (remoteTransportDoctor.status === 'running'
-              ? 'rodando'
-              : (remoteTransportDoctor.status === 'skipped' ? 'pulado' : 'pendente'))));
+              ? 'running'
+              : (remoteTransportDoctor.status === 'skipped' ? 'skipped' : 'pending'))));
       const remoteTransportDoctorSummary = remoteTransportDoctor.summary
         ? escapeHtml(remoteTransportDoctor.summary)
         : (remoteTransportDoctor.status === 'passed' && !remoteTransportDoctor.stale
@@ -314,7 +314,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
                 ? 'Doctor dos transportes remotos em validacao neste momento.'
                 : (remoteTransportDoctor.status === 'skipped'
                   ? 'Doctor dos transportes remotos foi pulado neste host.'
-                  : 'Doctor dos transportes remotos ainda nao foi executado neste host.')))));
+                  : 'Doctor dos transportes remotos not yet foi executado neste host.')))));
       const remoteTransportDoctorItems = Array.isArray(remoteTransportDoctor.items)
         ? remoteTransportDoctor.items
           .map((item: RemoteTransportItem) => {
@@ -322,8 +322,8 @@ function zavorthControlClassicClientOverviewOperationsHost() {
             const statusLabel = item.status === 'passed'
               ? 'ok'
               : (item.status === 'failed'
-                ? 'falhou'
-                : (item.status === 'running' ? 'rodando' : 'pulado'));
+                ? 'failed'
+                : (item.status === 'running' ? 'running' : 'skipped'));
             return transportLabel + ': ' + statusLabel;
           })
           .join(' | ')
@@ -338,7 +338,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         ? 'Replay: ' + lastAudit.recentChain
           .map((entry: AuditChainEntry) => String(entry.eventType || 'evento') + ' -> ' + String(entry.taskId || 'task'))
           .join(' | ')
-        : 'Replay recente indisponivel.';
+        : 'Recent replay unavailable.';
       const preflightSummary = lastPreflight.available
         ? (lastPreflight.ok ? 'Preflight ok' : 'Preflight com bloqueios') + ' | ' + formatRelativeTime(lastPreflight.generatedAt)
         : 'Sem preflight registrado';
@@ -350,7 +350,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
             + '<span class="badge ' + (entry.sourceArchiveId ? 'badge-warning' : 'badge-allowed') + '">' + escapeHtml(entry.sourceArchiveId ? 'rollback' : 'publish') + '</span>'
             + '</div>'
             + '<small>' + escapeHtml(entry.archiveId || 'sem snapshot') + ' | ' + escapeHtml(formatRelativeTime(entry.publishedAt)) + '</small>'
-            + '<small>' + (entry.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(entry.docsUrl) + '" target="_blank">Docs</a>' : 'Docs indisponivel') + ' | ' + (entry.remoteConsoleUrl ? '<a class="sidecar-link" href="' + escapeHtml(entry.remoteConsoleUrl) + '" target="_blank">Console</a>' : 'Console indisponivel') + '</small>'
+            + '<small>' + (entry.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(entry.docsUrl) + '" target="_blank">Docs</a>' : 'Docs unavailable') + ' | ' + (entry.remoteConsoleUrl ? '<a class="sidecar-link" href="' + escapeHtml(entry.remoteConsoleUrl) + '" target="_blank">Console</a>' : 'Console unavailable') + '</small>'
             + (entry.sourceArchiveId ? '<small>Origem: ' + escapeHtml(entry.sourceArchiveId) + '</small>' : '')
             + '</div>'
           ).join('')
@@ -380,15 +380,15 @@ function zavorthControlClassicClientOverviewOperationsHost() {
         + '<small>Python: ' + escapeHtml((docker.languages && docker.languages.python && docker.languages.python.image) || 'n/d') + '</small>'
         + '</div>'
         + '<div class="sidecar-card">'
-        + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Ultimo publish</strong><span class="badge ' + (publish.available ? 'badge-allowed' : 'badge-warning') + '">' + (publish.available ? 'registrado' : 'pendente') + '</span></div>'
+        + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Ultimo publish</strong><span class="badge ' + (publish.available ? 'badge-allowed' : 'badge-warning') + '">' + (publish.available ? 'registrado' : 'pending') + '</span></div>'
         + publishSummary
-        + '<small>' + (publish.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(publish.docsUrl) + '" target="_blank">Docs</a>' : 'Docs indisponivel') + ' | ' + (publish.remoteConsoleUrl ? '<a class="sidecar-link" href="' + escapeHtml(publish.remoteConsoleUrl) + '" target="_blank">Console remoto</a>' : 'Console indisponivel') + '</small>'
+        + '<small>' + (publish.docsUrl ? '<a class="sidecar-link" href="' + escapeHtml(publish.docsUrl) + '" target="_blank">Docs</a>' : 'Docs unavailable') + ' | ' + (publish.remoteConsoleUrl ? '<a class="sidecar-link" href="' + escapeHtml(publish.remoteConsoleUrl) + '" target="_blank">Remote console</a>' : 'Console unavailable') + '</small>'
         + '<small>Branch: ' + escapeHtml(publish.branch || 'n/d') + '</small>'
         + '</div>'
         + '<div class="sidecar-card">'
-        + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Manutencao</strong><span class="badge ' + (maintenance.available && !maintenance.dryRun ? 'badge-allowed' : 'badge-warning') + '">' + escapeHtml(maintenance.available ? (maintenance.dryRun ? 'simulada' : 'registrada') : 'pendente') + '</span></div>'
+        + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Manutencao</strong><span class="badge ' + (maintenance.available && !maintenance.dryRun ? 'badge-allowed' : 'badge-warning') + '">' + escapeHtml(maintenance.available ? (maintenance.dryRun ? 'simulada' : 'registrada') : 'pending') + '</span></div>'
         + '<small>' + escapeHtml(maintenanceSummary) + '</small>'
-        + '<small>Soak: ' + (maintenance.withSoak ? 'sim' : 'nao') + ' | Publish: ' + (maintenance.withPublish ? 'sim' : 'nao') + '</small>'
+        + '<small>Soak: ' + (maintenance.withSoak ? 'sim' : 'no') + ' | Publish: ' + (maintenance.withPublish ? 'sim' : 'no') + '</small>'
         + '</div>'
         + '<div class="sidecar-card">'
         + '<div style="display:flex; justify-content:space-between; gap:10px; align-items:center;"><strong>Automacao recorrente</strong><span class="badge ' + maintenanceAutomationBadgeClass + '">' + escapeHtml(maintenanceAutomationBadgeLabel) + '</span></div>'
@@ -450,7 +450,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       }
 
       node.innerHTML = '<div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">'
-        + '<div><strong>Sidecars acoplados</strong><div class="muted" style="margin-top:6px;">Atalho rapido para o gateway AIGateway e o remoto do ZavorthBridge.</div></div>'
+        + '<div><strong>Attached sidecars</strong><div class="muted" style="margin-top:6px;">Quick shortcut to the AIGateway gateway and ZavorthBridge remote.</div></div>'
         + '<a class="sidecar-link" href="/api/sidecars" target="_blank">/api/sidecars</a>'
         + '</div>'
         + '<div class="sidecar-links">'
@@ -460,7 +460,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
 
     function renderSidecarCard(sidecar: SidecarData): string {
       const badgeClass = !sidecar.enabled ? 'badge-warning' : (sidecar.ready ? 'badge-allowed' : (sidecar.running ? 'badge-warning' : 'badge-blocked'));
-      const badgeLabel = !sidecar.enabled ? 'desativado' : (sidecar.ready ? 'pronto' : (sidecar.running ? 'subindo' : 'offline'));
+      const badgeLabel = !sidecar.enabled ? 'desativado' : (sidecar.ready ? 'ready' : (sidecar.running ? 'subindo' : 'offline'));
       const primaryUrl = sidecar.localUrl || sidecar.baseUrl || '';
       const urlBlock = primaryUrl
         ? '<a class="sidecar-link" href="' + escapeHtml(primaryUrl) + '" target="_blank">' + escapeHtml(primaryUrl) + '</a>'

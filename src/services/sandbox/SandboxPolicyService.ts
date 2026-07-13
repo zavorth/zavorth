@@ -85,7 +85,7 @@ const HIGH_RISK_CODE_PATTERNS = [
   /\biptables\b/i,
   /\bip6tables\b/i,
 
-  // Escalacao de privilegios
+  // Privilege escalation
   /\bsudo\b/i,
   /\bsu\s+-/i,
   /\bchmod\s+[0-7]*s/i,
@@ -93,7 +93,7 @@ const HIGH_RISK_CODE_PATTERNS = [
   /\bsetgid\b/i,
   /\bcapsh\b/i,
 
-  // Compilacao e injecao (potencial exploit)
+  // Compilation and injection (potential exploit)
   /\bgcc\b/i,
   /\bg\+\+\b/i,
   /\bmake\b/i,
@@ -105,7 +105,7 @@ const HIGH_RISK_CODE_PATTERNS = [
   /\bcpuminer\b/i,
   /stratum\+tcp/i,
 
-  // Execucao de binarios desconhecidos
+  // Execution of unknown binaries
   /\bchmod\s+\+x\b/i,
   /\.\/[a-z]/i,
 
@@ -181,8 +181,8 @@ export class SandboxPolicyService {
       };
     }
 
-    // Deteccao de codigo de alto risco -> SEMPRE vai para microvm
-    // Mesmo que o usuario tenha pedido container ou local-jail.
+    // High-risk code detection -> ALWAYS goes to microvm
+    // Even if the user requested container or local-jail.
     const highRiskMatch = HIGH_RISK_CODE_PATTERNS.find((pattern) => pattern.test(code));
     if (highRiskMatch) {
       return {
@@ -191,7 +191,7 @@ export class SandboxPolicyService {
       };
     }
 
-    // Se o usuario pediu container explicitamente
+    // If the user explicitly requested container
     if (preferredLevel === 'container') {
       return {
         securityLevel: 'container',
@@ -203,30 +203,30 @@ export class SandboxPolicyService {
       return {
         securityLevel: 'wasm',
         reason: preferredLevel === 'wasm'
-          ? 'modulo Wasm solicitado explicitamente'
-          : 'modulo WebAssembly literal e controlado',
+          ? 'Wasm module explicitly requested'
+          : 'Literal and controlled WebAssembly module',
       };
     }
 
-    // Shell scripts sempre vao para container no minimo
+    // Shell scripts always go to container at minimum
     if (language === 'shell') {
       return {
         securityLevel: 'container',
-        reason: 'scripts shell exigem sandbox forte por padrao',
+        reason: 'Shell scripts require strong sandbox by default',
       };
     }
 
-    // Deteccao de codigo sensivel -> container (gVisor)
+    // Sensitive code detection -> container (gVisor)
     if (SENSITIVE_CODE_PATTERNS.some((pattern) => pattern.test(code))) {
       return {
         securityLevel: 'container',
-        reason: 'codigo com comandos sensiveis ou de rede',
+        reason: 'Code with sensitive or network commands',
       };
     }
 
-    // Regex e apenas heuristica de escalonamento, nunca barreira de seguranca.
-    // Se o codigo nao foi reconhecido como perigoso, ainda assim permanece em
-    // container por padrao. local-jail exige opt-in operacional explicito.
+    // Regex is only a scheduling heuristic, never a security barrier.
+    // If the code was not recognized as dangerous, it still remains in
+    // container by default. local-jail requires explicit operational opt-in.
     if (preferredLevel === 'local-jail' && (this.canUseLocalJail() || options.allowTrustedLocalJail === true)) {
       return {
         securityLevel: 'local-jail',
@@ -267,7 +267,7 @@ export class SandboxPolicyService {
       return false;
     }
 
-    // Apenas estes comandos exatos (sem argumentos adicionais perigosos ou injeção)
+    // Only these exact commands (without additional dangerous arguments or injection)
     const SAFE_EXACT_COMMANDS = [
       /^pwd$/i,
       /^whoami$/i,
@@ -312,22 +312,22 @@ export class SandboxPolicyService {
    * Retorna true para conteudo nao-confiavel ou tarefas autonomas do God-Mode.
    */
   public requiresMicrovmForExecution(request: ExecutionRequest): boolean {
-    // Conteudo explicitamente marcado como nao-confiavel
+    // Content explicitly marked as untrusted
     if (request.metadata?.untrustedContent === true) {
       return true;
     }
 
-    // Tarefas originadas de usuarios externos (Discord, Telegram)
+    // Tasks originating from external users (Discord, Telegram)
     if (request.metadata?.sourceChannel === 'discord' || request.metadata?.sourceChannel === 'telegram') {
       return true;
     }
 
-    // God-Mode autonomous execution (sem supervisao humana)
+    // God-Mode autonomous execution (without human supervision)
     if (request.metadata?.godModeAutonomous === true) {
       return true;
     }
 
-    // Verificar padroes de alto risco no conteudo dos comandos
+    // Check for high-risk patterns in command content
     return request.instructions.some((instruction) =>
       HIGH_RISK_CODE_PATTERNS.some((pattern) => pattern.test(instruction)),
     );

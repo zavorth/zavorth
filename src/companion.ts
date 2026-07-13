@@ -133,7 +133,7 @@ export async function runCompanionCli(argv: string[] = process.argv.slice(2)): P
       process.once('SIGTERM', () => resolve(0));
       process.once('uncaughtException', (error) => reject(error));
     });
-  } catch (error: unknown) {console.error('[Companion] Falha ao iniciar o Zavorth Desktop Companion:', errorMessage(error));
+  } catch (error: unknown) {console.error('[Companion] Failed to start Zavorth Desktop Companion:', errorMessage(error));
     return 1;
   }
 }

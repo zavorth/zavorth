@@ -27,6 +27,7 @@ import {
 } from '../../application/surface-response/index.js';
 import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
 type SharedSurfaceGatewayToolingCommandPackDeps = {
   AIGatewayGatewayService: Pick<AIGatewayProxyService, 'readStatus'>;
   AIGatewayGatewayLauncherService: Pick<ZavorthGatewayLauncherService, 'ensureStarted'>;
@@ -89,7 +90,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
       }
 
       await ctx.reply('Use /AIGateway [status|route|start|doctor|sync|promote|rollback].');
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui operar o AIGateway agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_ai_gateway')));
     }
   }
 
@@ -243,7 +244,7 @@ export class SharedSurfaceGatewayToolingCommandPack {
       'AIGateway do Zavorth',
       '',
       `Gateway proprio: ${status.enabled ? 'habilitado' : 'desabilitado'}.`,
-      `Ready: ${status.ready ? 'sim' : 'nao'}.`,
+      `Ready: ${status.ready ? 'yes' : 'no'}.`,
       `Rota Zavorth: ${status.baseUrl}`,
       `Upstream: ${status.upstreamBaseUrl}`,
       `Overlay: ${status.overlayFile || 'n/d'}`,
@@ -375,8 +376,8 @@ export class SharedSurfaceGatewayToolingCommandPack {
             { key: 'detail', label: 'Detalhe', width: 36 },
           ],
           rows: [
-            { area: 'Canais', value: `${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`, detail: 'prontos no Channel Mesh' },
-            { area: 'Runtime modes', value: snapshot.summary.runtimeModesReady, detail: 'modos prontos' },
+            { area: 'Canais', value: `${snapshot.summary.channelsReady}/${snapshot.summary.channelsTotal}`, detail: 'ready on Channel Mesh' },
+            { area: 'Runtime modes', value: snapshot.summary.runtimeModesReady, detail: 'modes ready' },
             { area: 'Teams', value: snapshot.summary.teams, detail: 'workflows compostos' },
             { area: 'Nodes', value: snapshot.summary.nodesPaired, detail: 'nodes pareados' },
             { area: 'Sessoes', value: snapshot.summary.sessionTargets, detail: 'alvos visiveis' },

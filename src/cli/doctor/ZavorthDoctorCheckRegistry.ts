@@ -36,6 +36,8 @@ export function buildZavorthDoctorPremiumSnapshot(
     checkLocalStorage(projectRoot),
     checkGatewayConnectivity(env),
     checkSqliteIntegrity(projectRoot),
+    checkProductReadiness(projectRoot),
+    checkWhatsAppBridge(projectRoot, env),
   ];
   const summary = {
     pass: checks.filter((check) => check.status === 'pass').length,
@@ -59,6 +61,118 @@ export function buildZavorthDoctorPremiumSnapshot(
       fixRequiresExplicitFlag: true,
     },
   };
+}
+
+function checkWhatsAppBridge(projectRoot: string, env: Record<string, string>): ZavorthDoctorPremiumCheck {
+  const provider = String(env.WHATSAPP_PROVIDER || process.env.WHATSAPP_PROVIDER || '').trim().toLowerCase();
+  if (provider !== 'baileys') {
+    return {
+      id: 'whatsapp-bridge',
+      title: 'WhatsApp Baileys bridge',
+      status: 'pass',
+      summary: 'Baileys provider not selected (Cloud API/stub path).',
+      impact: 'No experimental Baileys runtime is required for the current provider.',
+      fixCommand: null,
+      canAutoFix: false,
+      evidence: [`provider=${provider || 'unset'}`, 'tier=n/a'],
+    };
+  }
+  try {
+    const { WhatsAppBridgeSupervisorService } = require('../../services/WhatsAppBridgeSupervisorService.js') as typeof import('../../services/WhatsAppBridgeSupervisorService.js');
+    const service = new WhatsAppBridgeSupervisorService({ projectRoot });
+    const packageReady = service.packageReady;
+    const statusFile = service.statusFile;
+    const statusExists = fs.existsSync(statusFile);
+    let connection = 'unknown';
+    if (statusExists) {
+      try {
+        const parsed = JSON.parse(fs.readFileSync(statusFile, 'utf8')) as { connection?: string };
+        connection = String(parsed.connection || 'unknown');
+      } catch {
+        connection = 'status-unreadable';
+      }
+    }
+    const ready = packageReady && (connection === 'connected' || connection === 'qr');
+    return {
+      id: 'whatsapp-bridge',
+      title: 'WhatsApp Baileys bridge',
+      status: packageReady ? (ready ? 'pass' : 'warn') : 'fail',
+      summary: packageReady
+        ? `Baileys T2 experimental bridge package ready; connection=${connection}.`
+        : 'Baileys bridge dependencies are missing under scripts/whatsapp-bridge.',
+      impact: packageReady
+        ? 'Unofficial protocol path; expect disconnects and delayed fixes versus Cloud API.'
+        : 'WHATSAPP_PROVIDER=baileys cannot connect until bridge deps are installed.',
+      fixCommand: packageReady
+        ? 'npx tsx scripts/zavorth-whatsapp-bridge.ts start'
+        : 'cd scripts/whatsapp-bridge && npm install',
+      canAutoFix: false,
+      evidence: [
+        'tier=T2',
+        'productionClaim=experimental',
+        `packageReady=${packageReady}`,
+        `connection=${connection}`,
+        `bridgeUrl=${service.bridgeUrl}`,
+      ],
+    };
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    return {
+      id: 'whatsapp-bridge',
+      title: 'WhatsApp Baileys bridge',
+      status: 'warn',
+      summary: 'Baileys bridge check could not run.',
+      impact: 'Experimental WhatsApp path health is unverified.',
+      fixCommand: 'npx tsx scripts/zavorth-whatsapp-bridge.ts status --json',
+      canAutoFix: false,
+      evidence: [`reason=${error instanceof Error ? err.message.slice(0, 96) : 'unknown'}`],
+    };
+  }
+}
+
+function checkProductReadiness(projectRoot: string): ZavorthDoctorPremiumCheck {
+  try {
+    const { ZavorthProductReadinessService } = require('../../services/ZavorthProductReadinessService.js') as typeof import('../../services/ZavorthProductReadinessService.js');
+    const snapshot = new ZavorthProductReadinessService().buildSnapshot({ projectRoot });
+    const status: ZavorthDoctorPremiumStatus = snapshot.status === 'blocked'
+      ? 'fail'
+      : snapshot.status === 'attention'
+        ? 'warn'
+        : 'pass';
+    return {
+      id: 'product-readiness',
+      title: 'Product readiness',
+      status,
+      summary: snapshot.summary,
+      impact: status === 'pass'
+        ? 'Learning mode, channel tiers and scale-to-zero claims are coherent.'
+        : 'Some product claims still need configuration or live proof before production use.',
+      fixCommand: status === 'pass'
+        ? null
+        : 'Review learning mode (ZAVORTH_LEARNING_MODE), channel tiers (T0-T3), and ZAVORTH_SCALE_TO_ZERO for gateway idle.',
+      canAutoFix: false,
+      evidence: [
+        `learning=${snapshot.learning.mode}`,
+        `channels=${snapshot.channels.length}`,
+        `scaleToZero=${snapshot.scaleToZero.enabled ? 'on' : 'off'}`,
+        `scaleRole=${snapshot.scaleToZero.role}`,
+        ...snapshot.cells.map((cell) => `${cell.id}=${cell.status}`),
+      ],
+    };
+  } catch (error: unknown) {
+    const err = asErrorLike(error);
+    logger.warn('[Zavorth Doctor Check Registry] product readiness check failed', error);
+    return {
+      id: 'product-readiness',
+      title: 'Product readiness',
+      status: 'warn',
+      summary: 'Product readiness check could not run.',
+      impact: 'Learning and channel honesty matrix are not verified in this doctor run.',
+      fixCommand: 'Ensure runtime services build, then rerun zavorth doctor.',
+      canAutoFix: false,
+      evidence: [`reason=${error instanceof Error ? err.message.slice(0, 96) : 'unknown'}`],
+    };
+  }
 }
 
 function checkGatewayConnectivity(env: Record<string, string>): ZavorthDoctorPremiumCheck {

@@ -10,26 +10,17 @@ import { SharedSurfaceIntegrationHubCommandPack } from '../SharedSurfaceIntegrat
 import { SharedSurfaceIntegrationCommandPack } from '../SharedSurfaceIntegrationCommandPack.js';
 import { SharedSurfaceLearningCommandPack } from '../SharedSurfaceLearningCommandPack.js';
 import { SharedSurfaceMemoryCommandPack } from '../SharedSurfaceMemoryCommandPack.js';
-import { SharedSurfaceNaturalMeshCommandPack } from '../SharedSurfaceNaturalMeshCommandPack.js';
 import { SharedSurfaceOperationsCommandPack } from '../SharedSurfaceOperationsCommandPack.js';
 import { SharedSurfacePresentationCommandPack } from '../SharedSurfacePresentationCommandPack.js';
 import { SharedSurfaceRuntimeMaintenanceCommandPack } from '../SharedSurfaceRuntimeMaintenanceCommandPack.js';
-import { SharedSurfaceSessionCommandPack } from '../SharedSurfaceSessionCommandPack.js';
 import { SharedSurfaceSessionNodeCommandPack } from '../SharedSurfaceSessionNodeCommandPack.js';
 import { SharedSurfaceTaskControlCommandPack } from '../SharedSurfaceTaskControlCommandPack.js';
-import { SharedSurfaceTaskVariationCommandPack } from '../SharedSurfaceTaskVariationCommandPack.js';
 import { SharedSurfaceTenantGovernanceCommandPack } from '../SharedSurfaceTenantGovernanceCommandPack.js';
 import { SharedSurfaceWatchModeCommandPack } from '../SharedSurfaceWatchModeCommandPack.js';
 import { SharedSurfaceWorkflowGovernanceCommandPack } from '../SharedSurfaceWorkflowGovernanceCommandPack.js';
 import type { IMessageContext } from '../../../../../contracts/IMessageBroker.js';
 import type { SurfaceControllerContext } from '../../../../../services/SurfaceRuntime.js';
 import type { SharedSurfaceCommandServiceDeps } from './SharedSurfaceCommandServiceDeps.js';
-
-type SharedSurfaceTaskVariationHelpers = {
-  normalizeNaturalText?: (value: string | null | undefined) => string;
-  extractNaturalChannelId?: (normalized: string) => string | null;
-  formatNaturalChannelLabel?: (channelId: string) => string;
-};
 
 type RequiredAssemblyDepKeys =
   | 'supervisedRuntimeService'
@@ -135,7 +126,6 @@ type SharedSurfaceCommandServiceAssemblyDeps = Omit<
 
 export function buildSharedSurfaceCommandServiceAssembly(
   deps: SharedSurfaceCommandServiceAssemblyDeps,
-  helpers: SharedSurfaceTaskVariationHelpers = {},
 ) {
   const workflowController = deps.workflowController;
   const toSurfaceControllerContext = (ctx: IMessageContext): SurfaceControllerContext => ({
@@ -238,22 +228,8 @@ export function buildSharedSurfaceCommandServiceAssembly(
     nodePairingService: deps.nodePairingService,
     nodeInvokeService: deps.nodeInvokeService,
   });
-  const sessionCommandPack = new SharedSurfaceSessionCommandPack({
-    sessionNodeCommandPack,
-  });
-  const naturalMeshCommandPack = new SharedSurfaceNaturalMeshCommandPack({
-    channelInstallService: deps.channelInstallService,
-    channelSetupAssistantService: deps.channelSetupAssistantService,
-    naturalChannelSetupTurnService: deps.naturalChannelSetupTurnService,
-    integrationHubService: deps.integrationHubService,
-    integrationCommandPack,
-    sessionNodeCommandPack,
-    pluginRegistryService: deps.pluginRegistryService,
-    remoteTransportService: deps.remoteTransportService,
-    nodeMeshService: deps.nodeMeshService,
-    nodeDeviceProfiles: deps.nodeDeviceProfiles,
-    nodePairingService: deps.nodePairingService,
-  });
+  // Free-text natural mesh / session / task-variation packs are not wired
+  // (agent-first + slash/callback only). Slash packs below remain.
   const workflowGovernanceCommandPack = new SharedSurfaceWorkflowGovernanceCommandPack({
     permissionService: deps.permissionService,
     selfModificationCommandService: deps.selfModificationCommandService,
@@ -271,27 +247,6 @@ export function buildSharedSurfaceCommandServiceAssembly(
     taskExecutionController: deps.taskExecutionController,
     surfaceTaskDispatcher: deps.surfaceTaskDispatcher,
     taskManager: deps.taskManager,
-  });
-  const taskVariationCommandPack = new SharedSurfaceTaskVariationCommandPack({
-    surfaceTaskDispatcher: deps.surfaceTaskDispatcher,
-    resolveTaskReference: (ref, ctx) => taskControlCommandPack.resolveTaskReference(ref, ctx),
-    resolveRecentTaskReference: (ctx, keywords) =>
-      taskControlCommandPack.resolveRecentTaskReference(ctx, keywords),
-    extractRecentTaskContextKeywords: (rawText) =>
-      taskControlCommandPack.extractRecentTaskContextKeywords(rawText),
-    normalizeNaturalText:
-      helpers.normalizeNaturalText || ((value) => String(value || '').trim().toLowerCase()),
-    extractNaturalChannelId:
-      helpers.extractNaturalChannelId ||
-      ((normalized) => {
-        const channelMatch =
-          normalized.match(/\b(?:canal|channel|chat)\s+(?:do|da|de|#)?\s*([a-z0-9_-]+)/i) ||
-          normalized.match(/\b#([a-z0-9_-]+)/i) ||
-          normalized.match(/\b([a-z0-9_-]+)\s+(?:canal|channel|chat)\b/i);
-        return channelMatch?.[1]?.trim() || null;
-      }),
-    formatNaturalChannelLabel:
-      helpers.formatNaturalChannelLabel || ((channelId) => `canal ${channelId}`),
   });
   const tenantGovernanceCommandPack = new SharedSurfaceTenantGovernanceCommandPack({
     teamCatalogService: deps.teamCatalogService,
@@ -348,14 +303,11 @@ export function buildSharedSurfaceCommandServiceAssembly(
     integrationCommandPack,
     learningCommandPack,
     memoryCommandPack,
-    naturalMeshCommandPack,
     operationsCommandPack,
     runtimeMaintenanceCommandPack,
     watchModeCommandPack,
-    sessionCommandPack,
     sessionNodeCommandPack,
     taskControlCommandPack,
-    taskVariationCommandPack,
     workflowGovernanceCommandPack,
     presentationCommandPack,
     ecosystemControlPlaneService,

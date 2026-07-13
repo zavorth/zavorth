@@ -20,7 +20,7 @@ type GatewayChannelAdapterRegistryRuntime = {
   canSpawnWeb?: boolean;
   platformCapabilityService?: Pick<PlatformCapabilityService, 'getCapabilities'>;
   runtimeAdapters?: ChannelAdapterContract[];
-  // Compatibilidade temporaria para overlays antigos; adapters explicitos sao o caminho canonico.
+  // Temporary compatibility for legacy overlays; explicit adapters are the canonical path.
   runtimeDescriptors?: Array<RuntimeChannelDescriptor | RuntimeChannelDescriptorContract>;
   includeLongTailActivationAdapters?: boolean;
   channelLongTailActivationService?: Pick<ChannelLongTailActivationService, 'buildSnapshot' | 'runConfiguredDoctor'>;

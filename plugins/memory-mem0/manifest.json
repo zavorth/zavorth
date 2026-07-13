@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "memory-mem0",
+  "label": "Memory mem0",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Soft-fail remote mem0 memory backend (add, search, get).",
+  "description": "Wave 3 memory pack. Uses MEM0_API_KEY / MEM0_BASE_URL against the mem0 HTTP API. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. SSRF-safe base URL checks for custom hosts.",
+  "tags": ["memory", "mem0", "remote", "wave3", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://memory-mem0",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.mem0.status",
+      "intent": "memory.mem0.status",
+      "label": "mem0 Status",
+      "summary": "Report key/base host presence (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_mem0_status",
+        "aliases": ["mem0_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "memory.mem0.add",
+      "intent": "memory.mem0.add",
+      "label": "mem0 Add",
+      "summary": "Soft HTTP add memory when key and network.external are available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_mem0_add",
+        "aliases": ["mem0_add"],
+        "usage": "{ text|content|value, userId?, messages? }"
+      }
+    },
+    {
+      "id": "memory.mem0.search",
+      "intent": "memory.mem0.search",
+      "label": "mem0 Search",
+      "summary": "Soft HTTP search memories by query and optional user id.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_mem0_search",
+        "aliases": ["mem0_search"],
+        "usage": "{ query, userId?, limit? }"
+      }
+    },
+    {
+      "id": "memory.mem0.get",
+      "intent": "memory.mem0.get",
+      "label": "mem0 Get",
+      "summary": "Soft HTTP get memory by id or list for a user when available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_mem0_get",
+        "aliases": ["mem0_get"],
+        "usage": "{ id|memoryId|key?, userId?, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call the mem0 remote memory HTTP API.",
+      "required": false
+    },
+    {
+      "kind": "memory.read",
+      "scope": "external",
+      "reason": "Search and read remote mem0 memories.",
+      "required": false
+    },
+    {
+      "kind": "memory.write",
+      "scope": "external",
+      "reason": "Add memories to the remote mem0 backend.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether MEM0_API_KEY is set (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

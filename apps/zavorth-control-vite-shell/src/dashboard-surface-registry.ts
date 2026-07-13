@@ -30,7 +30,26 @@ export type DashboardSector = {
   visible: boolean;
 };
 
-export const DASHBOARD_SURFACE_VERSION = 'zavorth-control-surface/2026-05-31';
+export const DASHBOARD_SURFACE_VERSION = 'zavorth-control-surface/2026-07-12';
+
+/** Phase 8 / 8.1 / 8.2 — sectors rendered as React SSR islands in the Vite shell. */
+export const DASHBOARD_REACT_ISLAND_SECTOR_IDS = [
+  'overview',
+  'sales-os',
+  'instances',
+  'channels',
+  'sessions',
+  'cron',
+  'agents',
+  'skills',
+  'config',
+] as const;
+
+export type DashboardReactIslandSectorId = (typeof DASHBOARD_REACT_ISLAND_SECTOR_IDS)[number];
+
+export function isDashboardReactIslandSector(id: string): id is DashboardReactIslandSectorId {
+  return (DASHBOARD_REACT_ISLAND_SECTOR_IDS as readonly string[]).includes(id);
+}
 
 export const PRIMARY_DASHBOARD_SURFACE = {
   id: 'zavorth-control-vite-shell',

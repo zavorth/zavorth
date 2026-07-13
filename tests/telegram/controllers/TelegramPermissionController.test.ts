@@ -1672,11 +1672,7 @@ describe('TelegramPermissionController', () => {
     expect(resumeTaskExecution).toHaveBeenCalledWith(ctx, task);
   });
 
-  it('requires the configured high-risk TOTP before approving a waiting task', async () => {
-    (config as any).highRiskApprovalTotpSecretRef = 'missing-high-risk-approval-totp-test';
-    (config as any).highRiskApprovalTotpSecret = 'telegram-approval-test-secret';
-    (config as any).highRiskApprovalAllowEnvFallback = true;
-    const code = generateTotpForTest('telegram-approval-test-secret');
+  it('approves high-risk waiting tasks with a simple slash /approve (no TOTP)', async () => {
     const task = {
       task_id: 'task-high-risk-1',
       status: 'waiting_approval',
@@ -1697,16 +1693,80 @@ describe('TelegramPermissionController', () => {
       resumeTaskExecution,
     });
     const ctx = {
+      from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await controller.handleApproval(ctx, `task-high-risk-1 pin=${code}`);
+    await controller.handleApproval(ctx, 'task-high-risk-1');
 
     expect(task.approval_status).toBe('approved');
     expect(resumeTaskExecution).toHaveBeenCalled();
   });
 
-  it('does not approve high-risk tasks from inline callback without TOTP', async () => {
+  it('rejects slash /approve for non-admin roles (same gate as callbacks)', async () => {
+    (config as any).telegramUserRoles = {
+      ...originalTelegramUserRoles,
+      '99': ['vice-owner'],
+    };
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn().mockReturnValue({
+          task_id: 'task-deny-non-admin',
+          status: 'waiting_approval',
+          approval_status: 'pending',
+          metadata: {},
+        }),
+        advanceState: jest.fn(),
+      } as any,
+      resumeTaskExecution,
+    });
+    const ctx = {
+      from: { id: 99 },
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await controller.handleApproval(ctx, 'task-deny-non-admin');
+
+    expect(resumeTaskExecution).not.toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringMatching(/administradores|admin/i),
+    );
+  });
+
+  it('handles inline task:undo via handleUndo dependency', async () => {
+    const handleUndo = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({ handleUndo });
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await controller.handleTaskCallback(ctx, 'task:undo:task-undo-inline-1');
+
+    expect(handleUndo).toHaveBeenCalledWith(ctx, 'task-undo-inline-1');
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Undoing task...' });
+    expect(ctx.editMessageReplyMarkup).toHaveBeenCalledWith({ reply_markup: undefined });
+  });
+
+  it('reports undo unavailable when handleUndo is not wired', async () => {
+    const controller = createController();
+    const ctx = {
+      from: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await controller.handleTaskCallback(ctx, 'task:undo:task-undo-missing-1');
+
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Undo unavailable.' });
+    expect(String(ctx.reply.mock.calls.map((c: any[]) => c?.[0]).join('\n'))).toMatch(/\/undo/);
+  });
+
+  it('approves high-risk tasks from once/session callbacks (agent permission choices)', async () => {
     const task = {
       task_id: 'task-high-risk-inline-1',
       status: 'waiting_approval',
@@ -1728,17 +1788,58 @@ describe('TelegramPermissionController', () => {
     });
     const ctx = {
       from: { id: 42 },
+      chat: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    await controller.handleTaskCallback(ctx, 'task:approve:task-high-risk-inline-1');
+    await controller.handleTaskCallback(ctx, 'task:once:task-high-risk-inline-1');
 
-    expect(task.approval_status).toBe('pending');
-    expect(resumeTaskExecution).not.toHaveBeenCalled();
-    expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('/approve <task_id> <TOTP code>');
-      expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.any(Object));
+    expect(task.approval_status).toBe('approved');
+    expect(resumeTaskExecution).toHaveBeenCalled();
+    expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({ text: 'Allow once...' });
+  });
+
+  it('accepts legacy task:approve callback as once', async () => {
+    const task = {
+      task_id: 'task-legacy-approve-1',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      risk_level: 1,
+      metadata: {},
+    };
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn().mockReturnValue(task),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        }),
+      } as any,
+      resumeTaskExecution,
+    });
+    const ctx = {
+      from: { id: 42 },
+      chat: { id: 42 },
+      answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
+      editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
+    await controller.handleTaskCallback(ctx, 'task:approve:task-legacy-approve-1');
+    expect(task.approval_status).toBe('approved');
+    expect(resumeTaskExecution).toHaveBeenCalled();
+  });
+
+  it('does not consume free-text as TOTP (challenge path removed)', async () => {
+    const controller = createController();
+    const ctx = {
+      from: { id: 42 },
+      chat: { id: 42 },
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    expect(await controller.tryConsumeHighRiskTotpReply(ctx, '123456')).toBe(false);
   });
 
   it('blocks inline task callbacks while the host is read-only', async () => {

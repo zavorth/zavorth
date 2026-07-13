@@ -23,7 +23,7 @@ export class WebConsolePreviewFileService {
 
     const extension = path.extname(resolved).toLowerCase();
     if (!this.isTextPreviewExtension(extension)) {
-      throw new Error('Preview indisponivel para este tipo de arquivo.');
+      throw new Error('Preview unavailable for this file type.');
     }
 
     const content = fs.readFileSync(resolved, 'utf8');
@@ -40,7 +40,7 @@ export class WebConsolePreviewFileService {
     const extension = path.extname(resolved).toLowerCase();
     const contentType = this.resolveAssetContentType(extension);
     if (!contentType) {
-      throw new Error('Preview visual indisponivel para este tipo de arquivo.');
+      throw new Error('Visual preview unavailable for this file type.');
     }
 
     const stat = fs.statSync(resolved);
@@ -66,11 +66,11 @@ export class WebConsolePreviewFileService {
       : path.resolve(root, normalized.replace(/^[/\\]+/, ''));
 
     if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
-      throw new Error('Esse arquivo esta fora do workspace do Zavorth.');
+      throw new Error('That file is outside the Zavorth workspace.');
     }
 
     if (!fs.existsSync(resolved) || fs.statSync(resolved).isDirectory()) {
-      throw new Error('Arquivo nao encontrado para preview.');
+      throw new Error('File not found for preview.');
     }
 
     return { normalized, resolved };

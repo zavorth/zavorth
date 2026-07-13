@@ -224,14 +224,14 @@ export class ZavorthRuntimeReadinessService {
       const light = this.naturalClassifier.classify({
         text: 'oi',
         channel: 'cli',
-        userId: input.userId || 'operator',
+        userId: input.userId || 'local-user',
         sessionId: input.sessionId || 'readiness',
         workspace: input.workspaceHint || this.projectRoot,
       });
       const risky = this.naturalClassifier.classify({
         text: 'apague dist e faca push',
         channel: 'cli',
-        userId: input.userId || 'operator',
+        userId: input.userId || 'local-user',
         sessionId: input.sessionId || 'readiness',
         workspace: input.workspaceHint || this.projectRoot,
         requestedTools: ['shell.exec', 'git.push'],
@@ -440,7 +440,7 @@ export class ZavorthRuntimeReadinessService {
 
   private async buildMemorySnapshot(input: ZavorthRuntimeReadinessInput): Promise<ZavorthMemoryPlaneSnapshot> {
     const request = {
-      userId: input.userId || 'operator',
+      userId: input.userId || 'local-user',
       sessionId: input.sessionId || 'readiness',
       workspaceHint: input.workspaceHint || this.projectRoot,
       platform: 'cli',

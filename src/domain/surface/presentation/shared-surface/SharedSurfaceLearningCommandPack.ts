@@ -1,13 +1,7 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthLearningPlaneService } from '../../../../services/ZavorthLearningPlaneService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
-export type NaturalLearningCommandIntent = {
-
-  args: string;
-
-  intro: string;
-};
-
+import { tSurface } from '../../../../i18n/surface.js';
 type SharedSurfaceLearningCommandPackDeps = {
   learningPlaneService: Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction'>;
 };
@@ -22,14 +16,6 @@ export class SharedSurfaceLearningCommandPack {
 
     await this.handleLearning(ctx, args);
     return true;
-  }
-
-  public async handleNaturalLearningIntent(
-    ctx: IMessageContext,
-    intent: NaturalLearningCommandIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    await this.handleLearning(ctx, intent.args);
   }
 
   private async handleLearning(ctx: IMessageContext, args: string): Promise<void> {
@@ -74,7 +60,7 @@ export class SharedSurfaceLearningCommandPack {
         snapshot.narrative.headline,
         snapshot.narrative.operatorSummary,
         '',
-        `Candidatos: ${snapshot.summary.total} | pendentes: ${snapshot.summary.pending} | aprovados: ${snapshot.summary.approved}.`,
+        `Candidates: ${snapshot.summary.total} | pending: ${snapshot.summary.pending} | approved: ${snapshot.summary.approved}.`,
         `Promovidos: ${snapshot.summary.promoted} | publicados: ${snapshot.summary.published} | quarentena: ${snapshot.summary.quarantined}.`,
       ];
 
@@ -90,7 +76,7 @@ export class SharedSurfaceLearningCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui montar o learning plane agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_learning_plane')));
     }
   }
 

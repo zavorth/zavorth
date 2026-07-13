@@ -36,6 +36,7 @@ import { ZavorthOperationalStateDbService } from '../services/ZavorthOperational
 import { LlmRuntimeService } from '../services/llm/LlmRuntimeService.js';
 import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js';
 import { runSkills as runSkillsNamespace } from './skills/ZavorthCliSkillsNamespace.js';
+import { runPlugins as runPluginsNamespace } from './plugins/ZavorthCliPluginsNamespace.js';
 import { AgentRunService } from '../runtime/agent/AgentRunService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
 import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
@@ -138,7 +139,8 @@ export async function runZavorthLiveNamespaceCommand(input: {
     case 'node': return runNodeHost(input.projectRoot, args);
     case 'nodes': return runNodesCommand(input.projectRoot, args);
     case 'pairing': return runPairing(input.projectRoot, args);
-    case 'plugins': return runPlugins(input.projectRoot, args);
+    case 'plugin': return runPluginsNamespace(input.projectRoot, args);
+    case 'plugins': return runPluginsNamespace(input.projectRoot, args);
     case 'proxy': return runStatusLike(input.projectRoot, command, args, ['status', 'start', 'captures']);
     case 'qr': return runQr(input.projectRoot, args);
     case 'reset': return runReset(input.projectRoot, args);

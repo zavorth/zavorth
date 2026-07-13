@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "cost-tracker",
+  "label": "Cost Tracker",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Records LLM request timing and token usage into a JSONL ledger.",
+  "description": "First-party diagnostics plugin that hooks llm.before_request / llm.after_request and exposes cost.summary / cost.reset capabilities.",
+  "tags": ["cost", "llm", "tokens", "diagnostics", "hooks"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://cost-tracker",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "cost.summary",
+      "intent": "diagnostics.cost.summary",
+      "label": "Cost Summary",
+      "summary": "Aggregate totals from the cost ledger.",
+      "artifactKinds": ["cost.ledger"],
+      "command": {
+        "name": "cost_summary",
+        "aliases": ["cost"],
+        "usage": null
+      }
+    },
+    {
+      "id": "cost.reset",
+      "intent": "diagnostics.cost.reset",
+      "label": "Cost Reset",
+      "summary": "Clear the cost ledger file.",
+      "artifactKinds": [],
+      "command": {
+        "name": "cost_reset",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read cost ledger under .zavorth/cost-tracker.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Append and optionally reset cost ledger.",
+      "required": true
+    },
+    {
+      "kind": "artifact.write",
+      "scope": "workspace",
+      "reason": "Write JSONL cost ledger artifacts.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["cost.ledger"],
+  "receiptKinds": ["cost-tracker.receipt"]
+}

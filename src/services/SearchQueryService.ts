@@ -122,14 +122,14 @@ export class SearchQueryService {
     return this.buildAdapterErrorResult(err, request, policyDecision, processedAt);
   }
 
-    // 5. Normaliza resultados com scoring de evidência.
+    // 5. Normalize results with evidence scoring.
     const limit = Math.min(request.limit || 5, MAX_RESULTS);
     const scoredItems = this.scoreAndNormalize(adapterOutput, evidenceDomain, profile);
 
     // 6. Diversifica hosts.
     const diversified = this.diversifyHosts(scoredItems, limit);
 
-    // 7. Extrai conteúdo de páginas (se deep + extractPages).
+    // 7. Extract page content (if deep + extractPages).
     const shouldExtract = request.extractPages !== false && mode === 'deep';
     if (shouldExtract) {
       await this.extractTopPages(diversified, 3);
@@ -163,7 +163,7 @@ export class SearchQueryService {
   }
 
   private evaluatePolicy(request: SearchQueryRequest): SearchQueryPolicyDecision {
-    // Sanitiza a consulta (corrige erros comuns de transcrição de nomes).
+    // Sanitize the query (fix common name transcription errors).
     const sanitized = this.sanitizeQuery(request.query);
     const modified = sanitized !== request.query;
 
@@ -207,7 +207,7 @@ export class SearchQueryService {
         return groundingAdapter.search(request);
       }
     }
-    // Para modo 'grounded', tenta grounding primeiro, fallback para DDG.
+    // For 'grounded' mode, try grounding first, fallback to DDG.
     if (mode === 'grounded') {
       const groundingAdapter = this.findAdapterForMode('grounded', requestedProvider);
       if (groundingAdapter) {
@@ -223,7 +223,7 @@ export class SearchQueryService {
       }
     }
 
-    // Para 'quick' e 'deep', ou fallback de 'grounded'.
+    // For 'quick' and 'deep', or fallback from 'grounded'.
     const ddgAdapter = (mode === 'grounded' ? null : this.findAdapterForMode(mode, requestedProvider))
       || this.findAdapterForMode('quick', requestedProvider)
       || this.findAdapterForMode('deep', requestedProvider)

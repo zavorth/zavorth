@@ -5,6 +5,7 @@ import {
   type ZavorthEffortLevel,
   type ZavorthEffortModelClass,
   type ZavorthInternalEffort,
+  type ZavorthProviderReasoningEffort,
 } from '../contracts/ZavorthEffortControlContract.js';
 
 export type ZavorthEffortControlRuntime = {
@@ -115,6 +116,7 @@ export class ZavorthEffortControlService {
         internalEffort: profile.internalEffort,
         operationalReasoningSummary: buildReasoningSummary(effectiveLevel),
         exposeChainOfThought: false,
+        providerReasoningEffort: mapProviderReasoningEffort(effectiveLevel),
       },
       routing: {
         workerModelClass: profile.workerModelClass,
@@ -159,6 +161,7 @@ export class ZavorthEffortControlService {
       'Zavorth Effort Control',
       `level: ${snapshot.effectiveLevel}`,
       `internal effort: ${snapshot.runtime.internalEffort}`,
+      `provider reasoning_effort: ${snapshot.runtime.providerReasoningEffort}`,
       `models: workers=${snapshot.routing.workerModelClass} synthesis=${snapshot.routing.synthesisModelClass}`,
       `limits: ${snapshot.budget.maxSubagents} subagent(s), ${snapshot.budget.maxToolCalls} tool call(s), ${snapshot.budget.maxContextWindows} context window(s), ${snapshot.budget.maxCents}c`,
       `approval: ${snapshot.approval.required ? snapshot.approval.reasons.join(', ') : 'not required'}`,
@@ -167,11 +170,31 @@ export class ZavorthEffortControlService {
       `workflow: ${snapshot.routing.dynamicWorkflowsRecommended ? snapshot.commandPreview.dynamicWorkflow : 'not recommended for this effort level'}`,
     ].join('\n');
   }
+
+  /**
+   * Map Zavorth operational effort profiles to provider `reasoning_effort` values.
+   * UX aliases (max/ultra) already normalize into high/ultra-code via buildSnapshot.
+   */
+  public toProviderReasoningEffort(level: ZavorthEffortLevel | string | null | undefined): ZavorthProviderReasoningEffort {
+    const effective = typeof level === 'string' && (level === 'low' || level === 'standard' || level === 'high' || level === 'ultra-code')
+      ? level
+      : normalizeEffortLevel(level == null ? null : String(level));
+    return mapProviderReasoningEffort(effective);
+  }
+}
+
+function mapProviderReasoningEffort(level: ZavorthEffortLevel): ZavorthProviderReasoningEffort {
+  if (level === 'low') return 'low';
+  if (level === 'high') return 'high';
+  if (level === 'ultra-code') return 'xhigh';
+  return 'medium';
 }
 
 function normalizeEffortLevel(value: string | null): ZavorthEffortLevel {
   const normalized = String(value || '').trim().toLowerCase().replace(/_/g, '-');
-  if (normalized === 'low' || normalized === 'light' || normalized === 'fast') return 'low';
+  if (normalized === 'low' || normalized === 'light' || normalized === 'fast' || normalized === 'minimal' || normalized === 'none') {
+    return 'low';
+  }
   if (normalized === 'high' || normalized === 'deep' || normalized === 'heavy') return 'high';
   if (
     normalized === 'ultra'
@@ -179,6 +202,7 @@ function normalizeEffortLevel(value: string | null): ZavorthEffortLevel {
     || normalized === 'ultracode'
     || normalized === 'max'
     || normalized === 'massive'
+    || normalized === 'xhigh'
   ) return 'ultra-code';
   return 'standard';
 }

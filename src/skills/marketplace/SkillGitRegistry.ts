@@ -32,8 +32,59 @@ import { detectSource, getSourceHint, type SourceType } from './SkillSourceDetec
 import { buildGitCloneUrl, getGitPasswordEnv } from './SkillAuth.js';
 import type { SkillInstallResult, SkillPublishResult } from './SkillPackageTypes.js';
 
-const TRUSTED_DOMAINS = ['github.com', 'gitlab.com', 'bitbucket.org', 'npmjs.org', 'npmjs.com'];
+const DEFAULT_TRUSTED_DOMAINS = ['github.com', 'gitlab.com', 'bitbucket.org', 'npmjs.org', 'npmjs.com'];
 const MAX_SKILL_ARCHIVE_BYTES = 64 * 1024 * 1024;
+
+/** Default + env extras: ZAVORTH_SKILL_TRUSTED_DOMAINS=host1,host2 */
+export function getTrustedSkillGitDomains(
+  env: NodeJS.ProcessEnv = process.env,
+): string[] {
+  const extra = String(env.ZAVORTH_SKILL_TRUSTED_DOMAINS || '')
+    .split(/[,\s]+/)
+    .map((h) => h.trim().toLowerCase().replace(/^www\./, ''))
+    .filter(Boolean);
+  return Array.from(new Set([...DEFAULT_TRUSTED_DOMAINS, ...extra]));
+}
+
+/** Shared host policy for all git clone / registry fetch paths. */
+export function assertTrustedGitSource(
+  repoUrl: string,
+  env: NodeJS.ProcessEnv = process.env,
+): { ok: true } | { ok: false; message: string } {
+  const trusted = getTrustedSkillGitDomains(env);
+  const raw = String(repoUrl || '').trim();
+  if (!raw) return { ok: false, message: 'Rejected: empty git source.' };
+  const sshMatch = raw.match(/^git@([^:]+):/);
+  if (sshMatch) {
+    const host = sshMatch[1].replace(/^www\./, '').toLowerCase();
+    if (!trusted.includes(host)) {
+      return {
+        ok: false,
+        message: `Rejected: host "${host}" is not in the trusted domains list (${trusted.join(', ')})`,
+      };
+    }
+    return { ok: true };
+  }
+  try {
+    const parsedUrl = new URL(raw);
+    if (parsedUrl.protocol !== 'https:') {
+      return {
+        ok: false,
+        message: `Rejected: only HTTPS URLs are allowed. Got ${parsedUrl.protocol}//`,
+      };
+    }
+    const host = parsedUrl.hostname.replace(/^www\./, '').toLowerCase();
+    if (!trusted.includes(host)) {
+      return {
+        ok: false,
+        message: `Rejected: host "${host}" is not in the trusted domains list (${trusted.join(', ')})`,
+      };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, message: `Rejected: invalid git/registry URL: ${raw}` };
+  }
+}
 
 function validateArchiveBeforeExtraction(archivePath: string): void {
   const listing = execFileSync('tar', ['-tf', archivePath], { encoding: 'utf8', timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
@@ -60,6 +111,10 @@ export class SkillGitRegistry {
   }
 
   discoverSkills(repoUrl: string): { tmpDir: string; skills: Array<{ dir: string; name: string; version: string; description: string }> } {
+    const trust = assertTrustedGitSource(repoUrl);
+    if (!trust.ok) {
+      throw new Error(trust.message);
+    }
     const tmpDir = path.join(os.tmpdir(), `zavorth-skill-${Date.now()}`);
     safeExec('git', ['clone', '--depth', '1', repoUrl, tmpDir]);
     const skills = this.findAllSkills(tmpDir);
@@ -133,27 +188,9 @@ export class SkillGitRegistry {
 
   installFromRepo(repoUrl: string, targetName?: string): SkillInstallResult {
     const tmpDir = path.join(os.tmpdir(), `zavorth-skill-${Date.now()}`);
-
-    // Validate domain trust
-    const sshMatch = repoUrl.match(/^git@([^:]+):/);
-    if (sshMatch) {
-      const host = sshMatch[1].replace(/^www\./, '');
-      if (!TRUSTED_DOMAINS.includes(host)) {
-        return { success: false, skillId: '', installedPath: '', message: `Rejected: host "${host}" is not in the trusted domains list (${TRUSTED_DOMAINS.join(', ')})` };
-      }
-    } else {
-      try {
-        const parsedUrl = new URL(repoUrl);
-        if (parsedUrl.protocol !== 'https:') {
-          return { success: false, skillId: '', installedPath: '', message: `Rejected: only HTTPS URLs are allowed. Got ${parsedUrl.protocol}//` };
-        }
-        const host = parsedUrl.hostname.replace(/^www\./, '');
-        if (!TRUSTED_DOMAINS.includes(host)) {
-          return { success: false, skillId: '', installedPath: '', message: `Rejected: host "${host}" is not in the trusted domains list (${TRUSTED_DOMAINS.join(', ')})` };
-        }
-      } catch {
-        return { success: false, skillId: '', installedPath: '', message: `Rejected: invalid URL format "${repoUrl}"` };
-      }
+    const trust = assertTrustedGitSource(repoUrl);
+    if (!trust.ok) {
+      return { success: false, skillId: '', installedPath: '', message: trust.message };
     }
 
     try {
@@ -169,7 +206,9 @@ export class SkillGitRegistry {
 
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, repoUrl, targetName);
-    } catch (error: unknown) { const err = asErrorLike(error); return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${err.message}` };
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      return { success: false, skillId: '', installedPath: '', message: `Git clone failed: ${err.message}` };
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -245,11 +284,28 @@ export class SkillGitRegistry {
       return { success: false, skillId: '', installedPath: '', message: `Cannot parse registry URL: ${url}` };
     }
 
+    const pageTrust = assertTrustedGitSource(url.startsWith('http') ? url : `https://${url}`);
+    if (!pageTrust.ok) {
+      return { success: false, skillId: '', installedPath: '', message: pageTrust.message };
+    }
+
     const tmpDir = path.join(os.tmpdir(), `zavorth-registry-${Date.now()}`);
     try {
       const parsedUrl = new URL(url);
+      if (parsedUrl.protocol !== 'https:') {
+        return {
+          success: false,
+          skillId: '',
+          installedPath: '',
+          message: `Rejected: only HTTPS registry URLs are allowed. Got ${parsedUrl.protocol}//`,
+        };
+      }
       const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
       const repoUrl = `${baseUrl}/${slug}.git`;
+      const repoTrust = assertTrustedGitSource(repoUrl);
+      if (!repoTrust.ok) {
+        return { success: false, skillId: '', installedPath: '', message: repoTrust.message };
+      }
 
       safeExec('git', ['clone', '--depth', '1', repoUrl, tmpDir]);
 
@@ -261,7 +317,12 @@ export class SkillGitRegistry {
       const skillDir = targetName ? skills.find((s) => s.name === targetName)?.dir || skills[0].dir : skills[0].dir;
       return this.installSkillFromDir(skillDir, url, targetName);
     } catch {
-      const fallbackUrl = `${url}/download`;
+      // Fallback download also must stay on trusted host
+      const fallbackUrl = `${url.replace(/\/$/, '')}/download`;
+      const fbTrust = assertTrustedGitSource(fallbackUrl.startsWith('http') ? fallbackUrl : url);
+      if (!fbTrust.ok) {
+        return { success: false, skillId: '', installedPath: '', message: fbTrust.message };
+      }
       return this.installFromUrl(fallbackUrl);
     } finally {
       if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -358,6 +419,11 @@ export class SkillGitRegistry {
     const validation = validateSkillPackage(localSkillDir);
     if (!validation.valid || !validation.manifest) {
       return { success: false, skillId: '', version: '', location: 'git', message: `Invalid skill: ${validation.errors.join(', ')}` };
+    }
+
+    const trust = assertTrustedGitSource(repoUrl);
+    if (!trust.ok) {
+      return { success: false, skillId: '', version: '', location: 'git', message: trust.message };
     }
 
     try {

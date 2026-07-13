@@ -155,7 +155,7 @@ export class RemoteShellTool extends BaseTool {
       sidecarAvailable: wantsSidecar ? Boolean(this.sidecarAdapter?.isConfigured()) : false,
     });
     if (!isolationDecision.ok) {
-      return `Erro: ${isolationDecision.reason}`;
+      return `Error: ${isolationDecision.reason}`;
     }
 
     if (isolationDecision.mode === 'sidecar') {
@@ -269,7 +269,7 @@ export class RemoteShellTool extends BaseTool {
     if (args.some((arg) => arg.length > 2000)) {
       return {
         ok: false,
-        error: 'Erro: argumento grande demais para remote_shell.',
+        error: 'Error: argument too large for remote_shell.',
       };
     }
     return { ok: true };
@@ -282,7 +282,7 @@ export class RemoteShellTool extends BaseTool {
     command: string,
   ): Promise<{ stdout: string; stderr: string }> {
     if (!this.ephemeralAdapter) {
-      throw new Error('Adapter efemero indisponivel para remote_shell.');
+      throw new Error('Ephemeral adapter unavailable for remote_shell.');
     }
 
     const result = await this.ephemeralAdapter.execute({
@@ -304,7 +304,7 @@ export class RemoteShellTool extends BaseTool {
     requiredLevel: unknown,
   ): Promise<string> {
     if (!this.sidecarAdapter) {
-      throw new Error('Sidecar isolado indisponivel para remote_shell.');
+      throw new Error('Isolated sidecar unavailable for remote_shell.');
     }
 
     const result = await this.sidecarAdapter.execute({

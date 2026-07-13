@@ -241,7 +241,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
   const shell = useMemo(() => buildTerminalShellSnapshot({
     mode: focusState.mode,
     sessionId: flags.sessionId,
-    profileId: flags.userId || 'operator',
+    profileId: flags.userId || 'local-user',
     providerLabel: 'auto',
     modelLabel: 'auto',
     activeRun: busy,
@@ -267,7 +267,7 @@ function TerminalShellInkApp(props: ZavorthTerminalShellRunnerParams & {
               const result = await props.steerActiveRun({
                 text: steerInstruction,
                 sessionId: flags.sessionId,
-                userId: flags.userId || 'operator',
+                userId: flags.userId || 'local-user',
                 queueItemId,
               });
               setNotice(result.notice);

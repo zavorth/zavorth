@@ -5,6 +5,7 @@ import { Database } from '../storage/Database.js';
 import { SecurityAuditLogger } from './SecurityAuditLogger.js';
 import { LogRepository } from '../storage/LogRepository.js';
 import { HostCommandPayloadCache } from './HostCommandPayloadCache.js';
+import { assertSurfaceApproveGate } from './surface/SurfaceApprovalGate.js';
 
 /** Process-local non-prod fallback — never a well-known constant. */
 let nonProdHostCommandAuditHashKey: string | null = null;
@@ -219,7 +220,8 @@ export class HostCommandApprovalService {
   public async resolve(
     operationId: string,
     approved: boolean,
-    strongConfirmationInput?: string
+    strongConfirmationInput?: string,
+    _totp?: string | null,
   ): Promise<void> {
     const db = await this.getDb();
     const proposal = db.get<HostProposalRow>(
@@ -246,11 +248,25 @@ export class HostCommandApprovalService {
       return;
     }
 
-    // For CRITICAL risk level, strong confirmation phrasing is checked on backend
+    // CRITICAL may still ask for a typed phrase (not TOTP). HIGH = one-click approve.
+    let strongConfirmationSatisfied = false;
     if (proposal.requires_strong_confirmation === 1) {
       if (strongConfirmationInput !== proposal.strong_confirmation_phrase) {
-        throw new Error(`CRITICAL commands require the confirmation phrase "${proposal.strong_confirmation_phrase}" to resolve.`);
+        throw new Error(
+          `CRITICAL commands require the confirmation phrase "${proposal.strong_confirmation_phrase}" to resolve.`,
+        );
       }
+      strongConfirmationSatisfied = true;
+    }
+
+    const risk = String(proposal.risk_level || '').toUpperCase();
+    if (risk === 'HIGH' || risk === 'CRITICAL') {
+      assertSurfaceApproveGate({
+        surface: 'desktop-host-command',
+        riskLevel: risk === 'CRITICAL' ? 'critical' : 'high',
+        approvalGranted: true,
+        strongConfirmationSatisfied,
+      });
     }
 
     // TTL for approved commands is set to 30 minutes maximum (single-use limits)

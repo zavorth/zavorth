@@ -17,7 +17,9 @@ export type ZavorthScheduledTaskStatus =
 export type ZavorthScheduledTaskScheduleKind =
   | 'interval_minutes'
   | 'interval_hours'
-  | 'daily';
+  | 'daily'
+  | 'weekly'
+  | 'cron';
 
 export type ZavorthScheduledTaskRenewalPolicy =
   | 'require_reapproval'

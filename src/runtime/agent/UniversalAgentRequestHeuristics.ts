@@ -124,6 +124,12 @@ export function inferUniversalAgentRequestedTools(input: UniversalAgentToolInfer
   addIfMatches(
     tools,
     normalizedText,
+    /\b(consensus|deliberat|multi-?model|mixture of agents|\bmoa\b|consenso multi|varios modelos|varias modelos)\b/i,
+    'agent_consensus_engine',
+  );
+  addIfMatches(
+    tools,
+    normalizedText,
     /\b(echo|resposta por voz|responder por voz|falar em voz|modo voz|audio de resposta|hands[-\s]?free)\b/i,
     'echo_hands',
   );

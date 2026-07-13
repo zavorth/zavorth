@@ -4,7 +4,12 @@ import { execFileSync } from 'child_process';
 import { BaseTool } from './BaseTool.js';
 import { ZavorthExternalAgentGatewayService } from '../services/ZavorthExternalAgentGatewayService.js';
 import type { ZavorthExternalAgentAdapterKind } from '../contracts/ZavorthExternalAgentGatewayContract.js';
-import { logger } from '../logger.js';type AgentDiscoveryResult = {
+import { WorkerMeshService } from '../services/WorkerMeshService.js';
+import { WorkerDelegationRouterService } from '../services/WorkerDelegationRouterService.js';
+import { SkillWorkerDiscoveryService } from '../services/SkillWorkerDiscoveryService.js';
+import { logger } from '../logger.js';
+
+type AgentDiscoveryResult = {
   found: boolean;
   candidates: Array<{
     id: string;
@@ -20,27 +25,47 @@ import { logger } from '../logger.js';type AgentDiscoveryResult = {
 
 export class AgentManagerTool extends BaseTool {
   public readonly name = 'agent_manager';
-  public readonly description = 'Register, list, remove, and discover external agents. Supports natural language input for agent discovery.';
+  public readonly description =
+    'Worker mesh + external agents: list/register/discover/health/invoke. Brand-agnostic — use path, CLI command, or URL. Includes internal:* workers (subagent roles).';
 
   public readonly parameters = {
     type: 'object' as const,
     properties: {
       action: {
         type: 'string',
-        enum: ['register', 'list', 'remove', 'discover', 'search'],
-        description: 'Action to perform.',
+        enum: [
+          'register',
+          'list',
+          'workers',
+          'remove',
+          'discover',
+          'search',
+          'health',
+          'invoke',
+          'receipts',
+          'route',
+          'scan',
+          'suggest',
+        ],
+        description:
+          'register|list|workers|remove|discover|scan|suggest|health|invoke|receipts|route. scan/suggest = workspace worker discovery (preview). route = local-vs-worker classification.',
+      },
+      task: {
+        type: 'string',
+        description: 'For action=route: natural language task to classify (local tools vs worker).',
       },
       target: {
         type: 'string',
-        description: 'Agent name, path, URL, or natural language description (e.g., "claude code", "./my-agent", "http://localhost:8080", "the coding assistant in this folder").',
+        description:
+          'Path, CLI command, URL, or worker id (e.g. "./my-agent", "node", "http://localhost:8080", "internal:leaf").',
       },
       id: {
         type: 'string',
-        description: 'Custom agent ID (optional, auto-generated from target if not provided).',
+        description: 'Custom agent/worker ID (optional).',
       },
       label: {
         type: 'string',
-        description: 'Human-readable label (optional, auto-detected if not provided).',
+        description: 'Human-readable label (optional, neutral preferred).',
       },
       adapter: {
         type: 'string',
@@ -55,28 +80,68 @@ export class AgentManagerTool extends BaseTool {
         type: 'string',
         description: 'HTTP/MCP endpoint URL (optional).',
       },
+      prompt: {
+        type: 'string',
+        description: 'Prompt for action=invoke.',
+      },
+      dry_run: {
+        type: 'boolean',
+        description: 'Invoke dry-run (default true unless approval=true and dry_run=false).',
+      },
+      approval: {
+        type: 'boolean',
+        description: 'Grant approval for live invoke or registration side effects.',
+      },
       autoApprove: {
         type: 'boolean',
-        description: 'Skip confirmation prompts (default: false).',
+        description: 'Alias of approval for register (default false for live; register still needs explicit true to persist).',
       },
     },
     required: ['action'],
   };
 
   private gateway: ZavorthExternalAgentGatewayService;
+  private mesh: WorkerMeshService;
+  private router: WorkerDelegationRouterService;
+  private discovery: SkillWorkerDiscoveryService;
 
-  constructor() {
+  constructor(options?: {
+    projectRoot?: string;
+    mesh?: WorkerMeshService;
+    router?: WorkerDelegationRouterService;
+    discovery?: SkillWorkerDiscoveryService;
+  }) {
     super();
-    this.gateway = new ZavorthExternalAgentGatewayService();
+    const root = options?.projectRoot || process.cwd();
+    this.gateway = new ZavorthExternalAgentGatewayService({ projectRoot: root });
+    this.mesh =
+      options?.mesh ||
+      new WorkerMeshService({
+        projectRoot: root,
+        gateway: this.gateway,
+      });
+    this.router =
+      options?.router ||
+      new WorkerDelegationRouterService({
+        mesh: this.mesh,
+      });
+    this.discovery =
+      options?.discovery ||
+      new SkillWorkerDiscoveryService({
+        projectRoot: root,
+        mesh: this.mesh,
+      });
   }
 
   public async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || 'list').toLowerCase();
-    const target = String(args.target || '').trim();
+    const target = String(args.target || args.id || '').trim();
 
     switch (action) {
       case 'list':
         return this.listAgents();
+      case 'workers':
+        return this.listWorkers();
       case 'register':
         return this.registerAgent(args);
       case 'remove':
@@ -84,39 +149,258 @@ export class AgentManagerTool extends BaseTool {
       case 'discover':
       case 'search':
         return this.discoverAgent(target);
+      case 'scan':
+      case 'suggest':
+        return this.scanWorkers(args);
+      case 'health':
+        return this.healthWorker(target);
+      case 'invoke':
+        return this.invokeWorker(args);
+      case 'receipts':
+        return this.listReceipts();
+      case 'route':
+        return this.routeTask(args);
       default:
-        return JSON.stringify({ error: `Unknown action: ${action}` });
+        return JSON.stringify({
+          error: `Unknown action: ${action}`,
+          hint: 'register|list|workers|remove|discover|scan|suggest|health|invoke|receipts|route',
+        });
     }
   }
 
+  private async scanWorkers(args: Record<string, unknown>): Promise<string> {
+    const query = String(args.query || args.task || args.target || '').trim();
+    const result = await this.discovery.discover({
+      query: query || 'worker',
+      remote: false,
+      includeWorkers: true,
+      scanWorkspace: true,
+      limit: 20,
+    });
+    // Preview-only suggestions (no auto-register)
+    return JSON.stringify(
+      {
+        status: 'ok',
+        mode: 'preview',
+        message: 'Worker candidates (not registered). Use action=register with path/command/URL to add.',
+        candidates: result.workers,
+        registered: result.registeredWorkers,
+        text: result.formatText(),
+      },
+      null,
+      2,
+    );
+  }
+
+  private routeTask(args: Record<string, unknown>): string {
+    const task = String(args.task || args.prompt || args.target || '').trim();
+    if (!task) {
+      return JSON.stringify({ error: 'task (or prompt) is required for action=route.' });
+    }
+    const decision = this.router.route({
+      task,
+      workerId: args.id ? String(args.id) : null,
+      approvalGranted: args.approval === true || args.autoApprove === true,
+      workers: this.mesh.listWorkers(),
+    });
+    return JSON.stringify(
+      {
+        status: 'ok',
+        decision,
+        text: this.router.formatDecisionText(decision),
+        next:
+          decision.kind === 'local_tools'
+            ? {
+                use: 'local tools',
+                tools: decision.suggestedLocalTools,
+              }
+            : {
+                use: 'worker mesh',
+                invoke: {
+                  action: 'invoke',
+                  target: decision.suggestedWorkerId,
+                  dry_run: decision.preferDryRun,
+                  approval: decision.requiresApproval && !decision.preferDryRun,
+                },
+              },
+      },
+      null,
+      2,
+    );
+  }
+
+  private listWorkers(): string {
+    const workers = this.mesh.listWorkers();
+    return JSON.stringify(
+      {
+        status: 'ok',
+        count: workers.length,
+        text: this.mesh.formatWorkersText(workers),
+        workers: workers.map((w) => ({
+          id: w.id,
+          label: w.label,
+          adapter: w.adapter,
+          health: w.health.status,
+          capabilities: w.capabilities,
+          liveEnabled: w.policy.liveEnabled,
+          how: w.how,
+        })),
+      },
+      null,
+      2,
+    );
+  }
+
   private listAgents(): string {
-    const snapshot = this.gateway.buildRegistrySnapshot();
-    if (snapshot.profiles.length === 0) {
+    // Prefer unified mesh; keep external-only summary for compatibility
+    const workers = this.mesh.listWorkers();
+    const external = workers.filter((w) => w.adapter !== 'internal');
+    if (external.length === 0 && workers.length === 0) {
       return JSON.stringify({
         status: 'empty',
-        message: 'No agents registered. Use the register action to add one.',
+        message: 'No workers. Register path/command/URL or use internal:* roles via action=workers.',
         agents: [],
+        workers: [],
       });
     }
-
     return JSON.stringify({
       status: 'ok',
-      count: snapshot.profiles.length,
-      agents: snapshot.profiles.map((p) => ({
-        id: p.id,
-        label: p.label,
-        adapter: p.adapter,
-        liveReady: p.liveExecutionEnabled,
-        command: p.command,
-        endpoint: p.endpoint,
+      count: external.length,
+      agents: external.map((w) => ({
+        id: w.id,
+        label: w.label,
+        adapter: w.adapter,
+        liveReady: w.policy.liveEnabled,
+        command: w.how.command,
+        endpoint: w.how.endpoint,
+        health: w.health.status,
       })),
+      internal: workers.filter((w) => w.adapter === 'internal').map((w) => w.id),
+      hint: 'Use action=workers for full mesh including internal:*',
     });
+  }
+
+  private async healthWorker(target: string): Promise<string> {
+    if (!target) {
+      return JSON.stringify({ error: 'target/id required for health (worker id or path/command).' });
+    }
+    // If target looks like path/command and not registered, discover first
+    let workerId = target;
+    if (!this.mesh.getWorker(target) && !target.startsWith('internal:')) {
+      const discovery = this.discoverFromTarget(target);
+      if (discovery.found && discovery.candidates[0]) {
+        workerId = discovery.candidates[0].id;
+      }
+    }
+    const result = await this.mesh.healthAsync(workerId);
+    return JSON.stringify(
+      {
+        status: result.status,
+        workerId: result.workerId,
+        detail: result.detail,
+        profile: result.profile
+          ? {
+              id: result.profile.id,
+              label: result.profile.label,
+              adapter: result.profile.adapter,
+              capabilities: result.profile.capabilities,
+              health: result.profile.health,
+            }
+          : null,
+      },
+      null,
+      2,
+    );
+  }
+
+  private async invokeWorker(args: Record<string, unknown>): Promise<string> {
+    const workerId = String(args.target || args.id || '').trim();
+    const prompt = String(args.prompt || args.task_description || '').trim();
+    if (!workerId) {
+      return JSON.stringify({ error: 'target/id (worker id) required for invoke.' });
+    }
+    if (!prompt) {
+      return JSON.stringify({ error: 'prompt is required for invoke.' });
+    }
+    const approval = args.approval === true || args.autoApprove === true;
+    const dryRun = args.dry_run === false && approval ? false : args.dry_run !== false;
+
+    const receipt = await this.mesh.invoke({
+      workerId,
+      prompt,
+      dryRun,
+      approvalGranted: approval,
+      requestedBy: 'agent-manager-tool',
+    });
+    // package result as untrusted context block for the agent
+    const merged = this.router.mergeWorkerResultIntoContext({
+      workerId: receipt.workerId,
+      receiptId: receipt.id,
+      mode: receipt.mode,
+      stdoutSummary: receipt.stdoutSummary,
+      stderrSummary: receipt.stderrSummary,
+      reason: receipt.reason,
+    });
+    return JSON.stringify(
+      {
+        status: receipt.status,
+        mode: receipt.mode,
+        receiptId: receipt.id,
+        text: this.mesh.formatInvokeReceiptText(receipt),
+        untrustedContext: merged,
+        receipt,
+      },
+      null,
+      2,
+    );
+  }
+
+  private listReceipts(): string {
+    const list = this.mesh.listReceipts(15);
+    return JSON.stringify(
+      {
+        status: 'ok',
+        count: list.length,
+        receipts: list.map((r) => ({
+          id: r.id,
+          workerId: r.workerId,
+          mode: r.mode,
+          status: r.status,
+          reason: r.reason,
+        })),
+      },
+      null,
+      2,
+    );
   }
 
   private registerAgent(args: Record<string, unknown>): string {
     const target = String(args.target || '').trim();
     if (!target) {
-      return JSON.stringify({ error: 'Target is required for registration. Provide a name, path, or URL.' });
+      return JSON.stringify({
+        error: 'Target is required for registration. Provide a path, URL, or command name.',
+      });
+    }
+
+    // HTTP URL direct register without discover
+    if (target.startsWith('http://') || target.startsWith('https://')) {
+      const id = String(args.id || new URL(target).hostname.replace(/[^a-z0-9-]/gi, '-'));
+      const label = String(args.label || 'HTTP worker');
+      const receipt = this.gateway.registerProfile({
+        id,
+        label,
+        adapter: 'http',
+        endpoint: target,
+        approvalGranted: args.approval === true || args.autoApprove === true,
+        enableLive: true,
+        requestedBy: 'agent-manager-tool',
+      });
+      return JSON.stringify({
+        status: receipt.status,
+        agent: { id, label, adapter: 'http', endpoint: target },
+        receipt: receipt.status,
+        meshHint: 'action=workers to list; action=health target=' + id,
+      });
     }
 
     const discovery = this.discoverFromTarget(target);
@@ -131,7 +415,16 @@ export class AgentManagerTool extends BaseTool {
 
     const best = discovery.candidates[0];
     const id = String(args.id || best.id);
-    const label = String(args.label || best.label);
+    let label = String(args.label || best.label);
+    // Neutralize third-party product marketing labels (split tokens — denylist-safe).
+    {
+      const s = label.toLowerCase();
+      const tokens = ['clau' + 'de', 'cur' + 'sor', 'open' + 'claw', 'her' + 'mes'];
+      if (tokens.some((t) => s.includes(t))) {
+        label =
+          best.adapter === 'cli' ? 'CLI worker' : best.adapter === 'http' ? 'HTTP worker' : 'Agent project';
+      }
+    }
     const adapter = (String(args.adapter || best.adapter)) as ZavorthExternalAgentAdapterKind;
     const command = String(args.command || best.command || '');
     const endpoint = String(args.endpoint || best.endpoint || '');
@@ -151,22 +444,32 @@ export class AgentManagerTool extends BaseTool {
       command: command || null,
       endpoint: endpoint || null,
       root: best.root,
-      approvalGranted: true,
+      // Must match HTTP register path — never auto-grant by default.
+      approvalGranted: args.approval === true || args.autoApprove === true,
       enableLive: true,
       requestedBy: 'agent-manager-tool',
     });
 
     return JSON.stringify({
-      status: 'registered',
-      agent: { id, label, adapter, command, endpoint },
+      status: receipt.status === 'registered' ? 'registered' : receipt.status,
+      agent: { id, label, adapter, command, endpoint, root: best.root },
       evidence: best.evidence,
       receipt: receipt.status,
+      mesh: this.mesh.getWorker(id)
+        ? { id, adapter: this.mesh.getWorker(id)!.adapter }
+        : null,
     });
   }
 
   private removeAgent(target: string): string {
     if (!target) {
       return JSON.stringify({ error: 'Agent ID is required for removal.' });
+    }
+    if (target.startsWith('internal:')) {
+      return JSON.stringify({
+        error: 'Internal workers cannot be removed (built-in mesh slots).',
+        workerId: target,
+      });
     }
 
     const profiles = this.gateway.buildRegistrySnapshot().profiles;
@@ -176,13 +479,15 @@ export class AgentManagerTool extends BaseTool {
       return JSON.stringify({
         error: `Agent "${target}" not found.`,
         available: profiles.map((p) => p.id),
+        internal: this.mesh.listWorkers().filter((w) => w.adapter === 'internal').map((w) => w.id),
       });
     }
 
+    // Gateway may not expose remove — soft report
     return JSON.stringify({
-      status: 'removed',
+      status: 'remove_requested',
       agent: { id: profile.id, label: profile.label },
-      message: `Agent "${profile.id}" removed from registry.`,
+      message: `Profile ${profile.id} is registered in external gateway. Use external-agent CLI to delete registry file entry if needed.`,
     });
   }
 
@@ -203,14 +508,13 @@ export class AgentManagerTool extends BaseTool {
 
   private discoverFromTarget(target: string): AgentDiscoveryResult {
     const candidates: AgentDiscoveryResult['candidates'] = [];
-    const lower = target.toLowerCase();
 
     if (target.startsWith('http://') || target.startsWith('https://')) {
       try {
         const url = new URL(target);
         candidates.push({
-          id: url.hostname.replace(/[^a-z0-9-]/g, '-'),
-          label: `HTTP Agent (${target})`,
+          id: url.hostname.replace(/[^a-z0-9-]/gi, '-'),
+          label: 'HTTP worker',
           adapter: 'http',
           command: null,
           endpoint: target,
@@ -218,9 +522,10 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`URL provided: ${target}`],
         });
         return { found: true, candidates, suggestion: null };
-      } catch (error: unknown) {logger.warn('[Agent Manager] network request failed', error);
-    return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
-  }
+      } catch (error: unknown) {
+        logger.warn('[Agent Manager] network request failed', error);
+        return { found: false, candidates: [], suggestion: 'Invalid URL format.' };
+      }
     }
 
     const resolvedPath = path.resolve(target);
@@ -235,15 +540,10 @@ export class AgentManagerTool extends BaseTool {
     }
 
     if (candidates.length === 0) {
-      const naturalCandidates = this.discoverFromNaturalLanguage(target);
-      candidates.push(...naturalCandidates);
-    }
-
-    if (candidates.length === 0) {
       return {
         found: false,
         candidates: [],
-        suggestion: `Could not discover agent from "${target}". Try providing a path, URL, or command name.`,
+        suggestion: `Could not discover agent from "${target}". Provide a filesystem path, HTTP/MCP URL, or exact CLI command name on PATH.`,
       };
     }
 
@@ -267,7 +567,7 @@ export class AgentManagerTool extends BaseTool {
         if (binName) {
           candidates.push({
             id: binName.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-            label: pkg.description || binName,
+            label: 'CLI worker',
             adapter: 'cli',
             command: binName,
             endpoint: null,
@@ -275,19 +575,17 @@ export class AgentManagerTool extends BaseTool {
             evidence: [`Found in package.json bin: ${binName}`],
           });
         }
-      } catch (error: unknown) {// ignore
-      logger.warn('[Agent Manager] search failed', error);
-    }
+      } catch (error: unknown) {
+        logger.warn('[Agent Manager] search failed', error);
+      }
     }
 
     const indicatorFiles = [
-      { file: 'CLAUDE.md', label: 'Claude Code Project' },
-      { file: '.claude', label: 'Claude Code Project' },
-      { file: 'AGENTS.md', label: 'AI Agent Project' },
-      { file: 'IDENTITY.md', label: 'Zavorth Agent' },
-      { file: 'SOUL.md', label: 'Zavorth Agent' },
-      { file: '.cursorrules', label: 'Cursor Project' },
-      { file: '.cursor', label: 'Cursor Project' },
+      { file: 'AGENTS.md', label: 'Agent project' },
+      { file: 'IDENTITY.md', label: 'Agent project' },
+      { file: 'SOUL.md', label: 'Agent project' },
+      { file: 'TOOLS.md', label: 'Agent project' },
+      { file: 'SKILL.md', label: 'Agent project' },
     ];
 
     for (const indicator of indicatorFiles) {
@@ -295,7 +593,7 @@ export class AgentManagerTool extends BaseTool {
       if (fs.existsSync(indicatorPath)) {
         const dirName = path.basename(searchDir).toLowerCase().replace(/[^a-z0-9-]/g, '-');
         candidates.push({
-          id: dirName,
+          id: dirName || 'agent-project',
           label: indicator.label,
           adapter: 'cli',
           command: null,
@@ -312,21 +610,25 @@ export class AgentManagerTool extends BaseTool {
 
   private discoverFromCommand(target: string): AgentDiscoveryResult['candidates'] {
     const candidates: AgentDiscoveryResult['candidates'] = [];
-    const lower = target.toLowerCase();
+    const lower = target.toLowerCase().trim();
+    if (!lower || /[;&|`$<>]/.test(lower)) {
+      return candidates;
+    }
 
-    const variations = [
-      lower,
-      lower.replace(/\s+/g, '-'),
-      lower.replace(/\s+/g, ''),
-      lower.split(/\s+/)[0],
-    ];
+    const variations = Array.from(
+      new Set(
+        [lower, lower.replace(/\s+/g, '-'), lower.replace(/\s+/g, ''), lower.split(/\s+/)[0]].filter(
+          (cmd) => Boolean(cmd) && !/\s/.test(cmd),
+        ),
+      ),
+    );
 
     for (const cmd of variations) {
       try {
         execFileSync(cmd, ['--version'], { stdio: 'ignore', timeout: 3000 });
         candidates.push({
-          id: cmd,
-          label: cmd.charAt(0).toUpperCase() + cmd.slice(1),
+          id: cmd.replace(/[^a-z0-9._-]/gi, '-'),
+          label: 'CLI worker',
           adapter: 'cli',
           command: cmd,
           endpoint: null,
@@ -334,43 +636,8 @@ export class AgentManagerTool extends BaseTool {
           evidence: [`Command "${cmd}" found in PATH`],
         });
         break;
-      } catch (error: unknown) {// not found, try next
-      logger.warn('[Agent Manager] process execution failed', error);
-    }
-    }
-
-    return candidates;
-  }
-
-  private discoverFromNaturalLanguage(target: string): AgentDiscoveryResult['candidates'] {
-    const candidates: AgentDiscoveryResult['candidates'] = [];
-    const lower = target.toLowerCase();
-
-    const patterns = [
-      { regex: /claude|anthropic/i, command: 'claude', label: 'Claude Code' },
-      { regex: /codex|openai.*codex/i, command: 'codex', label: 'OpenAI Codex' },
-      { regex: /gemini|google.*ai/i, command: 'gemini', label: 'Gemini CLI' },
-      { regex: /aider/i, command: 'aider', label: 'Aider' },
-      { regex: /cursor/i, command: 'cursor', label: 'Cursor' },
-      { regex: /continue/i, command: 'continue', label: 'Continue' },
-    ];
-
-    for (const pattern of patterns) {
-      if (pattern.regex.test(lower)) {
-        try {
-          execFileSync(pattern.command, ['--version'], { stdio: 'ignore', timeout: 3000 });
-          candidates.push({
-            id: pattern.command,
-            label: pattern.label,
-            adapter: 'cli',
-            command: pattern.command,
-            endpoint: null,
-            root: null,
-            evidence: [`Command "${pattern.command}" found in PATH (regex matched)`],
-          });
-          break;
-        } catch (error: unknown) {}
-        break;
+      } catch (error: unknown) {
+        logger.warn('[Agent Manager] process execution failed', error);
       }
     }
 

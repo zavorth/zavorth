@@ -458,6 +458,7 @@ function walk(directory: string): string[] {
 function isInternalPackageScript(scriptName: string): boolean {
   return scriptName.endsWith(':check')
     || scriptName.endsWith(':json')
+    || scriptName.endsWith(':qa')
     || scriptName.startsWith('qa:')
     || scriptName.startsWith('test:')
     || scriptName.startsWith('security:')

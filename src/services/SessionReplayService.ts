@@ -198,7 +198,7 @@ export class SessionReplayService {
     const parts = [
       input.tasks.length
         ? `${input.tasks.length} tarefa(s) recentes`
-        : 'nenhuma tarefa recente',
+        : 'no recent tasks',
       input.workflowRuns.length
         ? `${input.workflowRuns.length} workflow(s) composto(s)`
         : 'sem workflows compostos',

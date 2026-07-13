@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "plugin-router-ai",
+  "label": "Plugin Router AI",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Recommend plugins for a natural-language intent without auto-enabling them.",
+  "description": "First-party router that scores discovered Plugin OS packages by keyword overlap, with optional LLM re-rank when ZAVORTH_PLUGIN_ROUTER_LLM=1.",
+  "tags": ["router", "recommend", "plugins", "discovery", "ai"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://plugin-router-ai",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "router.recommend",
+      "intent": "router.recommend",
+      "label": "Recommend Plugins",
+      "summary": "Rank plugins for a user intent.",
+      "artifactKinds": [],
+      "command": {
+        "name": "router_recommend",
+        "aliases": ["recommend_plugin"],
+        "usage": "{ intent, limit?, useLlm?, candidates? }"
+      }
+    },
+    {
+      "id": "router.explain",
+      "intent": "router.explain",
+      "label": "Explain Plugin",
+      "summary": "Explain why a plugin might match.",
+      "artifactKinds": [],
+      "command": {
+        "name": "router_explain",
+        "aliases": [],
+        "usage": "{ pluginId }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read plugin manifests under plugins/ and .zavorth/plugins/.",
+      "required": true
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Optional LLM re-rank when explicitly enabled.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

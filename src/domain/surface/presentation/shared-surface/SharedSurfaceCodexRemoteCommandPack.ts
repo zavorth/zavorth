@@ -4,6 +4,7 @@ import type { ZavorthSessionPlaneService } from '../../../../services/ZavorthSes
 import type { CodexRemoteActionService } from '../../../../services/CodexRemoteActionService.js';
 import type { CodexRemoteControlPlaneService } from '../../../../services/CodexRemoteControlPlaneService.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { tService } from '../../../../i18n/services.js';
 
 type CodexRemoteActionResult = Awaited<ReturnType<CodexRemoteActionService['execute']>>;
 
@@ -40,12 +41,12 @@ export class SharedSurfaceCodexRemoteCommandPack {
           snapshot.narrative.operatorSummary,
           snapshot.narrative.nextAction,
           '',
-          `Perfil ativo: ${snapshot.activeProfile.label} (${snapshot.activeProfile.id}).`,
-          `CLI pronto: ${snapshot.summary.cliReady ? 'sim' : 'nao'}.`,
-          `Sessoes rastreadas: ${snapshot.summary.trackedSessions} | em execucao: ${snapshot.summary.runningSessions}.`,
-          `Visibilidade: ${snapshot.visibility.mode} | aprovacoes pendentes: ${snapshot.visibility.pendingApprovals}.`,
+          `${tService('codex_remote.active_profile')}: ${snapshot.activeProfile.label} (${snapshot.activeProfile.id}).`,
+          `CLI ready: ${snapshot.summary.cliReady ? 'yes' : 'no'}.`,
+          `${tService('codex_remote.tracked_sessions')}: ${snapshot.summary.trackedSessions} | ${tService('codex_remote.running')}: ${snapshot.summary.runningSessions}.`,
+          `${tService('codex_remote.visibility')}: ${snapshot.visibility.mode} | pending approvals: ${snapshot.visibility.pendingApprovals}.`,
           snapshot.visibility.note,
-          `Transportes remotos prontos: ${snapshot.summary.readyRemotePaths}/${snapshot.remotePaths.length}.`,
+          `Ready remote transports: ${snapshot.summary.readyRemotePaths}/${snapshot.remotePaths.length}.`,
           '',
           snapshot.sessionBroker.telegramSummary,
         ];
@@ -58,11 +59,11 @@ export class SharedSurfaceCodexRemoteCommandPack {
         runtimeUserId: String(ctx.userId || '').trim() || 'telegram',
       });
       const lines = [
-        'Perfis do Codex Remote',
+        tService('codex_remote.profiles_title'),
         '',
         snapshot.profiles.narrative.headline,
         snapshot.profiles.narrative.operatorSummary,
-        `Saude do registry: ${snapshot.profiles.health.status}.`,
+        `${tService('codex_remote.registry_health')}: ${snapshot.profiles.health.status}.`,
         snapshot.profiles.health.operatorSummary,
         `Readiness: ${snapshot.profiles.readiness.status}.`,
         snapshot.profiles.readiness.operatorSummary,
@@ -70,17 +71,17 @@ export class SharedSurfaceCodexRemoteCommandPack {
       for (const profile of snapshot.profiles.profiles) {
         lines.push(
           '',
-          `${profile.active ? 'ativo' : 'perfil'}: ${profile.label} (${profile.id})`,
+          `${profile.active ? tService('codex_remote.active') : tService('codex_remote.profile')}: ${profile.label} (${profile.id})`,
           profile.description,
           `CLI: ${profile.codexCliPath}`,
           `CODEX_HOME: ${profile.codexHome || 'n/d'}`,
           `Workspace: ${profile.workspaceRoot || 'n/d'}`,
-          `Habilitado: ${profile.enabled ? 'sim' : 'nao'}`,
+          `${tService('codex_remote.enabled')}: ${profile.enabled ? 'yes' : 'no'}`,
         );
       }
       lines.push(
         '',
-        'Gestao de perfis:',
+        tService('codex_remote.profile_management'),
         '/codexremote profile create <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work","workspaceRoot":"C:\\\\repo"}',
         '/codexremote profile update <id> -- {"label":"Work","codexHome":"C:\\\\Users\\\\...\\\\.codex-work"}',
         '/codexremote profile delete <id>',
@@ -98,7 +99,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
         sourceChatId: String(ctx.chatId || '').trim() || null,
       });
       await this.replyCodexRemoteResult(ctx, result, [
-        `Perfil ativo agora: ${result.codexRemote.activeProfile.label}.`,
+        `${tService('codex_remote.active_profile_now')}: ${result.codexRemote.activeProfile.label}.`,
         result.codexRemote.sessionBroker.telegramSummary,
       ]);
       return;
@@ -154,25 +155,25 @@ export class SharedSurfaceCodexRemoteCommandPack {
       });
       if (snapshot.sessionBroker.approvals.length === 0) {
         await ctx.reply([
-          'Aprovacoes do Codex Remote',
+          'Codex Remote approvals',
           '',
-          'Nenhuma aprovacao pendente no momento.',
+          'No pending approvals at the moment.',
         ].join('\n'));
         return;
       }
       const lines: Array<string | null> = [
-        'Aprovacoes do Codex Remote',
+        'Codex Remote approvals',
         '',
-        `Pendentes: ${snapshot.sessionBroker.approvals.length}.`,
+        `Pending: ${snapshot.sessionBroker.approvals.length}.`,
       ];
       for (const approval of snapshot.sessionBroker.approvals.slice(0, 8)) {
         lines.push(
           '',
           `${approval.permissionId}`,
           `Kind: ${approval.kind}.`,
-          approval.actionId ? `Acao: ${approval.actionId}.` : null,
-          approval.sessionId ? `Sessao: ${approval.sessionId}.` : null,
-          approval.profileId ? `Perfil: ${approval.profileId}.` : null,
+          approval.actionId ? `${tService('codex_remote.action_label')}: ${approval.actionId}.` : null,
+          approval.sessionId ? `${tService('codex_remote.session_label')}: ${approval.sessionId}.` : null,
+          approval.profileId ? `${tService('codex_remote.profile_label')}: ${approval.profileId}.` : null,
           approval.reason,
         );
       }
@@ -189,14 +190,15 @@ export class SharedSurfaceCodexRemoteCommandPack {
         await ctx.reply([
           'Codex Remote',
           '',
-          'Nenhuma sessao rastreada ainda.',
-          'Use /codexremote start [titulo] -- <prompt> para abrir a primeira.',
+          tService('codex_remote.no_sessions_tracked'),
+          'Use /codexremote <your request> to open the first session.',
+          'Power form: /codexremote start [title] -- <prompt>',
         ].join('\n'));
         return;
       }
 
       const lines = [
-        'Sessoes do Codex Remote',
+        tService('codex_remote.sessions_title'),
         '',
         snapshot.sessionBroker.narrative.headline,
       ];
@@ -204,9 +206,9 @@ export class SharedSurfaceCodexRemoteCommandPack {
         lines.push(
           '',
           `${session.title} (${session.sessionId})`,
-          `Status: ${session.status} | perfil: ${session.profileLabel} | runs: ${session.runCount}.`,
+          `Status: ${session.status} | ${tService('codex_remote.profile')}: ${session.profileLabel} | runs: ${session.runCount}.`,
           session.operatorSummary,
-          `Acoes: ${session.actions.join(', ')}.`,
+          `${tService('codex_remote.actions')}: ${session.actions.join(', ')}.`,
         );
       }
       await ctx.reply(lines.join('\n'));
@@ -220,7 +222,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
       });
       const selected = snapshot.sessionBroker.selected;
       if (!selected) {
-        await ctx.reply(`Sessao Codex Remote nao encontrada: ${request.sessionId}.`);
+        await ctx.reply(`${tService('codex_remote.session_not_found')}: ${request.sessionId}.`);
         return;
       }
       const lines = [
@@ -228,15 +230,15 @@ export class SharedSurfaceCodexRemoteCommandPack {
         '',
         selected.operatorSummary,
         `Prompt: ${selected.record.prompt}`,
-        `Visibilidade: ${selected.visibility.mode} | aprovacoes pendentes: ${selected.visibility.pendingApprovals}.`,
+        `${tService('codex_remote.visibility')}: ${selected.visibility.mode} | pending approvals: ${selected.visibility.pendingApprovals}.`,
         selected.visibility.note,
-        `Handoff web: ${selected.record.handoffCommand || 'nenhum ainda'}`,
+        `${tService('codex_remote.web_handoff')}: ${selected.record.handoffCommand || tService('codex_remote.not_yet')}`,
       ];
       if (request.mode === 'tail') {
-        lines.push('', 'Tail recente:');
-        lines.push(...(selected.tail.logLines.length > 0 ? selected.tail.logLines : ['Sem log recente.']));
+        lines.push('', `${tService('codex_remote.recent_tail')}:`);
+        lines.push(...(selected.tail.logLines.length > 0 ? selected.tail.logLines : [tService('codex_remote.no_recent_logs')]));
       } else {
-        lines.push('', 'Eventos recentes:');
+        lines.push('', `${tService('codex_remote.recent_events')}:`);
         lines.push(...selected.record.events.slice(-8).map((event) => `- ${event.at} | ${event.type}: ${event.message}`));
       }
       await ctx.reply(lines.join('\n'));
@@ -307,7 +309,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
         });
         const lines = [
           result.action.note,
-          result.action.handoffCommand ? `Comando de handoff: ${result.action.handoffCommand}` : null,
+          result.action.handoffCommand ? `${tService('codex_remote.handoff_command')}: ${result.action.handoffCommand}` : null,
           result.spawnedSession?.sessionId ? `Session web: ${result.spawnedSession.sessionId}` : null,
         ].filter(Boolean) as string[];
         await ctx.reply(lines.join('\n'));
@@ -315,8 +317,8 @@ export class SharedSurfaceCodexRemoteCommandPack {
       }
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      await ctx.reply(`Nao consegui operar o Codex Remote agora.\n\nMotivo: ${message}`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      await ctx.reply(`Could not operate Codex Remote right now.\n\nReason: ${message}`);
     }
   }
 
@@ -436,94 +438,17 @@ export class SharedSurfaceCodexRemoteCommandPack {
       case 'attach':
         return { mode: 'web', profileId: null, sessionId: tail, permissionId: null, prompt: null, title: null };
       default:
-        return { mode: 'status', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
+        // Free-text primary path: treat the whole request as a start prompt
+        // (NaturalSlashConvention rewrites to "start -- <prompt>"; pack also accepts free text directly).
+        return {
+          mode: 'start',
+          profileId: null,
+          sessionId: null,
+          permissionId: null,
+          prompt: afterSeparator || normalized,
+          title: afterSeparator ? (beforeSeparator || null) : null,
+        };
     }
-  }
-
-  public parseNaturalIntent(rawText: string): string | null {
-    const normalized = String(rawText || '').trim();
-    if (!normalized) {
-      return null;
-    }
-
-    const folded = normalized
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const looksLikeCodexRemoteIntent =
-      /\bcodex\b/.test(folded)
-      || /\bcodex-[a-z0-9-]+\b/.test(folded)
-      || (
-        /\b(permissao|pedido)\b/.test(folded)
-        && /\b(aprovar|aprova|aprove|approve|autorizar|autorize|liberar|libere|rejeitar|rejeite|reject|negar|negue)\b/.test(folded)
-        && /\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/i.test(folded)
-      )
-      || (
-        /\bperfil\b/.test(folded)
-        && /\b(trocar|troque|mudar|mude|alterar|altere|usar|use|selecionar|selecione|ativar|ative|apagar|apague|deletar|delete|excluir|remover|remova)\b/.test(folded)
-      );
-    if (!looksLikeCodexRemoteIntent) {
-      return null;
-    }
-
-    const permissionIdMatch = folded.match(/\b([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/i);
-    const sessionIdMatch = folded.match(/\b(codex-[a-z0-9-]+)\b/i);
-    const profileTarget = this.extractCodexProfileTarget(folded);
-
-    if (/\b(perfis|profiles|listar perfis|mostrar perfis|mostre os perfis)\b/.test(folded)) {
-      return '/codexremote profiles';
-    }
-
-    if (/\b(sessoes|sessoes|sessions|listar sessoes|mostrar sessoes|mostre as sessoes)\b/.test(folded)) {
-      return '/codexremote sessions';
-    }
-
-    if (
-      /\b(codex remote|codex)\b/.test(folded)
-      && /\b(aprovacoes|aprovacao|approvals|approval|permissoes|permissao)\b/.test(folded)
-      && /\b(pendentes|pendente|listar|lista|mostrar|mostre|ver|quais)\b/.test(folded)
-    ) {
-      return '/codexremote approvals';
-    }
-
-    if (permissionIdMatch && /\b(aprovar|aprova|aprove|approve|autorizar|autorize|liberar|libere)\b/.test(folded)) {
-      return `/codexremote approve ${permissionIdMatch[1]}`;
-    }
-
-    if (permissionIdMatch && /\b(rejeitar|rejeite|reject|negar|negue)\b/.test(folded)) {
-      return `/codexremote reject ${permissionIdMatch[1]}`;
-    }
-
-    if (sessionIdMatch && /\b(parar|pare|stop|encerrar|encerre|cancelar|cancele)\b/.test(folded)) {
-      return `/codexremote stop ${sessionIdMatch[1]}`;
-    }
-
-    if (sessionIdMatch && /\b(retomar|retome|resume|continuar|continue|prossiga)\b/.test(folded)) {
-      return `/codexremote resume ${sessionIdMatch[1]}`;
-    }
-
-    if (profileTarget && /\b(apagar|apague|deletar|delete|excluir|remover|remova)\b/.test(folded) && /\bperfil\b/.test(folded)) {
-      return `/codexremote profile delete ${profileTarget}`;
-    }
-
-    if (
-      profileTarget &&
-      /\b(trocar|troque|mudar|mude|alterar|altere|usar|use|selecionar|selecione|ativar|ative)\b/.test(folded) &&
-      /\bperfil\b/.test(folded)
-    ) {
-      return `/codexremote profile ${profileTarget}`;
-    }
-
-    if (/\b(codex remote|codex)\b/.test(folded) && /\b(resumo|status|painel|overview)\b/.test(folded)) {
-      return '/codexremote';
-    }
-
-    return null;
-  }
-
-  private extractCodexProfileTarget(foldedText: string): string | null {
-    const match = foldedText.match(/\bperfil\b(?:\s+(?:para|pro|pra|do|da))?\s+([a-z0-9][a-z0-9._-]*)\b/i);
-    return match?.[1] || null;
   }
 
   private formatCodexRemoteSessionReply(result: {
@@ -534,7 +459,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
     if (!result.session) {
       return [
         result.action.note,
-        result.permission?.permission_id ? `Permissao: ${result.permission.permission_id} (${result.permission.status}).` : null,
+        result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).` : null,
       ].filter(Boolean).join('\n');
     }
 
@@ -542,13 +467,13 @@ export class SharedSurfaceCodexRemoteCommandPack {
       result.action.note,
       '',
       `${result.session.record.title} (${result.session.record.sessionId})`,
-      result.permission?.permission_id ? `Permissao: ${result.permission.permission_id} (${result.permission.status}).` : null,
+      result.permission?.permission_id ? `${tService('codex_remote.permission_label')}: ${result.permission.permission_id} (${result.permission.status}).` : null,
       result.session.operatorSummary,
       result.session.record.handoffCommand
         ? `Handoff web: ${result.session.record.handoffCommand}`
         : null,
       result.session.tail.logLines.length > 0
-        ? ['Tail recente:', ...result.session.tail.logLines.slice(-6)].join('\n')
+        ? [`${tService('codex_remote.recent_tail')}:`, ...result.session.tail.logLines.slice(-6)].join('\n')
         : null,
     ].filter(Boolean) as string[];
 
@@ -574,7 +499,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
     ) {
       const lines = [
         this.deps.formatPermissionCreatedMessage(result.permission),
-        'Codex Remote segue no modo full-user-visible: a aprovacao aparece nesta mesma surface.',
+        'Codex Remote stays full-user-visible: approval appears on this same surface.',
         ...extras.filter(Boolean),
       ];
       await ctx.reply(lines.join('\n\n'), {
@@ -614,8 +539,8 @@ export class SharedSurfaceCodexRemoteCommandPack {
         };
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        const message = error instanceof Error ? err.message : 'JSON invalido';
-        throw new Error(`Payload de perfil invalido: ${message}.`);
+        const message = error instanceof Error ? err.message : tService('codex_remote.invalid_json');
+        throw new Error(`${tService('codex_remote.invalid_profile_payload')}: ${message}.`);
       }
     }
 

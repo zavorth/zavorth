@@ -115,7 +115,7 @@ export class MultiAgentPipeline {
       const run = this.workflowRuns.createRun(workflow, objective, workspace, phases, workspaceContext, options);
       await ctx.reply(this.presentation.formatWorkflowIntro(workflow, objective, workspace, phases, run, workspaceContext));
       await this.runner.continueWorkflow(ctx, run, phases, 0, [], workspaceContext);
-    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(`Workflow interrompido.\n\nMotivo: ${err.message}`);
+    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(`Workflow interrompido.\n\nReason: ${err.message}`);
     }
   }
 
@@ -187,7 +187,7 @@ export class MultiAgentPipeline {
       surface: options.surface || null,
     });
     if (!closed) {
-      await ctx.reply(`Nao consegui encerrar o workflow ${workflowRunId}.`);
+      await ctx.reply(`Could not stop the workflow ${workflowRunId}.`);
       return;
     }
 
@@ -195,7 +195,7 @@ export class MultiAgentPipeline {
       [
         `Workflow ${workflowRunId} encerrado pelo operador.`,
         `Fluxo: ${this.presentation.describeWorkflow(run.workflow_name)}`,
-        options.reason ? `Motivo: ${options.reason}` : 'Esse run deixa de aparecer como retomada sugerida.',
+        options.reason ? `Reason: ${options.reason}` : 'Esse run deixa de aparecer como retomada sugerida.',
       ].join('\n'),
     );
   }

@@ -336,7 +336,7 @@ export class EngineeringCoreService {
             previewPath: null,
           },
         },
-        replySummary: `${run.replySummary}\n\nNao consegui gerar o preview seguro do patch: ${preview.summary}`,
+        replySummary: `${run.replySummary}\n\nCould not generate a safe patch preview: ${preview.summary}`,
       });
     }
 

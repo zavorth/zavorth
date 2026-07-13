@@ -177,7 +177,7 @@ export class Database {
 
     this.db = dbInstance;
 
-    // Configurações de performance nativas do SQLite
+    // Native SQLite performance settings
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('synchronous = NORMAL');
     this.db.pragma('temp_store = MEMORY');

@@ -112,7 +112,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">QA release</p>
         <h2>QA, budgets e release gates</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta benchmarks, smokes, regressions e gate de release num plano unico para decidir se o host esta pronto para alpha ou beta.
+          This view joins benchmarks, smokes, regressions and release gate into one plan to decide if the host is ready for alpha or beta.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -140,7 +140,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">Release</p>
             <strong id="qa-control-plane-release-state">Sem leitura</strong>
             <p id="qa-control-plane-release-summary" class="muted-copy">
-              Alpha e beta aparecem aqui com gate pronto ou pendente.
+              Alpha e beta aparecem aqui com gate ready ou pendente.
             </p>
           </article>
         </div>
@@ -302,7 +302,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">Policy</p>
             <strong>Escopos vivos</strong>
             <p class="muted-copy">
-              Tenants, channels, teams e workspace apontam para comandos de revisao e allowlist.
+              Tenants, channels, teams e workspace apontam para commands de revisao e allowlist.
             </p>
           </article>
           <article id="tenant-team-permissions" class="ops-summary-card">
@@ -402,7 +402,7 @@ export function buildRuntimeShellHtmlPart3(): string {
           <article id="artifact-workbench-index" class="ops-summary-card">
             <p class="profile-tag">Indice</p>
             <strong>Artifacts por run</strong>
-            <p class="muted-copy">Agrupa artifacts por workspace, task e workflow para retomada sem garimpar logs.</p>
+            <p class="muted-copy">Agrupa artifacts por workspace, task e workflow for resume sem garimpar logs.</p>
           </article>
           <article id="artifact-workbench-compare" class="ops-summary-card">
             <p class="profile-tag">Compare</p>
@@ -412,7 +412,7 @@ export function buildRuntimeShellHtmlPart3(): string {
           <article id="artifact-workbench-redaction" class="ops-summary-card">
             <p class="profile-tag">Redaction</p>
             <strong>Replay seguro</strong>
-            <p class="muted-copy">Replay bruto nao entra no bundle; evidencias ficam como resumo e referencia.</p>
+            <p class="muted-copy">Replay bruto no entra no bundle; evidencias ficam como resumo e referencia.</p>
           </article>
           <article id="artifact-workbench-learning" class="ops-summary-card">
             <p class="profile-tag">Learning</p>
@@ -450,7 +450,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">SDKs</p>
             <strong id="ecosystem-control-plane-sdk-state">Sem leitura</strong>
             <p id="ecosystem-control-plane-sdk-summary" class="muted-copy">
-              O estado dos SDKs TypeScript e Python fica visivel aqui.
+              O estado dos SDKs TypeScript e Python fica visible aqui.
             </p>
           </article>
           <article class="ops-summary-card">
@@ -501,7 +501,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">Distributed runtime</p>
         <h2>Runtime distribuido e superficies avancadas</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta channels avancados, fleet do Node Mesh, remote transports e superficies oficiais em uma postura unica para o runtime distribuido.
+          This view joins advanced channels, Node Mesh fleet, remote transports and official surfaces into one posture for the distributed runtime.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">

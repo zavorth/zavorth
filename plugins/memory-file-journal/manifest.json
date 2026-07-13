@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "memory-file-journal",
+  "label": "File Journal Memory",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Append-only JSONL journal memory under .zavorth/memory-file-journal.",
+  "description": "First-party memory plugin that appends timestamped journal entries to workspace/.zavorth/memory-file-journal/journal.jsonl with status, append, search, and tail capabilities.",
+  "tags": ["memory", "journal", "append", "local", "wave3"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://memory-file-journal",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.journal.status",
+      "intent": "memory.journal.status",
+      "label": "Journal Status",
+      "summary": "Report journal path, line count, and health.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_journal_status",
+        "aliases": ["journal_status"],
+        "usage": null
+      }
+    },
+    {
+      "id": "memory.journal.append",
+      "intent": "memory.journal.append",
+      "label": "Journal Append",
+      "summary": "Append a text entry with optional tags and key to the journal.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_journal_append",
+        "aliases": ["journal_append"],
+        "usage": "{ text|content|value, tags?, key? }"
+      }
+    },
+    {
+      "id": "memory.journal.search",
+      "intent": "memory.journal.search",
+      "label": "Journal Search",
+      "summary": "Search recent journal lines by substring match.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_journal_search",
+        "aliases": ["journal_search"],
+        "usage": "{ query, limit? }"
+      }
+    },
+    {
+      "id": "memory.journal.tail",
+      "intent": "memory.journal.tail",
+      "label": "Journal Tail",
+      "summary": "Return the most recent journal entries.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_journal_tail",
+        "aliases": ["journal_tail"],
+        "usage": "{ limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read the append-only journal JSONL file.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Append journal entries under .zavorth/memory-file-journal.",
+      "required": true
+    },
+    {
+      "kind": "memory.read",
+      "scope": "workspace",
+      "reason": "Expose memory read operations via the journal backend.",
+      "required": false
+    },
+    {
+      "kind": "memory.write",
+      "scope": "workspace",
+      "reason": "Expose memory write operations via the journal backend.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

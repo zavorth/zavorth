@@ -27,14 +27,14 @@ export class BatchTrajectoryTool extends BaseTool {
   public readonly name = 'batch_trajectory';
 
   public readonly description =
-    'Executa multiplas trajetorias de agente em paralelo e compara resultados.';
+    'Run multiple agent trajectories in parallel and compare results.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       trajectories: {
         type: 'string',
-        description: 'JSON array de trajetorias: [{prompt, provider?, model?}].',
+        description: 'JSON array of trajectories: [{prompt, provider?, model?}].',
       },
       comparison_metric: {
         type: 'string',
@@ -58,12 +58,12 @@ export class BatchTrajectoryTool extends BaseTool {
       } else if (Array.isArray(rawTrajectories)) {
         trajectories = rawTrajectories as TrajectoryInput[];
       } else {
-        return 'Erro: "trajectories" deve ser um array JSON ou string JSON.';
+        return 'Error: "trajectories" must be a JSON array or JSON string.';
       }
-    } catch (error: unknown) {logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Erro: JSON de trajectories invalido.'; }
+    } catch (error: unknown) {logger.warn('[Batch Trajectory] JSON parse failed', error); return 'Error: JSON de trajectories is invalid.'; }
 
     if (!Array.isArray(trajectories) || trajectories.length === 0) {
-      return 'Erro: pelo menos uma trajetoria e necessaria.';
+      return 'Error: at least one trajectory is required.';
     }
 
     if (trajectories.length > 10) {
@@ -72,14 +72,14 @@ export class BatchTrajectoryTool extends BaseTool {
 
     for (let i = 0; i < trajectories.length; i++) {
       if (!trajectories[i].prompt || typeof trajectories[i].prompt !== 'string') {
-        return `Erro: trajetoria ${i} deve ter um "prompt" valido.`;
+        return `Error: trajectory ${i} must have a valid "prompt".`;
       }
     }
 
     const comparisonMetric = String(args.comparison_metric || 'length');
     const validMetrics = ['length', 'coherence', 'relevance'];
     if (!validMetrics.includes(comparisonMetric)) {
-      return `Erro: metrica "${comparisonMetric}" invalida. Use: ${validMetrics.join(', ')}.`;
+      return `Error: invalid metric "${comparisonMetric}" is invalid. Use: ${validMetrics.join(', ')}.`;
     }
 
     const maxConcurrent = typeof args.max_concurrent === 'number'
@@ -185,7 +185,7 @@ export class BatchTrajectoryTool extends BaseTool {
 
   private formatComparison(results: TrajectoryResult[], metric: string): string {
     const lines: string[] = [];
-    lines.push(`Comparacao de ${results.length} trajetorias (metrica: ${metric})`);
+    lines.push(`Comparison of ${results.length} trajectories (metric: ${metric})`);
     lines.push('');
 
     const sorted = [...results].sort((a, b) => b.score - a.score);

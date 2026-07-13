@@ -105,6 +105,8 @@ export const resolveHostCommandSchema = z.object({
   operationId: z.string().min(1),
   decision: z.enum(['approve', 'deny']),
   strongConfirmationInput: z.string().optional(),
+  totp: z.string().optional(),
+  code: z.string().optional(),
 });
 
 export const executeHostCommandSchema = z.object({

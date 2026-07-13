@@ -75,7 +75,7 @@ export const MODEL_SPECS: Record<string, ModelSpec> = {
 export function getModelSpec(modelId: string): ModelSpec | undefined {
   if (MODEL_SPECS[modelId]) return MODEL_SPECS[modelId];
 
-  // Buscas por alias
+  // Alias lookups
   for (const [canonical, spec] of Object.entries(MODEL_SPECS)) {
     if (spec.aliases?.includes(modelId)) return spec;
   }

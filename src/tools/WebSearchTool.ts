@@ -158,7 +158,7 @@ export class WebSearchTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const errorMessage = error instanceof Error ? err.message : String(error);
-      console.error(`❌ [WebSearchTool] Erro na busca:`, errorMessage);
+      console.error(`[WebSearchTool] Search error:`, errorMessage);
       const fallbackResult = this.shouldUseNewsRssFallback(query)
         ? await this.searchNewsFallback(query, effectiveLimit)
         : null;
@@ -596,7 +596,7 @@ export class WebSearchTool extends BaseTool {
         }
         lines.push(`   Extrato da pagina: ${this.wrapUntrustedWebEvidence(result.extracted.excerpt, result.url, 'page_excerpt')}`);
       } else if (result.extracted?.error) {
-        lines.push(`   Extracao da pagina: indisponivel (${result.extracted.error})`);
+        lines.push(`   Page extraction: unavailable (${result.extracted.error})`);
       }
       lines.push(`   Query used: ${result.sourceQuery}`);
       lines.push('');
@@ -720,7 +720,7 @@ export class WebSearchTool extends BaseTool {
       const err = asErrorLike(fallbackError);
       const error = err;
       const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
-      console.error(`[WebSearchTool] Fallback Google News falhou:`, errorMessage);
+      console.error(`[WebSearchTool] Google News fallback failed:`, errorMessage);
     }
 
     try {
@@ -729,7 +729,7 @@ export class WebSearchTool extends BaseTool {
       const err = asErrorLike(fallbackError);
       const error = err;
       const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
-      console.error(`[WebSearchTool] Fallback Bing News falhou:`, errorMessage);
+      console.error(`[WebSearchTool] Bing News fallback failed:`, errorMessage);
       return null;
     }
   }
@@ -773,7 +773,7 @@ export class WebSearchTool extends BaseTool {
         const err = asErrorLike(fallbackError);
         const error = err;
         const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
-        console.error(`[WebSearchTool] Fallback ${candidate.label} falhou:`, errorMessage);
+        console.error(`[WebSearchTool] Fallback ${candidate.label} failed:`, errorMessage);
       }
     }
 
@@ -817,7 +817,7 @@ export class WebSearchTool extends BaseTool {
         const err = asErrorLike(fallbackError);
         const error = err;
         const errorMessage = fallbackError instanceof Error ? err.message : String(fallbackError);
-        console.error(`[WebSearchTool] Fallback politica global falhou:`, errorMessage);
+        console.error(`[WebSearchTool] Global politics fallback failed:`, errorMessage);
       }
     }
 
@@ -846,7 +846,7 @@ export class WebSearchTool extends BaseTool {
       .map((match) => {
         const item = match[1] || '';
         const title = this.extractRssField(item, 'title') || 'Sem titulo';
-        const link = this.extractRssField(item, 'link') || 'URL indisponivel';
+        const link = this.extractRssField(item, 'link') || 'URL unavailable';
         const source = this.extractRssField(item, 'source');
         const sourceUrl = this.extractRssSourceUrl(item);
         const description = this.extractRssField(item, 'description') || 'Snippet unavailable';
@@ -1042,7 +1042,7 @@ export class WebSearchTool extends BaseTool {
       .map((match) => {
         const item = match[1] || '';
         const title = this.extractRssField(item, 'title') || 'Sem titulo';
-        const link = this.extractRssField(item, 'link') || 'URL indisponivel';
+        const link = this.extractRssField(item, 'link') || 'URL unavailable';
         const description = this.extractRssField(item, 'description') || 'Snippet unavailable';
         const pubDate = this.extractRssField(item, 'pubDate');
         const publishedAt = pubDate ? Date.parse(pubDate) : Number.NaN;

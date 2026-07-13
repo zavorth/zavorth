@@ -37,6 +37,7 @@ import {
 import { MemoryWithReceiptsService } from './MemoryWithReceiptsService.js';
 import { RunArtifactReceiptReplayService } from './RunArtifactReceiptReplayService.js';
 import { AgentRunAuditHooks } from './security/AgentRunAuditHooks.js';
+import { runPluginOsHook } from '../../services/PluginOsHookPipelineAccess.js';
 
 import type {
   SelfModificationCommandService,
@@ -549,7 +550,15 @@ export class AgentRunService {
     this.skillPromotionGate = runtime.skillPromotionGate === null
       ? null
       : runtime.skillPromotionGate || new SkillPromotionGate({ now: this.now });
-    this.nativeAutonomySpine = runtime.nativeAutonomySpine || null;
+    this.nativeAutonomySpine = runtime.nativeAutonomySpine
+      || (() => {
+        try {
+          const { ZavorthNativeAutonomySpineService } = require('../../services/ZavorthNativeAutonomySpineService.js');
+          return new ZavorthNativeAutonomySpineService({ projectRoot: process.cwd() });
+        } catch {
+          return null;
+        }
+      })();
     this.modelPickerContractService = runtime.modelPickerContractService || null;
     this.naturalFirstApprovalSafety = runtime.naturalFirstApprovalSafety || new NaturalFirstApprovalSafetyService();
     this.naturalFirstMemoryContinuity = runtime.naturalFirstMemoryContinuity || new NaturalFirstMemoryContinuityService();
@@ -972,6 +981,16 @@ export class AgentRunService {
       run = prepared.run;
       const activeRun = run;
       this.onRunCreated?.(activeRun, input);
+      await runPluginOsHook({
+        event: 'agent.before_turn',
+        workspace: String(input.workspace || activeRun.workspace || '').trim() || null,
+        context: {
+          runId: activeRun.id,
+          status: activeRun.status,
+          title: activeRun.title || null,
+          channel: activeRun.channel,
+        },
+      });
       const draftApply = this.applyIntelligenceFabricDraftGuidanceIfRequested(activeRun, input);
       if (draftApply) {
         return draftApply;
@@ -1158,6 +1177,16 @@ export class AgentRunService {
       if (run) {
         await this.corePipeline.finalize(run, baseline);
         await this.applyNativeAutonomySpine(run, input, finalAssistantText || run.summary);
+        await runPluginOsHook({
+          event: 'agent.after_turn',
+          workspace: String(input.workspace || run.workspace || '').trim() || null,
+          context: {
+            runId: run.id,
+            status: run.status,
+            summary: run.summary || null,
+            eventCount: run.events.length,
+          },
+        });
       }
     }
   }
@@ -2167,59 +2196,64 @@ export class AgentRunService {
     request: UniversalAgentRequest,
     replyText: string,
   ): Promise<void> {
-    if (!this.nativeAutonomySpine) return;
     const generatedAt = this.now().toISOString();
     try {
-      const snapshot = await this.nativeAutonomySpine.buildSnapshot({
-        turn: {
-          turnId: run.id,
-          sessionId: run.sessionId,
-          userId: run.userId,
-          outcome: run.status === 'completed' ? 'success' : run.status === 'failed' ? 'failure' : 'interrupted',
-          userMessage: request.text,
-          assistantResponse: replyText,
-          toolReceipts: run.events.slice(-40).map((event) => ({
-            id: event.id,
-            kind: event.kind,
-            status: event.status,
-            summary: event.title,
-          })),
-          toolCallCount: Math.max(
-            run.events.filter((event) => event.kind === 'tool').length,
-            request.requestedTools?.length || 0,
-          ),
-          sourceSurface: run.channel,
-        },
+      const { getProductSurfaceRuntime } = require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
+      const toolCallCount = Math.max(
+        run.events.filter((event) => event.kind === 'tool').length,
+        request.requestedTools?.length || 0,
+      );
+      const userId = run.userId || request.userId || 'local-user';
+      const surface = run.channel || request.channel || 'agent-run';
+      const chatId = normalizeText(
+        run.metadata?.chatId,
+        normalizeText(request.metadata?.chatId, run.sessionId),
+      ) || null;
+      const explicitAllow = run.metadata?.allowLearningWrite ?? request.metadata?.allowLearningWrite;
+      const result = await getProductSurfaceRuntime(process.cwd()).recordSuccessfulTurn({
+        userId,
+        surface,
+        userMessage: request.text,
+        assistantText: replyText,
+        toolCallCount,
+        turnId: run.id,
+        sessionId: run.sessionId,
+        chatId,
+        allowLearningWrite: typeof explicitAllow === 'boolean' ? explicitAllow : null,
       });
+
       run.metadata = {
         ...run.metadata,
-        nativeAutonomySpine: snapshot,
+        productSurfaceLearning: result,
       };
+
+      const writeDetail = result.appliedPreferences > 0 || result.draftedSkills > 0
+        ? `Learning wrote ${result.appliedPreferences} preference(s) and ${result.draftedSkills} skill draft(s) for user ${userId}; skill-library install remains blocked.`
+        : 'Turn-end learning projected; durable writes require autonomous learning mode.';
       run.events.push({
         id: this.idFactory('agent-event'),
         runId: run.id,
         kind: 'memory',
-        title: 'Native autonomy spine reviewed turn',
-        detail: 'Turn-end learning, Skill Forge, channel proof and backend proof were projected without live side effects.',
+        title: 'Product surface learning reviewed turn',
+        detail: writeDetail,
         status: 'done',
         createdAt: generatedAt,
         metadata: {
-          source: 'ZavorthNativeAutonomySpineService',
-          status: snapshot.status,
-          candidates: snapshot.learning.candidates.length,
-          skillDrafts: snapshot.skillForge.drafts.length,
-          quietLanes: snapshot.reviewCenter.quietLanes,
+          source: 'ZavorthProductSurfaceRuntimeService',
+          status: result.ok ? 'ready' : 'attention',
+          learningMode: result.mode || 'governed',
+          appliedPreferences: result.appliedPreferences,
+          draftedSkills: result.draftedSkills,
+          userId,
         },
       });
     } catch (error: unknown) {
       const err = asErrorLike(error);
       run.metadata = {
         ...run.metadata,
-        nativeAutonomySpine: {
-          version: 'native-autonomy-spine/v1',
-          status: 'attention',
+        productSurfaceLearning: {
+          ok: false,
           error: error instanceof Error ? err.message : String(error),
-          rawSecretsSerialized: false,
         },
       };
     }

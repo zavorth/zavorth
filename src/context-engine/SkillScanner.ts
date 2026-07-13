@@ -12,6 +12,9 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('SkillScanner');
 
 export interface SkillManifest {
   /** Unique skill ID, usually the folder name. */
@@ -52,7 +55,7 @@ export class SkillScanner {
       }
     }
 
-    console.log(`[SkillScanner] Discovered ${manifests.length} skills in ${directories.length} directories`);
+    log.info(`Discovered ${manifests.length} skills in ${directories.length} directories`);
     return manifests;
   }
 

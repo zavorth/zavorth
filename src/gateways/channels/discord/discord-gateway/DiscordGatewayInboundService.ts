@@ -7,6 +7,13 @@ import {
   isSharedSurfaceOperationalCallbackCommand,
 } from '../../../../domain/surface/presentation/shared-surface/SharedSurfaceCallbackCommandPolicy.js';
 import {
+  clearPendingSurfaceApproval,
+  parseSurfaceInteraction,
+  resolvePendingSurfaceApproval,
+  toPermissionApprovalArgs,
+  tryConsumeMessagingPermissionText,
+} from '../../../../domain/surface/application/surface-projection/index.js';
+import {
   buildDiscordChatId,
   composeDiscordInboundText,
   extractDiscordAttachments,
@@ -113,10 +120,56 @@ export class DiscordGatewayInboundService {
       isDirectMessage: !guildId,
     });
 
+    const chatId = buildDiscordChatId(guildId, channelId, threadId, message.channel?.parentId);
+
+    // Numbered / slash approval for pending Discord surface cards (short number or approve/reject).
+    if (this.looksLikeSurfacePermissionText(rawText)) {
+      const permissionText = tryConsumeMessagingPermissionText({
+        channel: 'discord',
+        chatId,
+        userId: authorId,
+        rawText,
+      });
+      if (permissionText) {
+        const commandText =
+          permissionText.choice === 'deny'
+            ? `/reject ${permissionText.taskId}`
+            : `/approve ${permissionText.taskId} ${permissionText.choice}`;
+        await this.broker.processMessage({
+          platform: 'discord',
+          userId: authorId,
+          chatId,
+          isGroup: Boolean(guildId),
+          rawText: commandText,
+          messageId: String(message.id || '').trim() || null,
+          channelId,
+          threadId,
+          transport: 'text',
+          attachments,
+          composerPayload: {
+            attachments,
+            discord: {
+              source: 'message',
+              channelId,
+              threadId,
+              guildId,
+            },
+          },
+          reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
+            await this.replyService.replyToMessage(message, text, options);
+          },
+          editMessage: async (messageId: string, text: string) => {
+            await this.replyService.editChannelMessage(message, messageId, text);
+          },
+        });
+        return;
+      }
+    }
+
     if (await this.tryHandleNaturalMessageThroughAgentGateway({
       userId: authorId,
       rawText,
-      chatId: buildDiscordChatId(guildId, channelId, threadId, message.channel?.parentId),
+      chatId,
       channelId,
       threadId,
       guildId,
@@ -141,7 +194,7 @@ export class DiscordGatewayInboundService {
     await this.broker.processMessage({
       platform: 'discord',
       userId: authorId,
-      chatId: buildDiscordChatId(guildId, channelId, threadId, message.channel?.parentId),
+      chatId,
       isGroup: Boolean(guildId),
       rawText,
       messageId: String(message.id || '').trim() || null,
@@ -172,7 +225,7 @@ export class DiscordGatewayInboundService {
       return;
     }
 
-    if (interaction?.isButton?.()) {
+    if (this.isComponentInteraction(interaction)) {
       await this.handleComponentInteraction(interaction);
       return;
     }
@@ -251,6 +304,33 @@ export class DiscordGatewayInboundService {
     });
   }
 
+  private isComponentInteraction(interaction: DiscordGatewayInteractionLike): boolean {
+    if (interaction?.isButton?.()) {
+      return true;
+    }
+    if (interaction?.isStringSelectMenu?.()) {
+      return true;
+    }
+    if (Array.isArray(interaction?.values) && interaction.values.length > 0) {
+      return true;
+    }
+    // Partial clients: custom_id without slash command markers.
+    const customId = String(interaction?.customId || '').trim();
+    return Boolean(customId) && !interaction?.isChatInputCommand?.();
+  }
+
+  /** Short numbered replies or explicit approve/reject commands. */
+  private looksLikeSurfacePermissionText(rawText: string): boolean {
+    const text = String(rawText || '').trim();
+    if (!text) {
+      return false;
+    }
+    if (/^\d{1,2}$/.test(text)) {
+      return true;
+    }
+    return /^\/?(approve|reject)\b/i.test(text);
+  }
+
   private async handleComponentInteraction(interaction: DiscordGatewayInteractionLike): Promise<void> {
     const broker = this.broker;
     if (!broker) {
@@ -261,11 +341,125 @@ export class DiscordGatewayInboundService {
     const guildId = String(interaction.guildId || '').trim() || null;
     const channelId = String(interaction.channelId || '').trim();
     const threadId = resolveDiscordThreadId(interaction.channel, channelId);
-    const decision = evaluateSharedSurfaceCommandCallback(interaction.customId);
+    const chatId = buildDiscordChatId(guildId, channelId, threadId, interaction.channel?.parentId);
+    const messageId = String(interaction.message?.id || '').trim() || null;
+
+    // Prefer select value, then customId (task:once:<id> etc.)
+    const selectValue = Array.isArray(interaction.values)
+      ? String(interaction.values[0] || '').trim()
+      : '';
+    const customId = String(interaction.customId || '').trim();
+    const rawCallback = selectValue || customId;
 
     if (!authorId || !channelId) {
       return;
     }
+
+    // Surface approval path: task:once|session|always|deny / select values
+    if (rawCallback) {
+      const pending = resolvePendingSurfaceApproval({
+        surface: 'discord',
+        chatId,
+        messageId,
+      });
+      const event = parseSurfaceInteraction({
+        surface: 'discord',
+        raw: rawCallback,
+        kindHint: 'callback',
+        actorId: authorId,
+        sessionId: chatId,
+        metadata: {
+          approvalId: pending?.approvalId || null,
+          taskId: pending?.approvalId || null,
+          highRisk: pending?.highRisk || false,
+        },
+      });
+      let permission = event ? toPermissionApprovalArgs(event) : null;
+      if (!permission && pending && event?.choice) {
+        permission = { taskId: pending.approvalId, choice: event.choice };
+      }
+      if (permission) {
+        const commandText =
+          permission.choice === 'deny'
+            ? `/reject ${permission.taskId}`
+            : `/approve ${permission.taskId} ${permission.choice}`;
+
+        const validation = this.validateInboundMessage({
+          userId: authorId,
+          guildId,
+          channelId,
+          parentChannelId: interaction.channel?.parentId,
+          rawText: commandText,
+          attachmentsCount: 0,
+        });
+        if (!validation.valid) {
+          await this.replyService.replyToInteraction(interaction, validation.reason);
+          this.persistence.markRejected(validation.reason);
+          return;
+        }
+
+        this.persistence.markProcessedInbound({
+          channelId,
+          guildId,
+          authorId,
+          isDirectMessage: !guildId,
+        });
+
+        await this.replyService.replyToInteraction(
+          interaction,
+          permission.choice === 'deny' ? 'Rejecting…' : `Allow ${permission.choice}…`,
+        );
+
+        await broker.processMessage({
+          platform: 'discord',
+          userId: authorId,
+          chatId,
+          isGroup: Boolean(guildId),
+          rawText: commandText,
+          messageId,
+          channelId,
+          threadId,
+          transport: 'interaction',
+          attachments: [],
+          nativeCommand: {
+            name: 'surface-permission',
+            args: commandText,
+            options: {
+              customId: rawCallback,
+              choice: permission.choice,
+              taskId: permission.taskId,
+            },
+          },
+          composerPayload: {
+            attachments: [],
+            discord: {
+              source: 'component',
+              customId: rawCallback,
+              channelId,
+              threadId,
+              guildId,
+            },
+          },
+          reply: async (text: string, options?: DiscordGatewayReplyOptions) => {
+            await this.replyService.replyToInteraction(interaction, text, options);
+          },
+          editMessage: async (_messageId: string, text: string) => {
+            await this.replyService.editInteractionReply(interaction, text);
+          },
+        });
+
+        clearPendingSurfaceApproval({
+          surface: 'discord',
+          chatId,
+          messageId,
+          approvalId: permission.taskId,
+        });
+        return;
+      }
+    }
+
+    // Fall through to shared-surface command callback allowlist.
+    const decision = evaluateSharedSurfaceCommandCallback(customId || rawCallback);
 
     if (!decision.allowed) {
       await this.replyService.replyToInteraction(
@@ -315,10 +509,10 @@ export class DiscordGatewayInboundService {
     await broker.processMessage({
       platform: 'discord',
       userId: authorId,
-      chatId: buildDiscordChatId(guildId, channelId, threadId, interaction.channel?.parentId),
+      chatId,
       isGroup: Boolean(guildId),
       rawText: commandText,
-      messageId: String(interaction.message?.id || '').trim() || null,
+      messageId,
       channelId,
       threadId,
       transport: 'interaction',
@@ -327,14 +521,14 @@ export class DiscordGatewayInboundService {
         name: 'component',
         args: commandText,
         options: {
-          customId: String(interaction.customId || ''),
+          customId,
         },
       },
       composerPayload: {
         attachments: [],
         discord: {
           source: 'component',
-          customId: String(interaction.customId || ''),
+          customId,
           channelId,
           threadId,
           guildId,

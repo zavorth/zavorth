@@ -21,6 +21,12 @@ import { safeFetch } from '@zavorth/security/SafeFetchService.js';
 import { TelegramOpsInsightPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramOpsInsightPresentationService.js';
 import { wrapUntrustedContent } from '@zavorth/security/UntrustedContent.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import {
+  formatDictationTranscriptNotice,
+  getVoiceDictationIngress,
+  normalizeDictationTranscript,
+} from '../../../../services/voice/VoiceDictationIngress.js';
+import { getVoicePreferenceService } from '../../../../services/voice/VoicePreferenceService.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type EchoPreferenceStoreLike = {
@@ -47,6 +53,10 @@ type ConversationalDispatch = (
 
 export class TelegramMediaController {
   private readonly opsPresentationService = new TelegramOpsInsightPresentationService();
+  /** F5f — optional permission decision from STT transcript (Zavorth AudioTranscriptionService path). */
+  private voicePermissionHandler:
+    | ((ctx: Context, transcript: string) => Promise<boolean>)
+    | null = null;
 
   constructor(
     private audioHandler: AudioHandler,
@@ -56,6 +66,12 @@ export class TelegramMediaController {
     private echoPreferenceStore?: EchoPreferenceStoreLike | null,
     private echoOutputStage?: EchoOutputStageService | null,
   ) {}
+
+  public setVoicePermissionHandler(
+    handler: ((ctx: Context, transcript: string) => Promise<boolean>) | null,
+  ): void {
+    this.voicePermissionHandler = handler;
+  }
 
   public async handlePhoto(ctx: Context): Promise<void> {
     const photoArray = ctx.message?.photo;
@@ -221,7 +237,57 @@ export class TelegramMediaController {
         return;
       }
 
-      const messageText = this.normalizeVoiceTranscriptForDispatch(transcript) || `[Audio enviado para analise direta]${transcriptWarning}`;
+      // F5f — if STT text is an approval decision for a pending task, consume it here
+      // (uses same transcript already produced by AudioTranscriptionService / AudioHandler).
+      if (this.voicePermissionHandler) {
+        try {
+          const consumed = await this.voicePermissionHandler(ctx, transcript);
+          if (consumed) {
+            logEchoTrace(traceId, 'voice.permission.consumed', {
+              transcriptChars: transcript.length,
+              sttProvider: transcriptionResult?.provider || 'unknown',
+            });
+            return;
+          }
+        } catch (permissionError: unknown) {
+          logger.warn('[TelegramMedia] voice permission handler failed', permissionError);
+        }
+      }
+
+      // Phase 2 — dictation-first: transcript is the same agent input as typing.
+      const dictation = getVoiceDictationIngress().prepare({
+        transcript,
+        provider: transcriptionResult?.provider || null,
+        model: transcriptionResult?.model || null,
+        languageCode: transcriptionResult?.languageCode || null,
+        preference: getVoicePreferenceService().get(),
+        surface: 'telegram',
+        forceShowTranscript: Boolean(audioConfig.echoTranscript),
+      });
+
+      if (!dictation.ok) {
+        const hint = dictation.configureHint ? `\n\n${dictation.configureHint}` : '';
+        await ctx.reply(`${dictation.message}${hint}`.trim());
+        logEchoTrace(traceId, 'voice.dictation.blocked', {
+          code: dictation.code,
+          message: dictation.message,
+        });
+        return;
+      }
+
+      if (dictation.showTranscript) {
+        await ctx.reply(
+          formatDictationTranscriptNotice({
+            transcript: dictation.transcriptPreview,
+            languageCode: transcriptionResult?.languageCode || null,
+            provider: transcriptionResult?.provider || null,
+            lowConfidence: dictation.lowConfidence,
+          }),
+        );
+      }
+
+      // Never invent media placeholders — agentText is pure dictation.
+      const messageText = dictation.agentText;
 
       const dispatchStartedAt = Date.now();
       const voiceFlow = {
@@ -237,19 +303,28 @@ export class TelegramMediaController {
         sttLatencyMs: transcriptionResult?.latencyMs ?? null,
         sttWarnings: transcriptionResult?.warnings || [],
         sttFailures: transcriptionResult?.failures || [],
-        transcriptChars: transcript.length,
+        transcriptChars: messageText.length,
         dispatchStartedAt: new Date(dispatchStartedAt).toISOString(),
         dispatchStartedAtMs: dispatchStartedAt,
+        dictationMode: dictation.mode,
+        dictationReason: dictation.reason,
+        ttsReplyDesired: dictation.ttsReplyDesired,
+        source: 'voice_dictation',
       };
       logEchoTrace(traceId, 'voice.dispatch.started', {
         sttProvider: transcriptionResult?.provider || 'unknown',
         languageCode: this.resolveVoiceLanguageCode(transcript, transcriptionResult?.languageCode || null),
-        transcriptChars: transcript.length,
+        transcriptChars: messageText.length,
+        dictationMode: dictation.mode,
       });
       await this.dispatchConversational(
         ctx,
         messageText,
-        audioConfig.forwardRawAudio ? audioInlineData : undefined,
+        // Dictation-first: do not inject raw audio as multimodal by default.
+        // Raw audio only when explicitly enabled AND conversation mode (not plain dictation).
+        audioConfig.forwardRawAudio && dictation.mode === 'conversation'
+          ? audioInlineData
+          : undefined,
         {
           traceId,
           voiceFlow,
@@ -670,10 +745,11 @@ export class TelegramMediaController {
   }
 
   private normalizeVoiceTranscriptForDispatch(transcript: string): string {
-    return String(transcript || '')
-      .trim()
+    // Phase 2: same normalization as VoiceDictationIngress (no media placeholders).
+    const cleaned = normalizeDictationTranscript(transcript)
       .replace(/^\s*(?:zavorth|echo|nexus|jarvis|friday)\b[\s,;:.!?-]*/i, '')
       .trim();
+    return cleaned;
   }
 
   private async replyToVoiceConnectivityCheck(

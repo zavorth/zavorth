@@ -15,7 +15,7 @@ export type DesktopUpdateStatus = {
   currentVersion: string;
   latestVersion: string;
   channel: string;
-  source: 'github' | 'manifest' | 'none';
+  source: 'github' | 'manifest' | 'electron-updater' | 'none';
   githubRepo: string | null;
   releaseUrl: string | null;
   releaseNotes: string[];
@@ -111,6 +111,9 @@ export function buildDesktopUpdateStatus(input: DesktopUpdateInput): DesktopUpda
 
 function normalizeUpdateSource(value: unknown, providerConfigured?: boolean): DesktopUpdateStatus['source'] {
   const text = String(value || '').trim().toLowerCase();
+  if (text === 'electron-updater' || text.includes('electron-updater') || text === 'electron_updater') {
+    return 'electron-updater';
+  }
   if (text === 'github' || text.includes('github')) return 'github';
   if (text === 'manifest') return 'manifest';
   if (text === 'none' || text === 'manual') return 'none';
@@ -166,13 +169,18 @@ function updateMessage(input: {
     case 'unconfigured':
       return 'No update channel is configured. Open GitHub Releases or Setup to upgrade manually.';
     case 'available':
+      if (input.source === 'electron-updater') {
+        return `Installer update ${input.latestVersion} is available (Desktop ${input.currentVersion}). Download in-app, then install.`;
+      }
       return input.source === 'github'
         ? `GitHub release ${input.latestVersion} is available (Desktop ${input.currentVersion}). Open Releases to upgrade.`
         : `Version ${input.latestVersion} available.`;
     case 'deferred':
       return `Update deferred until ${input.deferredUntil || 'later'}.`;
     case 'ready-to-install':
-      return `Version ${input.latestVersion} ready — install from GitHub package/Setup.`;
+      return input.source === 'electron-updater'
+        ? `Version ${input.latestVersion} downloaded — install to relaunch Desktop.`
+        : `Version ${input.latestVersion} ready — install from GitHub package/Setup.`;
     case 'installing':
       return 'Update install in progress.';
     case 'rollback-available':
@@ -180,6 +188,9 @@ function updateMessage(input: {
     case 'error':
       return 'Failed to check updates.';
     default:
+      if (input.source === 'electron-updater') {
+        return `Desktop ${input.currentVersion} is up to date (signed installer channel).`;
+      }
       return input.source === 'github'
         ? `Desktop ${input.currentVersion} — channel github.com/${repo}. Open Releases to review tags anytime.`
         : `Zavorth Desktop ${input.currentVersion} is up to date.`;

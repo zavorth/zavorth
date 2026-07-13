@@ -48,7 +48,7 @@ export class WebAppGatewaySelfmodSupport {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, any>> {
     if (!deps.selfModification) {
-      throw new Error('Selfmod indisponivel neste runtime.');
+      throw new Error('Selfmod unavailable in this runtime.');
     }
     const requestedBy = String(input.requestedBy || deps.runtime.webUserId || 'web-operator').trim();
     const mode = input.mode === 'goal' ? 'goal' : 'file';
@@ -75,7 +75,7 @@ export class WebAppGatewaySelfmodSupport {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, any>> {
     if (!deps.selfModification) {
-      throw new Error('Selfmod indisponivel neste runtime.');
+      throw new Error('Selfmod unavailable in this runtime.');
     }
     const previewId = String(input.previewId || '').trim();
     if (!previewId) {
@@ -198,7 +198,7 @@ export class WebAppGatewaySelfmodSupport {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, any>> {
     if (!deps.selfModification) {
-      throw new Error('Selfmod indisponivel neste runtime.');
+      throw new Error('Selfmod unavailable in this runtime.');
     }
     const changeId = String(input.changeId || '').trim();
     if (!changeId) {

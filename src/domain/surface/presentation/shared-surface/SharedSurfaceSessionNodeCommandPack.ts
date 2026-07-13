@@ -8,6 +8,8 @@ import type { NodeInvokeService } from '../../../../services/NodeInvokeService.j
 import type { NodePairingService } from '../../../../services/NodePairingService.js';
 import { logger } from '../../../../logger';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
+import { tService } from '../../../../i18n/services.js';
 
 type SharedSurfaceSessionNodeCommandPackDeps = {
   sessionPlaneService?: Pick<
@@ -64,7 +66,7 @@ export class SharedSurfaceSessionNodeCommandPack {
 
   private async handleSessions(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.sessionPlaneService) {
-      await ctx.reply('Session plane indisponivel neste runtime compartilhado.');
+      await ctx.reply(tService('session_node.session_plane_unavailable'));
       return;
     }
 
@@ -72,18 +74,19 @@ export class SharedSurfaceSessionNodeCommandPack {
       await ctx.reply(
         await this.deps.sessionPlaneService.renderOverviewReport({
           userId: String(ctx.userId || '').trim(),
-          ...this.resolveSessionTargetFromArgs(ctx, args),
+          // NaturalSlashConvention rewrites empty → "status"; treat control verbs as current session overview.
+          ...this.resolveSessionTargetFromArgs(ctx, this.stripSessionControlVerb(args)),
         }),
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui montar o session plane agora.');
+      await ctx.reply(error instanceof Error ? err.message : tSurface('error_session_plane'));
     }
   }
 
   private async handleSessionHistory(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.sessionPlaneService) {
-      await ctx.reply('Session plane indisponivel neste runtime compartilhado.');
+      await ctx.reply(tService('session_node.session_plane_unavailable'));
       return;
     }
 
@@ -91,24 +94,55 @@ export class SharedSurfaceSessionNodeCommandPack {
       await ctx.reply(
         await this.deps.sessionPlaneService.renderHistoryReport({
           userId: String(ctx.userId || '').trim(),
-          ...this.resolveSessionTargetFromArgs(ctx, args),
+          ...this.resolveSessionTargetFromArgs(ctx, this.stripSessionControlVerb(args)),
         }),
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui ler o historico dessa sessao agora.');
+      await ctx.reply(error instanceof Error ? err.message : tService('session_node.could_not_read_history'));
     }
+  }
+
+  /** Drop home/status/list/help tokens so they are not parsed as session ids. */
+  private stripSessionControlVerb(rawArgs: string): string {
+    const trimmed = String(rawArgs || '').trim();
+    if (!trimmed) {
+      return '';
+    }
+    const lower = trimmed.toLowerCase();
+    if (
+      lower === 'status'
+      || lower === 'show'
+      || lower === 'open'
+      || lower === 'list'
+      || lower === 'ls'
+      || lower === 'help'
+      || lower === 'ajuda'
+      || lower === '?'
+    ) {
+      return '';
+    }
+    return trimmed;
   }
 
   private async handleSessionSend(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.sessionPlaneService) {
-      await ctx.reply('Session plane indisponivel neste runtime compartilhado.');
+      await ctx.reply(tService('session_node.session_plane_unavailable'));
       return;
     }
 
     const parsed = this.parseSessionSendArgs(args);
     if (!parsed) {
-      await ctx.reply('Use /sessionsend <sessionId|chatId> -- <mensagem>. Ex.: /sessionsend web:minha-sessao -- continue o plano.');
+      await ctx.reply(
+        [
+          'Send a message to another session.',
+          '',
+          '/sessionsend <sessionId|chatId> <message>',
+          '  Ex.: /sessionsend web:minha-sessao continue o plano',
+          '',
+          'Power form still works: /sessionsend web:minha-sessao -- continue o plano',
+        ].join('\n'),
+      );
       return;
     }
 
@@ -126,28 +160,46 @@ export class SharedSurfaceSessionNodeCommandPack {
 
       await ctx.reply(
         [
-          'Mensagem despachada para a sessao.',
+          tService('session_node.message_dispatched'),
           '',
-          `Canal: ${result.platform}.`,
-          `Chat: ${result.chatId}.`,
-          `Sessao: ${result.sessionId || 'n/d'}.`,
-          `Task criada: ${result.taskId || 'n/d'}.`,
-          result.snapshot?.handoff?.operatorSummary || result.snapshot?.replay?.operatorSummary || 'Sem resumo adicional apos o envio.',
+          `${tService('session_node.channel_label')}: ${result.platform}.`,
+          `${tService('session_node.chat_label')}: ${result.chatId}.`,
+          `${tService('session_node.session_label')}: ${result.sessionId || 'n/d'}.`,
+          `${tService('session_node.task_created_label')}: ${result.taskId || 'n/d'}.`,
+          result.snapshot?.handoff?.operatorSummary || result.snapshot?.replay?.operatorSummary || tService('session_node.no_additional_summary_after_send'),
         ].join('\n'),
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui despachar a mensagem para essa sessao agora.');
+      await ctx.reply(error instanceof Error ? err.message : tService('session_node.could_not_dispatch_message'));
     }
   }
 
   private async handleSessionSpawn(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.sessionPlaneService) {
-      await ctx.reply('Session plane indisponivel neste runtime compartilhado.');
+      await ctx.reply(tService('session_node.session_plane_unavailable'));
       return;
     }
 
-    const requestedPlatform = String(args || '').trim().toLowerCase() || 'web';
+    const raw = String(args || '').trim();
+    const lower = raw.toLowerCase();
+    // Free text is the platform (default web). Explicit help stays available.
+    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+      await ctx.reply(
+        [
+          'Spawn a derived session.',
+          '',
+          '/sessionspawn',
+          '  → open a web session (default)',
+          '/sessionspawn <platform>',
+          '  Ex.: /sessionspawn telegram',
+          '  Ex.: /sessionspawn web',
+        ].join('\n'),
+      );
+      return;
+    }
+
+    const requestedPlatform = lower || 'web';
     try {
       const result = await this.deps.sessionPlaneService.spawnSession({
         userId: String(ctx.userId || '').trim(),
@@ -157,18 +209,18 @@ export class SharedSurfaceSessionNodeCommandPack {
       await ctx.reply(
         [
           result.ok
-            ? `Sessao derivada aberta em ${result.platform}.`
-            : `Spawn oficial ainda parcial para ${result.platform}.`,
+            ? `${tService('session_node.derived_session_opened')} ${result.platform}.`
+            : `${tService('session_node.official_spawn_partial')} ${result.platform}.`,
           '',
-          `Sessao: ${result.sessionId || 'n/d'}.`,
-          `Chat: ${result.chatId || 'n/d'}.`,
+          `${tService('session_node.session_label')}: ${result.sessionId || 'n/d'}.`,
+          `${tService('session_node.chat_label')}: ${result.chatId || 'n/d'}.`,
           `Runtime user: ${result.runtimeUserId || 'n/d'}.`,
           `Handoff: ${result.handoffCommand}.`,
         ].join('\n'),
       );
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      await ctx.reply(error instanceof Error ? err.message : 'Nao consegui abrir a sessao derivada agora.');
+      await ctx.reply(error instanceof Error ? err.message : tService('session_node.could_not_open_derived_session'));
     }
   }
 
@@ -181,12 +233,12 @@ export class SharedSurfaceSessionNodeCommandPack {
     if (normalized === 'profiles' || normalized === 'profile' || normalized === 'perfis') {
       const profiles = this.deps.nodeDeviceProfiles.listProfiles();
       await ctx.reply([
-        'Perfis do Node Mesh',
+        tService('session_node.node_mesh_profiles'),
         '',
         ...profiles.flatMap((profile) => ([
           `- ${profile.label} [${profile.id}]`,
           `  kind: ${profile.kind} | transport: ${profile.transport}`,
-          `  capabilities: ${profile.defaultCapabilityIds.join(', ') || 'nenhuma'}`,
+          `  capabilities: ${profile.defaultCapabilityIds.join(', ') || tService('session_node.none')}`,
           `  ${profile.operatorSummary}`,
         ])),
       ].join('\n'));
@@ -196,11 +248,11 @@ export class SharedSurfaceSessionNodeCommandPack {
     if (normalized === 'capabilities' || normalized === 'caps' || normalized === 'capabilidades') {
       const capabilities = this.deps.nodeCapabilities.listCatalog();
       await ctx.reply([
-        'Capabilities do Node Mesh',
+        tService('session_node.node_mesh_capabilities'),
         '',
         ...capabilities.flatMap((capability) => ([
           `- ${capability.label} [${capability.id}]`,
-          `  categoria: ${capability.category} | risco: ${capability.risky ? 'alto' : 'baixo'}`,
+          `  ${tService('session_node.category')}: ${capability.category} | ${tService('session_node.risk')}: ${capability.risky ? tService('session_node.high') : tService('session_node.low')}`,
           `  ${capability.summary}`,
         ])),
       ].join('\n'));
@@ -219,28 +271,28 @@ export class SharedSurfaceSessionNodeCommandPack {
       if (!activity?.nodeId) {
         await ctx.reply(
           mode === 'queue'
-            ? 'Nenhum node selecionado para consultar a fila do Node Mesh.'
-            : 'Nenhum node selecionado para consultar o historico do Node Mesh.',
+            ? tService('session_node.no_node_selected_for_queue')
+            : tService('session_node.no_node_selected_for_history'),
         );
         return;
       }
       const items = mode === 'queue' ? activity.activeInvocations : activity.recentInvocations;
       const lines = [
-        mode === 'queue' ? 'Fila do Node Mesh' : 'Historico do Node Mesh',
+        mode === 'queue' ? tService('session_node.node_mesh_queue') : tService('session_node.node_mesh_history'),
         '',
         `Node: ${snapshot.selected?.label || activity.nodeId}.`,
         activity.narrative.headline,
         activity.narrative.operatorSummary,
         '',
         mode === 'queue'
-          ? `Pendentes: ${activity.summary.pending} | claimed: ${activity.summary.claimed}.`
-          : `Recentes: ${activity.summary.recent} | concluidas recentemente: ${activity.summary.completedRecently}.`,
+          ? `Pending: ${activity.summary.pending} | claimed: ${activity.summary.claimed}.`
+          : `${tService('session_node.recent')}: ${activity.summary.recent} | ${tService('session_node.completed_recently')}: ${activity.summary.completedRecently}.`,
       ];
       if (items.length === 0) {
         lines.push(
           mode === 'queue'
-            ? 'Nenhuma invocacao pendente/claimed no momento.'
-            : 'Nenhuma invocacao recente registrada para este node.',
+            ? tService('session_node.no_pending_invocations')
+            : tService('session_node.no_recent_invocations'),
         );
       } else {
         lines.push(
@@ -253,29 +305,29 @@ export class SharedSurfaceSessionNodeCommandPack {
       return;
     }
     const lines = [
-      'Node Mesh do Zavorth',
+      tService('session_node.zavorth_node_mesh'),
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Nodes: ${snapshot.summary.total} | pareados: ${snapshot.summary.paired} | pendentes: ${snapshot.summary.pending} | online: ${snapshot.summary.online}.`,
+      `Nodes: ${snapshot.summary.total} | ${tService('session_node.paired')}: ${snapshot.summary.paired} | pending: ${snapshot.summary.pending} | online: ${snapshot.summary.online}.`,
     ];
     if (snapshot.selected) {
       const profile = this.deps.nodeDeviceProfiles.describeProfile(snapshot.selected.profileId);
       lines.push(
         '',
-        `Node em foco: ${snapshot.selected.label}.`,
+        `${tService('session_node.node_in_focus')}: ${snapshot.selected.label}.`,
         `Status: ${snapshot.selected.trustLabel} / ${snapshot.selected.status}.`,
-        `Perfil: ${profile?.label || snapshot.selected.kind}.`,
-        `Fila: ${snapshot.selected.pendingInvocations || 0} pendente(s) / ${snapshot.selected.claimedInvocations || 0} claimed.`,
+        `${tService('session_node.profile')}: ${profile?.label || snapshot.selected.kind}.`,
+        `${tService('session_node.queue')}: ${snapshot.selected.pendingInvocations || 0} ${tService('session_node.pending_unit')} / ${snapshot.selected.claimedInvocations || 0} claimed.`,
         snapshot.selected.recentInvocation
-          ? `Invocacao recente: ${snapshot.selected.recentInvocation.capabilityId} (${snapshot.selected.recentInvocation.status}).`
-          : 'Invocacao recente: nenhuma registrada.',
-        snapshot.selected.operatorSummary || snapshot.selected.nextAction || 'Sem resumo adicional.',
+          ? `${tService('session_node.recent_invocation')}: ${snapshot.selected.recentInvocation.capabilityId} (${snapshot.selected.recentInvocation.status}).`
+          : `${tService('session_node.recent_invocation')}: ${tService('session_node.none_registered')}.`,
+        snapshot.selected.operatorSummary || snapshot.selected.nextAction || tService('session_node.no_additional_summary'),
       );
     }
     if (snapshot.suggestedActions.length > 0) {
-      lines.push('', 'Proximo passo:', `- ${snapshot.suggestedActions[0].label}: ${snapshot.suggestedActions[0].reason}`);
+      lines.push('', `${tService('session_node.next_step')}:`, `- ${snapshot.suggestedActions[0].label}: ${snapshot.suggestedActions[0].reason}`);
     }
     await ctx.reply(lines.join('\n'));
   }
@@ -293,14 +345,14 @@ export class SharedSurfaceSessionNodeCommandPack {
     });
 
     await ctx.reply([
-      `Pairing draft criado para ${draft.entry.label}.`,
+      `${tService('session_node.pairing_draft_created')} ${draft.entry.label}.`,
       '',
-      `Perfil: ${draft.profile?.label || profile.label}.`,
+      `${tService('session_node.profile')}: ${draft.profile?.label || profile.label}.`,
       `Node ID: ${draft.entry.id}.`,
       `Pairing code: ${draft.pairingCode}.`,
-      `Transporte: ${draft.entry.transport}.`,
-      `Capabilities base: ${draft.entry.capabilityIds.join(', ') || 'sem capabilities declaradas'}.`,
-      'Bootstrap sugerido:',
+      `${tService('session_node.transport')}: ${draft.entry.transport}.`,
+      `${tService('session_node.base_capabilities')}: ${draft.entry.capabilityIds.join(', ') || tService('session_node.no_capabilities_declared')}.`,
+      `${tService('session_node.suggested_bootstrap')}:`,
       draft.bootstrap?.command
         || `npm run nodes:host -- --base-url <zavorthControl-url> --node-id ${draft.entry.id} --pairing-code ${draft.pairingCode} --capabilities ${draft.entry.capabilityIds.join(',') || 'system.run'}`,
       ...(draft.bootstrap?.fallbackCommand ? ['Fallback:', draft.bootstrap.fallbackCommand] : []),
@@ -310,7 +362,14 @@ export class SharedSurfaceSessionNodeCommandPack {
   private async handleNodeInvoke(ctx: IMessageContext, args: string): Promise<void> {
     const parsed = this.parseNodeInvokeArgs(args);
     if (!parsed) {
-      await ctx.reply('Use /nodeinvoke <nodeId> <capabilityId> [action] [payload-json].');
+      await ctx.reply(
+        [
+          'Invoke a capability on a node.',
+          '',
+          '/nodeinvoke <nodeId> <capabilityId> [action] [payload-json]',
+          '  Ex.: /nodeinvoke oracle-node system.run',
+        ].join('\n'),
+      );
       return;
     }
 
@@ -322,7 +381,7 @@ export class SharedSurfaceSessionNodeCommandPack {
       requestedBy: String(ctx.userId || '').trim() || null,
     });
     await ctx.reply([
-      result.ok ? 'Invocacao do Node Mesh enfileirada.' : 'Nao consegui enfileirar a invocacao do Node Mesh.',
+      result.ok ? tService('session_node.node_mesh_invocation_queued') : tService('session_node.could_not_queue_invocation'),
       '',
       `Node: ${result.nodeId || 'n/d'}.`,
       `Capability: ${result.capabilityId}.`,

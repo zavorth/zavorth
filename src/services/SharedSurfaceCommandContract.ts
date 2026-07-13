@@ -1,4 +1,5 @@
 import type { DiscordCommandExposure } from './DiscordSurfacePolicyService.js';
+import { tService } from '../i18n/services.js';
 
 export type SharedSurfaceCommandHandler = 'dispatcher' | 'shared-service';
 export type SharedSurfaceSlashVisibility = 'none' | 'public' | 'operator';
@@ -34,7 +35,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'help',
     discordSlashVisibility: 'public',
-    description: 'Resume os comandos compartilhados.',
+    description: tService('contract.help_description'),
   },
   {
     commandType: '/commands',
@@ -43,12 +44,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'commands',
     discordSlashVisibility: 'public',
-    description: 'Mostra o catalogo de comandos compartilhados por canal.',
+    description: tService('contract.commands_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'Filtro opcional, por exemplo page 2, channel, model ou operator.',
+        description: tService('contract.commands_input_description'),
         required: false,
       },
     ],
@@ -60,7 +61,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'status',
     discordSlashVisibility: 'operator',
-    description: 'Mostra a saude do runtime.',
+    description: tService('contract.status_description'),
   },
   {
     commandType: '/changes',
@@ -69,7 +70,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'changes',
     discordSlashVisibility: 'operator',
-    description: 'Resume mudancas locais e estado do runtime.',
+    description: tService('contract.changes_description'),
   },
   {
     commandType: '/selfupdate',
@@ -78,12 +79,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'reload',
     discordSlashVisibility: 'operator',
-    description: 'Pede um recycle supervisionado.',
+    description: tService('contract.selfupdate_description'),
     options: [
       {
         type: 'boolean',
         name: 'force',
-        description: 'Forca o recycle mesmo sem pendencias detectadas.',
+        description: tService('contract.selfupdate_force_description'),
         required: false,
       },
     ],
@@ -95,15 +96,15 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'autorepair',
     discordSlashVisibility: 'operator',
-    description: 'Diagnostica, corrige, valida e religa o Zavorth.',
+    description: tService('contract.autorepair_description'),
     options: [
       {
         type: 'string',
         name: 'mode',
-        description: 'Escolha entre executar ou apenas ver o ultimo relatorio.',
+        description: tService('contract.autorepair_mode_description'),
         required: false,
         choices: [
-          { name: 'executar', value: 'run' },
+          { name: tService('contract.choice_run'), value: 'run' },
           { name: 'status', value: 'status' },
         ],
       },
@@ -116,18 +117,18 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'task',
     discordSlashVisibility: 'public',
-    description: 'Envia um pedido normal para o Zavorth.',
+    description: tService('contract.task_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'Pedido ou instrucao.',
+        description: tService('contract.task_input_description'),
         required: true,
       },
       {
         type: 'attachment',
         name: 'attachment',
-        description: 'Anexo opcional para contextualizar a tarefa.',
+        description: tService('contract.task_attachment_description'),
         required: false,
       },
     ],
@@ -139,18 +140,18 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'auto',
     discordSlashVisibility: 'public',
-    description: 'Executa uma automacao guiada.',
+    description: tService('contract.auto_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'Pedido orientado a automacao.',
+        description: tService('contract.auto_input_description'),
         required: true,
       },
       {
         type: 'attachment',
         name: 'attachment',
-        description: 'Anexo opcional para a automacao.',
+        description: tService('contract.auto_attachment_description'),
         required: false,
       },
     ],
@@ -162,18 +163,18 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: true,
     discordSlashName: 'plan',
     discordSlashVisibility: 'public',
-    description: 'Pede um plano antes de executar.',
+    description: tService('contract.plan_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'Pedido a ser planejado.',
+        description: tService('contract.plan_input_description'),
         required: true,
       },
       {
         type: 'attachment',
         name: 'attachment',
-        description: 'Anexo opcional para o plano.',
+        description: tService('contract.plan_attachment_description'),
         required: false,
       },
     ],
@@ -185,7 +186,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'workflow',
     discordSlashVisibility: 'operator',
-    description: 'Executa um workflow composto ou o loop SDD por feature.',
+    description: tService('contract.workflow_description'),
     options: [
       {
         type: 'string',
@@ -203,7 +204,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
       {
         type: 'string',
         name: 'input',
-        description: 'Objetivo do workflow, feature-id no modo sdd ou workflow-run-id no modo resume.',
+        description: tService('contract.workflow_input_description'),
         required: true,
       },
     ],
@@ -222,7 +223,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'models',
     discordSlashVisibility: 'operator',
-    description: 'Resume modelos e providers ativos.',
+    description: tService('contract.models_description'),
   },
   {
     commandType: '/codexremote',
@@ -230,7 +231,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Opera o control plane remoto do Codex CLI.',
+    description: tService('contract.codexremote_description'),
   },
   {
     commandType: '/agmobile',
@@ -238,7 +239,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Prepara o ZavorthBridge para uso pelo celular.',
+    description: tService('contract.agmobile_description'),
   },
   {
     commandType: '/AIGateway',
@@ -246,7 +247,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Opera a rota propria e o upstream do AIGateway.',
+    description: tService('contract.aigateway_description'),
   },
   {
     commandType: '/learning',
@@ -254,7 +255,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra e revisa candidatos aprendidos pelo learning plane.',
+    description: tService('contract.learning_description'),
   },
   {
     commandType: '/memory',
@@ -262,7 +263,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Consulta a layered memory em camadas.',
+    description: tService('contract.memory_description'),
   },
   {
     commandType: '/teams',
@@ -293,18 +294,93 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     discordSlashVisibility: 'none',
   },
   {
+    commandType: '/learn-skill',
+    surfaceCommand: '/learn-skill',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'learn-skill',
+    discordSlashVisibility: 'operator',
+    description: tService('contract.learnskill_description'),
+    options: [
+      {
+        type: 'string',
+        name: 'source',
+        description: tService('contract.learnskill_source_description'),
+        required: true,
+      },
+    ],
+  },
+  {
+    commandType: '/model',
+    surfaceCommand: '/model',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'model',
+    discordSlashVisibility: 'operator',
+    description: tService('contract.model_description'),
+    options: [
+      {
+        type: 'string',
+        name: 'name',
+        description: tService('contract.model_name_description'),
+        required: true,
+      },
+      {
+        type: 'string',
+        name: 'provider',
+        description: tService('contract.model_provider_description'),
+        required: false,
+      },
+    ],
+  },
+  {
+    commandType: '/export',
+    surfaceCommand: '/export',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'export',
+    discordSlashVisibility: 'operator',
+    description: tService('contract.export_description'),
+    options: [
+      {
+        type: 'string',
+        name: 'format',
+        description: 'markdown | html | prompt',
+        required: false,
+      },
+    ],
+  },
+  {
+    commandType: '/consensus',
+    surfaceCommand: '/consensus',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'consensus',
+    discordSlashVisibility: 'operator',
+    description:
+      'Multi-model consensus using only your models (preview/status free; run opts into cost). Same as: zavorth consensus',
+    options: [
+      {
+        type: 'string',
+        name: 'input',
+        description: 'preview | status | run <question> | save-profile --reviewer p:m ...',
+        required: false,
+      },
+    ],
+  },
+  {
     commandType: '/skills',
     surfaceCommand: '/skills',
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashName: 'skills',
     discordSlashVisibility: 'operator',
-    description: 'Mostra o catalogo de skills e ativa dry-run/live pelo bridge governado.',
+    description: tService('contract.skills_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'search <consulta>, use <skill>, absorb <path> ou batches.',
+        description: tService('contract.skills_input_description'),
         required: false,
       },
     ],
@@ -316,12 +392,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'agents',
     discordSlashVisibility: 'operator',
-    description: 'Opera subagentes vivos governados com aliases /subagent e sessions_spawn.',
+    description: tService('contract.agents_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'spawn <tarefa>, status/history, read latest, summarize latest ou cancel latest.',
+        description: tService('contract.agents_input_description'),
         required: false,
       },
     ],
@@ -333,12 +409,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'vision',
     discordSlashVisibility: 'operator',
-    description: 'Observa evidencias visuais em modo read-only com redaction e receipts.',
+    description: tService('contract.vision_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'status, inspect, explain, ocr ou texto visual a analisar.',
+        description: tService('contract.vision_input_description'),
         required: false,
       },
     ],
@@ -350,12 +426,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'computer',
     discordSlashVisibility: 'operator',
-    description: 'Opera browser e desktop computer control plane governado com preview, hard blocks e approval-first.',
+    description: tService('contract.computer_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'status, observe, plan, approve, cancel, browser status, browser plan ou browser inspect.',
+        description: tService('contract.computer_input_description'),
         required: false,
       },
     ],
@@ -367,12 +443,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'device',
     discordSlashVisibility: 'operator',
-    description: 'Opera Android ADB/device bridge governado com doctor, screenshot, inspect, plan e approval-first.',
+    description: tService('contract.device_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'status, android doctor, screenshot, inspect, plan, approve <plan> ou cancel.',
+        description: tService('contract.device_input_description'),
         required: false,
       },
     ],
@@ -384,12 +460,12 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     fallbackVisible: false,
     discordSlashName: 'invoke',
     discordSlashVisibility: 'operator',
-    description: 'Roteia linguagem natural para subagentes, skills ou absorcao governada.',
+    description: tService('contract.invoke_description'),
     options: [
       {
         type: 'string',
         name: 'input',
-        description: 'Pedido natural, por exemplo use subagentes para revisar X.',
+        description: tService('contract.invoke_input_description'),
         required: true,
       },
     ],
@@ -414,7 +490,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra e ajusta o Trust Plane oficial do Zavorth.',
+    description: tService('contract.trust_description'),
   },
   {
     commandType: '/access',
@@ -422,7 +498,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra o manifesto oficial de acesso local e remoto.',
+    description: tService('contract.access_description'),
   },
   {
     commandType: '/bootstrap',
@@ -430,7 +506,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Resume o checklist oficial de bootstrap e instalacao.',
+    description: tService('contract.bootstrap_description'),
   },
   {
     commandType: '/transports',
@@ -466,7 +542,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra o Hub + MCP product plane consolidado.',
+    description: tService('contract.hub_description'),
   },
   {
     commandType: '/evals',
@@ -474,7 +550,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra a Eval observability com scorecards, traces e historico operacional.',
+    description: tService('contract.evals_description'),
   },
   {
     commandType: '/qa',
@@ -482,7 +558,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra budgets, smokes, regressions e gates da QA release.',
+    description: tService('contract.qa_description'),
   },
   {
     commandType: '/governance',
@@ -490,7 +566,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra tenants, trust decisions, allowlists e policy da Governance.',
+    description: tService('contract.governance_description'),
   },
   {
     commandType: '/replayloop',
@@ -498,7 +574,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra replay, artifacts reutilizaveis e learning loop da Replay learning.',
+    description: tService('contract.replayloop_description'),
   },
   {
     commandType: '/ecosystem',
@@ -506,7 +582,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra SDKs, guides, publish e receitas publicas da Ecosystem.',
+    description: tService('contract.ecosystem_description'),
   },
   {
     commandType: '/fleet',
@@ -514,7 +590,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra channels, fleet, transports e superficies da Distributed runtime.',
+    description: tService('contract.fleet_description'),
   },
   {
     commandType: '/stability',
@@ -522,7 +598,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra keepalive, doctor e recover da fleet supervisionada.',
+    description: tService('contract.stability_description'),
   },
   {
     commandType: '/rolloutqa',
@@ -530,7 +606,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra QA persistente, runtime distribuido e readiness de rollout.',
+    description: tService('contract.rolloutqa_description'),
   },
   {
     commandType: '/setupagent',
@@ -538,7 +614,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra a leitura oficial da Natural setup para setup natural de canais.',
+    description: tService('contract.setupagent_description'),
   },
   {
     commandType: '/automations',
@@ -546,7 +622,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra e opera a Scheduled runs de automacoes e scheduled runs.',
+    description: tService('contract.automations_description'),
   },
   {
     commandType: '/schedule',
@@ -554,7 +630,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Cria um preview governado de agendamento recorrente.',
+    description: tService('contract.schedule_description'),
   },
   {
     commandType: '/schedules',
@@ -562,7 +638,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Lista agendamentos recorrentes com status e guardrails.',
+    description: tService('contract.schedules_description'),
   },
   {
     commandType: '/unschedule',
@@ -570,7 +646,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Remove um agendamento governado por ID.',
+    description: tService('contract.unschedule_description'),
   },
   {
     commandType: '/report',
@@ -578,7 +654,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Cria um preview governado de relatorio recorrente.',
+    description: tService('contract.report_description'),
   },
   {
     commandType: '/watchmode',
@@ -586,7 +662,7 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: 'Mostra e ajusta a policy oficial do Watch Mode supervisionado.',
+    description: tService('contract.watchmode_description'),
   },
   {
     commandType: '/memoryplane',
@@ -705,10 +781,10 @@ function formatCommandList(commands: string[]): string {
   }
 
   if (commands.length === 2) {
-    return `${commands[0]} ou ${commands[1]}`;
+    return `${commands[0]} ${tService('contract.or_connector')} ${commands[1]}`;
   }
 
-  return `${commands.slice(0, -1).join(', ')} ou ${commands[commands.length - 1]}`;
+  return `${commands.slice(0, -1).join(', ')} ${tService('contract.or_connector')} ${commands[commands.length - 1]}`;
 }
 
 export function getSharedSurfaceCommandContract(): SharedSurfaceCommandContractEntry[] {
@@ -744,8 +820,8 @@ export function formatSharedSurfaceUnavailableReply(platform: string): string {
   const commands = SHARED_SURFACE_COMMAND_CONTRACT
     .filter((entry) => entry.fallbackVisible)
     .map((entry) => entry.surfaceCommand);
-  const normalizedPlatform = String(platform || '').trim() || 'esta superficie';
-  return `Esse comando ainda nao esta disponivel fora do gateway principal. Use ${formatCommandList(commands)} em ${normalizedPlatform}.`;
+  const normalizedPlatform = String(platform || '').trim() || tService('contract.this_surface');
+  return tService('contract.command_unavailable', { commands: formatCommandList(commands), platform: normalizedPlatform });
 }
 
 export function getDiscordSlashCommandManifest(options: {

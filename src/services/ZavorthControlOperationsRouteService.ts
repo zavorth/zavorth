@@ -23,6 +23,8 @@ import {
   ZavorthControlOperationsActionRouteService,
   type ZavorthControlOperationsActionRouteDeps,
 } from './ZavorthControlOperationsActionRouteService.js';
+import { PluginOsHttpApiService } from './PluginOsHttpApiService.js';
+import { SkillRegistryOpsHttpApiService } from './SkillRegistryOpsHttpApiService.js';
 
 
 
@@ -195,6 +197,8 @@ export class ZavorthControlOperationsRouteService {
   private readonly planeRoutes = new ZavorthControlOperationsPlaneRouteService();
   private readonly runtimeRoutes = new ZavorthControlOperationsRuntimeRouteService();
   private readonly snapshotRoutes = new ZavorthControlOperationsSnapshotRouteService();
+  private readonly pluginOsApi = new PluginOsHttpApiService();
+  private readonly skillRegistryApi = new SkillRegistryOpsHttpApiService();
 
   public async handleRequest(
     req: http.IncomingMessage,
@@ -203,6 +207,24 @@ export class ZavorthControlOperationsRouteService {
     pathname: string,
     deps: ZavorthControlOperationsRouteDeps,
   ): Promise<boolean> {
+    // Live Plugin OS plane (sibling to /api/operations/plugins skill plane).
+    if (pathname.startsWith('/api/plugin-os')) {
+      return this.pluginOsApi.handleRequest(req, res, url, pathname, {
+        writeJson: deps.writeJson,
+        readJsonBody: deps.readJsonBody,
+        workspaceRoot: process.cwd(),
+      });
+    }
+
+    // Skill registry ops (sign / verify / export / publish-plan) for Control + Desktop UI.
+    if (pathname.startsWith('/api/skill-registry')) {
+      return this.skillRegistryApi.handleRequest(req, res, url, pathname, {
+        writeJson: deps.writeJson,
+        readJsonBody: deps.readJsonBody,
+        workspaceRoot: process.cwd(),
+      });
+    }
+
     if (!pathname.startsWith('/api/operations')) {
       return false;
     }

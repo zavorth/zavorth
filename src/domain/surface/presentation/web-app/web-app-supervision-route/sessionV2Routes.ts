@@ -16,7 +16,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route() && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     deps.writeJson(res, { ok: true, experimental: experimentalAlias, sessions: service.listSessions() }, 200);
@@ -25,7 +25,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route() && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -42,7 +42,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route('/state') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
@@ -61,7 +61,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route('/write') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -77,7 +77,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route('/kill') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -92,7 +92,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route('/recordings') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
@@ -110,7 +110,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2Route('/memory') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const sessionId = String(url.searchParams.get('sessionId') || '').trim();
@@ -132,7 +132,7 @@ export const handleSessionV2Routes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (isSessionV2RecordingRoute && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${sessionV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${sessionV2Label} unavailable.` }, 503);
       return true;
     }
     const filename = pathname.split('/').pop() || '';

@@ -52,21 +52,43 @@ export class SourceSearchFetchService {
     confirmLiveNetwork?: boolean;
     timeoutMs?: number;
   }): Promise<SearchFetchReceipt> {
+    const extracted = await this.fetchAndExtract(input);
+    return extracted.receipt;
+  }
+
+  /**
+   * Live fetch that also extracts title + plain text body (size-capped).
+   * Requires confirmLiveNetwork; blocks non-http(s) and obvious SSRF targets.
+   */
+  public async fetchAndExtract(input: {
+    url: string;
+    confirmLiveNetwork?: boolean;
+    timeoutMs?: number;
+    maxContentChars?: number;
+  }): Promise<SourceFetchExtractResult> {
     const url = String(input.url || '').trim();
+    const maxContentChars = Math.max(1_000, Math.min(input.maxContentChars || 60_000, 200_000));
+
     if (!/^https?:\/\//i.test(url)) {
-      return this.fetchReceipt({
+      return this.extractResult({
         status: 'blocked',
         url,
-        resultCount: 0,
         liveNetworkPerformed: false,
         reason: 'Fetch URL must be http(s).',
       });
     }
-    if (input.confirmLiveNetwork !== true) {
-      return this.fetchReceipt({
+    if (isBlockedPrivateUrl(url)) {
+      return this.extractResult({
         status: 'blocked',
         url,
-        resultCount: 0,
+        liveNetworkPerformed: false,
+        reason: 'Refusing fetch to localhost/private/link-local addresses.',
+      });
+    }
+    if (input.confirmLiveNetwork !== true) {
+      return this.extractResult({
+        status: 'blocked',
+        url,
         liveNetworkPerformed: false,
         reason: 'Live network fetch requires --confirm-live-network.',
       });
@@ -81,27 +103,64 @@ export class SourceSearchFetchService {
           'accept': 'text/html,text/plain,application/json;q=0.8,*/*;q=0.2',
           'user-agent': 'Zavorth-Source-Stage5/1.0',
         },
+        redirect: 'follow',
       });
-      return this.fetchReceipt({
-        status: response.ok ? 'fetched' : 'failed',
-        url,
-        resultCount: response.ok ? 1 : 0,
-        liveNetworkPerformed: true,
-        reason: `HTTP ${response.status}`,
-      });
+      if (!response.ok) {
+        return this.extractResult({
+          status: 'failed',
+          url,
+          liveNetworkPerformed: true,
+          reason: `HTTP ${response.status}`,
+        });
+      }
+
+      const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+      const raw = (await response.text()).slice(0, maxContentChars + 4_000);
+      const extracted = extractTitleAndText(raw, contentType, maxContentChars);
+      return {
+        receipt: this.fetchReceipt({
+          status: 'fetched',
+          url,
+          resultCount: extracted.contentChars > 0 ? 1 : 0,
+          liveNetworkPerformed: true,
+          reason: `HTTP ${response.status}; extracted ${extracted.contentChars} chars`,
+        }),
+        title: extracted.title,
+        content: extracted.content,
+        contentChars: extracted.contentChars,
+      };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Source Search] network request failed', error);
-    return this.fetchReceipt({
+      return this.extractResult({
         status: 'failed',
         url,
-        resultCount: 0,
         liveNetworkPerformed: true,
         reason: error instanceof Error ? err.message : String(error),
       });
-  } finally {
+    } finally {
       clearTimeout(timeout);
     }
+  }
+
+  private extractResult(input: {
+    status: SearchFetchReceipt['status'];
+    url: string;
+    liveNetworkPerformed: boolean;
+    reason: string;
+  }): SourceFetchExtractResult {
+    return {
+      receipt: this.fetchReceipt({
+        status: input.status,
+        url: input.url,
+        resultCount: 0,
+        liveNetworkPerformed: input.liveNetworkPerformed,
+        reason: input.reason,
+      }),
+      title: null,
+      content: null,
+      contentChars: 0,
+    };
   }
 
   public buildProxyPolicyReceipt(): ProxyRoutingPolicyReceipt {
@@ -142,6 +201,98 @@ export class SourceSearchFetchService {
   }
 }
 
+export type SourceFetchExtractResult = {
+  receipt: SearchFetchReceipt;
+  title: string | null;
+  content: string | null;
+  contentChars: number;
+};
+
 function hashId(value: string): string {
   return crypto.createHash('sha256').update(value).digest('hex').slice(0, 16);
+}
+
+function isBlockedPrivateUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'localhost' || host === '::1' || host === '0.0.0.0') return true;
+    if (host.endsWith('.local')) return true;
+    if (/^127\./.test(host)) return true;
+    if (/^10\./.test(host)) return true;
+    if (/^192\.168\./.test(host)) return true;
+    if (/^169\.254\./.test(host)) return true;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(host)) return true;
+    return false;
+  } catch {
+    return true;
+  }
+}
+
+function extractTitleAndText(
+  raw: string,
+  contentType: string,
+  maxContentChars: number,
+): { title: string | null; content: string | null; contentChars: number } {
+  if (!raw) {
+    return { title: null, content: null, contentChars: 0 };
+  }
+
+  if (contentType.includes('application/json') || looksLikeJson(raw)) {
+    const content = raw.slice(0, maxContentChars);
+    return { title: 'json-document', content, contentChars: content.length };
+  }
+
+  if (contentType.includes('text/plain') || (!contentType.includes('html') && !/<html[\s>]/i.test(raw))) {
+    const content = stripControlNoise(raw).slice(0, maxContentChars);
+    const title = content.split(/\r?\n/).map((line) => line.trim()).find(Boolean)?.slice(0, 120) || null;
+    return { title, content, contentChars: content.length };
+  }
+
+  const titleMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = titleMatch
+    ? decodeBasicEntities(stripTags(titleMatch[1])).trim().slice(0, 200) || null
+    : null;
+
+  let body = raw
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' ');
+  body = stripTags(body);
+  body = decodeBasicEntities(body);
+  body = stripControlNoise(body).slice(0, maxContentChars);
+
+  return {
+    title,
+    content: body || null,
+    contentChars: body.length,
+  };
+}
+
+function looksLikeJson(raw: string): boolean {
+  const trimmed = raw.trim();
+  return (trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'));
+}
+
+function stripTags(value: string): string {
+  return value.replace(/<[^>]+>/g, ' ');
+}
+
+function decodeBasicEntities(value: string): string {
+  return value
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+}
+
+function stripControlNoise(value: string): string {
+  return value
+    .replace(/\u0000/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
 }

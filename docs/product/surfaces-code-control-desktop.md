@@ -67,9 +67,9 @@ Zavorth Desktop  →  native/operator desktop shell
 
 - “Code Web” or a rebrand of `zavorth-code/packages/app`.
 - Zavorth Control (browser control plane), even when feature parity overlaps.
-- The frozen Electron package inside `zavorth-code` (`packages/desktop`).
+- Any restored copy of Code `packages/desktop` (deleted; do not reintroduce).
 
-Do not open competing desktop feature work in `zavorth-code/packages/desktop`.
+Do not open competing desktop feature work inside the Code CLI repo.
 
 ---
 
@@ -87,14 +87,19 @@ Do not open competing desktop feature work in `zavorth-code/packages/desktop`.
 
 Code is the **coding** surface: multi-file edits, TUI sessions, repo-local agent workflows. It may talk to the same Zavorth runtime/gateway when integrated, but product ownership and primary development stay on the Code CLI unless an explicit destination plan says otherwise.
 
-**Inside `zavorth-code` (do not treat as Control or Desktop):**
+**Inside `zavorth-code` (CLI-only after cleanup):**
 
 | Package | Policy |
 |---------|--------|
 | `packages/cli` | Canonical Code product |
-| `packages/app` | Freeze; not Control; optional future “Code Web” only after decision |
-| `packages/desktop` | Freeze; do not compete with `apps/zavorth-desktop` |
-| `packages/console` | Freeze; not Control |
+| `packages/app` | **Removed** — use Control (`zavorth web` / `/control`) |
+| `packages/desktop` | **Removed** — use `apps/zavorth-desktop` (`zavorth desktop`) |
+| `packages/console` | **Removed** — use Control |
+
+CLI commands that used to imply Code web/desktop now open **official** surfaces:
+
+- `zavorth web` / `control` / `dashboard` → Control URL
+- `zavorth desktop` → path / dev for `apps/zavorth-desktop`
 
 ---
 

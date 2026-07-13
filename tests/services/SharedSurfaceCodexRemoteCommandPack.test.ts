@@ -61,16 +61,6 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceCodexRemot
 }
 
 describe('SharedSurfaceCodexRemoteCommandPack', () => {
-  it('parses natural approval intents for Codex Remote', () => {
-    const pack = buildPack();
-
-    const command = pack.parseNaturalIntent(
-      'Codex Remote, aprove a permissao 1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1',
-    );
-
-    expect(command).toBe('/codexremote approve 1d5bb7f7-99ee-4bdd-ad6b-823d23b2d3c1');
-  });
-
   it('routes profile creation payloads through the action service', async () => {
     const execute = jest.fn(async () => ({
       action: { note: 'Perfil criado.' },
@@ -94,6 +84,53 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
       sourceChatId: 'telegram:chat-1',
     }));
     expect(ctx.reply).toHaveBeenCalledWith('Perfil criado.');
+  });
+
+  it('starts a session from free-text prompt without requiring start --', async () => {
+    const execute = jest.fn(async () => ({
+      action: { note: 'Sessao iniciada.' },
+      permission: null,
+      session: {
+        record: {
+          sessionId: 'codex-free-1',
+          title: 'Codex Remote',
+          handoffCommand: null,
+        },
+        operatorSummary: 'Em execucao.',
+        tail: { logLines: [] },
+      },
+    }));
+    const pack = buildPack({
+      actionService: { execute } as any,
+    });
+    const ctx = buildCtx('/codexremote fix the flaky test');
+
+    await pack.handle(ctx as any, 'fix the flaky test');
+
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
+      actionId: 'start-session',
+      prompt: 'fix the flaky test',
+    }));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao iniciada.'));
+  });
+
+  it('starts a session when NaturalSlashConvention rewrites free text to start --', async () => {
+    const execute = jest.fn(async () => ({
+      action: { note: 'Sessao iniciada.' },
+      permission: null,
+      session: null,
+    }));
+    const pack = buildPack({
+      actionService: { execute } as any,
+    });
+    const ctx = buildCtx('/codexremote start -- fix the flaky test');
+
+    await pack.handle(ctx as any, 'start -- fix the flaky test');
+
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({
+      actionId: 'start-session',
+      prompt: 'fix the flaky test',
+    }));
   });
 
   it('renders pending approvals from the Codex Remote control plane', async () => {
@@ -121,7 +158,7 @@ describe('SharedSurfaceCodexRemoteCommandPack', () => {
     expect(buildSnapshot).toHaveBeenCalledWith({
       runtimeUserId: 'telegram-user',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Aprovacoes do Codex Remote'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Codex Remote approvals'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('perm-1'));
   });
 });

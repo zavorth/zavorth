@@ -51,7 +51,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Avalia um plano estruturado contra todas as políticas de segurança.
+   * Evaluate a structured plan against all security policies.
    */
   public evaluate(plan: Plan): PolicyEvaluation {
     const violations: PolicyViolation[] = [];
@@ -66,7 +66,7 @@ export class PolicyEngine {
       });
     }
 
-    // Regra 2: Limite de operações por plano
+    // Rule 2: Operation limit per plan
     if (plan.steps && plan.steps.length > this.policy.max_file_operations_per_plan) {
       violations.push({
         rule: 'MAX_OPERATIONS_EXCEEDED',
@@ -90,7 +90,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um caminho é bloqueado pela política.
+   * Check if a path is blocked by the policy.
    */
   public isPathBlocked(targetPath: string): boolean {
     const normalized = targetPath.replace(/\\/g, '/').toLowerCase();
@@ -112,7 +112,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um caminho pertence a um diretório sensível.
+   * Check if a path belongs to a sensitive directory.
    */
   public isSensitivePath(targetPath: string): boolean {
     const normalized = targetPath.replace(/\\/g, '/').toLowerCase();
@@ -166,7 +166,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se conteúdo não-confiável pode gerar execução.
+   * Check if untrusted content can trigger execution.
    */
   public isUntrustedContentExecutionBlocked(): boolean {
     return this.policy.block_untrusted_content_execution;

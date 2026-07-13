@@ -1,4 +1,4 @@
-import { Context } from 'grammy';
+import { Context, InlineKeyboard } from 'grammy';
 import { ZavorthBridgePreferenceStore } from '../../../../agents/ZavorthBridgePreferenceStore.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { PermissionRequest, PermissionStatus } from '../../../../contracts/PermissionRequest.js';
@@ -7,6 +7,7 @@ import { SkillInstallPlanPresentationService } from '../../../../services/SkillI
 import { SkillMcpSidecarService } from '../../../../services/SkillMcpSidecarService.js';
 import { TelegramHubActionService } from '../../../../gateways/channels/telegram/controllers/TelegramHubActionService.js';
 import { HubSection, TelegramHubRenderService } from '../../../../gateways/channels/telegram/controllers/TelegramHubRenderService.js';
+import { ZavorthFirstRunHumanOnboardingService } from '../../../../services/ZavorthFirstRunHumanOnboardingService.js';
 import { asErrorLike } from '../../../../utils/errorLike';
 
 export type TelegramHubControllerDeps = {
@@ -29,6 +30,9 @@ export type TelegramHubControllerDeps = {
   skillMcpSidecarService?: Pick<SkillMcpSidecarService, 'renderReport'>;
 };
 
+/**
+ * Hermes-style hub: /start + buttons for first-run; free text never answers the wizard.
+ */
 export class TelegramHubController {
   private readonly actionService: TelegramHubActionService;
   private readonly renderService: TelegramHubRenderService;
@@ -62,6 +66,8 @@ export class TelegramHubController {
   }
 
   public async handleStartCommand(ctx: Context, args: string): Promise<void> {
+    const handled = await this.tryHandleFirstRunSlash(ctx, args);
+    if (handled) return;
     await this.renderHubPage(ctx, this.resolveStartSection(args));
   }
 
@@ -74,7 +80,14 @@ export class TelegramHubController {
   }
 
   public async handleHubCallback(ctx: Context, data: string): Promise<void> {
-    const [, type, value] = data.split(':');
+    const parts = String(data || '').split(':');
+    // hub:firstrun:<action>[:value]
+    if (parts[1] === 'firstrun') {
+      await this.handleFirstRunCallback(ctx, parts.slice(2));
+      return;
+    }
+
+    const [, type, value] = parts;
 
     if (type === 'page') {
       await ctx.answerCallbackQuery();
@@ -88,7 +101,217 @@ export class TelegramHubController {
       return;
     }
 
-    await ctx.answerCallbackQuery({ text: 'Acao do hub desconhecida.' });
+    await ctx.answerCallbackQuery({ text: 'Unknown hub action.' });
+  }
+
+  private async tryHandleFirstRunSlash(ctx: Context, args: string): Promise<boolean> {
+    const service = this.getFirstRunService(ctx);
+    const normalized = String(args || '').trim().toLowerCase();
+
+    // Explicit setup verbs always open first-run UI even if complete.
+    if (normalized === 'restart' || normalized === 'reset') {
+      const snap = service.reset();
+      await this.replyFirstRunCard(ctx, snap.welcomeLines.join('\n'));
+      return true;
+    }
+    if (normalized === 'skip') {
+      const done = service.complete({
+        language: service.buildSnapshot().state.language || 'en',
+        surface: 'telegram',
+        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
+      });
+      await ctx.reply(done.summary);
+      return true;
+    }
+    if (normalized === 'setup' || normalized === 'onboarding' || normalized === 'tour') {
+      await this.replyFirstRunCard(ctx, service.buildSnapshot().welcomeLines.join('\n'));
+      return true;
+    }
+
+    // Structured apply: /start lang=en surface=telegram learn=yes
+    const structured = this.parseStructuredFirstRunArgs(normalized);
+    if (structured) {
+      if (structured.complete) {
+        const done = service.complete({
+          language: structured.language || service.buildSnapshot().state.language || 'en',
+          surface: (structured.surface as any) || 'telegram',
+          allowLearning: structured.allowLearning ?? true,
+        });
+        await ctx.reply(done.summary);
+        return true;
+      }
+      const snap = service.applyStep(structured);
+      await this.replyFirstRunCard(ctx, snap.welcomeLines.join('\n') + (snap.nextPrompt ? `\n\n${snap.nextPrompt}` : ''));
+      return true;
+    }
+
+    if (!service.needsOnboarding()) {
+      return false;
+    }
+
+    // Default /start while incomplete: show button card (not free-text wizard).
+    await this.replyFirstRunCard(ctx, service.buildSnapshot().welcomeLines.join('\n'));
+    return true;
+  }
+
+  private async handleFirstRunCallback(ctx: Context, parts: string[]): Promise<void> {
+    const service = this.getFirstRunService(ctx);
+    const action = String(parts[0] || '').trim().toLowerCase();
+    const value = String(parts[1] || '').trim().toLowerCase();
+
+    if (action === 'skip') {
+      const done = service.complete({
+        language: service.buildSnapshot().state.language || 'en',
+        surface: 'telegram',
+        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
+      });
+      await ctx.answerCallbackQuery({ text: 'Setup skipped' });
+      await ctx.reply(done.summary);
+      return;
+    }
+
+    if (action === 'restart') {
+      const snap = service.reset();
+      await ctx.answerCallbackQuery({ text: 'Setup restarted' });
+      await this.replyFirstRunCard(ctx, snap.welcomeLines.join('\n'), true);
+      return;
+    }
+
+    if (action === 'lang' && value) {
+      const snap = service.applyStep({ language: value });
+      await ctx.answerCallbackQuery({ text: `Language: ${value}` });
+      if (snap.completed) {
+        await ctx.reply(snap.summary || snap.welcomeLines.join('\n'));
+      } else {
+        await this.replyFirstRunCard(ctx, snap.welcomeLines.join('\n') + (snap.nextPrompt ? `\n\n${snap.nextPrompt}` : ''), true);
+      }
+      return;
+    }
+
+    if (action === 'surface' && value) {
+      const snap = service.applyStep({ surface: value });
+      await ctx.answerCallbackQuery({ text: `Surface: ${value}` });
+      if (snap.completed) {
+        await ctx.reply(snap.summary || snap.welcomeLines.join('\n'));
+      } else {
+        await this.replyFirstRunCard(ctx, snap.welcomeLines.join('\n') + (snap.nextPrompt ? `\n\n${snap.nextPrompt}` : ''), true);
+      }
+      return;
+    }
+
+    if (action === 'learn' && (value === 'yes' || value === 'no')) {
+      const snap = service.applyStep({ allowLearning: value === 'yes' });
+      await ctx.answerCallbackQuery({ text: value === 'yes' ? 'Learning on' : 'Learning off' });
+      if (snap.completed || !service.needsOnboarding()) {
+        await ctx.reply(snap.welcomeLines.join('\n'));
+      } else {
+        await this.replyFirstRunCard(
+          ctx,
+          snap.welcomeLines.join('\n') + (snap.nextPrompt ? `\n\n${snap.nextPrompt}` : ''),
+          true,
+        );
+      }
+      return;
+    }
+
+    await ctx.answerCallbackQuery({ text: 'Unknown setup action' });
+    await this.replyFirstRunCard(ctx, service.buildSnapshot().welcomeLines.join('\n'));
+  }
+
+  private async replyFirstRunCard(ctx: Context, text: string, edit = false): Promise<void> {
+    const service = this.getFirstRunService(ctx);
+    const snap = service.buildSnapshot();
+    const keyboard = this.buildFirstRunKeyboard(snap.state.step, snap.completed);
+    const body = [
+      text,
+      '',
+      'Hermes-style setup: use the buttons (or /start skip). Free text goes to the agent.',
+    ].join('\n');
+    const options = { reply_markup: keyboard };
+
+    if (edit && ctx.callbackQuery?.message?.message_id && ctx.chat?.id) {
+      try {
+        await ctx.api.editMessageText(ctx.chat.id, ctx.callbackQuery.message.message_id, body, options);
+        return;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        if (!(err instanceof Error) || !err.message?.includes('not modified')) {
+          await ctx.reply(body, options);
+        }
+        return;
+      }
+    }
+
+    await ctx.reply(body, options);
+  }
+
+  private buildFirstRunKeyboard(step: number, completed: boolean): InlineKeyboard {
+    const kb = new InlineKeyboard();
+    if (completed) {
+      kb.text('Open hub', 'hub:page:overview').row();
+      kb.text('Restart setup', 'hub:firstrun:restart');
+      return kb;
+    }
+    if (step <= 1) {
+      kb.text('English', 'hub:firstrun:lang:en')
+        .text('Português', 'hub:firstrun:lang:pt')
+        .text('Español', 'hub:firstrun:lang:es')
+        .row();
+    }
+    if (step === 2) {
+      kb.text('Telegram', 'hub:firstrun:surface:telegram')
+        .text('Desktop', 'hub:firstrun:surface:desktop')
+        .row();
+      kb.text('Web', 'hub:firstrun:surface:web')
+        .text('Terminal', 'hub:firstrun:surface:cli')
+        .row();
+    }
+    if (step >= 3) {
+      kb.text('Learn: yes', 'hub:firstrun:learn:yes')
+        .text('Learn: no', 'hub:firstrun:learn:no')
+        .row();
+    }
+    kb.text('Skip setup', 'hub:firstrun:skip');
+    return kb;
+  }
+
+  private parseStructuredFirstRunArgs(args: string): null | {
+    language?: string;
+    surface?: string;
+    allowLearning?: boolean;
+    complete?: boolean;
+  } {
+    if (!args || !/=/.test(args)) return null;
+    const out: {
+      language?: string;
+      surface?: string;
+      allowLearning?: boolean;
+      complete?: boolean;
+    } = {};
+    for (const token of args.split(/\s+/)) {
+      const [k, v] = token.split('=');
+      if (!k || v == null) continue;
+      if (k === 'lang' || k === 'language') out.language = v;
+      if (k === 'surface') out.surface = v;
+      if (k === 'learn' || k === 'learning') {
+        out.allowLearning = /^(1|true|yes|on|sim)$/i.test(v);
+      }
+      if (k === 'done' || k === 'complete') {
+        out.complete = /^(1|true|yes)$/i.test(v);
+      }
+    }
+    if (!out.language && !out.surface && out.allowLearning === undefined && !out.complete) {
+      return null;
+    }
+    return out;
+  }
+
+  private getFirstRunService(ctx: Context): ZavorthFirstRunHumanOnboardingService {
+    const userId = ctx.from?.id?.toString() || null;
+    return new ZavorthFirstRunHumanOnboardingService({
+      projectRoot: process.cwd(),
+      userId,
+    });
   }
 
   private async renderHubPage(ctx: Context, section: HubSection, edit = false): Promise<void> {
@@ -146,5 +369,4 @@ export class TelegramHubController {
         return 'overview';
     }
   }
-
 }

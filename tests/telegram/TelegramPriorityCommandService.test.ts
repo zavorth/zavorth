@@ -1,6 +1,6 @@
 import { TelegramPriorityCommandService } from '../../src/telegram/TelegramPriorityCommandService';
 
-describe('TelegramPriorityCommandService', () => {
+describe('TelegramPriorityCommandService (Hermes-style slash only)', () => {
   function createService() {
     const deps = {
       opsController: {
@@ -29,7 +29,14 @@ describe('TelegramPriorityCommandService', () => {
     };
   }
 
-  it('blocks priority commands while the security lock is active', async () => {
+  it('ignores free text entirely (no NLU steal)', async () => {
+    const { deps, service } = createService();
+    const handled = await service.handle({ reply: jest.fn() } as any, 'activate remote mode please');
+    expect(handled).toBe(false);
+    expect(deps.opsController.parseRemoteModeCommand).not.toHaveBeenCalled();
+  });
+
+  it('blocks priority slash commands while the security lock is active', async () => {
     const { deps, service } = createService();
     deps.securityLock.isLocked.mockReturnValue(true);
     deps.opsController.parseRemoteModeCommand.mockReturnValue('activate');
@@ -37,7 +44,7 @@ describe('TelegramPriorityCommandService', () => {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
 
-    const handled = await service.handle(ctx, '/mode remote on');
+    const handled = await service.handle(ctx, '/remote on');
 
     expect(handled).toBe(true);
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth locked');
@@ -78,7 +85,7 @@ describe('TelegramPriorityCommandService', () => {
     expect(deps.opsController.handleAutoRepair).not.toHaveBeenCalled();
   });
 
-  it('redirects raw model messages to the explicit agmodel flow', async () => {
+  it('does not redirect raw free-text model phrases', async () => {
     const { deps, service } = createService();
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
@@ -86,13 +93,7 @@ describe('TelegramPriorityCommandService', () => {
 
     const handled = await service.handle(ctx, 'use o modelo gemini 3 flash');
 
-    expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringContaining('/agmodel Gemini 3 Flash'),
-    );
-    expect(deps.zavorthBridgeController.handleModelCommand).toHaveBeenCalledWith(
-      ctx,
-      'Gemini 3 Flash',
-    );
+    expect(handled).toBe(false);
+    expect(deps.zavorthBridgeController.handleModelCommand).not.toHaveBeenCalled();
   });
 });

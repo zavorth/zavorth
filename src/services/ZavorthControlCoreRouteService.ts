@@ -379,6 +379,22 @@ export class ZavorthControlCoreRouteService {
       return this.handleExperienceRequest(req, res, url, pathname, deps);
     }
 
+    if (pathname === '/api/v2/cost-savings' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const { CostSavingsDashboardService } = require('./CostSavingsDashboardService.js') as typeof import('./CostSavingsDashboardService.js');
+        const snap = new CostSavingsDashboardService().buildSnapshot();
+        deps.writeJson(res, { ok: true, data: snap });
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+      }
+      return true;
+    }
+
     if (pathname === '/api/v2/maturity/snapshot' && req.method === 'GET') {
       deps.writeJson(res, {
         ok: true,
@@ -1627,7 +1643,22 @@ export class ZavorthControlCoreRouteService {
 
         const srv = new PtySessionApprovalService();
         await srv.resolveProposal(workspaceId, sessionId, approve);
-        deps.writeJson(res, { ok: true });
+        // Residual: surface attach token so clients can reattach after approve.
+        const attachToken = approve
+          ? PtySessionService.getInstance().getAttachToken(sessionId)
+          : null;
+        const registry = approve
+          ? PtySessionService.getInstance().getRegistryEntry(sessionId)
+          : null;
+        deps.writeJson(res, {
+          ok: true,
+          data: {
+            sessionId,
+            approved: Boolean(approve),
+            attachToken,
+            registry,
+          },
+        });
       } catch (error: unknown) {
         const err = asErrorLike(error);
         deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
@@ -1698,6 +1729,86 @@ export class ZavorthControlCoreRouteService {
 
         const chunks = PtySessionService.getInstance().getOutput(sessionId, afterSeq);
         deps.writeJson(res, { ok: true, data: chunks });
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+      }
+      return true;
+    }
+
+    // Reconnect terminal via opaque token
+    if (pathname === '/api/v2/workspace/pty/reattach' && req.method === 'POST') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const body = await deps.readJsonBody(req);
+        const attachToken = String(body?.attachToken || body?.token || '').trim();
+        const afterSeq = safeParseInt(
+          body?.afterSeq == null ? undefined : String(body.afterSeq),
+          0,
+        );
+        if (!attachToken) {
+          deps.writeJson(res, { ok: false, error: 'attachToken required' }, 400);
+          return true;
+        }
+        const result = PtySessionService.getInstance().reattach(attachToken, afterSeq);
+        deps.writeJson(res, { ok: result.ok, data: result }, result.ok ? 200 : 404);
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+      }
+      return true;
+    }
+
+    // Residual: fetch attach token for a known session (auth-gated)
+    if (pathname === '/api/v2/workspace/pty/attach-token' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const url = new URL(req.url || '/', 'http://localhost');
+        const sessionId = String(url.searchParams.get('sessionId') || '').trim();
+        if (!sessionId) {
+          deps.writeJson(res, { ok: false, error: 'sessionId required' }, 400);
+          return true;
+        }
+        const pty = PtySessionService.getInstance();
+        const attachToken = pty.getAttachToken(sessionId);
+        const registry = pty.getRegistryEntry(sessionId);
+        if (!attachToken || !registry) {
+          deps.writeJson(res, { ok: false, error: 'Session not found or attach token expired' }, 404);
+          return true;
+        }
+        deps.writeJson(res, {
+          ok: true,
+          data: {
+            sessionId,
+            attachToken,
+            status: registry.status,
+            processAlive: registry.processAlive,
+            lastSeq: registry.lastSeq,
+            reattachPath: '/api/v2/workspace/pty/reattach',
+          },
+        });
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+      }
+      return true;
+    }
+
+    if (pathname === '/api/v2/workspace/pty/registry' && req.method === 'GET') {
+      if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+        deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+        return true;
+      }
+      try {
+        const workspaceId = new URL(req.url || '/', 'http://localhost').searchParams.get('workspaceId') || undefined;
+        const entries = PtySessionService.getInstance().listRegistry(workspaceId || undefined);
+        deps.writeJson(res, { ok: true, data: entries });
       } catch (error: unknown) {
         const err = asErrorLike(error);
         deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
@@ -2280,11 +2391,20 @@ export class ZavorthControlCoreRouteService {
           deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
           return true;
         }
-        const { operationId, decision, strongConfirmationInput } = parsed.data;
+        const { operationId, decision, strongConfirmationInput } = parsed.data as {
+          operationId: string;
+          decision: string;
+          strongConfirmationInput?: string;
+          totp?: string;
+          code?: string;
+        };
+        const totp =
+          String((parsed.data as { totp?: string }).totp || (parsed.data as { code?: string }).code || '').trim() ||
+          null;
 
         const approvalService = new HostCommandApprovalService();
         if (decision === 'approve') {
-          await approvalService.resolve(operationId, true, strongConfirmationInput);
+          await approvalService.resolve(operationId, true, strongConfirmationInput, totp);
         } else if (decision === 'deny') {
           await approvalService.resolve(operationId, false);
         } else {
@@ -2613,6 +2733,11 @@ export class ZavorthControlCoreRouteService {
       const body = await deps.readJsonBody(req);
       const decision = this.readOptionalString(body.decision) === 'reject' ? 'reject' : 'approve';
       const approvalId = decodeURIComponent(approvalDecision[1] || '');
+      const choice =
+        this.readOptionalString(body.choice) ||
+        this.readOptionalString(body.permissionChoice) ||
+        (decision === 'reject' ? 'deny' : 'once');
+      const baseMeta = this.readRecord(body['metadata']) || { source: 'runtime-api' };
       deps.writeJson(res, await service.executeCommand({
         text: `${decision} approval ${approvalId}`,
         intent: 'approve',
@@ -2621,7 +2746,11 @@ export class ZavorthControlCoreRouteService {
         sessionId: this.readOptionalString(body['sessionId']),
         workspace: this.readOptionalString(body.workspace),
         approval: { id: approvalId, decision },
-        metadata: this.readRecord(body['metadata']) || { source: 'runtime-api' },
+        metadata: {
+          ...baseMeta,
+          choice,
+          source: baseMeta.source || 'runtime-api',
+        },
       }));
       return true;
     }

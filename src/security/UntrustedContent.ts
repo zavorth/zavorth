@@ -23,6 +23,7 @@ export const UNTRUSTED_CONTENT_TAGS = [
   'untrusted_browser_content',
   'untrusted_terminal_output',
   'untrusted_telegram_content',
+  'learned_preferences',
 ] as const;
 
 export type UntrustedContentTag = typeof UNTRUSTED_CONTENT_TAGS[number];
@@ -93,13 +94,22 @@ const UNTRUSTED_APPROVAL_METADATA_KEYS = new Set([
 export function wrapUntrustedContent(
   tagName: UntrustedContentTag,
   content: string,
-  attributes: Record<string, string | null | undefined> = {},
+  attributes: Record<string, string | number | null | undefined> = {},
 ): string {
-  const attrs = Object.entries(attributes)
+  const { maxChars: maxCharsRaw, ...serializedAttributes } = attributes;
+  const parsedMaxChars = Number(maxCharsRaw);
+  const maxChars = maxCharsRaw == null || maxCharsRaw === ''
+    ? null
+    : (Number.isFinite(parsedMaxChars) ? Math.max(0, Math.floor(parsedMaxChars)) : 0);
+  const rawContent = String(content || '');
+  const truncated = maxChars != null && rawContent.length > maxChars
+    ? `${rawContent.slice(0, maxChars)}\n…[truncated]`
+    : rawContent;
+  const attrs = Object.entries(serializedAttributes)
     .filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '')
     .map(([key, value]) => ` ${key}="${escapeXmlAttribute(String(value))}"`)
     .join('');
-  const escapedContent = escapeXmlText(content);
+  const escapedContent = escapeXmlText(truncated);
   return `<${tagName}${attrs}>\n${escapedContent}\n</${tagName}>`;
 }
 

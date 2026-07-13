@@ -40,15 +40,15 @@ export class MccParserService {
       this.collectFilesRecursive(resolvedPath, resolvedPath, files);
       logger.info(`[MCC Parser] Encontrados ${files.length} arquivos elegíveis para indexação.`);
 
-      // Para manter a indexação limpa, removemos registros antigos do mesmo workspace
-      // e reconstruímos o grafo para os arquivos encontrados
+      // To keep indexing clean, we remove old records from the same workspace
+      // and rebuild the graph for the found files
       for (const relPath of files) {
         const fullPath = path.join(resolvedPath, relPath);
         const content = await fs.promises.readFile(fullPath, 'utf8');
         await this.indexFile(resolvedPath, relPath, content);
       }
 
-      // Limpeza de nós órfãos (arquivos deletados do disco)
+      // Cleanup of orphan nodes (files deleted from disk)
       const normalizedFiles = files.map(f => f.replace(/\\/g, '/'));
       const dbNodes = this.db.all<{ id: string }>('SELECT id FROM mcc_nodes WHERE type = \'file\'');
       for (const row of dbNodes) {
@@ -68,14 +68,14 @@ export class MccParserService {
   }
 
   /**
-   * Indexa um único arquivo individualmente no grafo
+   * Index a single file individually in the graph
    */
   public async indexFile(workspacePath: string, relativePath: string, content: string): Promise<void> {
     await this.init();
     const normalizedRelPath = relativePath.replace(/\\/g, '/');
     const { nodes, edges } = this.parseFileContent(normalizedRelPath, content);
 
-    // 1. Limpa registros anteriores para este arquivo (e seus nós filhos)
+    // 1. Clear previous records for this file (and its child nodes)
     this.db.run(
       'DELETE FROM mcc_nodes WHERE id = ? OR id LIKE ?',
       [normalizedRelPath, `${normalizedRelPath}#%`]
@@ -93,16 +93,16 @@ export class MccParserService {
       );
     }
 
-    // 3. Salva novos Edges (resolvendo caminhos relativos de imports, se aplicável)
+    // 3. Save new edges (resolving relative import paths, if applicable)
     for (const edge of edges) {
       let resolvedTarget = edge.target;
 
-      // Se for um import relativo de código, tenta mapear para o arquivo correspondente
+      // If it's a relative code import, try to map to the corresponding file
       if (edge.type === 'imports' && (edge.target.startsWith('.') || !edge.target.includes('/'))) {
         resolvedTarget = this.resolveImportPath(workspacePath, normalizedRelPath, edge.target);
       }
 
-      // Garante que só inserimos se o source e target forem válidos
+      // Ensure we only insert if both source and target are valid
       if (edge.source && resolvedTarget) {
         this.db.run(
           'INSERT OR IGNORE INTO mcc_edges (source_node_id, target_node_id, relation_type) VALUES (?, ?, ?)',
@@ -120,12 +120,12 @@ export class MccParserService {
     const edges: MccEdge[] = [];
     const ext = path.extname(relativePath).toLowerCase();
 
-    // Adiciona o nó principal do arquivo
+    // Add the main file node
     nodes.push({
       id: relativePath,
       name: path.basename(relativePath),
       type: 'file',
-      content: content.slice(0, 1000) // Guarda uma prévia do conteúdo no BD
+      content: content.slice(0, 1000) // Store a content preview in the database
     });
 
     if (ext === '.ts' || ext === '.js' || ext === '.tsx' || ext === '.jsx' || ext === '.py') {
@@ -145,7 +145,7 @@ export class MccParserService {
   private parseCode(relativePath: string, content: string, nodes: MccNode[], edges: MccEdge[]): void {
     const lines = content.split('\n');
 
-    // 1. Extração de Imports
+    // 1. Import extraction
     const importRegex = /(?:import\s+.*?\s+from\s+['"](.*?)['"]|import\s+['"](.*?)['"]|require\s*\(\s*['"](.*?)['"]\s*\))/g;
     let match;
     while ((match = importRegex.exec(content)) !== null) {
@@ -159,11 +159,11 @@ export class MccParserService {
       }
     }
 
-    // 2. Extração de Classes e Funções
+    // 2. Class and function extraction
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index].trim();
 
-      // Detecta Classes
+      // Detect classes
       const classMatch = /^(?:export\s+)?class\s+([a-zA-Z0-9_]+)/.exec(line);
       if (classMatch && classMatch[1]) {
         const className = classMatch[1];
@@ -240,7 +240,7 @@ export class MccParserService {
         sectionLines.push(line);
       }
 
-      // Detecta links para outros arquivos locais: [Label](link)
+      // Detect links to other local files: [Label](link)
       const linkRegex = /\[.*?\]\((.*?)\)/g;
       let linkMatch;
       while ((linkMatch = linkRegex.exec(line)) !== null) {
@@ -279,7 +279,7 @@ export class MccParserService {
         type: 'contains'
       });
 
-      // Mapeia IDs de chaves estrangeiras virtuais (ex: user_id, product_id)
+      // Map virtual foreign key IDs (e.g., user_id, product_id)
       for (const col of headers) {
         if (col.endsWith('_id') || col.endsWith('Id')) {
           const tableTarget = `${col.slice(0, -3)}s`; // ex: user_id -> users
@@ -347,12 +347,12 @@ export class MccParserService {
   }
 
   /**
-   * Resolve um import relativo para o arquivo correspondente no workspace
+   * Resolve a relative import to the corresponding file in the workspace
    */
   private resolveImportPath(workspacePath: string, sourceFile: string, importTarget: string): string {
     let target = importTarget;
 
-    // Remove a extensão do import, se tiver (ex: .js)
+    // Remove the import extension if present (e.g., .js)
     if (target.endsWith('.js') || target.endsWith('.ts') || target.endsWith('.jsx') || target.endsWith('.tsx')) {
       target = target.slice(0, -3);
     }

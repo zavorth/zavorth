@@ -5,8 +5,12 @@ import type { ToolDefinition } from '../providers/ILlmProvider.js';
 import { SkillLocalRegistry } from '../skills/marketplace/SkillLocalRegistry.js';
 import { SkillGitRegistry } from '../skills/marketplace/SkillGitRegistry.js';
 import { validateSkillPackage } from '../skills/marketplace/SkillPackageValidator.js';
-import { searchGitHubReposBroad } from '../skills/marketplace/SkillGitHubSearch.js';
-import { scanSkillForSecurity, getSkillPermissions, recordAuditLog } from '../skills/marketplace/SkillMarketplaceSecurity.js';
+import {
+  scanSkillForSecurity,
+  getSkillPermissions,
+  recordAuditLog,
+  signSkillPackage,
+} from '../skills/marketplace/SkillMarketplaceSecurity.js';
 import { SkillRollback } from '../skills/marketplace/SkillRollback.js';
 import { SkillDependencyResolver } from '../skills/marketplace/SkillDependencyResolver.js';
 import { detectSource, getSourceHint } from '../skills/marketplace/SkillSourceDetector.js';
@@ -15,19 +19,33 @@ import { detectConflicts } from '../skills/marketplace/SkillConflictDetector.js'
 import { SkillBundleManager } from '../skills/marketplace/SkillBundle.js';
 import { setAuthToken, removeAuthToken } from '../skills/marketplace/SkillAuth.js';
 import { asErrorLike } from '../utils/errorLike';
+import { SkillInstallPipelineService } from '../services/SkillInstallPipelineService.js';
+import { SkillWorkerDiscoveryService } from '../services/SkillWorkerDiscoveryService.js';
+import { WorkerMeshService } from '../services/WorkerMeshService.js';
+import { SkillRegistryOpsService } from '../services/SkillRegistryOpsService.js';
+import { getTrustedSkillGitDomains } from '../skills/marketplace/SkillGitRegistry.js';
 
 export class ZavorthSkillMarketplaceTool extends BaseTool {
   public readonly name = 'zavorth_skill_marketplace';
 
   public readonly description =
-    'Skill Marketplace — discover, install, publish, and manage Zavorth skills. Install from any source: Git repos (GitHub, GitLab, Bitbucket), zip/tarball URLs, npm packages, skill registries, local paths, or local files. Skills are directories with any markdown instruction file + optional JSON metadata. The agent auto-detects the source type and handles it accordingly.';
+    'Skill Marketplace — discover, preview, install (with consent), publish, and manage Zavorth skills. Preferred install flow: action=preview then action=install with consent=true. Sources: Git, zip/tarball, npm, registries, local paths. Brand-agnostic.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
     properties: {
       action: {
         type: 'string',
-        description: "Action: 'search', 'list', 'install', 'publish', 'info', 'remove', 'update', 'rollback', 'outdated', 'conflicts', 'auth', 'bundle'.",
+        description:
+          "Action: 'search', 'list', 'preview', 'install', 'receipt', 'trust', 'publish', 'publish_plan', 'verify', 'registry_export', 'trusted_hosts', 'info', 'remove', 'update', 'rollback', 'outdated', 'conflicts', 'auth', 'sign', 'bundle'.",
+      },
+      trust_kind: {
+        type: 'string',
+        description: "For action=trust add: 'domain' | 'publisher' | 'registry-prefix'.",
+      },
+      trust_pattern: {
+        type: 'string',
+        description: 'For action=trust add/remove: domain or publisher pattern (generic).',
       },
       query: {
         type: 'string',
@@ -35,11 +53,29 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       },
       skill_id: {
         type: 'string',
-        description: 'Skill ID (for install/info/remove/update).',
+        description: 'Skill ID (for install/info/remove/update/preview filter).',
       },
       source: {
         type: 'string',
-        description: 'Source URL or path for install/publish (Git URL or local path).',
+        description: 'Source URL or path for preview/install/publish (Git URL or local path).',
+      },
+      consent: {
+        type: 'boolean',
+        description: 'Required true to materialize install after preview. Default false.',
+      },
+      force: {
+        type: 'boolean',
+        description:
+          'Override trust deny band. Agent tools reject force unless ZAVORTH_SKILL_ALLOW_FORCE=1 (operator only).',
+      },
+      operator_confirm: {
+        type: 'boolean',
+        description:
+          'Required true for trust policy mutations and auth token writes (operator-gated).',
+      },
+      receipt_id: {
+        type: 'string',
+        description: 'Receipt id for action=receipt (omit to list recent).',
       },
       skill_dir: {
         type: 'string',
@@ -47,7 +83,15 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       },
       repo_url: {
         type: 'string',
-        description: 'Git repository URL for publish.',
+        description: 'Git repository URL for publish / publish_plan.',
+      },
+      dry_run: {
+        type: 'boolean',
+        description: 'For action=publish: when true, write publish-plan only (no git push). Default false.',
+      },
+      out_path: {
+        type: 'string',
+        description: 'Output path for publish_plan / registry_export artifacts.',
       },
       install_all: {
         type: 'boolean',
@@ -65,22 +109,52 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
   private readonly gitRegistry: SkillGitRegistry;
   private readonly depResolver: SkillDependencyResolver;
   private readonly skillsDir: string;
+  private readonly pipeline: SkillInstallPipelineService;
+  private readonly discovery: SkillWorkerDiscoveryService;
 
-  constructor(options?: { dataDir?: string }) {
+  constructor(options?: { dataDir?: string; projectRoot?: string }) {
     super();
     this.registry = new SkillLocalRegistry(options);
     this.gitRegistry = new SkillGitRegistry(options);
     this.depResolver = new SkillDependencyResolver(options);
-    this.skillsDir = path.join(process.cwd(), 'skills');
+    const root = options?.projectRoot || process.cwd();
+    this.skillsDir = path.join(root, 'skills');
+    this.pipeline = new SkillInstallPipelineService({
+      projectRoot: root,
+      gitRegistry: this.gitRegistry,
+    });
+    this.discovery = new SkillWorkerDiscoveryService({
+      projectRoot: root,
+      registry: this.registry,
+      mesh: new WorkerMeshService({ projectRoot: root }),
+      trust: this.pipeline.getTrustService(),
+    });
   }
 
   async execute(args: Record<string, unknown>): Promise<string> {
     const action = String(args.action || '').trim().toLowerCase();
     switch (action) {
-      case 'search': return this.search(args);
+      case 'search': return await this.search(args);
+      case 'discover': return await this.search(args);
       case 'list': return this.list(args);
+      case 'preview': return this.preview(args);
       case 'install': return this.install(args);
+      case 'receipt': return this.receipt(args);
+      case 'trust': return this.trust(args);
       case 'publish': return this.publish(args);
+      case 'publish_plan':
+      case 'publish-plan':
+      case 'plan_publish':
+        return this.publishPlan(args);
+      case 'verify': return this.verify(args);
+      case 'registry_export':
+      case 'registry-export':
+      case 'export_registry':
+        return this.registryExport(args);
+      case 'trusted_hosts':
+      case 'trusted-hosts':
+      case 'trusted_domains':
+        return this.trustedHosts();
       case 'info': return this.info(args);
       case 'remove': return this.remove(args);
       case 'update': return this.update(args);
@@ -88,53 +162,115 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
       case 'outdated': return this.outdated();
       case 'conflicts': return this.conflicts();
       case 'auth': return this.auth(args);
+      case 'sign': return this.sign(args);
       case 'bundle': return this.bundle(args);
       default:
-        return `Unknown action "${action}". Available: search, list, install, publish, info, remove, update, rollback, outdated, conflicts, auth, bundle`;
+        return `Unknown action "${action}". Available: search, list, preview, install, receipt, trust, publish, publish_plan, verify, registry_export, trusted_hosts, info, remove, update, rollback, outdated, conflicts, auth, sign, bundle`;
     }
   }
 
-  private search(args: Record<string, unknown>): string {
-    const query = String(args.query || '').trim();
-    const category = String(args.category || '').trim() || undefined;
-    const remote = args.remote === true;
-    if (!query) return 'Error: "query" is required for search.';
-
-    const results = this.registry.search(query, category ? { category } : undefined);
-    const lines: string[] = [];
-
-    if (results.length > 0) {
-      const trustSummary = this.registry.getTrustSummary();
-      lines.push(`Local: ${results.length} skill(s) (${trustSummary.verified} verified, ${trustSummary.trusted} trusted):`);
-      lines.push('');
-      for (const s of results) {
-        const installed = s.installedAt ? ' [installed]' : '';
-        lines.push(`  ${s.id} v${s.version} by ${s.author}${installed}`);
-        lines.push(`    ${s.description}`);
-        lines.push(`    Tags: ${s.tags.join(', ') || 'none'} | Trust: ${s.trustLevel}`);
-        lines.push('');
+  private trust(args: Record<string, unknown>): string {
+    const trust = this.pipeline.getTrustService();
+    const op = String(args.query || args.skill_id || 'show').trim().toLowerCase();
+    if (op === 'add' || op === 'remove') {
+      if (!this.isOperatorConfirmed(args)) {
+        return [
+          'Error: trust policy mutations require operator_confirm=true',
+          '(or ZAVORTH_SKILL_OPERATOR_MODE=1). Agents cannot expand trust silently.',
+        ].join(' ');
       }
     }
+    if (op === 'add') {
+      const kindRaw = String(args.trust_kind || '').toLowerCase();
+      const pattern = String(args.trust_pattern || args.source || '').trim();
+      const kind =
+        kindRaw === 'domain' || kindRaw === 'publisher' || kindRaw === 'registry-prefix'
+          ? kindRaw
+          : kindRaw === 'registry'
+            ? 'registry-prefix'
+            : null;
+      if (!kind || !pattern) {
+        return 'Error: trust add needs trust_kind=domain|publisher|registry-prefix and trust_pattern=...';
+      }
+      const entry = trust.addOwnerTrusted({ kind, pattern });
+      return `Added owner-trusted ${entry.kind}: ${entry.pattern}`;
+    }
+    if (op === 'remove') {
+      const pattern = String(args.trust_pattern || args.source || '').trim();
+      if (!pattern) return 'Error: trust remove needs trust_pattern or source.';
+      return trust.removeOwnerTrusted(pattern)
+        ? `Removed owner-trusted entry matching ${pattern}`
+        : `No owner-trusted entry for ${pattern}`;
+    }
+    const entries = trust.listOwnerTrusted();
+    return [
+      `Trust profile: ${trust.getProfile()} (ZAVORTH_SKILL_TRUST_PROFILE)`,
+      'Owner-trusted:',
+      ...(entries.length ? entries.map((e) => `  - [${e.kind}] ${e.pattern}`) : ['  (none)']),
+    ].join('\n');
+  }
 
-    if (remote || results.length === 0) {
-      searchGitHubReposBroad(query).then((repos) => {
-        if (repos.length > 0) {
-          lines.push(`GitHub: ${repos.length} repository(ies) found:`);
-          for (const r of repos) {
-            lines.push(`  ${r.fullName} (${r.stars} stars)`);
-            lines.push(`    ${r.description}`);
-            lines.push(`    Install: zavorth skill install ${r.url}`);
-            lines.push('');
-          }
-        }
-      });
+  private isOperatorConfirmed(args: Record<string, unknown>): boolean {
+    if (args.operator_confirm === true) return true;
+    const mode = String(process.env.ZAVORTH_SKILL_OPERATOR_MODE || '').trim().toLowerCase();
+    return mode === '1' || mode === 'true' || mode === 'on' || mode === 'yes';
+  }
+
+  private isForceAllowed(args: Record<string, unknown>): boolean {
+    if (args.force !== true) return false;
+    const allow = String(process.env.ZAVORTH_SKILL_ALLOW_FORCE || '').trim().toLowerCase();
+    if (allow === '1' || allow === 'true' || allow === 'on' || allow === 'yes') return true;
+    if (this.isOperatorConfirmed(args)) return true;
+    return false;
+  }
+
+  private preview(args: Record<string, unknown>): string {
+    const source = String(args.source || args.skill_id || '').trim();
+    if (!source) return 'Error: "source" is required for preview.';
+    const plan = this.pipeline.preview({
+      source,
+      skillId: args.skill_id ? String(args.skill_id) : null,
+    });
+    return this.pipeline.formatPlanText(plan);
+  }
+
+  private receipt(args: Record<string, unknown>): string {
+    const id = String(args.receipt_id || args.skill_id || '').trim();
+    if (id) {
+      const one = this.pipeline.getReceipt(id);
+      if (!one) return `Receipt not found: ${id}`;
+      return this.pipeline.formatReceiptText(one);
+    }
+    const list = this.pipeline.listReceipts(10);
+    if (list.length === 0) return 'No skill install receipts yet.';
+    return ['Recent skill install receipts:', ...list.map((r) => `  ${r.id}  ${r.status}  ${r.skillId || '—'}`)].join('\n');
+  }
+
+  private async search(args: Record<string, unknown>): Promise<string> {
+    const query = String(args.query || args.source || '').trim();
+    const remote = args.remote === true;
+    const includeWorkers = args.include_workers !== false;
+    if (!query) {
+      return 'Error: "query" is required for search/discover. Tip: paste a skill URL to detect install-from-URL.';
     }
 
-    if (results.length === 0 && !remote) {
-      lines.push(`No local skills for "${query}". Use remote: true to search GitHub.`);
+    const result = await this.discovery.discover({
+      query,
+      remote,
+      includeWorkers,
+      scanWorkspace: true,
+      limit: 15,
+    });
+
+    // Optional category filter on local hits
+    const category = String(args.category || '').trim();
+    if (category) {
+      result.skills = result.skills.filter(
+        (s) => s.category === category || s.tags.includes(category),
+      );
     }
 
-    return lines.join('\n');
+    return result.formatText();
   }
 
   private list(args: Record<string, unknown>): string {
@@ -149,104 +285,83 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     return lines.join('\n');
   }
 
-  private install(args: Record<string, unknown>): string {
+  private async install(args: Record<string, unknown>): Promise<string> {
     const source = String(args.source || args.skill_id || '').trim();
-    const installAll = args.install_all === true;
-    const force = args.force === true;
-    const onlySkill = String(args.skill_id || '').trim() || undefined;
     if (!source) return 'Error: "source" is required (URL, path, package name, or skill ID).';
 
-    const detected = detectSource(source);
-    if (detected.type === 'local-path' || detected.type === 'local-file' || detected.type === 'registry-url' || detected.type === 'npm-package') {
-      this.gitRegistry.installFromSource(source, onlySkill).then((r: any) => {
-        if (!r.success) console.error(r.message);
-      });
-      return `Installing from ${detected.type}: ${getSourceHint(detected.type)}`;
+    const consent = args.consent === true || args.approve === true || args.yes === true;
+    const forceRequested = args.force === true;
+    const force = this.isForceAllowed(args);
+    if (forceRequested && !force) {
+      return [
+        'Error: force=true is blocked on the agent tool surface.',
+        'Set ZAVORTH_SKILL_ALLOW_FORCE=1 and operator_confirm=true for operator override,',
+        'or use CLI after explicit human review.',
+      ].join(' ');
     }
+    const onlySkill = String(args.skill_id || '').trim() || undefined;
 
-    if (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('git@')) {
+    // Multi-skill remote listing still uses discover (awaited) when install_all is not set.
+    const installAll = args.install_all === true;
+    if (
+      installAll === false &&
+      (source.startsWith('http://') || source.startsWith('https://') || source.startsWith('git@')) &&
+      !onlySkill
+    ) {
       try {
         const { tmpDir, skills } = this.gitRegistry.discoverSkills(source);
-        if (skills.length === 0) { this.cleanup(tmpDir); return 'No valid skills found in repository.'; }
-
-        const results: string[] = [];
-        const toInstall = installAll ? skills : skills.length === 1 ? skills : [];
-
-        if (!installAll && skills.length > 1) {
+        if (skills.length === 0) {
+          this.cleanup(tmpDir);
+          return 'No valid skills found in repository.';
+        }
+        if (skills.length > 1) {
           this.cleanup(tmpDir);
           const lines = [`Found ${skills.length} skills in repository:`];
-          for (const s of skills) lines.push(`  - ${s.name} v${s.version}${s.description ? `: ${s.description}` : ''}`);
+          for (const s of skills) {
+            lines.push(`  - ${s.name} v${s.version}${s.description ? `: ${s.description}` : ''}`);
+          }
           lines.push('');
-          lines.push('Use install_all: true to install all, or specify skill_id to install one.');
+          lines.push('Preview one: action=preview source=<url> skill_id=<name>');
+          lines.push('Install one: action=install source=<url> skill_id=<name> consent=true');
+          lines.push('Or install_all: true with consent=true (installs first via pipeline per skill in a follow-up).');
           return lines.join('\n');
         }
-
-        const depResolver = new SkillDependencyResolver();
-
-        for (const s of toInstall) {
-          const depCheck = depResolver.checkDependencies(s.dir);
-          if (!depCheck.allResolved && depCheck.missing.length > 0) {
-            results.push(`  Dependencies for ${s.name}:`);
-            for (const dep of depCheck.missing) {
-              const status = dep.resolved ? 'auto-install' : 'not found';
-              results.push(`    - ${dep.name} (${dep.constraint}) [${status}]`);
-            }
-            if (depCheck.circular.length > 0) {
-              results.push(`  WARNING: Circular dependencies: ${depCheck.circular.join(', ')}`);
-            }
-            results.push('');
-          }
-
-          const security = scanSkillForSecurity(s.dir);
-          const permissions = getSkillPermissions(s.dir);
-
-          if (security.riskLevel === 'blocked' && !force) {
-            const blocking = security.issues.filter((i) => i.severity === 'error').map((i) => i.message).join('; ');
-            results.push(`  BLOCKED: ${s.name} - ${blocking}`);
-            results.push(`  Use force: true to override (NOT recommended).`);
-            continue;
-          }
-
-          if (security.riskLevel === 'high' || security.riskLevel === 'medium') {
-            results.push(`  SECURITY WARNING [${security.riskLevel}]: ${s.name}`);
-            for (const issue of security.issues.filter((i) => i.severity === 'warn' || i.severity === 'error')) {
-              results.push(`    - ${issue.message}`);
-            }
-            if (security.recommendations.length > 0) {
-              results.push(`    Recommendation: ${security.recommendations[0]}`);
-            }
-            results.push(`    Permissions: ${permissions.join(', ') || 'read-only'}`);
-            results.push(`    Install this skill? (user must confirm)`);
-          }
-
-          const r = this.gitRegistry.installSkillFromDir(s.dir, source, s.name);
-          if (r.success) {
-            results.push(`  Installed: ${r.message}`);
-            recordAuditLog({ timestamp: new Date().toISOString(), action: 'install', skillId: s.name, version: s.version, source, riskLevel: security.riskLevel, issues: security.issues.length, user: 'agent', approved: true }, path.join(process.cwd(), 'data'));
-          } else {
-            results.push(`  Failed: ${r.message}`);
-          }
-        }
-
         this.cleanup(tmpDir);
-        return [`Installed ${results.filter((r) => r.includes('Installed')).length} skill(s):`, '', ...results].join('\n');
-      } catch (error: unknown) { const err = asErrorLike(error); return `Git clone failed: ${err instanceof Error ? err.message : String(err)}`;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        return `Git discover failed: ${err instanceof Error ? err.message : String(err)}`;
       }
     }
 
-    const entry = this.registry.getEntry(source);
-    if (entry && entry.sourceUrl && entry.source === 'git') {
-      const r = this.gitRegistry.installFromRepo(entry.sourceUrl, source);
-      return r.success ? r.message : `Error: ${r.message}`;
+    if (!consent) {
+      const plan = this.pipeline.preview({ source, skillId: onlySkill });
+      return [
+        this.pipeline.formatPlanText(plan),
+        '',
+        'Install not applied (consent required).',
+        'Call again with consent=true after reviewing the plan.',
+      ].join('\n');
     }
 
-    const targetDir = path.join(this.skillsDir, source);
-    if (fs.existsSync(targetDir)) return `Skill "${source}" is already installed at skills/${source}/`;
-    return `Skill "${source}" not found. Provide a Git URL or local path to install.`;
+    const receipt = await this.pipeline.apply({
+      source,
+      skillId: onlySkill,
+      consent: true,
+      force,
+    });
+    return this.pipeline.formatReceiptText(receipt);
   }
 
   private publish(args: Record<string, unknown>): string {
-    const skillDir = String(args.skill_dir || '').trim();
+    const dryRun =
+      args.dry_run === true ||
+      String(args.dry_run || '').trim() === '1' ||
+      String(process.env.ZAVORTH_SKILL_PUBLISH_DRY_RUN || '').trim() === '1';
+    if (dryRun) {
+      return this.publishPlan(args);
+    }
+
+    const skillDir = String(args.skill_dir || args.source || '').trim();
     const repoUrl = String(args.repo_url || '').trim() || undefined;
     if (!skillDir) return 'Error: "skill_dir" is required for publish.';
 
@@ -257,12 +372,93 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     if (!validation.valid || !validation.manifest) return `Cannot publish: ${validation.errors.join(', ')}`;
 
     if (repoUrl) {
+      const ops = new SkillRegistryOpsService({ skillsDir: this.skillsDir });
+      const plan = ops.planPublish({ skillDir: localPath, repoUrl });
+      if (!plan.repoAllowed) {
+        return [
+          `Error: repo not allowed for publish.`,
+          ...plan.messages,
+          'Use action=publish_plan for a dry-run artifact, or ZAVORTH_SKILL_TRUSTED_DOMAINS (operator).',
+        ].join('\n');
+      }
       const r = this.gitRegistry.publishToRepo(localPath, repoUrl);
       return r.success ? r.message : `Error: ${r.message}`;
     }
 
     this.registry.addEntry(validation.manifest, 'local', null);
     return `Registered "${validation.manifest.name}" v${validation.manifest.version} in local marketplace.`;
+  }
+
+  private publishPlan(args: Record<string, unknown>): string {
+    const skillDir = String(args.skill_dir || args.source || args.skill_id || '').trim();
+    if (!skillDir) return 'Error: "skill_dir" (or source) is required for publish_plan.';
+    let localPath = path.resolve(skillDir);
+    if (!fs.existsSync(localPath)) {
+      const under = path.join(this.skillsDir, skillDir);
+      if (fs.existsSync(under)) localPath = under;
+    }
+    if (!fs.existsSync(localPath)) return `Directory not found: ${skillDir}`;
+
+    const repoUrl = String(args.repo_url || process.env.ZAVORTH_SKILL_PUBLISH_REPO || '').trim() || null;
+    const outPath =
+      String(args.out_path || '').trim() ||
+      path.join(process.cwd(), 'data', 'runtime', 'skill-registry', 'publish-plan.json');
+    const ops = new SkillRegistryOpsService({ skillsDir: this.skillsDir });
+    const written = ops.writePublishPlan(outPath, { skillDir: localPath, repoUrl });
+    if (written.ok === false) {
+      return `Error: ${written.message || 'publish_plan failed'}`;
+    }
+    const p = written.plan;
+    return [
+      `Publish plan (dry-run): ${p.skillId || p.skillDir}`,
+      `ok=${p.ok} wouldPush=${p.wouldPush} signed=${p.signed} packageValid=${p.packageValid} risk=${p.riskLevel}`,
+      `repo=${p.repoUrl || '(none)'} allowed=${p.repoAllowed}`,
+      `artifact=${written.path}`,
+      ...p.messages.map((m) => `· ${m}`),
+      ...(p.nextSteps.length ? ['next:', ...p.nextSteps.map((s) => `  - ${s}`)] : []),
+    ].join('\n');
+  }
+
+  private verify(args: Record<string, unknown>): string {
+    const skillDir = String(args.skill_dir || args.source || args.skill_id || '').trim();
+    if (!skillDir) return 'Error: "skill_dir" is required for verify.';
+    let localPath = path.resolve(skillDir);
+    if (!fs.existsSync(localPath)) {
+      const under = path.join(this.skillsDir, skillDir);
+      if (fs.existsSync(under)) localPath = under;
+    }
+    if (!fs.existsSync(localPath)) return `Directory not found: ${skillDir}`;
+    const ops = new SkillRegistryOpsService({ skillsDir: this.skillsDir });
+    const report = ops.verify(localPath);
+    return [
+      `Skill verify: ${report.path}`,
+      `packageValid=${report.packageValid}`,
+      `signature=${report.signature.mode} ok=${report.signature.ok} (${report.signature.message})`,
+      `security risk=${report.security.riskLevel} issues=${report.security.issues}`,
+      report.ok ? 'result=PASS' : 'result=FAIL',
+    ].join('\n');
+  }
+
+  private registryExport(args: Record<string, unknown>): string {
+    const outPath =
+      String(args.out_path || '').trim() ||
+      path.join(process.cwd(), 'data', 'runtime', 'skill-registry', 'index.json');
+    const baseUrl =
+      String(args.repo_url || args.source || process.env.ZAVORTH_SKILL_REGISTRY_URL || '').trim() ||
+      null;
+    const ops = new SkillRegistryOpsService({ skillsDir: this.skillsDir });
+    const written = ops.writeIndex(outPath, { registryBaseUrl: baseUrl });
+    if (!written.ok) return `Error: ${written.message}`;
+    return `Registry index exported: ${written.path} (${written.count} skill(s))`;
+  }
+
+  private trustedHosts(): string {
+    const domains = getTrustedSkillGitDomains();
+    const lines = ['Trusted skill git hosts:', ...domains.map((d) => `  - ${d}`)];
+    if (process.env.ZAVORTH_SKILL_TRUSTED_DOMAINS) {
+      lines.push('(extra via ZAVORTH_SKILL_TRUSTED_DOMAINS)');
+    }
+    return lines.join('\n');
   }
 
   private info(args: Record<string, unknown>): string {
@@ -287,10 +483,28 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
   }
 
   private remove(args: Record<string, unknown>): string {
-    const id = String(args.skill_id || '').trim();
-    if (!id) return 'Error: "skill_id" is required.';
+    const rawId = String(args.skill_id || '').trim();
+    if (!rawId) return 'Error: "skill_id" is required.';
 
-    const targetDir = path.join(this.skillsDir, id);
+    // Confine removal under skillsDir (no path traversal).
+    const id = rawId
+      .replace(/\\/g, '/')
+      .split('/')
+      .filter(Boolean)
+      .pop()!
+      .replace(/[^a-zA-Z0-9._@+-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 120);
+    if (!id || id === '.' || id === '..') {
+      return 'Error: invalid skill_id.';
+    }
+
+    const skillsRoot = path.resolve(this.skillsDir);
+    const targetDir = path.resolve(skillsRoot, id);
+    const rootPrefix = skillsRoot.endsWith(path.sep) ? skillsRoot : skillsRoot + path.sep;
+    if (targetDir !== skillsRoot && !targetDir.startsWith(rootPrefix)) {
+      return 'Error: skill_id escapes skills directory.';
+    }
     if (!fs.existsSync(targetDir)) return `Skill "${id}" is not installed.`;
 
     fs.rmSync(targetDir, { recursive: true, force: true });
@@ -372,14 +586,42 @@ export class ZavorthSkillMarketplaceTool extends BaseTool {
     return lines.join('\n');
   }
 
+  private sign(args: Record<string, unknown>): string {
+    if (!this.isOperatorConfirmed(args)) {
+      return [
+        'Error: skill signing requires operator_confirm=true',
+        '(or ZAVORTH_SKILL_OPERATOR_MODE=1). Signing is local package integrity, not CDN publish.',
+      ].join(' ');
+    }
+    const skillDir = String(args.skill_dir || args.source || '').trim();
+    const key = String(args.signing_key || args.token || process.env.ZAVORTH_SKILL_SIGNING_KEY || '').trim();
+    if (!skillDir) return 'Error: "skill_dir" (or source) is required for sign.';
+    if (!key) {
+      return 'Error: provide signing_key / token or set ZAVORTH_SKILL_SIGNING_KEY (operator secret).';
+    }
+    const result = signSkillPackage(skillDir, key);
+    return result.ok ? result.message : `Error: ${result.message}`;
+  }
+
   private auth(args: Record<string, unknown>): string {
-    const action = String(args.action || '').trim();
+    if (!this.isOperatorConfirmed(args)) {
+      return [
+        'Error: auth token writes require operator_confirm=true',
+        '(or ZAVORTH_SKILL_OPERATOR_MODE=1). Never pass secrets via agent free-text alone.',
+      ].join(' ');
+    }
+    // Sub-action: prefer auth_op / subaction; args.action is already "auth".
+    const op = String(args.auth_op || args.subaction || args.query || 'set').trim().toLowerCase();
     const host = String(args.host || args.skill_id || '').trim();
-    const token = String(args.token || args.source || '').trim();
+    const token = String(args.token || '').trim();
     if (!host) return 'Error: "host" is required.';
-    if (action === 'remove') { removeAuthToken(process.cwd(), host); return `Removed auth for ${host}`; }
+    if (op === 'remove' || op === 'delete') {
+      removeAuthToken(process.cwd(), host);
+      return `Removed auth for ${host}`;
+    }
+    if (!token) return 'Error: "token" is required for auth set (not source).';
     setAuthToken(process.cwd(), host, token);
-    return `Auth token set for ${host}`;
+    return `Auth token set for ${host} (stored in skill-marketplace auth store; not echoed).`;
   }
 
   private bundle(args: Record<string, unknown>): string {

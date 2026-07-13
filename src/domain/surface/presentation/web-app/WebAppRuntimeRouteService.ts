@@ -425,7 +425,7 @@ export class WebAppRuntimeRouteService {
       throw new Error('sessionId obrigatorio para session.patch.');
     }
     if (!deps.gatewaySessionReadModel) {
-      throw new Error('Gateway session read model indisponivel.');
+      throw new Error('Gateway session read model unavailable.');
     }
 
     const metadata = deps.gatewaySessionReadModel.patchSessionMetadata({

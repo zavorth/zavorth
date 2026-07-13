@@ -71,7 +71,7 @@ export function formatPermissionDetailsReply(permission: PermissionRequest): str
     `Valor pedido: ${permission.requested_value || 'n/d'}.`,
     `Valor resolvido: ${permission.resolved_value || 'n/d'}.`,
     `Solicitado por: ${permission.requested_by || 'n/d'} | decidido por: ${permission.decided_by || 'n/d'}.`,
-    `Motivo: ${permission.reason}`,
+    `Reason: ${permission.reason}`,
     permission.decision_note ? `Nota: ${permission.decision_note}` : null,
   ].filter(Boolean).join('\n');
 }

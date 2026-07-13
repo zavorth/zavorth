@@ -433,7 +433,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
     if (status === 'blocked') {
       return `ExecutionGateway bloqueou retomada via ${selectedFallback.label}.`;
     }
-    return `Retomada via ${selectedFallback.label} falhou.`;
+    return `Resume via ${selectedFallback.label} failed.`;
   }
 
   private buildSummary(
@@ -452,7 +452,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
     if (status === 'blocked') {
       return `Retomada via '${selectedFallback.label}' bloqueada: ${gatewayDecision.reason}`;
     }
-    return `Retomada via '${selectedFallback.label}' falhou: ${executionResult?.error_message || gatewayDecision.reason}`;
+    return `Resume via '${selectedFallback.label}' failed: ${executionResult?.error_message || gatewayDecision.reason}`;
   }
 
   private blockedResult(input: {

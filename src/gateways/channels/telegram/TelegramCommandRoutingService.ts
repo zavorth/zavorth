@@ -13,7 +13,6 @@ import {
   type GatewaySchedulerCommandRouterDeps,
 } from '../../../gateways/channels/telegram/bot-gateway/GatewaySchedulerCommandRouter.js';
 
-
 type FunCommand = '/roll' | '/coinflip' | '/8ball' | '/joke' | '/roulette';
 type GroupAdminCommand =
   | '/ban'
@@ -166,8 +165,8 @@ export type TelegramCommandRoutingServiceDeps = {
   } | null;
   // Certification matrix: Modo Echo
   echoPreferenceStore?: {
-    isEchoModeActive: () => Promise<boolean>;
-    setEchoMode: (active: boolean) => Promise<any>;
+    isEchoModeActive: (userId?: string | null) => Promise<boolean>;
+    setEchoMode: (active: boolean, userId?: string | null) => Promise<any>;
   };
 };
 
@@ -201,13 +200,8 @@ export class TelegramCommandRoutingService {
     effectiveText: string,
     userId: string,
   ): Promise<boolean> {
-    if (
-      parsed.command_type === '/task' &&
-      !effectiveText.trim().startsWith('/') &&
-      (await this.deps.naturalCapabilityRouter?.dispatch(ctx, parsed.command_args || effectiveText, userId))
-    ) {
-      return true;
-    }
+    // Hermes-style: free text is never intercepted by natural-capability regex packs.
+    // Capability routing only applies to explicit slash commands elsewhere in this switch.
 
     switch (parsed.command_type) {
       case '/help':
@@ -678,8 +672,10 @@ export class TelegramCommandRoutingService {
 
     const subcommand = String(args || '').trim().toLowerCase();
 
+    const operatorUserId = ctx.from?.id?.toString() || null;
+
     if (subcommand === 'on' || subcommand === 'ligar' || subcommand === 'ativar') {
-      await store.setEchoMode(true);
+      await store.setEchoMode(true, operatorUserId);
       await ctx.reply(
         '🎙️ *Modo Echo ativado.*\n\n' +
         'A partir de agora, responderei com audio alem do texto.\n' +
@@ -690,7 +686,7 @@ export class TelegramCommandRoutingService {
     }
 
     if (subcommand === 'off' || subcommand === 'desligar' || subcommand === 'desativar') {
-      await store.setEchoMode(false);
+      await store.setEchoMode(false, operatorUserId);
       await ctx.reply(
         '🔇 *Modo Echo desativado.*\n\nVoltei ao modo texto padrao.',
         { parse_mode: 'Markdown' },
@@ -698,7 +694,7 @@ export class TelegramCommandRoutingService {
       return;
     }
 
-    const isActive = await store.isEchoModeActive();
+    const isActive = await store.isEchoModeActive(operatorUserId);
     const statusEmoji = isActive ? '🎙️' : '🔇';
     const statusText = isActive ? 'ATIVADO' : 'DESATIVADO';
     await ctx.reply(

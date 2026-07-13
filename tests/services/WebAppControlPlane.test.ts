@@ -54,7 +54,7 @@ describe('WebApp control plane endpoint', () => {
         },
       },
       narrative: {
-        headline: 'Gateway pronto.',
+        headline: 'Gateway ready.',
         operatorSummary: 'Snapshot unificado.',
       },
     };

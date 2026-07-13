@@ -9,29 +9,64 @@ export type ZavorthSimpleCommandPlan =
     label: string;
   };
 
+/**
+ * Everyday intent aliases (phase 2–3).
+ * Prefer short human verbs; keep typos; map jargon to anyone-path tokens.
+ */
 const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
+  // Talk
   cha: ['chat'],
   talk: ['chat'],
   converse: ['chat'],
+  falar: ['ask'],
+  dizer: ['ask'],
+  // Setup
   setu: ['setup'],
   setuo: ['setup'],
   setups: ['setup'],
   init: ['setup'],
+  configurar: ['setup'],
+  // Health / ready
   staus: ['ready'],
-  stats: ['status'],
-  health: ['status'],
+  stats: ['ready'],
+  health: ['ready'],
+  saude: ['ready'],
+  saúde: ['ready'],
+  // Doctor
   check: ['doctor'],
   diagnose: ['doctor'],
   doctro: ['doctor'],
   docotr: ['doctor'],
+  // Open dashboard
   panel: ['open'],
   zavorthControl: ['open'],
   opne: ['open'],
+  // Run → ask (natural request)
   run: ['ask'],
+  // Providers / channels typos
   provders: ['providers'],
   provs: ['providers'],
   channles: ['channels'],
   chanels: ['channels'],
+  // Connect intent
+  conectar: ['connect'],
+  conect: ['connect'],
+  ligar: ['connect'],
+  // Learn intent
+  aprender: ['learn'],
+  aprendizado: ['learn'],
+  digest: ['learn'],
+  digesto: ['learn'],
+  // Fabric short names (phase 2 collapse)
+  where: ['reach'],
+  onde: ['reach'],
+  'reach-fabric': ['reach'],
+  'power-fabric': ['power'],
+  'product-fabric': ['product'],
+  'proof-ledger': ['proof'],
+  // Stay online / health family
+  'stay-online': ['ready'],
+  stayonline: ['ready'],
 };
 
 const SIMPLE_TEST_SUITES: Record<string, { label: string; scripts: string[] }> = {
@@ -100,6 +135,18 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
       kind: 'passthrough',
       args: [...alias, ...rest],
     };
+  }
+
+  // Natural CLI rewrite (shared policies with slash) — passthrough after normalize.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { naturalizeCliArgv } = require('./CliNaturalConvention.js') as typeof import('./CliNaturalConvention.js');
+    const naturalized = naturalizeCliArgv(rawArgs);
+    if (naturalized.rewritten) {
+      return { kind: 'passthrough', args: naturalized.argv };
+    }
+  } catch {
+    // Convention module optional during partial loads
   }
 
   return { kind: 'passthrough', args: rawArgs };

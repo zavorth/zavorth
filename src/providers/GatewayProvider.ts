@@ -6,6 +6,7 @@ import { convertChatMessagesToOpenAI } from './openaiMessageConversion.js';
 import { ILlmProvider, ChatMessage, ToolDefinition, LlmResponse, ToolCall, ProviderChatOptions, LlmStreamEvent } from './ILlmProvider.js';
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { buildOpenAiReasoningEffortBody } from './reasoningEffortPayload.js';
 import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
 import { errorMessage } from '../utils/errorLike.js';
 export type GatewayProviderOptions = {
@@ -49,6 +50,7 @@ export class GatewayProvider implements ILlmProvider {
         messages: convertChatMessagesToOpenAI(messages),
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
+        ...buildOpenAiReasoningEffortBody(options),
       } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];
@@ -77,6 +79,7 @@ export class GatewayProvider implements ILlmProvider {
         messages: convertChatMessagesToOpenAI(messages),
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
+        ...buildOpenAiReasoningEffortBody(options),
         stream: true,
       } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 

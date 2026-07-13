@@ -26,6 +26,8 @@ describe('ZavorthControlClassicAccessService', () => {
     expect(service.requiresAuthorization('/api/audit')).toBe(true);
     expect(service.requiresAuthorization('/api/logs')).toBe(true);
     expect(service.requiresAuthorization('/api/operations/health')).toBe(true);
+    expect(service.requiresAuthorization('/api/plugin-os/actions')).toBe(true);
+    expect(service.requiresAuthorization('/api/skill-registry/actions')).toBe(true);
     expect(service.requiresAuthorization('/api/stats')).toBe(true);
     expect(service.requiresAuthorization('/')).toBe(false);
   });

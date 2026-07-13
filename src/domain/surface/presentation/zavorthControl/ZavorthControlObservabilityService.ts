@@ -72,7 +72,7 @@ export class ZavorthControlObservabilityService {
     try {
       stats = monitor.getHealthStats();
     } catch (error: unknown) {logger.warn('[Zavorth Control Observability] health check failed', error);
-    stats = { error: 'Nao foi possivel carregar metricas' };
+    stats = { error: 'Could not load metrics' };
   }
 
     if (stats.error) {

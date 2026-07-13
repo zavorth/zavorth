@@ -210,12 +210,12 @@ describe('SharedSurfaceCommandService', () => {
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'create',
-      summary: 'Automacao criada com entrega no app.',
-      details: ['Rotina diaria registrada.'],
+      summary: 'Automation created with in-app delivery.',
+      details: ['Daily routine registered.'],
       snapshot: {
         narrative: {
           operatorSummary: 'Uma automacao ativa no runtime atual.',
-          nextAction: 'Aguardar a primeira execucao.',
+          nextAction: 'Wait for the first run.',
         },
       },
     }));
@@ -237,7 +237,7 @@ describe('SharedSurfaceCommandService', () => {
       requestedBy: 'telegram-user',
       sourceSurface: 'telegram',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Automacao criada com entrega no app.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Automation created with in-app delivery.'));
   });
 
   it('routes shared /schedule commands through the governed automation action path', async () => {
@@ -435,7 +435,7 @@ describe('SharedSurfaceCommandService', () => {
           featuredRecipes: [],
           narrative: {
             headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
-            operatorSummary: '1 compartilhado | 1 pendente de onboarding',
+            operatorSummary: '1 shared | 1 pending onboarding',
             nextAction: 'Fechar onboarding antes de abrir novas superficies.',
           },
         })),
@@ -445,11 +445,11 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Governanca de tenants do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth tenant governance'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('discord • pending_onboarding'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('guild:1489'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Recipe: Fechar onboarding do tenant publico'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Contexto: source 956 | runtime 1'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Context: source 956 | runtime 1'));
     expect(ctx.reply).toHaveBeenCalledWith(
       expect.stringContaining('[guided] Trazer /tenants: /tenants discord-public | via /tenants run discord-public inspect-tenant'),
     );
@@ -505,7 +505,7 @@ describe('SharedSurfaceCommandService', () => {
       featuredRecipes: [],
       narrative: {
         headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-        operatorSummary: '1 pendente de onboarding.',
+        operatorSummary: '1 pending onboarding.',
         nextAction: 'Fechar onboarding antes de abrir novas superficies.',
       },
     };
@@ -549,7 +549,7 @@ describe('SharedSurfaceCommandService', () => {
       workspace: process.cwd(),
     });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao guiada do tenant discord-public: Trazer /tenants.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Governanca de tenants do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth tenant governance'));
   });
 
   it('executes a tenant workflow review through /tenants run <tenantId> <actionId>', async () => {
@@ -602,7 +602,7 @@ describe('SharedSurfaceCommandService', () => {
       featuredRecipes: [],
       narrative: {
         headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-        operatorSummary: '1 pendente de onboarding.',
+        operatorSummary: '1 pending onboarding.',
         nextAction: 'Fechar onboarding antes de abrir novas superficies.',
       },
     };
@@ -736,7 +736,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Caminho remoto oficial: local-cloudflare | pendente'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official remote path: local-cloudflare | pending'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade web/Telegram: Web e Telegram compartilham o mesmo nucleo de comandos.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/workflow: Retoma ou inicia workflows compostos.'));
   });
@@ -810,9 +810,9 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso remoto oficial: pendente | Ainda falta validar a URL publica oficial.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade entre superficies: Web e Telegram estao alinhados para access, bootstrap e workflow.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Etapas oficiais ainda pendentes:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Official steps still pending:'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'));
   });
 

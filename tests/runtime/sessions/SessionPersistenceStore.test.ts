@@ -14,13 +14,58 @@ describe('SessionPersistenceStore', () => {
   });
 
   afterEach(() => {
+    try {
+      store.close();
+    } catch {
+      // ignore
+    }
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  it('initializes directories', async () => {
+  it('initializes sqlite database and legacy dirs', async () => {
     await store.initialize();
+    expect(fs.existsSync(path.join(tempDir, 'sessions.sqlite'))).toBe(true);
     expect(fs.existsSync(path.join(tempDir, 'sessions'))).toBe(true);
     expect(fs.existsSync(path.join(tempDir, 'memory'))).toBe(true);
+    expect(store.getDbFilePath()).toContain('sessions.sqlite');
+  });
+
+  it('migrates legacy JSON sessions into sqlite', async () => {
+    const sessionsDir = path.join(tempDir, 'sessions');
+    const memoryDir = path.join(tempDir, 'memory');
+    fs.mkdirSync(sessionsDir, { recursive: true });
+    fs.mkdirSync(memoryDir, { recursive: true });
+    fs.writeFileSync(path.join(sessionsDir, 'legacy.json'), JSON.stringify({
+      id: 'legacy_ses',
+      status: 'active',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-02T00:00:00Z',
+      workspace: '/legacy',
+      model: 'local',
+      messageCount: 2,
+      tokenUsage: { input: 10, output: 5 },
+      metadata: { from: 'json' },
+    }), 'utf8');
+    fs.writeFileSync(path.join(memoryDir, 'legacy_ses.json'), JSON.stringify([
+      {
+        id: 'c1',
+        sessionId: 'legacy_ses',
+        content: 'legacy memory chunk',
+        keywords: ['legacy'],
+        timestamp: '2026-01-01T00:00:00Z',
+        tokenCount: 3,
+      },
+    ]), 'utf8');
+
+    const migrated = new SessionPersistenceStore({ dbPath: tempDir });
+    await migrated.initialize();
+    const session = await migrated.loadSession('legacy_ses');
+    expect(session?.id).toBe('legacy_ses');
+    expect(session?.metadata?.from).toBe('json');
+    const chunks = await migrated.loadMemoryChunks('legacy_ses');
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].content).toMatch(/legacy memory/);
+    migrated.close();
   });
 
   it('saves and loads session', async () => {

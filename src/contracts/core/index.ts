@@ -54,6 +54,7 @@ export * from './PilotLoopContract.js';
 export * from './PlanContract.js';
 export * from './PlatformContract.js';
 export * from './PluginManifestContract.js';
+export * from './PluginRuntimeContract.js';
 export * from './ProactivityPolicyContract.js';
 export * from './ProfileManifestContract.js';
 export * from './ProjectConstitutionImportContract.js';

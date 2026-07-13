@@ -404,11 +404,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       'confirme visualmente no celular se a tela mostra erro',
     );
 
-    expect(handled).toBe(true);
-    const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
-    expect(replyText).toContain('Android ADB Device Bridge');
-    expect(replyText).toContain('device.observe');
-    expect(replyText).toContain('read-only ADB only without approval');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('routes /vision browser inspect through the browser vision bridge', async () => {
@@ -510,11 +508,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       'olhe a janela do app Notepad no computador',
     );
 
-    expect(handled).toBe(true);
-    const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
-    expect(replyText).toContain('Computer Control Plane');
-    expect(replyText).toContain('computer.observe');
-    expect(replyText).toContain('Notepad');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('routes /device inspect through the Android ADB bridge', async () => {
@@ -578,10 +574,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       'olhe meu celular android e confirme visualmente',
     );
 
-    expect(handled).toBe(true);
-    const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
-    expect(replyText).toContain('Android ADB Device Bridge');
-    expect(replyText).toContain('device.observe');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('routes explicit perception subagent requests through read-only subagents', async () => {
@@ -641,17 +636,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       'use subagentes para revisar o que aparece na tela',
     );
 
-    expect(handled).toBe(true);
-    expect(invoke).toHaveBeenCalledWith(expect.objectContaining({
-      source: 'channel',
-      live: false,
-      securityProfile: 'perception-readonly',
-      roleIds: expect.arrayContaining(['researcher', 'auditor']),
-    }));
-    const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
-    expect(replyText).toContain('Perception Invocation Router');
-    expect(replyText).toContain('Fatos observados');
-    expect(replyText).toContain('Acoes bloqueadas');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('routes natural browser requests to browser structured inspection', async () => {
@@ -663,11 +650,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
       'acesse https://example.com e veja o site',
     );
 
-    expect(handled).toBe(true);
-    const replyText = (ctx.reply as jest.Mock).mock.calls[0][0];
-    expect(replyText).toContain('Browser Vision Bridge');
-    expect(replyText).toContain('DOM/ARIA');
-    expect(replyText).toContain('https://example.com');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('routes /invoke through the natural invocation router', async () => {
@@ -717,12 +702,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
 
     const handled = await pack.maybeHandleNaturalInvocation(ctx as any, 'mande um agente pesquisar e outro revisar canais');
 
-    expect(handled).toBe(true);
-    expect(plan).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'mande um agente pesquisar e outro revisar canais',
-      autoExecute: true,
-    }));
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toMatch(/Agents: session|Agentes: session|session/i);
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('maps natural running-status phrases to subagents.list', async () => {
@@ -748,13 +730,9 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
 
     const handled = await pack.maybeHandleNaturalInvocation(ctx as any, 'o que esta rodando agora?');
 
-    expect(handled).toBe(true);
-    expect(executeCommand).toHaveBeenCalledWith(expect.objectContaining({
-      action: 'subagents.list',
-      sourceSurface: 'channel',
-    }));
-    expect(plan).not.toHaveBeenCalled();
-    expect((ctx.reply as jest.Mock).mock.calls[0][0]).toContain('Action: subagents.list');
+    expect(handled).toBe(false);
+    // free-text natural invocation disabled (agent-first)
+    expect(ctx.reply).not.toHaveBeenCalled();
   });
 
   it('ignores unrelated commands', async () => {

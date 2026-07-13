@@ -66,19 +66,19 @@ export class ZavorthContextBudgetService {
   ): number {
     let total = 0;
     for (const msg of messages) {
-      // ~4 tokens de overhead por mensagem (role, delimitadores)
+      // ~4 tokens of overhead per message (role, delimiters)
       total += 4 + this.estimateTokens(msg.content, model);
     }
     return total;
   }
 
   /**
-   * Comprime o contexto para caber dentro do orçamento de tokens.
+   * Compress context to fit within the token budget.
    *
    * Estratégia:
-   * 1. System prompt preservado integralmente
-   * 2. Últimas N mensagens user/assistant preservadas
-   * 3. Mensagens mais antigas resumidas em uma única mensagem de resumo
+   * 1. System prompt fully preserved
+   * 2. Last N user/assistant messages preserved
+   * 3. Older messages summarized into a single summary message
    */
   public compress(input: {
     messages: ZavorthProviderRouterMessage[];
@@ -166,7 +166,7 @@ export class ZavorthContextBudgetService {
       };
     }
 
-    // Mensagens mais antigas para sumarizar
+    // Older messages to summarize
     const olderMessages = conversationMessages.slice(0, -recentCount);
     const budgetForSummary = budgetForConversation - recentTokens;
 
@@ -239,7 +239,7 @@ export class ZavorthContextBudgetService {
     maxTokensBudget: number,
     model?: string | null,
   ): string {
-    // Extrai fragmentos-chave de cada mensagem
+    // Extract key fragments from each message
     const fragments: string[] = [];
     for (const msg of messages) {
       const trimmed = msg.content.trim();

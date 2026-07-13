@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-telegram",
+  "label": "Telegram Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail Telegram Bot API channel for status and outbound send.",
+  "description": "Wave 2 platform pack. Uses TELEGRAM_BOT_TOKEN / TELEGRAM_TOKEN presence only (never values). Sends via api.telegram.org when network permission is granted.",
+  "tags": ["platform", "telegram", "channel", "wave2", "messaging"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-telegram",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.telegram.status",
+      "intent": "platform.telegram.status",
+      "label": "Status",
+      "summary": "Report Telegram bot token presence (never the value).",
+      "artifactKinds": [],
+      "command": { "name": "platform_telegram_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.telegram.send",
+      "intent": "platform.telegram.send",
+      "label": "Send",
+      "summary": "Soft send a Telegram message via Bot API.",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_telegram_send",
+        "aliases": [],
+        "usage": "{ chatId|chat_id, text|message }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Telegram Bot API over HTTPS.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound Telegram messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect TELEGRAM_BOT_TOKEN / TELEGRAM_TOKEN presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-telegram.receipt"]
+}

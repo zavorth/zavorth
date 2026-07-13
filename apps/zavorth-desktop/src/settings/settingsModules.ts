@@ -11,6 +11,7 @@ export type SettingsModuleId =
   | 'mcp'
   | 'channels'
   | 'workspace'
+  | 'voice'
   | 'files'
   | 'approvals'
   | 'agents'
@@ -70,6 +71,7 @@ const moduleOrder: SettingsModuleId[] = [
   'mcp',
   'channels',
   'workspace',
+  'voice',
   'files',
   'approvals',
   'agents',
@@ -119,6 +121,7 @@ export function buildSettingsModules(input: SettingsModuleInput = {}): SettingsM
               moduleDef('mcp', 'MCP Servers', 'Integrations', 'MCP servers, trust and connected tools.', ['mcp', 'tools', 'server', 'trust'], mcpServerCount === 0 ? 'idle' : trustedMcpServerCount === mcpServerCount ? 'ready' : 'attention', mcpServerCount === 0 ? 'No MCP' : `${trustedMcpServerCount}/${mcpServerCount} trusted`),
             ]),
         moduleDef('channels', 'Channels', personal ? 'Connections' : 'Integrations', personal ? 'Optional apps like Discord or Slack — only if you want them.' : 'External channels, connectors and readiness.', ['slack', 'email', 'channel', 'connector'], channelCount > 0 ? 'ready' : 'idle', channelCount > 0 ? `${channelCount} channel(s)` : 'No channels'),
+        moduleDef('voice', 'Voice', personal ? 'Connections' : 'Integrations', personal ? 'How Zavorth hears you and whether it may speak — you choose provider and voice.' : 'STT/TTS preference, dictation, conversation and duplex metrics.', ['voice', 'stt', 'tts', 'speech', 'microphone', 'dictation'], 'ready', 'You choose'),
       ],
     },
     {

@@ -1320,7 +1320,7 @@ describe('SharedSurfaceCommandService', () => {
     const handled = await service.maybeHandle(ctx as any);
 
     expect(handled).toBe(true);
-    expect(ctx.reply.mock.calls[0][0]).toContain('Providers prontos agora');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Providers ready now');
     expect(ctx.reply.mock.calls[0][0]).toContain('Perfil recomendado para esta etapa');
     expect(ctx.reply.mock.calls[0][0]).toContain('Targets aceitos em /model');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({

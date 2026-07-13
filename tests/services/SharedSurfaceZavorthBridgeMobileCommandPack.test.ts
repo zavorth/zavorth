@@ -26,7 +26,7 @@ function buildAccessResult(overrides: Record<string, any> = {}) {
     secret: null,
     lease: { active: false, expiresAt: null },
     verification: null,
-    summary: 'Remoto do ZavorthBridge pronto para celular via LAN.',
+    summary: 'ZavorthBridge remote ready for mobile via LAN.',
     recommendations: [],
     doctorSummary: null,
     guide: {
@@ -50,14 +50,6 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceZavorthBri
 }
 
 describe('SharedSurfaceZavorthBridgeMobileCommandPack', () => {
-  it('parses natural ZavorthBridge mobile requests', () => {
-    const pack = buildPack();
-
-    expect(pack.parseNaturalIntent('preciso usar o zavorthBridge pelo celular agora')).toBe('start');
-    expect(pack.parseNaturalIntent('qual o status do zavorthBridge no telefone?')).toBe('status');
-    expect(pack.parseNaturalIntent('/agmobile status')).toBeNull();
-  });
-
   it('routes status requests through the access service', async () => {
     const status = jest.fn(async () => buildAccessResult());
     const pack = buildPack({ status });
@@ -91,13 +83,13 @@ describe('SharedSurfaceZavorthBridgeMobileCommandPack', () => {
       doctorSummary: 'Doctor concluiu com sucesso.',
     }));
     const pack = buildPack({ start });
-    const ctx = buildCtx('preciso usar o zavorthBridge pelo celular agora');
+    const ctx = buildCtx('/agmobile start');
 
     await pack.handle(ctx as any, 'start');
 
     expect(start).toHaveBeenCalledWith({ requestedBy: 'telegram-user' });
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('https://ag.example.com'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Senha: mobile-secret'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confirmacao final: sim.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Confirmacao final: yes.'));
   });
 });

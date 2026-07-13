@@ -50,6 +50,71 @@ voice:
   tts_generated: "Fala gerada."
 
 live_smartness:
+  no_selected_provider: "Nenhum provider selecionado pelo usuário."
+  runtime_probe_pass: "Probe live de {provider} passou no runtime de produção."
+  runtime_probe_token_mismatch: "Provider {provider} respondeu, mas não devolveu o token de certificação exato."
+  runtime_tool_missing: "Provider {provider} não emitiu a tool call exigida."
+  runtime_multi_pass: "Rodada multi-step de tools passou no runtime de produção com {provider}."
+  runtime_multi_token_mismatch: "Provider {provider} completou a rodada de tools, mas errou o token final."
+  runtime_failure: "{phase} via runtime de produção: {message}"
+
+memory_runtime:
+  local_saved: "[LocalMemory] Fato guardado na memória local com sucesso."
+  mem0_saved: "[Mem0] Fato guardado no backend remoto e sincronizado localmente."
+  auto_synced: "[MemoryRuntime] Fato guardado localmente e sincronizado com Mem0."
+  auto_local_only: "[MemoryRuntime] Fato guardado localmente. Sincronização com Mem0 indisponível nesta sessão."
+
+scheduler_runtime:
+  auto_paused: "Automação pausada automaticamente: {reason}. Último erro: {error}"
+  trigger_failed: "Falha ao disparar tarefa agendada {id}"
+
+guided_fixes:
+  no_pending: "Nenhum bloqueio ou atenção pendente."
+
+swarm_runtime:
+  batch_failed: "Um batch falhou; revise eventos de role.finished e saída por role."
+
+slash:
+  learn_skill_usage_title: "Learn skill (governado)"
+  learn_skill_failed: "Não foi possível processar learn-skill agora."
+  session_model_updated: "Modelo da sessão atualizado"
+  session_model_cleared: "Modelo da sessão limpo ({sessionId})."
+  session_model_failed: "Não foi possível alterar o modelo da sessão."
+  session_export_empty: "Nenhuma mensagem no ledger para session={sessionId}."
+  session_export_failed: "Não foi possível exportar a sessão agora."
+  consensus_failed: "Não foi possível executar consensus agora."
+
+surface:
+  status_ready: "pronto"
+  status_pending: "pendente"
+  approval_pending: "Approval: pendente."
+  capability_awaiting: "Capability {label} aguardando aprovação."
+  error_desktop_plane: "Não foi possível montar o Desktop Resource Plane agora."
+  error_mode_escalation: "Não foi possível resolver o mode escalation agora."
+  error_product_mode: "Não foi possível trocar o product mode agora."
+  error_workspace_optimizer: "Não foi possível operar o Workspace Optimizer agora."
+  error_companion_plane: "Não foi possível operar o Companion Control Plane agora."
+  error_ai_gateway: "Não foi possível operar o AI Gateway agora."
+  error_plugin_plane: "Não foi possível executar a ação do plugin plane agora."
+  error_channel_mesh: "Não foi possível executar a ação do Channel Mesh agora."
+  error_remote_plane: "Não foi possível executar a ação do plano remoto agora."
+  error_learning_plane: "Não foi possível montar o learning plane agora."
+  error_memory_plane: "Não foi possível montar o memory plane agora."
+  error_layered_memory: "Não foi possível consultar a layered memory agora."
+  error_session_plane: "Não foi possível montar o session plane agora."
+  error_hub_action: "Não foi possível executar a ação do hub agora."
+  error_workflow: "Não foi possível operar o workflow agora."
+  error_selfmod: "Não foi possível operar o selfmod agora."
+  error_bridge_mobile: "Não foi possível preparar o ZavorthBridge para uso no celular agora."
+  error_tenant_action: "Não foi possível executar a ação guiada do tenant agora."
+  error_codex_remote: "Não foi possível operar o Codex Remote agora."
+  error_plugin_flow: "Não foi possível abrir o fluxo guiado desse plugin agora."
+  error_transport_flow: "Não foi possível abrir o fluxo guiado desse transporte agora."
+  error_channel_flow: "Não foi possível abrir o fluxo guiado desse canal agora."
+  permission_not_found: "Permissão não encontrada."
+  no_recent_workflow: "Não encontrei um workflow recente com esse contexto. Use /workflow resume <wf-id> se quiser ser mais explícito."
+
+live_smartness:
   no_selected_provider: "Nenhum provider foi selecionado pelo usuário."
   runtime_probe_pass: "O probe live de {provider} passou pelo runtime LLM de produção."
   runtime_probe_token_mismatch: "O provider {provider} respondeu, mas não retornou o token exato de certificação."

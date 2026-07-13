@@ -47,18 +47,116 @@ describe('SharedSurfaceOperationsCommandPack', () => {
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Hub sincronizado com sucesso.'));
   });
 
+  it('creates a schedule from free-text request without rejection help', async () => {
+    const automationActionService = {
+      apply: jest.fn(),
+      execute: jest.fn(async () => ({
+        ok: true,
+        actionId: 'create',
+        summary: 'Agendamento em preview.',
+        details: ['Passa por approval governado.'],
+        snapshot: {
+          narrative: {
+            operatorSummary: 'Aguardando aprovacao.',
+            nextAction: 'Aprovar o plano.',
+          },
+        },
+      })),
+    };
+    const pack = buildPack({ automationActionService: automationActionService as any });
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/schedule every 1h /status',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+
+    const handled = await pack.maybeHandle(ctx as any, '/schedule', 'every 1h /status');
+
+    expect(handled).toBe(true);
+    expect(automationActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
+      actionId: 'create',
+      intentText: 'every 1h /status',
+    }));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Agendamento em preview.'));
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/^Uso:/));
+  });
+
+  it('creates a report from free-text topic without requiring structured every syntax only', async () => {
+    const automationActionService = {
+      apply: jest.fn(),
+      execute: jest.fn(async () => ({
+        ok: true,
+        actionId: 'create',
+        summary: 'Relatorio recorrente em preview.',
+        details: [],
+        snapshot: {
+          narrative: {
+            operatorSummary: 'Aguardando aprovacao.',
+            nextAction: 'Aprovar o plano.',
+          },
+        },
+      })),
+    };
+    const pack = buildPack({ automationActionService: automationActionService as any });
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/report ultimas noticias de IA',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+
+    const handled = await pack.maybeHandle(ctx as any, '/report', 'ultimas noticias de IA');
+
+    expect(handled).toBe(true);
+    expect(automationActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
+      actionId: 'create',
+      intentText: 'ultimas noticias de IA',
+    }));
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/Uso: \/report every/));
+  });
+
+  it('shows schedule status for empty/status instead of create', async () => {
+    const renderReport = jest.fn(async () => 'Scheduled runs: Automations e scheduled runs');
+    const execute = jest.fn();
+    const pack = buildPack({
+      automationControlPlaneService: { renderReport } as any,
+      automationActionService: { execute, apply: jest.fn() } as any,
+    });
+    const ctx = {
+      platform: 'telegram',
+      userId: 'telegram-user',
+      chatId: 'telegram:chat-1',
+      isGroup: false,
+      rawText: '/schedule',
+      reply: jest.fn(async () => undefined),
+      editMessage: jest.fn(async () => undefined),
+    };
+
+    await pack.maybeHandle(ctx as any, '/schedule', 'status');
+
+    expect(renderReport).toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
+  });
+
   it('creates automations through the extracted pack', async () => {
     const automationActionService = {
       apply: jest.fn(),
       execute: jest.fn(async () => ({
         ok: true,
         actionId: 'create',
-        summary: 'Automacao criada com entrega no app.',
-        details: ['Rotina diaria registrada.'],
+        summary: 'Automation created with in-app delivery.',
+        details: ['Daily routine registered.'],
         snapshot: {
           narrative: {
             operatorSummary: 'Uma automacao ativa no runtime atual.',
-            nextAction: 'Aguardar a primeira execucao.',
+            nextAction: 'Wait for the first run.',
           },
         },
       })),
@@ -83,7 +181,7 @@ describe('SharedSurfaceOperationsCommandPack', () => {
       requestedBy: 'telegram-user',
       sourceSurface: 'telegram',
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Automacao criada com entrega no app.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Automation created with in-app delivery.'));
   });
 
   it('executes trust-plane profile changes through the extracted pack', async () => {

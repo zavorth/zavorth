@@ -142,7 +142,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       const node = document.getElementById('operations-cockpit');
       if (!node) return;
       if (!cockpit || cockpit.error) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o cockpit operacional.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o cockpit operacional.</div>';
         return;
       }
 
@@ -166,7 +166,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
             + '<div><button class="btn btn-ghost" onclick="runCockpitAction(' + "'" + escapeHtml(action.id || '') + "'" + ')">Executar agora</button></div>'
             + '</div>'
           ).join('')
-        : '<div class="muted">Nenhuma acao recomendada no momento.</div>';
+        : '<div class="muted">No acao recomendada no momento.</div>';
       const alertItems = alerts.length
         ? alerts.map((alert: CockpitAlert) =>
             '<div class="cockpit-alert-card">'
@@ -221,7 +221,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       const node = document.getElementById('operations-report');
       if (!node) return;
       if (!report || report.error) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o relatorio consolidado.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o relatorio consolidado.</div>';
         return;
       }
 
@@ -243,7 +243,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
               + escapeHtml(action.command || 'n/d') + ' | ' + escapeHtml(action.reason || 'Sem detalhe.')
               + ' <span class="muted">(' + escapeHtml(action.source || 'overview') + ')</span></li>'
             ).join('')
-          : '<li>Nenhuma acao canonica adicional.</li>';
+          : '<li>No acao canonica adicional.</li>';
         return '<div class="report-card report-section">'
           + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">'
           + '<strong>' + escapeHtml(title) + '</strong>'
@@ -265,7 +265,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
             '<li><strong>' + escapeHtml(permission.executor || 'n/d') + '</strong> / '
             + escapeHtml(permission.kind || 'n/d') + ': ' + escapeHtml(permission.reason || 'Sem detalhe.') + '</li>'
           ).join('')
-        : '<li>Nenhuma permissao pendente agora.</li>';
+        : '<li>No permissao pendente agora.</li>';
       const alertItems = alerts.length
         ? alerts.map((alert: ReportAlert) =>
             '<li><strong>' + escapeHtml(alert.source || 'runtime') + '</strong>: '
@@ -277,17 +277,17 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
             '<li><strong>' + escapeHtml(action.label || 'Acao') + '</strong>: '
             + escapeHtml(action.command || 'n/d') + ' | ' + escapeHtml(action.reason || 'Sem detalhe.') + '</li>'
           ).join('')
-        : '<li>Nenhuma acao recomendada.</li>';
+        : '<li>No acao recomendada.</li>';
       const operatorBriefSection = operatorBrief
         ? '<div class="report-card report-section"><strong>Briefing do operador</strong><ul class="report-list">'
           + '<li><strong>Postura</strong>: ' + escapeHtml(operatorBrief.posture || 'watch') + '</li>'
           + '<li><strong>Headline</strong>: ' + escapeHtml(operatorBrief.headline || 'Sem resumo.') + '</li>'
-          + '<li><strong>Proxima acao</strong>: ' + escapeHtml(operatorBrief.nextAction?.label || 'Sem acao sugerida') + '</li>'
+          + '<li><strong>Proxima acao</strong>: ' + escapeHtml(operatorBrief.nextAction?.label || 'No suggested action') + '</li>'
           + '<li><strong>Comando</strong>: ' + escapeHtml(operatorBrief.nextAction?.command || 'n/d') + '</li>'
           + '</ul></div>'
         : '';
       const continuitySection = continuity
-        ? '<div class="report-card report-section"><strong>Continuidade entre superficies</strong><ul class="report-list">'
+        ? '<div class="report-card report-section"><strong>Cross-surface continuity</strong><ul class="report-list">'
           + '<li><strong>Acao sugerida</strong>: ' + escapeHtml(continuity.suggestedAction?.label || 'Retomar contexto') + '</li>'
           + '<li><strong>Motivo</strong>: ' + escapeHtml(continuity.suggestedAction?.reason || 'Sem justificativa.') + '</li>'
           + '<li><strong>Foco</strong>: ' + escapeHtml(continuity.focusTask ? ((continuity.focusTask.shortId || 'task') + ' | ' + (continuity.focusTask.source || 'n/d') + ' | ' + (continuity.focusTask.status || 'n/d')) : 'sem task dominante') + '</li>'
@@ -331,28 +331,28 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
     async function copyOperationsReport() {
       const node = document.getElementById('operations-report-text');
       if (!node) {
-        showToast('Relatorio consolidado indisponivel para copia.', true);
+        showToast('Consolidated report unavailable for copy.', true);
         return;
       }
 
       try {
         if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-          throw new Error('clipboard indisponivel');
+          throw new Error('clipboard unavailable');
         }
         await navigator.clipboard.writeText(node.textContent || '');
         showToast('Relatorio consolidado copiado.', false);
-      } catch (error: unknown) {showToast('Nao foi possivel copiar o relatorio consolidado.', true);
+      } catch (error: unknown) {showToast('No foi possivel copiar o relatorio consolidado.', true);
       }
     }
 
     async function copyTextToClipboard(value: string | number | boolean, successMessage?: string) {
       try {
         if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-          throw new Error('clipboard indisponivel');
+          throw new Error('clipboard unavailable');
         }
         await navigator.clipboard.writeText(String(value || ''));
         showToast(successMessage || 'Conteudo copiado.', false);
-      } catch (error: unknown) {showToast('Nao foi possivel copiar o conteudo.', true);
+      } catch (error: unknown) {showToast('No foi possivel copiar o conteudo.', true);
       }
     }
 
@@ -367,7 +367,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         });
         const payload = await response.json() as { ok?: boolean; error?: string; action?: { label?: string } };
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || 'Falha ao iniciar acao operacional.');
+          throw new Error(payload.error || 'Failed to iniciar acao operacional.');
         }
         const action = payload.action || {};
         showToast('Acao iniciada: ' + (action.label || actionId) + '. Consulte o log se ela reiniciar o host.', false);
@@ -376,7 +376,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         }, 1500);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        showToast(error instanceof Error ? err.message : 'Falha ao iniciar acao operacional.', true);
+        showToast(error instanceof Error ? err.message : 'Failed to iniciar acao operacional.', true);
       }
     }
 
@@ -391,7 +391,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         });
         const payload = await response.json() as { ok?: boolean; error?: string; action?: { label?: string; note?: string; status?: string } };
         if (!response.ok || !payload.ok) {
-          throw new Error(payload.error || 'Falha ao executar a acao do Integration Hub.');
+          throw new Error(payload.error || 'Failed to executar a acao do Integration Hub.');
         }
         const action = payload.action || {};
         const summary = action.note || ('Acao executada: ' + (action.label || actionId) + '.');
@@ -401,7 +401,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         }, 1200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        showToast(error instanceof Error ? err.message : 'Falha ao executar a acao do Integration Hub.', true);
+        showToast(error instanceof Error ? err.message : 'Failed to executar a acao do Integration Hub.', true);
       }
     }
 }

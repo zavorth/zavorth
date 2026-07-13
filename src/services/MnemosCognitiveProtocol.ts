@@ -1,14 +1,13 @@
 /**
  * MnemosCognitiveProtocol
  *
- * Define as instruções de cadência cognitiva que o agente LLM deve seguir
- * quando o Mnemos está disponível como tool. Estas instruções são injetadas
- * como uma layer de contexto adicional no system prompt do agente.
+ * Cognitive cadence instructions the LLM agent should follow when Mnemos
+ * tools are available. Injected as an extra system-prompt layer.
  *
- * A cadência segue três estágios:
- *  Estágio 1: Busca semântica no cofre → search_memory
- *  Estágio 2: Varredura de metadados   → scan_local_metadata
- *  Estágio 3: Human-in-the-Loop        → botões inline para o usuário
+ * Cadence stages:
+ *  Stage 1: Semantic vault search → search_memory
+ *  Stage 2: Metadata scan         → scan_local_metadata
+ *  Stage 3: Human-in-the-loop     → user confirms indexing
  */
 
 export const MNEMOS_SEARCH_MEMORY_TOOL = 'search_memory';
@@ -30,7 +29,7 @@ export const MNEMOS_CANONICAL_CADENCE = [
 export const MNEMOS_INDEXING_APPROVAL_BOUNDARY = 'human-in-the-loop';
 
 /**
- * Verifica se o Mnemos está disponível no catálogo de tools do agente.
+ * Returns true when Mnemos tools are available in the agent catalog.
  */
 export function isMnemosAvailable(toolNames: readonly string[]): boolean {
   const toolNameSet = new Set(toolNames);
@@ -38,47 +37,47 @@ export function isMnemosAvailable(toolNames: readonly string[]): boolean {
 }
 
 /**
- * Retorna a instrução de cadência cognitiva para injeção no system prompt.
- * Só deve ser incluída quando o Mnemos está conectado e com tools registradas.
+ * Full cognitive cadence instruction for system-prompt injection.
+ * Include only when Mnemos is connected with registered tools.
  */
 export function buildMnemosCognitiveInstruction(): string {
   return [
-    'PROTOCOLO DE MEMÓRIA LOCAL (MNEMOS):',
-    'Você possui acesso a um motor de memória vetorial local chamado Mnemos.',
-    'Quando o usuário fizer uma pergunta que possa se referir a documentos, anotações, PDFs ou arquivos pessoais dele, siga esta cadência:',
+    'LOCAL MEMORY PROTOCOL (MNEMOS):',
+    'You have access to a local vector memory engine called Mnemos.',
+    'When the user asks something that may refer to their documents, notes, PDFs, or personal files, follow this cadence:',
     '',
-    '1. ESTÁGIO 1 — ZONA QUENTE: Use search_memory(query="...") para buscar no cofre vetorial.',
-    '   - Se encontrar resultados relevantes (hits > 0), use-os como contexto para responder.',
-    '   - Se não encontrar (hits = 0), prossiga para o Estágio 2.',
+    '1. STAGE 1 — HOT ZONE: Use search_memory(query="...") to search the vector vault.',
+    '   - If you find relevant results (hits > 0), use them as context to answer.',
+    '   - If not (hits = 0), proceed to Stage 2.',
     '',
-    '2. ESTÁGIO 2 — RADAR LEVE: Use scan_local_metadata(keywords=["..."]) para varrer nomes de arquivo nas pastas autorizadas.',
-    '   - Extraia palavras-chave significativas da pergunta do usuário.',
-    '   - Se encontrar candidatos, apresente-os ao usuário e pergunte se deve indexar.',
-    '   - Ao apresentar candidatos, SEMPRE use o prefixo "🔍 **Busca no Cofre Mnemos**" na mensagem.',
+    '2. STAGE 2 — LIGHT RADAR: Use scan_local_metadata(keywords=["..."]) to scan file names in authorized folders.',
+    '   - Extract meaningful keywords from the user question.',
+    '   - If you find candidates, present them and ask whether to index.',
+    '   - When presenting candidates, ALWAYS prefix the message with "🔍 **Mnemos Vault Search**".',
     '',
-    '3. ESTÁGIO 3 — HUMAN-IN-THE-LOOP: Se o usuário confirmar a indexação:',
-    '   - Antes de indexar arquivo novo, use understand_file(file_path="...") para obter tipo, texto, OCR, tabelas, limites e receipt.',
-    '   - Se vision_required=true ou transcription_required=true, explique que leitura visual/audio precisa de aprovacao separada para provider multimodal/transcricao.',
-    '   - Use index_file(file_path="...") para indexar com o mesmo Universal File Understanding.',
-    '   - Após indexação bem-sucedida, execute search_memory novamente com a query original.',
-    '   - Use os resultados para gerar a resposta final.',
+    '3. STAGE 3 — HUMAN-IN-THE-LOOP: If the user confirms indexing:',
+    '   - Before indexing a new file, use understand_file(file_path="...") for type, text, OCR, tables, limits, and receipt.',
+    '   - If vision_required=true or transcription_required=true, explain that visual/audio reading needs separate approval for a multimodal/transcription provider.',
+    '   - Use index_file(file_path="...") to index with the same Universal File Understanding.',
+    '   - After successful indexing, run search_memory again with the original query.',
+    '   - Use the results to produce the final answer.',
     '',
-    'REGRAS IMPORTANTES:',
-    '- NUNCA envie conteúdo de arquivos locais para APIs externas sem antes confirmar com o usuário.',
-    '- Apenas fragmentos curtos de texto extraídos do cofre devem ser usados como contexto.',
-    '- Se o cofre estiver vazio (total_documents = 0), diga ao usuário que ele pode adicionar documentos.',
-    '- Não force a cadência do Mnemos em perguntas genéricas que claramente não se referem a documentos pessoais.',
-    '- Use vault_status quando o usuário perguntar sobre o estado da memória.',
+    'IMPORTANT RULES:',
+    '- NEVER send local file contents to external APIs without user confirmation first.',
+    '- Only short text fragments extracted from the vault should be used as context.',
+    '- If the vault is empty (total_documents = 0), tell the user they can add documents.',
+    '- Do not force the Mnemos cadence on generic questions that clearly do not refer to personal documents.',
+    '- Use vault_status when the user asks about memory state.',
   ].join('\n');
 }
 
 /**
- * Retorna a instrução compacta para superfícies com limite de tokens.
+ * Compact instruction for token-limited surfaces.
  */
 export function buildMnemosCognitiveInstructionCompact(): string {
   return [
-    'MNEMOS: Você tem acesso ao cofre de memória local.',
-    'Para perguntas sobre documentos do usuário: search_memory → scan_local_metadata → understand_file → index_file.',
-    'Fragmentos extraídos são usados como contexto. Nenhum arquivo sai da máquina sem consentimento.',
+    'MNEMOS: You have access to the local memory vault.',
+    'For questions about user documents: search_memory → scan_local_metadata → understand_file → index_file.',
+    'Extracted fragments are used as context. No file leaves the machine without consent.',
   ].join(' ');
 }

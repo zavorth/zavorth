@@ -18,7 +18,11 @@ export interface HostCommandApproval {
 
 interface HostCommandApprovalModalProps {
   approvals: HostCommandApproval[];
-  onResolve: (operationId: string, decision: 'approve' | 'deny', strongConfirmationInput?: string) => Promise<void>;
+  onResolve: (
+    operationId: string,
+    decision: 'approve' | 'deny',
+    strongConfirmationInput?: string,
+  ) => Promise<void>;
 }
 
 export function HostCommandApprovalModal({
@@ -31,7 +35,6 @@ export function HostCommandApprovalModal({
   const [timeLeft, setTimeLeft] = useState(0);
   const [confirmInput, setConfirmInput] = useState('');
 
-  // Expiration countdown timer
   useEffect(() => {
     if (!activeApproval) return;
     setConfirmInput('');
@@ -57,7 +60,7 @@ export function HostCommandApprovalModal({
       await onResolve(
         activeApproval.operationId,
         decision,
-        activeApproval.requiresStrongConfirmation ? confirmInput : undefined
+        activeApproval.requiresStrongConfirmation ? confirmInput : undefined,
       );
     } catch (err: unknown) {
       setError(errorMessage(err, 'Failed to resolve host command approval.'));
@@ -72,7 +75,8 @@ export function HostCommandApprovalModal({
 
   const isCritical = activeApproval.riskLevel === 'CRITICAL';
   const requiresStrongPhrase = activeApproval.requiresStrongConfirmation;
-  const isConfirmDisabled = requiresStrongPhrase && confirmInput !== activeApproval.strongConfirmationPhrase;
+  const isConfirmDisabled =
+    requiresStrongPhrase && confirmInput !== activeApproval.strongConfirmationPhrase;
 
   return (
     <div className="write-approval-overlay" data-testid="host-command-approval-modal">

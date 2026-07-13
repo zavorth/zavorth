@@ -1,0 +1,16 @@
+{
+  "name": "journey-skill",
+  "version": "1.0.0",
+  "description": "user journey skill",
+  "author": "user-journey",
+  "category": "other",
+  "tags": [
+    "journey"
+  ],
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Read a file"
+    }
+  ]
+}

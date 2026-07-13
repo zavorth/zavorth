@@ -70,7 +70,7 @@ export class FileDeliveryService {
     const descriptor = this.parser.parseRequest(rawRequest);
     let roots = this.pathSupport.resolveSearchRoots(descriptor.preferredRoots, options.extraAllowedPaths || []);
     if (roots.length === 0) {
-      return { kind: 'message', text: 'Nao encontrei nenhuma raiz local disponivel para procurar esse arquivo.' };
+      return { kind: 'message', text: 'I could not find any available local root to search for that file.' };
     }
 
     const namedRoot = descriptor.explicitPath ? null : this.pathSupport.findNamedRootMatch(roots, descriptor.searchTerm);

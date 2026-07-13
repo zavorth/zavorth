@@ -14,7 +14,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
     const node = document.getElementById('operations-plugins');
     if (!node) return;
     if (!plugins || 'error' in (plugins as PluginPlaneErrorPayload)) {
-      node.innerHTML = '<div class="muted">Nao foi possivel carregar o plugin plane.</div>';
+      node.innerHTML = '<div class="muted">No foi possivel carregar o plugin plane.</div>';
       return;
     }
 
@@ -48,16 +48,16 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
             (entry) =>
               '<li><strong>' +
               escapeHtml(entry.label || entry.id || 'Plugin') +
-              '</strong> Â· ' +
+              '</strong> · ' +
               escapeHtml(entry.kind || 'item') +
-              ' Â· ' +
+              ' · ' +
               escapeHtml(entry.installState || 'available') +
-              ' Â· ' +
+              ' · ' +
               escapeHtml(entry.trust || 'review') +
               '</li>',
           )
           .join('')
-      : '<li>Nenhum plugin ou extensao visivel agora.</li>';
+      : '<li>No plugin or extension visible right now.</li>';
     const selectedDetails = selected
       ? '<div class="sidecar-card"><strong>Item em foco</strong>' +
         '<small>' +
@@ -69,7 +69,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
         escapeHtml(selected.source || 'n/d') +
         '</small>' +
         '<div class="cockpit-command">' +
-        escapeHtml(selected.actionHint || 'Sem acao sugerida.') +
+        escapeHtml(selected.actionHint || 'No suggested action.') +
         '</div>' +
         (actionItems
           ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' + actionItems + '</div>'
@@ -89,7 +89,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       ' item(ns)</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(snapshot.narrative?.operatorSummary || 'Plugins, skills e extensoes visiveis com acoes guiadas.') +
+      escapeHtml(snapshot.narrative?.operatorSummary || 'Plugins, skills e extensions visiveis com acoes guiadas.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/plugins" target="_blank">/api/operations/plugins</a>' +
@@ -113,10 +113,10 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       selectedDetails +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Catalogo resumido</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>Catalog resumido</strong><ul class="cockpit-list">' +
       entryItems +
       '</ul></div>' +
-      '<div class="sidecar-card"><strong>Proximo passo</strong><small>Use /plugins, /integrations e os packs de workspace para navegar o ecossistema sem adivinhar onde cada extensao mora.</small></div>' +
+      '<div class="sidecar-card"><strong>Next step</strong><small>Use /plugins, /integrations and workspace packs to navigate the ecosystem without guessing where each extension lives.</small></div>' +
       '</div>' +
       '</div>';
   }
@@ -130,13 +130,13 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       });
       const payload = await response.json();
       if (!response.ok || payload.ok === false) {
-        throw new Error(payload.error || 'Falha ao executar a acao do plugin plane.');
+        throw new Error(payload.error || 'Failed to executar a acao do plugin plane.');
       }
       renderOperationsPlugins(payload.plugins || null);
       showToast(payload.result?.summary || 'Acao executada: ' + actionId + '.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      showToast(error instanceof Error ? err.message : 'Falha ao executar a acao do plugin plane.');
+      showToast(error instanceof Error ? err.message : 'Failed to executar a acao do plugin plane.');
     }
   }
 }

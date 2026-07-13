@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-whatsapp",
+  "label": "Platform WhatsApp",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail WhatsApp Cloud API channel for outbound text messages.",
+  "description": "Wave 2 platform pack. Sends text via Meta WhatsApp Cloud API when token and phone number id are present. Soft-fail without credentials or network.external permission. Never exposes secret values.",
+  "tags": ["platform", "whatsapp", "channel", "wave2", "messaging"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-whatsapp",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.whatsapp.status",
+      "intent": "platform.whatsapp.status",
+      "label": "WhatsApp Status",
+      "summary": "Report WhatsApp token and phone number id presence (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_whatsapp_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "platform.whatsapp.send",
+      "intent": "platform.whatsapp.send",
+      "label": "WhatsApp Send",
+      "summary": "Send a text message via WhatsApp Cloud API (soft-fail).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_whatsapp_send",
+        "aliases": [],
+        "usage": "{ to|phone, text|message|body, phoneNumberId? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Meta WhatsApp Cloud API to send outbound messages.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver messages on the WhatsApp channel.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect WhatsApp token and phone number id presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-whatsapp.receipt"]
+}

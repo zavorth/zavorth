@@ -612,7 +612,7 @@ describe('ZavorthControlService', () => {
           ],
           narrative: {
             headline: 'Node Mesh expoe 2 nodes registrados.',
-            operatorSummary: '1 pareado e 1 pendente.',
+            operatorSummary: '1 pareado e 1 pending.',
           },
         })),
       } as any,

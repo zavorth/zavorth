@@ -248,6 +248,15 @@ export type ZavorthNativeAutonomySpineSnapshot = {
   }>;
   learning: ZavorthExperienceLearningDaemonSnapshot;
   skillForge: ZavorthSkillForgeRuntimeSnapshot;
+  learningWrite?: {
+    mode: 'governed' | 'autonomous';
+    appliedPreferences: number;
+    draftedSkills: number;
+    blocked: number;
+    receiptIds: string[];
+    preferenceStorePath: string | null;
+    skillDraftRoot: string | null;
+  };
   dynamicMission: ZavorthDynamicMissionHarnessSnapshot | null;
   dreamCycle: MnemosDreamCycleSnapshot | null;
   channel: ZavorthChannelLiveCertificationSnapshot | null;
@@ -259,6 +268,7 @@ export type ZavorthNativeAutonomySpineSnapshot = {
     dreamCycleReady: boolean;
     liveChannelReady: boolean;
     backendProviderReady: boolean;
+    learningWriteApplied: boolean;
   };
   reviewCenter: {
     actions: string[];

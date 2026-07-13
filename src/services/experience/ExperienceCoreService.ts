@@ -17,6 +17,7 @@ import {
 } from '../ZavorthRuntimeSecureIntegrationService.js';
 
 import { logger } from '../../logger.js';
+import { tService } from '../../i18n/services.js';
 import {
   EXPERIENCE_COMMAND_CONTRACT_VERSION,
   EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
@@ -25,6 +26,7 @@ import {
   type ExperienceAction,
   type ExperienceActionCard,
   type ExperienceApproval,
+  type ExperienceApprovalSurfaceProjection,
   type ExperienceCommand,
   type ExperienceCommandResult,
   type ExperienceHealthStatus,
@@ -36,6 +38,8 @@ import {
   type ExperienceSurface,
   type ExperienceTimelineItem,
 } from './ExperienceContracts.js';
+import { projectResponseForChannel } from '../../domain/surface/application/surface-projection/projectors/SurfaceProjectorRegistry.js';
+import { buildAgentPermissionApprovalResponse } from '../permission/AgentPermissionApprovalPresentation.js';
 
 import { AutoHealingProjectionService } from './AutoHealingProjectionService.js';
 import { ContextRecoveryService } from './ContextRecoveryService.js';
@@ -348,10 +352,23 @@ export class ExperienceCoreService {
     const autoHealing = this.autoHealing.build({ activeRun });
     const executionGraph = this.executionGraph.build({ activeRun, runs, timeline, generatedAt });
     const reasoningSummary = this.reasoningSummary.build({ activeRun, timeline, trust });
+    const learnedItems = this.listLearnedRuntimeItems(userId);
+    const superpowersForCards = this.buildSuperpowersSnapshot(userId).powers
+      .filter((power) => power.ready)
+      .slice(0, 3)
+      .map((power) => ({
+        id: power.id,
+        title: power.title,
+        summary: power.summary,
+        howToAsk: power.howToAsk,
+        ready: power.ready,
+      }));
     const draftActionCards = this.actionCards.build({
       activeRun,
       approvals,
       learningCandidates,
+      learnedItems,
+      superpowers: superpowersForCards,
       diffReviews,
       autoHealing,
       now: this.now(),
@@ -364,20 +381,28 @@ export class ExperienceCoreService {
       actionCards: draftActionCards,
       surface,
     });
+    const firstRun = this.buildFirstRunSnapshot(userId);
     const baseActionCards = this.actionCards.build({
       activeRun,
       approvals,
       learningCandidates,
+      learnedItems,
+      superpowers: superpowersForCards,
       diffReviews,
       contextRecovery,
       autoHealing,
       now: this.now(),
     });
     const actionCards = this.mergeActionCards(
-      baseActionCards,
-      this.buildSelfHealingCardsFromReceipts(this.selfHealingReceipts.list(4)),
+      this.buildFirstRunActionCards(firstRun),
+      this.mergeActionCards(
+        baseActionCards,
+        this.buildSelfHealingCardsFromReceipts(this.selfHealingReceipts.list(4)),
+      ),
     );
-    const nextActions = this.buildNextActions(health.status, approvals.length, pendingLearningCount);
+    const nextActions = firstRun.required
+      ? this.buildFirstRunNextActions(firstRun)
+      : this.buildNextActions(health.status, approvals.length, pendingLearningCount);
     const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
     const pulse = this.pulseBrief.build({
       surface,
@@ -429,12 +454,14 @@ export class ExperienceCoreService {
       journey: this.journeyEngine.buildSnapshot({ activeRun }),
       chat: {
         messages: this.buildChat(activeRun, runs),
-        suggestions: [
-          'Revise este workspace',
-          'Explique o que esta bloqueado',
-          'Mostre aprendizados pendentes',
-          'Abra o zavorthControl',
-        ],
+        suggestions: firstRun.required
+          ? firstRun.steps.find((step) => !step.done)?.examples.slice(0, 4) || ['portugues', 'telegram', 'sim']
+          : [
+            'o que voce sabe fazer?',
+            'onde te acho?',
+            tService('experience.review_workspace'),
+            tService('experience.show_pending_learning'),
+          ],
       },
       approvals: approvals.map((approval) => this.toExperienceApproval(approval)),
       timeline,
@@ -450,6 +477,9 @@ export class ExperienceCoreService {
         summary: learningSummary.summary,
         pending: pendingLearningCount,
       },
+      firstRun,
+      superpowers: this.buildSuperpowersSnapshot(userId),
+      reach: this.buildReachSnapshot(),
       trust,
       daily: {
         summary: health.summary,
@@ -517,6 +547,21 @@ export class ExperienceCoreService {
         source: `command:${command.intent || 'ask'}`,
       });
     }
+    const firstRunHandled = this.tryHandleFirstRunCommand(command);
+    if (firstRunHandled) {
+      return firstRunHandled;
+    }
+
+    const superpowersHandled = this.tryHandleSuperpowersCommand(command);
+    if (superpowersHandled) {
+      return superpowersHandled;
+    }
+
+    const reachHandled = this.tryHandleReachCommand(command);
+    if (reachHandled) {
+      return reachHandled;
+    }
+
     const runtimeState = this.safeRuntimeStateSync(command);
     const runtimeWorkspace = this.workspacePathFromRuntimeState(runtimeState);
     if (!command.workspace && runtimeWorkspace) {
@@ -527,9 +572,28 @@ export class ExperienceCoreService {
 
     try {
       if (command.approval?.id) {
-        const result = command.approval.decision === 'approve'
-          ? await this.agentGateway?.approve(command.approval.id)
-          : await this.agentGateway?.reject(command.approval.id);
+        const meta = (command.metadata || {}) as Record<string, unknown>;
+        const choice = String(
+          meta.choice || meta.permissionChoice || command.approval.decision || 'once',
+        ).trim();
+        const surface = String(command.surface || 'experience').trim() || 'experience';
+        let result: Awaited<ReturnType<NonNullable<typeof this.agentGateway>['approve']>> | null =
+          null;
+        let gateError: string | null = null;
+        try {
+          if (command.approval.decision === 'reject' || choice === 'deny') {
+            result = (await this.agentGateway?.reject(command.approval.id)) ?? null;
+          } else {
+            result = (await this.agentGateway?.approve(command.approval.id, {
+              surface,
+              choice: choice === 'approve' ? 'once' : choice,
+              workspaceId: command.workspace || null,
+              sessionId: command.sessionId || null,
+            })) ?? null;
+          }
+        } catch (error: unknown) {
+          gateError = error instanceof Error ? error.message : String(error);
+        }
         if (result) {
           this.publishRuntimeApprovalDecision(command, true);
         }
@@ -541,20 +605,22 @@ export class ExperienceCoreService {
           },
         });
         const reply = this.replyFromText(
-          result
-            ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`
-            : `I could not find a pending approval for ${command.approval.id}.`,
+          gateError
+            ? `Approval blocked: ${gateError}`
+            : result
+              ? `Approval ${command.approval.decision === 'approve' ? 'approved' : 'rejected'}: ${command.approval.id}.`
+              : `I could not find a pending approval for ${command.approval.id}.`,
           command,
           result?.run?.id || null,
         );
         return this.finalizeCommandResult(command, {
-          ok: Boolean(result),
+          ok: Boolean(result) && !gateError,
           handled: true,
           plan,
           snapshot,
           replies: [reply],
           receipts: snapshot.receipts,
-          error: result ? null : 'Approval not found.',
+          error: gateError || (result ? null : 'Approval not found.'),
         });
       }
 
@@ -1175,6 +1241,352 @@ export class ExperienceCoreService {
     }
   }
 
+  private buildReachSnapshot(): import('./ExperienceContracts.js').ExperienceReachSnapshot {
+    try {
+      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
+      const snap = new ZavorthHumanReachService({ projectRoot: process.cwd() }).buildSnapshot();
+      return {
+        contractVersion: 'zavorth-human-reach/1',
+        headline: snap.headline,
+        summary: snap.summary,
+        preferredPathId: snap.preferredPathId,
+        stableReadyCount: snap.stableReadyCount,
+        paths: snap.paths.map((pathItem) => ({
+          id: pathItem.id,
+          title: pathItem.title,
+          summary: pathItem.summary,
+          statusLabel: pathItem.statusLabel,
+          ready: pathItem.ready,
+          stable: pathItem.stable,
+          recommended: pathItem.recommended,
+          howToStart: pathItem.howToStart,
+          nextStep: pathItem.nextStep,
+          productTier: pathItem.productTier,
+        })),
+      };
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] buildReachSnapshot failed:', error);
+      return {
+        contractVersion: 'zavorth-human-reach/1',
+        headline: 'Where you can reach me',
+        summary: 'Channel catalog unavailable right now.',
+        preferredPathId: null,
+        stableReadyCount: 0,
+        paths: [],
+      };
+    }
+  }
+
+  private tryHandleReachCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    try {
+      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
+      const service = new ZavorthHumanReachService({ projectRoot: process.cwd() });
+      const matched = service.matchNaturalCommand(command.text);
+      if (!matched) return null;
+      const snapshot = this.buildHome(command);
+      const text = matched.kind === 'list'
+        ? service.formatDigestLines().join('\n')
+        : service.formatPathGuide(matched.pathId || 'telegram').join('\n');
+      return {
+        ok: true,
+        handled: true,
+        plan: {
+          kind: 'status',
+          title: 'Onde me encontrar',
+          summary: snapshot.reach?.summary || 'Caminhos de alcance',
+          nextSafeAction: matched.kind === 'list' ? 'Ask for a telegram guide if you want to set up the phone.' : null,
+        } as any,
+        snapshot,
+        replies: [this.replyFromText(text, command, snapshot.agent.activeRunId)],
+        receipts: snapshot.receipts,
+        error: null,
+      };
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] tryHandleReachCommand failed:', error);
+      return null;
+    }
+  }
+
+  private buildSuperpowersSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
+    try {
+      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
+      const snap = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd(), userId: userId || null }).buildSnapshot();
+      return {
+        contractVersion: 'zavorth-human-superpowers/1',
+        headline: snap.headline,
+        summary: snap.summary,
+        readyCount: snap.readyCount,
+        learnedCount: snap.learnedCount,
+        powers: snap.powers.slice(0, 16).map((power) => ({
+          id: power.id,
+          title: power.title,
+          summary: power.summary,
+          howToAsk: power.howToAsk,
+          examples: power.examples,
+          trustLabel: power.trustLabel,
+          ready: power.ready,
+          nextStep: power.nextStep,
+        })),
+      };
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] buildSuperpowersSnapshot failed:', error);
+      return {
+        contractVersion: 'zavorth-human-superpowers/1',
+        headline: 'What I can do for you',
+        summary: 'Catalog unavailable right now.',
+        readyCount: 0,
+        learnedCount: 0,
+        powers: [],
+      };
+    }
+  }
+
+  private tryHandleSuperpowersCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    try {
+      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
+      const service = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd() });
+      const matched = service.matchNaturalCommand(command.text);
+      if (!matched) return null;
+      const snapshot = this.buildHome(command);
+      if (matched.kind === 'list') {
+        const text = service.formatDigestLines().join('\n');
+        return {
+          ok: true,
+          handled: true,
+          plan: {
+            kind: 'status',
+            title: 'Superpowers',
+            summary: snapshot.superpowers?.summary || 'Human capability catalog.',
+            nextSafeAction: 'Ask for a capability in plain language.',
+          } as any,
+          snapshot,
+          replies: [this.replyFromText(text, command, snapshot.agent.activeRunId)],
+          receipts: snapshot.receipts,
+          error: null,
+        };
+      }
+      const found = service.findByNeed(matched.query || command.text);
+      const lines = found.length
+        ? [
+          `For "${matched.query}", this helps:`,
+          ...found.slice(0, 5).map((power) => `• ${power.title} — ${power.howToAsk}${power.ready ? '' : ` (${power.nextStep || 'needs setup'})`}`),
+          'You can ask directly, without a technical command.',
+        ]
+        : ['I could not match a clear superpower. Ask "what can you do?" (or "o que voce sabe fazer?") for the list.'];
+      return {
+        ok: true,
+        handled: true,
+        plan: {
+          kind: 'status',
+          title: 'Superpowers',
+          summary: `Suggestions for: ${matched.query}`,
+          nextSafeAction: found[0]?.howToAsk || null,
+        } as any,
+        snapshot,
+        replies: [this.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
+        receipts: snapshot.receipts,
+        error: null,
+      };
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] tryHandleSuperpowersCommand failed:', error);
+      return null;
+    }
+  }
+
+  private getFirstRunService(userId?: string | null): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
+    const { ZavorthFirstRunHumanOnboardingService } = require('../ZavorthFirstRunHumanOnboardingService.js') as typeof import('../ZavorthFirstRunHumanOnboardingService.js');
+    return new ZavorthFirstRunHumanOnboardingService({
+      projectRoot: process.cwd(),
+      now: () => this.now(),
+      userId: userId || null,
+    });
+  }
+
+  private buildFirstRunSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceFirstRunSnapshot {
+    const snap = this.getFirstRunService(userId).buildSnapshot();
+    return {
+      contractVersion: 'zavorth-first-run-human/1',
+      required: snap.required,
+      completed: snap.completed,
+      currentStep: snap.currentStep,
+      headline: snap.headline,
+      summary: snap.summary,
+      nextPrompt: snap.nextPrompt,
+      welcomeLines: snap.welcomeLines,
+      steps: snap.steps,
+    };
+  }
+
+  private buildFirstRunActionCards(
+    firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
+  ): import('./ExperienceContracts.js').ExperienceActionCard[] {
+    if (!firstRun.required) return [];
+    const step = firstRun.steps.find((entry) => !entry.done);
+    if (!step) return [];
+    const now = this.now().toISOString();
+    return [{
+      contractVersion: 'ExperienceActionCard/v1',
+      id: `card:first-run:${step.key}`,
+      source: 'learning',
+      title: `Setup · ${step.title}`,
+      summary: step.prompt,
+      risk: 'safe',
+      status: 'pending',
+      scope: 'first-run',
+      sandbox: 'not-applicable',
+      affectedFiles: [],
+      affectedCommands: [],
+      ttlSeconds: null,
+      receiptHint: `first-run step ${step.id}`,
+      createdAt: now,
+      actions: step.examples.slice(0, 4).map((example) => ({
+        id: `first-run:${step.key}:${example}`,
+        label: example,
+        kind: 'learning' as const,
+        command: example,
+        route: null,
+        risk: 'safe' as const,
+        requiresApproval: false,
+        reason: step.prompt,
+      })),
+    }];
+  }
+
+  private buildFirstRunNextActions(
+    firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
+  ): import('./ExperienceContracts.js').ExperienceAction[] {
+    const step = firstRun.steps.find((entry) => !entry.done);
+    if (!step) return [];
+    return step.examples.slice(0, 3).map((example) => ({
+      id: `first-run:${step.key}:${example}`,
+      label: example,
+      kind: 'learning' as const,
+      command: example,
+      route: null,
+      risk: 'safe' as const,
+      requiresApproval: false,
+      reason: step.prompt,
+    }));
+  }
+
+  /**
+   * Hermes-style: free text never advances first-run.
+   * Only explicit setup intent or structured /start-like verbs.
+   */
+  private tryHandleFirstRunCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    const service = this.getFirstRunService(command.userId);
+    const text = String(command.text || '').trim();
+    const normalized = text.toLowerCase();
+    const explicitSetup =
+      command.intent === 'setup'
+      || /^(?:\/)?(?:start\s+)?(?:setup|onboarding|tour|restart setup|reset setup|skip setup)$/i.test(normalized)
+      || /^(?:\/start)\b/.test(normalized);
+
+    if (!explicitSetup) {
+      // Free text belongs to the agent path; do not steal for wizard answers.
+      return null;
+    }
+
+    if (/restart|reset/i.test(normalized)) {
+      const snapshotState = service.reset();
+      const snapshot = this.buildHome(command);
+      return {
+        ok: true,
+        handled: true,
+        plan: {
+          kind: 'status',
+          title: 'First run',
+          summary: snapshotState.headline,
+          nextSafeAction: 'Use buttons or /start lang=en surface=telegram learn=yes',
+        } as any,
+        snapshot,
+        replies: [this.replyFromText(
+          [...snapshotState.welcomeLines, '', 'Use /start buttons (or structured /start args). Free text goes to the agent.'].join('\n'),
+          command,
+          snapshot.agent.activeRunId,
+        )],
+        receipts: snapshot.receipts,
+        error: null,
+      };
+    }
+
+    if (/skip/i.test(normalized)) {
+      const done = service.complete({
+        language: service.buildSnapshot().state.language || 'en',
+        surface: service.buildSnapshot().state.surface || 'desktop',
+        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
+      });
+      const snapshot = this.buildHome(command);
+      return {
+        ok: true,
+        handled: true,
+        plan: {
+          kind: 'status',
+          title: 'First run',
+          summary: done.summary,
+          nextSafeAction: null,
+        } as any,
+        snapshot,
+        replies: [this.replyFromText(done.summary, command, snapshot.agent.activeRunId)],
+        receipts: snapshot.receipts,
+        error: null,
+      };
+    }
+
+    // Status / open setup card only — never answer() free-text wizard steps here.
+    const snap = service.buildSnapshot();
+    const snapshot = this.buildHome(command);
+    const lines = [
+      ...snap.welcomeLines,
+      '',
+      'Hermes-style: finish setup with /start buttons or structured args.',
+      'Examples: /start setup · /start skip · /start lang=en surface=telegram learn=yes',
+      'Free text is handled by the agent.',
+    ];
+    return {
+      ok: true,
+      handled: true,
+      plan: {
+        kind: 'status',
+        title: 'First run',
+        summary: snap.headline,
+        nextSafeAction: snap.nextPrompt || 'Use /start buttons',
+      } as any,
+      snapshot,
+      replies: [this.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
+      receipts: snapshot.receipts,
+      error: null,
+    };
+  }
+
+  private listLearnedRuntimeItems(userId?: string | null): Array<{ id: string; title: string; summary: string; kind: string }> {
+    try {
+      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
+      return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null })
+        .listLearned()
+        .slice(0, 8)
+        .map((item) => ({
+          id: item.id,
+          title: item.title,
+          summary: item.summary,
+          kind: item.kind,
+        }));
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] listLearnedRuntimeItems failed:', error);
+      return [];
+    }
+  }
+
+  private undoLearnedRuntimeItem(id: string, userId?: string | null): { ok: boolean; summary: string } {
+    try {
+      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
+      return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null }).undo(id);
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] undoLearnedRuntimeItem failed:', error);
+      return { ok: false, summary: 'Nao foi possivel desfazer o aprendizado agora.' };
+    }
+  }
+
   private workboardProjectionFromRuntimeState(
     runtimeState: ZavorthRuntimeStateBusSnapshot | null,
   ): Record<string, unknown> | null {
@@ -1350,6 +1762,7 @@ export class ExperienceCoreService {
       runId: approval.runId,
       title: approval.title,
       reason: approval.reason,
+      summary: approval.reason,
       risk: approval.risk,
       status: approval.status,
       createdAt: approval.createdAt,
@@ -1371,6 +1784,57 @@ export class ExperienceCoreService {
           reason: 'Mantem a acao bloqueada.',
         }),
       ],
+      surfaceProjection: this.buildDesktopApprovalSurfaceProjection(approval),
+    };
+  }
+
+  /**
+   * Project once|session|always|deny controls for desktop (and API consumers).
+   * Falls back to a local synthesis if projection fails.
+   */
+  private buildDesktopApprovalSurfaceProjection(
+    approval: UniversalApprovalRequest,
+  ): ExperienceApprovalSurfaceProjection {
+    try {
+      const response = buildAgentPermissionApprovalResponse({
+        approvalId: approval.id,
+        title: approval.title,
+        summary: approval.reason,
+        riskLabel: String(approval.risk || ''),
+      });
+      const projected = projectResponseForChannel('desktop', response);
+      const opts = (projected.replyOptions || {}) as Record<string, unknown>;
+      const shortcuts = Array.isArray(opts.shortcuts) ? opts.shortcuts : undefined;
+      const copyTargets = Array.isArray(opts.copyTargets) ? opts.copyTargets : undefined;
+      const openReceipt =
+        opts.openReceipt && typeof opts.openReceipt === 'object'
+          ? (opts.openReceipt as ExperienceApprovalSurfaceProjection['openReceipt'])
+          : null;
+      if (shortcuts && shortcuts.length > 0) {
+        return {
+          shortcuts: shortcuts as ExperienceApprovalSurfaceProjection['shortcuts'],
+          copyTargets: copyTargets as ExperienceApprovalSurfaceProjection['copyTargets'],
+          openReceipt,
+          surfaceActions: Array.isArray(opts.surfaceActions) ? opts.surfaceActions : undefined,
+          keyboardShortcuts: opts.keyboardShortcuts !== false,
+        };
+      }
+    } catch (error: unknown) {
+      logger.debug('experience.approval.surface_projection_failed', {
+        approvalId: approval.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    return {
+      shortcuts: [
+        { key: '1', choice: 'once', label: 'Run once' },
+        { key: '2', choice: 'session', label: 'Session' },
+        { key: '3', choice: 'always', label: 'Always' },
+        { key: '4', choice: 'deny', label: 'Deny' },
+      ],
+      copyTargets: [{ id: 'approvalId', label: 'Copy approval id', value: approval.id }],
+      keyboardShortcuts: true,
     };
   }
 
@@ -1477,8 +1941,46 @@ export class ExperienceCoreService {
       };
     }
 
-    const learningMatch = /^learn:(approve|reject):(.+)$/.exec(actionId);
+    const firstRunMatch = /^first-run:(language|surface|learning):(.+)$/.exec(actionId);
+    if (firstRunMatch) {
+      const key = firstRunMatch[1];
+      const value = firstRunMatch[2];
+      const service = this.getFirstRunService(command.userId);
+      const snapshotBefore = service.buildSnapshot();
+      if (key === 'language') service.applyStep({ language: value });
+      if (key === 'surface') service.applyStep({ surface: value });
+      if (key === 'learning') service.applyStep({ allowLearning: /^(sim|yes|true|1|on)$/i.test(value) });
+      const home = this.buildHome(command);
+      const summary = service.needsOnboarding()
+        ? (service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue o setup.')
+        : service.buildSnapshot().welcomeLines.join('\n');
+      return {
+        ok: true,
+        handled: true,
+        plan,
+        snapshot: home,
+        replies: [this.replyFromText(summary, command, home.agent.activeRunId)],
+        receipts: home.receipts,
+        error: null,
+      };
+    }
+
+    const learningMatch = /^learn:(approve|reject|forget):(.+)$/.exec(actionId);
     if (learningMatch) {
+      if (learningMatch[1] === 'forget') {
+        const undo = this.undoLearnedRuntimeItem(learningMatch[2], command.userId);
+        const snapshot = this.buildHome(command);
+        this.attachRuntimeStateSnapshot(snapshot);
+        return {
+          ok: undo.ok,
+          handled: true,
+          plan,
+          snapshot,
+          replies: [this.replyFromText(undo.summary, command, snapshot.agent.activeRunId)],
+          receipts: snapshot.receipts,
+          error: undo.ok ? null : undo.summary,
+        };
+      }
       const learning = await this.learningOs.decide({
         candidateId: learningMatch[2],
         decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',

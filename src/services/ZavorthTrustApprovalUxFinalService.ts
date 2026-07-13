@@ -8,6 +8,7 @@ import {
   ZavorthTrustOverviewService,
   type ZavorthTrustOverviewSnapshot,
 } from './ZavorthTrustOverviewService.js';
+import { tService } from '../i18n/services.js';
 
 export const ZAVORTH_TRUST_APPROVAL_UX_FINAL_CONTRACT_VERSION =
   'zavorth-trust-approval-ux-final/1' as const;
@@ -198,7 +199,7 @@ export class ZavorthTrustApprovalUxFinalService {
           attempted: true,
           allowed: false,
           revoked: 0,
-          reason: 'Revogacao global recusada: use --confirm-revoke-all para confirmar explicitamente.',
+          reason: tService('approval.revoke_global_refused'),
         },
       };
     }
@@ -215,7 +216,7 @@ export class ZavorthTrustApprovalUxFinalService {
         allowed: true,
         revoked,
         reason: revoked > 0
-          ? `Revogadas ${revoked} permissao/permissoes persistentes ativas.`
+          ? tService('approval.revoked_persistent', { count: String(revoked) })
           : 'No active persistent permission to revoke.',
       },
     };
@@ -227,23 +228,23 @@ export class ZavorthTrustApprovalUxFinalService {
       `Status: ${renderStatus(snapshot.status)}`,
       snapshot.narrative.operatorSummary,
       '',
-      'Resumo',
-      `- Approvals pendentes: ${snapshot.summary.pendingApprovals}`,
-      `- Capacidades de alto risco: ${snapshot.summary.highRiskCapabilities}`,
-      `- Permissoes persistentes ativas: ${snapshot.summary.activePersistentPolicies}`,
-      `- Break glass ativo: ${snapshot.summary.activeBreakGlassPolicies}`,
-      `- Permissoes expiradas: ${snapshot.summary.expiredPolicies}`,
+      tService('approval.render_summary'),
+      `- ${tService('approval.pending_approvals')}: ${snapshot.summary.pendingApprovals}`,
+      `- ${tService('approval.high_risk_capabilities')}: ${snapshot.summary.highRiskCapabilities}`,
+      `- ${tService('approval.active_persistent_permissions')}: ${snapshot.summary.activePersistentPolicies}`,
+      `- ${tService('approval.active_break_glass')}: ${snapshot.summary.activeBreakGlassPolicies}`,
+      `- ${tService('approval.expired_permissions')}: ${snapshot.summary.expiredPolicies}`,
       '',
-      'Cartoes',
+      tService('approval.render_cards'),
       ...snapshot.cards.map((card) => `- ${card.label}: ${renderStatus(card.status)} | ${card.summary} | ${card.command}`),
       '',
-      'Acoes seguras',
+      tService('approval.render_actions'),
       ...snapshot.actions.map((action) => `- [${action.severity}] ${action.label}: ${action.command}`),
       '',
-      'Garantias',
+      tService('approval.render_guarantees'),
       '- Natural text can request approval, but does not bypass policy.',
-      '- Break glass exige dupla confirmacao e mantem hard stops.',
-      '- Revogar tudo exige confirmacao explicita.',
+      `- ${tService('approval.break_glass_guarantee')}.`,
+      `- ${tService('approval.revoke_all_guarantee')}.`,
       '- Critical risk does not receive auto-approval.',
       '',
     ];
@@ -274,32 +275,32 @@ export class ZavorthTrustApprovalUxFinalService {
         id: 'approval-inbox',
         label: 'Approval Inbox',
         status: input.pendingApprovals > 0 ? 'attention' : 'ready',
-        summary: `${input.pendingApprovals} pedido(s) aguardando decisao do operador.`,
-        nextAction: input.pendingApprovals > 0 ? 'Abrir approvals e decidir com contexto.' : 'Nada pendente agora.',
+        summary: tService('approval.inbox_summary', { count: String(input.pendingApprovals) }),
+        nextAction: input.pendingApprovals > 0 ? tService('approval.inbox_next_action') : tService('approval.nothing_pending'),
         command: 'zavorth approvals',
       },
       {
         id: 'persistent-permissions',
         label: 'Persistent Permissions',
         status: input.activePersistentPolicies.length > 0 ? 'attention' : 'ready',
-        summary: `${input.activePersistentPolicies.length} permissao/permissoes reutilizaveis ativas.`,
-        nextAction: input.activePersistentPolicies.length > 0 ? 'Revisar escopo, prazo e risco.' : 'Criar somente se houver rotina repetitiva.',
+        summary: tService('approval.persistent_summary', { count: String(input.activePersistentPolicies.length) }),
+        nextAction: input.activePersistentPolicies.length > 0 ? tService('approval.persistent_review') : tService('approval.persistent_create'),
         command: 'zavorth persistent-approvals --json',
       },
       {
         id: 'break-glass',
         label: 'Break Glass',
         status: input.activeBreakGlassPolicies.length > 0 ? 'danger' : 'ready',
-        summary: `${input.activeBreakGlassPolicies.length} modo(s) extremo(s) ativo(s).`,
-        nextAction: input.activeBreakGlassPolicies.length > 0 ? 'Revogar quando a emergencia terminar.' : 'Disponivel apenas para emergencia governada.',
+        summary: tService('approval.break_glass_summary', { count: String(input.activeBreakGlassPolicies.length) }),
+        nextAction: input.activeBreakGlassPolicies.length > 0 ? tService('approval.break_glass_revoke') : tService('approval.break_glass_governed'),
         command: 'zavorth trust revoke-all --confirm-revoke-all',
       },
       {
         id: 'risk-boundary',
         label: 'Risk Boundary',
         status: input.highRiskCapabilities > 0 ? 'attention' : input.status,
-        summary: `${input.highRiskCapabilities} capacidade(s) de alto risco observadas; ${input.expiredPolicies} permissao/permissoes expiradas.`,
-        nextAction: 'Manter risco critico fora de auto-approval.',
+        summary: tService('approval.risk_boundary_summary', { highRisk: String(input.highRiskCapabilities), expired: String(input.expiredPolicies) }),
+        nextAction: tService('approval.risk_boundary_next'),
         command: 'zavorth trust --json',
       },
     ];
@@ -315,9 +316,9 @@ export class ZavorthTrustApprovalUxFinalService {
     if (input.pendingApprovals > 0) {
       actions.push({
         id: 'review-pending-approvals',
-        label: 'Revisar approvals pendentes',
+        label: tService('approval.action_review_pending'),
         severity: 'warn',
-        reason: 'Ha pedidos aguardando decisao explicita.',
+        reason: tService('approval.action_review_pending_reason'),
         command: 'zavorth approvals',
       });
     }
@@ -326,33 +327,33 @@ export class ZavorthTrustApprovalUxFinalService {
         id: 'revoke-break-glass',
         label: 'Revoke break glass when it is no longer necessary',
         severity: 'danger',
-        reason: 'Modo extremo reduz friccao e deve durar pouco.',
+        reason: tService('approval.break_glass_reason'),
         command: 'zavorth trust revoke-all --confirm-revoke-all',
       });
     }
     if (input.activePersistentPolicies > 0) {
       actions.push({
         id: 'audit-persistent-permissions',
-        label: 'Auditar permissoes persistentes',
+        label: tService('approval.action_audit_persistent'),
         severity: 'warn',
-        reason: 'Permissoes persistentes devem ter escopo, prazo e recibo claros.',
+        reason: tService('approval.action_audit_persistent_reason'),
         command: 'zavorth persistent-approvals --json',
       });
     }
     if (input.highRiskCapabilities > 0) {
       actions.push({
         id: 'review-high-risk-capabilities',
-        label: 'Revisar capacidades de alto risco',
+        label: tService('approval.action_review_high_risk'),
         severity: 'warn',
-        reason: 'Capacidades poderosas exigem boundary claro.',
+        reason: tService('approval.action_review_high_risk_reason'),
         command: 'zavorth trust-panel --json',
       });
     }
     actions.push({
       id: 'show-trust-json',
-      label: 'Exportar snapshot de confianca',
+      label: tService('approval.action_export_snapshot'),
       severity: 'info',
-      reason: 'Ajuda zavorthControl, Telegram e API a mostrar o mesmo estado.',
+      reason: tService('approval.action_export_snapshot_reason'),
       command: 'zavorth trust --json',
     });
     return actions;
@@ -366,12 +367,16 @@ export class ZavorthTrustApprovalUxFinalService {
     activeBreakGlassPolicies: number;
   }): string {
     if (input.activeBreakGlassPolicies > 0) {
-      return `Modo extremo ativo. Existem ${input.activeBreakGlassPolicies} permissao/permissoes break glass; mantenha por pouco tempo e revogue assim que terminar.`;
+      return tService('approval.break_glass_active_summary', { count: String(input.activeBreakGlassPolicies) });
     }
     if (input.pendingApprovals > 0 || input.highRiskCapabilities > 0 || input.activePersistentPolicies > 0) {
-      return `${input.pendingApprovals} approval(s), ${input.highRiskCapabilities} capacidade(s) de alto risco e ${input.activePersistentPolicies} permissao/permissoes persistentes ativas.`;
+      return tService('approval.operator_summary_active', {
+        approvals: String(input.pendingApprovals),
+        highRisk: String(input.highRiskCapabilities),
+        persistent: String(input.activePersistentPolicies),
+      });
     }
-    return 'Trust plane limpo: sem approvals pendentes, sem break glass ativo e sem permissao persistente ampla.';
+    return tService('approval.trust_plane_clean');
   }
 }
 
@@ -391,9 +396,9 @@ function isExpired(policy: ZavorthPersistentApprovalPolicy, now: Date): boolean 
 }
 
 function renderStatus(status: ZavorthTrustApprovalUxStatus): string {
-  if (status === 'ready') return 'pronto';
-  if (status === 'danger') return 'perigo';
-  return 'atencao';
+  if (status === 'ready') return tService('approval.status_ready');
+  if (status === 'danger') return tService('approval.status_danger');
+  return tService('approval.status_attention');
 }
 
 function toPolicyView(policy: ZavorthPersistentApprovalPolicy): ZavorthTrustApprovalUxPolicyView {

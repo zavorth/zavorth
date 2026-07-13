@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
     const node = document.getElementById('operations-runtime-modes');
     if (!node) return;
     if (!runtimeModes || 'error' in runtimeModes) {
-      node.innerHTML = '<div class="muted">Nao foi possivel carregar os modos de runtime.</div>';
+      node.innerHTML = '<div class="muted">No foi possivel carregar os modos de runtime.</div>';
       return;
     }
 
@@ -42,7 +42,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
               escapeHtml(entry.operatorSummary || 'Sem resumo adicional.') +
               '</small>' +
               '<small>Melhor para: ' +
-              escapeHtml(entry.recommendedFor || 'Sem recomendacao adicional.') +
+              escapeHtml(entry.recommendedFor || 'Sem recommendation adicional.') +
               '</small>' +
               (entry.actionHint ? '<div class="cockpit-command">' + escapeHtml(entry.actionHint) + '</div>' : '') +
               '<ul class="cockpit-list">' +
@@ -56,7 +56,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhum modo de runtime catalogado ainda.</div>';
+      : '<div class="muted">No runtime mode cataloged yet.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +

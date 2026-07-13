@@ -26,7 +26,7 @@ export class DndService {
       return false;
     }
 
-    // Se o usuario mandou mensagem no Telegram nos ultimos 60 segundos, ele esta com o celular na mao e quer respostas, bypass no DND.
+    // If the user sent a message on Telegram in the last 60 seconds, they have their phone in hand and want replies, bypass DND.
     if (Date.now() - this.lastUserMessageTime < 60000) {
       return false;
     }

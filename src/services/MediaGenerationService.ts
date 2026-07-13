@@ -93,13 +93,13 @@ export class MediaGenerationService {
       return this.buildErrorResult(validationError, processedAt);
     }
 
-    // 2. Avaliação de política de conteúdo.
+    // 2. Content policy evaluation.
     const policyDecision = this.evaluatePolicy(request);
     if (!policyDecision.allowed) {
       return this.buildPolicyBlockedResult(policyDecision, processedAt);
     }
 
-    // 3. Seleciona o adapter para a modalidade.
+    // 3. Select the adapter for the modality.
     const modality = request.modality || 'image';
     const adapter = this.selectAdapter(modality);
     if (!adapter) {
@@ -226,14 +226,14 @@ export class MediaGenerationService {
     const filename = `${modality}-${artifactId}${ext}`;
     const artifactPath = path.join(this.artifactDir, filename);
 
-    // Garante que o diretório de artefatos existe.
+    // Ensure the artifacts directory exists.
     await fs.promises.mkdir(this.artifactDir, { recursive: true });
 
     // Se temos dados binários, salva diretamente.
     if (output.data) {
       await fs.promises.writeFile(artifactPath, output.data);
     } else if (output.sourceUrl) {
-      // Baixa da URL do provedor para armazenamento local.
+      // Download from the provider URL for local storage.
       await this.downloadToFile(output.sourceUrl, artifactPath);
     } else {
       throw new Error('Adapter output has no data and no sourceUrl.');

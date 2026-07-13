@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "hello-world",
+  "label": "Hello World",
+  "version": "0.1.0",
+  "moduleKind": "tool",
+  "summary": "Minimal Plugin OS tool that echoes input.",
+  "description": "Bundled example tool plugin for Zavorth Plugin OS.",
+  "tags": ["tool", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/hello-world",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "main.run",
+      "intent": "tool.hello.run",
+      "label": "Hello Run",
+      "summary": "Echo capability input.",
+      "artifactKinds": [],
+      "command": {
+        "name": "hello_run",
+        "aliases": ["hello"],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

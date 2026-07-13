@@ -91,7 +91,7 @@ export class SandboxExecutionTool extends BaseTool {
       const securityLevel = policy.securityLevel;
       if (securityLevel === 'wasm') {
         throw new Error(
-          'Politica invalida: securityLevel=wasm so pode ser usado quando language=wasm.',
+          'Invalid policy: securityLevel=wasm can only be used when language=wasm.',
         );
       }
 
@@ -163,7 +163,7 @@ export class SandboxExecutionTool extends BaseTool {
   /**
    * Resolves which runtime to use based on the required security level.
    * Implementa fallback automatico:
-   *   microvm indisponivel -> tenta container
+   *   microvm unavailable -> try container
    *   container unavailable -> blocks execution and does not downgrade to local-jail
    */
   private resolveRuntime(
@@ -226,7 +226,7 @@ export class SandboxExecutionTool extends BaseTool {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Sandbox Execution] parsing failed', error);
-    return { ok: false, error: `args_json invalido: ${err.message}` };
+    return { ok: false, error: `invalid args_json: ${err.message}` };
   }
   }
 }

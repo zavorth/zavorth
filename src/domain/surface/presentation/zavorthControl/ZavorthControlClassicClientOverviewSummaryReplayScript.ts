@@ -178,7 +178,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       if (!overview || overview.error || overview.available === false) {
         const reason = overview && overview.reason
           ? escapeHtml(overview.reason)
-          : title + ' indisponivel.';
+          : title + ' unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -200,7 +200,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
             + (entry.command ? '<div class="cockpit-command">' + escapeHtml(entry.command) + '</div>' : '')
             + '</li>'
           ).join('')
-        : '<li>Nenhuma acao sugerida agora.</li>';
+        : '<li>No acao sugerida agora.</li>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
@@ -237,7 +237,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<div class="cockpit-mini-card"><strong>Nodes</strong><div>' + escapeHtml(String(summary.onlineNodes || 0)) + '</div><small>Online agora</small></div>'
         + '<div class="cockpit-mini-card"><strong>Lifecycle</strong><div>' + escapeHtml(String(summary.lifecycleEvents || 0)) + '</div><small>Eventos correlacionados</small></div>'
         + '<div class="cockpit-mini-card"><strong>Atencao</strong><div>' + escapeHtml(String(summary.lifecycleAttention || 0)) + '</div><small>Sinais no replay/learning</small></div>',
-        '<div class="sidecar-card"><strong>Proximo passo</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar runtime, stability e replay.') + '</div></div>',
+        '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar runtime, stability e replay.') + '</div></div>',
       );
     }
 
@@ -252,7 +252,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<div class="cockpit-mini-card"><strong>Onboarding</strong><div>' + escapeHtml(String(summary.pendingOnboarding || 0)) + '</div><small>Pendentes</small></div>'
         + '<div class="cockpit-mini-card"><strong>Approvals</strong><div>' + escapeHtml(String(summary.pendingApprovals || 0)) + '</div><small>Em aberto</small></div>'
         + '<div class="cockpit-mini-card"><strong>Risco</strong><div>' + escapeHtml(String(summary.highRiskCapabilities || 0)) + '</div><small>Capabilities sensiveis</small></div>',
-        '<div class="sidecar-card"><strong>Proximo passo</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar trust, governance e tenants.') + '</div></div>',
+        '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar trust, governance e tenants.') + '</div></div>',
       );
     }
 
@@ -267,7 +267,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<div class="cockpit-mini-card"><strong>Platform</strong><div>' + escapeHtml(String(summary.platformEntries || 0)) + '</div><small>Entradas disponiveis</small></div>'
         + '<div class="cockpit-mini-card"><strong>Evals</strong><div>' + escapeHtml(String(summary.scorecards || 0)) + '</div><small>Scorecards ativos</small></div>'
         + '<div class="cockpit-mini-card"><strong>Rollout</strong><div>' + escapeHtml(summary.releaseReady ? 'ready' : 'pending') + '</div><small>Gate ' + escapeHtml(summary.rolloutGateStatus || 'unknown') + '</small></div>',
-        '<div class="sidecar-card"><strong>Proximo passo</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar hub, ecosystem, evals e rollout.') + '</div></div>',
+        '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-command">' + escapeHtml(overview?.narrative?.nextAction || 'Revisar hub, ecosystem, evals e rollout.') + '</div></div>',
       );
     }
 
@@ -285,7 +285,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '<div class="sidecar-card"><strong>Posturas canonicas</strong><small>Operational: ' + escapeHtml(summary.operationalPosture || 'attention')
         + ' | Trust: ' + escapeHtml(summary.trustPosture || 'attention')
         + ' | Product: ' + escapeHtml(summary.productPosture || 'attention')
-        + '</small><div class="cockpit-command">' + escapeHtml(catalog?.narrative?.nextAction || 'Usar overviews canonicos como fronteira de leitura dos control planes.') + '</div></div>',
+        + '</small><div class="cockpit-command">' + escapeHtml(catalog?.narrative?.nextAction || 'Usar overviews canonical como fronteira de leitura dos control planes.') + '</div></div>',
       );
     }
 
@@ -295,7 +295,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       if (!replay || replay.error || replay.available === false) {
         const reason = replay && replay.reason
           ? escapeHtml(replay.reason)
-          : 'Replay operacional indisponivel.';
+          : 'Replay operacional unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -317,7 +317,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
             + escapeHtml(artifact.summary || artifact.path || 'Sem resumo adicional.')
             + '</li>'
           ).join('')
-        : '<li>Nenhuma entrega recente consolidada.</li>';
+        : '<li>No entrega recente consolidada.</li>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
@@ -326,7 +326,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<strong>Replay operacional</strong>'
         + '<span class="badge badge-info">' + escapeHtml(replay.dominantSurface || 'misto') + '</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(replay.headline || 'Replay pronto') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(replay.headline || 'Replay ready') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/replay" target="_blank">/api/operations/replay</a>'
         + '</div>'
@@ -342,7 +342,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<div class="sidecar-card"><strong>Melhor ponto de entrada</strong><ul class="cockpit-list"><li><strong>'
         + escapeHtml(recommended.label || 'Abrir contexto')
         + '</strong> '
-        + escapeHtml(recommended.reason || 'Sem recomendacao adicional.')
+        + escapeHtml(recommended.reason || 'Sem recommendation adicional.')
         + '</li></ul></div>'
         + '</div>'
         + '<div class="cockpit-stack">'
@@ -358,7 +358,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       if (!lifecycle || lifecycle.error || lifecycle.available === false) {
         const reason = lifecycle && lifecycle.reason
           ? escapeHtml(lifecycle.reason)
-          : 'Lifecycle de execucao indisponivel.';
+          : 'Lifecycle de execucao unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -392,7 +392,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         + '<strong>Execution lifecycle</strong>'
         + '<span class="badge badge-info">' + escapeHtml(String(summary.recent || 0)) + ' evento(s)</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(lifecycle.narrative?.headline || 'Lifecycle canonico pronto') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(lifecycle.narrative?.headline || 'Lifecycle canonico ready') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/lifecycle" target="_blank">/api/operations/lifecycle</a>'
         + '</div>'
@@ -419,7 +419,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
       if (!handoff || handoff.error || handoff.available === false) {
         const reason = handoff && handoff.reason
           ? escapeHtml(handoff.reason)
-          : 'Handoff de sessao indisponivel.';
+          : 'Handoff de session unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -433,7 +433,7 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
             + (entry.linked ? ' <small>(ligada)</small>' : '')
             + '</li>'
           ).join('')
-        : '<li>Nenhuma superficie adicional ligada ainda.</li>';
+        : '<li>No superficie adicional ligada ainda.</li>';
       const carryItems = carryForward.length
         ? carryForward.map((entry: HandoffCarryForward) =>
             '<li><strong>' + escapeHtml(entry.label || 'Contexto') + '</strong> '
@@ -446,25 +446,25 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '<div class="cockpit-status">'
         + '<div>'
         + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
-        + '<strong>Handoff de sessao</strong>'
+        + '<strong>Handoff de session</strong>'
         + '<span class="badge ' + (handoff.status === 'resume-required' ? 'badge-warning' : (handoff.status === 'aligned' ? 'badge-allowed' : 'badge-info')) + '">'
         + escapeHtml(handoff.status || 'fresh')
         + '</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(handoff.headline || 'Handoff pronto') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(handoff.headline || 'Handoff ready') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/handoff" target="_blank">/api/operations/handoff</a>'
         + '</div>'
         + '<div class="cockpit-grid">'
         + '<div class="cockpit-stack">'
         + '<div class="cockpit-mini-grid">'
-        + '<div class="cockpit-mini-card"><strong>Destino</strong><div>' + escapeHtml(handoff.canonicalTarget?.label || 'nova sessao') + '</div><small>Contexto principal</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Tarefas</strong><div>' + escapeHtml(String(handoff.checkpoints?.tasks || 0)) + '</div><small>Itens na sessao compartilhada</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Destino</strong><div>' + escapeHtml(handoff.canonicalTarget?.label || 'novthe session') + '</div><small>Contexto principal</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Tarefas</strong><div>' + escapeHtml(String(handoff.checkpoints?.tasks || 0)) + '</div><small>Itens nthe session compartilhada</small></div>'
         + '<div class="cockpit-mini-card"><strong>Workflows</strong><div>' + escapeHtml(String(handoff.checkpoints?.workflowRuns || 0)) + '</div><small>Fluxos compostos visiveis</small></div>'
         + '<div class="cockpit-mini-card"><strong>Superficies</strong><div>' + escapeHtml(String(handoff.checkpoints?.linkedSurfaces || 0)) + '</div><small>Ambientes ligados ao mesmo principal</small></div>'
         + '</div>'
         + '<div class="sidecar-card"><strong>Resumo do operador</strong><small>' + escapeHtml(handoff.operatorSummary || 'Sem resumo adicional.') + '</small></div>'
-        + '<div class="sidecar-card"><strong>Prompt de retomada</strong><div class="cockpit-command">' + escapeHtml(handoff.handoffPrompt || handoff.handoffCommand || 'Sem prompt pronto.') + '</div></div>'
+        + '<div class="sidecar-card"><strong>Prompt de retomada</strong><div class="cockpit-command">' + escapeHtml(handoff.handoffPrompt || handoff.handoffCommand || 'Sem prompt ready.') + '</div></div>'
         + '</div>'
         + '<div class="cockpit-stack">'
         + '<div class="sidecar-card"><strong>Superficies ligadas</strong><ul class="cockpit-list">' + surfaceItems + '</ul></div>'

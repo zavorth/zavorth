@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "mcp-bridge",
+  "label": "MCP Bridge",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "List MCP servers and materialize synthetic Plugin OS bridge packages.",
+  "description": "First-party MCP bridge control plugin. Reads config/mcp-servers.json, lists candidates, and materializes mcp-<id> packages under .zavorth/plugins.",
+  "tags": ["mcp", "bridge", "marketplace", "materialize"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://mcp-bridge",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "mcp.list",
+      "intent": "mcp.list",
+      "label": "MCP List",
+      "summary": "List configured MCP servers from config/mcp-servers.json.",
+      "artifactKinds": [],
+      "command": {
+        "name": "mcp_list",
+        "aliases": ["list_mcp"],
+        "usage": null
+      }
+    },
+    {
+      "id": "mcp.materialize",
+      "intent": "mcp.materialize",
+      "label": "MCP Materialize",
+      "summary": "Write a synthetic bridge package for an MCP server id.",
+      "artifactKinds": [],
+      "command": {
+        "name": "mcp_materialize",
+        "aliases": ["materialize_mcp"],
+        "usage": "{ serverId }"
+      }
+    },
+    {
+      "id": "mcp.status",
+      "intent": "mcp.status",
+      "label": "MCP Status",
+      "summary": "Status for a configured MCP server id.",
+      "artifactKinds": [],
+      "command": {
+        "name": "mcp_status",
+        "aliases": [],
+        "usage": "{ serverId }"
+      }
+    },
+    {
+      "id": "mcp.invoke",
+      "intent": "mcp.invoke",
+      "label": "MCP Invoke",
+      "summary": "Invoke a tool on a live MCP server via McpRuntime (soft-fail when offline).",
+      "artifactKinds": [],
+      "command": {
+        "name": "mcp_invoke",
+        "aliases": ["invoke_mcp"],
+        "usage": "{ serverId, tool?, args? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read MCP config and existing bridge packages.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Write materialize packages under .zavorth/plugins.",
+      "required": true
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "MCP servers may require network.",
+      "required": false
+    },
+    {
+      "kind": "process.spawn",
+      "scope": "workspace",
+      "reason": "MCP servers typically spawn processes.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

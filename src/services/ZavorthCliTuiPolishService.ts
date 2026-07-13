@@ -132,7 +132,7 @@ export class ZavorthCliTuiPolishService {
     const baseInput = {
       refreshProviders,
       includeAdvancedProviders: input.includeAdvancedProviders === true,
-      userId: input.userId || 'operator',
+      userId: input.userId || 'local-user',
       sessionId: input.sessionId || 'cli-tui-polish',
       workspaceHint: input.workspaceHint || process.cwd(),
     };

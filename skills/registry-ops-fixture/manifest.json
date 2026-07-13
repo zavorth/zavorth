@@ -1,0 +1,19 @@
+{
+  "name": "registry-ops-fixture",
+  "version": "1.0.0",
+  "description": "Canonical signed fixture for skill-registry ops CI and UI dry-runs",
+  "author": "zavorth-ops",
+  "category": "other",
+  "tags": [
+    "fixture",
+    "ops",
+    "signed",
+    "ci"
+  ],
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Read a file (declared)"
+    }
+  ]
+}

@@ -22,6 +22,10 @@ import { AdaptivePersonaEngine, type PersonaResolution } from './AdaptivePersona
 
 import { sanitizeTrustPlaneText } from '../runtime/agent/security/index.js';
 import { wrapUntrustedContent } from '../security/UntrustedContent.js';
+import { countTokens } from '../utils/tokenCounter.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('ContextEngine');
 
 export interface ContextEvent {
   /** Unique event ID. */
@@ -83,6 +87,12 @@ export interface ContextEngineDecision {
 const MAX_WINDOW_EVENTS = 12;
 const MAX_SUMMARY_BULLETS = 20;
 const MAX_EVENT_CONTENT_LENGTH = 500;
+/** Anti-thrash: only compact when window exceeds this floor (≈ 75%+ headroom). */
+const COMPACTION_TRIGGER_EVENTS = Math.ceil(MAX_WINDOW_EVENTS * 2);
+/** Minimum ms between compactions for the same session (anti-thrash). */
+const COMPACTION_COOLDOWN_MS = 15_000;
+/** Residual: also compact when estimated window tokens exceed this floor. */
+const COMPACTION_TOKEN_FLOOR = Number(process.env.ZAVORTH_COMPACTION_TOKEN_FLOOR || 2_500) || 2_500;
 
 const DEFAULT_SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 const DEFAULT_MAX_SESSIONS = 1000;
@@ -121,6 +131,8 @@ export class ContextEngine {
   private readonly sessions: Map<string, ContextEvent[]> = new Map();
   private readonly summaries: Map<string, string> = new Map();
   private readonly lastAccessBySession: Map<string, number> = new Map();
+  /** Last compaction timestamp per session (anti-thrash). */
+  private readonly lastCompactAtBySession: Map<string, number> = new Map();
 
   constructor(options: ContextEngineOptions = {}) {
     this.now = options.now || (() => new Date());
@@ -148,7 +160,7 @@ export class ContextEngine {
    */
   public attachEpisodicBridge(bridge: EpisodicMemoryBridge): void {
     this.episodicBridge = bridge;
-    console.log('[ContextEngine] EpisodicMemoryBridge connected.');
+    log.info('EpisodicMemoryBridge connected.');
   }
 
   /**
@@ -176,7 +188,8 @@ export class ContextEngine {
       }
     }
 
-    if (events.length > MAX_WINDOW_EVENTS * 2) {
+    // Anti-thrash: event floor OR token floor, with cooldown
+    if (this.shouldCompact(key, events) && this.canCompact(key)) {
       this.compact(key, events);
     }
     this.enforceSessionLimit();
@@ -201,7 +214,7 @@ export class ContextEngine {
     // Adaptive Persona Engine - Dynamic persona resolution based on intent
     const personaResolution = this.personaEngine.resolve(firewallDecision.classification);
     const adaptivePersonaPrompt = this.personaEngine.buildPrompt(personaResolution);
-    console.log(`[ContextEngine] Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
+    log.debug(`Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
     const enrichedSystemInstruction = systemInstruction + '\n' + adaptivePersonaPrompt;
 
     const window = this.getContextWindow(key, workspaceContext);
@@ -415,8 +428,13 @@ export class ContextEngine {
   /**
    * Compacts old events into a textual summary to save memory and tokens.
    * When connected, EpisodicMemoryBridge also persists those events as an episode.
+   * Records lastCompactAt for anti-thrash cooldown.
    */
   private compact(key: string, events: ContextEvent[]): void {
+    // Floor: keep at least MAX_WINDOW_EVENTS verbatim; only compact surplus
+    if (events.length <= MAX_WINDOW_EVENTS) {
+      return;
+    }
     const toCompact = events.splice(0, events.length - MAX_WINDOW_EVENTS);
     const existingSummary = this.summaries.get(key) || '';
 
@@ -435,15 +453,38 @@ export class ContextEngine {
 
     // Keep only the last N lines.
     this.summaries.set(key, lines.slice(-MAX_SUMMARY_BULLETS).join('\n'));
+    this.lastCompactAtBySession.set(key, this.now().getTime());
 
     if (this.episodicBridge && toCompact.length > 0) {
       const userId = toCompact[0]?.userId;
       if (userId) {
         void this.episodicBridge.persistEpisode(toCompact, userId).catch((err) => {
-          console.error('[ContextEngine] Failed to persist episode:', err);
+          log.error('[ContextEngine] Failed to persist episode:', err);
         });
       }
     }
+  }
+
+  private canCompact(key: string): boolean {
+    const last = this.lastCompactAtBySession.get(key);
+    if (!last) return true;
+    return this.now().getTime() - last >= COMPACTION_COOLDOWN_MS;
+  }
+
+  private shouldCompact(key: string, events: ContextEvent[]): boolean {
+    if (events.length > COMPACTION_TRIGGER_EVENTS) return true;
+    if (events.length <= MAX_WINDOW_EVENTS) return false;
+    const estimated = this.estimateSessionTokens(key, events);
+    return estimated >= COMPACTION_TOKEN_FLOOR;
+  }
+
+  private estimateSessionTokens(key: string, events: ContextEvent[]): number {
+    let total = countTokens(this.summaries.get(key) || '');
+    for (const event of events) {
+      total += countTokens(String(event.content || ''));
+      if (total > COMPACTION_TOKEN_FLOOR * 2) break;
+    }
+    return total;
   }
 
   private buildTrustBoundedSystemContext(title: string, content: string, source: string): string {
@@ -492,6 +533,7 @@ export class ContextEngine {
     this.sessions.delete(key);
     this.summaries.delete(key);
     this.lastAccessBySession.delete(key);
+    this.lastCompactAtBySession.delete(key);
   }
 
   /**
@@ -514,7 +556,7 @@ export class ContextEngine {
     // Adaptive Persona Engine - Dynamic persona resolution based on intent
     const personaResolution = this.personaEngine.resolve(firewallDecision.classification);
     const adaptivePersonaPrompt = this.personaEngine.buildPrompt(personaResolution);
-    console.log(`[ContextEngine] Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
+    log.debug(`Persona: ${personaResolution.persona.type} (confidence=${personaResolution.confidence}, ambiguous=${personaResolution.isAmbiguous})`);
     const enrichedSystemInstruction = systemInstruction + '\n' + adaptivePersonaPrompt;
 
     const window = this.getContextWindow(key, workspaceContext);

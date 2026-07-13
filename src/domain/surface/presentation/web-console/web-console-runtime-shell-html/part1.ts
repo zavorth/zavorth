@@ -74,14 +74,14 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <p class="profile-tag">Sessions</p>
             <strong id="cockpit-sessions-state">Valide o token</strong>
             <p id="cockpit-sessions-summary" class="muted-copy">
-              A sessao ativa, o historico e o envio cruzado aparecem aqui quando o shell protegido for liberado.
+              A active session, o historico e o envio cruzado aparecem aqui quando o shell protegido for liberado.
             </p>
           </article>
           <article id="cockpit-approvals-card" class="ops-summary-card cockpit-mini-card">
             <p class="profile-tag">Approvals</p>
             <strong id="cockpit-approvals-state">Valide o token</strong>
             <p id="cockpit-approvals-summary" class="muted-copy">
-              A fila de aprovacoes desta sessao aparece aqui quando o shell protegido for liberado.
+              A fila de aprovacoes destthe session aparece aqui quando o shell protegido for liberado.
             </p>
           </article>
           <article id="cockpit-resources-card" class="ops-summary-card cockpit-mini-card">
@@ -149,7 +149,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <p class="profile-tag">Agora</p>
         <h2>Melhor proximo passo</h2>
         <p id="priority-summary" class="hero-copy">
-          Valide o token para ver a recomendacao oficial deste host.
+          Valide o token para ver a recommendation oficial deste host.
         </p>
         <p id="priority-reason" class="muted-copy section-note">
           O shell usa o manifesto oficial para dizer o que fazer agora, por que este e o melhor caminho
@@ -180,7 +180,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <a id="priority-secondary-open" class="action-button secondary" href="#" hidden>Abrir rota secundaria</a>
         </div>
         <ul id="priority-next-steps" class="handoff-list compact">
-          <li>Valide o token para destravar a recomendacao oficial deste host.</li>
+          <li>Valide o token para destravar a recommendation oficial deste host.</li>
         </ul>
         <div class="priority-profile-grid">
           <article class="priority-profile-card">
@@ -232,7 +232,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <article class="ops-summary-card">
             <p class="profile-tag">Go</p>
             <strong><code>zavorth go</code></strong>
-            <p class="muted-copy">Abre a melhor superficie local disponivel.</p>
+            <p class="muted-copy">Abre a melhor superficie local available.</p>
             <button id="product-command-go" type="button" class="action-button secondary compact-action" data-copy="npm run ops:go">Copiar go</button>
           </article>
           <article class="ops-summary-card">
@@ -259,13 +259,13 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       <section class="handoff-card">
         <h2>Outras rotas disponiveis</h2>
         <p class="muted-copy section-note">
-          Se voce nao quiser seguir a recomendacao principal, escolha o caminho que combina com o seu papel.
+          If you do not want to seguir a recommendation principal, escolha o caminho que combina com o seu papel.
         </p>
         <div class="profile-grid">
           <article class="profile-card">
             <p class="profile-tag">Dev</p>
             <h3 id="alt-dev-title">Suba o runtime e valide o contrato</h3>
-            <p id="alt-dev-summary">Melhor para quem esta desenvolvendo no repo oficial.</p>
+            <p id="alt-dev-summary">Best for people developing in the official repo.</p>
             <ul id="alt-dev-steps" class="handoff-list compact">
               <li><code>npm install</code></li>
               <li><code>npm run setup</code></li>
@@ -301,8 +301,8 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       <section class="handoff-card">
         <h2>Desbloquear orientacoes do runtime</h2>
         <p class="muted-copy">
-          Valide o token para ver a recomendacao oficial, a jornada de instalacao e o estado remoto deste host.
-          O token nao sai da maquina; ele fica apenas no navegador atual.
+          Valide o token para ver a recommendation oficial, a jornada de instalacao e o estado remoto deste host.
+          The token does not leave this machine; it stays only in the current browser.
         </p>
         <div class="auth-row">
           <input id="runtime-auth-token" class="auth-input" type="password" placeholder="Cole o token web do Zavorth" autocomplete="off" />
@@ -377,7 +377,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         </article>
         <article id="journey-card" class="handoff-card">
           <h2>Preparar este host</h2>
-          <p id="journey-card-note" class="muted-copy section-note">Use este caminho quando o runtime local ainda nao estiver pronto ou quando este host ainda precisar trust.</p>
+          <p id="journey-card-note" class="muted-copy section-note">Use este caminho quando o runtime local not yet estiver ready ou quando este host ainda precisar trust.</p>
           <div class="action-row compact-remote-actions">
             <button id="journey-trust-action" type="button" class="action-button" hidden>Autorizar este host</button>
             <button id="journey-refresh-action" type="button" class="action-button secondary" hidden>Atualizar host</button>
@@ -389,7 +389,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         </article>
         <article id="remote-card" class="handoff-card">
           <h2>Abrir acesso remoto</h2>
-          <p id="remote-card-note" class="muted-copy section-note">Use este caminho quando voce quiser operar fora desta maquina ou publicar o shell remoto oficial.</p>
+          <p id="remote-card-note" class="muted-copy section-note">Use este caminho when you quiser operar fora dthis machine ou publicar o shell remoto oficial.</p>
           <div class="action-row compact-remote-actions">
             <button id="remote-recommended-action" type="button" class="action-button" hidden>Executar proximo passo remoto</button>
             <button id="remote-verify-action" type="button" class="action-button secondary" hidden>Verificar remoto</button>

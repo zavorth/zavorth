@@ -1,4 +1,5 @@
 import type { UniversalAgentRequest, UniversalAgentRun } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
+import { resolveLearningRuntimePolicy } from './ZavorthLearningRuntimePolicy.js';
 
 export type ZavorthAgentMaturitySnapshot = {
   contractVersion: 'zavorth-agent-maturity/1';
@@ -19,9 +20,9 @@ export type ZavorthAgentMaturitySnapshot = {
     hostMutationRequiresApproval: true;
   };
   learning: {
-    mode: 'candidate-after-success';
+    mode: 'governed' | 'autonomous' | 'candidate-after-success';
     canModifySecurityPolicy: false;
-    userConsentRequired: true;
+    userConsentRequired: boolean;
   };
   subagents: {
     mode: 'delegate-when-complex';
@@ -51,11 +52,15 @@ export class ZavorthAgentMaturityService {
     const now = input.now || new Date();
     const preferredBackends = this.resolvePreferredBackends(run);
     const sessionContinuity = run?.sessionId ? 'session-memory-ready' : 'session-memory-pending';
+    const learningPolicy = resolveLearningRuntimePolicy({ projectRoot: process.cwd() });
+    const learningMode = learningPolicy.mode === 'autonomous' ? 'autonomous' : 'governed';
     const visibleSummary = [
       'Natural language is the primary interface; commands are recovery shortcuts, not the product center.',
       'The LLM may use provider-native capabilities when evidence can be verified, then falls back to Zavorth tools.',
       `Mutable work is sandbox-first with preferred backends: ${preferredBackends.join(', ')}.`,
-      'Repeated successful behavior becomes a learning candidate, never a silent security-policy change.',
+      learningMode === 'autonomous'
+        ? 'Successful turns may persist reversible green preferences and yellow skill drafts with receipts; security policy never auto-changes.'
+        : 'Repeated successful behavior becomes a learning candidate for review; no silent security-policy change.',
       'Complex work should be decomposed and delegated only through exposed subagent/tools with receipts.',
     ];
     return {
@@ -77,9 +82,9 @@ export class ZavorthAgentMaturityService {
         hostMutationRequiresApproval: true,
       },
       learning: {
-        mode: 'candidate-after-success',
+        mode: learningMode,
         canModifySecurityPolicy: false,
-        userConsentRequired: true,
+        userConsentRequired: learningPolicy.userConsentRequired,
       },
       subagents: {
         mode: 'delegate-when-complex',

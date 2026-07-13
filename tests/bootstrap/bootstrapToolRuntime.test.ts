@@ -42,6 +42,9 @@ describe('createBootstrapToolRuntime', () => {
 
     expect(names).toContain('zavorth_cron_scheduler');
     expect(names).toContain('zavorth_delegate');
+    // Skill/worker mesh product tools (sync-registered for agent connectivity)
+    expect(names).toContain('zavorth_skill_marketplace');
+    expect(names).toContain('agent_manager');
     expect(names).toContain('zavorth_security_guidance');
     expect(names).toContain('zavorth_novita');
     expect(names).toContain('zavorth_replicate');

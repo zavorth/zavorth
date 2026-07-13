@@ -22,6 +22,7 @@ export type NaturalCapabilityDiscoveryIntentCategory =
   | 'selfmod-preview'
   | 'computer-use'
   | 'swarm-escalation'
+  | 'multi-model-consensus'
   | 'channel-or-node'
   | 'policy-or-session'
   | 'unknown';
@@ -172,6 +173,13 @@ const CATEGORY_PATTERNS: Array<{
     tools: ['swarm.run'],
     groups: ['general'],
     reason: 'Pedido sugere decomposicao com subagentes.',
+  },
+  {
+    category: 'multi-model-consensus',
+    pattern: /\b(consensus|deliberat|multi-?model|mixture of agents|\bmoa\b|várias modelos|varios modelos|consenso multi)\b/i,
+    tools: ['agent_consensus_engine', 'consensus_with_fallback'],
+    groups: ['general'],
+    reason: 'Request asks for multi-model consensus or independent model opinions.',
   },
   {
     category: 'channel-or-node',

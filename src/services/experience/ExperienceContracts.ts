@@ -152,15 +152,28 @@ export type ExperienceChatMessage = {
   runId?: string | null;
 };
 
+/** Desktop-oriented surface projection for rich approval controls. */
+export type ExperienceApprovalSurfaceProjection = {
+  shortcuts?: Array<{ key: string; choice?: string | null; optionId?: string; label?: string }>;
+  copyTargets?: Array<{ id: string; label: string; value: string }>;
+  openReceipt?: { label?: string; href?: string; approvalId?: string } | null;
+  surfaceActions?: unknown[];
+  keyboardShortcuts?: boolean;
+};
+
 export type ExperienceApproval = {
   id: string;
   runId: string;
   title: string;
   reason: string;
+  /** Desktop/API alias for reason (ApprovalItem.summary). */
+  summary?: string;
   risk: UniversalToolRiskLevel;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;
   actions: ExperienceAction[];
+  /** Rich controls for desktop (and other surface consumers). */
+  surfaceProjection?: ExperienceApprovalSurfaceProjection | null;
 };
 
 export type ExperienceTimelineItem = {
@@ -404,6 +417,70 @@ export type ExperienceJourneySnapshot = {
   steps: ExperiencePlanStep[];
 };
 
+export type ExperienceFirstRunStep = {
+  id: 1 | 2 | 3;
+  key: string;
+  title: string;
+  prompt: string;
+  examples: string[];
+  done: boolean;
+  value: string | null;
+};
+
+export type ExperienceFirstRunSnapshot = {
+  contractVersion: 'zavorth-first-run-human/1';
+  required: boolean;
+  completed: boolean;
+  currentStep: 1 | 2 | 3 | 4;
+  headline: string;
+  summary: string;
+  nextPrompt: string | null;
+  welcomeLines: string[];
+  steps: ExperienceFirstRunStep[];
+};
+
+export type ExperienceSuperpower = {
+  id: string;
+  title: string;
+  summary: string;
+  howToAsk: string;
+  examples: string[];
+  trustLabel: string;
+  ready: boolean;
+  nextStep: string | null;
+};
+
+export type ExperienceSuperpowersSnapshot = {
+  contractVersion: 'zavorth-human-superpowers/1';
+  headline: string;
+  summary: string;
+  readyCount: number;
+  learnedCount: number;
+  powers: ExperienceSuperpower[];
+};
+
+export type ExperienceReachPath = {
+  id: string;
+  title: string;
+  summary: string;
+  statusLabel: string;
+  ready: boolean;
+  stable: boolean;
+  recommended: boolean;
+  howToStart: string;
+  nextStep: string | null;
+  productTier: string;
+};
+
+export type ExperienceReachSnapshot = {
+  contractVersion: 'zavorth-human-reach/1';
+  headline: string;
+  summary: string;
+  preferredPathId: string | null;
+  stableReadyCount: number;
+  paths: ExperienceReachPath[];
+};
+
 export type ExperienceSnapshot = {
   contractVersion: typeof EXPERIENCE_SNAPSHOT_CONTRACT_VERSION;
   generatedAt: string;
@@ -428,6 +505,9 @@ export type ExperienceSnapshot = {
     summary: string;
     pending: number;
   };
+  firstRun?: ExperienceFirstRunSnapshot;
+  superpowers?: ExperienceSuperpowersSnapshot;
+  reach?: ExperienceReachSnapshot;
   trust: ExperienceTrustLens;
   daily?: ExperienceDailySnapshot;
   responseProfile?: ExperienceResponseProfile;

@@ -71,7 +71,7 @@ describe('ZavorthPerceptionInvocationRouter', () => {
     expect(plan.primaryRoute).toBe('computer');
     expect(plan.commands.computer?.action).toBe('computer.plan');
     expect(plan.approval.required).toBe(true);
-    expect(plan.explanation.actionsBlocked.join('\n')).toContain('Mutacao fica pendente');
+    expect(plan.explanation.actionsBlocked.join('\n')).toContain('Mutation stays pending');
   });
 
   it('routes explicit subagent screen review without allowing mutation', () => {

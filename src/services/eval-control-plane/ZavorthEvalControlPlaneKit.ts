@@ -3,6 +3,7 @@ import type { ProductObservabilitySnapshot } from '../ProductObservabilityServic
 import type { ZavorthEvalHistorySnapshot } from '../ZavorthEvalHistoryFileService.js';
 import type { ZavorthTelemetryLedgerSnapshot } from '../ZavorthTelemetryLedgerService.js';
 import { logger } from '../../logger.js';
+import { tService } from '../../i18n/services.js';
 import type {
 ZavorthEvalControlPlaneSnapshot,
   ZavorthEvalDataset,
@@ -279,11 +280,11 @@ export function buildEvalRegressions(
   if (observability.approvals.pending > 0) {
     regressions.push({
       id: 'regression:pending-approvals',
-      label: 'Fila de approvals pendentes',
+      label: tService('eval.pending_approvals_queue'),
       severity: observability.approvals.pending >= 5 ? 'critical' : 'high',
       evidence:
-        String(observability.approvals.pending) + ' approval(s) ainda aguardando decisao no recorte atual.',
-      recommendedAction: 'Revisar approvals pendentes e reduzir handoffs nas rotas mais repetidas.',
+        String(observability.approvals.pending) + ` ${tService('eval.approvals_waiting_decision')}`,
+      recommendedAction: tService('eval.review_approvals_reduce_handoffs'),
     });
   }
 

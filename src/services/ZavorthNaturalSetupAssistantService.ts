@@ -20,6 +20,7 @@ import {
   type CapabilityHubApiListInput,
 } from './ZavorthCapabilityHubApiService.js';
 import { ZavorthGovernanceRecipeApiService } from './ZavorthGovernanceRecipeApiService.js';
+import { tService } from '../i18n/services.js';
 
 import type {
   GovernanceRecipeExecutionReceipt,
@@ -302,10 +303,10 @@ export class ZavorthNaturalSetupAssistantService {
         checks: [{
           id: 'capability',
           status: 'missing',
-          summary: 'Nao consegui identificar qual recurso voce quer configurar.',
+          summary: tService('setup.cannot_identify_capability'),
         }],
-        blockers: ['Escolha uma capacidade do Capability Hub.'],
-        nextSafeAction: 'Diga o nome do canal, app, provedor, ferramenta ou habilidade que quer preparar.',
+        blockers: [tService('setup.choose_capability')],
+        nextSafeAction: tService('setup.describe_want_to_prepare'),
       };
     }
 
@@ -313,28 +314,28 @@ export class ZavorthNaturalSetupAssistantService {
       {
         id: 'capability',
         status: 'passed',
-        summary: `${selectedCapability.label} foi encontrado no Capability Hub.`,
+        summary: tService('setup.capability_found', { label: selectedCapability.label }),
       },
       {
         id: 'secrets',
         status: secretPlan.missingRefs.length > 0 ? 'next' : 'passed',
         summary: secretPlan.missingRefs.length > 0
-          ? `Faltam ${secretPlan.missingRefs.length} segredo(s)/credencial(is) em entrada segura.`
-          : 'Nenhum segredo bruto precisa ser salvo neste preview.',
+          ? tService('setup.missing_secrets', { count: String(secretPlan.missingRefs.length) })
+          : tService('setup.no_raw_secrets'),
       },
       {
         id: 'governance',
         status: governancePlan ? 'passed' : 'blocked',
         summary: governancePlan
-          ? `Plano governado ${governancePlan.recipeId} gerado em dry-run.`
-          : 'Nao encontrei receita de governanca para este recurso.',
+          ? tService('setup.governance_plan_generated', { recipeId: governancePlan.recipeId })
+          : tService('setup.no_governance_recipe'),
       },
       {
         id: 'approval',
         status: governancePlan?.permissions.approvalRequired ? 'next' : 'passed',
         summary: governancePlan?.permissions.approvalRequired
-          ? 'Ativacao real so acontece depois de aprovacao explicita.'
-          : 'Readiness/validacao pode continuar sem ativacao live.',
+          ? tService('setup.real_activation_needs_approval')
+          : tService('setup.readiness_can_continue'),
       },
     ];
     const blockers = checks

@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 type MetricProps = {
   label: string;
-  value: string;
-  sub: string;
+  value: ReactNode;
+  sub: ReactNode;
   tone?: "ok" | "warn" | "info";
 };
 
@@ -115,6 +115,9 @@ function RuntimeTable({
   );
 }
 
+/**
+ * Phase 8 — Work overview (React). Dual data-* hooks keep Vite bridge + Next control in sync.
+ */
 export function WorkSurface() {
   return (
     <Surface
@@ -123,48 +126,349 @@ export function WorkSurface() {
       title="Current work"
       subtitle="See what Zavorth is doing now, what needs a decision, and the safest next step."
       actions={
-        <button className="operator-primary-action" type="button" data-zavorthControl-sector="terminal">
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-zavorthControl-sector="terminal"
+          data-dashboard-sector="terminal"
+        >
           Open chat
         </button>
       }
     >
-      <div className="work-simple-grid">
+      <div className="work-simple-grid" data-react-dashboard-island="overview" data-react-dashboard-version="zavorth-control-react-islands/2026-07-12">
         <section className="work-simple-panel work-simple-panel--main">
           <span className="platform-section-title">Current task</span>
           <div className="work-current-task">
-            <strong data-zavorthControl-runtime-title>No task running</strong>
-            <p data-zavorthControl-runtime-text>Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.</p>
-            <button type="button" data-zavorthControl-sector="terminal">Ask Zavorth</button>
+            <strong data-zavorthControl-runtime-title="" data-dashboard-runtime-title="">No task running</strong>
+            <p data-zavorthControl-runtime-text="" data-dashboard-runtime-text="">
+              Ask Zavorth in the Inbox. When a request could change files, call tools, or touch external state, Zavorth will preview the risk and ask for approval.
+            </p>
+            <button type="button" data-zavorthControl-sector="terminal" data-dashboard-sector="terminal">Ask Zavorth</button>
           </div>
           <div className="work-now-strip" aria-label="Current runtime facts">
-            <span><strong data-live-runtime-state>Runtime</strong><small data-live-runtime-detail>Checking access</small></span>
-            <span><strong data-live-gateway-state>Gateway</strong><small data-live-gateway-detail>Local route</small></span>
-            <span><strong data-live-sync-state>Last sync</strong><small data-live-sync-detail>Starting now</small></span>
+            <span><strong data-live-runtime-state="">Runtime</strong><small data-live-runtime-detail="">Checking access</small></span>
+            <span><strong data-live-gateway-state="">Gateway</strong><small data-live-gateway-detail="">Local route</small></span>
+            <span><strong data-live-sync-state="">Last sync</strong><small data-live-sync-detail="">Starting now</small></span>
           </div>
           <div className="goal-loop-strip" aria-label="Goal Loop daemon status">
-            <span><strong data-goal-loop-state>Goal Loop</strong><small data-goal-loop-detail>No standing goal</small></span>
-            <span><strong data-goal-loop-queue>0 queued</strong><small data-goal-loop-task>Worker idle</small></span>
-            <span><strong data-goal-loop-next>Next tick</strong><small data-goal-loop-heartbeat>Waiting for heartbeat</small></span>
+            <span><strong data-goal-loop-state="">Goal Loop</strong><small data-goal-loop-detail="">No standing goal</small></span>
+            <span><strong data-goal-loop-queue="">0 queued</strong><small data-goal-loop-task="">Worker idle</small></span>
+            <span><strong data-goal-loop-next="">Next tick</strong><small data-goal-loop-heartbeat="">Waiting for heartbeat</small></span>
+          </div>
+          <div className="zavorth-gantt-chart" data-dashboard-timeline="" aria-label="Runtime trace timeline">
+            <div className="zavorth-gantt-empty">
+              <span className="zavorth-gantt-empty-dot" />
+              <span>No trace yet.</span>
+            </div>
           </div>
         </section>
 
         <section className="work-simple-panel">
           <span className="platform-section-title">Needs attention</span>
-          <div className="work-decision-empty">
-            <strong data-zavorthControl-approval-title>No pending approvals</strong>
-            <p data-zavorthControl-approval-text>When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.</p>
+          <div className="work-decision-empty" data-attention-list="">
+            <strong data-zavorthControl-approval-title="" data-dashboard-approval-title="">No pending approvals</strong>
+            <p data-zavorthControl-approval-text="" data-dashboard-approval-text="">
+              When Zavorth needs a decision, it appears here with approve, deny, or adjust scope.
+            </p>
+          </div>
+          <div className="work-compact-status" style={{ marginTop: "0.75rem" }}>
+            <Status label="Approvals" value={<span data-sales-os-metric="approvals">0</span>} />
+            <Status label="Receipts" value={<span data-dashboard-metric="receipts">0</span>} />
+            <Status label="Errors" value={<span data-dashboard-metric="errors">0</span>} />
           </div>
         </section>
 
         <section className="work-simple-panel work-simple-panel--status">
           <span className="platform-section-title">State</span>
           <div className="work-compact-status">
-            <Status label="Engine" value={<span data-runtime-engine-active>Lite</span>} tone="info" />
+            <Status label="Engine" value={<span data-runtime-engine-active="">Lite</span>} tone="info" />
             <Status label="ZavorthControl" value="online" tone="ok" />
-            <Status label="Goal Loop" value={<span data-goal-loop-status>idle</span>} tone="info" />
+            <Status label="Goal Loop" value={<span data-goal-loop-status="">idle</span>} tone="info" />
             <Status label="Sensitive actions" value="approval gated" tone="ok" />
           </div>
         </section>
+      </div>
+    </Surface>
+  );
+}
+
+/** Phase 8 — Review / approvals (React). */
+export function ReviewSurface() {
+  return (
+    <Surface
+      id="sector-sales-os"
+      eyebrow="Review"
+      title="Approvals"
+      subtitle="Risky work stays previewed, scoped, approved, and receipt-backed."
+      actions={
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-zavorthControl-prompt="Show pending approvals with approve, reject and limit controls."
+          data-dashboard-prompt="Show pending approvals with approve, reject and limit controls."
+        >
+          Review queue
+        </button>
+      }
+    >
+      <div data-react-dashboard-island="sales-os">
+        <div className="premium-metrics">
+          <Metric label="Pending" value={<span data-sales-os-metric="approvals">0</span>} sub="awaiting decision" />
+        </div>
+        <section className="platform-workspace platform-workspace--operator">
+          <div className="platform-main">
+            <span className="platform-section-title">Queue</span>
+            <div className="work-decision-empty" data-approvals-queue="">
+              <strong data-dashboard-approval-title="" data-zavorthControl-approval-title="">No decision waiting</strong>
+              <p data-dashboard-approval-text="" data-zavorthControl-approval-text="">Nothing pending.</p>
+              <button type="button" data-dashboard-sector="terminal" data-zavorthControl-sector="terminal">Open chat</button>
+            </div>
+          </div>
+          <aside className="platform-side">
+            <span className="platform-section-title">Policy</span>
+            <div className="premium-status-list">
+              <Status label="Preview first" value="on" tone="ok" />
+              <Status label="Break-glass" value="locked" tone="warn" />
+              <Status label="Receipts" value="required" tone="ok" />
+            </div>
+          </aside>
+        </section>
+      </div>
+    </Surface>
+  );
+}
+
+/** Phase 8 — Proof / receipts (React). */
+export function ProofSurface() {
+  return (
+    <Surface
+      id="sector-instances"
+      eyebrow="Proof"
+      title="Receipts"
+      subtitle="Past work, decisions, and rollback guidance stay visible."
+      actions={
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-export-receipts=""
+          data-dashboard-prompt="Export recent receipts and run history."
+          data-zavorthControl-prompt="Export recent receipts and run history."
+        >
+          Export
+        </button>
+      }
+    >
+      <div data-react-dashboard-island="instances">
+        <div data-trust-loop-host="" className="trust-loop-host" aria-live="polite" />
+        <span className="platform-section-title">History</span>
+        <h2 data-history-title="">No completed work yet</h2>
+        <p className="daily-muted" data-history-summary="" hidden />
+        <div className="data-table-wrap" data-receipts-list="">
+          <table className="data-table">
+            <thead>
+              <tr>
+                {["Item", "Source", "Artifacts", "Decision", "Updated", "Status"].map((header) => (
+                  <th key={header}>{header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="mono">none yet</td>
+                <td>Web</td>
+                <td>0</td>
+                <td>—</td>
+                <td>-</td>
+                <td>
+                  <span className="badge badge--info">
+                    <span className="badge__dot" />
+                    Waiting
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </Surface>
+  );
+}
+
+/** Phase 8 — Channels (React). */
+export function ChannelsSurface() {
+  const channels = [
+    { name: "Dashboard", need: "Local", status: "Ready", tone: "ok" as const },
+    { name: "Telegram", need: "Bot token", status: "Set up", tone: "warn" as const },
+    { name: "Discord", need: "Bot / app", status: "Set up", tone: "warn" as const },
+    { name: "Slack", need: "Workspace", status: "Set up", tone: "warn" as const },
+    { name: "WhatsApp", need: "Bridge", status: "Set up", tone: "warn" as const },
+    { name: "Email", need: "Mailbox", status: "Set up", tone: "warn" as const },
+  ];
+  return (
+    <Surface
+      id="sector-channels"
+      eyebrow="Channels"
+      title="Routes into Zavorth"
+      subtitle="Local dashboard is ready. External channels only ask for credentials you own."
+      actions={
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-dashboard-prompt="Connect a channel. Show only missing credentials and the next setup step."
+          data-zavorthControl-prompt="Connect a channel. Show only missing credentials and the next setup step."
+        >
+          Connect
+        </button>
+      }
+    >
+      <div className="premium-metrics">
+        <Metric label="Connected" value="Local" sub="Web / terminal" tone="ok" />
+        <Metric label="Remote" value="Optional" sub="Token / webhook" />
+        <Metric label="Last message" value="None" sub="—" />
+      </div>
+      <div className="platform-action-list">
+        {channels.map((channel) => (
+          <Action
+            key={channel.name}
+            title={channel.name}
+            detail={`${channel.need} · ${channel.status}`}
+            prompt={`Connect ${channel.name}. Show only missing credentials.`}
+            className={`platform-action platform-action--${channel.tone}`}
+          />
+        ))}
+      </div>
+    </Surface>
+  );
+}
+
+/** Phase 8 — Sessions (React). */
+export function SessionsSurface() {
+  return (
+    <Surface
+      id="sector-sessions"
+      eyebrow="Sessions"
+      title="Session timeline"
+      subtitle="Handoff context and per-session receipts."
+      actions={
+        <button className="operator-primary-action" type="button" data-dashboard-sector="terminal" data-zavorthControl-sector="terminal">
+          Open chat
+        </button>
+      }
+    >
+      <section className="skill-toolbar skill-toolbar--quiet">
+        <input type="search" placeholder="Search sessions" aria-label="Search sessions" data-session-search="" />
+      </section>
+      <div className="data-table-wrap">
+        <table className="data-table" data-sessions-table="">
+          <thead>
+            <tr>
+              {["Session", "Channel", "Events", "Receipts", "Status"].map((header) => (
+                <th key={header}>{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="mono">main</td>
+              <td>Web</td>
+              <td>0</td>
+              <td>0</td>
+              <td>
+                <span className="badge badge--info">
+                  <span className="badge__dot" />
+                  Waiting
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </Surface>
+  );
+}
+
+/** Phase 8 — Cron (React). */
+export function CronSurface() {
+  return (
+    <Surface
+      id="sector-cron"
+      eyebrow="Cron"
+      title="Scheduled work"
+      subtitle="Monitors and reminders use natural language schedules when configured."
+      actions={
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-dashboard-prompt="List scheduled jobs and what runs next."
+          data-zavorthControl-prompt="List scheduled jobs and what runs next."
+        >
+          List jobs
+        </button>
+      }
+    >
+      <div className="premium-metrics">
+        <Metric label="Jobs" value="0" sub="none registered" />
+        <Metric label="Next run" value="—" sub="waiting" />
+        <Metric label="Kill switch" value="off" sub="honored when set" tone="ok" />
+      </div>
+      <RuntimeTable headers={["Job", "Type", "Attempts", "Next", "Updated", "Status"]} emptyLabel="none" />
+    </Surface>
+  );
+}
+
+/** Phase 8 — Agents / runtime adapters (React). */
+export function AgentsSurface() {
+  return (
+    <Surface
+      id="sector-agents"
+      eyebrow="Agents"
+      title="Runtime adapters"
+      subtitle="Profiles, sandbox posture, previewed execution, and receipts."
+      actions={
+        <button className="operator-primary-action" type="button" data-runtime-adapter-action="refresh">
+          Sync
+        </button>
+      }
+    >
+      <div className="premium-metrics">
+        <Metric label="Profiles" value={<span data-runtime-adapter-metric="profiles">0</span>} sub="registered" />
+        <Metric label="Live" value={<span data-runtime-adapter-metric="live">0</span>} sub="approval gated" />
+        <Metric label="Sandbox" value={<span data-runtime-adapter-metric="sandbox">0</span>} sub="isolated" />
+      </div>
+      <RuntimeTable
+        headers={["Profile", "Adapter", "Sandbox", "Live", "Receipt", "Policy"]}
+        emptyLabel="none"
+      />
+      <div className="card-grid card-grid--quiet" data-runtime-adapter-grid="" hidden />
+    </Surface>
+  );
+}
+
+/** Phase 8 — Docs (React). */
+export function DocsSurface() {
+  return (
+    <Surface
+      id="sector-docs"
+      eyebrow="Docs"
+      title="Short references"
+      subtitle="Setup, models, memory, tools, and safe execution."
+      actions={
+        <button
+          className="operator-primary-action"
+          type="button"
+          data-dashboard-prompt="Open the product docs for getting started."
+          data-zavorthControl-prompt="Open the product docs for getting started."
+        >
+          Open docs
+        </button>
+      }
+    >
+      <div className="platform-action-list">
+        <Action title="Getting started" detail="Local runtime, first chat, and approvals." prompt="Explain how to get started with Zavorth Control safely." />
+        <Action title="Models" detail="User-owned routes only — no invented vendors." prompt="Explain how to configure my model stack without inventing providers." />
+        <Action title="Memory" detail="What is remembered, why, and how to forget." prompt="Explain Zavorth memory privacy and how to forget facts." />
+        <Action title="Safety" detail="Preview, approve, receipt." prompt="Explain the approval and receipt loop." />
       </div>
     </Surface>
   );

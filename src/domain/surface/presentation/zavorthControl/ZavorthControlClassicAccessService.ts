@@ -18,6 +18,8 @@ export class ZavorthControlClassicAccessService {
       pathname === '/api/logs' ||
       pathname === '/api/bridge/schema' ||
       pathname.startsWith('/api/operations') ||
+      pathname.startsWith('/api/plugin-os') ||
+      pathname.startsWith('/api/skill-registry') ||
       pathname.startsWith('/api/snippets') ||
       pathname.startsWith('/api/audit')
     );

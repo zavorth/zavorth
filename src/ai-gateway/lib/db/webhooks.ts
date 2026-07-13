@@ -5,6 +5,9 @@
 
 import { getDbInstance } from "./core";
 import crypto from "crypto";
+import { ensureWebhooksFilterColumnOn } from "./webhooksFilterColumn";
+
+export { ensureWebhooksFilterColumnOn } from "./webhooksFilterColumn";
 
 export interface Webhook {
   id: string;
@@ -17,6 +20,8 @@ export interface Webhook {
   last_triggered_at: string | null;
   last_status: number | null;
   failure_count: number;
+  /** Optional declarative filter (JSON). Evaluated by WebhookRouteMatcher. */
+  filter?: unknown;
 }
 
 interface WebhookRow {
@@ -30,30 +35,63 @@ interface WebhookRow {
   last_triggered_at: string | null;
   last_status: number | null;
   failure_count: number;
+  filter?: string | null;
+}
+
+let filterColumnEnsured = false;
+
+/**
+ * Residual close-out: ensure migration 021 column exists even if ledger
+ * was skipped (manual DBs, partial upgrades). Safe to call repeatedly.
+ */
+export function ensureWebhooksFilterColumn(db = getDbInstance()): boolean {
+  if (filterColumnEnsured) return true;
+  const ok = ensureWebhooksFilterColumnOn(db as any);
+  if (ok) filterColumnEnsured = true;
+  return ok;
+}
+
+/** Test helper — reset in-process cache. */
+export function __resetWebhooksFilterColumnCacheForTests(): void {
+  filterColumnEnsured = false;
 }
 
 function rowToWebhook(row: WebhookRow): Webhook {
-  return {
+  const base = {
     ...row,
     events: JSON.parse(row.events || '["*"]'),
     enabled: row.enabled === 1,
   };
+  // filter column is optional (older DBs may not have it)
+  const filterRaw = row.filter;
+  let filter: unknown;
+  if (filterRaw) {
+    try {
+      filter = JSON.parse(filterRaw);
+    } catch {
+      filter = undefined;
+    }
+  }
+  return filter !== undefined ? { ...base, filter } : base;
 }
 
 export function getWebhooks(): Webhook[] {
   const db = getDbInstance();
+  ensureWebhooksFilterColumn(db);
   const rows = db.prepare("SELECT * FROM webhooks ORDER BY created_at DESC").all() as WebhookRow[];
   return rows.map(rowToWebhook);
 }
 
 export function getWebhook(id: string): Webhook | null {
   const db = getDbInstance();
+  ensureWebhooksFilterColumn(db);
   const row = db.prepare("SELECT * FROM webhooks WHERE id = ?").get(id) as WebhookRow | undefined;
   return row ? rowToWebhook(row) : null;
 }
 
 export function getEnabledWebhooks(): Webhook[] {
   const db = getDbInstance();
+  ensureWebhooksFilterColumn(db);
   const rows = db.prepare("SELECT * FROM webhooks WHERE enabled = 1").all() as WebhookRow[];
   return rows.map(rowToWebhook);
 }
@@ -63,15 +101,18 @@ export function createWebhook(data: {
   events?: string[];
   secret?: string;
   description?: string;
+  filter?: unknown;
 }): Webhook {
   const db = getDbInstance();
+  ensureWebhooksFilterColumn(db);
   const id = crypto.randomUUID();
   const secret = data.secret || `whsec_${crypto.randomBytes(24).toString("hex")}`;
+  const filterJson = data.filter === undefined ? null : JSON.stringify(data.filter);
 
   db.prepare(
-    `INSERT INTO webhooks (id, url, events, secret, description)
-       VALUES (?, ?, ?, ?, ?)`
-  ).run(id, data.url, JSON.stringify(data.events || ["*"]), secret, data.description || "");
+    `INSERT INTO webhooks (id, url, events, secret, description, filter)
+       VALUES (?, ?, ?, ?, ?, ?)`
+  ).run(id, data.url, JSON.stringify(data.events || ["*"]), secret, data.description || "", filterJson);
 
   return getWebhook(id)!;
 }
@@ -84,9 +125,11 @@ export function updateWebhook(
     secret: string;
     enabled: boolean;
     description: string;
+    filter: unknown;
   }>
 ): Webhook | null {
   const db = getDbInstance();
+  ensureWebhooksFilterColumn(db);
   const existing = getWebhook(id);
   if (!existing) return null;
 
@@ -112,6 +155,10 @@ export function updateWebhook(
   if (data.description !== undefined) {
     fields.push("description = ?");
     values.push(data.description);
+  }
+  if (data.filter !== undefined) {
+    fields.push("filter = ?");
+    values.push(data.filter === null ? null : JSON.stringify(data.filter));
   }
 
   if (fields.length === 0) return existing;

@@ -15,6 +15,7 @@ import {
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 import { buildProviderRequestOptions, isProviderAbortError } from './ProviderAbort.js';
+import { buildOpenAiReasoningEffortBody } from './reasoningEffortPayload.js';
 import { streamOpenAICompatibleCompletion } from './OpenAICompatibleStreaming.js';
 import { errorMessage } from '../utils/errorLike.js';
 export class OpenAIProvider implements ILlmProvider {
@@ -57,6 +58,7 @@ export class OpenAIProvider implements ILlmProvider {
           messages: convertChatMessagesToOpenAI(messages),
           tools: nativeToolPayload.tools,
           ...nativeToolPayload.extraBody,
+          ...buildOpenAiReasoningEffortBody(options),
         } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
         if (attempt > 0) {
@@ -103,6 +105,7 @@ export class OpenAIProvider implements ILlmProvider {
           messages: convertChatMessagesToOpenAI(messages),
           tools: nativeToolPayload.tools,
           ...nativeToolPayload.extraBody,
+          ...buildOpenAiReasoningEffortBody(options),
           stream: true,
         } as OpenAI.ChatCompletionCreateParamsStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
@@ -134,7 +137,7 @@ export class OpenAIProvider implements ILlmProvider {
         };
         result.push(toolMsg);
         // ZavorthControl controls: If the tool response includes inlineData (screenshot/vision),
-        // emite como mensagem 'user' complementar para que o modelo enxergue a imagem.
+        // emit as a supplementary 'user' message so the model can see the image.
         if (message.inlineData && message.inlineData.length > 0) {
           const visionContent: Array<OpenAI.ChatCompletionContentPartText | OpenAI.ChatCompletionContentPartImage> = [
             { type: 'text', text: '[Imagem capturada pela ferramenta para analise visual]' },

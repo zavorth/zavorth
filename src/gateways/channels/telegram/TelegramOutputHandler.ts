@@ -5,7 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../../../config/index.js';
 import { buildCapabilityProvisionHint, isCapabilityUnavailableError } from '../../../services/OptionalCapabilityGuard.js';
-import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';const TELEGRAM_MAX_LENGTH = 4096;
+import { AudioHandler } from '../../../gateways/channels/telegram/AudioHandler.js';
+const TELEGRAM_MAX_LENGTH = 4096;
 
 export interface OutputResult {
   text: string;
@@ -47,7 +48,7 @@ export class TelegramOutputHandler {
         await this.sendText(ctx, result.text);
       }
     } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar resposta: ${error}`);
-      await this.sendError(ctx, 'Falha ao enviar resposta. Tente novamente.');
+      await this.sendError(ctx, 'Failed to enviar resposta. Tente novamente.');
     }
   }
 
@@ -78,7 +79,7 @@ export class TelegramOutputHandler {
         caption: `Documento gerado: ${fileName}`,
       });
     } catch (error: unknown) {logger.error(`[OutputHandler] Erro ao enviar arquivo: ${error}`);
-      await this.sendText(ctx, `Nao consegui gerar o arquivo. Conteudo em texto:\n\n${content}`);
+      await this.sendText(ctx, `Could not gerar o arquivo. Conteudo em texto:\n\n${content}`);
     } finally {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -99,7 +100,7 @@ export class TelegramOutputHandler {
       } catch (error: unknown) {if (isCapabilityUnavailableError(error)) {
           await this.sendText(
             ctx,
-            `A resposta em audio pediu a capability opcional de midia, que ainda nao esta ativa neste host.\n${buildCapabilityProvisionHint(error.capabilityId)}\n\nResposta em texto:\n\n${text}`,
+            `A resposta em audio pediu a capability opcional de midia, que ainda not esta ativa neste host.\n${buildCapabilityProvisionHint(error.capabilityId)}\n\nResposta em texto:\n\n${text}`,
           );
           return;
         }
@@ -114,10 +115,10 @@ export class TelegramOutputHandler {
         return;
       }
 
-      logger.warn('[OutputHandler] TTS falhou, enviando como texto.');
+      logger.warn('[OutputHandler] TTS failed, enviando como texto.');
       await this.sendText(ctx, text);
     } catch (error: unknown) {logger.error(`[OutputHandler] Erro no envio de audio: ${error}`);
-      await this.sendText(ctx, `Falha ao gerar audio. Resposta em texto:\n\n${text}`);
+      await this.sendText(ctx, `Failed to gerar audio. Resposta em texto:\n\n${text}`);
     }
   }
 

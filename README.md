@@ -301,6 +301,24 @@ zavorth product commands
 | Self-modification | [docs/self-modification.md](docs/self-modification.md) |
 | Operations | [docs/operations.md](docs/operations.md) |
 
+<details>
+<summary><b>Self-modification quick reference</b></summary>
+
+- `preview` is the default mode and never writes to the file:
+  `/selfmod <relative_file> -- <instruction>`
+- `goal` specifies a self-modification goal to perform:
+  `/selfmod goal -- <goal>`
+- `apply` is explicit and only applies a proposal previously reviewed by `preview_id`:
+  `/selfmod apply <preview_id>`
+- `rollback` undoes a previously applied change:
+  `/selfmod rollback <change_id>`
+- `apply` and `rollback` are restricted to `owner` or `trusted` users.
+  Self-modification works in `private chat and requires `BUILD` mode.
+
+See [docs/self-modification.md](docs/self-modification.md) for full details.
+
+</details>
+
 ---
 
 ## 🏗 Project layout

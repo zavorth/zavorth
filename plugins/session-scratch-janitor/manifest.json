@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "session-scratch-janitor",
+  "label": "Session Scratch Janitor",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Tracks workspace scratch files after tool runs and sweeps them on turn end with receipt-first dry-run defaults.",
+  "description": "Zavorth-native Plugin OS package that watches tool.after_execute and agent.after_turn, ledgers ephemeral paths under allowlisted workspace roots, and exposes status/sweep capabilities with JSONL receipts and dry-run defaults.",
+  "tags": ["diagnostics", "workspace", "hooks", "cleanup", "scratch"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://session-scratch-janitor",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "ephemera.status",
+      "intent": "diagnostics.ephemera.status",
+      "label": "Ephemera Status",
+      "summary": "Show tracked scratch files and ledger summary.",
+      "artifactKinds": ["ephemera.ledger"],
+      "command": {
+        "name": "ephemera_status",
+        "aliases": ["scratch_status"],
+        "usage": null
+      }
+    },
+    {
+      "id": "ephemera.sweep",
+      "intent": "diagnostics.ephemera.sweep",
+      "label": "Ephemera Sweep",
+      "summary": "Preview or apply cleanup for tracked scratch files.",
+      "artifactKinds": ["ephemera.sweep.receipt"],
+      "command": {
+        "name": "ephemera_sweep",
+        "aliases": ["scratch_sweep"],
+        "usage": "[--apply]"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Inspect tracked scratch paths before cleanup.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Delete allowlisted scratch files only when apply is explicit.",
+      "required": false
+    },
+    {
+      "kind": "artifact.write",
+      "scope": "workspace",
+      "reason": "Write JSONL ledger and sweep receipts under .zavorth.",
+      "required": true
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor", "upgrade"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["ephemera.ledger", "ephemera.sweep.receipt"],
+  "receiptKinds": ["session-scratch-janitor.receipt"]
+}

@@ -28,7 +28,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
 
   if (pathname === '/api/web/provider-router/snapshot' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Provider Router indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Provider Router unavailable.' }, 503);
       return true;
     }
     deps.writeJson(res, { ok: true, snapshot: service.buildSnapshot() }, 200);
@@ -37,7 +37,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
 
   if (pathname === '/api/web/provider-router/receipt' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Provider Router indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Provider Router unavailable.' }, 503);
       return true;
     }
     const receipt = service.getLastReceipt();
@@ -51,7 +51,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
 
   if (pathname === '/api/web/provider-router/route' && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Provider Router indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Provider Router unavailable.' }, 503);
       return true;
     }
     try {
@@ -77,7 +77,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: error instanceof Error ? err.message : 'Falha ao rotear a requisicao.' },
+        { ok: false, error: error instanceof Error ? err.message : 'Failed to rotear a requisicao.' },
         400,
       );
     }
@@ -86,7 +86,7 @@ export const handleProviderRouterRoutes: WebAppSupervisionRouteHandler = async (
 
   if (pathname === '/api/web/provider-router/catalog' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Provider Router indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Provider Router unavailable.' }, 503);
       return true;
     }
     deps.writeJson(res, { ok: true, catalog: service.buildRouterCatalog() }, 200);

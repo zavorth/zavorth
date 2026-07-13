@@ -105,12 +105,32 @@ describe('SharedSurfaceWatchModeCommandPack', () => {
     const pack = buildPack();
     const ctx = buildCtx('/watchmode allow-app');
 
-    const handled = await pack.maybeHandle(ctx as any, '/watchmode', 'allow-app ');
+    const handled = await pack.maybeHandle(ctx as any, '/watchmode', 'allow-app');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(
-      'Uso: /watchmode [status|apply <planId>|strict on|strict off|allow-app <janela>|allow-site <host>]',
-    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/watchmode <janela>'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('allow-app'));
+  });
+
+  it('treats free text window name as allow-app primary action', async () => {
+    const permissionService = {
+      findApprovedRequest: jest.fn(async () => null),
+      createRequest: jest.fn(async () => ({
+        permission_id: 'perm-watch-app',
+        status: 'pending',
+        scope: 'once',
+      })),
+      getRequest: jest.fn(async () => null),
+    };
+    const pack = buildPack({ permissionService: permissionService as any });
+    const ctx = buildCtx('/watchmode Chrome');
+
+    const handled = await pack.maybeHandle(ctx as any, '/watchmode', 'allow-app Chrome');
+
+    expect(handled).toBe(true);
+    expect(permissionService.createRequest).toHaveBeenCalled();
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Watch Mode em preview'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('allow-app Chrome'));
   });
 
   it('ignores unrelated commands', async () => {

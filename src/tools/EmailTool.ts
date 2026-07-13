@@ -85,23 +85,23 @@ export class EmailTool extends BaseTool {
     // SMTP Header Injection Protection (reject CRLF in headers)
     const headerSafeRegex = /[\r\n]/;
     if (headerSafeRegex.test(subject)) {
-      return 'Erro: assunto contem caracteres invalidos (quebra de linha).';
+      return 'Error: subject contains invalid characters (newline).';
     }
     if (headerSafeRegex.test(to)) {
-      return 'Erro: destinatarios contem caracteres invalidos (quebra de linha).';
+      return 'Error: recipients contain invalid characters (newline).';
     }
     if (headerSafeRegex.test(rawCc)) {
-      return 'Erro: CC contem caracteres invalidos (quebra de linha).';
+      return 'Error: CC contains invalid characters (newline).';
     }
     if (headerSafeRegex.test(rawBcc)) {
-      return 'Erro: BCC contem caracteres invalidos (quebra de linha).';
+      return 'Error: BCC contains invalid characters (newline).';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const recipients = to.split(',').map((e) => e.trim()).filter(Boolean);
     for (const recipient of recipients) {
       if (!emailRegex.test(recipient)) {
-        return `Erro: email invalido "${recipient}".`;
+        return `Error: invalid email "${recipient}".`;
       }
     }
 
@@ -114,7 +114,7 @@ export class EmailTool extends BaseTool {
       return 'Error: SMTP configuration not found. Configure ZAVORTH_SMTP_HOST, ZAVORTH_SMTP_PORT, ZAVORTH_SMTP_USER, ZAVORTH_SMTP_PASS.';
     }
     if (process.env.ZAVORTH_SMTP_ALLOW_LIVE_SEND !== 'true') {
-      return 'Erro: envio real de email desabilitado. Defina ZAVORTH_SMTP_ALLOW_LIVE_SEND=true apos revisar SMTP, destinatarios e approval.';
+      return 'Error: live email send is disabled. Set ZAVORTH_SMTP_ALLOW_LIVE_SEND=true after reviewing SMTP, recipients, and approval.';
     }
 
     const isHtml = args.html === true;
@@ -124,12 +124,12 @@ export class EmailTool extends BaseTool {
     // Validate CC and BCC email addresses
     for (const ccAddr of cc) {
       if (!emailRegex.test(ccAddr)) {
-        return `Erro: CC email invalido "${ccAddr}".`;
+        return `Error: invalid CC email "${ccAddr}".`;
       }
     }
     for (const bccAddr of bcc) {
       if (!emailRegex.test(bccAddr)) {
-        return `Erro: BCC email invalido "${bccAddr}".`;
+        return `Error: invalid BCC email "${bccAddr}".`;
       }
     }
 
@@ -137,7 +137,7 @@ export class EmailTool extends BaseTool {
     if (typeof args.attachments === 'string') {
       try {
         attachments = JSON.parse(args.attachments);
-      } catch (error: unknown) {logger.warn('[Email] JSON parse failed', error); return 'Erro: JSON de attachments invalido.'; }
+      } catch (error: unknown) {logger.warn('[Email] JSON parse failed', error); return 'Error: JSON de attachments is invalid.'; }
     }
 
     try {
@@ -152,18 +152,18 @@ export class EmailTool extends BaseTool {
       });
 
       if (!result.success) {
-        return `Erro ao enviar email: ${result.error}`;
+        return `Failed to send email: ${result.error}`;
       }
 
       const lines: string[] = [];
-      lines.push(`Email enviado com sucesso.`);
+      lines.push('Email sent successfully.');
       lines.push(`  - Message ID: ${result.message_id}`);
-      lines.push(`  - Para: ${recipients.join(', ')}`);
+      lines.push(`  - To: ${recipients.join(', ')}`);
       if (cc.length > 0) lines.push(`  - CC: ${cc.join(', ')}`);
       if (bcc.length > 0) lines.push(`  - BCC: ${bcc.join(', ')}`);
-      lines.push(`  - Assunto: ${subject}`);
-      lines.push(`  - Formato: ${isHtml ? 'HTML' : 'Texto'}`);
-      if (attachments.length > 0) lines.push(`  - Anexos: ${attachments.length}`);
+      lines.push(`  - Subject: ${subject}`);
+      lines.push(`  - Format: ${isHtml ? 'HTML' : 'Text'}`);
+      if (attachments.length > 0) lines.push(`  - Attachments: ${attachments.length}`);
       lines.push(`  - SMTP: ${config.host}:${config.port}`);
 
       return lines.join('\n');
@@ -171,7 +171,7 @@ export class EmailTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Email] operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro ao enviar email: ${message}`;
+      return `Failed to send email: ${message}`;
   }
   }
 

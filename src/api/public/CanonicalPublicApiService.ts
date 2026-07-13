@@ -601,6 +601,9 @@ export class CanonicalPublicApiService {
     approvalId: string;
     decidedBy?: string | null;
     note?: string | null;
+    totp?: string | null;
+    code?: string | null;
+    approvalCode?: string | null;
   }): Promise<CanonicalApprovalDecisionResultDTO> {
     const approvalId = normalizeActionId(input.approvalId);
     const policy = this.evaluateActionPolicy({
@@ -640,19 +643,34 @@ export class CanonicalPublicApiService {
         nextAction: 'Refresh approvals and choose a pending approval.',
       });
     }
-    const result = await service.approveRequest(approvalId, normalizeActor(input.decidedBy), {
-      decision_note: input.note || 'Approved through public API v1.',
-    });
-    return this.buildGovernedActionResult({
-      action: 'approval.approve',
-      target: approvalId,
-      status: 'applied',
-      ok: true,
-      result,
-      policyReceipt: policy.receipt,
-      summary: 'Approval was applied through the governed public API.',
-      nextAction: 'Follow execution through events and receipts.',
-    });
+    try {
+      const result = await service.approveRequest(approvalId, normalizeActor(input.decidedBy), {
+        decision_note: input.note || 'Approved through public API v1.',
+        totp: input.totp || input.code || input.approvalCode || null,
+      });
+      return this.buildGovernedActionResult({
+        action: 'approval.approve',
+        target: approvalId,
+        status: 'applied',
+        ok: true,
+        result,
+        policyReceipt: policy.receipt,
+        summary: 'Approval was applied through the governed public API.',
+        nextAction: 'Follow execution through events and receipts.',
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return this.buildGovernedActionResult({
+        action: 'approval.approve',
+        target: approvalId,
+        status: 'blocked',
+        ok: false,
+        result: null,
+        policyReceipt: policy.receipt,
+        summary: message,
+        nextAction: 'Retry approve with a simple one-click decision, or check permission state.',
+      });
+    }
   }
 
   public async denyApproval(input: {

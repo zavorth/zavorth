@@ -57,4 +57,25 @@ describe('ZavorthControlService classic security', () => {
       }),
     );
   });
+
+  it.each(['/api/plugin-os/actions', '/api/skill-registry/actions'])(
+    'requires a token for new control-plane mutations on %s',
+    async (route) => {
+      config.zavorthWebAuthToken = 'classic-secret';
+      const service = new ZavorthControlService(logRepo);
+      await service.start();
+
+      const result = await fetchZavorthControlJson(service.getUrl(), route, {
+        init: {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'refresh', approved: true }),
+        },
+      });
+      await service.stopAsync();
+
+      expect(result.status).toBe(403);
+      expect(result.payload).toEqual(expect.objectContaining({ ok: false }));
+    },
+  );
 });

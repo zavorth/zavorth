@@ -16,7 +16,7 @@ describe('official domain ownership expansion facades', () => {
 
     expect(snapshot.metrics.supportedCommands).toBe(3);
     expect(snapshot.metrics.boundaryPortsReady).toBe(true);
-    expect(snapshot.summary).toContain('Surface domain pronto');
+    expect(snapshot.summary).toContain('Surface domain ready');
   });
 
   it('builds the gateway snapshot through the runtime adapter', () => {
@@ -38,7 +38,7 @@ describe('official domain ownership expansion facades', () => {
             remoteTransportsReady: 7,
           },
           narrative: {
-            operatorSummary: 'Gateway pronto via dominio.',
+            operatorSummary: 'Gateway ready via domain.',
           },
         }),
       },
@@ -48,7 +48,7 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.sessions).toBe(5);
     expect(snapshot.metrics.memoryArtifacts).toBe(6);
     expect(snapshot.metrics.remoteTransportsReady).toBe(7);
-    expect(snapshot.summary).toBe('Gateway pronto via dominio.');
+    expect(snapshot.summary).toBe('Gateway ready via domain.');
   });
 
   it('builds the memory snapshot through the memory plane adapter', () => {
@@ -160,7 +160,7 @@ describe('official domain ownership expansion facades', () => {
           },
           narrative: {
             headline: 'Registry publicado.',
-            operatorSummary: 'Registry pronto.',
+            operatorSummary: 'Registry ready.',
           },
         }),
       },
@@ -177,7 +177,7 @@ describe('official domain ownership expansion facades', () => {
           },
           narrative: {
             headline: 'Ecossistema publicado.',
-            operatorSummary: 'Ecossistema pronto.',
+            operatorSummary: 'Ecosystem ready.',
           },
         }),
       },
@@ -186,7 +186,7 @@ describe('official domain ownership expansion facades', () => {
     expect(snapshot.metrics.registryReady).toBe(true);
     expect(snapshot.metrics.sdkSurfaces).toBe(5);
     expect(snapshot.metrics.vendorBundles).toBe(5);
-    expect(snapshot.summary).toBe('Ecossistema pronto.');
+    expect(snapshot.summary).toBe('Ecosystem ready.');
   });
 
   it('builds the observability snapshot through scorecard and health services', () => {

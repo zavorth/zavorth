@@ -37,7 +37,8 @@ import type {
 ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
   ZavorthExternalAgentNetworkMode,
-} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';type RuntimeRecord = Record<string, unknown>;
+} from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
+type RuntimeRecord = Record<string, unknown>;
 type WebSessionContext = RuntimeRecord & {
   userId: string;
   sessionId: string;
@@ -653,7 +654,7 @@ export class WebAppRuntimeStateRouteService {
           {
             ok: false,
             error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-            detail: 'O ZavorthControl expõe readiness/projection only. Probe live de provider não roda por render normal do zavorthControl.',
+            detail: 'ZavorthControl exposes readiness/projection only. Live provider probes do not run on a normal Control render.',
           },
           403,
         );
@@ -751,7 +752,7 @@ export class WebAppRuntimeStateRouteService {
             },
             candidates: [],
             narrative: {
-              headline: 'Learning plane indisponivel.',
+              headline: 'Learning plane unavailable.',
               operatorSummary: 'O runtime atual nao carregou o learning plane.',
             },
           },

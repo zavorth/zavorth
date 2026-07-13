@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "ci-watch",
+  "label": "CI Watch",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "List and summarize GitHub Actions runs for the current branch via gh.",
+  "description": "Closes the 'did CI pass?' loop after ship. Soft-fails with setup tips when gh is missing. Read-only by default.",
+  "tags": ["ci", "github", "actions", "workflow", "status", "watch", "shipping"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://ci-watch",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "ci.status",
+      "intent": "ci.status",
+      "label": "CI Status",
+      "summary": "List recent workflow runs.",
+      "artifactKinds": [],
+      "command": { "name": "ci_status", "aliases": ["ci_list"], "usage": "{ branch?, limit?, repo? }" }
+    },
+    {
+      "id": "ci.latest",
+      "intent": "ci.latest",
+      "label": "Latest CI",
+      "summary": "Latest run for the current or given branch.",
+      "artifactKinds": [],
+      "command": { "name": "ci_latest", "aliases": ["ci_watch"], "usage": "{ branch?, repo? }" }
+    },
+    {
+      "id": "ci.failed",
+      "intent": "ci.failed",
+      "label": "Failed Jobs",
+      "summary": "List recent failed runs.",
+      "artifactKinds": [],
+      "command": { "name": "ci_failed", "aliases": [], "usage": "{ limit?, repo? }" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Spawn gh and git for CI status.",
+      "required": false
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "gh contacts GitHub Actions APIs.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "local-exec"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["ci-watch.receipt"]
+}

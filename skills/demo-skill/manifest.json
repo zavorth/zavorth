@@ -1,0 +1,16 @@
+{
+  "name": "demo-skill",
+  "version": "1.0.0",
+  "description": "Fixture skill for W1 pipeline tests",
+  "author": "zavorth-test",
+  "category": "other",
+  "tags": [
+    "test"
+  ],
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Read a file"
+    }
+  ]
+}

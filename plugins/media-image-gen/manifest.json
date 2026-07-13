@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "media-image-gen",
+  "label": "Media Image Generation",
+  "version": "1.0.0",
+  "moduleKind": "media",
+  "summary": "Soft-fail image generation via OpenAI Images API or xAI.",
+  "description": "Wave 4 media pack. Uses OPENAI_API_KEY (preferred) or XAI_API_KEY / GROK_API_KEY for image generation. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors.",
+  "tags": ["media", "image", "image-gen", "wave4", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://media-image-gen",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.image.status",
+      "intent": "media.image.status",
+      "label": "Image Gen Status",
+      "summary": "Report which image backends have API keys present (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_image_status",
+        "aliases": ["image_gen_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "media.image.generate",
+      "intent": "media.image.generate",
+      "label": "Generate Image",
+      "summary": "Soft-generate an image via OpenAI or xAI when keys and network.external are available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_image_generate",
+        "aliases": ["image_generate", "image_gen"],
+        "usage": "{ prompt, size?, n?, model?, provider? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call OpenAI or xAI image generation HTTP APIs.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether OPENAI_API_KEY / XAI_API_KEY / GROK_API_KEY are set (not the values).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

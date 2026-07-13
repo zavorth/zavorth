@@ -255,7 +255,7 @@ describe('Web app canonical public api', () => {
             label: 'Sessions',
             initialized: true,
             initializedAt: '2026-04-08T19:50:00.000Z',
-            summary: 'Session plane pronto.',
+            summary: 'Session plane ready.',
             details: [],
             metrics: {
               sessions: 1,

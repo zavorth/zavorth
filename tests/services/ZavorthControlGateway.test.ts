@@ -80,7 +80,7 @@ describe('ZavorthControl gateway endpoints', () => {
         },
       },
       narrative: {
-        headline: 'Gateway pronto.',
+        headline: 'Gateway ready.',
         operatorSummary: 'Snapshot unificado.',
       },
     };
@@ -121,7 +121,7 @@ describe('ZavorthControl gateway endpoints', () => {
 
     await service.stopAsync();
 
-    expect(operationsPayload.narrative.headline).toBe('Gateway pronto.');
+    expect(operationsPayload.narrative.headline).toBe('Gateway ready.');
     expect(operationsPayload.domains).toEqual(domainSummary);
     expect(operationsDomainPayload).toEqual(
       expect.objectContaining({

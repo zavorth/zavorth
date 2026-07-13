@@ -6,7 +6,8 @@ import type { SessionHandoffSnapshot } from '../../../../services/SessionHandoff
 import type { WorkflowRunSnapshot } from '../../../../services/WorkflowRunService.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import type { SystemOverlordActionRecord } from '../../../../contracts/core/SystemOverlordContract.js';
-import { logger } from '../../../../logger';type SessionContinuityLike = {
+import { logger } from '../../../../logger';
+type SessionContinuityLike = {
   buildSnapshot: (sessionId: string, chatId: string, userId: string) => SessionContinuitySnapshot;
 };
 
@@ -81,7 +82,7 @@ export class ZavorthControlOperationalSnapshotService {
     if (!continuity) {
       return {
         available: false,
-        reason: 'Runtime de chat ainda nao anexado ao zavorthControl classico.',
+        reason: 'Chat runtime is not attached to classic Control yet.',
       };
     }
 
@@ -115,7 +116,7 @@ export class ZavorthControlOperationalSnapshotService {
     if (!continuity) {
       return {
         available: false,
-        reason: 'Runtime de chat ainda nao anexado ao zavorthControl classico.',
+        reason: 'Chat runtime is not attached to classic Control yet.',
       };
     }
 
@@ -132,7 +133,7 @@ export class ZavorthControlOperationalSnapshotService {
     if (!continuity) {
       return {
         available: false,
-        reason: 'Runtime de chat ainda nao anexado ao zavorthControl classico.',
+        reason: 'Chat runtime is not attached to classic Control yet.',
       };
     }
 
@@ -158,7 +159,7 @@ export class ZavorthControlOperationalSnapshotService {
     if (!continuity) {
       return {
         available: false,
-        reason: 'Runtime de chat ainda nao anexado ao zavorthControl classico.',
+        reason: 'Chat runtime is not attached to classic Control yet.',
       };
     }
 

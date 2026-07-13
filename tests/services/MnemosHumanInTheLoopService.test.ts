@@ -29,39 +29,40 @@ describe('MnemosHumanInTheLoopService', () => {
   });
 
   describe('buildCandidatePrompt', () => {
-    it('retorna mensagem sem botoes quando nao ha candidatos', () => {
+    it('returns message without buttons when there are no candidates', () => {
       const result = service.buildCandidatePrompt({
         chatId: '123',
         userId: '456',
-        originalQuery: 'portas logicas',
+        originalQuery: 'logic gates',
         candidates: [],
       });
 
-      expect(result.text).toContain('não encontrei nenhum arquivo');
+      expect(result.text).toContain('found no file related');
+      expect(result.text).toContain('Mnemos Vault Search');
       expect(result.buttons).toHaveLength(0);
     });
 
-    it('gera botoes inline para cada candidato', () => {
+    it('builds inline buttons for each candidate', () => {
       const result = service.buildCandidatePrompt({
         chatId: '123',
         userId: '456',
-        originalQuery: 'portas logicas',
+        originalQuery: 'logic gates',
         candidates: [
           { name: 'portas_logicas.pdf', path: '/scan/downloads/portas_logicas.pdf', size_bytes: 1024 * 1024, extension: '.pdf' },
           { name: 'algebra_booleana.md', path: '/scan/docs/algebra_booleana.md', size_bytes: 512, extension: '.md' },
         ],
       });
 
-      expect(result.text).toContain('Busca no Cofre Mnemos');
+      expect(result.text).toContain('Mnemos Vault Search');
       expect(result.text).toContain('portas_logicas.pdf');
       expect(result.text).toContain('algebra_booleana.md');
-      // 2 botões de indexação + 1 botão de rejeição
+      // 2 index buttons + 1 reject
       expect(result.buttons).toHaveLength(3);
       expect(result.buttons[0][0].callback_data).toMatch(/^mnemos:index_confirm:/);
       expect(result.buttons[2][0].callback_data).toBe('mnemos:index_reject:all');
     });
 
-    it('limita botoes a 3 candidatos + 1 rejeicao', () => {
+    it('limits buttons to 3 candidates + 1 reject', () => {
       const candidates = Array.from({ length: 5 }, (_, i) => ({
         name: `file_${i}.pdf`,
         path: `/scan/file_${i}.pdf`,
@@ -72,23 +73,22 @@ describe('MnemosHumanInTheLoopService', () => {
       const result = service.buildCandidatePrompt({
         chatId: '123',
         userId: '456',
-        originalQuery: 'qualquer coisa',
+        originalQuery: 'anything',
         candidates,
       });
 
-      // Maximo 3 candidatos + 1 rejeicao = 4 linhas de botoes
       expect(result.buttons).toHaveLength(4);
     });
   });
 
   describe('processCallback', () => {
-    it('ignora callbacks que nao pertencem ao mnemos', async () => {
+    it('ignores callbacks that are not mnemos', async () => {
       const mcpRuntime = createMockMcpRuntime();
       const result = await service.processCallback('hub:action', mcpRuntime as any);
       expect(result.handled).toBe(false);
     });
 
-    it('processa index_confirm com sucesso', async () => {
+    it('processes index_confirm successfully', async () => {
       const mcpRuntime = createMockMcpRuntime(true);
       const encodedPath = Buffer.from('/scan/downloads/test.pdf').toString('base64url');
       const result = await service.processCallback(`mnemos:index_confirm:${encodedPath}`, mcpRuntime as any);
@@ -96,24 +96,24 @@ describe('MnemosHumanInTheLoopService', () => {
       expect(result.handled).toBe(true);
       expect(result.action).toBe('index_confirm');
       expect(result.error).toBeNull();
-      expect(result.responseText).toContain('foi indexado');
+      expect(result.responseText).toContain('was indexed');
       expect(mockInvoker.execute).toHaveBeenCalledWith('index_file', {
         file_path: '/scan/downloads/test.pdf',
       });
     });
 
-    it('detecta Mnemos desconectado no index_confirm', async () => {
+    it('detects disconnected Mnemos on index_confirm', async () => {
       const mcpRuntime = createMockMcpRuntime(false);
       const encodedPath = Buffer.from('/scan/test.pdf').toString('base64url');
       const result = await service.processCallback(`mnemos:index_confirm:${encodedPath}`, mcpRuntime as any);
 
       expect(result.handled).toBe(true);
       expect(result.error).toBe('Mnemos not connected');
-      expect(result.responseText).toContain('não está conectado');
+      expect(result.responseText).toContain('not connected');
       expect(mockInvoker.execute).not.toHaveBeenCalled();
     });
 
-    it('detecta runtime de tools ausente no index_confirm', async () => {
+    it('detects missing tool runtime on index_confirm', async () => {
       const serviceWithoutInvoker = new MnemosHumanInTheLoopService(mockLogRepo as any);
       const mcpRuntime = createMockMcpRuntime(true);
       const encodedPath = Buffer.from('/scan/test.pdf').toString('base64url');
@@ -121,39 +121,39 @@ describe('MnemosHumanInTheLoopService', () => {
 
       expect(result.handled).toBe(true);
       expect(result.error).toBe('Mnemos tool runtime not available');
-      expect(result.responseText).toContain('runtime de tools');
+      expect(result.responseText).toContain('tool runtime is not available');
     });
 
-    it('propaga erro retornado pelo index_file', async () => {
-      mockInvoker.execute.mockResolvedValue(JSON.stringify({ error: 'Arquivo não encontrado' }));
+    it('propagates error returned by index_file', async () => {
+      mockInvoker.execute.mockResolvedValue(JSON.stringify({ error: 'File not found' }));
       const mcpRuntime = createMockMcpRuntime(true);
       const encodedPath = Buffer.from('/scan/missing.pdf').toString('base64url');
       const result = await service.processCallback(`mnemos:index_confirm:${encodedPath}`, mcpRuntime as any);
 
       expect(result.handled).toBe(true);
-      expect(result.error).toBe('Arquivo não encontrado');
-      expect(result.responseText).toContain('Falha ao indexar');
+      expect(result.error).toBe('File not found');
+      expect(result.responseText).toContain('Failed to index');
     });
 
-    it('processa index_reject', async () => {
+    it('processes index_reject', async () => {
       const mcpRuntime = createMockMcpRuntime();
       const result = await service.processCallback('mnemos:index_reject:all', mcpRuntime as any);
 
       expect(result.handled).toBe(true);
       expect(result.action).toBe('index_reject');
-      expect(result.responseText).toContain('Não vou indexar');
+      expect(result.responseText).toContain('will not index');
     });
 
-    it('processa vault_status com mnemos conectado', async () => {
+    it('processes vault_status when mnemos is connected', async () => {
       const mcpRuntime = createMockMcpRuntime(true);
       const result = await service.processCallback('mnemos:vault_status', mcpRuntime as any);
 
       expect(result.handled).toBe(true);
       expect(result.action).toBe('vault_status');
-      expect(result.responseText).toContain('Status do Cofre');
+      expect(result.responseText).toContain('Mnemos Vault Status');
     });
 
-    it('processa vault_status com mnemos desconectado', async () => {
+    it('processes vault_status when mnemos is disconnected', async () => {
       const mcpRuntime = createMockMcpRuntime(false);
       const result = await service.processCallback('mnemos:vault_status', mcpRuntime as any);
 
@@ -161,7 +161,7 @@ describe('MnemosHumanInTheLoopService', () => {
       expect(result.error).toBe('Mnemos not connected');
     });
 
-    it('trata acao desconhecida', async () => {
+    it('handles unknown action', async () => {
       const mcpRuntime = createMockMcpRuntime();
       const result = await service.processCallback('mnemos:unknown_action:data', mcpRuntime as any);
 

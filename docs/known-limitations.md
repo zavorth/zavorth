@@ -6,6 +6,10 @@ Honest product limitations for Zavorth 2.x local-first runtime.
 
 - **Live LLM chat** requires configured providers; offline home/help/doctor do not invent answers.
 - **Channels** (Telegram, Discord, etc.) need operator credentials; factory presence ≠ live send.
+- **Channel tiers:** T0 control surfaces; T1 Telegram/Discord/Slack/WhatsApp Cloud (production only when live-certified); T2 Baileys/Signal/iMessage experimental; T3 long-tail catalog-only.
+- **WhatsApp Baileys:** process isolation under `scripts/whatsapp-bridge` + `WhatsAppBridgeSupervisorService`. Install deps only there (`npm install` in that folder). Core uses `WHATSAPP_BRIDGE_URL`; never bundles Baileys in root `package.json`.
+- **Learning:** `governed` (default for professional/enterprise) keeps candidates for review; `autonomous` (personal preset or `ZAVORTH_LEARNING_MODE=autonomous`) writes green preferences and yellow skill drafts with receipts. Skill-library install never silent.
+- **Scale-to-zero:** `ZAVORTH_SCALE_TO_ZERO=1` idles in-process channel gateways. That is not cloud host hibernation (Fly/Modal autostop + wake).
 - **Desktop installers / signing** are ops/distribution concerns; npm package mode is the default verified path.
 - **Retention R2** (day-1 return) is calendar-gated and is not auto-passed by day-0 sessions.
 - **Browser preview / design-system** gates may soft-skip when Vite-only paths apply.

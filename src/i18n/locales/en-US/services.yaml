@@ -57,3 +57,59 @@ live_smartness:
   runtime_multi_pass: "Live multi-step tool round passed through the production runtime with {provider}."
   runtime_multi_token_mismatch: "Provider {provider} completed a tool round but missed the exact final token."
   runtime_failure: "{phase} via production runtime: {message}"
+
+memory_runtime:
+  local_saved: "[LocalMemory] Fact saved to local memory successfully."
+  mem0_saved: "[Mem0] Fact saved to remote backend and synced locally."
+  auto_synced: "[MemoryRuntime] Fact saved locally and synced with Mem0."
+  auto_local_only: "[MemoryRuntime] Fact saved locally. Mem0 sync unavailable in this session."
+
+scheduler_runtime:
+  auto_paused: "Automation paused automatically: {reason}. Last error: {error}"
+  trigger_failed: "Failed to trigger scheduled task {id}"
+
+guided_fixes:
+  no_pending: "No pending blockers or attention items."
+
+swarm_runtime:
+  batch_failed: "A batch failed; review role.finished events and per-role output."
+
+slash:
+  learn_skill_usage_title: "Learn skill (governed)"
+  learn_skill_failed: "Could not process learn-skill right now."
+  session_model_updated: "Session model updated"
+  session_model_cleared: "Session model cleared ({sessionId})."
+  session_model_failed: "Could not change the session model."
+  session_export_empty: "No messages in the ledger for session={sessionId}."
+  session_export_failed: "Could not export the session right now."
+  consensus_failed: "Could not run consensus right now."
+
+surface:
+  status_ready: "ready"
+  status_pending: "pending"
+  approval_pending: "Approval: pending."
+  capability_awaiting: "Capability {label} awaiting approval."
+  error_desktop_plane: "Could not build the Desktop Resource Plane right now."
+  error_mode_escalation: "Could not resolve mode escalation right now."
+  error_product_mode: "Could not change the product mode right now."
+  error_workspace_optimizer: "Could not operate the Workspace Optimizer right now."
+  error_companion_plane: "Could not operate the Companion Control Plane right now."
+  error_ai_gateway: "Could not operate the AI Gateway right now."
+  error_plugin_plane: "Could not run the plugin plane action right now."
+  error_channel_mesh: "Could not run the Channel Mesh action right now."
+  error_remote_plane: "Could not run the remote plane action right now."
+  error_learning_plane: "Could not build the learning plane right now."
+  error_memory_plane: "Could not build the memory plane right now."
+  error_layered_memory: "Could not query layered memory right now."
+  error_session_plane: "Could not build the session plane right now."
+  error_hub_action: "Could not run the hub action right now."
+  error_workflow: "Could not operate the workflow right now."
+  error_selfmod: "Could not operate selfmod right now."
+  error_bridge_mobile: "Could not prepare ZavorthBridge for mobile use right now."
+  error_tenant_action: "Could not run the guided tenant action right now."
+  error_codex_remote: "Could not operate Codex Remote right now."
+  error_plugin_flow: "Could not open the guided flow for this plugin right now."
+  error_transport_flow: "Could not open the guided flow for this transport right now."
+  error_channel_flow: "Could not open the guided flow for this channel right now."
+  permission_not_found: "Permission not found."
+  no_recent_workflow: "No recent workflow matched this context. Use /workflow resume <wf-id> if you want to be more explicit."

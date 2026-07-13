@@ -17,7 +17,7 @@ export class RecentTaskResolver {
     const recentTasks = this.taskManager.getRecentTasks(12, userId);
     const candidate = recentTasks.find((task) => this.isRelevantFollowupTarget(task, currentTaskId, chatId || null));
     if (!candidate) {
-      return 'Nao encontrei nenhuma tarefa recente sua para correlacionar com essa pergunta.';
+      return 'I could not find a recent task of yours to correlate with that question.';
     }
 
     return RecentTaskResolver.formatTaskStatus(candidate);

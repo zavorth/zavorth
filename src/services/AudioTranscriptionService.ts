@@ -4,6 +4,11 @@ import { safeFetch } from '../security/SafeFetchService.js';
 import { LocalVoiceDictation } from '../voice/LocalVoiceDictation.js';
 import { MediaUnderstandingService } from './MediaUnderstandingService.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import {
+  getVoicePreferenceService,
+  type VoicePreferenceService,
+} from './voice/VoicePreferenceService.js';
+import { recordVoiceMetric } from './voice/VoiceMetricsService.js';
 
 export type AudioTranscriptionProvider =
   | 'gemini'
@@ -36,6 +41,11 @@ export type AudioTranscriptionInput = {
   prompt?: string | null;
   sessionId?: string | null;
   language?: string | null;
+  /**
+   * When true, ignore VoicePreference and use legacy cascade
+   * (only for explicit ops escape hatch).
+   */
+  allowLegacyCascade?: boolean;
 };
 
 const MIN_AUDIO_BYTES = 1024;
@@ -45,43 +55,114 @@ const SILENCE_RMS_THRESHOLD = 0.002;
 export class AudioTranscriptionService {
   private readonly mediaUnderstanding: MediaUnderstandingService;
   private readonly localVoiceDictation: LocalVoiceDictation;
+  private readonly voicePreferences: VoicePreferenceService;
 
   constructor(options: {
     mediaUnderstanding?: MediaUnderstandingService;
     localVoiceDictation?: LocalVoiceDictation;
+    voicePreferences?: VoicePreferenceService;
   } = {}) {
     this.mediaUnderstanding = options.mediaUnderstanding || new MediaUnderstandingService();
     this.localVoiceDictation = options.localVoiceDictation || new LocalVoiceDictation({ language: 'auto' });
+    this.voicePreferences = options.voicePreferences || getVoicePreferenceService();
   }
 
   public async transcribe(input: AudioTranscriptionInput): Promise<AudioTranscriptionResult> {
     const attempts: AudioTranscriptionAttempt[] = [];
+    const startedAt = Date.now();
+    const surface = String(input.sessionId || '').trim() || null;
+
+    const fail = (message: string) => {
+      recordVoiceMetric({
+        kind: 'stt',
+        ok: false,
+        message,
+        surface,
+        latencyMs: Date.now() - startedAt,
+        language: input.language || null,
+      });
+      return this.failed(attempts, message);
+    };
+
     if (!Buffer.isBuffer(input.audio) || input.audio.length === 0) {
-      return this.failed(attempts, 'Audio payload is empty.');
+      return fail('Audio payload is empty. Type your message instead.');
     }
     if (input.audio.length < MIN_AUDIO_BYTES) {
-      return this.failed(attempts, 'Audio payload is too small to transcribe reliably.');
+      return fail('Audio payload is too small to transcribe reliably. Type your message instead.');
     }
     const preflight = this.preflightAudio(input);
     if (!preflight.ok) {
-      return this.failed(attempts, preflight.reason);
+      return fail(preflight.reason);
     }
     const maxBytes = Number(config.tools?.media?.audio?.sttMaxBytes || 0) || 24 * 1024 * 1024;
     if (input.audio.length > maxBytes) {
-      return this.failed(attempts, `Audio payload exceeds the ${Math.round(maxBytes / (1024 * 1024))} MB transcription limit.`);
+      return fail(
+        `Audio payload exceeds the ${Math.round(maxBytes / (1024 * 1024))} MB transcription limit. Type your message instead.`,
+      );
     }
     const maxSeconds = Number(config.tools?.media?.audio?.sttMaxSeconds || 0) || 10 * 60;
     if (preflight.durationSeconds && preflight.durationSeconds > maxSeconds) {
-      return this.failed(attempts, `Audio payload exceeds the ${maxSeconds}s transcription limit.`);
+      return fail(
+        `Audio payload exceeds the ${maxSeconds}s transcription limit. Type your message instead.`,
+      );
     }
     if (config.tools?.media?.audio?.sttEnabled === false) {
-      return this.failed(attempts, 'Audio transcription is disabled.');
+      return fail('Audio transcription is disabled. Type your message instead.');
     }
 
-    const providers = this.resolveProviderOrder();
-    for (const provider of providers) {
-      const result = await this.tryProvider(provider, input, attempts);
+    const resolved = this.resolveProvidersForRequest(input);
+    if (!resolved.ok) {
+      attempts.push(
+        this.attempt('none', null, 'skipped', resolved.message, 0),
+      );
+      return fail(`${resolved.message} ${resolved.configureHint}`);
+    }
+
+    // Phase 4 — language: preference/env wins over caller unless caller is more specific
+    const prefLang = resolved.language && resolved.language !== 'auto' ? resolved.language : null;
+    const callerLang = input.language && String(input.language).trim() && String(input.language) !== 'auto'
+      ? String(input.language).trim()
+      : null;
+    const language = callerLang || prefLang || 'auto';
+    const enrichedInput: AudioTranscriptionInput = {
+      ...input,
+      language: language === 'auto' ? null : language,
+    };
+
+    // Phase 4 — hard timeout budget for whole cascade (not only per provider)
+    const globalTimeoutMs = Number(
+      process.env.ZAVORTH_AUDIO_STT_GLOBAL_TIMEOUT_MS ||
+        config.tools?.media?.audio?.sttTimeoutMs ||
+        45_000,
+    );
+    const deadline = Date.now() + Math.max(5_000, globalTimeoutMs);
+
+    for (const provider of resolved.providers) {
+      if (Date.now() > deadline) {
+        return fail(
+          `STT timed out after ${globalTimeoutMs}ms. Type your message instead.`,
+        );
+      }
+      const remaining = Math.max(3_000, deadline - Date.now());
+      const result = await this.tryProvider(
+        provider,
+        enrichedInput,
+        attempts,
+        resolved.model,
+        remaining,
+      );
       if (result) {
+        recordVoiceMetric({
+          kind: 'stt',
+          ok: true,
+          provider,
+          model: result.model,
+          language,
+          latencyMs: Date.now() - startedAt,
+          chars: result.text.length,
+          surface,
+          source: resolved.ok ? 'preference_or_env' : null,
+        });
         return {
           ok: true,
           text: result.text,
@@ -93,9 +174,9 @@ export class AudioTranscriptionService {
       }
     }
 
-    return this.failed(
-      attempts,
-      attempts.find((attempt) => attempt.status === 'failed')?.reason || 'No audio transcription provider is configured or ready.',
+    return fail(
+      attempts.find((attempt) => attempt.status === 'failed')?.reason ||
+        'STT failed. Type your message instead. Set voice preference if needed.',
     );
   }
 
@@ -108,7 +189,47 @@ export class AudioTranscriptionService {
     };
   }
 
-  private resolveProviderOrder(): AudioTranscriptionProvider[] {
+  /**
+   * Phase 1: prefer user VoicePreference; no silent product cascade.
+   */
+  private resolveProvidersForRequest(input: AudioTranscriptionInput): {
+    ok: true;
+    providers: AudioTranscriptionProvider[];
+    model: string | null;
+    language: string;
+  } | {
+    ok: false;
+    message: string;
+    configureHint: string;
+  } {
+    if (input.allowLegacyCascade) {
+      return {
+        ok: true,
+        providers: this.resolveLegacyProviderOrder(),
+        model: null,
+        language: String(input.language || 'auto'),
+      };
+    }
+
+    const resolved = this.voicePreferences.resolveStt();
+    if (!resolved.ok) {
+      return {
+        ok: false,
+        message: resolved.message,
+        configureHint: resolved.configureHint,
+      };
+    }
+
+    return {
+      ok: true,
+      providers: resolved.providers as AudioTranscriptionProvider[],
+      model: resolved.model,
+      language: resolved.language || 'auto',
+    };
+  }
+
+  /** Explicit legacy list only (env cascade or allowLegacyCascade). */
+  private resolveLegacyProviderOrder(): AudioTranscriptionProvider[] {
     const raw = Array.isArray(config.tools?.media?.audio?.sttProviderOrder)
       ? config.tools.media.audio.sttProviderOrder
       : ['gemini', 'openai', 'groq', 'deepgram', 'whisper.cpp'];
@@ -123,8 +244,10 @@ export class AudioTranscriptionService {
     provider: AudioTranscriptionProvider,
     input: AudioTranscriptionInput,
     attempts: AudioTranscriptionAttempt[],
+    preferredModel?: string | null,
+    timeoutMs?: number,
   ): Promise<{ text: string; model: string | null } | null> {
-    const readiness = this.providerReadiness(provider);
+    const readiness = this.providerReadiness(provider, preferredModel);
     if (!readiness.ready) {
       attempts.push(this.attempt(provider, readiness.model, 'skipped', readiness.reason, 0));
       return null;
@@ -132,12 +255,16 @@ export class AudioTranscriptionService {
 
     const retryCount = this.isNetworkProvider(provider) ? TRANSIENT_RETRY_LIMIT : 0;
     let lastError: string | null = null;
+    const perTryTimeout = Math.max(
+      3_000,
+      Number(timeoutMs || config.tools?.media?.audio?.sttTimeoutMs || 45_000),
+    );
     for (let index = 0; index <= retryCount; index += 1) {
       const startedAt = Date.now();
       try {
         const text = await this.withTimeout(
-          this.callProvider(provider, input),
-          Number(config.tools?.media?.audio?.sttTimeoutMs || 45_000),
+          this.callProvider(provider, input, readiness.model),
+          perTryTimeout,
         );
         const validated = this.requireTranscriptText(text);
         attempts.push(this.attempt(provider, readiness.model, 'succeeded', null, Date.now() - startedAt));
@@ -154,40 +281,53 @@ export class AudioTranscriptionService {
     return null;
   }
 
-  private providerReadiness(provider: AudioTranscriptionProvider): {
+  private providerReadiness(
+    provider: AudioTranscriptionProvider,
+    preferredModel?: string | null,
+  ): {
     ready: boolean;
     model: string | null;
     reason: string | null;
   } {
+    const override = preferredModel != null && String(preferredModel).trim()
+      ? String(preferredModel).trim()
+      : null;
+
     switch (provider) {
       case 'gemini':
         return {
           ready: Boolean(config.geminiApiKey || config.geminiApiKeys?.length),
-          model: config.geminiTranscriptionModel || config.geminiVideoModel || config.geminiModel || null,
+          // Model only after user chose gemini (preference) or env; no inventing for unconfigured.
+          model:
+            override ||
+            config.geminiTranscriptionModel ||
+            config.geminiVideoModel ||
+            config.geminiModel ||
+            null,
           reason: config.geminiApiKey || config.geminiApiKeys?.length ? null : 'GEMINI_API_KEY is not configured.',
         };
       case 'openai':
         return {
           ready: Boolean(config.openaiApiKey || config.openaiApiKeys?.length),
-          model: config.openaiTranscriptionModel || null,
+          model: override || config.openaiTranscriptionModel || null,
           reason: config.openaiApiKey || config.openaiApiKeys?.length ? null : 'OPENAI_API_KEY is not configured.',
         };
       case 'groq':
         return {
           ready: Boolean(config.groqApiKey),
-          model: config.groqTranscriptionModel || null,
+          model: override || config.groqTranscriptionModel || null,
           reason: config.groqApiKey ? null : 'GROQ_API_KEY is not configured.',
         };
       case 'deepgram':
         return {
           ready: Boolean(config.deepgramApiKey),
-          model: config.deepgramTranscriptionModel || null,
+          model: override || config.deepgramTranscriptionModel || null,
           reason: config.deepgramApiKey ? null : 'DEEPGRAM_API_KEY is not configured.',
         };
       case 'whisper.cpp':
         return {
           ready: true,
-          model: this.diagnoseLocalFallback().model,
+          model: override || this.diagnoseLocalFallback().model,
           reason: null,
         };
       default:
@@ -199,7 +339,11 @@ export class AudioTranscriptionService {
     }
   }
 
-  private async callProvider(provider: AudioTranscriptionProvider, input: AudioTranscriptionInput): Promise<string | null> {
+  private async callProvider(
+    provider: AudioTranscriptionProvider,
+    input: AudioTranscriptionInput,
+    model: string | null,
+  ): Promise<string | null> {
     switch (provider) {
       case 'gemini':
         return this.transcribeWithGemini(input);
@@ -207,14 +351,14 @@ export class AudioTranscriptionService {
         return this.transcribeWithOpenAiCompatible({
           endpoint: 'https://api.openai.com/v1/audio/transcriptions',
           apiKeys: config.openaiApiKeys?.length ? config.openaiApiKeys : [config.openaiApiKey].filter(Boolean),
-          model: config.openaiTranscriptionModel,
+          model: model || config.openaiTranscriptionModel,
           input,
         });
       case 'groq':
         return this.transcribeWithOpenAiCompatible({
           endpoint: 'https://api.groq.com/openai/v1/audio/transcriptions',
           apiKeys: [config.groqApiKey].filter(Boolean),
-          model: config.groqTranscriptionModel,
+          model: model || config.groqTranscriptionModel,
           input,
         });
       case 'deepgram':

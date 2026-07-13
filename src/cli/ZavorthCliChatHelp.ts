@@ -6,6 +6,7 @@ const CLI_CHAT_HELP_ENTRIES = [
   { command: 'history', summary: 'show recent conversations' },
   { command: '/new', summary: 'start a clean conversation' },
   { command: '/model', summary: 'inspect or switch provider/model' },
+  { command: '/consensus', summary: 'multi-model consensus (your models only)' },
   { command: '/skills', summary: 'search skills and abilities' },
   { command: '/usage', summary: 'show lightweight usage and readiness' },
   { command: 'quit', summary: 'leave the terminal session' },

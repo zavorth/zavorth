@@ -62,7 +62,7 @@ export class WebAppRuntimeContextBridge {
 
   public getGatewaySessionTools(): GatewaySessionToolsService {
     if (!this.options.runtimeServices.gatewaySessionTools) {
-      throw new Error('Gateway session tools indisponivel para o web runtime.');
+      throw new Error('Gateway session tools unavailable para o web runtime.');
     }
     return this.options.runtimeServices.gatewaySessionTools;
   }

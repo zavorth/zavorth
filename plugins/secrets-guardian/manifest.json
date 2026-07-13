@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "secrets-guardian",
+  "label": "Secrets Guardian",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Non-blocking scan for leaked secrets in text and tool writes.",
+  "description": "Complements security-guidance with secret-oriented patterns (API keys, tokens, private keys). Never blocks; appends a ledger and emits warnings. Makes Zavorth safer by default for open workspaces.",
+  "tags": ["secrets", "security", "scan", "leak", "credentials", "diagnostics", "hooks", "trust"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://secrets-guardian",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "secrets.scan",
+      "intent": "secrets.scan",
+      "label": "Scan Text",
+      "summary": "Scan text for secret-like patterns.",
+      "artifactKinds": ["secrets.finding"],
+      "command": { "name": "secrets_scan", "aliases": ["scan_secrets"], "usage": "{ text }" }
+    },
+    {
+      "id": "secrets.scan_path",
+      "intent": "secrets.scan_path",
+      "label": "Scan Path",
+      "summary": "Scan a workspace-relative file for secrets.",
+      "artifactKinds": ["secrets.finding"],
+      "command": { "name": "secrets_scan_path", "aliases": [], "usage": "{ path }" }
+    },
+    {
+      "id": "secrets.summary",
+      "intent": "secrets.summary",
+      "label": "Findings Summary",
+      "summary": "Summarize recent ledger findings.",
+      "artifactKinds": [],
+      "command": { "name": "secrets_summary", "aliases": [], "usage": "{ limit? }" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read files and the secrets ledger.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Append secrets finding ledger under .zavorth/secrets-guardian.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["secrets.finding"],
+  "receiptKinds": ["secrets-guardian.receipt"]
+}

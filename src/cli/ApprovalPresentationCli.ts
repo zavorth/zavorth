@@ -69,7 +69,7 @@ function printHelp(): void {
     '  zavorth approvals',
     '  zavorth approval list [--json] [--open]',
     '  zavorth approval show <id> [--json]',
-    '  zavorth approval decide <id> --action approve|deny|defer [--by <who>] [--reason <text>] [--json]',
+    '  zavorth approval decide <id> --action approve|deny|defer [--by <who>] [--reason <text>] [--totp <code>] [--json]',
     '  zavorth approval seed-demo [--with-proof] [--json]',
     '  zavorth approval format-lease [--json] [--expires <iso>] [--risk <level>]',
     '  zavorth approval status',
@@ -364,7 +364,9 @@ function runDecide(args: string[], json: boolean): number {
   const id = positional[0];
   const actionRaw = readOption(args, '--action') || readOption(args, '-a') || positional[1];
   if (!id || !actionRaw) {
-    console.log('Usage: zavorth approval decide <id> --action approve|deny|defer [--by <who>] [--reason <text>]');
+    console.log(
+      'Usage: zavorth approval decide <id> --action approve|deny|defer [--by <who>] [--reason <text>] [--totp <code>]',
+    );
     return 1;
   }
 
@@ -387,6 +389,7 @@ function runDecide(args: string[], json: boolean): number {
 
   const decidedBy = readOption(args, '--by') || readOption(args, '--decided-by') || 'cli-operator';
   const reason = readOption(args, '--reason');
+  const totp = readOption(args, '--totp') || readOption(args, '--code') || null;
 
   try {
     const updated = service.recordDecision(
@@ -395,12 +398,14 @@ function runDecide(args: string[], json: boolean): number {
         action: actionRaw as ApprovalDecisionAction,
         decidedBy,
         reason,
+        totp,
       },
       {
         proofLedger: ledger,
         emitProof: withProof,
         surface: 'cli',
         source: 'approval-presentation-cli',
+        totp,
       },
     );
     cards[idx] = updated;

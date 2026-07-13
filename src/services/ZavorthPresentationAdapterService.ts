@@ -150,7 +150,10 @@ export class ZavorthPresentationAdapterService {
     let text = response.text;
 
     if (caps.supportsMarkdown) {
+      text = this.adaptMarkdownForChannel(text, caps.id);
       applied.push('markdown');
+      if (this.isChannelFamily(caps.id, ['discord'])) applied.push('discord-markdown');
+      if (this.isChannelFamily(caps.id, ['whatsapp', 'sms'])) applied.push('short-blocks');
     } else {
       text = this.stripMarkdown(text);
       applied.push('plain-text');
@@ -165,6 +168,84 @@ export class ZavorthPresentationAdapterService {
       originalType: 'text',
       appliedCapabilities: applied,
     };
+  }
+
+  /**
+   * Channel-aware markdown adaptation (no separate ChannelFormatService).
+   * Discord: no tables, wrap bare URLs; WhatsApp: shorter blocks / simple bold.
+   */
+  public adaptMarkdownForChannel(text: string, channelId: string): string {
+    let next = String(text || '');
+    const id = String(channelId || '').toLowerCase();
+
+    if (this.isChannelFamily(id, ['discord'])) {
+      next = this.convertMarkdownTablesToLists(next);
+      next = this.wrapBareUrlsForDiscord(next);
+      appliedCapabilityHint(next);
+    }
+
+    if (this.isChannelFamily(id, ['whatsapp', 'sms', 'imessage'])) {
+      next = this.convertMarkdownTablesToLists(next);
+      next = this.shortenBlocksForMessaging(next);
+      // WhatsApp prefers *bold* single-asterisk in many clients; keep ** for universal and strip tables already.
+    }
+
+    if (this.isChannelFamily(id, ['telegram'])) {
+      // Telegram supports fuller markdown; keep tables as-is unless huge.
+      if (next.length > 3500) {
+        next = this.convertMarkdownTablesToLists(next);
+      }
+    }
+
+    return next;
+  }
+
+  private isChannelFamily(channelId: string, families: string[]): boolean {
+    const id = String(channelId || '').toLowerCase();
+    return families.some((family) => id === family || id.startsWith(`${family}-`) || id.includes(family));
+  }
+
+  private convertMarkdownTablesToLists(text: string): string {
+    const lines = text.split(/\r?\n/);
+    const out: string[] = [];
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      const next = lines[i + 1] || '';
+      const isTableHeader = /\|/.test(line) && /^\s*\|?[\s:-]+\|/.test(next);
+      if (!isTableHeader) {
+        out.push(line);
+        i += 1;
+        continue;
+      }
+      const headers = splitTableRow(line);
+      i += 2; // skip header + separator
+      while (i < lines.length && /\|/.test(lines[i]) && !/^\s*$/.test(lines[i])) {
+        const cells = splitTableRow(lines[i]);
+        const parts = headers.map((header, idx) => `${header}: ${cells[idx] || ''}`.trim());
+        out.push(`- ${parts.join(' · ')}`);
+        i += 1;
+      }
+    }
+    return out.join('\n');
+  }
+
+  private wrapBareUrlsForDiscord(text: string): string {
+    return text.replace(/(https?:\/\/[^\s<>()]+)/g, (full, url: string, offset: number, source: string) => {
+      if (offset > 0 && source[offset - 1] === '<') return full;
+      const trailing = url.match(/[.,);]+$/)?.[0] || '';
+      const core = trailing ? url.slice(0, -trailing.length) : url;
+      return `<${core}>${trailing}`;
+    });
+  }
+
+  private shortenBlocksForMessaging(text: string): string {
+    // Collapse long fenced blocks to a short notice + first lines.
+    return text.replace(/```[\w-]*\n([\s\S]*?)```/g, (_full, body: string) => {
+      const lines = String(body || '').split(/\r?\n/).filter(Boolean);
+      if (lines.length <= 8) return `\`\`\`\n${lines.join('\n')}\n\`\`\``;
+      return `\`\`\`\n${lines.slice(0, 6).join('\n')}\n… (${lines.length - 6} more lines)\n\`\`\``;
+    });
   }
 
   private formatChoice(
@@ -382,4 +463,17 @@ export class ZavorthPresentationAdapterService {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength - 3) + '...';
   }
+}
+
+function splitTableRow(line: string): string[] {
+  return String(line || '')
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((cell) => cell.trim());
+}
+
+function appliedCapabilityHint(_text: string): void {
+  // placeholder for future metrics hook
 }

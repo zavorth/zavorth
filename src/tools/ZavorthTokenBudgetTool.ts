@@ -126,7 +126,7 @@ export class ZavorthTokenBudgetTool extends BaseTool {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error);
       throw new Error(
-        `Erro: driver SQLite real better-sqlite3 indisponivel. Instale as dependencias nativas antes de executar zavorth_token_budget. Detalhe: ${message}`
+        `Error: real better-sqlite3 SQLite driver unavailable. Install native dependencies before running zavorth_token_budget. Detail: ${message}`
       );
     }
 

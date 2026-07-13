@@ -1,0 +1,25 @@
+{
+  "name": "create-zavorth-plugin",
+  "version": "0.1.0",
+  "description": "Scaffold third-party Zavorth Plugin OS packages (Wave 8 ecosystem).",
+  "bin": {
+    "create-zavorth-plugin": "bin/create-zavorth-plugin.js"
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "package.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "zavorth",
+    "plugin",
+    "scaffold",
+    "cli",
+    "create"
+  ],
+  "license": "MIT",
+  "private": false
+}

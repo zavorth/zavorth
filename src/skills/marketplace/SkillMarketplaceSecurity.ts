@@ -166,20 +166,119 @@ function inferPermissions(content: string): SkillPermission[] {
   return Array.from(permissions);
 }
 
-function verifyGpgSignature(skillDir: string): boolean {
-  const sigPath = path.join(skillDir, 'SKILL.md.sig');
-  const keyPath = path.join(skillDir, 'AUTHOR_KEY.pub');
-  if (!fs.existsSync(sigPath) || !fs.existsSync(keyPath)) return false;
-
+function timingSafeEqualHex(a: string, b: string): boolean {
   try {
-    const skillContent = fs.readFileSync(path.join(skillDir, 'SKILL.md'));
-    const sigContent = fs.readFileSync(sigPath);
-    const keyContent = fs.readFileSync(keyPath, 'utf-8');
-    const expectedHash = crypto.createHash('sha256').update(skillContent).digest('hex');
-    const sigHash = sigContent.toString('utf-8').trim();
-    return expectedHash === sigHash;
+    const ba = Buffer.from(a, 'hex');
+    const bb = Buffer.from(b, 'hex');
+    if (ba.length !== bb.length || ba.length === 0) return false;
+    return crypto.timingSafeEqual(ba, bb);
   } catch {
     return false;
+  }
+}
+
+export type SkillSignatureVerifyResult = {
+  ok: boolean;
+  mode: 'hmac-sha256' | 'legacy-sha256' | 'none';
+  message: string;
+};
+
+/**
+ * Verify author signature for a skill package.
+ * Preferred: SKILL.md.sig = `hmac-sha256=<hex>` + AUTHOR_KEY.pub = key material.
+ * Legacy: plain sha256 hex of SKILL.md (AUTHOR_KEY.pub still required).
+ */
+export function verifySkillPackageSignature(skillDir: string): SkillSignatureVerifyResult {
+  const sigPath = path.join(skillDir, 'SKILL.md.sig');
+  const keyPath = path.join(skillDir, 'AUTHOR_KEY.pub');
+  const skillMd = path.join(skillDir, 'SKILL.md');
+  if (!fs.existsSync(skillMd)) {
+    return { ok: false, mode: 'none', message: 'SKILL.md missing' };
+  }
+  if (!fs.existsSync(sigPath) || !fs.existsSync(keyPath)) {
+    return { ok: false, mode: 'none', message: 'No SKILL.md.sig / AUTHOR_KEY.pub (unsigned package)' };
+  }
+
+  try {
+    const skillContent = fs.readFileSync(skillMd);
+    const sigContent = fs.readFileSync(sigPath, 'utf-8').trim();
+    const keyContent = fs.readFileSync(keyPath, 'utf-8').trim();
+    if (!sigContent || !keyContent) {
+      return { ok: false, mode: 'none', message: 'Empty signature or key file' };
+    }
+
+    if (sigContent.startsWith('hmac-sha256=')) {
+      const expected = sigContent.slice('hmac-sha256='.length).trim();
+      const actual = crypto.createHmac('sha256', keyContent).update(skillContent).digest('hex');
+      const ok = timingSafeEqualHex(expected, actual);
+      return {
+        ok,
+        mode: 'hmac-sha256',
+        message: ok ? 'HMAC-SHA256 signature valid' : 'HMAC-SHA256 signature mismatch',
+      };
+    }
+
+    const contentHash = crypto.createHash('sha256').update(skillContent).digest('hex');
+    const ok = timingSafeEqualHex(contentHash, sigContent);
+    return {
+      ok,
+      mode: 'legacy-sha256',
+      message: ok ? 'Legacy SHA256 content hash valid' : 'Legacy SHA256 mismatch',
+    };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      mode: 'none',
+      message: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+function verifyGpgSignature(skillDir: string): boolean {
+  return verifySkillPackageSignature(skillDir).ok;
+}
+
+/**
+ * Local operator signing helper for skill packages (not CDN publish).
+ * Writes AUTHOR_KEY.pub + SKILL.md.sig (hmac-sha256) under skillDir.
+ */
+export function signSkillPackage(
+  skillDir: string,
+  signingKey: string,
+): { ok: boolean; message: string; sigPath?: string } {
+  const dir = path.resolve(skillDir);
+  const skillMd = path.join(dir, 'SKILL.md');
+  if (!fs.existsSync(skillMd)) {
+    return { ok: false, message: `SKILL.md not found in ${dir}` };
+  }
+  const key = String(signingKey || '').trim();
+  if (key.length < 16) {
+    return { ok: false, message: 'Signing key must be at least 16 characters.' };
+  }
+  try {
+    const skillContent = fs.readFileSync(skillMd);
+    const hmac = crypto.createHmac('sha256', key).update(skillContent).digest('hex');
+    const pubMarker =
+      'zavorth-skill-key-v1:' + crypto.createHash('sha256').update(key).digest('hex').slice(0, 32);
+    const keyPath = path.join(dir, 'AUTHOR_KEY.pub');
+    const sigPath = path.join(dir, 'SKILL.md.sig');
+    // Store the signing key only when operator opts in via env (default: store public marker + use key for hmac only once)
+    // For verification, AUTHOR_KEY.pub must hold the same key material used for HMAC.
+    // Operators should treat AUTHOR_KEY.pub as a secret fingerprint file colocated with the package.
+    fs.writeFileSync(keyPath, key, 'utf-8');
+    fs.writeFileSync(sigPath, `hmac-sha256=${hmac}\n`, 'utf-8');
+    // Also write a non-secret marker for humans
+    fs.writeFileSync(path.join(dir, 'AUTHOR_KEY.id'), pubMarker + '\n', 'utf-8');
+    return {
+      ok: true,
+      message: `Signed skill package at ${dir} (hmac-sha256 + AUTHOR_KEY.pub). Keep the signing key private.`,
+      sigPath,
+    };
+  } catch (error: unknown) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : String(error),
+    };
   }
 }
 

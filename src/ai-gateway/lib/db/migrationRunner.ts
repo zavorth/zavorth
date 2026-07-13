@@ -37,8 +37,16 @@ function resolveMigrationsDir(): string {
   } catch (error: unknown) { // fileURLToPath failed (e.g. Windows global install) — use fallback
       logger.warn('[migration Runner] lifecycle operation failed', error);
     }
-  // Fallback: resolve relative to cwd (works for both dev and global installs)
-  return path.join(process.cwd(), "src", "lib", "db", "migrations");
+  // Fallback: resolve relative to cwd (dev monorepo + packaged layouts)
+  const candidates = [
+    path.join(process.cwd(), "src", "ai-gateway", "lib", "db", "migrations"),
+    path.join(process.cwd(), "src", "lib", "db", "migrations"),
+    path.join(process.cwd(), "dist", "ai-gateway", "lib", "db", "migrations"),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return candidates[0];
 }
 
 const MIGRATIONS_DIR = resolveMigrationsDir();

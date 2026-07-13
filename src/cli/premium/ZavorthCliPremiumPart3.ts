@@ -175,7 +175,7 @@ export async function runRuntimeGuidedFixes(rawArgs: string[] = []): Promise<num
   const { ZavorthRuntimeGuidedFixesService } = await import('../../services/ZavorthRuntimeGuidedFixesService.js');
   const { ZavorthRuntimeReadinessService } = await import('../../services/ZavorthRuntimeReadinessService.js');
   const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-guided-fixes',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -222,7 +222,7 @@ export async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Pr
     || snapshot.entries[0]
     || null;
   const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: 'runtime-readiness-provider-fix',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -262,7 +262,7 @@ export async function runCliExperienceConsistency(rawArgs: string[] = []): Promi
     const snapshot = await service.buildSnapshot({
       refreshProviders: rawArgs.includes('--refresh-providers') || rawArgs.includes('--live'),
       includeAdvancedProviders: rawArgs.includes('--advanced'),
-      userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+      userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
       sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'cli-home',
       workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
     });

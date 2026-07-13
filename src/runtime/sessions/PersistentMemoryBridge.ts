@@ -169,5 +169,14 @@ export class PersistentMemoryBridge extends EventEmitter {
 
     this.chunks.clear();
     this.initialized = false;
+
+    // Release SQLite file handle (Windows) when store supports close
+    if (typeof this.store.close === 'function') {
+      try {
+        this.store.close();
+      } catch {
+        // ignore
+      }
+    }
   }
 }

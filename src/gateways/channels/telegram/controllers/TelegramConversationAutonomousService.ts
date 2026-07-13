@@ -16,6 +16,8 @@ import { TelegramConversationDecisionService } from '../../../../gateways/channe
 import { TelegramConversationDirectReplyService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationDirectReplyService.js';
 import { TelegramConversationStateService } from '../../../../gateways/channels/telegram/controllers/TelegramConversationStateService.js';
 import { asErrorLike } from '../../../../utils/errorLike';
+import { canTelegramActorWriteLearning } from '../../../../services/ZavorthTelegramOperatorAuth.js';
+import { canActorWriteLearning } from '../../../../services/ZavorthLearningWriteAuth.js';
 
 type InlineData = Array<{ mimeType: string; data: string }>;
 type ContinuityContext = ReturnType<typeof buildWorkspaceContinuityContext>;
@@ -121,6 +123,7 @@ export class TelegramConversationAutonomousService {
         userId,
         chatId,
         surface: 'telegram',
+        allowLearningWrite: canTelegramActorWriteLearning(userId),
       });
 
       await this.deps.directReplyService.sendDirectReply({
@@ -181,10 +184,12 @@ export class TelegramConversationAutonomousService {
       });
       this.deps.stateService.markAgentGatewayRunRunning(task, actionPayload);
       const contextMessages = this.deps.contextService.buildGraphContextMessages(task);
+      const resolvedUserId = String(userId || task.user_id || 'local-user').trim() || 'local-user';
+      const resolvedChatId = String(chatId || task.chat_id || task.task_id || '').trim() || null;
       const result = await this.deps.agentGateway.handle({
         requestId: task.task_id || undefined,
-        userId: String(userId || task.user_id || 'telegram').trim() || 'telegram',
-        sessionId: String(chatId || task.chat_id || task.task_id || 'telegram').trim() || 'telegram',
+        userId: resolvedUserId,
+        sessionId: resolvedChatId || String(task.task_id || 'telegram').trim() || 'telegram',
         channel: 'telegram',
         text: actionPayload,
         workspace: task.workspace || null,
@@ -193,8 +198,13 @@ export class TelegramConversationAutonomousService {
           source: 'telegram',
           surface: 'telegram',
           taskId: task.task_id || null,
-          chatId: chatId || task.chat_id || null,
-          userId: userId || task.user_id || null,
+          chatId: resolvedChatId,
+          userId: resolvedUserId,
+          allowLearningWrite: canActorWriteLearning({
+            surface: 'telegram',
+            userId: resolvedUserId,
+            chatId: resolvedChatId,
+          }),
           taskKind: taskProfile.kind,
           taskSubtype: taskProfile.subtype,
           contextualMessage,

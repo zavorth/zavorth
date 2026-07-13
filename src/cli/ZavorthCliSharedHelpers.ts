@@ -75,7 +75,22 @@ export async function ensureDir(dir: string): Promise<void> {
 export async function readJson(file: string, fallback: unknown): Promise<unknown> {
   try {
     return JSON.parse(await fs.readFile(file, 'utf8'));
-  } catch (error: unknown) {logger.warn('[Zavorth Cli Shared Helpers] JSON parse failed', error); return fallback; }
+  } catch (error: unknown) {
+    if (isFileNotFoundError(error)) {
+      return fallback;
+    }
+    logger.warn('[Zavorth Cli Shared Helpers] JSON read failed', error);
+    return fallback;
+  }
+}
+
+function isFileNotFoundError(error: unknown): boolean {
+  return Boolean(
+    error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code?: unknown }).code === 'ENOENT',
+  );
 }
 
 export async function readArray(file: string): Promise<unknown[]> {

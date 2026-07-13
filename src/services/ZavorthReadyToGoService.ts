@@ -132,7 +132,7 @@ export class ZavorthReadyToGoService {
         probe: false,
       });
     const readiness = await this.runtimeReadiness.buildSnapshot({
-      userId: input.userId || 'operator',
+      userId: input.userId || 'local-user',
       sessionId: input.sessionId || 'ready-to-go',
       workspaceHint: input.workspaceHint || process.cwd(),
     });

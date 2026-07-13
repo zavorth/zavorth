@@ -18,6 +18,7 @@ import type { CapabilityPackCatalogQuery } from '../contracts/CapabilityPackCata
 import { ZavorthCapabilityPackReadinessDoctorService } from './ZavorthCapabilityPackReadinessDoctorService.js';
 import { ZavorthGovernanceRecipeApiService } from './ZavorthGovernanceRecipeApiService.js';
 import { ZavorthNaturalSetupAssistantService } from './ZavorthNaturalSetupAssistantService.js';
+import { tService } from '../i18n/services.js';
 
 type CapabilityPackCatalogLike = Pick<ZavorthCapabilityPackCatalogService, 'listManifests'>;
 
@@ -309,29 +310,29 @@ export class ZavorthCapabilityActivationFlowService {
     }
     if (status === 'waiting_secret_input') {
       return {
-        headline: `${target.label} esta pronto para coleta segura de credenciais.`,
-        operatorSummary: `${setup.secretPlan.missingRefs.length} referencia(s) de segredo ainda faltam; nenhum valor bruto foi salvo.`,
-        nextAction: `Coletar ${setup.secretPlan.missingRefs[0]} por canal seguro e repetir o dry-run.`,
+        headline: tService('activation.ready_for_secret_collection', { label: target.label }),
+        operatorSummary: tService('activation.secret_refs_missing', { count: String(setup.secretPlan.missingRefs.length) }),
+        nextAction: tService('activation.collect_secret', { ref: setup.secretPlan.missingRefs[0] }),
       };
     }
     if (status === 'waiting_approval') {
       return {
-        headline: `${target.label} esta aguardando aprovacao do dono.`,
-        operatorSummary: 'Importer, setup e governance ja produziram receipts; live ainda nao foi aplicado.',
-        nextAction: 'Solicitar approval explicito e repetir o fluxo com approvalId.',
+        headline: tService('activation.waiting_approval', { label: target.label }),
+        operatorSummary: tService('activation.waiting_approval_summary'),
+        nextAction: tService('activation.waiting_approval_next'),
       };
     }
     if (status === 'waiting_readiness') {
       return {
-        headline: `${target.label} precisa fechar readiness antes do approval final.`,
-        operatorSummary: 'Secrets e governance foram planejados, mas ainda ha probes ou passos manuais pendentes.',
-        nextAction: 'Rodar o readiness doctor e repetir o fluxo com os checks concluidos.',
+        headline: tService('activation.waiting_readiness', { label: target.label }),
+        operatorSummary: tService('activation.secrets_governance_pending'),
+        nextAction: tService('activation.run_readiness_doctor'),
       };
     }
     return {
-      headline: `${target.label} esta pronto para pedido de ativacao controlada.`,
-      operatorSummary: 'Todos os passos de import, setup, secrets e governance chegaram ao estado esperado.',
-      nextAction: 'Enviar o request de ativacao para o owner/zavorthControl plane; este fluxo nao aplica live sozinho.',
+      headline: tService('activation.ready_for_activation', { label: target.label }),
+      operatorSummary: tService('activation.all_steps_ready'),
+      nextAction: tService('activation.send_activation_request'),
     };
   }
 

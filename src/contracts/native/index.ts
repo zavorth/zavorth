@@ -8,6 +8,7 @@ export * from './ZavorthFunctionalClosureContract.js';
 export * from './ZavorthHallucinationMitigationContract.js';
 export * from './ZavorthInnovationRadarContract.js';
 export * from './ZavorthLargeSkillAbsorptionContract.js';
+export * from './ZavorthLearnSkillContract.js';
 export * from './ZavorthModelCostGuardContract.js';
 export * from './ZavorthModelProviderExperienceContract.js';
 export * from './ZavorthNativeAutonomySpineContract.js';

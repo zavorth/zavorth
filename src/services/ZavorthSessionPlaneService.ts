@@ -16,6 +16,7 @@ import {
   type GatewaySessionSendResult,
   type GatewaySessionToolDescriptor,
 } from '../runtime/sessions/GatewaySessionToolsService.js';
+import { tService } from '../i18n/services.js';
 
 
 
@@ -422,26 +423,26 @@ export class ZavorthSessionPlaneService {
   }): Promise<string> {
     const snapshot = await this.buildSnapshot(input);
     const lines = [
-      'Session plane do Zavorth',
+      tService('session.plane_title'),
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Sessoes visiveis: ${snapshot.sessions.entries.length} de ${snapshot.sessions.total}.`,
-      `Historico atual: ${snapshot.summary.historyItems} item(ns) | approvals pendentes: ${snapshot.summary.pendingPermissions}.`,
-      `Envio cruzado: ${snapshot.summary.sendReady ? 'pronto' : 'parcial'} | spawn web: ${snapshot.summary.spawnReady ? 'pronto' : 'parcial'}.`,
+      tService('session.visible_sessions', { visible: String(snapshot.sessions.entries.length), total: String(snapshot.sessions.total) }),
+      `${tService('session.history_current')}: ${snapshot.summary.historyItems} item(ns) | ${tService('approval.pending')}: ${snapshot.summary.pendingPermissions}.`,
+      `${tService('session.cross_send')}: ${snapshot.summary.sendReady ? tService('session.ready') : tService('session.partial')} | spawn web: ${snapshot.summary.spawnReady ? tService('session.ready') : tService('session.partial')}.`,
     ];
 
     if (snapshot.store.target) {
       lines.push(
         '',
-        `Alvo atual: ${snapshot.store.target.label}.`,
-        `Canal: ${snapshot.store.channel?.label || snapshot.store.target.platform}.`,
+        `${tService('session.current_target')}: ${snapshot.store.target.label}.`,
+        `${tService('session.channel')}: ${snapshot.store.channel?.label || snapshot.store.target.platform}.`,
       );
     }
 
     if (snapshot.sessions.entries.length > 0) {
-      lines.push('', 'Pontos de retomada:');
+      lines.push('', tService('session.resume_points') + ':');
       for (const entry of snapshot.sessions.entries.slice(0, 4)) {
         lines.push(
           `- ${entry.label}: ${entry.latestTaskLabel}`

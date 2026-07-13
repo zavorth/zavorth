@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "spotify-soft",
+  "label": "Spotify Soft",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Optional soft-fail Spotify Web API status and playback.",
+  "description": "Wave 7 lifestyle pack. Soft Spotify Web API bridge for status, now-playing, pause, play, and track search when SPOTIFY_ACCESS_TOKEN or SPOTIFY_TOKEN is set. Presence-only status for tokens and client credentials (never returns secret values). Soft-fail without token, network.external permission, or on HTTP errors.",
+  "tags": ["spotify", "lifestyle", "music", "wave7", "soft-fail", "optional"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://spotify-soft",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "spotify.status",
+      "intent": "spotify.status",
+      "label": "Spotify Status",
+      "summary": "Report token/client id presence and OAuth setup tips (no secret values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "spotify_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "spotify.now_playing",
+      "intent": "spotify.now_playing",
+      "label": "Spotify Now Playing",
+      "summary": "Soft GET currently-playing track name, artists, and is_playing.",
+      "artifactKinds": [],
+      "command": {
+        "name": "spotify_now_playing",
+        "aliases": ["spotify_now"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "spotify.pause",
+      "intent": "spotify.pause",
+      "label": "Spotify Pause",
+      "summary": "Soft PUT pause on the active Spotify player.",
+      "artifactKinds": [],
+      "command": {
+        "name": "spotify_pause",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "spotify.play",
+      "intent": "spotify.play",
+      "label": "Spotify Play",
+      "summary": "Soft PUT resume/play; optional body (uris, context_uri).",
+      "artifactKinds": [],
+      "command": {
+        "name": "spotify_play",
+        "aliases": [],
+        "usage": "{ body?, uris?, context_uri? }"
+      }
+    },
+    {
+      "id": "spotify.search",
+      "intent": "spotify.search",
+      "label": "Spotify Search",
+      "summary": "Soft GET track search by query.",
+      "artifactKinds": [],
+      "command": {
+        "name": "spotify_search",
+        "aliases": [],
+        "usage": "{ query, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Spotify Web API at api.spotify.com.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether SPOTIFY_ACCESS_TOKEN / SPOTIFY_TOKEN / client credentials are set (not the values).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

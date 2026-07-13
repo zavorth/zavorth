@@ -14,6 +14,10 @@ import {
 } from '../security/index.js';
 import type { CanonicalColdContextInput } from './CanonicalSessionContextAssembler.js';
 import { asErrorLike, errorMessage } from '../../../utils/errorLike.js';
+import {
+  bindSkillDeclaredTools,
+  formatSkillExecutorBindingsForPrompt,
+} from '../../../services/SkillExecutorBindingService.js';
 export type SkillSnapshotScanner = Pick<SkillScanner, 'scan'>;
 export type SkillSnapshotQuarantinePolicy = Pick<SkillQuarantinePolicy, 'evaluate'>;
 
@@ -179,13 +183,29 @@ export class SkillSnapshotAssembler {
   }
 
   private toEntry(manifest: SkillManifest): SkillSnapshotEntry {
-    const toolNames = (manifest.toolDefinitions || [])
+    const declared = (manifest.toolDefinitions || [])
       .map(toolName)
-      .map((name) => name ? sanitizeTrustPlaneText(name, { maxChars: 120 }) : null)
+      .map((name) => (name ? sanitizeTrustPlaneText(name, { maxChars: 120 }) : null))
       .filter((name): name is string => Boolean(name));
+
+    // only surface resolved executors to the model (no phantom names).
+    const binding = bindSkillDeclaredTools(declared, { useKnownCatalog: true });
+    const toolNames = binding.resolvedToolNames.length > 0
+      ? binding.resolvedToolNames.map((n) => sanitizeTrustPlaneText(n, { maxChars: 120 }))
+      : declared.length > 0
+        ? ['zavorth_action', 'plugin_suggest'].map((n) => sanitizeTrustPlaneText(n, { maxChars: 120 }))
+        : [];
+
     const riskReport = {
       ...this.quarantinePolicy.evaluate(manifest),
       toolNames,
+      declaredToolNames: declared,
+      toolBindSummary: {
+        direct: binding.direct.length,
+        aliased: binding.aliased.length,
+        gateway: binding.gateway.length,
+        unresolved: binding.unresolved.length,
+      },
     };
 
     return {
@@ -198,7 +218,10 @@ export class SkillSnapshotAssembler {
       trustState: riskReport.trustState,
       quarantined: riskReport.quarantined,
       riskReport,
-      metadata: normalizeRecord(manifest.metadata),
+      metadata: {
+        ...normalizeRecord(manifest.metadata),
+        executorBindings: binding.bindings,
+      },
       summary: summarizeMarkdown(manifest.toolsMarkdown),
     };
   }
@@ -206,13 +229,13 @@ export class SkillSnapshotAssembler {
   private buildPrompt(skills: SkillSnapshotEntry[], maxPromptChars: number): string {
     const lines = [
       'SKILLS DISPONIVEIS:',
-      'Este snapshot informa skills descobertas; execucao e exposicao de tools continuam sob policy do runtime.',
+      'Executores resolvidos ; nao invente tool names fora da lista do runtime.',
       ...skills.map((skill) => {
         const tools = skill.quarantined
           ? 'tools ocultas ate review'
           : skill.toolNames.length > 0
             ? skill.toolNames.join(', ')
-            : 'sem tools declaradas';
+            : 'sem tools resolvidas';
         const prefix = sanitizeTrustPlaneText(`- ${skill.id} [${skill.trustState}]: ${tools}`, {
           maxChars: 600,
         });
@@ -226,6 +249,24 @@ export class SkillSnapshotAssembler {
         return `${prefix} - resumo: ${wrappedSummary}`;
       }),
     ];
+
+    // Optional compact binding legend when any skill has metadata bindings
+    const bindingLines: string[] = [];
+    for (const skill of skills) {
+      const binds = (skill.metadata as { executorBindings?: unknown })?.executorBindings;
+      if (Array.isArray(binds) && binds.length > 0) {
+        bindingLines.push(
+          formatSkillExecutorBindingsForPrompt(
+            binds as Parameters<typeof formatSkillExecutorBindingsForPrompt>[0],
+            400,
+          ),
+        );
+        break;
+      }
+    }
+    if (bindingLines.length) {
+      lines.push(...bindingLines);
+    }
 
     return truncate(lines.join('\n'), maxPromptChars);
   }

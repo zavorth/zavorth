@@ -11,7 +11,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       const node = document.getElementById('operations-integrations');
       if (!node) return;
       if (!hub || 'error' in (hub as IntegrationHubErrorPayload)) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o Integration Hub.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o Integration Hub.</div>';
         return;
       }
 
@@ -35,7 +35,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
         + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">'
         + '<strong>' + escapeHtml(entry.manifest?.label || 'Integracao') + '</strong>'
         + '<span class="badge ' + (entry.readiness === 'ready' ? 'badge-allowed' : (entry.manifest?.category === 'template' ? 'badge-warning' : 'badge-blocked')) + '">'
-        + escapeHtml(entry.readiness === 'ready' ? 'pronto' : (entry.manifest?.category === 'template' ? 'template' : 'configurar'))
+        + escapeHtml(entry.readiness === 'ready' ? 'ready' : (entry.manifest?.category === 'template' ? 'template' : 'configure'))
         + '</span>'
         + '</div>'
         + '<small>' + escapeHtml(entry.manifest?.summary || 'Sem resumo.') + '</small>'
@@ -46,10 +46,10 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
         'Binding: ' + escapeHtml(selectedManifest.binding?.summary || 'Sem binding selecionado.'),
         'Modo: ' + escapeHtml(selectedInstalled?.selectedMode || selectedDoctor.selectedMode || selectedManifest.defaultMode || 'n/d'),
         'Capacidades: ' + escapeHtml((selectedDoctor.enabledCapabilities || selectedManifest.capabilities || []).join(', ') || 'n/d'),
-        'Segredos guardados: ' + escapeHtml(selectedSecrets.length ? selectedSecrets.join(', ') : 'nenhum ainda'),
+        'Segredos guardados: ' + escapeHtml(selectedSecrets.length ? selectedSecrets.join(', ') : 'no ainda'),
         'Ultimo health check: ' + escapeHtml(formatRelativeTime(selectedInstalled?.lastHealthCheckAt) || 'sem registro'),
         'Ultimo health status: ' + escapeHtml(selectedInstalled?.lastHealthStatus || 'unknown'),
-        'Ultimo probe real: ' + escapeHtml(selectedProbe ? (selectedProbe.status + ' Â· ' + selectedProbe.summary) : 'ainda nao executado'),
+        'Last real probe: ' + escapeHtml(selectedProbe ? (selectedProbe.status + ' · ' + selectedProbe.summary) : 'not run yet'),
       ].map((item) => '<li>' + item + '</li>').join('');
       const guidedItems = Array.isArray(selectedActionPlan.actions) && selectedActionPlan.actions.length
         ? selectedActionPlan.actions.slice(0, 4).map((action) =>
@@ -75,7 +75,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
             + '</div>'
             + '</div>'
           ).join('')
-        : '<div class="muted">Nenhum passo guiado disponivel.</div>';
+        : '<div class="muted">No guided step available.</div>';
       const recentActionItems = Array.isArray(selectedActionMonitor.recentActions) && selectedActionMonitor.recentActions.length
         ? selectedActionMonitor.recentActions.slice(0, 4).map((entry) =>
             '<div class="cockpit-action-card">'
@@ -89,10 +89,10 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
             + '<small>' + escapeHtml(formatRelativeTime(entry.finishedAt || entry.startedAt)) + '</small>'
             + '</div>'
           ).join('')
-        : '<div class="muted">Nenhuma acao guiada executada ainda.</div>';
+        : '<div class="muted">No acao guiada executada ainda.</div>';
       const logPreview = Array.isArray(selectedActionMonitor.logExcerpt?.lines) && selectedActionMonitor.logExcerpt.lines.length
         ? '<div class="cockpit-command">' + escapeHtml(selectedActionMonitor.logExcerpt.lines.join('\n')) + '</div>'
-        : '<div class="muted">Nenhum log curto disponivel.</div>';
+        : '<div class="muted">No short log available.</div>';
       const playbookItems = Array.isArray(selectedPlaybook.steps) && selectedPlaybook.steps.length
         ? selectedPlaybook.steps.map((step) => {
             const linkedAction = Array.isArray(selectedActionPlan.actions)
@@ -110,7 +110,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
               + (!linkedAction && step.command ? '<small>' + escapeHtml(step.command) + '</small>' : '')
               + '</div>';
           }).join('')
-        : '<div class="muted">Sem roteiro estruturado para esta integracao.</div>';
+        : '<div class="muted">Sem roteiro estruturado para this integration.</div>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
@@ -118,27 +118,27 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
         + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
         + '<strong>Integration Hub</strong>'
         + '<span class="badge ' + (readyEntries.length ? 'badge-allowed' : 'badge-warning') + '">'
-        + escapeHtml(readyEntries.length ? (String(readyEntries.length) + ' pronto(s)') : 'em configuracao')
+        + escapeHtml(readyEntries.length ? (String(readyEntries.length) + ' ready(s)') : 'em configuracao')
         + '</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(selectedManifest.label ? (selectedManifest.label + ': ' + (selectedDoctor.nextAction?.reason || selectedManifest.summary || '')) : 'Catalogo de conectores e templates guiados do Zavorth.') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(selectedManifest.label ? (selectedManifest.label + ': ' + (selectedDoctor.nextAction?.reason || selectedManifest.summary || '')) : 'Catalog de conectores e templates guiados do Zavorth.') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/integrations" target="_blank">/api/operations/integrations</a>'
         + '</div>'
         + '<div class="cockpit-grid">'
         + '<div class="cockpit-stack">'
         + '<div class="cockpit-mini-grid">'
-        + '<div class="cockpit-mini-card"><strong>Catalogo</strong><div>' + escapeHtml(String(entries.length)) + '</div><small>Total de integracoes conhecidas</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Catalog</strong><div>' + escapeHtml(String(entries.length)) + '</div><small>Total de integrations conhecidas</small></div>'
         + '<div class="cockpit-mini-card"><strong>Prontas</strong><div>' + escapeHtml(String(readyEntries.length)) + '</div><small>Bindings prontos para uso</small></div>'
         + '<div class="cockpit-mini-card"><strong>Templates</strong><div>' + escapeHtml(String(templateEntries.length)) + '</div><small>Receitas para novos conectores</small></div>'
         + '<div class="cockpit-mini-card"><strong>Status</strong><div>' + escapeHtml(selectedDoctor.status || 'n/d') + '</div><small>Doctor da integracao em foco</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Probe real</strong><div>' + escapeHtml(selectedProbe?.status || 'pendente') + '</div><small>' + escapeHtml(selectedProbe?.summary || 'Ainda nao executado') + '</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Probe real</strong><div>' + escapeHtml(selectedProbe?.status || 'pending') + '</div><small>' + escapeHtml(selectedProbe?.summary || 'Ainda not run') + '</small></div>'
         + '</div>'
-        + '<div class="sidecar-card"><strong>Destaques do catalogo</strong><div class="cockpit-action-list">' + (featuredItems || '<div class="muted">Nenhum conector catalogado.</div>') + '</div></div>'
+        + '<div class="sidecar-card"><strong>Catalog highlights</strong><div class="cockpit-action-list">' + (featuredItems || '<div class="muted">No connector cataloged.</div>') + '</div></div>'
         + '</div>'
         + '<div class="cockpit-stack">'
         + '<div class="sidecar-card"><strong>Integracao em foco</strong><ul class="cockpit-list">' + selectedChecklist + '</ul></div>'
-        + '<div class="sidecar-card"><strong>Proximo passo</strong><div class="cockpit-action-card"><strong>' + escapeHtml(nextAction.label || 'Abrir onboarding') + '</strong><small>' + escapeHtml(nextAction.reason || 'Sem recomendacao adicional.') + '</small><div class="cockpit-command">' + escapeHtml(nextAction.command || '') + '</div></div></div>'
+        + '<div class="sidecar-card"><strong>Next step</strong><div class="cockpit-action-card"><strong>' + escapeHtml(nextAction.label || 'Abrir onboarding') + '</strong><small>' + escapeHtml(nextAction.reason || 'Sem recommendation adicional.') + '</small><div class="cockpit-command">' + escapeHtml(nextAction.command || '') + '</div></div></div>'
         + '<div class="sidecar-card"><strong>Roteiro seguro</strong><small>' + escapeHtml(selectedPlaybook.headline || 'Sem roteiro estruturado.') + '</small><small>' + escapeHtml(selectedPlaybook.summary || 'Use o doctor e o fluxo assistido para avancar.') + '</small><div class="cockpit-action-list">' + playbookItems + '</div></div>'
         + '<div class="sidecar-card"><strong>Fluxo assistido</strong><div class="cockpit-action-list">' + guidedItems + '</div></div>'
         + '<div class="sidecar-card"><strong>Monitor de acoes</strong><div class="cockpit-action-list">' + recentActionItems + '</div>' + logPreview + '</div>'

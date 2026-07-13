@@ -20,328 +20,64 @@ import {
   type SubagentResultStatus,
 } from '../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../services/CanonicalExecutionPipelineService.js';
-
-import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike';
 
-export const SWARM_V2_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-swarm-v2' as const;
+import {
+  SWARM_V2_OFFICIAL_CONTRACT_VERSION,
+  type ManagedSwarm,
+  type SwarmOrchestratorRoleDataEvent,
+  type SwarmOrchestratorRoleFinishedEvent,
+  type SwarmOrchestratorRoleStartedEvent,
+  type SwarmV2BatchSnapshot,
+  type SwarmV2CreateInput,
+  type SwarmV2IsolationMode,
+  type SwarmV2OfficialState,
+  type SwarmV2OfficialSurface,
+  type SwarmV2ReplayEvent,
+  type SwarmV2RoleLibraryEntry,
+  type SwarmV2TrackedSnapshot,
+  type SwarmV2ToolSpec,
+} from './swarm-v2/SwarmV2Types.js';
+import { buildTokenBudgetSnapshot, clampNumber } from './swarm-v2/SwarmV2Budget.js';
+import {
+  buildBenchmarkSnapshot,
+  buildOfficialMetrics,
+  buildReplayInsights,
+  buildToolExecutionSnapshot,
+} from './swarm-v2/SwarmV2Metrics.js';
+import {
+  chunkRoles,
+  normalizeKey,
+  normalizeToolSpecs,
+  resolveSyncRoleSelection,
+  rolesFromLibrary,
+  selectRoleIdsForObjective,
+} from './swarm-v2/SwarmV2Planner.js';
+import {
+  readRoleLibrary,
+  resolveRoleLibraryPath,
+  writeRoleLibrary,
+} from './swarm-v2/SwarmV2Persistence.js';
 
-export type SwarmV2IsolationMode = 'direct' | 'temp-worktree' | 'docker' | 'wsl' | 'external-sandbox';
-
-export type SwarmV2ToolSpec = {
-  id: string;
-  kind: 'shell';
-  label: string;
-  command: string;
-  args?: string[];
-  cwd?: string | null;
-  risk?: 'safe' | 'attention' | 'danger';
-  requiresApproval?: boolean;
-};
-
-export type SwarmV2RoleSelectionSnapshot = {
-  mode: 'manual' | 'heuristic' | 'llm';
-  requestedRoleCount: number;
-  selectedRoleIds: string[];
-  availableRoleCount: number;
-  rationale: string;
-};
-
-export type SwarmV2BenchmarkSnapshot = {
-  enabled: boolean;
-  baseline: 'estimated-serial' | 'not-requested';
-  elapsedMs: number;
-  estimatedSerialMs: number;
-  speedup: number;
-  throughputRolesPerSecond: number;
-  failureRate: number;
-  qualityScore: number;
-};
-
-export type SwarmV2TokenBudgetInput = {
-  maxLlmCalls?: number | null;
-  maxEstimatedTokens?: number | null;
-  maxEstimatedUsd?: number | null;
-  modelClass?: 'cheap' | 'standard' | 'premium' | null;
-  approved?: boolean | null;
-  allowHighCost?: boolean | null;
-};
-
-export type SwarmV2TokenBudgetSnapshot = {
-  enabled: true;
-  status: 'passed' | 'approval_required' | 'blocked';
-  risk: 'low' | 'medium' | 'high' | 'critical';
-  estimatedLlmCalls: number;
-  estimatedInputTokens: number;
-  estimatedOutputTokens: number;
-  estimatedTotalTokens: number;
-  estimatedUsd: number;
-  limits: {
-    maxLlmCalls: number;
-    maxEstimatedTokens: number;
-    maxEstimatedUsd: number;
-  };
-  approved: boolean;
-  modelClass: 'cheap' | 'standard' | 'premium';
-  rationale: string;
-};
-
-export type SwarmV2RoleLibraryEntry = {
-  id: string;
-  label: string;
-  kind: 'planner' | 'researcher' | 'implementer' | 'verifier' | 'critic' | 'synthesizer' | 'operator' | 'custom';
-  systemPrompt: string;
-  defaultTools: string[];
-  risk: 'safe' | 'attention' | 'danger' | 'unknown';
-  scope: 'read_only' | 'tool_limited' | 'workspace_patch';
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type SwarmV2ReplayEvent = {
-  id: string;
-  at: string;
-  type:
-    | 'swarm.queued'
-    | 'batch.queued'
-    | 'batch.started'
-    | 'batch.finished'
-    | 'role.started'
-    | 'role.output'
-    | 'role.finished'
-    | 'role.tool.bound'
-    | 'role.selection'
-    | 'benchmark.completed'
-    | 'swarm.synthesized'
-    | 'swarm.cancelled'
-    | 'swarm.failed';
-  swarmId: string;
-  batchId?: string | null;
-  roleId?: string | null;
-  summary: string;
-  payload?: Record<string, unknown>;
-};
-
-export type SwarmV2ReplayInsights = {
-  status: 'empty' | 'recording' | 'ready';
-  operatorSummary: string;
-  timeline: Array<{
-    id: string;
-    label: string;
-    eventCount: number;
-    status: 'pending' | 'active' | 'done' | 'failed';
-  }>;
-  byRole: Array<{
-    roleId: string;
-    label: string;
-    eventCount: number;
-    outputBytes: number;
-    status: string;
-    confidence: number;
-  }>;
-  bottlenecks: Array<{
-    id: string;
-    severity: 'info' | 'warning' | 'critical';
-    summary: string;
-  }>;
-  compare: {
-    completedRoles: number;
-    failedRoles: number;
-    outputSpreadBytes: number;
-    strongestRoleId: string | null;
-    weakestRoleId: string | null;
-  };
-  synthesisConfidence: number;
-  nextReplayAction: string;
-};
-
-export type SwarmV2BatchSnapshot = {
-  batchId: string;
-  index: number;
-  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-  roleIds: string[];
-  maxConcurrency: number;
-  startedAt: string | null;
-  finishedAt: string | null;
-};
-
-export type SwarmV2ParallelMetrics = {
-  totalRoles: number;
-  queuedRoles: number;
-  runningRoles: number;
-  completedRoles: number;
-  failedRoles: number;
-  timedOutRoles: number;
-  cancelledRoles: number;
-  maxConcurrency: number;
-  batchCount: number;
-  completedBatchCount: number;
-  elapsedMs: number;
-  outputBytes: number;
-  synthesisChars: number;
-  parallelismScore: number;
-};
-
-export type SwarmV2OfficialSurface = {
-  official: true;
-  experimental: false;
-  contractVersion: typeof SWARM_V2_OFFICIAL_CONTRACT_VERSION;
-  queue: {
-    mode: 'batch-queue';
-    status: 'queued' | 'running' | 'draining' | 'completed' | 'cancelled' | 'failed';
-    maxRoles: number;
-    maxConcurrency: number;
-    pendingBatchIds: string[];
-  };
-  batches: SwarmV2BatchSnapshot[];
-  replay: {
-    eventCount: number;
-    events: SwarmV2ReplayEvent[];
-  };
-  replayInsights: SwarmV2ReplayInsights;
-  metrics: SwarmV2ParallelMetrics;
-  roleLibrary: {
-    persistent: true;
-    selectedRoleIds: string[];
-    availableRoleCount: number;
-  };
-  isolation: {
-    mode: SwarmV2IsolationMode;
-    workersIsolated: boolean;
-    workerRoots: Array<{ roleId: string; cwd: string; mode: SwarmV2IsolationMode }>;
-    note: string;
-  };
-  synthesis: {
-    mode: 'deterministic' | 'llm';
-    status: 'pending' | 'completed' | 'failed';
-    summary: string;
-  };
-  roleSelection: SwarmV2RoleSelectionSnapshot;
-  toolExecution: {
-    plannedToolCount: number;
-    executedToolCount: number;
-    commandToolCount: number;
-    approvalRequiredToolCount: number;
-    toolIds: string[];
-  };
-  benchmark: SwarmV2BenchmarkSnapshot;
-  tokenBudget: SwarmV2TokenBudgetSnapshot;
-  strongIsolation: {
-    required: boolean;
-    satisfied: boolean;
-    mode: SwarmV2IsolationMode;
-    wrapper: 'none' | 'docker' | 'wsl' | 'external-sandbox';
-    note: string;
-  };
-};
-
-export type SwarmV2CreateInput = {
-  swarmId?: string | null;
-  objective: string;
-  roles: SwarmRole[];
-  subagentReceipts?: SubagentResultReceipt[] | null;
-  subagentBudget?: SubagentBudgetInput | null;
-  official?: boolean | null;
-  roleLibraryIds?: string[] | null;
-  maxRoles?: number | null;
-  maxConcurrency?: number | null;
-  batchSize?: number | null;
-  isolationMode?: SwarmV2IsolationMode | null;
-  isolationImage?: string | null;
-  wslDistro?: string | null;
-  requireStrongIsolation?: boolean | null;
-  autoSelectRoles?: boolean | null;
-  desiredRoleCount?: number | null;
-  benchmark?: boolean | null;
-  toolSpecs?: SwarmV2ToolSpec[] | null;
-  tokenBudget?: SwarmV2TokenBudgetInput | null;
-  roleSelectionOverride?: SwarmV2RoleSelectionSnapshot | null;
-};
-
-export type SwarmV2TrackedSnapshot = SwarmSnapshot & { swarmId: string; createdAt: string } & Partial<SwarmV2OfficialSurface>;
-
-type ManagedSwarm = {
-  swarmId: string;
-  orchestrator: SwarmOrchestrator | null;
-  roles: SwarmRole[];
-  subagentReceipts: SubagentResultReceipt[];
-  subagentBudget: SubagentBudgetInput | null;
-  lastSnapshot: SwarmSnapshot;
-  createdAt: string;
-  execution: Promise<SwarmSnapshot>;
-  officialState?: SwarmV2OfficialState;
-};
-
-type SwarmV2OfficialState = {
-  swarmId: string;
-  objective: string;
-  createdAt: string;
-  roles: SwarmRole[];
-  selectedRoleIds: string[];
-  queueStatus: SwarmV2OfficialSurface['queue']['status'];
-  maxRoles: number;
-  maxConcurrency: number;
-  batches: SwarmV2BatchSnapshot[];
-  replay: SwarmV2ReplayEvent[];
-  isolationMode: SwarmV2IsolationMode;
-  workerRoots: Array<{ roleId: string; cwd: string; mode: SwarmV2IsolationMode }>;
-  synthesisStatus: SwarmV2OfficialSurface['synthesis']['status'];
-  synthesisMode: SwarmV2OfficialSurface['synthesis']['mode'];
-  synthesisSummary: string;
-  startedAt: string;
-  roleSelection: SwarmV2RoleSelectionSnapshot;
-  toolSpecs: SwarmV2ToolSpec[];
-  benchmarkEnabled: boolean;
-  tokenBudget: SwarmV2TokenBudgetSnapshot;
-  strongIsolationRequired: boolean;
-  strongIsolationSatisfied: boolean;
-  strongIsolationWrapper: SwarmV2OfficialSurface['strongIsolation']['wrapper'];
-};
-
-interface SwarmOrchestratorRoleStartedEvent {
-  swarmId: string;
-  roleId: string;
-  label: string;
-}
-
-interface SwarmOrchestratorRoleDataEvent {
-  swarmId: string;
-  roleId: string;
-  data: string;
-}
-
-interface SwarmOrchestratorRoleFinishedEvent {
-  swarmId: string;
-  roleId: string;
-  status: string;
-  exitCode: number | null;
-}
-
-interface RawToolSpecInput {
-  id?: unknown;
-  command?: unknown;
-  label?: unknown;
-  args?: unknown;
-  cwd?: unknown;
-  risk?: unknown;
-  requiresApproval?: unknown;
-  [key: string]: unknown;
-}
-
-interface RawRoleLibraryEntry {
-  id?: unknown;
-  label?: unknown;
-  kind?: unknown;
-  systemPrompt?: unknown;
-  defaultTools?: unknown;
-  risk?: unknown;
-  scope?: unknown;
-  tags?: unknown;
-  createdAt?: unknown;
-  updatedAt?: unknown;
-  [key: string]: unknown;
-}
+// Public API re-exports (compat for `@zavorth/agents/SwarmV2Service.js`)
+export {
+  SWARM_V2_OFFICIAL_CONTRACT_VERSION,
+  type SwarmV2IsolationMode,
+  type SwarmV2ToolSpec,
+  type SwarmV2RoleSelectionSnapshot,
+  type SwarmV2BenchmarkSnapshot,
+  type SwarmV2TokenBudgetInput,
+  type SwarmV2TokenBudgetSnapshot,
+  type SwarmV2RoleLibraryEntry,
+  type SwarmV2ReplayEvent,
+  type SwarmV2ReplayInsights,
+  type SwarmV2BatchSnapshot,
+  type SwarmV2ParallelMetrics,
+  type SwarmV2OfficialSurface,
+  type SwarmV2CreateInput,
+  type SwarmV2TrackedSnapshot,
+  type ExperimentalSwarmV2CreateInput,
+} from './swarm-v2/SwarmV2Types.js';
 
 export class SwarmV2Service {
   private readonly swarms = new Map<string, ManagedSwarm>();
@@ -526,17 +262,17 @@ export class SwarmV2Service {
   }
 
   public listRoleLibrary(): SwarmV2RoleLibraryEntry[] {
-    return this.readRoleLibrary();
+    return readRoleLibrary(this.options.roleLibraryPath);
   }
 
   public upsertRoleLibraryEntry(
     entry: Partial<SwarmV2RoleLibraryEntry> & { id: string; label: string; systemPrompt: string },
   ): SwarmV2RoleLibraryEntry {
     const now = new Date().toISOString();
-    const current = this.readRoleLibrary();
+    const current = readRoleLibrary(this.options.roleLibraryPath);
     const index = current.findIndex((item) => item.id === entry.id);
     const next: SwarmV2RoleLibraryEntry = {
-      id: this.normalizeKey(entry.id, 'custom-role'),
+      id: normalizeKey(entry.id, 'custom-role'),
       label: String(entry.label || '').trim() || entry.id,
       kind: entry.kind || 'custom',
       systemPrompt: String(entry.systemPrompt || '').trim(),
@@ -555,7 +291,7 @@ export class SwarmV2Service {
     } else {
       current.push(next);
     }
-    this.writeRoleLibrary(current);
+    writeRoleLibrary(resolveRoleLibraryPath(this.options.roleLibraryPath), current);
     return next;
   }
 
@@ -571,12 +307,14 @@ export class SwarmV2Service {
     if (!input.autoSelectRoles || (input.roles?.length || 0) > 0 || (input.roleLibraryIds?.length || 0) > 0) {
       return this.launchOfficialSwarm(input);
     }
-    const library = this.readRoleLibrary();
-    const desiredRoleCount = this.clampNumber(input.desiredRoleCount, 1, 300, 6);
-    const selection = await this.selectRoleIdsForObjective({
+    const library = readRoleLibrary(this.options.roleLibraryPath);
+    const desiredRoleCount = clampNumber(input.desiredRoleCount, 1, 300, 6);
+    const selection = await selectRoleIdsForObjective({
       objective: input.objective,
       desiredRoleCount,
       library,
+    }, {
+      llmRuntime: this.options.llmRuntime,
     });
     return this.launchOfficialSwarm({
       ...input,
@@ -594,7 +332,7 @@ export class SwarmV2Service {
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
     const createdAt = new Date().toISOString();
-    const roleLibrary = this.readRoleLibrary();
+    const roleLibrary = readRoleLibrary(this.options.roleLibraryPath);
     const defaultIsolation = ((): SwarmV2IsolationMode => {
       const envVal = process.env.ZAVORTH_SWARM_DEFAULT_ISOLATION;
       if (
@@ -608,19 +346,19 @@ export class SwarmV2Service {
       }
       return 'temp-worktree';
     })();
-    const autoSelection = input.roleSelectionOverride || this.resolveSyncRoleSelection({
+    const autoSelection = input.roleSelectionOverride || resolveSyncRoleSelection({
       objective,
       library: roleLibrary,
       selectedRoleIds: Array.isArray(input.roleLibraryIds)
-        ? input.roleLibraryIds.map((entry) => this.normalizeKey(entry, '')).filter(Boolean)
+        ? input.roleLibraryIds.map((entry) => normalizeKey(entry, '')).filter(Boolean)
         : [],
       requestedRoles: Array.isArray(input.roles) ? input.roles : [],
       autoSelectRoles: input.autoSelectRoles === true,
-      desiredRoleCount: this.clampNumber(input.desiredRoleCount, 1, 300, 6),
+      desiredRoleCount: clampNumber(input.desiredRoleCount, 1, 300, 6),
     });
     const selectedRoleIds = autoSelection.selectedRoleIds;
     const requestedRoles = Array.isArray(input.roles) ? input.roles : [];
-    const libraryRoles = this.rolesFromLibrary(
+    const libraryRoles = rolesFromLibrary(
       roleLibrary,
       selectedRoleIds.length > 0
         ? selectedRoleIds
@@ -630,17 +368,17 @@ export class SwarmV2Service {
     );
     const roles = this.prepareOfficialRoles([...requestedRoles, ...libraryRoles], {
       objective,
-      maxRoles: this.clampNumber(input.maxRoles, 1, 300, 300),
+      maxRoles: clampNumber(input.maxRoles, 1, 300, 300),
       isolationMode: input.isolationMode || defaultIsolation,
       swarmId,
-      toolSpecs: this.normalizeToolSpecs(input.toolSpecs),
+      toolSpecs: normalizeToolSpecs(input.toolSpecs),
       isolationImage: input.isolationImage,
       wslDistro: input.wslDistro,
     });
     if (roles.length === 0) {
       throw new Error('roles obrigatorios.');
     }
-    const tokenBudget = this.buildTokenBudgetSnapshot({
+    const tokenBudget = buildTokenBudgetSnapshot({
       objective,
       roles,
       roleSelection: autoSelection,
@@ -652,9 +390,9 @@ export class SwarmV2Service {
       throw new Error(`Swarm Token Budget Guard: ${tokenBudget.status}. ${tokenBudget.rationale}`);
     }
 
-    const maxConcurrency = this.clampNumber(input.maxConcurrency, 1, 30, Math.min(6, roles.length));
-    const batchSize = this.clampNumber(input.batchSize, 1, maxConcurrency, maxConcurrency);
-    const batches = this.chunkRoles(roles, batchSize).map((batch, index): SwarmV2BatchSnapshot => ({
+    const maxConcurrency = clampNumber(input.maxConcurrency, 1, 30, Math.min(6, roles.length));
+    const batchSize = clampNumber(input.batchSize, 1, maxConcurrency, maxConcurrency);
+    const batches = chunkRoles(roles, batchSize).map((batch, index): SwarmV2BatchSnapshot => ({
       batchId: `${swarmId}:batch-${index + 1}`,
       index,
       status: 'queued',
@@ -690,7 +428,7 @@ export class SwarmV2Service {
         requestedRoleCount: roles.length,
         availableRoleCount: roleLibrary.length,
       },
-      toolSpecs: this.normalizeToolSpecs(input.toolSpecs),
+      toolSpecs: normalizeToolSpecs(input.toolSpecs),
       benchmarkEnabled: input.benchmark === true,
       tokenBudget,
       strongIsolationRequired: input.requireStrongIsolation === true,
@@ -951,7 +689,7 @@ export class SwarmV2Service {
   }
 
   private withOfficialSurface(snapshot: SwarmSnapshot, state: SwarmV2OfficialState): SwarmSnapshot & SwarmV2OfficialSurface {
-    const metrics = this.buildOfficialMetrics(snapshot, state);
+    const metrics = buildOfficialMetrics(snapshot, state);
     return {
       ...snapshot,
       official: true,
@@ -969,12 +707,12 @@ export class SwarmV2Service {
         eventCount: state.replay.length,
         events: state.replay.slice(-200),
       },
-      replayInsights: this.buildReplayInsights(snapshot, state),
+      replayInsights: buildReplayInsights(snapshot, state),
       metrics,
       roleLibrary: {
         persistent: true,
         selectedRoleIds: state.selectedRoleIds.slice(),
-        availableRoleCount: this.readRoleLibrary().length,
+        availableRoleCount: readRoleLibrary(this.options.roleLibraryPath).length,
       },
       isolation: {
         mode: state.isolationMode,
@@ -993,8 +731,8 @@ export class SwarmV2Service {
         ...state.roleSelection,
         selectedRoleIds: state.roleSelection.selectedRoleIds.slice(),
       },
-      toolExecution: this.buildToolExecutionSnapshot(snapshot, state),
-      benchmark: this.buildBenchmarkSnapshot(snapshot, state, metrics),
+      toolExecution: buildToolExecutionSnapshot(snapshot, state),
+      benchmark: buildBenchmarkSnapshot(snapshot, state, metrics),
       tokenBudget: state.tokenBudget,
       strongIsolation: {
         required: state.strongIsolationRequired,
@@ -1006,297 +744,6 @@ export class SwarmV2Service {
           : 'Strong isolation is optional for this run; sensitive mutations still require approval.',
       },
     };
-  }
-
-  private buildOfficialMetrics(snapshot: SwarmSnapshot, state: SwarmV2OfficialState): SwarmV2ParallelMetrics {
-    const roles = snapshot.roles || [];
-    const completedRoles = roles.filter((role) => role.status === 'IDLE').length;
-    const timedOutRoles = roles.filter((role) => role.status === 'TIMEOUT').length;
-    const cancelledRoles = roles.filter((role) => role.status === 'CANCELLED').length;
-    const failedRoles = roles.filter((role) => !['IDLE', 'TIMEOUT', 'CANCELLED'].includes(String(role.status))).length;
-    const outputBytes = roles.reduce((total, role) => total + Buffer.byteLength(role.output.join(''), 'utf8'), 0);
-    const started = new Date(state.startedAt).getTime();
-    const elapsedMs = Number.isFinite(started) ? Math.max(0, Date.now() - started) : 0;
-    return {
-      totalRoles: state.roles.length,
-      queuedRoles: Math.max(0, state.roles.length - roles.length),
-      runningRoles: state.batches.some((batch) => batch.status === 'running') ? state.maxConcurrency : 0,
-      completedRoles,
-      failedRoles,
-      timedOutRoles,
-      cancelledRoles,
-      maxConcurrency: state.maxConcurrency,
-      batchCount: state.batches.length,
-      completedBatchCount: state.batches.filter((batch) => batch.status === 'completed').length,
-      elapsedMs,
-      outputBytes,
-      synthesisChars: snapshot.synthesizedOutput?.length || 0,
-      parallelismScore: Math.round((Math.min(state.maxConcurrency, state.roles.length) / Math.max(1, state.roles.length)) * 100),
-    };
-  }
-
-  private buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2OfficialState): SwarmV2ReplayInsights {
-    const events = state.replay;
-    const roles = snapshot.roles || [];
-    const roleOutputs = roles.map((role) => ({
-      roleId: role.roleId,
-      label: role.label,
-      status: String(role.status || 'unknown'),
-      outputBytes: Buffer.byteLength(role.output.join(''), 'utf8'),
-      eventCount: events.filter((event) => event.roleId === role.roleId).length,
-    }));
-    const completedRoles = roles.filter((role) => role.status === 'IDLE').length;
-    const failedRoles = roles.filter((role) => !['IDLE', 'PROCESSING'].includes(String(role.status))).length;
-    const outputBytes = roleOutputs.map((role) => role.outputBytes);
-    const strongest = roleOutputs.slice().sort((left, right) => right.outputBytes - left.outputBytes)[0] || null;
-    const weakest = roleOutputs.slice().sort((left, right) => left.outputBytes - right.outputBytes)[0] || null;
-    const outputSpreadBytes = outputBytes.length > 0
-      ? Math.max(...outputBytes) - Math.min(...outputBytes)
-      : 0;
-    const bottlenecks: SwarmV2ReplayInsights['bottlenecks'] = [];
-    if (state.batches.some((batch) => batch.status === 'failed')) {
-      bottlenecks.push({
-        id: 'batch-failed',
-        severity: 'critical',
-        summary: 'Um batch falhou; revise eventos de role.finished e saida por role.',
-      });
-    }
-    if (failedRoles > 0) {
-      bottlenecks.push({
-        id: 'role-failed',
-        severity: 'warning',
-        summary: `${failedRoles} role(s) terminaram sem sucesso limpo.`,
-      });
-    }
-    if (outputSpreadBytes > 16_000) {
-      bottlenecks.push({
-        id: 'output-spread',
-        severity: 'info',
-        summary: 'Uma role produziu muito mais contexto que as outras; revise a sintese por vies de volume.',
-      });
-    }
-    const synthesisConfidence = Math.max(0, Math.min(100, Math.round(
-      100
-      - failedRoles * 18
-      - (state.synthesisStatus === 'completed' ? 0 : 25)
-      - (roles.length === 0 ? 20 : 0)
-      - (bottlenecks.some((item) => item.severity === 'critical') ? 25 : 0),
-    )));
-    return {
-      status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
-      operatorSummary: events.length === 0
-        ? 'Replay ainda sem eventos.'
-        : `${events.length} evento(s), ${completedRoles}/${state.roles.length} role(s) concluidas, confianca ${synthesisConfidence}/100.`,
-      timeline: [
-        this.buildReplayTimelineItem('queued', 'Fila', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
-        this.buildReplayTimelineItem('roles', 'Roles', events, ['role.started', 'role.output', 'role.finished'], state.queueStatus === 'running' ? 'active' : completedRoles > 0 ? 'done' : 'pending'),
-        this.buildReplayTimelineItem('batches', 'Batches', events, ['batch.started', 'batch.finished'], state.batches.some((batch) => batch.status === 'failed') ? 'failed' : state.batches.some((batch) => batch.status === 'running') ? 'active' : 'done'),
-        this.buildReplayTimelineItem('synthesis', 'Sintese', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
-      ],
-      byRole: roleOutputs.map((role) => ({
-        ...role,
-        confidence: role.status === 'IDLE'
-          ? Math.min(100, 70 + Math.min(20, Math.floor(role.outputBytes / 400)))
-          : role.status === 'PROCESSING'
-            ? 45
-            : 20,
-      })),
-      bottlenecks,
-      compare: {
-        completedRoles,
-        failedRoles,
-        outputSpreadBytes,
-        strongestRoleId: strongest?.roleId || null,
-        weakestRoleId: weakest?.roleId || null,
-      },
-      synthesisConfidence,
-      nextReplayAction: bottlenecks.length > 0
-        ? 'Abra os eventos por role e compare a sintese antes de confiar no resultado.'
-        : state.synthesisStatus === 'completed'
-          ? 'Use a sintese final e mantenha o replay como evidencia.'
-          : 'Aguarde a sintese ou cancele se o swarm travar.',
-    };
-  }
-
-  private buildReplayTimelineItem(
-    id: string,
-    label: string,
-    events: SwarmV2ReplayEvent[],
-    types: SwarmV2ReplayEvent['type'][],
-    status: SwarmV2ReplayInsights['timeline'][number]['status'],
-  ): SwarmV2ReplayInsights['timeline'][number] {
-    return {
-      id,
-      label,
-      eventCount: events.filter((event) => types.includes(event.type)).length,
-      status,
-    };
-  }
-
-  private buildToolExecutionSnapshot(snapshot: SwarmSnapshot, state: SwarmV2OfficialState): SwarmV2OfficialSurface['toolExecution'] {
-    const toolIds = state.roles.map((role) => String(role.toolSpecId || '')).filter(Boolean);
-    const commandToolCount = state.roles.filter((role) => Boolean(role.command)).length;
-    return {
-      plannedToolCount: toolIds.length,
-      executedToolCount: (snapshot.roles || []).filter((role) => toolIds.includes(role.roleId) || state.roles.find((item) => item.id === role.roleId)?.toolSpecId).length,
-      commandToolCount,
-      approvalRequiredToolCount: state.toolSpecs.filter((tool) => tool.requiresApproval !== false).length,
-      toolIds,
-    };
-  }
-
-  private buildBenchmarkSnapshot(
-    snapshot: SwarmSnapshot,
-    state: SwarmV2OfficialState,
-    metrics: SwarmV2ParallelMetrics,
-  ): SwarmV2BenchmarkSnapshot {
-    if (!state.benchmarkEnabled) {
-      return {
-        enabled: false,
-        baseline: 'not-requested',
-        elapsedMs: metrics.elapsedMs,
-        estimatedSerialMs: 0,
-        speedup: 0,
-        throughputRolesPerSecond: 0,
-        failureRate: 0,
-        qualityScore: 0,
-      };
-    }
-    const roleDurations = (snapshot.roles || []).map((role) => {
-      const started = Date.parse(String(role.startedAt || ''));
-      const finished = Date.parse(String(role.finishedAt || ''));
-      return Number.isFinite(started) && Number.isFinite(finished) ? Math.max(0, finished - started) : 0;
-    });
-    const estimatedSerialMs = roleDurations.reduce((total, value) => total + value, 0) || metrics.elapsedMs;
-    const failures = metrics.failedRoles + metrics.timedOutRoles + metrics.cancelledRoles;
-    const failureRate = Math.round((failures / Math.max(1, metrics.totalRoles)) * 1000) / 1000;
-    const qualityScore = Math.max(0, Math.min(100, Math.round(
-      100
-      - failureRate * 100
-      - (metrics.synthesisChars > 0 ? 0 : 20)
-      - (metrics.outputBytes > 0 ? 0 : 20),
-    )));
-    return {
-      enabled: true,
-      baseline: 'estimated-serial',
-      elapsedMs: metrics.elapsedMs,
-      estimatedSerialMs,
-      speedup: Math.round((estimatedSerialMs / Math.max(1, metrics.elapsedMs)) * 100) / 100,
-      throughputRolesPerSecond: Math.round((metrics.completedRoles / Math.max(1, metrics.elapsedMs / 1000)) * 100) / 100,
-      failureRate,
-      qualityScore,
-    };
-  }
-
-  private buildTokenBudgetSnapshot(input: {
-    objective: string;
-    roles: SwarmRole[];
-    roleSelection: SwarmV2RoleSelectionSnapshot;
-    input?: SwarmV2TokenBudgetInput | null;
-    benchmark: boolean;
-    hasLlmRuntime: boolean;
-  }): SwarmV2TokenBudgetSnapshot {
-    const modelClass = ['cheap', 'standard', 'premium'].includes(String(input.input?.modelClass || ''))
-      ? input.input?.modelClass as 'cheap' | 'standard' | 'premium'
-      : 'standard';
-    const limits = {
-      maxLlmCalls: this.clampNumber(input.input?.maxLlmCalls, 1, 100, 6),
-      maxEstimatedTokens: this.clampNumber(input.input?.maxEstimatedTokens, 1000, 1000000, 48000),
-      maxEstimatedUsd: this.clampMoney(input.input?.maxEstimatedUsd, 0.01, 100, 0.5),
-    };
-    const approved = input.input?.approved === true || input.input?.allowHighCost === true;
-    const rolePromptTokens = input.roles.reduce((total, role) => (
-      total
-      + this.estimateTokens(role.systemPrompt)
-      + this.estimateTokens(role.label)
-      + this.estimateTokens(role.command || '')
-      + this.estimateTokens((role.args || []).join(' '))
-    ), 0);
-    const objectiveTokens = this.estimateTokens(input.objective);
-    const roleSelectionCalls = input.hasLlmRuntime && input.roleSelection.mode === 'llm' ? 1 : 0;
-    const synthesisCalls = input.hasLlmRuntime ? 1 : 0;
-    const roleLlmCalls = input.hasLlmRuntime
-      ? input.roles.filter((role) => !role.command && !role.toolSpecId).length
-      : 0;
-    const estimatedLlmCalls = roleSelectionCalls + synthesisCalls + roleLlmCalls;
-    const estimatedInputTokens = input.hasLlmRuntime
-      ? objectiveTokens * Math.max(1, estimatedLlmCalls)
-        + rolePromptTokens
-        + input.roles.length * (input.benchmark ? 120 : 220)
-      : 0;
-    const estimatedOutputTokens = input.hasLlmRuntime
-      ? 900 + roleLlmCalls * 700 + Math.ceil(input.roles.length * 35)
-      : 0;
-    const estimatedTotalTokens = estimatedInputTokens + estimatedOutputTokens;
-    const estimatedUsd = this.estimateUsd(estimatedTotalTokens, modelClass);
-    const risk = this.classifyTokenBudgetRisk({
-      estimatedLlmCalls,
-      estimatedTotalTokens,
-      estimatedUsd,
-    });
-    const overLimit = estimatedLlmCalls > limits.maxLlmCalls
-      || estimatedTotalTokens > limits.maxEstimatedTokens
-      || estimatedUsd > limits.maxEstimatedUsd;
-    const status: SwarmV2TokenBudgetSnapshot['status'] = !input.hasLlmRuntime
-      ? 'passed'
-      : risk === 'critical' && !approved
-        ? 'blocked'
-        : overLimit && !approved
-          ? 'approval_required'
-          : 'passed';
-    const rationale = !input.hasLlmRuntime
-      ? 'No LLM runtime is attached; this swarm uses local/tool execution and deterministic synthesis.'
-      : status === 'passed'
-        ? `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} within budget.`
-        : `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} exceeds budget; approve explicitly or lower roles/output.`;
-    return {
-      enabled: true,
-      status,
-      risk,
-      estimatedLlmCalls,
-      estimatedInputTokens,
-      estimatedOutputTokens,
-      estimatedTotalTokens,
-      estimatedUsd,
-      limits,
-      approved,
-      modelClass,
-      rationale,
-    };
-  }
-
-  private classifyTokenBudgetRisk(input: {
-    estimatedLlmCalls: number;
-    estimatedTotalTokens: number;
-    estimatedUsd: number;
-  }): SwarmV2TokenBudgetSnapshot['risk'] {
-    if (input.estimatedLlmCalls > 50 || input.estimatedTotalTokens > 250000 || input.estimatedUsd > 5) {
-      return 'critical';
-    }
-    if (input.estimatedLlmCalls > 12 || input.estimatedTotalTokens > 100000 || input.estimatedUsd > 1.5) {
-      return 'high';
-    }
-    if (input.estimatedLlmCalls > 4 || input.estimatedTotalTokens > 32000 || input.estimatedUsd > 0.35) {
-      return 'medium';
-    }
-    return 'low';
-  }
-
-  private estimateTokens(text: unknown): number {
-    return Math.ceil(String(text || '').length / 4);
-  }
-
-  private estimateUsd(tokens: number, modelClass: 'cheap' | 'standard' | 'premium'): number {
-    const perMillion = modelClass === 'cheap' ? 0.25 : modelClass === 'premium' ? 10 : 2.5;
-    return Math.round((tokens / 1_000_000) * perMillion * 10000) / 10000;
-  }
-
-  private clampMoney(value: unknown, min: number, max: number, fallback: number): number {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      return fallback;
-    }
-    return Math.min(max, Math.max(min, parsed));
   }
 
   private async synthesizeOfficialOutput(
@@ -1358,173 +805,15 @@ export class SwarmV2Service {
         },
       } satisfies LlmRunOptions);
       return response.content?.trim() || deterministic;
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      void err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: String(error instanceof Error ? err.message : String(error ?? 'unknown')).slice(0, 240),
       });
       state.synthesisMode = 'deterministic';
       return deterministic;
     }
-  }
-
-  private async selectRoleIdsForObjective(input: {
-    objective: string;
-    desiredRoleCount: number;
-    library: SwarmV2RoleLibraryEntry[];
-  }): Promise<SwarmV2RoleSelectionSnapshot> {
-    const fallback = this.resolveSyncRoleSelection({
-      objective: input.objective,
-      library: input.library,
-      selectedRoleIds: [],
-      requestedRoles: [],
-      autoSelectRoles: true,
-      desiredRoleCount: input.desiredRoleCount,
-    });
-    if (!this.options.llmRuntime) {
-      return fallback;
-    }
-    try {
-      const available = input.library.map((role) => ({
-        id: role.id,
-        label: role.label,
-        kind: role.kind,
-        risk: role.risk,
-        scope: role.scope,
-        tags: role.tags,
-      }));
-      const response = await this.options.llmRuntime.chat([
-        {
-          role: 'user',
-          content: [
-            'You are Zavorth Swarm v2 role selector.',
-            'Select the smallest useful role set for the objective.',
-            'Return JSON only: {"selectedRoleIds":["planner"],"rationale":"short reason"}.',
-            'Use only role IDs from the available list. Prefer planner, researcher, verifier and synthesizer for broad work.',
-            `Desired role count: ${input.desiredRoleCount}`,
-            `Objective: ${input.objective}`,
-            `Available roles: ${JSON.stringify(available)}`,
-          ].join('\n'),
-        },
-      ], [], {
-        allowFallback: true,
-        telemetry: {
-          surface: 'swarm-v2-role-selection',
-          runId: 'swarm-v2-role-selection',
-          traceId: 'swarm-v2-role-selection',
-        },
-      } satisfies LlmRunOptions);
-      const parsed = this.parseJsonObject(response.content);
-      const libraryIds = new Set(input.library.map((role) => role.id));
-      const selected = Array.isArray(parsed?.selectedRoleIds)
-        ? parsed.selectedRoleIds
-          .map((value: unknown) => this.normalizeKey(value, ''))
-          .filter((value: string, index: number, values: string[]) => libraryIds.has(value) && values.indexOf(value) === index)
-          .slice(0, input.desiredRoleCount)
-        : [];
-      if (selected.length === 0) {
-        return fallback;
-      }
-      return {
-        mode: 'llm',
-        requestedRoleCount: input.desiredRoleCount,
-        selectedRoleIds: selected,
-        availableRoleCount: input.library.length,
-        rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
-      };
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm V2] parsing failed', error); return fallback; }
-  }
-
-  private resolveSyncRoleSelection(input: {
-    objective: string;
-    library: SwarmV2RoleLibraryEntry[];
-    selectedRoleIds: string[];
-    requestedRoles: SwarmRole[];
-    autoSelectRoles: boolean;
-    desiredRoleCount: number;
-  }): SwarmV2RoleSelectionSnapshot {
-    const libraryIds = new Set(input.library.map((role) => role.id));
-    if (input.selectedRoleIds.length > 0) {
-      const selected = input.selectedRoleIds
-        .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
-        .slice(0, input.desiredRoleCount);
-      return {
-        mode: 'manual',
-        requestedRoleCount: input.desiredRoleCount,
-        selectedRoleIds: selected,
-        availableRoleCount: input.library.length,
-        rationale: 'Operator provided explicit role library IDs.',
-      };
-    }
-    if (input.requestedRoles.length > 0) {
-      return {
-        mode: 'manual',
-        requestedRoleCount: input.requestedRoles.length,
-        selectedRoleIds: input.requestedRoles.map((role, index) => this.normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`)),
-        availableRoleCount: input.library.length,
-        rationale: 'Operator provided concrete swarm roles.',
-      };
-    }
-    if (!input.autoSelectRoles) {
-      return {
-        mode: 'manual',
-        requestedRoleCount: input.desiredRoleCount,
-        selectedRoleIds: [],
-        availableRoleCount: input.library.length,
-        rationale: 'No automatic role selection requested; default official role bundle will be used.',
-      };
-    }
-
-    const objective = input.objective.toLowerCase();
-    const wanted = ['planner', 'researcher'];
-    if (/(implementar|implemente|code|codigo|patch|corrigir|fix|build|test|teste|execut)/i.test(objective)) {
-      wanted.push('implementer');
-    }
-    if (/(seguranca|security|risco|approval|permiss|secret|vulnerab|auditoria)/i.test(objective)) {
-      wanted.push('safety-reviewer');
-    }
-    wanted.push('verifier', 'synthesizer');
-
-    const selected = wanted
-      .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
-      .slice(0, input.desiredRoleCount);
-    for (const role of input.library) {
-      if (selected.length >= input.desiredRoleCount) break;
-      if (!selected.includes(role.id)) selected.push(role.id);
-    }
-    return {
-      mode: 'heuristic',
-      requestedRoleCount: input.desiredRoleCount,
-      selectedRoleIds: selected,
-      availableRoleCount: input.library.length,
-      rationale: 'Zavorth selected roles from objective keywords, risk hints and the persistent role library.',
-    };
-  }
-
-  private normalizeToolSpecs(raw: unknown): SwarmV2ToolSpec[] {
-    if (!Array.isArray(raw)) {
-      return [];
-    }
-    return raw.map((entry, index): SwarmV2ToolSpec | null => {
-      const tool = entry as RawToolSpecInput;
-      const id = this.normalizeKey(tool.id, `tool-${index + 1}`);
-      const command = String(tool.command || '').trim();
-      if (!command) {
-        return null;
-      }
-      const risk = ['safe', 'attention', 'danger'].includes(String(tool.risk || ''))
-        ? (tool.risk as SwarmV2ToolSpec['risk'])
-        : 'attention';
-      return {
-        id,
-        kind: 'shell',
-        label: String(tool.label || id).trim(),
-        command,
-        args: Array.isArray(tool.args) ? tool.args.map((value: unknown) => String(value)) : [],
-        cwd: String(tool.cwd || '').trim() || null,
-        risk,
-        requiresApproval: tool.requiresApproval === false ? false : true,
-      };
-    }).filter(Boolean) as SwarmV2ToolSpec[];
   }
 
   private isStrongIsolationMode(mode: SwarmV2IsolationMode): boolean {
@@ -1536,20 +825,6 @@ export class SwarmV2Service {
     if (mode === 'wsl') return 'wsl';
     if (mode === 'external-sandbox') return 'external-sandbox';
     return 'none';
-  }
-
-  private parseJsonObject(raw: unknown): Record<string, unknown> | null {
-    const text = String(raw || '').trim();
-    if (!text) return null;
-    try {
-      return JSON.parse(text);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const match = text.match(/\{[\s\S]*\}/);
-      if (!match) return null;
-      try {
-        return JSON.parse(match[0]);
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Swarm V2] JSON parse failed', error); return null; }
-    }
   }
 
   private prepareOfficialRoles(
@@ -1565,7 +840,7 @@ export class SwarmV2Service {
     },
   ): SwarmRole[] {
     return roles.slice(0, input.maxRoles).map((role, index) => {
-      const id = this.normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`);
+      const id = normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`);
       const cwd = this.resolveRoleCwd(input.swarmId, id, input.isolationMode, role.cwd);
       const toolSpec = !role.command && input.toolSpecs.length > 0
         ? input.toolSpecs[index % input.toolSpecs.length]
@@ -1607,7 +882,7 @@ export class SwarmV2Service {
       return requestedCwd || process.cwd();
     }
     if (mode === 'temp-worktree') {
-      const root = path.join(os.tmpdir(), 'zavorth-swarm-v2', this.normalizeKey(swarmId, 'swarm'), roleId);
+      const root = path.join(os.tmpdir(), 'zavorth-swarm-v2', normalizeKey(swarmId, 'swarm'), roleId);
       fs.mkdirSync(root, { recursive: true });
       return root;
     }
@@ -1679,107 +954,6 @@ export class SwarmV2Service {
     return role;
   }
 
-  private rolesFromLibrary(library: SwarmV2RoleLibraryEntry[], ids: string[]): SwarmRole[] {
-    const wanted = new Set(ids.map((id) => this.normalizeKey(id, '')));
-    return library
-      .filter((entry) => wanted.has(entry.id))
-      .map((entry): SwarmRole => ({
-        id: entry.id,
-        label: entry.label,
-        systemPrompt: entry.systemPrompt,
-      }));
-  }
-
-  private readRoleLibrary(): SwarmV2RoleLibraryEntry[] {
-    const filePath = this.resolveRoleLibraryPath();
-    if (!fs.existsSync(filePath)) {
-      const seeded = this.defaultRoleLibrary();
-      this.writeRoleLibrary(seeded);
-      return seeded;
-    }
-    try {
-      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      if (Array.isArray(parsed)) {
-        return parsed.map((entry) => this.normalizeRoleLibraryEntry(entry)).filter(Boolean) as SwarmV2RoleLibraryEntry[];
-      }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      // fall through to defaults
-      logger.warn('[Swarm V2] JSON parse failed', error);
-    }
-    const seeded = this.defaultRoleLibrary();
-    this.writeRoleLibrary(seeded);
-    return seeded;
-  }
-
-  private writeRoleLibrary(entries: SwarmV2RoleLibraryEntry[]): void {
-    const filePath = this.resolveRoleLibraryPath();
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify(entries, null, 2), 'utf8');
-  }
-
-  private resolveRoleLibraryPath(): string {
-    return this.options.roleLibraryPath || path.resolve(process.cwd(), 'data', 'runtime', 'swarm-role-library.json');
-  }
-
-  private normalizeRoleLibraryEntry(raw: unknown): SwarmV2RoleLibraryEntry | null {
-    const entry = raw as RawRoleLibraryEntry | undefined | null;
-    const id = this.normalizeKey(entry?.id, '');
-    const systemPrompt = String(entry?.systemPrompt || '').trim();
-    if (!id || !systemPrompt) {
-      return null;
-    }
-    const now = new Date().toISOString();
-    return {
-      id,
-      label: String(entry?.label || id).trim(),
-      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(String(entry?.kind || ''))
-        ? (entry?.kind as SwarmV2RoleLibraryEntry['kind'])
-        : 'custom',
-      systemPrompt,
-      defaultTools: Array.isArray(entry?.defaultTools) ? entry.defaultTools.map(String) : [],
-      risk: ['safe', 'attention', 'danger', 'unknown'].includes(String(entry?.risk || ''))
-        ? (entry?.risk as SwarmV2RoleLibraryEntry['risk'])
-        : 'unknown',
-      scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(String(entry?.scope || ''))
-        ? (entry?.scope as SwarmV2RoleLibraryEntry['scope'])
-        : 'tool_limited',
-      tags: Array.isArray(entry?.tags) ? entry.tags.map(String) : [],
-      createdAt: String(entry?.createdAt || now),
-      updatedAt: String(entry?.updatedAt || now),
-    };
-  }
-
-  private defaultRoleLibrary(): SwarmV2RoleLibraryEntry[] {
-    const now = new Date().toISOString();
-    return [
-      ['planner', 'Planner', 'planner', 'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.'],
-      ['researcher', 'Researcher', 'researcher', 'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.'],
-      ['implementer', 'Implementer', 'implementer', 'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.'],
-      ['verifier', 'Verifier', 'verifier', 'Validate tests, regression risk, security, acceptance criteria, and operational risks.'],
-      ['synthesizer', 'Synthesizer', 'synthesizer', 'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.'],
-      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.'],
-    ].map(([id, label, kind, systemPrompt]) => ({
-      id,
-      label,
-      kind: kind as SwarmV2RoleLibraryEntry['kind'],
-      systemPrompt,
-      defaultTools: [],
-      risk: kind === 'implementer' ? 'attention' : 'safe',
-      scope: kind === 'implementer' ? 'workspace_patch' : 'read_only',
-      tags: ['official', 'default'],
-      createdAt: now,
-      updatedAt: now,
-    }));
-  }
-
-  private chunkRoles(roles: SwarmRole[], size: number): SwarmRole[][] {
-    const chunks: SwarmRole[][] = [];
-    for (let index = 0; index < roles.length; index += size) {
-      chunks.push(roles.slice(index, index + size));
-    }
-    return chunks;
-  }
-
   private pushReplay(
     state: SwarmV2OfficialState,
     type: SwarmV2ReplayEvent['type'],
@@ -1796,21 +970,6 @@ export class SwarmV2Service {
       summary,
       payload,
     });
-  }
-
-  private clampNumber(value: unknown, min: number, max: number, fallback: number): number {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      return Math.min(max, Math.max(min, fallback));
-    }
-    return Math.min(max, Math.max(min, Math.trunc(parsed)));
-  }
-
-  private normalizeKey(value: unknown, fallback: string): string {
-    const normalized = String(value || '').trim().toLowerCase()
-      .replace(/[^a-z0-9_.:-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    return normalized || fallback;
   }
 
   private withLifecycle(
@@ -1993,5 +1152,3 @@ export class SwarmV2Service {
 export {
   SwarmV2Service as ExperimentalSwarmV2Service,
 };
-
-export type ExperimentalSwarmV2CreateInput = SwarmV2CreateInput;

@@ -117,6 +117,7 @@ export class ZavorthExperienceLearningDaemonService {
     }
 
     if (PREFERENCE_SIGNAL.test(input.text) && !SENSITIVE_USER_MODEL.test(input.text) && !POLICY_CHANGE.test(input.text)) {
+      const preferencePhrase = extractPreferencePhrase(input.text);
       candidates.push(this.candidate({
         turnId: input.turnId,
         kind: 'preference',
@@ -127,7 +128,7 @@ export class ZavorthExperienceLearningDaemonService {
         evidenceRefs,
         confidence: 0.79,
         expiry: addDays(input.generatedAt, 90),
-        summary: 'Low-risk reversible preference can be learned quietly with receipt.',
+        summary: preferencePhrase || 'Preferencia reversivel de baixo risco (com recibo).',
       }));
     }
 
@@ -164,4 +165,17 @@ export class ZavorthExperienceLearningDaemonService {
       summary: input.summary,
     };
   }
+}
+
+function extractPreferencePhrase(text: string): string {
+  const userLine = String(text || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => /^user:\s*/i.test(line));
+  const raw = userLine ? userLine.replace(/^user:\s*/i, '').trim() : String(text || '').trim();
+  const sliced = raw.slice(0, 240).trim();
+  if (!sliced) return '';
+  return sliced.startsWith('Prefer') || sliced.startsWith('prefer') || /prefiro|sempre|quando eu/i.test(sliced)
+    ? sliced
+    : `Preferencia do usuario: ${sliced}`;
 }

@@ -1,15 +1,15 @@
 /**
- * CLI for the Universal Capability Fabric.
+ * Unified CLI for the Universal Capability Fabric.
  *
- * Install capabilities safely under quarantine with a clear risk report:
+ * Single entry point for absorbing capabilities AND importing workspaces:
  *
- *   zavorth absorb <source> [--kind skill|plugin|mcp|auto] [--apply] [--consent]
- *   zavorth absorb skill <source>
- *   zavorth absorb plugin <source>
- *   zavorth absorb mcp <source>
- *   zavorth import-workspace <path> [--profile auto|generic|openclaw-home|hermes-home] [--apply --consent]
+ *   zavorth absorb <source>                    — auto-detects source type
+ *   zavorth absorb <path-to-skill-pack>        — installs skill/plugin/MCP pack
+ *   zavorth absorb <path-to-agent-workspace>   — imports workspace from another agent
+ *   zavorth absorb --auto                      — scans common locations for agent workspaces
  */
 
+import fs from 'node:fs';
 import path from 'node:path';
 import { UniversalCapabilityFabricService } from '../services/UniversalCapabilityFabricService.js';
 import { UniversalWorkspaceImportService } from '../services/UniversalWorkspaceImportService.js';
@@ -37,46 +37,60 @@ function readOption(args: string[], name: string): string | null {
   return hit ? hit.slice(pref.length) : null;
 }
 
+// Brand-agnostic: only structural markers common to agent workspaces
+const AGENT_WORKSPACE_MARKERS = [
+  'SOUL.md', 'AGENTS.md', 'IDENTITY.md', 'USER.md',
+  'config.yaml', 'RULES.md', 'MEMORY.md', 'TOOLS.md',
+];
+
+function looksLikeAgentWorkspace(sourcePath: string): boolean {
+  if (!fs.existsSync(sourcePath) || !fs.statSync(sourcePath).isDirectory()) return false;
+  try {
+    const entries = fs.readdirSync(sourcePath, { withFileTypes: true });
+    const names = entries.map((e) => e.name);
+    return AGENT_WORKSPACE_MARKERS.some((marker) => names.includes(marker));
+  } catch {
+    return false;
+  }
+}
+
 function printHelp(): void {
   console.log([
     '=== Zavorth Capability Fabric ===',
     '',
-    'Install capabilities safely under quarantine.',
-    'Absorb skills, plugins, or MCP packs from path / archive / HTTPS URL.',
-    'Preview shows a risk report (files, executable, network, permissions, secrets).',
-    'Import any local workspace home by structure (brand-agnostic).',
-    'Optional named migration profiles add a risk report on top of structural import.',
+    'Absorb capabilities or import workspaces — one command, auto-detected source type.',
+    '',
+    'Source types (auto-detected):',
+    '  Capability pack  — skill, plugin, or MCP from a directory, archive, or HTTPS URL',
+    '  Agent workspace  — another agent\'s home directory (skills, memory, config)',
     '',
     'Usage:',
-    '  zavorth absorb <source> [--kind auto|skill|plugin|mcp] [--preview|--apply] [--consent] [--json]',
-    '  zavorth absorb skill <source> ...',
-    '  zavorth absorb plugin <source> ...',
-    '  zavorth absorb mcp <source> ...',
-    '  zavorth import-workspace <path> [--profile auto|generic|generic-agent-home|openclaw-home|hermes-home] [--preview|--apply --consent] [--json]',
+    '  zavorth absorb <source>                          — auto-detect and process',
+    '  zavorth absorb <source> --kind skill|plugin|mcp  — force capability pack mode',
+    '  zavorth absorb <source> --workspace              — force workspace import mode',
+    '  zavorth absorb --auto                            — scan common locations for workspaces',
+    '',
+    'Options:',
+    '  [--preview] [--apply] [--consent/--yes]         — install control',
+    '  [--json]                                        — JSON output',
+    '  [--no-proof]                                    — skip Trust Loop receipt',
+    '  [--overwrite]                                   — overwrite existing',
+    '  [--allow-executable] [--allow-all]              — elevate risk gates',
+    '  [--auto]                                        — auto-detect workspace location',
     '',
     'Rules:',
     '  - preview is default (safe install preview + risk report)',
-    '  - apply requires --consent / --yes (consent does NOT elevate risk flags)',
-    '  - elevated candidates need explicit --allow-executable and/or --allow-all',
-    '  - executable plugins and MCP start held/disabled',
-    '  - high risk / executable packs stay quarantined until trust upgrade',
-    '  - no third-party product profile is required for structural import',
-    '  - --profile is optional; labels are structure fingerprints only',
+    '  - apply requires --consent / --yes',
+    '  - workspace import is brand-agnostic (detects structure, not product names)',
     '  - Trust Loop events are written for preview / promote / reject',
     '',
     'Examples:',
-    '  zavorth absorb ./packs/my-skill --preview',
-    '  zavorth absorb https://example.com/skill-page --kind skill --preview',
-    '  zavorth absorb plugin ./packs/my-plugin --apply --consent --allow-executable',
-    '  zavorth import-workspace ./old-agent-home --preview',
-    '  zavorth import-workspace ./old-agent-home --profile auto --preview',
-    '  zavorth import-workspace ./agent-home --profile openclaw-home --preview',
+    '  zavorth absorb ./my-skill                       — detect as capability pack',
+    '  zavorth absorb https://example.com/skill-page   — detect from URL',
+    '  zavorth absorb ~/.config/my-agent               — detect as agent workspace',
+    '  zavorth absorb ./old-agent-home --workspace     — force workspace mode',
+    '  zavorth absorb --auto                           — scan for agent workspaces',
   ].join('\n'));
-}
-
-function printRiskReportSection(markdown: string): void {
-  console.log('');
-  console.log(markdown);
 }
 
 function appendAbsorbProofEvent(
@@ -94,6 +108,20 @@ function appendAbsorbProofEvent(
   }
 }
 
+function appendMigrationProofEvent(
+  migration: WorkspaceMigrationProfileService,
+  report: ReturnType<WorkspaceMigrationProfileService['buildReport']>,
+): void {
+  try {
+    const ledger = new ProofLedgerService({
+      jsonlPath: defaultProofLedgerJsonlPath(),
+    });
+    ledger.append(migration.toProofEventInput(report));
+  } catch {
+    // Proof append is best-effort
+  }
+}
+
 export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<number> {
   if (rawArgs.length === 0 || rawArgs.includes('--help') || rawArgs.includes('-h')) {
     printHelp();
@@ -101,46 +129,88 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   }
 
   const args = [...rawArgs];
-  let kind: CapabilityFabricKind | 'auto' = 'auto';
-  const maybeKind = String(args[0] || '').toLowerCase();
-  if (maybeKind === 'skill' || maybeKind === 'plugin' || maybeKind === 'mcp' || maybeKind === 'auto') {
-    kind = maybeKind;
-    args.shift();
-  }
-  const kindOpt = readOption(args, '--kind');
-  if (kindOpt === 'skill' || kindOpt === 'plugin' || kindOpt === 'mcp' || kindOpt === 'auto') {
-    kind = kindOpt;
-  }
-
-  const positional = args.filter((a) => !a.startsWith('--'));
-  const source = positional[0];
-  if (!source) {
-    printHelp();
-    return 1;
-  }
-
   const apply = hasFlag(args, '--apply');
-  // S4: consent only authorizes apply of already-allowed candidates — never elevates risk.
   const consent = hasFlag(args, '--consent') || hasFlag(args, '--yes');
   const json = hasFlag(args, '--json');
-  const allowExecutable = hasFlag(args, '--allow-executable');
-  const allowAll = hasFlag(args, '--allow-all');
   const overwrite = hasFlag(args, '--overwrite');
   const skipProof = hasFlag(args, '--no-proof');
+  const forceWorkspace = hasFlag(args, '--workspace');
+  const autoDetect = hasFlag(args, '--auto');
+  const includeSecretLike = hasFlag(args, '--include-secret-like');
+
+  // Kind detection (for capability packs)
+  let kind: CapabilityFabricKind | 'auto' = 'auto';
+  const maybeKind = String(args.filter((a) => !a.startsWith('--'))[0] || '').toLowerCase();
+  if (['skill', 'plugin', 'mcp', 'auto'].includes(maybeKind) && !forceWorkspace) {
+    kind = maybeKind as CapabilityFabricKind | 'auto';
+  }
+  const kindOpt = readOption(args, '--kind');
+  if (kindOpt && ['skill', 'plugin', 'mcp', 'auto'].includes(kindOpt)) {
+    kind = kindOpt as CapabilityFabricKind | 'auto';
+  }
 
   if (apply && !consent) {
     console.log('Apply requires --consent (or --yes). Showing preview instead.\n');
   }
 
-  const fabric = new UniversalCapabilityFabricService({ projectRoot: process.cwd() });
+  const projectRoot = process.cwd();
+
+  // ── Auto-detect workspace location ──
+  let sourcePath: string | undefined;
+  const positional = args.filter((a) => !a.startsWith('--'));
+
+  // If --auto or no positional source, try auto-detection
+  if (autoDetect || positional.length === 0) {
+    const importer = new UniversalWorkspaceImportService({ projectRoot });
+    const detected = importer.detectFromHomeHints();
+    if (detected) {
+      sourcePath = detected.path;
+      console.log(`Auto-detected workspace: ${sourcePath}`);
+    } else if (positional.length === 0) {
+      console.log('No source specified and no agent workspace found in common locations.');
+      printHelp();
+      return 1;
+    }
+  }
+
+  if (!sourcePath) {
+    sourcePath = positional[0];
+  }
+
+  if (!sourcePath) {
+    printHelp();
+    return 1;
+  }
+
+  // ── Determine mode: workspace import vs capability pack ──
+  const isWorkspaceMode = forceWorkspace || looksLikeAgentWorkspace(sourcePath);
+
+  if (isWorkspaceMode) {
+    return runWorkspaceImport({
+      sourcePath,
+      apply,
+      consent,
+      json,
+      skipProof,
+      overwrite,
+      includeSecretLike,
+      projectRoot,
+    });
+  }
+
+  // ── Capability pack mode (existing behavior) ──
+  const allowExecutable = hasFlag(args, '--allow-executable');
+  const allowAll = hasFlag(args, '--allow-all');
+
+  const fabric = new UniversalCapabilityFabricService({ projectRoot });
   const snapshot = await fabric.buildSnapshot({
-    source,
+    source: sourcePath,
     kind,
     apply: apply && consent,
     allowExecutable: allowExecutable || allowAll,
     allowAllCandidates: allowAll,
     overwrite,
-    label: path.basename(source),
+    label: path.basename(sourcePath),
   });
 
   const riskService = new AbsorbRiskReportService();
@@ -157,17 +227,7 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   }
 
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          snapshot,
-          riskReport,
-          proofAction,
-        },
-        null,
-        2,
-      ),
-    );
+    console.log(JSON.stringify({ snapshot, riskReport, proofAction }, null, 2));
     return snapshot.status === 'blocked' ? 1 : 0;
   }
 
@@ -185,7 +245,6 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
     console.log('');
     console.log('Issues:');
     for (const issue of snapshot.issues.slice(0, 20)) {
-      // Never echo secret-like issue bodies on the CLI (S1).
       const safeMessage = redactSecretLikeText(String(issue.message || ''));
       console.log(`  [${issue.severity}] ${issue.code}: ${safeMessage}`);
     }
@@ -198,115 +257,66 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
     }
   }
 
+  console.log('');
   printRiskReportSection(riskService.toMarkdown(riskReport));
-
   console.log('');
   console.log(`Next: ${snapshot.narrative.nextSafeAction}`);
   return snapshot.status === 'blocked' ? 1 : 0;
 }
 
-export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<number> {
-  if (rawArgs.length === 0 || rawArgs.includes('--help') || rawArgs.includes('-h')) {
-    console.log([
-      '=== Zavorth Universal Workspace Import ===',
-      '',
-      '  zavorth import-workspace <path> [--profile auto|generic|generic-agent-home|openclaw-home|hermes-home]',
-      '                                [--preview|--apply --consent] [--json] [--no-proof]',
-      '  zavorth import-workspace --auto [--preview]',
-      '',
-      'Structural import always available (brand-agnostic).',
-      'Optional --profile adds a risk migration report (structure labels only).',
-      'Default profile: auto. Preview is default; apply still needs --consent.',
-      'Secrets are never auto-imported; reports note presence only (values redacted).',
-    ].join('\n'));
-    return rawArgs.length === 0 ? 1 : 0;
-  }
+// ── Legacy alias: import-workspace routes here ──
+export { runCapabilityFabricCli as runImportWorkspaceCli };
 
-  const apply = hasFlag(rawArgs, '--apply');
-  const consent = hasFlag(rawArgs, '--consent') || hasFlag(rawArgs, '--yes');
-  const json = hasFlag(rawArgs, '--json');
-  const auto = hasFlag(rawArgs, '--auto');
-  const noProof = hasFlag(rawArgs, '--no-proof');
-  const profileOpt = readOption(rawArgs, '--profile') || 'auto';
-  const positional = rawArgs.filter((a) => !a.startsWith('--'));
-  const projectRoot = process.cwd();
+// ── Workspace import (internal) ──
+
+function runWorkspaceImport(opts: {
+  sourcePath: string;
+  apply: boolean;
+  consent: boolean;
+  json: boolean;
+  skipProof: boolean;
+  overwrite: boolean;
+  includeSecretLike: boolean;
+  projectRoot: string;
+}): number {
+  const { sourcePath, apply, consent, json, skipProof, overwrite, includeSecretLike, projectRoot } = opts;
   const importer = new UniversalWorkspaceImportService({ projectRoot });
   const migration = new WorkspaceMigrationProfileService({ projectRoot });
-
-  let sourcePath = positional[0];
-  if (!sourcePath && auto) {
-    const detected = importer.detectFromHomeHints();
-    if (!detected) {
-      console.log('No structural agent/workspace home found in common locations.');
-      return 1;
-    }
-    sourcePath = detected.path;
-    console.log(`Auto-detected: ${sourcePath} (${detected.profileId}, ${Math.round(detected.confidence * 100)}%)`);
-  }
-
-  if (!sourcePath) {
-    console.log(
-      'Missing path. Usage: zavorth import-workspace <path> [--profile auto|generic|openclaw-home|hermes-home]',
-    );
-    return 1;
-  }
 
   if (apply && !consent) {
     console.log('Apply requires --consent. Running preview.\n');
   }
 
-  // Migration risk report (preview-oriented; structural snapshot underneath)
   const migrationReport = migration.buildReport({
     sourcePath,
-    profile: profileOpt,
-    includeSecretLike: hasFlag(rawArgs, '--include-secret-like'),
+    profile: 'auto',
+    includeSecretLike,
   });
 
-  // Optional Trust Loop receipt (system/marketplace); never includes secret values
-  if (!noProof) {
-    try {
-      const ledger = new ProofLedgerService({
-        jsonlPath: defaultProofLedgerJsonlPath(projectRoot),
-      });
-      ledger.append(migration.toProofEventInput(migrationReport));
-    } catch {
-      // Proof append is best-effort; never block import
-    }
+  if (!skipProof) {
+    appendMigrationProofEvent(migration, migrationReport);
   }
 
   const snapshot = importer.buildSnapshot({
     sourcePath,
     apply: apply && consent,
-    consent: consent,
-    includeSecretLike: hasFlag(rawArgs, '--include-secret-like'),
-    overwrite: hasFlag(rawArgs, '--overwrite'),
+    consent,
+    includeSecretLike,
+    overwrite,
   });
 
   if (json) {
-    console.log(
-      JSON.stringify(
-        {
-          migrationReport,
-          structuralImport: snapshot,
-        },
-        null,
-        2,
-      ),
-    );
+    console.log(JSON.stringify({ migrationReport, structuralImport: snapshot }, null, 2));
     return snapshot.status === 'blocked' ? 1 : 0;
   }
 
-  // Migration report section before structural import narrative
-  console.log('=== Migration risk report ===');
+  console.log('=== Workspace migration report ===');
   console.log(migration.toMarkdown(migrationReport));
+  console.log('');
   console.log('=== Structural import ===');
   console.log(snapshot.narrative.headline);
   console.log(snapshot.narrative.operatorSummary);
-  console.log(`Structural profile: ${snapshot.profileId}`);
-  console.log(
-    `Migration profile: ${migrationReport.profileId} (detected ${migrationReport.detectedProfileId})`,
-  );
-  console.log(`Confidence: ${Math.round(migrationReport.confidence * 100)}%`);
+  console.log(`Detected: ${migrationReport.detectedProfileId} (${Math.round(migrationReport.confidence * 100)}% confidence)`);
   console.log(`Status: ${snapshot.status}`);
   console.log('');
   console.log('Items (first 40):');
@@ -322,4 +332,8 @@ export async function runImportWorkspaceCli(rawArgs: string[] = []): Promise<num
   console.log('');
   console.log(`Next: ${snapshot.narrative.nextSafeAction}`);
   return snapshot.status === 'blocked' ? 1 : 0;
+}
+
+function printRiskReportSection(markdown: string): void {
+  console.log(markdown);
 }

@@ -538,8 +538,8 @@ describe('WebAppSurfaceRouteService', () => {
     const execute = jest.fn(async () => ({
       ok: true,
       actionId: 'create',
-      summary: 'Automacao criada com entrega no app.',
-      details: ['Rotina diaria registrada.'],
+      summary: 'Automation created with in-app delivery.',
+      details: ['Daily routine registered.'],
       snapshot: {
         summary: {
           posture: 'healthy',
@@ -547,7 +547,7 @@ describe('WebAppSurfaceRouteService', () => {
         },
         narrative: {
           operatorSummary: 'Uma automacao pronta para seguir.',
-          nextAction: 'Aguardar a primeira execucao.',
+          nextAction: 'Wait for the first run.',
         },
       },
     }));
@@ -589,7 +589,7 @@ describe('WebAppSurfaceRouteService', () => {
         ok: true,
         action: expect.objectContaining({
           actionId: 'create',
-          summary: 'Automacao criada com entrega no app.',
+          summary: 'Automation created with in-app delivery.',
         }),
         automations: expect.objectContaining({
           summary: expect.objectContaining({

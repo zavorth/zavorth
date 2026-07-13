@@ -343,7 +343,7 @@ export class WebAppRouteDepsFactoryService {
         this.options.webSecurity.isAuthorizedUpgrade(request, requestUrl),
       unavailableReason: runtimeReady
         ? null
-        : 'Zavorth Gateway runtime indisponivel para upgrade WebSocket neste host.',
+        : 'Zavorth Gateway runtime unavailable for WebSocket upgrade on this host.',
       resolveSessionId: this.options.runtimeContext.resolveSessionId.bind(this.options.runtimeContext),
       createSession: () => this.options.getRealtime()?.createSession() || `web-${Date.now()}`,
       getChatId: (sessionId: string) => this.options.getRealtime()?.getChatId(sessionId) || `web:${sessionId}`,

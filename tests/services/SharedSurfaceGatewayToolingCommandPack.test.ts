@@ -73,7 +73,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
           memoryArtifacts: 2,
         },
         narrative: {
-          headline: 'Gateway pronto.',
+          headline: 'Gateway ready.',
           operatorSummary: 'Snapshot canonico.',
         },
       })),
@@ -153,7 +153,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
       canUseOperationalCommand: jest.fn(() => true),
     } as any,
     providerDoctorService: {
-      renderStatusReport: jest.fn(() => 'Providers prontos agora\nPerfil recomendado para esta etapa'),
+      renderStatusReport: jest.fn(() => 'Providers ready now\nPerfil recomendado para esta etapa'),
     } as any,
     providerControlPlaneService: {
       getUsageTargets: jest.fn(() => ['chat', 'code']),
@@ -198,7 +198,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
         memoryArtifacts: 2,
       },
       narrative: {
-        headline: 'Gateway pronto.',
+        headline: 'Gateway ready.',
         operatorSummary: 'Snapshot canonico.',
       },
     }));
@@ -214,7 +214,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
       chatId: 'telegram:chat-1',
     }));
     expect(ctx.reply.mock.calls[0][0]).toContain('Gateway do Zavorth');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway pronto.');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway ready.');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
       reply_markup: expect.any(Object),
     }));
@@ -290,7 +290,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
 
     const reply = await pack.buildModelsReply(ctx as any);
 
-    expect(reply).toContain('Providers prontos agora');
+    expect(reply).toContain('Providers ready now');
     expect(reply).toContain('Targets aceitos em /model: chat, code.');
   });
 
@@ -300,7 +300,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
 
     await pack.handleModels(ctx as any);
 
-    expect(ctx.reply.mock.calls[0][0]).toContain('Providers prontos agora');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Providers ready now');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
       reply_markup: expect.objectContaining({
         inline_keyboard: expect.any(Array),

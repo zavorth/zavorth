@@ -7,6 +7,8 @@ import type { CompanionWorkspaceOptimizerService } from '../../../../services/Co
 import type { DesktopResourcePlaneService } from '../../../../services/DesktopResourcePlaneService.js';
 import type { ModeEscalationService } from '../../../../services/ModeEscalationService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
+import { tService } from '../../../../i18n/services.js';
 type SharedSurfaceDesktopCommandPackDeps = {
 
   desktopResourcePlaneService: Pick<DesktopResourcePlaneService, 'inspectLive' | 'renderReport'> | null;
@@ -31,19 +33,19 @@ export class SharedSurfaceDesktopCommandPack {
     const target = normalized.split(/\s+/).filter(Boolean)[0] || 'desktop';
 
     if (target !== 'desktop') {
-      await ctx.reply('Use /doctor desktop para revisar RAM, CPU, WSL, Docker e companions.');
+      await ctx.reply(tService('desktop.use_doctor_desktop'));
       return;
     }
 
     if (!this.deps.desktopResourcePlaneService) {
-      await ctx.reply('Desktop Resource Plane indisponivel neste runtime.');
+      await ctx.reply(tService('desktop.resource_plane_unavailable'));
       return;
     }
 
     try {
       const snapshot = await this.deps.desktopResourcePlaneService.inspectLive({ preferCachedWithinMs: 15_000 });
       await ctx.reply(this.deps.desktopResourcePlaneService.renderReport(snapshot));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui montar o Desktop Resource Plane agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_desktop_plane')));
     }
   }
 
@@ -52,38 +54,38 @@ export class SharedSurfaceDesktopCommandPack {
     modeEscalation: ModeEscalationSnapshot | null = null,
   ): string {
     const visible = snapshot.visibleSurfaces.join(', ') || 'chat';
-    const hidden = snapshot.hiddenByDefault.join(', ') || 'nada';
+    const hidden = snapshot.hiddenByDefault.join(', ') || tService('desktop.nothing');
     const possibleEscalations = snapshot.escalationTargets.length > 0
       ? snapshot.escalationTargets.join(', ')
-      : 'nenhuma';
+      : tService('desktop.none');
     const lines = [
       `${snapshot.label}`,
       '',
       snapshot.summary,
       '',
-      `Modo atual: ${snapshot.id}`,
-      `Perfil base esperado: ${snapshot.defaultRuntimeProfile}`,
-      `Perfil ativo agora: ${snapshot.runtimeProfile}${snapshot.profileAligned ? ' (alinhado)' : ' (fora do baseline do modo)'}`,
-      `Superficies visiveis por padrao: ${visible}`,
-      `Escondido por padrao: ${hidden}`,
-      `Escalonamentos possiveis: ${possibleEscalations}`,
-      `Comandos: ${snapshot.commands.show} | ${snapshot.commands.set}`,
-      `CLI: ${snapshot.commands.cliStatus} | ${snapshot.commands.cliSet}`,
+      `${tService('desktop.current_mode')}: ${snapshot.id}`,
+      `${tService('desktop.expected_base_profile')}: ${snapshot.defaultRuntimeProfile}`,
+      `${tService('desktop.active_profile')}: ${snapshot.runtimeProfile}${snapshot.profileAligned ? ` (${tService('desktop.aligned')})` : ` (${tService('desktop.outside_mode_baseline')})`}`,
+      `${tService('desktop.visible_surfaces')}: ${visible}`,
+      `${tService('desktop.hidden_by_default')}: ${hidden}`,
+      `${tService('desktop.possible_escalations')}: ${possibleEscalations}`,
+      `${tService('desktop.commands')}: ${snapshot.commands.show} | ${snapshot.commands.set}`,
+      `${tService('desktop.cli')}: ${snapshot.commands.cliStatus} | ${snapshot.commands.cliSet}`,
     ];
     if (modeEscalation) {
-      lines.push('', `Modo efetivo agora: ${modeEscalation.effectiveMode.id}.`);
+      lines.push('', `${tService('desktop.effective_mode_now')}: ${modeEscalation.effectiveMode.id}.`);
       if (modeEscalation.pendingRequest) {
         lines.push(
-          `Mode escalation pendente: ${modeEscalation.pendingRequest.id}`,
+          `${tService('desktop.pending_mode_escalation')}: ${modeEscalation.pendingRequest.id}`,
           modeEscalation.pendingRequest.summary,
-          `Aprove com: ${modeEscalation.commands.approve.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
-          `Rejeite com: ${modeEscalation.commands.reject.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
+          `${tService('desktop.approve_with')}: ${modeEscalation.commands.approve.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
+          `${tService('desktop.reject_with')}: ${modeEscalation.commands.reject.replace('<requestId>', modeEscalation.pendingRequest.id)}`,
         );
       } else if (modeEscalation.activeGrants.length > 0) {
         const grant = modeEscalation.activeGrants[0];
         lines.push(
-          `Grant ativo: ${grant.targetMode} (${grant.scope})`,
-          `Motivo: ${grant.reason}`,
+          `${tService('desktop.active_grant')}: ${grant.targetMode} (${grant.scope})`,
+          `Reason: ${grant.reason}`,
         );
       }
     }
@@ -93,19 +95,19 @@ export class SharedSurfaceDesktopCommandPack {
   private formatModeEscalationResolution(result: ModeEscalationResolution): string {
     const grantLine = result.grant
       ? `Grant: ${result.grant.targetMode} (${result.grant.scope}).`
-      : 'Nenhum grant ativo foi criado.';
+      : tService('desktop.no_active_grant_created');
     return [
       result.summary,
       '',
       grantLine,
-      `Modo efetivo: ${result.snapshot.effectiveMode.id}.`,
+      `${tService('desktop.effective_mode')}: ${result.snapshot.effectiveMode.id}.`,
       result.request.fallback ? `Fallback leve: ${result.request.fallback}` : null,
     ].filter(Boolean).join('\n');
   }
 
   public async handleProductMode(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.capabilityLifecycleService?.buildProductModeSnapshot || !this.deps.capabilityLifecycleService?.setProductMode) {
-      await ctx.reply('Product mode indisponivel neste runtime.');
+      await ctx.reply(tService('desktop.product_mode_unavailable'));
       return;
     }
 
@@ -121,7 +123,7 @@ export class SharedSurfaceDesktopCommandPack {
 
     if (normalizedArgs.startsWith('approve ') || normalizedArgs.startsWith('reject ')) {
       if (!this.deps.modeEscalationService) {
-        await ctx.reply('Mode escalation indisponivel neste runtime.');
+        await ctx.reply(tService('desktop.mode_escalation_unavailable'));
         return;
       }
       const parts = rawArgs.split(/\s+/).filter(Boolean);
@@ -129,7 +131,7 @@ export class SharedSurfaceDesktopCommandPack {
       const requestId = String(parts[1] || '').trim();
       const scope = decision === 'approve' ? String(parts[2] || '').trim().toLowerCase() : null;
       if (!requestId) {
-        await ctx.reply('Use /mode approve <requestId> [once|session|host] ou /mode reject <requestId>.');
+        await ctx.reply(tService('desktop.use_mode_approve_reject'));
         return;
       }
       try {
@@ -146,7 +148,7 @@ export class SharedSurfaceDesktopCommandPack {
           requestedBy: String(ctx.userId || '').trim() || 'operator',
         });
         await ctx.reply(this.formatModeEscalationResolution(result));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui resolver o mode escalation agora.'));
+      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_mode_escalation')));
       }
       return;
     }
@@ -160,10 +162,10 @@ export class SharedSurfaceDesktopCommandPack {
         [
           this.formatProductModeReply(snapshot, escalationSnapshot),
           '',
-          'Recomendacao: reinicie o Zavorth quando quiser reaplicar boot, warmup e surfaces de acordo com o novo modo.',
+          tService('desktop.recommend_restart'),
         ].join('\n'),
       );
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui trocar o product mode agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_product_mode')));
     }
   }
 
@@ -185,9 +187,26 @@ export class SharedSurfaceDesktopCommandPack {
     };
   }
 
+  private resolveWorkspacePresetId(raw: string): string | null {
+    const normalized = String(raw || '').trim().toLowerCase().replace(/[_\s]+/g, '-');
+    if (!normalized) {
+      return null;
+    }
+    const aliases: Record<string, string> = {
+      zavorthbridge: 'zavorthBridge',
+      'zavorth-bridge': 'zavorthBridge',
+      bridge: 'zavorthBridge',
+      vscode: 'vscode',
+      'vscode-derivative': 'vscode-derivative',
+      derivative: 'vscode-derivative',
+      fork: 'vscode-derivative',
+    };
+    return aliases[normalized] || null;
+  }
+
   public async handleWorkspace(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.workspaceOptimizerService) {
-      await ctx.reply('Workspace Optimizer indisponivel neste runtime.');
+      await ctx.reply(tService('desktop.workspace_optimizer_unavailable'));
       return;
     }
 
@@ -197,24 +216,59 @@ export class SharedSurfaceDesktopCommandPack {
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
 
     try {
+      if (command === 'help' || command === 'ajuda' || command === '?') {
+        await ctx.reply(
+          [
+            'Workspace optimizer',
+            '',
+            '/workspace',
+            '  → doctor / load profile for the current workspace',
+            '/workspace <path-or-hint>',
+            '  → doctor for that workspace',
+            '/workspace <zavorthBridge|vscode|vscode-derivative>',
+            '  → preview optimize with that preset',
+            '',
+            'Power forms:',
+            '/workspace optimize <preset> [--workspace <path>]',
+            '/workspace optimize <preset> apply <planId>',
+          ].join('\n'),
+        );
+        return;
+      }
+
       if (command === 'doctor' || command === 'status') {
         const profile = await this.deps.workspaceOptimizerService.buildLoadProfile({
-          workspaceHint: extracted.workspaceHint,
+          workspaceHint: extracted.workspaceHint || tokens.slice(1).join(' ').trim() || null,
         });
         await ctx.reply(this.deps.workspaceOptimizerService.renderLoadProfile(profile));
         return;
       }
 
       if (command === 'optimize') {
-        const presetId = String(tokens[1] || '').trim().toLowerCase();
+        const presetId = this.resolveWorkspacePresetId(String(tokens[1] || ''))
+          || String(tokens[1] || '').trim();
         if (!presetId) {
-          await ctx.reply('Uso: /workspace optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>] [--workspace <path>]');
+          await ctx.reply(
+            [
+              'Preview a workspace optimization.',
+              '',
+              '/workspace <zavorthBridge|vscode|vscode-derivative>',
+              '  Ex.: /workspace zavorthBridge',
+              'Power form: /workspace optimize <preset> [--workspace <path>]',
+            ].join('\n'),
+          );
           return;
         }
         if (String(tokens[2] || '').trim().toLowerCase() === 'apply') {
           const planId = String(tokens[3] || '').trim();
           if (!planId) {
-            await ctx.reply('Uso: /workspace optimize <preset> apply <planId>');
+            await ctx.reply(
+              [
+                'Apply an approved workspace optimization plan.',
+                '',
+                '/workspace optimize <preset> apply <planId>',
+              ].join('\n'),
+            );
             return;
           }
           const result = await this.deps.workspaceOptimizerService.applyOptimization({
@@ -236,14 +290,34 @@ export class SharedSurfaceDesktopCommandPack {
         return;
       }
 
-      await ctx.reply('Uso: /workspace [doctor|optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>]]');
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui operar o Workspace Optimizer agora.'));
+      // Free-text primary path:
+      // - known preset name → optimize preview
+      // - otherwise treat the free text as a workspace path/hint for doctor
+      const freePreset = this.resolveWorkspacePresetId(command)
+        || this.resolveWorkspacePresetId(tokens.join(' '));
+      if (freePreset) {
+        const preview = await this.deps.workspaceOptimizerService.previewOptimization({
+          presetId: freePreset as any,
+          workspaceHint: extracted.workspaceHint,
+          requestedBy,
+          sourceSurface: ctx.platform,
+        });
+        await ctx.reply(this.deps.workspaceOptimizerService.renderPreview(preview));
+        return;
+      }
+
+      const freeHint = extracted.workspaceHint || tokens.join(' ').trim() || null;
+      const profile = await this.deps.workspaceOptimizerService.buildLoadProfile({
+        workspaceHint: freeHint,
+      });
+      await ctx.reply(this.deps.workspaceOptimizerService.renderLoadProfile(profile));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_workspace_optimizer')));
     }
   }
 
   public async handleCompanion(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.companionControlService) {
-      await ctx.reply('Companion Control Plane indisponivel neste runtime.');
+      await ctx.reply(tService('desktop.companion_control_unavailable'));
       return;
     }
 
@@ -262,7 +336,13 @@ export class SharedSurfaceDesktopCommandPack {
 
       if (command === 'inspect') {
         if (!companionId) {
-          await ctx.reply('Uso: /companion inspect <wsl|docker-desktop|zavorthBridge|codex-companion>');
+          await ctx.reply(
+            [
+              'Inspect a companion.',
+              '',
+              '/companion inspect <wsl|docker-desktop|zavorthBridge|codex-companion>',
+            ].join('\n'),
+          );
           return;
         }
         const companion = await this.deps.companionControlService.inspectCompanion(companionId as any, {
@@ -274,19 +354,31 @@ export class SharedSurfaceDesktopCommandPack {
 
       if (command === 'optimize') {
         if (!this.deps.workspaceOptimizerService) {
-          await ctx.reply('Workspace Optimizer indisponivel neste runtime.');
+          await ctx.reply(tService('desktop.workspace_optimizer_unavailable'));
           return;
         }
         const presetId = companionId;
         if (!presetId) {
-          await ctx.reply('Uso: /companion optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>] [--workspace <path>]');
+          await ctx.reply(
+            [
+              'Optimize a companion workspace preset.',
+              '',
+              '/companion optimize <zavorthBridge|vscode|vscode-derivative> [apply <planId>] [--workspace <path>]',
+            ].join('\n'),
+          );
           return;
         }
         const extracted = this.extractWorkspaceOption(tokens.slice(2));
         if (String(extracted.tokens[0] || '').trim().toLowerCase() === 'apply') {
           const planId = String(extracted.tokens[1] || '').trim();
           if (!planId) {
-            await ctx.reply('Uso: /companion optimize <preset> apply <planId>');
+            await ctx.reply(
+              [
+                'Apply an approved companion optimization plan.',
+                '',
+                '/companion optimize <preset> apply <planId>',
+              ].join('\n'),
+            );
             return;
           }
           const result = await this.deps.workspaceOptimizerService.applyOptimization({
@@ -315,7 +407,13 @@ export class SharedSurfaceDesktopCommandPack {
         || command === 'restart-safe'
       ) {
         if (!companionId) {
-          await ctx.reply('Uso: /companion <hibernate|resume|stop-idle|trim|restart-safe> <companion> [--force] [--dry-run]');
+          await ctx.reply(
+            [
+              'Control a companion lifecycle action.',
+              '',
+              `/companion ${command} <companion> [--force] [--dry-run]`,
+            ].join('\n'),
+          );
           return;
         }
         const result = await this.deps.companionControlService.executeAction({
@@ -329,8 +427,17 @@ export class SharedSurfaceDesktopCommandPack {
         return;
       }
 
-      await ctx.reply('Uso: /companion [list|inspect <id>|hibernate <id>|resume <id>|stop-idle <id>|trim <id>|restart-safe <id>]');
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui operar o Companion Control Plane agora.'));
+      await ctx.reply(
+        [
+          'Companion control plane',
+          '',
+          '/companion',
+          '  → list companions',
+          '/companion inspect <id>',
+          '/companion <hibernate|resume|stop-idle|trim|restart-safe> <id>',
+        ].join('\n'),
+      );
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_companion_plane')));
     }
   }
 

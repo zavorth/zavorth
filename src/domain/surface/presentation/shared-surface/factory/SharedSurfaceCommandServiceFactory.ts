@@ -98,19 +98,12 @@ import { TaskResourcePlannerService } from "../../../../../services/TaskResource
 import type { CompanionWorkspaceOptimizerService } from "../../../../../services/CompanionWorkspaceOptimizerService.js";
 import type { ModeEscalationService } from "../../../../../services/ModeEscalationService.js";
 import { buildSharedSurfaceCommandServiceAssembly } from "./SharedSurfaceCommandServiceAssembly.js";
-import type {
-  SharedSurfaceCommandServiceDeps,
-  SharedSurfaceTaskVariationHelpers,
-} from "./SharedSurfaceCommandServiceDeps.js";
+import type { SharedSurfaceCommandServiceDeps } from "./SharedSurfaceCommandServiceDeps.js";
 
-export type {
-  SharedSurfaceCommandServiceDeps,
-  SharedSurfaceTaskVariationHelpers,
-};
+export type { SharedSurfaceCommandServiceDeps };
 
 export function buildSharedSurfaceCommandServiceComposition(
   deps: SharedSurfaceCommandServiceDeps,
-  helpers: SharedSurfaceTaskVariationHelpers = {},
 ) {
   const parser = deps.parser || new CommandParser();
   const supervisedRuntimeService =
@@ -563,11 +556,6 @@ export function buildSharedSurfaceCommandServiceComposition(
       tenantGovernanceActionService,
       trustPlaneService,
       trustPlaneActionService,
-    },
-    {
-      normalizeNaturalText: helpers.normalizeNaturalText,
-      extractNaturalChannelId: helpers.extractNaturalChannelId,
-      formatNaturalChannelLabel: helpers.formatNaturalChannelLabel,
     },
   );
 }

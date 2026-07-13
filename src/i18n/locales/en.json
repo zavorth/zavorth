@@ -166,5 +166,98 @@
     "created_at": "Created At",
     "session_count": "Session count",
     "no_sessions": "No sessions found"
+  },
+  "services": {
+    "slash": {
+      "learn_skill_usage_title": "Learn Skill (governed)",
+      "learn_skill_failed": "Could not process learn-skill right now.",
+      "session_model_cleared": "Session model cleared for {sessionId}.",
+      "session_model_updated": "Session model updated.",
+      "session_model_failed": "Could not switch session model.",
+      "session_export_empty": "No messages in ledger for session={sessionId}.",
+      "session_export_failed": "Could not export session right now.",
+      "consensus_failed": "Could not run consensus right now.",
+      "consensus_help_title": "Consensus / Deliberation",
+      "consensus_help_desc": "Run multi-model consensus on a query.",
+      "usage": "Usage",
+      "status": "Status",
+      "source_kind": "Source kind",
+      "apply_requested": "Apply requested",
+      "candidates": "Candidates",
+      "materialized": "Materialized",
+      "quarantine": "Quarantine",
+      "next": "Next",
+      "apply": "Apply",
+      "session_model_route": "Session model route",
+      "session": "Session",
+      "active": "Active",
+      "usage_by_model": "Usage by model",
+      "empty": "(empty)",
+      "session_export": "Session export",
+      "messages": "Messages",
+      "redacted": "Redacted",
+      "preview_truncated": "preview truncated",
+      "write_full_file": "Write full file",
+      "subsequent_turns_note": "Subsequent turns use this route (unless the request pins another model)."
+    },
+    "learn_skill": {
+      "blocked": "Learn skill blocked",
+      "no_source": "No source provided.",
+      "provide_source_hint": "Provide a URL, path, or notes to learn a skill.",
+      "approval_required": "Learn skill ready for approval",
+      "preview": "Learn skill preview",
+      "installed": "Learn skill installed under quarantine policy",
+      "partial": "Learn skill partial",
+      "staged_candidates": "Staged {count} skill candidate(s) in quarantine for review.",
+      "review_hint": "Review candidates, then install with --apply --consent.",
+      "materialization_done": "Materialization completed with governed receipts (executable packs may remain held).",
+      "trust_upgrade_hint": "Enable or promote via skills quarantine / trust upgrade if still held.",
+      "partial_hint": "Some candidates staged or held; see fabric receipts.",
+      "partial_next": "Inspect receipts and re-run with elevated flags only if you accept the risk.",
+      "source_not_staged": "Source could not be staged for governed skill intake.",
+      "check_source_hint": "Check the source path/URL and re-run preview.",
+      "approval_needed_hint": "Preview found {count} skill candidate(s). Apply needs --consent or --approval-id.",
+      "consent_hint": "Re-run with --apply --consent after reviewing the risk report.",
+      "extract_http_only": "Extract runs only for http(s) sources; path/text use fabric intake directly.",
+      "live_network_hint": "Live extract requires --confirm-live-network (fabric still stages via governed scrape when available)."
+    },
+    "memory": {
+      "fact_saved_local": "[LocalMemory] Fact saved to local memory successfully.",
+      "fact_saved_remote": "[Mem0] Fact saved to remote backend and synced locally.",
+      "fact_saved_both": "[MemoryRuntime] Fact saved locally and synced with Mem0.",
+      "fact_saved_local_only": "[MemoryRuntime] Fact saved locally. Mem0 sync unavailable this session."
+    },
+    "scheduler": {
+      "automation_paused": "Automation paused automatically: {reason}. Last error: {error}",
+      "task_fire_error": "Error firing scheduled task {taskId}:",
+      "tick_error": "SchedulerService tick error:"
+    },
+    "swarm": {
+      "batch_failed": "A batch failed; review role.finished events and per-role output.",
+      "roles_failed": "{count} role(s) finished without clean success.",
+      "volume_bias": "One role produced much more context than others; review synthesis for volume bias.",
+      "replay_no_events": "Replay still has no events.",
+      "replay_summary": "{count} event(s), synthesis confidence {confidence}/100.",
+      "replay_action_1": "Open events per role and compare the synthesis before trusting the result.",
+      "replay_action_2": "Use the final synthesis and keep the replay as evidence.",
+      "replay_action_3": "Wait for synthesis or cancel if the swarm stalls."
+    },
+    "approval": {
+      "pending": "Pending approvals",
+      "review_pending": "Review pending approvals",
+      "trust_clean": "Trust plane clean: no pending approvals, no active break glass, no broad persistent permissions.",
+      "history_status": "Current history: ... | pending approvals: {count}."
+    },
+    "guided_fixes": {
+      "no_blockers": "No blockers or pending attention items.",
+      "surface_hint": "Raise the local daily surface to confirm the panel responds.",
+      "pending_decisions": "Shows pending decisions; approve or reject still goes through the gateway."
+    },
+    "selfmod": {
+      "preview_failed": "Could not build the self-modification preview.\n\nReason: {reason}",
+      "changeset_failed": "Could not build the objective changeset.\n\nReason: {reason}",
+      "apply_failed": "Could not apply this preview.\n\nReason: {reason}",
+      "rollback_failed": "Could not complete the rollback.\n\nReason: {reason}"
+    }
   }
 }

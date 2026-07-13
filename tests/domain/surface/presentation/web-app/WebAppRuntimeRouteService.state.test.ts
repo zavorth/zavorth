@@ -73,7 +73,7 @@ describe('WebAppRuntimeRouteService', () => {
             channelsReady: 2,
           },
           narrative: {
-            headline: 'Gateway pronto.',
+            headline: 'Gateway ready.',
             operatorSummary: 'Resumo do gateway.',
           },
           memoryPlane: {
@@ -1011,7 +1011,7 @@ describe('WebAppRuntimeRouteService', () => {
             },
             narrative: {
               headline: 'Gateway',
-              operatorSummary: 'Gateway pronto.',
+              operatorSummary: 'Gateway ready.',
             },
           },
         })),

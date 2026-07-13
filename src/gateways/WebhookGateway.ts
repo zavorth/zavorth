@@ -18,6 +18,7 @@ import type { IMessageContext } from '../contracts/core/IMessageBroker.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { ChannelLiveTransportRegistry } from './ChannelLiveTransportRegistry.js';
+import { getScaleToZeroManager } from './ScaleToZeroRuntime.js';
 
 export type WebhookGatewayMode = 'webhook' | 'bot-http' | 'local-bridge' | 'matrix' | 'line';
 
@@ -180,6 +181,16 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
       return false;
     }
 
+    try {
+      const scale = getScaleToZeroManager();
+      if (scale.isShutdown(this.id)) {
+        await scale.warmUp(this.id);
+      }
+      scale.recordActivity(this.id);
+    } catch {
+      // Activity tracking must never block message delivery.
+    }
+
     const isAllowed = await this.policyManager.verifyAccess(this.id, userId);
     if (!isAllowed) {
       this.auditLogger.logChannelAccessDecision({
@@ -204,6 +215,47 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
     if (deckReply) {
       await this.sendMessage({ chatId, text: deckReply, recipients: [chatId] });
       return true;
+    }
+
+    // Numbered / slash approval for pending surface cards (WhatsApp/Signal/Slack/etc.)
+    try {
+      const { tryConsumeMessagingPermissionText } = await import(
+        '../domain/surface/application/surface-projection/MessagingSurfaceResponseSender.js'
+      );
+      const permission = tryConsumeMessagingPermissionText({
+        channel: this.id,
+        chatId,
+        userId,
+        rawText,
+      });
+      if (permission) {
+        const commandText =
+          permission.choice === 'deny'
+            ? `/reject ${permission.taskId}`
+            : `/approve ${permission.taskId} ${permission.choice}`;
+        if (this.broker) {
+          await this.broker.processMessage({
+            platform: this.id as CanonicalChannelPlatform,
+            userId,
+            chatId,
+            messageId: extracted.messageId || null,
+            isGroup: Boolean(extracted.isGroup),
+            rawText: commandText,
+            reply: async (text: string) => {
+              await this.sendMessage({ chatId, text });
+            },
+          });
+        } else {
+          await this.sendMessage({
+            chatId,
+            text: `Recorded decision: ${permission.choice} for ${permission.taskId.slice(0, 8)}.`,
+            recipients: [chatId],
+          });
+        }
+        return true;
+      }
+    } catch (error: unknown) {
+      logger.warn('[WebhookGateway] messaging permission consume failed', error);
     }
 
     if (this.broker) {

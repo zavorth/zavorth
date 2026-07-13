@@ -82,8 +82,8 @@ directories, mcp manifests, and generic workspace config files.
 ### Optional migration profile labels (`--profile`)
 
 On top of universal structural import, `import-workspace` may attach a risk report
-using structure fingerprints: `auto`, `generic` / `generic-agent-home`,
-`openclaw-home`, `hermes-home`. These labels are optional and never required to import.
+using structure fingerprints: `auto`, `generic` / `agent-home`. These labels are
+optional, brand-agnostic, and never required to import.
 Details: [Workspace migration](./product/migration-workspace.md).
 
 ## Safety invariants

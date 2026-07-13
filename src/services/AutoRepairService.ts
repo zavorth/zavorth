@@ -10,6 +10,7 @@ import {
   readOptionalAutoRepairText,
 } from './autorepair/AutoRepairTextUtils.js';
 import { logger } from '../logger.js';
+import { tService } from '../i18n/services.js';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
@@ -468,9 +469,9 @@ export class AutoRepairService {
         needsCodeChange: false,
         targetFile: null,
         instruction: '',
-        summary: `Nao consegui gerar um plano automatico de autoreparo: ${normalizeAutoRepairError(error)}`,
+        summary: `Could not generate an automatic auto-repair plan: ${normalizeAutoRepairError(error)}`,
         confidence: 0,
-        warnings: ['Planejador indisponivel ou sem credencial valida neste momento.'],
+        warnings: [tService('auto_repair.planner_unavailable')],
         validationHints: [],
       };
   }

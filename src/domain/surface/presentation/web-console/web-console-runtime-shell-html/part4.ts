@@ -176,7 +176,7 @@ export function buildRuntimeShellHtmlPart4(): string {
         <p class="profile-tag">Trust Plane</p>
         <h2>Perfis, allowlists e superficies sensiveis</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta o host supervisionado, o perfil MCP, a trust policy de skills, plugins e o trust boundary do runtime numa camada unica para o operador.
+          This view joins the supervised host, MCP profile, skills trust policy, plugins and runtime trust boundary into one operator layer.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -204,7 +204,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             <p class="profile-tag">Runtime</p>
             <strong id="trust-plane-runtime-state">Baseline</strong>
             <p id="trust-plane-runtime-summary" class="muted-copy">
-              O trust boundary do Runtime & Security Mesh aparece aqui de forma resumida para o operador.
+              The Runtime & Security Mesh trust boundary appears here in a short form for the operator.
             </p>
           </article>
         </div>

@@ -1,6 +1,6 @@
 import { Context } from 'grammy';
 import { config } from '@zavorth/config/index.js';
-import { t, getNluPatterns } from '../../../../gateways/channels/telegram/i18n.js';
+import { t } from '../../../../gateways/channels/telegram/i18n.js';
 import { ZavorthControlService } from '@zavorth/services/ZavorthControlService.js';
 import { RemoteModeManager } from '@zavorth/services/RemoteModeManager.js';
 import type { RemoteModeCommand, RemoteModeResult } from '@zavorth/services/RemoteModeManager.js';
@@ -57,6 +57,10 @@ export class TelegramOpsRuntimeCommandService {
       deps.runtimeOfficialRemoteAccessService || new RuntimeOfficialRemoteAccessService();
   }
 
+  /**
+   * Slash-only (Hermes-style). Free-text NLU phrases are not supported.
+   * Examples: /remote on|off|status, /remoto ativar|desativar|status
+   */
   public parseRemoteModeCommand(rawText: string): RemoteModeCommand | null {
     const normalized = rawText
       .trim()
@@ -65,23 +69,27 @@ export class TelegramOpsRuntimeCommandService {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    const patterns = getNluPatterns();
+    if (!normalized.startsWith('/')) {
+      return null;
+    }
 
-    if (patterns.remoteActivate.test(normalized)) {
+    if (/^\/(remote|remoto)(\s+status)?$/.test(normalized) || /^\/(remote|remoto)\s+check$/.test(normalized)) {
+      return 'status';
+    }
+    if (/^\/(remote|remoto)\s+(on|activate|ativar|ligar)$/.test(normalized)) {
       return 'activate';
     }
-
-    if (patterns.remoteDeactivate.test(normalized)) {
+    if (/^\/(remote|remoto)\s+(off|deactivate|desativar|desligar|restore)$/.test(normalized)) {
       return 'restore';
-    }
-
-    if (patterns.remoteStatus.test(normalized)) {
-      return 'status';
     }
 
     return null;
   }
 
+  /**
+   * Slash-only maintenance. Free-text NLU phrases are not supported.
+   * Examples: /changes, /reload [force], /autorepair [dryrun|improve|force]
+   */
   public parseRuntimeMaintenanceCommand(
     rawText: string,
   ): TelegramOpsRuntimeMaintenanceCommand | null {
@@ -92,31 +100,29 @@ export class TelegramOpsRuntimeCommandService {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    if (!normalized || normalized.startsWith('/')) {
+    if (!normalized.startsWith('/')) {
       return null;
     }
 
-    const patterns = getNluPatterns();
-
-    if (patterns.changesSummary.test(normalized)) {
+    if (/^\/changes(\s|$)/.test(normalized)) {
       return { action: 'changes', force: false, dryRun: false, improve: false };
     }
 
-    if (patterns.reload.test(normalized)) {
+    if (/^\/(reload|selfupdate|self-update)(\s|$)/.test(normalized)) {
       return {
         action: 'reload',
-        force: /(force|forcar|forcado|mesmo que ja esteja rodando|even if already running)/i.test(normalized),
+        force: /\b(force|forcar|forcado)\b/i.test(normalized),
         dryRun: false,
         improve: false,
       };
     }
 
-    if (patterns.autorepair.test(normalized)) {
+    if (/^\/(autorepair|selfrepair|self-repair)(\s|$)/.test(normalized)) {
       return {
         action: 'autorepair',
-        force: /(force|forcar|forcado|mesmo sem erro)/i.test(normalized),
-        dryRun: /(simule|dry run|dryrun|planeje|mostre o plano)/i.test(normalized),
-        improve: /(melhore|otimize|improve)/i.test(normalized),
+        force: /\b(force|forcar|forcado)\b/i.test(normalized),
+        dryRun: /\b(dryrun|dry-run|dry\s+run|simule|planeje)\b/i.test(normalized),
+        improve: /\b(improve|melhore|otimize)\b/i.test(normalized),
       };
     }
 
