@@ -87,7 +87,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         });
         const payload: MeshChannelActionResult = await response.json();
         if (!response.ok || payload.ok === false) {
-          throw new Error(payload.error || 'Falha ao executar a acao do Channel Mesh.');
+          throw new Error(payload.error || 'Failed to executar a acao do Channel Mesh.');
         }
         const normalizedChannelId = normalizeChannelId(channelId);
         if (normalizedChannelId) {
@@ -97,7 +97,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         showToast(payload.result?.summary || ('Acao executada: ' + actionId + '.'));
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        showToast(error instanceof Error ? err.message : 'Falha ao executar a acao do Channel Mesh.');
+        showToast(error instanceof Error ? err.message : 'Failed to executar a acao do Channel Mesh.');
       }
     }
 
@@ -119,7 +119,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         : [
             { label: 'Readiness', value: selected?.readiness || 'n/d', tone: selected?.readiness === 'ready' ? 'success' : 'warning' },
             { label: 'Transporte', value: selected?.transport || 'n/d', tone: 'neutral' },
-            { label: 'Configurado', value: selected?.configured ? 'sim' : 'nao', tone: selected?.configured ? 'success' : 'warning' },
+            { label: 'Configurado', value: selected?.configured ? 'sim' : 'no', tone: selected?.configured ? 'success' : 'warning' },
           ];
       return '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin:10px 0;">'
         + rows.slice(0, 8).map((row: MeshChannelStatusRow) =>
@@ -164,12 +164,12 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       const qr = receipt?.loginQr || selected?.loginQr || null;
       const supportsQr = Boolean(qr?.supported || selected?.features?.qrLogin);
       if (!supportsQr && !qr) return '';
-      const state = qr?.state || (supportsQr ? 'pendente' : 'n/a');
+      const state = qr?.state || (supportsQr ? 'pending' : 'n/a');
       const nextStep = qr?.nextStep || selected?.actionHint || 'Sem proximo passo de QR.';
       const image = qr?.dataUrl
         ? '<div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px;">'
           + '<img src="' + escapeHtml(qr.dataUrl) + '" alt="QR de login do WhatsApp" style="width:164px; height:164px; border-radius:8px; border:1px solid rgba(148,163,184,.35); background:#fff; padding:8px;" />'
-          + '<small>Escaneie no app autorizado. O QR nao e enviado automaticamente para canais externos.</small>'
+          + '<small>Escaneie no app autorizado. O QR no e enviado automaticamente para canais externos.</small>'
           + '</div>'
         : '';
       return '<div style="margin-top:10px; border-top:1px solid rgba(148,163,184,.22); padding-top:10px;">'
@@ -187,7 +187,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       const node = document.getElementById('operations-channels');
       if (!node) return;
       if (!channelMesh || channelMesh.error) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o Channel Mesh.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o Channel Mesh.</div>';
         return;
       }
 
@@ -200,11 +200,11 @@ function zavorthControlClassicClientOverviewMeshChannels() {
             + escapeHtml(entry.readiness || 'n/d') + '] - '
             + escapeHtml(entry.operatorSummary || entry.summary || 'Sem resumo.') + '</li>'
           ).join('')
-        : '<li>Nenhum canal registrado no mesh.</li>';
+        : '<li>No channel registered on the mesh.</li>';
       const selectedDetails = selected
         ? '<div class="sidecar-card"><strong>' + escapeHtml(selected.label || selected.id || 'Canal selecionado') + '</strong>'
           + '<p>' + escapeHtml(selected.summary || 'Sem resumo adicional.') + '</p>'
-          + '<p><strong>Proximo passo:</strong> ' + escapeHtml(selected.actionHint || 'Sem acao sugerida.') + '</p>'
+          + '<p><strong>Next step:</strong> ' + escapeHtml(selected.actionHint || 'No suggested action.') + '</p>'
           + renderStatusRows(selected)
           + renderChannelActions(selected)
           + renderQrPanel(selected)
@@ -236,8 +236,8 @@ function zavorthControlClassicClientOverviewMeshChannels() {
         + selectedDetails
         + '</div>'
         + '<div class="cockpit-stack">'
-        + '<div class="sidecar-card"><strong>Catalogo resumido</strong><ul class="cockpit-list">' + entryItems + '</ul></div>'
-        + '<div class="sidecar-card"><strong>Proximo passo</strong><small>Use /channels, /sessions e o gateway para entender o que cada canal ja suporta antes de ampliar rollout.</small></div>'
+        + '<div class="sidecar-card"><strong>Catalog resumido</strong><ul class="cockpit-list">' + entryItems + '</ul></div>'
+        + '<div class="sidecar-card"><strong>Next step</strong><small>Use /channels, /sessions and the gateway to see what each channel already supports before expanding rollout.</small></div>'
         + '</div>'
         + '</div>';
     }

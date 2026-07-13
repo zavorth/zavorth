@@ -134,6 +134,22 @@ export class TelegramExecutionController {
   }
 
   public async handleUndo(ctx: Context, taskId: string): Promise<void> {
+    // Same admin policy as task:undo callbacks / /approve (AuthGuard + explicit role check).
+    try {
+      const userId = ctx.from?.id?.toString();
+      if (!userId) {
+        throw new Error('User ID invalido.');
+      }
+      const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
+      if (!userRoles.includes('admin')) {
+        throw new Error('Apenas administradores podem desfazer tarefas.');
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      await SmartOutputService.reply(ctx, message);
+      return;
+    }
+
     const RollbackManager = require('../../execution/RollbackManager.js').RollbackManager;
     const rollbackManager = new RollbackManager(this.deps.taskManager);
 

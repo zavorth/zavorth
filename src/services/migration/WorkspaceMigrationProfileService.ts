@@ -1,7 +1,7 @@
 /**
  * Optional named migration profiles layered on UniversalWorkspaceImportService.
  *
- * Detects structural fingerprints (openclaw-home, hermes-home, generic-agent-home)
+ * Brand-agnostic workspace detection: identifies agent workspaces by structural markers
  * and builds a risk migration report. Never serializes raw secret values.
  */
 
@@ -53,9 +53,7 @@ function normalizeProfileRequest(
 ): WorkspaceMigrationProfileId {
   const value = String(raw || 'auto').trim().toLowerCase();
   if (value === 'auto' || value === '') return 'auto';
-  if (value === 'generic' || value === 'generic-agent-home') return 'generic-agent-home';
-  if (value === 'openclaw-home' || value === 'openclaw') return 'openclaw-home';
-  if (value === 'hermes-home' || value === 'hermes') return 'hermes-home';
+  if (value === 'generic' || value === 'agent-home') return 'agent-home';
   if (value === 'unknown') return 'unknown';
   return 'auto';
 }
@@ -152,55 +150,20 @@ export class WorkspaceMigrationProfileService {
       }
     };
 
-    // --- OpenClaw-style structural signals ---
-    const openclawSignals: WorkspaceMigrationSignal[] = [
-      { id: 'openclaw_dot_dir', present: isDir('.openclaw'), weight: 4 },
-      { id: 'openclaw_json', present: isFile('openclaw.json'), weight: 4 },
-      { id: 'openclaw_package_name', present: packageNameIs('openclaw'), weight: 3 },
-      {
-        id: 'openclaw_soul_plus_skills',
-        present: isFile('SOUL.md') && isDir('skills'),
-        weight: 2,
-      },
-      { id: 'openclaw_agents_soul', present: hasAgentsSoulLayout(), weight: 3 },
-    ];
-
-    // --- Hermes-style structural signals ---
-    const hermesSignals: WorkspaceMigrationSignal[] = [
-      { id: 'hermes_dot_dir', present: isDir('.hermes'), weight: 4 },
-      {
-        id: 'hermes_config_file',
-        present:
-          isFile('hermes.json') ||
-          isFile('hermes.yaml') ||
-          isFile('hermes.yml') ||
-          isFile('hermes.config.json') ||
-          isFile('.hermesrc') ||
-          isFile('.hermesrc.json'),
-        weight: 3,
-      },
-      {
-        id: 'hermes_cli_config_plus_skills',
-        present: isFile('cli-config.yaml') && isDir('skills'),
-        weight: 3,
-      },
-      {
-        id: 'hermes_cli_config_yml_plus_skills',
-        present: isFile('cli-config.yml') && isDir('skills'),
-        weight: 3,
-      },
-      { id: 'hermes_gateway_dir', present: isDir('gateway'), weight: 1 },
-    ];
-
-    // --- Generic agent-home structural signals ---
-    const genericSignals: WorkspaceMigrationSignal[] = [
-      { id: 'generic_identity_md', present: isFile('IDENTITY.md'), weight: 2 },
-      { id: 'generic_agents_md', present: isFile('AGENTS.md'), weight: 2 },
-      { id: 'generic_soul_md', present: isFile('SOUL.md'), weight: 1 },
-      { id: 'generic_memory_dir', present: isDir('memory') || isDir('memories'), weight: 2 },
-      { id: 'generic_skills_dir', present: isDir('skills') || isDir('skill-library'), weight: 2 },
-      { id: 'generic_user_md', present: isFile('USER.md'), weight: 1 },
-      { id: 'generic_memory_md', present: isFile('MEMORY.md'), weight: 1 },
+    // Brand-agnostic structural signals for agent workspaces
+    const agentSignals: WorkspaceMigrationSignal[] = [
+      { id: 'identity_md', present: isFile('IDENTITY.md'), weight: 3 },
+      { id: 'agents_md', present: isFile('AGENTS.md'), weight: 3 },
+      { id: 'soul_md', present: isFile('SOUL.md'), weight: 2 },
+      { id: 'user_md', present: isFile('USER.md'), weight: 2 },
+      { id: 'memory_md', present: isFile('MEMORY.md'), weight: 2 },
+      { id: 'rules_md', present: isFile('RULES.md'), weight: 2 },
+      { id: 'tools_md', present: isFile('TOOLS.md'), weight: 1 },
+      { id: 'skills_dir', present: isDir('skills') || isDir('skill-library'), weight: 3 },
+      { id: 'memory_dir', present: isDir('memory') || isDir('memories'), weight: 2 },
+      { id: 'config_yaml', present: isFile('config.yaml'), weight: 2 },
+      { id: 'agents_soul_layout', present: hasAgentsSoulLayout(), weight: 3 },
+      { id: 'config_json', present: isFile('config.json'), weight: 1 },
     ];
 
     const score = (signals: WorkspaceMigrationSignal[]): number => {
@@ -209,42 +172,22 @@ export class WorkspaceMigrationProfileService {
       return hit / total;
     };
 
-    const openclawScore = score(openclawSignals);
-    const hermesScore = score(hermesSignals);
-    const genericScore = score(genericSignals);
-
-    // Hard wins for strong fingerprint dirs/files
-    const openclawHard =
-      openclawSignals.find((s) => s.id === 'openclaw_dot_dir')?.present ||
-      openclawSignals.find((s) => s.id === 'openclaw_json')?.present ||
-      openclawSignals.find((s) => s.id === 'openclaw_package_name')?.present;
-    const hermesHard =
-      hermesSignals.find((s) => s.id === 'hermes_dot_dir')?.present ||
-      hermesSignals.find((s) => s.id === 'hermes_config_file')?.present;
+    const agentScore = score(agentSignals);
+    const hasStrongFingerprint =
+      agentSignals.find((s) => s.id === 'agents_md')?.present &&
+      agentSignals.find((s) => s.id === 'skills_dir')?.present;
 
     let profileId: WorkspaceMigrationProfileId = 'unknown';
     let confidence = 0;
-    let usedSignals: WorkspaceMigrationSignal[] = [
-      ...openclawSignals,
-      ...hermesSignals,
-      ...genericSignals,
-    ];
+    let usedSignals: WorkspaceMigrationSignal[] = agentSignals;
+
+    const agentConf = hasStrongFingerprint ? Math.max(agentScore, 0.7) : agentScore;
 
     const candidates: Array<{ id: WorkspaceMigrationProfileId; conf: number; hard: boolean }> = [
       {
-        id: 'openclaw-home',
-        conf: openclawHard ? Math.max(openclawScore, 0.72) : openclawScore,
-        hard: Boolean(openclawHard),
-      },
-      {
-        id: 'hermes-home',
-        conf: hermesHard ? Math.max(hermesScore, 0.72) : hermesScore,
-        hard: Boolean(hermesHard),
-      },
-      {
-        id: 'generic-agent-home',
-        conf: genericScore,
-        hard: false,
+        id: 'agent-home',
+        conf: agentConf,
+        hard: Boolean(hasStrongFingerprint),
       },
     ];
 
@@ -255,8 +198,7 @@ export class WorkspaceMigrationProfileService {
 
     const top = candidates[0];
     if (top && top.conf > 0) {
-      // Require a minimum for generic; hard fingerprints always win when present
-      if (top.id === 'generic-agent-home' && top.conf < 0.15 && !top.hard) {
+      if (top.conf < 0.15 && !top.hard) {
         profileId = 'unknown';
         confidence = top.conf;
       } else {

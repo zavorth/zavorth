@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "secret-source-env",
+  "label": "Secret Source Env",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Presence-only env secret source (never returns values).",
+  "description": "Wave 6 Trust fabric pack. Reports whether allowlisted process.env secret names are present without ever returning values. Soft-fail diagnostics for secret.read and registerSecretSource.",
+  "tags": ["secrets", "env", "trust", "wave6", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://secret-source-env",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "secret.env.status",
+      "intent": "secret.env.status",
+      "label": "Env Secret Status",
+      "summary": "List allowlisted env names with present flags only (never values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_env_status",
+        "aliases": ["env_secret_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "secret.env.get",
+      "intent": "secret.env.get",
+      "label": "Env Secret Get Presence",
+      "summary": "Return present:boolean for an allowlisted env name (never the value).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_env_get",
+        "aliases": ["env_secret_get"],
+        "usage": "{ name }"
+      }
+    },
+    {
+      "id": "secret.env.list",
+      "intent": "secret.env.list",
+      "label": "Env Secret List",
+      "summary": "List allowlisted env names with present flags only.",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_env_list",
+        "aliases": ["env_secret_list"],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether allowlisted env secret names are present (values never returned).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

@@ -192,6 +192,40 @@ describe('Plugin OS Preview engine', () => {
     expect(result.receipt.decision.reasons).toContain('process.spawn requested system scope');
   });
 
+  it('registerHandler and hasHandler wire runtime handlers after construction', async () => {
+    const service = new PluginRegistryService({
+      now: () => new Date('2026-05-04T12:25:00.000Z'),
+      manifests: [baseManifest()],
+    });
+
+    service.install('search-searxng', { approved: true });
+    service.enable('search-searxng', { approved: true });
+
+    expect(service.hasHandler('search-searxng')).toBe(false);
+
+    service.registerHandler('search-searxng', async (request) => ({
+      query: request.input?.query,
+      source: 'late-handler',
+    }));
+
+    expect(service.hasHandler('search-searxng')).toBe(true);
+
+    const executed = await service.invoke({
+      pluginId: 'search-searxng',
+      capabilityId: 'search.query',
+      approved: true,
+      input: { query: 'late' },
+    });
+
+    expect(executed.status).toBe('executed');
+    expect(executed.output).toEqual(
+      expect.objectContaining({
+        query: 'late',
+        source: 'late-handler',
+      }),
+    );
+  });
+
   it('evaluates sandbox decisions independently from registry state', () => {
     const decision = new PluginSandboxPolicyService({
       now: () => new Date('2026-05-04T12:30:00.000Z'),

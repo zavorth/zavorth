@@ -1,9 +1,14 @@
 import { logger } from '../logger.js';
+import { tService } from '../i18n/services.js';
 import { safeParseInt } from '../utils/number.js';
 import { v4 as uuidv4 } from 'uuid';
 import { SchedulerRepository, type ScheduledTask } from '../storage/SchedulerRepository.js';
 import type { ZavorthAutomationDeliveryService } from './ZavorthAutomationDeliveryService.js';
 import { RuntimeProfileService } from './RuntimeProfileService.js';
+import {
+  nextRunFromNaturalSchedule,
+  parseNaturalSchedule,
+} from './scheduling/NaturalScheduleParser.js';
 
 export type SchedulerDispatchResult = {
   summary?: string | null;
@@ -90,17 +95,18 @@ export type CommandDispatcher = (
 ) => Promise<SchedulerDispatchResult | void>;
 
 export type ScheduleParserResult = {
-  kind: 'interval' | 'daily';
+  kind: 'interval' | 'daily' | 'weekly' | 'cron';
   normalized: string;
   label: string;
+  cron?: string;
 };
 
 /**
- * SchedulerService — roda tarefas recorrentes e mantém o estado operacional delas.
- * Aceita:
- * - "every 30m"
- * - "every 2h"
- * - "daily 09:00"
+ * SchedulerService — recurring task runner.
+ * Schedules (canonical + natural PT/EN via NaturalScheduleParser):
+ * - every 30m | every 2h | a cada 30 minutos
+ * - daily 09:00 | todo dia as 9h
+ * - every monday at 10:00 | toda sexta as 18h
  */
 export class SchedulerService {
   private timer: NodeJS.Timeout | null = null;
@@ -315,38 +321,39 @@ export class SchedulerService {
   }
 
   public parseSchedule(schedule: string): ScheduleParserResult | null {
-    const normalized = String(schedule || '').trim().toLowerCase();
-    const intervalMatch = normalized.match(/^every\s+(\d+)([mh])$/);
-    if (intervalMatch) {
-      const amount = safeParseInt(intervalMatch[1], -1);
-      const unit = intervalMatch[2];
-      if (!Number.isFinite(amount) || amount <= 0) {
-        return null;
-      }
+    const parsed = parseNaturalSchedule(schedule);
+    if (!parsed) return null;
+    // Map weekly/cron kinds for scheduler result type
+    if (parsed.kind === 'interval') {
       return {
         kind: 'interval',
-        normalized: `every ${amount}${unit}`,
-        label: unit === 'm' ? `a cada ${amount} minuto(s)` : `a cada ${amount} hora(s)`,
+        normalized: parsed.normalized,
+        label: parsed.label,
+        cron: parsed.cron,
       };
     }
-
-    const dailyMatch = normalized.match(/^daily\s+(\d{1,2}):(\d{2})$/);
-    if (dailyMatch) {
-      const hour = safeParseInt(dailyMatch[1], -1);
-      const minute = safeParseInt(dailyMatch[2], -1);
-      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-        return null;
-      }
-      const hh = String(hour).padStart(2, '0');
-      const mm = String(minute).padStart(2, '0');
+    if (parsed.kind === 'daily') {
       return {
         kind: 'daily',
-        normalized: `daily ${hh}:${mm}`,
-        label: `todo dia as ${hh}:${mm}`,
+        normalized: parsed.normalized,
+        label: parsed.label,
+        cron: parsed.cron,
       };
     }
-
-    return null;
+    if (parsed.kind === 'weekly') {
+      return {
+        kind: 'weekly',
+        normalized: parsed.normalized,
+        label: parsed.label,
+        cron: parsed.cron,
+      };
+    }
+    return {
+      kind: 'cron',
+      normalized: parsed.normalized,
+      label: parsed.label,
+      cron: parsed.cron,
+    };
   }
 
   public describeSchedule(schedule: string): string {
@@ -437,54 +444,28 @@ export class SchedulerService {
             this.deliveryService?.recordSystemNotice?.({
               taskId: task.id,
               prompt: task.intent_text || task.command,
-              summary: `Automacao pausada automaticamente: ${pausedReason}. Ultimo erro: ${this.extractErrorMessage(error)}`,
+              summary: tService('scheduler_runtime.auto_paused', {
+                reason: pausedReason,
+                error: this.extractErrorMessage(error),
+              }),
             });
           }
-          logger.error(`Erro ao disparar tarefa agendada ${task.id}:`, error);
+          logger.error(tService('scheduler_runtime.trigger_failed', { id: task.id }), error);
         } finally {
           this.runningCount = Math.max(0, this.runningCount - 1);
           this.runningTaskIds.delete(task.id);
         }
       }
-    } catch (error: unknown) {logger.error('Erro no tick do SchedulerService:', error);
+    } catch (error: unknown) {logger.error(tService('scheduler_runtime.tick_error'), error);
     }
   }
 
   private calculateNextRun(schedule: string, fromDate: Date = new Date()): Date | null {
-    const parsed = this.parseSchedule(schedule);
-    if (!parsed) {
+    const natural = parseNaturalSchedule(schedule, fromDate);
+    if (!natural) {
       return null;
     }
-
-    if (parsed.kind === 'interval') {
-      const intervalMatch = parsed.normalized.match(/^every\s+(\d+)([mh])$/);
-      if (!intervalMatch) {
-        return null;
-      }
-      const amount = safeParseInt(intervalMatch[1], -1);
-      const unit = intervalMatch[2];
-      const next = new Date(fromDate);
-      if (unit === 'm') {
-        next.setMinutes(next.getMinutes() + amount);
-        return next;
-      }
-      next.setHours(next.getHours() + amount);
-      return next;
-    }
-
-    const dailyMatch = parsed.normalized.match(/^daily\s+(\d{2}):(\d{2})$/);
-    if (!dailyMatch) {
-      return null;
-    }
-    const hour = safeParseInt(dailyMatch[1], -1);
-    const minute = safeParseInt(dailyMatch[2], -1);
-    const next = new Date(fromDate);
-    next.setSeconds(0, 0);
-    next.setHours(hour, minute, 0, 0);
-    if (next.getTime() <= fromDate.getTime()) {
-      next.setDate(next.getDate() + 1);
-    }
-    return next;
+    return nextRunFromNaturalSchedule(natural, fromDate);
   }
 
   private buildDefaultBudget(): SchedulerTaskBudget {

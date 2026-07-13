@@ -155,7 +155,7 @@ export class ZavorthStayOnlineService {
     const generatedAt = this.now().toISOString();
     const readyToGo = await this.readyToGo.buildSnapshot({
       refreshProviders: input.refreshProviders === true,
-      userId: input.userId || 'operator',
+      userId: input.userId || 'local-user',
       sessionId: input.sessionId || 'stay-online',
       workspaceHint: input.workspaceHint || this.projectRoot,
     });

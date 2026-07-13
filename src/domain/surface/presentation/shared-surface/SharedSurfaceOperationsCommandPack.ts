@@ -5,6 +5,8 @@ import type { ZavorthHubActionService } from '../../../../services/ZavorthHubAct
 import type { ZavorthHubControlPlaneService } from '../../../../services/ZavorthHubControlPlaneService.js';
 import type { ZavorthTrustPlaneActionService } from '../../../../services/ZavorthTrustPlaneActionService.js';
 import type { ZavorthTrustPlaneService } from '../../../../services/ZavorthTrustPlaneService.js';
+import { tSurface } from '../../../../i18n/surface.js';
+import { tService } from '../../../../i18n/services.js';
 import {
   buildReportSurfaceResponse,
   buildRuntimeSurfaceResponse,
@@ -44,7 +46,7 @@ export class SharedSurfaceOperationsCommandPack {
       case '/schedules':
         await ctx.reply(this.renderOperationsReport(
           'schedules-status',
-          'Agendamentos governados',
+          tService('operations.governed_schedules'),
           await this.deps.automationControlPlaneService.renderReport(),
         ));
         return true;
@@ -66,14 +68,14 @@ export class SharedSurfaceOperationsCommandPack {
     const normalizedArgs = String(args || '').trim();
     const lower = normalizedArgs.toLowerCase();
 
-    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open') {
+    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'help' || lower === 'ajuda' || lower === '?') {
       const report = this.deps.hubControlPlaneService.renderReport({
-        selectedId: normalizedArgs && lower !== 'open' ? normalizedArgs : null,
-        query: normalizedArgs && lower !== 'open' ? normalizedArgs : null,
-        recommendFor: normalizedArgs && lower !== 'open' ? normalizedArgs : null,
+        selectedId: null,
+        query: null,
+        recommendFor: null,
       });
       await ctx.reply(this.renderOperationsReport('hub-report', 'Hub + MCP product plane', report, {
-        query: normalizedArgs || null,
+        query: null,
       }));
       return;
     }
@@ -116,15 +118,46 @@ export class SharedSurfaceOperationsCommandPack {
     if (lower.startsWith('run ')) {
       const actionId = normalizedArgs.slice(4).trim();
       if (!actionId) {
-        await ctx.reply('Uso: /hub run <actionId>. Ex.: /hub run platform-sync');
+        await ctx.reply(
+          [
+            'Run a hub action.',
+            '',
+            '/hub <actionId>',
+            '  Ex.: /hub platform-sync',
+            'Power form: /hub run <actionId>',
+          ].join('\n'),
+        );
         return;
       }
-      const execution = await this.deps.hubActionService.execute({
-        actionId,
-        requestedBy: String(ctx.userId || '').trim() || null,
-        workspace: process.cwd(),
-      });
-      await ctx.reply(this.formatHubActionReply(execution));
+      try {
+        const execution = await this.deps.hubActionService.execute({
+          actionId,
+          requestedBy: String(ctx.userId || '').trim() || null,
+          workspace: process.cwd(),
+        });
+        await ctx.reply(this.formatHubActionReply(execution));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error || '');
+        const looksUnknownAction =
+          /nao encontrada|not found/i.test(message)
+          || /reading ['"]actions['"]/i.test(message);
+        if (!looksUnknownAction) {
+          await ctx.reply(message || tSurface('error_hub_action'));
+          return;
+        }
+        // NaturalSlashConvention rewrites bare tokens to "run <id>".
+        // If that id is not a hub action (e.g. connector/catalog name), fall back to search.
+        await ctx.reply(this.renderOperationsReport(
+          'hub-search',
+          'Hub + MCP product plane',
+          this.deps.hubControlPlaneService.renderReport({
+            selectedId: actionId,
+            query: actionId,
+            recommendFor: actionId,
+          }),
+          { query: actionId },
+        ));
+      }
       return;
     }
 
@@ -236,14 +269,37 @@ export class SharedSurfaceOperationsCommandPack {
 
   private async handleSchedule(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
-    if (!normalizedArgs) {
+    const lower = normalizedArgs.toLowerCase();
+
+    // Empty / status / list / help → home report (NaturalSlashConvention rewrites empty → status).
+    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'list' || lower === 'ls') {
       await ctx.reply(this.renderOperationsReport(
-        'schedule-help',
-        'Agendamentos governados',
-        'Uso: /schedule every 1h /status\nA criacao recorrente passa por preview e approval governado.',
+        'schedule-status',
+        tService('operations.governed_schedules'),
+        await this.deps.automationControlPlaneService.renderReport(),
       ));
       return;
     }
+
+    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+      await ctx.reply(this.renderOperationsReport(
+        'schedule-help',
+        tService('operations.governed_schedules'),
+        [
+          'Schedule a recurring action (preview + governed approval).',
+          '',
+          '/schedule <request>',
+          '  Ex.: /schedule every 1h /status',
+          '  Ex.: /schedule todo dia as 9h verifique meus canais',
+          '',
+          '/schedule',
+          '  → status of governed schedules',
+        ].join('\n'),
+      ));
+      return;
+    }
+
+    // Free-text primary path: create with the natural request as intent payload.
     const execution = await this.deps.automationActionService.execute({
       actionId: 'create',
       intentText: normalizedArgs,
@@ -255,18 +311,45 @@ export class SharedSurfaceOperationsCommandPack {
 
   private async handleReport(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
-    const match = normalizedArgs.match(/^(every\s+\d+[mh]|a\s+cada\s+\d+\s*[mh]|todo\s+dia.*?\d{1,2}(?::\d{2})?\s*h?)\s+(.+)$/iu);
-    if (!match) {
+    const lower = normalizedArgs.toLowerCase();
+
+    if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open' || lower === 'list' || lower === 'ls') {
       await ctx.reply(this.renderOperationsReport(
-        'report-help',
-        'Relatorios recorrentes governados',
-        'Uso: /report every 6h ultimas noticias de IA\nA criacao recorrente passa por preview e approval governado.',
+        'report-status',
+        tService('operations.governed_reports'),
+        await this.deps.automationControlPlaneService.renderReport(),
       ));
       return;
     }
+
+    if (lower === 'help' || lower === 'ajuda' || lower === '?') {
+      await ctx.reply(this.renderOperationsReport(
+        'report-help',
+        tService('operations.governed_reports'),
+        [
+          'Schedule a recurring report (preview + governed approval).',
+          '',
+          '/report <request>',
+          '  Ex.: /report every 6h ultimas noticias de IA',
+          '  Ex.: /report a cada 1h resumo do runtime',
+          '',
+          '/report',
+          '  → status of governed report schedules',
+        ].join('\n'),
+      ));
+      return;
+    }
+
+    // Structured cadence + topic → deepresearch report intent.
+    const match = normalizedArgs.match(/^(every\s+\d+[mh]|a\s+cada\s+\d+\s*[mh]|todo\s+dia.*?\d{1,2}(?::\d{2})?\s*h?)\s+(.+)$/iu);
+    const intentText = match
+      ? `${match[1]} /deepresearch ${String(match[2] || '').trim()}`
+      : normalizedArgs;
+
+    // Free-text primary path (with or without explicit cadence) still creates via automation plane.
     const execution = await this.deps.automationActionService.execute({
       actionId: 'create',
-      intentText: `${match[1]} /deepresearch ${String(match[2] || '').trim()}`,
+      intentText,
       requestedBy: String(ctx.userId || '').trim() || null,
       sourceSurface: ctx.platform === 'telegram' ? 'telegram' : 'app',
     });
@@ -278,8 +361,15 @@ export class SharedSurfaceOperationsCommandPack {
     if (!taskId) {
       await ctx.reply(this.renderOperationsReport(
         'unschedule-help',
-        'Agendamentos governados',
-        'Uso: /unschedule <id>. A remocao passa pelo lifecycle governado.',
+        tService('operations.governed_schedules'),
+        [
+          'Remove a governed schedule by id.',
+          '',
+          '/unschedule <id>',
+          '  Ex.: /unschedule task-123',
+          '',
+          'Removal goes through the governed lifecycle.',
+        ].join('\n'),
       ));
       return;
     }
@@ -298,7 +388,7 @@ export class SharedSurfaceOperationsCommandPack {
     if (!normalizedArgs || lower === 'status' || lower === 'show' || lower === 'open') {
       await ctx.reply(this.renderOperationsReport(
         'trust-status',
-        'Trust Plane do Zavorth',
+        tService('operations.trust_plane_title'),
         this.deps.trustPlaneService.renderReport(),
       ));
       return;
@@ -368,12 +458,12 @@ export class SharedSurfaceOperationsCommandPack {
       return;
     }
 
-    await ctx.reply(this.renderOperationsReport('trust-help', 'Trust Plane do Zavorth', [
-      'Trust Plane do Zavorth',
+    await ctx.reply(this.renderOperationsReport('trust-help', tService('operations.trust_plane_title'), [
+      tService('operations.trust_plane_title'),
       '',
       this.deps.trustPlaneService.renderReport(),
       '',
-      'Atalhos de mutacao:',
+      tService('operations.mutation_shortcuts'),
       '- /trust mcp trusted',
       '- /trust mcp safe',
       '- /trust mcp allow <tool>',
@@ -393,7 +483,7 @@ export class SharedSurfaceOperationsCommandPack {
       ...execution.details.map((detail) => `- ${detail}`),
       '',
       execution.hub.narrative.operatorSummary,
-      `Proximo passo: ${execution.hub.narrative.nextAction}`,
+      `${tService('operations.next_step')}: ${execution.hub.narrative.nextAction}`,
     ].join('\n');
     return this.renderOperationsAction('hub-action', 'Hub + MCP product plane', execution.summary, text, {
       status: this.mapExecutionStatus(execution),
@@ -409,21 +499,21 @@ export class SharedSurfaceOperationsCommandPack {
       ...execution.details.map((entry) => `- ${entry}`),
       '',
       execution.snapshot.narrative.operatorSummary,
-      `Proximo passo: ${execution.snapshot.narrative.nextAction}`,
+      `${tService('operations.next_step')}: ${execution.snapshot.narrative.nextAction}`,
     ];
     const plan = 'mutationPlan' in execution ? execution.mutationPlan : null;
     if (plan?.id) {
       lines.push(
         '',
-        `Plano: ${plan.id} (${plan.status || execution.status || 'waiting_approval'}).`,
-        plan.approval?.permissionId ? `Approval: ${plan.approval.permissionId}.` : 'Approval: pendente.',
-        `Aplicar depois de aprovado: /automations apply ${plan.id}`,
+        `${tService('operations.plan_label')}: ${plan.id} (${plan.status || execution.status || 'waiting_approval'}).`,
+        plan.approval?.permissionId ? `Approval: ${plan.approval.permissionId}.` : tSurface('approval_pending'),
+        `${tService('operations.apply_after_approval')}: /automations apply ${plan.id}`,
       );
     }
     return this.renderOperationsAction(
       `automation-${String((execution as any).actionId || 'action')}`,
       'Automations e scheduled runs',
-      String(execution.summary || 'Acao de automacao concluida.'),
+      String(execution.summary || tService('operations.automation_action_completed')),
       lines.join('\n'),
       {
         status: this.mapExecutionStatus(execution),
@@ -447,12 +537,12 @@ export class SharedSurfaceOperationsCommandPack {
   }): string {
     const lines = [
       result.status === 'waiting_approval'
-        ? 'Trust Plane em preview'
+        ? tService('operations.trust_plane_preview')
         : result.status === 'blocked'
-          ? 'Trust Plane bloqueado'
-          : 'Trust Plane atualizado',
+          ? tService('operations.trust_plane_blocked')
+          : tService('operations.trust_plane_updated'),
       '',
-      String(result.summary || 'Ajuste aplicado no Trust Plane.').trim(),
+      String(result.summary || tService('operations.trust_plane_adjustment_applied')).trim(),
     ];
     const details = Array.isArray(result.details) ? result.details.filter(Boolean) : [];
     if (details.length > 0) {
@@ -462,7 +552,7 @@ export class SharedSurfaceOperationsCommandPack {
     if (snapshot?.summary) {
       lines.push(
         '',
-        `Postura: ${snapshot.summary.posture}.`,
+        `${tService('operations.posture')}: ${snapshot.summary.posture}.`,
         `MCP: ${snapshot.summary.mcpProfile} | Skills: ${snapshot.summary.skillDefaultPolicy} | Plugins trusted: ${snapshot.summary.trustedPlugins}/${snapshot.summary.installedPlugins}.`,
       );
     }
@@ -471,7 +561,7 @@ export class SharedSurfaceOperationsCommandPack {
       lines.push(
         '',
         `Diff preview (${result.diffPreview?.approvalScope || 'once'}):`,
-        ...diffEntries.slice(0, 4).map((entry) => `- ${entry.path || 'policy'}: ${entry.summary || 'Mudanca de policy.'}`),
+        ...diffEntries.slice(0, 4).map((entry) => `- ${entry.path || 'policy'}: ${entry.summary || tService('operations.policy_change')}`),
       );
     }
     if (result.ledgerEntry?.id) {
@@ -483,21 +573,21 @@ export class SharedSurfaceOperationsCommandPack {
     if (result.mutationPlan?.id) {
       lines.push(
         '',
-        `Plano: ${result.mutationPlan.id} (${result.mutationPlan.status || 'waiting_approval'}).`,
+        `${tService('operations.plan_label')}: ${result.mutationPlan.id} (${result.mutationPlan.status || 'waiting_approval'}).`,
         result.mutationPlan.approval?.permissionId
           ? `Approval: ${result.mutationPlan.approval.permissionId}.`
-          : 'Approval: pendente.',
-        `Aplicar depois de aprovado: /trust apply ${result.mutationPlan.id}`,
+          : tSurface('approval_pending'),
+        `${tService('operations.apply_after_approval')}: /trust apply ${result.mutationPlan.id}`,
       );
     }
     return this.renderOperationsAction(
       `trust-${String(result.status || 'action')}`,
       result.status === 'waiting_approval'
-        ? 'Trust Plane em preview'
+        ? tService('operations.trust_plane_preview')
         : result.status === 'blocked'
-          ? 'Trust Plane bloqueado'
-          : 'Trust Plane atualizado',
-      String(result.summary || 'Ajuste aplicado no Trust Plane.').trim(),
+          ? tService('operations.trust_plane_blocked')
+          : tService('operations.trust_plane_updated'),
+      String(result.summary || tService('operations.trust_plane_adjustment_applied')).trim(),
       lines.join('\n'),
       {
         status: this.mapExecutionStatus(result),

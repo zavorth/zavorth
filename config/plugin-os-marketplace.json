@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "zavorth.plugin-os-marketplace.v1",
+  "defaultRemoteUrlEnv": "ZAVORTH_PLUGIN_MARKETPLACE_URL",
+  "defaultRemoteUrl": null,
+  "signedPackFormatVersion": "zavorth.signed-pack.v1",
+  "requireHttps": true,
+  "notes": [
+    "defaultRemoteUrl is null by design: operators set ZAVORTH_PLUGIN_MARKETPLACE_URL (or inject remoteUrl at runtime). Example placeholder: https://cdn.example.com/zavorth/plugin-catalog.json",
+    "Remote catalogs must be HTTPS JSON arrays (or { entries: [] }). See config/plugin-marketplace-remote.example.json.",
+    "Signed packs follow docs/plugin-os-signed-pack.md (manifest zavorth.plugin-os.v1 + digest/signature fields).",
+    "Local config/plugin-marketplace-curated.json always wins on id conflicts over remote/cache entries.",
+    "Remote/community packs are never auto-enabled as first-party; enable remains explicit after install + verify.",
+    "SSRF guards reject localhost, private hosts, and non-HTTPS schemes during marketplace refresh.",
+    "Cache path: .zavorth/cache/plugin-marketplace-remote.json",
+    "Atlas generation: node scripts/generate-plugin-atlas.mjs → docs/generated/plugin-atlas.{json,md}"
+  ]
+}

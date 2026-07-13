@@ -6,6 +6,7 @@ import type { ZavorthTeamCatalogService } from '../../../../services/ZavorthTeam
 import type { ZavorthTenantGovernanceActionService } from '../../../../services/ZavorthTenantGovernanceActionService.js';
 import type { ZavorthTenantGovernanceService } from '../../../../services/ZavorthTenantGovernanceService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
 type SharedSurfaceTenantGovernanceCommandPackDeps = {
 
   teamCatalogService: Pick<ZavorthTeamCatalogService, 'buildSnapshot'>;
@@ -24,9 +25,12 @@ export class SharedSurfaceTenantGovernanceCommandPack {
   }
 
   public async handleTenants(ctx: IMessageContext, args: string): Promise<void> {
+    // NaturalSlashConvention rewrites empty `/tenants` → `status` (home). Treat as no filter.
     const normalizedArgs = String(args || '').trim();
+    const homeArgs = !normalizedArgs || /^(status|show|open|ver|mostrar)$/i.test(normalizedArgs);
+    const actionArgs = homeArgs ? '' : normalizedArgs;
     const actionSnapshot = this.deps.tenantGovernanceService.buildSnapshot();
-    const explicitActionRequest = this.resolveExplicitTenantActionRequest(actionSnapshot, normalizedArgs);
+    const explicitActionRequest = this.resolveExplicitTenantActionRequest(actionSnapshot, actionArgs);
     if (explicitActionRequest?.error) {
       await ctx.reply(explicitActionRequest.error);
       return;
@@ -35,13 +39,13 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       await this.handleTenantAction(ctx, explicitActionRequest.tenantId, explicitActionRequest.actionId);
       return;
     }
-    const implicitActionRequest = this.resolveImplicitTenantActionRequest(actionSnapshot, normalizedArgs);
+    const implicitActionRequest = this.resolveImplicitTenantActionRequest(actionSnapshot, actionArgs);
     if (implicitActionRequest) {
       await this.handleTenantAction(ctx, implicitActionRequest.tenantId, implicitActionRequest.actionId);
       return;
     }
 
-    const query = String(args || '').trim().toLowerCase();
+    const query = homeArgs ? '' : actionArgs.toLowerCase();
     const snapshot = this.deps.tenantGovernanceService.buildSnapshot();
     const tenants = query
       ? snapshot.tenants.filter((tenant) =>
@@ -51,19 +55,19 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       : snapshot.tenants;
 
     if (query && tenants.length === 0) {
-      await ctx.reply(`Nao encontrei tenant para "${query}". Use /tenants para ver a governanca completa observada pelo runtime.`);
+      await ctx.reply(`No tenant found for "${query}". Use /tenants to see full governance observed by the runtime.`);
       return;
     }
 
     const lines = [
-      'Governanca de tenants do Zavorth',
+      'Zavorth tenant governance',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       snapshot.narrative.nextAction,
       '',
-      `Totais: ${snapshot.summary.total} tenant(s) | compartilhados: ${snapshot.summary.shared} | pessoais: ${snapshot.summary.personal}.`,
-      `Pendentes: ${snapshot.summary.pendingOnboarding} | publicos: ${snapshot.summary.publicServers} | shared prontos: ${snapshot.summary.readyShared}.`,
+      `Totals: ${snapshot.summary.total} tenant(s) | shared: ${snapshot.summary.shared} | personal: ${snapshot.summary.personal}.`,
+      `Pending: ${snapshot.summary.pendingOnboarding} | public: ${snapshot.summary.publicServers} | shared ready: ${snapshot.summary.readyShared}.`,
     ];
 
     for (const tenant of tenants.slice(0, 6)) {
@@ -79,13 +83,13 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         tenant.runtimeUserId ? `runtime ${tenant.runtimeUserId}` : null,
       ].filter(Boolean);
       if (contextBits.length > 0) {
-        lines.push(`- Contexto: ${contextBits.join(' | ')}`);
+        lines.push(`- Context: ${contextBits.join(' | ')}`);
       }
       if (tenant.recipe) {
         lines.push(`- Recipe: ${tenant.recipe.label} | ${tenant.recipe.summary}`);
       }
       if (tenant.nextAction) {
-        lines.push(`- Proximo passo: ${tenant.nextAction}`);
+        lines.push(`- Next: ${tenant.nextAction}`);
       }
       for (const action of tenant.actions.slice(0, 4)) {
         const textualHint = action.actionKind === 'guided'
@@ -105,7 +109,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       : snapshot.teams;
 
     if (selectedId && teams.length === 0) {
-      return `Nao encontrei um team com id "${selectedId}". Use /teams para ver os fluxos compostos disponiveis.`;
+      return `No team found with id "${selectedId}". Use /teams to see available composite flows.`;
     }
 
     const lines = [
@@ -145,18 +149,18 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       : snapshot.tenants;
 
     if (query && tenants.length === 0) {
-      return `Nao encontrei tenant para "${query}". Use /tenants para ver a governanca completa observada pelo runtime.`;
+      return `No tenant found for "${query}". Use /tenants to see full governance observed by the runtime.`;
     }
 
     const lines = [
-      'Governanca de tenants do Zavorth',
+      'Zavorth tenant governance',
       '',
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       snapshot.narrative.nextAction,
       '',
-      `Totais: ${snapshot.summary.total} tenant(s) | compartilhados: ${snapshot.summary.shared} | pessoais: ${snapshot.summary.personal}.`,
-      `Pendentes: ${snapshot.summary.pendingOnboarding} | publicos: ${snapshot.summary.publicServers} | shared prontos: ${snapshot.summary.readyShared}.`,
+      `Totals: ${snapshot.summary.total} tenant(s) | shared: ${snapshot.summary.shared} | personal: ${snapshot.summary.personal}.`,
+      `Pending: ${snapshot.summary.pendingOnboarding} | public: ${snapshot.summary.publicServers} | shared ready: ${snapshot.summary.readyShared}.`,
     ];
 
     for (const tenant of tenants.slice(0, 6)) {
@@ -269,7 +273,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
         workspace: process.cwd(),
       });
       await ctx.reply(this.buildTenantActionReply(tenantId, actionId, result));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui executar a acao guiada do tenant agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_tenant_action')));
     }
   }
 
@@ -334,7 +338,7 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       snapshot.narrative.operatorSummary,
       '',
       `Memorias persistentes: ${snapshot.summary.persistedMemories}.`,
-      `Replay visivel: ${snapshot.summary.replayTasks} tarefa(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
+      `Visible replay: ${snapshot.summary.replayTasks} task(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
       `Entregas recentes: ${snapshot.summary.artifacts}.`,
     ];
 
@@ -370,8 +374,8 @@ export class SharedSurfaceTenantGovernanceCommandPack {
       snapshot.narrative.operatorSummary,
       '',
       `Sessoes visiveis: ${snapshot.sessions.entries.length} de ${snapshot.sessions.total}.`,
-      `Historico atual: ${snapshot.summary.historyItems} item(ns) | approvals pendentes: ${snapshot.summary.pendingPermissions}.`,
-      `Envio cruzado: ${snapshot.summary.sendReady ? 'pronto' : 'parcial'} | spawn web: ${snapshot.summary.spawnReady ? 'pronto' : 'parcial'}.`,
+      `Historico atual: ${snapshot.summary.historyItems} item(ns) | approvals pending: ${snapshot.summary.pendingPermissions}.`,
+      `Envio cruzado: ${snapshot.summary.sendReady ? 'ready' : 'parcial'} | spawn web: ${snapshot.summary.spawnReady ? 'ready' : 'parcial'}.`,
     ];
 
     if (snapshot.store.target) {

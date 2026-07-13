@@ -32,6 +32,15 @@ export class TelegramLifecycleController {
         let startupResolved = false;
 
         void bot.start({
+          // Include message_reaction so F5e emoji approval shortcuts work.
+          allowed_updates: [
+            'message',
+            'edited_message',
+            'callback_query',
+            'message_reaction',
+            'my_chat_member',
+            'chat_member',
+          ],
           onStart: () => {
             logger.info('Zavorth Telegram gateway started successfully.');
             startupResolved = true;

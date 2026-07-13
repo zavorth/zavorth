@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "memory-vector-local",
+  "label": "Local Vector Memory",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Local bag-of-words vector memory with cosine search under .zavorth/memory-vector-local.",
+  "description": "First-party memory plugin that stores hashed bag-of-words embeddings (no external deps) in workspace/.zavorth/memory-vector-local/store.json for soft semantic search.",
+  "tags": ["memory", "vector", "local", "embeddings", "wave3"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://memory-vector-local",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.vector.status",
+      "intent": "memory.vector.status",
+      "label": "Vector Memory Status",
+      "summary": "Report store path, entry count, and embedding dimensions.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_vector_status",
+        "aliases": ["vector_status"],
+        "usage": null
+      }
+    },
+    {
+      "id": "memory.vector.upsert",
+      "intent": "memory.vector.upsert",
+      "label": "Vector Upsert",
+      "summary": "Insert or update a text entry with a local bag-of-words vector.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_vector_upsert",
+        "aliases": ["vector_upsert"],
+        "usage": "{ id?|key?, text|value, tags? }"
+      }
+    },
+    {
+      "id": "memory.vector.search",
+      "intent": "memory.vector.search",
+      "label": "Vector Search",
+      "summary": "Search entries by cosine similarity to the query embedding.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_vector_search",
+        "aliases": ["vector_search"],
+        "usage": "{ query, limit? }"
+      }
+    },
+    {
+      "id": "memory.vector.get",
+      "intent": "memory.vector.get",
+      "label": "Vector Get",
+      "summary": "Get a single entry by id or key.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_vector_get",
+        "aliases": ["vector_get"],
+        "usage": "{ id|key }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read the local vector memory store JSON file.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Persist vector entries under .zavorth/memory-vector-local.",
+      "required": true
+    },
+    {
+      "kind": "memory.read",
+      "scope": "workspace",
+      "reason": "Expose memory read operations via the vector backend.",
+      "required": false
+    },
+    {
+      "kind": "memory.write",
+      "scope": "workspace",
+      "reason": "Expose memory write operations via the vector backend.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

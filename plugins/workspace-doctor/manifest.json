@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "workspace-doctor",
+  "label": "Workspace Doctor",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "One-shot workspace health check: runtime, git, gh, docker, env keys, Plugin OS.",
+  "description": "Accessibility-first diagnostics plugin. Soft-fails every check and returns setup tips so new users know what to install next — without crashing the agent.",
+  "tags": ["doctor", "onboarding", "health", "setup", "accessibility", "diagnostics", "env"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://workspace-doctor",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "doctor.run",
+      "intent": "doctor.run",
+      "label": "Run Doctor",
+      "summary": "Run the full workspace health report.",
+      "artifactKinds": [],
+      "command": {
+        "name": "doctor_run",
+        "aliases": ["workspace_doctor", "health_check"],
+        "usage": "{ deep? }"
+      }
+    },
+    {
+      "id": "doctor.env",
+      "intent": "doctor.env",
+      "label": "Env Profile",
+      "summary": "Report which known integration env keys are present (values never returned).",
+      "artifactKinds": [],
+      "command": {
+        "name": "doctor_env",
+        "aliases": ["env_profile"],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read package manifests and workspace metadata.",
+      "required": false
+    },
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Optional version probes for git/gh/docker/node.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["workspace-doctor.receipt"]
+}

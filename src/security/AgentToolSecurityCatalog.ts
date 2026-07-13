@@ -884,7 +884,7 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     capabilities: ['local-observation'],
     defaultRisk: 'safe',
     requiresConfirmation: false,
-    description: 'Self-editing context management inspired by Chroma Context-1.',
+    description: 'Self-editing context management for long agent runs.',
   },
   {
     toolName: 'llm_model_switcher',
@@ -1029,6 +1029,22 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     defaultRisk: 'safe',
     requiresConfirmation: false,
     description: 'Plugin marketplace with discovery, install, and ratings.',
+  },
+  {
+    toolName: 'plugin_recommend',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Ranks Plugin OS packages for an intent. Never auto-enables plugins.',
+  },
+  {
+    toolName: 'plugin_suggest',
+    surface: 'native-tool',
+    capabilities: ['local-observation'],
+    defaultRisk: 'safe',
+    requiresConfirmation: false,
+    description: 'Suggest-to-enable Plugin OS packages. Never auto-enables plugins.',
   },
   {
     toolName: 'document_intelligence',
@@ -1229,6 +1245,22 @@ export const NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS: AgentToolSecurityDefinition
     defaultRisk: 'review',
     requiresConfirmation: true,
     description: 'Multi-model consensus orchestration.',
+  },
+  {
+    toolName: 'agent_consensus_engine',
+    surface: 'native-tool',
+    capabilities: ['local-observation', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Multi-model consensus deliberation with synthesizer (plain or fallback mode).',
+  },
+  {
+    toolName: 'consensus_with_fallback',
+    surface: 'native-tool',
+    capabilities: ['local-observation', 'network'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: 'Multi-model consensus with progressive per-reviewer fallback.',
   },
   {
     toolName: 'browser_cdp_supervisor',
@@ -1433,6 +1465,8 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'HealthCheckService', toolName: 'health_check' },
   { className: 'BackupService', toolName: 'backup_service' },
   { className: 'ZavorthPluginMarketplaceService', toolName: 'plugin_marketplace' },
+  { className: 'PluginRecommendTool', toolName: 'plugin_recommend' },
+  { className: 'PluginSuggestTool', toolName: 'plugin_suggest' },
   { className: 'DocumentIntelligenceService', toolName: 'document_intelligence' },
   { className: 'CodeIntelligenceService', toolName: 'code_intelligence' },
   { className: 'DataPipelineService', toolName: 'data_pipeline' },
@@ -1453,12 +1487,14 @@ export const BOOTSTRAP_NATIVE_TOOL_SECURITY_MANIFEST = [
   { className: 'ModelFallbackChain', toolName: 'model_fallback_chain' },
   { className: 'SessionPersistenceStore', toolName: 'session_persistence' },
   { className: 'SessionSearchFts5Tool', toolName: 'session_search' },
-  { className: 'MixtureOfAgents', toolName: 'mixture_of_agents' },
+  { className: 'AgentConsensusEngine', toolName: 'agent_consensus_engine' },
+  { className: 'AgentConsensusTool', toolName: 'agent_consensus_engine' },
   { className: 'BrowserCdpSupervisor', toolName: 'browser_cdp_supervisor' },
   { className: 'McpOAuthManager', toolName: 'mcp_oauth_manager' },
   { className: 'LLMFallbackRouter', toolName: 'llm_fallback_router' },
   { className: 'PersistentMemoryBridge', toolName: 'persistent_memory_bridge' },
-  { className: 'MoAWithFallback', toolName: 'moa_with_fallback' },
+  { className: 'ConsensusWithFallback', toolName: 'consensus_with_fallback' },
+  { className: 'ConsensusWithFallbackTool', toolName: 'consensus_with_fallback' },
   { className: 'BrowserCdpSupervisorTool', toolName: 'browser_cdp_control' },
   { className: 'McpOAuthManagerTool', toolName: 'mcp_oauth_manager' },
   { className: 'RbacEngine', toolName: 'rbac_engine' },
@@ -1528,6 +1564,83 @@ export function createFallbackAgentToolSecurityDefinition(
   });
 }
 
+/** First-party Plugin OS command aliases resolved as inferred (not fallback). */
+const PLUGIN_OS_SAFE_COMMAND_ALIASES = new Map<string, {
+  capabilities: AgentToolSecurityDefinition['capabilities'];
+  description: string;
+}>([
+  ['search_query', { capabilities: ['network', 'untrusted-input'], description: 'Plugin OS web search query (first-party).' }],
+  ['search_status', { capabilities: ['local-observation'], description: 'Plugin OS search backend status (first-party).' }],
+  ['doctor_run', { capabilities: ['local-observation', 'filesystem'], description: 'Plugin OS workspace doctor health check (first-party).' }],
+  ['doctor_env', { capabilities: ['local-observation'], description: 'Plugin OS env profile report (first-party).' }],
+  ['github_status', { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub status (first-party).' }],
+  ['github_pr_list', { capabilities: ['network', 'local-observation'], description: 'Plugin OS GitHub PR list (first-party).' }],
+  ['security_scan', { capabilities: ['local-observation'], description: 'Plugin OS security guidance scan (first-party).' }],
+  ['secrets_scan', { capabilities: ['local-observation'], description: 'Plugin OS secrets scan (first-party).' }],
+  ['router_recommend', { capabilities: ['local-observation'], description: 'Plugin OS capability router recommend (first-party).' }],
+  ['cost_summary', { capabilities: ['local-observation'], description: 'Plugin OS cost tracker summary (first-party).' }],
+  ['memory_get', { capabilities: ['memory', 'filesystem', 'local-observation'], description: 'Plugin OS local memory get (first-party).' }],
+  ['memory_search', { capabilities: ['memory', 'filesystem', 'local-observation'], description: 'Plugin OS local memory search (first-party).' }],
+]);
+
+const PLUGIN_OS_REVIEW_COMMAND_ALIASES = new Map<string, {
+  capabilities: AgentToolSecurityDefinition['capabilities'];
+  description: string;
+}>([
+  ['memory_write', { capabilities: ['memory', 'filesystem'], description: 'Plugin OS local memory write (first-party).' }],
+  ['pr_ship_create', { capabilities: ['network', 'external-send'], description: 'Plugin OS create/ship pull request (first-party).' }],
+  ['notify_deliver', { capabilities: ['network', 'external-send'], description: 'Plugin OS notify outbox deliver (first-party).' }],
+]);
+
+function createInferredPluginOsDynamicToolSecurityDefinition(
+  toolName: string,
+  _normalized: string,
+  description?: string,
+): AgentToolSecurityDefinition {
+  return normalizeAgentToolSecurityDefinition({
+    toolName,
+    surface: 'plugin',
+    capabilities: ['plugin', 'filesystem', 'network', 'untrusted-input'],
+    defaultRisk: 'review',
+    requiresConfirmation: true,
+    description: description || 'Dynamic Plugin OS tool without an explicit security definition (inferred, fail-closed).',
+    source: 'inferred',
+  });
+}
+
+function createInferredPluginOsCommandAliasSecurityDefinition(
+  toolName: string,
+  normalized: string,
+): AgentToolSecurityDefinition | null {
+  const safe = PLUGIN_OS_SAFE_COMMAND_ALIASES.get(normalized);
+  if (safe) {
+    return normalizeAgentToolSecurityDefinition({
+      toolName,
+      surface: 'plugin',
+      capabilities: [...safe.capabilities],
+      defaultRisk: 'safe',
+      requiresConfirmation: false,
+      description: safe.description,
+      source: 'inferred',
+    });
+  }
+
+  const review = PLUGIN_OS_REVIEW_COMMAND_ALIASES.get(normalized);
+  if (review) {
+    return normalizeAgentToolSecurityDefinition({
+      toolName,
+      surface: 'plugin',
+      capabilities: [...review.capabilities],
+      defaultRisk: 'review',
+      requiresConfirmation: true,
+      description: review.description,
+      source: 'inferred',
+    });
+  }
+
+  return null;
+}
+
 export function resolveDefaultAgentToolSecurityDefinition(
   toolName: string,
   description?: string,
@@ -1539,6 +1652,30 @@ export function resolveDefaultAgentToolSecurityDefinition(
       ...known,
       capabilities: [...known.capabilities],
     };
+  }
+
+  // Dynamic Plugin OS tool names (plugin.<id>.<capability> fallbacks).
+  if (normalized.startsWith('plugin.')) {
+    return createInferredPluginOsDynamicToolSecurityDefinition(toolName, normalized, description);
+  }
+
+  // Common first-party Plugin OS command aliases.
+  const aliasDefinition = createInferredPluginOsCommandAliasSecurityDefinition(toolName, normalized);
+  if (aliasDefinition) {
+    return aliasDefinition;
+  }
+
+  // Dynamically registered MCP-prefixed tools without an explicit catalog entry.
+  if (normalized.startsWith('mcp_')) {
+    return normalizeAgentToolSecurityDefinition({
+      toolName,
+      surface: 'mcp-tool',
+      capabilities: ['mcp', 'network', 'untrusted-input'],
+      defaultRisk: 'review',
+      requiresConfirmation: true,
+      description: description || 'MCP-prefixed tool without an explicit security definition (inferred).',
+      source: 'inferred',
+    });
   }
 
   return createFallbackAgentToolSecurityDefinition(toolName, description);

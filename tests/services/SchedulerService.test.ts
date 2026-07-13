@@ -66,7 +66,21 @@ describe('SchedulerService', () => {
     expect(service.parseSchedule('daily 09:30')).toEqual({
       kind: 'daily',
       normalized: 'daily 09:30',
-      label: 'todo dia as 09:30',
+      label: 'daily at 09:30 / todo dia as 09:30',
+      cron: '30 9 * * *',
+    });
+    // Phase 5: PT natural language
+    expect(service.parseSchedule('todo dia as 9h')).toMatchObject({
+      kind: 'daily',
+      normalized: 'daily 09:00',
+    });
+    expect(service.parseSchedule('a cada 30 minutos')).toMatchObject({
+      kind: 'interval',
+      normalized: 'every 30m',
+    });
+    expect(service.parseSchedule('toda sexta as 18h')).toMatchObject({
+      kind: 'weekly',
+      normalized: 'weekly 5 18:00',
     });
   });
 

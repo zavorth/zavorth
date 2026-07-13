@@ -13,7 +13,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
 
   if (pathname === '/api/web/engineering/runs' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Engineering Core indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Engineering Core unavailable.' }, 503);
       return true;
     }
     const limit = Math.max(1, Math.min(25, Number(ctx.url.searchParams.get('limit') || 10) || 10));
@@ -23,7 +23,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
 
   if (pathname === '/api/web/engineering/runs' && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Engineering Core indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Engineering Core unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -48,7 +48,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
 
   if (pathname.startsWith('/api/web/engineering/runs/') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Engineering Core indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Engineering Core unavailable.' }, 503);
       return true;
     }
     const runId = decodeURIComponent(pathname.replace('/api/web/engineering/runs/', '')).trim();
@@ -62,7 +62,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
         deps.writeJson(res, { ok: true, replay: service.getReplay(replayRunId) }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Replay indisponivel.' }, 404);
+        deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Replay unavailable.' }, 404);
       }
       return true;
     }
@@ -77,7 +77,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
 
   if (pathname.startsWith('/api/web/engineering/runs/') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Engineering Core indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Engineering Core unavailable.' }, 503);
       return true;
     }
     const actionMatch = pathname.match(
@@ -186,7 +186,7 @@ export const handleEngineeringRoutes: WebAppSupervisionRouteHandler = async (ctx
       return true;
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'Falha ao operar o run de engenharia.';
+      const message = error instanceof Error ? err.message : 'Failed to operar o run de engenharia.';
       deps.writeJson(res, { ok: false, error: message }, message.includes('nao encontrado') ? 404 : 409);
     }
   }

@@ -23,7 +23,7 @@ export class CalendarTool extends BaseTool {
   public readonly name = 'calendar_event';
 
   public readonly description =
-    'Gerencia eventos de calendario.';
+    'Manage calendar events.';
 
   public readonly parameters: ToolDefinition['parameters'] = {
     type: 'object',
@@ -77,7 +77,7 @@ export class CalendarTool extends BaseTool {
 
     const validActions = ['create', 'list', 'update', 'delete'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -99,7 +99,7 @@ export class CalendarTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Calendar] delete operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro no calendario: ${message}`;
+      return `Calendar error: ${message}`;
   }
   }
 
@@ -133,18 +133,18 @@ export class CalendarTool extends BaseTool {
     const endTime = String(args.end_time || '');
     if (!endTime) return 'Error: "end_time" is required for create.';
 
-    if (isNaN(Date.parse(startTime))) return 'Erro: "start_time" invalido. Use formato ISO 8601.';
-    if (isNaN(Date.parse(endTime))) return 'Erro: "end_time" invalido. Use formato ISO 8601.';
+    if (isNaN(Date.parse(startTime))) return 'Error: "start_time" is invalid. Use formato ISO 8601.';
+    if (isNaN(Date.parse(endTime))) return 'Error: "end_time" is invalid. Use formato ISO 8601.';
 
     if (new Date(endTime) <= new Date(startTime)) {
-      return 'Erro: "end_time" deve ser posterior a "start_time".';
+      return 'Error: "end_time" must be after "start_time".';
     }
 
     let attendees: string[] = [];
     if (typeof args.attendees === 'string') {
       try {
         attendees = JSON.parse(args.attendees);
-      } catch (error: unknown) {logger.warn('[Calendar] JSON parse failed', error); return 'Erro: JSON de attendees invalido.'; }
+      } catch (error: unknown) {logger.warn('[Calendar] JSON parse failed', error); return 'Error: JSON de attendees is invalid.'; }
     }
 
     const event: CalendarEvent = {
@@ -184,7 +184,7 @@ export class CalendarTool extends BaseTool {
 
   private listEvents(args: Record<string, unknown>): string {
     const events = this.loadEvents();
-    if (events.length === 0) return 'Nenhum evento no calendario.';
+    if (events.length === 0) return 'No events on the calendar.';
 
     const sorted = [...events].sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
 
@@ -207,11 +207,11 @@ export class CalendarTool extends BaseTool {
 
     if (typeof args.title === 'string' && args.title !== event.uid) event.title = args.title;
     if (typeof args.start_time === 'string') {
-      if (isNaN(Date.parse(args.start_time))) return 'Erro: "start_time" invalido.';
+      if (isNaN(Date.parse(args.start_time))) return 'Error: "start_time" is invalid.';
       event.start_time = args.start_time;
     }
     if (typeof args.end_time === 'string') {
-      if (isNaN(Date.parse(args.end_time))) return 'Erro: "end_time" invalido.';
+      if (isNaN(Date.parse(args.end_time))) return 'Error: "end_time" is invalid.';
       event.end_time = args.end_time;
     }
     if (typeof args.description === 'string') event.description = args.description;

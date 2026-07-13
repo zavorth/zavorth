@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-auxiliary",
+  "label": "Example Auxiliary",
+  "version": "0.1.0",
+  "moduleKind": "diagnostics",
+  "summary": "Diagnostics-style status capability example.",
+  "description": "Bundled ephemera-style status-only diagnostics plugin.",
+  "tags": ["diagnostics", "example", "auxiliary"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-auxiliary",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "ephemera.status",
+      "intent": "diagnostics.ephemera.status",
+      "label": "Ephemera Status",
+      "summary": "Report idle auxiliary status.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_auxiliary_status",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

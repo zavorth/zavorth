@@ -2,10 +2,12 @@
  * Local-first update channel for Zavorth Desktop.
  *
  * Priority:
- * 1. Optional custom manifest (ZAVORTH_UPDATE_MANIFEST_URL) — only if you host one later
- * 2. GitHub Releases for the repo (default: zavorth/zavorth) — no website required
+ * 1. electron-updater (Phase 7) — when packaged installers + service enabled
+ * 2. Optional custom manifest (ZAVORTH_UPDATE_MANIFEST_URL) — only if you host one later
+ * 3. GitHub Releases for the repo (default: zavorth/zavorth) — no website required
  *
- * Never silently executes downloaded installers. Download opens the asset or Releases page.
+ * electron-updater downloads signed installers in-app (user-triggered).
+ * GitHub/manual path never silently executes installers — opens browser/Setup.
  */
 const fs = require('node:fs');
 const http = require('node:http');
@@ -211,6 +213,53 @@ async function checkUpdates(input = {}) {
   const manifestUrl = String(process.env.ZAVORTH_UPDATE_MANIFEST_URL || input.manifestUrl || '').trim();
   const channel = String(process.env.ZAVORTH_UPDATE_CHANNEL || 'github');
 
+  // Phase 7: prefer electron-updater for packaged Desktop when the bridge is provided.
+  const electronUpdater = input.electronUpdater || null;
+  if (electronUpdater && typeof electronUpdater.isEnabled === 'function' && electronUpdater.isEnabled()) {
+    const eu = await electronUpdater.checkForUpdates();
+    if (eu && eu.ok) {
+      if (homeDir) {
+        writeState(homeDir, {
+          ...state,
+          lastCheckedAt: new Date().toISOString(),
+          lastManifest: {
+            latestVersion: eu.latestVersion,
+            changelog: eu.changelog,
+            downloadUrl: eu.downloadUrl || null,
+            releaseUrl: eu.releaseUrl || null,
+            channel: 'electron-updater',
+            source: 'electron-updater',
+            engine: 'electron-updater',
+            githubRepo: resolveGithubRepo(input),
+          },
+        });
+      }
+      const deferredUntil = state.deferredUntil || null;
+      const hasUpdate = Boolean(eu.hasUpdate);
+      const deferredActive = Boolean(deferredUntil && hasUpdate && new Date(deferredUntil).getTime() > Date.now());
+      return {
+        ok: true,
+        hasUpdate,
+        version: eu.version || currentVersion,
+        latestVersion: eu.latestVersion || currentVersion,
+        changelog: eu.changelog || '',
+        channel: 'electron-updater',
+        source: 'electron-updater',
+        engine: 'electron-updater',
+        githubRepo: resolveGithubRepo(input),
+        downloadUrl: eu.downloadUrl || null,
+        releaseUrl: eu.releaseUrl || githubReleasesUrl(resolveGithubRepo(input)),
+        providerConfigured: true,
+        downloaded: Boolean(eu.downloaded || (typeof electronUpdater.isDownloaded === 'function' && electronUpdater.isDownloaded())),
+        deferredUntil: deferredActive ? deferredUntil : null,
+        rollbackVersion: state.rollbackVersion || null,
+        error: null,
+        message: eu.message,
+      };
+    }
+    // Fall through to GitHub/manual when electron-updater check fails.
+  }
+
   let latestVersion = currentVersion;
   let changelog = '';
   let downloadUrl = null;
@@ -302,6 +351,7 @@ async function checkUpdates(input = {}) {
     changelog,
     channel: source === 'github' ? 'github' : channel,
     source,
+    engine: source === 'github' ? 'github-releases' : source === 'manifest' ? 'manifest' : 'none',
     githubRepo,
     downloadUrl,
     releaseUrl: releaseUrl || githubReleasesUrl(githubRepo),
@@ -334,7 +384,37 @@ async function downloadUpdate(input = {}) {
   const homeDir = input.homeDir;
   if (!homeDir) return { ok: false, error: 'Update home is not configured.' };
   const state = readState(homeDir);
-  const check = await checkUpdates(input);
+  const electronUpdater = input.electronUpdater || null;
+
+  // Phase 7: in-app download via electron-updater when enabled.
+  if (electronUpdater && typeof electronUpdater.isEnabled === 'function' && electronUpdater.isEnabled()) {
+    const dl = await electronUpdater.downloadUpdate();
+    if (dl.ok) {
+      writeState(homeDir, {
+        ...state,
+        downloadedVersion: dl.latestVersion || state.downloadedVersion,
+        lastCheckedAt: new Date().toISOString(),
+        lastManifest: {
+          ...(state.lastManifest || {}),
+          latestVersion: dl.latestVersion || state.lastManifest?.latestVersion || null,
+          channel: 'electron-updater',
+          source: 'electron-updater',
+          engine: 'electron-updater',
+        },
+      });
+      return {
+        ok: true,
+        mode: dl.mode || 'electron-updater-download',
+        engine: 'electron-updater',
+        latestVersion: dl.latestVersion || null,
+        message: dl.message,
+        progress: dl.progress || null,
+      };
+    }
+    // Fall through to GitHub open if electron-updater download failed.
+  }
+
+  const check = await checkUpdates({ ...input, electronUpdater: null });
 
   const packagesDir = path.join(homeDir, 'packages');
   fs.mkdirSync(packagesDir, { recursive: true });
@@ -375,6 +455,7 @@ async function downloadUpdate(input = {}) {
   return {
     ok: true,
     mode: marker.mode,
+    engine: check.engine || check.source,
     latestVersion: check.latestVersion,
     releaseUrl: check.releaseUrl,
     packageMarker: packageMarkerPath(homeDir, targetVersion || 'latest'),
@@ -398,6 +479,34 @@ async function installUpdate(input = {}) {
   const homeDir = input.homeDir;
   const state = homeDir ? readState(homeDir) : {};
   const currentVersion = String(input.currentVersion || '0.1.0');
+  const electronUpdater = input.electronUpdater || null;
+
+  // Phase 7: quitAndInstall when electron-updater has a downloaded package.
+  if (
+    electronUpdater
+    && typeof electronUpdater.isEnabled === 'function'
+    && electronUpdater.isEnabled()
+    && typeof electronUpdater.isDownloaded === 'function'
+    && electronUpdater.isDownloaded()
+  ) {
+    const installed = electronUpdater.quitAndInstall(false, true);
+    if (installed.ok) {
+      writeState(homeDir, {
+        ...state,
+        rollbackVersion: currentVersion,
+        downloadedVersion: null,
+      });
+      return {
+        ok: true,
+        mode: installed.mode || 'electron-updater-install',
+        engine: 'electron-updater',
+        message: installed.message,
+        rollbackVersion: currentVersion,
+        latestVersion: installed.latestVersion || state.downloadedVersion || null,
+      };
+    }
+  }
+
   const target = state.downloadedVersion || state.lastManifest?.latestVersion || null;
   const allowSetupFallback = Boolean(input.allowSetupFallback);
   const releaseUrl = state.lastManifest?.releaseUrl

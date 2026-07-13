@@ -2,6 +2,7 @@
 import { execFile } from 'child_process';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { tService } from '../i18n/services.js';
 
 export type WslDistroInfo = {
   name: string;
@@ -35,8 +36,8 @@ export class WslControlService {
 
       const running = distros.filter(d => d.state.toLowerCase() === 'running');
       const message = running.length > 0
-        ? `WSL ativo. ${running.length} distro(s) rodando: ${running.map(d => d.name).join(', ')}.`
-        : 'WSL parado. Nenhuma distro rodando.';
+        ? tService('wsl.active_distros', { count: String(running.length), distros: running.map(d => d.name).join(', ') })
+        : tService('wsl.no_distros_running');
 
       return { ok: true, action: 'status', distros, message, warnings: [] };
     } catch (error: unknown) {
@@ -46,7 +47,7 @@ export class WslControlService {
         ok: false,
         action: 'status',
         distros: [],
-        message: `Falha ao consultar WSL: ${err.message}`,
+        message: tService('wsl.query_failed', { reason: err.message }),
         warnings: [],
       };
   }
@@ -64,7 +65,7 @@ export class WslControlService {
       const stdout = await this.exec(args);
       const warnings: string[] = [];
       if (!stdout.includes('WSL_READY')) {
-        warnings.push('O comando respondeu sem o marcador WSL_READY.');
+        warnings.push(tService('wsl.no_wsl_ready_marker'));
       }
 
       const statusResult = await this.status();
@@ -73,7 +74,7 @@ export class WslControlService {
           ok: false,
           action: 'start',
           distros: [],
-          message: `O comando de inicializacao rodou, mas a verificacao do WSL falhou: ${statusResult.message}`,
+          message: tService('wsl.start_command_ran_verification_failed', { message: statusResult.message }),
           warnings,
         };
       }
@@ -89,14 +90,14 @@ export class WslControlService {
             ok: false,
             action: 'start',
             distros: statusResult.distros,
-            message: `A distro ${distro} nao apareceu no status depois da inicializacao.`,
+            message: tService('wsl.distro_not_found_after_start', { distro }),
             warnings,
           };
         }
 
         const running = matchedDistro.state.toLowerCase() === 'running';
         if (!running) {
-          warnings.push(`A distro ${matchedDistro.name} respondeu ao start, mas o estado atual e ${matchedDistro.state}.`);
+          warnings.push(tService('wsl.distro_started_wrong_state', { name: matchedDistro.name, state: matchedDistro.state }));
         }
 
         return {
@@ -104,8 +105,8 @@ export class WslControlService {
           action: 'start',
           distros: statusResult.distros,
           message: running
-            ? `WSL iniciado e confirmado para a distro ${matchedDistro.name}.`
-            : `O comando de inicializacao rodou, mas a distro ${matchedDistro.name} ainda nao ficou Running.`,
+            ? tService('wsl.distro_started_confirmed', { name: matchedDistro.name })
+            : tService('wsl.distro_start_not_running', { name: matchedDistro.name }),
           warnings,
         };
       }
@@ -115,7 +116,7 @@ export class WslControlService {
         if (!distro && fallbackDistro) {
           const fallbackResult = await this.start(fallbackDistro.name);
           fallbackResult.warnings = [
-            `O start generico nao subiu nenhuma distro util. Tentei automaticamente ${fallbackDistro.name}.`,
+            tService('wsl.generic_start_fallback', { distro: fallbackDistro.name }),
             ...fallbackResult.warnings,
           ];
           return fallbackResult;
@@ -125,7 +126,7 @@ export class WslControlService {
           ok: false,
           action: 'start',
           distros: statusResult.distros,
-          message: 'O comando de inicializacao rodou, mas nenhuma distro ficou Running depois da verificacao.',
+          message: tService('wsl.start_no_distros_running'),
           warnings,
         };
       }
@@ -134,7 +135,7 @@ export class WslControlService {
         ok: true,
         action: 'start',
         distros: statusResult.distros,
-        message: `WSL iniciado e confirmado. ${runningDistros.length} distro(s) em execucao: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
+        message: tService('wsl.started_confirmed', { count: String(runningDistros.length), distros: runningDistros.map((entry) => entry.name).join(', ') }),
         warnings,
       };
     } catch (error: unknown) {
@@ -144,7 +145,7 @@ export class WslControlService {
         ok: false,
         action: 'start',
         distros: [],
-        message: `Falha ao iniciar WSL: ${err.message}`,
+        message: tService('wsl.start_failed', { reason: err.message }),
         warnings: [],
       };
   }
@@ -163,7 +164,7 @@ export class WslControlService {
           ok: true,
           action: 'shutdown',
           distros: [],
-          message: 'O comando de desligamento foi enviado. Nao consegui confirmar o estado final do WSL depois disso.',
+          message: tService('wsl.shutdown_sent_unconfirmed'),
           warnings: [statusResult.message],
         };
       }
@@ -175,8 +176,8 @@ export class WslControlService {
         distros: statusResult.distros,
         message:
           runningDistros.length === 0
-            ? 'WSL desligado e confirmado. Toda a RAM do WSL foi liberada.'
-            : `O comando de desligamento foi enviado, mas ainda ha distros rodando: ${runningDistros.map((entry) => entry.name).join(', ')}.`,
+            ? tService('wsl.shutdown_confirmed')
+            : tService('wsl.shutdown_distros_still_running', { distros: runningDistros.map((entry) => entry.name).join(', ') }),
         warnings: [],
       };
     } catch (error: unknown) {

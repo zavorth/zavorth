@@ -127,7 +127,7 @@ export class ReviewAgentOrchestrator {
   private buildToolExposure(mode: GovernedReviewMode): UniversalToolExposureProfile {
     return {
       mode: 'restricted',
-      summary: 'Governed review phase 2 exposes read-only planning only; launch requires approval.',
+      summary: 'Governed review exposes read-only planning only; launch requires approval.',
       tools: [
         {
           id: 'workspace.read',

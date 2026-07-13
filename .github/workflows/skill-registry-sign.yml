@@ -1,0 +1,146 @@
+name: Skill registry sign (ops skeleton)
+
+# Signs fixture/local skills when ZAVORTH_SKILL_SIGNING_KEY is present,
+# verifies signatures, exports registry index + optional publish-plan (no live CDN/git push).
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill_path:
+        description: 'Skill directory for publish-plan dry-run (optional, e.g. skills/my-skill)'
+        required: false
+        default: ''
+        type: string
+      repo_url:
+        description: 'Trusted git repo URL for plan only (no push)'
+        required: false
+        default: ''
+        type: string
+  push:
+    paths:
+      - 'skills/**'
+      - 'src/skills/marketplace/**'
+      - 'src/services/SkillRegistryOpsService.ts'
+      - 'src/services/SkillRegistryOpsHttpApiService.ts'
+      - 'src/cli/ZavorthCliRegistrySkills.ts'
+      - 'src/tools/ZavorthSkillMarketplaceTool.ts'
+      - 'scripts/skill-registry-ops-smoke.mjs'
+      - 'tests/services/SkillRegistryOpsService.test.ts'
+      - 'tests/services/SkillRegistryOpsHttpApiService.test.ts'
+      - '.github/workflows/skill-registry-sign.yml'
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'src/skills/marketplace/**'
+      - 'src/services/SkillRegistryOpsService.ts'
+      - 'src/services/SkillRegistryOpsHttpApiService.ts'
+      - 'src/cli/ZavorthCliRegistrySkills.ts'
+      - 'src/tools/ZavorthSkillMarketplaceTool.ts'
+      - 'scripts/skill-registry-ops-smoke.mjs'
+      - 'tests/services/SkillRegistryOpsService.test.ts'
+      - 'tests/services/SkillRegistryOpsHttpApiService.test.ts'
+      - '.github/workflows/skill-registry-sign.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sign-verify-export:
+    name: Sign · Verify · Export · Publish-plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
+
+      - name: Unit — registry ops
+        run: npx jest tests/services/SkillRegistryOpsService.test.ts tests/services/SkillRegistryOpsHttpApiService.test.ts --forceExit --testPathIgnorePatterns=[] --runInBand
+
+      - name: Smoke sign/verify/export/publish-plan
+        env:
+          # Optional: set repository secret ZAVORTH_SKILL_SIGNING_KEY for real key material.
+          # Smoke uses a non-secret default when unset.
+          ZAVORTH_SKILL_SIGNING_KEY: ${{ secrets.ZAVORTH_SKILL_SIGNING_KEY }}
+          ZAVORTH_SKILL_TRUSTED_DOMAINS: ${{ vars.ZAVORTH_SKILL_TRUSTED_DOMAINS }}
+          ZAVORTH_SKILL_REGISTRY_URL: ${{ vars.ZAVORTH_SKILL_REGISTRY_URL }}
+        run: node scripts/skill-registry-ops-smoke.mjs
+
+      - name: Verify + export fixture skill (skills/registry-ops-fixture)
+        if: hashFiles('skills/**/SKILL.md') != ''
+        env:
+          ZAVORTH_SKILL_SIGNING_KEY: ${{ secrets.ZAVORTH_SKILL_SIGNING_KEY }}
+          ZAVORTH_SKILL_REGISTRY_URL: ${{ vars.ZAVORTH_SKILL_REGISTRY_URL }}
+        run: |
+          mkdir -p artifacts/skill-registry
+          npx --yes tsx -e "
+          import { SkillRegistryOpsService } from './src/services/SkillRegistryOpsService.ts';
+          import { verifySkillPackageSignature } from './src/skills/marketplace/SkillMarketplaceSecurity.ts';
+          import fs from 'node:fs';
+          const fixture = 'skills/registry-ops-fixture';
+          if (!fs.existsSync(fixture + '/SKILL.md')) {
+            console.error('missing fixture', fixture);
+            process.exit(1);
+          }
+          const sig = verifySkillPackageSignature(fixture);
+          if (!sig.ok) {
+            console.error('fixture signature invalid — re-sign with fixture key zavorth-ci-smoke-signing-key-32b', sig);
+            process.exit(1);
+          }
+          console.log('fixture signature', sig);
+          const ops = new SkillRegistryOpsService();
+          const report = ops.verify(fixture);
+          console.log('fixture verify', { ok: report.ok, packageValid: report.packageValid, signed: report.signature.ok });
+          if (!report.packageValid || !report.signature.ok) process.exit(1);
+          const out = ops.writeIndex('artifacts/skill-registry/index.json');
+          if (!out.ok) { console.error(out.message); process.exit(1); }
+          console.log('index', out);
+          const plan = ops.writePublishPlan('artifacts/skill-registry/publish-plan-fixture.json', {
+            skillDir: fixture,
+            repoUrl: 'https://github.com/zavorth/skills-demo',
+          });
+          if (!plan.ok) { console.error(plan.message); process.exit(1); }
+          console.log('publish-plan', plan.path, plan.plan?.wouldPush, plan.plan?.signed);
+          "
+
+      - name: Publish-plan dry-run (workflow_dispatch skill_path)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.skill_path != '' }}
+        env:
+          ZAVORTH_SKILL_SIGNING_KEY: ${{ secrets.ZAVORTH_SKILL_SIGNING_KEY }}
+          ZAVORTH_SKILL_TRUSTED_DOMAINS: ${{ vars.ZAVORTH_SKILL_TRUSTED_DOMAINS }}
+        run: |
+          mkdir -p artifacts/skill-registry
+          npx --yes tsx -e "
+          import { SkillRegistryOpsService } from './src/services/SkillRegistryOpsService.ts';
+          const skillPath = ${{ toJSON(inputs.skill_path) }};
+          const repoUrl = ${{ toJSON(inputs.repo_url) }} || null;
+          const ops = new SkillRegistryOpsService();
+          const written = ops.writePublishPlan('artifacts/skill-registry/publish-plan.json', {
+            skillDir: skillPath,
+            repoUrl: repoUrl || null,
+          });
+          if (!written.ok) { console.error(written.message); process.exit(1); }
+          console.log(JSON.stringify(written.plan, null, 2));
+          // Dry-run never fails the job solely because wouldPush is false —
+          // only hard failures (write error) exit 1. Plan.ok is reported in the artifact.
+          "
+
+      - name: Upload registry artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-registry-ops
+          path: artifacts/skill-registry/**
+          if-no-files-found: ignore
+
+  # Live git push is intentionally not automated here —
+  # operator/CI secrets + allowlisted host + explicit publish required.

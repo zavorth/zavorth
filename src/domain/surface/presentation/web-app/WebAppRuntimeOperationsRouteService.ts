@@ -13,7 +13,8 @@ import {
   listZavorthProductModeSnapshots,
 } from '../../../../services/ProductModeService.js';
 import type { ZavorthProductModeSnapshot } from '../../../../services/ProductModeService.js';
-import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';function extractErrorMessage(error: unknown): string {
+import type { WebAppRuntimeRouteDeps } from './WebAppRuntimeRouteService.js';
+function extractErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   if (error && typeof error === 'object' && 'message' in error) {
     return String((error as { message: unknown }).message);
@@ -68,7 +69,7 @@ export class WebAppRuntimeOperationsRouteService {
   ): Promise<boolean> {
     if (pathname === '/api/web/gateway/runtime' && req.method === 'GET') {
       if (!deps.gatewayRuntime) {
-        deps.writeJson(res, { ok: false, error: 'Gateway runtime canÃƒÂ´nico indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Gateway runtime canÃƒÂ´nico unavailable.' }, 503);
         return true;
       }
       const requestedSessionId = String(url.searchParams.get('sessionId') || '').trim();
@@ -94,7 +95,7 @@ export class WebAppRuntimeOperationsRouteService {
           {
             ok: true,
             degraded: true,
-            warning: errorMessage || 'Gateway runtime snapshot indisponivel.',
+            warning: errorMessage || 'Gateway runtime snapshot unavailable.',
             runtime: {
               generatedAt: new Date().toISOString(),
               degraded: true,
@@ -103,7 +104,7 @@ export class WebAppRuntimeOperationsRouteService {
               runs: [],
               summary: {
                 status: 'degraded',
-                reason: errorMessage || 'Gateway runtime snapshot indisponivel.',
+                reason: errorMessage || 'Gateway runtime snapshot unavailable.',
               },
             },
           },
@@ -115,7 +116,7 @@ export class WebAppRuntimeOperationsRouteService {
 
     if (pathname === '/api/web/runtime/resources' && req.method === 'GET') {
       if (!deps.desktopResources) {
-        deps.writeJson(res, { ok: false, error: 'Desktop Resource Plane indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Desktop Resource Plane unavailable in this runtime.' }, 503);
         return true;
       }
       const snapshot = await this.readDesktopResources(deps, { preferCachedWithinMs: 15_000 });
@@ -136,7 +137,7 @@ export class WebAppRuntimeOperationsRouteService {
           requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
         }, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao trocar o product mode.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to switch product mode.' }, 400);
       }
       return true;
     }
@@ -148,7 +149,7 @@ export class WebAppRuntimeOperationsRouteService {
       try {
         const payload = await this.getModeEscalation(sessionId, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao ler o mode escalation.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to ler o mode escalation.' }, 400);
       }
       return true;
     }
@@ -163,14 +164,14 @@ export class WebAppRuntimeOperationsRouteService {
           requestedBy: String(body.requestedBy || deps.runtime.webUserId || '').trim() || null,
         }, deps);
         deps.writeJson(res, payload, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao resolver o mode escalation.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to resolve mode escalation.' }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/runtime/companions' && req.method === 'GET') {
       if (!deps.companions) {
-        deps.writeJson(res, { ok: false, error: 'Companion Control Plane indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Companion Control Plane unavailable in this runtime.' }, 503);
         return true;
       }
       const snapshot = await deps.companions.buildSnapshot({ preferCachedWithinMs: 15_000 });
@@ -181,14 +182,14 @@ export class WebAppRuntimeOperationsRouteService {
     const companionInspectMatch = pathname.match(/^\/api\/web\/runtime\/companions\/([^/]+)$/);
     if (companionInspectMatch && req.method === 'GET') {
       if (!deps.companions) {
-        deps.writeJson(res, { ok: false, error: 'Companion Control Plane indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Companion Control Plane unavailable in this runtime.' }, 503);
         return true;
       }
       try {
         const companionId = asCompanionId(String(companionInspectMatch[1] || ''));
         const companion = await deps.companions.inspectCompanion(companionId, { preferCachedWithinMs: 15_000 });
         deps.writeJson(res, { ok: true, companion }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao inspecionar companion.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to inspect companion.' }, 400);
       }
       return true;
     }
@@ -196,7 +197,7 @@ export class WebAppRuntimeOperationsRouteService {
     const companionActionMatch = pathname.match(/^\/api\/web\/runtime\/companions\/([^/]+)\/actions$/);
     if (companionActionMatch && req.method === 'POST') {
       if (!deps.companions) {
-        deps.writeJson(res, { ok: false, error: 'Companion Control Plane indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Companion Control Plane unavailable in this runtime.' }, 503);
         return true;
       }
       const body = await deps.readJsonBody(req);
@@ -215,28 +216,28 @@ export class WebAppRuntimeOperationsRouteService {
           force: body.force === true,
         });
         deps.writeJson(res, { ok: result.ok, result }, result.ok ? 200 : result.requiresApproval ? 202 : 409);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao operar companion.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to operar companion.' }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/runtime/workspace/doctor' && req.method === 'GET') {
       if (!deps.workspaceOptimizer) {
-        deps.writeJson(res, { ok: false, error: 'Workspace Optimizer indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Workspace Optimizer unavailable in this runtime.' }, 503);
         return true;
       }
       try {
         const workspaceHint = String(url.searchParams.get('workspace') || '').trim() || null;
         const profile = await deps.workspaceOptimizer.buildLoadProfile({ workspaceHint });
         deps.writeJson(res, { ok: true, profile }, 200);
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao montar o workspace doctor.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to montar o workspace doctor.' }, 400);
       }
       return true;
     }
 
     if (pathname === '/api/web/runtime/workspace/optimize' && req.method === 'POST') {
       if (!deps.workspaceOptimizer) {
-        deps.writeJson(res, { ok: false, error: 'Workspace Optimizer indisponivel neste runtime.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Workspace Optimizer unavailable in this runtime.' }, 503);
         return true;
       }
       const body = await deps.readJsonBody(req);
@@ -273,7 +274,7 @@ export class WebAppRuntimeOperationsRouteService {
           { ok: !preview.blocked, preview },
           preview.blocked ? 409 : preview.waitingApproval ? 202 : 200,
         );
-      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Falha ao otimizar workspace.' }, 400);
+      } catch (error: unknown) {deps.writeJson(res, { ok: false, error: extractErrorMessage(error) || 'Failed to otimizar workspace.' }, 400);
       }
       return true;
     }
@@ -315,7 +316,7 @@ export class WebAppRuntimeOperationsRouteService {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, unknown>> {
     if (!deps.capabilityLifecycle?.setProductMode) {
-      throw new Error('Product mode indisponivel neste runtime.');
+      throw new Error('Product mode unavailable in this runtime.');
     }
     const mode = String(input.mode || '').trim();
     if (!mode) {
@@ -363,7 +364,7 @@ export class WebAppRuntimeOperationsRouteService {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, unknown>> {
     if (!deps.modeEscalation) {
-      throw new Error('Mode escalation indisponivel neste runtime.');
+      throw new Error('Mode escalation unavailable in this runtime.');
     }
     const requestId = String(input.requestId || '').trim();
     if (!requestId) {

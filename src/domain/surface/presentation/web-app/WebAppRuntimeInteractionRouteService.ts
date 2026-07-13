@@ -101,7 +101,7 @@ export class WebAppRuntimeInteractionRouteService {
         deps.writeJson(res, { ok: true, preview }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao carregar preview.' }, 400);
+        deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Failed to load preview.' }, 400);
       }
       return true;
     }
@@ -344,7 +344,7 @@ export class WebAppRuntimeInteractionRouteService {
       res.end(asset.content);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao carregar asset.' }, 400);
+      deps.writeJson(res, { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Failed to load asset.' }, 400);
     }
     return true;
   }
@@ -817,7 +817,7 @@ export class WebAppRuntimeInteractionRouteService {
       pushEvent({
         id: `permission:${permissionId}:${status}`,
         type: 'approval',
-        title: String(permission?.kind || permission?.executor || 'Approval pendente').trim(),
+        title: String(permission?.kind || permission?.executor || 'Pending approval').trim(),
         detail: String(permission?.reason || permission?.requested_value || '').trim(),
         meta: String(permission?.scope || permission?.executor || 'permission').trim(),
         status,
@@ -1111,7 +1111,7 @@ export class WebAppRuntimeInteractionRouteService {
           kind: 'file',
           path: normalizedPath,
           title: this.basename(normalizedPath) || normalizedPath,
-          summary: 'Arquivo tocado por uma execução real.',
+          summary: 'File touched by a real execution.',
         });
       });
 
@@ -1123,7 +1123,7 @@ export class WebAppRuntimeInteractionRouteService {
           sessionId: input.sessionId,
           toolRunId,
           kind: 'diff',
-          title: `Diff ${toolRunId || 'da sessão'}`,
+          title: `Diff ${toolRunId || 'of the session'}`,
           summary: diff.summary || `${Array.isArray(diff.patches) ? diff.patches.length : 0} patch(es)`,
           diff,
         });
@@ -1215,7 +1215,7 @@ export class WebAppRuntimeInteractionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar permissao.' : 'Falha ao rejeitar permissao.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to approve permission.' : 'Failed to reject permissao.') },
         409,
       );
     }
@@ -1268,7 +1268,7 @@ export class WebAppRuntimeInteractionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar task gate.' : 'Falha ao rejeitar task gate.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to approve task gate.' : 'Failed to reject task gate.') },
         409,
       );
     }
@@ -1285,7 +1285,7 @@ export class WebAppRuntimeInteractionRouteService {
       if (!deps.agentGateway) {
         deps.writeJson(
           res,
-          { ok: false, error: 'Zavorth Agent Gateway indisponivel para approvals universais.' },
+          { ok: false, error: 'Zavorth Agent Gateway unavailable for universal approvals.' },
           503,
         );
         return true;
@@ -1355,7 +1355,7 @@ export class WebAppRuntimeInteractionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Falha ao aprovar run universal.' : 'Falha ao rejeitar run universal.') },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || (decision === 'approve' ? 'Failed to aprovar run universal.' : 'Failed to rejeitar run universal.') },
         409,
       );
     }
@@ -1371,7 +1371,7 @@ export class WebAppRuntimeInteractionRouteService {
       if (!deps.agentGateway?.handle) {
         deps.writeJson(
           res,
-          { ok: false, error: 'Zavorth Agent Gateway indisponivel para aplicar rascunho do Intelligence Fabric.' },
+          { ok: false, error: 'Zavorth Agent Gateway unavailable para aplicar rascunho do Intelligence Fabric.' },
           503,
         );
         return true;
@@ -1450,7 +1450,7 @@ export class WebAppRuntimeInteractionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao aplicar rascunho do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Failed to aplicar rascunho do Intelligence Fabric.' },
         409,
       );
     }
@@ -1466,7 +1466,7 @@ export class WebAppRuntimeInteractionRouteService {
       if (!deps.agentGateway?.handle) {
         deps.writeJson(
           res,
-          { ok: false, error: 'Zavorth Agent Gateway indisponivel para desativar o Intelligence Fabric.' },
+          { ok: false, error: 'Zavorth Agent Gateway unavailable para desativar o Intelligence Fabric.' },
           503,
         );
         return true;
@@ -1547,7 +1547,7 @@ export class WebAppRuntimeInteractionRouteService {
       const err = asErrorLike(error);
       deps.writeJson(
         res,
-        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Falha ao aplicar demote controlado do Intelligence Fabric.' },
+        { ok: false, error: (error instanceof Error ? err.message : String(error)) || 'Failed to aplicar demote controlado do Intelligence Fabric.' },
         409,
       );
     }

@@ -65,7 +65,7 @@ export class LLMFallbackRouter {
     let attempts = 0;
     let fallbackUsed = false;
 
-    // Obter decisão de routing
+    // Get routing decision
     const routing = this.llmRouter.route(request.taskType, {
       required_capabilities: request.requiredCapabilities,
       max_cost: request.maxCost,
@@ -75,7 +75,7 @@ export class LLMFallbackRouter {
       context_tokens_needed: request.contextTokensNeeded,
     });
 
-    // Construir cadeia de candidatos a partir do fallback_chain do routing
+    // Build candidate chain from the routing fallback_chain
     const primary: ModelCandidate = {
       provider: routing.provider,
       model: routing.model,

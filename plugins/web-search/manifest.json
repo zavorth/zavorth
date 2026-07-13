@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "web-search",
+  "label": "Web Search",
+  "version": "1.0.0",
+  "moduleKind": "search",
+  "summary": "Search the web via SearXNG, Exa, DuckDuckGo lite, or setup tips.",
+  "description": "Wave 5 polished multi-backend search. Tries SEARXNG_URL, then EXA_API_KEY, then DuckDuckGo lite; search.status reports configured backends (presence only).",
+  "tags": ["search", "web", "query", "network", "wave5"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://web-search",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "search.status",
+      "intent": "search.web.status",
+      "label": "Search Status",
+      "summary": "Report which search backends are configured (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_status",
+        "aliases": ["web_search_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "search.query",
+      "intent": "search.web.query",
+      "label": "Search Query",
+      "summary": "Run a web search with optional result limit.",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_query",
+        "aliases": ["web_search", "search"],
+        "usage": "{ query, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call configured search backends (SearXNG / Exa).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

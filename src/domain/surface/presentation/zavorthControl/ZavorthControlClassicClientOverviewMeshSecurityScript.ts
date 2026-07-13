@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
     const node = document.getElementById('operations-security-mesh');
     if (!node) return;
     if (!securityMesh || 'error' in securityMesh) {
-      node.innerHTML = '<div class="muted">Nao foi possivel carregar o Runtime & Security Mesh.</div>';
+      node.innerHTML = '<div class="muted">No foi possivel carregar o Runtime & Security Mesh.</div>';
       return;
     }
 
@@ -57,7 +57,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhuma acao adicional sugerida agora.</div>';
+      : '<div class="muted">No acao adicional sugerida agora.</div>';
     const coreItems = coreModes.length
       ? coreModes
           .map(
@@ -69,7 +69,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               ']</li>',
           )
           .join('')
-      : '<li>Nenhum tier core visivel.</li>';
+      : '<li>Nenhum tier core visible.</li>';
     const extensionItems = extensionModes.length
       ? extensionModes
           .map(
@@ -81,7 +81,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
               ']</li>',
           )
           .join('')
-      : '<li>Nenhuma extensao visivel.</li>';
+      : '<li>No extension visible.</li>';
 
     node.innerHTML =
       '' +
@@ -100,13 +100,13 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       '</span>' +
       '</div>' +
       '<div class="cockpit-headline">' +
-      escapeHtml(securityMesh.narrative?.operatorSummary || posture.summary || 'Postura de seguranca indisponivel.') +
+      escapeHtml(securityMesh.narrative?.operatorSummary || posture.summary || 'Security posture unavailable.') +
       '</div>' +
       '</div>' +
       '<a class="sidecar-link" href="/api/operations/security-mesh" target="_blank">/api/operations/security-mesh</a>' +
       '</div>' +
       '<div class="cockpit-mini-grid">' +
-      '<div class="cockpit-mini-card"><strong>Core pronto</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Core ready</strong><div>' +
       escapeHtml(String(summary.coreReady || 0)) +
       '</div><small>local-jail, container, microVM</small></div>' +
       '<div class="cockpit-mini-card"><strong>Extensoes</strong><div>' +
@@ -117,7 +117,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
       '</div><small>container forte</small></div>' +
       '<div class="cockpit-mini-card"><strong>Never-downgrade</strong><div>' +
       escapeHtml(summary.neverDowngrade ? 'ativo' : 'inativo') +
-      '</div><small>alto risco nao rebaixa</small></div>' +
+      '</div><small>alto risco no rebaixa</small></div>' +
       '</div>' +
       '<div class="cockpit-grid">' +
       '<div class="cockpit-stack">' +

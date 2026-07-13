@@ -16,7 +16,8 @@ import { SecurityAuditLogger } from '../services/SecurityAuditLogger.js';
 import {
   McpToolPolicy,
   type McpToolPolicyDocument,
-} from './McpToolPolicy.js';type McpSecurityDefinition = Record<string, unknown>;
+} from './McpToolPolicy.js';
+type McpSecurityDefinition = Record<string, unknown>;
 
 type ToolWithRemoteName = BaseTool & { remoteName?: string };
 
@@ -356,10 +357,10 @@ export class McpRuntimeService {
     toolNames: string[];
     error: string | null;
   }> {
-    // Se ja existe um manager ativo, parar antes
+    // If an active manager already exists, stop it first
     await this.stopServer(serverId);
 
-    // Recarregar o manifesto para pegar a entrada mais recente
+    // Reload the manifest to get the most recent entry
     const allEntries = this.loadManifestEntries();
     const serverEntry = allEntries.find((entry) => entry.id === serverId);
 
@@ -442,6 +443,137 @@ export class McpRuntimeService {
 
   public readSnapshot(): McpRuntimeSnapshot {
     return this.buildSnapshot(Array.from(this.entries.values()));
+  }
+
+  /**
+   * Soft-invoke a tool on a connected MCP server by id.
+   * When `tool` is omitted, returns the server's known tool names and status.
+   */
+  public async invoke(input: {
+    serverId: string;
+    tool?: string | null;
+    name?: string | null;
+    args?: Record<string, unknown>;
+    arguments?: Record<string, unknown>;
+    params?: Record<string, unknown>;
+  }): Promise<{
+    ok: boolean;
+    serverId: string;
+    tool?: string | null;
+    result?: unknown;
+    reason?: string;
+    message?: string;
+    tools?: string[];
+    status?: string | null;
+    setup?: string[];
+  }> {
+    const serverId = String(input?.serverId || '').trim();
+    if (!serverId) {
+      return {
+        ok: false,
+        serverId: '',
+        reason: 'serverId_required',
+        message: 'serverId is required',
+      };
+    }
+
+    const entry = this.entries.get(serverId);
+    const toolName = String(input?.tool || input?.name || '').trim();
+    const args = (input?.args || input?.arguments || input?.params || {}) as Record<string, unknown>;
+
+    if (!toolName) {
+      return {
+        ok: true,
+        serverId,
+        tools: entry?.toolNames || [],
+        status: entry?.status || null,
+        message: entry
+          ? `MCP server ${serverId} status=${entry.status} tools=${entry.toolCount}`
+          : `MCP server ${serverId} is not present in the runtime snapshot (start MCP runtime first).`,
+        setup: entry
+          ? undefined
+          : [
+              'Enable the server in config/mcp-servers.json',
+              'Restart the gateway/runtime so McpRuntimeService.start() connects it',
+            ],
+      };
+    }
+
+    if (entry && entry.status === 'disabled') {
+      return {
+        ok: false,
+        serverId,
+        tool: toolName,
+        reason: 'server_disabled',
+        message: `MCP server ${serverId} is disabled in the manifest.`,
+        setup: [`Set enabled=true for "${serverId}" in config/mcp-servers.json`],
+      };
+    }
+
+    const candidates = [
+      `${serverId}:${toolName}`,
+      toolName,
+    ];
+    // Also accept already-namespaced tool ids
+    if (toolName.includes(':')) {
+      candidates.unshift(toolName);
+    }
+
+    for (const candidate of candidates) {
+      const tool = this.registry.getTool(candidate);
+      if (!tool) continue;
+      try {
+        const result = await tool.execute(args);
+        return {
+          ok: true,
+          serverId,
+          tool: candidate,
+          result,
+        };
+      } catch (error: unknown) {
+        return {
+          ok: false,
+          serverId,
+          tool: candidate,
+          reason: 'tool_execute_failed',
+          message: getErrorMessage(error),
+        };
+      }
+    }
+
+    return {
+      ok: false,
+      serverId,
+      tool: toolName,
+      reason: 'tool_not_found',
+      message: `Tool "${toolName}" not registered for MCP server ${serverId}.`,
+      tools: entry?.toolNames || [],
+      status: entry?.status || null,
+      setup: [
+        entry?.status === 'connected'
+          ? 'Tool is not approved/registered — check MCP tool policy'
+          : 'Connect the MCP server (runtime start/reload) before invoke',
+        `Known tools: ${(entry?.toolNames || []).join(', ') || 'none'}`,
+      ],
+    };
+  }
+
+  public async callTool(
+    serverId: string,
+    tool: string,
+    args: Record<string, unknown> = {},
+  ): Promise<{
+    ok: boolean;
+    serverId: string;
+    tool?: string | null;
+    result?: unknown;
+    reason?: string;
+    message?: string;
+    tools?: string[];
+    status?: string | null;
+    setup?: string[];
+  }> {
+    return this.invoke({ serverId, tool, args });
   }
 
   private normalizeToolDescription(description: unknown): string {

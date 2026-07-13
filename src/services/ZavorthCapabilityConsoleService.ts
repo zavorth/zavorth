@@ -23,6 +23,7 @@ import {
   ZavorthCapabilitySetupExecutorService,
   type ZavorthCapabilitySetupExecutorRuntime,
 } from './ZavorthCapabilitySetupExecutorService.js';
+import { tService } from '../i18n/services.js';
 
 
 
@@ -229,22 +230,22 @@ export class ZavorthCapabilityConsoleService {
   ): CapabilityConsoleSnapshot['narrative'] {
     if (summary.readyTickets > 0) {
       return {
-        headline: `Capability Console: ${summary.readyTickets} ticket(s) pronto(s) para handoff do dono.`,
-        operatorSummary: 'A console mostra catalogo, packs, readiness, fila e pedidos em uma superficie unica.',
-        nextAction: 'Revise o ticket pronto e gere um pedido controlado com approval explicito.',
+        headline: tService('console.ready_tickets', { count: String(summary.readyTickets) }),
+        operatorSummary: tService('console.ready_operator_summary'),
+        nextAction: tService('console.ready_next_action'),
       };
     }
     if (summary.openTickets > 0) {
       return {
-        headline: `Capability Console: ${summary.openTickets} ticket(s) ainda precisam de setup.`,
-        operatorSummary: 'Continue os passos pendentes antes de criar pedido de ativacao.',
-        nextAction: 'Abra a fila ou rode o guia de setup para o primeiro ticket aberto.',
+        headline: tService('console.open_tickets', { count: String(summary.openTickets) }),
+        operatorSummary: tService('console.continue_pending_steps'),
+        nextAction: tService('console.open_next_action'),
       };
     }
     return {
-      headline: `Capability Console em modo ${view}.`,
-      operatorSummary: 'Catalogo, packs e readiness estao disponiveis sem ativacao live e sem serializar secrets.',
-      nextAction: 'Escolha um pack ou alvo e inicie o setup guiado.',
+      headline: tService('console.idle_headline', { view }),
+      operatorSummary: tService('console.idle_operator_summary'),
+      nextAction: tService('console.idle_next_action'),
     };
   }
 

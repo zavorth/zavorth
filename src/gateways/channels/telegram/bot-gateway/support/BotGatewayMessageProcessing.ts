@@ -16,7 +16,8 @@ import type { BotGatewaySupportRuntime } from '../../../../../gateways/channels/
 import { telegramLegacySurfacePolicyService } from '../../../../../gateways/channels/telegram/controllers/TelegramLegacySurfacePolicyService.js';
 import { TelegramDailyAssistantService } from '../../../../../gateways/channels/telegram/TelegramDailyAssistantService.js';
 import { hookMiddleware } from '../../../../../services/ZavorthMiddlewareHook.js';
-import { logger } from '../../../../../logger';export type NaturalConversationIngressMetadata = {
+import { logger } from '../../../../../logger.js';
+export type NaturalConversationIngressMetadata = {
   traceId?: string | null;
   voiceFlow?: Record<string, unknown> | null;
   transport?: string | null;
@@ -58,7 +59,23 @@ export async function processTextMessage(
   runtime.logRepo.log('info', 'Telegram', `Recebeu mensagem de ${userId}`);
   await recordIncomingMessageTelemetry(runtime, chatId, userId, text, ctx.chat?.type || 'unknown');
 
-  if (await runtime.priorityCommandService.handle(ctx, text)) {
+  // HIGH_RISK callback challenge: bare TOTP / pin= after task:approve button.
+  const permissionController =
+    (runtime as { permissionController?: { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> } })
+      .permissionController ||
+    (runtime as { getPermissionController?: () => { tryConsumeHighRiskTotpReply?: (c: Context, t: string) => Promise<boolean> } })
+      .getPermissionController?.();
+  if (
+    permissionController?.tryConsumeHighRiskTotpReply &&
+    (await permissionController.tryConsumeHighRiskTotpReply(ctx, text))
+  ) {
+    return;
+  }
+
+  // Hermes-style: free text never goes through priority interceptors.
+  // Only explicit slash commands may be handled before the agent.
+  const isSlashText = String(text || '').trim().startsWith('/');
+  if (isSlashText && (await runtime.priorityCommandService.handle(ctx, text))) {
     return;
   }
 
@@ -79,10 +96,10 @@ export async function processTextMessage(
     !runtime.securityLock.isCommandAllowedWhenLocked(parsed.command_type)
   ) {
     if (parsed.command_type === '/lock') {
-      await ctx.reply('\u{1F512} O Zavorth ja esta trancado.');
+      await ctx.reply('\u{1F512} Zavorth is already locked.');
       return;
     }
-    await ctx.reply('\u{1F512} Zavorth trancado. Use /unlock <senha> para destrancar.');
+    await ctx.reply('\u{1F512} Zavorth is locked. Use /unlock <password> to unlock.');
     return;
   }
 
@@ -220,7 +237,7 @@ export async function processTextMessage(
     explicitExecution: effectiveText.trim().startsWith('/task'),
   });
   if (fallbackResponseDecision.responsePath === 'fast-chat' && parsed.command_type === '/task') {
-    await ctx.reply('Estou aqui. Pode conversar comigo normalmente ou pedir uma acao concreta quando quiser que eu execute algo.');
+    await ctx.reply("I'm here. Chat normally, or ask for a concrete action when you want me to run something.");
     return;
   }
 
@@ -291,7 +308,7 @@ function resolveTelegramUniversalModelLabel(): string {
     .map((candidate) => String(candidate || '').trim())
     .find(Boolean)
     || provider
-    || 'modelo atual';
+    || 'current model';
 }
 
 async function tryHandleNaturalConversationThroughAgentGateway(
@@ -313,15 +330,8 @@ async function tryHandleNaturalConversationThroughAgentGateway(
   const dailyAssistant = new TelegramDailyAssistantService({
     agentGateway: runtime.agentGateway,
   });
-  const approvalIntent = await dailyAssistant.handleApprovalIntent({
-    text,
-    userId,
-    sessionId: telegramContract.threadId || chatId,
-  });
-  if (approvalIntent) {
-    await ctx.reply(approvalIntent.text);
-    return true;
-  }
+  // Hermes-style: never mutate approvals via free-text phrase regex.
+  // Use /approve|/reject or callback_data task:approve|reject only.
 
   const hasExecutionAttachment = hasExecutionAttachmentPayload(inlineData, ingressMetadata);
   const responseDecision = await resolveSurfaceOperationalIntentService(runtime).decideResponse({

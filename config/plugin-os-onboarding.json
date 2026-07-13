@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "zavorth.plugin-os-onboarding.v1",
+  "defaultProfile": "recommended",
+  "injectAgentSurface": true,
+  "injectMaxCatalog": 12,
+  "profiles": {
+    "minimal": {
+      "label": "Minimal",
+      "summary": "Router + security guidance only.",
+      "includeIds": ["plugin-router-ai", "security-guidance", "mcp-bridge"],
+      "excludeOptional": true
+    },
+    "core": {
+      "label": "Core",
+      "summary": "Safe first-party defaults without credential-heavy integrations.",
+      "includeTiers": ["first-party"],
+      "excludeIds": [
+        "gmail",
+        "linear",
+        "notion",
+        "browser-playwright",
+        "browser-cdp",
+        "memory-honcho",
+        "memory-mem0",
+        "notify-outbox",
+        "provider-openai-compatible",
+        "provider-anthropic",
+        "provider-xai",
+        "provider-gemini",
+        "platform-telegram",
+        "platform-discord",
+        "platform-whatsapp",
+        "platform-webhook",
+        "media-image-gen",
+        "media-vision",
+        "media-tts",
+        "media-transcription",
+        "media-video-gen",
+        "search-exa",
+        "search-firecrawl",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "spotify-soft",
+        "demo-showcase"
+      ],
+      "excludeOptional": true
+    },
+    "recommended": {
+      "label": "Recommended",
+      "summary": "All first-party plugins except optional credential/network integrations.",
+      "includeTiers": ["first-party"],
+      "excludeIds": [
+        "gmail",
+        "linear",
+        "notion",
+        "memory-honcho",
+        "memory-mem0",
+        "provider-openai-compatible",
+        "provider-anthropic",
+        "provider-xai",
+        "provider-gemini",
+        "platform-telegram",
+        "platform-discord",
+        "platform-whatsapp",
+        "platform-webhook",
+        "media-image-gen",
+        "media-vision",
+        "media-tts",
+        "media-transcription",
+        "media-video-gen",
+        "browser-cdp",
+        "search-exa",
+        "search-firecrawl",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "spotify-soft",
+        "demo-showcase"
+      ],
+      "excludeOptional": true
+    },
+    "daily-ops": {
+      "label": "Daily Ops pack",
+      "summary": "Ship/plan/CI/doctor/recall/notify — accessibility baseline.",
+      "includeIds": [
+        "workspace-doctor",
+        "task-board",
+        "pr-ship",
+        "ci-watch",
+        "secrets-guardian",
+        "session-recall",
+        "notify-outbox",
+        "plugin-router-ai",
+        "security-guidance"
+      ],
+      "excludeOptional": false
+    },
+    "providers": {
+      "label": "Provider pack (Wave 1)",
+      "summary": "LLM provider plugins + status (optional keys; soft-fail).",
+      "includeIds": [
+        "provider-status",
+        "provider-openai-compatible",
+        "provider-anthropic",
+        "provider-xai",
+        "provider-gemini",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "platforms": {
+      "label": "Platform pack (Wave 2)",
+      "summary": "Messaging channel plugins (Telegram, Discord, WhatsApp, webhook).",
+      "includeIds": [
+        "platform-telegram",
+        "platform-discord",
+        "platform-whatsapp",
+        "platform-webhook",
+        "notify-outbox",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "memory": {
+      "label": "Memory pack (Wave 3)",
+      "summary": "Local + optional remote memory backends.",
+      "includeIds": [
+        "memory-local",
+        "memory-file-journal",
+        "memory-vector-local",
+        "memory-honcho",
+        "memory-mem0",
+        "session-recall",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "media": {
+      "label": "Media pack (Wave 4)",
+      "summary": "Image, vision, TTS, transcription, optional video (keys + network).",
+      "includeIds": [
+        "media-image-gen",
+        "media-vision",
+        "media-tts",
+        "media-transcription",
+        "media-video-gen",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "browser-search": {
+      "label": "Browser & search pack (Wave 5)",
+      "summary": "Web search multi-backend, Playwright, CDP, Exa, Firecrawl.",
+      "includeIds": [
+        "web-search",
+        "browser-playwright",
+        "browser-cdp",
+        "search-exa",
+        "search-firecrawl",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "trust": {
+      "label": "Trust fabric pack (Wave 6)",
+      "summary": "Secret sources, dashboard auth soft providers, context bridge, rate-limit middleware.",
+      "includeIds": [
+        "secret-source-env",
+        "secret-source-file",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "context-engine-bridge",
+        "middleware-rate-limit",
+        "secrets-guardian",
+        "security-guidance",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "lifestyle": {
+      "label": "Lifestyle & demos pack (Wave 7)",
+      "summary": "Spotify soft + surface-parity demo showcase (optional tier).",
+      "includeIds": [
+        "spotify-soft",
+        "demo-showcase",
+        "plugin-router-ai",
+        "workspace-doctor"
+      ],
+      "excludeOptional": false
+    },
+    "full": {
+      "label": "Full first-party",
+      "summary": "Enable every first-party plugin including optional integrations.",
+      "includeTiers": ["first-party"],
+      "excludeOptional": false
+    }
+  },
+  "optionalIds": [
+    "gmail",
+    "linear",
+    "notion",
+    "browser-playwright",
+    "browser-cdp",
+    "memory-honcho",
+    "memory-mem0",
+    "notify-outbox",
+    "provider-openai-compatible",
+    "provider-anthropic",
+    "provider-xai",
+    "provider-gemini",
+    "platform-telegram",
+    "platform-discord",
+    "platform-whatsapp",
+    "platform-webhook",
+    "media-image-gen",
+    "media-vision",
+    "media-tts",
+    "media-transcription",
+    "media-video-gen",
+    "search-exa",
+    "search-firecrawl",
+    "dashboard-auth-basic",
+    "dashboard-auth-token",
+    "spotify-soft",
+    "demo-showcase"
+  ],
+  "notes": [
+    "Optional plugins usually need credentials or heavier runtimes.",
+    "Daily Ops pack is first-party; notify-outbox is optional because of webhooks.",
+    "Wave 1 provider pack: profile 'providers'.",
+    "Wave 2 platform pack: profile 'platforms'.",
+    "Wave 3 memory pack: profile 'memory' (honcho/mem0 optional).",
+    "Wave 4 media pack: profile 'media' (all optional; keys + network).",
+    "Wave 5 browser & search: profile 'browser-search' (cdp/exa/firecrawl optional).",
+    "Wave 6 trust fabric: profile 'trust' (dashboard auth optional in recommended).",
+    "Wave 7 lifestyle & demos: profile 'lifestyle' (spotify + demo-showcase optional).",
+    "Wave 8 ecosystem: atlas docs/generated/plugin-atlas.md, create-zavorth-plugin, signed packs, profile 'daily-ops'.",
+    "Gap closure waves: docs/plugin-os-gap-closure-waves.md + config/plugin-os-gap-waves.json",
+    "Onboarding never forces enable when trust is blocked or user disabled (unless --force).",
+    "Set injectAgentSurface false or ZAVORTH_PLUGIN_OS_PROMPT=0 to skip system-prompt injection."
+  ]
+}

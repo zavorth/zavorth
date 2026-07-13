@@ -50,6 +50,15 @@ export type AskResponse = {
   error?: string;
 };
 
+/** Desktop surface-projection payload (from DesktopSurfaceProjector or local synthesis). */
+export type ApprovalSurfaceProjection = {
+  shortcuts?: Array<{ key: string; choice?: string | null; optionId?: string; label?: string }>;
+  copyTargets?: Array<{ id: string; label: string; value: string }>;
+  openReceipt?: { label?: string; href?: string; approvalId?: string } | null;
+  surfaceActions?: unknown[];
+  keyboardShortcuts?: boolean;
+};
+
 export type ApprovalItem = {
   id?: string;
   approvalId?: string;
@@ -59,6 +68,7 @@ export type ApprovalItem = {
   risk?: string;
   status?: string;
   createdAt?: string;
+  surfaceProjection?: ApprovalSurfaceProjection | null;
 };
 
 export type LearningItem = {
@@ -576,23 +586,135 @@ export async function loadApprovals(): Promise<ApprovalItem[]> {
   const result = await apiRequest<{ approvals?: ApprovalItem[]; pending?: ApprovalItem[] }>({
     method: 'GET',
     path: '/api/experience/approvals',
-    query: { surface: 'web' },
+    query: { surface: 'desktop' },
   });
   const data = requireOk(result, 'Could not load approvals.');
   return data.approvals || data.pending || [];
 }
 
+export type ApprovalChoice = 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject';
+
+export type DesktopVoicePreference = {
+  version?: string;
+  mode?: 'off' | 'dictation' | 'conversation';
+  stt?: {
+    provider?: string;
+    model?: string | null;
+    language?: string;
+  };
+  tts?: {
+    enabled?: boolean;
+    provider?: string;
+    voiceId?: string | null;
+  };
+};
+
+export type DesktopVoicePreferenceResponse = {
+  preference?: DesktopVoicePreference;
+  resolve?: { ok?: boolean; code?: string; message?: string; providers?: string[]; source?: string };
+  describe?: string;
+  path?: string;
+};
+
+export type DesktopVoiceMetricsSnapshot = {
+  version?: string;
+  total?: number;
+  stt?: { ok?: number; fail?: number; avgLatencyMs?: number | null };
+  tts?: { ok?: number; fail?: number; avgLatencyMs?: number | null };
+  dictation?: { ok?: number; fail?: number };
+  duplex?: { sessions?: number; turns?: number };
+  recent?: Array<Record<string, unknown>>;
+};
+
+export async function loadVoicePreference(): Promise<DesktopVoicePreferenceResponse> {
+  const result = await apiRequest<DesktopVoicePreferenceResponse>({
+    method: 'GET',
+    path: '/api/experience/voice/preference',
+  });
+  return requireOk(result, 'Could not load voice preference.');
+}
+
+export async function saveVoicePreference(
+  body: Record<string, unknown>,
+): Promise<DesktopVoicePreferenceResponse> {
+  const result = await apiRequest<DesktopVoicePreferenceResponse>({
+    method: 'PUT',
+    path: '/api/experience/voice/preference',
+    body,
+  });
+  return requireOk(result, 'Could not save voice preference.');
+}
+
+export async function loadVoiceMetrics(limit = 40): Promise<DesktopVoiceMetricsSnapshot> {
+  const result = await apiRequest<DesktopVoiceMetricsSnapshot>({
+    method: 'GET',
+    path: '/api/experience/voice/metrics',
+    query: { limit: String(limit) },
+  });
+  return requireOk(result, 'Could not load voice metrics.');
+}
+
+export async function voiceDuplexAction(
+  body: Record<string, unknown>,
+): Promise<{ ok?: boolean; session?: Record<string, unknown>; sessions?: unknown[]; error?: string }> {
+  const result = await apiRequest<{
+    ok?: boolean;
+    session?: Record<string, unknown>;
+    sessions?: unknown[];
+    error?: string;
+  }>({
+    method: 'POST',
+    path: '/api/experience/voice/duplex',
+    body,
+  });
+  return requireOk(result, 'Could not control voice duplex session.');
+}
+
+export type DesktopVoiceProbeResult = {
+  version?: string;
+  kind?: string;
+  ok?: boolean;
+  code?: string;
+  message?: string;
+  providers?: string[];
+  provider?: string | null;
+  voiceId?: string | null;
+  sampleText?: string;
+  clientSpeakRecommended?: boolean;
+  stt?: DesktopVoiceProbeResult;
+  tts?: DesktopVoiceProbeResult;
+  mode?: string;
+  describe?: string;
+};
+
+export async function testVoiceConfig(body: {
+  action?: 'stt' | 'tts' | 'all';
+  sampleText?: string;
+}): Promise<{ ok?: boolean; result?: DesktopVoiceProbeResult }> {
+  const result = await apiRequest<{ ok?: boolean; result?: DesktopVoiceProbeResult }>({
+    method: 'POST',
+    path: '/api/experience/voice/test',
+    body,
+  });
+  return requireOk(result, 'Could not run voice configuration test.');
+}
+
+
 export async function resolveApproval(
   approvalId: string,
-  decision: 'approve' | 'reject',
+  decision: ApprovalChoice,
 ): Promise<unknown> {
+  const choice =
+    decision === 'approve' ? 'once' : decision === 'reject' ? 'deny' : decision;
   const result = await apiRequest({
     method: 'POST',
     path: `/api/experience/approvals/${encodeURIComponent(approvalId)}/decision`,
     body: {
-      decision,
-      surface: 'web',
+      decision: choice === 'deny' ? 'reject' : 'approve',
+      choice,
+      surface: 'desktop',
       userId: 'desktop-user',
+      metadata: { choice, source: 'zavorth-desktop' },
     },
   });
   return requireOk(result, 'Could not resolve approval.');
@@ -1025,11 +1147,19 @@ export async function getPendingHostCommands(workspaceId: string): Promise<HostC
   return Array.isArray(data?.data) ? data.data : [];
 }
 
-export async function resolveHostCommand(operationId: string, decision: 'approve' | 'deny', strongConfirmationInput?: string): Promise<void> {
+export async function resolveHostCommand(
+  operationId: string,
+  decision: 'approve' | 'deny',
+  strongConfirmationInput?: string,
+): Promise<void> {
   const result = await apiRequest<Record<string, unknown>>({
     method: 'POST',
     path: '/api/v2/workspace/host-commands/resolve',
-    body: { operationId, decision, strongConfirmationInput },
+    body: {
+      operationId,
+      decision,
+      strongConfirmationInput,
+    },
   });
   requireOk(result, 'Could not resolve host command.');
 }
@@ -1059,5 +1189,199 @@ export async function sendPtyInput(workspaceId: string, sessionId: string, data:
     method: 'POST',
     path: '/api/v2/workspace/pty/input',
     body: { workspaceId, sessionId, data },
+  });
+}
+
+export type PluginOsActionBody = {
+  action: 'enable' | 'disable' | 'trust' | 'uninstall' | 'inspect' | 'refresh' | 'recommend' | 'suggest' | 'catalog-apply' | 'metrics-persist' | 'telemetry-sample' | 'onboarding-plan' | 'onboarding-apply' | 'onboarding-undo' | 'preview-permissions' | 'prompt-preview' | 'receipts-timeline' | 'inject-prefs' | string;
+  pluginId?: string;
+  trust?: 'review' | 'trusted' | 'blocked' | string;
+  approved?: boolean;
+  intent?: string;
+  query?: string;
+  limit?: number;
+  useLlm?: boolean;
+  force?: boolean;
+  profile?: string;
+  optionalIds?: string[] | string;
+  injectMode?: string;
+  injectSamplePercent?: number;
+};
+
+export type PluginOsSuggestUi = {
+  title?: string;
+  body?: string;
+  actions?: Array<{ id: string; label: string; pluginId?: string }>;
+};
+
+export type PluginOsSuggestResult = {
+  ok?: boolean;
+  intent?: string;
+  message?: string;
+  autoEnable?: boolean;
+  primary?: {
+    pluginId?: string;
+    summary?: string;
+    canEnable?: boolean;
+    enableHint?: string;
+    needsCredentials?: boolean;
+    risks?: string[];
+  } | null;
+  suggestions?: Array<Record<string, unknown>>;
+  ui?: PluginOsSuggestUi;
+  text?: string;
+};
+
+export type PluginOsReceiptEntry = {
+  id?: string;
+  kind?: string;
+  pluginId?: string | null;
+  createdAt?: string;
+  headline?: string;
+  detail?: string;
+};
+
+export type PluginOsSnapshotResponse = {
+  ok?: boolean;
+  snapshot?: Record<string, unknown>;
+  error?: string;
+};
+
+export type PluginOsActionResponse = {
+  ok?: boolean;
+  snapshot?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  error?: string;
+};
+
+/** Live Plugin OS control-plane snapshot (GET /api/plugin-os). Soft-fails on 404. */
+export async function getPluginOsSnapshot(): Promise<DesktopApiResult<PluginOsSnapshotResponse>> {
+  return apiRequest<PluginOsSnapshotResponse>({
+    method: 'GET',
+    path: '/api/plugin-os',
+    timeoutMs: 15000,
+  });
+}
+
+/** Live Plugin OS action (POST /api/plugin-os/actions). */
+export async function postPluginOsAction(
+  body: PluginOsActionBody,
+): Promise<DesktopApiResult<PluginOsActionResponse>> {
+  return apiRequest<PluginOsActionResponse>({
+    method: 'POST',
+    path: '/api/plugin-os/actions',
+    body: {
+      approved: true,
+      ...body,
+    },
+    timeoutMs: 30000,
+  });
+}
+
+/** Human receipts timeline (GET /api/plugin-os/receipts). Soft-fails on 404. */
+export async function getPluginOsReceipts(limit = 20): Promise<DesktopApiResult<{
+  ok?: boolean;
+  timeline?: { entries?: PluginOsReceiptEntry[]; text?: string };
+  error?: string;
+}>> {
+  return apiRequest({
+    method: 'GET',
+    path: `/api/plugin-os/receipts?limit=${encodeURIComponent(String(limit))}`,
+    timeoutMs: 15000,
+  });
+}
+
+// ── Skill registry ops (GET /api/skill-registry, POST /api/skill-registry/actions) ──
+
+export type SkillRegistrySkillRow = {
+  id?: string;
+  name?: string;
+  version?: string | null;
+  description?: string | null;
+  relativePath?: string;
+  signed?: boolean;
+  signatureMode?: string;
+  riskLevel?: string;
+  packageValid?: boolean;
+  packageErrors?: string[];
+  path?: string;
+};
+
+export type SkillRegistrySnapshot = {
+  contractVersion?: string;
+  generatedAt?: string;
+  skillsDir?: string;
+  skills?: SkillRegistrySkillRow[];
+  trustedGitDomains?: string[];
+  registryBaseUrl?: string | null;
+  stats?: {
+    total?: number;
+    signed?: number;
+    packageValid?: number;
+    highRisk?: number;
+  };
+  env?: {
+    hasSigningKey?: boolean;
+    trustedDomainsExtra?: boolean;
+    registryUrlSet?: boolean;
+  };
+  docs?: string[];
+};
+
+export type SkillRegistrySnapshotResponse = {
+  ok?: boolean;
+  snapshot?: SkillRegistrySnapshot;
+  error?: string;
+};
+
+export type SkillRegistryActionBody = {
+  action: string;
+  skillId?: string;
+  skillDir?: string;
+  repoUrl?: string;
+  outPath?: string;
+  signingKey?: string;
+  operatorConfirm?: boolean;
+  baseUrl?: string;
+};
+
+export type SkillRegistryActionResponse = {
+  ok?: boolean;
+  snapshot?: SkillRegistrySnapshot;
+  result?: {
+    ok?: boolean;
+    action?: string;
+    message?: string;
+    error?: string;
+    skillId?: string | null;
+    planPath?: string;
+    indexPath?: string;
+    count?: number;
+    plan?: Record<string, unknown>;
+    trustedGitDomains?: string[];
+  };
+  error?: string;
+};
+
+/** Skill registry ops snapshot (GET /api/skill-registry). Soft-fails on 404. */
+export async function getSkillRegistrySnapshot(): Promise<DesktopApiResult<SkillRegistrySnapshotResponse>> {
+  return apiRequest<SkillRegistrySnapshotResponse>({
+    method: 'GET',
+    path: '/api/skill-registry',
+    timeoutMs: 15000,
+  });
+}
+
+/** Skill registry ops action (POST /api/skill-registry/actions). */
+export async function postSkillRegistryAction(
+  body: SkillRegistryActionBody,
+): Promise<DesktopApiResult<SkillRegistryActionResponse>> {
+  return apiRequest<SkillRegistryActionResponse>({
+    method: 'POST',
+    path: '/api/skill-registry/actions',
+    body: {
+      ...body,
+    },
+    timeoutMs: 30000,
   });
 }

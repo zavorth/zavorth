@@ -348,7 +348,7 @@ describe('ZavorthGatewayControlSocketService', () => {
             },
             narrative: {
               headline: 'Gateway',
-              operatorSummary: 'Gateway pronto.',
+              operatorSummary: 'Gateway ready.',
             },
           },
         })),

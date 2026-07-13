@@ -19,6 +19,7 @@ import type { AgentProfile } from '../desktop-state/agentProfiles';
 import type { ScheduledTask } from '../desktop-state/useDesktopAutomations';
 import type { WorkboardBoard, WorkboardCard } from './panels/WorkboardPanel';
 import type { PluginItem } from './panels/PluginMarketplacePanel';
+import type { PluginOsPlanePanelData } from '../desktop-state/pluginOsBridge';
 import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardProjection';
 import { ReviewView } from './panels/ReviewView';
 import { FilesView } from './panels/FilesView';
@@ -80,7 +81,10 @@ type WorkspaceViewProps = {
   }): void | Promise<void>;
   onGatewayResilienceAction(input: Record<string, unknown>): void | Promise<void>;
   onProfile(value: string): void;
-  onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onReviewDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
@@ -109,6 +113,27 @@ type WorkspaceViewProps = {
   onUninstallPlugin?: (pluginId: string) => void;
   onUpdatePlugin?: (pluginId: string) => void;
   onRefreshMarketplace?: () => void | Promise<void>;
+  pluginOsData?: PluginOsPlanePanelData;
+  pluginOsLabels?: Partial<Record<string, string>>;
+  pluginOsError?: string | null;
+  onEnablePluginOs?: (pluginId: string) => void;
+  onDisablePluginOs?: (pluginId: string) => void;
+  onInspectPluginOs?: (pluginId: string) => void;
+  onRecommendPluginOs?: (intent: string) => void | Promise<void>;
+  onCatalogApplyPluginOs?: () => void | Promise<void>;
+  onOnboardingPluginOs?: (profile?: string) => void | Promise<void>;
+  onUndoOnboardingPluginOs?: () => void | Promise<void>;
+  onSuggestActionPluginOs?: (actionId: string, pluginId?: string) => void | Promise<void>;
+  pluginOsSuggest?: {
+    title?: string;
+    body?: string;
+    message?: string;
+    primary?: { pluginId?: string; needsCredentials?: boolean; risks?: string[] } | null;
+    ui?: { actions?: Array<{ id: string; label: string; pluginId?: string }> };
+  } | null;
+  pluginOsReceipts?: Array<{ id?: string; headline?: string; detail?: string; createdAt?: string }>;
+  pluginOsInjectMode?: string;
+  onRefreshPluginOs?: () => void | Promise<void>;
   boards?: WorkboardBoard[];
   runtimeWorkboard?: RuntimeWorkboardProjection | null;
   onBoardSelect?: (boardId: string) => void;
@@ -287,7 +312,24 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
           onInstall={props.onInstallPlugin}
           onUninstall={props.onUninstallPlugin}
           onUpdate={props.onUpdatePlugin}
-          onRefresh={props.onRefreshMarketplace}
+          onRefresh={async () => {
+            await props.onRefreshMarketplace?.();
+            await props.onRefreshPluginOs?.();
+          }}
+          pluginOsData={props.pluginOsData}
+          pluginOsLabels={props.pluginOsLabels}
+          pluginOsError={props.pluginOsError}
+          onEnablePluginOs={props.onEnablePluginOs}
+          onDisablePluginOs={props.onDisablePluginOs}
+          onInspectPluginOs={props.onInspectPluginOs}
+          onRecommendPluginOs={props.onRecommendPluginOs}
+          onCatalogApplyPluginOs={props.onCatalogApplyPluginOs}
+          onOnboardingPluginOs={props.onOnboardingPluginOs}
+          onUndoOnboardingPluginOs={props.onUndoOnboardingPluginOs}
+          onSuggestActionPluginOs={props.onSuggestActionPluginOs}
+          pluginOsSuggest={props.pluginOsSuggest}
+          pluginOsReceipts={props.pluginOsReceipts}
+          pluginOsInjectMode={props.pluginOsInjectMode}
         />
       </PanelSuspense>
     );

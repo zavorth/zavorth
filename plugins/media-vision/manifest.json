@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "media-vision",
+  "label": "Media Vision",
+  "version": "1.0.0",
+  "moduleKind": "media",
+  "summary": "Soft-fail image describe via OpenAI-compatible vision chat.",
+  "description": "Wave 4 media pack. Uses OPENAI_API_KEY for chat/completions with image_url content when available. Reports presence of OPENAI_API_KEY, XAI_API_KEY, and ANTHROPIC_API_KEY (never secret values). Soft-fail without key, network.external permission, or on HTTP errors. Truncates large base64 in logs.",
+  "tags": ["media", "vision", "image", "describe", "wave4"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://media-vision",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.vision.status",
+      "intent": "media.vision.status",
+      "label": "Vision Status",
+      "summary": "Report which vision-capable backends have API keys present (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_vision_status",
+        "aliases": ["vision_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "media.vision.describe",
+      "intent": "media.vision.describe",
+      "label": "Describe Image",
+      "summary": "Soft-describe an image via OpenAI vision chat when key and network.external are available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_vision_describe",
+        "aliases": ["vision_describe", "describe_image"],
+        "usage": "{ imageUrl|url|image, prompt?, model? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call OpenAI-compatible vision chat completions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether OPENAI_API_KEY / XAI_API_KEY / ANTHROPIC_API_KEY are set (not the values).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

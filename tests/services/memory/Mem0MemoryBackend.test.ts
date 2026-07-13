@@ -25,7 +25,13 @@ describe('Mem0MemoryBackend', () => {
     await expect(backend.searchMemory('u1', 'respostas')).resolves.toEqual([
       'usuario prefere respostas curtas',
     ]);
-    expect(add).toHaveBeenCalledWith('fato importante', { user_id: 'u1' });
-    expect(search).toHaveBeenCalledWith('respostas', { user_id: 'u1' });
+    expect(add).toHaveBeenCalledWith(
+      'fato importante',
+      expect.objectContaining({ user_id: 'u1' }),
+    );
+    expect(search).toHaveBeenCalledWith(
+      'respostas',
+      expect.objectContaining({ user_id: 'u1' }),
+    );
   });
 });

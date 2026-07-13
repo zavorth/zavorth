@@ -6,6 +6,7 @@ import type { CapabilityLifecycleService } from '../../../../services/Capability
 import type { PermissionService } from '../../../../services/PermissionService.js';
 import { TaskResourcePlannerService } from '../../../../services/TaskResourcePlannerService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';
+import { tSurface } from '../../../../i18n/surface.js';
 import {
   buildReportSurfaceResponse,
   buildRuntimeSurfaceResponse,
@@ -50,7 +51,7 @@ export class SharedSurfaceCapabilityCommandPack {
 
   public async handleEnable(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.capabilityLifecycleService) {
-      await ctx.reply('Capability Lifecycle indisponivel neste runtime.');
+      await ctx.reply('Capability lifecycle unavailable in this runtime.');
       return;
     }
 
@@ -61,13 +62,21 @@ export class SharedSurfaceCapabilityCommandPack {
       ? scopeCandidate
       : 'host';
     if (!capabilityId) {
-      await ctx.reply('Uso: /enable <capability> [once|session|host]');
+      await ctx.reply(
+        [
+          'Enable a capability by name.',
+          '',
+          '/enable <capability> [once|session|host]',
+          '  Ex.: /enable sandbox',
+          '  Ex.: /enable media once',
+        ].join('\n'),
+      );
       return;
     }
 
     const manifest = this.deps.capabilityLifecycleService.getManifest(capabilityId);
     if (!manifest) {
-      await ctx.reply(`Capability desconhecida: ${capabilityId}. Use /capabilities para listar as disponiveis.`);
+      await ctx.reply(`Unknown capability: ${capabilityId}. Use /capabilities to list available ones.`);
       return;
     }
 
@@ -187,13 +196,20 @@ export class SharedSurfaceCapabilityCommandPack {
 
   public async handleDisable(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.capabilityLifecycleService) {
-      await ctx.reply('Capability Lifecycle indisponivel neste runtime.');
+      await ctx.reply('Capability lifecycle unavailable in this runtime.');
       return;
     }
 
     const capabilityId = String(args || '').trim().split(/\s+/).filter(Boolean)[0] || '';
     if (!capabilityId) {
-      await ctx.reply('Uso: /disable <capability>');
+      await ctx.reply(
+        [
+          'Disable a capability by name.',
+          '',
+          '/disable <capability>',
+          '  Ex.: /disable sandbox',
+        ].join('\n'),
+      );
       return;
     }
     if (capabilityId === 'core-runtime') {
@@ -254,16 +270,18 @@ export class SharedSurfaceCapabilityCommandPack {
   }): string {
     const text = [
       input.applied
-        ? `Capability ${input.label} habilitada.`
+        ? `Capability ${input.label} enabled.`
         : input.waitingApproval
-          ? `Capability ${input.label} aguardando approval.`
-          : `Capability ${input.label} nao foi habilitada.`,
+          ? tSurface('capability_awaiting', { label: input.label })
+          : `Capability ${input.label} was not enabled.`,
       '',
       input.summary,
       this.deps.taskResourcePlannerService?.renderImpactSummary(input.impact) || null,
-      `Escopo: ${input.scope}.`,
-      input.mutationPlanId ? `Plano: ${input.mutationPlanId}.` : null,
-      input.waitingApproval ? `Proximo passo: aprovar a mutacao e repetir /enable ${input.capabilityId} ${input.scope}.` : null,
+      `Scope: ${input.scope}.`,
+      input.mutationPlanId ? `Plan: ${input.mutationPlanId}.` : null,
+      input.waitingApproval
+        ? `Next: approve the mutation and retry /enable ${input.capabilityId} ${input.scope}.`
+        : null,
     ].filter(Boolean).join('\n');
     return this.renderCapabilityAction(
       'capability-enable',
@@ -296,7 +314,7 @@ export class SharedSurfaceCapabilityCommandPack {
       '- Pesquisa e sintese de informacao',
       '- Leitura, comparacao e envio de arquivos',
       '- Execucao e revisao com agentes especializados',
-      '- Workflows compostos e tarefas encadeadas',
+      '- Composite workflows and chained tasks',
       '- Operacao, diagnostico e acompanhamento do runtime',
     ];
 

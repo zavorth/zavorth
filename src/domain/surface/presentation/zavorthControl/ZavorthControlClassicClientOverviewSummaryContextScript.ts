@@ -140,7 +140,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       const node = document.getElementById('operations-brief');
       if (!node) return;
       if (!brief || brief.error) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o briefing do operador.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o briefing do operador.</div>';
         return;
       }
 
@@ -154,7 +154,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         ? highlights.map((item) => '<li>' + escapeHtml(item) + '</li>').join('')
         : '<li>Sem destaques registrados.</li>';
       const zavorthBridgeSummary = zavorthBridge.available
-        ? 'Incidente: ' + escapeHtml(zavorthBridge.latestIncident || 'n/d') + ' (' + escapeHtml(zavorthBridge.latestSeverity || 'n/d') + ') | flapping: ' + escapeHtml(zavorthBridge.flappingLikely ? 'sim' : 'nao')
+        ? 'Incidente: ' + escapeHtml(zavorthBridge.latestIncident || 'n/d') + ' (' + escapeHtml(zavorthBridge.latestSeverity || 'n/d') + ') | flapping: ' + escapeHtml(zavorthBridge.flappingLikely ? 'sim' : 'no')
         : 'Sem historico do remoto do ZavorthBridge ainda.';
       const hasActionId = Boolean(nextAction.actionId);
       const hasCliCommand = typeof nextAction.command === 'string' && nextAction.command.startsWith('npm run ');
@@ -189,7 +189,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         + '<div class="sidecar-card">'
         + '<strong>Proxima acao</strong>'
         + '<div class="cockpit-action-card">'
-        + '<strong>' + escapeHtml(nextAction.label || 'Sem acao sugerida') + '</strong>'
+        + '<strong>' + escapeHtml(nextAction.label || 'No suggested action') + '</strong>'
         + '<small>' + escapeHtml(nextAction.reason || 'Sem contexto adicional.') + '</small>'
         + '<div class="cockpit-command">' + escapeHtml(nextAction.command || '') + '</div>'
         + '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + actionButtons + '</div>'
@@ -209,7 +209,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       if (!memoryPlane || memoryPlane.error || memoryPlane.available === false) {
         const reason = memoryPlane && memoryPlane.reason
           ? escapeHtml(memoryPlane.reason)
-          : 'Plano de retomada e entregas indisponivel.';
+          : 'Resume plan and deliverables unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -226,14 +226,14 @@ function zavorthControlClassicClientOverviewSummaryContext() {
             + escapeHtml(entry.value || 'Sem valor adicional.')
             + '</li>'
           ).join('')
-        : '<li>Nenhuma memoria persistente recente.</li>';
+        : '<li>No memoria persistente recente.</li>';
       const artifactItems = artifacts.length
         ? artifacts.slice(0, 4).map((artifact) =>
             '<li><strong>' + escapeHtml(artifact.label || 'Entrega') + '</strong> · '
             + escapeHtml(artifact.summary || artifact.path || 'Sem resumo adicional.')
             + '</li>'
           ).join('')
-        : '<li>Nenhuma entrega recente consolidada.</li>';
+        : '<li>No entrega recente consolidada.</li>';
       const actionItems = suggestedActions.length
         ? suggestedActions.slice(0, 3).map((action) =>
             '<div class="cockpit-action-card">'
@@ -242,7 +242,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
             + '<div class="cockpit-command">' + escapeHtml(action.command || '') + '</div>'
             + '</div>'
           ).join('')
-        : '<div class="muted">Nenhuma acao sugerida agora.</div>';
+        : '<div class="muted">No acao sugerida agora.</div>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
@@ -251,7 +251,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         + '<strong>Retomada e entregas</strong>'
         + '<span class="badge badge-info">' + escapeHtml(String(memoryPlane.summary?.artifacts || 0)) + ' artefato(s)</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(memoryPlane.narrative?.headline || 'Contexto compartilhado pronto.') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(memoryPlane.narrative?.headline || 'Contexto compartilhado ready.') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/memory-plane" target="_blank">/api/operations/memory-plane</a>'
         + '</div>'
@@ -283,7 +283,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       if (!continuity || continuity.error || continuity.available === false) {
         const reason = continuity && continuity.reason
           ? escapeHtml(continuity.reason)
-          : 'Continuidade entre superficies indisponivel.';
+          : 'Cross-surface continuity unavailable.';
         node.innerHTML = '<div class="muted">' + reason + '</div>';
         return;
       }
@@ -300,10 +300,10 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         : (suggestedAction.kind === 'resume-active' ? 'atividade em curso' : 'sem continuidade');
       const focusTitle = focusTask
         ? escapeHtml((focusTask.shortId || 'task') + ' · ' + (focusTask.commandType || 'fluxo livre'))
-        : 'Nenhuma task em foco';
+        : 'No task em foco';
       const focusSummary = focusTask
-        ? escapeHtml(focusTask.summary || 'Sem resumo disponivel.')
-        : 'Nenhuma tarefa recente o suficiente para retomada.';
+        ? escapeHtml(focusTask.summary || 'Sem resumo available.')
+        : 'No recent task suitable for resume.';
       const focusMeta = focusTask
         ? 'Origem: ' + escapeHtml(focusTask.source || 'n/d')
           + ' | Status: ' + escapeHtml(focusTask.status || 'n/d')
@@ -317,16 +317,16 @@ function zavorthControlClassicClientOverviewSummaryContext() {
             + escapeHtml(formatRelativeTime(task.updatedAt))
             + '</li>'
           ).join('')
-        : '<li>Sem tarefas recentes para correlacionar.</li>';
+        : '<li>No recent tasks to correlate.</li>';
 
       node.innerHTML =
         '<div class="cockpit-status">'
         + '<div>'
         + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
-        + '<strong>Continuidade entre superficies</strong>'
+        + '<strong>Cross-surface continuity</strong>'
         + '<span class="badge ' + badgeClass + '">' + escapeHtml(badgeLabel) + '</span>'
         + '</div>'
-        + '<div class="cockpit-headline">' + escapeHtml(suggestedAction.reason || 'Sem recomendacao registrada.') + '</div>'
+        + '<div class="cockpit-headline">' + escapeHtml(suggestedAction.reason || 'Sem recommendation registrada.') + '</div>'
         + '</div>'
         + '<a class="sidecar-link" href="/api/operations/continuity" target="_blank">/api/operations/continuity</a>'
         + '</div>'

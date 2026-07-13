@@ -66,8 +66,13 @@ export interface ApprovalAuditEntry {
 
 // Default Trusted Sources
 
+/**
+ * Brand-agnostic trust defaults: only Zavorth-owned publishers auto-approve.
+ * Third-party skill installs (any GitHub/GitLab/npm URL) still work via the
+ * generic marketplace installer — they require manual approval unless the
+ * operator adds a trusted source at runtime.
+ */
 const DEFAULT_TRUSTED_SOURCES: TrustedSource[] = [
-  // Zavorth official
   {
     id: 'zavorth-official',
     name: 'Zavorth Official',
@@ -79,19 +84,6 @@ const DEFAULT_TRUSTED_SOURCES: TrustedSource[] = [
     addedAt: new Date().toISOString(),
     notes: 'Official Zavorth skills',
   },
-  // GitHub - well-known skill publishers
-  {
-    id: 'github-openclaw',
-    name: 'OpenClaw',
-    type: 'repository',
-    pattern: 'github.com/openclaw/',
-    riskLevel: 'low',
-    autoApprove: true,
-    maxAutoApproveRisk: 'medium',
-    addedAt: new Date().toISOString(),
-    notes: 'OpenClaw skill repository',
-  },
-  // npm - verified publishers
   {
     id: 'npm-zavorth',
     name: 'npm @zavorth',
@@ -292,7 +284,7 @@ export class SkillAutoApproval {
       const hostname = url.hostname.toLowerCase();
       const pathname = url.pathname.toLowerCase();
 
-      // Pattern format: "github.com/openclaw/"
+      // Pattern format: "github.com/org/" or "github.com/org/repo/"
       const [expectedHost, ...pathParts] = pattern.split('/');
       const expectedPath = '/' + pathParts.filter(Boolean).join('/');
 

@@ -1,4 +1,5 @@
-import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';function zavorthControlClassicClientDataLogs() {
+import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';
+function zavorthControlClassicClientDataLogs() {
     type LogRow = { timestamp?: string; level?: string; category?: string; message?: string };
     async function loadLogs() {
       try {
@@ -14,8 +15,8 @@ import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';fun
               </div>
             `;
          }).join('');
-         document.getElementById('log-container')!.innerHTML = html || 'Nenhum log.';
-      } catch (error: unknown) {document.getElementById('log-container')!.innerHTML = 'Falha ao carregar logs.';
+         document.getElementById('log-container')!.innerHTML = html || 'No logs.';
+      } catch (error: unknown) {document.getElementById('log-container')!.innerHTML = 'Failed to carregar logs.';
       }
     }
 }
@@ -23,4 +24,3 @@ import { extractFunctionBody } from './ZavorthControlClassicScriptUtils.js';fun
 export function getZavorthControlClassicClientDataLogsScript(): string {
   return extractFunctionBody(zavorthControlClassicClientDataLogs);
 }
-

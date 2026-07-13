@@ -434,7 +434,7 @@ export async function runRuntimeReadiness(rawArgs: string[] = []): Promise<numbe
   const service = new ZavorthRuntimeReadinessService();
   const uxService = new ZavorthRuntimeReadinessUxService();
   const snapshot = await service.buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-readiness',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -479,7 +479,7 @@ export async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
   const snapshot = await service.buildSnapshot({
     refreshProviders: !rawArgs.includes('--offline') || rawArgs.includes('--refresh-providers'),
     includeAdvancedProviders: rawArgs.includes('--advanced'),
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'ready-to-go',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -499,7 +499,7 @@ export async function runOneCommandOperatorCheck(rawArgs: string[] = []): Promis
   const snapshot = await service.buildSnapshot({
     live: rawArgs.includes('--live'),
     strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'operator-check',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });

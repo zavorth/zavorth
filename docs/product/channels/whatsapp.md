@@ -55,24 +55,50 @@ Zavorth connects to WhatsApp in two modes: the **official Cloud API** (requires 
   </Step>
 </Steps>
 
-## Setup — Baileys bridge (local)
+## Setup — Baileys bridge (local, T2 experimental)
 
-The Baileys bridge connects Zavorth to your personal WhatsApp account via a local QR scan — no Meta account needed.
+Baileys runs in an **isolated Node process** under `scripts/whatsapp-bridge/`. It is never a core dependency. Core only speaks HTTP (`/health`, `/send`, `/messages`).
+
+```bash
+cd scripts/whatsapp-bridge
+npm install
+cd ../..
+```
 
 ```env
 WHATSAPP_ENABLED=true
 WHATSAPP_PROVIDER=baileys
+WHATSAPP_BRIDGE_URL=http://127.0.0.1:3910
 WHATSAPP_ALLOWED_CHAT_IDS=+15555550123
+# optional: push inbound into the host webhook
+# ZAVORTH_WHATSAPP_INBOUND_URL=http://127.0.0.1:3000/api/webhooks/whatsapp
 ```
 
 ```bash
-zavorth channels whatsapp --prepare   # shows QR code to scan
+npx tsx scripts/zavorth-whatsapp-bridge.ts start
+# or pair-only:
+npx tsx scripts/zavorth-whatsapp-bridge.ts pair
+npx tsx scripts/zavorth-whatsapp-bridge.ts status --json
+
+# Local loop without a public webhook: long-poll inbound into the host process
+npx tsx scripts/zavorth-whatsapp-bridge.ts poll
+# one-shot:
+npx tsx scripts/zavorth-whatsapp-bridge.ts poll-once --json
 ```
 
-Scan the QR with your WhatsApp app (**Settings → Linked Devices → Link a Device**).
+Scan the QR printed by the bridge (**WhatsApp → Linked Devices → Link a Device**).
+
+Boot integration (optional):
+
+```env
+WHATSAPP_BRIDGE_AUTOSTART=1   # spawn bridge process with host
+WHATSAPP_BRIDGE_POLL=1        # long-poll /messages into WhatsAppGateway
+```
+
+Without poll/webhook, the bridge can send outbound via `WHATSAPP_BRIDGE_URL` but will not feed inbound into the agent.
 
 <Warning>
-Baileys is a reverse-engineered bridge. WhatsApp may occasionally disconnect linked sessions. This mode is suitable for personal use, not for production.
+Baileys is **T2 experimental**. Unofficial protocol. Disconnects happen. Prefer **Cloud API (T1)** for production. A bridge crash must not take down the Zavorth core process.
 </Warning>
 
 ## Allowlist

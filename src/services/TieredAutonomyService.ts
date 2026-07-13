@@ -9,7 +9,7 @@
  * - approve:  Queue for user approval before applying (current behavior).
  *
  * This keeps Zavorth's governance where it matters (security, memory, core
- * behavior) while matching Hermes' speed for low-risk improvements (style,
+ * behavior) while matching fast-cycle speed for low-risk improvements (style,
  * formatting, minor optimizations).
  */
 

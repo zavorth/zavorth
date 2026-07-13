@@ -48,8 +48,8 @@ export class ZavorthProactivePermissionService {
     this.pendingRequests.set(id, request);
     this.persist();
     
-    // Em um cenário real, isso dispararia uma notificacao via WebSocket para a UI
-    // ou uma mensagem no canal de chat atual (Telegram/WhatsApp).
+    // In a real scenario, this would trigger a notification via WebSocket to the UI
+    // or a message in the current chat channel (Telegram/WhatsApp).
     logger.info(`[PermissionService] Nova solicitacao: ${request.reason}`);
     
     return request;

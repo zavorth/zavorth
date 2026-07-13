@@ -51,7 +51,7 @@ export class SystemCleanupService {
     const skipped: string[] = [];
 
     try {
-      // 1. Listar todos os processos do usuário
+      // 1. List all user processes
       const processes = await this.getUserProcesses();
 
       // 2. Filtrar e matar

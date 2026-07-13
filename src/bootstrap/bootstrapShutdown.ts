@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { Database } from '../storage/Database.js';
 import type {
   BootstrapFoundation,
@@ -6,6 +7,10 @@ import type {
   BootstrapSurfaceRuntime,
 } from './bootstrapTypes.js';
 import { logger } from '../logger.js';
+import {
+  CronDrainService,
+  formatCronDrainForLog,
+} from '../services/CronDrainService.js';
 
 export function registerShutdownHandlers(
   foundation: BootstrapFoundation,
@@ -14,7 +19,45 @@ export function registerShutdownHandlers(
   supervisor: BootstrapSupervisor,
 ): void {
   const shutdown = async (signal?: string) => {
-    foundation.logRepo.log('info', 'System', 'Encerrando Zavorth V2...');
+    foundation.logRepo.log('info', 'System', `Encerrando Zavorth V2${signal ? ` (${signal})` : ''}...`);
+
+    try {
+      const { runPluginOsHook } = await import('../services/PluginOsHookPipelineAccess.js');
+      await runPluginOsHook({
+        event: 'shutdown.before',
+        context: { signal: signal || null, source: 'bootstrapShutdown' },
+      });
+    } catch {
+      /* ignore */
+    }
+
+    // Cron drain visibility before tearing down runtimes
+    try {
+      const drainTimeoutMs = Math.max(
+        0,
+        Number(process.env.ZAVORTH_CRON_DRAIN_TIMEOUT_MS || 5_000) || 5_000,
+      );
+      const cronDrain = new CronDrainService({
+        runtimeDir: path.join(process.cwd(), 'data', 'runtime'),
+      });
+      const before = cronDrain.buildSnapshot();
+      foundation.logRepo.log('info', 'CronDrain', formatCronDrainForLog(before));
+      if (before.processDueInFlight > 0 || before.dueCount > 0) {
+        const result = await cronDrain.drainForShutdown({ timeoutMs: drainTimeoutMs });
+        foundation.logRepo.log(
+          result.timedOut ? 'warn' : 'info',
+          'CronDrain',
+          result.summary,
+        );
+      }
+    } catch (error: unknown) {
+      foundation.logRepo.log(
+        'warn',
+        'CronDrain',
+        `Cron drain skipped: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
     supervisor.clear();
     foundation.stopRuntimeMaintenance();
     runtimeServices.sysMonitor.stopHeartbeat();
@@ -59,6 +102,15 @@ export function registerShutdownHandlers(
     foundation.processLock.release();
     const db = await Database.getInstance();
     db.close();
+    try {
+      const { runPluginOsHook } = await import('../services/PluginOsHookPipelineAccess.js');
+      await runPluginOsHook({
+        event: 'shutdown.after',
+        context: { signal: signal || null, source: 'bootstrapShutdown' },
+      });
+    } catch {
+      /* ignore */
+    }
     process.exit(0);
   };
 

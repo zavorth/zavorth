@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "linear",
+  "label": "Linear",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Linear issue bridge via GraphQL (approval for create).",
+  "description": "First-party Linear plugin. Uses LINEAR_API_KEY for soft GraphQL calls to api.linear.app. Issue create requires approved===true.",
+  "tags": ["linear", "issues", "project", "bridge", "graphql"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://linear",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "linear.status",
+      "intent": "linear.status",
+      "label": "Linear Status",
+      "summary": "Check LINEAR_API_KEY presence.",
+      "artifactKinds": [],
+      "command": {
+        "name": "linear_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "linear.issues.list",
+      "intent": "linear.issues.list",
+      "label": "Linear Issues List",
+      "summary": "List issues via Linear GraphQL when a key is present.",
+      "artifactKinds": [],
+      "command": {
+        "name": "linear_issues_list",
+        "aliases": ["linear_list"],
+        "usage": "{ limit? }"
+      }
+    },
+    {
+      "id": "linear.issue.create",
+      "intent": "linear.issue.create",
+      "label": "Linear Issue Create",
+      "summary": "Create an issue. Requires approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "linear_issue_create",
+        "aliases": ["linear_create"],
+        "usage": "{ title, description?, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call api.linear.app GraphQL.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

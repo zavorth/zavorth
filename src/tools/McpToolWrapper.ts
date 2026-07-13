@@ -75,7 +75,7 @@ export class McpToolWrapper extends BaseTool {
       }
 
       return textBlocks.map((block) => block.text).join('\n');
-    } catch (error: unknown) { const err = asErrorLike(error); console.error(`[MCP] Falha ao executar ${this.name}:`, err.message);
+    } catch (error: unknown) { const err = asErrorLike(error); console.error(`[MCP] Failed to execute ${this.name}:`, err.message);
       return `Error executing tool: ${err.message}`;
     } finally {
       if (opId) {

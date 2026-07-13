@@ -72,7 +72,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
     featuredRecipes: [],
     narrative: {
       headline: 'Governanca de tenants com 1 tenant(s) observado(s).',
-      operatorSummary: '1 pendente de onboarding.',
+      operatorSummary: '1 pending onboarding.',
       nextAction: 'Revisar teams.',
     },
   } as any;
@@ -203,7 +203,7 @@ describe('ZavorthTenantGovernanceActionService', () => {
   it('reviews the session plane for a tenant and returns a workspace-focused payload', async () => {
     const buildSnapshot = jest.fn(async () => ({
       summary: { sessions: 4 },
-      narrative: { headline: 'Session plane pronto.' },
+      narrative: { headline: 'Session plane ready.' },
     }));
     const service = new ZavorthTenantGovernanceActionService({
       tenantGovernanceService: {

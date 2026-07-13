@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "context-engine-bridge",
+  "label": "Context Engine Bridge",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Soft bridge to core ContextEngine when resolvable from the monorepo.",
+  "description": "Wave 6 trust fabric plugin. Soft-loads ContextEngine from workspace/dist or src paths (browser-playwright style tryLoad). Exposes status/snapshot/recall/stats. Soft-fails with not_configured when unavailable.",
+  "tags": ["context", "engine", "bridge", "memory", "wave6", "trust"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://context-engine-bridge",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "context.engine.status",
+      "intent": "context.engine.status",
+      "label": "Context Engine Status",
+      "summary": "Report whether ContextEngine is resolvable and available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "context_engine_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "context.engine.snapshot",
+      "intent": "context.engine.snapshot",
+      "label": "Context Engine Snapshot",
+      "summary": "Soft call getSnapshot/getState/summarize when available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "context_engine_snapshot",
+        "aliases": [],
+        "usage": "{ chatId?, userId? }"
+      }
+    },
+    {
+      "id": "context.engine.recall",
+      "intent": "context.engine.recall",
+      "label": "Context Engine Recall",
+      "summary": "Soft search/recall if methods exist on the loaded engine.",
+      "artifactKinds": [],
+      "command": {
+        "name": "context_engine_recall",
+        "aliases": [],
+        "usage": "{ query }"
+      }
+    },
+    {
+      "id": "context.engine.stats",
+      "intent": "context.engine.stats",
+      "label": "Context Engine Stats",
+      "summary": "Soft stats via getStats/getImprovementStats when available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "context_engine_stats",
+        "aliases": [],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Resolve ContextEngine module from monorepo paths.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["context-engine-bridge.receipt"]
+}

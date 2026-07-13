@@ -146,10 +146,10 @@ export class SharedSurfaceRuntimeMaintenanceCommandPack {
 
     await ctx.reply(
       dryRun
-        ? 'Montando um plano seguro de autoreparo agora.'
+        ? 'Montando um plano seguro de autoreparo right now.'
         : improve
           ? 'Iniciando autoreparo com foco em melhoria segura e validada.'
-          : 'Iniciando autoreparo completo do Zavorth agora.',
+          : 'Iniciando autoreparo completo do Zavorth right now.',
     );
 
     const result = await this.deps.autoRepairService.run({

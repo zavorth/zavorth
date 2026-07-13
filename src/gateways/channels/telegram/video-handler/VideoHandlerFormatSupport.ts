@@ -1,7 +1,8 @@
 import { logger } from '../../../../logger.js';
 import fs from "fs";
 import path from "path";
-import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';export class VideoHandlerFormatSupport {
+import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.js';
+export class VideoHandlerFormatSupport {
   public static firstNonEmptyString(
     ...values: Array<string | null | undefined>
   ): string | undefined {
@@ -153,7 +154,7 @@ import { safeParseInt } from '../../../../ai-gateway/shared/utils/safeParseInt.j
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error: unknown) {logger.warn(`Falha ao remover temporario de video: ${error}`);
+    } catch (error: unknown) {logger.warn(`Failed to remove temporario de video: ${error}`);
     }
   }
 }

@@ -109,6 +109,7 @@ export * from '../contracts/core/SourcePluginPackageContract.js';
 export * from '../contracts/provider/SourceProviderMeshExpansionContract.js';
 export * from '../contracts/core/SourceSurfaceLedgerContract.js';
 export * from '../contracts/core/PluginManifestContract.js';
+export * from '../contracts/core/PluginRuntimeContract.js';
 export * from '../contracts/provider/ProviderChannelSmokeProofContract.js';
 export * from '../contracts/provider/ProviderLongTailActivationContract.js';
 export * from '../contracts/sandbox/RemoteSandboxContract.js';

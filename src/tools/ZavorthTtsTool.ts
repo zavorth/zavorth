@@ -187,10 +187,10 @@ export class ZavorthTtsTool extends BaseTool {
 
   private listBackends(): string {
     const backends = [
-      { id: 'local', name: 'Local (OS nativo)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No chave necessaria' },
+      { id: 'local', name: 'Local (native OS)', platforms: 'macOS (say), Linux (espeak), Windows (System.Speech)', key: 'No key required' },
       { id: 'azure', name: 'Azure Speech', platforms: 'Todos', key: 'AZURE_SPEECH_KEY + AZURE_SPEECH_REGION' },
       { id: 'elevenlabs', name: 'ElevenLabs', platforms: 'Todos', key: 'ELEVENLABS_API_KEY' },
-      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS com Apple Silicon', key: 'No chave necessaria' },
+      { id: 'mlx', name: 'MLX (Apple Silicon)', platforms: 'macOS com Apple Silicon', key: 'No key required' },
       { id: 'gemini', name: 'Gemini TTS', platforms: 'Todos', key: 'GEMINI_API_KEY' },
       { id: 'deepgram', name: 'Deepgram Aura', platforms: 'Todos', key: 'DEEPGRAM_API_KEY' },
     ];

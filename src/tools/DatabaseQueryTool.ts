@@ -43,7 +43,7 @@ export class DatabaseQueryTool extends BaseTool {
 
     const mode = String(args.mode || 'read') as QueryMode;
     if (mode !== 'read' && mode !== 'write') {
-      return `Erro: modo "${mode}" invalido. Use 'read' ou 'write'.`;
+      return `Error: invalid mode "${mode}" is invalid. Use 'read' ou 'write'.`;
     }
 
     const maxRows = typeof args.max_rows === 'number' ? Math.min(Math.max(args.max_rows, 1), 1000) : 100;
@@ -57,7 +57,7 @@ export class DatabaseQueryTool extends BaseTool {
     const relative = path.relative(allowedRoot, resolvedDbPath);
     const isContained = !relative.startsWith('..') && !path.isAbsolute(relative);
     if (!isContained && resolvedDbPath !== allowedRoot) {
-      return `Erro: o caminho do banco de dados "${rawDbPath}" esta fora da raiz de dados permitida do Zavorth (${allowedRoot}).`;
+      return `Error: database path "${rawDbPath}" is outside the allowed Zavorth data root (${allowedRoot}).`;
     }
 
     const dbPath = resolvedDbPath;
@@ -65,7 +65,7 @@ export class DatabaseQueryTool extends BaseTool {
 
     if (mode === 'read') {
       if (!normalizedQuery.startsWith('SELECT') && !normalizedQuery.startsWith('PRAGMA') && !normalizedQuery.startsWith('EXPLAIN')) {
-        return 'Erro: modo "read" permite apenas SELECT, PRAGMA e EXPLAIN. Use mode="write" para operacoes de escrita.';
+        return 'Error: invalid mode "read" permite apenas SELECT, PRAGMA e EXPLAIN. Use mode="write" para operacoes de escrita.';
       }
       // Remove mutable PRAGMA from read mode
       if (normalizedQuery.startsWith('PRAGMA') && normalizedQuery.includes('=')) {
@@ -79,7 +79,7 @@ export class DatabaseQueryTool extends BaseTool {
         return 'Error: DROP and TRUNCATE operations are not allowed. Remove data manually if necessary.';
       }
       if (!normalizedQuery.startsWith('INSERT') && !normalizedQuery.startsWith('UPDATE') && !normalizedQuery.startsWith('DELETE') && !normalizedQuery.startsWith('CREATE') && !normalizedQuery.startsWith('ALTER')) {
-        return 'Erro: modo "write" permite INSERT, UPDATE, DELETE, CREATE e ALTER.';
+        return 'Error: invalid mode "write" permite INSERT, UPDATE, DELETE, CREATE e ALTER.';
       }
     }
 
@@ -96,7 +96,7 @@ export class DatabaseQueryTool extends BaseTool {
         const err = asErrorLike(error);
         logger.warn('[Database Query] filesystem operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-        return `Erro: driver SQLite real better-sqlite3 indisponivel. Instale as dependencias nativas antes de executar database_query. Detalhe: ${message}`;
+        return `Error: real better-sqlite3 SQLite driver unavailable. Install native dependencies before running database_query. Detail: ${message}`;
   }
 
       const db = sqlite3.default(dbPath, { readonly: mode === 'read' });
@@ -117,24 +117,24 @@ export class DatabaseQueryTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Database Query] resource cleanup failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro ao executar query: ${message}`;
+      return `Failed to run query: ${message}`;
   }
   }
 
   private formatReadResult(rows: Record<string, unknown>[], totalRows: number, maxRows: number, dbPath: string): string {
     const lines: string[] = [];
-    lines.push(`Query executada com sucesso.`);
+    lines.push('Query executed successfully.');
     lines.push(`  - Database: ${dbPath}`);
-    lines.push(`  - Linhas retornadas: ${rows.length}${totalRows > maxRows ? ` (de ${totalRows}, limitado a ${maxRows})` : ''}`);
+    lines.push(`  - Rows returned: ${rows.length}${totalRows > maxRows ? ` (of ${totalRows}, limited to ${maxRows})` : ''}`);
 
     if (rows.length === 0) {
-      lines.push('  - Nenhum resultado encontrado.');
+      lines.push('  - No results found.');
       return lines.join('\n');
     }
 
     lines.push('');
     const columns = Object.keys(rows[0]);
-    lines.push(`Colunas: ${columns.join(', ')}`);
+    lines.push(`Columns: ${columns.join(', ')}`);
     lines.push('');
 
     for (let i = 0; i < rows.length; i++) {

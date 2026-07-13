@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconSettings, IconServer, IconShield, IconCpu, IconActivity, IconFolder, IconX, IconClock, IconUsers, IconFileText, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
+import { IconSettings, IconServer, IconShield, IconCpu, IconActivity, IconFolder, IconX, IconClock, IconUsers, IconFileText, IconPlayerPlay, IconTrash, IconMicrophone } from '@tabler/icons-react';
 import type {
   ApprovalItem,
   ChannelItem,
@@ -13,6 +13,7 @@ import type {
 import type { BootEvent, RuntimeStatus } from '../global';
 import { ProviderSettingsPanel } from '../panels/ProviderSettingsPanel';
 import { InternalBetaDiagnosticsPanel } from '../panels/InternalBetaDiagnosticsPanel';
+import { VoiceSettingsPanel } from '../panels/VoiceSettingsPanel';
 import { CockpitDashboard } from './CockpitDashboard';
 import { asRecord, effortLabels, panelLabels, profileLabels } from '../primitives/desktopPrimitives';
 import { errorMessage } from '../lib/errors';
@@ -44,7 +45,7 @@ interface SettingsOverlayProps {
   onTheme(value: 'light' | 'dark' | 'system'): void;
 }
 
-type TabType = 'general' | 'providers' | 'permissions' | 'mcp' | 'workspace' | 'diagnostics' | 'shortcuts' | 'cron' | 'subagents' | 'artifacts';
+type TabType = 'general' | 'providers' | 'permissions' | 'mcp' | 'workspace' | 'voice' | 'diagnostics' | 'shortcuts' | 'cron' | 'subagents' | 'artifacts';
 
 export function SettingsOverlay({
   isOpen,
@@ -131,6 +132,7 @@ export function SettingsOverlay({
     'permissions',
     ...(isPersonalAudience ? [] : (['mcp'] as TabType[])),
     'workspace',
+    'voice',
     'diagnostics',
     'shortcuts',
     'cron',
@@ -376,6 +378,14 @@ export function SettingsOverlay({
           </button>
           <button
             type="button"
+            className={`zvd-settings-tab-btn ${activeTab === 'voice' ? 'zvd-settings-tab-btn--active' : ''}`}
+            onClick={() => { playTapSound(); selectTab('voice'); }}
+          >
+            <IconMicrophone size={18} />
+            Voice
+          </button>
+          <button
+            type="button"
             className={`zvd-settings-tab-btn ${activeTab === 'diagnostics' ? 'zvd-settings-tab-btn--active' : ''}`}
             onClick={() => { playTapSound(); selectTab('diagnostics'); }}
           >
@@ -392,6 +402,7 @@ export function SettingsOverlay({
               {activeTab === 'permissions' && 'Permission Control'}
               {activeTab === 'mcp' && 'Model Context Protocol (MCP)'}
               {activeTab === 'workspace' && 'Workspace Settings'}
+              {activeTab === 'voice' && 'Voice (STT / TTS)'}
               {activeTab === 'diagnostics' && 'Diagnostics Panel' || activeTab === 'shortcuts' && 'Keyboard Shortcuts' || activeTab === 'cron' && 'Scheduled Routines (Cron)' || activeTab === 'subagents' && 'Running Subagents' || activeTab === 'artifacts' && 'Generated Artifacts'}
             </h2>
             <button className="zvd-settings-close" onClick={onClose} aria-label="Close">
@@ -544,6 +555,8 @@ export function SettingsOverlay({
                 No additional MCP servers are connected right now.
               </div>
             )}
+
+            {activeTab === 'voice' && <VoiceSettingsPanel />}
 
             {activeTab === 'workspace' && (
               <div className="flex flex-col gap-4">

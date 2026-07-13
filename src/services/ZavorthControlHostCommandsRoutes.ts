@@ -83,11 +83,18 @@ export async function handleHostCommandsRequest(
         deps.writeJson(res, { ok: false, error: 'Validation failed', details: parsed.error.format() }, 400);
         return true;
       }
-      const { operationId, decision, strongConfirmationInput } = parsed.data;
+      const { operationId, decision, strongConfirmationInput, totp, code } = parsed.data as {
+        operationId: string;
+        decision: string;
+        strongConfirmationInput?: string;
+        totp?: string;
+        code?: string;
+      };
+      const totpCode = String(totp || code || '').trim() || null;
 
       const approvalService = new HostCommandApprovalService();
       if (decision === 'approve') {
-        await approvalService.resolve(operationId, true, strongConfirmationInput);
+        await approvalService.resolve(operationId, true, strongConfirmationInput, totpCode);
       } else if (decision === 'deny') {
         await approvalService.resolve(operationId, false);
       } else {

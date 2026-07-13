@@ -11,6 +11,7 @@ const files = {
   sourceIndex: 'apps/zavorth-control-vite-shell/index.html',
   app: 'apps/zavorth-control-vite-shell/src/app.ts',
   pages: 'apps/zavorth-control-vite-shell/src/pages.ts',
+  reactIslands: 'apps/zavorth-control-vite-shell/src/react/DashboardReactIslands.tsx',
   preference: 'apps/zavorth-control-vite-shell/src/model-preference-actions.ts',
   runtimeBridge: 'apps/zavorth-control-vite-shell/src/runtime-bridge.ts',
   runtimeRefresh: 'apps/zavorth-control-vite-shell/src/runtime-refresh.ts',
@@ -34,9 +35,9 @@ if (failures.length === 0) {
   const required = [
     ['sourceIndex', 'type="module" src="/src/app.ts"'],
     ['app', 'initControlApp'],
-    ['pages', 'model-preference-form'],
-    ['pages', 'listUserSelectionProviders'],
-    ['pages', 'listUserSelectionChannels'],
+    ['reactIslands', 'model-preference-form'],
+    ['reactIslands', 'listUserSelectionProviders'],
+    ['reactIslands', 'listUserSelectionChannels'],
     ['pages', 'bindModelPreferenceEvents'],
     ['preference', "API_BASE = '/api/providers/preference'"],
     ['preference', 'daily-route-result__head'],
@@ -58,7 +59,7 @@ if (failures.length === 0) {
     if (!css.includes(token)) failures.push(`missing current design token: ${token}`);
   }
 
-  const publicText = `${contents.pages}\n${contents.preference}`;
+  const publicText = `${contents.pages}\n${contents.reactIslands}\n${contents.preference}`;
   for (const forbidden of ['Auto / Gemini', 'Show Gemini provider', 'âœ…', 'âŒ', 'ðŸ']) {
     if (publicText.includes(forbidden)) failures.push(`forbidden stale/garbled copy: ${forbidden}`);
   }

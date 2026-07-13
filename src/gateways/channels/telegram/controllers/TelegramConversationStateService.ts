@@ -129,7 +129,7 @@ export class TelegramConversationStateService {
     const outcomeSummary =
       replyText
       || String(run?.summary || '').trim()
-      || (result?.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada falhou.');
+      || (result?.ok ? 'Execucao registrada pelo runtime universal.' : 'A execucao governada failed.');
     const continuityContext = buildWorkspaceContinuityContext(task, String(task.source || 'telegram').trim());
     const requestedTools = Array.isArray(run?.toolExposure?.tools)
       ? run.toolExposure.tools.map((tool) => String(tool?.id || '').trim()).filter(Boolean)

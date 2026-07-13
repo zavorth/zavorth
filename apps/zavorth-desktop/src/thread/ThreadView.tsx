@@ -38,7 +38,10 @@ export function ThreadView(props: {
   approvals: ApprovalItem[];
   busy: boolean;
   messages: ChatMessage[];
-  onDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   onOpenReview(): void;
   onSuggestion(value: string): void;
   /** Open receipts / proof panel */

@@ -7,6 +7,7 @@ import type { SelfModificationService } from '../SelfModificationService.js';
 import type { SelfmodImpactAnalyzer } from '../SelfmodImpactAnalyzer.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
 import { logger } from '../../logger.js';
+import { tService } from '../../i18n/services.js';
 import type {
 FilePreviewArtifact,
   GoalPlannerResult,
@@ -144,7 +145,7 @@ export class SelfModificationPreviewSupport {
     return {
         success: false,
         mode: 'file',
-        summary: `Nao consegui montar o preview de auto-modificacao.\n\nMotivo: ${err.message}`,
+        summary: tService('selfmod.preview.build_failed', { reason: err.message }),
       };
   }
   }
@@ -158,7 +159,7 @@ export class SelfModificationPreviewSupport {
       return {
         success: false,
         mode: 'goal',
-        summary: 'Informe um objetivo para /selfmod goal -- <objetivo>.',
+        summary: tService('selfmod.preview.inform_goal'),
       };
     }
 
@@ -169,7 +170,7 @@ export class SelfModificationPreviewSupport {
         return {
           success: false,
           mode: 'goal',
-          summary: 'Nao encontrei um conjunto seguro de arquivos para esse objetivo. Tente ser mais especifico.',
+          summary: tService('selfmod.preview.no_safe_files'),
         };
       }
 
@@ -182,7 +183,7 @@ export class SelfModificationPreviewSupport {
           return {
             success: false,
             mode: 'goal',
-            summary: `Mudanca bloqueada para ${plannedChange.filePath}: ${targetValidation.reason}`,
+            summary: tService('selfmod.preview.change_blocked', { path: plannedChange.filePath, reason: targetValidation.reason }),
           };
         }
 
@@ -215,7 +216,7 @@ export class SelfModificationPreviewSupport {
             success: false,
             mode: 'goal',
             relativePath,
-            summary: `A validacao do changeset falhou em ${relativePath}.`,
+            summary: tService('selfmod.preview.changeset_validation_failed', { path: relativePath }),
             validationOutput: validation.output,
           };
         }
@@ -253,7 +254,7 @@ export class SelfModificationPreviewSupport {
         return {
           success: false,
           mode: 'goal',
-          summary: `A validacao ampliada bloqueou o changeset em ${failedDeepValidation.filePath}.`,
+          summary: tService('selfmod.preview.deep_validation_blocked', { path: failedDeepValidation.filePath }),
           validationOutput: validations.map((entry) => `[${entry.filePath}] ${entry.output}`).join('\n\n'),
         };
       }
@@ -311,7 +312,7 @@ export class SelfModificationPreviewSupport {
     return {
         success: false,
         mode: 'goal',
-        summary: `Nao consegui montar o changeset do objetivo.\n\nMotivo: ${err.message || error}`,
+        summary: `Could not build the objective changeset.\n\nReason: ${err.message || error}`,
       };
   }
   }

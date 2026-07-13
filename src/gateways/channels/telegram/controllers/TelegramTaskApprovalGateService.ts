@@ -1,4 +1,4 @@
-import { Context, InlineKeyboard } from 'grammy';
+import { Context } from 'grammy';
 import { Task } from '../../../../contracts/TaskContract.js';
 import { RiskClassification } from '../../../../orchestrator/RiskClassifier.js';
 import { HighRiskConfirmationService } from '../../../../services/HighRiskConfirmationService.js';
@@ -6,6 +6,8 @@ import { OperatorModeService } from '../../../../services/OperatorModeService.js
 import { PresentationModeService } from '../../../../services/PresentationModeService.js';
 import { TaskResponseEnvelopeService } from '../../../../services/TaskResponseEnvelopeService.js';
 import { UserFacingResponseService } from '../../../../services/UserFacingResponseService.js';
+import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
+import { buildAgentPermissionApprovalResponse } from '../../../../services/permission/AgentPermissionApprovalPresentation.js';
 
 type TaskManagerLike = {
   advanceState(
@@ -93,13 +95,21 @@ export class TelegramTaskApprovalGateService {
       kind: 'approval_prompt',
     });
 
-    const keyboard = new InlineKeyboard();
-    if (!highRiskRequiresPin) {
-      keyboard.text('Aprovar', `task:approve:${task.task_id}`);
-    }
-    keyboard.text('Rejeitar', `task:reject:${task.task_id}`);
-
-    await ctx.reply(userFacingText, { reply_markup: keyboard });
+    // Surface-agnostic permission actions (once/session/always/deny).
+    // Telegram renders clickable buttons; other surfaces use the same SurfaceResponse.
+    const permissionResponse = buildAgentPermissionApprovalResponse({
+      approvalId: task.task_id,
+      title: 'Approval needed',
+      summary: userFacingText,
+      riskLabel: highRiskRequiresPin
+        ? 'high'
+        : String(classification.reason || task.risk_level || ''),
+      callbackPrefix: 'task',
+    });
+    await replyWithTelegramSurfaceResponse(ctx, permissionResponse, {
+      trackApprovalId: task.task_id,
+      highRisk: highRiskRequiresPin,
+    });
     return true;
   }
 }

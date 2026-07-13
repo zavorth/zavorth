@@ -38,6 +38,33 @@ describe('AutonomySchedulePlane', () => {
     return { plane, taskPlane, runtimeDir };
   }
 
+  it('resolves PT/EN natural schedules into interval + nextRun (Phase 5)', () => {
+    const { plane } = makePlane();
+    const created = plane.createRoutine({
+      name: 'NL every hour',
+      schedule: 'a cada 1 hora',
+      taskDescription: 'check system health',
+      riskLevel: 'low',
+      actor: 'test',
+    });
+    expect(created.ok).toBe(true);
+    expect(created.routine?.scheduleType).toBe('interval');
+    expect(created.routine?.intervalMs).toBe(3_600_000);
+    expect(created.routine?.schedule).toBe('every 1h');
+    expect(created.routine?.nextRunAt).toBeTruthy();
+
+    const daily = plane.createRoutine({
+      name: 'NL daily',
+      schedule: 'todo dia as 9h',
+      taskDescription: 'morning summary',
+      riskLevel: 'low',
+      actor: 'test',
+    });
+    expect(daily.ok).toBe(true);
+    expect(daily.routine?.schedule).toBe('daily 09:00');
+    expect(daily.routine?.nextRunAt).toBeTruthy();
+  });
+
   it('creates, lists, enables, disables, and run_now materializes Task Plane items', () => {
     const { plane, taskPlane } = makePlane();
     const created = plane.createRoutine({

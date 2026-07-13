@@ -21,6 +21,7 @@ import {
   type TrustPlanePolicyDomain,
   type TrustPlanePolicyLedgerSummary,
 } from './TrustPlanePolicyLedgerService.js';
+import { tService } from '../i18n/services.js';
 
 type TrustPlaneSeverity = 'info' | 'warn' | 'critical';
 
@@ -375,8 +376,10 @@ export class ZavorthTrustPlaneService {
     }
     if (input.systemOverlord) {
       parts.push(
-        `${Number(input.systemOverlord.summary?.pendingApprovals || 0)} approval(s) pendente(s) e `
-        + `${this.countHighRiskCapabilities(input.systemOverlord)} capability(s) de risco alto/critico no host supervisionado.`,
+        tService('trust.operator_summary', {
+          approvals: String(Number(input.systemOverlord.summary?.pendingApprovals || 0)),
+          highRisk: String(this.countHighRiskCapabilities(input.systemOverlord)),
+        }),
       );
     }
     parts.push(
@@ -419,25 +422,25 @@ export class ZavorthTrustPlaneService {
     if (input.systemOverlord?.killSwitch?.active === true) {
       highlights.push({
         id: 'kill-switch-active',
-        label: 'Kill switch ativo',
+        label: tService('trust.kill_switch_active'),
         severity: 'critical',
-        summary: 'O host supervisionado esta travado para novas acoes ate liberacao manual.',
+        summary: tService('trust.kill_switch_summary'),
       });
     }
     if (pendingApprovals > 0) {
       highlights.push({
         id: 'pending-approvals',
-        label: 'Approvals pendentes',
+        label: tService('trust.pending_approvals'),
         severity: pendingApprovals > 2 ? 'critical' : 'warn',
-        summary: `${pendingApprovals} approval(s) supervisionado(s) aguardam decisao no host.`,
+        summary: tService('trust.pending_approvals_summary', { count: String(pendingApprovals) }),
       });
     }
     if (highRiskCapabilities > 0) {
       highlights.push({
         id: 'high-risk-capabilities',
-        label: 'Capabilities sensiveis expostas',
+        label: tService('trust.high_risk_capabilities'),
         severity: 'warn',
-        summary: `${highRiskCapabilities} capability(s) de risco alto ou critico continuam disponiveis so com policy e approval.`,
+        summary: tService('trust.high_risk_capabilities_summary', { count: String(highRiskCapabilities) }),
       });
     }
     if (input.mcpProfile.profile !== 'safe') {
@@ -459,7 +462,7 @@ export class ZavorthTrustPlaneService {
     if (untrustedInstalledPlugins > 0) {
       highlights.push({
         id: 'plugins-awaiting-review',
-        label: 'Plugins aguardando review',
+        label: tService('trust.plugins_awaiting_review'),
         severity: 'warn',
         summary: `${untrustedInstalledPlugins} installed plugin(s) are not marked as trusted yet.`,
       });
@@ -467,7 +470,7 @@ export class ZavorthTrustPlaneService {
     if (restrictedNodes > 0) {
       highlights.push({
         id: 'restricted-nodes',
-        label: 'Nodes com allowlist restrita',
+        label: tService('trust.nodes_restricted_allowlist'),
         severity: 'info',
         summary: `${restrictedNodes} node(s) pareado(s) continuam com capabilities parcialmente aprovadas.`,
       });
@@ -664,7 +667,12 @@ export class ZavorthTrustPlaneService {
   private buildSkillSummary(policy: SkillTrustPolicyDocument): string {
     const explicitRules = policy.rules.filter((entry) => entry.mode === 'explicit').length;
     const blockedRules = policy.rules.filter((entry) => entry.mode === 'none').length;
-    return `Policy default ${policy.defaultPolicy}, ${policy.allowedSourceIds.length} fonte(s) liberada(s), ${explicitRules} regra(s) explicita(s) e ${blockedRules} bloqueio(s) dedicado(s).`;
+    return tService('trust.skill_summary', {
+      defaultPolicy: policy.defaultPolicy,
+      sources: String(policy.allowedSourceIds.length),
+      explicitRules: String(explicitRules),
+      blockedRules: String(blockedRules),
+    });
   }
 
   private countHighRiskCapabilities(systemOverlord: SystemOverlordControlSnapshot | null): number {

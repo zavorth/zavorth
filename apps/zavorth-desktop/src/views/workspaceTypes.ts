@@ -37,7 +37,10 @@ export type WorkspaceViewProps = {
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
   onProfile(value: string): void;
-  onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onReviewDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;

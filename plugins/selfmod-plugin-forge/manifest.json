@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "selfmod-plugin-forge",
+  "label": "Self-Mod Plugin Forge",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Plan and apply Plugin OS packages from natural-language intents (approval-gated apply).",
+  "description": "Thin first-party wrapper around PluginForgeService. forge.plan previews a package under .zavorth/plugin-forge/previews; forge.apply copies only when approved===true.",
+  "tags": ["forge", "selfmod", "scaffold", "plugins", "generator"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://selfmod-plugin-forge",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "forge.plan",
+      "intent": "plugin.forge.plan",
+      "label": "Forge Plan",
+      "summary": "Generate a plugin package preview from an intent.",
+      "artifactKinds": [],
+      "command": {
+        "name": "forge_plan",
+        "aliases": ["plan_plugin"],
+        "usage": "{ intent, id? }"
+      }
+    },
+    {
+      "id": "forge.apply",
+      "intent": "plugin.forge.apply",
+      "label": "Forge Apply",
+      "summary": "Apply a forge preview only when approved is true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "forge_apply",
+        "aliases": ["apply_plugin"],
+        "usage": "{ previewDir, approved }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read forge previews and monorepo services.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Write forge previews and applied packages under .zavorth.",
+      "required": true
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["plugin-forge.receipt"]
+}

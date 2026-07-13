@@ -7,6 +7,8 @@ type ApprovalDecisionEntry = {
   reason?: string | null;
   required_high_risk_pin?: boolean;
   source?: string | null;
+  permissionChoice?: string | null;
+  permissionScope?: string | null;
 };
 
 type PermissionDecisionEntry = {

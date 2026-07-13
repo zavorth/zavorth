@@ -180,7 +180,7 @@ describe('TelegramCommandRoutingService', () => {
     expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
   });
 
-  it('delegates natural /task capability routing before the legacy switchboard', async () => {
+  it('does not intercept free-text via natural capability packs (Hermes-style agent owns free text)', async () => {
     const { deps, service } = createService();
     const ctx = {
       chat: { type: 'private' },
@@ -197,12 +197,9 @@ describe('TelegramCommandRoutingService', () => {
       '42',
     );
 
-    expect(handled).toBe(true);
-    expect(deps.naturalCapabilityRouter.dispatch).toHaveBeenCalledWith(
-      ctx,
-      'me lembre todo dia de revisar os logs',
-      '42',
-    );
+    // Free text is not stolen here; agent path handles it after routing returns false.
+    expect(handled).toBe(false);
+    expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
     expect(deps.fileDeliveryController.handleFreeForm).not.toHaveBeenCalled();
   });
 
@@ -522,7 +519,7 @@ describe('TelegramCommandRoutingService', () => {
     );
 
     expect(echoHandled).toBe(true);
-    expect(deps.echoPreferenceStore.setEchoMode).toHaveBeenCalledWith(true);
+    expect(deps.echoPreferenceStore.setEchoMode).toHaveBeenCalledWith(true, null);
     expect(deps.echoApprovalController.handleEchoCommand).toHaveBeenCalledWith(ctx, 'approve abc');
     expect(approvalsHandled).toBe(true);
   });

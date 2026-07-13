@@ -266,11 +266,16 @@ export function initializeBotGatewayControllers(
       gateway.fileDeliveryController.handleApprovedPermission(ctx, permission),
     resumeFileInspectionPermission: (ctx, permission) =>
       gateway.inspectionController.handleApprovedPermission(ctx, permission),
+    handleUndo: (ctx, taskId) => gateway.executionController.handleUndo(ctx, taskId),
     workflowRunService,
     hostIdentityService: gateway.hostIdentityService,
     telemetryRuntime: gateway.telemetryRuntime,
     auditLogger: gateway.auditLogger,
   });
+  // F5f — reuse existing STT transcript for permission once/session/always/deny
+  gateway.mediaController.setVoicePermissionHandler((ctx, transcript) =>
+    gateway.permissionController.tryHandleVoicePermissionTranscript(ctx, transcript),
+  );
   gateway.echoApprovalController = new TelegramEchoApprovalController();
   gateway.knowledgeController = new TelegramKnowledgeController(
     new MemoryService(),

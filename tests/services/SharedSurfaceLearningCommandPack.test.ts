@@ -96,7 +96,7 @@ describe('SharedSurfaceLearningCommandPack', () => {
     expect(handled).toBe(true);
     expect(buildSnapshot).toHaveBeenCalledTimes(1);
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Learning plane do Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Candidatos: 1 | pendentes: 1 | aprovados: 0.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Candidates: 1 | pending: 1 | approved: 0.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway smoke skill [skill] score=0.92'));
   });
 
@@ -176,16 +176,9 @@ describe('SharedSurfaceLearningCommandPack', () => {
     });
     const ctx = buildCtx('promova o candidato candidate:gateway-smoke');
 
-    await pack.handleNaturalLearningIntent(ctx as any, {
-      args: 'promote candidate:gateway-smoke',
-      intro: 'Entendi que voce quer promover o candidato candidate:gateway-smoke no learning plane.',
-    });
-
-    expect(ctx.reply).toHaveBeenNthCalledWith(
-      1,
-      'Entendi que voce quer promover o candidato candidate:gateway-smoke no learning plane.',
-    );
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('promovido para trusted local.'));
+    const handled = await pack.maybeHandle(ctx as any, '/learning', 'promote candidate:gateway-smoke');
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('promovido para trusted local.'));
     expect(executeAction).toHaveBeenCalledWith({
       candidateId: 'candidate:gateway-smoke',
       actionId: 'promote',

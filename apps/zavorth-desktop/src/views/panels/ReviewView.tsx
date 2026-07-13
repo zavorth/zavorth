@@ -10,7 +10,7 @@ type ReviewTab = 'approvals' | 'learning';
 
 function riskTone(risk: SafeApprovalRecord['risk'] | string | undefined): BadgeTone {
   const value = String(risk || '').toLowerCase();
-  if (value === 'high' || value === 'critical') return 'danger';
+  if (value === 'high' || value === 'critical' || value === 'danger') return 'danger';
   if (value === 'medium') return 'warning';
   if (value === 'low') return 'ready';
   return 'muted';
@@ -22,13 +22,17 @@ function riskLabel(risk: SafeApprovalRecord['risk'] | string | undefined): strin
   if (value === 'medium') return 'Medium risk';
   if (value === 'low') return 'Low risk';
   if (value === 'critical') return 'Critical risk';
+  if (value === 'danger') return 'Danger';
   return 'Risk unknown';
 }
 
 export function ReviewView(props: {
   approvals: ApprovalItem[];
   busy: boolean;
-  onDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   learning?: LearningItem[];
   onLearningDecision?(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
 }) {
@@ -117,12 +121,13 @@ export function ReviewView(props: {
                     {record.createdAt ? <span>{record.createdAt.slice(0, 10)}</span> : null}
                   </div>
                 </div>
-                <div className="zvd-approval-card__actions zvd-row-actions">
+                <div className="zvd-approval-card__actions zvd-row-actions" style={{ flexWrap: 'wrap' }}>
                   <Button
                     size="sm"
                     variant="default"
                     disabled={props.busy}
-                    onClick={() => void props.onDecision(record.id, 'approve')}
+                    onClick={() => void props.onDecision(record.id, 'once')}
+                    title="Allow once"
                   >
                     {t('review.approve')}
                   </Button>
@@ -130,7 +135,25 @@ export function ReviewView(props: {
                     size="sm"
                     variant="secondary"
                     disabled={props.busy}
-                    onClick={() => void props.onDecision(record.id, 'reject')}
+                    onClick={() => void props.onDecision(record.id, 'session')}
+                    title="Allow for this session"
+                  >
+                    Session
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={props.busy}
+                    onClick={() => void props.onDecision(record.id, 'always')}
+                    title="Always allow"
+                  >
+                    Always
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    disabled={props.busy}
+                    onClick={() => void props.onDecision(record.id, 'deny')}
                   >
                     {t('review.reject')}
                   </Button>

@@ -40,7 +40,7 @@ export class WebAppGatewayCapabilitySupport {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, any>> {
     if (!deps.capabilityLifecycle) {
-      throw new Error('Capability lifecycle indisponivel neste runtime.');
+      throw new Error('Capability lifecycle unavailable in this runtime.');
     }
     const capabilityId = String(input.capabilityId || '').trim();
     const manifest = deps.capabilityLifecycle.getManifest(capabilityId);
@@ -192,7 +192,7 @@ export class WebAppGatewayCapabilitySupport {
     deps: WebAppRuntimeRouteDeps,
   ): Promise<Record<string, any>> {
     if (!deps.capabilityLifecycle) {
-      throw new Error('Capability lifecycle indisponivel neste runtime.');
+      throw new Error('Capability lifecycle unavailable in this runtime.');
     }
     const capabilityId = String(input.capabilityId || '').trim();
     const manifest = deps.capabilityLifecycle.getManifest(capabilityId);

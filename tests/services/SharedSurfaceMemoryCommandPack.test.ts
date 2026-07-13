@@ -306,14 +306,9 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     });
     const ctx = buildCtx('mostre a memoria recente');
 
-    await pack.handleNaturalMemoryIntent(ctx as any, {
-      command: 'memoryplane',
-      args: '',
-      intro: 'Vou abrir a retomada de memoria do Zavorth.',
-    });
-
-    expect(ctx.reply).toHaveBeenNthCalledWith(1, 'Vou abrir a retomada de memoria do Zavorth.');
-    expect(ctx.reply).toHaveBeenNthCalledWith(2, expect.stringContaining('Retomada natural pronta.'));
+    const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
+    expect(handled).toBe(true);
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Retomada natural pronta.'));
   });
 
   it('ignores unrelated commands', async () => {

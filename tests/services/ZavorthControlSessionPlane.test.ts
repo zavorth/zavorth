@@ -49,7 +49,7 @@ describe('ZavorthControl session plane endpoint', () => {
           entries: [],
         },
         narrative: {
-          headline: 'Session plane pronto.',
+          headline: 'Session plane ready.',
           operatorSummary: 'Snapshot oficial de sessao.',
         },
       })),
@@ -70,7 +70,7 @@ describe('ZavorthControl session plane endpoint', () => {
     expect(payload).toEqual(
       expect.objectContaining({
         narrative: expect.objectContaining({
-          headline: 'Session plane pronto.',
+          headline: 'Session plane ready.',
           operatorSummary: 'Snapshot oficial de sessao.',
         }),
         summary: expect.objectContaining({

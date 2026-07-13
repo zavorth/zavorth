@@ -9,7 +9,12 @@ export type HybridMemoryEmbeddingStatus =
   | 'not_configured'
   | 'not_requested'
   | 'ready'
-  | 'failed';
+  | 'failed'
+  | 'local'
+  | 'hybrid'
+  | 'cloud';
+
+export type HybridMemoryMode = 'local' | 'hybrid' | 'cloud';
 
 export type HybridMemorySourceType = 'ledger' | 'recall';
 
@@ -54,6 +59,8 @@ export type HybridMemoryRecallResult = {
   sessionId: string;
   query: string;
   mode: HybridMemoryRecallMode;
+  /** Configured embedding plane (local|hybrid|cloud). */
+  memoryMode?: HybridMemoryMode;
   embeddingStatus: HybridMemoryEmbeddingStatus;
   budget: {
     topK: number;

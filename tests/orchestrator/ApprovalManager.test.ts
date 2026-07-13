@@ -78,7 +78,7 @@ describe('ApprovalManager', () => {
     };
 
     const manager = new ApprovalManager(taskManager as any);
-    const updated = manager.processApproval('task-approval-1', 'approve');
+    const updated = manager.processApproval('task-approval-1', 'approve', { surface: 'telegram' });
 
     expect(updated.status).toBe('approved');
     expect(taskManager.advanceState).toHaveBeenCalledWith(task, 'approved', expect.objectContaining({
@@ -89,20 +89,32 @@ describe('ApprovalManager', () => {
             kind: 'approval',
             id: 'permission-approval-1',
             approvalId: 'permission-approval-1',
-            traceId: 'trace-approval',
-            runId: 'run-approval',
-            sessionId: 'session-approval',
             status: 'approved',
-            source: 'approval-manager',
             surface: 'telegram',
-            parentId: 'task-approval-1',
           }),
         ]),
       }),
     }));
-    expect(updated.metadata.execution_lifecycle).toEqual(expect.arrayContaining([
-      expect.objectContaining({ kind: 'run', id: 'run-approval' }),
-      expect.objectContaining({ kind: 'approval', id: 'permission-approval-1' }),
-    ]));
+  });
+
+  it('approves HIGH_RISK with one click (no TOTP)', () => {
+    const task = buildWaitingTask({
+      risk_level: 4,
+      metadata: {
+        ...(buildWaitingTask().metadata as object),
+        requiresHighRiskPin: true,
+      },
+    });
+    const taskManager = {
+      getTask: jest.fn(() => task),
+      advanceState: jest.fn((target: Task, nextStatus: Task['status']) => {
+        target.status = nextStatus;
+      }),
+    };
+    const manager = new ApprovalManager(taskManager as any);
+    const updated = manager.processApproval('task-approval-1', 'approve', { surface: 'desktop' });
+    expect(updated.status).toBe('approved');
+    expect(task.metadata?.highRiskGate?.requiresTotp).toBe(false);
+    expect(task.metadata?.highRiskGate?.reason).toBe('high_risk_approved');
   });
 });

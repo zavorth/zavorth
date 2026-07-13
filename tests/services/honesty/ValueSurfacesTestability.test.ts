@@ -49,8 +49,7 @@ describe('Value surfaces testability', () => {
 
     expect(desktopCatalog).toContain("src/services/selection/UserSelectionCatalog");
     expect(desktopCatalog).not.toContain("id: 'openai'");
-    expect(controlPages).toContain('listUserSelectionProviders()');
-    expect(controlPages).toContain('listUserSelectionChannels()');
+    expect(controlPages).toContain('mountDashboardReactIslands()');
     expect(controlPages).toContain('bindModelPreferenceEvents');
     expect(controlActions).toContain("API_BASE = '/api/providers/preference'");
     expect(controlActions).not.toMatch(/âœ|â|ðŸ/);

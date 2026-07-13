@@ -87,7 +87,7 @@ export class KanbanTool extends BaseTool {
 
     const validActions = ['create_board', 'add_card', 'move_card', 'list_cards', 'assign_card', 'delete_card'];
     if (!validActions.includes(action)) {
-      return `Erro: acao "${action}" invalida. Use: ${validActions.join(', ')}.`;
+      return `Error: invalid action "${action}" is invalid. Use: ${validActions.join(', ')}.`;
     }
 
     this.ensureStorageDir();
@@ -113,7 +113,7 @@ export class KanbanTool extends BaseTool {
       const err = asErrorLike(error);
       logger.warn('[Kanban] delete operation failed', error);
     const message = error instanceof Error ? err.message : String(error);
-      return `Erro no Kanban: ${message}`;
+      return `Kanban error: ${message}`;
   }
   }
 
@@ -142,7 +142,7 @@ export class KanbanTool extends BaseTool {
     const boardId = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     const existing = this.loadBoard(boardId);
     if (existing) {
-      return `Erro: quadro "${boardId}" ja existe.`;
+      return `Error: board "${boardId}" already exists.`;
     }
 
     const board: KanbanBoard = {
@@ -167,13 +167,13 @@ export class KanbanTool extends BaseTool {
 
     const column = String(args.column || 'backlog') as Column;
     if (!VALID_COLUMNS.includes(column)) {
-      return `Erro: coluna "${column}" invalida. Use: ${VALID_COLUMNS.join(', ')}.`;
+      return `Error: invalid column "${column}" is invalid. Use: ${VALID_COLUMNS.join(', ')}.`;
     }
 
     const priority = String(args.priority || 'medium') as KanbanCard['priority'];
     const validPriorities = ['low', 'medium', 'high', 'critical'];
     if (!validPriorities.includes(priority)) {
-      return `Erro: prioridade "${priority}" invalida. Use: ${validPriorities.join(', ')}.`;
+      return `Error: invalid priority "${priority}" is invalid. Use: ${validPriorities.join(', ')}.`;
     }
 
     const cardId = `card_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
@@ -201,7 +201,7 @@ export class KanbanTool extends BaseTool {
     if (!boardId) return 'Error: "board_id" is required.';
     if (!cardId) return 'Error: "card_id" is required.';
     if (!VALID_COLUMNS.includes(column)) {
-      return `Erro: coluna "${column}" invalida. Use: ${VALID_COLUMNS.join(', ')}.`;
+      return `Error: invalid column "${column}" is invalid. Use: ${VALID_COLUMNS.join(', ')}.`;
     }
 
     const board = this.loadBoard(boardId);

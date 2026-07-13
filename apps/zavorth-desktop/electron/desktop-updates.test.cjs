@@ -129,6 +129,81 @@ test('defer and rollback update state persist locally', async () => {
   assert.equal(rb.rollbackVersion, '0.1.0');
 });
 
+test('Phase 7: checkUpdates prefers electron-updater when enabled', async () => {
+  const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zvd-upd-eu-'));
+  const electronUpdater = {
+    isEnabled: () => true,
+    isDownloaded: () => false,
+    checkForUpdates: async () => ({
+      ok: true,
+      hasUpdate: true,
+      version: '0.1.0',
+      latestVersion: '0.3.0',
+      changelog: 'Signed installer channel',
+      message: 'Installer update 0.3.0 is available (electron-updater).',
+      downloaded: false,
+    }),
+  };
+  const result = await checkUpdates({
+    currentVersion: '0.1.0',
+    homeDir,
+    electronUpdater,
+    // Would be used if updater disabled — must not run.
+    fetchJson: async () => {
+      throw new Error('should not hit GitHub when electron-updater succeeds');
+    },
+  });
+  assert.equal(result.source, 'electron-updater');
+  assert.equal(result.engine, 'electron-updater');
+  assert.equal(result.hasUpdate, true);
+  assert.equal(result.latestVersion, '0.3.0');
+  assert.match(result.message, /electron-updater|0\.3\.0/i);
+});
+
+test('Phase 7: download + install use electron-updater engine', async () => {
+  const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zvd-upd-eu-dl-'));
+  let installed = false;
+  const electronUpdater = {
+    isEnabled: () => true,
+    isDownloaded: () => true,
+    checkForUpdates: async () => ({ ok: true, hasUpdate: true, latestVersion: '0.4.0', version: '0.1.0' }),
+    downloadUpdate: async () => ({
+      ok: true,
+      mode: 'electron-updater-download',
+      latestVersion: '0.4.0',
+      message: 'Downloaded installer update 0.4.0.',
+    }),
+    quitAndInstall: () => {
+      installed = true;
+      return {
+        ok: true,
+        mode: 'electron-updater-install',
+        latestVersion: '0.4.0',
+        message: 'Installing update and relaunching Desktop…',
+      };
+    },
+  };
+
+  const dl = await downloadUpdate({
+    currentVersion: '0.1.0',
+    homeDir,
+    electronUpdater,
+  });
+  assert.equal(dl.ok, true);
+  assert.equal(dl.mode, 'electron-updater-download');
+  assert.equal(dl.engine, 'electron-updater');
+
+  const install = await installUpdate({
+    currentVersion: '0.1.0',
+    homeDir,
+    electronUpdater,
+  });
+  assert.equal(install.ok, true);
+  assert.equal(install.engine, 'electron-updater');
+  assert.equal(install.rollbackVersion, '0.1.0');
+  assert.equal(installed, true);
+});
+
 test('downloadUpdate without remote URL marks manual package ready (manifest path)', async () => {
   const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zvd-upd-dl-'));
   // Force a fake "update available" by writing a previous check state is not enough;

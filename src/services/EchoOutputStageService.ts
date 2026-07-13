@@ -4,6 +4,12 @@ import { config } from '../config/index.js';
 import type { AudioSynthesisOptions } from '../gateways/channels/telegram/AudioHandler.js';
 import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { getVoicePreferenceService } from './voice/VoicePreferenceService.js';
+import {
+  resolveVoiceTts,
+  shouldAttemptPreferenceTts,
+} from './voice/VoiceTtsPolicy.js';
+import { recordVoiceMetric } from './voice/VoiceMetricsService.js';
 
 export type EchoOutputStageAudioHandler = {
   synthesize: (text: string, voiceIdOrOptions?: string | AudioSynthesisOptions) => Promise<string | null>;
@@ -84,22 +90,65 @@ export class EchoOutputStageService {
     const explicitVoiceRequest =
       request.forceVoice === true ||
       this.isExplicitVoiceReplyRequest(request.rawInput || '', text);
+    const voiceFlow = request.voiceFlow || {};
+    const voicePrefs = getVoicePreferenceService();
+    const preference = voicePrefs.get();
+    const allowLegacyEcho =
+      process.env.ZAVORTH_VOICE_ALLOW_LEGACY_ECHO_TTS === '1' ||
+      process.env.ZAVORTH_VOICE_ALLOW_LEGACY_ECHO_TTS === 'true';
+
+    // Phase 3 — prefer sovereign VoicePreference TTS over silent product defaults.
+    const preferenceTts = resolveVoiceTts({
+      preference,
+      ttsReplyDesired: voiceFlow.ttsReplyDesired === true,
+      explicitVoiceRequest,
+      allowLegacyEchoTts: allowLegacyEcho,
+    });
+
+    const wantsPreferenceTts = shouldAttemptPreferenceTts({
+      voiceFlow,
+      forceVoice: request.forceVoice,
+      rawInput: request.rawInput,
+      preference,
+    });
+
     if (
       request.allowVoice === false
       || !voiceAvailable
       || !audioHandler
-      || (!preferenceStore && !explicitVoiceRequest)
       || hasInteractiveControls
       || text.length >= 4000
     ) {
       return false;
     }
 
-    try {
-      if (!explicitVoiceRequest && !(await preferenceStore!.isEchoModeActive())) {
+    // Preference path: conversation + tts.enabled (or explicit voice request with TTS configured)
+    let usePreferenceTts = preferenceTts.ok && wantsPreferenceTts;
+
+    // Legacy Echo path only when preference TTS is not driving the reply
+    if (!usePreferenceTts) {
+      if (!preferenceStore && !explicitVoiceRequest) {
         return false;
       }
+      try {
+        if (!explicitVoiceRequest && preferenceStore && !(await preferenceStore.isEchoModeActive())) {
+          return false;
+        }
+      } catch {
+        return false;
+      }
+      // If preference explicitly disabled TTS and no legacy flag, do not speak via Echo either
+      if (
+        preference.tts.enabled === false &&
+        preference.mode !== 'conversation' &&
+        !explicitVoiceRequest &&
+        !allowLegacyEcho
+      ) {
+        return false;
+      }
+    }
 
+    try {
       const preferredLanguageCode =
         String(request.preferredLanguageCode || '').trim() ||
         this.resolvePreferredLanguageCode(request.rawInput || '', text);
@@ -109,7 +158,6 @@ export class EchoOutputStageService {
         return false;
       }
       const traceId = String(request.traceId || '').trim();
-      const voiceFlow = request.voiceFlow || {};
       const ttsStartedAt = Date.now();
 
       if (traceId) {
@@ -121,19 +169,37 @@ export class EchoOutputStageService {
           surface: request.surface,
           llmMs: voiceFlow.llmLatencyMs || null,
           sttMs: voiceFlow.sttLatencyMs || null,
+          ttsSource: usePreferenceTts ? 'voice_preference' : 'legacy_echo',
+          ttsProvider: usePreferenceTts && preferenceTts.ok ? preferenceTts.provider : null,
         });
       }
 
       await request.sink.sendChatAction?.('record_voice').catch(() => undefined);
-      const audioPath = await audioHandler.synthesize(spokenText, {
+
+      const synthesisOptions: AudioSynthesisOptions = {
         preferredLanguageCode,
         policyHint,
         traceId,
         surface: request.surface,
         requestedBy: request.requestedBy || `${request.surface}-output-phase`,
         sessionId: request.sessionId || '',
-      });
+      };
+      if (usePreferenceTts && preferenceTts.ok) {
+        if (preferenceTts.voiceId) {
+          synthesisOptions.voiceId = preferenceTts.voiceId;
+        }
+        synthesisOptions.forceProvider = preferenceTts.forceProvider;
+      }
+
+      const audioPath = await audioHandler.synthesize(spokenText, synthesisOptions);
       if (!audioPath) {
+        recordVoiceMetric({
+          kind: 'tts',
+          ok: false,
+          surface: request.surface,
+          message: 'synthesize returned empty path',
+          source: usePreferenceTts ? 'voice_preference' : 'legacy_echo',
+        });
         return false;
       }
 
@@ -141,6 +207,16 @@ export class EchoOutputStageService {
       try {
         const sendStartedAt = Date.now();
         await request.sink.sendVoice!(audioPath);
+        recordVoiceMetric({
+          kind: 'tts',
+          ok: true,
+          surface: request.surface,
+          provider: usePreferenceTts && preferenceTts.ok ? preferenceTts.provider : 'legacy_echo',
+          latencyMs: ttsLatencyMs,
+          chars: spokenText.length,
+          language: preferredLanguageCode,
+          source: usePreferenceTts ? 'voice_preference' : 'legacy_echo',
+        });
         if (traceId) {
           logEchoTrace(traceId, 'voice.send.completed', {
             taskId: request.taskId || null,
@@ -167,6 +243,13 @@ export class EchoOutputStageService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const message = error instanceof Error ? err.message : String(error || 'erro desconhecido');
+      recordVoiceMetric({
+        kind: 'tts',
+        ok: false,
+        surface: request.surface,
+        message,
+        source: 'echo_output_stage',
+      });
       if (request.traceId) {
         logEchoTrace(request.traceId, 'voice.send.failed', {
           taskId: request.taskId || null,

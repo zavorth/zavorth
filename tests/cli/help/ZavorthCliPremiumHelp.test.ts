@@ -5,25 +5,34 @@ import {
 } from '../../../src/cli/ZavorthCliSurfaceHelpers';
 
 describe('Zavorth premium CLI help', () => {
-  test('keeps root help focused on the new natural-first flow', () => {
+  test('keeps root help on four intents (phase 2–3)', () => {
     const help = formatCliHelp();
 
     expect(help).toContain('Usage: zavorth [options] [command]');
     expect(help).toContain('Commands:');
+    expect(help).toContain('zavorth ask');
+    expect(help).toContain('zavorth connect');
+    expect(help).toContain('zavorth learn');
+    expect(help).toContain('zavorth ready');
     expect(help).toContain('zavorth setup');
-    expect(help).toContain('zavorth chat');
     expect(help).toContain('zavorth help advanced');
-    expect(help).toContain('zavorth help reference');
-    expect(help).toContain('zavorth native catalog');
-    expect(help).not.toContain('models *');
-    expect(help).not.toContain('channels *');
-    expect(help).not.toContain('plugins *');
-    expect(help).not.toContain('message *');
-    expect(help).not.toContain('sandbox *');
-    expect(help).not.toContain('ops run <actionId>');
+    expect(help).toMatch(/Four intents|ask · connect · learn · ready/i);
+    // Platform clutter stays out of root
     expect(help).not.toContain('nodeinvoke');
+    expect(help).not.toContain('ops run <actionId>');
+    expect(help).not.toContain('models *');
+    expect(help).not.toContain('plugins *');
+    expect(help).not.toContain('sandbox *');
     expect(help).not.toContain('Comece por aqui');
     expect(help).not.toContain('Trabalho diario');
+    expect(help).toContain('zavorth reach|where');
+  });
+
+  test('advanced help is the door to operator surface', () => {
+    const advanced = formatCliHelp('advanced');
+    expect(advanced).toMatch(/advanced|operator|platform/i);
+    expect(advanced).toContain('zavorth help');
+    expect(advanced).toMatch(/connect|learn|ops/i);
   });
 
   test('resolves and renders dedicated home, hatch and quickstart pages', () => {

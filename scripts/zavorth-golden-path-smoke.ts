@@ -364,25 +364,24 @@ export function smokeAbsorbRiskReport(): SmokeCheckResult {
 
 export function smokeWorkspaceMigration(): SmokeCheckResult {
   const name = 'WorkspaceMigrationProfileService';
+  let tempHome: string | null = null;
   try {
     const repoRoot = resolveRepoRoot();
-    const fixturePath = path.join(
-      repoRoot,
-      'tests',
-      'fixtures',
-      'migration-homes',
-      'generic',
-    );
-    assert(fs.existsSync(fixturePath), `fixture missing: ${fixturePath}`);
+    // Brand-agnostic structural home (no third-party product profile ids).
+    tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-migration-smoke-'));
+    fs.mkdirSync(path.join(tempHome, 'skills'), { recursive: true });
+    fs.mkdirSync(path.join(tempHome, 'memory'), { recursive: true });
+    fs.writeFileSync(path.join(tempHome, 'AGENTS.md'), '# Agents\n', 'utf8');
+    fs.writeFileSync(path.join(tempHome, 'IDENTITY.md'), '# Identity\n', 'utf8');
 
     const service = new WorkspaceMigrationProfileService({
       projectRoot: repoRoot,
       now: () => new Date('2026-07-11T12:00:00.000Z'),
     });
-    const detected = service.detectProfile(fixturePath);
+    const detected = service.detectProfile(tempHome);
     assert(
-      detected.profileId === 'generic-agent-home',
-      `expected generic-agent-home, got ${detected.profileId}`,
+      detected.profileId === 'agent-home',
+      `expected agent-home, got ${detected.profileId}`,
     );
     assert(detected.confidence > 0, 'confidence must be > 0');
 
@@ -397,6 +396,14 @@ export function smokeWorkspaceMigration(): SmokeCheckResult {
       ok: false,
       detail: error instanceof Error ? error.message : String(error),
     };
+  } finally {
+    if (tempHome) {
+      try {
+        fs.rmSync(tempHome, { recursive: true, force: true });
+      } catch {
+        /* ignore */
+      }
+    }
   }
 }
 

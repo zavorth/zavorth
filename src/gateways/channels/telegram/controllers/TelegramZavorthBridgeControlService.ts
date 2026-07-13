@@ -15,7 +15,7 @@ import { asErrorLike } from '../../../../utils/errorLike.js';
 
 type TelegramZavorthBridgeControlServiceDeps = {
   zavorthBridgeControlService: Pick<ZavorthBridgeControlService, 'open' | 'restart' | 'status' | 'setModel'>;
-  zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel' | 'setPreferredModel'>;
+  zavorthBridgePreferenceStore: Pick<ZavorthBridgePreferenceStore, 'getPreferredModel' | 'setPreferredModel' | 'forUser'>;
   capabilityLifecycleService?: CapabilityLifecycleService;
 };
 
@@ -136,8 +136,12 @@ export class TelegramZavorthBridgeControlService {
 
   public async handleModelCommand(ctx: Context, args: string): Promise<void> {
     const requestedModel = args?.trim() || '';
+    const operatorUserId = ctx.from?.id?.toString() || null;
+    const store = typeof (this.deps.zavorthBridgePreferenceStore as any).forUser === 'function'
+      ? (this.deps.zavorthBridgePreferenceStore as ZavorthBridgePreferenceStore).forUser(operatorUserId)
+      : this.deps.zavorthBridgePreferenceStore;
     if (!requestedModel) {
-      const currentPreferredModel = await this.deps.zavorthBridgePreferenceStore.getPreferredModel();
+      const currentPreferredModel = await store.getPreferredModel(operatorUserId);
       await ctx.reply(
         `To change the ZavorthBridge model, use /agmodel <name> or /ag_model <name>.\n\nCurrent saved model: ${currentPreferredModel || 'none'}\nAllowed models: gemini-2.5-pro, gemini-3.1-pro-low, gemini-3.1-flash.`,
       );
@@ -148,7 +152,7 @@ export class TelegramZavorthBridgeControlService {
     const normalizedModel = /^clear$/i.test(sanitizedModel) ? null : sanitizedModel;
 
     if (!normalizedModel) {
-      await this.deps.zavorthBridgePreferenceStore.setPreferredModel(null);
+      await store.setPreferredModel(null, operatorUserId);
       await ctx.reply('Done. Removed the saved ZavorthBridge model preference.');
       return;
     }

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "search-exa",
+  "label": "Search Exa",
+  "version": "1.0.0",
+  "moduleKind": "search",
+  "summary": "Dedicated Exa neural search backend (soft-fail).",
+  "description": "Wave 5 search pack. Explicit Exa package for POST https://api.exa.ai/search when EXA_API_KEY is set. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. Complements web-search which may also try Exa as one of several backends.",
+  "tags": ["search", "exa", "wave5", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://search-exa",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "search.exa.status",
+      "intent": "search.exa.status",
+      "label": "Exa Status",
+      "summary": "Report whether EXA_API_KEY is present (no secret values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_exa_status",
+        "aliases": ["exa_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "search.exa.query",
+      "intent": "search.exa.query",
+      "label": "Exa Query",
+      "summary": "Soft-search the web via Exa when EXA_API_KEY and network.external are available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "search_exa_query",
+        "aliases": ["exa_search", "exa_query"],
+        "usage": "{ query|q, limit?, numResults? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Exa search API at api.exa.ai.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether EXA_API_KEY is set (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

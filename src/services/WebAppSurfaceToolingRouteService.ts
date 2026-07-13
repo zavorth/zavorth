@@ -14,7 +14,7 @@ export class WebAppSurfaceToolingRouteService {
     if (pathname === '/api/web/tools' && req.method === 'GET') {
       const toolSurface = deps.runtimeToolSurface || deps.toolSurface;
       if (!toolSurface) {
-        deps.writeJson(res, { ok: false, error: 'Catalogo de tools indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Tool catalog unavailable.' }, 503);
         return true;
       }
 
@@ -268,7 +268,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/runtime-modes' && req.method === 'GET') {
       if (!deps.runtimeModes) {
-        deps.writeJson(res, { ok: false, error: 'Catalogo de modos de runtime indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Runtime mode catalog unavailable.' }, 503);
         return true;
       }
 
@@ -343,7 +343,7 @@ export class WebAppSurfaceToolingRouteService {
 
     if (pathname === '/api/web/teams' && req.method === 'GET') {
       if (!deps.teamCatalog) {
-        deps.writeJson(res, { ok: false, error: 'Catalogo de teams indisponivel.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Team catalog unavailable.' }, 503);
         return true;
       }
 

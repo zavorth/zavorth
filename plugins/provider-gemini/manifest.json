@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-gemini",
+  "label": "Gemini Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail Google Gemini generateContent API.",
+  "description": "Wave 1 provider pack. Uses GEMINI_API_KEY or GOOGLE_API_KEY. Soft-fail without network permission.",
+  "tags": ["provider", "gemini", "google", "llm", "wave1"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-gemini",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.gemini.status",
+      "intent": "provider.gemini.status",
+      "label": "Status",
+      "summary": "Report Gemini key presence.",
+      "artifactKinds": [],
+      "command": { "name": "provider_gemini_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "provider.gemini.complete",
+      "intent": "provider.gemini.complete",
+      "label": "Complete",
+      "summary": "Soft Gemini generateContent.",
+      "artifactKinds": [],
+      "command": { "name": "provider_gemini_complete", "aliases": [], "usage": "{ prompt, model? }" }
+    }
+  ],
+  "permissions": [
+    { "kind": "network.external", "scope": "external", "reason": "Call Gemini generateContent.", "required": false },
+    { "kind": "provider.call", "scope": "external", "reason": "Invoke Gemini completion.", "required": false },
+    { "kind": "secret.read", "scope": "local", "reason": "Detect GEMINI_API_KEY presence.", "required": false }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-gemini.receipt"]
+}

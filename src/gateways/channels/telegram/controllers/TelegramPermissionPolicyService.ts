@@ -128,7 +128,7 @@ export class TelegramPermissionPolicyService {
     if (clean === 'approved' || clean === 'aprovado' || clean === 'aprovados') return 'approved';
     if (clean === 'rejected' || clean === 'rejeitado' || clean === 'rejeitados') return 'rejected';
     if (clean === 'expired' || clean === 'expirado' || clean === 'expirados') return 'expired';
-    if (clean === 'pending' || clean === 'pendente' || clean === 'pendentes') return 'pending';
+    if (clean === 'pending' || clean === 'pending' || clean === 'pendentes') return 'pending';
     return 'pending';
   }
 

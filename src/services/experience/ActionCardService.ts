@@ -13,10 +13,27 @@ import type {
   UniversalToolRiskLevel,
 } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
+export type ActionCardLearnedItem = {
+  id: string;
+  title: string;
+  summary: string;
+  kind?: string;
+};
+
+export type ActionCardSuperpower = {
+  id: string;
+  title: string;
+  summary: string;
+  howToAsk: string;
+  ready: boolean;
+};
+
 export type ActionCardBuildInput = {
   activeRun?: UniversalAgentRun | null;
   approvals?: UniversalApprovalRequest[];
   learningCandidates?: ExperienceLearningCandidate[];
+  learnedItems?: ActionCardLearnedItem[];
+  superpowers?: ActionCardSuperpower[];
   diffReviews?: ExperienceDiffReview[];
   contextRecovery?: ExperienceContextRecovery | null;
   autoHealing?: ExperienceAutoHealing | null;
@@ -60,6 +77,8 @@ export class ActionCardService {
       ...this.approvalCards(input.approvals || [], input.activeRun, now),
       ...this.diffCards(input.diffReviews || [], input.activeRun, now),
       ...this.learningCards(input.learningCandidates || [], now),
+      ...this.learnedMemoryCards(input.learnedItems || [], now),
+      ...this.superpowerCards(input.superpowers || [], now),
       ...this.contextCards(input.contextRecovery, now),
       ...this.autoHealingCards(input.autoHealing, input.activeRun, now),
     ];
@@ -203,6 +222,65 @@ export class ActionCardService {
           }),
         ],
       }));
+  }
+
+  private superpowerCards(items: ActionCardSuperpower[], now: string): ExperienceActionCard[] {
+    return items
+      .filter((item) => item.ready)
+      .slice(0, 3)
+      .map((item) => ({
+        contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+        id: `card:superpower:${item.id}`,
+        source: 'learning',
+        title: item.title,
+        summary: item.summary,
+        risk: 'safe' as const,
+        status: 'ready' as const,
+        scope: 'superpoder',
+        sandbox: 'not-applicable',
+        affectedFiles: [],
+        affectedCommands: [],
+        ttlSeconds: null,
+        receiptHint: `superpower ${item.id}`,
+        createdAt: now,
+        actions: [
+          makeAction({
+            id: `superpower:ask:${item.id}`,
+            label: 'Como pedir',
+            kind: 'learning',
+            command: item.howToAsk,
+            reason: item.howToAsk,
+          }),
+        ],
+      }));
+  }
+
+  private learnedMemoryCards(items: ActionCardLearnedItem[], now: string): ExperienceActionCard[] {
+    return items.slice(0, 4).map((item) => ({
+      contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+      id: `card:learned:${item.id}`,
+      source: 'learning',
+      title: item.title || 'Memoria aprendida',
+      summary: item.summary,
+      risk: 'safe' as const,
+      status: 'ready' as const,
+      scope: item.kind || 'preferencia',
+      sandbox: 'not-applicable',
+      affectedFiles: [],
+      affectedCommands: [],
+      ttlSeconds: null,
+      receiptHint: `Aprendizado reversivel ${item.id}.`,
+      createdAt: now,
+      actions: [
+        makeAction({
+          id: `learn:forget:${item.id}`,
+          label: 'Esquecer',
+          kind: 'learning',
+          command: `desfazer aprendizado ${item.id}`,
+          reason: 'Remove preferencia ou rascunho aprendido do runtime.',
+        }),
+      ],
+    }));
   }
 
   private contextCards(recovery: ExperienceContextRecovery | null | undefined, now: string): ExperienceActionCard[] {

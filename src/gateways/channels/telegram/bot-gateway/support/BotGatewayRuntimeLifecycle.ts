@@ -109,7 +109,7 @@ export async function startZavorthControlSurface(
     runtime.logRepo.log(
       'error',
       'ZavorthControlService',
-      `Falha ao iniciar zavorthControl web: ${errMsg || error}`,
+      `Failed to iniciar zavorthControl web: ${errMsg || error}`,
     );
     throw error;
   }
@@ -159,7 +159,7 @@ export async function flushPendingSupervisedNotifications(
       runtime.logRepo.log(
         'warn',
         'BotGateway',
-        `Falha ao entregar notificacao pendente do startup supervisionado: ${pendingNotificationResult.error || 'erro desconhecido'}`,
+        `Failed to entregar notificacao pendente do startup supervisionado: ${pendingNotificationResult.error || 'erro desconhecido'}`,
       );
     }
   } finally {
@@ -298,6 +298,12 @@ export function getTelegramGatewayHandlerRegistrar(
         groupEventController: runtime.groupEventController,
         mediaController: runtime.mediaController,
         callbackController: runtime.callbackController,
+        permissionReactionHandler: (runtime as any).permissionController
+          ? {
+              handleMessageReaction: (ctx: Context) =>
+                (runtime as any).permissionController.handleMessageReaction(ctx),
+            }
+          : null,
         hostIdentityService: runtime.hostIdentityService,
         telegramChannelContractService: runtime.telegramChannelContractService,
         processTextMessage: callbacks.processTextMessage,

@@ -493,7 +493,7 @@ export class ZavorthHost {
       type: 'handoff_reload_ack',
       requestId,
       accepted: false,
-      summary: `Nao consegui preparar o handoff do reload supervisionado.\n\nMotivo: ${handoff.summary}`,
+      summary: `Could not prepare the supervised reload handoff.\n\nReason: ${handoff.summary}`,
     });
   }
 

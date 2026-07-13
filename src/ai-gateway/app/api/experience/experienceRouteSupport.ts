@@ -12,15 +12,40 @@ import { ZavorthMemoryPlaneService } from "../../../../services/ZavorthMemoryPla
 import { ZavorthNativeAutonomySpineService } from "../../../../services/ZavorthNativeAutonomySpineService";
 import { LlmRuntimeService } from "../../../../services/llm/LlmRuntimeService";
 import { config } from "../../../../config";
-import { logger } from '@/shared/utils/logger';let experienceCore: ExperienceCoreService | null = null;
+import { logger } from '@/shared/utils/logger';
+import { createBootstrapToolRuntime } from "../../../../bootstrap/bootstrapToolRuntime";
+import { LogRepository } from "../../../../storage/LogRepository";
+import { waitForPluginOsReady } from "../../../../services/PluginOsAgentReadiness";
 
+let experienceCore: ExperienceCoreService | null = null;
+let experienceReady: Promise<void> | null = null;
+
+/**
+ * P0: experience/control chat uses the same tool harness as CLI/foundation.
+ */
 export function getExperienceCoreService(): ExperienceCoreService {
   if (experienceCore) return experienceCore;
   const runStore = createDefaultAgentRunStore();
+  let toolRuntime: any = null;
+  try {
+    const logRepo = new LogRepository();
+    const toolRuntimeServices = createBootstrapToolRuntime(logRepo as any);
+    toolRuntime = toolRuntimeServices.toolRuntime;
+    experienceReady = waitForPluginOsReady({
+      timeoutMs: Number(process.env.ZAVORTH_PLUGIN_OS_READY_TIMEOUT_MS) || 15000,
+    }).then(() => undefined).catch(() => undefined);
+  } catch (error: unknown) {
+    logger.warn("[experience] toolRuntime bootstrap soft-failed; agent will run without tools", error);
+    experienceReady = Promise.resolve();
+  }
+  if (!process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE) {
+    process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE = "daily-ops";
+  }
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || "Zavorth",
     defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || "modelo atual",
     llmRuntime: new LlmRuntimeService(),
+    toolRuntime,
     runStore,
     workflowQueueStore: createDefaultAgentWorkflowQueueStore(),
     nativeAutonomySpine: new ZavorthNativeAutonomySpineService(),
@@ -34,6 +59,14 @@ export function getExperienceCoreService(): ExperienceCoreService {
     runtimeAccessReadiness: new RuntimeAccessReadinessService(),
   });
   return experienceCore;
+}
+
+/** Await Plugin OS wire before experience agent runs (P0). */
+export async function ensureExperienceAgentReady(): Promise<void> {
+  getExperienceCoreService();
+  if (experienceReady) {
+    await experienceReady;
+  }
 }
 
 export function readExperienceQuery(request: Request): {

@@ -29,3 +29,8 @@ export {
   getI18nService,
   resetI18nService,
 } from './ZavorthI18nService.js';
+
+export { tService, tError as tServiceError } from './services.js';
+export { tSurface } from './surface.js';
+export { t as tTelegram, getTelegramLocale, setTelegramLocale } from './telegram.js';
+export { tCli, tCommon, tError, detectCliLanguage, initCliLocale } from './cli.js';

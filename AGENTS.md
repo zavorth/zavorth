@@ -73,6 +73,35 @@ Keep the workspace clean by using the right file for the right thing:
 
 Do not blur these lines.
 
+### Natural Slash Commands (mandatory)
+
+All shared-surface slash commands (existing and future) follow
+`src/domain/surface/presentation/shared-surface/NaturalSlashConvention.ts`:
+
+1. Empty `/command` → home/status (never force the user to type `run`).
+2. Free text after `/command` → primary action payload (no required `run` / `--flags`).
+3. Explicit control verbs (`status`, `list`, `apply`, `help`, …) still work.
+4. Power-user flags remain optional.
+
+**When adding a new slash command:**
+- Register a policy in `NATURAL_SLASH_POLICIES` (or accept the default policy).
+- Do not document `/command run X --Y` as the everyday path.
+- Prefer: `/command <natural request>`.
+
+Dispatch always runs `naturalizeSharedSurfaceArgs` before packs handle the command.
+
+### Natural CLI (same rules as slash)
+
+CLI shares the same policies via `src/cli/CliNaturalConvention.ts`:
+
+- `zavorth <command>` → home/status
+- `zavorth <command> <plain language>` → primary action
+- Wired in `runBuiltinLauncher` and `resolveCliExecutionInput` (surface path)
+
+**When adding a new CLI command that mirrors a surface command:**
+- Map it in `CLI_TO_SLASH` (or rely on auto-map from slash policy name).
+- Prefer natural examples in help: `zavorth hub platform-sync` not `zavorth hub run platform-sync`.
+
 ### Cross-Surface Rule
 
 The user may talk to Zavorth from anywhere.

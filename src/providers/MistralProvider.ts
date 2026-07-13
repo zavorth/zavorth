@@ -12,6 +12,7 @@ import {
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { buildOpenAiReasoningEffortBody } from './reasoningEffortPayload.js';
 
 export class MistralProvider implements ILlmProvider {
   public readonly name = 'mistral';
@@ -50,6 +51,7 @@ export class MistralProvider implements ILlmProvider {
       tools: mergedTools.length > 0 ? mergedTools : undefined,
       tool_choice: mergedTools.length > 0 ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
+      ...buildOpenAiReasoningEffortBody(options),
     } as any, buildProviderRequestOptions(options) as any);
 
     const choice = response.choices[0];

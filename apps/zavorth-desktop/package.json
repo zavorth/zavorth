@@ -2,6 +2,7 @@
   "name": "@zavorth/desktop",
   "version": "0.1.0",
   "private": true,
+  "author": "Zavorth",
   "main": "electron/main.cjs",
   "description": "Zavorth Desktop native shell for the local runtime.",
   "scripts": {
@@ -21,7 +22,13 @@
     "test:watch": "vitest",
     "test:electron-unit": "node --test electron/*.test.cjs",
     "test:all": "npm run test && npm run test:electron-unit",
-    "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir"
+    "package:dir": "npm run build --silent && npx --yes --package electron-builder electron-builder --dir",
+    "package:release": "npm run build --silent && npx --yes --package electron-builder electron-builder --publish never",
+    "package:publish": "npm run build --silent && npx --yes --package electron-builder electron-builder --publish always",
+    "signing:status": "node electron/desktop-update-signing.cjs",
+    "production:readiness": "node scripts/desktop-production-readiness.mjs",
+    "production:readiness:strict": "node scripts/desktop-production-readiness.mjs --strict",
+    "icons:generate": "node scripts/generate-app-icons.mjs"
   },
   "dependencies": {
     "@nanostores/react": "^1.1.0",
@@ -30,6 +37,7 @@
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-unicode11": "^0.8.0",
     "@xterm/xterm": "^5.5.0",
+    "electron-updater": "^6.8.9",
     "highlight.js": "^11.11.1",
     "isomorphic-dompurify": "^3.18.0",
     "katex": "^0.17.0",
@@ -42,6 +50,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "axe-core": "^4.12.1",
@@ -49,6 +58,7 @@
     "electron-builder": "^26.0.12",
     "pixelmatch": "^7.2.0",
     "playwright": "^1.61.1",
+    "png-to-ico": "^3.0.2",
     "pngjs": "^7.0.0",
     "vitest": "^3.2.7"
   },
@@ -57,6 +67,7 @@
     "productName": "Zavorth",
     "artifactName": "Zavorth-${version}-${os}-${arch}.${ext}",
     "asar": true,
+    "icon": "build/icon.png",
     "extraResources": [
       {
         "from": "../../dist-standalone",
@@ -71,33 +82,68 @@
     "files": [
       "dist/**",
       "electron/**",
-      "package.json"
+      "package.json",
+      "build/icon.png",
+      "build/icon.ico",
+      "public/icon.png"
     ],
     "extraMetadata": {
       "main": "electron/main.cjs"
     },
     "directories": {
-      "output": "release"
+      "output": "release",
+      "buildResources": "build"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "zavorth",
+        "repo": "zavorth",
+        "releaseType": "release"
+      }
+    ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
-        "nsis",
-        "msi"
-      ]
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": true,
+      "signExecutable": false,
+      "signtoolOptions": {
+        "signingHashAlgorithms": [
+          "sha256"
+        ],
+        "rfc3161TimeStampServer": "http://timestamp.digicert.com"
+      }
     },
     "mac": {
+      "icon": "build/icon.png",
       "target": [
         "dmg",
         "zip"
       ],
-      "hardenedRuntime": true
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "linux": {
+      "icon": "build/icon.png",
       "target": [
         "AppImage",
         "deb"
       ],
       "category": "Utility"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
     }
   }
 }

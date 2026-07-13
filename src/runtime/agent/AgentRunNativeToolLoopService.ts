@@ -57,6 +57,18 @@ import {
   decisionFromEffectBoundary,
   resultFromToolOutcome,
 } from '../operator/OperatorContinuityEnvelope.js';
+import { resolveDefaultAgentToolSecurityDefinition } from '../../security/AgentToolSecurityCatalog.js';
+import {
+  isDestructiveExposureTool,
+  isFullProfileSecurityExposable,
+  isProfileAlwaysExpose,
+  isWriteLikeExposureTool,
+  rankingBoostForProfile,
+  resolveExposureProfile,
+  resolveMaxExposedTools,
+  type ToolExposureProfileName,
+} from './tools/ToolExposureProfile.js';
+
 export type NativeToolLoopStats = {
   requested: number;
   executed: number;
@@ -101,24 +113,12 @@ type Runtime = {
 const MAX_NATIVE_TOOL_ROUNDS = 5;
 const HARD_NATIVE_TOOL_ROUNDS = 12;
 const MAX_NATIVE_TOOL_CALLS_PER_ROUND = 8;
+/** Default safe-profile max; prefer resolveMaxExposedTools(profile) at call sites. */
 const MAX_EXPOSED_NATIVE_TOOLS = 12;
 const MAX_CATALOG_MATERIALIZED_TOOLS = 4;
 const NATIVE_TOOL_CONTEXT_CHARS = 60_000;
 const COMPACT_TOOL_CATALOG_NAME = 'zavorth_tool_catalog';
 const TOOL_PLANNER_NAME = 'zavorth_tool_plan';
-const ALWAYS_SAFE_NATIVE_TOOLS = new Set([
-  'read_file',
-  'list_directory',
-  'workspace.read',
-  'workspace.list',
-  'get_datetime',
-  'zavorth_action',
-  'session_search',
-  'zavorth_session_search',
-  'sessions.search',
-  COMPACT_TOOL_CATALOG_NAME,
-  TOOL_PLANNER_NAME,
-]);
 const TOOL_EFFECT_REGISTRY = new ToolEffectRegistry();
 const PROVIDER_NATIVE_CAPABILITY_MATRIX = new ProviderNativeCapabilityMatrixService();
 
@@ -194,6 +194,8 @@ export class AgentRunNativeToolLoopService {
     const requested = new Set((request.requestedTools || []).map((tool) => tool.toLowerCase()));
     const exposed = policyContext.exposedTools || [];
     const runtimePolicy = this.resolveRuntimePolicyBundle(run);
+    const exposureProfile = resolveExposureProfile({ run, request });
+    const maxExposedTools = resolveMaxExposedTools(exposureProfile);
 
     const allowedTools = definitions.filter((tool) => {
       if (this.toolRuntime?.hasTool && !this.toolRuntime.hasTool(tool.name)) return false;
@@ -209,22 +211,43 @@ export class AgentRunNativeToolLoopService {
       if (profileDecision === 'blocked' || profileDecision === 'requires_approval') {
         return false;
       }
+
+      const isApproved = aliases.some((alias) => approved.has(alias));
+      // Destructive tools only when explicitly approved.
+      if (aliases.some((alias) => isDestructiveExposureTool(alias) || isDestructiveExposureTool(tool.name))) {
+        return isApproved;
+      }
+
       if (aliases.includes('web_search')) {
         return this.shouldExposeWebSearch(run, request, aliases, requested, exposed);
       }
-      if (aliases.some((alias) => ALWAYS_SAFE_NATIVE_TOOLS.has(alias) || isSafeObservationTool(alias, TOOL_EFFECT_REGISTRY))) {
+
+      if (aliases.some((alias) => isSafeObservationTool(alias, TOOL_EFFECT_REGISTRY))) {
         return true;
       }
-      if (aliases.some((alias) => approved.has(alias))) return true;
+
+      if (aliases.some((alias) => isProfileAlwaysExpose(exposureProfile, alias))) {
+        // memory_write (and similar) only when security risk allows.
+        if (aliases.some((alias) => isWriteLikeExposureTool(alias))) {
+          return isApproved || this.securityAllowsWriteLikeExposure(tool.name);
+        }
+        return true;
+      }
+
+      if (exposureProfile === 'full' && this.isFullProfileExposableTool(tool.name, aliases)) {
+        return true;
+      }
+
+      if (isApproved) return true;
       return exposed.some((entry) => {
         const id = entry.id.toLowerCase();
         return aliases.includes(id) && entry.requiresApproval !== true && entry.risk === 'safe';
       });
     });
 
-    const rankedTools = this.rankNativeTools(allowedTools, run, request);
-    const syntheticTools = this.buildSyntheticToolDefinitions(rankedTools.length);
-    const maxRealTools = Math.max(1, MAX_EXPOSED_NATIVE_TOOLS - syntheticTools.length);
+    const rankedTools = this.rankNativeTools(allowedTools, run, request, exposureProfile);
+    const syntheticTools = this.buildSyntheticToolDefinitions(rankedTools.length, maxExposedTools);
+    const maxRealTools = Math.max(1, maxExposedTools - syntheticTools.length);
     const exposedTools = rankedTools.length > maxRealTools
       ? [...rankedTools.slice(0, maxRealTools), ...syntheticTools]
       : [...rankedTools, ...syntheticTools.filter((tool) => rankedTools.length > 1)];
@@ -640,6 +663,7 @@ export class AgentRunNativeToolLoopService {
     tools: ToolDefinition[],
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
+    exposureProfile: ToolExposureProfileName = 'safe',
   ): ToolDefinition[] {
     const requestText = normalizeText(`${request.text} ${run.input} ${(request.requestedTools || []).join(' ')}`).toLowerCase();
     const requested = new Set((request.requestedTools || []).flatMap((tool) => this.resolveToolAliases(tool)));
@@ -655,6 +679,7 @@ export class AgentRunNativeToolLoopService {
       if (name === 'read_file' || name === 'list_directory') score += 30;
       if (name === 'get_datetime' && /\b(time|date|hora|data|agora|today|now)\b/i.test(requestText)) score += 45;
       if (name === 'web_search' && thisRequestLikelyNeedsExternalKnowledge(requestText)) score += 40;
+      score += rankingBoostForProfile(exposureProfile, name);
       for (const token of requestText.split(/\s+/).filter((entry) => entry.length > 3).slice(0, 24)) {
         if (haystack.includes(token)) score += 2;
       }
@@ -662,7 +687,7 @@ export class AgentRunNativeToolLoopService {
     }
   }
 
-  private buildSyntheticToolDefinitions(realToolCount: number): ToolDefinition[] {
+  private buildSyntheticToolDefinitions(realToolCount: number, maxExposedTools: number = MAX_EXPOSED_NATIVE_TOOLS): ToolDefinition[] {
     const tools: ToolDefinition[] = [];
     if (realToolCount > 1) {
       tools.push({
@@ -681,7 +706,7 @@ export class AgentRunNativeToolLoopService {
         },
       });
     }
-    if (realToolCount > MAX_EXPOSED_NATIVE_TOOLS - 1) {
+    if (realToolCount > maxExposedTools - 1) {
       tools.push({
         name: COMPACT_TOOL_CATALOG_NAME,
         description: 'Search or describe the compact catalog of governed tools. A search can materialize matching tools for the next native tool round.',
@@ -701,6 +726,35 @@ export class AgentRunNativeToolLoopService {
       });
     }
     return tools;
+  }
+
+  private securityAllowsWriteLikeExposure(toolName: string): boolean {
+    try {
+      const definition = resolveDefaultAgentToolSecurityDefinition(toolName);
+      if (!definition) return false;
+      if (definition.requiresConfirmation) return false;
+      if (definition.defaultRisk === 'dangerous' || definition.defaultRisk === 'forbidden') return false;
+      return definition.defaultRisk === 'safe' || definition.defaultRisk === 'review';
+    } catch {
+      return false;
+    }
+  }
+
+  private isFullProfileExposableTool(toolName: string, aliases: string[]): boolean {
+    const names = Array.from(new Set([toolName, ...aliases].map((entry) => String(entry || '').trim()).filter(Boolean)));
+    for (const name of names) {
+      if (isDestructiveExposureTool(name)) return false;
+    }
+    try {
+      const definition = resolveDefaultAgentToolSecurityDefinition(toolName);
+      return isFullProfileSecurityExposable({
+        toolName,
+        defaultRisk: definition?.defaultRisk,
+        requiresConfirmation: definition?.requiresConfirmation,
+      });
+    } catch {
+      return false;
+    }
   }
 
   private repairToolCall(toolCall: ToolCall, knownToolNames: Set<string>): ToolCallRepair {

@@ -35,7 +35,7 @@ describe('DomainRegistry', () => {
             summary: { sessions: 3, historyItems: 5, sendReady: true, spawnReady: true },
             narrative: {
               headline: 'Sessions headline',
-              operatorSummary: 'Session plane pronto.',
+              operatorSummary: 'Session plane ready.',
             },
           }),
         } as any,
@@ -52,7 +52,7 @@ describe('DomainRegistry', () => {
             },
             narrative: {
               headline: 'Memory headline',
-              operatorSummary: 'Memory plane pronto.',
+              operatorSummary: 'Memory plane ready.',
             },
           }),
         } as any,
@@ -128,10 +128,10 @@ describe('DomainRegistry', () => {
               collections: 1,
               recipes: 1,
             },
-            catalogSync: { summary: 'Catalog sync pronto.' },
+            catalogSync: { summary: 'Catalog sync ready.' },
             narrative: {
               headline: 'Platform headline',
-              operatorSummary: 'Platform plane pronto.',
+              operatorSummary: 'Platform plane ready.',
             },
           }),
         } as any,
@@ -151,7 +151,7 @@ describe('DomainRegistry', () => {
             },
             narrative: {
               headline: 'Channels headline',
-              operatorSummary: 'Channel mesh pronto.',
+              operatorSummary: 'Channel mesh ready.',
             },
           }),
         } as any,
@@ -167,7 +167,7 @@ describe('DomainRegistry', () => {
               queued: 0,
               capabilities: 2,
             },
-            selected: { nextAction: 'Node pronto.' },
+            selected: { nextAction: 'Node ready.' },
             narrative: {
               headline: 'Nodes headline',
               operatorSummary: 'Node mesh pronto.',
@@ -185,10 +185,10 @@ describe('DomainRegistry', () => {
               attentionRequired: 0,
               pendingWork: 0,
             },
-            selected: { operatorSummary: 'Transport pronto.' },
+            selected: { operatorSummary: 'Transport ready.' },
             narrative: {
               headline: 'Transports headline',
-              operatorSummary: 'Remote transports prontos.',
+              operatorSummary: 'Remote transports ready.',
             },
           }),
         } as any,
@@ -206,7 +206,7 @@ describe('DomainRegistry', () => {
             },
             posture: { label: 'Zero Trust Ready' },
             narrative: {
-              operatorSummary: 'Security mesh pronto.',
+              operatorSummary: 'Security mesh ready.',
               trustBoundary: 'Trust boundary clara.',
             },
           }),

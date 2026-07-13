@@ -27,6 +27,8 @@ const {
   validateRendererUrl,
 } = require('./api-path.cjs');
 const desktopUpdates = require('./desktop-updates.cjs');
+const { createDesktopElectronUpdater } = require('./desktop-electron-updater.cjs');
+const { resolveSigningStatus } = require('./desktop-update-signing.cjs');
 const {
   buildAutomationHistoryLogs,
   createAutomationSweepRunner,
@@ -50,6 +52,50 @@ const trustedWorkspaceRoots = new Set();
  * Prefer monorepo package.json when running from source; fall back to Electron package.
  */
 const DESKTOP_PRODUCT_VERSION = resolveDesktopProductVersion();
+
+/**
+ * Resolve the app window / notification icon for dev and packaged builds.
+ * Prefer build/ masters (electron-builder), then public/ (vite + dev), then dist/.
+ * @returns {string | undefined}
+ */
+function resolveAppIcon() {
+  /** @type {string[]} */
+  const candidates = [];
+
+  try {
+    if (app.isPackaged) {
+      const appPath = app.getAppPath();
+      candidates.push(
+        path.join(appPath, 'build', 'icon.png'),
+        path.join(appPath, 'build', 'icon.ico'),
+        path.join(appPath, 'dist', 'icon.png'),
+        path.join(appPath, 'public', 'icon.png'),
+        path.join(process.resourcesPath, 'build', 'icon.png'),
+        path.join(process.resourcesPath, 'icon.png'),
+      );
+    }
+  } catch {
+    // app may not be ready; fall through to relative candidates
+  }
+
+  candidates.push(
+    path.join(__dirname, '..', 'build', 'icon.png'),
+    path.join(__dirname, '..', 'build', 'icon.ico'),
+    path.join(__dirname, '..', 'public', 'icon.png'),
+    path.join(__dirname, '..', 'dist', 'icon.png'),
+  );
+
+  for (const candidate of candidates) {
+    try {
+      if (candidate && fs.existsSync(candidate)) {
+        return candidate;
+      }
+    } catch {
+      // try next
+    }
+  }
+  return undefined;
+}
 
 function resolveDesktopProductVersion() {
   /** @type {string[]} */
@@ -753,7 +799,7 @@ function createWindow() {
     minHeight: 620,
     backgroundColor: '#08090c',
     title: 'Zavorth',
-    icon: path.join(__dirname, '../public/icon.png'),
+    icon: resolveAppIcon(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
@@ -915,7 +961,7 @@ ipcMain.handle('zavorth:notification:send', async (_event, input) => {
     title,
     body,
     silent,
-    icon: path.join(__dirname, '..', 'dist', 'favicon.png'),
+    icon: resolveAppIcon(),
   });
 
   notification.on('click', () => {
@@ -1250,18 +1296,44 @@ function updateHomeDir() {
   }
 }
 
-ipcMain.handle('zavorth:check-updates', async () => {
-  return desktopUpdates.checkUpdates({
+// Phase 7 — electron-updater for packaged installers (GitHub fallback remains).
+const desktopElectronUpdater = createDesktopElectronUpdater({
+  isPackaged: () => {
+    try {
+      return Boolean(app.isPackaged);
+    } catch {
+      return false;
+    }
+  },
+  getVersion: () => DESKTOP_PRODUCT_VERSION || app.getVersion(),
+});
+
+function updateRuntimeOptions() {
+  return {
     currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
     homeDir: updateHomeDir(),
-  });
+    electronUpdater: desktopElectronUpdater,
+  };
+}
+
+function ensureElectronUpdaterConfigured() {
+  try {
+    if (app.isPackaged) {
+      desktopElectronUpdater.configure();
+    }
+  } catch {
+    // Dev / missing module — GitHub channel still works.
+  }
+}
+
+ipcMain.handle('zavorth:check-updates', async () => {
+  ensureElectronUpdaterConfigured();
+  return desktopUpdates.checkUpdates(updateRuntimeOptions());
 });
 
 ipcMain.handle('zavorth:updates:download', async () => {
-  return desktopUpdates.downloadUpdate({
-    currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
-    homeDir: updateHomeDir(),
-  });
+  ensureElectronUpdaterConfigured();
+  return desktopUpdates.downloadUpdate(updateRuntimeOptions());
 });
 
 ipcMain.handle('zavorth:updates:defer', async (_event, input = {}) => {
@@ -1272,9 +1344,9 @@ ipcMain.handle('zavorth:updates:defer', async (_event, input = {}) => {
 });
 
 ipcMain.handle('zavorth:updates:install', async () => {
+  ensureElectronUpdaterConfigured();
   return desktopUpdates.installUpdate({
-    currentVersion: DESKTOP_PRODUCT_VERSION || app.getVersion(),
-    homeDir: updateHomeDir(),
+    ...updateRuntimeOptions(),
     allowSetupFallback: true,
     startSetup: async (extra = {}) => launchGuidedSetup(extra),
   });
@@ -1286,6 +1358,15 @@ ipcMain.handle('zavorth:updates:rollback', async () => {
 
 ipcMain.handle('zavorth:updates:open-github', async () => {
   return desktopUpdates.openGithubReleases({});
+});
+
+ipcMain.handle('zavorth:updates:engine-status', async () => {
+  ensureElectronUpdaterConfigured();
+  return {
+    ok: true,
+    electronUpdater: desktopElectronUpdater.getStatus(),
+    signing: resolveSigningStatus(process.env),
+  };
 });
 
 function isProcessAlive(pid) {
@@ -1389,6 +1470,7 @@ ipcMain.handle('zavorth:open-window', async () => {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
+    icon: resolveAppIcon(),
     webPreferences: {
       preload: require('path').join(__dirname, 'preload.cjs'),
       contextIsolation: true,

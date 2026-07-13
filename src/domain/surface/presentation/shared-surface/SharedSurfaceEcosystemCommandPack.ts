@@ -95,73 +95,12 @@ export class SharedSurfaceEcosystemCommandPack {
     }
   }
 
-  public async maybeHandleNaturalInvocation(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const text = String(rawText || '').trim();
-    if (!this.looksLikeNaturalInvocation(text)) {
-      return false;
-    }
-
-    const runtimeCommand = this.parseNaturalAgentRuntimeCommand(ctx, text);
-    if (runtimeCommand) {
-      const snapshot = await this.subagentInvocationGateway.executeCommand(runtimeCommand);
-      await replyWithSharedSurfaceResponse(ctx, this.agentSurfaceUx.buildSubagentRuntimeResponse(snapshot));
-      return true;
-    }
-
-    if (this.perceptionInvocationRouter.canHandle(text)) {
-      const plan = this.perceptionInvocationRouter.plan({
-        text,
-        channel: ctx.platform || 'shared-surface',
-        actorId: String(ctx.userId || '').trim() || null,
-        sourceSurface: ctx.platform || 'shared-surface',
-      });
-      if (plan.primaryRoute === 'subagent_perception' && plan.commands.subagent) {
-        const snapshot = await this.subagentInvocationGateway.invoke({
-          source: 'channel',
-          text: plan.commands.subagent.task,
-          channel: ctx.platform || 'shared-surface',
-          actorId: String(ctx.userId || '').trim() || null,
-          threadId: String(ctx.chatId || '').trim() || null,
-          mode: plan.commands.subagent.mode,
-          roleIds: plan.commands.subagent.runtimeRoleIds,
-          live: false,
-          mockLive: false,
-          securityProfile: 'perception-readonly',
-          persistState: true,
-        });
-        await replyWithSharedSurfaceResponse(ctx, this.perceptionInvocationRouter.buildSurfaceResponse(plan, {
-          subagentRuntime: snapshot,
-        }));
-        return true;
-      }
-      if (plan.primaryRoute === 'android' && plan.commands.android) {
-        const snapshot = await this.androidAdbBridge.execute(plan.commands.android);
-        await replyWithSharedSurfaceResponse(ctx, this.androidAdbBridge.buildSurfaceResponse(snapshot));
-        return true;
-      }
-      if (plan.primaryRoute === 'browser' && plan.commands.browser) {
-        const snapshot = await this.browserVisionBridge.execute(plan.commands.browser);
-        await replyWithSharedSurfaceResponse(ctx, this.browserVisionBridge.buildSurfaceResponse(snapshot));
-        return true;
-      }
-      if (plan.primaryRoute === 'computer' && plan.commands.computer) {
-        const snapshot = await this.computerControlPlane.execute(plan.commands.computer);
-        await replyWithSharedSurfaceResponse(ctx, this.computerControlPlane.buildSurfaceResponse(snapshot));
-        return true;
-      }
-      if (plan.primaryRoute === 'deny' || plan.primaryRoute === 'ask_approval') {
-        await replyWithSharedSurfaceResponse(ctx, this.perceptionInvocationRouter.buildSurfaceResponse(plan));
-        return true;
-      }
-      if (plan.commands.vision) {
-        const snapshot = this.visionControlPlane.buildSnapshot(plan.commands.vision);
-        await replyWithSharedSurfaceResponse(ctx, this.visionControlPlane.buildSurfaceResponse(snapshot));
-        return true;
-      }
-    }
-
-    await this.handleInvoke(ctx, text, { naturalText: true });
-    return true;
+  /**
+   * Free-text natural invocation removed (agent-first).
+   * Use slash: /invoke, /agents, etc. Kept as no-op so callers/tests do not re-wire regex paths.
+   */
+  public async maybeHandleNaturalInvocation(_ctx: IMessageContext, _rawText: string): Promise<boolean> {
+    return false;
   }
 
   private async handlePlatform(ctx: IMessageContext, args: string): Promise<void> {
@@ -1032,7 +971,7 @@ export class SharedSurfaceEcosystemCommandPack {
     const verb = String(tokens[0] || '').trim().toLowerCase();
     const channel = ctx.platform || 'shared-surface';
     const actorId = String(ctx.userId || '').trim() || null;
-    if (!verb || ['status', 'list', 'ls', 'history', 'timeline', 'running', 'rodando'].includes(verb)) {
+    if (!verb || ['status', 'list', 'ls', 'history', 'timeline', 'running', 'running'].includes(verb)) {
       return {
         action: 'subagents.list',
         channel,

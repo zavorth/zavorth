@@ -11,13 +11,9 @@ import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurface
 import {
   extractRecentTaskContextKeywords,
   normalizeNaturalTaskText,
-  parseNaturalRecentTaskFollowupIntent,
-  parseNaturalTaskApprovalIntent,
-  parseNaturalTaskControlIntent,
-  type NaturalRecentTaskFollowupIntent,
-  type NaturalTaskApprovalIntent,
-  type NaturalTaskControlIntent,
-} from './SharedSurfaceTaskNaturalLanguage.js';type TaskApprovalController = {
+} from './SharedSurfaceTaskNaturalLanguage.js';
+
+type TaskApprovalController = {
   handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
   handleRejection: (ctx: SurfaceControllerContext, taskId: string) => Promise<void>;
 };
@@ -58,48 +54,9 @@ export type SharedSurfaceTaskControlCommandPackDeps = {
 export class SharedSurfaceTaskControlCommandPack {
   public constructor(private readonly deps: SharedSurfaceTaskControlCommandPackDeps) {}
 
-  public async maybeHandleNaturalTaskApproval(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const intent =
-      !String(rawText || '').trim().startsWith('/')
-        ? parseNaturalTaskApprovalIntent(rawText)
-        : null;
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleNaturalTaskApprovalIntent(ctx, intent);
-    return true;
-  }
-
-  public async maybeHandleNaturalTaskControl(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const intent =
-      !String(rawText || '').trim().startsWith('/')
-        ? parseNaturalTaskControlIntent(rawText)
-        : null;
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleNaturalTaskControlIntent(ctx, intent);
-    return true;
-  }
-
-  public async maybeHandleNaturalRecentTaskFollowup(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const intent =
-      !String(rawText || '').trim().startsWith('/')
-        ? parseNaturalRecentTaskFollowupIntent(rawText)
-        : null;
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleNaturalRecentTaskFollowupIntent(ctx, intent);
-    return true;
-  }
-
   public async handleTaskApprovalCommand(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.taskApprovalController) {
-      await ctx.reply('Task approval indisponivel nesta surface compartilhada.');
+      await ctx.reply('Task approval is not available on this shared surface.');
       return;
     }
 
@@ -112,14 +69,14 @@ export class SharedSurfaceTaskControlCommandPack {
     try {
       await this.deps.taskApprovalController.handleApproval(surfaceCtx, args);
     } catch (error: unknown) {await ctx.reply(
-        `Nao consegui aprovar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
+        `Could not approve that task right now.\n\nReason: ${getErrorMessage(error)}`,
       );
     }
   }
 
   public async handleTaskRejectionCommand(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.taskApprovalController) {
-      await ctx.reply('Task approval indisponivel nesta surface compartilhada.');
+      await ctx.reply('Task approval is not available on this shared surface.');
       return;
     }
 
@@ -141,14 +98,14 @@ export class SharedSurfaceTaskControlCommandPack {
     try {
       await this.deps.taskApprovalController.handleRejection(surfaceCtx, taskId);
     } catch (error: unknown) {await ctx.reply(
-        `Nao consegui rejeitar essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
+        `Could not reject that task right now.\n\nReason: ${getErrorMessage(error)}`,
       );
     }
   }
 
   public async handleTaskUndoCommand(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.taskExecutionController) {
-      await ctx.reply('Undo de tarefa indisponivel nesta surface compartilhada.');
+      await ctx.reply('Task undo is not available on this shared surface.');
       return;
     }
 
@@ -161,7 +118,7 @@ export class SharedSurfaceTaskControlCommandPack {
       this.resolveRecentTaskControl(ctx, 'undo', []);
     if (!task) {
       await ctx.reply(
-        'Nao encontrei uma tarefa recente com rollback disponivel. Use /undo <task_id> se quiser ser mais explicito.',
+        'Could not find a recent task with rollback available. Use /undo <task_id> if you want to be more explicit.',
       );
       return;
     }
@@ -175,83 +132,9 @@ export class SharedSurfaceTaskControlCommandPack {
     try {
       await this.deps.taskExecutionController.handleUndo(surfaceCtx, task.task_id);
     } catch (error: unknown) {await ctx.reply(
-        `Nao consegui desfazer essa tarefa agora.\n\nMotivo: ${getErrorMessage(error)}`,
+        `Could not undo that task right now.\n\nReason: ${getErrorMessage(error)}`,
       );
     }
-  }
-
-  private async handleNaturalTaskApprovalIntent(
-    ctx: IMessageContext,
-    intent: NaturalTaskApprovalIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    const taskId =
-      intent.taskId ||
-      (intent.resolveRecent
-        ? this.resolveRecentTaskApprovalId(ctx, intent.resolveRecent.keywords)
-        : null);
-    if (!taskId) {
-      await ctx.reply(
-        'Nao encontrei uma tarefa recente com approval pendente para essa referencia. Use /approve <task_id> ou /reject <task_id> se quiser ser mais explicito.',
-      );
-      return;
-    }
-
-    if (intent.command === 'approve') {
-      await this.handleTaskApprovalCommand(ctx, taskId);
-      return;
-    }
-    await this.handleTaskRejectionCommand(ctx, taskId);
-  }
-
-  private async handleNaturalTaskControlIntent(
-    ctx: IMessageContext,
-    intent: NaturalTaskControlIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    const task =
-      (intent.taskId ? this.resolveTaskReference(intent.taskId, ctx) : null) ||
-      (intent.resolveRecent
-        ? this.resolveRecentTaskControl(ctx, intent.action, intent.resolveRecent.keywords)
-        : null);
-    if (!task) {
-      const actionLabel = intent.action === 'resume' ? 'retomada' : 'rollback';
-      await ctx.reply(
-        `Nao encontrei uma tarefa recente com ${actionLabel} disponivel para essa referencia.`,
-      );
-      return;
-    }
-
-    if (intent.action === 'undo') {
-      await this.handleTaskUndoCommand(ctx, task.task_id);
-      return;
-    }
-
-    if (intent.action === 'retry') {
-      await this.handleTaskRetry(ctx, task);
-      return;
-    }
-
-    await this.handleTaskResume(ctx, task);
-  }
-
-  private async handleNaturalRecentTaskFollowupIntent(
-    ctx: IMessageContext,
-    intent: NaturalRecentTaskFollowupIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    const task = this.resolveRecentTaskReference(ctx, intent.keywords);
-    if (!task) {
-      await ctx.reply('Nao encontrei nenhuma tarefa recente sua para correlacionar com essa pergunta.');
-      return;
-    }
-
-    if (intent.kind === 'next') {
-      await ctx.reply(this.formatRecentTaskNextStepReply(task));
-      return;
-    }
-
-    await ctx.reply(RecentTaskResolver.formatTaskStatus(task));
   }
 
   public extractRecentTaskContextKeywords(rawText: string): string[] {
@@ -262,7 +145,7 @@ export class SharedSurfaceTaskControlCommandPack {
     const workflowRunId = String(task.metadata?.workflow_run_id || '').trim();
     if (workflowRunId && this.isSurfaceResumableTask(task)) {
       await ctx.reply(
-        'Essa tarefa ainda esta ligada a um workflow com retomada canonica. Vou retomar o workflow em vez de abrir uma copia nova.',
+        'This task is still linked to a resumable workflow. I will resume the workflow instead of opening a new copy.',
       );
       await this.handleTaskResume(ctx, task);
       return;
@@ -270,21 +153,21 @@ export class SharedSurfaceTaskControlCommandPack {
 
     if (!StateMachine.canRetry(String(task.status || '').trim() as Task['status'])) {
       await ctx.reply(
-        `${RecentTaskResolver.formatTaskStatus(task)}\n\nEssa tarefa nao esta em um estado que eu possa reabrir com seguranca como retry.`,
+        `${RecentTaskResolver.formatTaskStatus(task)}\n\nThis task is not in a state I can safely reopen as a retry.`,
       );
       return;
     }
 
     if (!this.deps.surfaceTaskDispatcher) {
       await ctx.reply(
-        `${RecentTaskResolver.formatTaskStatus(task)}\n\nEste runtime nao expoe o dispatcher canonico para reabrir a tarefa como um novo pedido.`,
+        `${RecentTaskResolver.formatTaskStatus(task)}\n\nThis runtime does not expose the canonical dispatcher to reopen the task as a new request.`,
       );
       return;
     }
 
     const originalText = String(task.raw_message || task.normalized_message || '').trim();
     if (!originalText) {
-      await ctx.reply('Nao encontrei o pedido original dessa tarefa para abrir um retry canonico.');
+      await ctx.reply('Could not find the original request for this task to open a canonical retry.');
       return;
     }
 
@@ -310,7 +193,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
     await ctx.reply(
       [
-        'Reabri esse pedido como uma nova tarefa canonica.',
+        'I reopened that request as a new canonical task.',
         '',
         `Task original: ${task.task_id}`,
         `Nova task: ${String(result.task?.task_id || '').trim() || 'n/d'}`,
@@ -588,7 +471,7 @@ export class SharedSurfaceTaskControlCommandPack {
     return [
       RecentTaskResolver.formatTaskStatus(task),
       '',
-      `Proximo passo: ${this.describeRecentTaskNextStep(task)}`,
+      `Next step: ${this.describeRecentTaskNextStep(task)}`,
     ].join('\n');
   }
 
@@ -596,26 +479,26 @@ export class SharedSurfaceTaskControlCommandPack {
     const workflowRunId = String(task.metadata?.workflow_run_id || '').trim();
 
     if (this.isPendingTaskApproval(task)) {
-      return `aprovar a tarefa com /approve ${task.task_id} para liberar a execucao.`;
+      return `approve the task with /approve ${task.task_id} to allow execution.`;
     }
 
     if (workflowRunId) {
-      return `retomar o workflow com "continue a tarefa" ou /workflow resume ${workflowRunId}.`;
+      return `resume the workflow with "continue the task" or /workflow resume ${workflowRunId}.`;
     }
 
     if (this.isUndoableTask(task)) {
-      return `se quiser desfazer o que ela alterou, use /undo ${task.task_id} ou diga "desfaca a ultima tarefa".`;
+      return `if you want to undo what it changed, use /undo ${task.task_id} or say "undo the last task".`;
     }
 
     if (StateMachine.isActive(String(task.status || '').trim() as Task['status'])) {
-      return 'acompanhar a execucao ou pedir status novamente em alguns instantes.';
+      return 'watch the run or ask for status again in a moment.';
     }
 
     if (StateMachine.canRetry(String(task.status || '').trim() as Task['status']) && this.canCanonicallyResumeTaskExecution(task)) {
-      return 'essa tarefa pode ser refeita como um novo pedido, mas a shared surface ainda evita retry implicito desse task id.';
+      return 'this task can be redone as a new request, but the shared surface still avoids an implicit retry for this task id.';
     }
 
-    return 'revisar o resumo entregue e, se necessario, abrir um novo pedido a partir desse contexto.';
+    return 'review the delivered summary and, if needed, open a new request from that context.';
   }
 
   private isUndoableTask(task: Task): boolean {
@@ -677,21 +560,21 @@ export class SharedSurfaceTaskControlCommandPack {
 
     if (this.isPendingTaskApproval(task)) {
       await ctx.reply(
-        `${RecentTaskResolver.formatTaskStatus(task)}\n\nProximo passo: aprove a tarefa antes de pedir retomada.`,
+        `${RecentTaskResolver.formatTaskStatus(task)}\n\nNext step: approve the task before asking to resume.`,
       );
       return;
     }
 
     if (!this.deps.taskExecutionController || !this.deps.taskManager?.advanceState) {
       await ctx.reply(
-        `${RecentTaskResolver.formatTaskStatus(task)}\n\nEste runtime nao expoe retomada canonica de tarefa pela shared surface.`,
+        `${RecentTaskResolver.formatTaskStatus(task)}\n\nThis runtime does not expose canonical task resume on the shared surface.`,
       );
       return;
     }
 
     if (!this.canCanonicallyResumeTaskExecution(task)) {
       await ctx.reply(
-        `${RecentTaskResolver.formatTaskStatus(task)}\n\nEssa tarefa nao tem retomada canonica suficiente para eu continuar daqui com seguranca.`,
+        `${RecentTaskResolver.formatTaskStatus(task)}\n\nThis task does not have enough canonical resume state for me to continue safely from here.`,
       );
       return;
     }

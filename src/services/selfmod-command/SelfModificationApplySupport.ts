@@ -4,6 +4,7 @@ import fs from 'fs';
 import type { SafeModificationService } from '../SafeModificationService.js';
 import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
 import { logger } from '../../logger.js';
+import { tService } from '../../i18n/services.js';
 import {
 PREVIEW_TTL_MS,
   type AppliedChangeRecord,
@@ -41,7 +42,7 @@ export class SelfModificationApplySupport {
           success: false,
           mode: 'file',
           previewId,
-          summary: 'Nao encontrei esse preview. Gere um novo antes de aplicar.',
+          summary: 'Preview not found. Generate a new one before applying.',
         };
       }
 
@@ -51,7 +52,7 @@ export class SelfModificationApplySupport {
           mode: artifact.kind,
           previewId,
           relativePath: artifact.kind === 'file' ? artifact.relativePath : undefined,
-          summary: 'Esse preview foi gerado por outro usuario autorizado e nao pode ser aplicado aqui.',
+          summary: 'This preview was created by another authorized user and cannot be applied here.',
         };
       }
 
@@ -62,7 +63,7 @@ export class SelfModificationApplySupport {
           mode: artifact.kind,
           previewId,
           relativePath: artifact.kind === 'file' ? artifact.relativePath : undefined,
-          summary: 'Esse preview expirou. Gere um novo antes de aplicar.',
+          summary: 'This preview expired. Generate a new one before applying.',
         };
       }
 
@@ -78,7 +79,7 @@ export class SelfModificationApplySupport {
         success: false,
         mode: 'file',
         previewId,
-        summary: `Nao consegui aplicar esse preview.\n\nMotivo: ${err.message}`,
+        summary: `Could not apply this preview.\n\nReason: ${err.message}`,
       };
   }
   }
@@ -93,7 +94,7 @@ export class SelfModificationApplySupport {
         success: false,
         changeId,
         restoredFiles: 0,
-        summary: 'Nao encontrei esse change_id para rollback.',
+        summary: tService('selfmod.apply.change_id_not_found'),
       };
     }
 
@@ -104,7 +105,7 @@ export class SelfModificationApplySupport {
           success: false,
           changeId,
           restoredFiles: 0,
-          summary: 'Esse change_id foi aplicado por outro usuario autorizado e nao pode ser revertido aqui.',
+          summary: tService('selfmod.apply.change_id_other_user'),
         };
       }
 
@@ -127,7 +128,7 @@ export class SelfModificationApplySupport {
             success: false,
             changeId,
             restoredFiles,
-            summary: `Rollback interrompido em ${change.relativePath}: ${restoreResult.reason}`,
+            summary: tService('selfmod.apply.rollback_interrupted', { path: change.relativePath, reason: restoreResult.reason }),
           };
         }
         restoredFiles += 1;
@@ -142,7 +143,7 @@ export class SelfModificationApplySupport {
         success: true,
         changeId,
         restoredFiles,
-        summary: `Rollback concluido para ${restoredFiles} arquivo(s).`,
+        summary: tService('selfmod.apply.rollback_completed', { count: String(restoredFiles) }),
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -151,7 +152,7 @@ export class SelfModificationApplySupport {
         success: false,
         changeId,
         restoredFiles: 0,
-        summary: `Nao consegui concluir o rollback.\n\nMotivo: ${err.message || error}`,
+        summary: `Could not complete the rollback.\n\nReason: ${err.message || error}`,
       };
   }
   }
@@ -170,7 +171,7 @@ export class SelfModificationApplySupport {
         previewId: artifact.previewId,
         relativePath: artifact.relativePath,
         summary:
-          'O arquivo mudou desde que o preview foi gerado. Para evitar aplicar um patch obsoleto, gere um preview novo.',
+          'The file changed since the preview was generated. Generate a new preview to avoid applying a stale patch.',
       };
     }
 
@@ -261,8 +262,7 @@ export class SelfModificationApplySupport {
             success: false,
             mode: 'goal',
             previewId: artifact.previewId,
-            summary:
-              `O arquivo ${change.relativePath} mudou desde que o preview foi gerado. Gere um novo changeset antes de aplicar.`,
+            summary: tService('selfmod.apply.file_changed', { path: change.relativePath }),
             diffSummary: change.diffSummary,
           };
         }
@@ -276,7 +276,7 @@ export class SelfModificationApplySupport {
             success: false,
             mode: 'goal',
             previewId: artifact.previewId,
-            summary: `A validacao falhou novamente em ${change.relativePath}. O apply foi bloqueado.`,
+            summary: tService('selfmod.apply.validation_failed_again', { path: change.relativePath }),
             diffSummary: change.diffSummary,
           };
         }
@@ -291,7 +291,7 @@ export class SelfModificationApplySupport {
             success: false,
             mode: 'goal',
             previewId: artifact.previewId,
-            summary: `Falha ao aplicar ${change.relativePath}. O Zavorth executou rollback automatico do changeset parcial.`,
+            summary: tService('selfmod.apply.apply_failed_rollback', { path: change.relativePath }),
             diffSummary: change.diffSummary,
           };
         }
@@ -336,7 +336,7 @@ export class SelfModificationApplySupport {
         previewId: artifact.previewId,
         changeId,
         changeCount: applied.length,
-        summary: `${artifact.summary}\n\nChangeSet aplicado com sucesso em ${applied.length} arquivo(s).`,
+        summary: `${artifact.summary}\n\n${tService('selfmod.apply.changeset_applied', { count: String(applied.length) })}`,
         diffSummary: applied
           .map((entry) => entry.diffSummary)
           .filter(Boolean)
@@ -349,7 +349,7 @@ export class SelfModificationApplySupport {
         success: false,
         mode: 'goal',
         previewId: artifact.previewId,
-        summary: `Falha ao aplicar o changeset. Rollback automatico executado.\n\nMotivo: ${err.message || error}`,
+        summary: tService('selfmod.apply.changeset_failed'),
       };
     }
   }

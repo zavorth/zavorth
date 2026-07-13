@@ -1,0 +1,38 @@
+{
+  "name": "@zavorth/plugin-sdk",
+  "version": "0.3.0",
+  "description": "Publishable Plugin OS authoring surface for Zavorth (definePlugin, presets, inference).",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "zavorth",
+    "plugin-os",
+    "definePlugin"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "sync": "node ./scripts/sync-from-monorepo.mjs",
+    "prepublishOnly": "npm run build",
+    "publish:dry-run": "npm publish --dry-run",
+    "publish:check": "node ./scripts/publish-check.mjs",
+    "test": "node -e \"const s=require('./src/index.js'); if(typeof s.definePlugin!=='function') process.exit(1); console.log('ok')\"",
+    "harness": "node ./scripts/harness-check.mjs",
+    "check": "npm run build && npm test && npm run harness"
+  }
+}

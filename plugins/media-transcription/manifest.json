@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "media-transcription",
+  "label": "Media Transcription",
+  "version": "1.0.0",
+  "moduleKind": "voice",
+  "summary": "Soft-fail OpenAI-compatible Whisper transcription (audio/transcriptions).",
+  "description": "Wave 4 media pack. Reads a workspace-local audio file and POSTs multipart to OpenAI-compatible /audio/transcriptions when OPENAI_API_KEY and network.external are available. Path-traversal safe. Soft-fail without key or file. URL-only input returns setup tips (not fetched by default).",
+  "tags": ["media", "transcription", "stt", "whisper", "wave4"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://media-transcription",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.transcription.status",
+      "intent": "media.transcription.status",
+      "label": "Transcription Status",
+      "summary": "Report OpenAI key/base URL presence for Whisper STT (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_transcription_status",
+        "aliases": ["stt_status", "transcribe_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "media.transcription.transcribe",
+      "intent": "media.transcription.transcribe",
+      "label": "Transcribe Audio",
+      "summary": "Soft Whisper transcription of a workspace-relative audio path.",
+      "artifactKinds": ["speech.transcript"],
+      "command": {
+        "name": "media_transcription_transcribe",
+        "aliases": ["transcribe", "stt"],
+        "usage": "{ path|file|filePath, model?, language? } or { url } (soft tip)"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call OpenAI-compatible /audio/transcriptions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read workspace-local audio files for transcription.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether OPENAI_API_KEY is set (not the value).",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke Whisper / transcription provider endpoint.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["speech.transcript"],
+  "receiptKinds": ["media-transcription.receipt"]
+}

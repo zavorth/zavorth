@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-webhook",
+  "label": "Platform Webhook",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail generic HTTPS outbound webhook channel (Slack-style or raw JSON).",
+  "description": "Wave 2 platform pack. POSTs JSON payloads to a configured HTTPS webhook URL. Supports optional per-call https URL override with SSRF-safe host checks. Soft-fail without URL or network.external permission. Never exposes secret URL values in status.",
+  "tags": ["platform", "webhook", "channel", "wave2", "messaging"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-webhook",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.webhook.status",
+      "intent": "platform.webhook.status",
+      "label": "Webhook Status",
+      "summary": "Report configured webhook URL presence (no URL values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_webhook_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "platform.webhook.send",
+      "intent": "platform.webhook.send",
+      "label": "Webhook Send",
+      "summary": "POST JSON to configured or SSRF-safe override HTTPS webhook.",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_webhook_send",
+        "aliases": [],
+        "usage": "{ text, title?, severity?, payload?, url? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "POST JSON to an external HTTPS webhook URL.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver messages on the webhook channel.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect configured webhook URL presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-webhook.receipt"]
+}

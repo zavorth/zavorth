@@ -1,0 +1,1318 @@
+{
+  "schemaVersion": "zavorth.plugin-marketplace-remote.v1",
+  "generatedAt": "2026-07-13T03:31:58.359Z",
+  "count": 50,
+  "notes": [
+    "Host this JSON over HTTPS (public host).",
+    "Set ZAVORTH_PLUGIN_MARKETPLACE_URL to the hosted catalog URL.",
+    "If source is bundled://, installers prefer local plugins/ copy when present.",
+    "Replace source with https://…/*.tgz for true remote package delivery."
+  ],
+  "entries": [
+    {
+      "id": "web-search",
+      "name": "Web Search",
+      "summary": "Search the web via SearXNG, Exa, or setup guidance.",
+      "description": "Search the web via SearXNG, Exa, or setup guidance.",
+      "moduleKind": "search",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "web",
+        "query"
+      ],
+      "permissions": [
+        "network.external"
+      ],
+      "source": "bundled://web-search",
+      "sourceLocator": "bundled://web-search",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "summary": "GitHub CLI bridge for status, PRs, and issues.",
+      "description": "GitHub CLI bridge for status, PRs, and issues.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "github",
+        "pr",
+        "issue",
+        "bridge"
+      ],
+      "permissions": [
+        "process.spawn",
+        "network.external"
+      ],
+      "source": "bundled://github",
+      "sourceLocator": "bundled://github",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "memory-local",
+      "name": "Local Memory",
+      "summary": "Workspace-local key/value memory under .zavorth/memory-local.",
+      "description": "Workspace-local key/value memory under .zavorth/memory-local.",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "local",
+        "store"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "memory.read",
+        "memory.write"
+      ],
+      "source": "bundled://memory-local",
+      "sourceLocator": "bundled://memory-local",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "memory-honcho",
+      "name": "Memory Honcho",
+      "summary": "Optional Honcho memory backend with soft-fail status.",
+      "description": "Optional Honcho memory backend with soft-fail status.",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "honcho"
+      ],
+      "permissions": [
+        "memory.read",
+        "memory.write"
+      ],
+      "source": "bundled://memory-honcho",
+      "sourceLocator": "bundled://memory-honcho",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "cost-tracker",
+      "name": "Cost Tracker",
+      "summary": "LLM cost/token ledger via before/after request hooks.",
+      "description": "LLM cost/token ledger via before/after request hooks.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "cost",
+        "llm",
+        "tokens",
+        "hooks"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://cost-tracker",
+      "sourceLocator": "bundled://cost-tracker",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "browser-playwright",
+      "name": "Browser Playwright",
+      "summary": "Open pages via Playwright with soft-fail install tips.",
+      "description": "Open pages via Playwright with soft-fail install tips.",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "browser",
+        "playwright",
+        "navigate"
+      ],
+      "permissions": [
+        "network.external",
+        "process.spawn"
+      ],
+      "source": "bundled://browser-playwright",
+      "sourceLocator": "bundled://browser-playwright",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "security-guidance",
+      "name": "Security Guidance",
+      "summary": "Non-blocking dangerous-pattern scanner for tool writes.",
+      "description": "Non-blocking dangerous-pattern scanner for tool writes.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "security",
+        "scan",
+        "hooks"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://security-guidance",
+      "sourceLocator": "bundled://security-guidance",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "plugin-router-ai",
+      "name": "Plugin Router AI",
+      "summary": "Recommend plugins for natural-language intents (no auto-enable).",
+      "description": "Recommend plugins for natural-language intents (no auto-enable).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "router",
+        "recommend",
+        "plugins"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "provider.call"
+      ],
+      "source": "bundled://plugin-router-ai",
+      "sourceLocator": "bundled://plugin-router-ai",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "session-scratch-janitor",
+      "name": "Session Scratch Janitor",
+      "summary": "Cleans session scratch artifacts under policy.",
+      "description": "Cleans session scratch artifacts under policy.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "session",
+        "cleanup",
+        "janitor"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://session-scratch-janitor",
+      "sourceLocator": "bundled://session-scratch-janitor",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "selfmod-plugin-forge",
+      "name": "Self-Mod Plugin Forge",
+      "summary": "Plan and apply Plugin OS packages from natural-language intents.",
+      "description": "Plan and apply Plugin OS packages from natural-language intents.",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "forge",
+        "selfmod",
+        "scaffold",
+        "plugins"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://selfmod-plugin-forge",
+      "sourceLocator": "bundled://selfmod-plugin-forge",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "mcp-bridge",
+      "name": "MCP Bridge",
+      "summary": "List MCP servers, materialize bridge packages, and soft-invoke live MCP tools.",
+      "description": "List MCP servers, materialize bridge packages, and soft-invoke live MCP tools.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "mcp",
+        "bridge",
+        "materialize"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "network.external",
+        "process.spawn"
+      ],
+      "source": "bundled://mcp-bridge",
+      "sourceLocator": "bundled://mcp-bridge",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "summary": "Gmail bridge: list, local draft, approval-gated send.",
+      "description": "Gmail bridge: list, local draft, approval-gated send.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "gmail",
+        "email",
+        "google",
+        "draft"
+      ],
+      "permissions": [
+        "network.external",
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://gmail",
+      "sourceLocator": "bundled://gmail",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "calendar",
+      "name": "Calendar",
+      "summary": "Local file calendar with approval-gated create.",
+      "description": "Local file calendar with approval-gated create.",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "calendar",
+        "events",
+        "schedule"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://calendar",
+      "sourceLocator": "bundled://calendar",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "summary": "Linear issue bridge via GraphQL (approval for create).",
+      "description": "Linear issue bridge via GraphQL (approval for create).",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "linear",
+        "issues",
+        "project"
+      ],
+      "permissions": [
+        "network.external"
+      ],
+      "source": "bundled://linear",
+      "sourceLocator": "bundled://linear",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "summary": "Notion search and page create (approval for mutations).",
+      "description": "Notion search and page create (approval for mutations).",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "notion",
+        "docs",
+        "pages"
+      ],
+      "permissions": [
+        "network.external"
+      ],
+      "source": "bundled://notion",
+      "sourceLocator": "bundled://notion",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "workspace-doctor",
+      "name": "Workspace Doctor",
+      "summary": "One-shot workspace health: runtime, git, gh, docker, env keys, plugins.",
+      "description": "One-shot workspace health: runtime, git, gh, docker, env keys, plugins.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "doctor",
+        "onboarding",
+        "health",
+        "setup",
+        "accessibility",
+        "diagnostics",
+        "env"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "process.spawn"
+      ],
+      "source": "bundled://workspace-doctor",
+      "sourceLocator": "bundled://workspace-doctor",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "task-board",
+      "name": "Task Board",
+      "summary": "Local kanban/todo board for agent multi-step plans.",
+      "description": "Local kanban/todo board for agent multi-step plans.",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "todo",
+        "kanban",
+        "tasks",
+        "planning",
+        "board",
+        "local",
+        "agent"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://task-board",
+      "sourceLocator": "bundled://task-board",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "pr-ship",
+      "name": "PR Ship",
+      "summary": "Ship loop: branch status, diff, review checklist, PR draft/create.",
+      "description": "Ship loop: branch status, diff, review checklist, PR draft/create.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "pr",
+        "review",
+        "ship",
+        "git",
+        "github",
+        "diff",
+        "checklist",
+        "shipping"
+      ],
+      "permissions": [
+        "process.spawn",
+        "network.external",
+        "filesystem.read"
+      ],
+      "source": "bundled://pr-ship",
+      "sourceLocator": "bundled://pr-ship",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "ci-watch",
+      "name": "CI Watch",
+      "summary": "GitHub Actions status for the current branch via gh.",
+      "description": "GitHub Actions status for the current branch via gh.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "ci",
+        "github",
+        "actions",
+        "workflow",
+        "status",
+        "watch",
+        "shipping"
+      ],
+      "permissions": [
+        "process.spawn",
+        "network.external"
+      ],
+      "source": "bundled://ci-watch",
+      "sourceLocator": "bundled://ci-watch",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "secrets-guardian",
+      "name": "Secrets Guardian",
+      "summary": "Non-blocking scan for leaked secrets in text and tool writes.",
+      "description": "Non-blocking scan for leaked secrets in text and tool writes.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "security",
+        "scan",
+        "leak",
+        "credentials",
+        "diagnostics",
+        "hooks",
+        "trust"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://secrets-guardian",
+      "sourceLocator": "bundled://secrets-guardian",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "session-recall",
+      "name": "Session Recall",
+      "summary": "Search past receipts, memory, and Plugin OS artifacts under .zavorth.",
+      "description": "Search past receipts, memory, and Plugin OS artifacts under .zavorth.",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "recall",
+        "session",
+        "search",
+        "memory",
+        "receipts",
+        "history",
+        "local"
+      ],
+      "permissions": [
+        "filesystem.read"
+      ],
+      "source": "bundled://session-recall",
+      "sourceLocator": "bundled://session-recall",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "notify-outbox",
+      "name": "Notify Outbox",
+      "summary": "Local notification outbox with optional Slack/Discord webhook deliver.",
+      "description": "Local notification outbox with optional Slack/Discord webhook deliver.",
+      "moduleKind": "channel",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "notify",
+        "slack",
+        "discord",
+        "webhook",
+        "outbox",
+        "channel",
+        "messaging",
+        "alerts"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "network.external"
+      ],
+      "source": "bundled://notify-outbox",
+      "sourceLocator": "bundled://notify-outbox",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "provider-openai-compatible",
+      "name": "OpenAI-Compatible Provider",
+      "summary": "Soft-fail OpenAI-compatible chat completions (OpenAI, OpenRouter, local).",
+      "description": "Soft-fail OpenAI-compatible chat completions (OpenAI, OpenRouter, local).",
+      "moduleKind": "provider",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "openai",
+        "openrouter",
+        "llm",
+        "wave1",
+        "complete"
+      ],
+      "permissions": [
+        "network.external",
+        "provider.call",
+        "secret.read"
+      ],
+      "source": "bundled://provider-openai-compatible",
+      "sourceLocator": "bundled://provider-openai-compatible",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "provider-anthropic",
+      "name": "Anthropic Provider",
+      "summary": "Soft-fail Anthropic Messages API completions.",
+      "description": "Soft-fail Anthropic Messages API completions.",
+      "moduleKind": "provider",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "anthropic",
+        "claude",
+        "llm",
+        "wave1"
+      ],
+      "permissions": [
+        "network.external",
+        "provider.call",
+        "secret.read"
+      ],
+      "source": "bundled://provider-anthropic",
+      "sourceLocator": "bundled://provider-anthropic",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "provider-xai",
+      "name": "xAI / Grok Provider",
+      "summary": "Soft-fail xAI Grok chat completions.",
+      "description": "Soft-fail xAI Grok chat completions.",
+      "moduleKind": "provider",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "xai",
+        "grok",
+        "llm",
+        "wave1"
+      ],
+      "permissions": [
+        "network.external",
+        "provider.call",
+        "secret.read"
+      ],
+      "source": "bundled://provider-xai",
+      "sourceLocator": "bundled://provider-xai",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "provider-gemini",
+      "name": "Gemini Provider",
+      "summary": "Soft-fail Google Gemini generateContent API.",
+      "description": "Soft-fail Google Gemini generateContent API.",
+      "moduleKind": "provider",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "gemini",
+        "google",
+        "llm",
+        "wave1"
+      ],
+      "permissions": [
+        "network.external",
+        "provider.call",
+        "secret.read"
+      ],
+      "source": "bundled://provider-gemini",
+      "sourceLocator": "bundled://provider-gemini",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "provider-status",
+      "name": "Provider Pack Status",
+      "summary": "Aggregate status for Wave 1 provider plugins (key presence only).",
+      "description": "Aggregate status for Wave 1 provider plugins (key presence only).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "status",
+        "doctor",
+        "wave1",
+        "diagnostics"
+      ],
+      "permissions": [
+        "secret.read"
+      ],
+      "source": "bundled://provider-status",
+      "sourceLocator": "bundled://provider-status",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "platform-telegram",
+      "name": "Telegram Platform",
+      "summary": "Soft-fail Telegram Bot API channel for status and outbound send.",
+      "description": "Soft-fail Telegram Bot API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "telegram",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "permissions": [
+        "network.external",
+        "channel.send",
+        "secret.read"
+      ],
+      "source": "bundled://platform-telegram",
+      "sourceLocator": "bundled://platform-telegram",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "platform-discord",
+      "name": "Discord Platform",
+      "summary": "Soft-fail Discord Bot API channel for status and outbound send.",
+      "description": "Soft-fail Discord Bot API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "discord",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "permissions": [
+        "network.external",
+        "channel.send",
+        "secret.read"
+      ],
+      "source": "bundled://platform-discord",
+      "sourceLocator": "bundled://platform-discord",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "platform-whatsapp",
+      "name": "WhatsApp Platform",
+      "summary": "Soft-fail WhatsApp Cloud API channel for outbound text messages.",
+      "description": "Soft-fail WhatsApp Cloud API channel for outbound text messages.",
+      "moduleKind": "channel",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "whatsapp",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "permissions": [
+        "network.external",
+        "channel.send",
+        "secret.read"
+      ],
+      "source": "bundled://platform-whatsapp",
+      "sourceLocator": "bundled://platform-whatsapp",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "platform-webhook",
+      "name": "Webhook Platform",
+      "summary": "Generic HTTPS outbound webhook channel (SSRF-safe).",
+      "description": "Generic HTTPS outbound webhook channel (SSRF-safe).",
+      "moduleKind": "channel",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "webhook",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "permissions": [
+        "network.external",
+        "channel.send",
+        "secret.read"
+      ],
+      "source": "bundled://platform-webhook",
+      "sourceLocator": "bundled://platform-webhook",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "memory-file-journal",
+      "name": "Memory File Journal",
+      "summary": "Append-only JSONL journal memory under .zavorth/memory-file-journal.",
+      "description": "Append-only JSONL journal memory under .zavorth/memory-file-journal.",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "journal",
+        "append",
+        "local",
+        "wave3"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "memory.read",
+        "memory.write"
+      ],
+      "source": "bundled://memory-file-journal",
+      "sourceLocator": "bundled://memory-file-journal",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "memory-vector-local",
+      "name": "Memory Vector Local",
+      "summary": "Local bag-of-words vector memory with cosine search (no external deps).",
+      "description": "Local bag-of-words vector memory with cosine search (no external deps).",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "vector",
+        "local",
+        "embeddings",
+        "wave3"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "memory.read",
+        "memory.write"
+      ],
+      "source": "bundled://memory-vector-local",
+      "sourceLocator": "bundled://memory-vector-local",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "memory-mem0",
+      "name": "Memory Mem0",
+      "summary": "Soft-fail Mem0 remote memory backend (key + network optional).",
+      "description": "Soft-fail Mem0 remote memory backend (key + network optional).",
+      "moduleKind": "memory",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "mem0",
+        "remote",
+        "wave3",
+        "soft-fail"
+      ],
+      "permissions": [
+        "network.external",
+        "memory.read",
+        "memory.write",
+        "secret.read"
+      ],
+      "source": "bundled://memory-mem0",
+      "sourceLocator": "bundled://memory-mem0",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "media-image-gen",
+      "name": "Media Image Generation",
+      "summary": "Soft-fail image generation via OpenAI or xAI.",
+      "description": "Soft-fail image generation via OpenAI or xAI.",
+      "moduleKind": "media",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "image",
+        "image-gen",
+        "wave4",
+        "soft-fail"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://media-image-gen",
+      "sourceLocator": "bundled://media-image-gen",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "media-vision",
+      "name": "Media Vision",
+      "summary": "Soft-fail image describe via vision-capable chat APIs.",
+      "description": "Soft-fail image describe via vision-capable chat APIs.",
+      "moduleKind": "media",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "vision",
+        "image",
+        "describe",
+        "wave4"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://media-vision",
+      "sourceLocator": "bundled://media-vision",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "media-tts",
+      "name": "Media TTS",
+      "summary": "Soft-fail OpenAI-compatible text-to-speech.",
+      "description": "Soft-fail OpenAI-compatible text-to-speech.",
+      "moduleKind": "voice",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "tts",
+        "speech",
+        "wave4",
+        "soft-fail"
+      ],
+      "permissions": [
+        "network.external",
+        "filesystem.write",
+        "secret.read"
+      ],
+      "source": "bundled://media-tts",
+      "sourceLocator": "bundled://media-tts",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "media-transcription",
+      "name": "Media Transcription",
+      "summary": "Soft-fail Whisper-style audio transcription for workspace files.",
+      "description": "Soft-fail Whisper-style audio transcription for workspace files.",
+      "moduleKind": "voice",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "transcription",
+        "stt",
+        "whisper",
+        "wave4"
+      ],
+      "permissions": [
+        "network.external",
+        "filesystem.read",
+        "secret.read"
+      ],
+      "source": "bundled://media-transcription",
+      "sourceLocator": "bundled://media-transcription",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "media-video-gen",
+      "name": "Media Video Generation",
+      "summary": "Optional-tier soft video generation stub with setup tips.",
+      "description": "Optional-tier soft video generation stub with setup tips.",
+      "moduleKind": "media",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "video",
+        "video-gen",
+        "wave4",
+        "optional"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://media-video-gen",
+      "sourceLocator": "bundled://media-video-gen",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "browser-cdp",
+      "name": "Browser CDP",
+      "summary": "Soft-fail Chrome DevTools Protocol attach (local remote debugging).",
+      "description": "Soft-fail Chrome DevTools Protocol attach (local remote debugging).",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "browser",
+        "cdp",
+        "chrome",
+        "wave5",
+        "soft-fail"
+      ],
+      "permissions": [
+        "network.local",
+        "network.external"
+      ],
+      "source": "bundled://browser-cdp",
+      "sourceLocator": "bundled://browser-cdp",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "search-exa",
+      "name": "Search Exa",
+      "summary": "Dedicated Exa neural search soft-fail plugin.",
+      "description": "Dedicated Exa neural search soft-fail plugin.",
+      "moduleKind": "search",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "exa",
+        "wave5",
+        "soft-fail"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://search-exa",
+      "sourceLocator": "bundled://search-exa",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "search-firecrawl",
+      "name": "Search Firecrawl",
+      "summary": "Firecrawl scrape/search soft-fail (SSRF-safe public HTTPS).",
+      "description": "Firecrawl scrape/search soft-fail (SSRF-safe public HTTPS).",
+      "moduleKind": "search",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "firecrawl",
+        "crawl",
+        "extract",
+        "wave5"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://search-firecrawl",
+      "sourceLocator": "bundled://search-firecrawl",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "secret-source-env",
+      "name": "Secret Source Env",
+      "summary": "Allowlisted env secret presence checks (never returns values).",
+      "description": "Allowlisted env secret presence checks (never returns values).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "env",
+        "trust",
+        "wave6",
+        "soft-fail"
+      ],
+      "permissions": [
+        "secret.read"
+      ],
+      "source": "bundled://secret-source-env",
+      "sourceLocator": "bundled://secret-source-env",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "secret-source-file",
+      "name": "Secret Source File",
+      "summary": "Workspace-local secret store under .zavorth/secrets (names only in outputs).",
+      "description": "Workspace-local secret store under .zavorth/secrets (names only in outputs).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "file",
+        "trust",
+        "wave6",
+        "soft-fail"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write",
+        "secret.read"
+      ],
+      "source": "bundled://secret-source-file",
+      "sourceLocator": "bundled://secret-source-file",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "dashboard-auth-basic",
+      "name": "Dashboard Auth Basic",
+      "summary": "Soft basic-auth verify for control plane (env presence only for status).",
+      "description": "Soft basic-auth verify for control plane (env presence only for status).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "dashboard",
+        "auth",
+        "basic",
+        "wave6",
+        "trust"
+      ],
+      "permissions": [
+        "secret.read"
+      ],
+      "source": "bundled://dashboard-auth-basic",
+      "sourceLocator": "bundled://dashboard-auth-basic",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "dashboard-auth-token",
+      "name": "Dashboard Auth Token",
+      "summary": "Soft bearer-token verify for control plane.",
+      "description": "Soft bearer-token verify for control plane.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "dashboard",
+        "auth",
+        "token",
+        "wave6",
+        "trust"
+      ],
+      "permissions": [
+        "secret.read"
+      ],
+      "source": "bundled://dashboard-auth-token",
+      "sourceLocator": "bundled://dashboard-auth-token",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "context-engine-bridge",
+      "name": "Context Engine Bridge",
+      "summary": "Soft bridge to core context engine snapshot/recall when resolvable.",
+      "description": "Soft bridge to core context engine snapshot/recall when resolvable.",
+      "moduleKind": "bridge",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "context",
+        "engine",
+        "bridge",
+        "wave6",
+        "trust"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "memory.read"
+      ],
+      "source": "bundled://context-engine-bridge",
+      "sourceLocator": "bundled://context-engine-bridge",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "middleware-rate-limit",
+      "name": "Middleware Rate Limit",
+      "summary": "Hook-based soft rate limit for tool executions (never hard-crashes).",
+      "description": "Hook-based soft rate limit for tool executions (never hard-crashes).",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "middleware",
+        "rate-limit",
+        "hooks",
+        "wave6"
+      ],
+      "permissions": [
+        "filesystem.read",
+        "filesystem.write"
+      ],
+      "source": "bundled://middleware-rate-limit",
+      "sourceLocator": "bundled://middleware-rate-limit",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "spotify-soft",
+      "name": "Spotify Soft",
+      "summary": "Soft-fail Spotify Web API playback and search (optional lifestyle).",
+      "description": "Soft-fail Spotify Web API playback and search (optional lifestyle).",
+      "moduleKind": "tool",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "spotify",
+        "lifestyle",
+        "music",
+        "wave7",
+        "soft-fail",
+        "optional"
+      ],
+      "permissions": [
+        "network.external",
+        "secret.read"
+      ],
+      "source": "bundled://spotify-soft",
+      "sourceLocator": "bundled://spotify-soft",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    },
+    {
+      "id": "demo-showcase",
+      "name": "Demo Showcase",
+      "summary": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
+      "description": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
+      "moduleKind": "diagnostics",
+      "version": "1.0.0",
+      "tier": "first-party",
+      "tags": [
+        "demo",
+        "showcase",
+        "wave7",
+        "surface-parity",
+        "lifestyle"
+      ],
+      "permissions": [
+        "secret.read"
+      ],
+      "source": "bundled://demo-showcase",
+      "sourceLocator": "bundled://demo-showcase",
+      "signed": true,
+      "curated": true,
+      "digest": null,
+      "signature": null
+    }
+  ]
+}

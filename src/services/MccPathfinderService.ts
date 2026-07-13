@@ -36,12 +36,12 @@ export class MccPathfinderService {
   public async findShortestPath(startNodeId: string, endNodeId: string): Promise<string[]> {
     await this.init();
 
-    // Carrega todas as arestas do banco para busca em memória (extremamente rápido e local)
+    // Load all edges from the database for in-memory search (extremely fast and local)
     const edges = this.db.all<{ source_node_id: string; target_node_id: string }>(
       'SELECT source_node_id, target_node_id FROM mcc_edges'
     );
 
-    // Constrói lista de adjacências bidirecional (conexão semântica/relacional)
+    // Build bidirectional adjacency list (semantic/relational connection)
     const adjacencyList = new Map<string, Set<string>>();
     for (const edge of edges) {
       const src = edge.source_node_id;
@@ -58,7 +58,7 @@ export class MccPathfinderService {
       return [];
     }
 
-    // Algoritmo BFS para achar o caminho mínimo
+    // BFS algorithm to find the shortest path
     const queue: string[] = [startNodeId];
     const visited = new Set<string>([startNodeId]);
     const parentMap = new Map<string, string>();
@@ -86,7 +86,7 @@ export class MccPathfinderService {
       return [];
     }
 
-    // Reconstrói o caminho de trás para frente
+    // Reconstruct the path backwards
     const path: string[] = [];
     let curr = endNodeId;
     while (curr !== startNodeId) {
@@ -152,12 +152,12 @@ Respond with ONLY a JSON array of strings:
       }
     }
 
-    // Se não encontrou nenhum nó direto, retorna vazio
+    // If no direct node found, return empty
     if (matchedNodes.length === 0) {
       return '';
     }
 
-    // Se encontrou apenas um, retorna o conteúdo dele
+    // If only one found, return its content
     if (matchedNodes.length === 1) {
       const singleNode = this.db.get<PathNodeInfo>(
         'SELECT id, name, type, content FROM mcc_nodes WHERE id = ?',
@@ -167,14 +167,14 @@ Respond with ONLY a JSON array of strings:
       return `[GRAPH RAG] Related Element Found:\n- Name: ${singleNode.name} (${singleNode.type})\n- Path: ${singleNode.id}\n- Preview:\n${singleNode.content}\n`;
     }
 
-    // 2. Se há múltiplos nós, tentamos traçar o caminho conectivo mais curto
-    // que interliga os dois primeiros nós localizados
+    // 2. If there are multiple nodes, try to trace the shortest connecting path
+    // that connects the first two located nodes
     const startNode = matchedNodes[0];
     const endNode = matchedNodes[1];
     const pathIds = await this.findShortestPath(startNode, endNode);
 
     if (pathIds.length === 0) {
-      // Se não há caminho de conexão direto, retorna o conteúdo individual dos nós encontrados
+      // If there is no direct connection path, return the individual content of the found nodes
       const selectIds = matchedNodes.slice(0, 3);
       const nodesData = this.db.all<PathNodeInfo>(
         `SELECT id, name, type, content FROM mcc_nodes WHERE id IN (${selectIds.map(() => '?').join(',')})`,
@@ -188,13 +188,13 @@ Respond with ONLY a JSON array of strings:
       return context;
     }
 
-    // 3. Se há um caminho de conexão estrutural, extrai o conteúdo de todos no caminho
+    // 3. If there is a structural connection path, extract the content of all nodes in the path
     const nodesData = this.db.all<PathNodeInfo>(
       `SELECT id, name, type, content FROM mcc_nodes WHERE id IN (${pathIds.map(() => '?').join(',')})`,
       pathIds
     );
 
-    // Organiza na ordem do caminho
+    // Arrange in path order
     const orderedNodes = pathIds.map((id) => nodesData.find((n) => n.id === id)).filter(Boolean) as PathNodeInfo[];
 
     let context = `[GRAPH RAG] Relational Connection Chain (Shortest path found):\n`;

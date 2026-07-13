@@ -192,12 +192,12 @@ export class EchoSpeechSynthesisService {
         latencyMs: 0,
         requestedBy,
         sessionId,
-        error: String(errorMessage(error) || 'Falha ao sintetizar audio.'),
+        error: String(errorMessage(error) || 'Failed to synthesize audio.'),
       });
       return {
         ok: false,
         statusCode: 502,
-        error: errorMessage(error, 'Falha ao sintetizar audio.'),
+        error: errorMessage(error, 'Failed to synthesize audio.'),
         traceId,
       };
     } finally {

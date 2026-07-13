@@ -90,6 +90,8 @@ export interface ProviderChatOptions {
   modelName?: string;
   providerNativeTools?: ProviderNativeToolRequest[];
   signal?: AbortSignal;
+  /** Optional provider reasoning_effort / thinking budget (when supported). */
+  reasoningEffort?: 'none' | 'low' | 'medium' | 'high' | 'xhigh';
 }
 
 export type ProviderNativeToolName =

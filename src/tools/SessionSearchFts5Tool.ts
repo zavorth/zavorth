@@ -328,8 +328,8 @@ export class SessionSearchFts5Tool extends BaseTool {
       offset,
     };
 
-    if (mode === 'discover' && !query) return 'Erro: modo discover requer campo "query".';
-    if (mode === 'read' && !sessionId) return 'Erro: modo read requer campo "sessionId".';
+    if (mode === 'discover' && !query) return 'Error: modo discover requer campo "query".';
+    if (mode === 'read' && !sessionId) return 'Error: modo read requer campo "sessionId".';
     if (!['discover', 'scroll', 'read', 'browse'].includes(mode)) {
       return `Modo desconhecido: ${mode}. Use: discover, scroll, read, browse.`;
     }

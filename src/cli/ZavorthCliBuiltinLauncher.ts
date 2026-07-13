@@ -19,7 +19,8 @@ import { runProjectConstitutionCommand } from './constitution/ZavorthCliConstitu
 import { runBuiltinLauncherPart2 } from './ZavorthCliBuiltinLauncherPart2.js';
 import { runBuiltinLauncherPart3 } from './ZavorthCliBuiltinLauncherPart3.js';
 import { runMigrationUX } from './MigrationCli.js';
-import { runCapabilityFabricCli, runImportWorkspaceCli } from './CapabilityFabricCli.js';
+import { runCapabilityFabricCli } from './CapabilityFabricCli.js';
+// LearnSkillCli is dynamically imported on the learn-skill path to keep launcher light.
 import { runReachFabricCli } from './ReachFabricCli.js';
 import { runPowerFabricCli } from './PowerFabricCli.js';
 import { runProductFabricCli } from './ProductFabricCli.js';
@@ -32,6 +33,12 @@ import {
 import { runRiskBudgetCli } from './RiskBudgetCli.js';
 import { runChangePreviewCli } from './ChangePreviewCli.js';
 import { runMemoryPrivacyCli } from './MemoryPrivacyCli.js';
+import { naturalizeCliArgv } from './CliNaturalConvention.js';
+import {
+  formatConnectHelp,
+  resolveConnectIntent,
+  resolveLearnIntent,
+} from './ZavorthCliIntentCommands.js';
 
 // Shared infrastructure imports
 import {
@@ -72,8 +79,11 @@ import {
 } from './ZavorthCliPremiumHandlers.js';
 
 export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
-  const command = String(rawArgs[0] || '').trim().toLowerCase();
-  const restArgs = rawArgs.slice(1);
+  // Same natural UX as chat: empty → home/status, free text → primary action.
+  const naturalized = naturalizeCliArgv(rawArgs);
+  const effectiveArgs = naturalized.argv;
+  const command = String(effectiveArgs[0] || '').trim().toLowerCase();
+  const restArgs = effectiveArgs.slice(1);
   if (!command) {
     return null;
   }
@@ -94,22 +104,89 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runDynamicWorkflows(['--help']);
   }
 
-  // Universal Capability Fabric — brand-agnostic absorb / workspace import
+  // Universal Capability Fabric — absorb capabilities + import workspaces
   if (
     command === 'absorb'
     || command === 'capability-absorb'
     || command === 'capabilities-absorb'
     || command === 'fetch-capability'
+    || command === 'import-workspace'
+    || command === 'workspace-import'
+    || command === 'universal-import'
   ) {
     return runCapabilityFabricCli(restArgs);
   }
 
+  // Skill-first learn UX (fabric absorb under the hood)
   if (
-    command === 'import-workspace'
-    || command === 'workspace-import'
-    || command === 'universal-import'
+    command === 'learn-skill'
+    || command === 'skill-learn'
+    || command === 'learnskill'
+    || (command === 'learn' && ['skill', 'skills', '--skill'].includes(String(restArgs[0] || '').trim().toLowerCase()))
   ) {
-    return runImportWorkspaceCli(restArgs);
+    const { runLearnSkillCli } = await import('./LearnSkillCli.js');
+    const args = command === 'learn'
+      ? restArgs.slice(1)
+      : restArgs;
+    return runLearnSkillCli(args);
+  }
+
+  // Session export + mid-session model route
+  if (
+    command === 'session'
+    || command === 'sessions-export'
+    || command === 'session-export'
+  ) {
+    const { runSessionSurfaceCli } = await import('./SessionSurfaceCli.js');
+    const args = command === 'session'
+      ? restArgs
+      : ['export', ...restArgs];
+    return runSessionSurfaceCli(args);
+  }
+
+  if (command === 'model' || command === 'session-model') {
+    const { runSessionSurfaceCli } = await import('./SessionSurfaceCli.js');
+    return runSessionSurfaceCli(['model', ...restArgs]);
+  }
+
+  // Multi-model consensus (user-owned panel; same as /consensus on channels)
+  if (
+    command === 'consensus'
+    || command === 'deliberate'
+    || command === 'multi-model'
+    || command === 'moa'
+  ) {
+    const { runConsensusCli } = await import('./ConsensusCli.js');
+    return runConsensusCli(restArgs);
+  }
+
+  // Residual: cost savings dashboard
+  if (
+    command === 'cost-savings'
+    || command === 'cost-dashboard'
+    || command === 'savings'
+  ) {
+    const { CostSavingsDashboardService } = await import('../services/CostSavingsDashboardService.js');
+    const snap = new CostSavingsDashboardService().buildSnapshot();
+    if (restArgs.includes('--json')) {
+      console.log(JSON.stringify(snap, null, 2));
+    } else {
+      console.log('Zavorth Cost Savings Dashboard');
+      console.log(snap.narrative);
+      console.log(`Sessions: ${snap.sessionsScanned}`);
+      console.log(`Calls: ${snap.totals.calls}`);
+      console.log(`Tokens in/out: ${snap.totals.inputTokens}/${snap.totals.outputTokens}`);
+      console.log(`Est. cost: $${snap.totals.estimatedCostUsd.toFixed(4)}`);
+      console.log(`Est. savings vs frontier: $${snap.totals.estimatedSavingsUsd.toFixed(4)}`);
+      if (typeof snap.totals.backgroundRouteCalls === 'number') {
+        console.log(`Background cost-route calls: ${snap.totals.backgroundRouteCalls}`);
+      }
+      console.log(snap.backgroundRouteHint);
+      for (const row of snap.byModel.slice(0, 12)) {
+        console.log(`  - ${row.modelKey}: ${row.calls} call(s), ~$${row.estimatedCostUsd.toFixed(4)}`);
+      }
+    }
+    return 0;
   }
 
   if (
@@ -122,6 +199,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
 
   if (
     command === 'reach'
+    || command === 'where'
     || command === 'reach-fabric'
     || command === 'channel-tiers'
     || command === 'node-mesh'
@@ -268,6 +346,40 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       ? restArgs.slice(1)
       : restArgs;
     return runZavorthMemoryEncryptionCommand(memoryArgs);
+  }
+
+  // Phase 2–3 intent verbs (before live namespaces steal `connect` / `learn`).
+  if (command === 'connect' || command === 'conectar') {
+    const route = resolveConnectIntent(restArgs);
+    if (route.kind === 'help-connect') {
+      process.stdout.write(`${formatConnectHelp()}\n`);
+      return 0;
+    }
+    if (route.kind === 'providers') {
+      return runBuiltinLauncher(['providers', ...route.args]);
+    }
+    if (route.kind === 'channels') {
+      return runBuiltinLauncher(['channels', ...route.args]);
+    }
+    if (route.kind === 'connectors') {
+      return runBuiltinLauncher(['connectors', ...route.args]);
+    }
+  }
+
+  {
+    const learnRoute = resolveLearnIntent(command, restArgs);
+    if (learnRoute.kind === 'anyone') {
+      const { spawnSync } = await import('node:child_process');
+      const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+      const result = spawnSync(npxCmd, ['tsx', 'scripts/zavorth-anyone-agent-path.ts', ...learnRoute.args], {
+        cwd: projectRoot,
+        stdio: 'inherit',
+        env: process.env,
+        windowsHide: true,
+        shell: process.platform === 'win32',
+      });
+      return typeof result.status === 'number' ? result.status : 1;
+    }
   }
 
   if (isZavorthLiveNamespaceCommand(command)) {
@@ -593,10 +705,37 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runExperienceProfiles(restArgs);
   }
 
-  if (command === 'learn' || command === 'learning' || command === 'mnemos-learning' || command === 'native-learning-loop') {
+  if (command === 'mnemos-learning' || command === 'native-learning-loop'
+    || ((command === 'learn' || command === 'learning') && resolveLearnIntent(command, restArgs).kind === 'passthrough')) {
     const first = String(restArgs[0] || '').trim().toLowerCase();
     const forwarded = first === 'loop' || first === 'status' || first === 'native' ? restArgs.slice(1) : restArgs;
     return runNativeLearningLoop(forwarded);
+  }
+
+  if (command === 'whatsapp-bridge' || command === 'wa-bridge') {
+    const { spawnSync } = await import('node:child_process');
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const result = spawnSync(npxCmd, ['tsx', 'scripts/zavorth-whatsapp-bridge.ts', ...restArgs], {
+      cwd: projectRoot,
+      stdio: 'inherit',
+      env: process.env,
+      windowsHide: true,
+      shell: process.platform === 'win32',
+    });
+    return typeof result.status === 'number' ? result.status : 1;
+  }
+
+  if (command === 'anyone' || command === 'for-everyone' || command === 'qualquer-pessoa' || command === 'human-path') {
+    const { spawnSync } = await import('node:child_process');
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const result = spawnSync(npxCmd, ['tsx', 'scripts/zavorth-anyone-agent-path.ts', ...restArgs], {
+      cwd: projectRoot,
+      stdio: 'inherit',
+      env: process.env,
+      windowsHide: true,
+      shell: process.platform === 'win32',
+    });
+    return typeof result.status === 'number' ? result.status : 1;
   }
 
   if (command === 'conversation' || command === 'conversational-setup' || command === 'calibrate') {
@@ -840,13 +979,13 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   }
 
   // Chain to Part 2
-  const part2Result = await runBuiltinLauncherPart2(command, restArgs, rawArgs);
+  const part2Result = await runBuiltinLauncherPart2(command, restArgs, effectiveArgs);
   if (part2Result !== null) {
     return part2Result;
   }
 
   // Chain to Part 3
-  const part3Result = await runBuiltinLauncherPart3(command, restArgs, rawArgs);
+  const part3Result = await runBuiltinLauncherPart3(command, restArgs, effectiveArgs);
   if (part3Result !== null) {
     return part3Result;
   }

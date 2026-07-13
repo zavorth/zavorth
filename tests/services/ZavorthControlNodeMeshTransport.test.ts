@@ -74,7 +74,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node online.',
         },
       })),
@@ -376,7 +376,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node pareado.',
         },
       })),
@@ -805,7 +805,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node online.',
         },
       })),
@@ -954,7 +954,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node online.',
         },
       })),
@@ -1043,7 +1043,7 @@ describe('ZavorthControl node mesh transport routes', () => {
         capabilityCatalog: [],
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node online.',
         },
       })),

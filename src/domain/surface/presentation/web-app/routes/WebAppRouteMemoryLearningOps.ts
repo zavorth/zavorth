@@ -66,7 +66,7 @@ export async function handleMemoryLearningOpsRoutes(
               },
               candidates: [],
               narrative: {
-                headline: 'Learning plane indisponivel.',
+                headline: 'Learning plane unavailable.',
                 operatorSummary: 'O runtime atual nao carregou o learning plane.',
               },
             },

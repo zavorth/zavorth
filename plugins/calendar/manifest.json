@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "calendar",
+  "label": "Calendar",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Local file calendar with approval-gated create.",
+  "description": "First-party calendar plugin. Uses CalendarTool when available, otherwise stores events under .zavorth/calendar/events.json. Create is dry-run unless approved.",
+  "tags": ["calendar", "events", "schedule", "local"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://calendar",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "calendar.status",
+      "intent": "calendar.status",
+      "label": "Calendar Status",
+      "summary": "Report storage backend and event count.",
+      "artifactKinds": [],
+      "command": {
+        "name": "calendar_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "calendar.list",
+      "intent": "calendar.list",
+      "label": "Calendar List",
+      "summary": "List local calendar events.",
+      "artifactKinds": [],
+      "command": {
+        "name": "calendar_list",
+        "aliases": [],
+        "usage": "{ limit? }"
+      }
+    },
+    {
+      "id": "calendar.create",
+      "intent": "calendar.create",
+      "label": "Calendar Create",
+      "summary": "Create an event. Dry-run unless approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "calendar_create",
+        "aliases": [],
+        "usage": "{ title, start, end, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read local calendar events.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Persist calendar events under .zavorth/calendar.",
+      "required": true
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["calendar.event"]
+}

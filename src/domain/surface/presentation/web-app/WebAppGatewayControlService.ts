@@ -32,7 +32,7 @@ export class WebAppGatewayControlService {
     const query = String(input.query || '').trim();
     const chatId = input.chatId || deps.realtime.getChatId(sessionId);
     if (!deps.hybridMemory) {
-      return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, ['Hybrid Memory Service indisponivel neste runtime.']);
+      return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, ['Hybrid Memory Service unavailable in this runtime.']);
     }
     try {
       return await deps.hybridMemory.previewRecall({
@@ -48,7 +48,7 @@ export class WebAppGatewayControlService {
       });
     } catch (error: unknown) {logger.warn('[Web App way Control] search failed', error);
     return buildWebAppRuntimeEmptyMemoryRecall(sessionId, query, [
-        `Hybrid Memory indisponivel no momento: ${errorMessage(error, 'erro desconhecido')}.`,
+        `Hybrid Memory unavailable no momento: ${errorMessage(error, 'erro desconhecido')}.`,
       ]);
   }
   }
@@ -66,7 +66,7 @@ export class WebAppGatewayControlService {
         generatedAt: new Date().toISOString(),
         sessionId,
         sources: [],
-        warnings: ['Hybrid Memory Service indisponivel neste runtime.'],
+        warnings: ['Hybrid Memory Service unavailable in this runtime.'],
       };
     }
     try {
@@ -84,7 +84,7 @@ export class WebAppGatewayControlService {
         generatedAt: new Date().toISOString(),
         sessionId,
         sources: [],
-        warnings: [`Hybrid Memory indisponivel no momento: ${errorMessage(error, 'erro desconhecido')}.`],
+        warnings: [`Hybrid Memory unavailable no momento: ${errorMessage(error, 'erro desconhecido')}.`],
       };
   }
   }

@@ -61,7 +61,7 @@ export class ChatCleanupService {
     let deleted = 0;
     let failed = 0;
 
-    // Apagar em lotes de 100 (limite da API)
+    // Delete in batches of 100 (API limit)
     const allIds = [...ids].reverse();
     const batchSize = 100;
 
@@ -82,7 +82,7 @@ export class ChatCleanupService {
     }
       }
 
-      // Delete individual (para chats privados ou quando batch falha)
+      // Individual delete (for private chats or when batch fails)
       for (const messageId of batch) {
         try {
           await bot.api.deleteMessage(Number(chatId), messageId);
@@ -91,7 +91,7 @@ export class ChatCleanupService {
         }
       }
 
-      // Rate limit entre lotes
+      // Rate limit between batches
       if (i + batchSize < allIds.length) {
         await this.sleep(1000);
       }

@@ -149,7 +149,10 @@ export function DesktopShell(props: {
   onPanel(panel: DesktopPanel): void;
   onProfile(value: string): void;
   onRefresh(): void | Promise<void>;
-  onReviewDecision(id: string, decision: 'approve' | 'reject'): void | Promise<void>;
+  onReviewDecision(
+    id: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
   onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
   onSidebarCollapsed(updater: (value: boolean) => boolean): void;
@@ -183,6 +186,27 @@ export function DesktopShell(props: {
   runtimeWorkboard?: RuntimeWorkboardProjection | null;
   marketplacePlugins?: PluginItem[];
   marketplaceSource?: 'api' | 'tools' | 'empty';
+  pluginOsData?: import('../desktop-state/pluginOsBridge').PluginOsPlanePanelData;
+  pluginOsLabels?: Partial<Record<string, string>>;
+  pluginOsError?: string | null;
+  onEnablePluginOs?: (pluginId: string) => void;
+  onDisablePluginOs?: (pluginId: string) => void;
+  onInspectPluginOs?: (pluginId: string) => void;
+  onRecommendPluginOs?: (intent: string) => void | Promise<void>;
+  onCatalogApplyPluginOs?: () => void | Promise<void>;
+  onOnboardingPluginOs?: (profile?: string) => void | Promise<void>;
+  onUndoOnboardingPluginOs?: () => void | Promise<void>;
+  onSuggestActionPluginOs?: (actionId: string, pluginId?: string) => void | Promise<void>;
+  pluginOsSuggest?: {
+    title?: string;
+    body?: string;
+    message?: string;
+    primary?: { pluginId?: string; needsCredentials?: boolean; risks?: string[] } | null;
+    ui?: { actions?: Array<{ id: string; label: string; pluginId?: string }> };
+  } | null;
+  pluginOsReceipts?: Array<{ id?: string; headline?: string; detail?: string; createdAt?: string }>;
+  pluginOsInjectMode?: string;
+  onRefreshPluginOs?: () => void | Promise<void>;
   onBoardSelect?: (boardId: string) => void;
   onCardCreate?: (boardId: string, card: Omit<WorkboardCard, 'id' | 'createdAt'>) => void;
   onCardUpdate?: (boardId: string, card: WorkboardCard) => void;
@@ -875,6 +899,21 @@ export function DesktopShell(props: {
               runtimeWorkboard={props.runtimeWorkboard}
               marketplacePlugins={props.marketplacePlugins}
               marketplaceSource={props.marketplaceSource}
+              pluginOsData={props.pluginOsData}
+              pluginOsLabels={props.pluginOsLabels}
+              pluginOsError={props.pluginOsError}
+              onEnablePluginOs={props.onEnablePluginOs}
+              onDisablePluginOs={props.onDisablePluginOs}
+              onInspectPluginOs={props.onInspectPluginOs}
+              onRecommendPluginOs={props.onRecommendPluginOs}
+              onCatalogApplyPluginOs={props.onCatalogApplyPluginOs}
+              onOnboardingPluginOs={props.onOnboardingPluginOs}
+              onUndoOnboardingPluginOs={props.onUndoOnboardingPluginOs}
+              onSuggestActionPluginOs={props.onSuggestActionPluginOs}
+              pluginOsSuggest={props.pluginOsSuggest}
+              pluginOsReceipts={props.pluginOsReceipts}
+              pluginOsInjectMode={props.pluginOsInjectMode}
+              onRefreshPluginOs={props.onRefreshPluginOs}
               onBoardSelect={props.onBoardSelect}
               onCardCreate={props.onCardCreate}
               onCardUpdate={props.onCardUpdate}

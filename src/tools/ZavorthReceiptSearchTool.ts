@@ -66,7 +66,7 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       },
       action_filter: {
         type: 'string',
-        description: 'Filtrar por tipo de acao.',
+        description: 'Filter by action type.',
       },
       session_id: {
         type: 'string',

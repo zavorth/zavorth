@@ -32,7 +32,7 @@ export class GroupModerationService {
 
   public async kickUser(chatId: number | string, userId: number, performedBy: string): Promise<ModerationResult> {
     return this.executeAction('kick', chatId, userId, performedBy, async () => {
-      // Kick = ban + imediato unban (permite o membro voltar se quiser)
+      // Kick = ban + immediate unban (allows the member to return if they want)
       await this.botApi.banChatMember(chatId, userId);
       await this.botApi.unbanChatMember(chatId, userId);
     });

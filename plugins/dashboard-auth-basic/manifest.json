@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "dashboard-auth-basic",
+  "label": "Dashboard Auth Basic",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Local basic-auth provider surface for control plane soft simulation.",
+  "description": "Wave 6 trust fabric plugin. Exposes dashboard.auth.basic.* capabilities for soft simulation of control-plane basic auth. Does NOT replace a real auth server — plugin surface only. Never returns password values.",
+  "tags": ["dashboard", "auth", "basic", "wave6", "trust"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://dashboard-auth-basic",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "dashboard.auth.basic.status",
+      "intent": "dashboard.auth.basic.status",
+      "label": "Basic Auth Status",
+      "summary": "Report whether DASHBOARD_BASIC_USER / DASHBOARD_BASIC_PASSWORD are configured (booleans only).",
+      "artifactKinds": [],
+      "command": {
+        "name": "dashboard_auth_basic_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "dashboard.auth.basic.verify",
+      "intent": "dashboard.auth.basic.verify",
+      "label": "Basic Auth Verify",
+      "summary": "Compare username/password to env with constant-time-ish equality. Never echoes password.",
+      "artifactKinds": [],
+      "command": {
+        "name": "dashboard_auth_basic_verify",
+        "aliases": [],
+        "usage": "{ username, password }"
+      }
+    },
+    {
+      "id": "dashboard.auth.basic.challenge",
+      "intent": "dashboard.auth.basic.challenge",
+      "label": "Basic Auth Challenge",
+      "summary": "Return WWW-Authenticate style challenge hint for Basic realm zavorth.",
+      "artifactKinds": [],
+      "command": {
+        "name": "dashboard_auth_basic_challenge",
+        "aliases": [],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Read whether DASHBOARD_BASIC_USER / DASHBOARD_BASIC_PASSWORD are set (not the values).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["dashboard-auth-basic.receipt"]
+}

@@ -5,6 +5,7 @@ import type {
   ZavorthBridgeMobileAccessService,
 } from '../../../../services/ZavorthBridgeMobileAccessService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
 type ZavorthBridgeMobileAccessLike = Pick<ZavorthBridgeMobileAccessService, 'start' | 'status' | 'guide' | 'stop'>;
 
 type SharedSurfaceZavorthBridgeMobileCommandPackDeps = {
@@ -13,34 +14,6 @@ type SharedSurfaceZavorthBridgeMobileCommandPackDeps = {
 
 export class SharedSurfaceZavorthBridgeMobileCommandPack {
   public constructor(private readonly deps: SharedSurfaceZavorthBridgeMobileCommandPackDeps) {}
-
-  public parseNaturalIntent(rawText: string): 'start' | 'status' | 'guide' | 'stop' | null {
-    const normalized = String(rawText || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    if (!normalized || normalized.startsWith('/')) {
-      return null;
-    }
-
-    const mentionsZavorthBridge = normalized.includes('zavorthBridge');
-    const mentionsMobile = ['celular', 'mobile', 'telefone', 'phone'].some((token) => normalized.includes(token));
-    if (!mentionsZavorthBridge || !mentionsMobile) {
-      return null;
-    }
-
-    if (['parar', 'encerrar', 'desligar', 'fechar', 'stop'].some((token) => normalized.includes(token))) {
-      return 'stop';
-    }
-    if (['guia', 'passo a passo', 'como acessar', 'como usar'].some((token) => normalized.includes(token))) {
-      return 'guide';
-    }
-    if (['status', 'estado', 'como esta'].some((token) => normalized.includes(token))) {
-      return 'status';
-    }
-    return 'start';
-  }
 
   public async handle(
     ctx: IMessageContext,
@@ -64,7 +37,7 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       }
 
       await ctx.reply(this.formatReply(result));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui preparar o ZavorthBridge para uso no celular agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_bridge_mobile')));
     }
   }
 
@@ -75,15 +48,15 @@ export class SharedSurfaceZavorthBridgeMobileCommandPack {
       result.summary,
       `Estado: ${result.state}.`,
       `Modo: ${result.mode}.`,
-      `Pronto para uso remoto: ${result.readyForRemoteUse ? 'sim' : 'nao'}.`,
-      `URL: ${result.accessUrl || 'indisponivel'}`,
+      `Pronto para uso remoto: ${result.readyForRemoteUse ? 'yes' : 'no'}.`,
+      `URL: ${result.accessUrl || 'unavailable'}`,
     ];
 
     if (result.secret) {
       lines.push(`Senha: ${result.secret}`);
     }
     if (result.verification) {
-      lines.push(`Confirmacao final: ${result.verification.ok ? 'sim' : 'pendente'}.`);
+      lines.push(`Confirmacao final: ${result.verification.ok ? 'yes' : 'pending'}.`);
       lines.push(`Verificacao: ${result.verification.summary}`);
       if (result.verification.targetUrl) {
         lines.push(`URL verificada: ${result.verification.targetUrl}`);

@@ -22,6 +22,7 @@ import {
 import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalExecutionPipelineService.js';
 
 import { logger } from '../logger.js';
+import { tService } from '../i18n/services.js';
 import { asErrorLike } from '../utils/errorLike';
 
 export const ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-zavorth-ensemble' as const;
@@ -1036,7 +1037,7 @@ export class ZavorthEnsembleService {
       bottlenecks.push({
         id: 'batch-failed',
         severity: 'critical',
-        summary: 'Um batch falhou; revise eventos de role.finished e saida por role.',
+        summary: tService('swarm_runtime.batch_failed'),
       });
     }
     if (failedRoles > 0) {

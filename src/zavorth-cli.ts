@@ -24,7 +24,7 @@ import type { DiskMutationGateRequestedOperation } from './contracts/DiskMutatio
 import { runDiskMutationGateCommand } from './cli/disk/ZavorthCliDiskMutationNamespace.js';
 import { runProjectConstitutionCommand } from './cli/constitution/ZavorthCliConstitutionNamespace.js';
 import { runMigrationUX } from './cli/MigrationCli.js';
-import { runCapabilityFabricCli, runImportWorkspaceCli } from './cli/CapabilityFabricCli.js';
+import { runCapabilityFabricCli } from './cli/CapabilityFabricCli.js';
 import { runReachFabricCli } from './cli/ReachFabricCli.js';
 import { runPowerFabricCli } from './cli/PowerFabricCli.js';
 import { runProductFabricCli } from './cli/ProductFabricCli.js';
@@ -1379,7 +1379,7 @@ async function runRuntimeReadiness(rawArgs: string[] = []): Promise<number> {
   const service = new ZavorthRuntimeReadinessService();
   const uxService = new ZavorthRuntimeReadinessUxService();
   const snapshot = await service.buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-readiness',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -1424,7 +1424,7 @@ async function runReadyToGo(rawArgs: string[] = []): Promise<number> {
   const snapshot = await service.buildSnapshot({
     refreshProviders: rawArgs.includes('--refresh-providers') || rawArgs.includes('--live'),
     includeAdvancedProviders: rawArgs.includes('--advanced'),
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'ready-to-go',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -1444,7 +1444,7 @@ async function runOneCommandOperatorCheck(rawArgs: string[] = []): Promise<numbe
   const snapshot = await service.buildSnapshot({
     live: rawArgs.includes('--live'),
     strict: rawArgs.includes('--strict') || rawArgs.includes('--require-pass'),
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'operator-check',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -1721,7 +1721,7 @@ async function runRuntimeGuidedFixes(rawArgs: string[] = []): Promise<number> {
   const { ZavorthRuntimeGuidedFixesService } = await import('./services/ZavorthRuntimeGuidedFixesService.js');
   const { ZavorthRuntimeReadinessService } = await import('./services/ZavorthRuntimeReadinessService.js');
   const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'runtime-guided-fixes',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -1776,7 +1776,7 @@ async function runRuntimeReadinessFixProvider(rawArgs: string[] = []): Promise<n
     || snapshot.entries[0]
     || null;
   const readiness = await new ZavorthRuntimeReadinessService().buildSnapshot({
-    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+    userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
     sessionId: 'runtime-readiness-provider-fix',
     workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
   });
@@ -1816,7 +1816,7 @@ async function runCliExperienceConsistency(rawArgs: string[] = []): Promise<numb
     const snapshot = await service.buildSnapshot({
       refreshProviders: rawArgs.includes('--refresh-providers') || rawArgs.includes('--live'),
       includeAdvancedProviders: rawArgs.includes('--advanced'),
-      userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'operator',
+      userId: readFlexibleStringFlag(rawArgs, 'user-id') || 'local-user',
       sessionId: readFlexibleStringFlag(rawArgs, 'session-id') || 'cli-home',
       workspaceHint: readFlexibleStringFlag(rawArgs, 'workspace') || projectRoot,
     });
@@ -2528,22 +2528,17 @@ async function runBuiltinLauncher(rawArgs: string[]): Promise<number | null> {
     return runDynamicWorkflows(['--help']);
   }
 
-  // Universal Capability Fabric — brand-agnostic absorb / workspace import
+  // Universal Capability Fabric — absorb capabilities + import workspaces
   if (
     command === 'absorb'
     || command === 'capability-absorb'
     || command === 'capabilities-absorb'
     || command === 'fetch-capability'
-  ) {
-    return runCapabilityFabricCli(restArgs);
-  }
-
-  if (
-    command === 'import-workspace'
+    || command === 'import-workspace'
     || command === 'workspace-import'
     || command === 'universal-import'
   ) {
-    return runImportWorkspaceCli(restArgs);
+    return runCapabilityFabricCli(restArgs);
   }
 
   if (

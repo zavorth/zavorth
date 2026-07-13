@@ -1,16 +1,19 @@
 /**
  * Lightweight i18n for Telegram bot strings.
- * Default language is English. Override with ZAVORTH_LANG env var.
+ * Default language is English. Override with ZAVORTH_LANG / ZAVORTH_LOCALE.
+ *
+ * Prefers centralized YAML catalogs under src/i18n/locales/<locale>/telegram.yaml,
+ * then falls back to the inline dictionaries below for backward compatibility.
  *
  * Usage:
  *   import { t } from '../../../gateways/channels/telegram/i18n.js';
  *   await ctx.reply(t('auth.access_restricted'));
  *
- * NLU patterns:
- *   import { getNluPatterns } from '../../../gateways/channels/telegram/i18n.js';
- *   const patterns = getNluPatterns();
- *   if (patterns.remoteActivate.test(normalized)) { ... }
+ * Hermes-style routing: free text goes to the agent; explicit /slash commands
+ * are handled by command routers. Free-text NLU packs were removed.
  */
+
+import { getI18nService } from '../../../i18n/ZavorthI18nService.js';
 
 type MessageKey = keyof typeof messages.en;
 
@@ -309,61 +312,39 @@ const messages = {
   },
 } as const;
 
-type NluPatternSet = {
-  remoteActivate: RegExp;
-  remoteDeactivate: RegExp;
-  remoteStatus: RegExp;
-  changesSummary: RegExp;
-  reload: RegExp;
-  autorepair: RegExp;
-  selfmodPrivateOnly: RegExp;
-  selfmodBuildMode: RegExp;
-  selfmodOwnerRequired: RegExp;
-  strongAutonomyIntent: RegExp;
-  registerAsArm: RegExp;
-  consent: RegExp;
-  apply: RegExp;
-  overwrite: RegExp;
-};
+const lang = (process.env.ZAVORTH_LANG || process.env.ZAVORTH_LOCALE || 'en')
+  .split(/[-_]/)[0]
+  .toLowerCase() as keyof typeof messages;
 
-const nluPatterns: Record<string, NluPatternSet> = {
-  en: {
-    remoteActivate: /\/remote\s+(on|activate)|enable\s+remote\s+mode|turn\s+on\s+remote|remote\s+mode\s+on|activate\s+remote/i,
-    remoteDeactivate: /\/remote\s+(off|deactivate)|disable\s+remote\s+mode|turn\s+off\s+remote|remote\s+mode\s+off|deactivate\s+remote/i,
-    remoteStatus: /\/remote(\s+status)?|remote\s+mode\s+(status|check)|check\s+remote|status\s+remote/i,
-    changesSummary: /summary\s+(of\s+)?recent\s+changes|show\s+(me\s+)?(recent|latest)\s+changes|what\s+(changed|is\s+new)|list\s+changes/i,
-    reload: /self[- ]?update|reload\s+zavorth|restart\s+zavorth|update\s+zavorth|refresh\s+zavorth/i,
-    autorepair: /self[- ]?repair|autorepair|fix\s+(yourself|zavorth)|improve\s+(yourself|zavorth)|repair\s+zavorth/i,
-    selfmodPrivateOnly: /only\s+(be\s+)?used\s+in\s+a\s+private\s+chat|private\s+chat\s+only/i,
-    selfmodBuildMode: /requires?\s+build\s+mode|build\s+mode\s+required/i,
-    selfmodOwnerRequired: /requires?\s+(owner|trusted)\s+role|owner\s+role\s+required/i,
-    strongAutonomyIntent: /\b(fix|repair|modify|change|implement|create|generate\s+file|run|execute|automate|do\s+it\s+yourself|go\s+ahead|apply|edit)\b/i,
-    registerAsArm: /\b(register-as-arm|use\s+as\s+arm|register\s+as\s+arm)\b/i,
-    consent: /\b(consent|i\s+agree|i\s+authorize|read-only)\b/i,
-    apply: /\b(apply|import\s+now|migrate\s+now)\b/i,
-    overwrite: /\b(overwrite)\b/i,
-  },
-  pt: {
-    remoteActivate: /\/remote\s+(on|activate|ativar)|\/remoto\s+(on|ativar)|ativar( o)? modo\s+remoto|ligar( o)? modo\s+remoto|modo\s+remoto\s+(on|ligar|ativar)/i,
-    remoteDeactivate: /\/remote\s+(off|deactivate|desativar)|\/remoto\s+(off|desativar)|desativar( o)? modo\s+remoto|desligar( o)? modo\s+remoto|modo\s+remoto\s+(off|desligar|desativar)/i,
-    remoteStatus: /\/remote(\s+status)?|\/remoto(\s+status)?|status\s+(do\s+)?modo\s+remoto|ver\s+modo\s+remoto|modo\s+remoto\s+status/i,
-    changesSummary: /resumo\s+(das\s+)?ultimas?\s+(alteracoes|mudancas)|resuma\s+(as\s+)?ultimas?\s+(alteracoes|mudancas)|mostre\s+(as\s+)?ultimas?\s+(alteracoes|mudancas)/i,
-    reload: /se\s+(autoatualize|atualize)|atualize\s+o\s+zavorth|recarregue\s+o\s+zavorth|reinicie\s+o\s+zavorth|suba\s+o\s+zavorth|religue\s+o\s+zavorth/i,
-    autorepair: /se\s+(autorepare|conserte|melhore|otimize)|tente\s+se\s+corrigir|corrija\s+o\s+zavorth|faca\s+autoreparo|melhore\s+o\s+zavorth|otimize\s+o\s+zavorth/i,
-    selfmodPrivateOnly: /so\s+pode\s+ser\s+usado\s+em\s+chat\s+privado|chat\s+privado\s+apenas/i,
-    selfmodBuildMode: /exige\s+modo\s+build|modo\s+build\s+necessario/i,
-    selfmodOwnerRequired: /exige\s+papel\s+(owner|trusted)|papel\s+(owner|trusted)\s+necessario/i,
-    strongAutonomyIntent: /\b(arrume|corrija|conserte|modifique|altere|implante|implemente|crie|gere\s+arquivo|rode|execute|automatize|fa[cç]a\s+sozinho|pode\s+seguir|pode\s+fazer|aplique|mude\s+o\s+sistema|edite)\b/i,
-    registerAsArm: /\b(register-as-arm|usar\s+como\s+braco|registrar\s+como\s+braco|braco)\b/i,
-    consent: /\b(consent|autorizo|autorizei|pode|read-only|somente\s+leitura)\b/i,
-    apply: /\b(apply|aplicar|importar\s+agora|migrar\s+agora)\b/i,
-    overwrite: /\b(overwrite|sobrescrever)\b/i,
-  },
-};
+function resolveTelegramLocale(): string {
+  const raw = String(process.env.ZAVORTH_LANG || process.env.ZAVORTH_LOCALE || 'en-US').trim();
+  if (/^pt/i.test(raw)) return 'pt-BR';
+  if (/^en/i.test(raw)) return 'en-US';
+  return raw || 'en-US';
+}
 
-const lang = (process.env.ZAVORTH_LANG || 'en').split('-')[0] as keyof typeof messages;
+// Sync central service locale once at module load (tests can call setLocale via reset + reimport).
+try {
+  getI18nService().setLocale(resolveTelegramLocale());
+} catch {
+  // Locales may be unavailable in some hermetic test sandboxes; inline dict remains.
+}
 
 function t(key: MessageKey, vars?: Record<string, string | number>): string {
+  try {
+    const i18n = getI18nService();
+    const central = i18n.t(`telegram.${key}`, {
+      vars,
+      locale: resolveTelegramLocale(),
+      fallback: '',
+    });
+    if (central && central !== key && central !== `telegram.${key}`) {
+      return central;
+    }
+  } catch {
+    // fall through to inline dictionary
+  }
+
   const dict = messages[lang] || messages.en;
   let msg: string = dict[key] || messages.en[key] || key;
   if (vars) {
@@ -374,29 +355,5 @@ function t(key: MessageKey, vars?: Record<string, string | number>): string {
   return msg;
 }
 
-function getNluPatterns(): NluPatternSet {
-  const primary = nluPatterns[lang] || nluPatterns.en;
-  const secondary = lang === 'pt' ? nluPatterns.en : nluPatterns.pt;
-
-  const merged: NluPatternSet = {
-    remoteActivate: new RegExp(`(?:${primary.remoteActivate.source})|(?:${secondary.remoteActivate.source})`, 'i'),
-    remoteDeactivate: new RegExp(`(?:${primary.remoteDeactivate.source})|(?:${secondary.remoteDeactivate.source})`, 'i'),
-    remoteStatus: new RegExp(`(?:${primary.remoteStatus.source})|(?:${secondary.remoteStatus.source})`, 'i'),
-    changesSummary: new RegExp(`(?:${primary.changesSummary.source})|(?:${secondary.changesSummary.source})`, 'i'),
-    reload: new RegExp(`(?:${primary.reload.source})|(?:${secondary.reload.source})`, 'i'),
-    autorepair: new RegExp(`(?:${primary.autorepair.source})|(?:${secondary.autorepair.source})`, 'i'),
-    selfmodPrivateOnly: new RegExp(`(?:${primary.selfmodPrivateOnly.source})|(?:${secondary.selfmodPrivateOnly.source})`, 'i'),
-    selfmodBuildMode: new RegExp(`(?:${primary.selfmodBuildMode.source})|(?:${secondary.selfmodBuildMode.source})`, 'i'),
-    selfmodOwnerRequired: new RegExp(`(?:${primary.selfmodOwnerRequired.source})|(?:${secondary.selfmodOwnerRequired.source})`, 'i'),
-    strongAutonomyIntent: new RegExp(`(?:${primary.strongAutonomyIntent.source})|(?:${secondary.strongAutonomyIntent.source})`, 'i'),
-    registerAsArm: new RegExp(`(?:${primary.registerAsArm.source})|(?:${secondary.registerAsArm.source})`, 'i'),
-    consent: new RegExp(`(?:${primary.consent.source})|(?:${secondary.consent.source})`, 'i'),
-    apply: new RegExp(`(?:${primary.apply.source})|(?:${secondary.apply.source})`, 'i'),
-    overwrite: new RegExp(`(?:${primary.overwrite.source})|(?:${secondary.overwrite.source})`, 'i'),
-  };
-
-  return merged;
-}
-
-export { t, messages, getNluPatterns };
-export type { MessageKey, NluPatternSet };
+export { t, messages };
+export type { MessageKey };

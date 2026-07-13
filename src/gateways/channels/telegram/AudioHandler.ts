@@ -234,7 +234,7 @@ export class AudioHandler {
           }
         } catch (error: unknown) {if (isCapabilityUnavailableError(error)) {
             capabilityError = error;
-            logger.warn('[AudioHandler] edge-tts indisponivel. Tentando proximo provider...');
+            logger.warn('[AudioHandler] edge-tts unavailable. Tentando proximo provider...');
           } else {
             logger.error(`[AudioHandler] Erro no TTS local: ${error}`);
           }
@@ -271,7 +271,7 @@ export class AudioHandler {
       surface: options.surface || 'telegram',
       sessionId: options.sessionId || null,
       fallbackFrom: capabilityError ? 'edge-tts' : null,
-      error: lastGeminiError?.message || capabilityError?.message || 'Falha ao sintetizar audio.',
+      error: lastGeminiError?.message || capabilityError?.message || 'Failed to synthesize audio.',
     });
 
     if (capabilityError) {
@@ -859,7 +859,7 @@ export class AudioHandler {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
       }
-    } catch (error: unknown) {logger.warn(`[AudioHandler] Falha ao remover temporario: ${error}`);
+    } catch (error: unknown) {logger.warn(`[AudioHandler] Failed to remove temporario: ${error}`);
     }
     this.geminiVoiceService.cleanup(filePath);
   }

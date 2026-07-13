@@ -23,7 +23,7 @@ export class ZavorthControlClassicAssetService {
     const { host, port, publicBaseUrl, auditReplaySummary, auditTrailSummary } = input;
     const publicUrlBlock = publicBaseUrl
       ? `<p class="muted" style="margin-top:0;">URL publica configurada: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
-      : '<p class="muted" style="margin-top:0;">Painel local. Nenhuma URL publica configurada.</p>';
+      : '<p class="muted" style="margin-top:0;">Painel local. No URL publica configurada.</p>';
     const webAppBlock = '<p class="muted" style="margin-top:0;">Entrada web principal: <a href="/zavorthControl">/zavorthControl</a>. As antigas rotas /app e /classic foram removidas.</p>';
     const sidecarIntroBlock = '<div id="sidecar-links" class="card" style="margin-bottom:24px;">Carregando sidecars...</div>';
     const operationsBriefBlock = '<div id="operations-brief" class="card" style="margin-bottom:24px;">Carregando briefing do operador...</div>';
@@ -35,7 +35,7 @@ export class ZavorthControlClassicAssetService {
     const operationsContinuityBlock = '<div id="operations-continuity" class="card" style="margin-bottom:24px;">Carregando continuidade entre superficies...</div>';
     const operationsReplayBlock = '<div id="operations-replay" class="card" style="margin-bottom:24px;">Carregando replay operacional...</div>';
     const operationsLifecycleBlock = '<div id="operations-lifecycle" class="card" style="margin-bottom:24px;">Carregando lifecycle de execucao...</div>';
-    const operationsHandoffBlock = '<div id="operations-handoff" class="card" style="margin-bottom:24px;">Carregando handoff de sessao...</div>';
+    const operationsHandoffBlock = '<div id="operations-handoff" class="card" style="margin-bottom:24px;">Carregando handoff de session...</div>';
     const operationsCapabilitiesBlock = '<div id="operations-capabilities" class="card" style="margin-bottom:24px;">Carregando catalogo de capacidades...</div>';
     const operationsPluginsBlock = '<div id="operations-plugins" class="card" style="margin-bottom:24px;">Carregando plugin plane...</div>';
     const operationsChannelsBlock = '<div id="operations-channels" class="card" style="margin-bottom:24px;">Carregando Channel Mesh...</div>';
@@ -83,7 +83,7 @@ ${ZAVORTH_CONTROL_CLASSIC_STYLES}
       ${webAppBlock}
       <div id="classic-legacy-banner" class="card" style="margin-bottom:24px;">
         <div style="display:grid; gap:8px;">
-          <strong>Este painel nao deve ser servido como rota publica.</strong>
+          <strong>Este painel no deve ser servido como rota publica.</strong>
           <span class="muted">Use <a href="/zavorthControl">/zavorthControl</a> como entrada principal do Zavorth. As antigas rotas <code>/app</code> e <code>/classic</code> foram removidas.</span>
           ${initialAuditSummaryBlock}
         </div>
@@ -157,7 +157,7 @@ ${operationsReportBlock}
         <div class="audit-pagination">
           <button onclick="auditPrev()" id="audit-prev-btn" disabled>&larr; Anterior</button>
           <span id="audit-page-info" style="color:var(--muted);font-size:13px;"></span>
-          <button onclick="auditNext()" id="audit-next-btn">Proximo &rarr;</button>
+          <button onclick="auditNext()" id="audit-next-btn">Next &rarr;</button>
         </div>
       </div>
     </div>
@@ -176,7 +176,7 @@ ${operationsReportBlock}
         </div>
         <div class="card snippet-editor">
           <input type="text" id="snippet-name" class="form-input" placeholder="Nome do Snippet (ex: setup-win)">
-          <textarea id="snippet-content" class="form-input" placeholder="Cole o cÃƒÂ³digo/texto bruto aqui..."></textarea>
+          <textarea id="snippet-content" class="form-input" placeholder="Paste raw code/text here..."></textarea>
           <div style="display: flex; gap: 12px; justify-content: flex-end;">
             <button class="btn btn-danger" id="snippet-btn-del" style="display: none;" onclick="deleteSnippet()">Excluir</button>
             <button class="btn btn-primary" onclick="saveSnippet()">Salvar Snippet</button>

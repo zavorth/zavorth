@@ -37,6 +37,7 @@ declare global {
         changelog: string;
         channel?: string;
         source?: string;
+        engine?: string;
         githubRepo?: string;
         downloadUrl?: string | null;
         releaseUrl?: string | null;
@@ -47,9 +48,9 @@ declare global {
         error?: string | null;
         message?: string;
       }>;
-      downloadUpdate?(): Promise<{ ok: boolean; message?: string; error?: string; latestVersion?: string; mode?: string; releaseUrl?: string }>;
+      downloadUpdate?(): Promise<{ ok: boolean; message?: string; error?: string; latestVersion?: string; mode?: string; engine?: string; releaseUrl?: string }>;
       deferUpdate?(input?: { days?: number }): Promise<{ ok: boolean; message?: string; deferredUntil?: string; error?: string }>;
-      installUpdate?(): Promise<{ ok: boolean; message?: string; error?: string; rollbackVersion?: string; latestVersion?: string; releaseUrl?: string }>;
+      installUpdate?(): Promise<{ ok: boolean; message?: string; error?: string; rollbackVersion?: string; latestVersion?: string; releaseUrl?: string; mode?: string; engine?: string }>;
       rollbackUpdate?(): Promise<{ ok: boolean; message?: string; error?: string; rollbackVersion?: string; releaseUrl?: string }>;
       openGithubReleases?(): Promise<{ ok: boolean; message?: string; error?: string; releaseUrl?: string; repo?: string }>;
       getVoiceAgentStatus?(): Promise<{

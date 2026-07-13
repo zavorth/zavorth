@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "zavorth.plugin-os-bootstrap.v1",
+  "autoEnableFirstParty": true,
+  "autoEnableExamples": false,
+  "respectUserDisable": true,
+  "excludeIds": [],
+  "includeIds": [],
+  "notes": [
+    "First-party plugins (tier=first-party in plugin-marketplace-curated.json) are marked installed+enabled before Plugin OS bootstrap so loadEligible is true.",
+    "Set autoEnableFirstParty to false or ZAVORTH_PLUGIN_OS_BOOTSTRAP=0 to disable.",
+    "respectUserDisable skips plugins the user explicitly disabled in .zavorth/plugin-os-state.json.",
+    "Examples stay opt-in unless autoEnableExamples is true."
+  ]
+}

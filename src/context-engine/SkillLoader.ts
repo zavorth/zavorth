@@ -19,6 +19,9 @@ import * as path from 'path';
 import { SkillScanner, type SkillManifest } from '../context-engine/SkillScanner.js';
 import type { IntentCategory } from '../cognitive-firewall/IntentClassifier.js';
 import { setDynamicIntentToolMap } from '../cognitive-firewall/ToolGatekeeper.js';
+import { createLogger } from '../logger.js';
+
+const log = createLogger('SkillLoader');
 
 export interface SkillLoadResult {
   totalSkills: number;
@@ -47,7 +50,7 @@ export class SkillLoader {
 
     this.loadedManifests = this.scanner.scan(directories);
 
-    // Construir o mapa de categoria => tool names para o Cognitive Firewall
+    // Build the category => tool names map for the Cognitive Firewall
     const categoryMap: Record<string, string[]> = {};
     let totalTools = 0;
 
@@ -77,9 +80,9 @@ export class SkillLoader {
 
     setDynamicIntentToolMap(categoryMap);
 
-    console.log(`[SkillLoader] Carregadas ${result.totalSkills} skills com ${result.totalTools} tools`);
+    log.info(`Loaded ${result.totalSkills} skills with ${result.totalTools} tools`);
     for (const [category, tools] of Object.entries(categoryMap)) {
-      console.log(`  [${category}] => ${tools.join(', ')}`);
+      log.debug(`  [${category}] => ${tools.join(', ')}`);
     }
 
     return result;
@@ -89,7 +92,7 @@ export class SkillLoader {
    * Reloads all manifests and updates internal state, useful when creating a skill dynamically.
    */
   public reload(basePath?: string): SkillLoadResult {
-    console.log('[SkillLoader] Recarregando skills dinamicamente...');
+    log.info('Reloading skills dynamically...');
     this.loadedManifests = [];
     return this.loadAll(basePath);
   }

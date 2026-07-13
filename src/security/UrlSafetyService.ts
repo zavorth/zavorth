@@ -31,7 +31,7 @@ export interface UrlSafetyResult {
   resolvedIp?: string;
 }
 
-// Ranges de IPs privados (RFC 1918 + RFC 6598 + RFC 5737)
+// Private IP ranges (RFC 1918 + RFC 6598 + RFC 5737)
 const PRIVATE_RANGES = [
   { start: [10, 0, 0, 0], end: [10, 255, 255, 255], label: '10.0.0.0/8' },
   { start: [172, 16, 0, 0], end: [172, 31, 255, 255], label: '172.16.0.0/12' },
@@ -45,7 +45,7 @@ const PRIVATE_RANGES = [
   { start: [224, 0, 0, 0], end: [239, 255, 255, 255], label: '224.0.0.0/4 (multicast)' },
 ];
 
-// Endereços de metadata cloud (sempre bloqueados)
+// Cloud metadata addresses (always blocked)
 const CLOUD_METADATA_IPS = [
   '169.254.169.254', // AWS/GCP/Azure/Alibaba metadata
   '169.254.170.2',   // AWS ECS task metadata

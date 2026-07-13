@@ -1,4 +1,5 @@
 import { VectorEmbeddingService } from './VectorEmbeddingService.js';
+import { LocalEmbeddingService } from './LocalEmbeddingService.js';
 
 import {
   HYBRID_MEMORY_CONTRACT_VERSION,
@@ -97,6 +98,7 @@ export class HybridMemoryService {
       sessionId,
       query,
       mode: recallCount > 0 ? 'hybrid' : 'ledger_only',
+      memoryMode: LocalEmbeddingService.resolveMode(),
       embeddingStatus: vectorResult.embeddingStatus,
       budget: {
         topK,
@@ -463,11 +465,13 @@ export class HybridMemoryService {
     if (this.lazyEmbeddingService !== undefined) {
       return this.lazyEmbeddingService;
     }
-    if (!VectorEmbeddingService.isConfigured()) {
+    // Honor memory.mode local|hybrid|cloud (LocalEmbedding / Gemini).
+    const routed = VectorEmbeddingService.createForConfiguredMode();
+    if (!routed) {
       this.lazyEmbeddingService = null;
       return null;
     }
-    this.lazyEmbeddingService = new VectorEmbeddingService();
+    this.lazyEmbeddingService = routed;
     return this.lazyEmbeddingService;
   }
 

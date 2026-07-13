@@ -16,6 +16,7 @@ import type {
   UniversalAgentRun,
   UniversalApprovalRequest,
 } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import { tService } from '../../i18n/services.js';
 
 export type PulseBriefBuildInput = {
   surface: ExperienceSurface;
@@ -60,17 +61,17 @@ export class PulseBriefService {
     const activeTask = input.activeRun?.title || input.activeRun?.input || null;
     const bestNextAction = this.pickBestNextAction(input, pendingApprovals);
     const highlights = compactList([
-      activeTask ? `Tarefa ativa: ${activeTask}` : '',
-      lastRun?.summary ? `Ultima atividade: ${lastRun.summary}` : '',
-      input.workspace ? `Workspace: ${input.workspace}` : '',
-      input.trust.sandbox.mode ? `Sandbox: ${input.trust.sandbox.mode}` : '',
+      activeTask ? tService('pulse.active_task', { task: activeTask }) : '',
+      lastRun?.summary ? tService('pulse.last_activity', { activity: lastRun.summary }) : '',
+      input.workspace ? tService('pulse.workspace', { workspace: input.workspace }) : '',
+      input.trust.sandbox.mode ? tService('pulse.sandbox', { mode: input.trust.sandbox.mode }) : '',
       profile.summary,
     ], 5);
     const risks = compactList([
       ...input.health.warnings,
-      pendingApprovals > 0 ? `${pendingApprovals} aprovacao(oes) aguardando decisao.` : '',
-      input.trust.risk !== 'safe' ? `Trust Lens marcou risco ${input.trust.risk}.` : '',
-      input.actionCards.some((card) => card.risk === 'danger') ? 'Ha action card com risco alto.' : '',
+      pendingApprovals > 0 ? tService('pulse.approvals_pending', { count: String(pendingApprovals) }) : '',
+      input.trust.risk !== 'safe' ? tService('pulse.trust_risk', { risk: input.trust.risk }) : '',
+      input.actionCards.some((card) => card.risk === 'danger') ? tService('pulse.high_risk_action_card') : '',
     ], 5);
 
     return {
@@ -111,10 +112,10 @@ export class PulseBriefService {
       short: {
         contractVersion: EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
         id: 'short',
-        label: 'Curto',
-        summary: 'Respostas diretas, com foco no proximo passo e sem excesso de detalhe.',
-        tone: 'objetivo',
-        structure: ['resultado', 'proxima acao', 'risco se existir'],
+        label: tService('pulse.profile_short_label'),
+        summary: tService('pulse.profile_short_summary'),
+        tone: tService('pulse.profile_short_tone'),
+        structure: [tService('pulse.profile_short_struct_result'), tService('pulse.profile_short_struct_next'), tService('pulse.profile_short_struct_risk')],
         defaultDetail: 'compact',
         appliesTo: ['cli', 'web', 'telegram', 'discord', 'api'],
         commands: ['zavorth ask "use estilo curto"', 'zavorth ask "responda de forma objetiva"'],
@@ -123,10 +124,10 @@ export class PulseBriefService {
       dev: {
         contractVersion: EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
         id: 'dev',
-        label: 'Dev',
-        summary: 'Respostas tecnicas com arquivos, comandos, testes e evidencias.',
-        tone: 'engenharia clara',
-        structure: ['plano', 'mudancas', 'validacao', 'riscos'],
+        label: tService('pulse.profile_dev_label'),
+        summary: tService('pulse.profile_dev_summary'),
+        tone: tService('pulse.profile_dev_tone'),
+        structure: [tService('pulse.profile_dev_struct_plan'), tService('pulse.profile_dev_struct_changes'), tService('pulse.profile_dev_struct_validation'), tService('pulse.profile_dev_struct_risks')],
         defaultDetail: 'balanced',
         appliesTo: ['cli', 'web', 'api'],
         commands: ['zavorth ask "use estilo dev"', 'zavorth ask "inclua arquivos e testes"'],
@@ -135,10 +136,10 @@ export class PulseBriefService {
       executive: {
         contractVersion: EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
         id: 'executive',
-        label: 'Executivo',
-        summary: 'Resumo de impacto, decisao necessaria, risco e evidencia curta.',
-        tone: 'executivo',
-        structure: ['impacto', 'decisao', 'risco', 'evidencia'],
+        label: tService('pulse.profile_executive_label'),
+        summary: tService('pulse.profile_executive_summary'),
+        tone: tService('pulse.profile_executive_tone'),
+        structure: [tService('pulse.profile_executive_struct_impact'), tService('pulse.profile_executive_struct_decision'), tService('pulse.profile_executive_struct_risk'), tService('pulse.profile_executive_struct_evidence')],
         defaultDetail: 'compact',
         appliesTo: ['web', 'telegram', 'discord', 'api'],
         commands: ['zavorth ask "use estilo executivo"', 'zavorth ask "resuma impacto e decisao"'],
@@ -147,10 +148,10 @@ export class PulseBriefService {
       mentor: {
         contractVersion: EXPERIENCE_RESPONSE_PROFILE_CONTRACT_VERSION,
         id: 'mentor',
-        label: 'Mentor',
-        summary: 'Explica o caminho enquanto executa, sem expor raciocinio bruto.',
-        tone: 'didatico',
-        structure: ['o que entendi', 'por que importa', 'como vou agir', 'como validar'],
+        label: tService('pulse.profile_mentor_label'),
+        summary: tService('pulse.profile_mentor_summary'),
+        tone: tService('pulse.profile_mentor_tone'),
+        structure: [tService('pulse.profile_mentor_struct_understood'), tService('pulse.profile_mentor_struct_why'), tService('pulse.profile_mentor_struct_action'), tService('pulse.profile_mentor_struct_validate')],
         defaultDetail: 'deep',
         appliesTo: ['cli', 'web', 'api'],
         commands: ['zavorth ask "use estilo mentor"', 'zavorth ask "explique enquanto trabalha"'],
@@ -186,36 +187,36 @@ export class PulseBriefService {
       const approval = input.approvals.find((item) => item.status === 'pending');
       return {
         id: 'daily.approval.review',
-        label: approval ? `Revisar aprovacao ${approval.id}` : 'Revisar aprovacoes',
+        label: approval ? tService('pulse.review_approval', { id: approval.id }) : tService('pulse.review_approvals'),
         kind: 'approval',
         command: approval ? `zavorth approve ${approval.id}` : 'zavorth approve',
         route: '/zavorthControl',
         risk: approval?.risk || 'attention',
         requiresApproval: false,
-        reason: 'Ha uma acao governada aguardando sua decisao.',
+        reason: tService('pulse.approval_reason'),
       };
     }
     if (input.learningPending > 0) {
       return {
         id: 'daily.learning.review',
-        label: 'Revisar aprendizados pendentes',
+        label: tService('pulse.review_learning'),
         kind: 'learning',
         command: 'zavorth learn',
         route: '/zavorthControl',
         risk: 'safe',
         requiresApproval: false,
-        reason: 'Promove apenas preferencias aprovadas pelo usuario.',
+        reason: tService('pulse.learning_reason'),
       };
     }
     return input.nextActions[0] || {
       id: 'daily.ask',
-      label: 'Pedir algo ao Zavorth',
+      label: tService('pulse.ask_zavorth'),
       kind: 'natural',
       command: 'zavorth ask "<pedido>"',
       route: null,
       risk: 'safe',
       requiresApproval: false,
-      reason: 'Entrada natural-first principal.',
+      reason: tService('pulse.natural_input_reason'),
     };
   }
 
@@ -225,19 +226,19 @@ export class PulseBriefService {
     pendingLearning: number,
     activeTask: string | null,
   ): string {
-    if (pendingApprovals > 0) return `${pendingApprovals} decisao(oes) aguardando sua aprovacao.`;
-    if (activeTask) return `Trabalhando em: ${clean(activeTask, 'tarefa ativa')}.`;
-    if (pendingLearning > 0) return `${pendingLearning} aprendizado(s) aguardando revisao.`;
-    if (status === 'ready') return 'Zavorth pronto para o proximo pedido.';
-    return 'Zavorth precisa de atencao antes do proximo fluxo.';
+    if (pendingApprovals > 0) return tService('pulse.headline_approvals', { count: String(pendingApprovals) });
+    if (activeTask) return tService('pulse.headline_active_task', { task: clean(activeTask, tService('pulse.active_task_fallback')) });
+    if (pendingLearning > 0) return tService('pulse.headline_learning', { count: String(pendingLearning) });
+    if (status === 'ready') return tService('pulse.headline_ready');
+    return tService('pulse.headline_needs_attention');
   }
 
   private summary(input: PulseBriefBuildInput, pendingApprovals: number, profile: ExperienceResponseProfile): string {
     const parts = [
       input.health.summary,
-      pendingApprovals > 0 ? 'ha aprovacoes pendentes' : 'sem aprovacoes pendentes',
-      input.learningPending > 0 ? `${input.learningPending} learning pendente` : 'learning em dia',
-      `perfil ${profile.label}`,
+      pendingApprovals > 0 ? tService('pulse.has_pending_approvals') : tService('pulse.no_pending_approvals'),
+      input.learningPending > 0 ? tService('pulse.learning_pending', { count: String(input.learningPending) }) : tService('pulse.learning_up_to_date'),
+      `${tService('pulse.profile_label')}: ${profile.label}`,
     ];
     return parts.map((part) => clean(part)).filter(Boolean).join(' | ');
   }

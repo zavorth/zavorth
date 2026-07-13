@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "memory-honcho",
+  "label": "Memory Honcho",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Optional Honcho-style memory backend wrapper with soft-fail status.",
+  "description": "First-party memory plugin that tries to load MemoryHonchoService from the monorepo and otherwise exposes a not_configured status capability.",
+  "tags": ["memory", "honcho", "profile", "conversation"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://memory-honcho",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.honcho.status",
+      "intent": "memory.honcho.status",
+      "label": "Honcho Status",
+      "summary": "Report whether MemoryHonchoService is available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_honcho_status",
+        "aliases": ["honcho_status"],
+        "usage": null
+      }
+    },
+    {
+      "id": "memory.honcho.profile",
+      "intent": "memory.honcho.profile",
+      "label": "Honcho Profile",
+      "summary": "Get or create a user profile when service is available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_honcho_profile",
+        "aliases": [],
+        "usage": "{ userId }"
+      }
+    },
+    {
+      "id": "memory.honcho.search",
+      "intent": "memory.honcho.search",
+      "label": "Honcho Search",
+      "summary": "Search conversation/profile insights when available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_honcho_search",
+        "aliases": [],
+        "usage": "{ userId?, query?, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "memory.read",
+      "scope": "workspace",
+      "reason": "Read Honcho profiles and conversations.",
+      "required": false
+    },
+    {
+      "kind": "memory.write",
+      "scope": "workspace",
+      "reason": "Write Honcho profiles when service is available.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read Honcho storage directory if present.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Persist Honcho data when service is available.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

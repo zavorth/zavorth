@@ -6,14 +6,6 @@ import type { Task } from '../../../../contracts/TaskContract.js';
 import type { PermissionService } from '../../../../services/PermissionService.js';
 import type { SelfModificationCommandService } from '../../../../services/SelfModificationCommandService.js';
 import {
-  parseExplicitSelfModificationIntent,
-  parseNaturalPermissionIntent,
-  parseNaturalWorkflowIntent,
-  type ExplicitSelfModificationIntent,
-  type NaturalPermissionIntent,
-  type NaturalWorkflowIntent,
-} from './workflow-governance/workflowGovernanceIntents.js';
-import {
   formatPermissionDecisionReply,
   formatPermissionDetailsReply,
   formatPermissionListReply,
@@ -26,6 +18,7 @@ import { resolveRecentWorkflowRunIdFromTasks } from './workflow-governance/workf
 
 import { canApplySelfModification, parseSelfModificationArgs } from './workflow-governance/workflowGovernanceSelfModification.js';
 import { asErrorLike } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
 export type SharedSurfaceWorkflowGovernanceCommandPackDeps = {
   permissionService: PermissionService | null;
   selfModificationCommandService: SelfModificationCommandService | null;
@@ -39,39 +32,6 @@ export type SharedSurfaceWorkflowGovernanceCommandPackDeps = {
 
 export class SharedSurfaceWorkflowGovernanceCommandPack {
   public constructor(private readonly deps: SharedSurfaceWorkflowGovernanceCommandPackDeps) {}
-
-  public async maybeHandleNaturalPermission(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const intent = parseNaturalPermissionIntent(rawText);
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleNaturalPermissionIntent(ctx, intent);
-    return true;
-  }
-
-  public async maybeHandleExplicitSelfModification(
-    ctx: IMessageContext,
-    rawText: string,
-  ): Promise<boolean> {
-    const intent = parseExplicitSelfModificationIntent(rawText);
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleExplicitSelfModificationIntent(ctx, intent);
-    return true;
-  }
-
-  public async maybeHandleNaturalWorkflow(ctx: IMessageContext, rawText: string): Promise<boolean> {
-    const intent = parseNaturalWorkflowIntent(rawText);
-    if (!intent) {
-      return false;
-    }
-
-    await this.handleNaturalWorkflowIntent(ctx, intent);
-    return true;
-  }
 
   public async maybeHandleCommand(
     ctx: IMessageContext,
@@ -93,47 +53,9 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
     }
   }
 
-  private async handleNaturalPermissionIntent(
-    ctx: IMessageContext,
-    intent: NaturalPermissionIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    await this.handlePermissionPlane(
-      ctx,
-      intent.command === 'list' ? intent.args : `${intent.command} ${intent.args}`.trim(),
-    );
-  }
-
-  private async handleExplicitSelfModificationIntent(
-    ctx: IMessageContext,
-    intent: ExplicitSelfModificationIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    await this.handleSelfModificationPlane(ctx, intent.args);
-  }
-
-  private async handleNaturalWorkflowIntent(
-    ctx: IMessageContext,
-    intent: NaturalWorkflowIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    if (intent.resolveRecent) {
-      const workflowRunId = this.resolveRecentWorkflowRunId(ctx, intent.resolveRecent.keywords);
-      if (!workflowRunId) {
-        await ctx.reply(
-          'Nao encontrei um workflow recente com esse contexto. Use /workflow resume <wf-id> se quiser ser mais explicito.',
-        );
-        return;
-      }
-      await this.handleWorkflowCommand(ctx, `resume ${workflowRunId}`);
-      return;
-    }
-    await this.handleWorkflowCommand(ctx, intent.args);
-  }
-
   private async handlePermissionPlane(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.permissionService) {
-      await ctx.reply('Permission plane indisponivel neste runtime compartilhado.');
+      await ctx.reply('Permission plane unavailable in this shared runtime.');
       return;
     }
 
@@ -185,14 +107,14 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
       await ctx.reply(formatPermissionListReply(permissions, status));
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
+      const message = error instanceof Error ? err.message : 'unknown error';
       await ctx.reply(`Falha na operacao de permissao: ${message}`);
     }
   }
 
   private async handleWorkflowCommand(ctx: IMessageContext, args: string): Promise<void> {
     if (!this.deps.workflowController) {
-      await ctx.reply('Workflow plane indisponivel nesta surface compartilhada.');
+      await ctx.reply('Workflow plane unavailable nesta surface compartilhada.');
       return;
     }
 
@@ -200,8 +122,8 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
       await this.deps.workflowController.handleWorkflow(ctx, args);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      await ctx.reply(`Nao consegui operar o workflow agora.\n\nMotivo: ${message}`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      await ctx.reply(`Could not operate the workflow right now.\n\nReason: ${message}`);
     }
   }
 
@@ -229,7 +151,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
           .join(', ')}`,
       );
     }
-    throw new Error('Nao encontrei essa permissao.');
+    throw new Error(tSurface('permission_not_found'));
   }
 
   private resolveRecentWorkflowRunId(
@@ -247,7 +169,7 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
 
   private async handleSelfModificationPlane(ctx: IMessageContext, rawArgs: string): Promise<void> {
     if (!this.deps.selfModificationCommandService) {
-      await ctx.reply('Selfmod indisponivel neste runtime compartilhado.');
+      await ctx.reply('Selfmod unavailable in this shared runtime.');
       return;
     }
 
@@ -306,8 +228,8 @@ export class SharedSurfaceWorkflowGovernanceCommandPack {
       await ctx.reply(formatSelfModificationRollbackReply(result));
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'erro desconhecido';
-      await ctx.reply(`Nao consegui operar o selfmod agora.\n\nMotivo: ${message}`);
+      const message = error instanceof Error ? err.message : 'unknown error';
+      await ctx.reply(`Could not operate selfmod right now.\n\nReason: ${message}`);
     }
   }
 

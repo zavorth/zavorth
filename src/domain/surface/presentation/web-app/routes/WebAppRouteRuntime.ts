@@ -394,7 +394,7 @@ export async function handleRuntimeRoutes(
             {
               ok: false,
               error: 'provider_live_probe_requires_explicit_operator_cli_or_approved_api',
-              detail: 'O ZavorthControl expõe readiness/projection only. Probe live de provider não roda por render normal do zavorthControl.',
+              detail: 'ZavorthControl exposes readiness/projection only. Live provider probes do not run on a normal Control render.',
             },
             403,
           );

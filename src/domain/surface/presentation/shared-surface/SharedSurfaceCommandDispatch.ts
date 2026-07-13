@@ -2,8 +2,6 @@ import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ParsedCommand } from '../../../../gateways/channels/telegram/CommandParser.js';
 import type { RuntimeDiagnosticsService } from '../../../../services/RuntimeDiagnosticsService.js';
 import type { DiscordSurfacePolicyService } from '../../../../services/DiscordSurfacePolicyService.js';
-import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
-import type { SurfaceTaskDispatcherLike } from '../../../../services/SurfaceRuntime.js';
 import type { SharedSurfaceAccessCommandPack } from './SharedSurfaceAccessCommandPack.js';
 import type { SharedSurfaceZavorthBridgeMobileCommandPack } from './SharedSurfaceZavorthBridgeMobileCommandPack.js';
 import type { SharedSurfaceCapabilityCommandPack } from './SharedSurfaceCapabilityCommandPack.js';
@@ -16,27 +14,32 @@ import type { SharedSurfaceIntegrationCommandPack } from './SharedSurfaceIntegra
 import type { SharedSurfaceIntegrationHubCommandPack } from './SharedSurfaceIntegrationHubCommandPack.js';
 import type { SharedSurfaceLearningCommandPack } from './SharedSurfaceLearningCommandPack.js';
 import type { SharedSurfaceMemoryCommandPack } from './SharedSurfaceMemoryCommandPack.js';
-import type { SharedSurfaceNaturalMeshCommandPack } from './SharedSurfaceNaturalMeshCommandPack.js';
 import type { SharedSurfaceOperationsCommandPack } from './SharedSurfaceOperationsCommandPack.js';
 import type { SharedSurfacePresentationCommandPack } from './SharedSurfacePresentationCommandPack.js';
 import type { SharedSurfaceRuntimeMaintenanceCommandPack } from './SharedSurfaceRuntimeMaintenanceCommandPack.js';
-import type { SharedSurfaceSessionCommandPack } from './SharedSurfaceSessionCommandPack.js';
 import type { SharedSurfaceSessionNodeCommandPack } from './SharedSurfaceSessionNodeCommandPack.js';
 import type { SharedSurfaceTaskControlCommandPack } from './SharedSurfaceTaskControlCommandPack.js';
-import type { SharedSurfaceTaskVariationCommandPack } from './SharedSurfaceTaskVariationCommandPack.js';
 import type { SharedSurfaceTenantGovernanceCommandPack } from './SharedSurfaceTenantGovernanceCommandPack.js';
 import type { SharedSurfaceWatchModeCommandPack } from './SharedSurfaceWatchModeCommandPack.js';
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';
+import type { SharedSurfaceSlashEnhancementCommandPack } from './SharedSurfaceSlashEnhancementCommandPack.js';
+import { naturalizeSharedSurfaceArgs } from './NaturalSlashConvention.js';
 import {
-  parseSharedSurfaceNaturalLearningIntent,
-  parseSharedSurfaceNaturalMemoryIntent,
-} from './SharedSurfaceNaturalIntentSupport.js';
-import { resolveNaturalOperationalStatusCommand } from './SharedSurfaceNaturalOperationalStatus.js';
+  isSurfaceAgentFirstEnabled,
+  recordAgentFirstMetric,
+  shouldPassNaturalTextToAgent,
+} from './SurfaceAgentFirstMode.js';
 
 export type SharedSurfacePreDispatchResult =
   | { kind: 'handled' }
-  | { kind: 'resolved'; command: ParsedCommand };
+  | { kind: 'resolved'; command: ParsedCommand }
+  /** Free text falls through to the agent gateway (no intent-regex packs). */
+  | { kind: 'pass_to_agent'; reason: string };
 
+/**
+ * Minimal pre-dispatch deps (agent-first + slash/parse only).
+ * Free-text natural pack wiring was removed — not assembly-compat stubs.
+ */
 export type SharedSurfaceCommandPreDispatchContext = {
   ctx: IMessageContext;
   rawText: string;
@@ -46,133 +49,45 @@ export type SharedSurfaceCommandPreDispatchContext = {
     DiscordSurfacePolicyService,
     'canUseOperationalCommand' | 'formatOperationalCommandDenied' | 'isOperationalCommand'
   >;
-  presentationCommandPack: Pick<SharedSurfacePresentationCommandPack, 'parseRuntimeMaintenanceIntent'>;
-  runtimeMaintenanceCommandPack: Pick<
-    SharedSurfaceRuntimeMaintenanceCommandPack,
-    'handleRuntimeMaintenanceIntent'
-  >;
-  zavorthBridgeMobileCommandPack: Pick<
-    SharedSurfaceZavorthBridgeMobileCommandPack,
-    'parseNaturalIntent' | 'handle'
-  >;
-  naturalMeshCommandPack: Pick<SharedSurfaceNaturalMeshCommandPack, 'maybeHandle'>;
-  ecosystemCommandPack: Pick<SharedSurfaceEcosystemCommandPack, 'maybeHandleNaturalInvocation'>;
-  memoryCommandPack: Pick<SharedSurfaceMemoryCommandPack, 'handleNaturalMemoryIntent'>;
-  sessionCommandPack: Pick<SharedSurfaceSessionCommandPack, 'maybeHandleNaturalSession'>;
-  workflowGovernanceCommandPack: Pick<
-    SharedSurfaceWorkflowGovernanceCommandPack,
-    'maybeHandleNaturalPermission' | 'maybeHandleExplicitSelfModification' | 'maybeHandleNaturalWorkflow'
-  >;
-  taskControlCommandPack: Pick<
-    SharedSurfaceTaskControlCommandPack,
-    'maybeHandleNaturalTaskApproval' | 'maybeHandleNaturalTaskControl' | 'maybeHandleNaturalRecentTaskFollowup'
-  >;
-  taskVariationCommandPack: Pick<SharedSurfaceTaskVariationCommandPack, 'maybeHandle'>;
-  engineeringCoreService: Pick<EngineeringCoreService, 'maybeHandleSurfaceRequest'> | null;
-  surfaceTaskDispatcher: SurfaceTaskDispatcherLike | null;
-  learningCommandPack: Pick<SharedSurfaceLearningCommandPack, 'handleNaturalLearningIntent'>;
-  codexRemoteCommandPack: Pick<SharedSurfaceCodexRemoteCommandPack, 'parseNaturalIntent'>;
 };
 
+/**
+ * Pre-dispatch free text / slash routing.
+ *
+ * 1. Agent-first free text → pass_to_agent (no intent-regex).
+ * 2. Slash → deterministic metric, then parse + Discord operational deny check.
+ * 3. Non-agent free text (Discord without flag, or TELEGRAM_AGENT_FIRST=0) →
+ *    parse(rawText) only — natural regex packs are never run.
+ */
 export async function preDispatchSharedSurfaceCommand(
   deps: SharedSurfaceCommandPreDispatchContext,
 ): Promise<SharedSurfacePreDispatchResult> {
   const { ctx, rawText, parsed } = deps;
-  const isNaturalText = !parsed && !rawText.startsWith('/');
 
-  const maintenanceIntent = deps.presentationCommandPack.parseRuntimeMaintenanceIntent(rawText);
-  if (maintenanceIntent) {
-    if (isDiscordOperationalCommandDenied(deps.discordSurfacePolicyService, ctx)) {
-      await ctx.reply(deps.discordSurfacePolicyService.formatOperationalCommandDenied());
-      return { kind: 'handled' };
-    }
-    await deps.runtimeMaintenanceCommandPack.handleRuntimeMaintenanceIntent(ctx, maintenanceIntent);
-    return { kind: 'handled' };
+  // 1) Free text → agent (Telegram default; optional surface-wide flag)
+  if (
+    shouldPassNaturalTextToAgent({
+      platform: ctx.platform,
+      rawText,
+      hasParsedSlashCommand: Boolean(parsed?.command_type?.startsWith('/')),
+    })
+  ) {
+    recordAgentFirstMetric('naturalSkippedForAgent');
+    return {
+      kind: 'pass_to_agent',
+      reason:
+        'agent-first free text (no intent-regex); use slash or callback_data for approve/reject/undo',
+    };
   }
 
-  const zavorthBridgeMobileIntent = deps.zavorthBridgeMobileCommandPack.parseNaturalIntent(rawText);
-  if (zavorthBridgeMobileIntent) {
-    await deps.zavorthBridgeMobileCommandPack.handle(ctx, zavorthBridgeMobileIntent);
-    return { kind: 'handled' };
+  // 2) Slash stays deterministic
+  if (rawText.startsWith('/') || parsed?.command_type?.startsWith('/')) {
+    recordAgentFirstMetric('slashDeterministic');
   }
 
-  if (isNaturalText && await deps.taskVariationCommandPack.maybeHandle(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (await deps.naturalMeshCommandPack.maybeHandle(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  const naturalOperationalStatusCommand = isNaturalText
-    ? resolveNaturalOperationalStatusCommand(rawText)
-    : null;
-  if (naturalOperationalStatusCommand) {
-    return { kind: 'resolved', command: deps.parse(naturalOperationalStatusCommand) };
-  }
-
-  const naturalMemoryIntent = isNaturalText
-    ? parseSharedSurfaceNaturalMemoryIntent(rawText)
-    : null;
-  if (naturalMemoryIntent) {
-    await deps.memoryCommandPack.handleNaturalMemoryIntent(ctx, naturalMemoryIntent);
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.sessionCommandPack.maybeHandleNaturalSession(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.workflowGovernanceCommandPack.maybeHandleNaturalPermission(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.taskControlCommandPack.maybeHandleNaturalTaskApproval(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.ecosystemCommandPack.maybeHandleNaturalInvocation(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.taskControlCommandPack.maybeHandleNaturalTaskControl(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.taskControlCommandPack.maybeHandleNaturalRecentTaskFollowup(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && deps.engineeringCoreService) {
-    const engineeringHandled = await deps.engineeringCoreService.maybeHandleSurfaceRequest(
-      ctx,
-      deps.surfaceTaskDispatcher,
-    );
-    if (engineeringHandled) {
-      return { kind: 'handled' };
-    }
-  }
-
-  if (isNaturalText && await deps.workflowGovernanceCommandPack.maybeHandleExplicitSelfModification(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  const naturalLearningIntent = isNaturalText
-    ? parseSharedSurfaceNaturalLearningIntent(rawText)
-    : null;
-  if (naturalLearningIntent) {
-    await deps.learningCommandPack.handleNaturalLearningIntent(ctx, naturalLearningIntent);
-    return { kind: 'handled' };
-  }
-
-  if (isNaturalText && await deps.workflowGovernanceCommandPack.maybeHandleNaturalWorkflow(ctx, rawText)) {
-    return { kind: 'handled' };
-  }
-
-  const codexRemoteNaturalCommand = isNaturalText
-    ? deps.codexRemoteCommandPack.parseNaturalIntent(rawText)
-    : null;
-  const resolved = parsed || deps.parse(codexRemoteNaturalCommand || rawText);
+  // Resolve command via parse only — free-text natural interceptors removed.
+  // Natural packs are not invoked even when agent-first is disabled.
+  const resolved = parsed || deps.parse(rawText);
   if (
     ctx.platform === 'discord' &&
     deps.discordSurfacePolicyService.isOperationalCommand(resolved.command_type) &&
@@ -186,6 +101,9 @@ export async function preDispatchSharedSurfaceCommand(
 
   return { kind: 'resolved', command: resolved };
 }
+
+/** Exported for tests / diagnostics. */
+export { isSurfaceAgentFirstEnabled };
 
 export type SharedSurfaceCommandPackDispatchContext = {
   ctx: IMessageContext;
@@ -202,13 +120,22 @@ export type SharedSurfaceCommandPackDispatchContext = {
   watchModeCommandPack: Pick<SharedSurfaceWatchModeCommandPack, 'maybeHandle'>;
   sessionNodeCommandPack: Pick<SharedSurfaceSessionNodeCommandPack, 'maybeHandle'>;
   workflowGovernanceCommandPack: Pick<SharedSurfaceWorkflowGovernanceCommandPack, 'maybeHandleCommand'>;
+  slashEnhancementCommandPack?: Pick<SharedSurfaceSlashEnhancementCommandPack, 'maybeHandle'> | null;
 };
 
 export async function dispatchSharedSurfaceCommandPacks(
   deps: SharedSurfaceCommandPackDispatchContext,
 ): Promise<boolean> {
   const { ctx, command } = deps;
-  const { command_type, command_args } = command;
+  const { command_type } = command;
+  // Universal natural UX: rewrite free-text / empty args for ALL packs (existing + future).
+  const command_args = naturalizeSharedSurfaceArgs(command_type, command.command_args).args;
+
+  // Optional slash-command pack for tests without full wiring
+  if (deps.slashEnhancementCommandPack
+    && await deps.slashEnhancementCommandPack.maybeHandle(ctx, command_type, command_args)) {
+    return true;
+  }
 
   if (await deps.controlPlaneCommandPack.maybeHandle(ctx, command_type, command_args)) {
     return true;
@@ -286,7 +213,8 @@ export async function dispatchSharedSurfaceBuiltinCommand(
   deps: SharedSurfaceBuiltinDispatchContext,
 ): Promise<boolean> {
   const { ctx, command } = deps;
-  const { command_type, command_args } = command;
+  const { command_type } = command;
+  const command_args = naturalizeSharedSurfaceArgs(command_type, command.command_args).args;
 
   switch (command_type) {
     case '/ping':
@@ -367,19 +295,4 @@ export async function dispatchSharedSurfaceBuiltinCommand(
     default:
       return false;
   }
-}
-
-function isDiscordOperationalCommandDenied(
-  policyService: Pick<
-    DiscordSurfacePolicyService,
-    'canUseOperationalCommand' | 'formatOperationalCommandDenied'
-  >,
-  ctx: IMessageContext,
-): boolean {
-  return (
-    ctx.platform === 'discord' &&
-    !policyService.canUseOperationalCommand(String(ctx.userId || '').trim(), {
-      isDirectMessage: !ctx.isGroup,
-    })
-  );
 }

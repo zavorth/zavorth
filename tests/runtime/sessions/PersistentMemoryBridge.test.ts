@@ -23,6 +23,11 @@ describe('PersistentMemoryBridge', () => {
 
   afterEach(async () => {
     await bridge.destroy();
+    try {
+      store.close();
+    } catch {
+      // already closed by destroy
+    }
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 

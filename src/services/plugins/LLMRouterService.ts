@@ -208,6 +208,13 @@ export class LLMRouterService {
     ].join('\n');
   }
 
+  /** Resolve a structured profile by router id (e.g. gpt-4o-mini). */
+  public resolveModelProfile(modelId: string): ModelProfile | null {
+    const id = String(modelId || '').trim();
+    if (!id) return null;
+    return this.modelProfiles.get(id) || null;
+  }
+
   public recordUsage(modelId: string, inputTokens: number, outputTokens: number, cost: number): void {
     const stats = this.usageStats.get(modelId) || { calls: 0, tokens: 0, cost: 0, errors: 0 };
     stats.calls++;

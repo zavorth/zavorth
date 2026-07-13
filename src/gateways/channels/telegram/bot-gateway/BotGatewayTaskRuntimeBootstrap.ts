@@ -150,7 +150,7 @@ export function buildTaskNaturalConversationIngress(
       gateway.logRepo.log(
         'error',
         'BotGateway',
-        'LegacyUnifiedGatewayAdapter indisponivel durante o ingresso natural de task.',
+        'LegacyUnifiedGatewayAdapter unavailable durante o ingresso natural de task.',
         {
           taskId: task.task_id,
           source: task.source || 'telegram',

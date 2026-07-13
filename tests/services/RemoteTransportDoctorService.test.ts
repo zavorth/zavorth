@@ -349,7 +349,7 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'ready',
               available: true,
               endpoint: 'http://127.0.0.1:4100/health',
-              operatorSummary: 'AIGateway pronto.',
+              operatorSummary: 'AIGateway ready.',
               actionHint: '/connect AIGateway',
               telemetry: {
                 updatedAt: '2026-04-02T11:57:00.000Z',
@@ -516,7 +516,7 @@ describe('RemoteTransportDoctorService', () => {
               readiness: 'ready',
               available: true,
               endpoint: 'http://127.0.0.1:4100/health',
-              operatorSummary: 'AIGateway pronto.',
+              operatorSummary: 'AIGateway ready.',
               actionHint: '/connect AIGateway',
               telemetry: {
                 updatedAt: '2026-04-02T11:57:00.000Z',

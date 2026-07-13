@@ -13,8 +13,6 @@ import { createBotGatewaySupport } from '../../../../gateways/channels/telegram/
 import { initializeTelegramTaskRuntime } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayTaskRuntimeBootstrap.js';
 import type { BotGatewayRuntimeOptions } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewayBootstrapTypes.js';
 import { processTextMessage } from '../../../../gateways/channels/telegram/bot-gateway/support/BotGatewayMessageProcessing.js';
-import { LlmRuntimeService } from '@zavorth/services/llm/LlmRuntimeService.js';
-import { TelegramIntentClassifier } from '../../../../gateways/channels/telegram/controllers/TelegramIntentClassifier.js';
 import type { BotGateway } from '../../../../gateways/channels/telegram/BotGateway.js';
 import type { WorkflowRunService } from '../../../../services/WorkflowRunService.js';
 import type { RuntimeCompositionService } from '../../../../services/RuntimeCompositionService.js';
@@ -189,7 +187,6 @@ export function finalizeBotGatewayBootstrap(
     opsController: gw.opsController,
     zavorthBridgeController: gw.zavorthBridgeController,
     securityLock: gw.securityLock,
-    intentClassifier: new TelegramIntentClassifier(new LlmRuntimeService('gemini')),
   });
 
   gw.botGatewaySupport = createBotGatewaySupport(gw as never, logRepo);

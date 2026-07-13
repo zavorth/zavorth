@@ -64,6 +64,11 @@ import {
 } from './ZavorthCliFlowHelpers.js';
 
 import { normalizeZavorthHeadlessArgs } from './headless/ZavorthHeadlessCommand.js';
+import {
+  isNaturalCliCommand,
+  mapCliCommandToSlash,
+  naturalizeCliSurfaceText,
+} from './CliNaturalConvention.js';
 import type { ZavorthCliFlags, ZavorthCliRuntime, ZavorthCliServiceOverrides } from './ZavorthCliContract.js';
 
 function buildSessionPlaneInput(
@@ -339,6 +344,7 @@ function isCliNativeAliasCommand(commandName: string | null): boolean {
     'workspace',
     'platform',
     'plugins',
+    'plugin',
     'aigateway',
     'cockpit',
     'capabilities',
@@ -442,6 +448,7 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
       nativeText = canonicalizeCliCommandInput(surfaceText);
       break;
     case 'plugins':
+    case 'plugin':
     case 'workflow':
     case 'tenants':
     case 'commands':
@@ -452,14 +459,74 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
     case 'runtime':
     case 'loop':
     case 'agmobile':
+    case 'hub':
+    case 'skills':
+    case 'skill':
+    case 'learning':
+    case 'memory':
+    case 'memoryplane':
+    case 'consensus':
+    case 'deliberate':
+    case 'moa':
+    case 'model':
+    case 'watchmode':
+    case 'codexremote':
+    case 'sessionsend':
+    case 'sessionspawn':
+    case 'sessionhistory':
+    case 'enable':
+    case 'disable':
+    case 'agents':
+    case 'schedule':
+    case 'schedules':
+    case 'unschedule':
+    case 'report':
+    case 'automations':
+    case 'platform':
+    case 'integrations':
+    case 'connect':
+    case 'access':
+    case 'trust':
+    case 'bootstrap':
+    case 'evals':
+    case 'qa':
+    case 'governance':
+    case 'ecosystem':
+    case 'fleet':
+    case 'stability':
+    case 'aigateway':
+    case 'computer':
+    case 'device':
+    case 'vision':
+    case 'invoke':
+    case 'plan':
+    case 'auto':
+    case 'dryrun':
       surfaceText = `/${commandName}${args ? ` ${args}` : ''}`.trim();
       nativeText = canonicalizeCliCommandInput(surfaceText);
       break;
     default:
       if (normalized.startsWith('/') && isCliNativeAliasCommand(commandName)) {
         nativeText = canonical;
+      } else if (isNaturalCliCommand(commandName)) {
+        const slash = mapCliCommandToSlash(commandName) || `/${commandName}`;
+        surfaceText = `${slash}${args ? ` ${args}` : ''}`.trim();
+        nativeText = canonicalizeCliCommandInput(surfaceText);
       }
       break;
+  }
+
+  // Universal natural rewrite (same policies as chat slash)
+  if (surfaceText.startsWith('/')) {
+    const natural = naturalizeCliSurfaceText(surfaceText);
+    surfaceText = natural.text;
+    nativeText = canonicalizeCliCommandInput(surfaceText);
+  } else if (isNaturalCliCommand(commandName)) {
+    const natural = naturalizeCliSurfaceText(surfaceText);
+    if (natural.text.startsWith('/')) {
+      surfaceText = natural.text;
+      nativeText = canonicalizeCliCommandInput(surfaceText);
+    }
   }
 
   return {
@@ -473,7 +540,11 @@ function resolveCliExecutionInput(rawInput: string): CliResolvedExecutionInput {
 export function parseZavorthCliFlags(argv: string[]): ZavorthCliFlags {
   const headless = normalizeZavorthHeadlessArgs(argv);
   const effectiveArgv = headless.argv;
-  const defaultUserId = config.allowedUserIds[0] || process.env.USERNAME || process.env.USER || 'cli-operator';
+  const { resolveCliDefaultUserId } = require('../services/ZavorthDefaultUserId.js') as typeof import('../services/ZavorthDefaultUserId.js');
+  const defaultUserId = resolveCliDefaultUserId({
+    allowedUserIds: config.allowedUserIds,
+    envUser: process.env.USERNAME || process.env.USER || null,
+  });
   const flags: ZavorthCliFlags = {
     command: null,
     repl: false,
@@ -630,6 +701,38 @@ async function buildDefaultCliRuntime(options: {
 
   const taskManager = new TaskManager(taskRepo, logRepo);
   const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
+  // P0: wait for Plugin OS capability tools before CLI agent sessions.
+  try {
+    if (toolRuntimeServices.pluginOs?.ready) {
+      await Promise.race([
+        toolRuntimeServices.pluginOs.ready,
+        new Promise((resolve) => setTimeout(resolve, Number(process.env.ZAVORTH_PLUGIN_OS_READY_TIMEOUT_MS) || 15000)),
+      ]);
+    }
+  } catch {
+    /* soft-fail: continue without plugins */
+  }
+  // P2: reconcile skill firewall tool maps with the live registry.
+  try {
+    const { reconcileSkillToolsWithRegistry } = require('../services/SkillToolRegistryBridge.js');
+    const runtime = toolRuntimeServices.toolRuntime as {
+      hasTool?(name: string): boolean;
+      getToolDefinitions?(): Array<{ name: string }>;
+    };
+    if (runtime?.getToolDefinitions) {
+      const defs = runtime.getToolDefinitions() || [];
+      const names = new Set(defs.map((t) => t.name));
+      reconcileSkillToolsWithRegistry({
+        hasTool: (name: string) => names.has(name) || runtime.hasTool?.(name) === true,
+        getAllTools: () => defs,
+      });
+    }
+  } catch {
+    /* soft */
+  }
+  if (!process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE) {
+    process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE = 'daily-ops';
+  }
   const runtimeDiagnostics = new RuntimeDiagnosticsService(taskManager, logRepo);
   const sharedSurfaceCommandService = new SharedSurfaceCommandService({ runtimeDiagnostics });
   const commandService = new InternalSurfaceApiService({ commandService: sharedSurfaceCommandService });

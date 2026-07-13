@@ -27,6 +27,7 @@ import { createSurfaceResponse } from '../../application/surface-response/index.
 import { isSharedSurfaceChannelCallbackAction } from './SharedSurfaceCallbackCommandPolicy.js';
 import { replyWithSharedSurfaceResponse } from './SharedSurfaceResponseSender.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
+import { tSurface } from '../../../../i18n/surface.js';
 type ChannelActionExecute = Pick<ZavorthChannelActionService, 'execute'>['execute'];
 
 type ChannelActionRequest = Parameters<ChannelActionExecute>[0];
@@ -105,7 +106,7 @@ export class SharedSurfaceIntegrationCommandPack {
           intentTitle: 'Plugin plane',
           result,
         }));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui executar a acao do plugin plane agora.'));
+      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_plugin_plane')));
       }
       return;
     }
@@ -150,7 +151,7 @@ export class SharedSurfaceIntegrationCommandPack {
           requestedBy: String(ctx.userId || '').trim() || null,
         });
         await replyWithSharedSurfaceResponse(ctx, this.buildChannelActionSurfaceResponse(result));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui executar a acao do Channel Mesh agora.'));
+      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_channel_mesh')));
       }
       return;
     }
@@ -193,7 +194,7 @@ export class SharedSurfaceIntegrationCommandPack {
           intentTitle: 'Remote transport plane',
           result,
         }));
-      } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui executar a acao do plano remoto agora.'));
+      } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_remote_plane')));
       }
       return;
     }
@@ -211,8 +212,8 @@ export class SharedSurfaceIntegrationCommandPack {
       snapshot.narrative.headline,
       snapshot.narrative.operatorSummary,
       '',
-      `Transportes: ${snapshot.summary.total} | prontos: ${snapshot.summary.ready} | em preparo: ${snapshot.summary.partial} | desativados: ${snapshot.summary.disabled}.`,
-      `Ao vivo: ${snapshot.summary.live} | alcancaveis por endpoint: ${snapshot.summary.reachable} | atencao: ${snapshot.summary.attentionRequired} | pendencias: ${snapshot.summary.pendingWork}.`,
+      `Transports: ${snapshot.summary.total} | ready: ${snapshot.summary.ready} | partial: ${snapshot.summary.partial} | disabled: ${snapshot.summary.disabled}.`,
+      `Live: ${snapshot.summary.live} | endpoint-reachable: ${snapshot.summary.reachable} | attention: ${snapshot.summary.attentionRequired} | pending: ${snapshot.summary.pendingWork}.`,
     ];
 
     if (snapshot.selected) {
@@ -238,7 +239,7 @@ export class SharedSurfaceIntegrationCommandPack {
           `- Status: ${snapshot.selected.telemetry.statusLine}`,
           `- Pendencias: ${snapshot.selected.telemetry.pendingWork}`,
           `- Ultima atualizacao: ${snapshot.selected.telemetry.updatedAt || 'n/d'}`,
-          `- Ultimo erro: ${snapshot.selected.telemetry.lastError || 'sem erro recente'}`,
+          `- Last error: ${snapshot.selected.telemetry.lastError || 'no recent error'}`,
         );
       }
     }
@@ -514,7 +515,7 @@ export class SharedSurfaceIntegrationCommandPack {
     const items = [
       `Estado do QR: ${result.loginQr.state || 'n/d'}.`,
       result.loginQr.dataUrl
-        ? 'QR pronto: use a imagem no zavorthControl/API local para escanear com seguranca.'
+        ? 'QR ready: use the image in local zavorthControl/API to scan safely.'
         : `QR: ${result.loginQr.nextStep || 'sem proximo passo informado.'}`,
       result.loginQr.expiresAt ? `Expira em: ${result.loginQr.expiresAt}.` : null,
     ].filter(Boolean) as string[];

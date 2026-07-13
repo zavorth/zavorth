@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "notify-outbox",
+  "label": "Notify Outbox",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Local notification outbox with optional Slack/Discord webhook deliver.",
+  "description": "Queue agent-facing notifications locally first (always works). Optional HTTPS webhook deliver for Slack or Discord when configured — approval-gated, soft-fail.",
+  "tags": ["notify", "slack", "discord", "webhook", "outbox", "channel", "messaging", "alerts"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://notify-outbox",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "notify.enqueue",
+      "intent": "notify.enqueue",
+      "label": "Enqueue Notification",
+      "summary": "Queue a local notification message.",
+      "artifactKinds": [],
+      "command": { "name": "notify_enqueue", "aliases": ["notify_queue"], "usage": "{ title, body?, channel?, severity? }" }
+    },
+    {
+      "id": "notify.list",
+      "intent": "notify.list",
+      "label": "List Outbox",
+      "summary": "List queued/delivered notifications.",
+      "artifactKinds": [],
+      "command": { "name": "notify_list", "aliases": [], "usage": "{ status?, limit? }" }
+    },
+    {
+      "id": "notify.deliver",
+      "intent": "notify.deliver",
+      "label": "Deliver Notification",
+      "summary": "Deliver one or all pending items via webhook (approval + network).",
+      "artifactKinds": [],
+      "command": { "name": "notify_deliver", "aliases": [], "usage": "{ id?, all? }" }
+    },
+    {
+      "id": "notify.status",
+      "intent": "notify.status",
+      "label": "Outbox Status",
+      "summary": "Counts and webhook configuration presence (no secrets).",
+      "artifactKinds": [],
+      "command": { "name": "notify_status", "aliases": [], "usage": "{}" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read the notification outbox store.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Write the notification outbox under .zavorth/notify-outbox.",
+      "required": false
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Optional HTTPS webhook deliver to Slack/Discord.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": true,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["notify-outbox.receipt"]
+}

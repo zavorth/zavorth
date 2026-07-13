@@ -78,7 +78,7 @@ export function buildExecutionHostConfig(
     dockerSandboxNoNewPrivileges: (process.env.ZAVORTH_DOCKER_SANDBOX_NO_NEW_PRIVILEGES || 'true').toLowerCase() !== 'false',
     dockerSandboxWorkspacePath: process.env.ZAVORTH_DOCKER_SANDBOX_WORKSPACE_PATH || '/workspace',
 
-    // Wasm sandbox capability plane (phase 4)
+    // Wasm sandbox capability plane
     wasmSandboxEnabled: (process.env.ZAVORTH_WASM_SANDBOX_ENABLED || 'false').toLowerCase() === 'true',
     wasmSandboxMaxExecutionMs: parseEnvInt(process.env.ZAVORTH_WASM_SANDBOX_MAX_EXECUTION_MS, 5000),
     wasmSandboxMaxBytes: parseEnvInt(process.env.ZAVORTH_WASM_SANDBOX_MAX_BYTES, 262144),

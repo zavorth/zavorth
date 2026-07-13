@@ -11,26 +11,18 @@ import {
   preDispatchSharedSurfaceCommand,
 } from '../domain/surface/presentation/shared-surface/SharedSurfaceCommandDispatch.js';
 import {
-  extractSharedSurfaceNaturalChannelId,
-  formatSharedSurfaceNaturalChannelLabel,
-  normalizeSharedSurfaceNaturalText,
-} from '../domain/surface/presentation/shared-surface/SharedSurfaceNaturalIntentSupport.js';
-import {
   buildSharedSurfaceCommandServiceComposition,
   type SharedSurfaceCommandServiceComposition,
   type SharedSurfaceCommandServiceDeps,
 } from '../domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
 import { ZavorthSmartCommandSurfaceService } from './ZavorthSmartCommandSurfaceService.js';
-
-
+import { SharedSurfaceSlashEnhancementCommandPack } from '../domain/surface/presentation/shared-surface/SharedSurfaceSlashEnhancementCommandPack.js';
 
 export class SharedSurfaceCommandService {
   private readonly parser!: SharedSurfaceCommandServiceComposition['parser'];
   private channelActionService!: SharedSurfaceCommandServiceComposition['channelActionService'];
   private readonly channelMeshService!: SharedSurfaceCommandServiceComposition['channelMeshService'];
   private readonly discordSurfacePolicyService!: SharedSurfaceCommandServiceComposition['discordSurfacePolicyService'];
-  private readonly engineeringCoreService!: SharedSurfaceCommandServiceComposition['engineeringCoreService'];
-  private readonly surfaceTaskDispatcher!: SharedSurfaceCommandServiceComposition['surfaceTaskDispatcher'];
   private readonly accessCommandPack!: SharedSurfaceCommandServiceComposition['accessCommandPack'];
   private readonly zavorthBridgeMobileCommandPack!: SharedSurfaceCommandServiceComposition['zavorthBridgeMobileCommandPack'];
   private readonly capabilityCommandPack!: SharedSurfaceCommandServiceComposition['capabilityCommandPack'];
@@ -44,27 +36,18 @@ export class SharedSurfaceCommandService {
   private readonly integrationCommandPack!: SharedSurfaceCommandServiceComposition['integrationCommandPack'];
   private readonly learningCommandPack!: SharedSurfaceCommandServiceComposition['learningCommandPack'];
   private readonly memoryCommandPack!: SharedSurfaceCommandServiceComposition['memoryCommandPack'];
-  private readonly naturalMeshCommandPack!: SharedSurfaceCommandServiceComposition['naturalMeshCommandPack'];
   private readonly operationsCommandPack!: SharedSurfaceCommandServiceComposition['operationsCommandPack'];
   private readonly runtimeMaintenanceCommandPack!: SharedSurfaceCommandServiceComposition['runtimeMaintenanceCommandPack'];
   private readonly watchModeCommandPack!: SharedSurfaceCommandServiceComposition['watchModeCommandPack'];
-  private readonly sessionCommandPack!: SharedSurfaceCommandServiceComposition['sessionCommandPack'];
   private readonly sessionNodeCommandPack!: SharedSurfaceCommandServiceComposition['sessionNodeCommandPack'];
   private readonly taskControlCommandPack!: SharedSurfaceCommandServiceComposition['taskControlCommandPack'];
-  private readonly taskVariationCommandPack!: SharedSurfaceCommandServiceComposition['taskVariationCommandPack'];
   private readonly workflowGovernanceCommandPack!: SharedSurfaceCommandServiceComposition['workflowGovernanceCommandPack'];
   private readonly presentationCommandPack!: SharedSurfaceCommandServiceComposition['presentationCommandPack'];
   private readonly smartCommandSurface = new ZavorthSmartCommandSurfaceService();
+  private readonly slashEnhancementCommandPack = new SharedSurfaceSlashEnhancementCommandPack();
 
   constructor(private readonly deps: SharedSurfaceCommandServiceDeps) {
-    Object.assign(
-      this,
-      buildSharedSurfaceCommandServiceComposition(deps, {
-        normalizeNaturalText: normalizeSharedSurfaceNaturalText,
-        extractNaturalChannelId: extractSharedSurfaceNaturalChannelId,
-        formatNaturalChannelLabel: formatSharedSurfaceNaturalChannelLabel,
-      }),
-    );
+    Object.assign(this, buildSharedSurfaceCommandServiceComposition(deps));
   }
 
   public attachChannelBroadcastGateways(
@@ -110,23 +93,14 @@ export class SharedSurfaceCommandService {
       parsed,
       parse: (value) => this.parse(value),
       discordSurfacePolicyService: this.discordSurfacePolicyService,
-      presentationCommandPack: this.presentationCommandPack,
-      runtimeMaintenanceCommandPack: this.runtimeMaintenanceCommandPack,
-      zavorthBridgeMobileCommandPack: this.zavorthBridgeMobileCommandPack,
-      naturalMeshCommandPack: this.naturalMeshCommandPack,
-      ecosystemCommandPack: this.ecosystemCommandPack,
-      memoryCommandPack: this.memoryCommandPack,
-      sessionCommandPack: this.sessionCommandPack,
-      workflowGovernanceCommandPack: this.workflowGovernanceCommandPack,
-      taskControlCommandPack: this.taskControlCommandPack,
-      taskVariationCommandPack: this.taskVariationCommandPack,
-      engineeringCoreService: this.engineeringCoreService,
-      surfaceTaskDispatcher: this.surfaceTaskDispatcher || null,
-      learningCommandPack: this.learningCommandPack,
-      codexRemoteCommandPack: this.codexRemoteCommandPack,
     });
     if (preDispatch.kind === 'handled') {
       return true;
+    }
+
+    // Agent-first: free text falls through to Telegram agent gateway.
+    if (preDispatch.kind === 'pass_to_agent') {
+      return false;
     }
 
     if (await dispatchSharedSurfaceCommandPacks({
@@ -144,6 +118,7 @@ export class SharedSurfaceCommandService {
       watchModeCommandPack: this.watchModeCommandPack,
       sessionNodeCommandPack: this.sessionNodeCommandPack,
       workflowGovernanceCommandPack: this.workflowGovernanceCommandPack,
+      slashEnhancementCommandPack: this.slashEnhancementCommandPack,
     })) {
       return true;
     }
@@ -162,43 +137,6 @@ export class SharedSurfaceCommandService {
       taskControlCommandPack: this.taskControlCommandPack,
     });
   }
-
-  private extractNaturalMemoryQuery(rawText: string): string | null {
-    const original = String(rawText || '').trim();
-    const quoted = original.match(/["'“”‘’]([^"'“”‘’]+)["'“”‘’]/);
-    if (quoted?.[1]) {
-      return quoted[1].trim();
-    }
-
-    const normalized = normalizeSharedSurfaceNaturalText(rawText);
-    const markers = [' por ', ' sobre ', ' de ', ' pra '];
-    for (const marker of markers) {
-      const index = normalized.indexOf(marker);
-      if (index >= 0) {
-        const query = normalized.slice(index + marker.length).trim();
-        if (query) {
-          return query;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private extractNaturalLearningCandidateId(normalized: string): string | null {
-    const candidateMatch = normalized.match(/\b(candidate:[a-z0-9._:-]+)\b/i);
-    if (candidateMatch?.[1]) {
-      return candidateMatch[1];
-    }
-
-    const explicitMatch = normalized.match(/\b(?:candidato|candidate)\s+([a-z0-9][a-z0-9._:-]+)\b/i);
-    if (explicitMatch?.[1]) {
-      return explicitMatch[1];
-    }
-
-    return null;
-  }
-
 }
 
 function hasSharedSurfaceFlag(rawText: string, name: string): boolean {
@@ -211,4 +149,3 @@ function extractSharedSurfaceInlineValue(rawText: string, name: string): string 
   const match = String(rawText || '').match(new RegExp(`(?:^|\\s)--${escaped}\\s+([^\\s]+)`, 'i'));
   return match?.[1]?.trim() || null;
 }
-

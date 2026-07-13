@@ -37,7 +37,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isSwarmScaleRoute() && req.method === 'GET') {
     if (!scaleService?.listRuns) {
-      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane unavailable.' }, 503);
       return true;
     }
     deps.writeJson(res, {
@@ -52,7 +52,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isSwarmScaleRoute() && req.method === 'POST') {
     if (!scaleService?.launch) {
-      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -100,7 +100,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isSwarmScaleRoute('/state') && req.method === 'GET') {
     if (!scaleService?.getRun) {
-      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane unavailable.' }, 503);
       return true;
     }
     const runId = String(url.searchParams.get('runId') || '').trim();
@@ -124,7 +124,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isSwarmScaleRoute('/resume') && req.method === 'POST') {
     if (!scaleService?.resume) {
-      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Swarm Scale Plane unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -149,7 +149,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute() && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} unavailable.` }, 503);
       return true;
     }
     deps.writeJson(res, {
@@ -164,7 +164,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute() && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -243,7 +243,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute('/roles') && req.method === 'GET') {
     if (!service?.listRoleLibrary) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} role library indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} role library unavailable.` }, 503);
       return true;
     }
     deps.writeJson(res, {
@@ -257,7 +257,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute('/roles') && req.method === 'POST') {
     if (!service?.upsertRoleLibraryEntry) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} role library indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} role library unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -282,7 +282,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute('/replay') && req.method === 'GET') {
     if (!service?.getSwarmReplay) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} replay indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} replay unavailable.` }, 503);
       return true;
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
@@ -306,7 +306,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute('/state') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} unavailable.` }, 503);
       return true;
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
@@ -325,7 +325,7 @@ export const handleZavorthEnsembleRoutes: WebAppSupervisionRouteHandler = async 
 
   if (isZavorthEnsembleRoute('/cancel') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${zavorthEnsembleLabel} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);

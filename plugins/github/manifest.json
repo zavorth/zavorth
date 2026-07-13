@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "github",
+  "label": "GitHub",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "GitHub CLI bridge for auth status, PR list, and issue list.",
+  "description": "First-party Plugin OS bridge that shells out to gh when available, or reports install/token setup guidance.",
+  "tags": ["github", "pr", "issue", "bridge", "cli"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://github",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "github.status",
+      "intent": "github.status",
+      "label": "GitHub Status",
+      "summary": "Report gh CLI / token availability.",
+      "artifactKinds": [],
+      "command": {
+        "name": "github_status",
+        "aliases": ["gh_status"],
+        "usage": null
+      }
+    },
+    {
+      "id": "github.pr.list",
+      "intent": "github.pr.list",
+      "label": "List Pull Requests",
+      "summary": "List pull requests via gh pr list --json.",
+      "artifactKinds": [],
+      "command": {
+        "name": "github_pr_list",
+        "aliases": ["gh_pr_list"],
+        "usage": "{ repo?, limit? }"
+      }
+    },
+    {
+      "id": "github.issue.list",
+      "intent": "github.issue.list",
+      "label": "List Issues",
+      "summary": "List issues via gh issue list --json.",
+      "artifactKinds": [],
+      "command": {
+        "name": "github_issue_list",
+        "aliases": ["gh_issue_list"],
+        "usage": "{ repo?, limit? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Spawn gh CLI for status, PR, and issue listing.",
+      "required": false
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Optional network when gh contacts GitHub APIs.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "local-exec"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

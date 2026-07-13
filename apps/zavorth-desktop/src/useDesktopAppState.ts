@@ -556,17 +556,28 @@ export function useDesktopAppState() {
     return [...routes, ...readiness, ...setupOptions];
   }, [channelSetup, snapshot]);
 
-  async function resolveApproval(approvalId: string, decision: 'approve' | 'reject') {
+  async function resolveApproval(
+    approvalId: string,
+    decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
+  ) {
     setBusy(true);
     try {
       await resolveApprovalRequest(approvalId, decision);
       await refreshPanels();
-      appendLocalMessage(setMessages, 'system', `Approval ${decision === 'approve' ? 'approved' : 'rejected'}.`);
+      const label =
+        decision === 'deny' || decision === 'reject'
+          ? 'denied'
+          : decision === 'session'
+            ? 'allowed for session'
+            : decision === 'always'
+              ? 'always allowed'
+              : 'allowed once';
+      appendLocalMessage(setMessages, 'system', `Approval ${label}.`);
       recordReceipt({
         kind: 'approval',
         title: `Approval ${decision}`,
         summary: `Decision ${decision} for ${approvalId}.`,
-        status: decision === 'approve' ? 'ok' : 'failed',
+        status: decision === 'deny' || decision === 'reject' ? 'failed' : 'ok',
         sessionId,
         source: 'zavorth-desktop',
         metadata: { approvalId, decision },
@@ -1187,11 +1198,17 @@ export function useDesktopAppState() {
     }
   }
 
-  const handleHostCommandResolve = useCallback(async (operationId: string, decision: 'approve' | 'deny', strongPhrase?: string) => {
+  const handleHostCommandResolve = useCallback(async (
+    operationId: string,
+    decision: 'approve' | 'deny',
+    strongPhrase?: string,
+  ) => {
     setBusy(true);
     try {
       await resolveHostCommand(operationId, decision, strongPhrase);
-      setPendingHostCommands(pendingHostCommands.filter(cmd => cmd.operation_id !== operationId));
+      setPendingHostCommands(pendingHostCommands.filter(cmd =>
+        cmd.operation_id !== operationId && cmd.operationId !== operationId,
+      ));
       appendLocalMessage(setMessages, 'system', `Host command proposal ${decision}d.`);
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -1521,6 +1538,21 @@ export function useDesktopAppState() {
     marketplaceLoading: product.marketplaceLoading,
     marketplaceSource: product.marketplaceSource,
     refreshMarketplace: product.refreshMarketplace,
+    pluginOsData: product.pluginOsData,
+    pluginOsLabels: product.pluginOsLabels,
+    pluginOsError: product.pluginOsError,
+    onEnablePluginOs: product.handleEnablePluginOs,
+    onDisablePluginOs: product.handleDisablePluginOs,
+    onInspectPluginOs: product.handleInspectPluginOs,
+    onRecommendPluginOs: product.handleRecommendPluginOs,
+    onCatalogApplyPluginOs: product.handleCatalogApplyPluginOs,
+    onOnboardingPluginOs: product.handleOnboardingPluginOs,
+    onUndoOnboardingPluginOs: product.handleUndoOnboardingPluginOs,
+    onSuggestActionPluginOs: product.handleSuggestActionPluginOs,
+    pluginOsSuggest: product.pluginOsSuggest,
+    pluginOsReceipts: product.pluginOsReceipts,
+    pluginOsInjectMode: product.pluginOsInjectMode,
+    onRefreshPluginOs: product.refreshPluginOs,
     onBoardSelect: product.handleBoardSelect,
     onCardCreate: product.handleCardCreate,
     onCardUpdate: product.handleCardUpdate,

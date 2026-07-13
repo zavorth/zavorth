@@ -4,7 +4,8 @@ import type {
   BootstrapFoundation,
   BootstrapSupervisor,
   BootstrapSurfaceRuntime,
-} from './bootstrapTypes.js';export async function startChannelGateways(
+} from './bootstrapTypes.js';
+export async function startChannelGateways(
   foundation: BootstrapFoundation,
   surfaceRuntime: BootstrapSurfaceRuntime,
   supervisor: BootstrapSupervisor,
@@ -53,6 +54,42 @@ import type {
     dormantMessage: `Profile ${foundation.runtimeProfileService.getProfile()} does not prewarm WhatsApp.`,
     foundation,
   });
+
+  try {
+    const provider = String(process.env.WHATSAPP_PROVIDER || '').trim().toLowerCase();
+    const autoBridge = ['1', 'true', 'on', 'yes'].includes(String(process.env.WHATSAPP_BRIDGE_AUTOSTART || '').trim().toLowerCase());
+    const autoPoll = ['1', 'true', 'on', 'yes'].includes(String(process.env.WHATSAPP_BRIDGE_POLL || '').trim().toLowerCase());
+    if (provider === 'baileys' && (autoBridge || autoPoll)) {
+      const { getWhatsAppBridgeSupervisor, getWhatsAppBridgeInboundPoller } = await import('../services/WhatsAppBridgeRuntime.js');
+      const supervisor = getWhatsAppBridgeSupervisor(process.cwd());
+      if (autoBridge) {
+        const started = await supervisor.start();
+        foundation.logRepo.log(
+          'info',
+          'WhatsAppBridgeSupervisor',
+          `Baileys T2 bridge autostart desired=${started.desired} running=${started.process.running} packageReady=${started.packageReady}.`,
+        );
+      }
+      if (autoPoll) {
+        const poller = getWhatsAppBridgeInboundPoller({
+          gateway: surfaceRuntime.whatsAppGateway,
+          bridgeUrl: supervisor.bridgeUrl,
+        });
+        poller.start();
+        foundation.logRepo.log(
+          'info',
+          'WhatsAppBridgeInboundPoller',
+          `Baileys inbound long-poll started against ${supervisor.bridgeUrl}/messages.`,
+        );
+      }
+    }
+  } catch (error: unknown) {
+    foundation.logRepo.log(
+      'warn',
+      'WhatsAppBridgeSupervisor',
+      `Baileys bridge bootstrap skipped: ${describeError(error)}`,
+    );
+  }
   await startOptionalGateway({
     capabilityId: 'instagram',
     gatewayName: 'InstagramGateway',
@@ -139,7 +176,6 @@ import type {
     );
   }
 
-  // Start Outbox Retry Service daemon
   try {
     const { ChannelGatewayFactory } = await import('../gateways/ChannelGatewayFactory.js');
     const { OutboxRetryService } = await import('../services/OutboxRetryService.js');
@@ -147,7 +183,32 @@ import type {
     const outboxRetryService = OutboxRetryService.getInstance(gatewayRegistry);
     outboxRetryService.start();
     foundation.logRepo.log('info', 'OutboxRetryService', 'Outbox retry daemon started successfully.');
-  } catch (error: unknown) {foundation.logRepo.log('warn', 'OutboxRetryService', `Failed to start outbox retry daemon: ${describeError(error)}`);
+
+    const { configureScaleToZeroRuntime } = await import('../gateways/ScaleToZeroRuntime.js');
+    const scaleEnabled = String(process.env.ZAVORTH_SCALE_TO_ZERO || '').trim().toLowerCase();
+    const enabled = scaleEnabled === '1' || scaleEnabled === 'true' || scaleEnabled === 'on'
+      || String(process.env.ZAVORTH_CLOUD_IDLE || '').trim().toLowerCase() === '1';
+    const idleTimeoutMs = Number(process.env.ZAVORTH_SCALE_TO_ZERO_IDLE_MS || 300_000);
+    const manager = configureScaleToZeroRuntime({
+      enabled,
+      defaultIdleTimeoutMs: Number.isFinite(idleTimeoutMs) && idleTimeoutMs > 0 ? idleTimeoutMs : 300_000,
+    }, { registry: gatewayRegistry });
+    if (enabled) {
+      manager.start();
+      foundation.logRepo.log(
+        'info',
+        'ScaleToZeroManager',
+        `Gateway adapter idle enabled (timeout ${manager.getConfig().defaultIdleTimeoutMs}ms). Not cloud host hibernation.`,
+      );
+    } else {
+      foundation.logRepo.log(
+        'info',
+        'ScaleToZeroManager',
+        'Gateway adapter idle disabled. Set ZAVORTH_SCALE_TO_ZERO=1 to enable in-process channel shutdown.',
+      );
+    }
+  } catch (error: unknown) {
+    foundation.logRepo.log('warn', 'OutboxRetryService', `Failed to start outbox retry or scale-to-zero: ${describeError(error)}`);
   }
 
   supervisor.markBootReady();

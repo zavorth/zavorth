@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "browser-cdp",
+  "label": "Browser CDP",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Soft-fail Chrome DevTools Protocol attach for browser automation without Playwright.",
+  "description": "Wave 5 browser pack. Attaches to an existing Chrome/Chromium instance via CDP HTTP endpoints (CDP_URL or BROWSER_CDP_URL). Presence-only status (host only; never returns full secrets). Soft-fail when CDP is not configured, network permission is denied, or the debug endpoint is unreachable. Pure JS; no Playwright dependency.",
+  "tags": ["browser", "cdp", "chrome", "wave5", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://browser-cdp",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "browser.cdp.status",
+      "intent": "browser.cdp.status",
+      "label": "CDP Status",
+      "summary": "Report whether CDP_URL / BROWSER_CDP_URL is configured (host only; no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_cdp_status",
+        "aliases": ["cdp_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "browser.cdp.version",
+      "intent": "browser.cdp.version",
+      "label": "CDP Version",
+      "summary": "Soft GET {cdp}/json/version against the configured Chrome debug endpoint.",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_cdp_version",
+        "aliases": ["cdp_version"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "browser.cdp.targets",
+      "intent": "browser.cdp.targets",
+      "label": "CDP Targets",
+      "summary": "Soft GET {cdp}/json/list and map target id, title, type, url.",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_cdp_targets",
+        "aliases": ["cdp_targets", "cdp_list"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "browser.cdp.navigate",
+      "intent": "browser.cdp.navigate",
+      "label": "CDP Navigate",
+      "summary": "Soft open/navigate via CDP HTTP /json/new (no WebSocket / Playwright).",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_cdp_navigate",
+        "aliases": ["cdp_navigate", "cdp_open"],
+        "usage": "{ url, targetId? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.local",
+      "scope": "local",
+      "reason": "Attach to a local Chrome remote-debugging endpoint (e.g. 127.0.0.1:9222).",
+      "required": false
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Attach to a non-local CDP endpoint when CDP_URL points off-localhost.",
+      "required": false
+    },
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Optional future browser spawn; not used by the pure HTTP soft-attach path.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "community-weather-demo",
+    "name": "Community Weather Demo",
+    "summary": "Example third-party signed pack: soft weather lookup with setup tips (not shipped).",
+    "moduleKind": "tool",
+    "source": "https://cdn.example.com/zavorth/plugins/community-weather-demo-1.0.0.zip",
+    "signed": true,
+    "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+    "digest": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "version": "1.0.0",
+    "tier": "community",
+    "tags": ["community", "example", "weather", "third-party"],
+    "permissions": ["network.external"]
+  },
+  {
+    "id": "partner-status-page",
+    "name": "Partner Status Page",
+    "summary": "Example partner bridge that reports an external status URL (signed zip).",
+    "moduleKind": "bridge",
+    "source": "https://plugins.partners.example.com/zavorth/partner-status-page-0.2.1.zip",
+    "signed": true,
+    "signature": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB==",
+    "digest": "sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+    "version": "0.2.1",
+    "tier": "partner",
+    "tags": ["partner", "status", "bridge", "third-party"],
+    "permissions": ["network.external"]
+  }
+]

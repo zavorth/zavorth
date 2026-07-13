@@ -14,6 +14,7 @@ import {
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { buildOpenAiReasoningEffortBody } from './reasoningEffortPayload.js';
 import { errorMessage } from '../utils/errorLike.js';
 export class MiniMaxProvider implements ILlmProvider {
 
@@ -52,6 +53,7 @@ export class MiniMaxProvider implements ILlmProvider {
         max_tokens: config.maxTokens,
         tools: nativeToolPayload.tools,
         ...nativeToolPayload.extraBody,
+        ...buildOpenAiReasoningEffortBody(options),
       } as OpenAI.ChatCompletionCreateParamsNonStreaming, buildProviderRequestOptions(options) as OpenAI.RequestOptions);
 
       const choice = response.choices[0];

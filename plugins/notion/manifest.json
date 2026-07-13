@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "notion",
+  "label": "Notion",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Notion search and page create (approval for mutations).",
+  "description": "First-party Notion plugin. Uses NOTION_API_KEY with soft fetch to api.notion.com. Page create requires approved===true.",
+  "tags": ["notion", "docs", "pages", "bridge", "search"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://notion",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "notion.status",
+      "intent": "notion.status",
+      "label": "Notion Status",
+      "summary": "Check NOTION_API_KEY presence.",
+      "artifactKinds": [],
+      "command": {
+        "name": "notion_status",
+        "aliases": [],
+        "usage": null
+      }
+    },
+    {
+      "id": "notion.search",
+      "intent": "notion.search",
+      "label": "Notion Search",
+      "summary": "Search Notion pages when a key is present.",
+      "artifactKinds": [],
+      "command": {
+        "name": "notion_search",
+        "aliases": [],
+        "usage": "{ query }"
+      }
+    },
+    {
+      "id": "notion.page.create",
+      "intent": "notion.page.create",
+      "label": "Notion Page Create",
+      "summary": "Create a page. Requires approved===true.",
+      "artifactKinds": [],
+      "command": {
+        "name": "notion_page_create",
+        "aliases": ["notion_create"],
+        "usage": "{ title, content?, parentPageId?, approved? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call api.notion.com.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

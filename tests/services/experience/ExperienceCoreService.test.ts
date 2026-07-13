@@ -818,7 +818,7 @@ describe('Experience Core Layer', () => {
       }],
       narrative: {
         headline: 'Unsafe candidate',
-        operatorSummary: '1 pendente.',
+        operatorSummary: '1 pending.',
       },
     });
     const learningOs = new LearningOSService({ now, learningPlane: unsafePlane });

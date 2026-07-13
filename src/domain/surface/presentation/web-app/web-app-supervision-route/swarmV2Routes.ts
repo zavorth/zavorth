@@ -182,7 +182,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route() && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} unavailable.` }, 503);
       return true;
     }
     deps.writeJson(res, {
@@ -197,7 +197,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route() && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -283,7 +283,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route('/roles') && req.method === 'GET') {
     if (!service?.listRoleLibrary) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} role library indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} role library unavailable.` }, 503);
       return true;
     }
     deps.writeJson(res, {
@@ -297,7 +297,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route('/roles') && req.method === 'POST') {
     if (!service?.upsertRoleLibraryEntry) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} role library indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} role library unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -322,7 +322,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route('/replay') && req.method === 'GET') {
     if (!service?.getSwarmReplay) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} replay indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} replay unavailable.` }, 503);
       return true;
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
@@ -346,7 +346,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route('/state') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} unavailable.` }, 503);
       return true;
     }
     const swarmId = String(url.searchParams.get('swarmId') || '').trim();
@@ -370,7 +370,7 @@ export const handleSwarmV2Routes: WebAppSupervisionRouteHandler = async (ctx) =>
 
   if (isSwarmV2Route('/cancel') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: `${swarmV2Label} indisponivel.` }, 503);
+      deps.writeJson(res, { ok: false, error: `${swarmV2Label} unavailable.` }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);

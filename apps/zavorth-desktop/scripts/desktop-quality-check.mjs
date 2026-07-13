@@ -141,8 +141,9 @@ requireMarkers('thread', thread, [
 
 requireMarkers('approval card', approvalCard, [
   'zvd-approval-card',
-  'onApprove',
-  'onReject',
+  'onDecide',
+  "'once'",
+  "'deny'",
 ]);
 
 requireMarkers('receipt chip', receiptChip, [

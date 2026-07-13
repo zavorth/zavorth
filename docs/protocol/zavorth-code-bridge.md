@@ -135,9 +135,10 @@ CI: lightweight job **Code Bridge QA** in `.github/workflows/lint.yml` runs `npm
 ## Product boundaries
 
 - **Code CLI** remains the canonical **coding** surface.
-- **Control** = dashboard/control plane in this monorepo (not Code `packages/app` / `console`).
-- **Desktop** = `apps/zavorth-desktop` (not Code’s frozen `packages/desktop`).
-- Bridges are **selective integration** — not a blind monorepo merge of OpenCode web or full Code trees.
+- **Control** = dashboard/control plane in this monorepo (Code `packages/app` / `console` were **removed**).
+- **Desktop** = `apps/zavorth-desktop` (Code `packages/desktop` was **removed**).
+- CLI: `zavorth web` → Control; `zavorth desktop` → official Desktop path.
+- Bridges are **selective integration** — not a blind monorepo merge of full Code trees.
 
 See [surfaces-code-control-desktop.md](../product/surfaces-code-control-desktop.md).
 

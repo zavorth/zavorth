@@ -73,7 +73,11 @@ export type DiscordGatewayMessageLike = {
 export type DiscordGatewayInteractionLike = {
   isChatInputCommand?: () => boolean;
   isButton?: () => boolean;
+  /** String select menu (type 3) interaction. */
+  isStringSelectMenu?: () => boolean;
   customId?: string;
+  /** Selected values from a string select menu. */
+  values?: string[];
   message?: {
     id?: string | null;
   };

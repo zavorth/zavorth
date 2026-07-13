@@ -5,6 +5,8 @@ import { ZavorthMutationPlaneService } from '../../../../services/ZavorthMutatio
 import type { ComputerUseWatchModePolicyFileService } from '../../../../services/ComputerUseWatchModePolicyFileService.js';
 import { PermissionService } from '../../../../services/PermissionService.js';
 import { TrustDecisionService } from '../../../../services/TrustDecisionService.js';
+import { tSurface } from '../../../../i18n/surface.js';
+import { tService } from '../../../../i18n/services.js';
 
 type WatchModeActionId = 'set-strict-default' | 'allow-app' | 'allow-site';
 
@@ -51,7 +53,7 @@ export class SharedSurfaceWatchModeCommandPack {
 
     if (lower === 'strict on' || lower === 'strict true') {
       this.deps.watchModePolicyFileService.setStrictApprovalDefault(true);
-      await ctx.reply(`Policy do Watch Mode atualizada.\n\n${this.deps.watchModeControlPlaneService.renderReport()}`);
+      await ctx.reply(`${tService('watchmode.policy_updated')}\n\n${this.deps.watchModeControlPlaneService.renderReport()}`);
       return;
     }
 
@@ -64,10 +66,20 @@ export class SharedSurfaceWatchModeCommandPack {
       return;
     }
 
-    if (lower.startsWith('allow-app ')) {
-      const app = normalizedArgs.slice('allow-app '.length).trim();
+    // Structured + natural allow-app forms (middleware may already normalize free text)
+    const allowAppMatch = normalizedArgs.match(
+      /^(?:allow-app|allow\s+app|permitir\s+app|liberar\s+app)(?:\s+(.+))?$/i,
+    );
+    if (allowAppMatch) {
+      const app = String(allowAppMatch[1] || '').trim();
       if (!app) {
-        await ctx.reply('Uso: /watchmode allow-app <janela>');
+        await ctx.reply(
+          [
+            'Usage:',
+            '  /watchmode <janela>              (natural — primary)',
+            '  /watchmode allow-app <janela>    (power form)',
+          ].join('\n'),
+        );
         return;
       }
       await ctx.reply(
@@ -78,10 +90,19 @@ export class SharedSurfaceWatchModeCommandPack {
       return;
     }
 
-    if (lower.startsWith('allow-site ')) {
-      const site = normalizedArgs.slice('allow-site '.length).trim();
+    const allowSiteMatch = normalizedArgs.match(
+      /^(?:allow-site|allow\s+site|permitir\s+site|liberar\s+site)(?:\s+(.+))?$/i,
+    );
+    if (allowSiteMatch) {
+      const site = String(allowSiteMatch[1] || '').trim();
       if (!site) {
-        await ctx.reply('Uso: /watchmode allow-site <host>');
+        await ctx.reply(
+          [
+            'Usage:',
+            '  /watchmode example.com           (natural host → allow-site)',
+            '  /watchmode allow-site <host>     (power form)',
+          ].join('\n'),
+        );
         return;
       }
       await ctx.reply(
@@ -92,9 +113,28 @@ export class SharedSurfaceWatchModeCommandPack {
       return;
     }
 
+    // Free text primary: host-like → allow-site, otherwise window name → allow-app
+    if (this.looksLikeWatchModeHost(normalizedArgs)) {
+      await ctx.reply(
+        await this.createWatchModePolicyMutationPreview(ctx, 'allow-site', {
+          site: normalizedArgs,
+        }),
+      );
+      return;
+    }
+
     await ctx.reply(
-      'Uso: /watchmode [status|apply <planId>|strict on|strict off|allow-app <janela>|allow-site <host>]',
+      await this.createWatchModePolicyMutationPreview(ctx, 'allow-app', {
+        app: normalizedArgs,
+      }),
     );
+  }
+
+  private looksLikeWatchModeHost(value: string): boolean {
+    const trimmed = String(value || '').trim();
+    if (!trimmed) return false;
+    if (/^https?:\/\//i.test(trimmed)) return true;
+    return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:\/\S*)?$/i.test(trimmed);
   }
 
   private async createWatchModePolicyMutationPreview(
@@ -105,7 +145,7 @@ export class SharedSurfaceWatchModeCommandPack {
     const mutationPlane = new ZavorthMutationPlaneService();
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
     const title = this.buildWatchModePolicyMutationTitle(actionId, payload);
-    const summary = 'Ajuste de policy do Watch Mode aumenta poder visual/mutavel e precisa de approval antes do apply.';
+    const summary = tService('watchmode.policy_adjustment_summary');
     const plan = mutationPlane.createPlan({
       domain: 'watch',
       actionId,
@@ -122,21 +162,21 @@ export class SharedSurfaceWatchModeCommandPack {
         processCount: 0,
         externalExposure: 'local',
         recurring: false,
-        notes: ['Preview de policy; nenhum watcher ou sidecar e iniciado.'],
+        notes: [tService('watchmode.resource_impact_note')],
       },
       retentionPolicy: {
         ttlMs: 24 * 60 * 60 * 1000,
         maxBytes: 1024 * 1024,
         cleanupOnSuccess: true,
         cleanupOnBoot: true,
-        notes: ['Plano efemero de Watch Mode, removivel apos apply ou expiracao.'],
+        notes: [tService('watchmode.retention_note')],
       },
       validationPlan: [
-        'Validar payload salvo no Mutation Plane.',
-        'Confirmar approval canonico antes de aplicar.',
-        'Recarregar snapshot do Watch Mode apos apply.',
+        tService('watchmode.validation_step_1'),
+        tService('watchmode.validation_step_2'),
+        tService('watchmode.validation_step_3'),
       ],
-      rollbackPlan: ['Reverter manualmente a policy anterior a partir do historico/auditoria.'],
+      rollbackPlan: [tService('watchmode.rollback_note')],
       payload,
     });
     const decision = await new TrustDecisionService({
@@ -174,10 +214,10 @@ export class SharedSurfaceWatchModeCommandPack {
     const mutationPlane = new ZavorthMutationPlaneService();
     let plan = mutationPlane.readPlan(planId);
     if (!plan || plan.domain !== 'watch') {
-      throw new Error(`Plano de Watch Mode nao encontrado: ${planId || 'n/d'}.`);
+      throw new Error(tService('watchmode.plan_not_found', { planId: planId || 'n/d' }));
     }
     if (!['set-strict-default', 'allow-app', 'allow-site'].includes(plan.actionId)) {
-      throw new Error('Este plano de Watch Mode precisa ser aplicado pela rota runtime dedicada.');
+      throw new Error(tService('watchmode.plan_requires_dedicated_route'));
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
       const permissionService = this.deps.permissionService || new PermissionService();
@@ -192,12 +232,12 @@ export class SharedSurfaceWatchModeCommandPack {
         });
       }
       if (permission?.status === 'rejected') {
-        const blocked = mutationPlane.markBlocked(plan.id, 'Approval rejeitado no Permission Plane.');
-        return this.formatWatchModePolicyMutationReply(blocked, 'Approval rejeitado no Permission Plane.', true);
+        const blocked = mutationPlane.markBlocked(plan.id, tService('watchmode.approval_rejected'));
+        return this.formatWatchModePolicyMutationReply(blocked, tService('watchmode.approval_rejected'), true);
       }
     }
     if (plan.approval.required && plan.status !== 'approved' && plan.approval.status !== 'approved') {
-      return this.formatWatchModePolicyMutationReply(plan, 'Plano ainda aguarda approval.', false);
+      return this.formatWatchModePolicyMutationReply(plan, tService('watchmode.plan_awaiting_approval'), false);
     }
 
     if (plan.actionId === 'set-strict-default') {
@@ -206,23 +246,23 @@ export class SharedSurfaceWatchModeCommandPack {
     } else if (plan.actionId === 'allow-app') {
       const app = String(plan.payload.app || '').trim();
       if (!app) {
-        throw new Error('Plano de allow-app sem janela valida.');
+        throw new Error(tService('watchmode.allow_app_no_window'));
       }
       this.deps.watchModePolicyFileService.allowApp(app);
     } else if (plan.actionId === 'allow-site') {
       const site = String(plan.payload.site || '').trim();
       if (!site) {
-        throw new Error('Plano de allow-site sem host valido.');
+        throw new Error(tService('watchmode.allow_site_no_host'));
       }
       this.deps.watchModePolicyFileService.allowSite(site);
     }
 
-    const applied = mutationPlane.markApplied(plan.id, 'Policy do Watch Mode aplicada por plan aprovado.', [plan.actionId]);
+    const applied = mutationPlane.markApplied(plan.id, tService('watchmode.policy_applied_summary'), [plan.actionId]);
     return [
-      'Watch Mode aplicado',
+      tService('watchmode.applied_title'),
       '',
-      `Plano: ${applied.id}.`,
-      'A policy foi alterada exatamente do payload salvo.',
+      `${tService('watchmode.plan_label')}: ${applied.id}.`,
+      tService('watchmode.policy_changed_from_payload'),
       '',
       this.deps.watchModeControlPlaneService.renderReport(),
     ].join('\n');
@@ -240,16 +280,16 @@ export class SharedSurfaceWatchModeCommandPack {
 
   private formatWatchModePolicyMutationReply(plan: ZavorthMutationPlan, reason: string, blocked: boolean): string {
     const lines = [
-      blocked ? 'Watch Mode bloqueado' : 'Watch Mode em preview',
+      blocked ? tService('watchmode.blocked_title') : tService('watchmode.preview_title'),
       '',
       plan.title,
       reason,
       '',
-      `Plano: ${plan.id} (${plan.status}).`,
-      plan.approval.permissionId ? `Approval: ${plan.approval.permissionId}.` : 'Approval: pendente.',
+      `${tService('watchmode.plan_label')}: ${plan.id} (${plan.status}).`,
+      plan.approval.permissionId ? `Approval: ${plan.approval.permissionId}.` : tSurface('approval_pending'),
     ];
     if (!blocked) {
-      lines.push(`Aplicar depois de aprovado: /watchmode apply ${plan.id}`);
+      lines.push(`${tService('watchmode.apply_after_approval')}: /watchmode apply ${plan.id}`);
     }
     return lines.join('\n');
   }

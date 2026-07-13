@@ -2,7 +2,8 @@ import { logger } from '../../../logger.js';
 import fs from 'fs';
 import path from 'path';
 import { config } from '../../../config/index.js';
-import { safeFetch } from '../../../security/SafeFetchService.js';const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+import { safeFetch } from '../../../security/SafeFetchService.js';
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
 const INLINE_MEDIA_LIMIT_BYTES = 20 * 1024 * 1024;
 const FILE_ACTIVE_POLL_INTERVAL_MS = 5000;
 const FILE_ACTIVE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -186,7 +187,7 @@ export class GeminiVideoAnalyzer {
   }
 
   private buildVideoPrompt(titleHint: string | undefined, sourceLabel: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do video nao foi fornecido.';
+    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do video not foi fornecido.';
 
     return [
       'Analise este video para servir como base de conversa posterior.',
@@ -200,13 +201,13 @@ export class GeminiVideoAnalyzer {
       '5. Falas, ideias ou dados importantes',
       '6. Limites ou incertezas da analise',
       'Se houver texto na tela, mencione o que for relevante.',
-      'Se a fala ou o visual nao estiverem claros, diga isso explicitamente em vez de inventar.',
+      'Se a fala ou o visual not estiverem claros, diga isso explicitamente em vez de inventar.',
       'Se for apropriado, destaque o que seria mais util para discutir este video depois.',
     ].join(' ');
   }
 
   private buildAudioPrompt(titleHint: string | undefined, sourceLabel: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio nao foi fornecido.';
+    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio not foi fornecido.';
 
     return [
       'Analise este audio extraido de um video para servir como base de conversa posterior.',
@@ -219,7 +220,7 @@ export class GeminiVideoAnalyzer {
       '4. Falas, ideias ou dados importantes',
       '5. Limites ou incertezas da analise',
       'Priorize fidelidade ao que foi dito quando o audio estiver claro.',
-      'Se nao conseguir entender algum trecho, diga explicitamente que ele esta inaudivel ou incerto.',
+      'Se not conseguir entender algum trecho, diga explicitamente que ele esta inaudivel ou incerto.',
       'Preserve nomes proprios, termos tecnicos, numeros e dados quando possivel.',
       'Se houver boa sinalizacao temporal, inclua timestamps aproximados nos trechos mais importantes.',
     ].join(' ');
@@ -230,7 +231,7 @@ export class GeminiVideoAnalyzer {
     sourceLabel: string,
     extraInstruction?: string
   ): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio nao foi fornecido.';
+    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do audio not foi fornecido.';
     const extraInstructionLine = extraInstruction?.trim()
       ? `Instrucao adicional do usuario: ${extraInstruction.trim()}`
       : '';
@@ -255,7 +256,7 @@ export class GeminiVideoAnalyzer {
     totalBatches: number,
     titleHint?: string
   ): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material nao foi fornecido.';
+    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material not foi fornecido.';
     const renderedSections = sections
       .map((section) => `### ${section.label}\n${section.text}`)
       .join('\n\n');
@@ -270,14 +271,14 @@ export class GeminiVideoAnalyzer {
       '3. Linha do tempo aproximada do lote',
       '4. Falas, ideias ou dados relevantes',
       '5. Pontos de atencao ou incertezas',
-      'Se algum trecho vier de transcricao automatica, preserve a cautela e nao invente detalhes ausentes.',
+      'Se algum trecho vier de transcricao automatica, preserve a cautela e not invente detalhes ausentes.',
       '',
       renderedSections,
     ].join('\n');
   }
 
   private buildFinalSummaryPrompt(batchSummaries: string[], titleHint?: string): string {
-    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material nao foi fornecido.';
+    const titleLine = titleHint ? `Titulo sugerido: ${titleHint}.` : 'O titulo do material not foi fornecido.';
 
     return [
       'Voce vai consolidar resumos parciais de um video longo, podcast ou documentario.',
@@ -289,7 +290,7 @@ export class GeminiVideoAnalyzer {
       '4. Ideias, falas ou dados marcantes',
       '5. Pontos que valem conversa depois',
       '6. Limites ou incertezas da cobertura',
-      'Nao invente detalhes que nao estejam sustentados pelos lotes.',
+      'Nao invente detalhes que not estejam sustentados pelos lotes.',
       '',
       batchSummaries.join('\n\n'),
     ].join('\n');
@@ -400,13 +401,13 @@ export class GeminiVideoAnalyzer {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini generateContent falhou (${response.status}): ${errorText}`);
+      throw new Error(`Gemini generateContent failed (${response.status}): ${errorText}`);
     }
 
     const payload = await response.json();
     const textParts = this.extractTextParts(payload);
     if (!textParts) {
-      throw new Error('Gemini nao retornou texto util para esta analise de video.');
+      throw new Error('Gemini not retornou texto util para esta analise de video.');
     }
 
     return textParts;
@@ -447,12 +448,12 @@ export class GeminiVideoAnalyzer {
 
     if (!startResponse.ok) {
       const errorText = await startResponse.text();
-      throw new Error(`Gemini upload start falhou (${startResponse.status}): ${errorText}`);
+      throw new Error(`Gemini upload start failed (${startResponse.status}): ${errorText}`);
     }
 
     const uploadUrl = startResponse.headers.get('x-goog-upload-url');
     if (!uploadUrl) {
-      throw new Error('Gemini nao retornou a URL de upload resumable.');
+      throw new Error('Gemini not retornou a URL de upload resumable.');
     }
 
     const uploadResponse = await safeFetch(uploadUrl, {
@@ -469,12 +470,12 @@ export class GeminiVideoAnalyzer {
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      throw new Error(`Gemini upload finalize falhou (${uploadResponse.status}): ${errorText}`);
+      throw new Error(`Gemini upload finalize failed (${uploadResponse.status}): ${errorText}`);
     }
 
     const payload = await uploadResponse.json();
     if (!payload?.file?.name || !payload?.file?.uri) {
-      throw new Error('Gemini nao retornou metadados validos apos upload do arquivo.');
+      throw new Error('Gemini not retornou metadados validos apos upload do arquivo.');
     }
 
     return {
@@ -503,7 +504,7 @@ export class GeminiVideoAnalyzer {
       await this.sleep(FILE_ACTIVE_POLL_INTERVAL_MS);
     }
 
-    throw new Error(`Gemini nao ativou o arquivo ${fileName} dentro do tempo limite.`);
+    throw new Error(`Gemini not ativou o arquivo ${fileName} dentro do tempo limite.`);
   }
 
   private async getFile(fileName: string): Promise<GeminiFile> {
@@ -518,7 +519,7 @@ export class GeminiVideoAnalyzer {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini files.get falhou (${response.status}): ${errorText}`);
+      throw new Error(`Gemini files.get failed (${response.status}): ${errorText}`);
     }
 
     const payload = await response.json();
@@ -541,7 +542,7 @@ export class GeminiVideoAnalyzer {
       }, {
         serviceName: 'Gemini video file cleanup',
       });
-    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Falha ao remover arquivo temporario do Gemini: ${error}`);
+    } catch (error: unknown) {logger.warn(`[GeminiVideoAnalyzer] Failed to remove arquivo temporario do Gemini: ${error}`);
     }
   }
 

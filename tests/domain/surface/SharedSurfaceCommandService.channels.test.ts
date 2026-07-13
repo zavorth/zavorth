@@ -243,7 +243,7 @@ describe('SharedSurfaceCommandService', () => {
         secret: null,
         lease: { active: false, expiresAt: null },
         verification: null,
-        summary: 'Remoto do ZavorthBridge pronto para celular via LAN.',
+        summary: 'ZavorthBridge remote ready for mobile via LAN.',
         recommendations: [],
         doctorSummary: null,
         guide: {
@@ -515,7 +515,7 @@ describe('SharedSurfaceCommandService', () => {
         ],
         narrative: {
           headline: 'Learning com 1 candidato.',
-          operatorSummary: '1 pendente.',
+          operatorSummary: '1 pending.',
         },
       })),
       executeAction: jest.fn(() => ({
@@ -647,7 +647,7 @@ describe('SharedSurfaceCommandService', () => {
           memoryArtifacts: 2,
         },
         narrative: {
-          headline: 'Gateway pronto.',
+          headline: 'Gateway ready.',
           operatorSummary: 'Snapshot canonico.',
         },
       })),
@@ -669,7 +669,7 @@ describe('SharedSurfaceCommandService', () => {
       }),
     );
     expect(ctx.reply.mock.calls[0][0]).toContain('Gateway do Zavorth');
-    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway pronto.');
+    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway ready.');
   });
 
   it('renders the tool surface through the shared command surface', async () => {
@@ -1015,7 +1015,7 @@ describe('SharedSurfaceCommandService', () => {
     await service.maybeHandle(invokeCtx as any);
 
     expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining(`Node em foco: Oracle Worker.`));
-    expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Fila: 0 pendente(s) / 0 claimed.'));
+    expect(snapshotCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Queue: 0 pending / 0 claimed.'));
     expect(invokeCtx.reply).toHaveBeenCalledWith(expect.stringContaining('O node ainda nao concluiu o pareamento'));
     expect(invokeCtx.reply).not.toHaveBeenCalledWith(expect.stringContaining('Node nao encontrado no registry atual.'));
   });
@@ -1117,7 +1117,7 @@ describe('SharedSurfaceCommandService', () => {
         },
         suggestedActions: [],
         narrative: {
-          headline: 'Node Mesh pronto.',
+          headline: 'Node Mesh ready.',
           operatorSummary: '1 node pareado.',
         },
       })),

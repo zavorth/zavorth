@@ -106,6 +106,19 @@ export class PluginRegistryService {
     return this.getEntry(id) as ZavorthPluginRegistryEntry;
   }
 
+  public registerHandler(pluginId: string, handler: PluginRuntimeHandler): void {
+    const id = this.normalizeId(pluginId);
+    if (!id) {
+      throw new Error('pluginId is required to register a handler');
+    }
+    this.handlers[id] = handler;
+  }
+
+  public hasHandler(pluginId: string): boolean {
+    const id = this.normalizeId(pluginId);
+    return Boolean(id && this.handlers[id]);
+  }
+
   public listEntries(): ZavorthPluginRegistryEntry[] {
     return Array.from(this.manifests.keys())
       .sort((left, right) => left.localeCompare(right))

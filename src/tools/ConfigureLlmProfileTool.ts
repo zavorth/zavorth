@@ -30,7 +30,7 @@ export class ConfigureLlmProfileTool extends BaseTool {
       action: {
         type: 'string',
         enum: ['list', 'set'],
-        description: 'A acao a ser realizada. list lista opcoes; set configura um provider/modelo.',
+        description: 'Action to perform. list shows options; set configures a provider/model.',
       },
       providerName: {
         type: 'string',
@@ -75,13 +75,13 @@ Use "set" to save the change.`,
       const allowUnavailable = args.allowUnavailable === true;
 
       if (!providerName || !modelName) {
-        throw new Error('Para a acao "set", "providerName" e "modelName" sao obrigatorios.');
+        throw new Error('For action "set", "providerName" and "modelName" are required.');
       }
 
       return JSON.stringify(this.handleSet(providerName, modelName, allowUnavailable), null, 2);
     }
 
-    throw new Error('Acao invalida. Use "list" ou "set".');
+    throw new Error('Acao is invalid. Use "list" ou "set".');
   }
 
   private handleList(): Record<string, unknown> {
@@ -184,7 +184,7 @@ Use "set" to save the change.`,
         providerDefinition.enabled ? 'ready' : 'prepared',
         providerDefinition.requirement,
       ),
-      message: `Configuracao alterada permanentemente. Provedor padrao: ${providerDefinition.provider}, modelo: ${modelName}.`
+      message: `Configuration permanently updated. Default provider: ${providerDefinition.provider}, model: ${modelName}.`
     };
   }
 

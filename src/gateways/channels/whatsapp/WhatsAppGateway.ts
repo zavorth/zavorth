@@ -82,11 +82,19 @@ export class WhatsAppGateway extends WebhookGateway {
 
   public override doctorSnapshot() {
     const base = super.doctorSnapshot();
+    const provider = String(config.whatsappProvider || 'stub').trim().toLowerCase();
+    const baileys = provider === 'baileys';
     return {
       ...base,
-      installHint: this.resolveConfigured()
-        ? 'WhatsApp configured for Cloud API or bridge outbound.'
-        : 'Set Cloud API tokens or WHATSAPP_BRIDGE_URL.',
+      provider,
+      productTier: baileys ? 'T2' : this.resolveConfigured() ? 'T1' : 'catalog',
+      productionClaim: baileys ? 'experimental' : 'when-certified-live',
+      experimental: baileys,
+      installHint: baileys
+        ? 'Baileys is T2 experimental. Install scripts/whatsapp-bridge deps, run zavorth whatsapp-bridge start, set WHATSAPP_BRIDGE_URL.'
+        : this.resolveConfigured()
+          ? 'WhatsApp configured for Cloud API or bridge outbound.'
+          : 'Set Cloud API tokens (T1) or WHATSAPP_BRIDGE_URL with Baileys bridge (T2 experimental).',
       allowlist: {
         ...base.allowlist,
         chatAllowlistConfigured: Array.isArray(config.whatsappAllowedChatIds) && config.whatsappAllowedChatIds.length > 0,

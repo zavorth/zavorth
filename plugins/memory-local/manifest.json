@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "memory-local",
+  "label": "Local Memory",
+  "version": "1.0.0",
+  "moduleKind": "memory",
+  "summary": "Workspace-local key/value memory store under .zavorth/memory-local.",
+  "description": "First-party memory plugin that persists entries to workspace/.zavorth/memory-local/store.json with write, search, and get capabilities.",
+  "tags": ["memory", "local", "store", "workspace"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://memory-local",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "memory.write",
+      "intent": "memory.write",
+      "label": "Memory Write",
+      "summary": "Write a key/value entry with optional tags.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_write",
+        "aliases": ["mem_write"],
+        "usage": "{ key, value, tags? }"
+      }
+    },
+    {
+      "id": "memory.search",
+      "intent": "memory.search",
+      "label": "Memory Search",
+      "summary": "Search stored entries by key, value, or tags.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_search",
+        "aliases": ["mem_search"],
+        "usage": "{ query, limit? }"
+      }
+    },
+    {
+      "id": "memory.get",
+      "intent": "memory.get",
+      "label": "Memory Get",
+      "summary": "Get a single entry by key.",
+      "artifactKinds": [],
+      "command": {
+        "name": "memory_get",
+        "aliases": ["mem_get"],
+        "usage": "{ key }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read the local memory store JSON file.",
+      "required": true
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Persist memory entries under .zavorth/memory-local.",
+      "required": true
+    },
+    {
+      "kind": "memory.read",
+      "scope": "workspace",
+      "reason": "Expose memory read operations.",
+      "required": false
+    },
+    {
+      "kind": "memory.write",
+      "scope": "workspace",
+      "reason": "Expose memory write operations.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

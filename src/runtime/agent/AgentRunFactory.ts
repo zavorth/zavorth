@@ -20,7 +20,8 @@ import type {
   UniversalAgentRequest,
   UniversalAgentRun,
   UniversalReplyPort,
-} from './UniversalAgentRuntimeTypes.js';export type AgentRunFactoryRuntime = {
+} from './UniversalAgentRuntimeTypes.js';
+export type AgentRunFactoryRuntime = {
   now: () => Date;
   idFactory: (prefix: string) => string;
   toolPolicy: ToolExposurePolicy;
@@ -461,7 +462,7 @@ export class AgentRunFactory {
       traceId,
       requestId,
       sessionId,
-      userId: normalizeText(input.userId, 'operator'),
+      userId: normalizeText(input.userId, 'local-user'),
       channel: input.channel || 'unknown',
       title: titleFromText(text),
       input: text,
@@ -530,6 +531,8 @@ export class AgentRunFactory {
       memorySignals: [],
       metadata: {
         ...metadataForPolicy,
+        userId: normalizeText(input.userId, 'local-user'),
+        ownerUserId: normalizeText(input.metadata?.ownerUserId, normalizeText(input.userId, 'local-user')),
         naturalFirstEntrypoint,
         naturalFirstRoute,
         agenticRoute,

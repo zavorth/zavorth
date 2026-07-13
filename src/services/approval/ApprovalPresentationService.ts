@@ -28,6 +28,7 @@ import {
   mapLeaseRiskToProofRisk,
   normalizePresentationRisk,
 } from './approvalPresentationFormatters.js';
+import { HighRiskConfirmationService } from '../HighRiskConfirmationService.js';
 
 export type ApprovalLeaseLike = {
   leaseId?: string;
@@ -86,6 +87,10 @@ export type ApprovalDecisionInput = {
   decidedBy?: string | null;
   reason?: string | null;
   decidedAt?: string | null;
+  /** HIGH_RISK TOTP when card risk is high/critical */
+  totp?: string | null;
+  code?: string | null;
+  approvalCode?: string | null;
 };
 
 export type RecordDecisionOptions = {
@@ -94,6 +99,7 @@ export type RecordDecisionOptions = {
   emitProof?: boolean;
   surface?: string;
   source?: string;
+  totp?: string | null;
 };
 
 export type FromLeaseExtras = {
@@ -319,6 +325,23 @@ export class ApprovalPresentationService {
     const action = normalizeDecisionAction(decision.action);
     if (!action) {
       throw new Error(`Invalid approval decision action: ${String(decision.action)}`);
+    }
+
+    if (action === 'approve') {
+      const highRisk = new HighRiskConfirmationService();
+      const gate = highRisk.assertApprovalGate({
+        risk: {
+          riskLevel: base.riskLevel,
+          requiresHighRiskPin: Boolean(
+            (base.metadata as Record<string, unknown> | undefined)?.requiresHighRiskPin,
+          ),
+          metadata: (base.metadata || null) as Record<string, unknown> | null,
+        },
+        approvalGranted: true,
+      });
+      if (!gate.ok) {
+        throw new Error(highRisk.formatGateFailure(gate));
+      }
     }
 
     const decidedAt = decision.decidedAt

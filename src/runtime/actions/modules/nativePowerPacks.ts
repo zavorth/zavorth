@@ -232,7 +232,7 @@ async function memoryResolve(input: ZavorthActionHandlerInput): Promise<ZavorthA
 async function memoryMutate(input: ZavorthActionHandlerInput, action: ZavorthMemoryReviewAction): Promise<ZavorthActionResult> {
   const key = text(input.args.key);
   if (!key) return block(input, 'Missing memory key.', ['Provide args.key.']);
-  const preview = previewOnly(input, `Deep memory ${action} preview.`, { key, action, userId: text(input.args.userId || input.actorId, 'operator') });
+  const preview = previewOnly(input, `Deep memory ${action} preview.`, { key, action, userId: text(input.args.userId || input.actorId, 'local-user') });
   if (preview) return preview;
   if (input.operation !== 'action.apply') return block(input, `Unsupported operation for ${input.actionId}.`);
   const memory = new ZavorthWorkspaceMemoryOsService({ memoryService: new MemoryService() });
@@ -241,7 +241,7 @@ async function memoryMutate(input: ZavorthActionHandlerInput, action: ZavorthMem
     key,
     value: text(input.args.value, ''),
     category: text(input.args.category, 'preference'),
-    userId: text(input.args.userId || input.actorId, 'operator'),
+    userId: text(input.args.userId || input.actorId, 'local-user'),
     sessionId: text(input.args.sessionId, ''),
     workspaceHint: text(input.args.workspaceHint || input.root),
   });

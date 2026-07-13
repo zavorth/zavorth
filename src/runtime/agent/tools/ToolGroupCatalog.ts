@@ -19,6 +19,34 @@ export type ToolGroupCatalogEntry = {
 
 const TOOL_GROUP_ENTRIES: ToolGroupCatalogEntry[] = [
   {
+    id: 'agent_consensus_engine',
+    group: 'general',
+    risk: 'attention',
+    requiresApproval: true,
+    description: 'Multi-model consensus deliberation (fan-out reviewers + synthesizer) via LlmRuntimeService.',
+    policyTags: [
+      'capability:multi-model-consensus',
+      'group:general',
+      'risk:attention',
+      'network',
+      'approval-required',
+    ],
+  },
+  {
+    id: 'consensus_with_fallback',
+    group: 'general',
+    risk: 'attention',
+    requiresApproval: true,
+    description: 'Multi-model consensus with progressive per-reviewer fallback chain.',
+    policyTags: [
+      'capability:multi-model-consensus',
+      'group:general',
+      'risk:attention',
+      'network',
+      'approval-required',
+    ],
+  },
+  {
     id: 'session_search',
     group: 'memory',
     risk: 'safe',

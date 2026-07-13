@@ -3,6 +3,12 @@ import {
   ZavorthLearningPlaneService,
   type LearningPlaneActionId,
 } from '../src/services/ZavorthLearningPlaneService.js';
+import {
+  resolveLearningRuntimePolicy,
+  setLearningRuntimeMode,
+} from '../src/services/ZavorthLearningRuntimePolicy.js';
+import { ZavorthAutonomousLearningWriteService } from '../src/services/ZavorthAutonomousLearningWriteService.js';
+import { ZavorthProductReadinessService } from '../src/services/ZavorthProductReadinessService.js';
 
 const args = process.argv.slice(2);
 const json = args.includes('--json');
@@ -34,6 +40,49 @@ function readPositionalArgs(values: string[]): string[] {
 
 async function main(): Promise<void> {
   const command = String(positionalArgs[0] || '').trim();
+  if (command === 'mode' || command === 'policy') {
+    const nextMode = positionalArgs[1] || readFlag('--set');
+    const policy = nextMode
+      ? setLearningRuntimeMode(nextMode, { projectRoot: process.cwd() })
+      : resolveLearningRuntimePolicy({ projectRoot: process.cwd() });
+    if (json) {
+      console.log(JSON.stringify(policy, null, 2));
+      return;
+    }
+    console.log(`Learning mode: ${policy.mode} (source=${policy.source})`);
+    console.log(policy.summary);
+    console.log(`autoWriteGreenPreferences=${policy.autoWriteGreenPreferences}`);
+    console.log(`autoMaterializeYellowSkillDrafts=${policy.autoMaterializeYellowSkillDrafts}`);
+    console.log(`autoInstallSkills=${policy.autoInstallSkills}`);
+    return;
+  }
+  if (command === 'preferences') {
+    const prefs = new ZavorthAutonomousLearningWriteService({ projectRoot: process.cwd() }).listTrustedPreferences();
+    if (json) {
+      console.log(JSON.stringify({ preferences: prefs }, null, 2));
+      return;
+    }
+    if (!prefs.length) {
+      console.log('No trusted preferences stored yet.');
+      return;
+    }
+    for (const pref of prefs) {
+      console.log(`- ${pref.id}: ${pref.summary}`);
+    }
+    return;
+  }
+  if (command === 'readiness') {
+    const snapshot = new ZavorthProductReadinessService().buildSnapshot({ projectRoot: process.cwd() });
+    if (json) {
+      console.log(JSON.stringify(snapshot, null, 2));
+      return;
+    }
+    console.log(snapshot.summary);
+    for (const cell of snapshot.cells) {
+      console.log(`- ${cell.id}: ${cell.status} | ${cell.claim}`);
+    }
+    return;
+  }
   const actionId = normalizeLearningActionId(command);
   if (command === 'candidates' || actionId) {
     const learningPlane = new ZavorthLearningPlaneService();

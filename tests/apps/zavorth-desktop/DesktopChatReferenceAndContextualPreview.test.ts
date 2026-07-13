@@ -38,12 +38,18 @@ describe('Zavorth desktop chat reference and contextual preview', () => {
 
   it('keeps approval activity as a themed runtime card instead of a white inline pill', () => {
     const strip = read('src/thread/InlineActivityStrip.tsx');
+    const card = read('src/thread/InThreadApprovalCard.tsx');
     const styles = read('src/styles.css');
 
     expect(strip).toContain('zvd-activity-strip');
     expect(strip).toContain('zvd-running-dot');
-    expect(strip).toContain('Approve');
-    expect(strip).toContain('Reject');
+    expect(strip).toContain('surfaceProjection');
+    expect(strip).toContain('Run once');
+    expect(strip).toContain('Deny');
+    expect(card).toContain('Run once');
+    expect(card).toContain('Session');
+    expect(card).toContain('Always');
+    expect(card).toContain('Deny');
     expect(styles).toContain('position: sticky');
     expect(styles).toContain('bottom: 6px');
     expect(styles).toContain('align-self: center');

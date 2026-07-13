@@ -83,7 +83,7 @@ export class EpisodicMemoryBridge {
    */
   public attach(memoryService: MemoryService): void {
     this.memoryService = memoryService;
-    console.log('[EpisodicMemoryBridge] Connected to MemoryService.');
+    logger.info('[EpisodicMemoryBridge] Connected to MemoryService.');
   }
 
   /**
@@ -111,7 +111,7 @@ export class EpisodicMemoryBridge {
 
       this.persistedEpisodeCount++;
 
-      console.log(
+      logger.debug(
         `[EpisodicMemoryBridge] Episode persisted: ${episodeKey} (${episode.turnCount} turns, topics: ${episode.topics.join(', ')})`,
       );
     } catch (error: unknown) {logger.error('[EpisodicMemoryBridge] Failed to persist episode:', error);

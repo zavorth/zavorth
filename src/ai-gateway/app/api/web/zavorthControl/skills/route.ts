@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireManagementAuth } from "@/lib/api/requireManagementAuth";
 import { isUnsafeCrossSiteMutation, readJsonBody } from "../../runtime-engine-state";
 
-// Importações relativas robustas para referenciar o módulo de skills fora da pasta do next
+// Robust relative imports to reference the skills module outside the Next.js folder
 import { SkillCurationService } from "../../../../../../skills/SkillCurationService.js";
 import { SkillCuratorPlaneService } from "../../../../../../skills/SkillCuratorPlaneService.js";
 import { SkillCatalogService } from "../../../../../../skills/SkillCatalogService.js";
@@ -32,7 +32,7 @@ async function buildUnifiedSkillsResponse() {
   
   const telemetryMap = new Map(telemetryRows.map((r) => [r.skill_id, r]));
   
-  // Mapear as skills ativas e cruzar com seus dados de telemetria
+  // Map active skills and cross-reference with their telemetry data
   const activeSkills = activeEntries.map((entry) => {
     const telemetry = telemetryMap.get(entry.name) || {
       use_count: 0,
@@ -58,7 +58,7 @@ async function buildUnifiedSkillsResponse() {
     };
   });
 
-  // Mapear as skills compactadas no Vault arquivado
+  // Map archived skills from the Vault
   const archivedZips = await curationService.listArchivedSkills();
   const archivedSkills = archivedZips.map((zip) => {
     const telemetry = telemetryMap.get(zip.skillId) || {

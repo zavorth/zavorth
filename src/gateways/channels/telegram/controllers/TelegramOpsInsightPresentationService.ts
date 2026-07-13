@@ -18,7 +18,8 @@ import type {
 CapabilityApprovalRequest,
   CapabilityManifest,
   CapabilityStateSnapshot,
-} from '../../../../services/CapabilityLifecycleService.js';export type TelegramOpsSystemStatusSnapshot = {
+} from '../../../../services/CapabilityLifecycleService.js';
+export type TelegramOpsSystemStatusSnapshot = {
   process: {
     uptimeSeconds: number;
     rssMb: number;
@@ -116,7 +117,7 @@ export class TelegramOpsInsightPresentationService {
       '',
       `Agora: online ha ${uptimeText}.`,
       `Uso atual: RSS ${snapshot.process.rssMb} MB | heap ${snapshot.process.heapMb} MB.`,
-      `Processos ativos: host ${hostPid || 'indisponivel'} | worker ${workerPid || 'indisponivel'}.`,
+      `Processos ativos: host ${hostPid || 'unavailable'} | worker ${workerPid || 'unavailable'}.`,
       `Ambiente: ${snapshot.process.platform} / ${snapshot.process.cpuArch}.`,
       '',
       'Modos',
@@ -566,8 +567,8 @@ export class TelegramOpsInsightPresentationService {
     }
 
     const lines = [
-      `- Web: ${consistency.surfaces?.web?.ready ? 'pronto' : 'pendente'} - ${consistency.surfaces?.web?.summary || 'Sem resumo adicional.'}`,
-      `- Telegram: ${consistency.surfaces?.telegram?.ready ? 'pronto' : 'pendente'} - ${consistency.surfaces?.telegram?.summary || 'Sem resumo adicional.'}`,
+      `- Web: ${consistency.surfaces?.web?.ready ? 'pronto' : 'pending'} - ${consistency.surfaces?.web?.summary || 'Sem resumo adicional.'}`,
+      `- Telegram: ${consistency.surfaces?.telegram?.ready ? 'pronto' : 'pending'} - ${consistency.surfaces?.telegram?.summary || 'Sem resumo adicional.'}`,
     ];
 
     if (consistency.surfaces?.discord) {
@@ -590,7 +591,7 @@ export class TelegramOpsInsightPresentationService {
   private formatSkillPlaneLines(): string[] {
     const snapshot = this.readSkillPlaneSnapshot();
     if (!snapshot) {
-      return ['- Biblioteca: indisponivel agora.'];
+      return ['- Biblioteca: unavailable agora.'];
     }
     const lines = [
       `- Biblioteca: ${snapshot.catalog.summary.total} skill(s) | ${snapshot.catalog.summary.readyRecipes}/${snapshot.catalog.summary.recipes} recipe(s) pronta(s).`,

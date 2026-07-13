@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
     const node = document.getElementById('operations-capabilities');
     if (!node) return;
     if (!capabilities || 'error' in (capabilities as CapabilityCatalogErrorPayload)) {
-      node.innerHTML = '<div class="muted">Nao foi possivel carregar o catalogo de capacidades.</div>';
+      node.innerHTML = '<div class="muted">No foi possivel carregar o catalogo de capacidades.</div>';
       return;
     }
 
@@ -33,11 +33,11 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
             (category) =>
               '<li><strong>' +
               escapeHtml(category.label || category.type || 'Categoria') +
-              '</strong> Ã‚Â· ' +
+              '</strong> · ' +
               escapeHtml(String(category.total || 0)) +
-              ' total Ã‚Â· ' +
+              ' total · ' +
               escapeHtml(String(category.commands || 0)) +
-              ' comandos Ã‚Â· ' +
+              ' commands · ' +
               escapeHtml(String(category.implicitRoutes || 0)) +
               ' rotas</li>',
           )
@@ -72,7 +72,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhum comando visivel para destacar.</div>';
+      : '<div class="muted">Nenhum comando visible para destacar.</div>';
     const routeItems = featuredRoutes.length
       ? featuredRoutes
           .slice(0, 4)
@@ -96,7 +96,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhuma rota automatica em destaque.</div>';
+      : '<div class="muted">No rota automatica em destaque.</div>';
     const governedCapabilityItems = capabilityActionItems.length
       ? capabilityActionItems
           .slice(0, 4)
@@ -120,13 +120,13 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
               '</div>',
           )
           .join('')
-      : '<div class="muted">Nenhuma capacidade verificada foi exposta ainda.</div>';
+      : '<div class="muted">No capacidade verificada foi exposta ainda.</div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
       '<div>' +
       '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-      '<strong>Catalogo de capacidades</strong>' +
+      '<strong>Catalog de capacidades</strong>' +
       '<span class="badge ' +
       (summary.plugin ? 'badge-info' : 'badge-allowed') +
       '">' +
@@ -136,7 +136,7 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
       '<div class="cockpit-headline">' +
       escapeHtml(
         snapshot.narrative?.operatorSummary ||
-          'Commands, rotas automaticas, plataformas e integracoes visiveis em uma unica leitura.',
+          'Commands, rotas automaticas, plataformas e integrations visiveis em uma unica leitura.',
       ) +
       '</div>' +
       '</div>' +

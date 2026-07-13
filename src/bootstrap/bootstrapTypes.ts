@@ -1,4 +1,5 @@
 import type { BotGateway } from '../gateways/channels/telegram/BotGateway.js';
+import type { WhatsAppGateway } from '../gateways/channels/whatsapp/WhatsAppGateway.js';
 import type { CoreOrchestrator } from '../core/CoreOrchestrator.js';
 import type { PlatformGatewayContract } from '../contracts/PlatformContract.js';
 import type { McpRuntimeService } from '../mcp/McpRuntimeService.js';
@@ -71,7 +72,8 @@ export interface BootstrapSurfaceRuntime {
   sharedSurfaceCommandService: SharedSurfaceCommandService;
   sharedGatewayChannelRegistry: GatewayChannelRegistryService;
   discordGateway: PlatformGatewayContract;
-  whatsAppGateway: PlatformGatewayContract;
+  whatsAppGateway: PlatformGatewayContract &
+    Pick<WhatsAppGateway, 'onMessageReceived' | 'handleWebhookEvent'>;
   slackGateway: PlatformGatewayContract;
   instagramGateway: PlatformGatewayContract;
   signalGateway: PlatformGatewayContract;

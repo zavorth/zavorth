@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "browser-playwright",
+  "label": "Browser Playwright",
+  "version": "1.0.0",
+  "moduleKind": "tool",
+  "summary": "Open pages via BrowserPlaywrightService with soft-fail install tips.",
+  "description": "First-party tool plugin that wraps BrowserPlaywrightService when available, otherwise returns setup guidance for Playwright.",
+  "tags": ["browser", "playwright", "navigate", "tool"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://browser-playwright",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "browser.open",
+      "intent": "browser.open",
+      "label": "Browser Open",
+      "summary": "Navigate to a URL via Playwright when available.",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_open",
+        "aliases": ["open_url"],
+        "usage": "{ url }"
+      }
+    },
+    {
+      "id": "browser.status",
+      "intent": "browser.status",
+      "label": "Browser Status",
+      "summary": "Report Playwright service availability.",
+      "artifactKinds": [],
+      "command": {
+        "name": "browser_status",
+        "aliases": [],
+        "usage": null
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Navigate to external URLs with Playwright.",
+      "required": false
+    },
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Spawn Playwright/browser processes when service is available.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Store screenshots under runtime storage when available.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "networked"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

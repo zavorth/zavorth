@@ -61,7 +61,7 @@ export interface AgentJobResult {
     [key: string]: any;
   };
 
-  // Feedback vital pro Core punir/dar rollback ou cobrar o custo
+  // Vital feedback for the Core to penalize/rollback or charge the cost
   metrics: {
     totalTokens: number;
     toolCallsMade: number;

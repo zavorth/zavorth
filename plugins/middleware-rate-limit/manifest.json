@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "middleware-rate-limit",
+  "label": "Middleware Rate Limit",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "In-memory sliding window rate limit via registerMiddleware / registerHook.",
+  "description": "Wave 6 trust fabric plugin. Soft-counts tool.before_execute invocations with a sliding window. Emits middleware.rate_limit.exceeded when over limit; never hard-blocks unless config.block is true, and even then only soft-fails (log/guidance). Config stored under .zavorth/middleware-rate-limit/config.json.",
+  "tags": ["middleware", "rate-limit", "hooks", "wave6", "trust"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://middleware-rate-limit",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "middleware.ratelimit.status",
+      "intent": "middleware.ratelimit.status",
+      "label": "Rate Limit Status",
+      "summary": "Report limit, windowMs, and current key counts.",
+      "artifactKinds": [],
+      "command": {
+        "name": "middleware_ratelimit_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "middleware.ratelimit.configure",
+      "intent": "middleware.ratelimit.configure",
+      "label": "Rate Limit Configure",
+      "summary": "Update limit/windowMs/block and persist under .zavorth/middleware-rate-limit/config.json.",
+      "artifactKinds": [],
+      "command": {
+        "name": "middleware_ratelimit_configure",
+        "aliases": [],
+        "usage": "{ limit?, windowMs?, block? }"
+      }
+    },
+    {
+      "id": "middleware.ratelimit.check",
+      "intent": "middleware.ratelimit.check",
+      "label": "Rate Limit Check",
+      "summary": "Check whether a key is currently allowed under the sliding window.",
+      "artifactKinds": [],
+      "command": {
+        "name": "middleware_ratelimit_check",
+        "aliases": [],
+        "usage": "{ key? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read rate-limit config under .zavorth/middleware-rate-limit.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Write rate-limit config under .zavorth/middleware-rate-limit.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["middleware-rate-limit.receipt"]
+}

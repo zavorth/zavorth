@@ -38,6 +38,9 @@ export class PluginSandboxPolicyService {
     if (trust === 'blocked') {
       reasons.push('plugin trust is blocked');
     }
+    if (trust !== 'trusted') {
+      requiredApprovals.push('review-trust plugin requires explicit approval before code import');
+    }
 
     if (!manifest.lifecycle.actions.includes(action)) {
       reasons.push(`action ${action} is not declared in plugin lifecycle`);

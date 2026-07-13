@@ -5,7 +5,8 @@ import { RuntimeCompositionService } from '../services/RuntimeCompositionService
 import type { LogRepository } from '../storage/LogRepository.js';
 import { ToolHookPipelineService } from '../services/ToolHookPipelineService.js';
 import { ZavorthMemoryConsolidator } from '../services/ZavorthMemoryConsolidator.js';
-import { logger } from '../logger.js';export function createBootstrapToolRuntime(logRepo: LogRepository) {
+import { logger } from '../logger.js';
+export function createBootstrapToolRuntime(logRepo: LogRepository) {
   const { ToolRegistry } = require('../tools/ToolRegistry.js');
 
   const { ToolExecutor } = require('../execution/ToolExecutor.js');
@@ -51,6 +52,8 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   const { MultiBackendTerminalTool } = require('../tools/MultiBackendTerminalTool.js');
   const { EmailTool } = require('../tools/EmailTool.js');
   const { CalendarTool } = require('../tools/CalendarTool.js');
+  const { PluginRecommendTool } = require('../tools/PluginRecommendTool.js');
+  const { PluginSuggestTool } = require('../tools/PluginSuggestTool.js');
   const { CodeReviewTool } = require('../tools/CodeReviewTool.js');
   const { DatabaseQueryTool } = require('../tools/DatabaseQueryTool.js');
   const { ZavorthCronSchedulerTool } = require('../tools/ZavorthCronSchedulerTool.js');
@@ -135,6 +138,8 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   const { ZavorthTerminalBackendsTool } = require('../tools/ZavorthTerminalBackendsTool.js');
   const { AgentManagerTool } = require('../tools/AgentManagerTool.js');
   const { CapabilityDiscoveryTool } = require('../tools/CapabilityDiscoveryTool.js');
+  const { AgentConsensusTool, ConsensusWithFallbackTool } = require('../tools/AgentConsensusTool.js');
+  const { LlmRuntimeService } = require('../services/llm/LlmRuntimeService.js');
 
   const { LLMRouterService } = require('../services/plugins/LLMRouterService.js');
   const { ContextCompressorService } = require('../services/plugins/ContextCompressorService.js');
@@ -229,6 +234,12 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   toolRegistry.register(new MultiBackendTerminalTool());
   toolRegistry.register(new EmailTool());
   toolRegistry.register(new CalendarTool());
+  toolRegistry.register(new PluginRecommendTool({
+    projectRoot: runtimeConfig?.projectRoot || process.env.ZAVORTH_PROJECT_ROOT || process.cwd(),
+  }));
+  toolRegistry.register(new PluginSuggestTool({
+    projectRoot: runtimeConfig?.projectRoot || process.env.ZAVORTH_PROJECT_ROOT || process.cwd(),
+  }));
   toolRegistry.register(new CodeReviewTool());
   toolRegistry.register(new DatabaseQueryTool());
   {
@@ -325,11 +336,28 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
   toolRegistry.register(new AgentManagerTool());
   toolRegistry.register(new CapabilityDiscoveryTool());
 
+  // Multi-model consensus — user-owned panel (no product-default models)
+  const consensusLlmRuntime = new LlmRuntimeService();
+  toolRegistry.register(new AgentConsensusTool({
+    llmRuntime: consensusLlmRuntime,
+    projectRoot: runtimeConfig.projectRoot || process.cwd(),
+  }));
+  toolRegistry.register(new ConsensusWithFallbackTool({
+    llmRuntime: consensusLlmRuntime,
+    projectRoot: runtimeConfig.projectRoot || process.cwd(),
+  }));
+
   toolRegistry.assertNoFallbackSecurityDefinitions();
 
   logger.info('[BOOT] tools-ready (' + toolRegistry.size + ' tools registered)');
   const telemetryRuntime = new TelemetryRuntimeService();
   const hookPipelineService = new ToolHookPipelineService();
+  try {
+    const { setPluginOsHookPipeline } = require('../services/PluginOsHookPipelineAccess.js');
+    setPluginOsHookPipeline(hookPipelineService);
+  } catch {
+    /* optional plugin OS hook surface */
+  }
   const memoryConsolidator = new ZavorthMemoryConsolidator(hookPipelineService);
   memoryConsolidator.register();
 
@@ -396,15 +424,199 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
 
   logger.info('[BOOT] plugins-ready (55 services + 10 tools)');
 
+  const { PluginRuntimeService } = require('../services/PluginRuntimeService.js');
+  const { PluginRegistryService } = require('../services/PluginRegistryService.js');
+  const { PluginStateBridgeService } = require('../services/PluginStateBridgeService.js');
+  const { PluginOsBootstrapCatalogService } = require('../services/PluginOsBootstrapCatalogService.js');
+  const { setPluginOsMcpRuntime } = require('../services/PluginOsMcpRuntimeAccess.js');
+
+  const pluginOsProjectRoot = runtimeConfig?.projectRoot || process.env.ZAVORTH_PROJECT_ROOT || process.cwd();
+  const pluginOsRegistry = new PluginRegistryService();
+  const pluginOsBridge = new PluginStateBridgeService({ projectRoot: pluginOsProjectRoot });
+  const mcpRuntime = new McpRuntimeService(toolRegistry, logRepo);
+  try {
+    setPluginOsMcpRuntime(mcpRuntime);
+  } catch {
+    /* soft-fail */
+  }
+
+  const { createPluginOsWireAdapterStores } = require('../services/PluginOsWireAdapterStores.js');
+  const { setPluginOsReadyPromise } = require('../services/PluginOsAgentReadiness.js');
+  const pluginOsWireAdapters = createPluginOsWireAdapterStores();
+
+  const pluginOsRuntime = new PluginRuntimeService({
+    projectRoot: pluginOsProjectRoot,
+    pluginRegistry: pluginOsRegistry,
+    stateBridge: pluginOsBridge,
+    wireTargets: {
+      pluginRegistry: pluginOsRegistry,
+      toolRegistry,
+      hookPipeline: hookPipelineService,
+      // P1: capture channel/memory/provider plugin bindings (soft host stores)
+      channelAdapters: pluginOsWireAdapters.channelAdapters,
+      memoryBackends: pluginOsWireAdapters.memoryBackends,
+      providers: pluginOsWireAdapters.providers,
+    },
+  });
+
+  const pluginOsBootstrapCatalog = new PluginOsBootstrapCatalogService({
+    projectRoot: pluginOsProjectRoot,
+    stateBridge: pluginOsBridge,
+  });
+  const { PluginOsObservabilityService } = require('../services/PluginOsObservabilityService.js');
+  const pluginOsObservability = new PluginOsObservabilityService({
+    projectRoot: pluginOsProjectRoot,
+    stateBridge: pluginOsBridge,
+  });
+  let pluginOsBootstrapCatalogResult = null;
+  try {
+    pluginOsBootstrapCatalogResult = pluginOsBootstrapCatalog.apply({ root: pluginOsProjectRoot });
+    try {
+      pluginOsObservability.recordBootstrapResult(pluginOsBootstrapCatalogResult, pluginOsProjectRoot);
+    } catch {
+      /* soft-fail metrics */
+    }
+    if (pluginOsBootstrapCatalogResult?.enabled?.length) {
+      logger.info(
+        `[BOOT] plugin-os-catalog enabled=${pluginOsBootstrapCatalogResult.enabled.length}`,
+      );
+    }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.warn(`[BOOT] plugin-os catalog apply failed: ${message}`);
+  }
+
+  let pluginOsDiscovery = null;
+  try {
+    pluginOsDiscovery = pluginOsRuntime.discover();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.warn(`[BOOT] plugin-os discovery failed: ${message}`);
+  }
+
+
+  const { PluginOsRuntimeWatchService } = require('../services/PluginOsRuntimeWatchService.js');
+  const pluginOsWatch = new PluginOsRuntimeWatchService({
+    projectRoot: pluginOsProjectRoot,
+    runtime: pluginOsRuntime,
+  });
+  let pluginOsBootstrapPromise = Promise.resolve(null);
+  if (process.env.ZAVORTH_PLUGIN_OS_RUNTIME !== '0') {
+    pluginOsBootstrapPromise = pluginOsRuntime.bootstrap({
+      targets: {
+        pluginRegistry: pluginOsRegistry,
+        toolRegistry,
+        hookPipeline: hookPipelineService,
+        channelAdapters: pluginOsWireAdapters.channelAdapters,
+        memoryBackends: pluginOsWireAdapters.memoryBackends,
+        providers: pluginOsWireAdapters.providers,
+      },
+    }).then((snap: { summary?: { loaded?: number; wired?: number } }) => {
+      logger.info(
+        `[BOOT] plugin-os-ready (loaded=${snap?.summary?.loaded ?? 0} wired=${snap?.summary?.wired ?? 0})`,
+      );
+      try {
+        const adapterSnap = pluginOsWireAdapters.snapshot();
+        logger.info(
+          `[BOOT] plugin-os-adapters channels=${adapterSnap.channels.length} memory=${adapterSnap.memoryBackends.length} providers=${adapterSnap.providers.length}`,
+        );
+      } catch {
+        /* soft */
+      }
+      return snap;
+    }).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`[BOOT] plugin-os bootstrap failed: ${message}`);
+      return null;
+    });
+  }
+  try {
+    setPluginOsReadyPromise(pluginOsBootstrapPromise);
+  } catch {
+    /* soft */
+  }
+
+  // P2: after Plugin OS wires tools, drop phantom skill tool names from firewall maps.
+  void pluginOsBootstrapPromise.then(() => {
+    try {
+      const { reconcileSkillToolsWithRegistry } = require('../services/SkillToolRegistryBridge.js');
+      const result = reconcileSkillToolsWithRegistry(toolRegistry);
+      if (result.dropped?.length) {
+        logger.info(`[BOOT] skill-tool-reconcile dropped=${result.dropped.length} kept=${result.kept.length}`);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`[BOOT] skill-tool-reconcile soft-failed: ${message}`);
+    }
+  });
+
+
+  // Non-blocking: after bootstrap settles, optionally start package dir watches + persist metrics.
+  void pluginOsBootstrapPromise.then((snap: { summary?: { loaded?: number; wired?: number; failed?: number } } | null) => {
+    try {
+      const watchResult = pluginOsWatch.start();
+      if (watchResult.started) {
+        logger.info(`[BOOT] plugin-os-watch started (watching=${watchResult.watching})`);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`[BOOT] plugin-os-watch failed: ${message}`);
+    }
+    try {
+      const persisted = pluginOsObservability.persistSnapshot(pluginOsProjectRoot);
+      if (persisted.ok) {
+        logger.info(
+          `[BOOT] plugin-os-metrics health=${persisted.snapshot.health} loaded=${snap?.summary?.loaded ?? 'n/a'} path=${persisted.path}`,
+        );
+      }
+      try {
+        const { PluginOsTelemetryService } = require('../services/PluginOsTelemetryService.js');
+        const telemetry = new PluginOsTelemetryService({
+          projectRoot: pluginOsProjectRoot,
+          observability: pluginOsObservability,
+        });
+        telemetry.recordSample({ root: pluginOsProjectRoot, snapshot: persisted.snapshot });
+        telemetry.recordEvent('bootstrap', {
+          root: pluginOsProjectRoot,
+          health: persisted.snapshot.health,
+          counts: {
+            loaded: Number(snap?.summary?.loaded || 0),
+            wired: Number(snap?.summary?.wired || 0),
+            enabled: persisted.snapshot.funnel.enabled,
+          },
+        });
+      } catch {
+        /* soft-fail telemetry */
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logger.warn(`[BOOT] plugin-os-metrics failed: ${message}`);
+    }
+  });
   const dispose = () => {
+    try {
+      const { setPluginOsHookPipeline, runPluginOsHook } = require('../services/PluginOsHookPipelineAccess.js');
+      void runPluginOsHook({ event: 'shutdown.before', context: { source: 'bootstrapToolRuntime.dispose' } });
+      setPluginOsHookPipeline(null);
+    } catch {
+      /* ignore */
+    }
+    try {
+      const { setPluginOsMcpRuntime: clearMcp } = require('../services/PluginOsMcpRuntimeAccess.js');
+      clearMcp(null);
+    } catch {
+      /* ignore */
+    }
+    try { pluginOsWatch.dispose(); } catch (error: unknown) {/* ignore */ }
     try { kanbanDispatcher.close(); } catch (error: unknown) {/* ignore */ }
+    try { pluginOsRuntime.dispose(); } catch (error: unknown) {/* ignore */ }
   };
 
   return {
     runtimeComposition,
     toolRuntime: runtimeComposition.getToolRuntime(),
     runtimeToolCatalogService: new ToolCatalogService(toolRegistry),
-    mcpRuntime: new McpRuntimeService(toolRegistry, logRepo),
+    mcpRuntime,
     mcpCapabilityControlPlaneService: new McpCapabilityControlPlaneService(),
     plugins: {
       activeMemory,
@@ -458,8 +670,22 @@ import { logger } from '../logger.js';export function createBootstrapToolRuntim
       companionIOS,
       companionAndroid,
     },
+    pluginOs: {
+      registry: pluginOsRegistry,
+      runtime: pluginOsRuntime,
+      discovery: pluginOsDiscovery,
+      bridge: pluginOsBridge,
+      ready: pluginOsBootstrapPromise,
+      waitUntilReady: (timeoutMs?: number) => {
+        const { waitForPluginOsReady } = require('../services/PluginOsAgentReadiness.js');
+        return waitForPluginOsReady({ timeoutMs });
+      },
+      wireAdapters: pluginOsWireAdapters,
+      watch: pluginOsWatch,
+      bootstrapCatalog: pluginOsBootstrapCatalog,
+      bootstrapCatalogResult: pluginOsBootstrapCatalogResult,
+      observability: pluginOsObservability,
+    },
     dispose,
   };
 }
-
-

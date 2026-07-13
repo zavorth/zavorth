@@ -4,7 +4,7 @@ import { ZavorthChannelMeshService } from '../../src/services/ZavorthChannelMesh
 import { buildSharedSurfaceCommandServiceComposition } from '../../src/domain/surface/presentation/shared-surface/factory/SharedSurfaceCommandServiceFactory.js';
 import { SharedSurfaceControlPlaneCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceControlPlaneCommandPack';
 import { SharedSurfacePresentationCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfacePresentationCommandPack';
-import { SharedSurfaceTaskVariationCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceTaskVariationCommandPack';
+import { SharedSurfaceTaskControlCommandPack } from '../../src/domain/surface/presentation/shared-surface/SharedSurfaceTaskControlCommandPack';
 
 describe('buildSharedSurfaceCommandServiceComposition', () => {
   it('builds the default shared-surface composition from minimal deps', () => {
@@ -15,7 +15,11 @@ describe('buildSharedSurfaceCommandServiceComposition', () => {
     expect(composition.parser).toBeInstanceOf(CommandParser);
     expect(composition.controlPlaneCommandPack).toBeInstanceOf(SharedSurfaceControlPlaneCommandPack);
     expect(composition.presentationCommandPack).toBeInstanceOf(SharedSurfacePresentationCommandPack);
-    expect(composition.taskVariationCommandPack).toBeInstanceOf(SharedSurfaceTaskVariationCommandPack);
+    expect(composition.taskControlCommandPack).toBeInstanceOf(SharedSurfaceTaskControlCommandPack);
+    // Free-text natural packs are not wired (agent-first + slash only)
+    expect(composition).not.toHaveProperty('taskVariationCommandPack');
+    expect(composition).not.toHaveProperty('naturalMeshCommandPack');
+    expect(composition).not.toHaveProperty('sessionCommandPack');
   });
 
   it('preserves injected parser and channel services', () => {

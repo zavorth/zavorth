@@ -8,6 +8,7 @@ import type {
 
 import type { ZavorthProviderReadinessMatrixSnapshot } from '../contracts/ZavorthProviderReadinessMatrixContract.js';
 import { logger } from '../logger.js';
+import { tService } from '../i18n/services.js';
 
 export const ZAVORTH_RUNTIME_GUIDED_FIXES_CONTRACT_VERSION = 'zavorth-runtime-guided-fixes/1' as const;
 
@@ -136,21 +137,21 @@ export class ZavorthRuntimeGuidedFixesService {
 
   public renderCli(snapshot: ZavorthRuntimeGuidedFixesSnapshot): string {
     const lines = [
-      'Guided fixes do Zavorth',
-      `Estado: ${snapshot.status}`,
+      tService('guided_fixes.title'),
+      `${tService('guided_fixes.status_label')}: ${snapshot.status}`,
       snapshot.pending > 0
-        ? `${snapshot.pending} ponto(s) precisam de acao segura.`
-        : 'Nenhum bloqueio ou atencao pendente.',
+        ? tService('guided_fixes.pending_action_needed', { count: String(snapshot.pending) })
+        : tService('guided_fixes.no_pending'),
       '',
       ...snapshot.fixes.map((fix, index) => [
         `${index + 1}. ${fix.label}`,
         `   ${fix.summary}`,
-        fix.command ? `   Comando: ${fix.command}` : null,
-        fix.route ? `   Tela: ${fix.route}` : null,
-        fix.telegramCommand ? `   Telegram: ${fix.telegramCommand}` : null,
+        fix.command ? `   ${tService('guided_fixes.command_label')}: ${fix.command}` : null,
+        fix.route ? `   ${tService('guided_fixes.screen_label')}: ${fix.route}` : null,
+        fix.telegramCommand ? `   ${tService('guided_fixes.telegram_label')}: ${fix.telegramCommand}` : null,
       ].filter(Boolean).join('\n')),
       '',
-      'Esses fixes nao executam alvo final por conta propria; quando houver risco, o gateway continua exigindo approval.',
+      tService('guided_fixes.disclaimer'),
     ];
     return `${lines.join('\n')}\n`;
   }
@@ -170,10 +171,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-telegram',
-        label: 'Guiar conexao do Telegram',
+        label: tService('guided_fixes.label_telegram_guide'),
         kind: 'manual-setup',
         risk: 'read_only',
-        summary: 'Abre o diagnostico do conector e mostra o que falta sem expor token.',
+        summary: tService('guided_fixes.summary_telegram_guide'),
         command: 'zavorth connectors doctor telegram',
         route: '/zavorthControl/providers',
         telegramCommand: '/status',
@@ -183,10 +184,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-zavorthControl',
-        label: 'Reabrir ZavorthControl',
+        label: tService('guided_fixes.label_reopen_control'),
         kind: 'run-command',
         risk: 'read_only',
-        summary: 'Sobe a superficie local diaria para confirmar que o painel responde.',
+        summary: tService('guided_fixes.summary_reopen_control'),
         command: 'zavorth go',
         route: '/zavorthControl',
         telegramCommand: '/zavorthControl',
@@ -196,10 +197,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-approvals',
-        label: 'Revisar approvals pendentes',
+        label: tService('guided_fixes.label_review_approvals'),
         kind: 'inspect',
         risk: 'read_only',
-        summary: 'Mostra decisoes pendentes; aprovar ou rejeitar ainda passa pelo gateway.',
+        summary: tService('guided_fixes.summary_review_approvals'),
         command: 'zavorth gateway approvals',
         route: '/zavorthControl/logs',
         telegramCommand: '/echoapprovals',
@@ -209,10 +210,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-transaction-plane',
-        label: 'Certificar transaction plane',
+        label: tService('guided_fixes.label_check_transaction'),
         kind: 'inspect',
         risk: 'read_only',
-        summary: 'Confirma que transacoes reais continuam travadas ate approval e live gate explicitos.',
+        summary: tService('guided_fixes.summary_check_transaction'),
         command: 'zavorth transaction-live-executor-gate',
         route: '/zavorthControl/health',
         telegramCommand: '/status',
@@ -222,10 +223,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-skill-imports',
-        label: 'Verificar import de skills',
+        label: tService('guided_fixes.label_check_skill_imports'),
         kind: 'inspect',
         risk: 'read_only',
-        summary: 'Lista fontes externas e garante que nenhuma fonte sem pin entre no runtime.',
+        summary: tService('guided_fixes.summary_check_skill_imports'),
         command: 'npx tsx scripts/skills-security-scan.ts',
         route: '/zavorthControl/health',
         telegramCommand: '/status',
@@ -235,10 +236,10 @@ export class ZavorthRuntimeGuidedFixesService {
       return fix({
         check,
         id: 'fix-memory-continuity',
-        label: 'Revisar memoria',
+        label: tService('guided_fixes.label_review_memory'),
         kind: 'inspect',
         risk: 'read_only',
-        summary: 'Mostra continuidade e recall sem gravar memoria oculta.',
+        summary: tService('guided_fixes.summary_review_memory'),
         command: 'zavorth memory review --json',
         route: '/zavorthControl/logs',
         telegramCommand: '/status',
@@ -247,10 +248,10 @@ export class ZavorthRuntimeGuidedFixesService {
     return fix({
       check,
       id: 'fix-natural-first',
-      label: 'Testar entrada natural',
+      label: tService('guided_fixes.label_test_natural_input'),
       kind: 'inspect',
       risk: 'read_only',
-      summary: 'Confirma que texto livre entra pelo gateway e risco vira preview/approval.',
+      summary: tService('guided_fixes.summary_test_natural_input'),
       command: 'zavorth ask-runtime "oi"',
       route: '/zavorthControl',
       telegramCommand: '/readiness',
@@ -266,12 +267,12 @@ export class ZavorthRuntimeGuidedFixesService {
   private renderTelegramFromParts(snapshot: Omit<ZavorthRuntimeGuidedFixesSnapshot, 'telegramProjection'>): string {
     const fixes = snapshot.fixes.slice(0, 4);
     return [
-      'Guided fixes do Zavorth',
+      tService('guided_fixes.title'),
       snapshot.pending > 0
-        ? `${snapshot.pending} ponto(s) precisam de acao.`
-        : 'Nenhum bloqueio ou atencao pendente.',
+        ? tService('guided_fixes.pending_action_needed', { count: String(snapshot.pending) })
+        : tService('guided_fixes.no_pending'),
       '',
-      ...fixes.map((fix) => `${fix.label}: ${fix.summary}${fix.command ? ` Comando: ${fix.command}.` : ''}`),
+      ...fixes.map((fix) => `${fix.label}: ${fix.summary}${fix.command ? ` ${tService('guided_fixes.command_label')}: ${fix.command}.` : ''}`),
     ].join('\n');
   }
 }

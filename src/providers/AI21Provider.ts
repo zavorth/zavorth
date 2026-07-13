@@ -12,6 +12,7 @@ import {
 import { buildOpenAiCompatibleNativeToolPayload } from './ProviderNativeToolPayload.js';
 
 import { buildProviderRequestOptions } from './ProviderAbort.js';
+import { buildOpenAiReasoningEffortBody } from './reasoningEffortPayload.js';
 
 export class AI21Provider implements ILlmProvider {
   public readonly name = 'ai21';
@@ -47,6 +48,7 @@ export class AI21Provider implements ILlmProvider {
       tools: openaiTools,
       tool_choice: openaiTools ? 'auto' : undefined,
       ...nativeToolPayload.extraBody,
+      ...buildOpenAiReasoningEffortBody(options),
     } as any, buildProviderRequestOptions(options) as any);
 
     const choice = response.choices[0];

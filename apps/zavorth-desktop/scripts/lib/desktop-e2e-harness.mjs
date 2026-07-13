@@ -154,6 +154,14 @@ export function createMockRuntimeServer() {
       send(200, runtimeCapabilitiesSnapshot());
       return;
     }
+    if (url.pathname === '/desktop-update.json') {
+      send(200, {
+        latestVersion: '0.1.0',
+        changelog: ['Deterministic Desktop visual-test release fixture.'],
+        downloadUrl: null,
+      });
+      return;
+    }
     if (url.pathname === '/api/v2/echo/tools') {
       send(200, { tools: [] });
       return;
@@ -206,6 +214,7 @@ export async function launchDesktopHarness(options = {}) {
       ZAVORTH_WEB_HOST: '127.0.0.1',
       ZAVORTH_WEB_PORT: String(port),
       ZAVORTH_WEB_AUTH_TOKEN: randomBytes(36).toString('base64url'),
+      ZAVORTH_UPDATE_MANIFEST_URL: `http://127.0.0.1:${port}/desktop-update.json`,
       ...(options.env || {}),
     },
   });

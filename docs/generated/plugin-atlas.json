@@ -1,0 +1,1327 @@
+{
+  "schemaVersion": "zavorth.plugin-atlas.v1",
+  "generatedAt": "2026-07-13T19:37:31.920Z",
+  "source": {
+    "curated": "config/plugin-marketplace-curated.json",
+    "gapWaves": "config/plugin-os-gap-waves.json"
+  },
+  "firstPartyCount": 50,
+  "exampleCount": 6,
+  "total": 56,
+  "waves": [
+    {
+      "id": "W0",
+      "name": "Surface parity",
+      "status": "shipped",
+      "packages": [],
+      "api": [
+        "registerPlatform",
+        "registerWebSearchProvider",
+        "registerBrowserProvider",
+        "registerImageGenProvider",
+        "registerVideoGenProvider",
+        "registerTtsProvider",
+        "registerTranscriptionProvider",
+        "registerSecretSource",
+        "registerDashboardAuthProvider",
+        "registerContextEngine",
+        "registerMiddleware",
+        "registerSkill",
+        "registerCliCommand",
+        "registerAuxiliaryTask",
+        "registerSlackActionHandler"
+      ],
+      "exit": [
+        "Specialized register_* on Plugin OS ctx",
+        "Tests green",
+        "Existing plugins unchanged"
+      ]
+    },
+    {
+      "id": "W1",
+      "name": "Provider pack",
+      "status": "shipped",
+      "packages": [
+        "provider-openai-compatible",
+        "provider-anthropic",
+        "provider-xai",
+        "provider-gemini",
+        "provider-status"
+      ],
+      "exit": [
+        "Provider plugins embutidos row ✅"
+      ]
+    },
+    {
+      "id": "W2",
+      "name": "Platform pack",
+      "status": "shipped",
+      "packages": [
+        "platform-telegram",
+        "platform-discord",
+        "platform-whatsapp",
+        "platform-webhook"
+      ],
+      "exit": [
+        "Platform plugins embutidos row ✅"
+      ]
+    },
+    {
+      "id": "W3",
+      "name": "Memory pack",
+      "status": "shipped",
+      "packages": [
+        "memory-local",
+        "memory-honcho",
+        "memory-file-journal",
+        "memory-vector-local",
+        "memory-mem0"
+      ],
+      "exit": [
+        ">=4 memory first-party backends"
+      ]
+    },
+    {
+      "id": "W4",
+      "name": "Media pack",
+      "status": "shipped",
+      "packages": [
+        "media-image-gen",
+        "media-vision",
+        "media-tts",
+        "media-transcription",
+        "media-video-gen"
+      ],
+      "exit": [
+        "Multimodal soft providers available"
+      ]
+    },
+    {
+      "id": "W5",
+      "name": "Browser & search pack",
+      "status": "shipped",
+      "packages": [
+        "web-search",
+        "browser-playwright",
+        "browser-cdp",
+        "search-exa",
+        "search-firecrawl"
+      ],
+      "exit": [
+        "Multiple browser/search backends as plugins"
+      ]
+    },
+    {
+      "id": "W6",
+      "name": "Trust fabric pack",
+      "status": "shipped",
+      "packages": [
+        "secret-source-env",
+        "secret-source-file",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "context-engine-bridge",
+        "middleware-rate-limit"
+      ],
+      "exit": [
+        "Auth/secret/context-engine plugin rows ✅"
+      ]
+    },
+    {
+      "id": "W7",
+      "name": "Lifestyle & demos",
+      "status": "shipped",
+      "packages": [
+        "spotify-soft",
+        "demo-showcase"
+      ],
+      "exit": [
+        "Optional tier complete"
+      ]
+    },
+    {
+      "id": "W8",
+      "name": "Ecosystem surpass",
+      "status": "shipped",
+      "packages": [],
+      "exit": [
+        "Signed remote marketplace defaults",
+        "Atlas catalog generation",
+        "SDK publish ritual",
+        "Onboarding profiles per pack"
+      ]
+    }
+  ],
+  "plugins": [
+    {
+      "id": "browser-cdp",
+      "name": "Browser CDP",
+      "summary": "Soft-fail Chrome DevTools Protocol attach (local remote debugging).",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "browser",
+        "cdp",
+        "chrome",
+        "wave5",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W5",
+      "version": "1.0.0",
+      "source": "bundled://browser-cdp"
+    },
+    {
+      "id": "browser-playwright",
+      "name": "Browser Playwright",
+      "summary": "Open pages via Playwright with soft-fail install tips.",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "browser",
+        "playwright",
+        "navigate"
+      ],
+      "signed": true,
+      "wave": "W5",
+      "version": "1.0.0",
+      "source": "bundled://browser-playwright"
+    },
+    {
+      "id": "calendar",
+      "name": "Calendar",
+      "summary": "Local file calendar with approval-gated create.",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "calendar",
+        "events",
+        "schedule"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://calendar"
+    },
+    {
+      "id": "ci-watch",
+      "name": "CI Watch",
+      "summary": "GitHub Actions status for the current branch via gh.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "ci",
+        "github",
+        "actions",
+        "workflow",
+        "status",
+        "watch",
+        "shipping"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://ci-watch"
+    },
+    {
+      "id": "context-engine-bridge",
+      "name": "Context Engine Bridge",
+      "summary": "Soft bridge to core context engine snapshot/recall when resolvable.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "context",
+        "engine",
+        "bridge",
+        "wave6",
+        "trust"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://context-engine-bridge"
+    },
+    {
+      "id": "cost-tracker",
+      "name": "Cost Tracker",
+      "summary": "LLM cost/token ledger via before/after request hooks.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "cost",
+        "llm",
+        "tokens",
+        "hooks"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://cost-tracker"
+    },
+    {
+      "id": "dashboard-auth-basic",
+      "name": "Dashboard Auth Basic",
+      "summary": "Soft basic-auth verify for control plane (env presence only for status).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "dashboard",
+        "auth",
+        "basic",
+        "wave6",
+        "trust"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://dashboard-auth-basic"
+    },
+    {
+      "id": "dashboard-auth-token",
+      "name": "Dashboard Auth Token",
+      "summary": "Soft bearer-token verify for control plane.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "dashboard",
+        "auth",
+        "token",
+        "wave6",
+        "trust"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://dashboard-auth-token"
+    },
+    {
+      "id": "demo-showcase",
+      "name": "Demo Showcase",
+      "summary": "Surface-parity demo exercising Wave 0 specialized register_* APIs.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "demo",
+        "showcase",
+        "wave7",
+        "surface-parity",
+        "lifestyle"
+      ],
+      "signed": true,
+      "wave": "W7",
+      "version": "1.0.0",
+      "source": "bundled://demo-showcase"
+    },
+    {
+      "id": "example-auxiliary",
+      "name": "Example Auxiliary",
+      "summary": "Example auxiliary module plugin.",
+      "moduleKind": "module",
+      "tier": "example",
+      "tags": [
+        "example",
+        "auxiliary"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/example-auxiliary"
+    },
+    {
+      "id": "example-channel",
+      "name": "Example Channel",
+      "summary": "Example channel module plugin.",
+      "moduleKind": "channel",
+      "tier": "example",
+      "tags": [
+        "example",
+        "channel"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/example-channel"
+    },
+    {
+      "id": "example-hook",
+      "name": "Example Hook",
+      "summary": "Example diagnostics hook plugin.",
+      "moduleKind": "diagnostics",
+      "tier": "example",
+      "tags": [
+        "example",
+        "hooks"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/example-hook"
+    },
+    {
+      "id": "example-memory",
+      "name": "Example Memory",
+      "summary": "Example memory module plugin.",
+      "moduleKind": "memory",
+      "tier": "example",
+      "tags": [
+        "example",
+        "memory"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/example-memory"
+    },
+    {
+      "id": "example-provider",
+      "name": "Example Provider",
+      "summary": "Example provider module plugin.",
+      "moduleKind": "provider",
+      "tier": "example",
+      "tags": [
+        "example",
+        "provider"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/example-provider"
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "summary": "GitHub CLI bridge for status, PRs, and issues.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "github",
+        "pr",
+        "issue",
+        "bridge"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://github"
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "summary": "Gmail bridge: list, local draft, approval-gated send.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "gmail",
+        "email",
+        "google",
+        "draft"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://gmail"
+    },
+    {
+      "id": "hello-world",
+      "name": "Hello World",
+      "summary": "Minimal example Plugin OS package.",
+      "moduleKind": "tool",
+      "tier": "example",
+      "tags": [
+        "example",
+        "hello"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://examples/hello-world"
+    },
+    {
+      "id": "linear",
+      "name": "Linear",
+      "summary": "Linear issue bridge via GraphQL (approval for create).",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "linear",
+        "issues",
+        "project"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://linear"
+    },
+    {
+      "id": "mcp-bridge",
+      "name": "MCP Bridge",
+      "summary": "List MCP servers, materialize bridge packages, and soft-invoke live MCP tools.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "mcp",
+        "bridge",
+        "materialize"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://mcp-bridge"
+    },
+    {
+      "id": "media-image-gen",
+      "name": "Media Image Generation",
+      "summary": "Soft-fail image generation via OpenAI or xAI.",
+      "moduleKind": "media",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "image",
+        "image-gen",
+        "wave4",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W4",
+      "version": "1.0.0",
+      "source": "bundled://media-image-gen"
+    },
+    {
+      "id": "media-transcription",
+      "name": "Media Transcription",
+      "summary": "Soft-fail Whisper-style audio transcription for workspace files.",
+      "moduleKind": "voice",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "transcription",
+        "stt",
+        "whisper",
+        "wave4"
+      ],
+      "signed": true,
+      "wave": "W4",
+      "version": "1.0.0",
+      "source": "bundled://media-transcription"
+    },
+    {
+      "id": "media-tts",
+      "name": "Media TTS",
+      "summary": "Soft-fail OpenAI-compatible text-to-speech.",
+      "moduleKind": "voice",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "tts",
+        "speech",
+        "wave4",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W4",
+      "version": "1.0.0",
+      "source": "bundled://media-tts"
+    },
+    {
+      "id": "media-video-gen",
+      "name": "Media Video Generation",
+      "summary": "Optional-tier soft video generation stub with setup tips.",
+      "moduleKind": "media",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "video",
+        "video-gen",
+        "wave4",
+        "optional"
+      ],
+      "signed": true,
+      "wave": "W4",
+      "version": "1.0.0",
+      "source": "bundled://media-video-gen"
+    },
+    {
+      "id": "media-vision",
+      "name": "Media Vision",
+      "summary": "Soft-fail image describe via vision-capable chat APIs.",
+      "moduleKind": "media",
+      "tier": "first-party",
+      "tags": [
+        "media",
+        "vision",
+        "image",
+        "describe",
+        "wave4"
+      ],
+      "signed": true,
+      "wave": "W4",
+      "version": "1.0.0",
+      "source": "bundled://media-vision"
+    },
+    {
+      "id": "memory-file-journal",
+      "name": "Memory File Journal",
+      "summary": "Append-only JSONL journal memory under .zavorth/memory-file-journal.",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "journal",
+        "append",
+        "local",
+        "wave3"
+      ],
+      "signed": true,
+      "wave": "W3",
+      "version": "1.0.0",
+      "source": "bundled://memory-file-journal"
+    },
+    {
+      "id": "memory-honcho",
+      "name": "Memory Honcho",
+      "summary": "Optional Honcho memory backend with soft-fail status.",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "honcho"
+      ],
+      "signed": true,
+      "wave": "W3",
+      "version": "1.0.0",
+      "source": "bundled://memory-honcho"
+    },
+    {
+      "id": "memory-local",
+      "name": "Local Memory",
+      "summary": "Workspace-local key/value memory under .zavorth/memory-local.",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "local",
+        "store"
+      ],
+      "signed": true,
+      "wave": "W3",
+      "version": "1.0.0",
+      "source": "bundled://memory-local"
+    },
+    {
+      "id": "memory-mem0",
+      "name": "Memory Mem0",
+      "summary": "Soft-fail Mem0 remote memory backend (key + network optional).",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "mem0",
+        "remote",
+        "wave3",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W3",
+      "version": "1.0.0",
+      "source": "bundled://memory-mem0"
+    },
+    {
+      "id": "memory-vector-local",
+      "name": "Memory Vector Local",
+      "summary": "Local bag-of-words vector memory with cosine search (no external deps).",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "memory",
+        "vector",
+        "local",
+        "embeddings",
+        "wave3"
+      ],
+      "signed": true,
+      "wave": "W3",
+      "version": "1.0.0",
+      "source": "bundled://memory-vector-local"
+    },
+    {
+      "id": "middleware-rate-limit",
+      "name": "Middleware Rate Limit",
+      "summary": "Hook-based soft rate limit for tool executions (never hard-crashes).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "middleware",
+        "rate-limit",
+        "hooks",
+        "wave6"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://middleware-rate-limit"
+    },
+    {
+      "id": "notify-outbox",
+      "name": "Notify Outbox",
+      "summary": "Local notification outbox with optional Slack/Discord webhook deliver.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "notify",
+        "slack",
+        "discord",
+        "webhook",
+        "outbox",
+        "channel",
+        "messaging",
+        "alerts"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://notify-outbox"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "summary": "Notion search and page create (approval for mutations).",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "notion",
+        "docs",
+        "pages"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://notion"
+    },
+    {
+      "id": "platform-discord",
+      "name": "Discord Platform",
+      "summary": "Soft-fail Discord Bot API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "discord",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "signed": true,
+      "wave": "W2",
+      "version": "1.0.0",
+      "source": "bundled://platform-discord"
+    },
+    {
+      "id": "platform-telegram",
+      "name": "Telegram Platform",
+      "summary": "Soft-fail Telegram Bot API channel for status and outbound send.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "telegram",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "signed": true,
+      "wave": "W2",
+      "version": "1.0.0",
+      "source": "bundled://platform-telegram"
+    },
+    {
+      "id": "platform-webhook",
+      "name": "Webhook Platform",
+      "summary": "Generic HTTPS outbound webhook channel (SSRF-safe).",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "webhook",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "signed": true,
+      "wave": "W2",
+      "version": "1.0.0",
+      "source": "bundled://platform-webhook"
+    },
+    {
+      "id": "platform-whatsapp",
+      "name": "WhatsApp Platform",
+      "summary": "Soft-fail WhatsApp Cloud API channel for outbound text messages.",
+      "moduleKind": "channel",
+      "tier": "first-party",
+      "tags": [
+        "platform",
+        "whatsapp",
+        "channel",
+        "wave2",
+        "messaging"
+      ],
+      "signed": true,
+      "wave": "W2",
+      "version": "1.0.0",
+      "source": "bundled://platform-whatsapp"
+    },
+    {
+      "id": "plugin-router-ai",
+      "name": "Plugin Router AI",
+      "summary": "Recommend plugins for natural-language intents (no auto-enable).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "router",
+        "recommend",
+        "plugins"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://plugin-router-ai"
+    },
+    {
+      "id": "pr-ship",
+      "name": "PR Ship",
+      "summary": "Ship loop: branch status, diff, review checklist, PR draft/create.",
+      "moduleKind": "bridge",
+      "tier": "first-party",
+      "tags": [
+        "pr",
+        "review",
+        "ship",
+        "git",
+        "github",
+        "diff",
+        "checklist",
+        "shipping"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://pr-ship"
+    },
+    {
+      "id": "provider-anthropic",
+      "name": "Anthropic Provider",
+      "summary": "Soft-fail Anthropic Messages API completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "anthropic",
+        "claude",
+        "llm",
+        "wave1"
+      ],
+      "signed": true,
+      "wave": "W1",
+      "version": "1.0.0",
+      "source": "bundled://provider-anthropic"
+    },
+    {
+      "id": "provider-gemini",
+      "name": "Gemini Provider",
+      "summary": "Soft-fail Google Gemini generateContent API.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "gemini",
+        "google",
+        "llm",
+        "wave1"
+      ],
+      "signed": true,
+      "wave": "W1",
+      "version": "1.0.0",
+      "source": "bundled://provider-gemini"
+    },
+    {
+      "id": "provider-openai-compatible",
+      "name": "OpenAI-Compatible Provider",
+      "summary": "Soft-fail OpenAI-compatible chat completions (OpenAI, OpenRouter, local).",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "openai",
+        "openrouter",
+        "llm",
+        "wave1",
+        "complete"
+      ],
+      "signed": true,
+      "wave": "W1",
+      "version": "1.0.0",
+      "source": "bundled://provider-openai-compatible"
+    },
+    {
+      "id": "provider-status",
+      "name": "Provider Pack Status",
+      "summary": "Aggregate status for Wave 1 provider plugins (key presence only).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "status",
+        "doctor",
+        "wave1",
+        "diagnostics"
+      ],
+      "signed": true,
+      "wave": "W1",
+      "version": "1.0.0",
+      "source": "bundled://provider-status"
+    },
+    {
+      "id": "provider-xai",
+      "name": "xAI / Grok Provider",
+      "summary": "Soft-fail xAI Grok chat completions.",
+      "moduleKind": "provider",
+      "tier": "first-party",
+      "tags": [
+        "provider",
+        "xai",
+        "grok",
+        "llm",
+        "wave1"
+      ],
+      "signed": true,
+      "wave": "W1",
+      "version": "1.0.0",
+      "source": "bundled://provider-xai"
+    },
+    {
+      "id": "search-exa",
+      "name": "Search Exa",
+      "summary": "Dedicated Exa neural search soft-fail plugin.",
+      "moduleKind": "search",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "exa",
+        "wave5",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W5",
+      "version": "1.0.0",
+      "source": "bundled://search-exa"
+    },
+    {
+      "id": "search-firecrawl",
+      "name": "Search Firecrawl",
+      "summary": "Firecrawl scrape/search soft-fail (SSRF-safe public HTTPS).",
+      "moduleKind": "search",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "firecrawl",
+        "crawl",
+        "extract",
+        "wave5"
+      ],
+      "signed": true,
+      "wave": "W5",
+      "version": "1.0.0",
+      "source": "bundled://search-firecrawl"
+    },
+    {
+      "id": "secret-source-env",
+      "name": "Secret Source Env",
+      "summary": "Allowlisted env secret presence checks (never returns values).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "env",
+        "trust",
+        "wave6",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://secret-source-env"
+    },
+    {
+      "id": "secret-source-file",
+      "name": "Secret Source File",
+      "summary": "Workspace-local secret store under .zavorth/secrets (names only in outputs).",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "file",
+        "trust",
+        "wave6",
+        "soft-fail"
+      ],
+      "signed": true,
+      "wave": "W6",
+      "version": "1.0.0",
+      "source": "bundled://secret-source-file"
+    },
+    {
+      "id": "secrets-guardian",
+      "name": "Secrets Guardian",
+      "summary": "Non-blocking scan for leaked secrets in text and tool writes.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "secrets",
+        "security",
+        "scan",
+        "leak",
+        "credentials",
+        "diagnostics",
+        "hooks",
+        "trust"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://secrets-guardian"
+    },
+    {
+      "id": "security-guidance",
+      "name": "Security Guidance",
+      "summary": "Non-blocking dangerous-pattern scanner for tool writes.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "security",
+        "scan",
+        "hooks"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://security-guidance"
+    },
+    {
+      "id": "selfmod-plugin-forge",
+      "name": "Self-Mod Plugin Forge",
+      "summary": "Plan and apply Plugin OS packages from natural-language intents.",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "forge",
+        "selfmod",
+        "scaffold",
+        "plugins"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://selfmod-plugin-forge"
+    },
+    {
+      "id": "session-recall",
+      "name": "Session Recall",
+      "summary": "Search past receipts, memory, and Plugin OS artifacts under .zavorth.",
+      "moduleKind": "memory",
+      "tier": "first-party",
+      "tags": [
+        "recall",
+        "session",
+        "search",
+        "memory",
+        "receipts",
+        "history",
+        "local"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://session-recall"
+    },
+    {
+      "id": "session-scratch-janitor",
+      "name": "Session Scratch Janitor",
+      "summary": "Cleans session scratch artifacts under policy.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "session",
+        "cleanup",
+        "janitor"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://session-scratch-janitor"
+    },
+    {
+      "id": "spotify-soft",
+      "name": "Spotify Soft",
+      "summary": "Soft-fail Spotify Web API playback and search (optional lifestyle).",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "spotify",
+        "lifestyle",
+        "music",
+        "wave7",
+        "soft-fail",
+        "optional"
+      ],
+      "signed": true,
+      "wave": "W7",
+      "version": "1.0.0",
+      "source": "bundled://spotify-soft"
+    },
+    {
+      "id": "task-board",
+      "name": "Task Board",
+      "summary": "Local kanban/todo board for agent multi-step plans.",
+      "moduleKind": "tool",
+      "tier": "first-party",
+      "tags": [
+        "todo",
+        "kanban",
+        "tasks",
+        "planning",
+        "board",
+        "local",
+        "agent"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://task-board"
+    },
+    {
+      "id": "web-search",
+      "name": "Web Search",
+      "summary": "Search the web via SearXNG, Exa, or setup guidance.",
+      "moduleKind": "search",
+      "tier": "first-party",
+      "tags": [
+        "search",
+        "web",
+        "query"
+      ],
+      "signed": true,
+      "wave": "W5",
+      "version": "1.0.0",
+      "source": "bundled://web-search"
+    },
+    {
+      "id": "workspace-doctor",
+      "name": "Workspace Doctor",
+      "summary": "One-shot workspace health: runtime, git, gh, docker, env keys, plugins.",
+      "moduleKind": "diagnostics",
+      "tier": "first-party",
+      "tags": [
+        "doctor",
+        "onboarding",
+        "health",
+        "setup",
+        "accessibility",
+        "diagnostics",
+        "env"
+      ],
+      "signed": true,
+      "version": "1.0.0",
+      "source": "bundled://workspace-doctor"
+    }
+  ],
+  "packs": {
+    "baseline": {
+      "id": "baseline",
+      "pluginIds": [
+        "calendar",
+        "ci-watch",
+        "cost-tracker",
+        "gmail",
+        "linear",
+        "notify-outbox",
+        "notion",
+        "plugin-router-ai",
+        "pr-ship",
+        "security-guidance",
+        "session-scratch-janitor",
+        "task-board",
+        "workspace-doctor"
+      ],
+      "count": 13
+    },
+    "bridge": {
+      "id": "bridge",
+      "pluginIds": [
+        "context-engine-bridge",
+        "github",
+        "mcp-bridge"
+      ],
+      "count": 3
+    },
+    "browser": {
+      "id": "browser",
+      "pluginIds": [
+        "browser-cdp",
+        "browser-playwright"
+      ],
+      "count": 2
+    },
+    "example": {
+      "id": "example",
+      "pluginIds": [
+        "example-auxiliary",
+        "example-channel",
+        "example-hook",
+        "example-memory",
+        "example-provider",
+        "hello-world"
+      ],
+      "count": 6
+    },
+    "forge": {
+      "id": "forge",
+      "pluginIds": [
+        "selfmod-plugin-forge"
+      ],
+      "count": 1
+    },
+    "lifestyle": {
+      "id": "lifestyle",
+      "pluginIds": [
+        "demo-showcase",
+        "spotify-soft"
+      ],
+      "count": 2
+    },
+    "mcp": {
+      "id": "mcp",
+      "pluginIds": [
+        "mcp-bridge"
+      ],
+      "count": 1
+    },
+    "media": {
+      "id": "media",
+      "pluginIds": [
+        "media-image-gen",
+        "media-transcription",
+        "media-tts",
+        "media-video-gen",
+        "media-vision"
+      ],
+      "count": 5
+    },
+    "memory": {
+      "id": "memory",
+      "pluginIds": [
+        "example-memory",
+        "memory-file-journal",
+        "memory-honcho",
+        "memory-local",
+        "memory-mem0",
+        "memory-vector-local",
+        "session-recall"
+      ],
+      "count": 7
+    },
+    "platform": {
+      "id": "platform",
+      "pluginIds": [
+        "platform-discord",
+        "platform-telegram",
+        "platform-webhook",
+        "platform-whatsapp"
+      ],
+      "count": 4
+    },
+    "provider": {
+      "id": "provider",
+      "pluginIds": [
+        "example-provider",
+        "provider-anthropic",
+        "provider-gemini",
+        "provider-openai-compatible",
+        "provider-status",
+        "provider-xai"
+      ],
+      "count": 6
+    },
+    "search": {
+      "id": "search",
+      "pluginIds": [
+        "search-exa",
+        "search-firecrawl",
+        "session-recall",
+        "web-search"
+      ],
+      "count": 4
+    },
+    "trust": {
+      "id": "trust",
+      "pluginIds": [
+        "context-engine-bridge",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "secret-source-env",
+        "secret-source-file",
+        "secrets-guardian"
+      ],
+      "count": 6
+    },
+    "wave1": {
+      "id": "wave1",
+      "pluginIds": [
+        "provider-anthropic",
+        "provider-gemini",
+        "provider-openai-compatible",
+        "provider-status",
+        "provider-xai"
+      ],
+      "count": 5
+    },
+    "wave2": {
+      "id": "wave2",
+      "pluginIds": [
+        "platform-discord",
+        "platform-telegram",
+        "platform-webhook",
+        "platform-whatsapp"
+      ],
+      "count": 4
+    },
+    "wave3": {
+      "id": "wave3",
+      "pluginIds": [
+        "memory-file-journal",
+        "memory-honcho",
+        "memory-local",
+        "memory-mem0",
+        "memory-vector-local"
+      ],
+      "count": 5
+    },
+    "wave4": {
+      "id": "wave4",
+      "pluginIds": [
+        "media-image-gen",
+        "media-transcription",
+        "media-tts",
+        "media-video-gen",
+        "media-vision"
+      ],
+      "count": 5
+    },
+    "wave5": {
+      "id": "wave5",
+      "pluginIds": [
+        "browser-cdp",
+        "browser-playwright",
+        "search-exa",
+        "search-firecrawl",
+        "web-search"
+      ],
+      "count": 5
+    },
+    "wave6": {
+      "id": "wave6",
+      "pluginIds": [
+        "context-engine-bridge",
+        "dashboard-auth-basic",
+        "dashboard-auth-token",
+        "middleware-rate-limit",
+        "secret-source-env",
+        "secret-source-file"
+      ],
+      "count": 6
+    },
+    "wave7": {
+      "id": "wave7",
+      "pluginIds": [
+        "demo-showcase",
+        "spotify-soft"
+      ],
+      "count": 2
+    }
+  }
+}

@@ -102,7 +102,7 @@ export class FileInspectionService {
     const descriptor = this.parseRequest(rawRequest);
     const roots = this.resolveSearchRoots(descriptor.preferredRoots, options.extraAllowedPaths || []);
     if (roots.length === 0) {
-      return { kind: 'message', text: 'Nao encontrei nenhuma raiz local disponivel para inspecionar arquivos agora.' };
+      return { kind: 'message', text: 'I could not find any available local root to inspect files right now.' };
     }
 
     const permissionPlan = this.resolvePermissionPlan(descriptor.explicitPaths, roots, rawRequest);
@@ -310,7 +310,7 @@ export class FileInspectionService {
     if (!resolved) {
       return {
         kind: 'message',
-        text: 'Nao consegui identificar os dois arquivos para comparar. Informe dois caminhos entre aspas ou caminhos absolutos.',
+        text: 'Could not identify the two files to compare. Provide two quoted paths or absolute paths.',
       };
     }
 

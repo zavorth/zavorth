@@ -70,6 +70,14 @@
       "types": "./dist/sdk/plugin-os.d.ts",
       "default": "./dist/sdk/plugin-os.js"
     },
+    "./plugin-sdk": {
+      "types": "./packages/plugin-sdk/src/index.d.ts",
+      "default": "./packages/plugin-sdk/src/index.js"
+    },
+    "./packages/plugin-sdk": {
+      "types": "./packages/plugin-sdk/src/index.d.ts",
+      "default": "./packages/plugin-sdk/src/index.js"
+    },
     "./sdk/provider-mesh-expansion": {
       "types": "./dist/sdk/provider-mesh-expansion.d.ts",
       "default": "./dist/sdk/provider-mesh-expansion.js"
@@ -149,7 +157,8 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "zavorth": "./bin/zavorth.js"
+    "zavorth": "./bin/zavorth.js",
+    "create-zavorth-plugin": "./bin/create-zavorth-plugin.js"
   },
   "files": [
     "bin/",
@@ -206,6 +215,16 @@
     "prepack": "npm run sdk:exports:check --silent && npm run build --silent",
     "sdk:exports": "node scripts/generate-package-exports.mjs --write",
     "sdk:exports:check": "node scripts/generate-package-exports.mjs --check",
+    "plugin-sdk:build": "npm run build --prefix packages/plugin-sdk",
+    "plugin-sdk:publish:dry-run": "npm run publish:dry-run --prefix packages/plugin-sdk",
+    "anyone": "npx tsx scripts/zavorth-anyone-agent-path.ts",
+    "anyone:onboard": "npx tsx scripts/zavorth-anyone-agent-path.ts onboard",
+    "anyone:digest": "npx tsx scripts/zavorth-anyone-agent-path.ts digest",
+    "whatsapp-bridge": "npx tsx scripts/zavorth-whatsapp-bridge.ts",
+    "whatsapp-bridge:start": "npx tsx scripts/zavorth-whatsapp-bridge.ts start",
+    "whatsapp-bridge:status": "npx tsx scripts/zavorth-whatsapp-bridge.ts status --json",
+    "whatsapp-bridge:poll": "npx tsx scripts/zavorth-whatsapp-bridge.ts poll",
+    "whatsapp-bridge:poll-once": "npx tsx scripts/zavorth-whatsapp-bridge.ts poll-once --json",
     "cli": "npm run build --silent && node bin/zavorth.js",
     "cli:ink-preview": "npm --prefix tools/cli/ink-test-env run dev",
     "zavorth:cli-surface:check": "node scripts/zavorth-cli-surface-consolidation-check.mjs",
@@ -227,6 +246,11 @@
     "zavorth:skills-curator-plane:check": "npx jest tests/services/SkillCuratorPlaneService.test.ts --runInBand",
     "zavorth:skills-curator-canary": "node scripts/zavorth-skills-curator-canary.mjs",
     "qa:zavorth-smart-skills-suite": "npm run runtime:check --silent && npx jest tests/services/SkillCurationService.test.ts tests/services/SkillCuratorPlaneService.test.ts tests/skills/SkillRouter.test.ts tests/skills/UniversalSkillIntakeService.test.ts tests/skills/SkillImportPreviewService.test.ts --runInBand && node scripts/zavorth-skills-curator-canary.mjs",
+    "qa:plugin-os": "node scripts/plugin-os-qa.mjs",
+    "plugin-os:qa": "node scripts/plugin-os-qa.mjs",
+    "plugin-os:create": "node bin/create-zavorth-plugin.js",
+    "plugin-os:marketplace": "node -e \"console.log('Use: npx zavorth plugins marketplace  |  zavorth plugins marketplace show <id>  |  zavorth plugins install marketplace:<id> --yes')\"",
+    "plugin-os:export-marketplace": "node scripts/export-plugin-marketplace-remote.mjs",
     "qa:zavorth-natural-action-harness": "npm run runtime:check --silent && npx jest tests/runtime/actions/ZavorthActionHarness.test.ts tests/tools/ZavorthActionTool.test.ts tests/cli/ZavorthActionHarnessCommand.test.ts tests/cli/ZavorthSkillsGovernanceCommand.test.ts tests/services/ChannelGovernanceEnvelopeService.test.ts tests/bootstrap/bootstrapToolRuntime.test.ts tests/cognitive-firewall/ToolGatekeeper.test.ts tests/runtime/agent/ToolGroupCatalog.test.ts --runInBand",
     "qa:zavorth-connector-progress": "npm run runtime:check --silent && npx jest tests/services/ChannelProgressSurfaceService.test.ts tests/services/ChannelProgressRuntimeBridgeService.test.ts tests/services/IntegrationConnectorMeshService.test.ts tests/services/IntegrationRegistryService.test.ts tests/runtime/agent/AgentRunService.test.ts tests/runtime/actions/ZavorthActionHarness.test.ts --runInBand",
     "qa:zavorth-daily-ops": "npm run runtime:check --silent && npx jest tests/services/ZavorthOperationalStateDbService.test.ts tests/services/ZavorthDailyOpsPlane.test.ts tests/services/GoalLoopService.test.ts tests/services/GoalLoopWorkerService.test.ts tests/services/GoalLoopDaemonService.test.ts tests/services/GoalLoopStatusProjectionService.test.ts tests/cli/ZavorthDailyOpsCommand.test.ts tests/runtime/actions/ZavorthActionHarness.test.ts tests/tools/ZavorthActionTool.test.ts --runInBand",
@@ -708,6 +732,9 @@
     "zavorth:maturity:json": "npx tsx scripts/zavorth-maturity.ts --json",
     "zavorth:maturity:check": "node scripts/zavorth-maturity-check.mjs",
     "qa:zavorth-maturity": "node scripts/zavorth-maturity-check.mjs",
+    "maturity:production-readiness": "node scripts/maturity-production-readiness.mjs",
+    "maturity:production-readiness:strict": "node scripts/maturity-production-readiness.mjs --strict",
+    "maturity:production-readiness:json": "node scripts/maturity-production-readiness.mjs --json",
     "zavorth:live-host": "npx tsx scripts/zavorth-live-host-certification.ts",
     "zavorth:live-host:json": "npx tsx scripts/zavorth-live-host-certification.ts --json",
     "zavorth:live-host:check": "node scripts/zavorth-live-host-certification-check.mjs",
@@ -1095,6 +1122,10 @@
     "release:check": "node scripts/zavorth-release-check.mjs",
     "release:check:json": "node scripts/zavorth-release-check.mjs --json",
     "release:scan": "npx tsx scripts/release-hygiene-scan.ts",
+    "release:npm-preflight": "node scripts/npm-publish-preflight.mjs",
+    "release:docker-tags": "node scripts/docker-release-tags.mjs",
+    "smoke:windows": "node scripts/windows-smoke.mjs",
+    "cost-savings": "node -e \"const {CostSavingsDashboardService}=require('./dist/services/CostSavingsDashboardService.js'); console.log(JSON.stringify(new CostSavingsDashboardService().buildSnapshot(),null,2))\"",
     "daily:certify": "npm run zavorth:documentation-repo-final:check --silent",
     "zavorth:provider-certification": "npx tsx scripts/zavorth-provider-certification.ts",
     "zavorth:provider-certification:json": "npx tsx scripts/zavorth-provider-certification.ts --json",
@@ -1232,6 +1263,9 @@
     "zavorth-desktop:dev": "npm --prefix apps/zavorth-desktop run dev --silent",
     "zavorth-desktop:build": "npm --prefix apps/zavorth-desktop run build --silent",
     "zavorth-desktop:check": "npm run zavorth-desktop:build --silent && node scripts/zavorth-desktop-setup-check.mjs",
+    "desktop:production-readiness": "npm run production:readiness --prefix apps/zavorth-desktop",
+    "desktop:production-readiness:strict": "npm run production:readiness:strict --prefix apps/zavorth-desktop",
+    "desktop:test:electron-unit": "npm run test:electron-unit --prefix apps/zavorth-desktop",
     "zavorth-setup:dev": "npm --prefix apps/zavorth-setup run dev --silent",
     "zavorth-setup:build": "npm --prefix apps/zavorth-setup run build --silent",
     "zavorth-setup:check": "npm run zavorth-setup:build --silent",
@@ -1304,6 +1338,11 @@
     "retention:day1": "node scripts/schedule-day1-retention.mjs",
     "retention:day1:desktop": "node scripts/record-day1-from-desktop-clock.mjs",
     "ops:signing:check": "node scripts/ops-signing-readiness.mjs",
+    "ops:skill-registry": "node scripts/skill-registry-ops-smoke.mjs",
+    "skill-registry:ops": "node scripts/skill-registry-ops-smoke.mjs",
+    "skill-registry:ops:test": "npx jest tests/services/SkillRegistryOpsService.test.ts tests/services/SkillRegistryOpsHttpApiService.test.ts --forceExit --testPathIgnorePatterns=[] --runInBand",
+    "surface-agent:contracts:test": "npx jest tests/contracts/SurfaceAgentContract.test.ts tests/services/SurfaceAgentContractService.test.ts tests/security/SurfaceAgentContract.security-audit.test.ts tests/security/SurfaceHighRiskApproval.security-audit.test.ts tests/services/surface/SurfaceApprovalGate.test.ts tests/integration/SurfaceAgentContract.user-journey.test.ts tests/domain/surface/SurfaceAgentFirstMode.test.ts tests/orchestrator/ApprovalManager.test.ts tests/services/permission/AgentPermissionService.test.ts --forceExit --testPathIgnorePatterns=[] --runInBand",
+    "agent-permissions:test": "npx jest tests/services/permission/AgentPermissionService.test.ts tests/services/permission/AgentPermissionApprovalPresentation.test.ts --forceExit --testPathIgnorePatterns=[] --runInBand",
     "ops:release:collect": "node scripts/collect-release-artifacts.mjs",
     "launch:live-cells": "node scripts/launch-live-cells-record.mjs",
     "launch:ready:check": "node scripts/launch-ready-check.mjs",
@@ -1325,7 +1364,11 @@
     "value:ttfu": "npx tsx scripts/value-ttfu-run.ts",
     "value:ttfu:check": "npx tsx scripts/value-ttfu-run.ts --check",
     "value:code-loop": "npx tsx scripts/code-daily-loop-run.ts",
-    "value:code-loop:check": "npx tsx scripts/code-daily-loop-run.ts --check"
+    "value:code-loop:check": "npx tsx scripts/code-daily-loop-run.ts --check",
+    "qa:skill-worker-mesh": "node scripts/skill-worker-mesh-qa.mjs",
+    "skill-worker-mesh:qa": "node scripts/skill-worker-mesh-qa.mjs",
+    "skill-worker-mesh:brand-check": "node scripts/skill-worker-brand-denylist-check.mjs",
+    "skill-worker-mesh:demo": "node scripts/skill-worker-mesh-demo.mjs"
   },
   "dependencies": {
     "@agentclientprotocol/sdk": "^0.21.1",

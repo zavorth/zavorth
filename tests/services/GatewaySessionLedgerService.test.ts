@@ -118,7 +118,7 @@ describe('GatewaySessionLedgerService', () => {
       platform: 'web',
       runtimeUserId: 'runtime-user-2',
       sourceUserId: 'session-2',
-      headline: 'Gateway pronto.',
+      headline: 'Gateway ready.',
       operatorSummary: null,
       latestTaskId: 'task-2',
       workflowRunIds: [],

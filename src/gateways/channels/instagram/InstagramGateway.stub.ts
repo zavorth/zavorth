@@ -3,7 +3,8 @@ import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
 import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
-import { logger } from '../../../logger.js';export interface InstagramGatewayStubMessage {
+import { logger } from '../../../logger.js';
+export interface InstagramGatewayStubMessage {
   userId: string;
   chatId: string;
   rawText: string;
@@ -166,7 +167,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     if (this.resolveMode() !== 'meta-messaging') {
       return {
         statusCode: 503,
-        textBody: 'Instagram Messaging API indisponivel neste runtime.',
+        textBody: 'Instagram Messaging API unavailable in this runtime.',
       };
     }
 
@@ -209,7 +210,7 @@ export class InstagramGateway implements LiveChannelBroadcastGatewayContract {
     if (this.resolveMode() !== 'meta-messaging') {
       return {
         statusCode: 503,
-        body: { ok: false, error: 'Instagram Messaging API indisponivel neste runtime.' },
+        body: { ok: false, error: 'Instagram Messaging API unavailable in this runtime.' },
       };
     }
 

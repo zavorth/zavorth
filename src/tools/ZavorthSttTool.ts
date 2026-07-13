@@ -63,7 +63,7 @@ export class ZavorthSttTool extends BaseTool {
       },
       temperature: {
         type: 'number',
-        description: 'Temperature para geracao (0-1). Default: 0.',
+        description: 'Generation temperature (0-1). Default: 0.',
       },
     },
     required: ['action'],

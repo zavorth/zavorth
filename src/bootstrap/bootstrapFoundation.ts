@@ -189,6 +189,42 @@ export async function initializeBootstrapFoundation(
   const taskManager = new TaskManager(taskRepo, logRepo);
   const toolRuntimeServices = createBootstrapToolRuntime(logRepo);
   logRepo.log('info', 'Bootstrap', 'TaskManager unificado e tools registradas.');
+  try {
+    if (!process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE) {
+      process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE = 'daily-ops';
+    }
+  } catch {
+    /* soft */
+  }
+
+  // Await Plugin OS wiring so channel/agent hosts see dynamic capability tools (soft timeout).
+  try {
+    const waitUntilReady = toolRuntimeServices.pluginOs?.waitUntilReady as
+      | ((timeoutMs?: number) => Promise<{ ok?: boolean; timedOut?: boolean; waitedMs?: number }>)
+      | undefined;
+    if (typeof waitUntilReady === 'function') {
+      const timeoutMs = Math.max(
+        0,
+        Number(process.env.ZAVORTH_PLUGIN_OS_READY_TIMEOUT_MS) || 15000,
+      );
+      const ready = await waitUntilReady(timeoutMs);
+      if (ready?.timedOut) {
+        logRepo.log(
+          'warn',
+          'Bootstrap',
+          `Plugin OS ready timed out after ${ready.waitedMs ?? timeoutMs}ms (soft-fail; mesh tools still available).`,
+        );
+      } else {
+        logRepo.log('info', 'Bootstrap', 'Plugin OS ready for channel host.');
+      }
+    }
+  } catch (error: unknown) {
+    logRepo.log(
+      'warn',
+      'Bootstrap',
+      `Plugin OS ready wait soft-failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 
   const contextEngineRuntime = createContextEngineRuntime(logRepo);
   wireLegacyUnifiedGatewayAgentCallback({

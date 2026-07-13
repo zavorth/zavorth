@@ -73,7 +73,7 @@ describe('Web app tenant governance endpoint', () => {
           ],
           narrative: {
             headline: 'Governanca de tenants com 2 tenant(s) observado(s).',
-            operatorSummary: '1 compartilhado | 1 pendente de onboarding',
+            operatorSummary: '1 shared | 1 pending onboarding',
             nextAction: 'Fechar onboarding antes de abrir novas superficies.',
           },
         })),
@@ -417,7 +417,7 @@ describe('Web app tenant governance endpoint', () => {
         securityMesh: null,
         sessionPlane: {
           summary: { sessions: 3 },
-          narrative: { headline: 'Session plane pronto.' },
+          narrative: { headline: 'Session plane ready.' },
         },
       };
     });

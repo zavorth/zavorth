@@ -21,6 +21,19 @@ describe('UntrustedContent', () => {
     expect(wrapped).toContain('source_url="https://example.test/a?x=&lt;bad&gt;"');
   });
 
+  it('bounds untrusted prompt content without serializing internal limit controls', () => {
+    const wrapped = wrapUntrustedContent(
+      'learned_preferences',
+      '0123456789',
+      { maxChars: 4, source: 'memory' },
+    );
+
+    expect(wrapped).toContain('source="memory"');
+    expect(wrapped).not.toContain('maxChars=');
+    expect(wrapped).toContain('0123\n…[truncated]');
+    expect(wrapped).not.toContain('456789');
+  });
+
   it('detects untrusted content markers inside nested tool arguments', () => {
     expect(containsUntrustedContentMarker({
       nested: [

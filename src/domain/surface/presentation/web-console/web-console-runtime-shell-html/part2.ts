@@ -87,25 +87,25 @@ export function buildRuntimeShellHtmlPart2(): string {
       </section>
 
       <section id="session-workspace-card" class="handoff-card">
-        <h2>Workspace da sessao</h2>
+        <h2>Workspace dthe session</h2>
         <p class="muted-copy section-note">
-          Esta e a control UI operacional da sessao: chat vivo, approvals, diffs, capabilities, recursos, companions e health no mesmo plano do gateway.
+          Esta e a control UI operacional dthe session: chat vivo, approvals, diffs, capabilities, recursos, companions e health no mesmo plano do gateway.
         </p>
         <div class="action-row compact-remote-actions">
           <button id="session-workspace-action" type="button" class="action-button secondary compact-action" hidden>Atualizar workspace</button>
         </div>
         <p id="session-workspace-status" class="muted-copy section-note">
-          Valide o token para carregar a sessao ativa, o estado leve e o historico canonico.
+          Valide o token para carregar the session ativa, o estado leve e o historico canonico.
         </p>
         <div class="ops-summary-grid">
           <article id="session-workspace-session-card" class="ops-summary-card">
             <p class="profile-tag">Sessao atual</p>
             <strong id="session-workspace-state">Valide o token</strong>
             <p id="session-workspace-summary" class="muted-copy">
-              O shell protegido mostra aqui a sessao ativa, tarefas, approvals e continuidade.
+              O shell protegido mostra aqui the session ativa, tarefas, approvals e continuidade.
             </p>
             <ul id="session-workspace-details" class="handoff-list compact">
-              <li>Valide o token para carregar a sessao ativa do gateway.</li>
+              <li>Valide o token para carregar the session ativa do gateway.</li>
             </ul>
           </article>
           <article id="session-workspace-approvals-card" class="ops-summary-card">
@@ -122,7 +122,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Replay rapido</p>
             <strong id="session-workspace-replay-state">Valide o token</strong>
             <p id="session-workspace-replay-summary" class="muted-copy">
-              Replay, continuidade e handoff canonicos aparecem aqui assim que o shell protegido for liberado.
+              Replay, continuidade e handoff canonical aparecem aqui assim que o shell protegido for liberado.
             </p>
             <ul id="session-workspace-replay" class="handoff-list compact">
               <li>Valide o token para revisar replay, timeline e proximo handoff.</li>
@@ -142,17 +142,17 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Diffs e artifacts</p>
             <strong id="session-workspace-diffs-state">Valide o token</strong>
             <p id="session-workspace-diffs-summary" class="muted-copy">
-              Diffs consolidados, arquivos tocados e artifacts canonicos aparecem aqui por tool run.
+              Diffs consolidados, arquivos tocados e artifacts canonical aparecem aqui por tool run.
             </p>
             <ul id="session-workspace-diffs" class="handoff-list compact">
-              <li>Valide o token para revisar diffs e artifacts da sessao ativa.</li>
+              <li>Valide o token para revisar diffs e artifacts dthe session ativa.</li>
             </ul>
           </article>
           <article id="session-workspace-capabilities-card" class="ops-summary-card">
             <p class="profile-tag">Capabilities</p>
             <strong id="session-workspace-capabilities-state">Valide o token</strong>
             <p id="session-workspace-capabilities-summary" class="muted-copy">
-              Capabilities declaradas, dormentes e pendentes de approval aparecem aqui para a sessao atual.
+              Capabilities declaradas, dormentes e pendentes de approval aparecem aqui para the session atual.
             </p>
             <ul id="session-workspace-capabilities" class="handoff-list compact">
               <li>Valide o token para revisar packs sob demanda e plans de capability.</li>
@@ -162,7 +162,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Selfmod</p>
             <strong id="session-workspace-selfmod-state">Valide o token</strong>
             <p id="session-workspace-selfmod-summary" class="muted-copy">
-              Previews, apply e rollback do selfmod aparecem aqui quando a sessao trouxer mudancas evolutivas.
+              Previews, apply e rollback do selfmod aparecem aqui quando the session trouxer mudancas evolutivas.
             </p>
             <ul id="session-workspace-selfmod" class="handoff-list compact">
               <li>Valide o token para revisar previews, plans e rollback do selfmod.</li>
@@ -192,7 +192,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Health e proximas acoes</p>
             <strong id="session-workspace-health-state">Valide o token</strong>
             <p id="session-workspace-health-summary" class="muted-copy">
-              Warnings canonicos do runtime e recomendacoes de cleanup aparecem aqui sem precisar abrir o terminal.
+              Warnings canonical do runtime e recommendations de cleanup aparecem aqui sem precisar abrir o terminal.
             </p>
             <ul id="session-workspace-health" class="handoff-list compact">
               <li>Valide o token para revisar warnings e proximas acoes do runtime.</li>
@@ -256,7 +256,7 @@ export function buildRuntimeShellHtmlPart2(): string {
               Valide o token para revisar score, recovery state, pressao de memoria e fila pendente de aprendizado.
             </p>
             <ul id="ops-quality-details" class="handoff-list compact">
-              <li>Valide o token para carregar o quality gate oficial desta maquina.</li>
+              <li>Valide o token para carregar o quality gate oficial dthis machine.</li>
             </ul>
           </article>
         </div>
@@ -333,7 +333,7 @@ export function buildRuntimeShellHtmlPart2(): string {
               <button id="ops-keepalive-smoke" type="button" class="action-button secondary compact-action" data-copy="npm run test:transports:smoke">Copiar smoke remoto</button>
             </div>
             <p id="ops-keepalive-status" class="muted-copy section-note">
-              Snapshot local do keepalive ainda nao carregado.
+              Snapshot local do keepalive not yet carregado.
             </p>
             <ul id="ops-keepalive-details" class="handoff-list compact">
               <li>Carregue o snapshot para ver latencia, readiness e ultimo sinal do keepalive.</li>
@@ -376,14 +376,14 @@ export function buildRuntimeShellHtmlPart2(): string {
               <button id="ops-extensions-action" type="button" class="action-button secondary compact-action" hidden>Ver catalogo</button>
             </div>
             <p id="ops-extensions-status" class="muted-copy section-note">
-              Valide o token para revisar workspaces, plugins, comandos e hooks carregados.
+              Valide o token para revisar workspaces, plugins, commands e hooks carregados.
             </p>
             <ul id="ops-extensions-details" class="handoff-list compact">
-              <li>Valide o token para revisar workspaces, plugins, comandos e hooks carregados.</li>
+              <li>Valide o token para revisar workspaces, plugins, commands e hooks carregados.</li>
             </ul>
             <div id="ops-extensions-panel" class="ops-detail-panel" hidden>
               <p class="profile-tag">Painel do foco</p>
-              <strong id="ops-extensions-panel-title">Catalogo de integrations</strong>
+              <strong id="ops-extensions-panel-title">Catalog de integrations</strong>
               <p id="ops-extensions-panel-summary" class="muted-copy">
                 Abra o painel para revisar workspaces, plugins, comandos, hooks e visibilidade local.
               </p>

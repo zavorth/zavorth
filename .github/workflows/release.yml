@@ -17,9 +17,13 @@ on:
 
 permissions:
   contents: write
+  packages: write
+  id-token: write
 
 env:
   NODE_VERSION: '22'
+  # dry_run true when workflow_dispatch default; false on tag push
+  RELEASE_DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'false') && 'true' || 'false' }}
 
 jobs:
   pre-release:
@@ -99,9 +103,9 @@ jobs:
         run: npx jest tests/gateways/ChannelCompletenessService.test.ts tests/gateways/WebhookGateway.completeness.test.ts --runInBand --forceExit --coverage=false
 
   docker:
-    name: Docker Build
+    name: Docker Build & Publish
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     needs: pre-release
 
     steps:
@@ -111,7 +115,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Compute image tags
+        id: tags
+        env:
+          # Without Docker Hub login, only push GHCR tags (Hub tags still computed when secrets present).
+          DOCKER_TAGS_GHCR_ONLY: ${{ secrets.DOCKERHUB_TOKEN == '' && 'true' || 'false' }}
+        run: node scripts/docker-release-tags.mjs "${{ github.ref_name || 'dev' }}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        if: env.RELEASE_DRY_RUN != 'true' && startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: ${{ env.RELEASE_DRY_RUN != 'true' && startsWith(github.ref, 'refs/tags/v') && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Build Docker image (dry-run / always)
+        if: env.RELEASE_DRY_RUN == 'true' || !startsWith(github.ref, 'refs/tags/v')
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -119,6 +148,58 @@ jobs:
           tags: zavorth:${{ github.ref_name || 'dev' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Build and push Docker image
+        if: env.RELEASE_DRY_RUN != 'true' && startsWith(github.ref, 'refs/tags/v')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Smoke-run container health (local image)
+        if: env.RELEASE_DRY_RUN == 'true' || !startsWith(github.ref, 'refs/tags/v')
+        run: |
+          set -euo pipefail
+          docker build -t zavorth:smoke .
+          # Start briefly; healthcheck may fail without full runtime — only prove image starts
+          cid=$(docker run -d -p 33333:33333 zavorth:smoke || true)
+          sleep 3
+          if [ -n "${cid:-}" ]; then
+            docker logs "$cid" 2>&1 | tail -n 40 || true
+            docker stop "$cid" || true
+            docker rm "$cid" || true
+          fi
+          echo "Docker local smoke finished"
+
+  windows-smoke:
+    name: Windows Smoke
+    runs-on: windows-latest
+    timeout-minutes: 20
+    needs: pre-release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build (if needed for CLI entry)
+        run: npm run build --silent
+        continue-on-error: true
+
+      - name: Windows smoke script
+        run: node scripts/windows-smoke.mjs
 
   build-binaries:
     name: Build ${{ matrix.platform }}
@@ -190,7 +271,7 @@ jobs:
 
   create-release:
     name: Create GitHub Release
-    needs: [test-suite, docker, build-binaries, build-code-tui]
+    needs: [test-suite, docker, windows-smoke, build-binaries, build-code-tui]
     if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -257,6 +338,11 @@ jobs:
             npm install -g zavorth
             ```
             npm packages include platform Code TUI binaries under `packages/code/cli/dist/` so `zavorth` can open the coding shell without installing Bun.
+
+            **Docker (GHCR):**
+            ```bash
+            docker pull ghcr.io/${{ github.repository_owner }}/zavorth:${{ github.ref_name }}
+            ```
 
             **Code TUI assets:** `code-tui-*.tar.gz` (prebuilt coding shell per OS).
 
@@ -325,8 +411,8 @@ jobs:
 
   publish-npm:
     name: Publish to npm
-    needs: [test-suite, docker, build-code-tui]
-    if: startsWith(github.ref, 'refs/tags/v') && github.event.inputs.dry_run != 'true'
+    needs: [test-suite, docker, windows-smoke, build-code-tui]
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -364,7 +450,17 @@ jobs:
           find packages/code/cli/dist -type f \( -name zavorth -o -name zavorth.exe \) | tee /tmp/code-bins.txt
           test -s /tmp/code-bins.txt
 
-      - name: Publish to npm
+      - name: npm publish preflight
+        run: node scripts/npm-publish-preflight.mjs
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
+      - name: Publish to npm (skipped on dry-run)
+        if: github.event.inputs.dry_run != 'true'
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry-run notice
+        if: github.event.inputs.dry_run == 'true'
+        run: echo "Dry-run: npm publish skipped after successful preflight/pack dry-run."

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "media-video-gen",
+  "label": "Media Video Gen",
+  "version": "1.0.0",
+  "moduleKind": "media",
+  "summary": "Optional-tier video generation soft stub with honest setup tips.",
+  "description": "Wave 4 media pack. Reports that video generation is optional and not fully available by default. media.video.generate never pretends success without a configured provider API. Soft-try only when VIDEO_GEN_API_KEY (or documented provider keys) are present; otherwise returns setup tips.",
+  "tags": ["media", "video", "video-gen", "wave4", "optional"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://media-video-gen",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.video.status",
+      "intent": "media.video.status",
+      "label": "Video Gen Status",
+      "summary": "Report video generation availability and setup tips (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "media_video_status",
+        "aliases": ["video_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "media.video.generate",
+      "intent": "media.video.generate",
+      "label": "Generate Video",
+      "summary": "Soft stub / optional soft-try for video generation; honest failure without provider API.",
+      "artifactKinds": ["media.video"],
+      "command": {
+        "name": "media_video_generate",
+        "aliases": ["video_gen"],
+        "usage": "{ prompt, duration? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Optional call to a configured video generation HTTP API when keys are present.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Optionally store generated video artifacts under .zavorth/media-video-gen/.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Resolve workspace paths for optional video artifacts.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect whether VIDEO_GEN_API_KEY / provider keys are set (not the values).",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke optional video generation provider.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": ["media.video"],
+  "receiptKinds": ["media-video-gen.receipt"]
+}

@@ -18,33 +18,42 @@ import {
   SettingsSurface,
   SkillsSurface,
   WorkSurface,
+  ReviewSurface,
+  ProofSurface,
+  ChannelsSurface,
+  SessionsSurface,
+  CronSurface,
+  AgentsSurface,
+  DocsSurface,
 } from "./ZavorthControlSurfaces";
 
 function HtmlFragment({ markup }: { markup: string }) {
   return <div style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: markup }} />;
 }
 
-function ZavorthControlInactiveSectors({
-  sectors,
-}: {
+/**
+ * Phase 8 — remaining inactive sectors are React surfaces (not HTML fragments).
+ * Overlays still come from the built Vite shell HTML for event-bridge compatibility.
+ */
+function ZavorthControlInactiveSectors(_props: {
   sectors: ReturnType<typeof readLegacyZavorthControlSegments>["inactiveSectors"];
 }) {
   return (
     <>
       <WorkSurface />
-      <HtmlFragment markup={sectors.channels} />
-      <HtmlFragment markup={sectors.salesOs} />
-      <HtmlFragment markup={sectors.instances} />
-      <HtmlFragment markup={sectors.sessions} />
+      <ChannelsSurface />
+      <ReviewSurface />
+      <ProofSurface />
+      <SessionsSurface />
       <ProvidersSurface />
-      <HtmlFragment markup={sectors.agents} />
+      <AgentsSurface />
       <SkillsSurface />
       <MemorySurface />
       <LearningSurface />
       <CanvasSurface />
       <SettingsSurface />
-      <HtmlFragment markup={sectors.docs} />
-      <HtmlFragment markup={sectors.cron} />
+      <DocsSurface />
+      <CronSurface />
     </>
   );
 }

@@ -2,14 +2,7 @@ import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { ZavorthLayeredMemoryService } from '../../../../services/ZavorthLayeredMemoryService.js';
 import type { ZavorthMemoryPlaneService } from '../../../../services/ZavorthMemoryPlaneService.js';
 import { errorMessage } from '../../../../utils/errorLike.js';
-export type NaturalMemoryCommandIntent = {
-
-  command: 'memory' | 'memoryplane';
-
-  args: string;
-  intro: string;
-};
-
+import { tSurface } from '../../../../i18n/surface.js';
 type SharedSurfaceMemoryCommandPackDeps = {
   memoryPlaneService: Pick<ZavorthMemoryPlaneService, 'buildSnapshot'> | null;
   layeredMemoryService: Pick<ZavorthLayeredMemoryService, 'buildStatus' | 'readProcedures' | 'search'>;
@@ -31,21 +24,9 @@ export class SharedSurfaceMemoryCommandPack {
     }
   }
 
-  public async handleNaturalMemoryIntent(
-    ctx: IMessageContext,
-    intent: NaturalMemoryCommandIntent,
-  ): Promise<void> {
-    await ctx.reply(intent.intro);
-    if (intent.command === 'memoryplane') {
-      await this.handleMemoryPlane(ctx);
-      return;
-    }
-    await this.handleLayeredMemory(ctx, intent.args);
-  }
-
   private async handleMemoryPlane(ctx: IMessageContext): Promise<void> {
     if (!this.deps.memoryPlaneService) {
-      await ctx.reply('Memory plane indisponivel neste runtime compartilhado.');
+      await ctx.reply('Memory plane unavailable in this shared runtime.');
       return;
     }
 
@@ -65,7 +46,7 @@ export class SharedSurfaceMemoryCommandPack {
         snapshot.narrative.operatorSummary,
         '',
         `Memorias persistentes: ${snapshot.summary.persistedMemories}.`,
-        `Replay visivel: ${snapshot.summary.replayTasks} tarefa(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
+        `Visible replay: ${snapshot.summary.replayTasks} task(s) | ${snapshot.summary.workflowRuns} workflow(s).`,
         `Entregas recentes: ${snapshot.summary.artifacts}.`,
       ];
 
@@ -91,7 +72,7 @@ export class SharedSurfaceMemoryCommandPack {
       }
 
       await ctx.reply(lines.join('\n'));
-    } catch (error: unknown) {await ctx.reply(errorMessage(error, 'Nao consegui montar o memory plane agora.'));
+    } catch (error: unknown) {await ctx.reply(errorMessage(error, tSurface('error_memory_plane')));
     }
   }
 
@@ -111,7 +92,7 @@ export class SharedSurfaceMemoryCommandPack {
       if (mode === 'search') {
         const query = tokens.slice(1).join(' ').trim();
         if (!query) {
-          await ctx.reply('Use /memory search <consulta>.');
+          await ctx.reply('Use /memory search <query>.');
           return;
         }
         const results = await this.deps.layeredMemoryService.search({
@@ -167,7 +148,7 @@ export class SharedSurfaceMemoryCommandPack {
         await this.handleMemoryPlane(ctx);
         return;
       }
-      await ctx.reply(errorMessage(error, 'Nao consegui consultar a layered memory agora.'));
+      await ctx.reply(errorMessage(error, tSurface('error_layered_memory')));
     }
   }
 }

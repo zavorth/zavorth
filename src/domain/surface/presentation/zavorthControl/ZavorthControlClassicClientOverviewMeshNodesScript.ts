@@ -11,7 +11,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       const node = document.getElementById('operations-nodes');
       if (!node) return;
       if (!nodeMesh || 'error' in (nodeMesh as NodeMeshErrorPayload)) {
-        node.innerHTML = '<div class="muted">Nao foi possivel carregar o Node Mesh.</div>';
+        node.innerHTML = '<div class="muted">No foi possivel carregar o Node Mesh.</div>';
         return;
       }
 
@@ -48,13 +48,13 @@ function zavorthControlClassicClientOverviewMeshNodes() {
             + '<small>' + escapeHtml(entry.operatorSummary || entry.nextAction || 'Sem resumo adicional.') + '</small>'
             + '<small>Perfil: ' + escapeHtml(profile?.label || entry.kind || 'n/d') + '</small>'
             + '<small>Transport: ' + escapeHtml(entry.transport || 'n/d')
-            + ' Ã‚Â· Capabilities: ' + escapeHtml(String((entry.capabilities || []).length || 0)) + '</small>'
+            + ' · Capabilities: ' + escapeHtml(String((entry.capabilities || []).length || 0)) + '</small>'
             + '<ul class="cockpit-list">' + ((entry.capabilities || []).length
               ? entry.capabilities.slice(0, 3).map((capability) => '<li>' + escapeHtml(capability.label || capability.id) + '</li>').join('')
               : '<li>Sem capabilities declaradas.</li>') + '</ul>'
             + '</div>';
           }).join('')
-        : '<div class="muted">Nenhum node registrado ainda.</div>';
+        : '<div class="muted">No node registered yet.</div>';
       const recommendedProfileItems = recommendedProfiles.length
         ? recommendedProfiles.map((profile) => '<li>' + escapeHtml(profile.label + ': ' + (profile.operatorSummary || profile.summary || 'Sem resumo adicional.')) + '</li>').join('')
         : '<li>Sem perfis sugeridos carregados.</li>';
@@ -76,7 +76,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
         + '<h3 style="margin-top:0;">Node Mesh</h3>'
         + '<p class="muted">' + escapeHtml((snapshot.narrative && snapshot.narrative.operatorSummary) || 'Registry e pairing de nodes headless, desktop e bridges remotos.') + '</p>'
         + '<div class="metrics-grid">'
-        + '<div class="metric-card"><strong>Nodes</strong><div>' + escapeHtml(String(summary.total || 0)) + '</div><small>Total visivel</small></div>'
+        + '<div class="metric-card"><strong>Nodes</strong><div>' + escapeHtml(String(summary.total || 0)) + '</div><small>Total visible</small></div>'
         + '<div class="metric-card"><strong>Pareados</strong><div>' + escapeHtml(String(summary.paired || 0)) + '</div><small>Confianca pronta</small></div>'
         + '<div class="metric-card"><strong>Pendentes</strong><div>' + escapeHtml(String(summary.pending || 0)) + '</div><small>Pairing em aberto</small></div>'
         + '<div class="metric-card"><strong>Online</strong><div>' + escapeHtml(String(summary.online || 0)) + '</div><small>Heartbeat recente</small></div>'
@@ -93,11 +93,11 @@ function zavorthControlClassicClientOverviewMeshNodes() {
             + (selectedMaintenance?.supported
               ? '<small>Maintenance: '
                 + escapeHtml((selectedMaintenance.latestAction || 'doctor') + ' / ' + (selectedMaintenance.latestStatus || 'n/d'))
-                + (selectedMaintenance.recoverKind ? ' - recover pronto' : '')
+                + (selectedMaintenance.recoverKind ? ' - recover ready' : '')
                 + '</small>'
               : '')
             + '<small>Host: ' + escapeHtml(selected.hostHints?.hostname || selected.hostHints?.platform || 'n/d')
-            + ' Ã‚Â· Ultimo heartbeat: ' + escapeHtml(selected.lastSeenAt || 'ainda nao publicado') + '</small></div>'
+            + ' · Last heartbeat: ' + escapeHtml(selected.lastSeenAt || 'not published yet') + '</small></div>'
           : '')
         + (selectedActivity
           ? '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Fila e historico</strong>'
@@ -105,13 +105,13 @@ function zavorthControlClassicClientOverviewMeshNodes() {
             + '<small>' + escapeHtml(selectedActivity.narrative?.operatorSummary || 'Sem resumo adicional.') + '</small>'
             + (selectedMaintenance?.supported
               ? '<small>Maintenance recente: '
-                + escapeHtml(selectedMaintenance.latestResultSummary || (selectedMaintenance.recoverKind ? 'recover operacional disponivel' : 'sem resumo adicional'))
+                + escapeHtml(selectedMaintenance.latestResultSummary || (selectedMaintenance.recoverKind ? 'recover operacional available' : 'sem resumo adicional'))
                 + '</small>'
               : '')
             + '<small>Pendentes: ' + escapeHtml(String(selectedActivity.summary?.pending || 0))
-            + ' Ãƒâ€šÃ‚Â· Claimed: ' + escapeHtml(String(selectedActivity.summary?.claimed || 0))
-            + ' Ãƒâ€šÃ‚Â· Recentes: ' + escapeHtml(String(selectedActivity.summary?.recent || 0)) + '</small>'
-            + '<ul class="cockpit-list">' + (activityItems || '<li>Nenhuma activity recente para este node.</li>') + '</ul></div>'
+            + ' · Claimed: ' + escapeHtml(String(selectedActivity.summary?.claimed || 0))
+            + ' · Recent: ' + escapeHtml(String(selectedActivity.summary?.recent || 0)) + '</small>'
+            + '<ul class="cockpit-list">' + (activityItems || '<li>No activity recente para este node.</li>') + '</ul></div>'
           : '')
         + '<div class="sidecar-card" style="margin-bottom:16px;"><strong>Perfis recomendados</strong><ul class="cockpit-list">' + recommendedProfileItems + '</ul></div>'
         + '<div class="sidecar-card"><strong>Panorama operacional</strong><div class="cockpit-action-list">' + entryItems + '</div></div>';

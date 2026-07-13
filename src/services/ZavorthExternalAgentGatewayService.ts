@@ -673,7 +673,12 @@ export class ZavorthExternalAgentGatewayService {
       return Array.isArray(parsed.profiles)
         ? parsed.profiles.map((entry) => sanitizeProfile(entry)).filter(Boolean) as ZavorthExternalAgentProfile[]
         : [];
-    } catch (error: unknown) {logger.warn('[Zavorth External Agent way] JSON parse failed', error); return []; }
+    } catch (error: unknown) {
+      if (!isMissingFileError(error)) {
+        logger.warn('[Zavorth External Agent way] JSON parse failed', error);
+      }
+      return [];
+    }
   }
 
   private writeProfiles(profiles: ZavorthExternalAgentProfile[]): void {
@@ -1046,6 +1051,10 @@ function isLocalEndpoint(endpoint: string): boolean {
     const url = new URL(endpoint);
     return ['127.0.0.1', 'localhost', '::1'].includes(url.hostname);
   } catch (error: unknown) {logger.warn('[Zavorth External Agent way] operation failed', error); return false; }
+}
+
+function isMissingFileError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT');
 }
 
 function buildSafeEnv(): NodeJS.ProcessEnv {

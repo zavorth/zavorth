@@ -302,10 +302,3 @@ export type SharedSurfaceCommandServiceDeps = {
   > | null;
   mcpBrowserDoctorService?: Pick<AutomaticBrowserDoctorService, "run"> | null;
 };
-
-export type SharedSurfaceTaskVariationHelpers = {
-  normalizeNaturalText?: (value: string | null | undefined) => string;
-  extractNaturalChannelId?: (normalized: string) => string | null;
-  formatNaturalChannelLabel?: (channelId: string) => string;
-};
-

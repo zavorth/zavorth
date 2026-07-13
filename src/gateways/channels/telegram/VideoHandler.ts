@@ -86,7 +86,7 @@ export class VideoHandler {
       if (cleanupSummary.deletedFiles > 0) {
         logger.info(`[VideoHandler] Limpeza automatica concluiu ${cleanupSummary.deletedFiles} arquivos e liberou ${VideoHandlerHelpers.formatMegabytes(cleanupSummary.freedBytes)} MB.`);
       }
-    } catch (error: unknown) {logger.warn(`[VideoHandler] A limpeza automatica falhou: ${error}`);
+    } catch (error: unknown) {logger.warn(`[VideoHandler] A limpeza automatica failed: ${error}`);
     }
   }
 
@@ -151,7 +151,7 @@ export class VideoHandler {
   private async processYouTubeVideo(videoUrl: string): Promise<ProcessedVideoContext> {
     const videoId = VideoHandlerHelpers.extractYouTubeVideoId(videoUrl);
     if (!videoId) {
-      throw new Error('Nao consegui identificar o ID do video do YouTube.');
+      throw new Error('Could not identificar o ID do video do YouTube.');
     }
 
     const watchHtml = await VideoHandlerHelpers.fetchText(`https://www.youtube.com/watch?v=${videoId}&hl=en-US&persist_hl=1`);
@@ -188,7 +188,7 @@ export class VideoHandler {
         transcript = await VideoHandlerHelpers.fetchYouTubeTranscript(selectedTrack.baseUrl);
         transcriptSource = `legendas do YouTube (${selectedTrack.languageCode || 'sem idioma informado'})`;
       } else {
-        warnings.push('Nao encontrei legenda/transcricao publica neste video do YouTube.');
+        warnings.push('Could not find legenda/transcricao publica neste video do YouTube.');
       }
     }
 
@@ -222,11 +222,11 @@ export class VideoHandler {
     if (!transcript && description) {
       transcript = `Descricao do video:\n${description}`;
       transcriptSource = 'descricao do video';
-      warnings.push('Usei apenas a descricao do video como fallback porque nao havia legenda publica e nenhum extrator adicional teve sucesso.');
+      warnings.push('Usei apenas a descricao do video como fallback porque not havia legenda publica e nenhum extrator adicional teve sucesso.');
     }
 
     if (!transcript) {
-      warnings.push('Nao consegui obter um conteudo textual confiavel deste video.');
+      warnings.push('Could not obter um conteudo textual confiavel deste video.');
     }
 
     const inlineData = await VideoHandlerHelpers.fetchThumbnailInlineData(videoId);
@@ -303,7 +303,7 @@ export class VideoHandler {
       } catch (error: unknown) {
         const err = asErrorLike(error);
         const errorMessage = error instanceof Error ? err.message : String(error);
-        warnings.push(`Nao consegui transcrever o audio do video: ${errorMessage}`);
+        warnings.push(`Could not transcrever o audio do video: ${errorMessage}`);
       }
     } else if (!transcript) {
       warnings.push(`O video tem ${VideoHandlerHelpers.formatMegabytes(stats.size)} MB e excede o limite de ${VideoHandlerHelpers.formatMegabytes(MAX_TRANSCRIPTION_BYTES)} MB para transcricao automatica tradicional.`);
@@ -339,7 +339,7 @@ export class VideoHandler {
 
     const inlineData = await VideoHandlerHelpers.buildInlineData(filePath, mimeType, stats.size);
     if (!inlineData && !transcript) {
-      warnings.push('Nao consegui extrair transcricao nem anexar uma versao inline do video para analise direta.');
+      warnings.push('Could not extrair transcricao nem anexar uma versao inline do video para analise direta.');
     }
 
     const metadata: VideoMetadata = {

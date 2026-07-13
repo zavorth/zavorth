@@ -9,7 +9,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname === '/api/web/watch-mode' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const limit = Number(url.searchParams.get('limit') || 6) || 6;
@@ -19,7 +19,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname === '/api/web/watch-mode/policy' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const snapshot = service.buildSnapshot(8);
@@ -29,7 +29,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname === '/api/web/watch-mode/policy' && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -104,14 +104,14 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       deps.writeJson(res, { ok: true, policy: snapshot.policy, snapshot }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Falha ao ajustar a policy do Watch Mode.' }, 400);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Failed to update Watch Mode policy.' }, 400);
     }
     return true;
   }
 
   if (pathname === '/api/web/watch-mode/runs' && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const limit = Number(url.searchParams.get('limit') || 10) || 10;
@@ -130,7 +130,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname === '/api/web/watch-mode/runs' && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const body = await deps.readJsonBody(req);
@@ -191,7 +191,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : 'Falha ao iniciar o Watch Mode.';
+      const message = error instanceof Error ? err.message : 'Failed to iniciar o Watch Mode.';
       const statusCode = /bloqueado por seguranca/i.test(message) ? 403 : 409;
       deps.writeJson(res, { ok: false, error: message }, statusCode);
     }
@@ -200,7 +200,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname.startsWith('/api/web/watch-mode/runs/') && req.method === 'GET') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const screenshotMatch = pathname.match(/^\/api\/web\/watch-mode\/runs\/([^/]+)\/screenshot$/);
@@ -242,7 +242,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
 
   if (pathname.startsWith('/api/web/watch-mode/runs/') && req.method === 'POST') {
     if (!service) {
-      deps.writeJson(res, { ok: false, error: 'Watch Mode supervisionado indisponivel.' }, 503);
+      deps.writeJson(res, { ok: false, error: 'Supervised Watch Mode unavailable.' }, 503);
       return true;
     }
     const approvalMatch = pathname.match(/^\/api\/web\/watch-mode\/runs\/([^/]+)\/approvals\/([^/]+)$/);
@@ -266,7 +266,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
         deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
       } catch (error: unknown) {
         const err = asErrorLike(error);
-        deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Falha ao decidir approval do Watch Mode.' }, 409);
+        deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Failed to decidir approval do Watch Mode.' }, 409);
       }
       return true;
     }
@@ -292,7 +292,7 @@ export const handleWatchModeRoutes: WebAppSupervisionRouteHandler = async (ctx) 
       deps.writeJson(res, { ok: true, run, snapshot: service.buildSnapshot(8) }, 200);
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Falha ao mutar o Watch Mode.' }, 409);
+      deps.writeJson(res, { ok: false, error: error instanceof Error ? err.message : 'Failed to mutar o Watch Mode.' }, 409);
     }
     return true;
   }

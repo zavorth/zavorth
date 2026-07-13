@@ -135,6 +135,6 @@ export class MediaAnalysisTool extends BaseTool {
   }
 
   private formatErrorResponse(result: MediaUnderstandingResult): string {
-    return `Analise de midia falhou: ${result.error?.message || result.summary}`;
+    return `Media analysis failed: ${result.error?.message || result.summary}`;
   }
 }

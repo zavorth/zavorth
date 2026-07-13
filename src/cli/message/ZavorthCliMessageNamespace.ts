@@ -100,7 +100,7 @@ async function deliverMessageAdvanced(root: string, args: string[], compose: Mes
 }
 
 async function enforceChannelRateLimit(root: string, channel: string) {
-  // Simplificado ou mantido como original
+  // Simplified or kept as original
   const limitFile = path.join(stateDir(root), 'rate-limits.json');
   const limits = await readArray(limitFile);
   const now = Date.now();

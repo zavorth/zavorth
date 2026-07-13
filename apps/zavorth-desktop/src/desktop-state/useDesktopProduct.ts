@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { apiRequest, dispatchRuntimeStateAction, type ToolItem } from '../apiClient';
+import {
+  apiRequest,
+  dispatchRuntimeStateAction,
+  getPluginOsSnapshot,
+  getPluginOsReceipts,
+  postPluginOsAction,
+  type PluginOsReceiptEntry,
+  type PluginOsSuggestResult,
+  type ToolItem,
+} from '../apiClient';
 import type { PluginItem } from '../views/panels/PluginMarketplacePanel';
 import type { WorkboardBoard, WorkboardCard } from '../views/panels/WorkboardPanel';
 import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardProjection';
@@ -23,6 +32,11 @@ import {
   renameColumn,
   upsertCard,
 } from './productData';
+import {
+  mapPluginOsSnapshotToPanelData,
+  type PluginOsPlanePanelData,
+} from './pluginOsBridge';
+import { pluginOsPlaneLabels, resolveDesktopLocale } from '../i18n/pluginOsPlane';
 import { asErrorLike } from '../lib/errors';
 
 
@@ -44,6 +58,16 @@ export function useDesktopProduct(input: {
   const [lastPushError, setLastPushError] = useState<string | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [syncBusy, setSyncBusy] = useState(false);
+  const [pluginOsData, setPluginOsData] = useState<PluginOsPlanePanelData>(() => mapPluginOsSnapshotToPanelData(null));
+  const [pluginOsLoading, setPluginOsLoading] = useState(false);
+  const [pluginOsError, setPluginOsError] = useState<string | null>(null);
+  const [pluginOsSuggest, setPluginOsSuggest] = useState<PluginOsSuggestResult | null>(null);
+  const [pluginOsReceipts, setPluginOsReceipts] = useState<PluginOsReceiptEntry[]>([]);
+  const [pluginOsInjectMode, setPluginOsInjectMode] = useState<string>('compact');
+  const pluginOsLabels = useMemo(
+    () => pluginOsPlaneLabels(resolveDesktopLocale()),
+    [],
+  );
 
   useEffect(() => {
     setRuntimeWorkboard(extractRuntimeWorkboard(input.snapshot));
@@ -175,6 +199,312 @@ export function useDesktopProduct(input: {
   useEffect(() => {
     void refreshMarketplace();
   }, [refreshMarketplace]);
+
+  const refreshPluginOs = useCallback(async () => {
+    setPluginOsLoading(true);
+    try {
+      const result = await getPluginOsSnapshot();
+      if (!result.ok || result.status === 404) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(null));
+        setPluginOsError(
+          result.status === 404
+            ? 'Plugin OS API unavailable (404); showing empty plane.'
+            : (result.error || 'Plugin OS snapshot unavailable.'),
+        );
+        return;
+      }
+      const snapshot = (result.data?.snapshot || result.data) as Record<string, unknown> | null;
+      setPluginOsData(mapPluginOsSnapshotToPanelData(snapshot));
+      setPluginOsError(null);
+
+      // Soft-load receipts timeline + inject prefs.
+      try {
+        const receipts = await getPluginOsReceipts(12);
+        const entries = receipts.data?.timeline?.entries;
+        if (Array.isArray(entries)) setPluginOsReceipts(entries as PluginOsReceiptEntry[]);
+      } catch {
+        /* soft */
+      }
+      try {
+        const prefs = await postPluginOsAction({ action: 'inject-prefs', approved: false });
+        const mode = (prefs.data?.result?.injectPrefs as { injectMode?: string } | undefined)?.injectMode;
+        if (mode) setPluginOsInjectMode(mode);
+      } catch {
+        /* soft */
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      setPluginOsData(mapPluginOsSnapshotToPanelData(null));
+      setPluginOsError(error instanceof Error ? err.message : 'Plugin OS snapshot failed.');
+    } finally {
+      setPluginOsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshPluginOs();
+  }, [refreshPluginOs]);
+
+  const handleEnablePluginOs = useCallback(async (pluginId: string) => {
+    try {
+      let previewSummary = '';
+      try {
+        const previewResult = await postPluginOsAction({
+          action: 'preview-permissions',
+          pluginId,
+          approved: false,
+        });
+        const preview = previewResult.data?.result?.permissionPreview as {
+          risks?: string[];
+          needsCredentials?: boolean;
+          trust?: string;
+          text?: string;
+          permissions?: Array<{ kind?: string }>;
+        } | undefined;
+        if (preview) {
+          const risks = Array.isArray(preview.risks) ? preview.risks.slice(0, 3) : [];
+          const permCount = Array.isArray(preview.permissions) ? preview.permissions.length : 0;
+          previewSummary = [
+            `trust=${preview.trust || 'review'}`,
+            `perms=${permCount}`,
+            risks.length ? risks.join('; ') : null,
+            preview.needsCredentials ? 'may need credentials' : null,
+          ].filter(Boolean).join(' · ');
+          const riskText = risks.length ? risks.join('; ') : (preview.text || 'review recommended');
+          input.setNotice(
+            preview.needsCredentials
+              ? `${pluginId} may need credentials. Risks: ${riskText}. Enabling only because you clicked Enable (never auto).`
+              : `Before enable — ${pluginId}: ${riskText}. Proceeding with your explicit Enable…`,
+          );
+          previewSummary = riskText;
+        }
+      } catch {
+        /* soft-fail preview; still enable */
+      }
+
+      const result = await postPluginOsAction({ action: 'enable', pluginId, approved: true });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Enable failed.');
+      }
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+      input.setNotice(
+        previewSummary
+          ? `Enabled ${pluginId}. You approved this enable. Risks noted: ${previewSummary}`
+          : `Enabled ${pluginId}. You approved this enable (never auto-enables).`,
+      );
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not enable plugin.');
+    }
+  }, [input, refreshPluginOs]);
+
+  const handleDisablePluginOs = useCallback(async (pluginId: string) => {
+    try {
+      const result = await postPluginOsAction({ action: 'disable', pluginId, approved: true });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Disable failed.');
+      }
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+      input.setNotice(`Disabled plugin ${pluginId}.`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not disable plugin.');
+    }
+  }, [input, refreshPluginOs]);
+
+  const handleInspectPluginOs = useCallback(async (pluginId: string) => {
+    try {
+      const result = await postPluginOsAction({ action: 'inspect', pluginId, approved: true });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Inspect failed.');
+      }
+      const bridged = result.data?.result?.bridged as { pluginId?: string; trust?: string; enabled?: boolean } | undefined;
+      input.setNotice(
+        bridged
+          ? `Inspect ${bridged.pluginId || pluginId}: enabled=${Boolean(bridged.enabled)} trust=${bridged.trust || 'review'}`
+          : `Inspected ${pluginId}.`,
+      );
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not inspect plugin.');
+    }
+  }, [input]);
+
+  const handleTrustPluginOs = useCallback(async (
+    pluginId: string,
+    trust: 'review' | 'trusted' | 'blocked' = 'trusted',
+  ) => {
+    try {
+      const result = await postPluginOsAction({ action: 'trust', pluginId, trust, approved: true });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Trust update failed.');
+      }
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+      input.setNotice(`Trust for ${pluginId} set to ${trust}.`);
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not update trust.');
+    }
+  }, [input, refreshPluginOs]);
+
+  const handleRecommendPluginOs = useCallback(async (intent: string) => {
+    try {
+      // Prefer suggest-to-enable with Enable vs Recommend-only CTAs.
+      const result = await postPluginOsAction({ action: 'suggest', intent, approved: false });
+      if (!result.ok || result.data?.ok === false) {
+        // Fallback to classic recommend
+        const fallback = await postPluginOsAction({ action: 'recommend', intent, approved: false });
+        if (!fallback.ok || fallback.data?.ok === false) {
+          throw new Error(result.error || result.data?.error || 'Suggest failed.');
+        }
+        const rec = fallback.data?.result?.recommendations as {
+          recommendations?: Array<{ pluginId?: string; score?: number }>;
+          text?: string;
+        } | undefined;
+        const top = (rec?.recommendations || []).slice(0, 3)
+          .map((item) => item.pluginId || '?')
+          .join(', ');
+        input.setNotice(
+          top
+            ? `Suggestions: ${top}. Never auto-enables — use Enable or Recommend only.`
+            : (rec?.text || `No plugin matches for "${intent}".`),
+        );
+        return;
+      }
+      const suggest = (result.data?.result?.suggest || result.data?.result) as PluginOsSuggestResult;
+      setPluginOsSuggest(suggest);
+      const primary = suggest?.primary;
+      input.setNotice(
+        primary?.pluginId
+          ? `${primary.pluginId} can help. Choose Enable or Recommend only — never auto-enables.`
+          : (suggest?.message || `No enableable plugin for "${intent}".`),
+      );
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not suggest plugins.');
+    }
+  }, [input]);
+
+  const handleSuggestActionPluginOs = useCallback(async (actionId: string, pluginId?: string) => {
+    if (actionId === 'dismiss') {
+      setPluginOsSuggest(null);
+      input.setNotice('Suggestion dismissed.');
+      return;
+    }
+    if (actionId === 'recommend_only') {
+      input.setNotice(
+        pluginId
+          ? `Recommend only: keep ${pluginId} as a suggestion. Not enabled.`
+          : 'Recommend only — nothing enabled.',
+      );
+      setPluginOsSuggest(null);
+      return;
+    }
+    if (actionId === 'enable' && pluginId) {
+      await handleEnablePluginOs(pluginId);
+      setPluginOsSuggest(null);
+    }
+  }, [input, handleEnablePluginOs]);
+
+  const handleCatalogApplyPluginOs = useCallback(async () => {
+    try {
+      const result = await postPluginOsAction({ action: 'catalog-apply', approved: true });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Catalog apply failed.');
+      }
+      const catalog = result.data?.result?.catalog as { enabled?: string[] } | undefined;
+      const enabled = Array.isArray(catalog?.enabled) ? catalog!.enabled! : [];
+      input.setNotice(
+        enabled.length
+          ? `Bootstrap catalog enabled ${enabled.length} plugin(s): ${enabled.slice(0, 6).join(', ')}`
+          : String(result.data?.result?.notice || 'Bootstrap catalog applied (no new enables).'),
+      );
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not apply bootstrap catalog.');
+    }
+  }, [input, refreshPluginOs]);
+
+  const handleOnboardingPluginOs = useCallback(async (profile = 'recommended') => {
+    try {
+      const result = await postPluginOsAction({
+        action: 'onboarding-apply',
+        profile,
+        approved: true,
+      });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Onboarding apply failed.');
+      }
+      const onboard = result.data?.result?.onboarding as { enabled?: string[]; profile?: string } | undefined;
+      const enabled = Array.isArray(onboard?.enabled) ? onboard!.enabled! : [];
+      input.setNotice(
+        `Onboarding ${onboard?.profile || profile}: enabled ${enabled.length} plugin(s)`
+          + (enabled.length ? ` (${enabled.slice(0, 5).join(', ')})` : ''),
+      );
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not apply Plugin OS onboarding.');
+    }
+  }, [input, refreshPluginOs]);
+
+  const handleUndoOnboardingPluginOs = useCallback(async () => {
+    try {
+      const result = await postPluginOsAction({
+        action: 'onboarding-undo',
+        approved: true,
+      });
+      if (!result.ok || result.data?.ok === false) {
+        throw new Error(result.error || result.data?.error || 'Onboarding undo failed.');
+      }
+      const onboard = result.data?.result?.onboarding as {
+        disabled?: string[];
+        profile?: string | null;
+      } | undefined;
+      const disabled = Array.isArray(onboard?.disabled) ? onboard!.disabled! : [];
+      input.setNotice(
+        disabled.length
+          ? `Undid onboarding${onboard?.profile ? ` (${onboard.profile})` : ''}: disabled ${disabled.length} plugin(s)`
+            + ` (${disabled.slice(0, 5).join(', ')}). Packages kept.`
+          : String(result.data?.result?.notice || 'Onboarding undo: nothing to disable.'),
+      );
+      if (result.data?.snapshot) {
+        setPluginOsData(mapPluginOsSnapshotToPanelData(result.data.snapshot as Record<string, unknown>));
+      } else {
+        await refreshPluginOs();
+      }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      input.setNotice(error instanceof Error ? err.message : 'Could not undo Plugin OS onboarding.');
+    }
+  }, [input, refreshPluginOs]);
 
   const commitBoards = useCallback((next: WorkboardBoard[]) => {
     setBoards(persistWorkboards(next));
@@ -334,6 +664,23 @@ export function useDesktopProduct(input: {
     marketplaceLoading,
     marketplaceSource,
     refreshMarketplace,
+    pluginOsData,
+    pluginOsLoading,
+    pluginOsError,
+    pluginOsLabels,
+    refreshPluginOs,
+    handleEnablePluginOs,
+    handleDisablePluginOs,
+    handleInspectPluginOs,
+    handleTrustPluginOs,
+    handleRecommendPluginOs,
+    handleCatalogApplyPluginOs,
+    handleOnboardingPluginOs,
+    handleUndoOnboardingPluginOs,
+    handleSuggestActionPluginOs,
+    pluginOsSuggest,
+    pluginOsReceipts,
+    pluginOsInjectMode,
     handleBoardSelect,
     handleCardCreate,
     handleCardUpdate,

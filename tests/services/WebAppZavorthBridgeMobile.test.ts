@@ -102,7 +102,7 @@ describe('WebApp ZavorthBridge mobile access', () => {
         localUrl: 'http://192.168.0.20:4747',
         requiresPassword: false,
         secret: null,
-        summary: 'Remoto do ZavorthBridge pronto para celular via LAN.',
+        summary: 'ZavorthBridge remote ready for mobile via LAN.',
         guide: {
           steps: ['Conecte o celular na mesma rede e abra o link.'],
           notes: [],

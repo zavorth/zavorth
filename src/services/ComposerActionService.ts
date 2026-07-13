@@ -118,7 +118,7 @@ export class ComposerActionService {
     if (!permissionId) {
       return this.finishWithError(
         sessionId,
-        'Nao consegui identificar qual permissao voce queria aprovar.',
+        'Could not identify which permission you wanted to approve.',
         null,
         actionMention,
       );
@@ -157,7 +157,7 @@ export class ComposerActionService {
     if (!taskId) {
       return this.finishWithError(
         sessionId,
-        'Nao consegui identificar qual tarefa voce queria retomar.',
+        'Could not identify which task you wanted to resume.',
         null,
         actionMention,
       );
@@ -199,7 +199,7 @@ export class ComposerActionService {
     if (!workflowRunId) {
       return this.finishWithError(
         sessionId,
-        'Nao consegui identificar qual workflow voce queria retomar.',
+        'Could not identify which workflow you wanted to resume.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -245,7 +245,7 @@ export class ComposerActionService {
     if (!workflowRunId || !resumeStageId) {
       return this.finishWithError(
         sessionId,
-        'Nao consegui identificar qual etapa do workflow voce queria reiniciar.',
+        'Could not identify which workflow step you wanted to restart.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );
@@ -289,7 +289,7 @@ export class ComposerActionService {
     if (!workflowRunId) {
       return this.finishWithError(
         sessionId,
-        'Nao consegui identificar qual workflow voce queria encerrar.',
+        'Could not identify which workflow you wanted to stop.',
         String(actionMention.payload?.taskId || '').trim() || null,
         actionMention,
       );

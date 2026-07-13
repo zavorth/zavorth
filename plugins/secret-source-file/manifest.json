@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "secret-source-file",
+  "label": "Secret Source File",
+  "version": "1.0.0",
+  "moduleKind": "diagnostics",
+  "summary": "Workspace file secret store under .zavorth/secrets (presence only in outputs).",
+  "description": "Wave 6 Trust fabric pack. Local plain JSON secret store at workspace/.zavorth/secrets/store.json. Capabilities never return secret values — only names and presence. Writes require filesystem.write via requestPermission. Soft-fail.",
+  "tags": ["secrets", "file", "trust", "wave6", "soft-fail"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://secret-source-file",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "secret.file.status",
+      "intent": "secret.file.status",
+      "label": "File Secret Status",
+      "summary": "Report store path existence, entry count, and relative path (no values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_file_status",
+        "aliases": ["file_secret_status"],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "secret.file.set",
+      "intent": "secret.file.set",
+      "label": "File Secret Set",
+      "summary": "Write a named secret to the local store (value never returned).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_file_set",
+        "aliases": ["file_secret_set"],
+        "usage": "{ name, value }"
+      }
+    },
+    {
+      "id": "secret.file.has",
+      "intent": "secret.file.has",
+      "label": "File Secret Has",
+      "summary": "Return present:boolean for a named secret (never the value).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_file_has",
+        "aliases": ["file_secret_has"],
+        "usage": "{ name }"
+      }
+    },
+    {
+      "id": "secret.file.delete",
+      "intent": "secret.file.delete",
+      "label": "File Secret Delete",
+      "summary": "Delete a named secret from the local store.",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_file_delete",
+        "aliases": ["file_secret_delete"],
+        "usage": "{ name }"
+      }
+    },
+    {
+      "id": "secret.file.list",
+      "intent": "secret.file.list",
+      "label": "File Secret List",
+      "summary": "List secret names only (never values).",
+      "artifactKinds": [],
+      "command": {
+        "name": "secret_file_list",
+        "aliases": ["file_secret_list"],
+        "usage": "{}"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read the local secret store under .zavorth/secrets (values never exposed in outputs).",
+      "required": false
+    },
+    {
+      "kind": "filesystem.write",
+      "scope": "workspace",
+      "reason": "Create/update/delete entries in .zavorth/secrets/store.json.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Probe presence of named secrets in the file store (values never returned).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

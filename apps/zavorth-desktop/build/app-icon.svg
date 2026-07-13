@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="1024"
+  height="1024"
+  viewBox="0 0 1024 1024"
+  xmlns="http://www.w3.org/2000/svg"
+  shape-rendering="crispEdges"
+>
+  <!--
+    Zavorth Desktop product mark (app icon).
+    Generated from public/zavorth-mascot.svg — do not hand-edit raster outputs.
+    npm run icons:generate
+  -->
+  <defs>
+    <linearGradient id="bodyGreen" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00e88f"/>
+      <stop offset="45%" stop-color="#2A5E2F"/>
+      <stop offset="100%" stop-color="#3F7A42"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="1024" height="1024" rx="200" ry="200" fill="#0a0f0c"/>
+
+  <rect
+    x="14"
+    y="14"
+    width="996"
+    height="996"
+    rx="190.2"
+    ry="190.2"
+    fill="none"
+    stroke="#00e88f"
+    stroke-opacity="0.3"
+    stroke-width="8"
+  />
+
+  <g transform="translate(143.36 143.36) scale(1.440000)">
+    <rect x="128" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
+    <rect x="320" y="64" width="64" height="128" fill="url(#bodyGreen)"/>
+    <rect x="192" y="192" width="128" height="64" fill="url(#bodyGreen)"/>
+    <rect x="64" y="192" width="384" height="128" fill="url(#bodyGreen)"/>
+    <rect x="0" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
+    <rect x="448" y="256" width="64" height="64" fill="url(#bodyGreen)"/>
+    <rect x="64" y="320" width="384" height="96" fill="url(#bodyGreen)"/>
+    <rect x="128" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
+    <rect x="288" y="416" width="96" height="64" fill="url(#bodyGreen)"/>
+    <rect x="160" y="240" width="32" height="64" fill="#000000"/>
+    <rect x="320" y="240" width="32" height="64" fill="#000000"/>
+  </g>
+</svg>

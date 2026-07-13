@@ -20,6 +20,10 @@ import {
   verifyToolSecurityApprovalEnvelope,
   type ToolSecurityApprovalEnvelope,
 } from '../security/ToolApprovalEnvelope.js';
+import {
+  nextRunFromNaturalSchedule,
+  parseNaturalSchedule,
+} from './scheduling/NaturalScheduleParser.js';
 
 type Runtime = {
   now?: () => Date;
@@ -196,41 +200,44 @@ export class ZavorthGovernedScheduledTaskRegistryService {
 
 function parseSchedule(rawValue: string, now: Date): ZavorthScheduledTaskSchedule | null {
   const raw = rawValue.trim();
-  const interval = raw.match(/^every\s+(\d+)\s*([mh])$/i);
-  if (interval) {
-    const amount = Number(interval[1]);
-    const unit = interval[2]?.toLowerCase();
-    const intervalMs = amount * (unit === 'h' ? 60 * 60 * 1000 : 60 * 1000);
-    if (!Number.isFinite(intervalMs) || intervalMs < MIN_INTERVAL_MS || intervalMs > MAX_INTERVAL_MS) return null;
-    return {
-      raw,
-      normalized: `every ${amount}${unit}`,
-      kind: unit === 'h' ? 'interval_hours' : 'interval_minutes',
-      intervalMs,
-      localTime: null,
-      nextRunPreview: new Date(now.getTime() + intervalMs).toISOString(),
-    };
+  // Phase 5: shared NL parser (PT/EN) + canonical forms
+  const natural = parseNaturalSchedule(raw, now);
+  if (!natural) return null;
+
+  let kind: ZavorthScheduledTaskSchedule['kind'];
+  if (natural.kind === 'interval') {
+    kind = natural.normalized.endsWith('h') ? 'interval_hours' : 'interval_minutes';
+  } else if (natural.kind === 'daily') {
+    kind = 'daily';
+  } else if (natural.kind === 'weekly') {
+    kind = 'weekly';
+  } else {
+    kind = 'cron';
   }
 
-  const daily = raw.match(/^daily\s+([01]\d|2[0-3]):([0-5]\d)$/i);
-  if (daily) {
-    const hours = Number(daily[1]);
-    const minutes = Number(daily[2]);
-    const next = new Date(now);
-    next.setHours(hours, minutes, 0, 0);
-    if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
-    const localTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    return {
-      raw,
-      normalized: `daily ${localTime}`,
-      kind: 'daily',
-      intervalMs: 24 * 60 * 60 * 1000,
-      localTime,
-      nextRunPreview: next.toISOString(),
-    };
+  const next = nextRunFromNaturalSchedule(natural, now);
+  const intervalMs = natural.intervalMs;
+  if (
+    kind === 'interval_minutes' || kind === 'interval_hours'
+  ) {
+    if (
+      !intervalMs
+      || !Number.isFinite(intervalMs)
+      || intervalMs < MIN_INTERVAL_MS
+      || intervalMs > MAX_INTERVAL_MS
+    ) {
+      return null;
+    }
   }
 
-  return null;
+  return {
+    raw,
+    normalized: natural.normalized,
+    kind,
+    intervalMs: intervalMs ?? (kind === 'daily' ? 24 * 60 * 60 * 1000 : kind === 'weekly' ? 7 * 24 * 60 * 60 * 1000 : 60_000),
+    localTime: natural.localTime,
+    nextRunPreview: next ? next.toISOString() : new Date(now.getTime() + 60_000).toISOString(),
+  };
 }
 
 function buildScope(input: NormalizedInput): ZavorthScheduledTaskScope {

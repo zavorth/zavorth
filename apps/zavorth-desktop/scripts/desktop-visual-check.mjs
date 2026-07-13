@@ -128,6 +128,15 @@ const SCENES = [
     id: 'onboarding-providers',
     prepare: async (page) => {
       await page.waitForSelector('.zvd-onboarding-overlay .zvd-onboarding-providers-grid', { timeout: 8000 });
+      const providerCards = page.locator('.zvd-onboarding-provider-card');
+      if (await providerCards.count() < 10) {
+        const next = page.locator('.zvd-onboarding-overlay .zvd-btn-primary').last();
+        await next.click({ force: true });
+        await page.waitForFunction(
+          () => document.querySelectorAll('.zvd-onboarding-provider-card').length >= 10,
+          { timeout: 5000 },
+        );
+      }
     },
     assert: async (page) => {
       const providers = await page.locator('.zvd-onboarding-provider-card').count();

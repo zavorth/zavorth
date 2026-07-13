@@ -138,6 +138,72 @@ describe('SharedSurfaceDesktopCommandPack', () => {
     expect(optimizeCtx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Optimize Preview'));
   });
 
+  it('treats bare preset free text as optimize preview', async () => {
+    const previewOptimization = jest.fn(async () => ({ mutationPlan: { id: 'plan-workspace-2' } }));
+    const pack = buildPack({
+      workspaceOptimizerService: {
+        buildLoadProfile: jest.fn(),
+        previewOptimization,
+        applyOptimization: jest.fn(),
+        renderLoadProfile: jest.fn(),
+        renderPreview: jest.fn(() => 'Workspace Optimize Preview: bare preset'),
+        renderApplyResult: jest.fn(),
+      } as any,
+    });
+    const ctx = buildCtx('/workspace zavorthBridge');
+
+    await pack.handleWorkspace(ctx as any, 'zavorthBridge');
+
+    expect(previewOptimization).toHaveBeenCalledWith(expect.objectContaining({
+      presetId: 'zavorthBridge',
+    }));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Optimize Preview'));
+  });
+
+  it('accepts free-text preset name without optimize verb', async () => {
+    const previewOptimization = jest.fn(async () => ({ mutationPlan: { id: 'plan-workspace-1' } }));
+    const pack = buildPack({
+      workspaceOptimizerService: {
+        buildLoadProfile: jest.fn(),
+        previewOptimization,
+        applyOptimization: jest.fn(),
+        renderLoadProfile: jest.fn(),
+        renderPreview: jest.fn(() => 'Workspace Optimize Preview: free preset'),
+        renderApplyResult: jest.fn(),
+      } as any,
+    });
+    const ctx = buildCtx('/workspace zavorthBridge');
+
+    await pack.handleWorkspace(ctx as any, 'zavorthBridge');
+
+    expect(previewOptimization).toHaveBeenCalledWith(expect.objectContaining({
+      presetId: 'zavorthBridge',
+      requestedBy: 'telegram-user',
+    }));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Optimize Preview'));
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/^Uso:/));
+  });
+
+  it('accepts free-text workspace path as doctor hint', async () => {
+    const buildLoadProfile = jest.fn(async () => ({ workspaceName: 'demo' }));
+    const pack = buildPack({
+      workspaceOptimizerService: {
+        buildLoadProfile,
+        previewOptimization: jest.fn(),
+        applyOptimization: jest.fn(),
+        renderLoadProfile: jest.fn(() => 'Workspace Doctor: demo'),
+        renderPreview: jest.fn(),
+        renderApplyResult: jest.fn(),
+      } as any,
+    });
+    const ctx = buildCtx('/workspace C:/workspace/demo');
+
+    await pack.handleWorkspace(ctx as any, 'C:/workspace/demo');
+
+    expect(buildLoadProfile).toHaveBeenCalledWith({ workspaceHint: 'C:/workspace/demo' });
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Doctor: demo'));
+  });
+
   it('renders companion list and inspection', async () => {
     const buildSnapshot = jest.fn(async () => ({ companions: [{ id: 'docker-desktop' }] }));
     const inspectCompanion = jest.fn(async () => ({ id: 'docker-desktop', status: 'idle' }));

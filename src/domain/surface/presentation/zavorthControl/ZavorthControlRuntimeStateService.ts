@@ -34,7 +34,7 @@ export class ZavorthControlRuntimeStateService {
         ),
         'utf8',
       );
-    } catch (error: unknown) {this.warn(`Nao consegui persistir o estado do zavorthControl: ${errorMessage(error)}`);
+    } catch (error: unknown) {this.warn(`Could not persist Control state: ${errorMessage(error)}`);
     }
   }
 

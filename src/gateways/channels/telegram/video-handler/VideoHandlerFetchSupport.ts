@@ -87,7 +87,7 @@ export class VideoHandlerFetchSupport {
 
     if (!response.ok) {
       throw new Error(
-        `Falha ao baixar o video do Telegram (${response.status}).`,
+        `Failed to baixar o video do Telegram (${response.status}).`,
       );
     }
 
@@ -107,7 +107,7 @@ export class VideoHandlerFetchSupport {
   ): Promise<DownloadedFile> {
     const response = await this.fetchWithTimeout(videoUrl);
     if (!response.ok) {
-      throw new Error(`Falha ao baixar o video remoto (${response.status}).`);
+      throw new Error(`Failed to download remote video (${response.status}).`);
     }
 
     const contentType = response.headers.get("content-type") || "";
@@ -165,7 +165,7 @@ export class VideoHandlerFetchSupport {
   public static async fetchJson(url: string): Promise<unknown> {
     const response = await this.fetchWithTimeout(url);
     if (!response.ok) {
-      throw new Error(`Falha ao buscar JSON (${response.status}).`);
+      throw new Error(`Failed to fetch JSON (${response.status}).`);
     }
     const raw = await response.text();
     return this.parseJsonPayload(raw, url);
@@ -174,7 +174,7 @@ export class VideoHandlerFetchSupport {
   public static async fetchText(url: string): Promise<string> {
     const response = await this.fetchWithTimeout(url);
     if (!response.ok) {
-      throw new Error(`Falha ao buscar texto (${response.status}).`);
+      throw new Error(`Failed to buscar texto (${response.status}).`);
     }
     return response.text();
   }
@@ -208,7 +208,7 @@ export class VideoHandlerFetchSupport {
       const message = error instanceof Error ? err.message : String(error);
       const preview = sanitized.slice(0, 180).replace(/\s+/g, " ");
       throw new Error(
-        `Falha ao interpretar JSON de ${sourceLabel}: ${message}. Preview: ${preview}`,
+        `Failed to interpretar JSON de ${sourceLabel}: ${message}. Preview: ${preview}`,
       );
     }
   }

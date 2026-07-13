@@ -3,6 +3,9 @@
 Capabilities describe what Zavorth can do. Plugins, skills and MCP servers are
 ways to add or expose capabilities while keeping policy in the middle.
 
+For the first-party **Plugin OS** runtime (manifests, bootstrap catalog, router
+tool, MCP bridge invoke, forge receipts), see [plugin-os.md](./plugin-os.md).
+
 ## Capability Types
 
 - built-in runtime capabilities;

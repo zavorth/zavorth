@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "pr-ship",
+  "label": "PR Ship",
+  "version": "1.0.0",
+  "moduleKind": "bridge",
+  "summary": "Ship loop: branch status, diff summary, review checklist, PR draft/create via gh.",
+  "description": "Closes the ticket→diff→review→PR loop for daily shipping. Soft-fails when git/gh are missing and never auto-pushes.",
+  "tags": ["pr", "review", "ship", "git", "github", "diff", "checklist", "shipping"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://pr-ship",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "pr.ship.status",
+      "intent": "pr.ship.status",
+      "label": "Ship Status",
+      "summary": "Current branch, dirty files, and upstream PR if any.",
+      "artifactKinds": [],
+      "command": { "name": "pr_ship_status", "aliases": ["ship_status"], "usage": "{}" }
+    },
+    {
+      "id": "pr.ship.diff",
+      "intent": "pr.ship.diff",
+      "label": "Diff Summary",
+      "summary": "Summarize git diff (stat + truncated patch).",
+      "artifactKinds": [],
+      "command": { "name": "pr_ship_diff", "aliases": ["ship_diff"], "usage": "{ base?, maxChars? }" }
+    },
+    {
+      "id": "pr.ship.checklist",
+      "intent": "pr.ship.checklist",
+      "label": "Review Checklist",
+      "summary": "Heuristic PR review checklist from diff/text.",
+      "artifactKinds": [],
+      "command": { "name": "pr_ship_checklist", "aliases": ["ship_checklist"], "usage": "{ text?, base? }" }
+    },
+    {
+      "id": "pr.ship.draft",
+      "intent": "pr.ship.draft",
+      "label": "Draft PR Body",
+      "summary": "Draft title and body from commits/diff (local only).",
+      "artifactKinds": [],
+      "command": { "name": "pr_ship_draft", "aliases": ["ship_draft"], "usage": "{ base?, title? }" }
+    },
+    {
+      "id": "pr.ship.create",
+      "intent": "pr.ship.create",
+      "label": "Create PR",
+      "summary": "Create a GitHub PR via gh (requires approval).",
+      "artifactKinds": [],
+      "command": { "name": "pr_ship_create", "aliases": ["ship_create"], "usage": "{ title, body?, base?, draft? }" }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "process.spawn",
+      "scope": "local",
+      "reason": "Spawn git and gh for status/diff/PR create.",
+      "required": false
+    },
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Optional when gh contacts GitHub for PR create/list.",
+      "required": false
+    },
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "Read git metadata in the workspace.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "local-exec"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["pr-ship.receipt"]
+}

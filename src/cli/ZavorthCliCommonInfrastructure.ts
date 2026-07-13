@@ -2,7 +2,8 @@ import { spawn } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { formatCliHelp } from './ZavorthCliSurfaceHelpers.js';
-import { logger } from '../logger.js';export const entryDir = path.dirname(path.resolve(process.argv[1] || process.cwd()));
+import { logger } from '../logger.js';
+export const entryDir = path.dirname(path.resolve(process.argv[1] || process.cwd()));
 export const runningFromDist = path.basename(entryDir).toLowerCase() === 'dist';
 export const projectRoot = runningFromDist ? path.resolve(entryDir, '..') : path.resolve(entryDir, '..');
 
@@ -152,56 +153,39 @@ export function printGeneralHelp(): number {
   return 0;
 }
 
+/** Everyday / anyone-path tokens preferred for typo suggestions. */
 export const PUBLIC_COMMANDS = [
-  'chat',
-  'ask',
-  'run',
-  'doctor',
-  'hatch',
-  'home',
-  'quickstart',
   'setup',
-  'switch',
-  'consistency',
-  'diagnostics',
-  'mock-gateway',
-  'providers',
-  'models',
-  'memory',
-  'mnemos',
-  'swarm',
-  'workflows',
-  'effort',
-  'sandbox',
-  'satellite',
-  'hud',
-  'tui',
-  'help',
-  'onboard',
-  'quickstart',
   'start',
-  'native',
-  'diff',
+  'open',
+  'ready',
+  'ask',
+  'chat',
+  'connect',
+  'anyone',
   'learn',
-  'inspect',
-  'constitution',
-  'disk',
-  'disk-gate',
-  'branch',
-  'commit',
-  'pr',
-  'review',
-  'acp',
-  'tasks',
-  'curator',
+  'approve',
+  'doctor',
+  'providers',
+  'channels',
+  'home',
+  'help',
+  'status',
+  'reach',
+  'where',
+  'power',
+  'product',
+  'proof',
+  'run',
+  'diff',
+  'hatch',
+  'quickstart',
+  'onboard',
+  'trust',
+  'hud',
   'todo',
-  'later',
   'work',
-  'done',
-  'retry',
-  'cancel',
-  'diagnostics',
-  'mock-gateway',
+  'ops',
 ];
 
 export function resolveCommandSuggestion(command: string): string[] | null {
@@ -268,4 +252,3 @@ export function levenshtein(a: string, b: string): number {
   }
   return previous[b.length] ?? Math.max(a.length, b.length);
 }
-

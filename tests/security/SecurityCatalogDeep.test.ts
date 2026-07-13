@@ -28,6 +28,8 @@ const SECURITY_FILES = [
   'OperationalMode.ts',
   'OperationalSecurityDoctor.ts',
   'PolicyEngine.ts',
+  'PluginEntrypointSecurity.ts',
+  'PublicHttpsFetch.ts',
   'RbacEngine.ts',
   'SafeFetchService.ts',
   'SafeProcessExec.ts',

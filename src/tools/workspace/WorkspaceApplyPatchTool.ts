@@ -107,7 +107,7 @@ export class WorkspaceApplyPatchTool extends BaseTool {
       return JSON.stringify({
         success: false,
         applied: false,
-        error: 'Parametros "filepath" e "patch" sao obrigatorios.',
+        error: 'Parameters "filepath" and "patch" are required.',
       });
     }
 

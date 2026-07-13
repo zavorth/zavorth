@@ -11,6 +11,7 @@ import {
 import { PermissionRepository } from '../storage/PermissionRepository.js';
 import { TelemetryRuntimeService } from './telemetry/TelemetryRuntimeService.js';
 import { logger } from '../logger.js';
+import { HighRiskConfirmationService } from './HighRiskConfirmationService.js';
 
 export type PermissionMetadataValue = string | number | boolean | null | Record<string, unknown> | unknown[];
 
@@ -35,6 +36,10 @@ type PermissionPatch = {
   reason?: string;
   decision_note?: string | null;
   metadata?: Record<string, PermissionMetadataValue>;
+  /** @deprecated Ignored — TOTP removed from product. */
+  approval_code?: string | null;
+  totp?: string | null;
+  code?: string | null;
 };
 
 export class PermissionService {
@@ -42,10 +47,16 @@ export class PermissionService {
   private initialized = false;
   private configVersioning = new ConfigVersioningService();
   private telemetryRuntime: TelemetryRuntimeService | null;
+  private highRisk: HighRiskConfirmationService;
 
-  constructor(repo?: PermissionRepository, telemetryRuntime?: TelemetryRuntimeService | null) {
+  constructor(
+    repo?: PermissionRepository,
+    telemetryRuntime?: TelemetryRuntimeService | null,
+    highRiskConfirmation?: HighRiskConfirmationService,
+  ) {
     this.repo = repo || new PermissionRepository();
     this.telemetryRuntime = telemetryRuntime || null;
+    this.highRisk = highRiskConfirmation || new HighRiskConfirmationService();
   }
 
   public async createRequest(input: CreatePermissionInput): Promise<PermissionRequest> {
@@ -125,6 +136,27 @@ export class PermissionService {
   ): Promise<PermissionRequest> {
     await this.ensureInit();
     const existing = this.getExistingPermission(permissionId);
+    const meta =
+      existing.metadata && typeof existing.metadata === 'object'
+        ? (existing.metadata as Record<string, unknown>)
+        : {};
+    const rawRiskLevel = meta.riskLevel ?? meta.risk_level ?? meta.risk;
+    const riskLevel =
+      typeof rawRiskLevel === 'string' || typeof rawRiskLevel === 'number'
+        ? rawRiskLevel
+        : null;
+    const gate = this.highRisk.assertApprovalGate({
+      risk: {
+        riskLevel,
+        requiresHighRiskPin: Boolean(meta.requiresHighRiskPin || meta.requires_high_risk_pin),
+        metadata: meta,
+      },
+      approvalGranted: true,
+    });
+    if (!gate.ok) {
+      throw new Error(this.highRisk.formatGateFailure(gate));
+    }
+
     const updated = this.buildUpdatedPermission(existing, patch);
     const approved: PermissionRequest = {
       ...updated,
@@ -132,6 +164,16 @@ export class PermissionService {
       updated_at: new Date().toISOString(),
       decided_by: decidedBy,
       decision_note: patch.decision_note !== undefined ? patch.decision_note : updated.decision_note,
+      metadata: {
+        ...(updated.metadata || {}),
+        highRiskGate: {
+          reason: gate.reason,
+          requiresTotp: false,
+          highRisk: gate.highRisk,
+          surface: 'permission-service',
+          at: new Date().toISOString(),
+        },
+      },
     };
     this.repo.save(approved);
     void this.configVersioning.snapshot(`permission-approve:${approved.executor}:${approved.kind}`);

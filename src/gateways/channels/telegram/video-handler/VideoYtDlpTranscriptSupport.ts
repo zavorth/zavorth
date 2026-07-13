@@ -22,8 +22,8 @@ export class VideoYtDlpTranscriptSupport {
     if (!this.ytDlpFallback.isAvailable()) {
       return {
         transcript: '',
-        source: 'yt-dlp nao provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp nao esta provisionado neste host.')],
+        source: 'yt-dlp not provisionado',
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp not esta provisionado neste host.')],
       };
     }
 
@@ -43,16 +43,16 @@ export class VideoYtDlpTranscriptSupport {
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',
-          source: 'yt-dlp captions indisponivel',
+          source: 'yt-dlp captions unavailable',
           warnings: [err.message],
         };
       }
       const errorMessage = error instanceof Error ? err.message : String(error);
-      logger.warn(`[VideoHandler] yt-dlp captions falhou: ${errorMessage}`);
+      logger.warn(`[VideoHandler] yt-dlp captions failed: ${errorMessage}`);
       return {
         transcript: '',
-        source: 'yt-dlp captions indisponivel',
-        warnings: [`A tentativa de baixar legendas via yt-dlp falhou: ${errorMessage}`],
+        source: 'yt-dlp captions unavailable',
+        warnings: [`A tentativa de baixar legendas via yt-dlp failed: ${errorMessage}`],
       };
     }
   }
@@ -61,8 +61,8 @@ export class VideoYtDlpTranscriptSupport {
     if (!this.ytDlpFallback.isAvailable()) {
       return {
         transcript: '',
-        source: 'yt-dlp nao provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp nao esta provisionado neste host.')],
+        source: 'yt-dlp not provisionado',
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp not esta provisionado neste host.')],
       };
     }
 
@@ -92,7 +92,7 @@ export class VideoYtDlpTranscriptSupport {
         } catch (error: unknown) {
           const err = asErrorLike(error);
           const errorMessage = error instanceof Error ? err.message : String(error);
-          warnings.push(`O fallback de transcricao literal com OpenAI falhou: ${errorMessage}`);
+          warnings.push(`O fallback de transcricao literal com OpenAI failed: ${errorMessage}`);
         }
       } else {
         warnings.push(`O audio extraido tem ${VideoHandlerFormatSupport.formatMegabytes(downloadedStats.size)} MB e sera processado em chunks para maior confiabilidade.`);
@@ -156,16 +156,16 @@ export class VideoYtDlpTranscriptSupport {
       if (isCapabilityUnavailableError(error)) {
         return {
           transcript: '',
-          source: 'yt-dlp indisponivel',
+          source: 'yt-dlp unavailable',
           warnings: [err.message],
         };
       }
       const errorMessage = error instanceof Error ? err.message : String(error);
-      logger.warn(`[VideoHandler] yt-dlp fallback falhou: ${errorMessage}`);
+      logger.warn(`[VideoHandler] yt-dlp fallback failed: ${errorMessage}`);
       return {
         transcript: '',
-        source: 'yt-dlp indisponivel',
-        warnings: [`O fallback com yt-dlp/ffmpeg falhou: ${errorMessage}`],
+        source: 'yt-dlp unavailable',
+        warnings: [`O fallback com yt-dlp/ffmpeg failed: ${errorMessage}`],
       };
     } finally {
       if (downloadedAudioPath) {

@@ -43,6 +43,10 @@ type TelegramCallbackControllerLike = {
   handleCallback(ctx: Context, data: string): Promise<void> | void;
 };
 
+type TelegramPermissionReactionHandler = {
+  handleMessageReaction(ctx: Context): Promise<void> | void;
+};
+
 export type TelegramGatewayHandlerRegistrarDependencies = {
   bot: Bot;
   logRepo: LogRepositoryLike;
@@ -50,6 +54,8 @@ export type TelegramGatewayHandlerRegistrarDependencies = {
   groupEventController: TelegramGroupEventControllerLike;
   mediaController: TelegramMediaControllerLike;
   callbackController: TelegramCallbackControllerLike;
+  /** F5e — optional reaction → permission path */
+  permissionReactionHandler?: TelegramPermissionReactionHandler | null;
   hostIdentityService: HostIdentityService | undefined;
   telegramChannelContractService?: TelegramChannelContractService;
   processTextMessage(ctx: Context, text: string, inlineData?: Array<{ mimeType: string; data: string }>): Promise<void>;
@@ -263,6 +269,21 @@ export class TelegramGatewayHandlerRegistrar {
     this.dependencies.bot.on('callback_query:data', async (ctx) => {
       await this.dependencies.callbackController.handleCallback(ctx, ctx.callbackQuery.data);
     });
+
+    // F5e — emoji reactions on approval messages
+    this.dependencies.bot.on('message_reaction' as any, async (ctx: Context) => {
+      if (!this.dependencies.permissionReactionHandler) return;
+      try {
+        await this.dependencies.permissionReactionHandler.handleMessageReaction(ctx);
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.dependencies.logRepo.log(
+          'error',
+          'BotGateway',
+          `message_reaction handler failed: ${message}`,
+        );
+      }
+    });
   }
 
   /**
@@ -274,5 +295,6 @@ export class TelegramGatewayHandlerRegistrar {
     bot.off('message:left_chat_member');
     bot.off('message:text');
     bot.off('callback_query:data');
+    bot.off('message_reaction');
   }
 }

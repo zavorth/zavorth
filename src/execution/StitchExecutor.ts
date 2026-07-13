@@ -54,7 +54,8 @@ import {
 
 
 
-export class StitchExecutor implements IExecutor {
+
+export class StitchExecutor implements IExecutor {
   public readonly name = 'stitch';
 
   public async execute(request: ExecutionRequest): Promise<ExecutionResult> {
@@ -190,10 +191,10 @@ import {
   }
 
   /**
-   * Tenta executar a geracao via ferramentas MCP do Stitch, se houver
-   * um servidor MCP conectado com capability 'design_generation'.
+   * Attempt to execute generation via Stitch MCP tools, if there is
+   * an MCP server connected with the 'design_generation' capability.
    * Returns null when the MCP path is unavailable, allowing
-   * o fallback para o SDK direto.
+   * the fallback to the direct SDK.
    */
   private async tryMcpRoute(
     _prompt: string,
