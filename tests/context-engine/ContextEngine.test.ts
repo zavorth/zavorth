@@ -286,7 +286,7 @@ describe('ContextEngine gateway ingest', () => {
       'system',
     );
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[ContextEngine] Persona:')
+      expect.stringContaining('[AdaptivePersona] Intent')
     );
     consoleSpy.mockRestore();
   });
