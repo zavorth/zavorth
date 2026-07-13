@@ -933,7 +933,9 @@ export class LlmRuntimeService {
     ) {
       push(requestModelName);
     }
-    for (const m of fromHops) push(m);
+    // An unpinned fallback hop must use that provider's resolved default model,
+    // never inherit the primary provider's model and never drop to null.
+    for (const m of fromHops) push(m || requestModelName);
     if (
       this.normalizeProviderName(providerName) === this.normalizeProviderName(primaryProviderName)
       && secondaryModelId

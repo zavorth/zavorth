@@ -71,7 +71,7 @@ describe('LlmRuntimeService', () => {
       primaryProviderName: 'openrouter',
       providerName: 'openrouter',
       modelName: 'anthropic/claude-sonnet-4',
-      fallbackAllowed: false,
+      fallbackAllowed: true,
       fallbackUsed: false,
       request: expect.objectContaining({
         messageCount: 1,

@@ -52,7 +52,7 @@ describe('SkillSnapshotAssembler', () => {
     expect(snapshot.skills).toEqual([
       expect.objectContaining({
         id: 'workspace-reporter',
-        toolNames: ['workspace_report'],
+        toolNames: ['zavorth_action'],
         trustState: 'safe',
         quarantined: false,
         hasToolsMarkdown: true,
@@ -61,7 +61,7 @@ describe('SkillSnapshotAssembler', () => {
       }),
     ]);
     expect(snapshot.cold.skillPrompt).toContain('SKILLS DISPONIVEIS');
-    expect(snapshot.cold.skillPrompt).toContain('workspace_report');
+    expect(snapshot.cold.skillPrompt).toContain('zavorth_action');
     expect(snapshot.cold.skillPrompt).toContain('<untrusted_skill_content');
     expect(snapshot.metadata).toEqual(expect.objectContaining({
       source: 'SkillScanner',
@@ -116,7 +116,7 @@ describe('SkillSnapshotAssembler', () => {
       ['imported-draft', 'quarantined', true],
     ]);
     expect(snapshot.cold.skillPrompt).toContain('official_build');
-    expect(snapshot.cold.skillPrompt).toContain('workspace_report');
+    expect(snapshot.cold.skillPrompt).toContain('zavorth_action');
     expect(snapshot.cold.skillPrompt).toContain('imported-draft [quarantined]: tools ocultas ate review');
     expect(snapshot.cold.skillPrompt).not.toContain('unsafe_imported_tool');
     expect(snapshot.metadata.trustSummary).toEqual(snapshot.trustSummary);
@@ -124,7 +124,8 @@ describe('SkillSnapshotAssembler', () => {
       expect.objectContaining({
         kind: 'skill',
         id: 'imported-draft',
-        toolNames: ['unsafe_imported_tool'],
+        declaredToolNames: ['unsafe_imported_tool'],
+        toolNames: ['zavorth_action'],
         trustState: 'quarantined',
       }),
     ]));
