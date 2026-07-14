@@ -66,7 +66,7 @@ export class TelegramPermissionKeyboardService {
       return keyboard;
     }
 
-    // Standard agent permission choices (Hermes/MiMo style) on every permission type.
+    // Standard agent permission choices (standard style) on every permission type.
     keyboard
       .text('Run once', `perm:approve:${shortId}:once`)
       .text('Session', `perm:approve:${shortId}:session`)

@@ -495,12 +495,12 @@ export class TelegramPermissionController {
   private assertUserIsAdmin(ctx: Context): void {
     const userId = ctx.from?.id?.toString();
     if (!userId) {
-      throw new Error('User ID invalido.');
+      throw new Error('Invalid user ID.');
     }
     // Match AuthGuard.ts: config.telegramUserRoles[userId] || ['admin']
     const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
     if (!userRoles.includes('admin')) {
-      throw new Error('Apenas administradores podem decidir sobre aprovacoes/permissoes.');
+      throw new Error('Apenas administradores podem decidir sobre aprovacoes/permissions.');
     }
   }
 

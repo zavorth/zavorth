@@ -261,7 +261,7 @@ export class LearningOSService {
       'blocklist',
       'approval',
       'permissions',
-      'permissoes',
+      'permissions',
       'seguranca',
       'security',
       'bypass',

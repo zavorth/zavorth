@@ -38,7 +38,7 @@ export function buildProviderArenaCliSnapshot(input: {
       readiness: 'ready',
       ready: true,
       fallbackOrder: ['aigateway', 'openai', 'gemini'],
-      selectionExplanation: ['config atual do operador', 'fallback governado habilitado'],
+      selectionExplanation: ['current operator config', 'governed fallback enabled'],
       supportsTools: true,
       supportsStreaming: true,
     },
@@ -54,7 +54,7 @@ export function buildProviderArenaCliSnapshot(input: {
         readiness: 'ready',
         ready: true,
         fallbackOrder: ['aigateway', 'openai', 'gemini'],
-        explanation: ['config atual do operador', 'fallback governado habilitado'],
+        explanation: ['current operator config', 'governed fallback enabled'],
       },
     },
   });
@@ -115,7 +115,7 @@ export function buildProviderArenaCliSnapshot(input: {
         readiness: 'ready',
         ready: true,
         fallbackOrder: ['aigateway', 'openai', 'gemini'],
-        explanation: ['config atual do operador', 'fallback governado habilitado'],
+        explanation: ['current operator config', 'governed fallback enabled'],
         matchedEffectiveProvider: true,
       },
       budget: {

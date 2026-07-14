@@ -1,18 +1,19 @@
 /**
- * CognitiveFirewall — Fachada principal do sistema de economia de tokens.
+ * CognitiveFirewall — local free-text hints + plugin quarantine.
  *
- * Orchestrates IntentClassifier + ToolGatekeeper in one simple call
- * for integration with ConversationalAgent and any other Zavorth point.
+ * Orchestrates IntentClassifier + ToolGatekeeper for telemetry, cheap-model
+ * selection on trivial chat, compact/cluster hints, and hard plugin quarantine.
+ * Free-text capability choice is model-owned: non-trivial turns are full_toolset.
+ * ConversationalAgent exposes the full catalog (minus quarantine).
  *
- * Supports hybrid classification:
- * - Regex for trivial/obvious cases (zero cost)
- * - LLM for ambiguous/complex cases (intelligent understanding)
+ * Optional LLM classification (disabled by default) only distinguishes
+ * conversation vs full_toolset — never word→tool categories.
  *
  * USO:
  *   const firewall = new CognitiveFirewall();
  *   const decision = firewall.evaluate(userMessage, allToolDefinitions);
- *   // decision.tools → tools filtradas para injetar no prompt
- *   // decision.useFastModel → se true, pode usar LLM barato (Flash/local)
+ *   // decision.useFastModel → trivial chat may use a cheap model
+ *   // decision.tools → hint profile tools (not the product free-text gate)
  */
 
 import { IntentClassifier, type IntentClassification } from './IntentClassifier.js';

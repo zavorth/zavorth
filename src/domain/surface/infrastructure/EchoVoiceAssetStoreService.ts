@@ -65,7 +65,7 @@ export class EchoVoiceAssetStoreService {
   }): PublishedEchoVoiceAsset {
     const audio = Buffer.isBuffer(input.audio) ? Buffer.from(input.audio) : Buffer.from([]);
     if (audio.length === 0) {
-      throw new Error('Audio Echo vazio nao pode ser publicado como asset.');
+      throw new Error('Empty Echo audio cannot be published as an asset.');
     }
 
     const publicBaseUrl = normalizeBaseUrl(input.publicBaseUrl);

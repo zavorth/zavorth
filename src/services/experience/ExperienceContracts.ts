@@ -355,6 +355,8 @@ export type ExperienceContextRecovery = {
     totalOptions: number;
     shownOptions: number;
     hasOverflow: boolean;
+    /** @deprecated Use zavorthControlCommand. Kept for cross-surface compatibility. */
+    dashboardCommand?: string;
     zavorthControlCommand: string;
   };
 };

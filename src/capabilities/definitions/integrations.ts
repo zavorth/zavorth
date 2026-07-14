@@ -14,7 +14,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     routing_confidence: 1,
     command: {
       command: 'file',
-      aliases: ['sendfile', 'arquivo'],
+      aliases: ['sendfile'],
       description: 'Finds and sends a local file.',
       usage: '<request|path>',
       section: 'monitoring',
@@ -137,7 +137,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     id: 'command-zavorthControl',
     label: 'ZavorthControl',
     type: 'integration',
-    description: 'Abre o painel web do Zavorth.',
+    description: 'Opens the Zavorth web panel.',
     intent: 'zavorthControl_access',
     executor_preference: null,
     dispatch_mode: 'execution',
@@ -147,7 +147,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     command: {
       command: 'zavorthControl',
       aliases: ['app', 'miniapp'],
-      description: 'Abre o painel web do Zavorth.',
+      description: 'Opens the Zavorth web panel.',
       section: 'monitoring',
       privateMenu: true,
       groupMenu: true,
@@ -164,7 +164,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito para gerenciamento de servidores MCP.',
+    routing_reason: 'Explicit command for MCP server management.',
     routing_confidence: 1,
     command: {
       command: 'mcp',
@@ -234,7 +234,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     allowed_command_types: ['/task', '/auto'],
     command: {
       command: 'analyze',
-      aliases: ['analisar', 'analise', 'descrever', 'ocr', 'analyze_media'],
+      aliases: ['ocr', 'analyze_media', 'analyze media'],
       description: 'Analyzes media (image, audio, video) with AI.',
       usage: '<file path> [type=describe|extract|classify|qa] [prompt]',
       section: 'execution',
@@ -265,7 +265,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     id: 'satellite.connect',
     label: 'Zavorth Satellite',
     type: 'integration',
-    description: 'Gerencia conexoes do Zavorth Satellite PWA via Node Mesh WebSocket.',
+    description: 'Manages Zavorth Satellite PWA connections via Node Mesh WebSocket.',
     intent: 'satellite_management',
     executor_preference: null,
     dispatch_mode: 'execution',
@@ -308,9 +308,9 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     allowed_command_types: ['/task', '/auto'],
     command: {
       command: 'search',
-      aliases: ['busca', 'pesquisa', 'web_search'],
+      aliases: ['web_search', 'search web'],
       description: 'Busca web unificada com ranking de evidencia.',
-      usage: '<consulta> [mode=quick|deep|grounded]',
+      usage: '<query> [mode=quick|deep|grounded]',
       section: 'search',
       privateMenu: true,
       groupMenu: true,
@@ -320,8 +320,8 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     matchers: [
       {
         patterns: [
-          '\\b(pesquise|pesquisa|pesquisar|busque|buscar|procure|procurar|search|find)\\b.*\\b(web|internet|online|google|na web)\\b',
-          '\\b(noticias|noticia|news)\\b.*\\b(hoje|do dia|na web|online|internet|recentes|ultimas)\\b',
+          '\\b(search|find|look\\s+up|research)\\b.*\\b(web|internet|online|google)\\b',
+          '\\b(news|headlines)\\b.*\\b(today|latest|recent|online|internet)\\b',
         ],
       },
     ],

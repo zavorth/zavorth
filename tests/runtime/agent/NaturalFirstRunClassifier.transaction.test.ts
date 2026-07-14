@@ -2,10 +2,10 @@ import {
   NaturalFirstRunClassifier,
 } from '../../../src/runtime/agent/index.js';
 
-describe('NaturalFirstRunClassifier transaction routing', () => {
+describe('NaturalFirstRunClassifier structured tool risk', () => {
   const classifier = new NaturalFirstRunClassifier();
 
-  it('routes transactional value movement to an approval proposal', () => {
+  it('routes free-text purchase phrases to the agent (no keyword force)', () => {
     const result = classifier.classify({
       text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
       channel: 'web',
@@ -14,50 +14,28 @@ describe('NaturalFirstRunClassifier transaction routing', () => {
 
     expect(result).toEqual(expect.objectContaining({
       shouldEnterGateway: true,
-      route: 'approval-proposal',
-      effort: 'standard',
-      usesLlm: 'optional',
-      requiresApproval: true,
-      intent: expect.objectContaining({
-        primary: 'sensitive-action',
-        candidates: expect.arrayContaining(['sensitive-action']),
-      }),
-      risk: expect.objectContaining({
-        level: 'danger',
-        requiresApproval: true,
-        reasons: expect.arrayContaining(['transaction-approval-intent']),
-      }),
-      signals: expect.arrayContaining(['transaction-intent', 'approval-required']),
+      route: 'llm-reply',
+      requiresApproval: false,
     }));
   });
 
-  it('routes transactional monitoring to governed preview without approval', () => {
+  it('routes high-risk requested tools to approval', () => {
     const result = classifier.classify({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
-      channel: 'telegram',
-      availableTools: ['zavorth.transaction-preview'],
+      text: 'please continue',
+      channel: 'web',
+      requestedTools: ['workspace.delete'],
     });
 
     expect(result).toEqual(expect.objectContaining({
-      shouldEnterGateway: true,
-      route: 'tool-preview',
-      effort: 'standard',
-      usesLlm: 'optional',
-      requiresApproval: false,
-      intent: expect.objectContaining({
-        primary: 'tool-use',
-        candidates: expect.arrayContaining(['tool-use']),
-      }),
+      route: 'approval-proposal',
+      requiresApproval: true,
       risk: expect.objectContaining({
-        level: 'attention',
-        previewRequired: true,
-        reasons: expect.arrayContaining(['transaction-preview-intent']),
+        level: 'danger',
       }),
-      signals: expect.arrayContaining(['transaction-preview-intent', 'preview-required']),
     }));
   });
 
-  it('keeps slash commands out of the natural transaction path', () => {
+  it('keeps slash commands as deterministic shortcuts', () => {
     expect(classifier.classify({
       text: '/comprar ETH',
       channel: 'cli',

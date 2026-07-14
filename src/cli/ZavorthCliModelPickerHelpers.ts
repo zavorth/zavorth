@@ -52,7 +52,7 @@ export function resolveCliUniversalModelProfile(input: {
     || [];
   return {
     providerLabel: selected.providerLabel || selected.providerName || 'Zavorth',
-    modelLabel: pickerSelected.modelId || selected.modelLabel || selected.modelName || 'modelo atual',
+    modelLabel: pickerSelected.modelId || selected.modelLabel || selected.modelName || 'current model',
     routingPolicy: input.routingPolicy || (pickerSelected.ready || selected.ready ? 'direct' : 'fallback'),
     routeId: pickerSelected.routeId || selected.routeId || undefined,
     familyId: pickerSelected.familyId || selected.familyId || family?.id || undefined,

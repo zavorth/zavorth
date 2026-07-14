@@ -95,7 +95,7 @@ export function formatReleaseAdoptionReadinessSnapshot(
   lines.push('- canary was not started');
   lines.push('- telemetry implicita continua desligada');
   lines.push('- external feedback was not sent');
-  lines.push('- metricas sao agregadas');
+  lines.push('- metrics are aggregated');
   lines.push('- stable claim exige evidencia');
   lines.push('- rollback preview is required');
 

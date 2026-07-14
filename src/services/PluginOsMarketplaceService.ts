@@ -83,6 +83,27 @@ export type PluginOsMarketplaceServiceRuntime = {
   writeFileSync?: typeof fs.writeFileSync;
 };
 
+const PORTABLE_BUILTIN_MARKETPLACE_ENTRIES: PluginOsMarketplaceEntry[] = [
+  {
+    id: 'zavorth-plugin-workspace-inspector',
+    name: 'Workspace Inspector',
+    summary: 'Read-only workspace analysis with governed receipts.',
+    version: '1.0.0',
+    moduleKind: 'tool',
+    tier: 'first-party',
+    tags: ['workspace', 'inspect', 'read-only', 'diagnostics'],
+    permissions: ['workspace:read'],
+    source: 'builtin://workspace-inspector',
+    sourceLocator: 'builtin://workspace-inspector',
+    signed: true,
+    curated: true,
+    installed: false,
+    enabled: false,
+    trust: 'trusted',
+    origin: 'bundled',
+  },
+];
+
 /**
  * Product marketplace facade: list curated/remote, preview trust, install, enable.
  * Never auto-enables unless options.enable === true.
@@ -166,6 +187,12 @@ export class PluginOsMarketplaceService {
           ? 'curated'
           : 'local';
       byId.set(id, this.enrich(entry as Record<string, unknown>, origin as PluginOsMarketplaceEntry['origin'], root));
+    }
+
+    for (const entry of PORTABLE_BUILTIN_MARKETPLACE_ENTRIES) {
+      if (!byId.has(entry.id)) {
+        byId.set(entry.id, this.enrich(entry as unknown as Record<string, unknown>, 'bundled', root));
+      }
     }
 
     // Also surface any first-party packages on disk that might not be in curated (soft).

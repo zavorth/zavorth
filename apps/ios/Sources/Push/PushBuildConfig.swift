@@ -45,8 +45,8 @@ struct PushBuildConfig {
     let proofPolicy: PushProofPolicy
 
     static let current = PushBuildConfig()
-    static let openClawHostedRelayHost = "ios-push-relay.zavorth.ai"
-    static let openClawSandboxRelayHost = "ios-push-relay-sandbox.zavorth.ai"
+    static let zavorthHostedRelayHost = "ios-push-relay.zavorth.ai"
+    static let zavorthSandboxRelayHost = "ios-push-relay-sandbox.zavorth.ai"
 
     var usesZavorthHostedRelay: Bool {
         guard self.transport == .relay, self.distribution == .official else { return false }
@@ -56,7 +56,7 @@ struct PushBuildConfig {
             return false
         }
         return components.scheme?.lowercased() == "https"
-            && [Self.openClawHostedRelayHost, Self.openClawSandboxRelayHost]
+            && [Self.zavorthHostedRelayHost, Self.zavorthSandboxRelayHost]
             .contains(components.host?.lowercased() ?? "")
             && components.user == nil
             && components.password == nil
@@ -96,7 +96,7 @@ struct PushBuildConfig {
         case .appStore:
             self.transport = .relay
             self.distribution = .official
-            self.relayBaseURL = URL(string: "https://\(Self.openClawHostedRelayHost)")!
+            self.relayBaseURL = URL(string: "https://\(Self.zavorthHostedRelayHost)")!
             self.apnsEnvironment = .production
             self.relayProfile = .production
             self.proofPolicy = .appleStrict
@@ -104,7 +104,7 @@ struct PushBuildConfig {
             self.transport = .relay
             self.distribution = .official
             self.relayBaseURL = relayBaseURLOverride
-                ?? URL(string: "https://\(Self.openClawSandboxRelayHost)")!
+                ?? URL(string: "https://\(Self.zavorthSandboxRelayHost)")!
             self.apnsEnvironment = .sandbox
             self.relayProfile = .deviceSandbox
             self.proofPolicy = .appleDevelopment
@@ -112,7 +112,7 @@ struct PushBuildConfig {
             self.transport = .relay
             self.distribution = .official
             self.relayBaseURL = relayBaseURLOverride
-                ?? URL(string: "https://\(Self.openClawSandboxRelayHost)")!
+                ?? URL(string: "https://\(Self.zavorthSandboxRelayHost)")!
             self.apnsEnvironment = .sandbox
             self.relayProfile = .simulatorSandbox
             self.proofPolicy = .internalSimulator

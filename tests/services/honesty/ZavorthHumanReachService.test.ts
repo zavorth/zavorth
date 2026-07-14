@@ -42,7 +42,7 @@ describe('ZavorthHumanReachService', () => {
     expect(service.buildSnapshot().preferredPathId).toBe('telegram');
   });
 
-  it('does not match free-text reach NLU (Hermes-style) and still guides telegram setup via API', () => {
+  it('does not match free-text reach NLU (agent-first) and still guides telegram setup via API', () => {
     const service = new ZavorthHumanReachService({ projectRoot: tempDir, env: {} });
     expect(service.matchNaturalCommand('onde te acho?')).toBeNull();
     expect(service.matchNaturalCommand('como configurar telegram')).toBeNull();

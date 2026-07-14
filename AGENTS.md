@@ -73,6 +73,21 @@ Keep the workspace clean by using the right file for the right thing:
 
 Do not blur these lines.
 
+### Free text and tools
+
+| Input | Owner |
+|-------|--------|
+| Free text (any language) | Agent — LLM understands intent and chooses tools |
+| `/slash` and CLI mirrors | Deterministic packs / builtins |
+| Buttons / callbacks | Deterministic |
+| Approval / deny / risk | Deterministic policy on tools and slash |
+
+Rules:
+
+1. Never add free-text keyword systems that trigger features (any language).
+2. Features run via **slash/UI** or via the **LLM selecting a tool** — nothing else.
+3. Deterministic code is for slash, safety, approval, secrets, and data quality — not free-text intent.
+
 ### Natural Slash Commands (mandatory)
 
 All shared-surface slash commands (existing and future) follow

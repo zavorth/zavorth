@@ -1,5 +1,5 @@
 /**
- * db/settings.js â€” Settings, pricing, and proxy config.
+ * db/settings.js — Settings, pricing, and proxy config.
  */
 
 import { getDbInstance } from "./core";
@@ -24,7 +24,7 @@ export {
   type CacheTrendPoint,
 } from "./settings/cacheMetrics";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────── Settings ────────────────
 
 export async function getSettings() {
   const db = getDbInstance();
@@ -46,7 +46,7 @@ export async function getSettings() {
   }
 
   // Auto-complete onboarding for pre-configured deployments (Docker/VM)
-  // If INITIAL_PASSWORD is set via env, this is a headless deploy â€” skip the wizard
+  // If INITIAL_PASSWORD is set via env, this is a headless deploy — skip the wizard
   if (!settings.setupComplete && process.env.INITIAL_PASSWORD) {
     settings.setupComplete = true;
     settings.requireLogin = true;
@@ -82,7 +82,7 @@ export async function isCloudEnabled() {
   return settings.cloudEnabled === true;
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ Pricing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────── Pricing ────────────────
 
 export async function getPricing() {
   const db = getDbInstance();
@@ -116,7 +116,7 @@ export async function getPricing() {
     if (!key || rawValue === null) continue;
     try {
       modelsDevPricing[key] = JSON.parse(rawValue) as PricingModels;
-    } catch (error: unknown) {// Corrupted data â€” skip silently, fallback to lower layers
+    } catch (error: unknown) {// Corrupted data — skip silently, fallback to lower layers
       logger.warn('[settings] JSON parse failed', error);
     }
   }
@@ -132,7 +132,7 @@ export async function getPricing() {
     userPricing[key] = toRecord(JSON.parse(rawValue)) as PricingModels;
   }
 
-  // Merge: defaults â†’ LiteLLM â†’ models.dev â†’ user (each layer overrides the previous)
+  // Merge: defaults → LiteLLM → models.dev → user (each layer overrides the previous)
   const mergedPricing: PricingByProvider = {};
 
   // Start with defaults
@@ -261,7 +261,7 @@ export async function resetAllPricing() {
   return {};
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ LKGP (Last Known Good Provider) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ──────────────── LKGP (Last Known Good Provider) ────────────────
 
 export async function getLKGP(comboName: string, modelId: string): Promise<string | null> {
   const db = getDbInstance();

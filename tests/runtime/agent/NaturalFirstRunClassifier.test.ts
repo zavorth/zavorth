@@ -5,16 +5,18 @@ import {
 describe('NaturalFirstRunClassifier', () => {
   const classifier = new NaturalFirstRunClassifier();
 
-  it('routes short greetings as normal LLM-facing text instead of a light-chat shortcut', () => {
+  it('routes short greetings as free-text agent turns', () => {
     expect(classifier.classify({
       text: 'oi',
       channel: 'web',
     })).toEqual(expect.objectContaining({
       shouldEnterGateway: true,
-      contractVersion: 'natural-first-classifier/3',
+      contractVersion: 'natural-first-classifier/4',
       route: 'llm-reply',
-      effort: 'light',
+      effort: 'standard',
       requiresApproval: false,
+      reason: 'Free-text turns use the agent runtime; the LLM chooses tools.',
+      signals: expect.arrayContaining(['free-text']),
       intent: expect.objectContaining({
         primary: 'free-text-question',
         confidence: expect.any(Number),
@@ -28,13 +30,15 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
-  it('routes lightweight follow-up language as normal LLM-facing text', () => {
+  it('routes lightweight follow-up language as free-text agent turns', () => {
     expect(classifier.classify({
       text: 'explica melhor',
       channel: 'web',
       sessionId: 'session-follow-up',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
+      effort: 'standard',
+      signals: expect.arrayContaining(['free-text']),
       intent: expect.objectContaining({
         primary: 'free-text-question',
       }),
@@ -61,61 +65,55 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
-  it('routes open-ended free text to an LLM reply', () => {
+  it('routes open-ended free text to the agent runtime (llm-reply)', () => {
     expect(classifier.classify({
       text: 'qual a melhor forma de pensar sobre esse produto?',
       channel: 'cli',
     })).toEqual(expect.objectContaining({
       route: 'llm-reply',
+      effort: 'standard',
       usesLlm: 'preferred',
+      signals: expect.arrayContaining(['free-text']),
       intent: expect.objectContaining({
         primary: 'free-text-question',
       }),
     }));
   });
 
-  it('routes repo work to governed execution', () => {
+  it('does not force governed-execution from operational phrase maps; free text stays agent-owned', () => {
     expect(classifier.classify({
       text: 'analise esse repositorio e documente o fluxo principal',
       channel: 'cli',
     })).toEqual(expect.objectContaining({
-      route: 'governed-execution',
-      effort: 'heavy',
-      cost: expect.objectContaining({
-        tier: 'expensive',
-        budgetHint: 'governed-runtime',
+      route: 'llm-reply',
+      effort: 'standard',
+      usesLlm: 'preferred',
+      reason: 'Free-text turns use the agent runtime; the LLM chooses tools.',
+      signals: expect.arrayContaining(['free-text']),
+      intent: expect.objectContaining({
+        primary: 'free-text-question',
       }),
     }));
   });
 
-  it('routes command/tool intent to preview before execution', () => {
+  it('does not force tool-preview from free-text shell phrases', () => {
     expect(classifier.classify({
       text: 'rode npm test nesse projeto',
       channel: 'web',
     })).toEqual(expect.objectContaining({
-      route: 'tool-preview',
-      requiresApproval: false,
-      risk: expect.objectContaining({
-        previewRequired: true,
-      }),
-      cost: expect.objectContaining({
-        tier: 'standard',
-      }),
+      route: 'llm-reply',
+      signals: expect.arrayContaining(['free-text']),
     }));
   });
 
-  it('treats current datetime lookups as safe tool use without approval', () => {
+  it('uses structured requestedTools for tool-preview risk, not free-text keywords', () => {
     expect(classifier.classify({
-      text: 'Me diga que horas sao agora em Brasilia',
+      text: 'whatever the user said',
       channel: 'telegram',
       requestedTools: ['get_datetime'],
     })).toEqual(expect.objectContaining({
       route: 'tool-preview',
       requiresApproval: false,
-      risk: expect.objectContaining({
-        level: 'safe',
-        requiresApproval: false,
-      }),
       context: expect.objectContaining({
         tools: expect.objectContaining({
           requested: ['get_datetime'],
@@ -125,48 +123,63 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
-  it('routes dangerous mutation intent to approval proposal', () => {
+  it('does not force approval from free-text mutation phrases alone', () => {
     expect(classifier.classify({
       text: 'apague a pasta dist e faça push',
       channel: 'web',
     })).toEqual(expect.objectContaining({
-      route: 'approval-proposal',
-      requiresApproval: true,
-      intent: expect.objectContaining({
-        primary: 'sensitive-action',
-      }),
+      route: 'llm-reply',
+      requiresApproval: false,
       risk: expect.objectContaining({
-        level: 'danger',
-        requiresApproval: true,
+        level: 'safe',
       }),
     }));
   });
 
-  it('routes memory requests to memory recall', () => {
+  it('marks danger from structured high-risk requested tools', () => {
+    expect(classifier.classify({
+      text: 'please proceed',
+      channel: 'web',
+      requestedTools: ['workspace.delete'],
+    })).toEqual(expect.objectContaining({
+      route: 'approval-proposal',
+      requiresApproval: true,
+      risk: expect.objectContaining({
+        level: 'danger',
+      }),
+    }));
+  });
+
+  it('does not route memory phrase maps on free text; agent path owns NLU', () => {
     expect(classifier.classify({
       text: 'como resolvemos aquele erro de permissao?',
       channel: 'web',
     })).toEqual(expect.objectContaining({
-      route: 'memory-recall',
-      signals: expect.arrayContaining(['memory-intent']),
+      route: 'llm-reply',
+      effort: 'standard',
+      signals: expect.arrayContaining(['free-text']),
+      intent: expect.objectContaining({
+        primary: 'free-text-question',
+      }),
       context: expect.objectContaining({
         memory: expect.objectContaining({
-          hinted: true,
+          hinted: false,
         }),
       }),
     }));
   });
 
-  it('keeps recall about sensitive topics as memory recall instead of execution approval', () => {
+  it('keeps free-text memory-about-deploy as agent path without inventing approval from memory words', () => {
     expect(classifier.classify({
       text: 'o que combinamos sobre aquele deploy?',
       channel: 'cli',
     })).toEqual(expect.objectContaining({
-      route: 'memory-recall',
+      route: 'llm-reply',
       requiresApproval: false,
       risk: expect.objectContaining({
         level: 'safe',
       }),
+      signals: expect.arrayContaining(['free-text']),
     }));
   });
 
@@ -237,17 +250,16 @@ describe('NaturalFirstRunClassifier', () => {
     }));
   });
 
-  it('routes channel setup language to capability discovery with standard cost', () => {
+  it('does not force capability-discovery from setup phrase maps; free text stays agent-owned', () => {
     expect(classifier.classify({
       text: 'conectar Telegram e configurar o canal',
       channel: 'web',
     })).toEqual(expect.objectContaining({
-      route: 'capability-discovery',
+      route: 'llm-reply',
+      effort: 'standard',
+      signals: expect.arrayContaining(['free-text']),
       intent: expect.objectContaining({
-        primary: 'capability-discovery',
-      }),
-      cost: expect.objectContaining({
-        tier: 'standard',
+        primary: 'free-text-question',
       }),
     }));
   });

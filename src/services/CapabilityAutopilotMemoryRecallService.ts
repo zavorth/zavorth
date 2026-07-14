@@ -195,7 +195,7 @@ export class CapabilityAutopilotMemoryRecallService {
       reasons.push(this.reason('workspace', 25, 'Mesmo workspace redigido por hash.'));
     }
     if (query.intentFingerprint && record.intentFingerprint === query.intentFingerprint) {
-      reasons.push(this.reason('intent', 25, 'Intent parecido por fingerprint redigido.'));
+      reasons.push(this.reason('intent', 25, 'Similar intent by redacted fingerprint.'));
     }
     if (query.failureKind && record.failureKind === query.failureKind) {
       reasons.push(this.reason('failure', 15, 'Mesmo tipo de falha anterior.'));

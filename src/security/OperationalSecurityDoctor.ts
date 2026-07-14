@@ -145,7 +145,7 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ZAVORTH_REMOTE_MESH_ALLOW_INSECURE_HTTP',
     values: ['1', 'true'],
     severity: 'critical',
-    summary: 'Permite HTTP inseguro no mesh remoto.',
+    summary: 'Allows insecure HTTP on the remote mesh.',
   },
   {
     name: 'ZAVORTH_ALLOW_QUERY_AUTH_TOKEN',
@@ -163,13 +163,13 @@ const DANGEROUS_ENV_OVERRIDES: DangerousEnvOverride[] = [
     name: 'ZAVORTH_ALLOW_LOCAL_JAIL_SANDBOX',
     values: ['1', 'true'],
     severity: 'warn',
-    summary: 'Permite sandbox local jail explicitamente.',
+    summary: 'Allows local sandbox jail explicitly.',
   },
   {
     name: 'ZAVORTH_REMOTE_MESH_ALLOW_INSECURE_HTTP_FOR_TAILNET',
     values: ['1', 'true'],
     severity: 'warn',
-    summary: 'Permite HTTP em tailnet; deve ficar restrito a redes confiaveis.',
+    summary: 'Allows HTTP on tailnet; must stay restricted to trusted networks.',
   },
   {
     name: 'DISABLE_SQLITE_AUTO_BACKUP',
@@ -249,17 +249,17 @@ export function buildOperationalSecurityDoctorReport(
 
 export function formatOperationalSecurityDoctorReport(report: OperationalSecurityDoctorReport): string {
   const statusLabel = report.status === 'healthy'
-    ? 'saudavel'
+    ? 'healthy'
     : report.status === 'blocked'
-      ? 'bloqueado'
+      ? 'blocked'
       : 'atencao';
   const lines = [
     '[zavorth-security] security doctor',
-    `[zavorth-security] status: ${statusLabel} | perfil: ${report.profile.label} (${report.profile.source})`,
+    `[zavorth-security] status: ${statusLabel} | profile: ${report.profile.label} (${report.profile.source})`,
     `[zavorth-security] checks: ${report.summary.passed} ok, ${report.summary.attention} atencao, ${report.summary.failed} falha`,
     '',
     ...report.checks.map((check) =>
-      `[${check.status}] ${check.id}: ${check.summary}${check.recommendation ? ` Recomendacao: ${check.recommendation}` : ''}`,
+      `[${check.status}] ${check.id}: ${check.summary}${check.recommendation ? ` Recommendation: ${check.recommendation}` : ''}`,
     ),
   ];
 

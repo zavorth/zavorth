@@ -151,7 +151,7 @@ export class CustomCompatibleProviderOnboardingService {
       },
       warnings: this.buildWarnings(input, classification),
       explanation: [
-        `Onboarding preparou ${input.label} como ${input.compatibility}.`,
+        `Onboarding prepairu ${input.label} como ${input.compatibility}.`,
         ...classification.explanation,
         'O manifesto declara authKind, base URL e origem de catalogo antes de chegar ao runtime.',
       ],
@@ -196,7 +196,7 @@ export class CustomCompatibleProviderOnboardingService {
       warnings.push('Nenhum modelo principal informado; catalogo ficara como fallback ate discovery/validacao.');
     }
     if (classification.baseUrlRequired) {
-      warnings.push('Base URL precisa permanecer declarada e auditavel antes do uso.');
+      warnings.push('Base URL precisa permanecer declarada e auditable antes do uso.');
     }
     return warnings;
   }

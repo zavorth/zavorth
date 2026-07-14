@@ -493,7 +493,7 @@ export function collectRouteLearning(tasks: Task[], workflowRuns: WorkflowRunSna
       rationale:
         `${entry.completed}/${evaluableTotal || entry.total} concluido(s) avaliaveis, ${entry.total} observado(s), ${entry.failed} falha(s), `
         + `${entry.rejected} rejeicao(oes), ${entry.waitingApproval} aguardando aprovacao`
-        + `${entry.gatedCompletion > 0 ? `, ${entry.gatedCompletion} fluxo(s) aprovados concluido(s)` : ''}`
+        + `${entry.gatedCompletion > 0 ? `, ${entry.gatedCompletion} fluxo(s) aprovados completed(s)` : ''}`
         + `${entry.gatedArtifactful > 0 ? ` com ${entry.gatedArtifactful} entrega(s) apos aprovacao` : ''}`
         + `${entry.workflowRecoverySuccess > 0 ? `, ${entry.workflowRecoverySuccess} retomada(s) concluida(s)` : ''}`
         + `${entry.workflowRecoveryArtifactful > 0 ? ` com ${entry.workflowRecoveryArtifactful} entrega(s) finais` : ''}`

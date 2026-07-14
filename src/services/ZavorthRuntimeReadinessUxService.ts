@@ -358,7 +358,7 @@ function summaryForCheck(check: ZavorthRuntimeReadinessCheck): string {
       : 'Aprovacoes estao prontas e sem execucao direta na UI.';
   }
   if (check.id === 'transaction-plane') {
-    return 'Transacoes reais seguem travadas; preview e simulacao continuam seguros.';
+    return 'Transacoes reais seguem travadas; preview e simulaction continuam seguros.';
   }
   if (check.id === 'skill-imports') {
     return 'Skills externas continuam explicitas, revisadas e travadas por padrao.';

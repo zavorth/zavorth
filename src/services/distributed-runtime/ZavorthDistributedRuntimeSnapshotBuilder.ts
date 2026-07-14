@@ -125,10 +125,10 @@ export class ZavorthDistributedRuntimeSnapshotBuilder {
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
       `Channels: ${snapshot.summary.readyChannels}/${snapshot.summary.totalChannels} pronto(s) | avancados ${snapshot.summary.readyAdvancedChannels}/${snapshot.summary.advancedChannels} | attachments ${snapshot.summary.channelsWithAttachments} | threads ${snapshot.summary.channelsWithThreads}.`,
-      `Fleet: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | pareados ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued} | advanced capability coverage ${snapshot.summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
+      `Fleet: ${snapshot.summary.onlineNodes}/${snapshot.summary.totalNodes} online | paired ${snapshot.summary.pairedNodes} | fila ${snapshot.summary.queuedInvocations} | stale ${snapshot.summary.staleQueued} | advanced capability coverage ${snapshot.summary.advancedCapabilityCoverage}/${ADVANCED_CAPABILITY_IDS.length}.`,
       `Transports: ${snapshot.summary.readyTransports}/${snapshot.summary.totalTransports} pronto(s) | live ${snapshot.summary.liveTransports} | attention ${snapshot.summary.transportAttention}.`,
       `Surfaces: ${snapshot.summary.readySurfaces}/${snapshot.summary.totalSurfaces} pronta(s) | primaria ${snapshot.summary.primarySurfaceReady ? 'ok' : 'pendente'} | remoto ${snapshot.summary.remoteReady ? 'ok' : 'pendente'}.`,
-      `Implementacao distribuida: ${snapshot.summary.implementationReady ? 'ready' : 'pending'} | infra ${snapshot.summary.infrastructureState}${snapshot.summary.infrastructureOfflineReason ? ` | ${snapshot.summary.infrastructureOfflineReason}` : ''}.`,
+      `Implementation distribuida: ${snapshot.summary.implementationReady ? 'ready' : 'pending'} | infra ${snapshot.summary.infrastructureState}${snapshot.summary.infrastructureOfflineReason ? ` | ${snapshot.summary.infrastructureOfflineReason}` : ''}.`,
     ];
 
     if (snapshot.focus.kind && snapshot.focus.label) {

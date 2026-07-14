@@ -111,7 +111,7 @@ function zavorthControlClassicClientCore() {
         if (stats.error) {
            cnt.innerHTML = `<div class="metric-card" style="grid-column: 1/-1"><strong>Erro</strong><div>${stats.error}</div></div>`;
            if (sidecarNode) {
-             sidecarNode.innerHTML = '<div class="muted">No foi possivel carregar sidecars.</div>';
+             sidecarNode.innerHTML = '<div class="muted">Could not carregar sidecars.</div>';
            }
            return;
         }

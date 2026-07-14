@@ -42,7 +42,7 @@ export function buildWorkspaceStrategyMessage(
   );
   lines.push(`- Curadoria de ferramentas: ${executionProfile.toolSelectionProfile}.`);
   lines.push(`- Formato de entrega esperado: ${executionProfile.deliveryProfile}.`);
-  lines.push(`- Rigor de verificacao final: ${executionProfile.verificationProfile}.`);
+  lines.push(`- Rigor de verificaction final: ${executionProfile.verificationProfile}.`);
   if (executionProfile.preferredToolNames.length > 0) {
     lines.push(`- Ferramentas priorizadas para esta tarefa: ${executionProfile.preferredToolNames.join(', ')}.`);
   }

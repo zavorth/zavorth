@@ -222,7 +222,7 @@ export class GoalLoopService {
       input.lastAssistantText,
     ].filter(Boolean).join('\n'));
     const normalized = fold(text);
-    if (/\b(done|completed|complete|finished|passou|concluido|concluida|finalizado|finalizada|resolvido|resolvida|qa passou|tests passed)\b/u.test(normalized)) {
+    if (/\b(done|completed|complete|finished|passou|completed|concluida|finalizado|finalizada|resolvido|resolvida|qa passou|tests passed)\b/u.test(normalized)) {
       return this.verdict({
         status: 'done',
         confidence: 0.82,

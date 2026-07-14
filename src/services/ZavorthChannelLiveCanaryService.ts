@@ -104,7 +104,7 @@ export class ZavorthChannelLiveCanaryService {
     if (status === 'needs_allowlist') return 'Configure recipient/channel allowlist before live proof.';
     if (status === 'needs_credentials') return 'Configure the required channel credential or local bridge reference.';
     if (status === 'needs_bridge') return 'Start or configure the local bridge before live proof.';
-    if (status === 'safe_outbox') return 'Outbound remains in safe outbox until credentials, allowlist and proof are ready.';
+    if (status === 'safe_outbox') return 'Outbound remains in safand outbox until credentials, allowlist and proof are ready.';
     if (status === 'catalog_only') return 'Choose and configure the concrete native route before live use.';
     return fallback;
   }

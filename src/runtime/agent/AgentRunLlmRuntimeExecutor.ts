@@ -30,7 +30,7 @@ import {
   type PrepareZavorthSpeculativeAutonomyInput,
   type ZavorthSpeculativeAutonomyResult,
   ZavorthSpeculativeAutonomyService,
-} from '../../services/ZavorthSpeculativeAutonomyService.js';
+} from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 
 import { AgentRunExecutorPipeline } from './AgentRunExecutorPipeline.js';
 import { AgentRunLlmRequestBuilder } from './AgentRunLlmRequestBuilder.js';
@@ -178,7 +178,27 @@ export class AgentRunLlmRuntimeExecutor {
     const messages = prepared.messages;
     const nativeTools = this.nativeToolLoop.resolveNativeTools(run, request);
     const assistantStreamState = this.createAssistantStreamState(run);
-    const options = this.withRuntimeAssistantStream(run, prepared.options, assistantStreamState);
+    let options = this.withRuntimeAssistantStream(run, prepared.options, assistantStreamState);
+    options.toolPolicy = {
+      ...(options.toolPolicy || {
+        requestedTools: request.requestedTools || [],
+        approvedToolIds: [],
+        approvalGranted: false,
+      }),
+      exposedTools: nativeTools.map((tool) => {
+        const governed = run.toolExposure.tools.find((entry) => entry.id === tool.name);
+        return {
+          id: tool.name,
+          risk: governed?.risk || 'safe',
+          requiresApproval: governed?.requiresApproval === true,
+        };
+      }),
+    };
+    // Voice barge-in: attach AbortSignal from duplex (in-process metadata / registry)
+    options = this.attachVoiceAbortSignal(options, run, request);
+    if (options.signal?.aborted) {
+      throw Object.assign(new Error('Voice turn aborted (barge-in).'), { name: 'AbortError' });
+    }
     pipeline.complete('input', `messages=${messages.length} tools=${nativeTools.length}`);
     pipeline.start('llm', `provider=${this.llmRuntime.getPreferredProviderName?.() || 'configured-provider'}`);
     await this.publishStreamEvent(run, 'agent.stream.lifecycle', {
@@ -648,12 +668,68 @@ export class AgentRunLlmRuntimeExecutor {
 
   private withNonEnumerableAbortSignal(options: LlmRunOptions, signal: AbortSignal): LlmRunOptions {
     const callOptions: LlmRunOptions = { ...options };
+    // Prefer AbortSignal.any when both voice barge-in and steering abort exist
+    const external = options.signal;
+    let combined: AbortSignal = signal;
+    if (external && external !== signal) {
+      const anyFn = (AbortSignal as unknown as { any?: (signals: AbortSignal[]) => AbortSignal }).any;
+      if (typeof anyFn === 'function') {
+        combined = anyFn([signal, external]);
+      } else if (external.aborted) {
+        combined = external;
+      } else {
+        const ctrl = new AbortController();
+        const abortBoth = () => {
+          try {
+            ctrl.abort(new Error('Voice turn aborted (barge-in).'));
+          } catch {
+            // ignore
+          }
+        };
+        external.addEventListener('abort', abortBoth, { once: true });
+        signal.addEventListener('abort', abortBoth, { once: true });
+        combined = ctrl.signal;
+      }
+    }
     Object.defineProperty(callOptions, 'signal', {
-      value: signal,
+      value: combined,
       enumerable: false,
       configurable: true,
     });
     return callOptions;
+  }
+
+  private attachVoiceAbortSignal(
+    options: LlmRunOptions,
+    run: UniversalAgentRun,
+    request: UniversalAgentRequest,
+  ): LlmRunOptions {
+    let voiceSignal: AbortSignal | null = null;
+    const meta = (run.metadata || request.metadata || {}) as Record<string, unknown>;
+    const direct = meta.voiceAbortSignal;
+    if (direct && typeof (direct as AbortSignal).aborted === 'boolean') {
+      voiceSignal = direct as AbortSignal;
+    } else {
+      try {
+        // Dynamic import path avoided for sync hot path — require registry
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const reg = require('../../services/voice/VoiceAgentAbortRegistry.js') as typeof import('../../services/voice/VoiceAgentAbortRegistry.js');
+        voiceSignal = reg.resolveAbortSignalFromRequestMetadata(meta);
+      } catch {
+        voiceSignal = null;
+      }
+    }
+    if (!voiceSignal) return options;
+    if (options.signal && options.signal !== voiceSignal) {
+      const anyFn = (AbortSignal as unknown as { any?: (signals: AbortSignal[]) => AbortSignal }).any;
+      if (typeof anyFn === 'function') {
+        return this.withNonEnumerableAbortSignal(
+          { ...options, signal: voiceSignal },
+          anyFn([options.signal, voiceSignal]),
+        );
+      }
+    }
+    return this.withNonEnumerableAbortSignal(options, voiceSignal);
   }
 
   private collectAssimilableSteeringFrames(
@@ -956,7 +1032,7 @@ export class AgentRunLlmRuntimeExecutor {
     }
     if (result.status === 'approved') {
       const planText = result.mutationPlan
-        ? ` Plano governado criado: ${result.mutationPlan.id}.`
+        ? ` Governed plan created: ${result.mutationPlan.id}.`
         : '';
       return [
         replyText,

@@ -69,7 +69,7 @@ const DEFAULT_RECIPES: SkillRecipeDefinition[] = [
   },
   {
     id: 'codebase-navigation',
-    label: 'Navegacao e depuracao rapida',
+    label: 'Navegaction e depuraction rapida',
     summary: 'Acelera leitura de codebase, mapeamento de fluxos e reproducoes no navegador.',
     rationale: 'Bom para onboarding tecnico e para entender mudancas upstream antes de sincronizar.',
     actionHint: 'Use quando o gargalo principal for orientacao, nao implementacao.',

@@ -77,7 +77,7 @@ Copy the printed prompt into Desktop chat after provider setup.
 
 ## Related
 
-- [WAVES-VALUE-INTELLIGENCE-HABIT.md](./WAVES-VALUE-INTELLIGENCE-HABIT.md) — V0–V7 foundation
-- [WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md) — V8–V12 residual (live multi-step, selection UX, launch)
 - [demo-scripts.md](./demo-scripts.md)
 - [value-baseline.md](./value-baseline.md)
+- [agent-tool-routing.md](./agent-tool-routing.md)
+- [launch-readiness.md](./launch-readiness.md)

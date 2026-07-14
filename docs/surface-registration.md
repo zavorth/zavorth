@@ -2,6 +2,29 @@
 
 Register a new operator surface without forking the agent core.
 
+## Voice on a new surface
+
+Voice is **capability-shared** (preference STT/TTS + agent), but **not automatic**.
+
+1. Prefer shared stacks:
+   - **Messaging attachments/webhooks** → `MessagingChannelVoiceIngest` / `WebhookGateway` audio extract
+   - **Desktop/web call** → duplex + experience voice APIs
+   - **Telegram-like** → `AudioHandler` + preference
+2. Declare capability:
+   ```ts
+   import { registerVoiceSurface } from '../src/services/voice/VoiceSurfaceCapabilityRegistry.js';
+   registerVoiceSurface({
+     surfaceId: 'my-channel',
+     label: 'My Channel',
+     modes: ['messaging-webhook'],
+     preferenceStt: true,
+     preferenceTts: true,
+   });
+   ```
+3. List: `GET /api/experience/voice/surfaces`
+
+See `docs/voice-surface-coverage.md`.
+
 ## 15-minute path
 
 ```ts

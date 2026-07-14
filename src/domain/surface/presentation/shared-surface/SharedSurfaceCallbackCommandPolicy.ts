@@ -89,7 +89,7 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
   const args = tokens.slice(1);
 
   if (!commandType || !SAFE_ARG_TOKEN_PATTERN.test(commandType.replace(/^\//, ''))) {
-    return { allowed: false, reason: 'Comando de callback invalido.' };
+    return { allowed: false, reason: 'Invalid callback command.' };
   }
 
   if (SAFE_NO_ARG_COMMANDS.has(commandType)) {
@@ -104,7 +104,7 @@ export function evaluateSharedSurfaceCommandCallback(value: unknown): SharedSurf
 
   if (commandType === '/model') {
     if (args.length !== 1 || !SAFE_MODEL_TOKEN_PATTERN.test(args[0])) {
-      return { allowed: false, reason: 'Callback de modelo invalido.' };
+      return { allowed: false, reason: 'Invalid model callback.' };
     }
     return { allowed: true, commandText: `${commandType} ${args[0]}`, commandType };
   }
@@ -158,7 +158,7 @@ function evaluateChannelCommand(args: string[]): SharedSurfaceCallbackCommandDec
   }
 
   if (args.some((arg) => !SAFE_ARG_TOKEN_PATTERN.test(arg))) {
-    return { allowed: false, reason: 'Callback de canal invalido.' };
+    return { allowed: false, reason: 'Invalid channel callback.' };
   }
 
   const firstArg = String(args[0] || '').trim().toLowerCase();

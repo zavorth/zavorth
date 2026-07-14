@@ -286,7 +286,7 @@ export class ToolRehearsalService {
         required: status === 'proposal' || status === 'waiting-approval',
         approvalId: previousApprovalId || null,
         title: 'Aprovar tool rehearsal',
-        question: 'Quer executar exatamente este ensaio governado?',
+        question: 'Do you want to run exactly this governed rehearsal?',
       },
       receipts: this.buildReceipts({ scopeId, preview, run, budget, status, approvalId: previousApprovalId }),
       policy: {
@@ -560,7 +560,7 @@ export class ToolRehearsalService {
       adjustments.push({
         id: 'tool-rehearsal:adjustment:none',
         label: 'Sem ajuste obrigatorio',
-        detail: 'O ensaio pode ser aprovado ou refinado pelo operador.',
+        detail: 'O ensaio pode ser aprovado ou refinado pelo operator.',
         commandHint: 'zavorth approve <approval-id>',
       });
     }

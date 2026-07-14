@@ -306,7 +306,7 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     flowId: 'publish_failed',
     label: 'Publish',
     executor: 'release',
-    healthyEvidence: 'Nao ha publish falho no snapshot operacional.',
+    healthyEvidence: 'There is no publish falho no snapshot operacional.',
     severity: 'high',
     actionLabel: 'Preparar reparo de publish',
     command: 'zavorth ops autorepair dryrun --json',
@@ -330,7 +330,7 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
   },
   cache_growth: {
     flowId: 'cache_growth',
-    label: 'Cache e temporarios',
+    label: 'Cache e temporarys',
     executor: 'storage',
     healthyEvidence: 'Hotspots de storage estao dentro do limite de revisao.',
     severity: 'medium',
@@ -347,7 +347,7 @@ const FLOW_DEFINITIONS: Record<ZavorthSelfHealFlowId, FlowDefinition> = {
     executor: 'node-mesh',
     healthyEvidence: 'Transportes remotos nao reportaram perda de sessao.',
     severity: 'medium',
-    actionLabel: 'Recuperacao padronizada do executor',
+    actionLabel: 'Recuperaction padronizada do executor',
     command: 'zavorth ops autorepair dryrun --json',
     applyCommand: 'zavorth ops autorepair --json',
     risk: 'medium',
@@ -936,7 +936,7 @@ export class ZavorthSelfHealControlPlaneService {
       force: input.force,
       goal: 'auto',
       requestedBy: input.requestedBy || 'cli-operator',
-      reason: 'Self-Heal aplicou recuperacao segura e supervisionada.',
+      reason: 'Self-Heal aplicou recuperaction segura e supervisionada.',
     } as AutoRepairRunInput);
 
     return {
@@ -1012,7 +1012,7 @@ export class ZavorthSelfHealControlPlaneService {
       },
       {
         id: 'recovery',
-        label: 'Recuperacao supervisionada',
+        label: 'Recuperaction supervisionada',
         maxCost: budgetLimit,
         estimatedCost: Number(budgetCost.toFixed(2)),
         remainingCost: Number((budgetLimit - budgetCost).toFixed(2)),
@@ -1145,12 +1145,12 @@ export class ZavorthSelfHealControlPlaneService {
     }
     if (status === 'applied') {
       return {
-        headline: 'Self-Heal aplicou recuperacao supervisionada.',
+        headline: 'Self-Heal aplicou recuperaction supervisionada.',
         operatorSummary: `${summary.actions} acao(oes) processadas com budget ${summary.budgetCost}/${summary.budgetLimit}.`,
       };
     }
     return {
-      headline: 'Self-Heal gerou um plano de recuperacao seguro.',
+      headline: 'Self-Heal gerou um plano de recuperaction seguro.',
       operatorSummary: `${summary.actions} acao(oes) prontas para apply supervisionado.`,
     };
   }

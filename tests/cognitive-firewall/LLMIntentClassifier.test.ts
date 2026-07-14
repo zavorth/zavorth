@@ -1,7 +1,6 @@
 import { LLMIntentClassifier } from '../../src/cognitive-firewall/LLMIntentClassifier';
 import type { ILlmProvider, LlmResponse } from '../../src/providers/ILlmProvider';
 
-// Mock ProviderFactory
 jest.mock('../../src/providers/ProviderFactory', () => ({
   ProviderFactory: {
     create: jest.fn(),
@@ -14,11 +13,11 @@ describe('LLMIntentClassifier', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockProvider = {
       name: 'mock',
       chat: jest.fn(),
-    };
+    } as any;
 
     const { ProviderFactory } = require('../../src/providers/ProviderFactory');
     ProviderFactory.create.mockReturnValue(mockProvider);
@@ -30,12 +29,12 @@ describe('LLMIntentClassifier', () => {
   });
 
   describe('classify', () => {
-    it('classifies file operation intent', async () => {
+    it('maps task free-text to full_toolset (not a capability category)', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
-          category: 'file_operation',
+          category: 'full_toolset',
           confidence: 0.9,
-          reason: 'File creation request',
+          reason: 'Task may need tools',
         }),
         toolCalls: [],
         finishReason: 'stop',
@@ -45,7 +44,7 @@ describe('LLMIntentClassifier', () => {
 
       const result = await classifier.classify('create a file called test.ts');
 
-      expect(result.category).toBe('file_operation');
+      expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.9);
       expect(result.isTrivialChat).toBe(false);
     });
@@ -70,7 +69,7 @@ describe('LLMIntentClassifier', () => {
       expect(result.isTrivialChat).toBe(true);
     });
 
-    it('classifies execution intent', async () => {
+    it('coerces legacy capability categories to full_toolset', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
           category: 'execution',
@@ -85,8 +84,7 @@ describe('LLMIntentClassifier', () => {
 
       const result = await classifier.classify('run npm test');
 
-      expect(result.category).toBe('execution');
-      expect(result.confidence).toBe(0.85);
+      expect(result.category).toBe('full_toolset');
     });
 
     it('handles invalid JSON response', async () => {
@@ -102,7 +100,6 @@ describe('LLMIntentClassifier', () => {
 
       expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.3);
-      expect(result.reason).toContain('failed');
     });
 
     it('handles invalid category', async () => {
@@ -121,14 +118,13 @@ describe('LLMIntentClassifier', () => {
       const result = await classifier.classify('test message');
 
       expect(result.category).toBe('full_toolset');
-      expect(result.confidence).toBe(0.3);
     });
 
     it('clamps confidence to valid range', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
           category: 'conversation',
-          confidence: 1.5, // Invalid
+          confidence: 1.5,
           reason: 'Test',
         }),
         toolCalls: [],
@@ -139,7 +135,7 @@ describe('LLMIntentClassifier', () => {
 
       const result = await classifier.classify('test message');
 
-      expect(result.confidence).toBe(1); // Clamped to 1
+      expect(result.confidence).toBe(1);
     });
 
     it('handles LLM failure gracefully', async () => {
@@ -149,7 +145,7 @@ describe('LLMIntentClassifier', () => {
 
       expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.3);
-      expect(result.reason).toContain('failed');
+      expect(result.reason).toMatch(/failed/i);
     });
   });
 
@@ -157,7 +153,7 @@ describe('LLMIntentClassifier', () => {
     it('caches classification results', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
-          category: 'file_operation',
+          category: 'full_toolset',
           confidence: 0.9,
           reason: 'Test',
         }),
@@ -167,11 +163,9 @@ describe('LLMIntentClassifier', () => {
 
       mockProvider.chat.mockResolvedValue(mockResponse);
 
-      // First call
       await classifier.classify('create a file');
       expect(mockProvider.chat).toHaveBeenCalledTimes(1);
 
-      // Second call should use cache
       await classifier.classify('create a file');
       expect(mockProvider.chat).toHaveBeenCalledTimes(1);
     });
@@ -179,7 +173,7 @@ describe('LLMIntentClassifier', () => {
     it('clears cache', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
-          category: 'file_operation',
+          category: 'full_toolset',
           confidence: 0.9,
           reason: 'Test',
         }),
@@ -205,12 +199,12 @@ describe('LLMIntentClassifier', () => {
   });
 
   describe('multilingual support', () => {
-    it('classifies Spanish intent', async () => {
+    it('classifies Spanish task as full_toolset', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
-          category: 'file_operation',
+          category: 'full_toolset',
           confidence: 0.85,
-          reason: 'Spanish file creation',
+          reason: 'Spanish file task',
         }),
         toolCalls: [],
         finishReason: 'stop',
@@ -220,11 +214,11 @@ describe('LLMIntentClassifier', () => {
 
       const result = await classifier.classify('crea un archivo de prueba');
 
-      expect(result.category).toBe('file_operation');
+      expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.85);
     });
 
-    it('classifies French intent', async () => {
+    it('classifies French greeting as conversation', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
           category: 'conversation',
@@ -243,12 +237,12 @@ describe('LLMIntentClassifier', () => {
       expect(result.confidence).toBe(0.9);
     });
 
-    it('classifies Japanese intent', async () => {
+    it('classifies Japanese task as full_toolset', async () => {
       const mockResponse: LlmResponse = {
         content: JSON.stringify({
-          category: 'file_operation',
+          category: 'full_toolset',
           confidence: 0.8,
-          reason: 'Japanese file creation',
+          reason: 'Japanese file task',
         }),
         toolCalls: [],
         finishReason: 'stop',
@@ -258,7 +252,7 @@ describe('LLMIntentClassifier', () => {
 
       const result = await classifier.classify('ファイルを作成してください');
 
-      expect(result.category).toBe('file_operation');
+      expect(result.category).toBe('full_toolset');
       expect(result.confidence).toBe(0.8);
     });
   });

@@ -45,7 +45,13 @@ function createTask(overrides: Partial<Task> = {}): Task {
 
 describe('TelegramConversationAutonomousService', () => {
   it('routes autonomous Telegram work through ZavorthAgentGateway instead of GraphRuntimeService', async () => {
-    const task = createTask();
+    const task = createTask({
+      metadata: {
+        responseDecision: {
+          requestedTools: ['write_file', 'shell.exec'],
+        },
+      },
+    });
     const ctx = {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;

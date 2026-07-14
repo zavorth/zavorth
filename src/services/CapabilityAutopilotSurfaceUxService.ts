@@ -233,7 +233,7 @@ export class CapabilityAutopilotSurfaceUxService {
       actions.push(this.action({
         id: 'resume-intent',
         kind: 'resume_intent',
-        label: surface === 'api' ? 'resume_intent' : 'Retomar pedido',
+        label: surface === 'api' ? 'resume_intent' : 'Resume request',
         description: 'Retomar exatamente o pedido original preservado no receipt.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${receipt.capabilityId}` : null,
         route: this.appendRoute(routeBase, 'resume'),

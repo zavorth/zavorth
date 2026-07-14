@@ -1,3 +1,8 @@
+/**
+ * Swarm sizing from structured signals only (requested tool ids + metadata).
+ * Free-text keywords never enable or size multi-agent work.
+ */
+
 export type SwarmWorkloadComplexityBand = 'simple' | 'moderate' | 'large' | 'massive';
 
 export type SwarmWorkloadAssessmentInput = {
@@ -19,110 +24,39 @@ export type SwarmWorkloadAssessment = {
   reasons: string[];
 };
 
-type WeightedSignal = {
-  id: string;
-  pattern: RegExp;
-  score: number;
-  reason: string;
-};
-
-const SCOPE_SIGNALS: WeightedSignal[] = [
-  {
-    id: 'entire-workspace',
-    pattern: /\b(todo|toda|todos|todas|inteiro|inteira|completo|completa)\b[\s\S]{0,80}\b(zavorth|projeto|repo|repositorio|repository|workspace|codigo|codebase|monorepo|base)\b/i,
-    score: 4,
-    reason: 'escopo cobre projeto/workspace inteiro',
-  },
-  {
-    id: 'many-surfaces',
-    pattern: /\b(zavorthControl|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b[\s\S]{0,160}\b(zavorthControl|cli|terminal|api|runtime|provider|providers|canais|channels|memoria|memory|profile|profiles|swarm|sandbox)\b/i,
-    score: 3,
-    reason: 'pedido cruza varias superficies do produto',
-  },
-  {
-    id: 'large-collection',
-    pattern: /\b(todos os arquivos|todas as pastas|muitos arquivos|muitos documentos|lista grande|matriz completa|todos os providers|todos os canais|todos os testes)\b/i,
-    score: 4,
-    reason: 'pedido envolve colecao grande de itens',
-  },
-];
-
-const WORK_KIND_SIGNALS: WeightedSignal[] = [
-  {
-    id: 'deep-audit',
-    pattern: /\b(auditoria|audite|audit|verificacao completa|verifique tudo|deep review|revisao profunda|analise profunda)\b/i,
-    score: 4,
-    reason: 'trabalho pede auditoria ou revisao profunda',
-  },
-  {
-    id: 'architecture-or-security',
-    pattern: /\b(arquitetura|architecture|ddd|seguranca|security|risco|riscos|vulnerabilidade|compliance|governanca)\b/i,
-    score: 3,
-    reason: 'trabalho exige revisao especializada e validacao cruzada',
-  },
-  {
-    id: 'migration-or-refactor',
-    pattern: /\b(refator|migrar|migracao|reestrutur|consolidar|modernizar|organizar arquitetura|limpeza arquitetural)\b/i,
-    score: 3,
-    reason: 'trabalho parece migracao/refatoracao ampla',
-  },
-  {
-    id: 'compare-systems',
-    pattern: /\b(compare|comparar|paridade|nivel|equivalente|lado a lado)\b[\s\S]{0,120}\b(zavorth|projeto|sistema|agente|runtime|plataforma)\b/i,
-    score: 3,
-    reason: 'comparacao ampla se beneficia de decomposicao paralela',
-  },
-];
-
-const QUALITY_SIGNALS: WeightedSignal[] = [
-  {
-    id: 'multi-validation',
-    pattern: /\b(testes?|e2e|qa|validar|valide|provar|prove|confirmar|garantir|regressao|regression|smoke)\b/i,
-    score: 2,
-    reason: 'pedido exige validacao e evidencia',
-  },
-  {
-    id: 'long-form',
-    pattern: /\b(profundo|profunda|completo|completa|exaustivo|exaustiva|detalhado|detalhada|end-to-end|ponta a ponta)\b/i,
-    score: 2,
-    reason: 'pedido pede profundidade alta',
-  },
-  {
-    id: 'independent-review',
-    pattern: /\b(revisores?|criticos?|validadores?|dupla checagem|cross[-\s]?check|conflitos?|contradicoes?)\b/i,
-    score: 2,
-    reason: 'pedido pede revisao independente ou deteccao de conflito',
-  },
-];
-
-const EXPLICIT_SWARM_PATTERN = /\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|agentes em paralelo|decomponha com agentes|workers?)\b/i;
-const AGENT_COUNT_PATTERN = /\b(\d{1,4}(?:[.,]\d{3})?)\s*(?:subagentes?|agentes?|workers?)\b/i;
+const SWARM_TOOL_IDS = new Set([
+  'swarm.run',
+  'swarm.scale',
+  'swarm.massive',
+  'swarm.scale.live',
+  'zavorth_delegate',
+  'agent_manager',
+  'agent_consensus_engine',
+]);
 
 export function assessSwarmWorkload(input: SwarmWorkloadAssessmentInput): SwarmWorkloadAssessment {
-  const text = normalizeSearchText(input.text);
   const requestedTools = normalizeList(input.requestedTools);
   const metadata = input.metadata || {};
   const reasons: string[] = [];
   let score = 0;
 
-  for (const signal of [...SCOPE_SIGNALS, ...WORK_KIND_SIGNALS, ...QUALITY_SIGNALS]) {
-    if (!signal.pattern.test(text)) continue;
-    score += signal.score;
-    reasons.push(signal.reason);
+  const toolSwarmRequest = requestedTools.some((tool) => SWARM_TOOL_IDS.has(tool));
+  const metadataSwarm = metadata.swarmScale === true || metadata.massiveSwarm === true;
+  const explicitSwarmRequest = toolSwarmRequest || metadataSwarm;
+
+  if (toolSwarmRequest) {
+    score += 4;
+    reasons.push('requested swarm/team tools');
+  }
+  if (metadataSwarm) {
+    score += 4;
+    reasons.push('metadata requested swarm scale');
   }
 
-  const explicitAgentCount = resolveExplicitAgentCount(text, metadata);
-  const explicitSwarmRequest = EXPLICIT_SWARM_PATTERN.test(text)
-    || requestedTools.some((tool) => ['swarm.run', 'swarm.scale', 'swarm.massive', 'swarm.scale.live'].includes(tool))
-    || metadata.swarmScale === true
-    || metadata.massiveSwarm === true;
-  if (explicitSwarmRequest) {
-    score += 4;
-    reasons.push('usuario pediu decomposicao por agentes/subagentes');
-  }
+  const explicitAgentCount = resolveExplicitAgentCount(metadata);
   if (explicitAgentCount !== null) {
     score += explicitAgentCount >= 20 ? 4 : 2;
-    reasons.push(`usuario especificou ${explicitAgentCount} agente(s)`);
+    reasons.push(`metadata agent count: ${explicitAgentCount}`);
   }
 
   const band = resolveBand(score, explicitAgentCount);
@@ -131,10 +65,9 @@ export function assessSwarmWorkload(input: SwarmWorkloadAssessmentInput): SwarmW
     score,
     explicitAgentCount,
   });
-  const shouldUseSwarm = explicitSwarmRequest || score >= 8;
+  const shouldUseSwarm = explicitSwarmRequest || (explicitAgentCount !== null && explicitAgentCount >= 2);
   const shouldUseScalePlane = Boolean(
-    explicitAgentCount !== null && explicitAgentCount >= 20
-    || score >= 10
+    (explicitAgentCount !== null && explicitAgentCount >= 20)
     || requestedTools.some((tool) => ['swarm.scale', 'swarm.massive', 'swarm.scale.live'].includes(tool))
     || metadata.swarmScale === true
     || metadata.massiveSwarm === true,
@@ -142,27 +75,22 @@ export function assessSwarmWorkload(input: SwarmWorkloadAssessmentInput): SwarmW
 
   return {
     score,
-    band,
+    band: shouldUseSwarm ? band : 'simple',
     shouldUseSwarm,
-    shouldUseScalePlane,
+    shouldUseScalePlane: shouldUseSwarm && shouldUseScalePlane,
     explicitSwarmRequest,
     explicitAgentCount,
-    recommendedAgents,
+    recommendedAgents: shouldUseSwarm ? recommendedAgents : 1,
     recommendedMaxSteps: band === 'massive' || recommendedAgents >= 80 ? 4000 : Math.max(80, recommendedAgents * 4),
     recommendedMaxConcurrency: recommendedAgents <= 8
       ? Math.max(1, recommendedAgents)
       : recommendedAgents <= 80
         ? 16
         : 30,
-    reasons: reasons.length > 0 ? Array.from(new Set(reasons)) : ['pedido nao exige decomposicao paralela'],
+    reasons: reasons.length > 0
+      ? Array.from(new Set(reasons))
+      : ['no structured multi-agent signal'],
   };
-}
-
-function normalizeSearchText(value: unknown): string {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
 }
 
 function normalizeList(value: unknown): string[] {
@@ -170,22 +98,13 @@ function normalizeList(value: unknown): string[] {
   return Array.from(new Set(value.map((entry) => String(entry || '').trim()).filter(Boolean)));
 }
 
-function resolveExplicitAgentCount(text: string, metadata: Record<string, unknown>): number | null {
-  const metadataCount = firstPositiveInteger(
+function resolveExplicitAgentCount(metadata: Record<string, unknown>): number | null {
+  return firstPositiveInteger(
     metadata.desiredAgents,
     metadata.agentCount,
     metadata.swarmAgents,
     metadata.swarmScaleAgents,
   );
-  if (metadataCount !== null) {
-    return clamp(metadataCount, 1, 4000);
-  }
-  const match = text.match(AGENT_COUNT_PATTERN);
-  if (!match) {
-    return null;
-  }
-  const parsed = Number(match[1].replace(/[.,]/g, ''));
-  return Number.isFinite(parsed) && parsed > 0 ? clamp(parsed, 1, 4000) : null;
 }
 
 function firstPositiveInteger(...values: unknown[]): number | null {
@@ -193,7 +112,7 @@ function firstPositiveInteger(...values: unknown[]): number | null {
     if (value === undefined || value === null || value === '') continue;
     const parsed = Number(value);
     if (Number.isFinite(parsed) && parsed > 0) {
-      return Math.trunc(parsed);
+      return clamp(Math.trunc(parsed), 1, 4000);
     }
   }
   return null;
@@ -221,5 +140,5 @@ function resolveRecommendedAgents(input: {
 }
 
 function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, Math.trunc(value)));
+  return Math.max(min, Math.min(max, value));
 }

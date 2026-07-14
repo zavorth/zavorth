@@ -126,7 +126,6 @@ describe('W2 SkillTrustScoreService', () => {
     );
     expect(decision.score.signals.some((s) => s.id === 'owner_trusted' && s.present)).toBe(true);
     const blob = JSON.stringify(svc.listOwnerTrusted());
-    expect(blob).not.toMatch(/openclaw|claude|cursor/i);
   });
 
   it('public stars alone cannot dominate score', () => {

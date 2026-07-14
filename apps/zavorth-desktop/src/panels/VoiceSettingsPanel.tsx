@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import {
+  loadVoiceMediaPlane,
   loadVoiceMetrics,
   loadVoicePreference,
+  playVoiceAudioBase64,
   saveVoicePreference,
+  synthesizeVoiceTts,
   testVoiceConfig,
+  type DesktopVoiceMediaPlane,
   type DesktopVoiceMetricsSnapshot,
   type DesktopVoicePreference,
 } from '../apiClient';
 import { errorMessage } from '../lib/errors';
 import { useDuplexCall } from '../voice/useDuplexCall';
+import { VoiceCallStatusBanner } from '../voice/VoiceCallStatusBanner';
+import { $sessionId, setMessages } from '../store/session';
+import { $runtimeCapabilities } from '../store/workspace';
 
 const STT_PROVIDERS = [
   { id: 'none', label: 'None (disabled — type instead)' },
@@ -46,6 +54,16 @@ function speakInBrowser(text: string, language: string) {
  * Desktop voice sovereignty UI — STT/TTS only from user choice.
  */
 export function VoiceSettingsPanel() {
+  const experienceSessionId = useStore($sessionId);
+  const runtimeCapabilities = useStore($runtimeCapabilities);
+  const workspacePath =
+    String(
+      (runtimeCapabilities as { workspace?: { path?: string; id?: string } } | null)?.workspace
+        ?.path ||
+        (runtimeCapabilities as { workspace?: { id?: string } } | null)?.workspace?.id ||
+        '',
+    ).trim() || null;
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -53,6 +71,7 @@ export function VoiceSettingsPanel() {
   const [status, setStatus] = useState<string | null>(null);
   const [describe, setDescribe] = useState('');
   const [metrics, setMetrics] = useState<DesktopVoiceMetricsSnapshot | null>(null);
+  const [mediaPlane, setMediaPlane] = useState<DesktopVoiceMediaPlane | null>(null);
   const [duplexLog, setDuplexLog] = useState<string>('');
   const [probeLog, setProbeLog] = useState<string>('');
 
@@ -64,8 +83,32 @@ export function VoiceSettingsPanel() {
   const [ttsProvider, setTtsProvider] = useState('none');
   const [ttsVoiceId, setTtsVoiceId] = useState('');
 
+  const injectChat = useCallback((turn: { userText: string; agentText: string }) => {
+    const now = new Date().toISOString();
+    setMessages((current) => [
+      ...current,
+      {
+        id: `voice-user-${Date.now()}`,
+        role: 'user',
+        content: turn.userText,
+        at: now,
+        title: 'Voice',
+      },
+      {
+        id: `voice-agent-${Date.now() + 1}`,
+        role: 'assistant',
+        content: turn.agentText,
+        at: now,
+        title: 'Voice',
+      },
+    ]);
+  }, []);
+
   const duplex = useDuplexCall({
     language: sttLanguage,
+    experienceSessionId,
+    workspace: workspacePath,
+    injectChat,
     onNotice: (message) => setError(message),
     onLog: (raw) => setDuplexLog(raw),
   });
@@ -85,13 +128,15 @@ export function VoiceSettingsPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [prefRes, metricsRes] = await Promise.all([
+      const [prefRes, metricsRes, planeRes] = await Promise.all([
         loadVoicePreference(),
         loadVoiceMetrics(20).catch(() => null),
+        loadVoiceMediaPlane().catch(() => null),
       ]);
       applyPreference(prefRes.preference);
       setDescribe(String(prefRes.describe || ''));
       setMetrics(metricsRes);
+      setMediaPlane(planeRes);
       if (prefRes.resolve && prefRes.resolve.ok === false) {
         setStatus(String(prefRes.resolve.message || 'STT not configured'));
       } else if (prefRes.resolve?.ok) {
@@ -183,15 +228,47 @@ export function VoiceSettingsPanel() {
         setStatus(String(res.result?.message || (sttOk ? 'STT ok' : 'STT failed')));
       } else if (action === 'tts') {
         setStatus(String(res.result?.message || (ttsOk ? 'TTS ok' : 'TTS failed')));
-        if (res.result?.ok && res.result.sampleText) {
-          speakInBrowser(res.result.sampleText, sttLanguage);
+        // Prefer backend edge-tts/gemini; fall back to browser speechSynthesis
+        try {
+          const synth = await synthesizeVoiceTts({
+            text: res.result?.sampleText || 'Zavorth voice test.',
+            language: sttLanguage,
+            force: true,
+            surface: 'desktop',
+          });
+          if (synth.result?.audioBase64 && synth.result.mimeType) {
+            await playVoiceAudioBase64(synth.result.mimeType, synth.result.audioBase64);
+            setStatus(`TTS ok via backend (${synth.result.provider || 'tts'})`);
+          } else if (res.result?.ok && res.result.sampleText) {
+            speakInBrowser(res.result.sampleText, sttLanguage);
+          }
+        } catch {
+          if (res.result?.ok && res.result.sampleText) {
+            speakInBrowser(res.result.sampleText, sttLanguage);
+          }
         }
       } else {
         setStatus(
           `Probe: STT ${res.result?.stt?.ok ? 'ok' : 'fail'} · TTS ${res.result?.tts?.ok ? 'ok' : 'fail'}`,
         );
-        if (res.result?.tts?.ok && res.result.tts.sampleText) {
-          speakInBrowser(res.result.tts.sampleText, sttLanguage);
+        if (res.result?.tts?.ok) {
+          try {
+            const synth = await synthesizeVoiceTts({
+              text: res.result.tts.sampleText || 'Zavorth voice test.',
+              language: sttLanguage,
+              force: true,
+              surface: 'desktop',
+            });
+            if (synth.result?.audioBase64 && synth.result.mimeType) {
+              await playVoiceAudioBase64(synth.result.mimeType, synth.result.audioBase64);
+            } else if (res.result.tts.sampleText) {
+              speakInBrowser(res.result.tts.sampleText, sttLanguage);
+            }
+          } catch {
+            if (res.result.tts.sampleText) {
+              speakInBrowser(res.result.tts.sampleText, sttLanguage);
+            }
+          }
         }
       }
       await loadVoiceMetrics(20)
@@ -357,6 +434,23 @@ export function VoiceSettingsPanel() {
       ) : null}
 
       <div className="zvd-settings-card">
+        <div className="zvd-settings-card-title">Media plane</div>
+        {mediaPlane ? (
+          <ul className="text-xs space-y-1">
+            <li>
+              Mode: <strong>{mediaPlane.mode || '—'}</strong>
+            </li>
+            <li>{mediaPlane.reason}</li>
+            {mediaPlane.installHint ? (
+              <li className="text-gray-500">{mediaPlane.installHint}</li>
+            ) : null}
+          </ul>
+        ) : (
+          <p className="text-xs text-gray-500">Media plane info unavailable.</p>
+        )}
+      </div>
+
+      <div className="zvd-settings-card">
         <div className="zvd-settings-card-title">Metrics (Phase 4)</div>
         {metrics ? (
           <ul className="text-xs space-y-1">
@@ -381,10 +475,20 @@ export function VoiceSettingsPanel() {
       </div>
 
       <div className="zvd-settings-card">
-        <div className="zvd-settings-card-title">Realtime duplex (call-like)</div>
+        <div className="zvd-settings-card-title">Realtime duplex (VAD + WebRTC + agent)</div>
         <p className="zvd-settings-card-desc">
-          Continuous mic (browser SpeechRecognition) → agent turn → spoken reply, with barge-in while
-          speaking. Not WebRTC media streaming; session state is turn-coordinated with simultaneous listen.
+          Bound to Desktop thread session. MediaRecorder + browser VAD → server utterance assembly →
+          Experience agent → backend TTS. RTCPeerConnection offer/auto-answer/ICE runs in parallel.
+          Turns are injected into the chat transcript.
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          Thread: <code>{experienceSessionId || 'desktop-main'}</code>
+          {workspacePath ? (
+            <>
+              {' '}
+              · workspace: <code>{workspacePath}</code>
+            </>
+          ) : null}
         </p>
         <div className="flex flex-wrap gap-2 mt-2">
           <button
@@ -416,10 +520,27 @@ export function VoiceSettingsPanel() {
           </button>
         </div>
         {duplex.active ? (
-          <p className="text-xs mt-2">
-            Session: {duplex.sessionId} · phase: <strong>{duplex.phase}</strong>
-            {duplex.interim ? ` · hearing: “${duplex.interim}”` : ''}
-          </p>
+          <div className="mt-3">
+            <VoiceCallStatusBanner
+              active={duplex.active}
+              phase={duplex.phase}
+              webrtcState={duplex.webrtcState}
+              mediaMode={duplex.mediaMode}
+              mediaPlane={duplex.mediaPlane}
+              busy={duplex.busy}
+              lastError={duplex.lastError}
+              rms={duplex.rms}
+              interim={duplex.interim}
+              titleLabel="Voice call"
+              endLabel="End"
+              onEnd={() => void duplex.end()}
+            />
+            <p className="text-xs mt-2 text-gray-500">
+              Session {duplex.sessionId?.slice(0, 8)}…
+              {duplex.signalId ? ` · webrtc ${duplex.signalId.slice(0, 8)}…` : ''}
+              {duplex.statusLabel ? ` · ${duplex.statusLabel}` : ''}
+            </p>
+          </div>
         ) : null}
         {duplexLog ? (
           <pre className="text-xs bg-black/20 p-2 rounded mt-2 max-h-32 overflow-auto">{duplexLog}</pre>

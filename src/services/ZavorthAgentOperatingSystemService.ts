@@ -67,7 +67,7 @@ const AGENT_OS_ROLES: ZavorthAgentOperatingSystemRoleSnapshot[] = [
     label: 'Spec Agent',
     executor: 'codex',
     writeBoundary: 'spec.md',
-    responsibility: 'Clarifica contrato, requisitos e criterios de aceitacao da feature.',
+    responsibility: 'Clarifica contrato, requisitos e criterios de aceitaction da feature.',
   },
   {
     id: 'planner',

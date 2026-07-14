@@ -53,11 +53,11 @@ function buildCliDomainsSnapshot(
 function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
   const headline = snapshot.summary.pending > 0
     ? `Ainda ha ${formatCount(snapshot.summary.pending, 'dominio', 'dominios')} needs attention.`
-    : 'Todos os dominios principais estao inicializados.';
+    : 'All primary domains are initialized.';
   return renderCliScreen({
-    eyebrow: 'Dominios',
+    eyebrow: 'Domains',
     eyebrowTone: snapshot.summary.pending > 0 ? 'warning' : 'success',
-    title: 'Dominios do Zavorth',
+    title: 'Zavorth domains',
     summary: headline,
     mode: 'compact',
     showWordmark: false,
@@ -65,8 +65,8 @@ function formatCliDomainsSnapshot(snapshot: CliDomainsSnapshot): string {
       {
         title: 'Agora',
         lines: [
-          `- inicializados: ${snapshot.summary.initialized}/${snapshot.summary.total}`,
-          `- pendings: ${snapshot.summary.pending}`,
+          `- initialized: ${snapshot.summary.initialized}/${snapshot.summary.total}`,
+          `- pending: ${snapshot.summary.pending}`,
         ],
         tone: snapshot.summary.pending > 0 ? 'warning' : 'success',
       },
@@ -132,14 +132,6 @@ function normalizeStatusAttentionItem(item: string): string {
     return 'The remote connection is not ready yet.';
   }
 
-  if (/transport remoto recomenda:/i.test(normalized)) {
-    return normalized.replace(/^Transporte remoto recomenda:/i, 'Para liberar o acesso remoto:');
-  }
-
-  if (/sidecar habilitado fora do estado ready/i.test(normalized)) {
-    return 'Existe um componente local pedindo reconciliacao segura.';
-  }
-
   if (/security posture needs attention/i.test(normalized)) {
     return 'Basic security still needs attention.';
   }
@@ -150,17 +142,17 @@ function normalizeStatusAttentionItem(item: string): string {
 
   return normalized
     .replace(/\bruntime\b/gi, 'Zavorth')
-    .replace(/\bnodes\b/gi, 'dispositivos');
+    .replace(/\bnodes\b/gi, 'devices');
 }
 
 function normalizeStatusActionLabel(label: string | null | undefined): string | null {
   const normalized = sanitizeHumanCliText(label || '').trim();
   if (!normalized) {
-    return 'Siga o passo principal sugerido.';
+    return 'Follow the main suggested step.';
   }
 
-  if (/reconciliar runtime local/i.test(normalized)) {
-    return 'Reconciliar o Zavorth local';
+  if (/reconcile local runtime/i.test(normalized)) {
+    return 'Reconcile local Zavorth';
   }
 
   return normalized.replace(/\bruntime\b/gi, 'Zavorth');
@@ -197,14 +189,14 @@ function resolveStatusPrimaryAction(
 
   if (normalizedCommand && !isAdvancedStatusCommand(normalizedCommand)) {
     return {
-      label: normalizedLabel || 'Siga o passo principal sugerido.',
+      label: normalizedLabel || 'Follow the main suggested step.',
       command: normalizedCommand,
     };
   }
 
   if (attentionItems.length > 0) {
     return {
-      label: 'Tentar recuperar a entrada principal do Zavorth',
+      label: 'Try recovering the main Zavorth entry',
       command: 'zavorth go',
     };
   }
@@ -292,7 +284,7 @@ function formatStatusNodesLine(snapshot: CliStatusSnapshot): string | null {
     return `- ${snapshot.nodes.total} dispositivo${snapshot.nodes.total === 1 ? '' : 's'} conectado${snapshot.nodes.total === 1 ? '' : 's'} now.`;
   }
 
-  return `- ${snapshot.nodes.online}/${snapshot.nodes.total} dispositivos estao online now.`;
+  return `- ${snapshot.nodes.online}/${snapshot.nodes.total} devices are online now.`;
 }
 
 function formatStatusCatalogLine(snapshot: CliStatusSnapshot): string | null {
@@ -329,7 +321,7 @@ function buildStatusAttentionItems(snapshot: CliStatusSnapshot): string[] {
   }
 
   if (snapshot.nodes && snapshot.nodes.staleQueued > 0) {
-    items.add(`${formatCount(snapshot.nodes.staleQueued, 'item antigo esperando em dispositivos', 'itens antigos esperando em dispositivos')}.`);
+    items.add(`${formatCount(snapshot.nodes.staleQueued, 'stale item waiting on devices', 'stale items waiting on devices')}.`);
   }
 
   return Array.from(items);
@@ -611,7 +603,7 @@ function formatCliStatusSnapshot(snapshot: CliStatusSnapshot): string {
     }));
   }
 
-  // 2. Panel: Cognição & Autonomia
+  // 2. Panel: Cognition & Autonomy
   const cognitionLines: string[] = [];
   const sessionsCount = snapshot.sessions ? snapshot.sessions.total : 0;
   cognitionLines.push(i18n.t('cli.status.sessions', {

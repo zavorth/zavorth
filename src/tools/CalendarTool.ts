@@ -169,7 +169,7 @@ export class CalendarTool extends BaseTool {
     fs.writeFileSync(icalPath, ical, 'utf-8');
 
     const lines: string[] = [];
-    lines.push(`Evento criado com sucesso.`);
+    lines.push(`Event created successfully.`);
     lines.push(`  - UID: ${event.uid}`);
     lines.push(`  - Titulo: ${event.title}`);
     lines.push(`  - Inicio: ${event.start_time}`);
@@ -220,7 +220,7 @@ export class CalendarTool extends BaseTool {
     event.updated_at = new Date().toISOString();
 
     this.saveEvents(events);
-    return `Evento "${event.uid}" atualizado com sucesso.`;
+    return `Evento "${event.uid}" updated successfully.`;
   }
 
   private deleteEvent(args: Record<string, unknown>): string {
@@ -238,7 +238,7 @@ export class CalendarTool extends BaseTool {
       fs.unlinkSync(icalPath);
     }
 
-    return `Evento "${removed.uid}" (${removed.title}) removido com sucesso.`;
+    return `Evento "${removed.uid}" (${removed.title}) removed successfully.`;
   }
 
   private toICal(event: CalendarEvent): string {

@@ -355,7 +355,7 @@ export class ZavorthCapabilityMeshService {
           canExecuteNow: false,
           reasons: [
             'Pode reduzir dependencia futura de agente externo.',
-            'Importacao/adaptacao exige revisao de origem, policy e testes.',
+            'Importacao/adaptaction exige revisao de origem, policy e testes.',
           ],
           evidence: [`profile=${profile.id}`, `adapter=${profile.adapter}`],
           command: `zavorth capability-mesh --request ${quoteArg(requestText)} --adapt-from-agent ${profile.id}`,

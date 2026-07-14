@@ -57,7 +57,7 @@ export class PolicyEngine {
     const violations: PolicyViolation[] = [];
     const warnings: PolicyViolation[] = [];
 
-    // Regra 1: Plano estruturado obrigatório
+    // Rule 1: Structured plan required
     if (this.policy.require_structured_plan && (!plan.steps || plan.steps.length === 0)) {
       violations.push({
         rule: 'REQUIRE_STRUCTURED_PLAN',
@@ -71,7 +71,7 @@ export class PolicyEngine {
       violations.push({
         rule: 'MAX_OPERATIONS_EXCEEDED',
         severity: 'BLOCK',
-        detail: `Plano contém ${plan.steps.length} operações. Máximo permitido: ${this.policy.max_file_operations_per_plan}.`,
+        detail: `Plan contains ${plan.steps.length} operations. Maximum allowed: ${this.policy.max_file_operations_per_plan}.`,
       });
     }
 
@@ -128,7 +128,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um comando é bloqueado pela política.
+   * Verifica se um comando é blocked pela policy.
    */
   public isCommandBlocked(command: string): boolean {
     const normalized = command.trim().toLowerCase();
@@ -152,7 +152,7 @@ export class PolicyEngine {
   }
 
   /**
-   * Verifica se um workspace é permitido.
+   * Verifica se um workspace é allowed.
    */
   public isWorkspaceAllowed(workspace: string): boolean {
     return WorkspaceResolver.isWorkspaceAllowed(workspace);
@@ -173,14 +173,14 @@ export class PolicyEngine {
   }
 
   /**
-   * Retorna o timeout máximo permitido para comandos.
+   * Retorna o timeout máximo allowed para comandos.
    */
   public getMaxCommandTimeout(): number {
     return this.policy.max_command_timeout_seconds;
   }
 
   /**
-   * Retorna a política carregada (somente leitura).
+   * Retorna a policy carregada (somente leitura).
    */
   public getPolicy(): Readonly<SecurityPolicy> {
     return this.policy;
@@ -193,7 +193,7 @@ export class PolicyEngine {
         violations.push({
           rule: 'BLOCKED_COMMAND',
           severity: 'BLOCK',
-          detail: `Comando bloqueado pela política: '${step.command}'`,
+          detail: `Command blocked by policy: '${step.command}'`,
           step_id: step.step_id,
         });
       }
@@ -206,7 +206,7 @@ export class PolicyEngine {
           violations.push({
             rule: 'BLOCKED_PATH',
             severity: 'BLOCK',
-            detail: `Path bloqueado pela política: '${filePath}'`,
+            detail: `Path blocked by policy: '${filePath}'`,
             step_id: step.step_id,
           });
         }
@@ -215,7 +215,7 @@ export class PolicyEngine {
           warnings.push({
             rule: 'SENSITIVE_PATH',
             severity: 'WARN',
-            detail: `Path sensível detectado: '${filePath}'`,
+            detail: `Sensitive path detected: '${filePath}'`,
             step_id: step.step_id,
           });
         }
@@ -227,7 +227,7 @@ export class PolicyEngine {
       warnings.push({
         rule: 'SENSITIVE_STEP',
         severity: 'WARN',
-        detail: `Step marcado como sensível: '${step.description}'`,
+        detail: `Step marked as sensitive: '${step.description}'`,
         step_id: step.step_id,
       });
     }

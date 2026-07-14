@@ -30,7 +30,7 @@ describe('ZavorthHumanSuperpowersService', () => {
     expect(snapshot.digestLines.join('\n')).toMatch(/Conversar|Telegram/i);
   });
 
-  it('does not match free-text NLU (Hermes-style) but still finds powers by need', () => {
+  it('does not match free-text NLU (agent-first) but still finds powers by need', () => {
     const service = new ZavorthHumanSuperpowersService({ projectRoot: tempDir, env: {} });
     expect(service.matchNaturalCommand('o que voce sabe fazer?')).toBeNull();
     expect(service.matchNaturalCommand('me ajude com arquivos')).toBeNull();

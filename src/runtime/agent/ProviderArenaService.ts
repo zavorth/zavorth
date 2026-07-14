@@ -544,7 +544,7 @@ function buildCatalogCandidate(route: AccessRouteCatalogEntry, budget: LooseReco
     healthScore: scoreHealth(healthStatus, ready),
     source: 'catalog' as const,
     explanation: [
-      'Provider Mesh catalogou esta rota.',
+      'Provider Mesh catalogu esta rota.',
       route.issue ? `Issue: ${route.issue}` : '',
       route.health?.message ? `Health: ${route.health.message}` : '',
     ].filter(Boolean),

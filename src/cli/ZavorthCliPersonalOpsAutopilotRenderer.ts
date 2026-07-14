@@ -116,7 +116,7 @@ export function formatPersonalOpsAutopilotSnapshot(
     `- contract: ${snapshot.contractVersion}`,
     `- run: ${snapshot.identifiers.runId}`,
     `- status: ${snapshot.status}`,
-    `- sugestoes: ${snapshot.summary.suggestionCount}`,
+    `- suggestions: ${snapshot.summary.suggestionCount}`,
     `- atencao: ${snapshot.summary.attentionCount}`,
     `- approval: ${snapshot.summary.approvalRequiredCount}`,
     `- preview: ${snapshot.summary.previewAvailableCount}`,
@@ -139,7 +139,7 @@ export function formatPersonalOpsAutopilotSnapshot(
   lines.push('', 'Politica');
   lines.push('- no mutable action was executed');
   lines.push('- autorepair was not started');
-  lines.push('- mutacoes exigem preview e approval');
+  lines.push('- mutations exigem preview e approval');
   lines.push('- suggestions use receipts and do not serialize secrets');
 
   lines.push('', 'Superficies');

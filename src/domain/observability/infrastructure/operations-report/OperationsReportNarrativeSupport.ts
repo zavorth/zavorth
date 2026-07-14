@@ -73,7 +73,7 @@ export class OperationsReportNarrativeSupport {
         this.describeLocalChannelSummary(
           slackChannel,
           'Slack',
-          'canal(is)',
+          'channel(s)',
           this.resolveLocalChannelModeLabel(slackChannel.mode, 'slack'),
         ),
       );
@@ -149,7 +149,7 @@ export class OperationsReportNarrativeSupport {
     }
     return summary.pendingOnboardingCount > 0
       ? `${summary.totalCount} observados | onboarding pendente ${summary.pendingOnboardingCount}`
-      : `${summary.totalCount} observados | onboarding em dia`;
+      : `${summary.totalCount} observed | onboarding current`;
   }
 
   public buildNodeMeshSummary(cockpit: OperationsCockpitSnapshot): string {
@@ -177,15 +177,15 @@ export class OperationsReportNarrativeSupport {
       return 'sem smoke recente';
     }
     if (smoke.status === 'running') {
-      return `rodando | ${this.formatRelativeTime(smoke.checkedAt)}`;
+      return `running | ${this.formatRelativeTime(smoke.checkedAt)}`;
     }
     if (smoke.status === 'failed') {
       return `falhou | ${this.formatRelativeTime(smoke.checkedAt)}`;
     }
     if (smoke.stale) {
-      return `vencido | ${this.formatRelativeTime(smoke.checkedAt)}`;
+      return `expired | ${this.formatRelativeTime(smoke.checkedAt)}`;
     }
-    return `validado | ${this.formatRelativeTime(smoke.checkedAt)} | ${smoke.recentCapabilityId || 'n/d'}`;
+    return `validated | ${this.formatRelativeTime(smoke.checkedAt)} | ${smoke.recentCapabilityId || 'n/d'}`;
   }
 
   public buildZavorthBridgeMobileSummary(cockpit: OperationsCockpitSnapshot): string {
@@ -218,12 +218,12 @@ export class OperationsReportNarrativeSupport {
   public buildMaintenanceAutomationLabel(cockpit: OperationsCockpitSnapshot): string {
     const automation = cockpit.operations.maintenanceAutomation;
     if (!automation.enabled) {
-      return 'desativada';
+      return 'disabled';
     }
     if (automation.lastTriggerSource === 'priority') {
-      return `priorizada | ${automation.lastPriorityReason || 'revalidacao operacional antecipada.'} | proxima ${this.formatRelativeTime(automation.nextPlannedAt)}`;
+      return `prioritized | ${automation.lastPriorityReason || 'early operational revalidation.'} | next ${this.formatRelativeTime(automation.nextPlannedAt)}`;
     }
-    return `ativa | proxima ${this.formatRelativeTime(automation.nextPlannedAt)}`;
+    return `active | next ${this.formatRelativeTime(automation.nextPlannedAt)}`;
   }
 
   public getTenantSummary(cockpit: OperationsCockpitSnapshot): {
@@ -277,8 +277,8 @@ export class OperationsReportNarrativeSupport {
       .map((item) => this.describeDoctorProvider(item.channelId, item.mode));
     const providerLabel = passedProviders.length
       ? passedProviders.join(' e ')
-      : 'os providers configurados';
-    return `Doctor dos canais nativos validou ${providerLabel} ${this.formatRelativeTime(doctor.checkedAt)}.`;
+      : 'configured providers';
+    return `Native channel doctor validated ${providerLabel} ${this.formatRelativeTime(doctor.checkedAt)}.`;
   }
 
   public buildChannelProviderDoctorLabel(cockpit: OperationsCockpitSnapshot): string {
@@ -287,19 +287,19 @@ export class OperationsReportNarrativeSupport {
       return 'sem doctor recente';
     }
     if (doctor.status === 'skipped') {
-      return 'pulado';
+      return 'skipped';
     }
     if (doctor.status === 'failed') {
       return `falhou | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
     if (doctor.stale) {
-      return `vencido | ${this.formatRelativeTime(doctor.checkedAt)}`;
+      return `expired | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
 
     const passedProviders = (doctor.items || [])
       .filter((item) => item.status === 'passed')
       .map((item) => this.describeDoctorProvider(item.channelId, item.mode));
-    return `validado | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedProviders.join(', ') || 'providers configurados'}`;
+    return `validated | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedProviders.join(', ') || 'configured providers'}`;
   }
 
   public buildRemoteTransportDoctorSummary(cockpit: OperationsCockpitSnapshot): string {
@@ -308,13 +308,13 @@ export class OperationsReportNarrativeSupport {
       return 'Doctor dos transportes remotos ainda nao foi executado neste host.';
     }
     if (doctor.status === 'running') {
-      return 'Doctor dos transportes remotos em validacao neste momento.';
+      return 'Remote transport doctor is validating right now.';
     }
     if (doctor.status === 'skipped') {
       return doctor.summary || 'Doctor dos transportes remotos foi pulado neste host.';
     }
     if (doctor.status === 'failed') {
-      return doctor.summary || 'Doctor dos transportes remotos encontrou pendencias no plano remoto.';
+      return doctor.summary || 'Remote transport doctor found pending items on the remote plane.';
     }
     if (doctor.stale) {
       return `Doctor dos transportes remotos venceu ${this.formatRelativeTime(doctor.checkedAt)}; rode ${doctor.recommendedAction || doctor.command || 'npm run test:transports:smoke'} antes de confiar em sidecars, gateways e nodes pareados.`;
@@ -323,7 +323,7 @@ export class OperationsReportNarrativeSupport {
     const passedItems = (doctor.items || [])
       .filter((item) => item.status === 'passed')
       .length;
-    return `Doctor dos transportes remotos validou ${passedItems} fluxo(s) ${this.formatRelativeTime(doctor.checkedAt)}.`;
+    return `Remote transport doctor validated ${passedItems} flow(s) ${this.formatRelativeTime(doctor.checkedAt)}.`;
   }
 
   public buildRemoteTransportDoctorLabel(cockpit: OperationsCockpitSnapshot): string {
@@ -332,26 +332,26 @@ export class OperationsReportNarrativeSupport {
       return 'sem doctor recente';
     }
     if (doctor.status === 'running') {
-      return 'em validacao';
+      return 'validating';
     }
     if (doctor.status === 'skipped') {
-      return 'pulado';
+      return 'skipped';
     }
     if (doctor.status === 'failed') {
       return `falhou | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
     if (doctor.stale) {
-      return `vencido | ${this.formatRelativeTime(doctor.checkedAt)}`;
+      return `expired | ${this.formatRelativeTime(doctor.checkedAt)}`;
     }
 
     const passedItems = (doctor.items || [])
       .filter((item) => item.status === 'passed')
       .length;
-    return `validado | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedItems} fluxo(s)`;
+    return `validated | ${this.formatRelativeTime(doctor.checkedAt)} | ${passedItems} flow(s)`;
   }
 
   private describeDiscordChannel(mode: any): string {
-    return mode === 'native' ? 'Gateway nativo do Discord' : 'Discord bridge';
+    return mode === 'native' ? 'Native Discord gateway' : 'Discord bridge';
   }
 
   private describeLocalChannelSummary(
@@ -369,16 +369,16 @@ export class OperationsReportNarrativeSupport {
       return `${label} requer atencao: ${channel.lastError}.`;
     }
     if (!channel.started) {
-      return modeLabel === 'local supervisionado'
+      return modeLabel === 'supervised local'
         ? `${label} habilitado, mas ainda nao entrou em estado pronto.`
         : `${label} ${modeLabel} habilitado, mas ainda nao entrou em estado pronto.`;
     }
     if (channel.recipientsConfigured < 1) {
-      return modeLabel === 'local supervisionado'
+      return modeLabel === 'supervised local'
         ? `${label} habilitado, mas ainda sem ${recipientsLabel} permitidos para rollout no mesh.`
         : `${label} ${modeLabel} habilitado, mas ainda sem ${recipientsLabel} permitidos para rollout no mesh.`;
     }
-    return modeLabel === 'local supervisionado'
+    return modeLabel === 'supervised local'
       ? `${label} ativo em modo local supervisionado; ${channel.recipientsConfigured} ${recipientsLabel} permitidos.`
       : `${label} ${modeLabel} ativo; ${channel.recipientsConfigured} ${recipientsLabel} permitidos.`;
   }
@@ -395,7 +395,7 @@ export class OperationsReportNarrativeSupport {
     modeLabel: string,
   ): string {
     if (channel.lastError) {
-      return `${label} erro`;
+      return `${label} error`;
     }
     if (!channel.started || channel.recipientsConfigured < 1) {
       return modeLabel === 'local supervisionado' ? `${label} pendente` : `${label} pendente | ${modeLabel}`;
@@ -408,7 +408,7 @@ export class OperationsReportNarrativeSupport {
     channelId: any,
   ): string {
     if (mode === 'native') {
-      return channelId === 'slack' ? 'nativo' : 'native';
+      return channelId === 'slack' ? 'native' : 'native';
     }
     if (mode === 'cloud-api') {
       return 'Cloud API';
@@ -416,7 +416,7 @@ export class OperationsReportNarrativeSupport {
     if (mode === 'baileys') {
       return 'Baileys';
     }
-    return 'local supervisionado';
+    return 'supervised local';
   }
 
   private describeDoctorProvider(

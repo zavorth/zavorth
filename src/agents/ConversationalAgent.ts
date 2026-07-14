@@ -14,10 +14,7 @@ import {
   type ExecutionEscalationDecision,
   type ExecutionEscalationInput,
 } from '../runtime/agent/ExecutionEscalationPolicy.js';
-import { EvidenceSearchRouter } from './EvidenceSearchRouter.js';
 import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
-import { ZavorthSubagentInvocationGatewayService } from '../services/ZavorthSubagentInvocationGatewayService.js';
-
 import { TELEGRAM_COMMAND_CATALOG } from '../gateways/channels/telegram/commandCatalog.js';
 import {
   CognitiveFirewall,
@@ -37,24 +34,26 @@ import {
 import {
   buildUntrustedContentFirewallInstruction,
   containsUntrustedContentMarker,
-  wrapUntrustedContent,
   withUntrustedInputMetadata,
 } from '../security/UntrustedContent.js';
 
 import { ZavorthHallucinationMitigationService } from '../services/ZavorthHallucinationMitigationService.js';
-import {
-  ZavorthSubagentAutoInvocationPolicyService,
-  type ZavorthSubagentAutoInvocationInput,
-} from '../services/ZavorthSubagentAutoInvocationPolicyService.js';
-
-import type { ZavorthSubagentRuntimeSnapshot } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import { asErrorLike } from '../utils/errorLike.js';
 type InlineData = Array<{ mimeType: string; data: string }>;
+type ConversationalToolTelemetry = {
+  exposedToolNames: string[];
+  toolRounds: number;
+  toolsCalled: string[];
+  unknownToolCalls: string[];
+  toolFailures: string[];
+  toolReceiptCount: number;
+};
 type ConversationalResponse = {
   text?: string;
   action?: AgentRunAction;
   escalation?: ExecutionEscalationDecision;
   llm?: { providerName: string; modelName?: string };
+  toolTelemetry?: ConversationalToolTelemetry;
 };
 type ConversationalMode = 'default' | 'direct';
 type ConversationalStructuredEscalation = {
@@ -92,8 +91,6 @@ type ConversationalAgentRuntime = {
   llmRuntime?: LlmRuntimeService;
   toolRuntime?: ConversationalToolRuntime | null;
   contextEngine?: Pick<ContextEngine, 'prepareAsync'> | null;
-  subagentAutoInvocationPolicy?: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'> | null;
-  subagentInvocationGateway?: Pick<ZavorthSubagentInvocationGatewayService, 'invokeFromTask' | 'renderReport'> | null;
 };
 type ConversationalToolPolicyDecision = {
   tools?: ToolDefinition[];
@@ -109,8 +106,7 @@ type ConversationalToolPolicyInput = {
   hintGroups: string[];
   quarantinedToolNames: string[];
 };
-const AUTO_WEB_SEARCH_LIMIT = 8;
-const MAX_CONVERSATIONAL_TOOL_ROUNDS = 5;
+const MAX_CONVERSATIONAL_TOOL_ROUNDS = 8;
 const MAX_TOOL_CALLS_PER_ROUND = 8;
 
 export class ConversationalAgent {
@@ -118,11 +114,8 @@ export class ConversationalAgent {
   private readonly toolRuntime: ConversationalToolRuntime | null;
   private readonly contextEngine: Pick<ContextEngine, 'prepareAsync'> | null;
   private readonly cognitiveFirewall = new CognitiveFirewall();
-  private readonly evidenceSearchRouter = new EvidenceSearchRouter();
   private readonly executionEscalationPolicy = new ExecutionEscalationPolicy();
   private readonly hallucinationMitigation = new ZavorthHallucinationMitigationService();
-  private readonly subagentAutoInvocationPolicy: Pick<ZavorthSubagentAutoInvocationPolicyService, 'decide'> | null;
-  private readonly subagentInvocationGateway: Pick<ZavorthSubagentInvocationGatewayService, 'invokeFromTask' | 'renderReport'> | null;
 
   // Cognitive Firewall improvements
   private readonly usageTracker = new ToolUsageTracker();
@@ -135,22 +128,12 @@ export class ConversationalAgent {
       this.llmRuntime = runtime as LlmRuntimeService;
       this.toolRuntime = null;
       this.contextEngine = null;
-      this.subagentAutoInvocationPolicy = new ZavorthSubagentAutoInvocationPolicyService();
-      this.subagentInvocationGateway = new ZavorthSubagentInvocationGatewayService();
       return;
     }
 
     this.llmRuntime = runtime.llmRuntime || new LlmRuntimeService();
     this.toolRuntime = runtime.toolRuntime || null;
     this.contextEngine = runtime.contextEngine || null;
-    this.subagentAutoInvocationPolicy = runtime.subagentAutoInvocationPolicy === null
-      ? null
-      : runtime.subagentAutoInvocationPolicy || new ZavorthSubagentAutoInvocationPolicyService();
-    this.subagentInvocationGateway = runtime.subagentInvocationGateway === null
-      ? null
-      : runtime.subagentInvocationGateway || new ZavorthSubagentInvocationGatewayService({
-        toolRuntime: this.toolRuntime || null,
-      });
   }
 
   public async chat(
@@ -174,20 +157,6 @@ export class ConversationalAgent {
       },
     );
 
-    const naturalSubagentResponse = await this.maybeRunNaturalLiveSubagents(
-      userMessage,
-      inlineData,
-      mode,
-      options,
-      {
-        providerName: llmStrategy.providerName,
-        modelName: llmStrategy.modelName,
-      },
-    );
-    if (naturalSubagentResponse) {
-      return naturalSubagentResponse;
-    }
-
     const allTools = this.getConversationalToolDefinitions();
     const systemInstruction = this.appendProductRuntimeContext(
       this.buildSystemInstruction(mode, options?.styleHints),
@@ -200,14 +169,21 @@ export class ConversationalAgent {
       inlineData,
       options,
     );
-    const webSearchContext = await this.buildAutomaticWebSearchContext(
-      userMessage,
-      allTools,
-      contextDecision?.messages,
-    );
-    const requiredToolNames = webSearchContext
-      ? new Set(['web_search', 'get_datetime', 'query_external_ai'])
-      : new Set<string>();
+    // Free text does not auto-run tools. The model selects tools from the catalog.
+    const AGENT_BRAIN_TOOL_NAMES = [
+      'web_search',
+      'get_datetime',
+      'read_file',
+      'create_file',
+      'list_directory',
+      'query_external_ai',
+      'semantic_memory',
+      'capability_discovery',
+      'zavorth_delegate',
+      'agent_manager',
+      'zavorth_action',
+    ] as const;
+    const requiredToolNames = new Set<string>(AGENT_BRAIN_TOOL_NAMES);
     const firewallDecision = contextDecision
       ? null
       : this.cognitiveFirewall.evaluate(userMessage, allTools);
@@ -215,28 +191,28 @@ export class ConversationalAgent {
       contextDecision,
       firewallDecision,
     );
+    // Expose the full tool catalog (minus quarantine). Local intent never hides capabilities.
     const conversationalTools = this.mergeToolDefinitions(
-      toolPolicyInput.tools,
+      allTools,
       allTools,
       requiredToolNames,
       new Set(toolPolicyInput.quarantinedToolNames),
     );
+    const exposedToolNames = conversationalTools.map((tool) => tool.name);
+    const systemWithCatalog = this.appendToolCatalogBrain(systemInstruction, conversationalTools);
     const messages: ChatMessage[] = contextDecision
-      ? [...contextDecision.messages]
+      ? this.injectToolCatalogIntoMessages(contextDecision.messages, conversationalTools)
       : [
-        { role: 'system', content: systemInstruction },
+        { role: 'system', content: systemWithCatalog },
         { role: 'user', content: userMessage, inlineData },
       ];
 
-    if (webSearchContext) {
-      messages.splice(1, 0, { role: 'system', content: webSearchContext });
-    }
     const groundingEvidenceTexts: string[] = [];
     let toolReceiptCount = 0;
-    if (webSearchContext) {
-      groundingEvidenceTexts.push(`web_search:\n${webSearchContext}`);
-      toolReceiptCount += 1;
-    }
+    const toolsCalled: string[] = [];
+    const unknownToolCalls: string[] = [];
+    const toolFailures: string[] = [];
+    let toolRounds = 0;
 
     const firewallStats = contextDecision?.firewallStats || firewallDecision?.stats;
     if (firewallStats) {
@@ -258,41 +234,59 @@ export class ConversationalAgent {
       if (!response.toolCalls?.length || !this.toolRuntime || conversationalTools.length === 0) {
         break;
       }
+      toolRounds += 1;
 
       const toolMessages: ChatMessage[] = [];
       const rawToolResults: string[] = [];
       const knownToolNames = new Set(conversationalTools.map((tool) => tool.name));
       for (const toolCall of response.toolCalls.slice(0, MAX_TOOL_CALLS_PER_ROUND)) {
         if (!knownToolNames.has(toolCall.name)) {
+          unknownToolCalls.push(toolCall.name);
+          const missing = [
+            `Tool "${toolCall.name}" is not available in this turn.`,
+            `Available tools: ${exposedToolNames.slice(0, 24).join(', ') || '(none)'}.`,
+            'Do not invent results. Suggest a visible tool, slash command, or approval path.',
+          ].join(' ');
+          rawToolResults.push(missing);
+          toolFailures.push(toolCall.name);
+          toolMessages.push({
+            role: 'tool',
+            content: wrapToolOutputForLlm(toolCall.name, missing, {
+              source: 'conversational_tool_result',
+              tool_call_id: toolCall.id,
+            }),
+            toolCallId: toolCall.id,
+            toolName: toolCall.name,
+          });
           continue;
         }
 
         let toolResult = '';
         try {
-          // Check cache first (Improvement E: Tool Result Caching)
           const cachedResult = this.toolCache.get(toolCall.name, toolCall.arguments);
           if (cachedResult !== null) {
             toolResult = cachedResult;
           } else {
-            const influencedByUntrustedContent = Boolean(webSearchContext)
-              || Boolean(inlineData?.length)
+            const influencedByUntrustedContent = Boolean(inlineData?.length)
               || containsUntrustedContentMarker(messages)
               || containsUntrustedContentMarker(toolCall.arguments);
             const toolArguments = influencedByUntrustedContent
               ? withUntrustedInputMetadata(toolCall.arguments, 'conversation-contained-untrusted-evidence')
               : toolCall.arguments;
-            toolResult = toolCall.name === 'web_search' && webSearchContext
-              ? webSearchContext
-              : await this.toolRuntime.executeTool(toolCall.name, toolArguments);
-            // Store in cache (Improvement E)
+            toolResult = await this.toolRuntime.executeTool(toolCall.name, toolArguments);
             this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
           }
         } catch (error: unknown) {
           const err = asErrorLike(error);
           logger.warn('[Conversational Agent] process execution failed', error);
-    const message = error instanceof Error ? err.message : String(error);
-          toolResult = `Tool ${toolCall.name} failed: ${message}`;
-  }
+          const message = error instanceof Error ? err.message : String(error);
+          toolResult = [
+            `Tool ${toolCall.name} failed: ${message}`,
+            'Do not invent success. Explain the failure and the next safe step.',
+          ].join(' ');
+          toolFailures.push(toolCall.name);
+        }
+        toolsCalled.push(toolCall.name);
         rawToolResults.push(toolResult);
         groundingEvidenceTexts.push(`${toolCall.name}:\n${toolResult}`);
         toolReceiptCount += 1;
@@ -307,15 +301,11 @@ export class ConversationalAgent {
         });
       }
 
-      // Record tool usage for predictive loading (Improvement A)
-      if (rawToolResults.length > 0) {
-        const toolNames = response.toolCalls
-          .slice(0, MAX_TOOL_CALLS_PER_ROUND)
-          .map((tc) => tc.name)
-          .filter((name) => knownToolNames.has(name));
-        if (toolNames.length > 0) {
-          this.usageTracker.recordTurn(this.sessionId || 'default', toolNames);
-        }
+      if (toolsCalled.length > 0) {
+        this.usageTracker.recordTurn(
+          this.sessionId || 'default',
+          toolsCalled.slice(-MAX_TOOL_CALLS_PER_ROUND),
+        );
       }
 
       if (toolMessages.length === 0) {
@@ -348,7 +338,29 @@ export class ConversationalAgent {
         };
     }
 
-    const responseText = response.content || '';
+    const toolTelemetry: ConversationalToolTelemetry = {
+      exposedToolNames,
+      toolRounds,
+      toolsCalled: Array.from(new Set(toolsCalled)),
+      unknownToolCalls: Array.from(new Set(unknownToolCalls)),
+      toolFailures: Array.from(new Set(toolFailures)),
+      toolReceiptCount,
+    };
+    logger.info(
+      `[ConversationalAgent] tools rounds=${toolRounds} called=${toolTelemetry.toolsCalled.join(',') || 'none'} exposed=${exposedToolNames.length}`,
+    );
+
+    let responseText = response.content || '';
+    if (!responseText.trim()) {
+      if (toolFailures.length > 0) {
+        responseText = `I could not complete this request cleanly. Tool failure(s): ${toolFailures.join(', ')}. I will not invent success.`;
+      } else if (unknownToolCalls.length > 0) {
+        responseText = `I tried unavailable tool(s): ${unknownToolCalls.join(', ')}. Visible tools include: ${exposedToolNames.slice(0, 16).join(', ') || '(none)'}.`;
+      } else if (conversationalTools.length === 0) {
+        responseText = 'No tools are available for this turn. Configure tools or use an explicit slash command.';
+      }
+    }
+
     const hallucinationReview = this.hallucinationMitigation.reviewResponse({
       requestText: userMessage,
       responseText,
@@ -368,13 +380,14 @@ export class ConversationalAgent {
     const autonomousAction = this.buildAutonomousActionFromEscalation(escalation, mode);
     if (autonomousAction) {
       return {
-        text: 'Acionando o motor autonomo para alterar o sistema...',
+        text: 'Starting the autonomous runtime to change the system...',
         action: autonomousAction,
         escalation,
         llm: {
           providerName,
           modelName: llmStrategy.modelName,
         },
+        toolTelemetry,
       };
     }
 
@@ -394,7 +407,56 @@ export class ConversationalAgent {
         providerName,
         modelName: llmStrategy.modelName,
       },
+      toolTelemetry,
     };
+  }
+
+  private appendToolCatalogBrain(systemInstruction: string, tools: ToolDefinition[]): string {
+    if (!tools.length) {
+      return [
+        systemInstruction,
+        '',
+        '**AVAILABLE TOOLS:**',
+        '- No tools are exposed for this turn. Answer from knowledge only, or say which slash/setup is needed.',
+        '- Never invent tool results or external actions.',
+      ].join('\n');
+    }
+    const lines = tools.slice(0, 40).map((tool) => {
+      const desc = String(tool.description || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+      return `- \`${tool.name}\`${desc ? `: ${desc}` : ''}`;
+    });
+    return [
+      systemInstruction,
+      '',
+      '**AVAILABLE TOOLS:**',
+      '- Prefer tools over guessing for current facts, files, teams, and side effects.',
+      '- You may call tools in multiple steps: plan, act, read results, continue until done or blocked.',
+      '- If a capability is missing, say so clearly. Never fake success.',
+      '- Multi-agent work: use `zavorth_delegate` or `agent_manager` when visible.',
+      '- If unsure which tool fits, use `capability_discovery` when visible.',
+      '',
+      ...lines,
+      tools.length > 40 ? `- …and ${tools.length - 40} more tools` : '',
+    ].filter(Boolean).join('\n');
+  }
+
+  private injectToolCatalogIntoMessages(
+    messages: ChatMessage[],
+    tools: ToolDefinition[],
+  ): ChatMessage[] {
+    if (!messages.length) {
+      return [{ role: 'system', content: this.appendToolCatalogBrain('', tools) }];
+    }
+    const cloned = messages.map((entry) => ({ ...entry }));
+    const firstSystem = cloned.findIndex((entry) => entry.role === 'system');
+    if (firstSystem >= 0) {
+      cloned[firstSystem] = {
+        ...cloned[firstSystem],
+        content: this.appendToolCatalogBrain(String(cloned[firstSystem].content || ''), tools),
+      };
+      return cloned;
+    }
+    return [{ role: 'system', content: this.appendToolCatalogBrain('', tools) }, ...cloned];
   }
 
   private appendProductRuntimeContext(
@@ -529,114 +591,6 @@ export class ConversationalAgent {
       );
     }
 
-    return lines.join('\n');
-  }
-
-  private async maybeRunNaturalLiveSubagents(
-    userMessage: string,
-    inlineData: InlineData | undefined,
-    mode: ConversationalMode,
-    options: ConversationalChatOptions | undefined,
-    llm: { providerName: string; modelName?: string },
-  ): Promise<ConversationalResponse | null> {
-    if (!this.subagentAutoInvocationPolicy || !this.subagentInvocationGateway) {
-      return null;
-    }
-
-    const decisionInput: ZavorthSubagentAutoInvocationInput = {
-      text: userMessage,
-      channel: options?.surface || 'conversation',
-      mode,
-      taskKind: options?.taskKind || null,
-      taskSubtype: options?.taskSubtype || null,
-      hasInlineData: Boolean(inlineData?.length),
-      allowImplicit: true,
-    };
-    const decision = this.subagentAutoInvocationPolicy.decide(decisionInput);
-    if (!decision.shouldInvoke) {
-      return null;
-    }
-
-    try {
-      const snapshot = await this.subagentInvocationGateway.invokeFromTask({
-        text: userMessage,
-        channel: options?.surface || 'conversation',
-        actorId: options?.userId || null,
-        threadId: options?.chatId || null,
-        mode: decision.mode,
-        roleIds: decision.roleIds,
-        live: decision.live,
-        providerName: llm.providerName,
-        modelName: llm.modelName,
-        maxLiveWorkers: decision.maxLiveWorkers,
-        autoInvocation: decision.telemetry,
-        persistState: false,
-      });
-      const text = this.renderNaturalSubagentResponse(snapshot, decision.telemetry.publicRationale);
-      return {
-        text,
-        escalation: this.resolveExecutionEscalation(text, mode, options),
-        llm,
-      };
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      if (!decision.explicitSubagentRequest) {
-        return null;
-      }
-      const message = error instanceof Error ? err.message : String(error);
-      const text = `I tried to start subagents for this task, but the runtime rejected execution: ${message}`;
-      return {
-        text,
-        escalation: this.resolveExecutionEscalation(text, mode, options),
-        llm,
-      };
-    }
-  }
-
-  private renderNaturalSubagentResponse(
-    snapshot: ZavorthSubagentRuntimeSnapshot,
-    routeReason: string,
-  ): string {
-    if (snapshot.status === 'approval-required') {
-      const reason = snapshot.receipts.at(-1)?.reasons.join(' ') || 'this action requires governed approval';
-      return [
-        'I can start subagents for this, but this request crosses a boundary that requires approval.',
-        '',
-        `Reason: ${reason}`,
-        'After approval, I will continue through the same flow with receipts and limits applied.',
-      ].join('\n');
-    }
-
-    if (snapshot.status === 'denied' || snapshot.status === 'blocked') {
-      const reason = snapshot.timeline.at(-1)?.detail || 'policy broker blocked execution';
-      return [
-        'I did not start subagents for this request.',
-        '',
-        `Reason: ${reason}`,
-      ].join('\n');
-    }
-
-    const run = snapshot.runs.find((entry) => entry.runId === snapshot.selectedRunId) || snapshot.runs.at(-1) || null;
-    const autoTelemetry = snapshot.autoInvocationTelemetry.latest;
-    const workerOutputs = (run?.workerResults || [])
-      .filter((worker) => worker.status === 'completed')
-      .map((worker) => `- ${worker.roleId}: ${firstMeaningfulLine(worker.summary || worker.output)}`)
-      .slice(0, 4);
-    const output = run?.output || run?.summary || snapshot.timeline.at(-1)?.detail || 'Subagents completed.';
-    const lines = [
-      'I started governed subagents for this task.',
-      `Routing: ${routeReason}`,
-    ];
-    if (autoTelemetry) {
-      lines.push(
-        `Decision: ${autoTelemetry.selectedBy}; confidence ${autoTelemetry.confidence}; mode ${autoTelemetry.mode}.`,
-        `Roles: ${autoTelemetry.roles.map((role) => `${role.roleId} - ${role.whySelected}`).join('; ') || 'n/a'}.`,
-      );
-    }
-    if (workerOutputs.length > 0) {
-      lines.push('', 'Subagent readout:', ...workerOutputs);
-    }
-    lines.push('', 'Synthesis:', output);
     return lines.join('\n');
   }
 
@@ -783,99 +737,6 @@ export class ConversationalAgent {
     );
   }
 
-  private async buildAutomaticWebSearchContext(
-    message: string,
-    tools: ToolDefinition[],
-    contextMessages?: ChatMessage[],
-  ): Promise<string | null> {
-    if (!this.toolRuntime || !tools.some((tool) => tool.name === 'web_search')) {
-      return null;
-    }
-
-    const searchInput = this.buildSearchInputWithRecentContext(message, contextMessages);
-    const webSearchNeed = this.evidenceSearchRouter.detect(searchInput);
-    if (!webSearchNeed) {
-      return null;
-    }
-
-    const query = searchInput !== message
-      ? searchInput.slice(0, 900)
-      : this.evidenceSearchRouter.buildQuery(searchInput, webSearchNeed);
-    try {
-      const searchResult = await this.toolRuntime.executeTool('web_search', {
-        query,
-        limit: AUTO_WEB_SEARCH_LIMIT,
-        domainProfile: webSearchNeed.domain,
-        deep: true,
-        extractPages: true,
-      });
-      return [
-        'Automatic web search context for this web-backed/evidence-sensitive request.',
-        `Query: ${query}`,
-        searchInput !== message ? `Current user request: ${message}` : '',
-        `Detected need: ${webSearchNeed.reason}; domain: ${webSearchNeed.domain}; fresh: ${webSearchNeed.fresh ? 'yes' : 'no'}.`,
-        'Use these sourced and ranked results for current, unstable, high-stakes, scientific, legal, medical, financial, or link-requested facts. Cite source/date when useful. Do not infer office holders, institutional roles, prices, discoveries, papers, cases, releases, scores, or breaking facts from model memory. Do not expose internal search windows or implementation limits as user-facing capability limits. If results include QUALITY_GATE or an error, state the limitation naturally and answer only what is supported.',
-        buildUntrustedContentFirewallInstruction(),
-        this.evidenceSearchRouter.buildContextGuidance(webSearchNeed),
-        this.evidenceSearchRouter.buildAnswerPolicyGuidance(webSearchNeed),
-        wrapUntrustedContent('untrusted_web_evidence', searchResult, {
-          source: 'automatic_web_search',
-          query,
-        }),
-      ].filter(Boolean).join('\n\n');
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const message = error instanceof Error ? err.message : String(error);
-      return [
-        'Automatic web search failed for this recency-sensitive request.',
-        `Error: ${message}`,
-        'If the answer requires live information, explain that the search failed. If the request is stable general knowledge, you may still answer from general knowledge and disclose that live verification was unavailable.',
-      ].join('\n');
-    }
-  }
-
-  private buildSearchInputWithRecentContext(
-    message: string,
-    contextMessages?: ChatMessage[],
-  ): string {
-    const currentMessage = String(message || '').trim();
-    if (!currentMessage || !this.isFollowUpEvidenceRequest(currentMessage)) {
-      return currentMessage;
-    }
-
-    const recentContext = (contextMessages || [])
-      .filter((entry) => entry.role === 'assistant' || entry.role === 'user')
-      .slice(-6)
-      .map((entry) => String(entry.content || '').replace(/\s+/g, ' ').trim())
-      .filter(Boolean)
-      .join('\n');
-
-    if (!recentContext) {
-      return currentMessage;
-    }
-
-    return [
-      currentMessage,
-      '',
-      'Recent conversation context for resolving references such as "that news", "the cited story", "that", or "more details":',
-      recentContext.slice(-2600),
-    ].join('\n');
-  }
-
-  private isFollowUpEvidenceRequest(message: string): boolean {
-    const normalized = String(message || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    const referenceMarker =
-      /\b(essa|esse|isso|dessa|desse|sobre\s+ela|sobre\s+ele|que\s+voce\s+citou|que\s+citou|citada|citado|mencionada|mencionado|noticia\s+que|news\s+you\s+mentioned|that\s+story|that\s+news)\b/.test(normalized);
-    const deepenMarker =
-      /\b(explique|explica|detalhe|detalhes|aprofund[ae]|fale\s+mais|saiba\s+mais|resuma\s+melhor|contexto|por\s+que|impacto|consequencias?|more\s+details|explain|deep\s+dive)\b/.test(normalized);
-    const evidenceMarker =
-      /\b(noticia|noticias|news|fonte|fontes|link|links|artigo|caso|decisao|paper|estudo|descoberta)\b/.test(normalized);
-    return (referenceMarker && (deepenMarker || evidenceMarker)) || (deepenMarker && evidenceMarker);
-  }
-
   private stripInternalVoicePreamble(message: string): string {
     const raw = String(message || '').trim();
     if (!raw) {
@@ -922,12 +783,4 @@ export class ConversationalAgent {
     if (!this.sessionId) return [];
     return this.usageTracker.predictNextTools(this.sessionId, currentIntentTools).predictedTools;
   }
-}
-
-function firstMeaningfulLine(value: string, maxLength = 220): string {
-  const line = String(value || '')
-    .split(/\r?\n/)
-    .map((entry) => entry.trim())
-    .filter(Boolean)[0] || '';
-  return line.length > maxLength ? `${line.slice(0, maxLength - 3)}...` : line;
 }

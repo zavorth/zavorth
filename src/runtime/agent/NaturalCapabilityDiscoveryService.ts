@@ -111,93 +111,14 @@ type Candidate = {
   reason: string;
 };
 
+/** Reserved; free-text phrase→category maps are not used. */
 const CATEGORY_PATTERNS: Array<{
   category: NaturalCapabilityDiscoveryIntentCategory;
   pattern: RegExp;
   tools: string[];
   groups: string[];
   reason: string;
-}> = [
-  {
-    category: 'workspace-inspection',
-    pattern: /\b(analise|analisar|revisar|review|inspecione|listar|liste|compare|diff|resuma|arquivo|pasta|repo|repositorio|workspace|logs?)\b/i,
-    tools: ['read_file', 'workspace.read'],
-    groups: ['workspace'],
-    reason: 'Pedido parece leitura, resumo ou inspecao de workspace.',
-  },
-  {
-    category: 'workspace-mutation',
-    pattern: /\b(corrija|corrigir|edite|editar|altere|alterar|crie|criar|salve|aplique|organize|mova|renomeie|patch)\b/i,
-    tools: ['write_file'],
-    groups: ['workspace'],
-    reason: 'Pedido pode alterar arquivos e precisa de policy de escrita.',
-  },
-  {
-    category: 'shell-execution',
-    pattern: /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b|\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+\b|\b(rode|rodar|execute|executar|executa|run|dispare|inicie)\b[\s\S]{0,80}\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/i,
-    tools: ['shell.exec'],
-    groups: ['local_control'],
-    reason: 'Pedido pede execucao de comando ou testes.',
-  },
-  {
-    category: 'web-research',
-    pattern: /\b(pesquise|pesquisar|buscar|busque|internet|web|site|url|artigos?|noticia|recente)\b/i,
-    tools: ['network_fetch', 'web.search'],
-    groups: ['network'],
-    reason: 'Pedido depende de busca externa ou rede.',
-  },
-  {
-    category: 'memory-recall',
-    pattern: /\b(lembre|lembrar|memoria|memory|mnemos|historico|preferencia|recorde)\b/i,
-    tools: ['memory.read', 'session_search', 'zavorth_session_search'],
-    groups: ['memory'],
-    reason: 'Pedido pede recall de memoria ou historico.',
-  },
-  {
-    category: 'selfmod-preview',
-    pattern: /\b(selfmod|auto[-\s]?melhoria|auto[-\s]?evolucao|melhore o zavorth|modifique o zavorth|aperfeicoe o zavorth)\b/i,
-    tools: ['selfmod.preview'],
-    groups: ['selfmod'],
-    reason: 'Pedido pede selfmod e deve comecar por preview.',
-  },
-  {
-    category: 'computer-use',
-    pattern: /\b(watch mode|watchmode|computer use|observe a tela|monitorar a tela|controle visual|navegue por mim|clique)\b/i,
-    tools: ['watchmode.control'],
-    groups: ['local_control'],
-    reason: 'Pedido envolve controle visual/computer use.',
-  },
-  {
-    category: 'swarm-escalation',
-    pattern: /\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|paralelo)\b/i,
-    tools: ['swarm.run'],
-    groups: ['general'],
-    reason: 'Pedido sugere decomposicao com subagentes.',
-  },
-  {
-    category: 'multi-model-consensus',
-    pattern: /\b(consensus|deliberat|multi-?model|mixture of agents|\bmoa\b|várias modelos|varios modelos|consenso multi)\b/i,
-    tools: ['agent_consensus_engine', 'consensus_with_fallback'],
-    groups: ['general'],
-    reason: 'Request asks for multi-model consensus or independent model opinions.',
-  },
-  {
-    category: 'channel-or-node',
-    pattern: /\b(canal|telegram|slack|discord|node|nodo|companion|device|dispositivo|invoke)\b/i,
-    tools: ['node.invoke'],
-    groups: ['local_control'],
-    reason: 'Pedido menciona canal, node mesh ou invocacao remota.',
-  },
-  {
-    category: 'policy-or-session',
-    pattern: /\b(sessao|session|history|historico|policy|policies|reload|recarregue policy)\b/i,
-    tools: ['sessions.history', 'session_search', 'zavorth_session_search'],
-    groups: ['memory'],
-    reason: 'Pedido toca sessao, historico ou policy.',
-  },
-];
-
-const NEGATIVE_WORKSPACE_MUTATION_PATTERNS = /\bsem\s+(criar|gerar|usar|chamar|acionar)\s+(ferramenta|tool|mensagem|message)\b/i;
+}> = [];
 
 function normalizeText(value: unknown, fallback = ''): string {
   const text = String(value ?? '').trim();
@@ -209,30 +130,6 @@ function normalizeSearchText(value: unknown): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-}
-
-function hasUrl(text: string): boolean {
-  return /https?:\/\/|www\./i.test(text);
-}
-
-function asksForWebOperation(text: string): boolean {
-  if (/\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/i.test(text)) {
-    return true;
-  }
-  if (/\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/i.test(text)) {
-    return true;
-  }
-  if (
-    hasUrl(text)
-    && /\b(leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(text)
-  ) {
-    return true;
-  }
-  if (/\b(link|url|site|pagina|page|website|artigo|noticia)\b/i.test(text)
-    && /\b(leia|ler|resuma|resumir|analise|analisar|abra|abrir|acesse|acessar|verifique|verificar|pesquise|buscar|busque)\b/i.test(text)) {
-    return true;
-  }
-  return false;
 }
 
 function normalizeList(value: unknown): string[] {
@@ -367,8 +264,8 @@ export class NaturalCapabilityDiscoveryService {
       toolExposureGatedByCognitiveFirewall: false,
       isHardGate: false,
       reason: recommendations.length > 0
-        ? `Natural Capability Discovery recomendou ${recommendations.length} capability(s) para: ${intentCategory}.`
-        : 'Nenhuma capability forte foi inferida por linguagem natural.',
+        ? `Capability discovery recommended ${recommendations.length} item(s) from tools/catalog (category: ${intentCategory}).`
+        : 'No capability inferred from technical tools, requestedTools, or catalog.',
     };
 
     return {
@@ -420,38 +317,12 @@ export class NaturalCapabilityDiscoveryService {
       requestedTools,
     });
 
-    for (const pattern of CATEGORY_PATTERNS) {
-      if (!pattern.pattern.test(normalized)) {
-        continue;
-      }
-      if (pattern.category === 'web-research' && !asksForWebOperation(text)) {
-        continue;
-      }
-      if (pattern.category === 'workspace-mutation' && NEGATIVE_WORKSPACE_MUTATION_PATTERNS.test(normalized)) {
-        continue;
-      }
-      const risk = maxRisk(pattern.tools.map(inferRisk));
-      candidates.push({
-        id: `intent:${pattern.category}`,
-        label: humanize(pattern.category),
-        source: 'natural-language',
-        toolIds: pattern.tools,
-        groups: pattern.groups,
-        score: 7,
-        risk,
-        requiresApproval: risk !== 'safe',
-        previewRequired: pattern.tools.some((toolId) => toolId.startsWith('selfmod.')),
-        permission: permissionFromRisk(pattern.tools, risk),
-        reason: pattern.reason,
-      });
-    }
-
     if (workload.shouldUseSwarm) {
       const scaleToolIds = workload.shouldUseScalePlane ? ['swarm.run', 'swarm.scale'] : ['swarm.run'];
       candidates.push({
         id: workload.shouldUseScalePlane ? 'intent:swarm-scale-workload' : 'intent:swarm-workload',
         label: workload.shouldUseScalePlane ? 'Swarm Scale Workload' : 'Swarm Workload',
-        source: 'natural-language',
+        source: 'metadata',
         toolIds: scaleToolIds,
         groups: ['general'],
         score: Math.max(8, Math.min(12, workload.score)),
@@ -459,7 +330,7 @@ export class NaturalCapabilityDiscoveryService {
         requiresApproval: true,
         previewRequired: false,
         permission: 'approval',
-        reason: `Zavorth workload assessment: ${workload.reasons.join('; ')}.`,
+        reason: `Workload assessment: ${workload.reasons.join('; ')}.`,
       });
     }
 
@@ -531,7 +402,7 @@ export class NaturalCapabilityDiscoveryService {
       requiresApproval: Boolean(catalogEntry?.requiresApproval) || risk === 'danger',
       previewRequired: toolId.startsWith('selfmod.') || Boolean(catalogEntry?.policyTags.includes('preview-first')),
       permission: permissionFromRisk([toolId], risk),
-      reason: catalogEntry?.description || `${toolId} foi inferida a partir do pedido em linguagem natural.`,
+      reason: catalogEntry?.description || `${toolId} inferred from requestedTools or technical signals.`,
     };
   }
 
@@ -549,29 +420,10 @@ export class NaturalCapabilityDiscoveryService {
 
   private strongCapabilityMatches(
     entry: StrongCapabilityCatalogEntry,
-    normalizedText: string,
+    _normalizedText: string,
     naturalTools: string[],
   ): boolean {
-    if (entry.toolIds.some((toolId) => naturalTools.includes(toolId))) {
-      return true;
-    }
-    const capabilityId = String(entry.capabilityId || '') as StrongCapabilityId;
-    const terms: Record<StrongCapabilityId, string[]> = {
-      'mnemos.memory': ['memoria', 'memory', 'mnemos', 'lembr'],
-      'echo.hands': ['echo', 'voz', 'audio', 'hands'],
-      'nexus.surface': ['nexus'],
-      'swarm.escalation': ['swarm', 'subagente', 'multiagente', 'paralelo'],
-      'selfmod.supervised': ['selfmod', 'auto melhoria', 'evolua', 'melhore o zavorth'],
-      'watchmode.computer-use': ['watch', 'computer use', 'tela', 'visual', 'clique'],
-      'skills.snapshot': ['skill', 'skills'],
-      'mcp.snapshot': ['mcp', 'plugin'],
-      'channel-mesh.bridge': ['canal', 'telegram', 'slack', 'discord'],
-      'node-mesh.gateway': ['node', 'nodo', 'companion', 'dispositivo'],
-      'session.ownership': ['sessao', 'session', 'historico'],
-      'timing.canonical': ['timeline', 'tempo', 'timing', 'quando'],
-      'policy.hot-reload': ['policy', 'policies', 'reload', 'recarreg'],
-    };
-    return (terms[capabilityId] || []).some((term) => normalizedText.includes(term));
+    return entry.toolIds.some((toolId) => naturalTools.includes(toolId));
   }
 
   private groupFromTool(toolId: string): string {
@@ -592,30 +444,21 @@ export class NaturalCapabilityDiscoveryService {
   }
 
   private resolveIntentCategory(
-    text: string,
+    _text: string,
     recommendations: NaturalCapabilityDiscoveryRecommendation[],
   ): NaturalCapabilityDiscoveryIntentCategory {
-    const normalized = normalizeSearchText(text);
-    const matchedPattern = CATEGORY_PATTERNS.find((entry) => {
-      if (!entry.pattern.test(normalized)) {
-        return false;
-      }
-      return entry.category !== 'web-research' || asksForWebOperation(text);
-    });
-    if (matchedPattern) {
-      return matchedPattern.category;
-    }
-    const first = recommendations[0];
-    if (!first) {
-      return 'unknown';
-    }
-    if (first.toolIds.some((toolId) => toolId.includes('write'))) {
-      return 'workspace-mutation';
-    }
-    if (first.toolIds.some((toolId) => toolId.includes('read'))) {
-      return 'workspace-inspection';
-    }
-    return 'unknown';
+    const toolIds = recommendations.flatMap((entry) => entry.toolIds).map((id) => id.toLowerCase());
+    if (toolIds.some((id) => id.includes('selfmod'))) return 'selfmod-preview';
+    if (toolIds.some((id) => id.includes('swarm'))) return 'swarm-escalation';
+    if (toolIds.some((id) => id.includes('consensus'))) return 'multi-model-consensus';
+    if (toolIds.some((id) => id.includes('shell') || id.includes('exec') || id === 'remote_shell')) return 'shell-execution';
+    if (toolIds.some((id) => id.includes('write') || id.includes('edit') || id.includes('patch'))) return 'workspace-mutation';
+    if (toolIds.some((id) => id.includes('web') || id.includes('network') || id.includes('search'))) return 'web-research';
+    if (toolIds.some((id) => id.includes('memory') || id.includes('session'))) return 'memory-recall';
+    if (toolIds.some((id) => id.includes('watch') || id.includes('desktop') || id.includes('computer'))) return 'computer-use';
+    if (toolIds.some((id) => id.includes('read') || id.includes('list'))) return 'workspace-inspection';
+    if (toolIds.some((id) => id.includes('node') || id.includes('channel'))) return 'channel-or-node';
+    return recommendations.length > 0 ? 'unknown' : 'unknown';
   }
 
   private resolveQuarantine(metadata: Record<string, unknown>): NaturalCapabilityDiscoverySnapshot['quarantine'] {
@@ -645,7 +488,7 @@ export class NaturalCapabilityDiscoveryService {
     receipts.push({
       id: 'capability-discovery:policy',
       kind: 'policy',
-      detail: 'Discovery nao executou tools; apenas alimentou ToolExposurePolicy.',
+      detail: 'Discovery not executou tools; only alimentou ToolExposurePolicy.',
     });
     if (quarantine.warning) {
       receipts.push({
@@ -658,7 +501,7 @@ export class NaturalCapabilityDiscoveryService {
       receipts.push({
         id: 'capability-discovery:fallback',
         kind: 'fallback',
-        detail: 'Nenhuma capability forte foi inferida; manter resposta direta ou pedir esclarecimento.',
+        detail: 'No capability forte foi inferida; manter resposta direta ou pedir esclarecimento.',
       });
     }
     return receipts;

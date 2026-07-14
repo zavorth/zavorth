@@ -107,7 +107,7 @@ export class SwarmV2Service {
 
     const objective = String(input.objective || '').trim();
     if (!objective) {
-      throw new Error('objective obrigatorio.');
+      throw new Error('objective is required.');
     }
     if (!Array.isArray(input.roles) || input.roles.length === 0) {
       throw new Error('roles obrigatorios.');
@@ -284,7 +284,7 @@ export class SwarmV2Service {
       updatedAt: now,
     };
     if (!next.systemPrompt) {
-      throw new Error('systemPrompt obrigatorio para role library.');
+      throw new Error('systemPrompt is required for role library.');
     }
     if (index >= 0) {
       current[index] = next;
@@ -327,7 +327,7 @@ export class SwarmV2Service {
   public launchOfficialSwarm(input: SwarmV2CreateInput): SwarmV2TrackedSnapshot {
     const objective = String(input.objective || '').trim();
     if (!objective) {
-      throw new Error('objective obrigatorio.');
+      throw new Error('objective is required.');
     }
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();

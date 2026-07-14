@@ -1,6 +1,6 @@
 import { TelegramPriorityCommandService } from '../../src/telegram/TelegramPriorityCommandService';
 
-describe('TelegramPriorityCommandService (Hermes-style slash only)', () => {
+describe('TelegramPriorityCommandService (agent-first slash only)', () => {
   function createService() {
     const deps = {
       opsController: {

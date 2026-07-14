@@ -157,10 +157,10 @@ function zavorthControlClassicClientOverviewSummaryCapabilities() {
       '<div class="cockpit-mini-card"><strong>Plugins</strong><div>' +
       escapeHtml(String(summary.plugin || 0)) +
       '</div><small>Capacidades externas</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Plataformas prontas</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Plataformas ready</strong><div>' +
       escapeHtml(String(platformSummary.ready || 0)) +
       '</div><small>Telegram, Discord, WhatsApp</small></div>' +
-      '<div class="cockpit-mini-card"><strong>Integracoes prontas</strong><div>' +
+      '<div class="cockpit-mini-card"><strong>Integractions ready</strong><div>' +
       escapeHtml(String(integrationSummary.ready || 0)) +
       '</div><small>Bindings utilizaveis agora</small></div>' +
       '<div class="cockpit-mini-card"><strong>Novas capacidades</strong><div>' +

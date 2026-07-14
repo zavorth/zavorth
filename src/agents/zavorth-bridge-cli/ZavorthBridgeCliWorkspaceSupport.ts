@@ -132,7 +132,7 @@ export async function readLiveBridgeStatus(
 }
 
 export function describeWorkspaceBootstrapFailure(workspace: string, status: BridgeStatus | null): string {
-  const visibleWorkspaces = (status?.workspaceFolders || []).join(', ') || 'nenhuma';
+  const visibleWorkspaces = (status?.workspaceFolders || []).join(', ') || 'none';
   const capabilities = status?.capabilities || {};
   const missingCapabilities = [
     !capabilities.canExecuteCommand ? 'executeCommand' : null,

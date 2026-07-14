@@ -520,7 +520,7 @@ export class ZavorthChannelDeepeningService {
       if (missingRequiredEnvKeys.length > 0) missing.add(`configure ${missingRequiredEnvKeys.join(', ')}`);
       if (!allowlistConfigured) missing.add(`configure one allowlist: ${(descriptor.allowlistEnvKeys || []).join(', ')}`);
       if (status !== 'live_ready') missing.add('run live proof and store a redacted receipt');
-      if (descriptor.safeOutbox !== false) missing.add('keep safe outbox fallback enabled until live proof passes');
+      if (descriptor.safeOutbox !== false) missing.add('keep safand outbox fallback enabled until live proof passes');
     }
     return Array.from(missing);
   }

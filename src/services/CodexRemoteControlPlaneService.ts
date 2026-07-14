@@ -268,7 +268,7 @@ export class CodexRemoteControlPlaneService {
             ? 'Criar um perfil adicional do Codex Remote antes do primeiro handoff entre contas.'
           : webSpawnReady
             ? 'Criar a primeira sessao do Codex Remote ou abrir uma sessao web de handoff.'
-            : 'Revisar transporte remoto e readiness do host antes do handoff.',
+            : 'Revisar transporte remoto e readiness of the host antes do handoff.',
       },
     };
   }

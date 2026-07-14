@@ -1205,22 +1205,25 @@ describe('TelegramOpsController', () => {
     expect(summarizeLastRun).toHaveBeenCalledTimes(1);
   });
 
-  it('parses natural-language maintenance prompts', () => {
+  it('keeps maintenance on explicit slash commands', () => {
     const controller = createController();
 
-    expect(controller.parseRuntimeMaintenanceCommand('resuma as ultimas alteracoes do zavorth')).toEqual({
+    expect(controller.parseRuntimeMaintenanceCommand('resuma as ultimas alteracoes do zavorth')).toBeNull();
+    expect(controller.parseRuntimeMaintenanceCommand('/changes')).toEqual({
       action: 'changes',
       force: false,
       dryRun: false,
       improve: false,
     });
-    expect(controller.parseRuntimeMaintenanceCommand('se autoatualize com as mudancas')).toEqual({
+    expect(controller.parseRuntimeMaintenanceCommand('se autoatualize com as mudancas')).toBeNull();
+    expect(controller.parseRuntimeMaintenanceCommand('/reload')).toEqual({
       action: 'reload',
       force: false,
       dryRun: false,
       improve: false,
     });
-    expect(controller.parseRuntimeMaintenanceCommand('se autorepare e se melhore')).toEqual({
+    expect(controller.parseRuntimeMaintenanceCommand('se autorepare e se melhore')).toBeNull();
+    expect(controller.parseRuntimeMaintenanceCommand('/autorepair improve')).toEqual({
       action: 'autorepair',
       force: false,
       dryRun: false,

@@ -1,3 +1,5 @@
+import { getCommandAliases } from './locales/localeManager.js';
+
 export type ZavorthSimpleCommandPlan =
   | {
     kind: 'passthrough';
@@ -10,29 +12,27 @@ export type ZavorthSimpleCommandPlan =
   };
 
 /**
- * Everyday intent aliases (phase 2–3).
- * Prefer short human verbs; keep typos; map jargon to anyone-path tokens.
+ * English-only short aliases + typos.
+ * CLI command tokens are EN-only (no multi-language synonym packs).
+ * Free-text natural language is agent-owned (Zavorth-style).
+ * UI copy still uses src/i18n/locales/* for many languages.
  */
 const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
-  // Talk
+  // Talk (EN)
   cha: ['chat'],
   talk: ['chat'],
   converse: ['chat'],
-  falar: ['ask'],
-  dizer: ['ask'],
-  // Setup
+  // Setup (EN typos + short forms)
   setu: ['setup'],
   setuo: ['setup'],
   setups: ['setup'],
   init: ['setup'],
   configurar: ['setup'],
-  // Health / ready
+  // Health / ready (EN)
   staus: ['ready'],
   stats: ['ready'],
   health: ['ready'],
-  saude: ['ready'],
-  saúde: ['ready'],
-  // Doctor
+  // Doctor (EN typos)
   check: ['doctor'],
   diagnose: ['doctor'],
   doctro: ['doctor'],
@@ -41,25 +41,18 @@ const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   panel: ['open'],
   zavorthControl: ['open'],
   opne: ['open'],
-  // Run → ask (natural request)
+  // Run → ask (natural request token, English CLI convention)
   run: ['ask'],
   // Providers / channels typos
   provders: ['providers'],
   provs: ['providers'],
   channles: ['channels'],
   chanels: ['channels'],
-  // Connect intent
-  conectar: ['connect'],
-  conect: ['connect'],
-  ligar: ['connect'],
-  // Learn intent
-  aprender: ['learn'],
-  aprendizado: ['learn'],
+  // Learn short forms (EN)
   digest: ['learn'],
   digesto: ['learn'],
-  // Fabric short names (phase 2 collapse)
+  // Fabric short names
   where: ['reach'],
-  onde: ['reach'],
   'reach-fabric': ['reach'],
   'power-fabric': ['power'],
   'product-fabric': ['product'],
@@ -67,6 +60,8 @@ const SIMPLE_COMMAND_ALIASES: Record<string, string[]> = {
   // Stay online / health family
   'stay-online': ['ready'],
   stayonline: ['ready'],
+  // Connect short form (EN)
+  conect: ['connect'],
 };
 
 const SIMPLE_TEST_SUITES: Record<string, { label: string; scripts: string[] }> = {
@@ -126,6 +121,15 @@ export function resolveZavorthSimpleCommand(rawArgs: string[]): ZavorthSimpleCom
       kind: 'npm-script',
       label: selected.label,
       scripts: selected.scripts,
+    };
+  }
+
+  // Device/env locale aliases first (i18n), then language-agnostic short aliases.
+  const localeAlias = getCommandAliases()[command];
+  if (localeAlias) {
+    return {
+      kind: 'passthrough',
+      args: [localeAlias, ...rest],
     };
   }
 

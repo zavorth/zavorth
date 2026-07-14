@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-13T19:23:38.513Z",
+  "updatedAt": "2026-07-14T02:09:56.969Z",
   "snapshot": {
     "controls": [
       {
@@ -12,7 +12,7 @@
       {
         "id": "security/AgentToolSecurityCatalog",
         "relativePath": "src/security/AgentToolSecurityCatalog.ts",
-        "sha256": "53a79b42383f020b95e7b1895161b8d04c273cb33cd136339ccdf7b2d9e7c8f7",
+        "sha256": "227e184d09c35c92fe39bb054860237bbf4acdbfce30c380110e93f9ce5bacf6",
         "present": true
       },
       {
@@ -24,7 +24,7 @@
       {
         "id": "security/ContinuousSecurityMonitor",
         "relativePath": "src/security/ContinuousSecurityMonitor.ts",
-        "sha256": "6009f68518b2990518de9b94ea3f86d15cc0ec96deda0613d22d7284b09f4ab4",
+        "sha256": "f15866b07e94e0d5ade36a8acb267117f80ead58fcaaf7d2e492f5fbfbc51b8b",
         "present": true
       },
       {
@@ -158,7 +158,7 @@
       {
         "id": "tests/security/OperationalSecurityDoctor.test.ts",
         "relativePath": "tests/security/OperationalSecurityDoctor.test.ts",
-        "sha256": "b3da693e83198b2df5a65f780d963fca285a7dcd54bb7137911c94394d2f4a95",
+        "sha256": "babe6541b28fe4a6bed53917188037d6b77bd4ca05684f43b6c901a6209b0f20",
         "present": true
       },
       {

@@ -306,7 +306,7 @@ export class SupervisedRuntimeService {
         type: 'handoff_reload',
         requestId,
         payload: {
-          reason: String(input.reason || '').trim() || 'Reload supervisionado solicitado pelo operador.',
+          reason: String(input.reason || '').trim() || 'Reload supervisionado solicitado by the operator.',
           requestedBy: String(input.requestedBy || '').trim() || 'unknown',
           notifyChatId: String(input.notifyChatId || '').trim() || null,
           forceRestart: input.forceRestart === true,

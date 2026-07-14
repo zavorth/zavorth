@@ -345,7 +345,7 @@ export async function tryPrepareAutomationSurface(input: {
     parts.push(surface.message);
   }
   if (diagnostics.homeScreenAfter === true || diagnostics.homeScreenBefore === true) {
-    parts.push('O ZavorthBridge permaneceu na home screen.');
+    parts.push('ZavorthBridge stayed on the home screen.');
   }
   if (diagnostics.hasInputBar === false) {
     parts.push('A barra de input do chat nao ficou visivel.');

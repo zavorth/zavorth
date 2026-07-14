@@ -322,7 +322,7 @@ export class CodexRemoteReadModelService {
   ): string {
     if (state === 'inactive') {
       return timeoutSeconds
-        ? `Guardrail inativo; limite de ${timeoutSeconds}s.`
+        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
         : 'Guardrail inativo; sem timeout configurado.';
     }
     if (state === 'stale') {

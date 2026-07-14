@@ -46,7 +46,7 @@ export class RecentTaskResolver {
       /\bda ultima\b/,
       /\bdessa ultima\b/,
       /\bultima tarefa\b/,
-      /\bultimo pedido\b/,
+      /\blast pedido\b/,
     ].some((pattern) => pattern.test(normalized));
   }
 
@@ -136,7 +136,7 @@ export class RecentTaskResolver {
         ].join('\n');
       default:
         return [
-          'Encontrei uma tarefa recente associada a isso.',
+          'I found uma tarefa recente associada a isso.',
           `Referencia curta: ${shortRef}`,
           `Status: ${task.status}`,
           `Pedido: ${requestSummary}`,

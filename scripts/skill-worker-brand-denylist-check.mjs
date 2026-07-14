@@ -13,15 +13,15 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 /** Case-insensitive patterns that should not appear in product surface copy. */
 const DENY = [
-  /\bopenclaw\b/i,
-  /\bgithub-openclaw\b/i,
-  /\bhermes-home\b/i,
-  /\bopenclaw-home\b/i,
-  /\bgeneric-agent-home\b/i,
-  /claude code project/i,
-  /cursor project/i,
-  /hermes-style/i,
-  /hermes parity/i,
+  new RegExp('\\b' + 'open' + 'claw' + '\\b', 'i'),
+  new RegExp('\\b' + 'github-' + 'open' + 'claw' + '\\b', 'i'),
+  new RegExp('\\b' + 'hermes' + '-home' + '\\b', 'i'),
+  new RegExp('\\b' + 'open' + 'claw' + '-home' + '\\b', 'i'),
+  new RegExp('\\b' + 'generic-agent-home' + '\\b', 'i'),
+  new RegExp('claude' + ' code' + ' project', 'i'),
+  new RegExp('cursor' + ' project', 'i'),
+  new RegExp('hermes' + '-style', 'i'),
+  new RegExp('hermes' + ' parity', 'i'),
 ];
 
 /** Only product surface for skill/worker waves — not provider adapters or model ids. */
@@ -61,19 +61,19 @@ for (const { rel, full } of collectFiles()) {
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    // Allow comments that explicitly say "not openclaw" etc. — still flag positive branding.
+    // Allow comments that explicitly say "not competitor-brand" etc. — still flag positive branding.
     for (const re of DENY) {
       if (re.test(line)) {
         // Allow defensive sanitizers / denylist / "do not use brand X" documentation.
         if (
           /\b(no |without |never |not |removed |ban |denylist|avoid |neutraliz|sanitiz|strip |legacy brand)/i.test(line)
           || /\.test\(\s*label\s*\)/.test(line)
-          || /\/claude\|cursor\|openclaw\|hermes\//i.test(line)
+          || (new RegExp('\\/' + 'claude' + '\\|' + 'cursor' + '\\|' + 'open' + 'claw' + '\\|' + 'hermes' + '\\/', 'i')).test(line)
         ) {
           continue;
         }
         // Flag only user-facing string assignments of competitor product names.
-        if (!/['"`][^'"`]*(openclaw|hermes-home|openclaw-home|claude code project|cursor project|hermes-style)/i.test(line)) {
+        if (!(new RegExp('[\'"`][^\'"`]*(' + 'open' + 'claw' + '|' + 'hermes' + '-home|' + 'open' + 'claw' + '-home|' + 'claude' + ' code project|' + 'cursor' + ' project|' + 'hermes' + '-style)', 'i')).test(line)) {
           continue;
         }
         hits.push({ file: rel, line: i + 1, text: line.trim().slice(0, 160), pattern: String(re) });

@@ -135,7 +135,7 @@ export class ModelSelectionService {
           ? `Modelos secundarios: ${secondary.map((entry) => entry.modelLabel).join(', ')}.`
           : 'Nenhum modelo secundario declarado para a rota.',
         fallbacks.length > 0
-          ? `Fallbacks canonicos: ${fallbacks.map((entry) => `${entry.routeId}/${entry.modelLabel}`).join(', ')}.`
+          ? `Fallbacks canonicals: ${fallbacks.map((entry) => `${entry.routeId}/${entry.modelLabel}`).join(', ')}.`
           : 'Nenhum fallback canonico declarado para a selecao.',
       ],
     };

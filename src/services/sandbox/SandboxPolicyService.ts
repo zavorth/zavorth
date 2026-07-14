@@ -62,7 +62,7 @@ const SENSITIVE_CODE_PATTERNS = [
 
 /**
  * Padroes de codigo que indicam risco CRITICO (microvm/Firecracker).
- * Acesso a kernel, manipulacao de processos, rede raw, exploit-like.
+ * Acesso a kernel, manipulaction de processos, rede raw, exploit-like.
  */
 const HIGH_RISK_CODE_PATTERNS = [
   // Acesso direto a dispositivos e kernel

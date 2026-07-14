@@ -124,7 +124,7 @@ export class CodexRemoteSidecarMetadataSupport {
     let summary = '';
     if (state === 'inactive') {
       summary = timeoutSeconds
-        ? `Guardrail inativo; limite de ${timeoutSeconds}s.`
+        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
         : 'Guardrail inativo; sem limite de runtime configurado.';
     } else if (state === 'stale') {
       summary = `Heartbeat stale ha ${Math.round((presence.heartbeatAgeMs || 0) / 1000)}s; a sessao ainda responde.`;

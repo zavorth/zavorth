@@ -303,7 +303,7 @@ export class TenantTeamOpsService {
       'card Tenant/Team Ops no /zavorthControl',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'ZavorthControl expoe identidade, policy, permissoes e isolamento por tenant/time.'
+        ? 'ZavorthControl expoe identidade, policy, permissions e isolamento por tenant/time.'
         : 'ZavorthControl perdeu marcadores de Tenant/Team Ops.',
       'web',
       missing.map((marker) => `faltando: ${marker}`),
@@ -363,7 +363,7 @@ export class TenantTeamOpsService {
       entry.status !== 'personal' && entry.guidedActions === 0);
     return this.check(
       'permission:segmented-readouts',
-      'permissoes segmentadas por tenant',
+      'permissions segmentadas por tenant',
       sharedWithoutGuidedAction.length === 0 ? 'pass' : 'fail',
       readouts.length > 0
         ? 'Permissoes mostram owners, guilds, channels e acoes guiadas por tenant.'
@@ -377,7 +377,7 @@ export class TenantTeamOpsService {
     const invalid = reports.filter((report) => !report.workspaceRoot || !report.label || !report.summary);
     return this.check(
       'tenant:project-reports',
-      'relatorios por projeto/workspace',
+      'reports por projeto/workspace',
       invalid.length === 0 ? 'pass' : 'fail',
       'Relatorios agregam tenants por plataforma/projeto usando workspaceRoot e postura de governance.',
       'tenant',

@@ -1,4 +1,5 @@
-import { logger } from '../logger.js';export type EvidenceSearchDomain =
+import { logger } from '../logger.js';
+export type EvidenceSearchDomain =
   | 'ai_news'
   | 'medical'
   | 'legal'
@@ -335,24 +336,25 @@ export function inferEvidenceDomainFromText(text: string): EvidenceSearchDomain 
   if (/\b(medicina|medic[oa]s?|saude|doencas?|tratamentos?|diagnostico|sintomas?|medicamentos?|remedios?|terapias?|vacinas?|clinical\s+trials?|ensaios?\s+clinicos?|guidelines?|pubmed|oncologia|cardiologia|psiquiatria|neurologia|fda|anvisa|who|oms|nih|cdc)\b/.test(normalized)) {
     return 'medical';
   }
-  if (/\b(advogad[oa]s?|direito|juridic[oa]|lei|leis|legislacao|jurisprudencia|tribunal|stj|stf|tj[a-z]*|trf|tst|processos?|casos?|sentenca|acordao|decisoes?|precedentes?|case\s+law|court\s+cases?|legal\s+cases?)\b/.test(normalized)) {
+  if (/\b(lawyer|legal|law|legislation|jurisprudence|court|tribunal|case\s+law|court\s+cases?|legal\s+cases?|ruling|precedents?)\b/.test(normalized)) {
     return 'legal';
   }
-  if (/\b(artigos?|papers?|paper|doi|pubmed|scielo|arxiv|google\s+scholar|scholar|cientific[oa]s?|academicos?|estudos?|literatura|revisao\s+sistematica|meta[-\s]?analise|journal|periodico)\b/.test(normalized)) {
+  if (/\b(articles?|papers?|paper|doi|pubmed|scielo|arxiv|google\s+scholar|scholar|scientific|academic|studies|literature|systematic\s+review|meta[-\s]?analysis|journal)\b/.test(normalized)) {
     return 'scientific';
   }
-  if (/\b(financas?|financeir[oa]|mercado|investimentos?|acoes?|bolsa|dolar|euro|juros|selic|bitcoin|cripto|cotacao|precos?|valuation|earning|earnings)\b/.test(normalized)) {
+  if (/\b(finance|financial|market|investments?|stocks?|exchange|dollar|euro|interest\s+rates?|bitcoin|crypto|prices?|valuation|earning|earnings)\b/.test(normalized)) {
     return 'finance';
   }
-  const consumerIntent = /\b(comprar|compra|produto|produtos|custo\s*beneficio|vale\s+a\s+pena|review|reviews?|avaliacoes?|comparativo|comparar|preco|precos?)\b/.test(normalized);
-  const consumerProduct = /\b(notebook|celular|smartphone|air\s*fryer|geladeira|tv|monitor|fone|headset|camera|carro|moto|tablet|impressora|roteador|mouse|teclado)\b/.test(normalized);
-  if (consumerIntent || (consumerProduct && /\b(melhor(?:es)?|best|comparar|compare|ranking|top|comprar)\b/.test(normalized))) {
+  const consumerProduct = /\b(notebook|laptop|phone|smartphone|air\s*fryer|fridge|tv|monitor|headphones?|headset|camera|car|motorcycle|tablet|printer|router|mouse|keyboard|product|products)\b/.test(normalized);
+  const consumerIntent = /\b(buy|purchase|cost[-\s]?benefit|worth\s+it|review|reviews?|ratings?|comparative|compare|price|prices?|best|ranking|top)\b/.test(normalized);
+  // Consumer only when a product is present (avoid stealing technical "compare docs" queries).
+  if (consumerProduct && consumerIntent) {
     return 'consumer';
   }
-  if (/\b(api|sdk|biblioteca|library|framework|pacote|package|versao|version|release|changelog|github|stack\s*overflow|stackoverflow|cors|next\.?js|react|node\.?js|npm|documentacao|docs?|modelo|llm|provider|software|bug|issue|pull\s+request|pr)\b/.test(normalized)) {
+  if (/\b(api|sdk|library|framework|package|version|release|changelog|github|stack\s*overflow|stackoverflow|cors|next\.?js|react|node\.?js|npm|documentation|docs?|model|llm|provider|software|bug|issue|pull\s+request|pr)\b/.test(normalized)) {
     return 'technical';
   }
-  if (/\b(governo|ministerio|agencia|regulador|regulacao|politica\s+publica|politica\s+global|politica\s+internacional|geopolitica|diplomacia|eleicoes?|lei|decreto|portaria|consulta\s+publica|tribunal|stf|congresso|senado|camara)\b/.test(normalized)) {
+  if (/\b(government|ministry|agency|regulator|regulation|public\s+policy|global\s+politics|international\s+politics|geopolitics|diplomacy|elections?|law|decree|public\s+consultation|court|congress|senate)\b/.test(normalized)) {
     return 'public_policy';
   }
   return 'general';
@@ -445,8 +447,10 @@ function isLowAuthorityHost(host: string): boolean {
 }
 
 function isAiNewsText(normalized: string): boolean {
-  const newsMarker = /\b(noticias?|manchetes|news|headlines|ultimas?|ultimos?|latest|recent)\b/.test(normalized);
+  const newsMarker = /\b(news|headlines|latest|recent)\b/.test(normalized);
   const aiMarker =
-    /\b(ia|ai|inteligencia\s+artificial|artificial\s+intelligence|machine\s+learning|aprendizado\s+de\s+maquina|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
-  return newsMarker && aiMarker;
+    /\b(ai|artificial\s+intelligence|machine\s+learning|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
+  // Policy/regulation/law contexts are public-policy research, not AI product news.
+  const policyOverride = /\b(regulation|regulator|policy|law|legislation|government|ministry|congress|senate|court)\b/.test(normalized);
+  return newsMarker && aiMarker && !policyOverride;
 }

@@ -13,7 +13,9 @@ const SECURITY_FILES = [
   'AccessControlService.ts',
   'AgentSecurityInventory.ts',
   'AgentSecurityPolicyEngine.ts',
+  'AgentToolSecurityBootstrapManifest.ts',
   'AgentToolSecurityCatalog.ts',
+  'AgentToolSecurityDefinitionFactories.ts',
   'ApprovalSigningKeyService.ts',
   'ChildProcessEnv.ts',
   'ContinuousSecurityMonitor.ts',
@@ -273,7 +275,11 @@ describe('AgentSecurityPolicyEngine structure', () => {
 });
 
 describe('AgentToolSecurityCatalog structure', () => {
-  const content = readSecurityFile('AgentToolSecurityCatalog.ts');
+  const content = [
+    readSecurityFile('AgentToolSecurityCatalog.ts'),
+    readSecurityFile('AgentToolSecurityBootstrapManifest.ts'),
+    readSecurityFile('AgentToolSecurityDefinitionFactories.ts'),
+  ].join('\n');
 
   it('exports NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS', () => {
     expect(content).toMatch(/export\s+const\s+NATIVE_AGENT_TOOL_SECURITY_DEFINITIONS/);

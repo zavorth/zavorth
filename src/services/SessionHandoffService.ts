@@ -92,7 +92,7 @@ export class SessionHandoffService {
       return {
         kind: 'workflow',
         id: recommended.targetId,
-        label: recommended.label || 'Retomar workflow',
+        label: recommended.label || 'Resume workflow',
         source: null,
       };
     }
@@ -140,7 +140,7 @@ export class SessionHandoffService {
     if (kind === 'fresh') {
       return 'fresh';
     }
-    if (checkpoints.pendingPermissions > 0 || checkpoints.workflowRuns > 0 || checkpoints.linkedSurfaces > 0) {
+    if (checkpoints.pendingPermissions > 0 || checkpoints.workflowRuns > 0) {
       return 'resume-required';
     }
     return 'aligned';
@@ -166,12 +166,12 @@ export class SessionHandoffService {
   ): string {
     const parts = [
       status === 'fresh' ? 'sem handoff pendente' : (status === 'resume-required' ? 'retomada sugerida' : 'contexto alinhado'),
-      `${checkpoints.tasks} tarefa(s)`,
+      `${checkpoints.tasks} task(s)`,
       `${checkpoints.workflowRuns} workflow(s)`,
       `${checkpoints.pendingPermissions} confirmacao(oes)`,
     ];
     if (continuity?.focusTask?.source) {
-      parts.push(`foco atual em ${continuity.focusTask.source}`);
+      parts.push(`current focus: ${continuity.focusTask.source}`);
     }
     if (checkpoints.linkedSurfaces > 0) {
       parts.push(`${checkpoints.linkedSurfaces} superficie(s) ligada(s)`);

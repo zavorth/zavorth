@@ -85,7 +85,7 @@ export class AgentOsRollbackManagerService {
   public restore(input: { workspaceRoot: string; artifactPath: string }): AgentOsRollbackArtifact {
     const artifact = path.resolve(input.artifactPath);
     if (!artifact.startsWith(path.resolve(this.rootDir)) || !this.existsSync(artifact)) {
-      return { status: 'blocked', artifactPath: null, records: [], rawSecretsSerialized: false, summary: 'Rollback artifact invalido.' };
+      return { status: 'blocked', artifactPath: null, records: [], rawSecretsSerialized: false, summary: 'Invalid rollback artifact.' };
     }
     const parsed = JSON.parse(this.readFileSync(artifact, 'utf8')) as { records?: AgentOsRollbackRecord[] };
     const records = Array.isArray(parsed.records) ? parsed.records : [];

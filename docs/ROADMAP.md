@@ -46,19 +46,11 @@ Do **not** say “launched” or “fully shipped” from local hermetic green a
 - Host + AI gateway local ops when operator starts them
 - Desktop first-run audience (personal / developer / business) + profile manifests
 
-## Next (residual) — unified closeout V8–V12
+## Launch residual
 
-Executable program: **[WAVES-UNIFIED-CLOSEOUT.md](./product/WAVES-UNIFIED-CLOSEOUT.md)**
+Product routing architecture: [product/agent-tool-routing.md](./product/agent-tool-routing.md).
+Ops readiness: [product/launch-readiness.md](./product/launch-readiness.md).
 
-| Wave | Focus | Status |
-|------|--------|--------|
-| **V8** | Live multi-step with **user-selected** provider + measured TTFU | **DONE** — credentialed evidence + 15.4s TTFU |
-| **V9** | Desktop/Control primary + secondary + channel pickers; no legacy Auto/Gemini copy; i18n/device locale | **DONE** |
-| **V10** | Autopilot + catalog neutral defaults (no silent gemini-cli) | **DONE** |
-| **V11** | Reopen ritual, non-dev jargon, killer demos executed, Code daily loop | **DONE** |
-| **V12** | Launch ops program: gates, live cells recorder, signing report, announce checklist | **DONE (program)** |
-
-Order: `(V8 ∥ V9 ∥ V10) → V11 → V12` program complete.  
 **Launch-ready (ops)** still needs: real calendar day-1, signed installers, `npm run launch:ready:full` exit 0 before public announce.
 
 ## Later

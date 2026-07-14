@@ -145,7 +145,7 @@ export function renderZavorthCliGuidedReview(snapshot: ZavorthCliGuidedReviewSna
     `  status: ${snapshot.receipt.status}`,
     `  id: ${snapshot.receipt.id || 'pending'}`,
     `  ${snapshot.receipt.summary}`,
-    '  no host apply: true',
+    '  host apply: true',
     '',
     'Next',
     ...snapshot.nextCommands.map((entry) => `  ${entry.label}: ${entry.command} (${entry.detail})`),

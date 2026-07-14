@@ -104,7 +104,7 @@ export class ZavorthContextBudgetService {
       };
     }
 
-    // Separa system prompt das demais mensagens
+    // Seto system prompt das demais mensagens
     const systemMessages: ZavorthProviderRouterMessage[] = [];
     const conversationMessages: ZavorthProviderRouterMessage[] = [];
 

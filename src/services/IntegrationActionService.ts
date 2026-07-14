@@ -116,7 +116,7 @@ export class IntegrationActionService {
   public buildActionPlan(integrationId: string): IntegrationActionPlan {
     const manifest = this.resolveManifest(integrationId);
     if (!manifest) {
-      throw new Error(`Integracao desconhecida: ${integrationId}`);
+      throw new Error(`Integraction desconhecida: ${integrationId}`);
     }
 
     return this.planBuilder.buildActionPlan(manifest);

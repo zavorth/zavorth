@@ -107,7 +107,7 @@ export function formatReleasePresenceSnapshot(snapshot: ZavorthReleasePresenceSn
       title: 'Custo e tentativas',
       tone: snapshot.costPanel.failures > 0 || snapshot.costPanel.blocked > 0 ? 'warning' : 'neutral',
       lines: [
-        `- eventos: ${snapshot.costPanel.totalEvents}`,
+        `- events: ${snapshot.costPanel.totalEvents}`,
         `- traces: ${snapshot.costPanel.traces}`,
         `- falhas/bloqueios: ${snapshot.costPanel.failures}/${snapshot.costPanel.blocked}`,
         `- tokens: ${snapshot.costPanel.tokenAccounting.available ? snapshot.costPanel.tokenAccounting.totalTokens : 'unavailable'}`,

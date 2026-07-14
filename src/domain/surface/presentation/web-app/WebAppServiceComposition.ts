@@ -58,7 +58,7 @@ import { SkillMcpSidecarService } from '../../../../services/SkillMcpSidecarServ
 import { UniversalSkillBridgeActivationService } from '../../../../services/UniversalSkillBridgeActivationService.js';
 import { SupervisedExecutionGatewayService } from '../../../../services/SupervisedExecutionGatewayService.js';
 import { SupervisedRuntimeAdapterRegistryService } from '../../../../services/SupervisedRuntimeAdapterRegistryService.js';
-import { SwarmV2Service } from '../../../../services/SwarmV2Service.js';
+import { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { SharedSurfaceRuntime } from '../../../../services/SurfaceRuntime.js';
 import { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';

@@ -287,7 +287,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     const completed = snapshot.status === 'completed';
     const failed = snapshot.status === 'failed' || snapshot.status === 'cancelled' || snapshot.status === 'timed_out';
     const statusText = completed
-      ? 'concluido'
+      ? 'completed'
       : failed
         ? `finalizado com status ${snapshot.status}`
         : `iniciado com status ${snapshot.status}`;

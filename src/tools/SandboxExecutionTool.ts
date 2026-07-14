@@ -188,7 +188,7 @@ export class SandboxExecutionTool extends BaseTool {
 
       throw new Error(
         'Execucao bloqueada: codigo de alto risco requer MicroVM (Firecracker) ou container (Docker+gVisor), ' +
-        'but neither is available on this host. ' +
+        'mas nenhum deles esta disponivel neste host. ' +
         'Instale o Firecracker ou configure o Docker com gVisor.',
       );
     }

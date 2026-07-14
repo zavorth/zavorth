@@ -23,7 +23,8 @@ import {
   type ProjectProcessStopInput,
   type ProjectProcessSupervisorSnapshot,
 } from './ProjectProcessContract.js';
-import type { SessionRegistryService } from '../runtime/sessions/v2/SessionRegistryService.js';export type ProjectProcessSpawn = (
+import type { SessionRegistryService } from '../runtime/sessions/v2/SessionRegistryService.js';
+export type ProjectProcessSpawn = (
   command: string,
   args: string[],
   options: SpawnOptionsWithoutStdio,

@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshSecurity() {
     const node = document.getElementById('operations-security-mesh');
     if (!node) return;
     if (!securityMesh || 'error' in securityMesh) {
-      node.innerHTML = '<div class="muted">No foi possivel carregar o Runtime & Security Mesh.</div>';
+      node.innerHTML = '<div class="muted">Could not carregar o Runtime & Security Mesh.</div>';
       return;
     }
 

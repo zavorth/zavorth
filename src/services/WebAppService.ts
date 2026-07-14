@@ -308,7 +308,7 @@ export class WebAppService {
           res,
           {
             ok: false,
-            error: 'Token invalido ou antigo.',
+            error: 'Token invalid ou antigo.',
             code: 'zavorthControl_token_mismatch',
             recovery: {
               primaryCommand: 'zavorth zavorthControl',

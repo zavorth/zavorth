@@ -64,7 +64,7 @@ export class ZavorthProactivePermissionService {
   }
 
   /**
-   * Resolve uma solicitacao (Aprova/Nega)
+   * Resolve uma solicitaction (Aprova/Nega)
    */
   public resolve(id: string, approved: boolean): boolean {
     const request = this.pendingRequests.get(id);
@@ -91,7 +91,7 @@ export class ZavorthProactivePermissionService {
     const resourcePart = request.resource ? ` ao recurso "${request.resource}"` : '';
     return `?? **Pedido de Permiss??o**: Preciso de acesso para "${request.action}"${resourcePart}.\n\n` +
            `**Motivo**: ${request.reason}\n\n` +
-           `Voc?? autoriza esta opera????o? (Acesse o painel ou responda aqui)`;
+           `Voc?? autoriza esta opera????o? (Acesse o painel ou responda here)`;
   }
 
   private clone(request: PermissionRequest): PermissionRequest {

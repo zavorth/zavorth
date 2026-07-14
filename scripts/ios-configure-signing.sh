@@ -45,8 +45,8 @@ else
   exit 0
 fi
 
-if [[ -n "${OPENCLAW_IOS_BUNDLE_SUFFIX:-}" ]]; then
-  identity_source="${OPENCLAW_IOS_BUNDLE_SUFFIX}"
+if [[ -n "${ZAVORTH_IOS_BUNDLE_SUFFIX:-}" ]]; then
+  identity_source="${ZAVORTH_IOS_BUNDLE_SUFFIX}"
 else
   identity_source="${USER:-}"
   if [[ -z "${identity_source}" ]]; then
@@ -57,7 +57,7 @@ else
 fi
 bundle_suffix="$(sanitize_identifier_segment "${identity_source}")"
 
-bundle_base="${OPENCLAW_IOS_APP_BUNDLE_ID:-${OPENCLAW_IOS_BUNDLE_ID_BASE:-}}"
+bundle_base="${ZAVORTH_IOS_APP_BUNDLE_ID:-${ZAVORTH_IOS_BUNDLE_ID_BASE:-}}"
 if [[ -z "${bundle_base}" ]]; then
   if [[ "${team_id}" == "${CANONICAL_TEAM_ID}" ]]; then
     bundle_base="dev.zavorth.companion"
@@ -67,18 +67,18 @@ if [[ -z "${bundle_base}" ]]; then
 fi
 bundle_base="$(normalize_bundle_id "${bundle_base}")"
 
-share_bundle_id="${OPENCLAW_IOS_SHARE_BUNDLE_ID:-${bundle_base}.share}"
-app_group_id="${OPENCLAW_IOS_APP_GROUP_ID:-group.${bundle_base}.shared}"
-activity_widget_bundle_id="${OPENCLAW_IOS_ACTIVITY_WIDGET_BUNDLE_ID:-${bundle_base}.activitywidget}"
-watch_app_bundle_id="${OPENCLAW_IOS_WATCH_APP_BUNDLE_ID:-${bundle_base}.watchkitapp}"
+share_bundle_id="${ZAVORTH_IOS_SHARE_BUNDLE_ID:-${bundle_base}.share}"
+app_group_id="${ZAVORTH_IOS_APP_GROUP_ID:-group.${bundle_base}.shared}"
+activity_widget_bundle_id="${ZAVORTH_IOS_ACTIVITY_WIDGET_BUNDLE_ID:-${bundle_base}.activitywidget}"
+watch_app_bundle_id="${ZAVORTH_IOS_WATCH_APP_BUNDLE_ID:-${bundle_base}.watchkitapp}"
 
-code_sign_style="${OPENCLAW_IOS_CODE_SIGN_STYLE:-Automatic}"
-code_sign_identity="${OPENCLAW_IOS_CODE_SIGN_IDENTITY:-Apple Development}"
-apns_entitlement_environment="${OPENCLAW_IOS_APNS_ENTITLEMENT_ENVIRONMENT:-development}"
-app_profile="${OPENCLAW_IOS_APP_PROFILE:-}"
-share_profile="${OPENCLAW_IOS_SHARE_PROFILE:-}"
-activity_widget_profile="${OPENCLAW_IOS_ACTIVITY_WIDGET_PROFILE:-}"
-watch_app_profile="${OPENCLAW_IOS_WATCH_APP_PROFILE:-}"
+code_sign_style="${ZAVORTH_IOS_CODE_SIGN_STYLE:-Automatic}"
+code_sign_identity="${ZAVORTH_IOS_CODE_SIGN_IDENTITY:-Apple Development}"
+apns_entitlement_environment="${ZAVORTH_IOS_APNS_ENTITLEMENT_ENVIRONMENT:-development}"
+app_profile="${ZAVORTH_IOS_APP_PROFILE:-}"
+share_profile="${ZAVORTH_IOS_SHARE_PROFILE:-}"
+activity_widget_profile="${ZAVORTH_IOS_ACTIVITY_WIDGET_PROFILE:-}"
+watch_app_profile="${ZAVORTH_IOS_WATCH_APP_PROFILE:-}"
 
 tmp_file="$(mktemp "${TMPDIR:-/tmp}/zavorth-ios-configure-signing.XXXXXX")"
 cat >"${tmp_file}" <<EOF
@@ -86,30 +86,30 @@ cat >"${tmp_file}" <<EOF
 // This file is local-only and should not be committed.
 // Override values with env vars if needed:
 // IOS_DEVELOPMENT_TEAM / IOS_PREFERRED_TEAM_ID
-// OPENCLAW_IOS_APP_BUNDLE_ID / OPENCLAW_IOS_BUNDLE_ID_BASE
-// OPENCLAW_IOS_SHARE_BUNDLE_ID / OPENCLAW_IOS_APP_GROUP_ID
-// OPENCLAW_IOS_ACTIVITY_WIDGET_BUNDLE_ID
-// OPENCLAW_IOS_WATCH_APP_BUNDLE_ID
-// OPENCLAW_IOS_CODE_SIGN_STYLE / OPENCLAW_IOS_CODE_SIGN_IDENTITY
-// OPENCLAW_IOS_APNS_ENTITLEMENT_ENVIRONMENT / OPENCLAW_IOS_APP_PROFILE
-// OPENCLAW_IOS_SHARE_PROFILE / OPENCLAW_IOS_ACTIVITY_WIDGET_PROFILE
-// OPENCLAW_IOS_WATCH_APP_PROFILE
-OPENCLAW_CODE_SIGN_STYLE = ${code_sign_style}
-OPENCLAW_CODE_SIGN_IDENTITY = ${code_sign_identity}
-OPENCLAW_CODE_SIGN_ENTITLEMENTS = Sources/Zavorth.entitlements
-OPENCLAW_DEVELOPMENT_TEAM = ${team_id}
+// ZAVORTH_IOS_APP_BUNDLE_ID / ZAVORTH_IOS_BUNDLE_ID_BASE
+// ZAVORTH_IOS_SHARE_BUNDLE_ID / ZAVORTH_IOS_APP_GROUP_ID
+// ZAVORTH_IOS_ACTIVITY_WIDGET_BUNDLE_ID
+// ZAVORTH_IOS_WATCH_APP_BUNDLE_ID
+// ZAVORTH_IOS_CODE_SIGN_STYLE / ZAVORTH_IOS_CODE_SIGN_IDENTITY
+// ZAVORTH_IOS_APNS_ENTITLEMENT_ENVIRONMENT / ZAVORTH_IOS_APP_PROFILE
+// ZAVORTH_IOS_SHARE_PROFILE / ZAVORTH_IOS_ACTIVITY_WIDGET_PROFILE
+// ZAVORTH_IOS_WATCH_APP_PROFILE
+ZAVORTH_CODE_SIGN_STYLE = ${code_sign_style}
+ZAVORTH_CODE_SIGN_IDENTITY = ${code_sign_identity}
+ZAVORTH_CODE_SIGN_ENTITLEMENTS = Sources/Zavorth.entitlements
+ZAVORTH_DEVELOPMENT_TEAM = ${team_id}
 // Keep legacy key for compatibility with older signing config paths.
-OPENCLAW_IOS_SELECTED_TEAM = ${team_id}
-OPENCLAW_APP_BUNDLE_ID = ${bundle_base}
-OPENCLAW_SHARE_BUNDLE_ID = ${share_bundle_id}
-OPENCLAW_APP_GROUP_ID = ${app_group_id}
-OPENCLAW_ACTIVITY_WIDGET_BUNDLE_ID = ${activity_widget_bundle_id}
-OPENCLAW_WATCH_APP_BUNDLE_ID = ${watch_app_bundle_id}
-OPENCLAW_APNS_ENTITLEMENT_ENVIRONMENT = ${apns_entitlement_environment}
-OPENCLAW_APP_PROFILE = ${app_profile}
-OPENCLAW_SHARE_PROFILE = ${share_profile}
-OPENCLAW_ACTIVITY_WIDGET_PROFILE = ${activity_widget_profile}
-OPENCLAW_WATCH_APP_PROFILE = ${watch_app_profile}
+ZAVORTH_IOS_SELECTED_TEAM = ${team_id}
+ZAVORTH_APP_BUNDLE_ID = ${bundle_base}
+ZAVORTH_SHARE_BUNDLE_ID = ${share_bundle_id}
+ZAVORTH_APP_GROUP_ID = ${app_group_id}
+ZAVORTH_ACTIVITY_WIDGET_BUNDLE_ID = ${activity_widget_bundle_id}
+ZAVORTH_WATCH_APP_BUNDLE_ID = ${watch_app_bundle_id}
+ZAVORTH_APNS_ENTITLEMENT_ENVIRONMENT = ${apns_entitlement_environment}
+ZAVORTH_APP_PROFILE = ${app_profile}
+ZAVORTH_SHARE_PROFILE = ${share_profile}
+ZAVORTH_ACTIVITY_WIDGET_PROFILE = ${activity_widget_profile}
+ZAVORTH_WATCH_APP_PROFILE = ${watch_app_profile}
 EOF
 
 if [[ -f "${LOCAL_SIGNING_FILE}" ]] && cmp -s "${tmp_file}" "${LOCAL_SIGNING_FILE}"; then

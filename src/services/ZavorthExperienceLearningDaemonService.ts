@@ -11,7 +11,7 @@ type ExperienceLearningDaemonDeps = {
   recall?: (query: string) => Array<{ id: string; summary: string; evidenceRefs?: string[] }>;
 };
 
-const SENSITIVE_USER_MODEL = /\b(depressed|depression|anxiety|trauma|psychological|psychiatric|fragile|vulnerable|suicid|mental health|deprimido|depressao|depressivo|ansiedade|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulneravel|suicida|saude mental|salud mental|angst|traumatisiert|psychische gesundheit)\b/i;
+const SENSITIVE_USER_MODEL = /\b(depressed|depression|anxiety|trauma|psychological|psychiatric|fragile|vulnerable|suicid|mental health|deprimido|depressao|depressivo|ansiedade|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulneravel|suicida|health mental|salud mental|angst|traumatisiert|psychische gesundheit)\b/i;
 const POLICY_CHANGE = /\b(disable|bypass|ignore|skip|always allow|permit always|desativ|desabilit|burlar|ignorar|permitir sempre|sempre permitir|desactivar|deaktivieren)\w*\b.*\b(approval|approvals|policy|sandbox|security|shell|command|aprovacao|aprovacoes|politica|seguranca|comando|permissao|aprobacion|seguridad|genehmigung|sicherheit)\b/i;
 const PREFERENCE_SIGNAL = /\b(prefer|always|when i ask|use|format|style|resumo|resuma|sempre|quando eu pedir|prefiro|formato|estilo|bullet|bullets)\b/i;
 const PROCEDURE_SIGNAL = /\b(workflow|procedure|playbook|checklist|fluxo|procedimento|roteiro|passo a passo|release notes|repeated)\b/i;

@@ -7,7 +7,8 @@ describe('NaturalLanguageRouter honest command contract', () => {
     const route = router.route('list the src directory');
 
     expect(route.classified).toBe(true);
-    expect(route.intentCategory).toBe('file_operation');
+    // Free-text category is model-owned; local router only hints full_toolset.
+    expect(route.intentCategory).toBe('full_toolset');
     expect(route.suggestedInternalCommand).toBeNull();
     expect(route.legacyFallbackCommand).toBe('/task');
     expect(route.skipCommandRouting).toBe(false);

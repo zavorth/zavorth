@@ -383,7 +383,7 @@ export class UniversalSkillScaleHardeningService {
         surface: 'action-row',
         priority: 'high',
         status: input.onboarding.status === 'blocked' ? 'blocked' : 'passed',
-        evidence: 'Acoes recomendadas continuam atras de --apply, --allow-source e allowlist.',
+        evidence: 'Acoes recommendeds continuam atras de --apply, --allow-source e allowlist.',
       }),
       zavorthControlItem({
         id: 'empty-state',

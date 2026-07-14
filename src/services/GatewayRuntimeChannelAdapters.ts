@@ -253,7 +253,7 @@ export class SlackRuntimeChannelAdapter implements ChannelAdapterContract {
     if (mode === 'native') {
       notes.push('Runtime do Slack operando em modo nativo pela Web API.');
     } else if (enabled) {
-      notes.push('Runtime do Slack operando via outbox local supervisionado.');
+      notes.push('Runtime do Slack operando via outbox supervised local.');
     }
     if (typeof status?.workspaceId === 'string' && status.workspaceId.trim()) {
       notes.push(`Workspace do Slack configurado em ${status.workspaceId.trim()}.`);
@@ -413,7 +413,7 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
     } else if (provider === 'baileys') {
       notes.push('Runtime do WhatsApp reservado para rollout futuro com Baileys.');
     } else if (enabled) {
-      notes.push('Runtime do WhatsApp operando via outbox local supervisionado.');
+      notes.push('Runtime do WhatsApp operando via outbox supervised local.');
     }
     if (typeof status?.providerDecision === 'string' && status.providerDecision.trim()) {
       notes.push(status.providerDecision.trim());
@@ -467,7 +467,7 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         ['Runtime', started ? 'rodando' : 'parado', started ? 'success' : 'warning'],
         ['Conectado', connected ? 'sim' : 'nao', connected ? 'success' : 'warning'],
         ['Recipients', String(recipientsConfigured), recipientsConfigured > 0 ? 'success' : 'warning'],
-        ['Allowlist', recipientPolicy?.summary || `${recipientsConfigured} chat(s) permitidos`, recipientsConfigured > 0 ? 'success' : 'warning'],
+        ['Allowlist', recipientPolicy?.summary || `${recipientsConfigured} allowed chat(s)`, recipientsConfigured > 0 ? 'success' : 'warning'],
         ['Webhook', webhookStatus === 'configured' ? 'configurado' : provider === 'cloud-api' ? 'pendente' : 'n/a', webhookStatus === 'configured' ? 'success' : provider === 'cloud-api' ? 'warning' : 'neutral'],
         ['Bridge local', localBridge ? `${localBridge.provider || provider} (${localBridge.qrState || 'sem QR'})` : 'n/a', localBridge?.sessionDirConfigured ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
         ['QR', loginQr?.state || (provider === 'cloud-api' ? 'n/a' : 'pendente'), loginQr?.state === 'ready' ? 'success' : provider === 'cloud-api' ? 'neutral' : 'warning'],
@@ -492,7 +492,7 @@ export class WhatsAppRuntimeChannelAdapter implements ChannelAdapterContract {
         provider === 'cloud-api'
           ? readiness === 'ready'
             ? 'Monitore webhook, delivery e policy antes de ampliar o rollout do WhatsApp.'
-            : 'Complete credenciais Cloud API, callback /api/webhooks/whatsapp e chats permitidos.'
+            : 'Complete credenciais Cloud API, callback /api/webhooks/whatsapp e chats allowed.'
           : loginQr?.state === 'expired'
             ? 'Solicite /channels relink whatsapp para preparar novo QR da bridge local.'
             : loginQr?.state === 'ready'
@@ -628,7 +628,7 @@ export class InstagramRuntimeChannelAdapter implements ChannelAdapterContract {
         provider === 'meta-messaging'
           ? readiness === 'ready'
             ? 'Monitore webhook, policy e janela de conversa antes de ampliar o rollout do Instagram.'
-            : 'Complete business account id, access token, verify token, callback /api/webhooks/instagram e recipients permitidos.'
+            : 'Complete business account id, access token, verify token, callback /api/webhooks/instagram e recipients allowed.'
           : 'Use /channels prepare instagram para preparar Meta Instagram Messaging API ou valide o outbox local supervisionado.',
     };
   }

@@ -170,7 +170,7 @@ describe('SessionHandoffService', () => {
         generatedAt: '2026-04-02T12:05:00.000Z',
         status: 'resume-required',
         headline: expect.stringContaining('Handoff pronto'),
-        operatorSummary: expect.stringContaining('retomada sugerida'),
+        operatorSummary: expect.stringContaining('resume suggested'),
         canonicalTarget: expect.objectContaining({
           kind: 'task',
           id: 'task-web-1',

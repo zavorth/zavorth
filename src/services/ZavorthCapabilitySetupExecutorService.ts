@@ -222,7 +222,7 @@ export class ZavorthCapabilitySetupExecutorService {
   ): CapabilitySetupExecutorResult['narrative'] {
     if (status === 'activation_request_created') {
       return {
-        headline: 'Pedido de ativacao controlada criado.',
+        headline: 'Pedido de ativaction controlada criado.',
         nextAction: 'Revise o ledger de pedidos e execute o handoff live somente no plano de runtime apropriado.',
       };
     }

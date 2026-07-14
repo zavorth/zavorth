@@ -317,14 +317,14 @@ export class MaintenanceAutomationService {
 
   private describePriorityAction(actionId: string): string {
     if (actionId === 'validate-channel-providers') {
-      return 'Revalidacao prioritaria dos canais nativos';
+      return 'Revalidaction prioritaria dos canais nativos';
     }
     if (actionId === 'validate-remote-transports') {
-      return 'Revalidacao prioritaria dos transportes remotos';
+      return 'Revalidaction prioritaria dos transportes remotos';
     }
     return actionId === 'validate-channel-providers'
-      ? 'Revalidacao prioritaria dos canais nativos'
-      : 'Revalidacao prioritaria do Node Mesh';
+      ? 'Revalidaction prioritaria dos canais nativos'
+      : 'Revalidaction prioritaria do Node Mesh';
   }
 
   private dateKey(date: Date): string {

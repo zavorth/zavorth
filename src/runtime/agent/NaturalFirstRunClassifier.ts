@@ -1,5 +1,4 @@
 import type { UniversalAgentChannel } from './UniversalAgentRuntimeTypes.js';
-import { IntentExampleSimilarityService } from '../../services/IntentExampleSimilarityService.js';
 
 export type NaturalFirstRoute =
   | 'slash-command'
@@ -87,7 +86,7 @@ export type NaturalFirstRunClassificationInput = {
 
 export type NaturalFirstRunClassification = {
   source: 'NaturalFirstRunClassifier';
-  contractVersion: 'natural-first-classifier/3';
+  contractVersion: 'natural-first-classifier/4';
   mode: 'natural-first-agent-runtime';
   shouldEnterGateway: boolean;
   route: NaturalFirstRoute;
@@ -112,57 +111,7 @@ type RouteDecisionInput = {
   shouldEnterGateway?: boolean;
 };
 
-const OPERATOR_COMMAND_PATTERN = /^\s*(?:zavorth|npm|pnpm|yarn|git|docker|node|npx|tsx|powershell|pwsh|wsl)\b/i;
-
-const MEMORY_PATTERNS = [
-  /\b(memoria|lembr|recorda|como resolvemos|o que combinamos|o que funcionou|ultima vez|de onde paramos|continue de onde|faca igual|igual da ultima)\b/,
-  /\b(memory|recall|remember)\b/,
-];
-
-const CAPABILITY_PATTERNS = [
-  /\b(conectar|configurar|setup|habilitar|ativar|integrar|canal|gateway|telegram|discord|slack|whatsapp|api|skill|mcp|plugin|provider|modelo)\b/,
-];
-
-const OPERATIONAL_PATTERNS = [
-  /\b(analise|analisar|investigue|implemente|corrija|refatore|documente|audite|planeje|orquestre|revise|debugue)\b/,
-  /\b(repo|repositorio|codigo|workspace|projeto|codebase|arquitetura|testes?|build)\b/,
-];
-
-const TOOL_PATTERNS = [
-  /\b(shell|powershell|pwsh|terminal|comando(?:\s+de\s+terminal)?|linha\s+de\s+comando)\b/,
-  /\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd)\s+[\w:./-]+\b/,
-  /\b(rode|rodar|executa|execute|executar|run|dispare|inicie)\b[\s\S]{0,80}\b(npm|pnpm|yarn|npx|node|python|pytest|jest|git|docker|cargo|go|bash|sh|cmd|powershell|pwsh|build|testes?|scripts?)\b/,
-  /\b(crie arquivo|edite|altere|aplique patch|publique|pesquise|busque|web|browser|abra o site)\b/,
-  /\b(faca|rode|execute|dispare|inicie)\s+(?:o\s+)?deploy\b/,
-];
-
-const DANGEROUS_TEXT_PATTERNS = [
-  /\b(apague|delete|remova|rm\s+-rf|limpe a pasta|destrua|drop database)\b/,
-  /\b(publique|publicar|commit|push|merge|sudo|admin)\b/,
-  /\b(faca|rode|execute|dispare|inicie)\s+(?:o\s+)?deploy\b/,
-  /\bdeploy\s+(?:em|para)\s+(producao|production)\b/,
-  /\b(secret|secrets|token|senha|credencial|env|chave privada)\b/,
-  /\b(reinicie|restart|shutdown|kill|pare o servico)\b/,
-];
-
-const ATTENTION_TEXT_PATTERNS = [
-  /\b(instala|install|network|internet|web|pesquise|busque|fetch|download|upload|enviar|send)\b/,
-  /\b(watch mode|watchmode|computer use|clique|navegue|controle visual|subagente|subagentes?)\b/,
-];
-
-const TRANSACTION_APPROVAL_PATTERNS = [
-  /\b(compre|comprar|venda|vender|pague|pagar|pagamento|pix|boleto|fatura|checkout|pedido)\b/,
-  /\b(trade|ordem|order|btc|eth|sol|usdt|cripto|crypto|acao|acoes)\b/,
-  /\b(converta|converter|cambio|exchange|renove|renovar|cancele|cancelar assinatura)\b/,
-  /\b(saque|sacar|transferir|transfira|wallet|carteira)\b/,
-  /\b(api credits?|creditos? de api|comprar creditos?)\b/,
-];
-
-const TRANSACTION_PREVIEW_PATTERNS = [
-  /\b(monitore|monitorar|acompanhe|avise|alerta)\b.*\b(preco|abaixo|acima|cair|subir|queda)\b/,
-  /\b(preco|cotacao|market data|quote)\b.*\b(btc|eth|notebook|produto|ativo)\b/,
-];
-
+/** Risk classification for structured tool ids only (not free-text keywords). */
 const TOOL_DANGER_PATTERNS = [
   /(?:^|[._:-])(write|delete|remove|rm|edit|apply|rollback|reset|deploy|commit|push|publish)(?:$|[._:-])/,
   /\b(shell\.exec|bash\.exec|powershell\.exec|workspace\.delete|git\.reset|selfmod\.apply|selfmod\.rollback)\b/,
@@ -308,6 +257,13 @@ function resolveMetadataTools(metadata: Record<string, unknown>): {
   };
 }
 
+function isMemoryOrSessionTool(toolId: string): boolean {
+  const normalizedTool = normalizeSearchText(toolId);
+  return normalizedTool.includes('memory')
+    || normalizedTool.includes('session')
+    || normalizedTool.includes('history');
+}
+
 function confidenceFor(intent: NaturalFirstIntentKind, signalCount: number, risk: NaturalFirstRiskLevel): number {
   const base: Record<NaturalFirstIntentKind, number> = {
     'slash-command': 0.99,
@@ -364,13 +320,11 @@ function buildCost(
   return {
     tier: 'cheap',
     budgetHint: 'session-context',
-    reason: 'Pergunta livre pode responder com contexto de sessao enxuto.',
+    reason: 'Free-text agent turn with session-light context; the LLM may request tools.',
   };
 }
 
 export class NaturalFirstRunClassifier {
-  private readonly intentExamples = new IntentExampleSimilarityService();
-
   public classify(input: NaturalFirstRunClassificationInput): NaturalFirstRunClassification {
     const rawText = normalizeText(input.text);
     const text = normalizeSearchText(rawText);
@@ -386,33 +340,27 @@ export class NaturalFirstRunClassifier {
     ]);
     const approvalRequiredTools = unique(metadataTools.approvalRequired);
     const toolRisks = requestedTools.map(riskForTool);
-    const textDanger = includesAny(text, DANGEROUS_TEXT_PATTERNS);
-    const textAttention = includesAny(text, ATTENTION_TEXT_PATTERNS);
-    const transactionApprovalIntent = includesAny(text, TRANSACTION_APPROVAL_PATTERNS);
-    const transactionPreviewIntent = !transactionApprovalIntent && includesAny(text, TRANSACTION_PREVIEW_PATTERNS);
     const toolRisk = maxRisk(toolRisks);
     const highestRisk = maxRisk([
       toolRisk,
-      textDanger ? 'danger' : textAttention ? 'attention' : 'safe',
-      transactionApprovalIntent ? 'danger' : transactionPreviewIntent ? 'attention' : 'safe',
       approvalRequiredTools.length > 0 ? 'danger' : 'safe',
     ]);
     const memorySources = resolveMemorySources(metadata);
-    const memoryIntent = includesAny(text, MEMORY_PATTERNS)
-      || memorySources.length > 0
-      || requestedTools.some((tool) => normalizeSearchText(tool).includes('memory'));
-    const memoryOnlyTools = requestedTools.length > 0
-      && requestedTools.every((tool) => {
+    const memoryIntent = memorySources.length > 0
+      || requestedTools.some((tool) => {
         const normalizedTool = normalizeSearchText(tool);
-        return normalizedTool.includes('memory')
-          || normalizedTool.includes('session')
-          || normalizedTool.includes('history');
+        return normalizedTool.includes('memory') || normalizedTool.includes('session');
       });
-    const capabilityIntent = includesAny(text, CAPABILITY_PATTERNS);
-    const toolIntent = (!memoryOnlyTools && requestedTools.length > 0)
-      || OPERATOR_COMMAND_PATTERN.test(rawText)
-      || includesAny(text, TOOL_PATTERNS);
-    const operationalIntent = includesAny(text, OPERATIONAL_PATTERNS);
+    const memoryOnlyTools = requestedTools.length > 0
+      && requestedTools.every((tool) => isMemoryOrSessionTool(tool));
+    const capabilityIntent = false;
+    const operationalIntent = false;
+    // Structured requested tools only — free text never forces tool routes via keywords.
+    const toolIntent = !memoryOnlyTools && requestedTools.length > 0;
+    const textDanger = false;
+    const textAttention = false;
+    const transactionApprovalIntent = false;
+    const transactionPreviewIntent = false;
     const lowSignalChat = false;
     const attachmentsCount = resolveAttachmentCount(metadata);
     const context: NaturalFirstRuntimeContext = {
@@ -457,10 +405,7 @@ export class NaturalFirstRunClassifier {
       requestedTools,
       approvalRequiredTools,
     });
-    const exampleMatch = !textDanger && approvalRequiredTools.length === 0
-      ? this.intentExamples.match(rawText)
-      : null;
-    const decision = this.refineDecisionWithExample(this.decideRoute({
+    const decision = this.decideRoute({
       rawText,
       lowSignalChat,
       memoryIntent,
@@ -472,7 +417,7 @@ export class NaturalFirstRunClassifier {
       textDanger,
       highestRisk,
       approvalRequiredTools,
-    }), exampleMatch);
+    });
     const risk = this.buildRisk({
       highestRisk,
       textDanger,
@@ -486,8 +431,6 @@ export class NaturalFirstRunClassifier {
     });
     const signals = unique([
       ...decision.signals,
-      ...(exampleMatch ? [`intent-example:${exampleMatch.intent}`, `intent-example-score:${exampleMatch.score}`] : []),
-      ...(exampleMatch?.signals || []),
       ...candidates.map((candidate) => `candidate:${candidate}`),
       ...(context.session.present ? ['session-context'] : []),
       ...(context.user.present ? ['user-context'] : []),
@@ -514,31 +457,6 @@ export class NaturalFirstRunClassifier {
       intent,
       signals,
     });
-  }
-
-  private refineDecisionWithExample(
-    decision: RouteDecisionInput,
-    match: ReturnType<IntentExampleSimilarityService['match']>,
-  ): RouteDecisionInput {
-    if (!match) {
-      return decision;
-    }
-    if (decision.route === 'approval-proposal' || decision.intent === 'sensitive-action') {
-      return decision;
-    }
-    return {
-      ...decision,
-      route: match.route,
-      intent: match.intent,
-      reason: `${decision.reason} Intent example similarity matched "${match.text}" (${match.score}).`,
-      signals: unique([
-        ...decision.signals,
-        'intent-example-similarity',
-        ...(match.signals || []),
-      ]),
-      usesLlm: match.route === 'light-chat' ? decision.usesLlm : 'preferred',
-      effort: match.route === 'governed-execution' ? 'heavy' : decision.effort,
-    };
   }
 
   private buildCandidates(input: {
@@ -700,9 +618,9 @@ export class NaturalFirstRunClassifier {
     return {
       route: 'llm-reply',
       intent: 'free-text-question',
-      effort: 'light',
+      effort: 'standard',
       usesLlm: 'preferred',
-      reason: 'Texto livre sem intencao operacional clara deve receber resposta natural pelo runtime.',
+      reason: 'Free-text turns use the agent runtime; the LLM chooses tools.',
       signals: ['free-text'],
     };
   }
@@ -745,7 +663,7 @@ export class NaturalFirstRunClassifier {
   ): NaturalFirstRunClassification {
     return {
       source: 'NaturalFirstRunClassifier',
-      contractVersion: 'natural-first-classifier/3',
+      contractVersion: 'natural-first-classifier/4',
       mode: 'natural-first-agent-runtime',
       ...input,
       requiresApproval: input.risk.requiresApproval,

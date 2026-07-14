@@ -126,7 +126,7 @@ function buildLanes(projection: ZavorthTransactionSurfaceProjection): ZavorthTra
       ['reply', projection.replyText],
       ['runId', runtime.id],
     ]),
-    lane('natural-first', 'Natural First', 'Classificacao natural-first antes do runtime transacional.', severityForRisk(projection.naturalFirst.riskLevel), projection.naturalFirst.route, [
+    lane('natural-first', 'Natural First', 'Classificaction natural-first antes do runtime transacional.', severityForRisk(projection.naturalFirst.riskLevel), projection.naturalFirst.route, [
       ['route', projection.naturalFirst.route],
       ['intent', projection.naturalFirst.intent],
       ['requiresApproval', String(projection.naturalFirst.requiresApproval)],
@@ -187,7 +187,7 @@ function buildTimeline(projection: ZavorthTransactionSurfaceProjection): Zavorth
   const runtime = projection.runtime;
   return [
     timeline('received', 'Mensagem recebida', `${projection.surface} -> Natural First`, 'done'),
-    timeline('classified', 'Classificacao Natural First', `${projection.naturalFirst.route} / ${projection.naturalFirst.riskLevel}`, 'done'),
+    timeline('classified', 'Classificaction Natural First', `${projection.naturalFirst.route} / ${projection.naturalFirst.riskLevel}`, 'done'),
     timeline('preview', 'Preview gerado', `${runtime.preview.status}: ${runtime.preview.intent.actionKind}`, runtime.preview.status === 'blocked' ? 'blocked' : 'done'),
     timeline('approval', 'Approval', approvalTimelineDetail(projection), approvalTimelineStatus(projection)),
     timeline('credential', 'Credential Ref', credentialTimelineDetail(projection), credentialTimelineStatus(projection)),

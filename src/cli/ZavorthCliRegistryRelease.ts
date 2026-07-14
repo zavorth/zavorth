@@ -60,7 +60,7 @@ function parseReleaseArgs(args: string, flags: Pick<ZavorthCliFlags, 'live'>): P
       ? 'diff'
       : first === 'rollback'
         ? 'rollback-preview'
-        : first === 'presence' || first === 'remote' || first === 'remoto'
+        : first === 'presence' || first === 'remote'
           ? 'presence'
           : 'status';
   let from: string | null = null;
@@ -84,7 +84,7 @@ function parseReleaseArgs(args: string, flags: Pick<ZavorthCliFlags, 'live'>): P
       action = 'diff';
       continue;
     }
-    if (lower === 'presence' || lower === 'remote' || lower === 'remoto') {
+    if (lower === 'presence' || lower === 'remote') {
       action = 'presence';
       continue;
     }

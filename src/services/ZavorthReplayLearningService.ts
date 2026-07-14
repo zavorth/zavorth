@@ -294,7 +294,7 @@ export class ZavorthReplayLearningService {
         'Confirmar que rawReplayPersisted=false.',
         'Confirmar que secretsPersisted=false e redaction notes foram geradas.',
         'Aplicar somente em DigitalTwinProfile local suggest-only.',
-        'Manter revogacao por record id.',
+        'Manter revogaction por record id.',
         'Nao criar skill automaticamente; skill-candidate deve passar pelo skill evolution gate.',
       ],
       rollbackPlan: [

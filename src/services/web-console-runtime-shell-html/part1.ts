@@ -16,7 +16,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       ${legacyBannerBlock}
       <section class="hero-card">
         <p class="eyebrow">Zavorth Runtime</p>
-        <h1>Runtime, terminal e API ficam aqui.</h1>
+        <h1>Runtime, terminal e API ficam here.</h1>
         <p class="hero-copy">
           Este repo oficial e a casa do runtime, da CLI e da API do Zavorth.
           A entrada principal e <code>/zavorthControl</code>.
@@ -58,7 +58,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
 
       <section id="operator-cockpit-card" class="handoff-card">
         <p class="profile-tag">Cockpit</p>
-        <h2>Cockpit do operador</h2>
+        <h2>Operator cockpit</h2>
         <p class="muted-copy section-note">
           Estes nove blocos sao a leitura canonica do Zavorth neste host: runtime, sessions, approvals, resources, companions, health, nodes, transports e integrations.
         </p>
@@ -176,7 +176,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             class="action-button secondary"
             data-copy=""
             hidden
-          >Copiar rota secundaria</button>
+          >Copy secundaria</button>
           <a id="priority-secondary-open" class="action-button secondary" href="#" hidden>Abrir rota secundaria</a>
         </div>
         <ul id="priority-next-steps" class="handoff-list compact">
@@ -191,7 +191,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run ops:go"
-            >Copiar rota Dev</button>
+            >Copy Dev</button>
           </article>
           <article class="priority-profile-card">
             <p class="profile-tag">Operator</p>
@@ -201,7 +201,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run ops:ready"
-            >Copiar rota Operator</button>
+            >Copy Operator</button>
           </article>
           <article class="priority-profile-card">
             <p class="profile-tag">Headless</p>
@@ -211,7 +211,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run cli -- status"
-            >Copiar rota Headless</button>
+            >Copy Headless</button>
           </article>
         </div>
       </section>
@@ -246,7 +246,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           </article>
           <article class="profile-card">
             <p class="profile-tag">Headless</p>
-            <h3 id="alt-headless-title">Use o Zavorth so por terminal</h3>
+            <h3 id="alt-headless-title">Use the Zavorth so por terminal</h3>
             <p id="alt-headless-summary">Melhor para automacao local, REPL e operacao sem shell grafico.</p>
             <ul id="alt-headless-steps" class="handoff-list compact">
               <li><code>npm run cli -- status</code></li>

@@ -148,7 +148,7 @@ export class DatabaseQueryTool extends BaseTool {
 
   private formatWriteResult(result: { changes: number; lastInsertRowid?: unknown }, dbPath: string): string {
     const lines: string[] = [];
-    lines.push(`Query de escrita executada com sucesso.`);
+    lines.push(`Write query executed successfully.`);
     lines.push(`  - Database: ${dbPath}`);
     lines.push(`  - Linhas afetadas: ${result.changes}`);
     if (result.lastInsertRowid !== undefined) {

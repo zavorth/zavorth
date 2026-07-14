@@ -26,8 +26,8 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     const summary = normalizeText(
       preview.summary,
       preview.success
-        ? 'Preview de selfmod preparado pelo runtime supervisionado.'
-        : 'Preview de selfmod bloqueado pelo runtime supervisionado.',
+        ? 'Selfmod preview prepared by the supervised runtime.'
+        : 'Selfmod preview blocked by the supervised runtime.',
     );
 
     run.status = preview.success ? 'completed' : 'failed';
@@ -231,7 +231,7 @@ export function installAgentRunSelfModificationFlows(AgentRunServiceClass: { pro
     const previewId = normalizeText(preview.previewId);
     return [
       preview.success
-        ? 'Preview de selfmod preparado pelo runtime supervisionado.'
+        ? 'Selfmod preview prepared by the supervised runtime.'
         : 'Preview de selfmod nao foi aplicado.',
       '',
       summary,

@@ -19,6 +19,11 @@ import {
   extractDiscordAttachments,
   resolveDiscordThreadId,
 } from '../DiscordGatewayMessageHelpers.js';
+import {
+  ingestDiscordVoiceAttachments,
+  isDiscordAudioAttachment,
+  mergeDiscordVoiceText,
+} from '../DiscordVoiceAttachmentIngest.js';
 import { DiscordGatewayPersistence } from './DiscordGatewayPersistence.js';
 
 import type {
@@ -90,7 +95,6 @@ export class DiscordGatewayInboundService {
     const threadId = resolveDiscordThreadId(message.channel, channelId);
     const content = String(message.content || '').trim();
     const attachments = extractDiscordAttachments(message.attachments);
-    const rawText = composeDiscordInboundText(content, attachments);
 
     if (!authorId || !channelId) {
       return;
@@ -98,6 +102,20 @@ export class DiscordGatewayInboundService {
 
     if (message.author?.bot) {
       return;
+    }
+
+    // Production hardening: voice/audio attachments → preference STT → full agent text path
+    let rawText = composeDiscordInboundText(content, attachments);
+    if (attachments.some(isDiscordAudioAttachment)) {
+      const voice = await ingestDiscordVoiceAttachments({
+        attachments,
+        userId: authorId,
+      });
+      if (voice.ok && voice.agentText) {
+        rawText = mergeDiscordVoiceText(content, voice);
+      } else if (voice.message && !content) {
+        rawText = voice.message;
+      }
     }
 
     const validation = this.validateInboundMessage({

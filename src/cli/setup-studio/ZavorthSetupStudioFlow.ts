@@ -79,7 +79,7 @@ export function renderZavorthSetupStudioSnapshot(snapshot: ZavorthSetupStudioSna
     ? `Automation: ${snapshot.plan.hooks.templates.length} template(s), disabled until reviewed`
     : 'Automation: skip';
   const sections = [
-    onboardingSection('Security', setupSecurityNoticeLines({ compact: true })),
+    onboardingSection('Security warning', setupSecurityNoticeLines({ compact: true })),
     onboardingSection('Workspace', [
       snapshot.safety.dryRun ? 'Preview only. No files will be changed.' : 'Guided setup for provider, channels, Mnemos and trust.',
       `Path: ${snapshot.projectRoot}`,

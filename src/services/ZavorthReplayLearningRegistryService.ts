@@ -169,7 +169,7 @@ export class ZavorthReplayLearningRegistryService {
       ...record,
       status: 'revoked',
       revokedAt: this.now().toISOString(),
-      revokedReason: reason || 'Revogado pelo operador.',
+      revokedReason: reason || 'Revogado by the operator.',
       artifact: {
         ...record.artifact,
         status: 'revoked',

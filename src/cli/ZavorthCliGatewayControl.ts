@@ -317,9 +317,9 @@ export function formatGatewayControlCombos(payload: Record<string, unknown>): st
   const warnings = Array.isArray(combos.warnings) ? combos.warnings : [];
   const lines = [
     `- status: ${String(combos.status || 'unknown')}`,
-    `- entradas: ${String(entries.length)}`,
-    `- rotas equivalentes: ${formatGatewayControlRouteList(combos.sourceRoutes)}`,
-    `- operacoes: ${formatGatewayControlOperationList(operations)}`,
+    `- entries: ${String(entries.length)}`,
+    `- equivalent routes: ${formatGatewayControlRouteList(combos.sourceRoutes)}`,
+    `- operations: ${formatGatewayControlOperationList(operations)}`,
   ];
 
   if (entries.length === 0) {
@@ -347,9 +347,9 @@ export function formatGatewayControlComboTest(payload: Record<string, unknown>):
     `- status: ${status}`,
     `- operacao: ${String(operation.id || 'combos.validate')}`,
     `- approval: ${approval.required === false ? 'not required' : 'required'} | satisfied=${String(approval.satisfied === true)}`,
-    `- rota controlada: ${String(operation.path || '/api/gateway-control/combos/validate')}`,
-    `- equivalente atual: ${formatGatewayControlRouteList(payload.equivalentRoutes)}`,
-    ...errors.map((error) => `- erro: ${error}`),
+    `- controlled route: ${String(operation.path || '/api/gateway-control/combos/validate')}`,
+    `- current equivalent: ${formatGatewayControlRouteList(payload.equivalentRoutes)}`,
+    ...errors.map((error) => `- error: ${error}`),
     ...formatGatewayControlWarnings(warnings),
   ];
 }
@@ -362,9 +362,9 @@ export function formatGatewayControlCacheStats(payload: Record<string, unknown>)
 
   return [
     `- status: ${String(cache.status || 'unknown')}`,
-    `- rotas equivalentes: ${formatGatewayControlRouteList(cache.sourceRoutes)}`,
+    `- equivalent routes: ${formatGatewayControlRouteList(cache.sourceRoutes)}`,
     `- semantic stats: ${semanticStats ? 'published' : 'not published by the snapshot'}`,
-    `- operacoes: ${formatGatewayControlOperationList(operations)}`,
+    `- operations: ${formatGatewayControlOperationList(operations)}`,
     ...formatGatewayControlWarnings(warnings),
   ];
 }
@@ -377,9 +377,9 @@ export function formatGatewayControlRateLimits(payload: Record<string, unknown>)
 
   return [
     `- status: ${String(rateLimits.status || 'unknown')}`,
-    `- entradas: ${String(entries.length)}`,
-    `- rotas equivalentes: ${formatGatewayControlRouteList(rateLimits.sourceRoutes)}`,
-    `- operacoes: ${formatGatewayControlOperationList(operations)}`,
+    `- entries: ${String(entries.length)}`,
+    `- equivalent routes: ${formatGatewayControlRouteList(rateLimits.sourceRoutes)}`,
+    `- operations: ${formatGatewayControlOperationList(operations)}`,
     ...formatGatewayControlWarnings(warnings),
   ];
 }

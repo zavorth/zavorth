@@ -60,7 +60,7 @@ export class ZavorthBridgeTunnelBrokerService {
 
     if (localUrl) {
       const limitations = [
-        'Sem URL publica configurada; este acesso so funciona se o celular estiver na mesma rede do host.',
+        'Sem URL publica configurada; este acesso so funciona se o celular estiver na mesma rede of the host.',
       ];
       if (tunnelStatus?.running && !tunnelStatus.ready) {
         limitations.unshift('O tunel publico do ZavorthBridge ainda esta iniciando; por enquanto o acesso externo segue indisponivel.');

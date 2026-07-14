@@ -8,7 +8,8 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 
 import { homedir } from 'os';
 import { dirname, join } from 'path';
-import { logger } from '../logger.js';export type TerminalShellMode = 'daily' | 'ops';
+import { logger } from '../logger.js';
+export type TerminalShellMode = 'daily' | 'ops';
 
 export type TerminalShellFocusTarget =
   | 'composer'
@@ -396,26 +397,9 @@ function normalizeTerminalHistoryEntry(value: unknown): string {
     .slice(0, 4000);
 }
 
-function localizedAliasesForCommand(id: string, locale: string): string[] {
-  if (!locale.startsWith('pt')) {
-    return [];
-  }
-  switch (id) {
-    case 'zavorth.memory.recall':
-      return ['/memoria', '/lembrar'];
-    case 'zavorth.approvals.open':
-      return ['/aprovacoes', '/decisoes'];
-    case 'zavorth.channels.status':
-      return ['/canais'];
-    case 'zavorth.providers.pick':
-      return ['/modelo', '/provedor'];
-    case 'zavorth.tasks.list':
-      return ['/tarefas'];
-    case 'zavorth.voice.toggle':
-      return ['/voz'];
-    default:
-      return [];
-  }
+/** CLI slash/command suggestions are English-only (no locale synonym packs). */
+function localizedAliasesForCommand(_id: string, _locale: string): string[] {
+  return [];
 }
 
 function normalizeShellLabel(value: string | null | undefined, fallback: string): string {

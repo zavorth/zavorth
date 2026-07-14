@@ -38,7 +38,8 @@ import {
 } from './zavorth-bridge-cli/ZavorthBridgeCliWorkspaceSupport.js';
 import { spawnCommand } from '../core/CommandSpawn.js';
 
-export class ZavorthBridgeCliAdapter {
+
+export class ZavorthBridgeCliAdapter {
   private bridgeManager: AgentBridgeManager;
   private windowAutomator: ZavorthBridgeWindowAutomator;
   private companionBridge: ZavorthBridgeCompanionBridge;
@@ -172,7 +173,7 @@ import { spawnCommand } from '../core/CommandSpawn.js';
     const preferredModel = await this.preferenceStore.getPreferredModel();
     if (preferredModel && config.zavorthBridgeAutomationEnabled) {
       await this.companionBridge.executeCommand('workbench.view.extension.agentSidePanel', [], undefined, 5000, targetInstanceId).catch(() => undefined);
-      
+
       try {
         await this.windowAutomator.switchModel(preferredModel, 1500, targetPid);
         await this.windowAutomator.verifyModel(preferredModel, 500, targetPid);

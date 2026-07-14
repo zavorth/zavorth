@@ -180,9 +180,6 @@ export class PulseBriefService {
   }
 
   private pickBestNextAction(input: PulseBriefBuildInput, pendingApprovals: number): ExperienceAction {
-    const pendingCard = input.actionCards.find((card) => card.status === 'pending');
-    const cardAction = pendingCard?.actions.find((action) => action.command);
-    if (cardAction) return cardAction;
     if (pendingApprovals > 0) {
       const approval = input.approvals.find((item) => item.status === 'pending');
       return {
@@ -196,6 +193,9 @@ export class PulseBriefService {
         reason: tService('pulse.approval_reason'),
       };
     }
+    const pendingCard = input.actionCards.find((card) => card.status === 'pending');
+    const cardAction = pendingCard?.actions.find((action) => action.command);
+    if (cardAction) return cardAction;
     if (input.learningPending > 0) {
       return {
         id: 'daily.learning.review',

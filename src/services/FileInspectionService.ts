@@ -40,7 +40,9 @@ type CompareResolution = {
   right: string;
 };
 
-const MAX_SCAN_ENTRIES = 4000;
+// Keep natural chat inspection responsive and avoid broad traversal of personal folders.
+// Deep inventory belongs to an explicit governed agent run, not the fast local-inspector path.
+const MAX_SCAN_ENTRIES = 600;
 const MAX_COMPARE_BYTES = 1024 * 1024;
 
 export class FileInspectionService {

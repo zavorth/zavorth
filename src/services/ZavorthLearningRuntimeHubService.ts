@@ -231,7 +231,7 @@ export class ZavorthLearningRuntimeHubService {
   }
 
   /**
-   * Free-text NLU packs removed (Hermes-style: free text → agent).
+   * Free-text NLU packs removed (agent-first: free text → agent).
    * Use slash (/learn digest, /undo …) or agent tools.
    */
   public matchNaturalCommand(_text: string): null | { kind: 'digest' | 'undo'; query?: string } {

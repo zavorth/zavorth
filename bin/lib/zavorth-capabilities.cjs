@@ -1665,6 +1665,7 @@ function printProductHelp(opts) {
     'Getting started:',
     '  zavorth doctor              diagnose terminal readiness',
     '  zavorth setup               configure providers / trust',
+    '  zavorth start               start the governed local runtime',
     '  zavorth providers           provider status',
     '  zavorth home                short status + next step',
     '  zavorth capabilities        full terminal command list',

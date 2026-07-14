@@ -151,7 +151,7 @@ export class ZavorthCapabilitySetupQueueService {
       '',
     ];
     if (snapshot.tickets.length === 0) {
-      lines.push('Nao ha tickets de setup nessa visao.');
+      lines.push('There is no tickets de setup nessa visao.');
     }
     for (const ticket of snapshot.tickets) {
       lines.push(`- ${ticket.id} [${ticket.status}] ${ticket.headline}`);

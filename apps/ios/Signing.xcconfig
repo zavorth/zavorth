@@ -4,22 +4,22 @@
 
 #include "Config/Version.xcconfig"
 
-OPENCLAW_CODE_SIGN_STYLE = Manual
-OPENCLAW_CODE_SIGN_IDENTITY = Apple Development
-OPENCLAW_CODE_SIGN_ENTITLEMENTS = Sources/Zavorth.entitlements
-OPENCLAW_DEVELOPMENT_TEAM = FWJYW4S8P8
+ZAVORTH_CODE_SIGN_STYLE = Manual
+ZAVORTH_CODE_SIGN_IDENTITY = Apple Development
+ZAVORTH_CODE_SIGN_ENTITLEMENTS = Sources/Zavorth.entitlements
+ZAVORTH_DEVELOPMENT_TEAM = FWJYW4S8P8
 
-OPENCLAW_APP_BUNDLE_ID = dev.zavorth.companion
-OPENCLAW_SHARE_BUNDLE_ID = dev.zavorth.companion.share
-OPENCLAW_APP_GROUP_ID = group.dev.zavorth.companion.shared
-OPENCLAW_WATCH_APP_BUNDLE_ID = dev.zavorth.companion.watchkitapp
-OPENCLAW_ACTIVITY_WIDGET_BUNDLE_ID = dev.zavorth.companion.activitywidget
-OPENCLAW_APNS_ENTITLEMENT_ENVIRONMENT = development
+ZAVORTH_APP_BUNDLE_ID = dev.zavorth.companion
+ZAVORTH_SHARE_BUNDLE_ID = dev.zavorth.companion.share
+ZAVORTH_APP_GROUP_ID = group.dev.zavorth.companion.shared
+ZAVORTH_WATCH_APP_BUNDLE_ID = dev.zavorth.companion.watchkitapp
+ZAVORTH_ACTIVITY_WIDGET_BUNDLE_ID = dev.zavorth.companion.activitywidget
+ZAVORTH_APNS_ENTITLEMENT_ENVIRONMENT = development
 
-OPENCLAW_APP_PROFILE = dev.zavorth.companion Development
-OPENCLAW_SHARE_PROFILE = dev.zavorth.companion.share Development
-OPENCLAW_ACTIVITY_WIDGET_PROFILE =
-OPENCLAW_WATCH_APP_PROFILE =
+ZAVORTH_APP_PROFILE = dev.zavorth.companion Development
+ZAVORTH_SHARE_PROFILE = dev.zavorth.companion.share Development
+ZAVORTH_ACTIVITY_WIDGET_PROFILE =
+ZAVORTH_WATCH_APP_PROFILE =
 
 // Keep local includes after defaults: xcconfig is evaluated top-to-bottom,
 // so later assignments in local files override the defaults above.

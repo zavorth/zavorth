@@ -460,7 +460,7 @@ export class ZavorthActionGateway {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
-    if (/\b(governed|governado|estrito|strict|enterprise|corporativo)\b/u.test(normalized)) {
+    if (/\b(governed|strict|enterprise)\b/u.test(normalized)) {
       return { mode: 'governed', query: text };
     }
     if (/\b(casual|rapido|pessoal|personal|domestico)\b/u.test(normalized)) {

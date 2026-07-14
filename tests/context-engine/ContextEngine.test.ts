@@ -39,7 +39,7 @@ describe('ContextEngine gateway ingest', () => {
     ];
 
     const decision = engine.prepare(
-      'confere o README principal do projeto',
+      'check the main project README',
       'user-1',
       'chat-1',
       'telegram',
@@ -47,15 +47,24 @@ describe('ContextEngine gateway ingest', () => {
       'system',
     );
 
-    expect(decision.intentCategory).toBe('file_operation');
+    // Free text is full_toolset; firewall does not keyword-map workspace wording.
+    expect(decision.intentCategory).toBe('full_toolset');
     expect(decision.toolHintProfile).toEqual(expect.objectContaining({
-      groups: ['workspace'],
+      groups: ['all'],
       toolExposureGatedByCognitiveFirewall: false,
       isHardGate: false,
     }));
-    expect(decision.recommendedToolNames).toEqual(expect.arrayContaining(['read_file', 'list_directory']));
+    expect(decision.recommendedToolNames).toEqual(expect.arrayContaining([
+      'read_file',
+      'list_directory',
+      'web_search',
+    ]));
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(false);
-    expect(decision.tools.map((tool) => tool.name)).toEqual(['read_file', 'list_directory']);
+    expect(decision.tools.map((tool) => tool.name).sort()).toEqual([
+      'list_directory',
+      'read_file',
+      'web_search',
+    ]);
   });
 
   it('propagates plugin quarantine as a hard Cognitive Firewall gate', () => {
@@ -248,22 +257,23 @@ describe('ContextEngine gateway ingest', () => {
   it('propagates persona metadata in decision', () => {
     const engine = new ContextEngine();
     const decision = engine.prepare(
-      'rode os testes npm',
+      'run the npm tests and report failures',
       'user-1',
       'chat-1',
       'telegram',
       [],
       'system',
     );
-    expect(decision.personaType).toBe('executor');
-    expect(decision.personaConfidence).toBeGreaterThanOrEqual(0.7);
-    expect(decision.personaIsAmbiguous).toBe(false);
+    // Free text is model-owned full_toolset → conversational persona with ambiguity flag.
+    expect(decision.personaType).toBe('conversational');
+    expect(decision.personaIsAmbiguous).toBe(true);
+    expect(decision.intentCategory).toBe('full_toolset');
   });
 
-  it('uses conversational persona for ambiguous intents', () => {
+  it('uses conversational persona for trivial chat without ambiguity', () => {
     const engine = new ContextEngine();
     const decision = engine.prepare(
-      'oi',
+      'hi',
       'user-1',
       'chat-1',
       'telegram',
@@ -278,7 +288,7 @@ describe('ContextEngine gateway ingest', () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
     const engine = new ContextEngine();
     engine.prepare(
-      'rode os testes npm',
+      'run the npm tests and report failures',
       'user-1',
       'chat-1',
       'telegram',
@@ -286,7 +296,7 @@ describe('ContextEngine gateway ingest', () => {
       'system',
     );
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('[AdaptivePersona] Intent')
+      expect.stringContaining('[AdaptivePersona] Ambiguous intent (full_toolset'),
     );
     consoleSpy.mockRestore();
   });

@@ -80,7 +80,7 @@ export class TelegramPermissionMutationService {
     const userId = ctx.from?.id.toString() || '';
     const [reference, ...noteParts] = String(args || '').trim().split(/\s+/).filter(Boolean);
     const permission = await this.deps.resolvePermissionReference(reference || '');
-    const note = noteParts.join(' ').trim() || 'Politica revogada pelo operador.';
+    const note = noteParts.join(' ').trim() || 'Politica revogada pelo operator.';
     const revoked = await this.deps.permissionService.rejectRequest(permission.permission_id, userId, note);
     await replyWithTelegramSurfaceResponse(
       ctx,

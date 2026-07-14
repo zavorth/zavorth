@@ -117,7 +117,7 @@ export async function validateRegisteredOpenAILikeProvider({
     if (chatRes.status >= 500) {
       return providerUnavailable(chatRes.status);
     }
-  } catch (error: unknown) {// Chat test also failed â€” fall through to simple connectivity check.
+  } catch (error: unknown) {// Chat test also failed — fall through to simple connectivity check.
       logger.warn('[registered Openai Like] validation failed', error);
     }
 

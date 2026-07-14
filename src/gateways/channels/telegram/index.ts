@@ -19,7 +19,7 @@ export * from './TelegramDailyAssistantService.js';
 export * from './TelegramEchoSurfaceClient.js';
 export * from './TelegramExperienceActionCardFormatter.js';
 export * from './TelegramExperienceActionCardRegistry.js';
-export * from './TelegramNaturalCapabilityRoutingService.js';
+
 export * from './TelegramPriorityCommandService.js';
 export * from './TelegramSchedulerSupport.js';
 export * from './StorageMaintenance.js';

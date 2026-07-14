@@ -68,7 +68,7 @@ export class IntentSafetyClassifier {
     const automation = this.hasAnyTool(requestedTools, ['automation.create', 'watch.create', 'watchmode.control', 'cron.create'])
       || this.matches(intentText, /\b(automacao|automation|recorrente|agende|agendar|cron|watch mode|monitorar|monitore)\b/);
     const inspection = this.hasAnyTool(requestedTools, ['read_file', 'workspace.read', 'folder.read'])
-      || this.matches(intentText, /\b(analise|analisar|inspect|inspecione|listar|liste|mostrar|mostre|leia|ler)\b/);
+      || this.matches(intentText, /\b(analyze|inspect|list|show|read)\b/);
     const operatorRequired = Boolean(input.riskHints?.operatorRequired)
       || this.hasAnyTool(requestedTools, ['selfmod.preview', 'watchmode.control', 'system.delete'])
       || this.matches(intentText, /\b(overlord|host inteiro|sistema inteiro|root|admin|administrador|kernel|servico do sistema|shutdown|desligue|formate|formatar|auto[-\s]?modifique|selfmod)\b/);
@@ -239,26 +239,26 @@ export class IntentSafetyClassifier {
   }
 
   private looksLikeConcreteTarget(text: string): boolean {
-    return this.matches(text, /\b(src\/|\.ts\b|\.tsx\b|\.js\b|\.json\b|package\.json|pasta|folder|downloads?|workspace|repositorio|repo|arquivo|file|diretorio|directory)\b/);
+    return this.matches(text, /\b(src\/|\.ts\b|\.tsx\b|\.js\b|\.json\b|package\.json|folder|downloads?|workspace|repo|file|directory)\b/);
   }
 
   private asksForWebOperation(rawText: string): boolean {
     const text = this.normalizeText(rawText);
-    if (this.matches(text, /\b(pesquise|pesquisar|buscar|busque|procure|internet|web)\b/)) {
+    if (this.matches(text, /\b(search|find|research|internet|web)\b/)) {
       return true;
     }
-    if (this.matches(text, /\b(acesse|acessar|abra|abrir|navegue|fetch|baixe|download)\b/)) {
+    if (this.matches(text, /\b(access|open|browse|navigate|fetch|download)\b/)) {
       return true;
     }
     if (
       /https?:\/\/|www\./i.test(rawText)
-      && this.matches(text, /\b(leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/)
+      && this.matches(text, /\b(read|summarize|analyze|explain|extract|verify|check)\b/)
     ) {
       return true;
     }
     if (
-      this.matches(text, /\b(link|url|site|pagina|page|website)\b/)
-      && this.matches(text, /\b(leia|ler|resuma|resumir|analise|analisar|abra|abrir|acesse|acessar|verifique|verificar)\b/)
+      this.matches(text, /\b(link|url|site|page|website)\b/)
+      && this.matches(text, /\b(read|summarize|analyze|open|access|verify|check)\b/)
     ) {
       return true;
     }

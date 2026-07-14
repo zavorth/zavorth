@@ -262,7 +262,7 @@ export class ProductQualityContractService {
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'teste da CLI ainda bloqueia ruido de primeira camada.'
-        : 'teste visual da CLI perdeu padroes importantes de ruido.',
+        : 'teste visual da CLI perdeu padroes importbefore ruido.',
       VISUAL_CONTRACT_PATH,
       missing.map((phrase) => `faltando: ${phrase}`),
     );
@@ -279,8 +279,8 @@ export class ProductQualityContractService {
       'contrato humano vs JSON',
       ok ? 'pass' : 'fail',
       ok
-        ? 'docs/product-direction declara separacao entre UX humana e JSON parseavel.'
-        : 'docs/product-direction precisa declarar explicitamente a separacao entre humano e JSON.',
+        ? 'docs/product-direction declara separaction entre UX humana e JSON parseavel.'
+        : 'docs/product-direction precisa declarar explicitamente a separaction entre humano e JSON.',
       'docs/zavorth-cli.md',
       [
         `human=${hasHuman}`,

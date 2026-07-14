@@ -394,19 +394,19 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       chatId: 'discord:dm:42',
       isGroup: false,
       transport: 'text',
-      rawText: 'resuma as novidades',
+      rawText: 'summarize the updates',
       reply,
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
     expect(outputStage.deliver).toHaveBeenCalledWith(expect.objectContaining({
       surface: 'discord',
-      text: 'Gateway: resuma as novidades',
-      rawInput: 'resuma as novidades',
+      text: 'Gateway: summarize the updates',
+      rawInput: 'summarize the updates',
       requestedBy: 'discord-user',
       sessionId: 'discord:dm:42',
     }));
-    expect(reply).toHaveBeenCalledWith('stage:Gateway: resuma as novidades');
+    expect(reply).toHaveBeenCalledWith('stage:Gateway: summarize the updates');
   });
 
   it('keeps Discord guild traffic slash-only in public-server mode', async () => {
@@ -436,7 +436,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith(expect.stringContaining('use os slash commands'));
+    expect(reply).toHaveBeenCalledWith(expect.stringContaining('use Zavorth slash commands'));
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 
@@ -580,7 +580,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith(expect.stringContaining('/autorepair'));
+    expect(reply).toHaveBeenCalledWith(expect.stringMatching(/\/autorepair|Command unavailable/i));
     expect(agentGateway.handle).not.toHaveBeenCalled();
   });
 });

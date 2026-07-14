@@ -111,7 +111,7 @@ export class ChannelExperienceCertificationService {
       smokePlan,
       zavorthControlEvidence,
       narrative: {
-        headline: 'Certificacao de experiencia dos canais do Zavorth',
+        headline: 'Zavorth channel experience certification',
         operatorSummary:
           `${summary.certified} certificado(s), ${summary.usable} usavel(is), ${summary.partial} parcial(is), `
           + `${summary.missing} ausente(s), ${summary.blockers} bloqueador(es).`,
@@ -232,12 +232,12 @@ export class ChannelExperienceCertificationService {
       this.check('guided-actions', 'Acoes guiadas equivalentes', true, guidedActionsReady && consistencyGuidedReady, 'acoes minimas inspect/status/policy/doctor precisam existir', Array.from(actionKinds)),
       this.check('command-deck', 'Command deck de canais', true, commandDeckReady, `comandos exigidos: ${REQUIRED_CHANNEL_EXPERIENCE_COMMANDS.join(', ')}`, REQUIRED_CHANNEL_EXPERIENCE_COMMANDS),
       this.check('model-menu', 'Selecao de modelo acessivel', true, modelMenuReady, '/models precisa existir com menu nativo ou fallback textual', [`modelMenus=${Boolean(meshEntry?.interactiveSurface?.modelMenus)}`]),
-      this.check('connection-state', 'Estado de conexao/login', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operador precisa ver conectado/configurado/erro', this.statusEvidence(meshEntry)),
+      this.check('connection-state', 'Estado de conexao/login', true, Boolean(meshEntry?.connection || (meshEntry?.statusRows || []).length > 0 || typeof meshEntry?.configured === 'boolean'), 'operator precisa ver conectado/configurado/erro', this.statusEvidence(meshEntry)),
       this.check('governance', 'Policy e callbacks seguros', true, policyReady && safeCallbacksReady, 'mutacoes perigosas precisam exigir comando/confirmacao e policy visivel', [meshEntry?.policy?.summary || 'policy n/d']),
       this.check('session-continuity', 'Historico e envio por sessao', true, sessionContinuityReady, 'session list/history/send precisam estar modelados ou bloqueados por readiness', this.featureEvidence(meshEntry)),
       this.check('zavorthControl-contract', 'ZavorthControl operavel por contrato', true, zavorthControlReady, 'zavorthControl precisa receber status rows e actions reais do mesh', [`rows=${meshEntry?.statusRows?.length || 0}`, `actions=${meshEntry?.actions?.length || 0}`]),
       this.check('qr-login', 'QR/login WhatsApp', qrRequired, qrReady, 'WhatsApp local precisa expor QR/login/relink/logout', [meshEntry?.loginQr?.state || 'qr n/d']),
-      this.check('webhook-status', 'Webhook/status publico', webhookRequired, webhookReady, 'canais webhook precisam expor path/status', [meshEntry?.webhookPath || 'webhook n/d']),
+      this.check('webhook-status', 'Webhook/status publico', webhookRequired, webhookReady, 'webhook channels must expose path/status', [meshEntry?.webhookPath || 'webhook n/d']),
       this.check('local-bridge', 'Bridge local governada', bridgeRequired, bridgeReady, 'Signal/iMessage precisam mostrar bridge local e allowlist', this.featureEvidence(meshEntry)),
     ];
   }
@@ -278,7 +278,7 @@ export class ChannelExperienceCertificationService {
         commands: entry.smokeCommands,
       })),
       notes: [
-        'Smokes de envio real continuam dependentes de credenciais e allowlists do ambiente.',
+        'Smokes de envio real continuam depending de credenciais e allowlists do ambiente.',
         'O gate valida contrato, renderizacao, comandos, QR/status/actions e governanca sem enviar mensagens externas.',
       ],
     };

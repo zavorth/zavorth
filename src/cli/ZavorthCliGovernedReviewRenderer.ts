@@ -178,11 +178,11 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     `- status: ${snapshot.status}`,
     `- objective: ${snapshot.objective}`,
     `- context: ${snapshot.context.files.length} file(s); ${snapshot.context.source}`,
-    `- agentes: ${snapshot.agentPlan.length}; subagent receipts: ${snapshot.agentRuntimePlan.subagentReceipts.length}`,
-    `- findings: ${snapshot.verification.acceptedFindingCount} aceitos | ${snapshot.verification.needsHumanReviewFindingCount} revisao humana | ${snapshot.verification.discardedFindingCount} descartados`,
-    `- threshold: aceito ${snapshot.verification.acceptedThreshold}; revisao humana ${snapshot.verification.humanReviewThreshold}`,
+    `- agents: ${snapshot.agentPlan.length}; subagent receipts: ${snapshot.agentRuntimePlan.subagentReceipts.length}`,
+    `- findings: ${snapshot.verification.acceptedFindingCount} accepted | ${snapshot.verification.needsHumanReviewFindingCount} human review | ${snapshot.verification.discardedFindingCount} discarded`,
+    `- threshold: accepted ${snapshot.verification.acceptedThreshold}; human review ${snapshot.verification.humanReviewThreshold}`,
     '',
-    'Agentes',
+    'Agents',
   ];
 
   for (const role of snapshot.agentPlan.slice(0, 8)) {
@@ -193,7 +193,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
     );
   }
 
-  lines.push('', 'Findings aceitos');
+  lines.push('', 'Accepted findings');
   if (snapshot.findings.length === 0) {
     lines.push('- no finding accepted in this preview; run real agents/verifier before commenting or applying a patch');
   } else {
@@ -201,7 +201,7 @@ export function formatGovernedReviewSnapshot(snapshot: GovernedReviewCliSnapshot
       lines.push(
         `- [${finding.severity}] ${finding.title} (${finding.confidence})`,
         `  ${finding.file ? `${finding.file}${finding.line ? `:${finding.line}` : ''}` : 'no file'}`,
-        `  recomendacao: ${finding.recommendation}`,
+        `  recommendation: ${finding.recommendation}`,
       );
     }
   }

@@ -691,7 +691,7 @@ export class ChannelInstallScaffoldService {
         nextSteps: () => [
           'Suba um Node Host macOS e vincule IMESSAGE_NODE_ID antes de enviar mensagens.',
           'Comece em IMESSAGE_READ_ONLY=true para validar inbound/observabilidade.',
-          'Preencha IMESSAGE_ALLOWED_RECIPIENTS e exija approval antes do envio.',
+          'Preencha IMESSAGE_ALLOWED_RECIPIENTS e exialready approval antes do envio.',
           'Rode npm run test:channels:smoke para validar o doctor local.',
         ],
       };

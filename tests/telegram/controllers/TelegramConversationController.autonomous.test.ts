@@ -41,7 +41,13 @@ function createTask(overrides: Partial<Task> = {}): Task {
 
 describe('TelegramConversationController autonomous gateway routing', () => {
   it('keeps an explicit GraphRuntimeService backend behind AgentRunService approval', async () => {
-    const task = createTask();
+    const task = createTask({
+      metadata: {
+        responseDecision: {
+          requestedTools: ['write_file', 'shell.exec'],
+        },
+      },
+    });
     const ctx = {
       chat: { id: 4242 },
       from: { id: 42 },

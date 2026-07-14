@@ -31,7 +31,7 @@ export class GatewayHealthRenewalService {
         id: 'node-mesh-smoke',
         label: 'Node Mesh smoke',
         command: 'npm run test:nodes:smoke',
-        summary: 'O smoke real do Node Mesh ficou velho e merece renovacao leve.',
+        summary: 'O smoke real do Node Mesh ficou velho e merece renovaction leve.',
       });
     }
 
@@ -40,7 +40,7 @@ export class GatewayHealthRenewalService {
         id: 'system-overlord-smoke',
         label: 'System Overlord smoke',
         command: 'npm run test:overlord:smoke',
-        summary: 'O smoke do System Overlord ficou velho e merece renovacao leve.',
+        summary: 'O smoke do System Overlord ficou velho e merece renovaction leve.',
       });
     }
 
@@ -49,7 +49,7 @@ export class GatewayHealthRenewalService {
         id: 'channel-provider-doctor',
         label: 'Doctor de canais nativos',
         command: 'npm run test:channels:smoke',
-        summary: 'O doctor dos canais nativos ficou velho e merece renovacao leve.',
+        summary: 'O doctor dos canais nativos ficou velho e merece renovaction leve.',
       });
     }
 
@@ -58,7 +58,7 @@ export class GatewayHealthRenewalService {
         id: 'remote-transport-doctor',
         label: 'Doctor de transportes remotos',
         command: 'npm run test:transports:smoke',
-        summary: 'O doctor dos transportes remotos ficou velho e merece renovacao leve.',
+        summary: 'O doctor dos transportes remotos ficou velho e merece renovaction leve.',
       });
     }
 

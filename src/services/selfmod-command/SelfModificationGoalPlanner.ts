@@ -81,7 +81,7 @@ export class SelfModificationGoalPlanner {
         content: [
           'Voce planeja changesets seguros para o Zavorth.',
           'Retorne apenas JSON valido.',
-          'No maximo 6 mudancas por resposta.',
+          'No maximo 6 changes por resposta.',
           'Cada mudanca deve conter filePath relativo e instruction objetiva.',
           'Use apenas caminhos relativos dentro de src/, tests/, config/ ou scripts/.',
         ].join('\n'),

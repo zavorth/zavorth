@@ -24,316 +24,44 @@ import { CanonicalExecutionPipelineService } from '@zavorth/services/CanonicalEx
 import { logger } from '../logger.js';
 import { tService } from '../i18n/services.js';
 import { asErrorLike } from '../utils/errorLike';
+import {
+  ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION,
+  type LlmRuntimeChatOptions,
+  type ManagedSwarm,
+  type SwarmRoleDataEvent,
+  type SwarmRoleFinishedEvent,
+  type SwarmRoleStartedEvent,
+  type ToolSpecRawInput,
+  type ZavorthEnsembleBenchmarkSnapshot,
+  type ZavorthEnsembleBatchSnapshot,
+  type ZavorthEnsembleCreateInput,
+  type ZavorthEnsembleIsolationMode,
+  type ZavorthEnsembleOfficialState,
+  type ZavorthEnsembleOfficialSurface,
+  type ZavorthEnsembleParallelMetrics,
+  type ZavorthEnsembleReplayEvent,
+  type ZavorthEnsembleReplayInsights,
+  type ZavorthEnsembleRoleLibraryEntry,
+  type ZavorthEnsembleRoleSelectionSnapshot,
+  type ZavorthEnsembleTokenBudgetInput,
+  type ZavorthEnsembleTokenBudgetSnapshot,
+  type ZavorthEnsembleToolSpec,
+  type ZavorthEnsembleTrackedSnapshot,
+} from './ZavorthEnsembleTypes.js';
 
-export const ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION = '2026-05-17.official-zavorth-ensemble' as const;
+export * from './ZavorthEnsembleTypes.js';
+import {
+  buildTokenBudgetSnapshot,
+  clampNumber,
+  chunkRoles,
+  defaultRoleLibrary,
+  isStrongIsolationMode,
+  normalizeKey,
+  normalizeToolSpecs,
+  parseJsonObject,
+  strongIsolationWrapper,
+} from './ZavorthEnsembleHelpers.js';
 
-export type ZavorthEnsembleIsolationMode = 'direct' | 'temp-worktree' | 'docker' | 'wsl' | 'external-sandbox';
-
-export type ZavorthEnsembleToolSpec = {
-  id: string;
-  kind: 'shell';
-  label: string;
-  command: string;
-  args?: string[];
-  cwd?: string | null;
-  risk?: 'safe' | 'attention' | 'danger';
-  requiresApproval?: boolean;
-};
-
-export type SwarmRoleStartedEvent = {
-  roleId: string;
-  label?: string;
-};
-
-export type SwarmRoleDataEvent = {
-  roleId: string;
-  data?: string;
-};
-
-export type SwarmRoleFinishedEvent = {
-  roleId: string;
-  status?: string;
-  exitCode?: number;
-};
-
-export type LlmRuntimeChatOptions = {
-  allowFallback?: boolean;
-  telemetry?: {
-    surface: string;
-    runId: string;
-    traceId: string;
-  };
-};
-
-export type ToolSpecRawInput = {
-  id?: unknown;
-  command?: unknown;
-  risk?: unknown;
-  label?: unknown;
-  args?: unknown;
-  cwd?: unknown;
-  requiresApproval?: unknown;
-};
-
-export type ZavorthEnsembleRoleSelectionSnapshot = {
-  mode: 'manual' | 'heuristic' | 'llm';
-  requestedRoleCount: number;
-  selectedRoleIds: string[];
-  availableRoleCount: number;
-  rationale: string;
-};
-
-export type ZavorthEnsembleBenchmarkSnapshot = {
-  enabled: boolean;
-  baseline: 'estimated-serial' | 'not-requested';
-  elapsedMs: number;
-  estimatedSerialMs: number;
-  speedup: number;
-  throughputRolesPerSecond: number;
-  failureRate: number;
-  qualityScore: number;
-};
-
-export type ZavorthEnsembleTokenBudgetInput = {
-  maxLlmCalls?: number | null;
-  maxEstimatedTokens?: number | null;
-  maxEstimatedUsd?: number | null;
-  modelClass?: 'cheap' | 'standard' | 'premium' | null;
-  approved?: boolean | null;
-  allowHighCost?: boolean | null;
-};
-
-export type ZavorthEnsembleTokenBudgetSnapshot = {
-  enabled: true;
-  status: 'passed' | 'approval_required' | 'blocked';
-  risk: 'low' | 'medium' | 'high' | 'critical';
-  estimatedLlmCalls: number;
-  estimatedInputTokens: number;
-  estimatedOutputTokens: number;
-  estimatedTotalTokens: number;
-  estimatedUsd: number;
-  limits: {
-    maxLlmCalls: number;
-    maxEstimatedTokens: number;
-    maxEstimatedUsd: number;
-  };
-  approved: boolean;
-  modelClass: 'cheap' | 'standard' | 'premium';
-  rationale: string;
-};
-
-export type ZavorthEnsembleRoleLibraryEntry = {
-  id: string;
-  label: string;
-  kind: 'planner' | 'researcher' | 'implementer' | 'verifier' | 'critic' | 'synthesizer' | 'operator' | 'custom';
-  systemPrompt: string;
-  defaultTools: string[];
-  risk: 'safe' | 'attention' | 'danger' | 'unknown';
-  scope: 'read_only' | 'tool_limited' | 'workspace_patch';
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type ZavorthEnsembleReplayEvent = {
-  id: string;
-  at: string;
-  type:
-    | 'swarm.queued'
-    | 'batch.queued'
-    | 'batch.started'
-    | 'batch.finished'
-    | 'role.started'
-    | 'role.output'
-    | 'role.finished'
-    | 'role.tool.bound'
-    | 'role.selection'
-    | 'benchmark.completed'
-    | 'swarm.synthesized'
-    | 'swarm.cancelled'
-    | 'swarm.failed';
-  swarmId: string;
-  batchId?: string | null;
-  roleId?: string | null;
-  summary: string;
-  payload?: Record<string, unknown>;
-};
-
-export type ZavorthEnsembleReplayInsights = {
-  status: 'empty' | 'recording' | 'ready';
-  operatorSummary: string;
-  timeline: Array<{
-    id: string;
-    label: string;
-    eventCount: number;
-    status: 'pending' | 'active' | 'done' | 'failed';
-  }>;
-  byRole: Array<{
-    roleId: string;
-    label: string;
-    eventCount: number;
-    outputBytes: number;
-    status: string;
-    confidence: number;
-  }>;
-  bottlenecks: Array<{
-    id: string;
-    severity: 'info' | 'warning' | 'critical';
-    summary: string;
-  }>;
-  compare: {
-    completedRoles: number;
-    failedRoles: number;
-    outputSpreadBytes: number;
-    strongestRoleId: string | null;
-    weakestRoleId: string | null;
-  };
-  synthesisConfidence: number;
-  nextReplayAction: string;
-};
-
-export type ZavorthEnsembleBatchSnapshot = {
-  batchId: string;
-  index: number;
-  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-  roleIds: string[];
-  maxConcurrency: number;
-  startedAt: string | null;
-  finishedAt: string | null;
-};
-
-export type ZavorthEnsembleParallelMetrics = {
-  totalRoles: number;
-  queuedRoles: number;
-  runningRoles: number;
-  completedRoles: number;
-  failedRoles: number;
-  timedOutRoles: number;
-  cancelledRoles: number;
-  maxConcurrency: number;
-  batchCount: number;
-  completedBatchCount: number;
-  elapsedMs: number;
-  outputBytes: number;
-  synthesisChars: number;
-  parallelismScore: number;
-};
-
-export type ZavorthEnsembleOfficialSurface = {
-  official: true;
-  experimental: false;
-  contractVersion: typeof ZAVORTH_ENSEMBLE_OFFICIAL_CONTRACT_VERSION;
-  queue: {
-    mode: 'batch-queue';
-    status: 'queued' | 'running' | 'draining' | 'completed' | 'cancelled' | 'failed';
-    maxRoles: number;
-    maxConcurrency: number;
-    pendingBatchIds: string[];
-  };
-  batches: ZavorthEnsembleBatchSnapshot[];
-  replay: {
-    eventCount: number;
-    events: ZavorthEnsembleReplayEvent[];
-  };
-  replayInsights: ZavorthEnsembleReplayInsights;
-  metrics: ZavorthEnsembleParallelMetrics;
-  roleLibrary: {
-    persistent: true;
-    selectedRoleIds: string[];
-    availableRoleCount: number;
-  };
-  isolation: {
-    mode: ZavorthEnsembleIsolationMode;
-    workersIsolated: boolean;
-    workerRoots: Array<{ roleId: string; cwd: string; mode: ZavorthEnsembleIsolationMode }>;
-    note: string;
-  };
-  synthesis: {
-    mode: 'deterministic' | 'llm';
-    status: 'pending' | 'completed' | 'failed';
-    summary: string;
-  };
-  roleSelection: ZavorthEnsembleRoleSelectionSnapshot;
-  toolExecution: {
-    plannedToolCount: number;
-    executedToolCount: number;
-    commandToolCount: number;
-    approvalRequiredToolCount: number;
-    toolIds: string[];
-  };
-  benchmark: ZavorthEnsembleBenchmarkSnapshot;
-  tokenBudget: ZavorthEnsembleTokenBudgetSnapshot;
-  strongIsolation: {
-    required: boolean;
-    satisfied: boolean;
-    mode: ZavorthEnsembleIsolationMode;
-    wrapper: 'none' | 'docker' | 'wsl' | 'external-sandbox';
-    note: string;
-  };
-};
-
-export type ZavorthEnsembleCreateInput = {
-  swarmId?: string | null;
-  objective: string;
-  roles: SwarmRole[];
-  subagentReceipts?: SubagentResultReceipt[] | null;
-  subagentBudget?: SubagentBudgetInput | null;
-  official?: boolean | null;
-  roleLibraryIds?: string[] | null;
-  maxRoles?: number | null;
-  maxConcurrency?: number | null;
-  batchSize?: number | null;
-  isolationMode?: ZavorthEnsembleIsolationMode | null;
-  isolationImage?: string | null;
-  wslDistro?: string | null;
-  requireStrongIsolation?: boolean | null;
-  autoSelectRoles?: boolean | null;
-  desiredRoleCount?: number | null;
-  benchmark?: boolean | null;
-  toolSpecs?: ZavorthEnsembleToolSpec[] | null;
-  tokenBudget?: ZavorthEnsembleTokenBudgetInput | null;
-  roleSelectionOverride?: ZavorthEnsembleRoleSelectionSnapshot | null;
-};
-
-export type ZavorthEnsembleTrackedSnapshot = SwarmSnapshot & { swarmId: string; createdAt: string } & Partial<ZavorthEnsembleOfficialSurface>;
-
-type ManagedSwarm = {
-  swarmId: string;
-  orchestrator: SwarmOrchestrator | null;
-  roles: SwarmRole[];
-  subagentReceipts: SubagentResultReceipt[];
-  subagentBudget: SubagentBudgetInput | null;
-  lastSnapshot: SwarmSnapshot;
-  createdAt: string;
-  execution: Promise<SwarmSnapshot>;
-  officialState?: ZavorthEnsembleOfficialState;
-};
-
-type ZavorthEnsembleOfficialState = {
-  swarmId: string;
-  objective: string;
-  createdAt: string;
-  roles: SwarmRole[];
-  selectedRoleIds: string[];
-  queueStatus: ZavorthEnsembleOfficialSurface['queue']['status'];
-  maxRoles: number;
-  maxConcurrency: number;
-  batches: ZavorthEnsembleBatchSnapshot[];
-  replay: ZavorthEnsembleReplayEvent[];
-  isolationMode: ZavorthEnsembleIsolationMode;
-  workerRoots: Array<{ roleId: string; cwd: string; mode: ZavorthEnsembleIsolationMode }>;
-  synthesisStatus: ZavorthEnsembleOfficialSurface['synthesis']['status'];
-  synthesisMode: ZavorthEnsembleOfficialSurface['synthesis']['mode'];
-  synthesisSummary: string;
-  startedAt: string;
-  roleSelection: ZavorthEnsembleRoleSelectionSnapshot;
-  toolSpecs: ZavorthEnsembleToolSpec[];
-  benchmarkEnabled: boolean;
-  tokenBudget: ZavorthEnsembleTokenBudgetSnapshot;
-  strongIsolationRequired: boolean;
-  strongIsolationSatisfied: boolean;
-  strongIsolationWrapper: ZavorthEnsembleOfficialSurface['strongIsolation']['wrapper'];
-};
 
 export class ZavorthEnsembleService {
   private readonly swarms = new Map<string, ManagedSwarm>();
@@ -363,7 +91,7 @@ export class ZavorthEnsembleService {
 
     const objective = String(input.objective || '').trim();
     if (!objective) {
-      throw new Error('objective obrigatorio.');
+      throw new Error('objective is required.');
     }
     if (!Array.isArray(input.roles) || input.roles.length === 0) {
       throw new Error('roles obrigatorios.');
@@ -528,7 +256,7 @@ export class ZavorthEnsembleService {
     const current = this.readRoleLibrary();
     const index = current.findIndex((item) => item.id === entry.id);
     const next: ZavorthEnsembleRoleLibraryEntry = {
-      id: this.normalizeKey(entry.id, 'custom-role'),
+      id: normalizeKey(entry.id, 'custom-role'),
       label: String(entry.label || '').trim() || entry.id,
       kind: entry.kind || 'custom',
       systemPrompt: String(entry.systemPrompt || '').trim(),
@@ -540,7 +268,7 @@ export class ZavorthEnsembleService {
       updatedAt: now,
     };
     if (!next.systemPrompt) {
-      throw new Error('systemPrompt obrigatorio para role library.');
+      throw new Error('systemPrompt is required for role library.');
     }
     if (index >= 0) {
       current[index] = next;
@@ -564,7 +292,7 @@ export class ZavorthEnsembleService {
       return this.launchOfficialSwarm(input);
     }
     const library = this.readRoleLibrary();
-    const desiredRoleCount = this.clampNumber(input.desiredRoleCount, 1, 300, 6);
+    const desiredRoleCount = clampNumber(input.desiredRoleCount, 1, 300, 6);
     const selection = await this.selectRoleIdsForObjective({
       objective: input.objective,
       desiredRoleCount,
@@ -581,7 +309,7 @@ export class ZavorthEnsembleService {
   public launchOfficialSwarm(input: ZavorthEnsembleCreateInput): ZavorthEnsembleTrackedSnapshot {
     const objective = String(input.objective || '').trim();
     if (!objective) {
-      throw new Error('objective obrigatorio.');
+      throw new Error('objective is required.');
     }
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
@@ -591,11 +319,11 @@ export class ZavorthEnsembleService {
       objective,
       library: roleLibrary,
       selectedRoleIds: Array.isArray(input.roleLibraryIds)
-        ? input.roleLibraryIds.map((entry) => this.normalizeKey(entry, '')).filter(Boolean)
+        ? input.roleLibraryIds.map((entry) => normalizeKey(entry, '')).filter(Boolean)
         : [],
       requestedRoles: Array.isArray(input.roles) ? input.roles : [],
       autoSelectRoles: input.autoSelectRoles === true,
-      desiredRoleCount: this.clampNumber(input.desiredRoleCount, 1, 300, 6),
+      desiredRoleCount: clampNumber(input.desiredRoleCount, 1, 300, 6),
     });
     const selectedRoleIds = autoSelection.selectedRoleIds;
     const requestedRoles = Array.isArray(input.roles) ? input.roles : [];
@@ -609,17 +337,17 @@ export class ZavorthEnsembleService {
     );
     const roles = this.prepareOfficialRoles([...requestedRoles, ...libraryRoles], {
       objective,
-      maxRoles: this.clampNumber(input.maxRoles, 1, 300, 300),
+      maxRoles: clampNumber(input.maxRoles, 1, 300, 300),
       isolationMode: input.isolationMode || 'temp-worktree',
       swarmId,
-      toolSpecs: this.normalizeToolSpecs(input.toolSpecs),
+      toolSpecs: normalizeToolSpecs(input.toolSpecs),
       isolationImage: input.isolationImage,
       wslDistro: input.wslDistro,
     });
     if (roles.length === 0) {
       throw new Error('roles obrigatorios.');
     }
-    const tokenBudget = this.buildTokenBudgetSnapshot({
+    const tokenBudget = buildTokenBudgetSnapshot({
       objective,
       roles,
       roleSelection: autoSelection,
@@ -631,9 +359,9 @@ export class ZavorthEnsembleService {
       throw new Error(`Swarm Token Budget Guard: ${tokenBudget.status}. ${tokenBudget.rationale}`);
     }
 
-    const maxConcurrency = this.clampNumber(input.maxConcurrency, 1, 30, Math.min(6, roles.length));
-    const batchSize = this.clampNumber(input.batchSize, 1, maxConcurrency, maxConcurrency);
-    const batches = this.chunkRoles(roles, batchSize).map((batch, index): ZavorthEnsembleBatchSnapshot => ({
+    const maxConcurrency = clampNumber(input.maxConcurrency, 1, 30, Math.min(6, roles.length));
+    const batchSize = clampNumber(input.batchSize, 1, maxConcurrency, maxConcurrency);
+    const batches = chunkRoles(roles, batchSize).map((batch, index): ZavorthEnsembleBatchSnapshot => ({
       batchId: `${swarmId}:batch-${index + 1}`,
       index,
       status: 'queued',
@@ -669,12 +397,12 @@ export class ZavorthEnsembleService {
         requestedRoleCount: roles.length,
         availableRoleCount: roleLibrary.length,
       },
-      toolSpecs: this.normalizeToolSpecs(input.toolSpecs),
+      toolSpecs: normalizeToolSpecs(input.toolSpecs),
       benchmarkEnabled: input.benchmark === true,
       tokenBudget,
       strongIsolationRequired: input.requireStrongIsolation === true,
-      strongIsolationSatisfied: this.isStrongIsolationMode(input.isolationMode || 'temp-worktree'),
-      strongIsolationWrapper: this.strongIsolationWrapper(input.isolationMode || 'temp-worktree'),
+      strongIsolationSatisfied: isStrongIsolationMode(input.isolationMode || 'temp-worktree'),
+      strongIsolationWrapper: strongIsolationWrapper(input.isolationMode || 'temp-worktree'),
     };
     if (state.strongIsolationRequired && !state.strongIsolationSatisfied) {
       throw new Error('Zavorth Ensemble exige isolamento forte: use isolationMode docker, wsl ou external-sandbox.');
@@ -1051,7 +779,7 @@ export class ZavorthEnsembleService {
       bottlenecks.push({
         id: 'output-spread',
         severity: 'info',
-        summary: 'Uma role produziu muito mais contexto que as outras; revise a sintese por vies de volume.',
+        summary: 'One role produced much more context than the others; review the synthesis for volume bias.',
       });
     }
     const synthesisConfidence = Math.max(0, Math.min(100, Math.round(
@@ -1065,12 +793,12 @@ export class ZavorthEnsembleService {
       status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
       operatorSummary: events.length === 0
         ? 'Replay ainda sem eventos.'
-        : `${events.length} evento(s), ${completedRoles}/${state.roles.length} role(s) concluidas, confianca ${synthesisConfidence}/100.`,
+        : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
       timeline: [
-        this.buildReplayTimelineItem('queued', 'Fila', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
+        this.buildReplayTimelineItem('queued', 'Queue', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
         this.buildReplayTimelineItem('roles', 'Roles', events, ['role.started', 'role.output', 'role.finished'], state.queueStatus === 'running' ? 'active' : completedRoles > 0 ? 'done' : 'pending'),
         this.buildReplayTimelineItem('batches', 'Batches', events, ['batch.started', 'batch.finished'], state.batches.some((batch) => batch.status === 'failed') ? 'failed' : state.batches.some((batch) => batch.status === 'running') ? 'active' : 'done'),
-        this.buildReplayTimelineItem('synthesis', 'Sintese', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
+        this.buildReplayTimelineItem('synthesis', 'Synthesis', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
       ],
       byRole: roleOutputs.map((role) => ({
         ...role,
@@ -1167,116 +895,6 @@ export class ZavorthEnsembleService {
     };
   }
 
-  private buildTokenBudgetSnapshot(input: {
-    objective: string;
-    roles: SwarmRole[];
-    roleSelection: ZavorthEnsembleRoleSelectionSnapshot;
-    input?: ZavorthEnsembleTokenBudgetInput | null;
-    benchmark: boolean;
-    hasLlmRuntime: boolean;
-  }): ZavorthEnsembleTokenBudgetSnapshot {
-    const modelClass = ['cheap', 'standard', 'premium'].includes(String(input.input?.modelClass || ''))
-      ? input.input?.modelClass as 'cheap' | 'standard' | 'premium'
-      : 'standard';
-    const limits = {
-      maxLlmCalls: this.clampNumber(input.input?.maxLlmCalls, 1, 100, 6),
-      maxEstimatedTokens: this.clampNumber(input.input?.maxEstimatedTokens, 1000, 1000000, 48000),
-      maxEstimatedUsd: this.clampMoney(input.input?.maxEstimatedUsd, 0.01, 100, 0.5),
-    };
-    const approved = input.input?.approved === true || input.input?.allowHighCost === true;
-    const rolePromptTokens = input.roles.reduce((total, role) => (
-      total
-      + this.estimateTokens(role.systemPrompt)
-      + this.estimateTokens(role.label)
-      + this.estimateTokens(role.command || '')
-      + this.estimateTokens((role.args || []).join(' '))
-    ), 0);
-    const objectiveTokens = this.estimateTokens(input.objective);
-    const roleSelectionCalls = input.hasLlmRuntime && input.roleSelection.mode === 'llm' ? 1 : 0;
-    const synthesisCalls = input.hasLlmRuntime ? 1 : 0;
-    const roleLlmCalls = input.hasLlmRuntime
-      ? input.roles.filter((role) => !role.command && !role.toolSpecId).length
-      : 0;
-    const estimatedLlmCalls = roleSelectionCalls + synthesisCalls + roleLlmCalls;
-    const estimatedInputTokens = input.hasLlmRuntime
-      ? objectiveTokens * Math.max(1, estimatedLlmCalls)
-        + rolePromptTokens
-        + input.roles.length * (input.benchmark ? 120 : 220)
-      : 0;
-    const estimatedOutputTokens = input.hasLlmRuntime
-      ? 900 + roleLlmCalls * 700 + Math.ceil(input.roles.length * 35)
-      : 0;
-    const estimatedTotalTokens = estimatedInputTokens + estimatedOutputTokens;
-    const estimatedUsd = this.estimateUsd(estimatedTotalTokens, modelClass);
-    const risk = this.classifyTokenBudgetRisk({
-      estimatedLlmCalls,
-      estimatedTotalTokens,
-      estimatedUsd,
-    });
-    const overLimit = estimatedLlmCalls > limits.maxLlmCalls
-      || estimatedTotalTokens > limits.maxEstimatedTokens
-      || estimatedUsd > limits.maxEstimatedUsd;
-    const status: ZavorthEnsembleTokenBudgetSnapshot['status'] = !input.hasLlmRuntime
-      ? 'passed'
-      : risk === 'critical' && !approved
-        ? 'blocked'
-        : overLimit && !approved
-          ? 'approval_required'
-          : 'passed';
-    const rationale = !input.hasLlmRuntime
-      ? 'No LLM runtime is attached; this swarm uses local/tool execution and deterministic synthesis.'
-      : status === 'passed'
-        ? `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} within budget.`
-        : `Estimated ${estimatedLlmCalls} LLM call(s), ${estimatedTotalTokens} token(s), US$${estimatedUsd.toFixed(4)} exceeds budget; approve explicitly or lower roles/output.`;
-    return {
-      enabled: true,
-      status,
-      risk,
-      estimatedLlmCalls,
-      estimatedInputTokens,
-      estimatedOutputTokens,
-      estimatedTotalTokens,
-      estimatedUsd,
-      limits,
-      approved,
-      modelClass,
-      rationale,
-    };
-  }
-
-  private classifyTokenBudgetRisk(input: {
-    estimatedLlmCalls: number;
-    estimatedTotalTokens: number;
-    estimatedUsd: number;
-  }): ZavorthEnsembleTokenBudgetSnapshot['risk'] {
-    if (input.estimatedLlmCalls > 50 || input.estimatedTotalTokens > 250000 || input.estimatedUsd > 5) {
-      return 'critical';
-    }
-    if (input.estimatedLlmCalls > 12 || input.estimatedTotalTokens > 100000 || input.estimatedUsd > 1.5) {
-      return 'high';
-    }
-    if (input.estimatedLlmCalls > 4 || input.estimatedTotalTokens > 32000 || input.estimatedUsd > 0.35) {
-      return 'medium';
-    }
-    return 'low';
-  }
-
-  private estimateTokens(text: unknown): number {
-    return Math.ceil(String(text || '').length / 4);
-  }
-
-  private estimateUsd(tokens: number, modelClass: 'cheap' | 'standard' | 'premium'): number {
-    const perMillion = modelClass === 'cheap' ? 0.25 : modelClass === 'premium' ? 10 : 2.5;
-    return Math.round((tokens / 1_000_000) * perMillion * 10000) / 10000;
-  }
-
-  private clampMoney(value: unknown, min: number, max: number, fallback: number): number {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      return fallback;
-    }
-    return Math.min(max, Math.max(min, parsed));
-  }
 
   private async synthesizeOfficialOutput(
     state: ZavorthEnsembleOfficialState,
@@ -1320,7 +938,7 @@ export class ZavorthEnsembleService {
         {
           role: 'user',
           content: [
-            'You are Zavorth Zavorth Ensemble final synthesizer.',
+            'You are Zavorth Swarm v2 final synthesizer.',
             'Create a concise, accurate final report from the role outputs below.',
             'Preserve blockers, failed roles, metrics and next safe steps.',
             'Do not expose chain-of-thought or raw secrets.',
@@ -1392,11 +1010,11 @@ export class ZavorthEnsembleService {
           traceId: 'zavorth-ensemble-role-selection',
         },
       } satisfies LlmRuntimeChatOptions);
-      const parsed = this.parseJsonObject(response.content);
+      const parsed = parseJsonObject(response.content);
       const libraryIds = new Set(input.library.map((role) => role.id));
       const selected = Array.isArray(parsed?.selectedRoleIds)
         ? (parsed.selectedRoleIds as unknown[])
-          .map((value: unknown) => this.normalizeKey(value, ''))
+          .map((value: unknown) => normalizeKey(value, ''))
           .filter((value: string, index: number, values: string[]) => libraryIds.has(value) && values.indexOf(value) === index)
           .slice(0, input.desiredRoleCount)
         : [];
@@ -1438,7 +1056,7 @@ export class ZavorthEnsembleService {
       return {
         mode: 'manual',
         requestedRoleCount: input.requestedRoles.length,
-        selectedRoleIds: input.requestedRoles.map((role, index) => this.normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`)),
+        selectedRoleIds: input.requestedRoles.map((role, index) => normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`)),
         availableRoleCount: input.library.length,
         rationale: 'Operator provided concrete swarm roles.',
       };
@@ -1455,7 +1073,7 @@ export class ZavorthEnsembleService {
 
     const objective = input.objective.toLowerCase();
     const wanted = ['planner', 'researcher'];
-    if (/(implementar|implemente|code|codigo|patch|corrigir|fix|build|test|teste|execut)/i.test(objective)) {
+    if (/(implement|code|patch|fix|build|test|execute)/i.test(objective)) {
       wanted.push('implementer');
     }
     if (/(seguranca|security|risco|approval|permiss|secret|vulnerab|auditoria)/i.test(objective)) {
@@ -1479,57 +1097,6 @@ export class ZavorthEnsembleService {
     };
   }
 
-  private normalizeToolSpecs(raw: unknown): ZavorthEnsembleToolSpec[] {
-    if (!Array.isArray(raw)) {
-      return [];
-    }
-    return raw.map((entry, index): ZavorthEnsembleToolSpec | null => {
-      const spec = entry as ToolSpecRawInput;
-      const id = this.normalizeKey(spec?.id, `tool-${index + 1}`);
-      const command = String(spec?.command || '').trim();
-      if (!command) {
-        return null;
-      }
-      const risk = ['safe', 'attention', 'danger'].includes(String(spec?.risk || ''))
-        ? String(spec?.risk) as 'safe' | 'attention' | 'danger'
-        : 'attention';
-      return {
-        id,
-        kind: 'shell',
-        label: String(spec?.label || id).trim(),
-        command,
-        args: Array.isArray(spec?.args) ? (spec.args as unknown[]).map((value: unknown) => String(value)) : [],
-        cwd: String(spec?.cwd || '').trim() || null,
-        risk,
-        requiresApproval: spec?.requiresApproval === false ? false : true,
-      };
-    }).filter(Boolean) as ZavorthEnsembleToolSpec[];
-  }
-
-  private isStrongIsolationMode(mode: ZavorthEnsembleIsolationMode): boolean {
-    return mode === 'docker' || mode === 'wsl' || mode === 'external-sandbox';
-  }
-
-  private strongIsolationWrapper(mode: ZavorthEnsembleIsolationMode): ZavorthEnsembleOfficialSurface['strongIsolation']['wrapper'] {
-    if (mode === 'docker') return 'docker';
-    if (mode === 'wsl') return 'wsl';
-    if (mode === 'external-sandbox') return 'external-sandbox';
-    return 'none';
-  }
-
-  private parseJsonObject(raw: unknown): Record<string, unknown> | null {
-    const text = String(raw || '').trim();
-    if (!text) return null;
-    try {
-      return JSON.parse(text);
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      const match = text.match(/\{[\s\S]*\}/);
-      if (!match) return null;
-      try {
-        return JSON.parse(match[0]);
-      } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Zavorth Ensemble] JSON parse failed', error); return null; }
-    }
-  }
 
   private prepareOfficialRoles(
     roles: SwarmRole[],
@@ -1544,7 +1111,7 @@ export class ZavorthEnsembleService {
     },
   ): SwarmRole[] {
     return roles.slice(0, input.maxRoles).map((role, index) => {
-      const id = this.normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`);
+      const id = normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`);
       const cwd = this.resolveRoleCwd(input.swarmId, id, input.isolationMode, role.cwd);
       const toolSpec = !role.command && input.toolSpecs.length > 0
         ? input.toolSpecs[index % input.toolSpecs.length]
@@ -1585,7 +1152,7 @@ export class ZavorthEnsembleService {
       return requestedCwd || process.cwd();
     }
     if (mode === 'temp-worktree') {
-      const root = path.join(os.tmpdir(), 'zavorth-zavorth-ensemble', this.normalizeKey(swarmId, 'swarm'), roleId);
+      const root = path.join(os.tmpdir(), 'zavorth-zavorth-ensemble', normalizeKey(swarmId, 'swarm'), roleId);
       fs.mkdirSync(root, { recursive: true });
       return root;
     }
@@ -1658,7 +1225,7 @@ export class ZavorthEnsembleService {
   }
 
   private rolesFromLibrary(library: ZavorthEnsembleRoleLibraryEntry[], ids: string[]): SwarmRole[] {
-    const wanted = new Set(ids.map((id) => this.normalizeKey(id, '')));
+    const wanted = new Set(ids.map((id) => normalizeKey(id, '')));
     return library
       .filter((entry) => wanted.has(entry.id))
       .map((entry): SwarmRole => ({
@@ -1671,7 +1238,7 @@ export class ZavorthEnsembleService {
   private readRoleLibrary(): ZavorthEnsembleRoleLibraryEntry[] {
     const filePath = this.resolveRoleLibraryPath();
     if (!fs.existsSync(filePath)) {
-      const seeded = this.defaultRoleLibrary();
+      const seeded = defaultRoleLibrary();
       this.writeRoleLibrary(seeded);
       return seeded;
     }
@@ -1684,7 +1251,7 @@ export class ZavorthEnsembleService {
       // fall through to defaults
       logger.warn('[Zavorth Ensemble] JSON parse failed', error);
     }
-    const seeded = this.defaultRoleLibrary();
+    const seeded = defaultRoleLibrary();
     this.writeRoleLibrary(seeded);
     return seeded;
   }
@@ -1700,7 +1267,7 @@ export class ZavorthEnsembleService {
   }
 
   private normalizeRoleLibraryEntry(raw: Record<string, unknown>): ZavorthEnsembleRoleLibraryEntry | null {
-    const id = this.normalizeKey(raw?.id, '');
+    const id = normalizeKey(raw?.id, '');
     const systemPrompt = String(raw?.systemPrompt || '').trim();
     if (!id || !systemPrompt) {
       return null;
@@ -1735,36 +1302,6 @@ export class ZavorthEnsembleService {
     return String(error || 'unknown');
   }
 
-  private defaultRoleLibrary(): ZavorthEnsembleRoleLibraryEntry[] {
-    const now = new Date().toISOString();
-    return [
-      ['planner', 'Planner', 'planner', 'Quebre a missao em etapas, riscos, dependencias, criterios de aceite e handoffs claros.'],
-      ['researcher', 'Researcher', 'researcher', 'Collect evidence, files, context, and facts. Work in read-only mode and cite gaps.'],
-      ['implementer', 'Implementer', 'implementer', 'Proponha ou execute a implementacao permitida, mantendo escopo, rollback e diffs pequenos.'],
-      ['verifier', 'Verifier', 'verifier', 'Validate tests, regression risk, security, acceptance criteria, and operational risks.'],
-      ['synthesizer', 'Synthesizer', 'synthesizer', 'Una os resultados dos demais agentes em uma resposta final objetiva, sem chain-of-thought bruto.'],
-      ['safety-reviewer', 'Safety Reviewer', 'critic', 'Look for risks, improper permission use, secret leaks, prompt injection, and actions without approval.'],
-    ].map(([id, label, kind, systemPrompt]) => ({
-      id,
-      label,
-      kind: kind as ZavorthEnsembleRoleLibraryEntry['kind'],
-      systemPrompt,
-      defaultTools: [],
-      risk: kind === 'implementer' ? 'attention' : 'safe',
-      scope: kind === 'implementer' ? 'workspace_patch' : 'read_only',
-      tags: ['official', 'default'],
-      createdAt: now,
-      updatedAt: now,
-    }));
-  }
-
-  private chunkRoles(roles: SwarmRole[], size: number): SwarmRole[][] {
-    const chunks: SwarmRole[][] = [];
-    for (let index = 0; index < roles.length; index += size) {
-      chunks.push(roles.slice(index, index + size));
-    }
-    return chunks;
-  }
 
   private pushReplay(
     state: ZavorthEnsembleOfficialState,
@@ -1784,20 +1321,6 @@ export class ZavorthEnsembleService {
     });
   }
 
-  private clampNumber(value: unknown, min: number, max: number, fallback: number): number {
-    const parsed = Number(value);
-    if (!Number.isFinite(parsed)) {
-      return Math.min(max, Math.max(min, fallback));
-    }
-    return Math.min(max, Math.max(min, Math.trunc(parsed)));
-  }
-
-  private normalizeKey(value: unknown, fallback: string): string {
-    const normalized = String(value || '').trim().toLowerCase()
-      .replace(/[^a-z0-9_.:-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    return normalized || fallback;
-  }
 
   private withLifecycle(
     snapshot: SwarmSnapshot,

@@ -287,7 +287,7 @@ export class TelegramMediaController {
       }
 
       // Never invent media placeholders — agentText is pure dictation.
-      const messageText = dictation.agentText;
+      const messageText = this.normalizeVoiceTranscriptForDispatch(dictation.agentText);
 
       const dispatchStartedAt = Date.now();
       const voiceFlow = {

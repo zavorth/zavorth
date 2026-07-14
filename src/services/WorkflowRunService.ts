@@ -251,7 +251,7 @@ export class WorkflowRunService {
         status: run.status === "completed" ? "completed" : "running",
         summary:
           run.status === "completed"
-            ? `Workflow ${run.workflow_name} concluido.`
+            ? `Workflow ${run.workflow_name} completed.`
             : `Workflow ${run.workflow_name} segue em execucao.`,
         at: now,
         metadata: {
@@ -318,7 +318,7 @@ export class WorkflowRunService {
         status: run.status === "completed" ? "completed" : "running",
         summary:
           run.status === "completed"
-            ? `Workflow ${run.workflow_name} concluido por seed de etapa.`
+            ? `Workflow ${run.workflow_name} completed por seed de etapa.`
             : `Workflow ${run.workflow_name} segue em execucao.`,
         at: now,
         metadata: {

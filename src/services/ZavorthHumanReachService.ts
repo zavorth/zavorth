@@ -162,7 +162,7 @@ export class ZavorthHumanReachService {
         stable: true,
         ready: Boolean(waToken && waPhone),
         howToStart: waToken && waPhone
-          ? 'Use o numero Business configurado; mensagens entram pelo webhook.'
+          ? 'Use the numero Business configurado; mensagens entram pelo webhook.'
           : 'Configure app Business no Meta Developers.',
         setupSteps: [
           'Crie app Business no developers.facebook.com',
@@ -198,7 +198,7 @@ export class ZavorthHumanReachService {
         recommended: preferred === 'cli',
         stable: true,
         ready: true,
-        howToStart: 'Use o chat CLI / zavorth open no terminal.',
+        howToStart: 'Use the chat CLI / zavorth open no terminal.',
         setupSteps: ['Instale o CLI e rode o host local.'],
         envHints: [],
         nextStep: null,
@@ -237,7 +237,7 @@ export class ZavorthHumanReachService {
   }
 
   /**
-   * Free-text NLU packs removed (Hermes-style: free text → agent).
+   * Free-text NLU packs removed (agent-first: free text → agent).
    * Use explicit slash/API intents instead.
    */
   public matchNaturalCommand(_text: string): null | { kind: 'list' | 'guide'; pathId?: ReachPathId } {

@@ -1,11 +1,11 @@
 import { asErrorLike } from '../utils/errorLike';
 /**
- * LLMIntentClassifier - Intelligent intent classification using the user's LLM.
+ * LLMIntentClassifier — optional second opinion for trivial vs non-trivial free text.
  *
- * Replaces rigid regex patterns with LLM-based understanding that works
- * across any language, understands context, and handles ambiguity gracefully.
- *
- * Falls back to regex for trivial cases (cost optimization).
+ * Free-text capability choice is model-owned. This classifier must not map words to
+ * tool categories. It only distinguishes cheap trivial chat from full_toolset.
+ * Prefer the zero-token IntentClassifier; enable this only when an async path
+ * needs LLM language coverage for greetings.
  */
 
 import type { ILlmProvider, ChatMessage } from '../providers/ILlmProvider.js';
@@ -28,38 +28,29 @@ interface CacheEntry {
   timestamp: number;
 }
 
-const INTENT_CLASSIFICATION_PROMPT = `You are an intent classifier. Analyze the user's message and classify their intent.
+const INTENT_CLASSIFICATION_PROMPT = `You classify free-text messages for routing cost only.
 
-Available categories:
-- conversation: General chat, greetings, questions about the AI, casual discussion
-- information: Web searches, current events, facts, data lookup
-- file_operation: Creating, reading, editing, deleting files or directories
-- execution: Running commands, scripts, tests, builds, installations
-- configuration: Changing settings, models, providers, profiles
-- memory: Remembering, recalling, forgetting information
-- desktop: Desktop automation, screen control, mouse/keyboard
-- research: Deep research, analysis, literature review, investigations
-- full_toolset: Complex tasks requiring multiple tool categories
+Return ONLY one of two categories:
+- conversation: short social acknowledgement (hi, thanks, ok, bye) with no task
+- full_toolset: anything that might need tools, knowledge, research, files, code, or multi-step work
 
-Respond with ONLY a JSON object (no markdown, no explanation):
+Do NOT invent other categories. Capability choice belongs to the main agent model.
+
+Respond with ONLY a JSON object (no markdown):
 {
-  "category": "<category>",
+  "category": "conversation" | "full_toolset",
   "confidence": <0.0-1.0>,
   "reason": "<brief explanation>"
 }
 
 Examples:
-- "oi" → {"category": "conversation", "confidence": 0.95, "reason": "Simple greeting"}
-- "create a file called test.ts" → {"category": "file_operation", "confidence": 0.9, "reason": "File creation request"}
-- "run npm test" → {"category": "execution", "confidence": 0.95, "reason": "Command execution"}
-- "what's the weather today?" → {"category": "information", "confidence": 0.85, "reason": "Information lookup"}
-- "configure the openai provider" → {"category": "configuration", "confidence": 0.9, "reason": "Configuration change"}
-- "remember my preference for dark mode" → {"category": "memory", "confidence": 0.9, "reason": "Memory storage"}
-- "research the latest AI papers" → {"category": "research", "confidence": 0.85, "reason": "Deep research request"}
-- "olá, como vai?" → {"category": "conversation", "confidence": 0.95, "reason": "Portuguese greeting"}
-- "crea un archivo de prueba" → {"category": "file_operation", "confidence": 0.85, "reason": "Spanish file creation"}
+- "hi" → {"category":"conversation","confidence":0.95,"reason":"Greeting"}
+- "thanks" → {"category":"conversation","confidence":0.95,"reason":"Acknowledgement"}
+- "create a file called test.ts" → {"category":"full_toolset","confidence":0.9,"reason":"Task may need tools"}
+- "what's the weather today?" → {"category":"full_toolset","confidence":0.9,"reason":"May need search"}
+- "olá, como vai?" → {"category":"conversation","confidence":0.9,"reason":"Social greeting"}
 
-Analyze this message and classify the intent:`;
+Classify this message:`;
 
 export class LLMIntentClassifier {
   private provider: ILlmProvider | null = null;
@@ -71,19 +62,15 @@ export class LLMIntentClassifier {
 
   constructor(options: LLMIntentClassifierOptions = {}) {
     this.providerName = options.providerName || 'default';
-    this.cacheTtlMs = options.cacheTtlMs ?? 5 * 60 * 1000; // 5 minutes
+    this.cacheTtlMs = options.cacheTtlMs ?? 5 * 60 * 1000;
     this.maxCacheEntries = options.maxCacheEntries ?? 1000;
     this.debug = options.debug ?? false;
   }
 
-  /**
-   * Classify user intent using the LLM.
-   * Returns cached result if available and fresh.
-   */
   public async classify(userMessage: string): Promise<IntentClassification> {
     const cacheKey = this.getCacheKey(userMessage);
     const cached = this.cache.get(cacheKey);
-    
+
     if (cached && Date.now() - cached.timestamp < this.cacheTtlMs) {
       if (this.debug) {
         console.log('[LLMIntentClassifier] Cache hit for:', userMessage.substring(0, 50));
@@ -94,43 +81,97 @@ export class LLMIntentClassifier {
     try {
       const provider = this.getProvider();
       const classification = await this.classifyWithLLM(provider, userMessage);
-      
-      // Cache the result
+
       this.cache.set(cacheKey, {
         classification,
         timestamp: Date.now(),
       });
-      
-      // Evict old entries if cache is full
-      if (this.cache.size > this.maxCacheEntries) {
-        this.evictOldEntries();
-      }
+      this.evictOldEntries();
 
       if (this.debug) {
-        console.log(`[LLMIntentClassifier] Classified "${userMessage.substring(0, 50)}" as ${classification.category} (${classification.confidence})`);
+        console.log(
+          `[LLMIntentClassifier] Classified "${userMessage.substring(0, 50)}" as ${classification.category} (${classification.confidence})`,
+        );
       }
 
       return classification;
     } catch (error: unknown) {
-      console.error('[LLMIntentClassifier] LLM classification failed, returning ambiguous:', error);
-      return this.getAmbiguousFallback();
+      console.error('[LLMIntentClassifier] LLM classification failed, returning full_toolset:', error);
+      return this.ambiguousResult('LLM classification failed; free text stays model-owned.');
     }
   }
 
-  /**
-   * Clear the classification cache.
-   */
-  public clearCache(): void {
-    this.cache.clear();
+  private async classifyWithLLM(
+    provider: ILlmProvider,
+    userMessage: string,
+  ): Promise<IntentClassification> {
+    const messages: ChatMessage[] = [
+      { role: 'system', content: INTENT_CLASSIFICATION_PROMPT },
+      { role: 'user', content: userMessage },
+    ];
+
+    const response = await provider.chat(messages);
+    const content = String(response.content || '').trim();
+    return this.parseClassification(content);
   }
 
-  /**
-   * Get cache statistics.
-   */
-  public getCacheStats(): { size: number; hitRate: number } {
+  private parseClassification(content: string): IntentClassification {
+    try {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return this.ambiguousResult('Unparseable LLM response.');
+      }
+      const parsed = JSON.parse(jsonMatch[0]) as {
+        category?: string;
+        confidence?: number;
+        reason?: string;
+      };
+      const raw = String(parsed.category || '').toLowerCase().trim();
+      const category: IntentCategory = raw === 'conversation' ? 'conversation' : 'full_toolset';
+      const confidence = Math.max(0, Math.min(1, Number(parsed.confidence) || 0.5));
+      const isTrivialChat = category === 'conversation' && confidence >= 0.85;
+      return {
+        category,
+        confidence,
+        reason: String(parsed.reason || 'LLM free-text cost routing hint.'),
+        isTrivialChat,
+        isHardDecision: false,
+        downgradedBy: [],
+        secondPass: {
+          source: 'ContextualIntentSecondPass',
+          stage: 7,
+          mode: 'local-contextual',
+          verdict: category === 'full_toolset' ? 'left-ambiguous' : 'confirmed',
+          originalCategory: category,
+          finalCategory: category,
+          confidenceDelta: 0,
+          signals: ['llm-cost-routing-only'],
+        },
+      };
+    } catch (error: unknown) {
+      console.error('[LLMIntentClassifier] Failed to parse LLM response:', content);
+      return this.ambiguousResult(`Parse error: ${asErrorLike(error).message}`);
+    }
+  }
+
+  private ambiguousResult(reason: string): IntentClassification {
     return {
-      size: this.cache.size,
-      hitRate: 0, // Would need to track hits/misses for accurate rate
+      category: 'full_toolset',
+      confidence: 0.3,
+      reason,
+      isTrivialChat: false,
+      isHardDecision: false,
+      downgradedBy: [],
+      secondPass: {
+        source: 'ContextualIntentSecondPass',
+        stage: 7,
+        mode: 'local-contextual',
+        verdict: 'left-ambiguous',
+        originalCategory: 'full_toolset',
+        finalCategory: 'full_toolset',
+        confidenceDelta: 0,
+        signals: ['llm-fallback-full-toolset'],
+      },
     };
   }
 
@@ -141,112 +182,28 @@ export class LLMIntentClassifier {
     return this.provider;
   }
 
-  private async classifyWithLLM(
-    provider: ILlmProvider,
-    userMessage: string,
-  ): Promise<IntentClassification> {
-    const messages: ChatMessage[] = [
-      {
-        role: 'system',
-        content: INTENT_CLASSIFICATION_PROMPT,
-      },
-      {
-        role: 'user',
-        content: userMessage,
-      },
-    ];
+  public clearCache(): void {
+    this.cache.clear();
+  }
 
-    const response = await provider.chat(messages, [], {
-      modelName: undefined, // Use default model
-    });
-
-    const content = response.content || '';
-    
-    // Parse the JSON response
-    try {
-      const parsed = JSON.parse(content);
-      
-      // Validate the response structure
-      if (!parsed.category || typeof parsed.confidence !== 'number') {
-        throw new Error('Invalid classification response structure');
-      }
-
-      // Validate category is one of the allowed values
-      const validCategories: IntentCategory[] = [
-        'conversation', 'information', 'file_operation', 'execution',
-        'configuration', 'memory', 'desktop', 'research', 'full_toolset',
-      ];
-      
-      if (!validCategories.includes(parsed.category)) {
-        throw new Error(`Invalid category: ${parsed.category}`);
-      }
-
-      // Clamp confidence to valid range
-      const confidence = Math.max(0, Math.min(1, parsed.confidence));
-
-      return {
-        category: parsed.category,
-        confidence,
-        reason: parsed.reason || 'LLM classification',
-        isTrivialChat: parsed.category === 'conversation' && confidence >= 0.9,
-        isHardDecision: false,
-        downgradedBy: [],
-        secondPass: {
-          source: 'ContextualIntentSecondPass',
-          stage: 7,
-          mode: 'local-contextual',
-          verdict: 'confirmed',
-          originalCategory: parsed.category,
-          finalCategory: parsed.category,
-          confidenceDelta: 0,
-          signals: ['llm-classified'],
-        },
-      };
-    } catch (parseError: unknown) {
-      const err = asErrorLike(parseError);
-      const error = err;
-      console.error('[LLMIntentClassifier] Failed to parse LLM response:', content);
-      throw new Error(`Failed to parse classification: ${parseError}`);
-    }
+  public getCacheStats(): { size: number; maxEntries: number; ttlMs: number } {
+    return {
+      size: this.cache.size,
+      maxEntries: this.maxCacheEntries,
+      ttlMs: this.cacheTtlMs,
+    };
   }
 
   private getCacheKey(message: string): string {
-    // Simple hash for cache key - in production, use a proper hash function
-    return message.toLowerCase().trim().substring(0, 100);
+    return String(message || '').trim().toLowerCase().slice(0, 500);
   }
 
   private evictOldEntries(): void {
-    const now = Date.now();
-    const entries = Array.from(this.cache.entries());
-    
-    // Sort by timestamp (oldest first)
-    entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-    
-    // Remove oldest entries until we're under the limit
-    const toRemove = entries.slice(0, entries.length - this.maxCacheEntries + 100);
+    if (this.cache.size <= this.maxCacheEntries) return;
+    const sorted = Array.from(this.cache.entries()).sort((a, b) => a[1].timestamp - b[1].timestamp);
+    const toRemove = sorted.slice(0, sorted.length - this.maxCacheEntries);
     for (const [key] of toRemove) {
       this.cache.delete(key);
     }
-  }
-
-  private getAmbiguousFallback(): IntentClassification {
-    return {
-      category: 'full_toolset',
-      confidence: 0.3,
-      reason: 'LLM classification failed, using ambiguous fallback',
-      isTrivialChat: false,
-      isHardDecision: false,
-      downgradedBy: ['llm-classification-failed'],
-      secondPass: {
-        source: 'ContextualIntentSecondPass',
-        stage: 7,
-        mode: 'local-contextual',
-        verdict: 'left-ambiguous',
-        originalCategory: 'full_toolset',
-        finalCategory: 'full_toolset',
-        confidenceDelta: 0,
-        signals: ['llm-fallback'],
-      },
-    };
   }
 }

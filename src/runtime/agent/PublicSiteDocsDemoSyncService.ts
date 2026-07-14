@@ -3,7 +3,8 @@ import type { PublicDocsRecipesSnapshot } from '../../contracts/PublicDocsRecipe
 import type { PublicReleaseBundleContractSnapshot } from '../../contracts/PublicReleaseBundleContract.js';
 import type { WebsitePublicContractSnapshot } from '../../contracts/WebsitePublicContract.js';
 import type { ReleaseInstallerRollbackPathSnapshot } from './ReleaseInstallerRollbackPathService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.docs-demo' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const PUBLIC_SITE_DOCS_DEMO_SYNC_CONTRACT_VERSION = '2026-05-04.docs-demo' as const;
 export const PUBLIC_SITE_DOCS_DEMO_SYNC_METADATA_KEY = 'publicSiteDocsDemoSync' as const;
 
 export type PublicSiteDocsDemoSyncStatus =
@@ -481,7 +482,7 @@ export class PublicSiteDocsDemoSyncService {
         command: 'zavorth release-path --json',
         detail: input.releasePath
           ? `Release path esta ${input.releasePath.status}.`
-          : 'Public sync precisa da Channel mesh8 publicada no run.',
+          : 'Public sync needs Channel mesh8 publicada no run.',
         critical: true,
       },
       {

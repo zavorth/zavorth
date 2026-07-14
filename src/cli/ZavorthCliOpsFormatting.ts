@@ -7,11 +7,11 @@ import type { SupervisedReloadRequestResult } from '../services/SupervisedRuntim
 export function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadinessReport): string {
   const selectedModel = report.runtime.providers?.modelPicker?.selected || null;
   return [
-    'Access readiness do Zavorth',
+    'Zavorth access readiness',
     `- ${report.summary}`,
-    `- local: ${report.local.ready ? 'ready' : 'pending'} | remoto: ${report.remote.ready ? 'ready' : 'pending'}`,
-    `- base local: ${report.local.baseUrl}`,
-    selectedModel ? `- modelo: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
+    `- local: ${report.local.ready ? 'ready' : 'pending'} | remote: ${report.remote.ready ? 'ready' : 'pending'}`,
+    `- local base: ${report.local.baseUrl}`,
+    selectedModel ? `- model: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
     report.recommendations[0] ? `- recommendation: ${report.recommendations[0]}` : '- recommendation: none',
   ].filter(Boolean).join('\n');
 }
@@ -22,9 +22,9 @@ export function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): st
     ? `${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})`
     : report.env.llmProvider;
   return [
-    'Bootstrap do Zavorth',
+    'Zavorth bootstrap',
     `- ${report.summary}`,
-    `- projeto: ${report.projectRoot}`,
+    `- project: ${report.projectRoot}`,
     `- .env: ${report.env.envFilePresent ? 'presente' : 'ausente'} | provider: ${providerLine}`,
     `- install: ${report.dependencies.installRequired ? 'pending' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pending' : 'ok'}`,
     report.actions[0] ? `- next action: ${report.actions[0].title} (${report.actions[0].command})` : '- next action: none',
@@ -36,7 +36,7 @@ export function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepai
   const failed = report.steps.filter((step) => step.status === 'failed').length;
   const skipped = report.steps.filter((step) => step.status === 'skipped').length;
   return [
-    'Bootstrap repair do Zavorth',
+    'Zavorth bootstrap repair',
     `- ${report.summary}`,
     `- dry-run: ${report.dryRun ? 'yes' : 'no'}`,
     `- etapas: ${report.steps.length} | executadas: ${executed} | falhas: ${failed} | puladas: ${skipped}`,
@@ -45,8 +45,8 @@ export function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepai
 
 export function formatSupervisedReloadResult(result: SupervisedReloadRequestResult): string {
   return [
-    'Reload supervisionado do Zavorth',
-    `- status: ${result.accepted ? 'aceito' : 'recusado'}`,
+    'Zavorth supervised reload',
+    `- status: ${result.accepted ? 'accepted' : 'rejected'}`,
     `- request: ${result.requestId}`,
     `- resumo: ${result.summary}`,
   ].join('\n');
@@ -54,7 +54,7 @@ export function formatSupervisedReloadResult(result: SupervisedReloadRequestResu
 
 export function formatAutoRepairRunResult(result: AutoRepairRunResult): string {
   return [
-    'Autorepair do Zavorth',
+    'Zavorth autorepair',
     `- status: ${result.status}`,
     `- success: ${result.success ? 'yes' : 'no'}`,
     `- resumo: ${result.summary}`,

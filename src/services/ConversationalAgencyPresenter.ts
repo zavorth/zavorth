@@ -2,11 +2,11 @@ import type { IntelligenceFabricSnapshot } from '../contracts/native/Intelligenc
 import type { ConversationalAgencyMessage } from '../contracts/PracticalAgencyContract.js';
 
 const TERM_MAP = [
-  { internal: 'Risk 3', human: 'previa de alteracao' },
+  { internal: 'Risk 3', human: 'change preview' },
   { internal: 'approval required', human: 'preciso da sua confirmacao' },
-  { internal: 'Capability Hub ticket', human: 'vou preparar essa conexao' },
+  { internal: 'Capability Hub ticket', human: 'I will prepare that connection' },
   { internal: 'Fabric degraded', human: 'modo inteligente em observacao' },
-  { internal: 'Mutation Plane', human: 'rascunho reversivel' },
+  { internal: 'Mutation Plane', human: 'reversible draft' },
   { internal: 'Risk Gate', human: 'confirmacao de impacto' },
 ];
 
@@ -37,7 +37,7 @@ export class ConversationalAgencyPresenter {
 
     if (risk <= 1) {
       return this.message(
-        'Entendi. Vou seguir pelo caminho direto.',
+        'Got it. I will take the direct path.',
         'Posso responder, analisar ou inspecionar contexto permitido sem pedir confirmacao desnecessaria.',
         'Se aparecer alguma acao com impacto real, eu aviso antes.',
       );
@@ -45,7 +45,7 @@ export class ConversationalAgencyPresenter {
 
     if (risk === 2) {
       return this.message(
-        'Vou preparar uma previa.',
+        'I will prepare a preview.',
         'Posso planejar, simular e montar rascunhos sem aplicar mudancas reais.',
         'Para aplicar qualquer impacto, eu volto com uma confirmacao clara.',
       );
@@ -53,14 +53,14 @@ export class ConversationalAgencyPresenter {
 
     if (risk === 3) {
       return this.message(
-        'Vou deixar uma previa de alteracao pronta.',
+        'I will leave a change preview ready.',
         'A mudanca fica reversivel e visivel antes de ser aplicada.',
         'Voce aprova pelo chat ou pelo ZavorthControl quando quiser aplicar.',
       );
     }
 
     return this.message(
-      'Isso pode causar impacto real.',
+      'This may cause real impact.',
       'Antes de shell, instalacao, rede, segredo, envio externo, deploy ou apagamento, eu preciso de confirmacao ou sandbox.',
       'Posso preparar o plano seguro agora e aguardar sua decisao.',
     );

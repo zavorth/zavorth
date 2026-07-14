@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent, type ClipboardEvent } from 'react';
-import { ChevronDown, Folder, Mic, Plus, Send, Sliders, Stop } from '../icons';
+import { ChevronDown, Folder, Mic, Phone, Plus, Send, Sliders, Stop } from '../icons';
 import type { ModelOption } from '../modelCatalog';
 import type { DesktopWorkspaceScope } from '../workspaceScopes';
 import { browseHistoryBack, browseHistoryForward, pushToHistory } from '../store/composer';
@@ -44,6 +44,12 @@ export function DesktopCommandBar(props: {
   onSubmit(value?: string): void | Promise<void>;
   onVoice?(): void;
   voiceListening?: boolean;
+  /** Full duplex voice call (agent path) */
+  onVoiceCall?(): void;
+  voiceCallActive?: boolean;
+  voiceCallPhase?: string | null;
+  voiceCallRms?: number;
+  voiceCallStatusLabel?: string | null;
   onWorkspaceFolder(): void | Promise<void>;
   onWorkspaceScope(value: string): void;
   /** Context meter + status */
@@ -321,6 +327,31 @@ export function DesktopCommandBar(props: {
           >
             <Mic aria-hidden="true" size={17} stroke={1.75} />
           </button>
+
+          {props.onVoiceCall ? (
+            <button
+              type="button"
+              className={`zvd-btn zvd-btn-icon zvd-btn-ghost zvd-composer-icon-btn ${props.voiceCallActive ? 'is-listening is-voice-call' : ''}`}
+              aria-label={
+                props.voiceCallActive
+                  ? t('composer.voiceCallStop')
+                  : t('composer.voiceCall')
+              }
+              title={
+                props.voiceCallActive
+                  ? `${t('composer.voiceCallStop')} — ${
+                      props.voiceCallStatusLabel ||
+                      props.voiceCallPhase ||
+                      'active'
+                    }`
+                  : t('composer.voiceCall')
+              }
+              aria-pressed={Boolean(props.voiceCallActive)}
+              onClick={props.onVoiceCall}
+            >
+              <Phone aria-hidden="true" size={17} stroke={1.75} />
+            </button>
+          ) : null}
 
           <button
             type={props.busy ? 'button' : 'submit'}

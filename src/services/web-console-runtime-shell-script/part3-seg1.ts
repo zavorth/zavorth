@@ -38,7 +38,7 @@ export const runtimeShellScriptPart3Seg1: string = [
     "  setText(",
     "    sessionWorkspaceHealthSummary,",
     "    runtimeWarnings.length > 0",
-    "      ? 'Warnings canonicos e proximas acoes priorizadas aparecem abaixo.'",
+    "      ? 'Warnings canonicals e proximas acoes priorizadas aparecem abaixo.'",
     "      : actionRecommendations.length > 0",
     "        ? 'Sem warnings fortes; ainda assim ha acoes seguras recomendadas para este host.'",
     "        : 'Runtime sem warnings relevantes nesta sessao agora.',",

@@ -169,7 +169,7 @@ jobs:
           cid=$(docker run -d -p 33333:33333 zavorth:smoke || true)
           sleep 3
           if [ -n "${cid:-}" ]; then
-            docker logs "$cid" 2>&1 | tail -n 40 || true
+              docker logs "$cid" 2>&1 || true
             docker stop "$cid" || true
             docker rm "$cid" || true
           fi
@@ -194,9 +194,8 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Build (if needed for CLI entry)
-        run: npm run build --silent
-        continue-on-error: true
+          - name: Build (if needed for CLI entry)
+            run: npm run build --silent
 
       - name: Windows smoke script
         run: node scripts/windows-smoke.mjs
@@ -390,7 +389,7 @@ jobs:
           set -euo pipefail
           DIST="packages/code/cli/dist"
           # Find the platform folder created by the build
-          FOLDER=$(find "$DIST" -maxdepth 1 -type d -name 'zavorth-*' | head -n 1)
+              FOLDER=$(find "$DIST" -maxdepth 1 -type d -name 'zavorth-*' -print -quit)
           if [ -z "$FOLDER" ]; then
             echo "No zavorth-* dist folder under $DIST"
             ls -la "$DIST" || true

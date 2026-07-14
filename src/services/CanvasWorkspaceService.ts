@@ -1155,7 +1155,7 @@ export class CanvasWorkspaceService {
       ],
       rollbackPlan: [
         'Reverter apenas projection state quando a mutacao tocar layout/lock/anexo.',
-        'Para fontes canonicas, seguir rollback do MutationPlan original.',
+        'Para fontes canonicals, seguir rollback do MutationPlan original.',
       ],
       retentionPolicy: {
         ttlMs: 24 * 60 * 60 * 1000,

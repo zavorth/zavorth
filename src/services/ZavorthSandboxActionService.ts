@@ -133,7 +133,7 @@ export class ZavorthSandboxActionService {
         cleanupOnBoot: true,
         notes: [
           'Artefatos de sandbox sao coletados explicitamente.',
-          'Workspace temporario e containers/VMs devem ser removidos no finally.',
+          'Workspace temporary e containers/VMs devem ser removidos no finally.',
         ],
       },
       validationPlan: [

@@ -11,7 +11,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
       const node = document.getElementById('operations-integrations');
       if (!node) return;
       if (!hub || 'error' in (hub as IntegrationHubErrorPayload)) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar o Integration Hub.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar o Integration Hub.</div>';
         return;
       }
 
@@ -129,7 +129,7 @@ function zavorthControlClassicClientOverviewMeshIntegrations() {
         + '<div class="cockpit-stack">'
         + '<div class="cockpit-mini-grid">'
         + '<div class="cockpit-mini-card"><strong>Catalog</strong><div>' + escapeHtml(String(entries.length)) + '</div><small>Total de integrations conhecidas</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Prontas</strong><div>' + escapeHtml(String(readyEntries.length)) + '</div><small>Bindings prontos para uso</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Readys</strong><div>' + escapeHtml(String(readyEntries.length)) + '</div><small>Bindings prontos para uso</small></div>'
         + '<div class="cockpit-mini-card"><strong>Templates</strong><div>' + escapeHtml(String(templateEntries.length)) + '</div><small>Receitas para novos conectores</small></div>'
         + '<div class="cockpit-mini-card"><strong>Status</strong><div>' + escapeHtml(selectedDoctor.status || 'n/d') + '</div><small>Doctor da integracao em foco</small></div>'
         + '<div class="cockpit-mini-card"><strong>Probe real</strong><div>' + escapeHtml(selectedProbe?.status || 'pending') + '</div><small>' + escapeHtml(selectedProbe?.summary || 'Ainda not run') + '</small></div>'

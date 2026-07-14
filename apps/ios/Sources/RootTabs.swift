@@ -330,7 +330,7 @@ struct RootTabs: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 8)
-                Text("v\(DeviceInfoHelper.openClawVersionString())")
+                Text("v\(DeviceInfoHelper.zavorthVersionString())")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
@@ -765,7 +765,7 @@ struct RootTabs: View {
                     GatewayQuickSetupSheet()
                         .environment(self.appModel)
                         .environment(self.gatewayController)
-                        .openClawSheetChrome()
+                        .zavorthSheetChrome()
                         .preferredColorScheme(self.appearancePreference.colorScheme)
                 }
             }

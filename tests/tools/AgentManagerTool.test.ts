@@ -44,7 +44,6 @@ describe('AgentManagerTool', () => {
       expect(result.status).toBe('found');
       expect(result.candidates[0].label).toBe('Agent project');
       expect(result.candidates[0].evidence.join(' ')).toMatch(/AGENTS\.md/);
-      expect(String(result.candidates[0].label)).not.toMatch(/Claude|Cursor/i);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }

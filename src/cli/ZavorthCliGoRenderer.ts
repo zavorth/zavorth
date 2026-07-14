@@ -7,10 +7,11 @@ import { paintCliTone } from './ZavorthCliVisualTheme.js';
 
 import { logger } from '../logger.js';
 import {
-buildZavorthFailureExplanation,
+  buildZavorthFailureExplanation,
   formatZavorthFailureExplanation,
   renderZavorthFailureExplanation,
-} from './ZavorthCliFailureExplanation.js';export type ZavorthGoLauncherSnapshot = {
+} from './ZavorthCliFailureExplanation.js';
+export type ZavorthGoLauncherSnapshot = {
   skipped: boolean;
   applied: boolean;
   mode: string;
@@ -181,7 +182,7 @@ function buildBlockedGoLines(
     lines.push('', paintCliTone('Primeiro uso', 'muted'), ...firstRunLines.map((line) => `  > ${line}`));
   }
 
-  lines.push('', paintCliTone('After that', 'muted'), '  > zavorth status');
+  lines.push('', paintCliTone('Depois disso', 'muted'), '  > zavorth status');
 
   if (options.dryRun) {
     lines.push('', paintCliTone('Nota', 'muted'), '  > dry-run: nada foi aplicado.');
@@ -200,7 +201,7 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
     return [];
   }
   return [
-    'Local profile is not configured yet.',
+    'Perfil local ainda nao configurado.',
     'zavorth setup --dry-run',
     'zavorth setup',
   ];
@@ -208,7 +209,7 @@ function buildFirstRunLines(firstRun: ZavorthGoFirstRunSnapshot | null): string[
 
 function buildShortBlockerLine(report: RuntimeOfficialAccessReport): string {
   if (!report.local.ready) {
-    return 'the local host or Home has not responded yet.';
+    return 'o host local ou a Home ainda nao respondeu.';
   }
   if (report.local.trust.applied === false) {
     return 'este computador ainda precisa de autorizacao.';
@@ -253,7 +254,8 @@ function normalizeHomeUrl(value: string | null): string {
       url.hash = '';
       return url.toString();
     }
-  } catch (error: unknown) {logger.warn('[Zavorth Cli Go Renderer] search failed', error);
+  } catch (error: unknown) {
+    logger.warn('[Zavorth Cli Go Renderer] search failed', error);
     return target.replace(/\/zavorthControl(?:[?#].*)?$/u, '/zavorthControl');
   }
   return target;

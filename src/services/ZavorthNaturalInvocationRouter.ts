@@ -5,7 +5,7 @@ import {
 import {
   ZavorthSubagentRuntimeService,
   type ZavorthSubagentRuntimeCommandInput,
-} from './ZavorthSubagentRuntimeService.js';
+} from '../agents/ZavorthSubagentRuntimeService.js';
 import { ZavorthSubagentAutoInvocationPolicyService } from './ZavorthSubagentAutoInvocationPolicyService.js';
 import crypto from 'crypto';
 import {
@@ -127,7 +127,7 @@ export class ZavorthNaturalInvocationRouter {
       text: requestText,
       channel,
       mode: 'default',
-      allowImplicit: input.autoLiveSubagents !== false,
+      allowImplicit: input.autoLiveSubagents === true,
     });
     const analysis = mergeAutoSubagentAnalysis(baseAnalysis, autoSubagent, input);
     const skills = input.skillCatalog || this.skillLoader.loadAll({ includeSupportFiles: false, quiet: true });
@@ -443,80 +443,32 @@ export class ZavorthNaturalInvocationRouter {
   }
 }
 
+/**
+ * Free-text intent is model-owned (LLM). No keyword packs that force actions.
+ * Structured fields (sourcePath, approvalId) remain deterministic.
+ */
 async function analyzeIntent(input: {
   text: string;
   sourcePath?: string | null;
   approvalId?: string | null;
 }): Promise<IntentAnalysis> {
-  const text = input.text.toLowerCase();
-  const risky = /\b(write|edit|delete|remove|apply|patch|execute|shell|terminal|envie|publique|delete|deploy|live)\b/i.test(text);
-  const sourcePath = normalizeNullable(input.sourcePath) || extractPath(input.text);
-  if (looksLikeSandboxLifecycleRequest(text)) {
-    const mutating = looksLikeSandboxLifecycleMutation(text);
-    return base({
-      action: 'sandbox_lifecycle',
-      confidence: 0.9,
-      approvalRequired: mutating && !input.approvalId,
-      approvalReason: mutating
-        ? 'Sandbox lifecycle start, use, cleanup or stop can affect host resources and requires scoped Policy Broker approval.'
-        : null,
-      risky: mutating,
-    });
-  }
-  if (/\b(quebre|chunk|lote|batch|biblioteca grande|large skill|large library|grosse bibliothèque|große bibliothek|큰 라이브러리|大きなライブラリ)\b/i.test(text)) {
-    return base({
-      action: 'large_absorption',
-      confidence: 0.92,
-      sourcePath,
-      approvalRequired: Boolean(risky && !input.approvalId),
-      approvalReason: risky ? 'Large absorption apply or mutation requires approval.' : null,
-      risky,
-    });
-  }
-  if (/\b(absorva|absorber|importe|importar|pegue essa pasta|pega essa pasta|skill library|pasta de skills|import the|import this|bring in|pull in|absorb from|absorb the|importieren|importieren Sie|importer|импортировать|استورد|インポート|导入|가져오기)\b/i.test(text)) {
-    const apply = /\b(apply|aplique|importe|materialize|materializar|absorva de verdade|actually import|really import|do it|confirm|execute|run it|go ahead|start)\b/i.test(text);
-    return base({
-      action: apply ? 'absorb_skill_apply' : 'absorb_skill_preview',
-      confidence: 0.9,
-      sourcePath,
-      approvalRequired: apply && !input.approvalId,
-      approvalReason: apply ? 'Materializing imported skills requires owner approval and allowlists.' : null,
-      risky: apply || risky,
-    });
-  }
-  if (/\b(use subagentes?|use subagents?|mande um agente|manda um agente|outro revisar|agentes em paralelo|spawn|swarm|subagent|send an agent|use an agent|parallel agents|spawn agent|deploy agent|launch agent|einen agenten|un agente|アジェント|에이전트|الوكيل)\b/i.test(text)) {
-    const team = /\b(outro|dois|varios|varias|team|equipe|paralelo|parallel|swarm|multiple|several|many|team| groupe|equipo|team|チーム|팀|فريق)\b/i.test(text);
-    return base({
-      action: team ? 'spawn_team' : 'spawn_subagent',
-      confidence: 0.94,
-      mode: team ? 'session' : 'oneshot',
-      roleIds: inferRoles(text),
-      approvalRequired: risky && !input.approvalId,
-      approvalReason: risky ? 'Subagent write, command, live I/O or sensitive network use requires approval.' : null,
-      risky,
-    });
-  }
-  if (/\b(use a melhor skill|melhor skill|use skill|usar skill|com skill|skill para|use the.*skill|use skill|apply skill|run skill|use the best|use best|meilleure skill|beste skill|mejor skill|最良のスキル|최고의 스킬|أفضل مهارة)\b/i.test(text)) {
-    return base({
-      action: 'use_skill',
-      confidence: 0.82,
-      skillQuery: extractSkillQuery(input.text),
-      approvalRequired: risky && !input.approvalId,
-      approvalReason: risky ? 'Live skill use requires approval; dry-run remains safe.' : null,
-      risky,
-    });
-  }
-  // Fallback: regex didn't match with high confidence — use LLM for classification
+  const sourcePath = normalizeNullable(input.sourcePath);
+
   const llmResult = await classifyWithLlm(input.text);
   if (llmResult) {
+    if (sourcePath && !llmResult.sourcePath) {
+      return { ...llmResult, sourcePath };
+    }
     return llmResult;
   }
+
   return base({
     action: 'answer_directly',
-    confidence: 0.55,
+    confidence: 0.5,
     approvalRequired: false,
     approvalReason: null,
-    risky,
+    risky: false,
+    sourcePath,
   });
 }
 
@@ -765,7 +717,7 @@ function buildAvailableCapabilitiesCatalogue(skills: SkillMetadata[]): string {
   }
 
   if (skills.length > visibleSkills.length) {
-    lines.push(`... ${skills.length - visibleSkills.length} habilidade(s) omitidas. Use /skills search <query> para refinar.`);
+    lines.push(`... ${skills.length - visibleSkills.length} habilidade(s) omitidas. Use /skills search <query> to refinar.`);
   }
 
   lines.push('</zavorth_available_capabilities>');
@@ -832,7 +784,7 @@ function buildNarrative(input: {
 
 function looksLikeSandboxLifecycleRequest(text: string): boolean {
   return /\b(docker|dockers|container|containers|gvisor|runsc|firecracker|microvm|micro-vm|sandbox|sandboxes)\b/i.test(text)
-    && /\b(ligue|liga|suba|subir|start|inicie|iniciar|use|usar|rode|rodar|execute|executar|crie|criar|liste|listar|lista|mostre|mostrar|quais|todos|rodando|ligados?|ativos?|derrube|derrubar|desliga|desligue|mate|matar|limpe|cleanup|stop|pare|parar|encerre|encerrar|doctor|status|pronto|readiness|inventario|inventory)\b/i.test(text);
+    && /\b(ligue|liga|suba|subir|start|inicie|iniciar|use|usar|rode|rodar|execute|executar|crie|criar|liste|listar|lista|mostre|mostrar|quais|todos|rodando|ligados?|ativos?|derrube|derrubar|desliga|desligue|mate|matar|limpe|cleanup|stop|pare|parar|encerre|encerrar|doctor|status|ready|readiness|inventario|inventory)\b/i.test(text);
 }
 
 function looksLikeSandboxLifecycleMutation(text: string): boolean {

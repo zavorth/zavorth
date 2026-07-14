@@ -349,7 +349,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   }
 
   // Phase 2–3 intent verbs (before live namespaces steal `connect` / `learn`).
-  if (command === 'connect' || command === 'conectar') {
+  if (command === 'connect') {
     const route = resolveConnectIntent(restArgs);
     if (route.kind === 'help-connect') {
       process.stdout.write(`${formatConnectHelp()}\n`);
@@ -492,7 +492,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       ], 'warning');
     }
     const firstApprovalArg = String(restArgs[0] || '').trim().toLowerCase();
-    if (command === 'approvals' && ['always', 'auto', 'policy', 'permito-sempre', 'break-glass'].includes(firstApprovalArg)) {
+    if (command === 'approvals' && ['always', 'auto', 'policy', 'break-glass'].includes(firstApprovalArg)) {
       return runPersistentApprovals(restArgs.slice(1));
     }
     return runPremiumApprovalDiff('approvals', restArgs);
@@ -725,7 +725,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return typeof result.status === 'number' ? result.status : 1;
   }
 
-  if (command === 'anyone' || command === 'for-everyone' || command === 'qualquer-pessoa' || command === 'human-path') {
+  if (command === 'anyone' || command === 'for-everyone' || command === 'human-path') {
     const { spawnSync } = await import('node:child_process');
     const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
     const result = spawnSync(npxCmd, ['tsx', 'scripts/zavorth-anyone-agent-path.ts', ...restArgs], {
@@ -941,15 +941,12 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     || command === 'approval-policy'
     || command === 'auto-approval'
     || command === 'always-allow'
-    || command === 'permito-sempre'
     || command === 'break-glass'
-    || command === 'modo-extremo'
-    || command === 'responsabilidade-total'
   ) {
     return runPersistentApprovals(restArgs);
   }
 
-  if (command === 'approvals' && ['always', 'auto', 'policy', 'permito-sempre', 'break-glass'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
+  if (command === 'approvals' && ['always', 'auto', 'policy', 'break-glass'].includes(String(restArgs[0] || '').trim().toLowerCase())) {
     return runPersistentApprovals(restArgs.slice(1));
   }
 

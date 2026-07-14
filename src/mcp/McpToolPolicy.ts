@@ -5,7 +5,8 @@ import {
   decideSecurityPolicy,
   type SecurityPolicyBrokerAction,
   type SecurityPolicyBrokerReceipt,
-} from '../security/SecurityPolicyBroker.js';export type McpSecurityProfile = 'safe' | 'trusted' | 'dangerous';
+} from '../security/SecurityPolicyBroker.js';
+export type McpSecurityProfile = 'safe' | 'trusted' | 'dangerous';
 
 export type McpToolEntry = {
   status: 'approved' | 'pending_approval' | 'blocked';
@@ -194,7 +195,7 @@ export class McpToolPolicy {
         allowed: false,
         profile: this.profile,
         reason:
-          `Tool "${normalized}" bloqueada pelo perfil MCP "${this.profile}". `
+          `Tool "${normalized}" blocked by MCP profile "${this.profile}". `
           + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
       });
     }
@@ -215,7 +216,7 @@ export class McpToolPolicy {
       allowed: false,
       profile: this.profile,
       reason:
-        `Tool "${toolName}" bloqueada pelo perfil MCP "${this.profile}". `
+        `Tool "${toolName}" blocked by MCP profile "${this.profile}". `
         + 'Use ZAVORTH_MCP_PROFILE=trusted|dangerous ou ZAVORTH_MCP_ALLOW_TOOLS para liberar explicitamente.',
     });
   }

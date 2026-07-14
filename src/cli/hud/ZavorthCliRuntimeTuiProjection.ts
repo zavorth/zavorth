@@ -13,7 +13,8 @@ import { ZavorthDailyProductQuietAutonomyService } from '../../services/ZavorthD
 import { ZavorthSandboxControlPlaneService } from '../../services/ZavorthSandboxControlPlaneService.js';
 import { ZavorthCapabilityActionSurfaceService } from '../../services/ZavorthCapabilityActionSurfaceService.js';
 import type { ZavorthCliRuntimeTuiItem, ZavorthCliRuntimeTuiRow, ZavorthCliRuntimeTuiSnapshot, ZavorthCliRuntimeTuiStatus } from './ZavorthCliRuntimeTuiTypes.js';
-import { logger } from '../../logger.js';type JsonObject = Record<string, unknown>;
+import { logger } from '../../logger.js';
+type JsonObject = Record<string, unknown>;
 
 export type BuildZavorthCliRuntimeTuiSnapshotInput = {
   projectRoot: string;
@@ -86,7 +87,7 @@ export function buildZavorthCliRuntimeTuiSnapshot(input: BuildZavorthCliRuntimeT
     env: { ...process.env, ...env },
   }).buildSnapshotSync({
     projectRoot,
-    text: 'status do Zavorth',
+    text: 'Zavorth status',
     channel: 'cli',
     profileId: env.ZAVORTH_PROFILE || env.ZAVORTH_EXPERIENCE_PROFILE || null,
     includeProviderActivation: false,

@@ -181,7 +181,7 @@ struct RootTabsPhoneControlHub: View {
         ProCard(radius: ZavorthProMetric.cardRadius) {
             HStack {
                 Spacer()
-                Text("v\(DeviceInfoHelper.openClawVersionString())")
+                Text("v\(DeviceInfoHelper.zavorthVersionString())")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

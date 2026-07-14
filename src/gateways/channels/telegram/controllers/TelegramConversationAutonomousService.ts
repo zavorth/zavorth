@@ -167,9 +167,17 @@ export class TelegramConversationAutonomousService {
 
     try {
       const taskProfile = classifyWorkspaceTaskProfile({ text: actionPayload });
+      const responseDecision = task.metadata?.responseDecision && typeof task.metadata.responseDecision === 'object'
+        ? task.metadata.responseDecision as Record<string, unknown>
+        : null;
+      const structuredTools = [
+        ...(Array.isArray(task.metadata?.requestedTools) ? task.metadata.requestedTools : []),
+        ...(Array.isArray(responseDecision?.requestedTools) ? responseDecision.requestedTools : []),
+      ].map((tool) => String(tool || '').trim()).filter(Boolean);
       const requestedTools = inferUniversalAgentRequestedTools({
         text: actionPayload,
-        fallbackTool: 'memory.read',
+        capabilityIds: structuredTools,
+        fallbackTool: structuredTools.length > 0 ? null : 'memory.read',
       });
       const escalationDecision = this.executionEscalationPolicy.resolve({
         complexObjective: requestedTools.includes('swarm.run'),

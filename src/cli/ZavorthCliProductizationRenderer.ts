@@ -52,9 +52,9 @@ export function formatZavorthProductizationContractSnapshot(
       title: '/zavorthControl',
       tone: toneForStatus(snapshot.control.status),
       lines: [
-        `- rota: ${snapshot.control.route}`,
+        `- route: ${snapshot.control.route}`,
         `- modo: ${snapshot.control.productMode.label}`,
-        `- itens: ready ${snapshot.control.summary.ready} | partial ${snapshot.control.summary.partial} | blocked ${snapshot.control.summary.blocked}`,
+        `- items: ready ${snapshot.control.summary.ready} | partial ${snapshot.control.summary.partial} | blocked ${snapshot.control.summary.blocked}`,
         ...controlLines,
       ],
     },
@@ -73,13 +73,13 @@ export function formatZavorthProductizationContractSnapshot(
       title: 'Onboarding',
       tone: toneForStatus(snapshot.onboarding.status),
       lines: [
-        `- rota: ${snapshot.onboarding.route}`,
+        `- route: ${snapshot.onboarding.route}`,
         `- areas: ready ${snapshot.onboarding.summary.ready} | partial ${snapshot.onboarding.summary.partial} | blocked ${snapshot.onboarding.summary.blocked}`,
         ...onboardingLines,
       ],
     },
     {
-      title: 'Aceite C9',
+      title: 'C9 acceptance',
       tone: toneForStatus(snapshot.status),
       lines: [
         `- status: ${snapshot.status}`,
@@ -93,7 +93,7 @@ export function formatZavorthProductizationContractSnapshot(
   return renderCliScreen({
     eyebrow: 'Productization',
     eyebrowTone: snapshot.status === 'ready' ? 'success' : snapshot.status === 'partial' ? 'warning' : 'danger',
-    title: 'Contrato C9 do Zavorth',
+    title: 'Zavorth C9 contract',
     summary: snapshot.explanation[0] || 'Produto, runtime e docs lendo a mesma verdade.',
     mode: 'compact',
     showWordmark: false,

@@ -263,7 +263,7 @@ export function buildRuntimeShellHtmlPart2(): string {
       </section>
 
       <section id="ops-mesh-card" class="handoff-card">
-        <h2>Malha operacional</h2>
+        <h2>Operational mesh</h2>
         <p class="muted-copy section-note">
           Resumo curto de nodes, canais, transportes remotos e integrations registradas neste host.
         </p>

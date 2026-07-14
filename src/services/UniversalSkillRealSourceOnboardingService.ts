@@ -235,7 +235,7 @@ export class UniversalSkillRealSourceOnboardingService {
         origin: 'explicit',
         source,
         selected: true,
-        reason: 'Fonte informada explicitamente pelo operador.',
+        reason: 'Fonte informada explicitamente by the operator.',
       }));
     }
 

@@ -343,7 +343,7 @@ export class NaturalSetupMutationPlannerService {
       blockers.push('Canal alvo ainda nao foi resolvido.');
     }
     if ((actions.doctor || actions.test) && Number(snapshot.summary?.missingEnvKeys || 0) > 0) {
-      blockers.push('Doctor/teste exige env vars obrigatorias preenchidas.');
+      blockers.push('Doctor/teste exige env vars required preenchidas.');
     }
     if (capabilityId && snapshot.planPreview?.capability && !['ready', 'active'].includes(snapshot.planPreview.capability.state)) {
       warnings.push(`Capability ${capabilityId} ainda esta ${snapshot.planPreview.capability.state}.`);

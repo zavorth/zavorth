@@ -106,7 +106,7 @@ const DOMAIN_CATALOG: ZavorthDomainProfile[] = [
     preferredTools: ['file.read', 'file.write'],
     assumptions: ['privacy is paramount', 'accuracy is critical', 'regulations apply'],
     commonWorkflows: ['documentation', 'protocol-review', 'research', 'compliance-check'],
-    naturalAliases: ['health', 'medical', 'clinical', 'saude', 'medicina', 'clinica'],
+    naturalAliases: ['health', 'medical', 'clinical', 'health', 'medicina', 'clinica'],
   },
   {
     id: 'legal',

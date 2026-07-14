@@ -51,7 +51,7 @@ function formatNodeActionPath(actionHint: string | null | undefined): string | n
 
 function compactNodeLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Node Mesh expoe (\d+) nodes registrados no control plane\.?$/i, 'Node Mesh acompanha $1 nodes no controle interno.')
+    .replace(/^Node Mesh expoe (\d+) nodes registrados no control plane\.?$/i, 'Node Mesh tracks $1 nodes on the internal control plane.')
     .replace(/^Regenerar pairing\b/gi, 'Gerar novo pareamento')
     .replace(/\bHeadless Worker\b/g, 'Worker sem tela')
     .replace(/\bdraft de pairing\b/gi, 'codigo de pareamento')
@@ -143,7 +143,7 @@ function formatNodeCompactSummary(
 ): string {
   const pending = entry.pendingInvocations || 0;
   const claimed = entry.claimedInvocations || 0;
-  return `- ${entry.label} [${formatNodeKindLabel(entry.kind)}] ${formatNodeStatusHuman(entry.status)} / ${formatCliValue(entry.trustLabel)} | queue ${formatCount(pending, 'pending', 'pendings')}${claimed > 0 ? ` + ${formatCount(claimed, 'processing', 'processing')}` : ''}`;
+  return `- ${entry.label} [${formatNodeKindLabel(entry.kind)}] ${formatNodeStatusHuman(entry.status)} / ${formatCliValue(entry.trustLabel)} | queue ${formatCount(pending, 'pending', 'pending')}${claimed > 0 ? ` + ${formatCount(claimed, 'processing', 'processing')}` : ''}`;
 }
 
 function formatNodeMeshSnapshot(
@@ -177,7 +177,7 @@ function formatNodeMeshSnapshot(
         `- ${selected.label} (${formatNodeKindLabel(selected.kind)})`,
         `- status: ${formatCliValue(selected.trustLabel)} / ${formatNodeStatusHuman(selected.status)}`,
         `- capabilities: ${selected.capabilityIds.join(', ') || 'none declared'}`,
-        `- queue: ${formatCount(selected.pendingInvocations || 0, 'pending', 'pendings')} | ${formatCount(selected.claimedInvocations || 0, 'processing', 'processing')}`,
+        `- queue: ${formatCount(selected.pendingInvocations || 0, 'pending', 'pending')} | ${formatCount(selected.claimedInvocations || 0, 'processing', 'processing')}`,
         selected.recentInvocation
           ? `- ultima invocacao: ${selected.recentInvocation.capabilityId} (${formatNodeStatus(selected.recentInvocation.status)})`
           : '- ultima invocacao: none registered',
@@ -205,7 +205,7 @@ function formatNodeMeshSnapshot(
       lines: [
         `- ${compactNodeLine(suggested.label, 90)}`,
         `- motivo: ${compactNodeLine(suggested.reason)}`,
-        suggested.actionHint ? `- caminho: ${formatNodeActionPath(suggested.actionHint)}` : null,
+        suggested.actionHint ? `- path: ${formatNodeActionPath(suggested.actionHint)}` : null,
       ].filter(Boolean) as string[],
       tone: 'brand',
     });
@@ -214,7 +214,7 @@ function formatNodeMeshSnapshot(
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: snapshot.summary.online > 0 ? 'info' : 'muted',
-    title: 'Node Mesh do Zavorth',
+    title: 'Zavorth Node Mesh',
     summary: compactNodeLine(snapshot.narrative.headline),
     mode: 'compact',
     showWordmark: false,
@@ -246,7 +246,7 @@ function formatNodeMeshActivity(
         lines: [
           `- node: ${label || activity.nodeId}`,
           mode === 'queue'
-            ? `- queue: ${formatCount(activity.summary.pending, 'pending', 'pendings')} | ${formatCount(activity.summary.claimed, 'processing', 'processing')}`
+            ? `- queue: ${formatCount(activity.summary.pending, 'pending', 'pending')} | ${formatCount(activity.summary.claimed, 'processing', 'processing')}`
             : `- historico: ${formatCount(activity.summary.recent, 'recente', 'recentes')} | ${formatCount(activity.summary.completedRecently, 'concluida recentemente', 'concluidas recentemente')}`,
           `- resumo: ${sanitizeHumanCliText(activity.narrative.operatorSummary)}`,
         ],

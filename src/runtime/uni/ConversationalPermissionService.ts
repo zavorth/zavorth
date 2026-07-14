@@ -222,7 +222,7 @@ export class ConversationalPermissionService {
     if (sideEffect === 'local_workspace') {
       return 'A solicitacao pode alterar arquivos ou estado local do workspace.';
     }
-    return 'A solicitacao requer ferramenta governada.';
+    return 'The request requires a governed tool.';
   }
 
   private buildPermissionPrompt(

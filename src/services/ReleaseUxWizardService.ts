@@ -442,7 +442,7 @@ export class ReleaseUxWizardService {
       ok ? 'pass' : 'fail',
       ok
         ? 'Rollback preview inclui preflight, evidencia, risco e plano de reversao sem executar.'
-        : 'Rollback precisa voltar a ser read-only, evidenciado e confirmado.',
+        : 'Rollback precisa voltar a ser read-only, evidencedo e confirmado.',
       'rollback',
       [
         `risk=${rollback.risk}`,

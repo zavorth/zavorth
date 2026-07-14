@@ -22,7 +22,7 @@ describe('ZavorthBridgeCliAdapter', () => {
     return {
       taskId: 'task-123',
       workspace: workspace,
-      prompt: 'pesquise as noticias do dia',
+      prompt: "search today's news",
       handoffFile: `${workspace}/data/agent-bridge/zavorth-bridge/handoffs/task-123.md`,
       trackingFile: `${workspace}/data/agent-bridge/zavorth-bridge/pending/task-123.json`,
       responseFile: `${workspace}/data/agent-bridge/zavorth-bridge/responses/task-123.md`,
@@ -95,7 +95,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'pesquise as noticias do dia',
+      "search today's news",
       workspace,
     );
 
@@ -314,7 +314,7 @@ describe('ZavorthBridgeCliAdapter', () => {
     await expect(
       adapter.executePrompt(
         createTask(),
-        'pesquise as noticias do dia',
+        "search today's news",
         workspace,
       ),
     ).rejects.toThrow(/workspace correta|correct workspace/i);
@@ -435,7 +435,7 @@ describe('ZavorthBridgeCliAdapter', () => {
     await expect(
       adapter.executePrompt(
         createTask(),
-        'pesquise as noticias do dia',
+        "search today's news",
         workspace,
       ),
     ).rejects.toMatchObject({
@@ -547,7 +547,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'pesquise as noticias do dia',
+      "search today's news",
       workspace,
     );
 
@@ -617,7 +617,7 @@ describe('ZavorthBridgeCliAdapter', () => {
 
     const result = await adapter.executePrompt(
       createTask(),
-      'pesquise as noticias do dia',
+      "search today's news",
       workspace,
     );
 
@@ -652,7 +652,7 @@ describe('ZavorthBridgeCliAdapter', () => {
     await expect(
       adapter.executePrompt(
         createTask(),
-        'pesquise as noticias do dia',
+        "search today's news",
         workspace,
       ),
     ).rejects.toThrow('ainda esta ocupado com a tarefa');

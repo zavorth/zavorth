@@ -297,7 +297,7 @@ export class AgentRunIntelligenceFabricDraftMutation {
       `Draft guidance ${plan.actionId} aplicado pelo Mutation Plane sem bypass do Risk Gate. ${execution.summary}`,
       ['intelligence-fabric.draft-guidance.apply', ...execution.appliedActions],
     );
-    return this.draftApplyResult('applied', applied.id, `Rascunho aplicado pelo Mutation Plane governado. ${execution.summary}`, applied, execution);
+    return this.draftApplyResult('applied', applied.id, `Draft applied by the governed Mutation Plane. ${execution.summary}`, applied, execution);
   }
 
   public promoteWorkspaceWrites(input: {

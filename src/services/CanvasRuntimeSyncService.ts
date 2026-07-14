@@ -5,7 +5,7 @@ import type {
   ExecutionEngineId,
 } from '../contracts/ExecutionEngineContract.js';
 
-import type { ZavorthSpeculativeAutonomyResult } from './ZavorthSpeculativeAutonomyService.js';
+import type { ZavorthSpeculativeAutonomyResult } from '../autonomy/ZavorthSpeculativeAutonomyService.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 

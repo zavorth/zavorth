@@ -283,7 +283,7 @@ export class SkillMcpQuarantineService {
     receipts.push({
       id: 'quarantine:policy',
       kind: 'policy',
-      detail: 'Imports externos nunca viram trusted automaticamente; promocao exige acao explicita do operador.',
+      detail: 'Imports externos nunca viram trusted automaticamente; promocao exige acao explicita do operator.',
     });
     return receipts;
   }

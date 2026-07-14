@@ -130,7 +130,7 @@ export class DesktopResourceClassifierService {
           : `Distro ${entry.name} esta parada.`,
         details: [
           `Versao WSL: ${entry.version}.`,
-          entry.isDefault ? 'Esta e a distro padrao do host.' : 'Distro secundaria do host.',
+          entry.isDefault ? 'Esta e a distro padrao of the host.' : 'Distro secundaria of the host.',
         ],
         metrics: {
           cpuSeconds: 0,
@@ -510,7 +510,7 @@ export class DesktopResourceClassifierService {
         : `WSL aparece no host usando ${workingSetMb} MB.`;
     }
     if (groupId === 'zavorth') {
-      return `Zavorth soma ${workingSetMb} MB nesta fotografia do host.`;
+      return `Zavorth soma ${workingSetMb} MB nesta fotografia of the host.`;
     }
     if (groupId === 'zavorthBridge' || groupId === 'codex-companion') {
       return `${this.buildGroupLabel(groupId, bucket[0]?.owner || 'companion')} soma ${workingSetMb} MB no host.`;

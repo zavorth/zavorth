@@ -193,7 +193,7 @@ export class MultiAgentPipeline {
 
     await ctx.reply(
       [
-        `Workflow ${workflowRunId} encerrado pelo operador.`,
+        `Workflow ${workflowRunId} encerrado by the operator.`,
         `Fluxo: ${this.presentation.describeWorkflow(run.workflow_name)}`,
         options.reason ? `Reason: ${options.reason}` : 'Esse run deixa de aparecer como retomada sugerida.',
       ].join('\n'),

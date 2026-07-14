@@ -131,7 +131,13 @@ export class VoiceDictationIngress {
 
     // Prefer preference mode; if STT is configured via env only, treat as dictation.
     let mode: VoiceInteractionMode = preference.mode || 'off';
-    if (mode === 'off' && sttResolved.ok && sttResolved.source !== 'legacy_cascade') {
+    if (
+      mode === 'off'
+      && (
+        Boolean(String(input.provider || '').trim())
+        || (sttResolved.ok && sttResolved.source !== 'legacy_cascade')
+      )
+    ) {
       mode = 'dictation';
     }
 

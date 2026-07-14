@@ -112,7 +112,7 @@ export class DiffReviewService {
               {
                 id: 'accept-related',
                 label: 'Aceitar hunks relacionados',
-                detail: 'Mantem os hunks dependentes juntos e exige policy antes do host.',
+                detail: 'Mantem os hunks depending juntos e exige policy antes of the host.',
                 command: `zavorth diff approve ${review.id}`,
                 confidence: 0.76,
               },

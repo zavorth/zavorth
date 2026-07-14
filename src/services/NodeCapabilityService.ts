@@ -55,7 +55,7 @@ const NODE_MESH_CAPABILITY_CATALOG: Record<string, NodeMeshCapabilityDescriptor>
   'notifications.send': {
     id: 'notifications.send',
     label: 'Notifications',
-    summary: 'Envia notificacoes locais pelo node pareado.',
+    summary: 'Envia notifications locais pelo node pareado.',
     category: 'notifications',
     risky: false,
     actionHint: 'Bom para sinais operacionais e handoffs.',

@@ -150,7 +150,7 @@ export function formatFeedbackTelemetryProductLoopSnapshot(
   lines.push('- external call was not made');
   lines.push('- raw payload was not serialized');
   lines.push('- consent was not assumed');
-  lines.push('- revoke/delete estao disponiveis');
+  lines.push('- revoke/delete are available');
   lines.push('- explicit opt-in required');
 
   lines.push('', 'Rotas e comandos');

@@ -6,7 +6,8 @@ import JSZip from 'jszip';
 import { config } from '../config/index.js';
 import { Database } from '../storage/Database.js';
 import type { SkillCatalogEntry } from './SkillCatalogContract.js';
-import { SkillCatalogService } from './SkillCatalogService.js';export interface ArchivedSkillInfo {
+import { SkillCatalogService } from './SkillCatalogService.js';
+export interface ArchivedSkillInfo {
   skillId: string;
   archivePath: string;
   archivedAt: string;
@@ -102,7 +103,7 @@ export class SkillCurationService {
         status = 'archived'
     `, [normalizedSkillId]);
 
-    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" arquivada com sucesso.`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" archived successfully.`);
   }
 
   public async restoreSkill(skillId: string): Promise<void> {
@@ -164,7 +165,7 @@ export class SkillCurationService {
         last_executed_at = datetime('now')
     `, [normalizedSkillId]);
 
-    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" restaurada com sucesso.`);
+    logger.info(`[SkillCurationService] Skill "${normalizedSkillId}" restored successfully.`);
   }
 
   public async runAutoCuration(): Promise<{ archivedCount: number }> {

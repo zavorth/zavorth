@@ -172,7 +172,7 @@ export class ZavorthCapabilityNaturalOperatorService {
         return this.decision('show_console', 0.55, 'Pedido de setup sem alvo resolvido.', null, packId, ticketId);
       }
       if (input.createTicket === false) {
-        return this.decision('show_console', 0.72, 'Usuario pediu setup, mas criacao de ticket foi desativada.', targetItemId, packId, ticketId);
+        return this.decision('show_console', 0.72, 'Usuario pediu setup, mas criaction de ticket foi desativada.', targetItemId, packId, ticketId);
       }
       return this.decision('create_setup_ticket', 0.88, 'Usuario pediu configurar ou conectar recurso.', targetItemId, packId, ticketId);
     }
@@ -236,7 +236,7 @@ export class ZavorthCapabilityNaturalOperatorService {
     }
     if (decision.action === 'run_readiness') {
       return {
-        headline: 'Mostrei a verificacao de readiness.',
+        headline: 'Mostrei a verificaction de readiness.',
         body: 'A verificacao e presence-only: ela confere referencias e passos, sem ler valores de segredo.',
         nextAction: 'Resolva o primeiro item pendente antes de pedir ativacao controlada.',
       };

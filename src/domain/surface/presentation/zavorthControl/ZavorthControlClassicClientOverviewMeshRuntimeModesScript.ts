@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
     const node = document.getElementById('operations-runtime-modes');
     if (!node) return;
     if (!runtimeModes || 'error' in runtimeModes) {
-      node.innerHTML = '<div class="muted">No foi possivel carregar os modos de runtime.</div>';
+      node.innerHTML = '<div class="muted">Could not carregar os runtime modes.</div>';
       return;
     }
 

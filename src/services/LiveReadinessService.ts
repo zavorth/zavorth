@@ -661,7 +661,7 @@ export class LiveReadinessService {
       this.gate(
         'operator-config',
         requiredConfig.length > 0 ? 'partial' : 'not-required',
-        requiredConfig.length > 0 ? requiredConfig.join(', ') : 'no operator credentials required by this entry',
+        requiredConfig.length > 0 ? requiredConfig.join(', ') : 'nthe operator credentials required by this entry',
         null,
       ),
       this.gate(

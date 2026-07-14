@@ -191,7 +191,7 @@ export class SecurityGuidanceService extends BaseTool {
       '3. SECRETS: Variaveis de ambiente, nunca hardcoded. Rotacione periodicamente.',
       '4. REDE: HTTPS required. CORS restritivo. Rate limiting.',
       '5. DEPENDENCIAS: npm audit em CI. Atualize regularmente. Lock files.',
-      '6. LOGS: Nunca logar senhas/tokens. Redacao de PII.',
+      '6. LOGS: Nunca logar senhas/tokens. Redaction de PII.',
       '7. AUTENTICACAO: JWT com verificacao. Expiracao curta. Refresh tokens.',
       '8. SANDBOX: Isole execucao de codigo em containers/sandboxes.',
       '9. APPROVAL: Acoes destrutivas requerem approval explicito.',

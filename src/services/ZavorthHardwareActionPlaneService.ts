@@ -1020,7 +1020,7 @@ export class ZavorthHardwareActionPlaneService {
         label: 'Configurar provider somente quando for usar apply real',
         command: 'npm run ops:hardware',
         severity: 'warn',
-        reason: `${dormantProviders} provider(s) dormente(s); isso e esperado em idle.`,
+        reason: `${dormantProviders} dormant provider(s); this is expected when idle.`,
       });
     }
     if (summary.pendingHardwarePlans > 0) {
@@ -1029,7 +1029,7 @@ export class ZavorthHardwareActionPlaneService {
         label: 'Revisar planos fisicos pendentes',
         command: 'npm run ops:hardware:json',
         severity: 'warn',
-        reason: 'Ha MutationPlans de hardware aguardando approval/aplicacao.',
+        reason: 'There are hardware MutationPlans waiting for approval/application.',
       });
     }
     return actions.slice(0, 6);

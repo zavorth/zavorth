@@ -284,7 +284,7 @@ export class ZavorthSecurityMeshService {
         label: 'Revisar trilha de auditoria',
         command: 'npm run security:preflight',
         severity: 'warn',
-        reason: health.security.lastAudit.summary || 'A trilha de auditoria criptografica reportou degradacao recente.',
+        reason: health.security.lastAudit.summary || 'A trilha de auditoria criptografica reportou degradaction recente.',
       });
     }
 

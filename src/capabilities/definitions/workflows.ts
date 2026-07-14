@@ -5,7 +5,7 @@ export const WORKFLOW_CAPABILITIES: CapabilityDefinition[] = [
     id: 'command.external-review',
     label: 'External Review',
     type: 'workflow',
-    description: 'Roda o pipeline maker+reviewer por executor externo governado.',
+    description: 'Runs the maker+reviewer pipeline through a governed external executor.',
     intent: 'workflow_execution',
     executor_preference: 'workflow:review',
     dispatch_mode: 'execution',
@@ -15,7 +15,7 @@ export const WORKFLOW_CAPABILITIES: CapabilityDefinition[] = [
     command: {
       command: 'external_review',
       aliases: ['external-review'],
-      description: 'Pipeline maker+reviewer por executor externo governado.',
+      description: 'Maker+reviewer pipeline through a governed external executor.',
       usage: '<objetivo>',
       section: 'execution',
       privateMenu: false,
@@ -36,7 +36,7 @@ export const WORKFLOW_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito para um workflow composto.',
+    routing_reason: 'Explicit command for a composed workflow.',
     routing_confidence: 1,
     command: {
       command: 'workflow',

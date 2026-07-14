@@ -4,7 +4,7 @@ import type {
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 import type { ZavorthSubagentAutoInvocationTelemetry } from '../contracts/runtime/ZavorthSubagentAutoInvocationContract.js';
 import type { ToolDefinition } from '../providers/ILlmProvider.js';
-import { ZavorthSubagentRuntimeService, type ZavorthSubagentRuntimeCommandInput } from './ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService, type ZavorthSubagentRuntimeCommandInput } from '../agents/ZavorthSubagentRuntimeService.js';
 
 export type ZavorthSubagentInvocationSource = 'task' | 'channel' | 'cron' | 'skill' | 'plugin' | 'internal';
 

@@ -374,7 +374,7 @@ export function buildEvalComparisons(
       successRate: entry.total > 0 ? roundRate(entry.completed / entry.total) : null,
       frictionRate: entry.total > 0 ? roundRate(entry.resumable / entry.total) : null,
       note:
-        String(entry.completed) + ' concluido(s) | '
+        String(entry.completed) + ' completed(s) | '
         + String(entry.failed) + ' falho(s) | '
         + String(entry.resumable) + ' retomavel(is)',
     })),
@@ -535,7 +535,7 @@ export function buildEvalNarrative(input: {
       ? 'Maior pressao atual: ' + topRegression?.label + '.'
       : 'Nenhuma regressao forte apareceu neste recorte.',
     topHealthy
-      ? 'Melhor baseline: ' + topHealthy.label + '.'
+      ? 'Better baseline: ' + topHealthy.label + '.'
       : null,
     'Datasets ativos: ' + String(input.summary.datasets) + ' | scorecards: ' + String(input.summary.scorecards) + '.',
   ].filter(Boolean).join(' ');
@@ -859,10 +859,10 @@ function downgradeSupersededLegacyScorecards(
     return {
       ...card,
       status: 'attention',
-      recommendation: 'Confirmar descontinuidade da rota legada e manter o sucessor saudavel como baseline de rollout.',
+      recommendation: 'Confirmar descontinuidade da rota legada e manter o successr saudavel como baseline de rollout.',
       evidence: [
         ...card.evidence,
-        'rota legada supersedida por sucessor saudavel no mesmo canal',
+        'rota legada supersedida por successr saudavel no mesmo canal',
       ],
     };
   });

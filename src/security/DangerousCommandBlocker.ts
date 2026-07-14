@@ -104,7 +104,7 @@ export class DangerousCommandBlocker {
     const decision = this.explain(command);
     if (!decision.safe) {
       throw new Error(
-        `[SECURITY] Comando bloqueado pela policy allowlist (${decision.reason}): '${command}'`,
+        `[SECURITY] Command blocked by allowlist policy (${decision.reason}): '${command}'`,
       );
     }
   }

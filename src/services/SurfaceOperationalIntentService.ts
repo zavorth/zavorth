@@ -19,7 +19,7 @@ import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
 import {
-UserExperienceIntentRouter,
+  UserExperienceIntentRouter,
   type UserExperienceIntentDecision,
 } from './UserExperienceIntentRouter.js';
 
@@ -543,11 +543,7 @@ export class SurfaceOperationalIntentService {
     if (this.looksLikePassiveLinkShare(text)) {
       return false;
     }
-    const preferred = this.semanticClassifier.getPreferredProviderName?.() || '';
-    if (preferred && this.semanticClassifier.isProviderAvailable && !this.semanticClassifier.isProviderAvailable(preferred)) {
-      return false;
-    }
-    return true;
+    return this.semanticProviderIsReady();
   }
 
   private shouldUseOwnerControlledAiFirstDefault(input: SurfaceOperationalIntent): boolean {
@@ -558,14 +554,27 @@ export class SurfaceOperationalIntentService {
     if (text.length === 0 || text.length > 2000) {
       return false;
     }
-    const preferred = this.semanticClassifier.getPreferredProviderName?.() || '';
-    if (preferred && this.semanticClassifier.isProviderAvailable && !this.semanticClassifier.isProviderAvailable(preferred)) {
-      return false;
-    }
+    if (!this.semanticProviderIsReady()) return false;
     try {
       const state = this.ownerControlledDefaultActivationService?.status(1).state || null;
       return state?.status === 'active' && state.defaultRouter === 'ai-first';
-    } catch (error: unknown) {logger.warn('[Surface Operational] filesystem check failed', error); return false; }
+    } catch (error: unknown) {
+      logger.warn('[Surface Operational] activation-state check failed', error);
+      return false;
+    }
+  }
+
+  private semanticProviderIsReady(): boolean {
+    const classifier = this.semanticClassifier;
+    if (!classifier) return false;
+    if (!classifier.getPreferredProviderName) return true;
+    try {
+      const preferred = classifier.getPreferredProviderName();
+      if (!preferred) return false;
+      return !classifier.isProviderAvailable || classifier.isProviderAvailable(preferred);
+    } catch {
+      return false;
+    }
   }
 
   private async classifyAmbiguousIntent(input: SurfaceOperationalIntent): Promise<{
@@ -585,10 +594,10 @@ export class SurfaceOperationalIntentService {
           '',
           'CRITERIOS PARA EXECUCAO OPERACIONAL (shouldExecute: true):',
           '- O usuario pede explicitamente para ler/editar arquivos, criar algo no disco, rodar scripts, buscar na web, gerar midias/artefatos ou manipular o sistema.',
-          '- O pedido contem um ALVO real de sistema (ex: "verifique a pasta downloads", "leia o arquivo config.json", "crie um componente React").',
+          '- The request names a concrete system target, such as a folder, file, command, web resource, or component to create.',
           '',
-          'CRITERIOS PARA CONVERSA DIRETA (shouldExecute: false):',
-          '- Saudacoes casuais ("oi", "bom dia", "tudo bem?").',
+          'DIRECT CONVERSATION (shouldExecute: false):',
+          '- Casual greetings.',
           '- Perguntas conceituais, teoricas ou pedidos de explicacao ("o que e um transformer?", "como funciona o react?").',
           '- Frases que usam verbos de acao, mas SEM objeto de sistema ("analise minha ideia", "pense numa solucao", "compare duas coisas que vou te falar").',
           '- Link solto, ou "olha isso: https://...", e conversa direta; so vira execucao se o usuario pedir para abrir, buscar, ler, resumir ou verificar o link.',

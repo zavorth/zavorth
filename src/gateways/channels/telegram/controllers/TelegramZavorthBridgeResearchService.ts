@@ -29,7 +29,7 @@ export class TelegramZavorthBridgeResearchService {
       return false;
     }
 
-    if (!this.deps.runResearchFallback || !this.shouldAutoFallbackToResearch(prompt)) {
+    if (!this.deps.runResearchFallback || !this.shouldUseResearchCapability(task)) {
       return false;
     }
 
@@ -43,7 +43,7 @@ export class TelegramZavorthBridgeResearchService {
   }
 
   public async tryDirectResearchRoute(ctx: Context, task: Task, prompt: string): Promise<boolean> {
-    if (!this.deps.runResearchFallback || !this.shouldBypassZavorthBridgeForResearch(prompt)) {
+    if (!this.deps.runResearchFallback || !this.shouldUseResearchCapability(task)) {
       return false;
     }
 
@@ -129,72 +129,15 @@ export class TelegramZavorthBridgeResearchService {
     return code.trim().toLowerCase() === 'direct_chat_unavailable';
   }
 
-  private shouldAutoFallbackToResearch(prompt: string): boolean {
-    const normalized = String(prompt || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    const looksLikeResearch = [
-      /(^|\s)pesquise(\s|$)/,
-      /(^|\s)pesquisa(\s|$)/,
-      /(^|\s)research(\s|$)/,
-      /noticias?/,
-      /\bnews\b/,
-      /ultimas? atualizacoes/,
-      /ultimas? noticias/,
-      /me conte as noticias/,
-      /resuma as principais noticias/,
-      /verifique .*noticias/,
-    ].some((pattern) => pattern.test(normalized));
-
-    return looksLikeResearch && !this.isNotebookBoundPrompt(normalized);
-  }
-
-  private shouldBypassZavorthBridgeForResearch(prompt: string): boolean {
-    if (!this.shouldAutoFallbackToResearch(prompt)) {
-      return false;
-    }
-
-    const normalized = String(prompt || '')
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    return !this.isNotebookBoundPrompt(normalized);
-  }
-
-  private isNotebookBoundPrompt(normalizedPrompt: string): boolean {
-    const notebookBoundSignals = [
-      /\bworkspace\b/,
-      /\brepo\b/,
-      /\brepositorio\b/,
-      /\bprojeto\b/,
-      /\bcodigo\b/,
-      /\bcode\b/,
-      /\barquivo\b/,
-      /\bfile\b/,
-      /\bpasta\b/,
-      /\bfolder\b/,
-      /\bdiretorio\b/,
-      /\bdirectory\b/,
-      /\bconteudo da pasta\b/,
-      /\bdentro da pasta\b/,
-      /\blocal\b/,
-      /\blog\b/,
-      /\bterminal\b/,
-      /\bapp\b/,
-      /\bjanela\b/,
-      /\bnotebook\b/,
-      /\bide\b/,
-      /\bbranch\b/,
-      /\bgit\b/,
-      /[a-z]:[\\/]/,
-      /\/mnt\//,
+  private shouldUseResearchCapability(task: Task): boolean {
+    const metadata = task.metadata || {};
+    const responseDecision = metadata.responseDecision && typeof metadata.responseDecision === 'object'
+      ? metadata.responseDecision as Record<string, unknown>
+      : null;
+    const candidates = [
+      ...(Array.isArray(metadata.requestedTools) ? metadata.requestedTools : []),
+      ...(Array.isArray(responseDecision?.requestedTools) ? responseDecision.requestedTools : []),
     ];
-
-    return notebookBoundSignals.some((pattern) => pattern.test(normalizedPrompt));
+    return candidates.some((tool) => ['web_search', 'web.search', 'network_fetch'].includes(String(tool || '').trim().toLowerCase()));
   }
 }

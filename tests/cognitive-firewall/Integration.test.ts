@@ -284,15 +284,16 @@ describe('Cognitive Firewall — Full Integration', () => {
         tracker.recordTurn('session1', ['web_search', 'read_file']);
       }
 
-      const firewall = new CognitiveFirewall({
+      // Free text is full_toolset (all tools already exposed). Predictive add-ons
+      // apply when a filtered structured category is used as a hint profile.
+      const gatekeeper = new ToolGatekeeper({
         usageTracker: tracker,
         sessionId: 'session1',
       });
+      const hint = gatekeeper.buildHintProfile(ALL_TOOLS, 'information');
 
-      const decision = firewall.evaluate('search the web', ALL_TOOLS);
-
-      expect(decision.toolHintProfile.isPredictiveMode).toBe(true);
-      expect(decision.toolHintProfile.predictedToolNames).toContain('read_file');
+      expect(hint.isPredictiveMode).toBe(true);
+      expect(hint.predictedToolNames).toContain('read_file');
     });
   });
 
@@ -364,9 +365,13 @@ describe('Cognitive Firewall — Full Integration', () => {
     it('works with CognitiveFirewall intent classification', () => {
       const firewall = new CognitiveFirewall();
       const decision = firewall.evaluate('create a file called test.ts', ALL_TOOLS);
-      const initial = injector.getInitialTools(decision.classification);
 
-      // file_operation intent should give minimal set
+      // Free text is model-owned full_toolset; injector minimal set is for structured categories.
+      expect(decision.classification.category).toBe('full_toolset');
+      const initial = injector.getInitialTools({
+        ...decision.classification,
+        category: 'file_operation',
+      });
       expect(initial.length).toBeLessThanOrEqual(2);
       expect(initial).toContain('read_file');
     });
@@ -389,44 +394,46 @@ describe('Cognitive Firewall — Full Integration', () => {
         sessionId: 'session1',
       });
 
-      const decision = firewall.evaluate('search for TypeScript articles', ALL_TOOLS);
+      const freeText = firewall.evaluate('search for TypeScript articles', ALL_TOOLS);
 
-      // All modes should be active
-      expect(decision.toolHintProfile.isCompactMode).toBe(true);
-      expect(decision.toolHintProfile.isClusterMode).toBe(true);
-      expect(decision.toolHintProfile.isPredictiveMode).toBe(true);
+      // Free text → full_toolset still gets compact + cluster telemetry.
+      expect(freeText.classification.category).toBe('full_toolset');
+      expect(freeText.toolHintProfile.isCompactMode).toBe(true);
+      expect(freeText.toolHintProfile.isClusterMode).toBe(true);
+      expect(freeText.toolHintProfile.compactTools!.length).toBeGreaterThan(0);
+      expect(freeText.toolHintProfile.activeClusters!.length).toBeGreaterThan(0);
+      expect(freeText.tokenSavings!.savingsPercent).toBeGreaterThan(0);
+      expect(freeText.stats).toContain('Compact: active');
+      expect(freeText.stats).toContain('Clusters: active');
 
-      // Compact tools should exist
-      expect(decision.toolHintProfile.compactTools).toBeDefined();
-      expect(decision.toolHintProfile.compactTools!.length).toBeGreaterThan(0);
-
-      // Clusters should be listed
-      expect(decision.toolHintProfile.activeClusters).toBeDefined();
-
-      // Predictions should be present
-      expect(decision.toolHintProfile.predictedToolNames).toBeDefined();
-
-      // Token savings should be calculated
-      expect(decision.tokenSavings).toBeDefined();
-      expect(decision.tokenSavings!.savingsPercent).toBeGreaterThan(0);
-
-      // Stats should mention all active modes
-      expect(decision.stats).toContain('Compact: active');
-      expect(decision.stats).toContain('Clusters: active');
-      expect(decision.stats).toContain('Predictive: active');
+      // Predictive add-ons require a filtered structured category hint.
+      const predictive = new ToolGatekeeper({
+        compactMode: true,
+        clusterMode: true,
+        usageTracker: tracker,
+        sessionId: 'session1',
+      }).buildHintProfile(ALL_TOOLS, 'information');
+      expect(predictive.isPredictiveMode).toBe(true);
+      expect(predictive.predictedToolNames).toBeDefined();
     });
 
-    it('full workflow: classify → filter → cache → inject', () => {
+    it('full workflow: free-text full_toolset → cache → inject', () => {
       const firewall = new CognitiveFirewall();
       const cache = new ToolResultCache();
       const injector = new ContextAwareInjector();
 
-      // Step 1: Classify and get initial tools
+      // Step 1: Free text is model-owned (full_toolset), not keyword file_operation.
       const decision = firewall.evaluate('read the README.md file', ALL_TOOLS);
-      expect(decision.classification.category).toBe('file_operation');
+      expect(decision.classification.category).toBe('full_toolset');
+      expect(decision.tools.map((tool) => tool.name)).toEqual(
+        expect.arrayContaining(['read_file', 'create_file', 'web_search']),
+      );
 
-      // Step 2: Get minimal initial set from injector
-      const initial = injector.getInitialTools(decision.classification);
+      // Step 2: Injector can still start from an explicit structured category.
+      const initial = injector.getInitialTools({
+        ...decision.classification,
+        category: 'file_operation',
+      });
       expect(initial).toContain('read_file');
 
       // Step 3: Simulate tool execution — cache result

@@ -663,7 +663,7 @@ export class ZavorthSpeculativeAutonomyService {
         id: input.id,
         workspaceRoot: input.workspaceRoot,
         round: input.round,
-        reason: `Alteracao especulativa bloqueada porque o alvo original atravessa symlink: ${unsafeOriginalPath}.`,
+        reason: `Speculative change blocked because the original target crosses a symlink: ${unsafeOriginalPath}.`,
         sandboxWorkspace,
         sandboxBackend,
       });
@@ -687,7 +687,7 @@ export class ZavorthSpeculativeAutonomyService {
         round: input.round,
         sandboxWorkspace,
         status: 'blocked',
-        summary: `${blockedReasons.length} bloqueio(s) impediram o ensaio especulativo.`,
+        summary: `${blockedReasons.length} blocker(s) prevented the speculative rehearsal.`,
         touchedFiles: uniqueTouchedFiles,
         diffText: '',
         diffHash: null,
@@ -713,7 +713,7 @@ export class ZavorthSpeculativeAutonomyService {
       touchedFiles: uniqueTouchedFiles,
     });
     const validationResults = input.validationMode === 'skip'
-      ? [this.skippedValidation('Validacao explicitamente desativada para este ensaio especulativo.')]
+      ? [this.skippedValidation('Validation explicitly disabled for this speculative rehearsal.')]
       : await this.runValidationCommands({
         originalWorkspace: input.workspaceRoot,
         sandboxWorkspace,
@@ -978,7 +978,7 @@ export class ZavorthSpeculativeAutonomyService {
         maxBytes: MAX_DIFF_CHARS * 2,
         cleanupOnSuccess: false,
         cleanupOnBoot: false,
-        notes: ['Mantem evidencias do ensaio para revisao antes do apply real.'],
+        notes: ['Keep rehearsal evidence for review before real apply.'],
       },
     });
   }
@@ -1023,7 +1023,7 @@ export class ZavorthSpeculativeAutonomyService {
         findings.push({
           id: `validation-blocked-${sha256(result.command).slice(0, 8)}`,
           severity: 'critical',
-          summary: `Validacao bloqueada: ${result.command}.`,
+          summary: `Validation blocked: ${result.command}.`,
         });
       } else if (result.status === 'failed') {
         findings.push({
@@ -1035,7 +1035,7 @@ export class ZavorthSpeculativeAutonomyService {
         findings.push({
           id: 'validation-skipped',
           severity: 'warning',
-          summary: result.stderr || result.stdout || 'Validacao registrada como skipped.',
+          summary: result.stderr || result.stdout || 'Validation recorded as skipped.',
         });
       }
     }

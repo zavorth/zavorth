@@ -62,7 +62,7 @@ export async function fetchOpenAiCompatibleModels(
     connectionId,
     models,
     source,
-    ...(source === "local_catalog" ? { warning: "API unavailable â€” using cached catalog" } : {}),
+    ...(source === "local_catalog" ? { warning: "API unavailable — using cached catalog" } : {}),
   });
 }
 

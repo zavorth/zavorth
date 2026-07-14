@@ -64,7 +64,7 @@ export class ExecutionGraphService {
     if (timeline.length === 0) {
       return [{
         id: 'graph:idle',
-        label: 'Aguardando comando',
+        label: 'Waiting for comando',
         kind: 'router',
         status: 'pending',
         detail: 'Nenhuma jornada ativa foi encontrada.',

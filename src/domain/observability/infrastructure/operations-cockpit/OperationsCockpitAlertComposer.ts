@@ -61,18 +61,18 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
       alerts.push({
         level: sidecar.running ? 'warn' : 'error',
         source: 'sidecar',
-        title: `${sidecar.name} requer intervencao`,
+        title: `${sidecar.name} needs intervention`,
         detail: sidecar.message || (sidecar.running ? 'Ainda iniciando.' : 'Sidecar offline.'),
         timestamp: sidecar.checkedAt || operations.generatedAt,
       });
     });
 
   if (discordBridge?.enabled && !discordBridge.started) {
-    const discordLabel = discordBridge.mode === 'native' ? 'Gateway nativo do Discord' : 'Discord bridge';
+    const discordLabel = discordBridge.mode === 'native' ? 'Native Discord gateway' : 'Discord bridge';
     alerts.push({
       level: discordBridge.lastError ? 'error' : 'warn',
       source: 'discord-bridge',
-      title: `${discordLabel} requer intervencao`,
+      title: `${discordLabel} needs intervention`,
       detail:
         discordBridge.lastError ||
         `${discordBridge.mode === 'native' ? 'Gateway nativo' : 'Bridge'} habilitado, mas ainda nao iniciou ou perdeu o estado pronto.`,
@@ -84,12 +84,12 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: whatsAppChannel?.lastError ? 'error' : 'warn',
       source: 'whatsapp-channel',
-      title: whatsAppChannel?.mode === 'cloud-api' ? 'WhatsApp Cloud API requer validacao' : 'WhatsApp requer preparacao',
+      title: whatsAppChannel?.mode === 'cloud-api' ? 'WhatsApp Cloud API requires validation' : 'WhatsApp requires preparation',
       detail: describeLocalChannelAttention(
         whatsAppChannel,
         'WhatsApp',
         'chat(s)',
-        whatsAppChannel?.mode === 'cloud-api' ? 'runtime Cloud API/webhook' : 'bootstrap local do adapter',
+        whatsAppChannel?.mode === 'cloud-api' ? 'runtime Cloud API/webhook' : 'local adapter bootstrap',
       ),
       timestamp: whatsAppChannel?.updatedAt || operations.generatedAt,
     });
@@ -99,12 +99,12 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: slackChannel?.lastError ? 'error' : 'warn',
       source: 'slack-channel',
-      title: slackChannel?.mode === 'native' ? 'Slack nativo requer validacao' : 'Slack requer preparacao',
+      title: slackChannel?.mode === 'native' ? 'Native Slack requires validation' : 'Slack requires preparation',
       detail: describeLocalChannelAttention(
         slackChannel,
         'Slack',
-        'canal(is)',
-        slackChannel?.mode === 'native' ? 'runtime nativo/webhook do Slack' : 'bootstrap local do adapter',
+        'channel(s)',
+        slackChannel?.mode === 'native' ? 'native Slack runtime/webhook' : 'local adapter bootstrap',
       ),
       timestamp: slackChannel?.updatedAt || operations.generatedAt,
     });
@@ -180,7 +180,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'channel-provider-doctor',
-      title: 'Doctor dos canais nativos desatualizado',
+      title: 'Native channel doctor is stale',
       detail:
         channelProviderDoctor.summary ||
         'A validacao operacional de Slack native e WhatsApp Cloud API ficou velha e deve ser renovada.',
@@ -210,7 +210,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'remote-transport-doctor',
-      title: 'Doctor dos transportes remotos desatualizado',
+      title: 'Remote transport doctor is stale',
       detail:
         remoteTransportDoctor.summary ||
         'A validacao operacional dos transportes remotos ficou velha e deve ser renovada.',
@@ -230,7 +230,7 @@ export function buildCockpitAlerts(operations: OperationsHealthSnapshot): Cockpi
     alerts.push({
       level: 'warn',
       source: 'wasm-sandbox',
-      title: 'Tier Wasm pede validacao',
+      title: 'Wasm tier needs validation',
       detail:
         operations.wasm.detail || 'O tier Wasm ainda nao confirmou prontidao operacional neste host.',
       timestamp: operations.generatedAt,

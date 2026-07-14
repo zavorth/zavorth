@@ -29,7 +29,7 @@ export function isRetriableStitchGenerationError(error: unknown): boolean {
 
 export function formatStitchSuccessSummary(input: StitchSuccessSummaryInput): string {
   const lines = [
-    'Stitch concluiu a geracao do app com sucesso.',
+    'Stitch finished app generation successfully.',
     `Projeto: ${input.projectId}`,
     `Tela: ${input.screenId}`,
     `Dispositivo: ${input.deviceType}`,

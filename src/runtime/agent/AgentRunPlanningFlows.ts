@@ -590,7 +590,6 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       ...this.collectNaturalCapabilityToolIds(input.metadata),
       ...this.collectNaturalCapabilityToolIds(run?.metadata),
       ...(run?.toolExposure.tools.map((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => tool.id) || []),
-      ...this.collectSpecializedToolIdsFromText(input.text),
     ].map((tool: { id?: unknown; risk?: unknown; requiresApproval?: unknown }) => normalizeText(tool).toLowerCase()).filter(Boolean)));
   };
 
@@ -609,26 +608,6 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     ]));
   };
 
-  proto.collectSpecializedToolIdsFromText = function (this: AgentRunFlowHost, text: string): string[] {
-    const normalized = normalizeText(text).toLowerCase();
-    const assessment = assessSwarmWorkload({ text });
-    const toolIds: string[] = [];
-    if (/\b(selfmod|auto[-\s]?melhoria|auto[-\s]?evolucao|melhore o zavorth|modifique o zavorth|aperfeicoe o zavorth)\b/.test(normalized)) {
-      toolIds.push('selfmod.preview');
-    }
-    if (/\b(watch mode|watchmode|computer use|observe a tela|monitorar a tela|controle visual|navegue por mim|clique)\b/.test(normalized)) {
-      toolIds.push('watchmode.control');
-    }
-    if (/\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|paralelo)\b/.test(normalized)
-      || assessment.shouldUseSwarm) {
-      toolIds.push('swarm.run');
-    }
-    if (assessment.shouldUseScalePlane) {
-      toolIds.push('swarm.scale');
-    }
-    return toolIds;
-  };
-
   proto.buildUniversalPreviewReply = function (this: AgentRunFlowHost, run: UniversalAgentRun): string {
     const preview = recordOrNull(run.metadata?.universalPreviewMode) || {};
     const risk = recordOrNull(preview.risk) || {};
@@ -640,7 +619,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       '',
       run.summary,
       `Risco: ${normalizeText(risk.highestRisk, 'unknown')}`,
-      `Approval ainda requerido: ${String(risk.requiresApproval === true)}`,
+      `Approval still requerido: ${String(risk.requiresApproval === true)}`,
       `Preview especifico requerido: ${String(risk.previewRequired === true)}`,
       `Executor bloqueado no preview: ${String(safety.executorBlockedInPreviewMode !== false)}`,
       '',
@@ -652,7 +631,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       lines.push(`- ${normalizeText(step.label, 'Etapa')} [${normalizeText(step.risk, 'unknown')}] ${normalizeText(step.action)}`);
     }
 
-    lines.push('', `Proximo passo: ${nextSafeAction}`);
+    lines.push('', `Next step: ${nextSafeAction}`);
     return lines.join('\n');
   };
 
@@ -673,7 +652,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       'Escopo',
       `- tools permitidas: ${snapshot.scope.allowedToolIds.join(', ') || 'nenhuma'}`,
       `- tools bloqueadas: ${snapshot.scope.blockedToolIds.join(', ') || 'nenhuma'}`,
-      `- paths: ${snapshot.scope.pathHints.join(', ') || 'nao declarados'}`,
+      `- paths: ${snapshot.scope.pathHints.join(', ') || 'not declarados'}`,
       '',
       'Capabilities',
     ].filter(Boolean);
@@ -681,11 +660,11 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
     for (const capability of snapshot.capabilities.slice(0, 6)) {
       lines.push(
         `- ${capability.label} [${capability.risk}] ${capability.requiresApproval ? 'approval' : capability.permission}`,
-        `  tools: ${capability.toolIds.join(', ') || 'nenhuma'}; ${capability.blocked ? 'bloqueada' : 'disponivel'}`,
+        `  tools: ${capability.toolIds.join(', ') || 'nenhuma'}; ${capability.blocked ? 'bloqueada' : 'available'}`,
       );
     }
 
-    lines.push('', `Proximo passo: ${snapshot.nextSafeAction}`);
+    lines.push('', `Next step: ${snapshot.nextSafeAction}`);
     return lines.join('\n');
   };
 
@@ -707,7 +686,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
 
     for (const call of snapshot.calls.slice(0, 6)) {
       lines.push(
-        `- ${call.order}. ${call.toolId} [${call.risk}] ${call.allowedByScope ? 'dentro do escopo' : 'fora/pendente'}`,
+        `- ${call.order}. ${call.toolId} [${call.risk}] ${call.allowedByScope ? 'dentro do escopo' : 'fora/pending'}`,
         `  args: ${JSON.stringify(call.approximateArguments)}`,
         `  esperado: ${call.expectedOutput}`,
       );
@@ -718,7 +697,7 @@ export function installAgentRunPlanningFlows(AgentRunServiceClass: { prototype: 
       lines.push(`- ${adjustment.label}: ${adjustment.detail}`);
     }
 
-    lines.push('', `Proximo passo: ${snapshot.nextSafeAction}`);
+    lines.push('', `Next step: ${snapshot.nextSafeAction}`);
     return lines.join('\n');
   };
 }

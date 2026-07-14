@@ -16,7 +16,7 @@ type ZavorthDataLifecyclePolicyRuntime = {
 const DATASETS: ZavorthDataLifecycleDataset[] = [
   {
     id: 'app-logs',
-    label: 'Logs de aplicacao e runtime',
+    label: 'Logs de aplicaction e runtime',
     surface: 'logs',
     classification: 'sensitive',
     retentionMode: 'time-boxed',
@@ -35,7 +35,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
       'src/ai-gateway/lib/logExportRedaction.ts',
       'src/core/MinimalRuntimeRetentionService.ts',
     ],
-    residualRisk: 'Logs podem conter metadados operacionais; exportacao deve passar por redaction.',
+    residualRisk: 'Logs podem conter metadados operacionais; exportaction deve passar por redaction.',
   },
   {
     id: 'media-cache',
@@ -104,7 +104,7 @@ const DATASETS: ZavorthDataLifecycleDataset[] = [
       'src/ai-gateway/lib/db/backupSanitizer.ts',
       'src/config/sections/runtimePathConfig.ts',
     ],
-    residualRisk: 'Backups concentram dados historicos; exportacao exige revisao e sanitizacao.',
+    residualRisk: 'Backups concentram dados historys; exportaction exige revisao e sanitizacao.',
   },
   {
     id: 'provider-cache',

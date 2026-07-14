@@ -105,7 +105,7 @@ export function formatReleaseCandidatePreCanaryGateSnapshot(
 
   lines.push('', 'Rotas e comandos');
   lines.push(`- Evidence pack: ${snapshot.surface.evidencePackCommand}`);
-  lines.push(`- Integracoes: ${snapshot.surface.integrationCommand}`);
+  lines.push(`- Integrations: ${snapshot.surface.integrationCommand}`);
   lines.push(`- Autopilot RC: ${snapshot.surface.autopilotCommand}`);
   lines.push(`- Rollback preview: ${snapshot.surface.rollbackPreviewCommand}`);
   lines.push(`- Phase gate: ${snapshot.surface.phaseGateCommand}`);

@@ -82,7 +82,7 @@ export class AgenticRouteClassifier {
     const remoteCandidate = this.isRemoteManagedAgentCandidate(text, params.naturalFirst, signals);
     if (remoteCandidate) {
       if (!managedAgentsEnabled()) {
-        return this.standard(mode, 'Agente remoto seria util, mas a rota esta desabilitada; mantendo preview governado local.', [
+        return this.standard(mode, 'A remote agent would help, but the route is disabled; keeping local governed preview.', [
           ...signals,
           'remote-managed-agent-disabled',
         ], basePolicy);

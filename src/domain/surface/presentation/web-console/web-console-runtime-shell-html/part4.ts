@@ -164,7 +164,7 @@ export function buildRuntimeShellHtmlPart4(): string {
             </ul>
           </article>
           <article class="system-overlord-detail-card">
-            <p class="profile-tag">Publicacoes recentes</p>
+            <p class="profile-tag">Publicactions recentes</p>
             <ul id="rollout-readiness-control-plane-publish" class="handoff-list compact">
               <li>Valide o token para revisar o historico de publish do host.</li>
             </ul>
@@ -242,7 +242,7 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="system-overlord-card" class="handoff-card system-overlord-card">
         <p class="profile-tag">System Overlord</p>
-        <h2>Controle supervisionado do host</h2>
+        <h2>Supervised host control</h2>
         <p class="muted-copy section-note">
           Capabilities, niveis de autonomia, adapters e ultimas acoes passam por policy, ledger e approvals antes de tocar no host.
         </p>
@@ -316,7 +316,7 @@ export function buildRuntimeShellHtmlPart4(): string {
           <input id="system-overlord-command" class="auth-input" type="text" placeholder="Ex.: git status" autocomplete="off" />
           <label class="inline-check"><input id="system-overlord-dry-run" type="checkbox" checked /> dry-run</label>
           <label class="inline-check"><input id="system-overlord-approved" type="checkbox" /> aprovado</label>
-          <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>Executar supervisionado</button>
+          <button id="system-overlord-run-action" type="button" class="action-button compact-action" hidden>Run supervised</button>
         </div>
         <p id="system-overlord-status" class="muted-copy section-note">
           Valide o token para revisar o System Overlord supervisionado deste host.

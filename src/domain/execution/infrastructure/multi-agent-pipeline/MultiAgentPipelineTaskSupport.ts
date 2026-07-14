@@ -128,7 +128,7 @@ export class MultiAgentPipelineTaskSupport {
         },
       ],
       validation_steps: [],
-      success_condition: 'A etapa conclui sem violar politicas.',
+      success_condition: 'Stage conclui sem violar politicas.',
       rollback_condition: null,
       notes: [
         ...this.deps.workflowRuns.buildPlanNotes(run, stage, handoffSummary, workspaceContext),

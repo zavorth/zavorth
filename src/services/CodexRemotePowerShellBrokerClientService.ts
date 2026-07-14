@@ -212,7 +212,7 @@ export class CodexRemotePowerShellBrokerClientService {
         return {
           running: false,
           pid: null,
-          note: 'O lock do broker PowerShell do Codex Remote esta invalido. Reinicie o launcher supervisionado.',
+          note: 'The Codex Remote PowerShell broker lock is invalid. Restart the supervised launcher.',
         };
       }
 
@@ -227,7 +227,7 @@ export class CodexRemotePowerShellBrokerClientService {
     return {
           running: false,
           pid,
-          note: 'O broker PowerShell do Codex Remote ficou stale. Reinicie o launcher supervisionado.',
+          note: 'O broker PowerShell do Codex Remote ficou stale. Reinicie o supervised launcher.',
         };
   }
     } catch (error: unknown) {logger.warn('[Codex Remote Power Shell Broker Client] operation failed', error);

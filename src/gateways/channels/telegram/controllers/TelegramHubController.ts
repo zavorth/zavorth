@@ -31,7 +31,7 @@ export type TelegramHubControllerDeps = {
 };
 
 /**
- * Hermes-style hub: /start + buttons for first-run; free text never answers the wizard.
+ * agent-first hub: /start + buttons for first-run; free text never answers the wizard.
  */
 export class TelegramHubController {
   private readonly actionService: TelegramHubActionService;
@@ -107,6 +107,11 @@ export class TelegramHubController {
   private async tryHandleFirstRunSlash(ctx: Context, args: string): Promise<boolean> {
     const service = this.getFirstRunService(ctx);
     const normalized = String(args || '').trim().toLowerCase();
+
+    // Explicit hub destinations are navigation, not onboarding answers.
+    if (['recipes', 'playbooks', 'skills', 'library', 'security', 'safe', 'permissions', 'perms', 'settings', 'ops', 'quickstart', 'start'].includes(normalized)) {
+      return false;
+    }
 
     // Explicit setup verbs always open first-run UI even if complete.
     if (normalized === 'restart' || normalized === 'reset') {
@@ -225,7 +230,7 @@ export class TelegramHubController {
     const body = [
       text,
       '',
-      'Hermes-style setup: use the buttons (or /start skip). Free text goes to the agent.',
+      'agent-first setup: use the buttons (or /start skip). Free text goes to the agent.',
     ].join('\n');
     const options = { reply_markup: keyboard };
 

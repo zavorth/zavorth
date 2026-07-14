@@ -130,7 +130,7 @@ export class ZavorthUserResponseRendererService {
     }
 
     if (normalized.includes('pedido processado pelo runtime universal')) {
-      return 'Recebi. O Zavorth registrou a solicitacao e vai seguir pelo fluxo seguro.';
+      return 'Recebi. O Zavorth registrou a solicitaction e vai seguir pelo fluxo seguro.';
     }
 
     if (normalized.includes('runtime universal registrou a conversa')) {

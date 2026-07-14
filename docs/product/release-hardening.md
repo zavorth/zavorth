@@ -10,7 +10,7 @@ This package does **not** force full product certification (that remains `qa:zav
 - Public identity surfaces stay Zavorth-native (`identity:public`).
 - Historical phase plans are **not** public product docs (no phase stubs under `docs/` root).
 - Golden path proves the hermetic Trust Loop; full product certification is still required before a formal release.
-- Live residual program lives under `docs/product/WAVES-UNIFIED-CLOSEOUT.md` and `docs/product/launch-readiness.md`.
+- Launch residual lives under `docs/product/launch-readiness.md`.
 
 ## Checklist (master plan §15)
 

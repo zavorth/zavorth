@@ -35,11 +35,25 @@ describe('ComposerContextService', () => {
     );
 
     expect(result).toContain('/task revisar isso');
-    expect(result).toContain('[Contexto do composer]');
-    expect(result).toContain('Arquivo selecionado para este pedido:');
-    expect(result).toContain('Caminho: C:/repo/src/index.ts');
-    expect(result).toContain('Artefato selecionado para este pedido:');
-    expect(result).toContain('Resumo: Log principal do build.');
+    expect(result).toContain('[Composer context]');
+    expect(result).toContain('Selected file for this request:');
+    expect(result).toContain('Path: C:/repo/src/index.ts');
+    expect(result).toContain('Selected artifact for this request:');
+    expect(result).toContain('Summary: Log principal do build.');
+  });
+
+  it('treats a selected command as explicit execution context', () => {
+    const service = new ComposerContextService();
+    const mentions = [{
+      id: '/task',
+      type: 'command',
+      label: '/task',
+      payload: { command: '/task' },
+    }] as any;
+
+    expect(service.hasCommandMention(mentions)).toBe(true);
+    expect(service.buildExecutionText('review this change', mentions)).toBe('/task review this change');
+    expect(service.buildExecutionText('/task review this change', mentions)).toBe('/task review this change');
   });
 
   it('flags context actions without a natural-language follow-up', () => {

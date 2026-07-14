@@ -60,7 +60,7 @@ if (failures.length === 0) {
   }
 
   const publicText = `${contents.pages}\n${contents.reactIslands}\n${contents.preference}`;
-  for (const forbidden of ['Auto / Gemini', 'Show Gemini provider', 'âœ…', 'âŒ', 'ðŸ']) {
+  for (const forbidden of ['Auto / Gemini', 'Show Gemini provider', '✅', 'âŒ', 'ðŸ']) {
     if (publicText.includes(forbidden)) failures.push(`forbidden stale/garbled copy: ${forbidden}`);
   }
 

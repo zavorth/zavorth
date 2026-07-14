@@ -443,7 +443,7 @@ export class CapabilityAutopilotPreflightActionHandlerService {
     status: CapabilityPreflightActionHandlerStatus,
   ): string {
     if (status === 'blocked') {
-      return `Action ${action.kind} esta bloqueada para wiring seguro.`;
+      return `Action ${action.kind} is blocked for safe wiring.`;
     }
     return `Action ${action.kind} mapeada para ${handlerKind}; nada foi executado automaticamente.`;
   }

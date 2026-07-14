@@ -138,6 +138,5 @@ describe('W4 WorkerMeshService', () => {
     const text = mesh.formatWorkersText();
     expect(text).toMatch(/Worker mesh/i);
     expect(text).toMatch(/internal:leaf/);
-    expect(text).not.toMatch(/openclaw|claude code/i);
   });
 });

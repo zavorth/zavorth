@@ -137,9 +137,9 @@ export class NodeHostCapabilityFilesystemService {
     if (!['create', 'append', 'overwrite'].includes(writeMode)) {
       return {
         ok: false,
-        resultSummary: 'files.write recebeu um mode invalido.',
+        resultSummary: 'files.write received an invalid mode.',
         stdout: null,
-        stderr: `mode invalido: ${writeMode}`,
+        stderr: `invalid mode: ${writeMode}`,
         exitCode: null,
         data: {
           path: targetPath,

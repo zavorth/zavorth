@@ -289,7 +289,7 @@ export class CapabilityAutopilotPreflightDispatchReceiptService {
         'capability-autopilot-preflight-dispatch:coverage',
         'receipt por action',
         receipts.length === sourceActionCount && blocked.length === 0 ? 'pass' : 'fail',
-        'Cada action explicitamente escolhida precisa gerar um receipt auditavel.',
+        'Each explicitly chosen action must produce an auditable receipt.',
         [
           `sourceActions=${sourceActionCount}`,
           `receipts=${receipts.length}`,

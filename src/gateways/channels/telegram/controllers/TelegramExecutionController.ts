@@ -138,7 +138,7 @@ export class TelegramExecutionController {
     try {
       const userId = ctx.from?.id?.toString();
       if (!userId) {
-        throw new Error('User ID invalido.');
+        throw new Error('Invalid user ID.');
       }
       const userRoles = config.telegramUserRoles?.[userId] || ['admin'];
       if (!userRoles.includes('admin')) {

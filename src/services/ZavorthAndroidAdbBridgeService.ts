@@ -217,7 +217,7 @@ export class ZavorthAndroidAdbBridgeService {
       blocks: [
         {
           kind: 'text',
-          title: 'Device governado',
+          title: 'Governed device',
           text: this.formatSnapshotText(snapshot),
         },
         {
@@ -630,7 +630,7 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
             'The natural request already tried to find an authorized Android device.',
             'Connect the phone over USB.',
             'Enable Developer Options and USB Debugging.',
-            'Aceite o prompt de autorizacao ADB no celular.',
+            'Aceite o prompt de autorizaction ADB no celular.',
             'Depois rode: /device android doctor',
           ];
   return [

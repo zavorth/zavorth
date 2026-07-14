@@ -128,9 +128,9 @@ function formatLayeredMemoryMetrics(
       {
         title: 'Em resumo',
         lines: [
-          `- entradas: ${formatCount(metrics.summary.totalEntries, 'entrada', 'entradas')} | episodica ${metrics.summary.episodic} | semantica ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
-          `- uso medio do budget: ${metrics.summary.averageBudgetUsage} | pressao: ${metrics.summary.pressure}`,
-          `- procedimentos: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
+          `- entries: ${formatCount(metrics.summary.totalEntries, 'entry', 'entries')} | episodic ${metrics.summary.episodic} | semantic ${metrics.summary.semantic} | procedural ${metrics.summary.procedural}`,
+          `- average budget use: ${metrics.summary.averageBudgetUsage} | pressure: ${metrics.summary.pressure}`,
+          `- procedures: ${formatCount(metrics.procedures.total, 'total', 'total')} | ${metrics.procedures.trustedLocal} trusted local | ${metrics.procedures.learnedDraft} draft`,
         ],
         tone: metrics.summary.pressure === 'critical' ? 'danger' : metrics.summary.pressure === 'elevated' ? 'warning' : 'info',
       },
@@ -221,7 +221,7 @@ function buildCliProviderModelSnapshot(report: RuntimeAccessReadinessReport): Cl
   const ready = providers.readyProviders?.includes(providers.activeProviderName) === true;
   return {
     providerLabel: providers.activeProviderName || 'provider atual',
-    modelLabel: providers.activeModelName || 'modelo atual',
+    modelLabel: providers.activeModelName || 'current model',
     readiness: ready ? 'ready' : 'needs_config',
     ready,
     source: 'provider-snapshot',
@@ -333,7 +333,7 @@ function formatNodeMeshDoctorSnapshot(snapshot: CliNodeMeshDoctorSnapshot): stri
   return renderCliScreen({
     eyebrow: 'Nodes',
     eyebrowTone: snapshot.status === 'passed' ? 'success' : 'warning',
-    title: 'Doctor do Node Mesh',
+    title: 'Node Mesh doctor',
     summary: formatCliValue(snapshot.summary, 'Sem relatorio persistido ainda.'),
     mode: 'compact',
     showWordmark: false,
@@ -343,10 +343,10 @@ function formatNodeMeshDoctorSnapshot(snapshot: CliNodeMeshDoctorSnapshot): stri
         lines: [
           `- status: ${snapshot.status}`,
           `- node: ${formatCliValue(snapshot.nodeId)}`,
-          `- status final: ${formatCliValue(snapshot.finalNodeStatus)}`,
-          `- capability recente: ${formatCliValue(snapshot.recentCapabilityId)}`,
-          `- stale: ${snapshot.stale ? 'sim' : 'nao'}`,
-          `- comando: ${snapshot.command}`,
+          `- final status: ${formatCliValue(snapshot.finalNodeStatus)}`,
+          `- recent capability: ${formatCliValue(snapshot.recentCapabilityId)}`,
+          `- stale: ${snapshot.stale ? 'yes' : 'no'}`,
+          `- command: ${snapshot.command}`,
         ],
         tone: snapshot.status === 'passed' ? 'success' : 'warning',
       },
@@ -354,7 +354,7 @@ function formatNodeMeshDoctorSnapshot(snapshot: CliNodeMeshDoctorSnapshot): stri
         title: 'Faca agora',
         lines: [
           snapshot.nextStep ? `- ${sanitizeHumanCliText(snapshot.nextStep.title)}` : null,
-          snapshot.error ? `- erro: ${snapshot.error}` : null,
+          snapshot.error ? `- error: ${snapshot.error}` : null,
         ].filter(Boolean) as string[],
         tone: snapshot.error ? 'danger' : 'brand',
       },
@@ -384,20 +384,10 @@ function appendUniqueDoctorLines(lines: string[], candidates: Array<string | nul
 
 function compactRuntimeLine(value: string | null | undefined, maxLength = 150): string {
   const sanitized = sanitizeHumanCliText(value || '')
-    .replace(/^Zavorth precisa de acao do operador agora\.?$/i, 'O Zavorth precisa da sua atencao agora.')
-    .replace(/^Espaco livre:\s*([^|]+)\|\s*publish\s*(.+)$/i, 'Disco livre: $1 | ultima publicacao: $2')
-    .replace(/(\d+)\s+alerta\(s\)/gi, (_match, count) => `${count} ${Number(count) === 1 ? 'alerta' : 'alertas'}`)
-    .replace(/^Doctor dos canais nativos venceu\b.*validate-channel-providers\b.*$/i, 'Os canais de conversa pedem nova validacao; rode zavorth doctor antes de ampliar o rollout.')
-    .replace(/^Doctor dos transportes remotos venceu\b.*validate-remote-transports\b.*$/i, 'As conexoes remotas pedem nova validacao; rode zavorth doctor antes de ampliar o rollout.')
-    .replace(/^Nenhum transporte remoto elegivel para doctor neste (?:Zavorth|runtime)\.?$/i, 'A conexao remota ainda nao tem um caminho pronto para validar.')
-    .replace(/^Postura de seguranca precisa de atencao\.?$/i, 'A seguranca basica precisa de atencao.')
-    .replace(/^(\d+)\/(\d+) sidecars habilitados estao prontos\.?$/i, 'componentes locais: $1 de $2 prontos.')
-    .replace(/^Existe sidecars? habilitado fora do estado pronto\b.*$/i, 'Alguns componentes locais ainda pedem reconciliacao segura.')
-    .replace(/^Cockpit degradado:/i, 'Operacao degradada:')
-    .replace(/^Cockpit saudavel:/i, 'Operacao saudavel:')
+    .replace(/^Zavorth needs the operator's attention now\.?$/i, 'Zavorth needs your attention now.')
+    .replace(/^Postura de security needs attention\.?$/i, 'Basic security needs attention.')
     .replace(/\bruntime\b/gi, 'Zavorth')
-    .replace(/\bsidecars?\b/gi, 'componentes locais')
-    .replace(/^Existe componentes locais habilitado fora do estado pronto\b.*$/i, 'Alguns componentes locais ainda pedem reconciliacao segura.')
+    .replace(/\bsidecars?\b/gi, 'local components')
     .replace(/\s+/g, ' ')
     .trim();
   if (!sanitized || sanitized.length <= maxLength) {
@@ -441,10 +431,10 @@ function formatRuntimeStatusLabel(status: string | null | undefined): string {
     return 'pedindo atencao';
   }
   if (normalized === 'degraded') {
-    return 'degradado';
+    return 'degraded';
   }
   if (normalized === 'critical' || normalized === 'blocked') {
-    return 'critico';
+    return 'critical';
   }
   return normalized || 'nao informado';
 }
@@ -458,7 +448,7 @@ function formatRuntimeMemoryLabel(memoryLabel: string | null | undefined): strin
 }
 
 function formatDoctorFreshness(stale: boolean): string {
-  return stale ? ' (ultima validacao antiga)' : '';
+  return stale ? ' (stale validation)' : '';
 }
 
 function normalizeDoctorSummary(summary: string): string {
@@ -535,7 +525,7 @@ function formatDoctorRemoteStateLine(snapshot: CliOperationsDoctorSnapshot): str
   }
 
   if (snapshot.remote.appUrl || snapshot.remoteTransports.total > 0) {
-    return '- O acesso remoto esta parcialmente preparado.';
+    return '- Remote access is partially prepared.';
   }
 
   return '- O acesso remoto ainda nao esta pronto.';
@@ -552,7 +542,7 @@ function formatDoctorModelStateLine(snapshot: CliOperationsDoctorSnapshot): stri
   if (snapshot.providers.ready) {
     return `- Modelo atual: ${label} pronto.`;
   }
-  return `- Modelo atual: ${label} pede ${snapshot.providers.readiness}.`;
+  return `- Current model: ${label} needs ${snapshot.providers.readiness}.`;
 }
 
 function formatDoctorConversationStateLine(snapshot: CliOperationsDoctorSnapshot): string {
@@ -562,7 +552,7 @@ function formatDoctorConversationStateLine(snapshot: CliOperationsDoctorSnapshot
   }
 
   if (snapshot.channelProviders.validated === snapshot.channelProviders.total) {
-    return `- Os canais de conversa principais ja estao prontos${freshness}.`;
+    return `- Primary conversation channels are ready${freshness}.`;
   }
 
   if (snapshot.channelProviders.validated > 0) {
@@ -579,7 +569,7 @@ function formatDoctorRemoteTransportStateLine(snapshot: CliOperationsDoctorSnaps
   }
 
   if (snapshot.remoteTransports.healthy === snapshot.remoteTransports.total) {
-    return `- As conexoes remotas principais ja estao prontas${freshness}.`;
+    return `- Primary remote connections are ready${freshness}.`;
   }
 
   if (snapshot.remoteTransports.healthy > 0) {
@@ -681,7 +671,7 @@ function buildDoctorActionLines(snapshot: CliOperationsDoctorSnapshot): string[]
   }
 
   if (hasDoctorTrustGap(snapshot)) {
-    appendUniqueDoctorLines(actions, ['- libere este computador para o Zavorth continuar.'], 4);
+    appendUniqueDoctorLines(actions, ['- authorize this computer so Zavorth can continue.'], 4);
   }
 
   return actions.slice(0, 4);
@@ -736,7 +726,7 @@ function formatCliOpsQualitySnapshot(snapshot: OpsQualityDTO): string {
   return renderCliScreen({
     eyebrow: 'Ops quality',
     eyebrowTone: snapshot.healthy ? 'success' : 'warning',
-    title: 'Ops quality do Zavorth',
+    title: 'Zavorth ops quality',
     summary: snapshot.healthy
       ? `Gate ${snapshot.gate.state} com score ${snapshot.score}.`
       : `Gate ${snapshot.gate.state} com score ${snapshot.score} ainda pedindo atencao.`,
@@ -750,7 +740,7 @@ function formatCliOpsQualitySnapshot(snapshot: OpsQualityDTO): string {
           `- recovery ${snapshot.summary.recoveryState} | learning pendente ${snapshot.summary.learningPending} | quarentena ${snapshot.summary.quarantinedItems} | memoria ${snapshot.summary.memoryPressure}`,
           `- operations: uptime ${snapshot.operations.uptime}s | db ${snapshot.operations.components.database} | eventBus ${snapshot.operations.components.eventBus}`,
           `- learning: candidatos ${snapshot.learning.totalCandidates} | score medio ${snapshot.learning.averageScore} | promovidos ${snapshot.learning.promotedRate}`,
-          `- memory: entradas ${snapshot.memory.totalEntries} | uso medio ${snapshot.memory.averageBudgetUsage} | pressao ${snapshot.memory.pressure}`,
+          `- memory: entries ${snapshot.memory.totalEntries} | average use ${snapshot.memory.averageBudgetUsage} | pressure ${snapshot.memory.pressure}`,
           `- platform: trusted ${snapshot.platform.trusted} | review ${snapshot.platform.reviewPending} | learned local ${snapshot.platform.learnedLocal} | quarantined ${snapshot.platform.quarantined}`,
         ],
         tone: snapshot.healthy ? 'success' : 'warning',
@@ -801,9 +791,9 @@ async function buildCliRuntimeAccessProbeInput(runtime: ZavorthCliRuntime): Prom
 function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadinessReport): string {
   const selectedModel = buildCliProviderModelSnapshot(report);
   return renderCliScreen({
-    eyebrow: 'Acesso',
+    eyebrow: 'Access',
     eyebrowTone: report.local.ready && report.remote.ready ? 'success' : 'warning',
-    title: 'Access readiness do Zavorth',
+    title: 'Zavorth access readiness',
     summary: sanitizeHumanCliText(report.summary),
     mode: 'compact',
     showWordmark: false,
@@ -812,9 +802,9 @@ function formatRuntimeAccessReadinessReport(report: RuntimeAccessReadinessReport
         title: 'Em resumo',
         lines: [
           `- local: ${report.local.ready ? 'pronto' : 'pendente'} | remoto: ${report.remote.ready ? 'pronto' : 'pendente'}`,
-          `- base local: ${report.local.baseUrl}`,
-          selectedModel ? `- modelo: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
-          report.recommendations[0] ? `- recomendacao: ${report.recommendations[0]}` : '- recomendacao: nenhuma',
+          `- local base: ${report.local.baseUrl}`,
+          selectedModel ? `- model: ${selectedModel.providerLabel}/${selectedModel.modelLabel} (${selectedModel.readiness})` : null,
+          report.recommendations[0] ? `- recommendation: ${report.recommendations[0]}` : '- recommendation: none',
         ].filter(Boolean) as string[],
         tone: report.local.ready && report.remote.ready ? 'success' : 'warning',
       },
@@ -830,7 +820,7 @@ function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): string {
   return renderCliScreen({
     eyebrow: 'Bootstrap',
     eyebrowTone: report.dependencies.installRequired || report.dependencies.buildRequired ? 'warning' : 'success',
-    title: 'Bootstrap do Zavorth',
+    title: 'Zavorth bootstrap',
     summary: sanitizeHumanCliText(report.summary),
     mode: 'compact',
     showWordmark: false,
@@ -838,7 +828,7 @@ function formatRuntimeBootstrapReport(report: RuntimeBootstrapReport): string {
       {
         title: 'Em resumo',
         lines: [
-          `- projeto: ${report.projectRoot}`,
+          `- project: ${report.projectRoot}`,
           `- .env: ${report.env.envFilePresent ? 'presente' : 'ausente'} | provider: ${providerLine}`,
           `- install: ${report.dependencies.installRequired ? 'pendente' : 'ok'} | build: ${report.dependencies.buildRequired ? 'pendente' : 'ok'}`,
         ],
@@ -860,7 +850,7 @@ function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepairReport
   return renderCliScreen({
     eyebrow: 'Bootstrap repair',
     eyebrowTone: failed > 0 ? 'warning' : 'info',
-    title: 'Bootstrap repair do Zavorth',
+    title: 'Zavorth bootstrap repair',
     summary: sanitizeHumanCliText(report.summary),
     mode: 'compact',
     showWordmark: false,
@@ -868,7 +858,7 @@ function formatRuntimeBootstrapRepairReport(report: RuntimeBootstrapRepairReport
       {
         title: 'Em resumo',
         lines: [
-          `- dry-run: ${report.dryRun ? 'sim' : 'nao'}`,
+          `- dry-run: ${report.dryRun ? 'yes' : 'no'}`,
           `- etapas: ${report.steps.length} | executadas: ${executed} | falhas: ${failed} | puladas: ${skipped}`,
         ],
         tone: failed > 0 ? 'warning' : 'info',
@@ -881,7 +871,7 @@ function formatSupervisedReloadResult(result: SupervisedReloadRequestResult): st
   return renderCliScreen({
     eyebrow: 'Reload',
     eyebrowTone: result.accepted ? 'success' : 'warning',
-    title: 'Reload supervisionado do Zavorth',
+    title: 'Zavorth supervised reload',
     summary: sanitizeHumanCliText(result.summary),
     mode: 'compact',
     showWordmark: false,
@@ -889,7 +879,7 @@ function formatSupervisedReloadResult(result: SupervisedReloadRequestResult): st
       {
         title: 'Em resumo',
         lines: [
-          `- status: ${result.accepted ? 'aceito' : 'recusado'}`,
+          `- status: ${result.accepted ? 'accepted' : 'rejected'}`,
           `- request: ${result.requestId}`,
         ],
         tone: result.accepted ? 'success' : 'warning',
@@ -902,7 +892,7 @@ function formatAutoRepairRunResult(result: AutoRepairRunResult): string {
   return renderCliScreen({
     eyebrow: 'Autorepair',
     eyebrowTone: result.success ? 'success' : 'warning',
-    title: 'Autorepair do Zavorth',
+    title: 'Zavorth autorepair',
     summary: sanitizeHumanCliText(result.summary),
     mode: 'compact',
     showWordmark: false,
@@ -926,7 +916,7 @@ function formatOperationsCockpitSnapshot(snapshot: OperationsCockpitSnapshot): s
   const readySidecars = Number(snapshot.summary.readySidecars || 0);
   const enabledSidecars = Number(snapshot.summary.enabledSidecars || 0);
   const localHealthLine = enabledSidecars > 0
-    ? `> componentes locais: ${readySidecars} de ${enabledSidecars} prontos; erros recentes: ${snapshot.summary.recentErrorCount}`
+    ? `> local components: ${readySidecars} of ${enabledSidecars} ready; recent errors: ${snapshot.summary.recentErrorCount}`
     : `> componentes locais: nenhum ativo; erros recentes: ${snapshot.summary.recentErrorCount}`;
   return renderCliScreen({
     eyebrow: 'Ops',
@@ -939,8 +929,8 @@ function formatOperationsCockpitSnapshot(snapshot: OperationsCockpitSnapshot): s
       {
         title: 'Agora',
         lines: [
-          `${snapshot.status === 'healthy' ? '*' : '!'} estado: ${formatRuntimeStatusLabel(snapshot.status)}`,
-          `> ambiente: ${snapshot.runtime.platformLabel} | ligado ha ${snapshot.runtime.uptimeLabel}`,
+          `${snapshot.status === 'healthy' ? '*' : '!'} status: ${formatRuntimeStatusLabel(snapshot.status)}`,
+          `> environment: ${snapshot.runtime.platformLabel} | up ${snapshot.runtime.uptimeLabel}`,
           `> memoria: ${formatRuntimeMemoryLabel(snapshot.runtime.memoryLabel)}`,
           localHealthLine,
         ],
@@ -971,7 +961,7 @@ function formatOperatorBriefSnapshot(snapshot: OperatorBriefSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Brief',
     eyebrowTone: postureTone,
-    title: 'Briefing do operador',
+    title: 'Operator briefing',
     summary: compactRuntimeLine(snapshot.headline),
     mode: 'compact',
     showWordmark: false,
@@ -986,15 +976,15 @@ function formatOperatorBriefSnapshot(snapshot: OperatorBriefSnapshot): string {
         lines: [
           `> ${compactRuntimeLine(snapshot.nextAction.label, 90)}`,
           `> ${formatRuntimeDisplayCommand(snapshot.nextAction.command)}`,
-          `porque: ${compactRuntimeLine(snapshot.nextAction.reason)}`,
+          `reason: ${compactRuntimeLine(snapshot.nextAction.reason)}`,
         ],
         tone: 'brand',
       },
       {
-        title: 'Se quiser detalhes',
+        title: 'If you want details',
         lines: [
-          snapshot.channelProviderDoctor ? `> conversa: ${compactRuntimeLine(snapshot.channelProviderDoctor.summary)}` : null,
-          snapshot.remoteTransportDoctor ? `> remoto: ${compactRuntimeLine(snapshot.remoteTransportDoctor.summary)}` : null,
+          snapshot.channelProviderDoctor ? `> conversation: ${compactRuntimeLine(snapshot.channelProviderDoctor.summary)}` : null,
+          snapshot.remoteTransportDoctor ? `> remote: ${compactRuntimeLine(snapshot.remoteTransportDoctor.summary)}` : null,
           snapshot.maintenanceAutomation ? `> automacao: ${compactRuntimeLine(snapshot.maintenanceAutomation.summary)}` : null,
         ].filter(Boolean).slice(0, 2) as string[],
         tone: 'muted',
@@ -1036,10 +1026,10 @@ function formatOperationsActionExecution(execution: OperationsActionExecution): 
         title: 'Em resumo',
         lines: [
           `- status: ${execution.status}`,
-          `- comando: ${execution.command}`,
+          `- command: ${execution.command}`,
           `- pid: ${formatCliValue(execution.pid ? String(execution.pid) : null)}`,
           `- log: ${execution.logFile}`,
-          execution.note ? `- nota: ${execution.note}` : null,
+          execution.note ? `- note: ${execution.note}` : null,
         ].filter(Boolean) as string[],
         tone: execution.status === 'started' ? 'success' : 'danger',
       },

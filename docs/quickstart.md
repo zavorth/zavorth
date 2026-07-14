@@ -147,11 +147,7 @@ Static Trust Loop visual demo (approve → receipt):
 - path: `assets/zavorth-demo/index.html`
 - website mirror: `/demo` on zavorth-website
 
-Maintainer smoke for this path:
-
-```bash
-npm run zavorth:demo:check
-```
+Maintainer validation for this path is documented in [operations.md](./operations.md).
 
 Also see:
 

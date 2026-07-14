@@ -1032,7 +1032,7 @@ export class ZavorthFederatedMeshControlPlaneService {
   }
 
   private buildOperatorSummary(summary: FederatedMeshSnapshot['summary']): string {
-    return `Implementacao pronta, infra ${summary.infrastructureState}, ${summary.onlineNodes}/${summary.remoteNodes} node(s) remoto(s) online, ${summary.revokedNodes} revogado(s), ${summary.routeableCapabilities}/${summary.capabilityCount} capability(ies) roteaveis.`;
+    return `Implementation pronta, infra ${summary.infrastructureState}, ${summary.onlineNodes}/${summary.remoteNodes} node(s) remoto(s) online, ${summary.revokedNodes} revogado(s), ${summary.routeableCapabilities}/${summary.capabilityCount} capability(ies) roteaveis.`;
   }
 
   private buildNextAction(

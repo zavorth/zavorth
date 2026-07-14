@@ -143,7 +143,7 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
     const action = String(restArgs[0] || '').trim().toLowerCase();
     const capabilityId = String(restArgs[1] || '').trim();
     if (!capabilityId) {
-      await logCliError('Informe o id da capability.', 'Usage Error');
+      await logCliError('Provide the capability id.', 'Usage Error');
       return 1;
     }
     const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=')
@@ -287,7 +287,7 @@ export async function runBuiltinLauncherPart3(command: string, restArgs: string[
     const action = String(restArgs[0] || '').trim().toLowerCase();
     const sidecarId = String(restArgs[1] || '').trim();
     if (!sidecarId) {
-      await logCliError('Informe o id do sidecar.', 'Usage Error');
+      await logCliError('Provide the sidecar id.', 'Usage Error');
       return 1;
     }
     const profileArg = restArgs.find((arg) => arg.startsWith('--profile='))?.split('=').slice(1).join('=')

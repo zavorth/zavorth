@@ -18,6 +18,7 @@ import {
   IconLayoutSidebarLeftCollapse,
   IconMessageCircle,
   IconMicrophone,
+  IconPhone,
   IconPencil,
   IconPlugConnected,
   IconPlus,
@@ -55,6 +56,7 @@ export const Folder = IconFolder;
 export const FolderOpen = IconFolderOpen;
 export const Memory = IconBrain;
 export const Mic = IconMicrophone;
+export const Phone = IconPhone;
 export const Pencil = IconPencil;
 export const Plugins = IconPlugConnected;
 export const Plus = IconPlus;

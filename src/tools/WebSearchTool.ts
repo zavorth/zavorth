@@ -142,7 +142,7 @@ export class WebSearchTool extends BaseTool {
     }
 
     try {
-      console.log(`🔍 [WebSearchTool] Pesquisando: "${query}"`);
+      console.log(`🔍 [WebSearchTool] Searching: "${query}"`);
       
       const rankedResults = await this.searchRankedResults(query, effectiveLimit, profile, {
         deep,
@@ -240,7 +240,7 @@ export class WebSearchTool extends BaseTool {
             return;
           }
           seenUrls.add(url);
-          const title = String(res.title || 'Sem titulo').trim();
+          const title = String(res.title || 'Untitled').trim();
           const description = String(res.description || '').trim();
           const score = scoreEvidenceSource({ title, url, description }, profile.domain);
           const weighted = plan
@@ -592,7 +592,7 @@ export class WebSearchTool extends BaseTool {
           lines.push(`   Extracted title: ${result.extracted.title}`);
         }
         if (result.extracted.publishedAt) {
-          lines.push(`   Data extraida: ${result.extracted.publishedAt}`);
+          lines.push(`   Extracted date: ${result.extracted.publishedAt}`);
         }
         lines.push(`   Extrato da pagina: ${this.wrapUntrustedWebEvidence(result.extracted.excerpt, result.url, 'page_excerpt')}`);
       } else if (result.extracted?.error) {
@@ -749,7 +749,7 @@ export class WebSearchTool extends BaseTool {
         label: 'Google News RSS (AI companies)',
       },
       {
-        query: `inteligencia artificial IA ultimas noticias mundo ${when}`,
+        query: `artificial intelligence AI latest world news ${when}`,
         locale: { hl: 'en-US', gl: 'BR', ceid: 'BR:pt-419' },
         label: 'Google News RSS (IA global en-US)',
       },
@@ -801,8 +801,8 @@ export class WebSearchTool extends BaseTool {
         locale: { hl: 'en-US', gl: 'US', ceid: 'US:en' },
       },
       {
-        query: `politica global internacional eleicoes governo diplomacia conflito cupula ${when}`,
-        locale: { hl: 'en-US', gl: 'BR', ceid: 'BR:pt-419' },
+        query: `global politics international elections government diplomacy conflict summit ${when}`,
+        locale: { hl: 'en-US', gl: 'US', ceid: 'US:en' },
       },
     ];
     const itemBlocks: string[] = [];
@@ -845,7 +845,7 @@ export class WebSearchTool extends BaseTool {
     const items = Array.from(xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi))
       .map((match) => {
         const item = match[1] || '';
-        const title = this.extractRssField(item, 'title') || 'Sem titulo';
+        const title = this.extractRssField(item, 'title') || 'Untitled';
         const link = this.extractRssField(item, 'link') || 'URL unavailable';
         const source = this.extractRssField(item, 'source');
         const sourceUrl = this.extractRssSourceUrl(item);
@@ -888,8 +888,8 @@ export class WebSearchTool extends BaseTool {
         'QUALITY_GATE: insufficient_news_results',
         `Query: "${query}"`,
         `Recent results found: ${items.length}/${minResults}.`,
-        `Diversidade de hosts: ${hostDiversityCount}/${minHosts}.`,
-        'Filtro temporal: resultados publicados recentemente conforme o pedido.',
+        `Host diversity: ${hostDiversityCount}/${minHosts}.`,
+        'Time filter: results published recently as requested.',
         'Do not produce a broad global politics briefing from this data; try a new search, a more specific topic, or say that sources were insufficient.',
         '',
         ...items.map((item, index) => [
@@ -906,8 +906,8 @@ export class WebSearchTool extends BaseTool {
       'QUALITY_GATE: fresh_news_results_ok',
       `Global politics results for "${query}" (fallback ${sourceLabel}):`,
       '',
-      'Filtro temporal: resultados publicados recentemente conforme o pedido.',
-      `Diversidade de hosts: ${hostDiversityCount}/${items.length}.`,
+      'Time filter: results published recently as requested.',
+      `Host diversity: ${hostDiversityCount}/${items.length}.`,
       '',
       ...items.map((item, index) => [
         `${index + 1}. **${item.title}**`,
@@ -1041,7 +1041,7 @@ export class WebSearchTool extends BaseTool {
     const items = itemMatches
       .map((match) => {
         const item = match[1] || '';
-        const title = this.extractRssField(item, 'title') || 'Sem titulo';
+        const title = this.extractRssField(item, 'title') || 'Untitled';
         const link = this.extractRssField(item, 'link') || 'URL unavailable';
         const description = this.extractRssField(item, 'description') || 'Snippet unavailable';
         const pubDate = this.extractRssField(item, 'pubDate');
@@ -1112,10 +1112,10 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    if (/\b(noticias|ultimas|ultimos|hoje|cotacao|preco|brasil)\b/.test(normalized)) {
-      return { hl: 'en-US', gl: 'BR', ceid: 'BR:pt-419' };
+    if (/\b(brazil|brasil)\b/.test(normalized)) {
+      return { hl: 'en-US', gl: 'BR', ceid: 'BR:en' };
     }
-    if (/\b(hoy|ahora|precio|espana|mexico|argentina|chile|colombia)\b/.test(normalized)) {
+    if (/\b(spain|mexico|argentina|chile|colombia)\b/.test(normalized)) {
       return { hl: 'es-419', gl: 'US', ceid: 'US:es-419' };
     }
     return { hl: 'en-US', gl: 'US', ceid: 'US:en' };
@@ -1127,12 +1127,12 @@ export class WebSearchTool extends BaseTool {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
     const asksNews =
-      /\b(noticias?|manchetes|news|headlines)\b/.test(normalized)
-      && /\b(ultimas?|ultimos?|24\s*h|24\s*horas|semana|semanal|ultimas?\s+semana|ultimos?\s+7\s+dias|latest|last\s+24\s+hours?|last\s+week|last\s+7\s+days|today|week|weekly)\b/.test(normalized);
+      /\b(news|headlines)\b/.test(normalized)
+      && /\b(24\s*h|latest|last\s+24\s+hours?|last\s+week|last\s+7\s+days|today|week|weekly)\b/.test(normalized);
     const broadDateNews =
-      /\b(noticias?|manchetes|news|headlines)\b/.test(normalized)
+      /\b(news|headlines)\b/.test(normalized)
       && this.hasDateAnchor(normalized);
-    const hasSpecificTopic = /\b(sobre|about|acerca\s+de|regarding)\b/.test(normalized);
+    const hasSpecificTopic = /\b(about|regarding)\b/.test(normalized);
     return (asksNews || broadDateNews) && !hasSpecificTopic;
   }
 
@@ -1141,9 +1141,9 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    return /\b(noticias?|manchetes|news|headlines)\b/.test(normalized)
+    return /\b(news|headlines)\b/.test(normalized)
       && (
-        /\b(ultimas?|ultimos?|24\s*h|24\s*horas|hoje|semana|semanal|ultima\s+semana|ultimas?\s+semana|ultimos?\s+7\s+dias|latest|recent|today|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?)\b/.test(normalized)
+        /\b(24\s*h|latest|recent|today|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?)\b/.test(normalized)
         || this.hasDateAnchor(normalized)
       );
   }
@@ -1153,9 +1153,9 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    const newsMarker = /\b(noticias?|manchetes|news|headlines|ultimas?|ultimos?|latest|recent)\b/.test(normalized);
+    const newsMarker = /\b(news|headlines|latest|recent)\b/.test(normalized);
     const aiMarker =
-      /\b(ia|ai|inteligencia\s+artificial|artificial\s+intelligence|machine\s+learning|aprendizado\s+de\s+maquina|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama|meta\s+ai)\b/.test(normalized);
+      /\b(ai|artificial\s+intelligence|machine\s+learning|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama|meta\s+ai)\b/.test(normalized);
     return newsMarker && aiMarker;
   }
 
@@ -1164,9 +1164,9 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    const newsMarker = /\b(noticias?|manchetes|news|headlines|ultimas?|ultimos?|latest|recent|semana|weekly)\b/.test(normalized);
+    const newsMarker = /\b(news|headlines|latest|recent|week|weekly)\b/.test(normalized);
     const politicsMarker =
-      /\b(politica\s+global|politica\s+internacional|politics|world\s+politics|global\s+politics|international\s+relations|geopolitica|geopolitics|diplomacia|diplomacy|governo|government|eleicoes?|elections?|parlamento|parliament|congresso|congress|senado|senate|presidente|president|prime\s+minister|ministro|minister|onu|un|nato|otan|g7|g20|guerra|war|conflito|conflict|sancoes|sanctions|cupula|summit)\b/.test(normalized);
+      /\b(politics|world\s+politics|global\s+politics|international\s+relations|geopolitics|diplomacy|government|elections?|parliament|congress|senate|president|prime\s+minister|minister|un|nato|g7|g20|war|conflict|sanctions|summit)\b/.test(normalized);
     return newsMarker && politicsMarker;
   }
 
@@ -1175,11 +1175,11 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    const newsMarker = /\b(noticias?|manchetes|news|headlines)\b/.test(normalized);
+    const newsMarker = /\b(news|headlines)\b/.test(normalized);
     const currentMarker =
       /\b(hoje|agora|atual|atuais|ultimas?|ultimos?|24\s*h|24\s*horas|semana|semanal|ultima\s+semana|ultimas?\s+semana|ultimos?\s+7\s+dias|tempo\s+real|today|now|current|latest|recent|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?)\b/.test(normalized);
     const publicInterestMarker =
-      /\b(governo|presidente|stf|supremo|congresso|senado|camara|eleicao|politica|politics|diplomacia|geopolitica|onu|un|nato|otan|g7|g20|economia|mercado|bolsa|dolar|bitcoin|cripto|empresa|tecnologia|lancamento|release|versao|cotacao|preco|clima|placar|resultado|tendencias?|guerra|crise|ia|ai|inteligencia\s+artificial|artificial\s+intelligence|openai|chatgpt|anthropic|deepmind|nvidia)\b/.test(normalized);
+      /\b(government|president|congress|senate|election|politics|diplomacy|geopolitics|un|nato|g7|g20|economy|market|stock|dollar|bitcoin|crypto|company|technology|launch|release|version|quote|price|climate|score|result|trends?|war|crisis|ai|artificial\s+intelligence|openai|chatgpt|anthropic|deepmind|nvidia)\b/.test(normalized);
     return newsMarker || (currentMarker && publicInterestMarker);
   }
 
@@ -1188,8 +1188,8 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    const hasNews = /\b(noticias?|manchetes|news|headlines)\b/.test(normalized);
-    const hasSpecificTopic = /\b(sobre|about|acerca\s+de|regarding)\b/.test(normalized);
+    const hasNews = /\b(news|headlines)\b/.test(normalized);
+    const hasSpecificTopic = /\b(about|regarding)\b/.test(normalized);
     return hasNews && !hasSpecificTopic;
   }
 
@@ -1198,16 +1198,16 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    if (/\b(24\s*h|24\s*horas|last\s+24\s+hours?)\b/.test(normalized)) {
+    if (/\b(24\s*h|last\s+24\s+hours?)\b/.test(normalized)) {
       return 36;
     }
-    if (/\b(semana|semanal|ultima\s+semana|ultimas?\s+semana|ultimos?\s+7\s+dias|week|weekly|last\s+week|last\s+7\s+days)\b/.test(normalized)) {
+    if (/\b(week|weekly|last\s+week|last\s+7\s+days)\b/.test(normalized)) {
       return 192;
     }
-    if (/\b(hoje|today|ultimas?|ultimos?|latest|recent)\b/.test(normalized)) {
+    if (/\b(today|latest|recent)\b/.test(normalized)) {
       return 72;
     }
-    if (/\b(noticias?|manchetes|news|headlines)\b/.test(normalized) && this.hasDateAnchor(normalized)) {
+    if (/\b(news|headlines)\b/.test(normalized) && this.hasDateAnchor(normalized)) {
       return 72;
     }
     return null;
@@ -1215,7 +1215,6 @@ export class WebSearchTool extends BaseTool {
 
   private hasDateAnchor(normalizedQuery: string): boolean {
     return /\b\d{4}-\d{2}-\d{2}\b/.test(normalizedQuery)
-      || /\b\d{1,2}\s+de\s+(janeiro|fevereiro|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+de\s+\d{4}\b/.test(normalizedQuery)
       || /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/.test(normalizedQuery);
   }
 
@@ -1224,7 +1223,7 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    return /\b(lotofacil|mega-sena|quina|concurso\s+\d+|resultado\s+deste|jornal\s+[a-z0-9]+|ed\.\s*\d+|videos?:|video\.|horoscopo|previsao\s+do\s+tempo)\b/.test(normalized);
+    return /\b(lottery|horoscope|weather\s+forecast|videos?:|video\.)\b/.test(normalized);
   }
 
   private isTopicalNewsItem(topic: NewsTopic, title: string, description: string): boolean {
@@ -1240,11 +1239,11 @@ export class WebSearchTool extends BaseTool {
       if (negativeAiMention) {
         return false;
       }
-      return /\b(ia|ai|inteligencia\s+artificial|artificial\s+intelligence|machine\s+learning|aprendizado\s+de\s+maquina|generative\s+ai|ia\s+generativa|llm|large\s+language\s+model|openai|chatgpt|anthropic|claude|google\s+deepmind|deepmind|gemini|nvidia|meta\s+ai|llama|mistral|xai|grok|perplexity|copilot)\b/.test(normalized);
+      return /\b(ai|artificial\s+intelligence|machine\s+learning|generative\s+ai|llm|large\s+language\s+model|openai|chatgpt|anthropic|claude|google\s+deepmind|deepmind|gemini|nvidia|meta\s+ai|llama|mistral|xai|grok|perplexity|copilot)\b/.test(normalized);
     }
 
     if (topic === 'global_politics') {
-      return /\b(politica|politics|political|governo|government|presidente|president|prime\s+minister|ministro|minister|parlamento|parliament|congresso|congress|senado|senate|eleicoes?|elections?|diplomacia|diplomacy|sanctions?|sancoes|war|guerra|conflict|conflito|ceasefire|truce|coup|golpe|summit|cupula|g7|g20|un|onu|nato|otan|european\s+union|china|russia|ukraine|ucrania|israel|gaza|iran|venezuela|argentina|united\s+states|eua|europa)\b/.test(normalized);
+      return /\b(politics|political|government|president|prime\s+minister|minister|parliament|congress|senate|elections?|diplomacy|sanctions?|war|conflict|ceasefire|truce|coup|summit|g7|g20|un|nato|european\s+union|china|russia|ukraine|israel|gaza|iran|venezuela|argentina|united\s+states|europe)\b/.test(normalized);
     }
 
     return true;
@@ -1255,22 +1254,16 @@ export class WebSearchTool extends BaseTool {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    if (/\b(24\s*h|24\s*horas|last\s+24\s+hours?)\b/.test(normalized)) {
+    if (/\b(24\s*h|last\s+24\s+hours?)\b/.test(normalized)) {
       return 'when:1d';
     }
-    if (/\b(semana|semanal|ultima\s+semana|ultimas?\s+semana|ultimos?\s+7\s+dias|week|weekly|last\s+week|last\s+7\s+days)\b/.test(normalized)) {
+    if (/\b(week|weekly|last\s+week|last\s+7\s+days)\b/.test(normalized)) {
       return 'when:7d';
     }
     return 'when:3d';
   }
 
-  private buildGenericNewsBriefingQuery(locale: string): string {
-    if (locale.startsWith('pt')) {
-      return 'noticias Brasil mundo when:1d';
-    }
-    if (locale.startsWith('es')) {
-      return 'noticias mundo when:1d';
-    }
+  private buildGenericNewsBriefingQuery(_locale: string): string {
     return 'top headlines world when:1d';
   }
 

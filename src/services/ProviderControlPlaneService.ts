@@ -529,7 +529,7 @@ export class ProviderControlPlaneService {
       },
       providers: input.providers,
       fallbackOrder: input.profiles[0]?.preferredOrder || [],
-      explanation: [`Configuracao atual seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
+      explanation: [`Configuraction atual seleciona ${providerName}${modelName ? `/${modelName}` : ''}.`],
     });
   }
 

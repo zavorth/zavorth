@@ -22,7 +22,7 @@ import {
 } from '../../../../services/ZavorthBrowserVisionBridgeService.js';
 
 
-import type { ZavorthSubagentRuntimeCommandInput } from '../../../../services/ZavorthSubagentRuntimeService.js';
+import type { ZavorthSubagentRuntimeCommandInput } from '../../../../agents/ZavorthSubagentRuntimeService.js';
 import {
   ZavorthVisionControlPlaneService,
   type ZavorthVisionControlPlaneCommandInput,
@@ -93,14 +93,6 @@ export class SharedSurfaceEcosystemCommandPack {
       default:
         return false;
     }
-  }
-
-  /**
-   * Free-text natural invocation removed (agent-first).
-   * Use slash: /invoke, /agents, etc. Kept as no-op so callers/tests do not re-wire regex paths.
-   */
-  public async maybeHandleNaturalInvocation(_ctx: IMessageContext, _rawText: string): Promise<boolean> {
-    return false;
   }
 
   private async handlePlatform(ctx: IMessageContext, args: string): Promise<void> {
@@ -1278,7 +1270,7 @@ function normalizeVisionTargetKind(value: string | undefined): ZavorthVisionCont
   if (['browser', 'web', 'site'].includes(normalized)) return 'browser';
   if (['android', 'adb', 'phone', 'celular', 'telefone'].includes(normalized)) return 'android';
   if (['device', 'mobile'].includes(normalized)) return 'device';
-  if (['artifact', 'file', 'image', 'arquivo', 'imagem'].includes(normalized)) return 'artifact';
+  if (['artifact', 'file', 'image'].includes(normalized)) return 'artifact';
   return 'unknown';
 }
 

@@ -823,7 +823,7 @@ async function buildDefaultCliRuntime(options: {
   });
   const agentGateway = new ZavorthAgentGateway({
     defaultProviderLabel: config.llmProvider || 'Zavorth',
-    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'modelo atual',
+    defaultModelLabel: config.geminiModel || config.geminiDefaultModel || config.openaiModel || 'current model',
     modelPickerContractService,
     llmRuntime: new LlmRuntimeService(),
     toolRuntime: toolRuntimeServices.toolRuntime,

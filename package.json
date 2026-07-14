@@ -335,6 +335,7 @@
     "zavorth:swarm-scale-plane:check": "node scripts/zavorth-swarm-scale-plane-check.mjs",
     "qa:zavorth-swarm-scale-plane": "npm run runtime:check --silent && npx jest tests/services/SwarmScalePlaneService.test.ts tests/runtime/agent/SwarmWorkloadAssessmentService.test.ts tests/runtime/agent/AgentRunServiceSwarmEscalation.test.ts tests/domain/surface/presentation/web-app/WebAppRuntimeRouteService.experimental.test.ts --runInBand && node scripts/zavorth-swarm-scale-plane-check.mjs",
     "surfaces:check": "node scripts/check-surface-syntax.mjs",
+    "ops:repo:doctor": "npx tsx scripts/repo-doctor.ts",
     "zavorth-control:check": "node scripts/check-surface-syntax.mjs --target=zavorth-control",
     "ai-gateway:check": "node scripts/check-surface-syntax.mjs --target=ai-gateway",
     "productization:check": "node scripts/productization-contract-check.mjs",
@@ -606,6 +607,7 @@
     "test:ci:domain-web": "node scripts/run-jest-ci-groups.mjs --group=domain-web",
     "test:ci:domain-shared": "node scripts/run-jest-ci-groups.mjs --group=domain-shared",
     "test:ci:telegram": "node scripts/run-jest-ci-groups.mjs --group=telegram",
+    "test:telegram:smoke": "npm run test:ci:telegram --silent",
     "test:ci:channels": "node scripts/run-jest-ci-groups.mjs --group=channels",
     "test:ci:services": "node scripts/run-jest-ci-groups.mjs --group=services",
     "test:ci:runtime-agent": "node scripts/run-jest-ci-groups.mjs --group=runtime-agent",
@@ -1436,6 +1438,7 @@
     "zustand": "^5.0.13"
   },
   "optionalDependencies": {
+    "@roamhq/wrtc": "^0.10.0",
     "better-sqlite3-multiple-ciphers": "^12.10.0",
     "node-pty": "^1.0.0",
     "playwright-core": "^1.54.2"

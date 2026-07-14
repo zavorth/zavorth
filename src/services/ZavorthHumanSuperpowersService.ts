@@ -181,7 +181,7 @@ export class ZavorthHumanSuperpowersService {
         summary: waCloudReady
           ? 'WhatsApp Cloud API configurada (caminho estavel).'
           : 'WhatsApp oficial via Cloud API — caminho de producao. Baileys e experimental.',
-        howToAsk: 'Use o numero do WhatsApp Business configurado.',
+        howToAsk: 'Use the numero do WhatsApp Business configurado.',
         examples: ['Responda no WhatsApp', 'Me avise no WhatsApp'],
         trust: waCloudReady ? 'sempre-disponivel' : 'precisa-configurar',
         trustLabel: waCloudReady ? TRUST_LABELS['sempre-disponivel'] : TRUST_LABELS['precisa-configurar'],
@@ -210,7 +210,7 @@ export class ZavorthHumanSuperpowersService {
   }
 
   /**
-   * Free-text NLU packs removed (Hermes-style: free text → agent).
+   * Free-text NLU packs removed (agent-first: free text → agent).
    * Use explicit slash/API intents instead.
    */
   public matchNaturalCommand(_text: string): null | { kind: 'list' | 'help-with'; query?: string } {

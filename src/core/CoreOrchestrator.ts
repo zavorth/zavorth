@@ -497,7 +497,7 @@ export class CoreOrchestrator implements IMessageBroker {
             kind: 'tool',
             title: 'SurfaceTaskDispatchService',
             detail: taskId
-              ? `Task ${taskId} criada a partir do run ${run.id}.`
+              ? `Task ${taskId} created from run ${run.id}.`
               : `Dispatcher retornou sem task rastreavel para o run ${run.id}.`,
             status: 'done',
             metadata: {
@@ -601,7 +601,7 @@ export class CoreOrchestrator implements IMessageBroker {
       case 'cli':
         return 'Terminal';
       default:
-        return 'Canal de origem';
+        return 'Origin channel';
     }
   }
 

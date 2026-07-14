@@ -51,6 +51,7 @@ export class ZavorthOperationalReadinessService {
   public buildSnapshot(projectRoot: string): ZavorthOperationalReadinessSnapshot {
     const native = this.nativeIntegrations.buildSnapshot();
     const commandsFile = path.join(projectRoot, 'src', 'cli', 'ZavorthCliLiveNamespaces.ts');
+    const pluginsCommandsFile = path.join(projectRoot, 'src', 'cli', 'plugins', 'ZavorthCliPluginsNamespace.ts');
     const setupStudio = path.join(projectRoot, 'src', 'cli', 'setup-studio');
     const gatewayFiles = [
       path.join(projectRoot, 'src', 'gateway', 'core', 'GatewayHostService.ts'),
@@ -63,7 +64,7 @@ export class ZavorthOperationalReadinessService {
     const pluginFiles = [
       path.join(projectRoot, 'src', 'services', 'PluginRegistryService.ts'),
       path.join(projectRoot, 'src', 'services', 'PluginStateService.ts'),
-      path.join(projectRoot, 'src', 'cli', 'ZavorthCliLiveNamespaces.ts'),
+      pluginsCommandsFile,
     ];
     const qaFiles = [
       path.join(projectRoot, 'scripts', 'premium-distribution-qa-check.mjs'),
@@ -113,7 +114,8 @@ export class ZavorthOperationalReadinessService {
       this.domain({
         id: 'plugins',
         title: 'Plugin SDK and lifecycle',
-        pass: pluginFiles.every((file) => existsSync(file)) && this.fileContains(commandsFile, ['resolvePluginManifest', 'doctorPlugin', 'runPluginHook', 'scaffoldPlugin']),
+        pass: pluginFiles.every((file) => existsSync(file))
+          && this.fileContains(pluginsCommandsFile, ['resolvePluginManifest', 'doctorPlugin', 'runPluginHook', 'scaffoldPlugin']),
         summary: 'Plugin manifest, checksum, permissions, doctor, hooks, enable/disable and scaffold flows are present.',
         evidence: [
           'Local plugins require a manifest or generated fallback.',

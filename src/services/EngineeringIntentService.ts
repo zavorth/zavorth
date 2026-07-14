@@ -288,7 +288,7 @@ export class EngineeringIntentService {
   private looksLikeInstallAndRetry(text: string): boolean {
     return (
       /(instale|instalar).*(falta|faltando).*(teste|build|rode|rodar)/i.test(text)
-      || /(instale o que falta e teste de novo|instala o que falta e testa de novo)/i.test(text)
+      || /(instale what is missing e teste de novo|instala what is missing e testa de novo)/i.test(text)
     );
   }
 

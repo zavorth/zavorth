@@ -1,26 +1,20 @@
 import {
   inferUniversalAgentRequestedTools,
-} from '../../../src/runtime/agent/index.js';
+} from '../../../src/runtime/agent/UniversalAgentRequestHeuristics.js';
 
 describe('inferUniversalAgentRequestedTools', () => {
-  it('infers get_datetime for Portuguese current time questions', () => {
+  it('returns only structured capability ids and fallback tool', () => {
     expect(inferUniversalAgentRequestedTools({
-      text: 'Me diga que horas sao agora em Brasilia',
-      fallbackTool: null,
-    })).toEqual(expect.arrayContaining(['get_datetime']));
+      text: 'run npm test and use web_search and zavorth_delegate please',
+      capabilityIds: ['agent_manager'],
+      fallbackTool: 'read_file',
+    }).sort()).toEqual(['agent_manager', 'read_file'].sort());
   });
 
-  it('infers get_datetime for current date questions', () => {
+  it('ignores free-text completely when no structured tools are provided', () => {
     expect(inferUniversalAgentRequestedTools({
-      text: 'Qual e a data atual?',
+      text: 'use subagents swarm.run 300 agents https://example.com',
       fallbackTool: null,
-    })).toEqual(expect.arrayContaining(['get_datetime']));
-  });
-
-  it('does not infer datetime from non-current conceptual questions', () => {
-    expect(inferUniversalAgentRequestedTools({
-      text: 'Explique como fusos horarios funcionam',
-      fallbackTool: null,
-    })).not.toContain('get_datetime');
+    })).toEqual([]);
   });
 });

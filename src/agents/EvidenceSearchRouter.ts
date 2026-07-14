@@ -39,15 +39,13 @@ export class EvidenceSearchRouter {
       /\?$/.test(String(message || '').trim())
       || /\b(o\s+que|como|quando|onde|quem|qual|quais|por\s+que|porque|what|how|when|where|who|which|why)\b/.test(normalized);
     const currentMarker =
-      /\b(hoje|agora|atual|atuais|recente|recentes|ultimas?|ultimos?|novas?|novos?|descobertas?|24\s*h|24\s*horas|semana|semanal|ultima\s+semana|ultimos\s+7\s+dias|tempo\s+real|viral|trending|trend|tiktok|instagram|202[0-9])\b/.test(normalized)
-      || /\b(today|now|current|latest|recent|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?|real[-\s]?time)\b/.test(normalized)
-      || /\b(hoy|ahora|actual|ultimas?|ultimos?|ultimas?\s+24\s+horas)\b/.test(normalized);
+      /\b(today|now|current|latest|recent|week|weekly|last\s+week|last\s+7\s+days|last\s+24\s+hours?|real[-\s]?time|viral|trending|trend|tiktok|instagram|202[0-9])\b/.test(normalized);
     const explicitSearchIntent =
-      /\b(pesquise|pesquisar|busque|buscar|procure|procurar|encontre|ache|levante|mapeie|verifique|confira|consulte|search|browse|look\s+up|find|google|investigue|research)\b/.test(normalized);
+      /\b(search|browse|look\s+up|find|google|investigate|research)\b/.test(normalized);
     const infoMarker =
-      /\b(informacoes?|dados|fatos?|noticias?|news|headline|headlines|cotacao|preco|price|clima|weather|placar|score|resultado|results?|tendencias?|trends?|lancamentos?|releases?|versao|version|status|descobertas?|avancos?|atualizacoes?|evidencias?|fontes?|referencias?|links?|politica|politics)\b/.test(normalized);
+      /\b(news|headline|headlines|price|weather|score|results?|trends?|releases?|version|status|evidence|sources?|references?|links?|politics)\b/.test(normalized);
     const volatileMarker =
-      /\b(presidente|ceo|diretor|ministro|governador|prefeito|stf|supremo|governo|congresso|senado|camara|empresa|mercado|bolsa|dolar|bitcoin|cripto|eleicao|guerra|crise|modelo|api|pacote|biblioteca|library|framework)\b/.test(normalized);
+      /\b(ceo|president|director|minister|governor|mayor|government|congress|senate|company|market|stock|dollar|bitcoin|crypto|election|war|crisis|model|api|package|library|framework)\b/.test(normalized);
     const domain = this.detectDomain(normalized);
     const evidenceMarker = this.hasEvidenceMarker(normalized) || domain !== 'general';
     const decisionMarker = this.hasDecisionMarker(normalized);
@@ -55,7 +53,7 @@ export class EvidenceSearchRouter {
     const comparisonMarker = this.hasComparisonMarker(normalized);
     const complexResearchMarker = this.hasComplexResearchMarker(normalized);
     const publicRoleQuestion =
-      /\b(quem\s+e|quem\s+eh|who\s+is|qual\s+e|qual\s+eh)\b/.test(normalized) && volatileMarker;
+      /\b(who\s+is)\b/.test(normalized) && volatileMarker;
 
     if (this.isAiNewsRequest(normalized)) {
       return this.withIntent(message, { reason: 'current', domain: 'ai_news', fresh: true });
@@ -112,7 +110,7 @@ export class EvidenceSearchRouter {
     const searchNeed = need || this.detect(normalizedMessage);
 
     if (this.isAiNewsRequest(this.normalize(normalizedMessage))) {
-      const recency = /\b(24\s*h|24\s*horas|last\s+24\s+hours?)\b/i.test(normalizedMessage)
+      const recency = /\b(24\s*h|last\s+24\s+hours?)\b/i.test(normalizedMessage)
         ? 'last 24 hours'
         : 'recent';
       return `latest artificial intelligence AI news worldwide ${recency} ${date}`;
@@ -177,7 +175,7 @@ export class EvidenceSearchRouter {
   }
 
   private hasDecisionMarker(normalized: string): boolean {
-    return /\b(melhor(?:es)?|best|vale\s+a\s+pena|custo\s*beneficio|recomend[ae]|recomendacao|opcoes?|alternativas?|ranking|top\s+\d+|reviews?|avaliacoes?|comprar|precos?|qual\s+escolher|como\s+escolher)\b/.test(normalized);
+    return /\b(best|worth\s+it|cost[-\s]?benefit|recommend(?:ation)?|options?|alternatives?|ranking|top\s+\d+|reviews?|buy|prices?|which\s+to\s+choose|how\s+to\s+choose)\b/.test(normalized);
   }
 
   private hasReportMarker(normalized: string): boolean {
@@ -189,7 +187,7 @@ export class EvidenceSearchRouter {
   }
 
   private hasComplexResearchMarker(normalized: string): boolean {
-    return /\b(analise|analisar|explique|explicar|sintetize|sintese|impactos?|causas?|consequencias?|riscos?|beneficios?|tendencias?|estrategias?|o\s+que\s+dizem|visao\s+geral|deep\s+dive)\b/.test(normalized);
+    return /\b(analyze|analysis|explain|synthesize|synthesis|impacts?|causes?|consequences?|risks?|benefits?|trends?|strategies?|overview|deep\s+dive)\b/.test(normalized);
   }
 
   private isHighStakesDomain(domain: EvidenceSearchDomain): boolean {
@@ -214,9 +212,13 @@ export class EvidenceSearchRouter {
   }
 
   private isAiNewsRequest(normalized: string): boolean {
-    const newsMarker = /\b(noticias?|manchetes|news|headlines|ultimas?|ultimos?|latest|recent)\b/.test(normalized);
+    const newsMarker = /\b(news|headlines|latest|recent)\b/.test(normalized);
     const aiMarker =
-      /\b(ia|ai|inteligencia\s+artificial|artificial\s+intelligence|machine\s+learning|aprendizado\s+de\s+maquina|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
+      /\b(ai|artificial\s+intelligence|machine\s+learning|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
+    const policyOverride = /\b(regulation|regulator|policy|law|legislation|government|ministry|congress|senate|court)\b/.test(normalized);
+    if (policyOverride) {
+      return false;
+    }
     return newsMarker && aiMarker;
   }
 

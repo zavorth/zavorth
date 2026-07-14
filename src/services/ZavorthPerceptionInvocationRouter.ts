@@ -463,9 +463,9 @@ function buildActivationHints(intent: RouteIntent): ZavorthPerceptionActivationH
       title: 'Android USB/ADB',
       reason: 'Pedidos como "olhe meu celular" tentam ADB read-only; se faltar autorizacao, o Zavorth explica o passo fisico necessario.',
       userSteps: [
-        'Ative Opcoes do desenvolvedor e Depuracao USB no Android.',
+        'Ative Opcoes do desenvolvedor e Depuraction USB no Android.',
         'Conecte o cabo USB.',
-        'Aceite no celular o prompt de autorizacao ADB.',
+        'Aceite no celular o prompt de autorizaction ADB.',
       ],
       commands: [
         '/device android doctor',
@@ -481,7 +481,7 @@ function buildActivationHints(intent: RouteIntent): ZavorthPerceptionActivationH
       target: 'desktop',
       state: intent.mutationRequested ? 'approval-required' : 'setup-if-missing',
       title: 'Computer Watch Mode',
-      reason: 'O Zavorth observa e planeja naturalmente; click, digitacao e tecla continuam exigindo approval governado.',
+      reason: 'O Zavorth observa e planealready naturalmente; click, digitaction e tecla continuam exigindo approval governado.',
       userSteps: [
         'Use observacao read-only primeiro.',
         'Aprove planos antes de qualquer acao que clique, digite ou pressione teclas.',

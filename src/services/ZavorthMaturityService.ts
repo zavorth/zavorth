@@ -204,7 +204,7 @@ export class ZavorthMaturityService {
       ],
       commands: ['npm run channel-experience-certification -- --require-pass'],
       nextAction: channel.summary.releaseReady
-        ? 'Manter a certificacao de canais no QA.'
+        ? 'Manter a certificaction de canais no QA.'
         : 'Fechar blockers de canal antes de dizer que a experiencia esta pronta.',
     });
   }
@@ -216,7 +216,7 @@ export class ZavorthMaturityService {
       && productionNotClaimed;
     return this.gate({
       id: 'contract-vs-live-boundary',
-      label: 'Separacao entre contrato e live real',
+      label: 'Separaction entre contrato e live real',
       status: ok ? 'passed' : 'blocked',
       required: true,
       summary: ok
@@ -262,7 +262,7 @@ export class ZavorthMaturityService {
   private operationalMaturityGate(report: ReturnType<OperationalMaturityService['validate']>): ZavorthMaturityGate {
     return this.gate({
       id: 'operational-maturity-matrix',
-      label: 'Matriz operacional canonica',
+      label: 'Matriz operacional canonical',
       status: report.ok ? 'passed' : 'blocked',
       required: true,
       summary: report.ok

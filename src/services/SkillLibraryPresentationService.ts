@@ -385,16 +385,16 @@ export class SkillLibraryPresentationService {
     if (topRecommendation && topRecommendation.kind === 'recipe') {
       pushAction({
         id: 'skills-plan-recommendation',
-        label: 'Seguir recipe recomendada',
+        label: 'Seguir recipe recommended',
         command: `/skills plan recipe ${topRecommendation.id}`,
-        rationale: `Segue a recomendacao atual: ${topRecommendation.label}.`,
+        rationale: `Segue a recomendaction atual: ${topRecommendation.label}.`,
       });
     } else if (topRecommendation) {
       pushAction({
         id: 'skills-plan-recommendation',
-        label: 'Explorar skill recomendada',
+        label: 'Explorar skill recommended',
         command: `/skills plan ${topRecommendation.label}`,
-        rationale: `Segue a recomendacao atual: ${topRecommendation.label}.`,
+        rationale: `Segue a recomendaction atual: ${topRecommendation.label}.`,
       });
     }
 

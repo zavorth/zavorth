@@ -9,7 +9,8 @@ import {
   isLocalNetworkHostname,
   isWhitelistedSystemExecutable,
   resolveBrowserTargetPolicy,
-} from './WhitelistConfig';const UNSAFE_OS_ARGUMENT_PATTERN = /[\r\n"`|<>^]/;
+} from './WhitelistConfig';
+const UNSAFE_OS_ARGUMENT_PATTERN = /[\r\n"`|<>^]/;
 
 /**
  * Three-layer security gate for Echo tool execution.
@@ -32,7 +33,7 @@ export class SecurityEngine {
           .join(', ');
         throw new Error(`SchemaValidationBlock: parametros invalidos. Detalhes: ${issues}`);
       }
-      throw new Error('SchemaValidationBlock: erro desconhecido de validacao.');
+      throw new Error('SchemaValidationBlock: unknown validation error.');
     }
   }
 

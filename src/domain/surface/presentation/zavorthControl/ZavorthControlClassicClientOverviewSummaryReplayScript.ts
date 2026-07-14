@@ -279,9 +279,9 @@ function zavorthControlClassicClientOverviewSummaryReplay() {
         '/api/operations/control-plane-catalog',
         catalog,
         '<div class="cockpit-mini-card"><strong>Families</strong><div>' + escapeHtml(String(summary.families || 0)) + '</div><small>Operational, Trust, Product</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Healthy</strong><div>' + escapeHtml(String(summary.healthyFamilies || 0)) + '</div><small>Familias estaveis</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Attention</strong><div>' + escapeHtml(String(summary.attentionFamilies || 0)) + '</div><small>Familias em observacao</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Critical</strong><div>' + escapeHtml(String(summary.criticalFamilies || 0)) + '</div><small>Familias criticas</small></div>',
+        + '<div class="cockpit-mini-card"><strong>Healthy</strong><div>' + escapeHtml(String(summary.healthyFamilies || 0)) + '</div><small>Stable families</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Attention</strong><div>' + escapeHtml(String(summary.attentionFamilies || 0)) + '</div><small>Families under observation</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Critical</strong><div>' + escapeHtml(String(summary.criticalFamilies || 0)) + '</div><small>Critical families</small></div>',
         '<div class="sidecar-card"><strong>Posturas canonicas</strong><small>Operational: ' + escapeHtml(summary.operationalPosture || 'attention')
         + ' | Trust: ' + escapeHtml(summary.trustPosture || 'attention')
         + ' | Product: ' + escapeHtml(summary.productPosture || 'attention')

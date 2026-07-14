@@ -87,7 +87,7 @@ export class OperationsReportService {
 
     const executiveSummary = [
       cockpit.headline,
-      ...(operatorBrief ? [`Briefing do operador: ${operatorBrief.headline}`] : []),
+      ...(operatorBrief ? [`Briefing the operator: ${operatorBrief.headline}`] : []),
       ...(continuity ? [`Continuidade: ${continuity.suggestedAction.reason}`] : []),
       ...(overviews.operational ? [`Overview operacional: ${overviews.operational.operatorSummary}`] : []),
       ...(overviews.trust ? [`Overview de trust: ${overviews.trust.operatorSummary}`] : []),

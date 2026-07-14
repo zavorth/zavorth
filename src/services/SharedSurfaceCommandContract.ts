@@ -820,8 +820,16 @@ export function formatSharedSurfaceUnavailableReply(platform: string): string {
   const commands = SHARED_SURFACE_COMMAND_CONTRACT
     .filter((entry) => entry.fallbackVisible)
     .map((entry) => entry.surfaceCommand);
-  const normalizedPlatform = String(platform || '').trim() || tService('contract.this_surface');
-  return tService('contract.command_unavailable', { commands: formatCommandList(commands), platform: normalizedPlatform });
+  const commandList = formatCommandList(commands);
+  const normalizedPlatform = String(platform || '').trim() || 'this surface';
+  const translated = tService('contract.command_unavailable', {
+    commands: commandList,
+    platform: normalizedPlatform,
+  });
+  if (!translated || translated === 'contract.command_unavailable') {
+    return `Command unavailable on ${normalizedPlatform}. Try: ${commandList}`;
+  }
+  return translated;
 }
 
 export function getDiscordSlashCommandManifest(options: {

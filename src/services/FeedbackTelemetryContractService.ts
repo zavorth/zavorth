@@ -202,7 +202,7 @@ export class FeedbackTelemetryContractService {
       'rota /feedback publica',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? '/feedback cobre opt-in, preview redigido, revoke/delete, ledger e agregacao segura.'
+        ? '/feedback cobre opt-in, preview redigido, revoke/delete, ledger e agregaction segura.'
         : '/feedback perdeu copy ou bloco publico obrigatorio.',
       'app/feedback/page.tsx',
       missing.map((phrase) => `faltando: ${phrase}`),

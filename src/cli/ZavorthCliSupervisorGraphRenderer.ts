@@ -29,7 +29,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
     `- ${entry.step}. ${entry.from} -> ${entry.to}: ${compact(entry.decision, 72)}`);
   const correctionLines = snapshot.reflexion.correctionLoop.length > 0
     ? snapshot.reflexion.correctionLoop.map((attempt) =>
-        `- tentativa ${attempt.attempt}: ${attempt.from} -> ${attempt.to} | retries restantes ${attempt.retryBudgetRemaining}`)
+        `- attempt ${attempt.attempt}: ${attempt.from} -> ${attempt.to} | retries remaining ${attempt.retryBudgetRemaining}`)
     : ['- no correction triggered in this preview'];
 
   const panels: CliVisualPanel[] = [
@@ -87,7 +87,7 @@ export function formatSupervisorGraphSnapshot(snapshot: ZavorthSupervisorGraphSn
   return renderCliScreen({
     eyebrow: 'Supervisor',
     eyebrowTone: snapshot.status === 'paused' ? 'warning' : 'success',
-    title: 'Supervisor Graph do Zavorth',
+    title: 'Zavorth Supervisor Graph',
     summary: formatCliValue(snapshot.narrative.headline, 'Grafo supervisor ready.'),
     mode: 'compact',
     showWordmark: false,

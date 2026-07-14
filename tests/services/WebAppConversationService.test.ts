@@ -609,7 +609,7 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-text-attachment-fallback',
-      expect.stringContaining('texto com cara de token/codigo codificado'),
+      expect.stringContaining('resembles a token or encoded value'),
       null,
       'attachment-conversation',
     );

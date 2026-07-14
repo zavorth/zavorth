@@ -9,7 +9,7 @@ This document is a **readiness map**, not a public launch announcement.
 | **Value-ready (local)** | Waves V0–V11: useful intelligence, daily path, honest wow, audiences, memory integrity, day-1 product UX, selection honesty, live multi-step harness, habit closeout. Hermetic gates green. Safe to dogfood locally. **Not** a public launch claim. |
 | **Launch-ready (ops)** | Calendar R2 + signed installers + live cells recorded + operator checklist green. |
 
-See also [ROADMAP.md](../ROADMAP.md), [WAVES-UNIFIED-CLOSEOUT.md](./WAVES-UNIFIED-CLOSEOUT.md), [certified-live-matrix.md](./certified-live-matrix.md).
+See also [ROADMAP.md](../ROADMAP.md), [agent-tool-routing.md](./agent-tool-routing.md), [certified-live-matrix.md](./certified-live-matrix.md).
 
 ## Product-local ready (when green)
 

@@ -136,7 +136,7 @@ export class CodexRemoteProfileRegistryService {
       health,
       readiness,
       narrative: {
-        headline: `Codex Remote expÃµe ${profiles.length} perfil(is) configurÃ¡vel(eis).`,
+        headline: `Codex Remote exposes ${profiles.length} configurable profile(s).`,
         operatorSummary: activeProfile
           ? `Perfil ativo: ${activeProfile.label}. ${profiles.filter((profile) => profile.enabled).length} perfil(is) habilitado(s).`
           : 'Nenhum perfil do Codex Remote foi resolvido.',

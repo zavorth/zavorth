@@ -1,7 +1,8 @@
 import type { PublicReleaseBundleContractSnapshot } from '../../contracts/PublicReleaseBundleContract.js';
 import type { ProductEntryRuntimeSnapshot } from './ProductEntryRuntimeService.js';
 import type { ProductizationEvidenceSnapshot } from './ProductizationEvidenceService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.release-rollback' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const RELEASE_INSTALLER_ROLLBACK_PATH_CONTRACT_VERSION = '2026-05-04.release-rollback' as const;
 export const RELEASE_INSTALLER_ROLLBACK_PATH_METADATA_KEY = 'releaseInstallerRollbackPath' as const;
 
 export type ReleaseInstallerRollbackPathStatus =
@@ -485,7 +486,7 @@ export class ReleaseInstallerRollbackPathService {
         label: 'Rollback dry-run',
         commandOrPath: 'zavorth release rollback --dry-run',
         status: rollbackAvailable ? 'ready' : 'needs-action',
-        detail: 'Rollback exige comando explicito do operador.',
+        detail: 'Rollback exige comando explicito do operator.',
       },
     ];
   }

@@ -149,7 +149,7 @@ export class ZavorthNativeConvergenceService {
           `catalogo com ${actions.length} acoes`,
           `acoes essenciais faltando: ${missing.length}`,
           `zavorth_action tool: ${hasTool ? 'ok' : 'missing'}`,
-          'mutacoes passam por preview/apply/receipts',
+          'mutations passam por preview/apply/receipts',
         ],
         nextActions: missing.length ? ['registrar acoes faltantes no catalogo central'] : [],
         publicInterfaces: [

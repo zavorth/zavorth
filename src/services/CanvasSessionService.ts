@@ -16,7 +16,7 @@ import { logger } from '../logger.js';
 import type {
 ZavorthSpeculativeAttempt,
   ZavorthSpeculativeAutonomyResult,
-} from './ZavorthSpeculativeAutonomyService';
+} from '../autonomy/ZavorthSpeculativeAutonomyService';
 
 export type CanvasSessionCreateInput = {
   engineId?: ExecutionEngineId;

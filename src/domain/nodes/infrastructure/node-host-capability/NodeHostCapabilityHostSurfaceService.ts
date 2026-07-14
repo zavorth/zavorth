@@ -379,7 +379,7 @@ export class NodeHostCapabilityHostSurfaceService {
           ok: false,
           resultSummary: 'location.read nao conseguiu interpretar o arquivo de localizacao informado.',
           stdout: null,
-          stderr: `location payload invalido: ${sourcePath}`,
+          stderr: `invalid location payload: ${sourcePath}`,
           exitCode: null,
           data: {
             sourcePath,

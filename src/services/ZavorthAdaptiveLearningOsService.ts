@@ -58,7 +58,7 @@ const SENSITIVE_USER_MODEL_PATTERNS: RegExp[] = [
   /\b(depressed|depression|trauma|traumatized|psychological|psychiatric|fragile|vulnerable)\b/i,
   /\b(anxiety|anxious|bipolar|adhd|autism|ptsd|suicid|mental\s+health)\b/i,
   /\b(diagnos(?:is|e)|personality\s+disorder|clinical)\b/i,
-  /\b(deprimido|depressao|depressivo|ansiedade|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulneravel|suicida|saude\s+mental)\b/i,
+  /\b(deprimido|depressao|depressivo|ansiedade|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulneravel|suicida|health\s+mental)\b/i,
   /\b(deprimido|depresion|depresivo|ansiedad|ansioso|traumatizado|psicologico|psiquiatrico|fragil|vulnerable|suicida|salud\s+mental)\b/i,
   /\b(depression|anxiete|anxieux|traumatise|psychologique|psychiatrique|fragile|vulnerable|suicidaire|sante\s+mentale)\b/i,
   /\b(depressiv|depression|angst|traumatisiert|psychologisch|psychiatrisch|suizid|psychische\s+gesundheit)\b/i,

@@ -501,7 +501,7 @@ export class CodexRemoteActionService {
     const approved = permission.status === 'approved'
       ? permission
       : await this.permissions.approveRequest(permissionId, runtimeUserId, {
-          decision_note: String(input.decisionNote || '').trim() || 'Aprovado pelo operador.',
+          decision_note: String(input.decisionNote || '').trim() || 'Aprovado by the operator.',
         });
     const metadata = approved.metadata || {};
     const result = await this.execute({
@@ -549,7 +549,7 @@ export class CodexRemoteActionService {
     const rejected = await this.permissions.rejectRequest(
       permissionId,
       runtimeUserId,
-      String(input.decisionNote || '').trim() || 'Rejeitado pelo operador.',
+      String(input.decisionNote || '').trim() || 'Rejeitado by the operator.',
     );
     const codexRemote = await this.controlPlane.buildSnapshot({ runtimeUserId });
     return {

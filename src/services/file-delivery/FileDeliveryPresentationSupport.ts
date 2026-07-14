@@ -56,7 +56,7 @@ export class FileDeliveryPresentationSupport {
   }
 
   public buildFilePreviewText(entry: FileDeliveryEntry): string {
-    return ['Encontrei este arquivo:', `Nome: ${entry.baseName}`, `Tipo: ${this.describeFileKind(entry)}`, `Tamanho: ${this.formatBytes(entry.sizeBytes)}`, `Modificado: ${this.formatDateTime(entry.modifiedAtMs)}`, `Local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
+    return ['I found este arquivo:', `Nome: ${entry.baseName}`, `Tipo: ${this.describeFileKind(entry)}`, `Tamanho: ${this.formatBytes(entry.sizeBytes)}`, `Modificado: ${this.formatDateTime(entry.modifiedAtMs)}`, `Local: ${entry.rootLabel}/${entry.relativePath}`].join('\n');
   }
 
   public async buildDirectoryPreviewText(entry: FileDeliveryEntry, shouldSkipAbsolutePath: (absolutePath: string, isDirectoryHint?: boolean) => boolean): Promise<string> {

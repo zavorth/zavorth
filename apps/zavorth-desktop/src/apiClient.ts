@@ -699,6 +699,96 @@ export async function testVoiceConfig(body: {
   return requireOk(result, 'Could not run voice configuration test.');
 }
 
+export type DesktopVoiceTtsSynthResult = {
+  ok?: boolean;
+  provider?: string;
+  voiceId?: string | null;
+  mimeType?: string;
+  audioBase64?: string;
+  chars?: number;
+  latencyMs?: number;
+  message?: string;
+  code?: string;
+};
+
+/** Backend edge-tts / gemini synthesis → playable base64 audio */
+export async function synthesizeVoiceTts(body: {
+  text: string;
+  language?: string;
+  force?: boolean;
+  surface?: string;
+}): Promise<{ ok?: boolean; result?: DesktopVoiceTtsSynthResult; error?: string }> {
+  const result = await apiRequest<{
+    ok?: boolean;
+    result?: DesktopVoiceTtsSynthResult;
+    error?: string;
+  }>({
+    method: 'POST',
+    path: '/api/experience/voice/tts',
+    body,
+  });
+  return requireOk(result, 'Could not synthesize voice TTS.');
+}
+
+export type DesktopVoiceMediaPlane = {
+  version?: string;
+  available?: boolean;
+  packageName?: string | null;
+  mode?: string;
+  reason?: string;
+  features?: Record<string, boolean>;
+  installHint?: string | null;
+};
+
+export type DesktopVoiceIceConfig = {
+  iceServers?: Array<{ urls: string | string[]; username?: string; credential?: string }>;
+  hasTurn?: boolean;
+  source?: string;
+};
+
+export async function loadVoiceMediaPlane(): Promise<
+  DesktopVoiceMediaPlane & { ice?: DesktopVoiceIceConfig }
+> {
+  const result = await apiRequest<{
+    ok?: boolean;
+    plane?: DesktopVoiceMediaPlane;
+    ice?: DesktopVoiceIceConfig;
+  }>({
+    method: 'GET',
+    path: '/api/experience/voice/media-plane',
+  });
+  const data = requireOk(result, 'Could not load voice media plane.');
+  const plane = (data.plane || data) as DesktopVoiceMediaPlane & { ice?: DesktopVoiceIceConfig };
+  if (data.ice) {
+    return { ...plane, ice: data.ice };
+  }
+  return plane;
+}
+
+export async function playVoiceAudioBase64(
+  mimeType: string,
+  audioBase64: string,
+): Promise<void> {
+  if (typeof window === 'undefined' || !audioBase64) return;
+  const binary = atob(audioBase64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  const blob = new Blob([bytes], { type: mimeType || 'audio/mpeg' });
+  const url = URL.createObjectURL(blob);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const audio = new Audio(url);
+      audio.onended = () => resolve();
+      audio.onerror = () => reject(new Error('Audio playback failed'));
+      void audio.play().catch(reject);
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 
 export async function resolveApproval(
   approvalId: string,

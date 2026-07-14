@@ -268,7 +268,7 @@ export class DistributionHardeningService {
       'inputs reproduziveis do manifest',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'todos os inputs canonicos do manifest existem e possuem sha256 calculavel.'
+        ? 'todos os inputs canonicals do manifest existem e possuem sha256 calculavel.'
         : 'manifest v1.x nao consegue ser reproduzido a partir dos inputs canonicos.',
       undefined,
       issues,
@@ -435,7 +435,7 @@ export class DistributionHardeningService {
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
         ? 'smoke local cobre install preview, health check, uninstall preview e cleanup preservando user data.'
-        : 'smoke local de install/uninstall esta ausente ou falhando.',
+        : 'smoke local de install/uninstall esta ausente ou failurendo.',
       this.smokeArtifactPath,
       issues,
     );

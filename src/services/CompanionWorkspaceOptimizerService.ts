@@ -318,7 +318,7 @@ export class CompanionWorkspaceOptimizerService {
         : result.waitingApproval
           ? `Workspace aguardando approval para aplicar ${result.preset.label}.`
           : result.blocked
-            ? `Workspace optimization bloqueada para ${result.preset.label}.`
+            ? `Workspace optimization blocked for ${result.preset.label}.`
             : `Workspace optimization nao aplicada para ${result.preset.label}.`,
       '',
       result.summary,

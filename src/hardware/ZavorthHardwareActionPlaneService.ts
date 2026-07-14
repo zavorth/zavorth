@@ -12,7 +12,8 @@ import { HomeAssistantBridge } from '../echo/tools/iot/HomeAssistantBridge.js';
 import { MQTTPublisher } from '../echo/tools/iot/MQTTPublisher.js';
 import { ZavorthMutationPlaneService } from '@zavorth/services/ZavorthMutationPlaneService.js';
 import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';
-import { TrustPlanePolicyLedgerService } from '@zavorth/services/TrustPlanePolicyLedgerService.js';export type HardwareProviderId =
+import { TrustPlanePolicyLedgerService } from '@zavorth/services/TrustPlanePolicyLedgerService.js';
+export type HardwareProviderId =
   | 'home-assistant'
   | 'mqtt'
   | 'webhook'
@@ -414,7 +415,7 @@ export class ZavorthHardwareActionPlaneService {
       requestedBy: input.requestedBy || null,
       planId: null,
       summary: allowlisted
-        ? `Device ${id} registrado e allowlisted para acoes explicitas.`
+        ? `Device ${id} registrado e allowlisted para acoes explicit.`
         : `Device ${id} registrado em modo read-only ate allowlist explicita.`,
     });
     this.writeState(state);
@@ -1017,7 +1018,7 @@ export class ZavorthHardwareActionPlaneService {
         label: 'Configurar provider somente quando for usar apply real',
         command: 'npm run ops:hardware',
         severity: 'warn',
-        reason: `${dormantProviders} provider(s) dormente(s); isso e esperado em idle.`,
+        reason: `${dormantProviders} dormant provider(s); this is expected when idle.`,
       });
     }
     if (summary.pendingHardwarePlans > 0) {
@@ -1026,7 +1027,7 @@ export class ZavorthHardwareActionPlaneService {
         label: 'Revisar planos fisicos pendentes',
         command: 'npm run ops:hardware:json',
         severity: 'warn',
-        reason: 'Ha MutationPlans de hardware aguardando approval/aplicacao.',
+        reason: 'There are hardware MutationPlans waiting for approval/application.',
       });
     }
     return actions.slice(0, 6);

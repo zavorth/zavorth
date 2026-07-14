@@ -210,7 +210,7 @@ export class DeterministicQaMatrixService {
     const missing = jsonCommands.filter((gate) => !gate.producesJson);
     return this.check(
       'matrix:json-declarations',
-      'declaracao de JSON',
+      'declaraction de JSON',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'todos os comandos com --json declaram producesJson=true.'

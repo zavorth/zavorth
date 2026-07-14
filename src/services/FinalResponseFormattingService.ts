@@ -75,7 +75,7 @@ export class FinalResponseFormattingService {
       {
         lines: [
           options.intro || 'O Zavorth precisa da sua decisao antes de continuar esta tarefa.',
-          `Referencia curta: ${options.shortId}`,
+          `Short reference: ${options.shortId}`,
         ],
       },
       { title: 'Contexto', lines: options.summaryLines || [] },

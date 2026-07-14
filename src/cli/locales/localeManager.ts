@@ -1,7 +1,12 @@
 import { EN_COMMAND_ALIASES } from './en.js';
-import { PT_COMMAND_ALIASES } from './pt.js';
 
-export type ZavorthCliLocale = 'en' | 'pt';
+/**
+ * CLI first-token command aliases are English-only (Zavorth style).
+ * UI copy still uses the full i18n stack (src/i18n/locales/*) for many languages.
+ * Free-text natural language goes to the agent, not CLI synonym packs.
+ */
+
+export type ZavorthCliLocale = 'en';
 
 export type LocaleEnvironment = Record<string, string | undefined>;
 
@@ -10,46 +15,20 @@ export type CommandAliasOptions = {
   locale?: string | null;
 };
 
-const LANGUAGE_ENV_PRIORITY = [
-  'ZAVORTH_LANG',
-  'LC_ALL',
-  'LC_MESSAGES',
-  'LANG',
-  'LANGUAGE',
-  'USERLANGUAGE',
-  'USER_LANGUAGE',
-];
-
-export function normalizeCliLocale(value: string | null | undefined): ZavorthCliLocale {
-  const normalized = String(value || '')
-    .trim()
-    .toLowerCase()
-    .replace(/_/g, '-');
-  if (normalized.startsWith('pt')) {
-    return 'pt';
-  }
+/** Always English for CLI command tokens. Kept for API compatibility. */
+export function normalizeCliLocale(_value: string | null | undefined): ZavorthCliLocale {
   return 'en';
 }
 
-export function detectSystemLanguage(env: LocaleEnvironment = process.env): ZavorthCliLocale {
-  for (const key of LANGUAGE_ENV_PRIORITY) {
-    const value = env[key];
-    if (value) {
-      const locale = normalizeCliLocale(value);
-      if (locale !== 'en' || key === 'ZAVORTH_LANG') {
-        return locale;
-      }
-    }
-  }
+/** Always English for CLI command tokens. Kept for API compatibility. */
+export function detectSystemLanguage(_env: LocaleEnvironment = process.env): ZavorthCliLocale {
   return 'en';
 }
 
-export function getCommandAliases(options: CommandAliasOptions = {}): Record<string, string> {
-  const locale = options.locale
-    ? normalizeCliLocale(options.locale)
-    : detectSystemLanguage(options.env || process.env);
-  if (locale === 'pt') {
-    return { ...PT_COMMAND_ALIASES };
-  }
+/**
+ * First-token CLI synonyms (English only).
+ * Typos / short forms also live in SimpleCommandRouter for the anyone-path.
+ */
+export function getCommandAliases(_options: CommandAliasOptions = {}): Record<string, string> {
   return { ...EN_COMMAND_ALIASES };
 }

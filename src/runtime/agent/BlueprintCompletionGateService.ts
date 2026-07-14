@@ -481,7 +481,7 @@ export class BlueprintCompletionGateService {
         status: gateLevel(input.releaseExecutionReady, input.executionLinked),
         source: 'CapabilityAutopilotReleaseExecutionGateService',
         command: 'npm run qa:capability-autopilot-release-execution',
-        detail: 'Execution precisa operador manual, artifacts, canary limitado, rollback e observabilidade.',
+        detail: 'Execution precisa operator manual, artifacts, canary limitado, rollback e observabilidade.',
         critical: true,
       },
       {
@@ -580,6 +580,6 @@ export class BlueprintCompletionGateService {
     if (status === 'blocked') {
       return 'Remover bloqueios e qualquer auto/global/skip antes de marcar o blueprint como completo.';
     }
-    return 'Blueprint runtime completo; proximas mudancas devem ser produto real, usuarios reais ou backlog novo fora deste arquivo.';
+    return 'Blueprint runtime completo; proximas changes devem ser produto real, usuarios reais ou backlog novo fora deste arquivo.';
   }
 }

@@ -225,7 +225,7 @@ export class IntegrationShowcaseService {
         issues.push(`${item.id}: requisito publico ausente`);
       }
       if (!item.safeDegradation.trim()) {
-        issues.push(`${item.id}: degradacao segura ausente`);
+        issues.push(`${item.id}: degradaction segura ausente`);
       }
       if (item.trustPlaneControls.length < 2) {
         issues.push(`${item.id}: Trust Plane pouco visivel`);
@@ -325,7 +325,7 @@ export class IntegrationShowcaseService {
       'politica de partner surface',
       issues.length === 0 ? 'pass' : 'fail',
       issues.length === 0
-        ? 'partner surface separa compatibilidade tecnica de parceria formal e exige artifact auditavel.'
+        ? 'partner surface seto compatibilidade tecnica de parceria formal e exige artifact auditable.'
         : 'politica de partner surface esta incompleta ou permite claim formal sem registro.',
       'src/contracts/IntegrationShowcaseContract.ts',
       issues,
@@ -512,7 +512,7 @@ export class IntegrationShowcaseService {
       'vercel',
       'figma',
       'fixture',
-      'degradacao segura',
+      'degradaction segura',
       'trust plane',
       'qa:integration-showcase',
     ];

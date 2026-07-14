@@ -1,7 +1,8 @@
 import { EventEmitter } from 'events';
 import type { LlmRuntimeService } from '../../../services/llm/LlmRuntimeService.js';
 import type { MemoryVectorStore } from '../../../storage/MemoryVectorStore.js';
-import { logger } from '../../../logger.js';/**
+import { logger } from '../../../logger.js';
+/**
  * A compressed memory chunk stored in the vector plane.
  */
 export interface MemoryChunk {
@@ -47,7 +48,7 @@ const DEFAULT_CONFIG: MemoryCompressorConfig = {
 };
 
 /**
- * InfiniteMemoryCompressor â€” Sliding-window context manager with vector recall.
+ * InfiniteMemoryCompressor — Sliding-window context manager with vector recall.
  *
  * As sessions grow beyond the LLM token limit, this module:
  *
@@ -235,7 +236,7 @@ export class InfiniteMemoryCompressor extends EventEmitter {
       }
 
       const combined = messagesToCompress.join('\n');
-      
+
       let summary = '';
       let keywords: string[] = [];
 
@@ -356,7 +357,7 @@ ${combined}`;
 
     const words = text
       .toLowerCase()
-      .replace(/[^a-zA-Z0-9Ã Ã¡Ã¢Ã£Ã©ÃªÃ­Ã³Ã´ÃµÃºÃ§\s]/g, ' ')
+      .replace(/[^a-zA-Z0-9àáâãéêíóôõúç\s]/g, ' ')
       .split(/\s+/)
       .filter((w) => w.length > 2 && !stopwords.has(w));
 

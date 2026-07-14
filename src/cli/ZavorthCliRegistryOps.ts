@@ -228,7 +228,8 @@ import {
 
 import * as cliNative from './ZavorthCliNativeRenderers.js';
 import * as surfaceHelpers from './ZavorthCliSurfaceHelpers.js';
-import { resolveOperationsIntent } from './ZavorthCliCommandHelpers.js';const {
+import { resolveOperationsIntent } from './ZavorthCliCommandHelpers.js';
+const {
   buildCliContextSnapshot,
   buildCliHelpSnapshot,
   buildCliDomainsSnapshot,

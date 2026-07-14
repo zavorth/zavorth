@@ -104,7 +104,7 @@ describe('PolicyEngine', () => {
       };
       const result = engine.evaluate(plan as any);
       expect(result.allowed).toBe(false); // Default behavior in Zavorth blocks on hard limits
-      expect(result.violations.some(v => v.detail.includes('Máximo permitido:'))).toBe(true);
+      expect(result.violations.some(v => v.detail.includes('Maximum allowed:'))).toBe(true);
     });
   });
 });

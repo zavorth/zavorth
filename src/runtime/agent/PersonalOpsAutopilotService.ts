@@ -246,7 +246,7 @@ export class PersonalOpsAutopilotService {
         cliCommand: `zavorth personal-ops run ${run.id} --json`,
         zavorthControlPath: '/zavorthControl?sector=overview',
         previewHint: 'Use preview antes de qualquer autorepair, reconnect, provider switch ou channel repair.',
-        approvalHint: 'Acoes mutaveis exigem approval explicito do operador.',
+        approvalHint: 'Acoes mutaveis exigem approval explicito do operator.',
       },
       nextSafeAction: this.nextSafeAction(status, suggestions),
     };

@@ -551,7 +551,7 @@ struct RootTabsSourceGuardTests {
     }
 
     @Test func `push enrollment stays behind notification disclosure flow`() throws {
-        let appSource = try String(contentsOf: Self.openClawAppSourceURL(), encoding: .utf8)
+        let appSource = try String(contentsOf: Self.zavorthAppSourceURL(), encoding: .utf8)
         let actionsSource = try String(contentsOf: Self.settingsProTabActionsSourceURL(), encoding: .utf8)
         let modelSource = try String(contentsOf: Self.nodeAppModelSourceURL(), encoding: .utf8)
 
@@ -612,7 +612,7 @@ struct RootTabsSourceGuardTests {
     }
 
     @Test func `local network access is requested from visible gateway flows`() throws {
-        let appSource = try String(contentsOf: Self.openClawAppSourceURL(), encoding: .utf8)
+        let appSource = try String(contentsOf: Self.zavorthAppSourceURL(), encoding: .utf8)
         let rootSource = try String(contentsOf: Self.rootTabsSourceURL(), encoding: .utf8)
         let onboardingSource = try String(contentsOf: Self.onboardingWizardSourceURL(), encoding: .utf8)
         let actionsSource = try String(contentsOf: Self.settingsProTabActionsSourceURL(), encoding: .utf8)
@@ -834,7 +834,7 @@ struct RootTabsSourceGuardTests {
             .appendingPathComponent("Sources/Onboarding/OnboardingWizardView.swift")
     }
 
-    private static func openClawAppSourceURL() -> URL {
+    private static func zavorthAppSourceURL() -> URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()

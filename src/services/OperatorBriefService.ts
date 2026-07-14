@@ -480,14 +480,14 @@ export class OperatorBriefService {
       stale: false,
       checkedAt: doctor.checkedAt || null,
       label: 'Doctor validado',
-      summary: `Doctor dos transportes remotos validou sidecars, gateways e nodes pareados ${this.formatRelative(doctor.checkedAt)}.`,
+      summary: `Doctor dos transportes remotos validou sidecars, gateways e nodes paired ${this.formatRelative(doctor.checkedAt)}.`,
       command: doctor.command || 'npm run test:transports:smoke',
     };
   }
 
   private formatText(snapshot: OperatorBriefSnapshot): string {
     const lines = [
-      'Briefing do operador',
+      'Briefing the operator',
       '',
       `Gerado em: ${snapshot.generatedAt}`,
       `Postura: ${snapshot.posture}`,

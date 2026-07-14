@@ -6,7 +6,8 @@ import type {
   ChannelPolicySnapshot,
   ChannelPolicyState,
   ChannelPolicySummary,
-} from '../../contracts/ChannelMeshContract.js';export interface GroupToolPolicy {
+} from '../../contracts/ChannelMeshContract.js';
+export interface GroupToolPolicy {
   untrustedUserMode: 'none' | 'safe-only' | 'allowlist-only' | 'safe-plus-allowlist';
   allowedToolsForUntrustedUsers: string[];
 }
@@ -479,7 +480,7 @@ function summarizePolicy(policy: ChannelAccessPolicy): ChannelPolicySummary {
         blockedCount,
         summary: blockedCount > 0
           ? `Canal aberto com ${blockedCount} bloqueio(s) explicito(s).`
-          : 'Canal aberto para identidades autorizadas pelo provider.',
+          : 'Channel open for identities authorized by the provider.',
       };
     case 'allowlist':
       return {

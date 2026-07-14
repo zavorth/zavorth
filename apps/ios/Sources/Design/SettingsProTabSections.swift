@@ -169,7 +169,7 @@ extension SettingsProTab {
             self.settingsListRow(
                 icon: "info.circle",
                 title: "About",
-                detail: DeviceInfoHelper.openClawVersionString(),
+                detail: DeviceInfoHelper.zavorthVersionString(),
                 route: .about)
         }
         .padding(.horizontal, ZavorthProMetric.pagePadding)
@@ -491,7 +491,7 @@ extension SettingsProTab {
                 Divider()
                 self.detailRow("Platform", value: DeviceInfoHelper.platformStringForDisplay())
                 Divider()
-                self.detailRow("App", value: DeviceInfoHelper.openClawVersionString())
+                self.detailRow("App", value: DeviceInfoHelper.zavorthVersionString())
                 Divider()
                 self.detailRow("Model", value: DeviceInfoHelper.modelIdentifier())
             }
@@ -579,11 +579,11 @@ extension SettingsProTab {
                 icon: "info.circle",
                 title: "Zavorth",
                 detail: "iOS companion app",
-                value: DeviceInfoHelper.openClawVersionString(),
+                value: DeviceInfoHelper.zavorthVersionString(),
                 color: ZavorthBrand.accent)
 
             self.detailListCard {
-                self.detailRow("Version", value: DeviceInfoHelper.openClawVersionString())
+                self.detailRow("Version", value: DeviceInfoHelper.zavorthVersionString())
                 Divider()
                 self.detailRow("Device", value: DeviceInfoHelper.deviceFamily())
                 Divider()

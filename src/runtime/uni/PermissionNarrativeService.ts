@@ -67,7 +67,7 @@ export class PermissionNarrativeService {
       permission: 'Nenhuma permissao sera consumida antes da resposta.',
       risk: clarification.reason || 'Evita assumir um alvo errado.',
       review: 'Responda com o arquivo, pasta, recurso ou comando exato.',
-      validity: 'Nao ha autorizacao ativa.',
+      validity: 'There is no autorizacao ativa.',
       technicalDetails: clarification.missing.map((item) => `missing:${item}`),
     };
   }

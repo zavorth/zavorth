@@ -86,7 +86,7 @@ export const handleComputerUseRoutes: WebAppSupervisionRouteHandler = async (ctx
           {
             ok: true,
             experimental: true,
-            message: 'Watch Mode supervisionado iniciado.',
+            message: 'Supervised Watch Mode iniciado.',
             snapshot: run,
             watchMode: watchMode.buildSnapshot(6),
           },

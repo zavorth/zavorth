@@ -54,13 +54,13 @@ export function buildInsights(input: {
   }
   if (input.executorStats[0]) {
     const topExecutor = input.executorStats[0];
-    lines.push(`Executor mais efetivo recente: ${topExecutor.executor} (${topExecutor.completed}/${topExecutor.total} concluido(s)).`);
+    lines.push(`Executor mais efetivo recente: ${topExecutor.executor} (${topExecutor.completed}/${topExecutor.total} completed(s)).`);
   }
   if (input.routeLearning.topSuccessful[0]) {
     const topRoute = input.routeLearning.topSuccessful[0];
     lines.push(
       `Melhor rota recente: ${topRoute.executor} para ${topRoute.kind}/${topRoute.subtype} `
-      + `(${topRoute.completed}/${topRoute.total} concluido(s))`
+      + `(${topRoute.completed}/${topRoute.total} completed(s))`
       + `${topRoute.gatedArtifactful > 0 ? `, com ${topRoute.gatedArtifactful} entrega(s) apos aprovacao` : ''}`
       + `${topRoute.workflowRecoveryArtifactful > 0 ? `, com ${topRoute.workflowRecoveryArtifactful} retomada(s) entregue(s)` : ''}.`,
     );

@@ -23,7 +23,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp not provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp not esta provisionado neste host.')],
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp is not provisionado neste host.')],
       };
     }
 
@@ -36,7 +36,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: captions.transcript,
         source: captions.source,
-        warnings: ['Encontrei legendas via yt-dlp e evitei baixar o audio completo do video.'],
+        warnings: ['I found legendas via yt-dlp e evitei baixar o audio completo do video.'],
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -62,7 +62,7 @@ export class VideoYtDlpTranscriptSupport {
       return {
         transcript: '',
         source: 'yt-dlp not provisionado',
-        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp not esta provisionado neste host.')],
+        warnings: [this.ytDlpFallback.getAvailabilityWarning() || VideoHandlerUrlSupport.buildMediaCapabilityWarning('O fallback opcional de yt-dlp is not provisionado neste host.')],
       };
     }
 

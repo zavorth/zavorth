@@ -26,7 +26,8 @@ import { NodeCapabilityService } from '@zavorth/services/NodeCapabilityService.j
 import { NodeInvokeService } from '@zavorth/services/NodeInvokeService.js';
 import { NodePairingService } from '@zavorth/services/NodePairingService.js';
 import { NodeRegistryService } from '@zavorth/services/NodeRegistryService.js';
-import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';export type FederatedMeshProfile =
+import { TrustDecisionService, type TrustDecision } from '@zavorth/services/TrustDecisionService.js';
+export type FederatedMeshProfile =
   | 'local'
   | 'lan'
   | 'private-tunnel'
@@ -492,7 +493,7 @@ export class ZavorthFederatedMeshControlPlaneService {
       generatedAt: this.now().toISOString(),
       status: 'revoked',
       node,
-      summary: `${node.label} revogado; nao entra mais no route planner.`,
+      summary: `${node.label} revoked; no longer enters the route planner.`,
     };
   }
 
@@ -974,7 +975,7 @@ export class ZavorthFederatedMeshControlPlaneService {
     if (!remoteNodes.length) {
       return [{
         id: 'pair-first-federated-node',
-        label: 'Parear primeiro node federado',
+        label: 'Pair first federated node',
         severity: 'info',
         command: 'npm run ops:federated-mesh -- --pair --profile lan --node work-pc',
         reason: 'A implementacao esta pronta, mas a malha remota ainda esta dormente.',

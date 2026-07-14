@@ -17,9 +17,41 @@ function createTelegramContext(text = 'compare o que mudou nesta pasta') {
   } as any;
 }
 
+function createAgentDecision(requestedTools: string[]) {
+  return {
+    schemaVersion: 1,
+    mode: 'operation',
+    confidence: 'high',
+    reason: 'The agent selected an explicit governed capability.',
+    sourceReason: 'semantic-operational',
+    target: { type: 'workflow' },
+    requestedTools,
+    responsePath: 'agent-runtime',
+    shouldCreateArtifact: true,
+    shouldShowArtifactInChat: false,
+    artifactPolicy: {
+      shouldCreateArtifact: true,
+      shouldShowArtifactInChat: false,
+      reason: 'governed-operation',
+    },
+    diagnostics: {
+      surface: 'telegram',
+      shouldExecute: true,
+      semantic: true,
+    },
+  };
+}
+
+function createAgentDecisionService(requestedTools: string[]) {
+  return {
+    decideResponse: jest.fn().mockResolvedValue(createAgentDecision(requestedTools)),
+  };
+}
+
 function createRuntime(options: {
   sharedSurfaceCommandService?: any;
   agentGateway?: ZavorthAgentGateway;
+  surfaceOperationalIntentService?: any;
 } = {}) {
   const agentGateway = options.agentGateway || new ZavorthAgentGateway({
     now: () => new Date('2026-04-26T11:00:00.000Z'),
@@ -66,6 +98,7 @@ function createRuntime(options: {
       surfaceTaskDispatcher,
       legacyUnifiedGateway,
       agentGateway,
+      surfaceOperationalIntentService: options.surfaceOperationalIntentService,
       surfaceIdentityService: { linkIdentity: jest.fn() },
       workspaceProfileService: { getProfile: jest.fn().mockResolvedValue(null) },
       workspaceCommandService: { resolveInvocation: jest.fn().mockReturnValue(null) },
@@ -104,7 +137,12 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(activeRun?.channel).toBe('telegram');
     expect(activeRun?.status).toBe('completed');
     expect(activeRun?.input).toBe('compare o que mudou nesta pasta');
-    expect((activeRun?.metadata.responseDecision as any)?.requestedTools).toEqual(expect.arrayContaining(['read_file']));
+    expect((activeRun?.metadata.responseDecision as any)?.requestedTools).toEqual([]);
+    expect(activeRun?.metadata.naturalFirstRoute).toEqual(expect.objectContaining({
+      route: 'llm-reply',
+      shouldEnterGateway: true,
+      usesLlm: 'preferred',
+    }));
   });
 
   it('routes natural equivalents of operator capability commands through the agent loop', async () => {
@@ -117,7 +155,10 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
     for (const entry of cases) {
       const ctx = createTelegramContext(entry.text);
-      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime();
+      const surfaceOperationalIntentService = createAgentDecisionService([entry.tool]);
+      const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime({
+        surfaceOperationalIntentService,
+      });
 
       await processTextMessage(runtime, ctx, entry.text);
 
@@ -129,6 +170,10 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       );
       expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
       expect(surfaceTaskDispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
+      expect(surfaceOperationalIntentService.decideResponse).toHaveBeenCalledWith(expect.objectContaining({
+        surface: 'telegram',
+        text: entry.text,
+      }));
       expect(agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun).toEqual(
         expect.objectContaining({
           channel: 'telegram',
@@ -152,7 +197,9 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
   it('keeps natural Watch Mode requests blocked by policy before legacy fallback', async () => {
     const text = 'ative o Watch Mode para observar a tela';
     const ctx = createTelegramContext(text);
-    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime({
+      surfaceOperationalIntentService: createAgentDecisionService(['watchmode.control']),
+    });
 
     await processTextMessage(runtime, ctx, text);
 
@@ -187,7 +234,9 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
   it('keeps natural Echo requests behind the existing approval gate', async () => {
     const text = 'use resposta por voz com Echo nesta conversa';
     const ctx = createTelegramContext(text);
-    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime({
+      surfaceOperationalIntentService: createAgentDecisionService(['echo_hands']),
+    });
 
     await processTextMessage(runtime, ctx, text);
 
@@ -217,7 +266,9 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
   it('routes natural swarm requests into a structured approval proposal without calling the legacy shortcut', async () => {
     const text = 'monte uma equipe de agentes para revisar esta arquitetura';
     const ctx = createTelegramContext(text);
-    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime();
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher, commandRoutingService } = createRuntime({
+      surfaceOperationalIntentService: createAgentDecisionService(['swarm.run']),
+    });
 
     await processTextMessage(runtime, ctx, text);
 
@@ -303,7 +354,9 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
 
   it('holds risky Telegram requests at the universal approval gate', async () => {
     const ctx = createTelegramContext('corrija o arquivo e rode npm test');
-    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime();
+    const { runtime, agentGateway, legacyUnifiedGateway, surfaceTaskDispatcher } = createRuntime({
+      surfaceOperationalIntentService: createAgentDecisionService(['remote_shell']),
+    });
 
     await processTextMessage(runtime, ctx, 'corrija o arquivo e rode npm test');
 
@@ -351,7 +404,10 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
       idFactory: (prefix) => `${prefix}-telegram-daily`,
       executor,
     });
-    const { runtime } = createRuntime({ agentGateway });
+    const { runtime } = createRuntime({
+      agentGateway,
+      surfaceOperationalIntentService: createAgentDecisionService(['remote_shell']),
+    });
     const taskCtx = createTelegramContext('corrija o arquivo e rode npm test');
 
     await processTextMessage(runtime, taskCtx, 'corrija o arquivo e rode npm test');
@@ -367,8 +423,8 @@ describe('BotGatewayMessageProcessing universal agent routing', () => {
     expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Zavorth');
     expect(String(taskCtx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain(`approval: ${approvalId} (pending)`);
 
-    const approvalCtx = createTelegramContext(`aprovar ${approvalId}`);
-    await processTextMessage(runtime, approvalCtx, `aprovar ${approvalId}`);
+    const approvalCtx = createTelegramContext(`/approve ${approvalId}`);
+    await processTextMessage(runtime, approvalCtx, `/approve ${approvalId}`);
 
     expect(executor).toHaveBeenCalledTimes(1);
     const completedRun = agentGateway.buildSnapshot({ activeSessionId: 'telegram:4242' }).activeRun;

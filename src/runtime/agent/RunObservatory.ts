@@ -17,7 +17,8 @@ import {
 } from '../../services/IntelligenceFabricPostDefaultHealthService.js';
 
 
-export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
+
+export const RUN_OBSERVATORY_CONTRACT_VERSION = '2026-05-03.run-observatory' as const;
 
 export type UniversalAgentRunObservatoryQuery = {
   runId?: string | null;
@@ -443,7 +444,7 @@ function buildReceiptsForRun(run: UniversalAgentRun): UniversalAgentRunObservato
       sessionId: run.sessionId,
       kind: 'capability',
       source: normalizeText(capabilityLoop.source, 'CapabilityLoopGovernanceService'),
-      title: 'Capability loop governado',
+      title: 'Governed capability loop',
       detail: normalizeText(capabilityLoop.summary, 'Capabilities avaliadas no loop canonico.'),
       status: Array.isArray(capabilityLoop.blockedCapabilityIds) && capabilityLoop.blockedCapabilityIds.length > 0
         ? 'pending'
@@ -583,7 +584,7 @@ function buildDiffPreviews(receipts: UniversalAgentRunObservatoryReceipt[]): Uni
         actions: {
           approveApplyLabel: applied ? 'Aplicado' : 'Aprovar/aplicar',
           approveApplyInstruction: planId
-            ? `Peça ao Zavorth: aplicar rascunho ${planId}.`
+            ? `Ask Zavorth: apply draft ${planId}.`
             : 'Peça ao Zavorth para aplicar este rascunho quando o plano estiver visivel.',
           rollbackLabel: rollbackArtifactPath ? 'Rollback disponivel' : 'Rollback sera gerado no apply',
           rollbackInstruction: rollbackArtifactPath

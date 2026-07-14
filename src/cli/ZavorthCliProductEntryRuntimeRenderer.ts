@@ -134,7 +134,7 @@ export function buildProductEntryRuntimeCliSnapshot(input: {
         nextRecommendedGate: {
           stage: '49',
           title: 'External Docs And Examples',
-          reason: 'docs externas depois do first-run',
+          reason: 'external docs after first-run',
         },
       },
     },

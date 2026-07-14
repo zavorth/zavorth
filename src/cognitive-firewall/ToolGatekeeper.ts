@@ -54,20 +54,19 @@ export type ToolGatekeeperHintProfile = {
   isPredictiveMode?: boolean;
 };
 
-/**
- * Intent-to-allowed-tool-name map.
- * 'conversation' = no tools, maximum savings.
- * 'full_toolset' = all tools, safety fallback.
- */
+/** Agent-team tools shared across execution/research baselines. */
+const AGENT_TEAM = ['zavorth_delegate', 'agent_manager', 'capability_discovery'] as const;
+
+/** Intent → recommended tool names. `full_toolset` exposes all tools. */
 const DEFAULT_INTENT_TOOL_MAP: Record<IntentCategory, string[] | '*'> = {
-  conversation: [],
-  information: ['web_search', 'get_datetime'],
-  file_operation: ['read_file', 'create_file', 'list_directory'],
-  execution: ['run_sandbox_code', 'remote_shell', 'read_file', 'list_directory'],
-  configuration: ['configure_llm_profile', 'zavorth_action', 'get_datetime'],
-  memory: ['semantic_memory', 'zavorth_action', 'get_datetime'],
-  desktop: ['desktop_automation', 'read_file'],
-  research: ['web_search', 'query_external_ai', 'get_datetime', 'create_file'],
+  conversation: ['capability_discovery', 'get_datetime'],
+  information: ['web_search', 'get_datetime', 'capability_discovery', 'query_external_ai'],
+  file_operation: ['read_file', 'create_file', 'list_directory', 'capability_discovery'],
+  execution: ['run_sandbox_code', 'remote_shell', 'read_file', 'list_directory', 'zavorth_delegate', 'capability_discovery'],
+  configuration: ['configure_llm_profile', 'zavorth_action', 'get_datetime', 'capability_discovery'],
+  memory: ['semantic_memory', 'zavorth_action', 'get_datetime', 'capability_discovery'],
+  desktop: ['desktop_automation', 'read_file', 'capability_discovery'],
+  research: ['web_search', 'query_external_ai', 'get_datetime', 'create_file', ...AGENT_TEAM],
   full_toolset: '*',
 };
 
@@ -208,6 +207,19 @@ export class ToolGatekeeper {
 
     if (defaultAllowedNames === '*') {
       const recommendedToolNames = approvedTools.map((tool) => tool.name);
+      let predictedToolNames: string[] | undefined;
+      if (this.usageTracker && this.sessionId) {
+        const prediction = this.usageTracker.predictNextTools(
+          this.sessionId,
+          recommendedToolNames,
+        );
+        if (prediction.predictedTools.length > 0) {
+          predictedToolNames = prediction.predictedTools;
+        }
+      }
+      const activeClusters = this.clusterMode
+        ? this.clusterRegistry.getAllClusters().map((cluster) => cluster.name)
+        : undefined;
       return {
         intentCategory,
         groups: INTENT_HINT_GROUPS[intentCategory],
@@ -223,6 +235,8 @@ export class ToolGatekeeper {
           ? `Intent hint recommends the full toolset; ${quarantinedToolNames.length} tool(s) blocked by operator plugin policy.`
           : 'Intent hint recommends the full available toolset; final exposure belongs to runtime policy.',
         ...(this.compactMode ? { compactTools: toCompactBatch(approvedTools), isCompactMode: true } : {}),
+        ...(this.clusterMode ? { activeClusters, isClusterMode: true } : {}),
+        ...(predictedToolNames ? { predictedToolNames, isPredictiveMode: true } : {}),
       };
     }
 

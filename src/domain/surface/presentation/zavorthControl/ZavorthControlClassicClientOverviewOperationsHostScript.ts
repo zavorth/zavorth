@@ -193,7 +193,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       const node = document.getElementById('operations-health');
       if (!node) return;
       if (!operations || operations.error) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar saude operacional.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar operational health.</div>';
         return;
       }
 
@@ -250,7 +250,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
       const nodeMeshSmokeSummary = nodeMeshSmoke.summary
         ? escapeHtml(nodeMeshSmoke.summary)
         : (nodeMeshSmoke.status === 'passed' && !nodeMeshSmoke.stale
-          ? 'Smoke real concluido com sucesso.'
+          ? 'Real smoke completed successfully.'
           : (nodeMeshSmoke.status === 'passed' && nodeMeshSmoke.stale
             ? 'Ultimo smoke real venceu e precisa ser renovado.'
             : (nodeMeshSmoke.status === 'failed'
@@ -311,7 +311,7 @@ function zavorthControlClassicClientOverviewOperationsHost() {
             : (remoteTransportDoctor.status === 'failed'
               ? 'Doctor dos transportes remotos encontrou pendencias no plano remoto.'
               : (remoteTransportDoctor.status === 'running'
-                ? 'Doctor dos transportes remotos em validacao neste momento.'
+                ? 'Remote transport doctor is validating right now.'
                 : (remoteTransportDoctor.status === 'skipped'
                   ? 'Doctor dos transportes remotos foi pulado neste host.'
                   : 'Doctor dos transportes remotos not yet foi executado neste host.')))));

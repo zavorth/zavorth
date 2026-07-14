@@ -333,7 +333,7 @@ export class CapabilityAutopilotPreflightApplyAdapterService {
       ),
       this.check(
         'capability-autopilot-preflight-apply:dry-run-plan',
-        'plano dry-run',
+        'dry-run plan',
         applyReceipts.every((receipt) => receipt.invocationPlan.dryRun === true) ? 'pass' : 'fail',
         'Este gate so prepara plano dry-run para o proximo passo.',
         applyReceipts.map((receipt) => `${receipt.sourceSurface}:${receipt.applyAdapterKind}:dryRun=${receipt.invocationPlan.dryRun}`),

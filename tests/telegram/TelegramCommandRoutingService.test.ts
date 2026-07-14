@@ -123,9 +123,6 @@ describe('TelegramCommandRoutingService', () => {
       mnemosMemoryUxController: {
         handleMnemos: jest.fn().mockResolvedValue(undefined),
       },
-      naturalCapabilityRouter: {
-        dispatch: jest.fn().mockResolvedValue(false),
-      },
     };
 
     return {
@@ -177,15 +174,13 @@ describe('TelegramCommandRoutingService', () => {
       'me envie C:/fora/index.html',
       '42',
     );
-    expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
   });
 
-  it('does not intercept free-text via natural capability packs (Hermes-style agent owns free text)', async () => {
+  it('does not intercept free-text via natural capability packs (agent-first agent owns free text)', async () => {
     const { deps, service } = createService();
     const ctx = {
       chat: { type: 'private' },
     } as any;
-    deps.naturalCapabilityRouter.dispatch.mockResolvedValue(true);
 
     const handled = await service.dispatchPrivateCommand(
       ctx,
@@ -199,11 +194,10 @@ describe('TelegramCommandRoutingService', () => {
 
     // Free text is not stolen here; agent path handles it after routing returns false.
     expect(handled).toBe(false);
-    expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
     expect(deps.fileDeliveryController.handleFreeForm).not.toHaveBeenCalled();
   });
 
-  it('does not invoke natural capability routing for explicit slash commands', async () => {
+  it('routes explicit slash commands without free-text NLU', async () => {
     const { deps, service } = createService();
 
     const handled = await service.dispatchPrivateCommand(
@@ -218,7 +212,6 @@ describe('TelegramCommandRoutingService', () => {
 
     expect(handled).toBe(true);
     expect(deps.menuController.renderHelpCard).toHaveBeenCalled();
-    expect(deps.naturalCapabilityRouter.dispatch).not.toHaveBeenCalled();
   });
 
   it('routes /mnemos to the governed memory UX controller', async () => {

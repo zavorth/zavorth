@@ -47,7 +47,7 @@ export class DiscordGatewayRepairFlowService {
     ) {
       return {
         status: 'not_applicable',
-        summary: 'Discord nativo esta configurado, mas dormente no perfil atual.',
+        summary: 'Discord nativo is configured, mas dormente no perfil atual.',
         recommendedActions: [],
         nextStep: lifecycle.notes
           ? `${lifecycle.notes} Use perfil full ou habilite a capability discord quando quiser preaquecer o gateway.`

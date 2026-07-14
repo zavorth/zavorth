@@ -68,7 +68,7 @@ describe('ZavorthEchoOrchestrator web Action Harness tools', () => {
     });
 
     const result = await orchestrator.executePipeline(
-      'pesquise IA open source',
+      'search open source AI',
       'web_search',
       { query: 'IA open source' },
       { traceId: 'trace-web' },

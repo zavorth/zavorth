@@ -175,14 +175,14 @@ export class ProviderStrategyService {
     );
     if (input.selectedModelProfile) {
       rationale.push(
-        `Selecao canonica: familia ${input.selectedModelProfile.familyId}, rota ${input.selectedModelProfile.routeId}, modelo ${input.selectedModelProfile.modelLabel}.`,
+        `Selecao canonical: familia ${input.selectedModelProfile.familyId}, rota ${input.selectedModelProfile.routeId}, modelo ${input.selectedModelProfile.modelLabel}.`,
       );
     }
     if (input.modelSelectionExplanation.length > 0) {
       rationale.push(`Explicabilidade do picker: ${input.modelSelectionExplanation.slice(0, 2).join(' ')}`);
     }
     if (input.fallbackProfiles.length > 0) {
-      rationale.push(`Fallbacks canonicos: ${input.fallbackProfiles.map((entry) => entry.routeId).join(', ')}.`);
+      rationale.push(`Fallbacks canonicals: ${input.fallbackProfiles.map((entry) => entry.routeId).join(', ')}.`);
     }
     if (input.strategy.allowFallback && input.strategy.fallbackOrder.length > 0) {
       rationale.push(`Fallback habilitado: ${input.strategy.fallbackOrder.join(', ')}.`);

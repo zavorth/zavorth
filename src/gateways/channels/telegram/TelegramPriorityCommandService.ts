@@ -20,7 +20,7 @@ type ZavorthBridgeControlCommand = {
 } | null;
 
 /**
- * Hermes-style priority path: only explicit slash (or slash-equivalent) commands.
+ * agent-first priority path: only explicit slash (or slash-equivalent) commands.
  * Free-text natural language never steals the agent turn.
  */
 export type TelegramPriorityCommandServiceDeps = {
@@ -49,7 +49,7 @@ export class TelegramPriorityCommandService {
 
   public async handle(ctx: Context, text: string): Promise<boolean> {
     const trimmed = String(text || '').trim();
-    // Free text always belongs to the agent (Hermes-style).
+    // Free text always belongs to the agent (agent-first).
     if (!trimmed.startsWith('/')) {
       return false;
     }

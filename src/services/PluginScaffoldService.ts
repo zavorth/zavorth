@@ -143,7 +143,7 @@ export class PluginScaffoldService {
       name: id,
       version: '0.1.0',
       entry: 'index.js',
-      permissions: (manifest.permissions || []).map((permission) => permission.kind),
+      permissions: (manifest.permissions || []).map(toLegacyPluginPermissionId),
       sandbox: {
         network: (manifest.permissions || []).some((permission) => permission.kind.startsWith('network.')),
         workspaceRead: (manifest.permissions || []).some((permission) => permission.kind === 'filesystem.read'),
@@ -233,6 +233,23 @@ export class PluginScaffoldService {
       files: written,
       manifest,
     };
+  }
+}
+
+export function toLegacyPluginPermissionId(
+  permission: ZavorthPluginManifest['permissions'][number],
+): string {
+  switch (permission.kind) {
+    case 'filesystem.read':
+      return 'workspace:read';
+    case 'filesystem.write':
+      return 'workspace:write';
+    case 'process.spawn':
+      return 'shell:execute';
+    case 'network.external':
+      return 'network:http';
+    default:
+      return permission.kind;
   }
 }
 

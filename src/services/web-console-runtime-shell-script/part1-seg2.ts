@@ -94,7 +94,7 @@ export const runtimeShellScriptPart1Seg2: string = [
     "    renderOperatorCockpit();",
     "  } catch (error: unknown) {",
     "    setText(runtimeStatus, 'Indisponivel');",
-    "    setText(authStatus, 'Falha na checagem');",
+    "    setText(authStatus, 'Failed on check');",
     "",
     "    if (externalWebCopy) {",
     "      externalWebCopy.textContent = error instanceof Error ? error.message : String(error);",

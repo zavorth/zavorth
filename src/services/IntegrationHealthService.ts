@@ -48,7 +48,7 @@ export class IntegrationHealthService {
   public buildDoctorSnapshot(integrationId: string): IntegrationDoctorSnapshot {
     const manifest = this.registryService.getManifestById(integrationId);
     if (!manifest) {
-      throw new Error(`Integracao desconhecida: ${integrationId}`);
+      throw new Error(`Integraction desconhecida: ${integrationId}`);
     }
 
     const installed = this.installerService.getInstalled(manifest.id);
@@ -114,7 +114,7 @@ export class IntegrationHealthService {
     if (manifest.supportLevel === 'experimental') {
       findings.push({
         level: 'warn',
-        title: 'IntegraÃ§Ã£o experimental',
+        title: 'Integração experimental',
         detail: 'A receita existe, mas ainda nÃ£o tem maturidade de produÃ§Ã£o no Zavorth.',
       });
     }
@@ -122,7 +122,7 @@ export class IntegrationHealthService {
     if (manifest.supportLevel === 'template') {
       findings.push({
         level: 'warn',
-        title: 'Template, nÃ£o integraÃ§Ã£o pronta',
+        title: 'Template, não integração pronta',
         detail: 'Este item serve para guiar um novo conector e ainda depende de implementaÃ§Ã£o especÃ­fica.',
       });
     }
@@ -175,7 +175,7 @@ export class IntegrationHealthService {
     } else {
       findings.push({
         level: 'info',
-        title: 'Receita disponÃ­vel',
+        title: 'Receita disponível',
         detail: manifest.binding.summary,
       });
     }
@@ -231,7 +231,7 @@ export class IntegrationHealthService {
 
     if (probe?.status === 'failed') {
       return {
-        label: 'Revalidar integraÃƒÂ§ÃƒÂ£o',
+        label: 'Revalidar integração',
         command: 'usar fluxo assistido do Integration Hub',
         reason: highest?.detail || 'O binding parece configurado, mas o probe real ainda falhou.',
       };
@@ -289,7 +289,7 @@ export class IntegrationHealthService {
 
     if (!runtimeReady) {
       return {
-        label: 'Revalidar integraÃ§Ã£o',
+        label: 'Revalidar integração',
         command: `npm run integrations:doctor -- --id ${manifest.id}`,
         reason: highest?.detail || 'Ainda faltam sinais de saÃºde no runtime.',
       };

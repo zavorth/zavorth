@@ -170,7 +170,7 @@ export class DailyReportService {
       'Resumo diario do Zavorth',
       '',
       `Gerado em: ${referenceDate.toISOString()}`,
-      `Modo operador: ${this.readOperatorMode(snapshot)}`,
+      `Mothe operator: ${this.readOperatorMode(snapshot)}`,
       `Tasks ativas agora: ${activeCount}`,
       `Ultimas 24h: ${completedCount} concluidas | ${failedCount} com falha | ${approvalCount} aguardando aprovacao`,
       `Permissoes pendentes agora: ${pendingPermissions.length}`,

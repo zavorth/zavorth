@@ -274,7 +274,7 @@ export class ArtifactReplayWorkbenchService {
         ref: lifecycle.runId || lifecycle.traceId || lifecycle.id,
         payloadIncluded: false,
         redactionMode: 'summary-only',
-        reason: 'Lifecycle entra como resumo redigido e identificadores canonicos.',
+        reason: 'Lifecycle entra como resumo redigido e identificadores canonicals.',
       });
     }
     for (const mark of learningMarks.slice(0, 3)) {

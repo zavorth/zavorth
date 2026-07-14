@@ -263,6 +263,6 @@ export class OperationalSecurityService {
         : 'Token local configurado para arquivo, mas o arquivo nao foi encontrado.';
     }
 
-    return 'Sem autenticacao web efetiva detectada.';
+    return 'Sem autenticaction web efetiva detectada.';
   }
 }

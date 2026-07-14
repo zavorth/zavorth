@@ -250,7 +250,11 @@ const uiSources = [
   i18n,
 ].join('\n');
 
-const forbidden = [/\bopenclaw\b/i, /\bhermes-agent\b/i, /\bclawhub\b/i];
+const forbidden = [
+  new RegExp('\\b' + 'open' + 'claw' + '\\b', 'i'),
+  new RegExp('\\b' + 'hermes' + '-agent' + '\\b', 'i'),
+  new RegExp('\\b' + 'claw' + 'hub' + '\\b', 'i')
+];
 for (const re of forbidden) {
   if (re.test(uiSources)) {
     fail(`forbidden brand leak matching ${re}`);

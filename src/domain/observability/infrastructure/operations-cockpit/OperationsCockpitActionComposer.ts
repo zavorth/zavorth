@@ -19,7 +19,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (sidecars.some((sidecar) => sidecar.enabled && !sidecar.ready)) {
     actions.push({
       id: 'recover-sidecars',
-      label: 'Reconciliar runtime local',
+      label: 'Reconcile local runtime',
       command: 'npm run ops:maintain',
       reason: 'Existe sidecar habilitado fora do estado pronto e a reconciliacao controlada e mais segura.',
       priority: 'high',
@@ -41,7 +41,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'remote-publish',
       label: 'Publicar superficies remotas',
       command: 'npm run remote:publish:fast',
-      reason: 'Ainda nao ha publish remoto registrado.',
+      reason: 'No remote publish has been recorded yet.',
       priority: 'normal',
     });
   }
@@ -49,7 +49,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (nodeMeshSmoke?.status !== 'passed' || nodeMeshSmoke?.stale) {
     actions.push({
       id: 'validate-node-mesh-smoke',
-      label: 'Validar Node Mesh',
+      label: 'Validate Node Mesh',
       command: nodeMeshSmoke?.recommendedAction || nodeMeshSmoke?.command || 'npm run test:nodes:smoke',
       reason:
         nodeMeshSmoke?.status === 'failed'
@@ -66,7 +66,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (channelProviderDoctor?.status !== 'passed' || channelProviderDoctor?.stale) {
     actions.push({
       id: 'validate-channel-providers',
-      label: 'Validar canais nativos',
+      label: 'Validate native channels',
       command:
         channelProviderDoctor?.recommendedAction ||
         channelProviderDoctor?.command ||
@@ -84,7 +84,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (remoteTransportDoctor?.status !== 'passed' || remoteTransportDoctor?.stale) {
     actions.push({
       id: 'validate-remote-transports',
-      label: 'Validar transportes remotos',
+      label: 'Validate remote transports',
       command:
         remoteTransportDoctor?.recommendedAction ||
         remoteTransportDoctor?.command ||
@@ -102,7 +102,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (wasm?.enabled && !wasm.canRun) {
     actions.push({
       id: 'validate-wasm-smoke',
-      label: 'Validar tier Wasm',
+      label: 'Validate Wasm tier',
       command: wasm.recommendedAction || 'npm run sandbox:wasm:smoke',
       reason: wasm.detail || 'O tier Wasm ainda nao confirmou prontidao operacional neste host.',
       priority: 'high',
@@ -114,7 +114,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
       id: 'maintenance-keepalive',
       label: 'Ativar rotina de manutencao',
       command: 'ZAVORTH_MAINTENANCE_AUTOMATION_ENABLED=true',
-      reason: 'A rotina automatica de manutencao esta desativada no host atual.',
+      reason: 'The automatic maintenance routine is disabled on the current host.',
       priority: 'normal',
     });
   }
@@ -135,13 +135,13 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (localChannelNeedsAttention(whatsAppChannel)) {
     actions.push({
       id: 'prepare-whatsapp-channel',
-      label: whatsAppChannel?.mode === 'cloud-api' ? 'Validar WhatsApp Cloud API' : 'Preparar canal do WhatsApp',
+      label: whatsAppChannel?.mode === 'cloud-api' ? 'Validate WhatsApp Cloud API' : 'Prepare WhatsApp channel',
       command: '/channels prepare whatsapp',
       reason: describeLocalChannelAttention(
         whatsAppChannel,
         'WhatsApp',
         'chat(s)',
-        whatsAppChannel?.mode === 'cloud-api' ? 'runtime Cloud API/webhook' : 'bootstrap local do adapter',
+        whatsAppChannel?.mode === 'cloud-api' ? 'runtime Cloud API/webhook' : 'local adapter bootstrap',
       ),
       priority: whatsAppChannel?.lastError ? 'high' : 'normal',
     });
@@ -150,13 +150,13 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (localChannelNeedsAttention(slackChannel)) {
     actions.push({
       id: 'prepare-slack-channel',
-      label: slackChannel?.mode === 'native' ? 'Validar Slack nativo' : 'Preparar onboarding do Slack',
+      label: slackChannel?.mode === 'native' ? 'Validate native Slack' : 'Prepare Slack onboarding',
       command: '/channels prepare slack',
       reason: describeLocalChannelAttention(
         slackChannel,
         'Slack',
-        'canal(is)',
-        slackChannel?.mode === 'native' ? 'runtime nativo/webhook do Slack' : 'bootstrap local do adapter',
+        'channel(s)',
+        slackChannel?.mode === 'native' ? 'native Slack runtime/webhook' : 'local adapter bootstrap',
       ),
       priority: slackChannel?.lastError ? 'high' : 'normal',
     });
@@ -175,7 +175,7 @@ export function buildCockpitActions(operations: OperationsHealthSnapshot): Cockp
   if (!actions.length) {
     actions.push({
       id: 'maintenance-keepalive',
-      label: 'Manter o host saudavel',
+      label: 'Keep the host healthy',
       command: 'npm run ops:maintain',
       reason: 'Fluxo padrao para manter trim, backup e verificacoes em dia.',
       priority: 'normal',

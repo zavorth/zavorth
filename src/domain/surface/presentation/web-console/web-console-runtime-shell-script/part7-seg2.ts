@@ -124,7 +124,7 @@ export const runtimeShellScriptPart7Seg2: string = [
     "          const reasonMap = {",
     "            'policy-all': 'Allowlist alinhada ao catalogo declarado do node.',",
     "            'policy-safe': 'Allowlist reduzida para capabilities seguras do node.',",
-    "            'policy-clear': 'Allowlist limpa pelo operador no shell oficial.',",
+    "            'policy-clear': 'Allowlist limpa by the operator no shell oficial.',",
     "            'policy-custom': 'Allowlist ajustada manualmente no shell oficial.',",
     "          };",
     "          await postProtectedJson('/api/web/nodes/' + encodeURIComponent(targetId) + '/approved-capabilities', token, {",

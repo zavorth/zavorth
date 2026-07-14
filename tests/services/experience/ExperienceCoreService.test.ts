@@ -380,7 +380,7 @@ describe('Experience Core Layer', () => {
     expect(snapshot.responseProfile?.contractVersion).toBe('ExperienceResponseProfile/v1');
     expect(snapshot.responseProfile?.id).toBe('executive');
     expect(snapshot.daily?.pulse?.profile.id).toBe('executive');
-    expect(snapshot.daily?.pulse?.summary).toContain('perfil Executivo');
+    expect(snapshot.daily?.pulse?.summary).toContain('Response profile: Executive');
   });
 
   it('persists response profiles per user and surface', async () => {

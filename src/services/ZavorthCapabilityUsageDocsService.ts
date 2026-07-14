@@ -86,7 +86,7 @@ export class ZavorthCapabilityUsageDocsService {
       '',
       'Capabilities are the things Zavorth can use when a request needs more than a plain chat reply: tools, adapters, skills, channels, provider routes or other runtime abilities.',
       '',
-      'A capability becoming visible does not mean it can act silently. Anything that can change files, call tools, send data, activate a connector or touch external state still goes through preview, approval and receipts.',
+      'The capability becoming visible does not mean it can act silently. Anything that can change files, call tools, send data, activate a connector or touch external state still goes through preview, approval and receipts.',
       '',
       '## Where To See Capabilities',
       '',

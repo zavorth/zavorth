@@ -277,7 +277,7 @@ function buildCards(
       id: 'receipts',
       label: 'Receipts',
       status: 'ready',
-      value: 'auditavel',
+      value: 'auditable',
       detail: 'Historico de acoes, bloqueios e evidencias.',
       command: 'zavorth receipts',
     },
