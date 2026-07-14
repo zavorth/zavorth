@@ -7,7 +7,15 @@ import {
   type WorkspaceTaskKind,
   type WorkspaceTaskSubtype,
 } from '../services/WorkspaceTaskKind.js';
-import { resolveWorkspaceLlmStrategy } from '../services/WorkspaceLlmProfile.js';
+import {
+  resolveWorkspaceLlmStrategy,
+  type WorkspaceLlmStrategy,
+} from '../services/WorkspaceLlmProfile.js';
+import {
+  normalizeRoleSurface,
+  resolveLlmRoleScopeId,
+} from '../contracts/runtime/LlmRoleRoutingContract.js';
+import { LlmRoleRoutingService } from '../services/llm/LlmRoleRoutingService.js';
 import { ToolUsageTracker } from '../cognitive-firewall/ToolUsageTracker.js';
 import {
   ExecutionEscalationPolicy,
@@ -15,7 +23,6 @@ import {
   type ExecutionEscalationInput,
 } from '../runtime/agent/ExecutionEscalationPolicy.js';
 import { wrapToolOutputForLlm } from '../security/ToolOutputTrust.js';
-import { TELEGRAM_COMMAND_CATALOG } from '../gateways/channels/telegram/commandCatalog.js';
 import {
   CognitiveFirewall,
   type FirewallDecision,
@@ -24,8 +31,8 @@ import {
 
 import { ToolResultCache } from '../cognitive-firewall/ToolResultCache.js';
 import { ContextAwareInjector } from '../cognitive-firewall/ContextAwareInjector.js';
+import { toCompact } from '../cognitive-firewall/LazyToolDefinition.js';
 import type { ContextEngine } from '../context-engine/ContextEngine.js';
-import type { MessageChannel } from '../contracts/PlatformContract.js';
 import {
   createStructuredAgentRunAction,
   type AgentRunAction,
@@ -47,13 +54,43 @@ type ConversationalToolTelemetry = {
   unknownToolCalls: string[];
   toolFailures: string[];
   toolReceiptCount: number;
+  /** Tools sent with full JSON schema this turn. */
+  fullSchemaToolNames?: string[];
+  /** Tools sent as compact stubs (lazy; expandable on call). */
+  compactToolNames?: string[];
+  /** Tools upgraded from compact → full during tool rounds. */
+  expandedToolNames?: string[];
+  /** Tool results shortened before LLM re-ingest. */
+  truncatedToolResults?: number;
+  /** Cache hits for read-only tools this turn. */
+  toolCacheHits?: number;
+  /** Times older tool history was compacted mid-turn. */
+  historyCompactions?: number;
 };
+
+/** Always full-schema “brain” tools — enough for most free-text work. */
+const AGENT_BRAIN_TOOL_NAMES = [
+  'web_search',
+  'get_datetime',
+  'read_file',
+  'create_file',
+  'list_directory',
+  'query_external_ai',
+  'semantic_memory',
+  'capability_discovery',
+  'zavorth_delegate',
+  'agent_manager',
+  'zavorth_action',
+] as const;
+
+const LAZY_COMPACT_META_KEY = 'lazyCompact';
 type ConversationalResponse = {
   text?: string;
   action?: AgentRunAction;
   escalation?: ExecutionEscalationDecision;
-  llm?: { providerName: string; modelName?: string };
+  llm?: { providerName: string; modelName?: string; role?: string; roleReason?: string };
   toolTelemetry?: ConversationalToolTelemetry;
+  roleSetupHandled?: boolean;
 };
 type ConversationalMode = 'default' | 'direct';
 type ConversationalStructuredEscalation = {
@@ -76,12 +113,17 @@ type ConversationalChatOptions = {
   workspaceOperationalMemory?: Record<string, any> | null;
   userId?: string | null;
   chatId?: string | null;
-  surface?: MessageChannel | null;
+  /** Active chat surface for this turn (telegram, discord, whatsapp, desktop, cli, future ids…). */
+  surface?: string | null;
   workspaceContext?: string | null;
   requireContextEngine?: boolean;
   executionEscalation?: ConversationalStructuredEscalation | null;
   /** When false, post-turn durable learning write is skipped (e.g. non-operator Telegram). */
   allowLearningWrite?: boolean | null;
+  forceStrong?: boolean | null;
+  effortHigh?: boolean | null;
+  llmRole?: 'default' | 'strong' | 'background' | null;
+  roleScopeId?: string | null;
 };
 type ConversationalToolRuntime = {
   getToolDefinitions(): ToolDefinition[];
@@ -108,6 +150,12 @@ type ConversationalToolPolicyInput = {
 };
 const MAX_CONVERSATIONAL_TOOL_ROUNDS = 8;
 const MAX_TOOL_CALLS_PER_ROUND = 8;
+/** Soft cap for tool text sent back to the model (~3k tokens). Full result stays in cache when cacheable. */
+const MAX_TOOL_RESULT_CHARS_FOR_LLM = 12_000;
+/** Keep this many most-recent tool messages fully expanded; older ones are summarized. */
+const KEEP_RECENT_TOOL_MESSAGES = 4;
+/** After this many tool rounds, compact older tool I/O before the next LLM call. */
+const COMPACT_HISTORY_AFTER_ROUNDS = 2;
 
 export class ConversationalAgent {
   private readonly llmRuntime: LlmRuntimeService;
@@ -147,15 +195,75 @@ export class ConversationalAgent {
       throw new Error('No provider selected. Choose your default model/provider before chatting.');
     }
     const mode = options?.mode || 'default';
+    // Surface is detected from the call site; setup is asked on whatever surface the user is on.
+    const surface = normalizeRoleSurface(options?.surface);
+    const roleScopeId = String(
+      options?.roleScopeId
+      || resolveLlmRoleScopeId({ userId: options?.userId, surface }),
+    ).trim() || 'global';
+    const roleService = new LlmRoleRoutingService();
+    const isUsable = (name: string) => this.llmRuntime.isProviderAvailable(name);
+
+    // Multi-surface role setup: intercept free text only when this scope is awaiting a reply.
+    // Works on any surface that passed options.surface; skipped in unit tests unless opted in.
+    const allowRoleSetupPath =
+      process.env.NODE_ENV !== 'test'
+      || process.env.ZAVORTH_LLM_ROLE_AUTOPROMPT === '1'
+      || process.env.ZAVORTH_LLM_ROLE_SETUP_INTERCEPT === '1';
+    try {
+      if (allowRoleSetupPath) {
+        const roleCfg = roleService.getConfig(roleScopeId);
+        if (roleCfg.awaitingSetup || roleCfg.pendingConfirmation) {
+          await roleService.refreshLiveCatalog(isUsable).catch(() => 0);
+          const setupLlm = {
+            chat: async (messages: any[]) => {
+              const result = await this.llmRuntime.chatDetailed(messages as any);
+              return result.response;
+            },
+          };
+          const setup = await roleService.handleInboundSetupMessage(
+            roleScopeId,
+            userMessage,
+            setupLlm,
+            isUsable,
+          );
+          if (setup.handled && setup.reply) {
+            return {
+              text: setup.reply,
+              roleSetupHandled: true,
+              llm: {
+                providerName: primaryProvider,
+                role: 'setup',
+                roleReason: 'llm_role_setup_reply',
+              },
+            };
+          }
+        }
+      }
+    } catch {
+      // continue normal chat
+    }
+
+    const forceStrong = options?.forceStrong === true || roleService.isForceStrongActive(roleScopeId);
     const llmStrategy = resolveWorkspaceLlmStrategy(
       options?.taskKind || 'unknown',
       options?.taskSubtype || 'unknown',
       {
         configuredProviderName: primaryProvider,
-        isProviderUsable: (name) => this.llmRuntime.isProviderAvailable(name),
+        isProviderUsable: isUsable,
         workspaceMemory: options?.workspaceOperationalMemory,
+        roleScopeId,
+        forceStrong,
+        effortHigh: options?.effortHigh === true,
+        role: options?.llmRole || null,
       },
     );
+    if (llmStrategy.roleReason) {
+      logger.info(`[ConversationalAgent] ${llmStrategy.roleReason}`);
+    }
+    if (llmStrategy.role) {
+      roleService.recordRoleTurn(roleScopeId, llmStrategy.role);
+    }
 
     const allTools = this.getConversationalToolDefinitions();
     const systemInstruction = this.appendProductRuntimeContext(
@@ -169,21 +277,8 @@ export class ConversationalAgent {
       inlineData,
       options,
     );
-    // Free text does not auto-run tools. The model selects tools from the catalog.
-    const AGENT_BRAIN_TOOL_NAMES = [
-      'web_search',
-      'get_datetime',
-      'read_file',
-      'create_file',
-      'list_directory',
-      'query_external_ai',
-      'semantic_memory',
-      'capability_discovery',
-      'zavorth_delegate',
-      'agent_manager',
-      'zavorth_action',
-    ] as const;
-    const requiredToolNames = new Set<string>(AGENT_BRAIN_TOOL_NAMES);
+    // Free text does not auto-run tools. Lazy exposure: full schema for brain tools,
+    // compact stubs for the rest (expand on call). Capabilities stay discoverable.
     const firewallDecision = contextDecision
       ? null
       : this.cognitiveFirewall.evaluate(userMessage, allTools);
@@ -191,17 +286,17 @@ export class ConversationalAgent {
       contextDecision,
       firewallDecision,
     );
-    // Expose the full tool catalog (minus quarantine). Local intent never hides capabilities.
-    const conversationalTools = this.mergeToolDefinitions(
-      allTools,
-      allTools,
-      requiredToolNames,
-      new Set(toolPolicyInput.quarantinedToolNames),
+    const quarantined = new Set(toolPolicyInput.quarantinedToolNames);
+    const fullRegistry = this.buildFullToolRegistry(allTools, quarantined);
+    let activeTools = this.buildInitialLazyToolExposure(fullRegistry);
+    const catalogNames = Array.from(fullRegistry.keys()).sort();
+    const systemWithCatalog = this.appendToolCatalogBrain(
+      systemInstruction,
+      activeTools,
+      catalogNames,
     );
-    const exposedToolNames = conversationalTools.map((tool) => tool.name);
-    const systemWithCatalog = this.appendToolCatalogBrain(systemInstruction, conversationalTools);
     const messages: ChatMessage[] = contextDecision
-      ? this.injectToolCatalogIntoMessages(contextDecision.messages, conversationalTools)
+      ? this.injectToolCatalogIntoMessages(contextDecision.messages, activeTools, catalogNames)
       : [
         { role: 'system', content: systemWithCatalog },
         { role: 'user', content: userMessage, inlineData },
@@ -212,6 +307,10 @@ export class ConversationalAgent {
     const toolsCalled: string[] = [];
     const unknownToolCalls: string[] = [];
     const toolFailures: string[] = [];
+    const expandedToolNames: string[] = [];
+    let truncatedToolResults = 0;
+    let toolCacheHits = 0;
+    let historyCompactions = 0;
     let toolRounds = 0;
 
     const firewallStats = contextDecision?.firewallStats || firewallDecision?.stats;
@@ -219,33 +318,60 @@ export class ConversationalAgent {
       logger.info(firewallStats);
     }
 
+    let chatOptions = {
+      providerName: llmStrategy.providerName,
+      modelName: llmStrategy.modelName,
+      allowFallback: llmStrategy.allowFallback,
+      fallbackOrder: llmStrategy.fallbackOrder,
+    };
     let { providerName, response } = await this.llmRuntime.chatDetailed(
       messages,
-      conversationalTools.length > 0 ? conversationalTools : undefined,
-      {
-        providerName: llmStrategy.providerName,
-        modelName: llmStrategy.modelName,
-        allowFallback: llmStrategy.allowFallback,
-        fallbackOrder: llmStrategy.fallbackOrder,
-      },
-    );
+      activeTools.length > 0 ? activeTools : undefined,
+      chatOptions,
+    ).catch(async (error: unknown) => {
+      const roleRetry = this.tryStrongFallbackAfterDefaultFailure(
+        roleScopeId,
+        llmStrategy,
+        error,
+      );
+      if (!roleRetry) {
+        throw error;
+      }
+      logger.info(`[ConversationalAgent] ${roleRetry.roleReason}`);
+      chatOptions = {
+        providerName: roleRetry.providerName,
+        modelName: roleRetry.modelName,
+        allowFallback: roleRetry.allowFallback,
+        fallbackOrder: roleRetry.fallbackOrder,
+      };
+      return this.llmRuntime.chatDetailed(
+        messages,
+        activeTools.length > 0 ? activeTools : undefined,
+        chatOptions,
+      );
+    });
 
     for (let round = 0; round < MAX_CONVERSATIONAL_TOOL_ROUNDS; round += 1) {
-      if (!response.toolCalls?.length || !this.toolRuntime || conversationalTools.length === 0) {
+      if (!response.toolCalls?.length || !this.toolRuntime || fullRegistry.size === 0) {
         break;
       }
       toolRounds += 1;
 
       const toolMessages: ChatMessage[] = [];
       const rawToolResults: string[] = [];
-      const knownToolNames = new Set(conversationalTools.map((tool) => tool.name));
       for (const toolCall of response.toolCalls.slice(0, MAX_TOOL_CALLS_PER_ROUND)) {
-        if (!knownToolNames.has(toolCall.name)) {
+        const ensured = this.ensureFullToolSchema(activeTools, fullRegistry, toolCall.name);
+        activeTools = ensured.tools;
+        if (ensured.expanded) {
+          expandedToolNames.push(toolCall.name);
+        }
+
+        if (!fullRegistry.has(toolCall.name)) {
           unknownToolCalls.push(toolCall.name);
           const missing = [
-            `Tool "${toolCall.name}" is not available in this turn.`,
-            `Available tools: ${exposedToolNames.slice(0, 24).join(', ') || '(none)'}.`,
-            'Do not invent results. Suggest a visible tool, slash command, or approval path.',
+            `Tool "${toolCall.name}" is not registered.`,
+            `Discoverable tools include: ${catalogNames.slice(0, 24).join(', ') || '(none)'}.`,
+            'Use capability_discovery when unsure. Never invent results.',
           ].join(' ');
           rawToolResults.push(missing);
           toolFailures.push(toolCall.name);
@@ -262,11 +388,47 @@ export class ConversationalAgent {
         }
 
         let toolResult = '';
+        let fromCache = false;
         try {
-          const cachedResult = this.toolCache.get(toolCall.name, toolCall.arguments);
+          const argsRecord = (toolCall.arguments || {}) as Record<string, unknown>;
+          const cachedResult = this.toolCache.get(toolCall.name, argsRecord);
           if (cachedResult !== null) {
             toolResult = cachedResult;
+            fromCache = true;
+            toolCacheHits += 1;
           } else {
+            // Hot-path autonomy budget (actions / mutations) — shared store with partner missions.
+            try {
+              const { authorizeHotPathToolCall, noteHotPathToolFailure } = require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
+              const budget = await authorizeHotPathToolCall({
+                userId: options?.userId,
+                sessionId: options?.chatId || this.sessionId,
+                surface,
+                toolName: toolCall.name,
+              });
+              if (!budget.allowed) {
+                toolResult = [
+                  `Tool "${toolCall.name}" blocked by autonomy budget: ${budget.blockers.join(' ') || 'limit exceeded'}.`,
+                  'Do not invent success. Explain the limit and safer next steps.',
+                ].join(' ');
+                toolFailures.push(toolCall.name);
+                noteHotPathToolFailure(options?.chatId || this.sessionId, options?.userId, surface);
+                rawToolResults.push(toolResult);
+                toolMessages.push({
+                  role: 'tool',
+                  content: wrapToolOutputForLlm(toolCall.name, toolResult, {
+                    source: 'conversational_tool_result',
+                    tool_call_id: toolCall.id,
+                    budget_blocked: 'true',
+                  }),
+                  toolCallId: toolCall.id,
+                  toolName: toolCall.name,
+                });
+                continue;
+              }
+            } catch {
+              // Budget gate optional if module unavailable.
+            }
             const influencedByUntrustedContent = Boolean(inlineData?.length)
               || containsUntrustedContentMarker(messages)
               || containsUntrustedContentMarker(toolCall.arguments);
@@ -274,7 +436,7 @@ export class ConversationalAgent {
               ? withUntrustedInputMetadata(toolCall.arguments, 'conversation-contained-untrusted-evidence')
               : toolCall.arguments;
             toolResult = await this.toolRuntime.executeTool(toolCall.name, toolArguments);
-            this.toolCache.set(toolCall.name, toolCall.arguments, toolResult);
+            this.toolCache.set(toolCall.name, argsRecord, toolResult);
           }
         } catch (error: unknown) {
           const err = asErrorLike(error);
@@ -285,16 +447,33 @@ export class ConversationalAgent {
             'Do not invent success. Explain the failure and the next safe step.',
           ].join(' ');
           toolFailures.push(toolCall.name);
+          try {
+            const { noteHotPathToolFailure } = require('../services/AgentHotPathBudgetGate.js') as typeof import('../services/AgentHotPathBudgetGate.js');
+            noteHotPathToolFailure(options?.chatId || this.sessionId, options?.userId, surface);
+          } catch {
+            // optional
+          }
         }
-        toolsCalled.push(toolCall.name);
-        rawToolResults.push(toolResult);
+
+        // Grounding keeps fuller text; the model re-ingest path is budgeted.
         groundingEvidenceTexts.push(`${toolCall.name}:\n${toolResult}`);
+        const forLlm = this.budgetToolResultForLlm(toolCall.name, toolResult, fromCache);
+        if (forLlm.truncated) {
+          truncatedToolResults += 1;
+        }
+
+        toolsCalled.push(toolCall.name);
+        rawToolResults.push(forLlm.text);
         toolReceiptCount += 1;
         toolMessages.push({
           role: 'tool',
-          content: wrapToolOutputForLlm(toolCall.name, toolResult, {
+          content: wrapToolOutputForLlm(toolCall.name, forLlm.text, {
             source: 'conversational_tool_result',
             tool_call_id: toolCall.id,
+            ...(fromCache ? { cache: 'hit' } : {}),
+            ...(forLlm.truncated
+              ? { truncated: 'true', original_chars: String(forLlm.originalChars) }
+              : {}),
           }),
           toolCallId: toolCall.id,
           toolName: toolCall.name,
@@ -319,15 +498,17 @@ export class ConversationalAgent {
       });
       messages.push(...toolMessages);
 
+      if (toolRounds >= COMPACT_HISTORY_AFTER_ROUNDS) {
+        const compacted = this.compactOlderToolHistory(messages, KEEP_RECENT_TOOL_MESSAGES);
+        if (compacted > 0) {
+          historyCompactions += 1;
+        }
+      }
+
       const followUp = await this.llmRuntime.chatDetailed(
         messages,
-        conversationalTools.length > 0 ? conversationalTools : undefined,
-        {
-          providerName: llmStrategy.providerName,
-          modelName: llmStrategy.modelName,
-          allowFallback: llmStrategy.allowFallback,
-          fallbackOrder: llmStrategy.fallbackOrder,
-        },
+        activeTools.length > 0 ? activeTools : undefined,
+        chatOptions,
       );
       providerName = followUp.providerName;
       response = followUp.response.content
@@ -338,16 +519,28 @@ export class ConversationalAgent {
         };
     }
 
+    const fullSchemaToolNames = activeTools
+      .filter((tool) => !this.isLazyCompactTool(tool))
+      .map((tool) => tool.name);
+    const compactToolNames = activeTools
+      .filter((tool) => this.isLazyCompactTool(tool))
+      .map((tool) => tool.name);
     const toolTelemetry: ConversationalToolTelemetry = {
-      exposedToolNames,
+      exposedToolNames: catalogNames,
       toolRounds,
       toolsCalled: Array.from(new Set(toolsCalled)),
       unknownToolCalls: Array.from(new Set(unknownToolCalls)),
       toolFailures: Array.from(new Set(toolFailures)),
       toolReceiptCount,
+      fullSchemaToolNames,
+      compactToolNames,
+      expandedToolNames: Array.from(new Set(expandedToolNames)),
+      truncatedToolResults,
+      toolCacheHits,
+      historyCompactions,
     };
     logger.info(
-      `[ConversationalAgent] tools rounds=${toolRounds} called=${toolTelemetry.toolsCalled.join(',') || 'none'} exposed=${exposedToolNames.length}`,
+      `[ConversationalAgent] tools rounds=${toolRounds} called=${toolTelemetry.toolsCalled.join(',') || 'none'} exposed=${catalogNames.length} full=${fullSchemaToolNames.length} compact=${compactToolNames.length} trunc=${truncatedToolResults} cacheHits=${toolCacheHits} histCompact=${historyCompactions}`,
     );
 
     let responseText = response.content || '';
@@ -355,8 +548,8 @@ export class ConversationalAgent {
       if (toolFailures.length > 0) {
         responseText = `I could not complete this request cleanly. Tool failure(s): ${toolFailures.join(', ')}. I will not invent success.`;
       } else if (unknownToolCalls.length > 0) {
-        responseText = `I tried unavailable tool(s): ${unknownToolCalls.join(', ')}. Visible tools include: ${exposedToolNames.slice(0, 16).join(', ') || '(none)'}.`;
-      } else if (conversationalTools.length === 0) {
+        responseText = `I tried unavailable tool(s): ${unknownToolCalls.join(', ')}. Visible tools include: ${catalogNames.slice(0, 16).join(', ') || '(none)'}.`;
+      } else if (fullRegistry.size === 0) {
         responseText = 'No tools are available for this turn. Configure tools or use an explicit slash command.';
       }
     }
@@ -368,8 +561,23 @@ export class ConversationalAgent {
       evidenceTexts: groundingEvidenceTexts,
       toolReceiptCount,
     });
-    const safeResponseText = hallucinationReview.outputText;
+    let safeResponseText = hallucinationReview.outputText;
     const escalation = this.resolveExecutionEscalation(safeResponseText, mode, options);
+
+    // Surface-agnostic setup prompt: append on the surface the user is currently using.
+    try {
+      const calm = toolRounds === 0 && toolFailures.length === 0 && !escalation?.shouldEscalate && Boolean(safeResponseText);
+      const promptDecision = roleService.shouldPromptSetup(roleScopeId, isUsable, {
+        calmTurn: calm,
+        surface,
+      });
+      if (promptDecision.shouldPrompt) {
+        const prompt = roleService.buildSurfaceSetupPrompt(roleScopeId, surface, isUsable);
+        safeResponseText = `${safeResponseText || ''}${prompt}`.trim();
+      }
+    } catch {
+      // optional
+    }
 
     if (providerName !== llmStrategy.providerName) {
       logger.info(
@@ -386,6 +594,8 @@ export class ConversationalAgent {
         llm: {
           providerName,
           modelName: llmStrategy.modelName,
+          role: llmStrategy.role,
+          roleReason: llmStrategy.roleReason,
         },
         toolTelemetry,
       };
@@ -406,57 +616,262 @@ export class ConversationalAgent {
       llm: {
         providerName,
         modelName: llmStrategy.modelName,
+        role: llmStrategy.role,
+        roleReason: llmStrategy.roleReason,
       },
       toolTelemetry,
     };
   }
 
-  private appendToolCatalogBrain(systemInstruction: string, tools: ToolDefinition[]): string {
-    if (!tools.length) {
+  private appendToolCatalogBrain(
+    systemInstruction: string,
+    tools: ToolDefinition[],
+    catalogNames: string[] = [],
+  ): string {
+    if (!tools.length && catalogNames.length === 0) {
       return [
         systemInstruction,
         '',
-        '**AVAILABLE TOOLS:**',
-        '- No tools are exposed for this turn. Answer from knowledge only, or say which slash/setup is needed.',
+        '**TOOLS:**',
+        '- No tools are registered for this turn. Answer from knowledge only, or say which setup is needed.',
         '- Never invent tool results or external actions.',
       ].join('\n');
     }
-    const lines = tools.slice(0, 40).map((tool) => {
-      const desc = String(tool.description || '').replace(/\s+/g, ' ').trim().slice(0, 120);
-      return `- \`${tool.name}\`${desc ? `: ${desc}` : ''}`;
-    });
+
+    const fullNames = new Set(
+      tools.filter((tool) => !this.isLazyCompactTool(tool)).map((tool) => tool.name),
+    );
+    const coreLines = tools
+      .filter((tool) => fullNames.has(tool.name))
+      .map((tool) => {
+        const desc = String(tool.description || '').replace(/\s+/g, ' ').trim().slice(0, 100);
+        return `- \`${tool.name}\`${desc ? `: ${desc}` : ''} (full schema)`;
+      });
+    const deferred = catalogNames.filter((name) => !fullNames.has(name));
+    const deferredPreview = deferred.slice(0, 48).map((name) => `\`${name}\``).join(', ');
+
     return [
       systemInstruction,
       '',
-      '**AVAILABLE TOOLS:**',
+      '**TOOLS (lazy):**',
       '- Prefer tools over guessing for current facts, files, teams, and side effects.',
-      '- You may call tools in multiple steps: plan, act, read results, continue until done or blocked.',
-      '- If a capability is missing, say so clearly. Never fake success.',
-      '- Multi-agent work: use `zavorth_delegate` or `agent_manager` when visible.',
-      '- If unsure which tool fits, use `capability_discovery` when visible.',
+      '- Prefer **1–3 tool rounds**. Batch independent tool calls in the **same** step when possible.',
+      '- Prefer **one focused** `web_search` (or tool call) over many speculative ones.',
+      '- Never invent tool results. If output is truncated, re-call with a narrower query/path — do not invent omitted text.',
+      '- Core tools below have full parameter schemas in this turn.',
+      '- Other product tools are compact stubs or listed by name; call them when needed (schema expands on use).',
+      '- If unsure which tool fits, call `capability_discovery`.',
+      '- Multi-agent: `zavorth_delegate` / `agent_manager` when listed.',
       '',
-      ...lines,
-      tools.length > 40 ? `- …and ${tools.length - 40} more tools` : '',
+      '**Core (full schema):**',
+      ...(coreLines.length > 0 ? coreLines : ['- (none in this turn)']),
+      '',
+      deferred.length > 0
+        ? `**Also available (${deferred.length}, compact/lazy):** ${deferredPreview}${deferred.length > 48 ? ', …' : ''}`
+        : '',
     ].filter(Boolean).join('\n');
   }
 
   private injectToolCatalogIntoMessages(
     messages: ChatMessage[],
     tools: ToolDefinition[],
+    catalogNames: string[] = [],
   ): ChatMessage[] {
     if (!messages.length) {
-      return [{ role: 'system', content: this.appendToolCatalogBrain('', tools) }];
+      return [{ role: 'system', content: this.appendToolCatalogBrain('', tools, catalogNames) }];
     }
     const cloned = messages.map((entry) => ({ ...entry }));
     const firstSystem = cloned.findIndex((entry) => entry.role === 'system');
     if (firstSystem >= 0) {
       cloned[firstSystem] = {
         ...cloned[firstSystem],
-        content: this.appendToolCatalogBrain(String(cloned[firstSystem].content || ''), tools),
+        content: this.appendToolCatalogBrain(
+          String(cloned[firstSystem].content || ''),
+          tools,
+          catalogNames,
+        ),
       };
       return cloned;
     }
-    return [{ role: 'system', content: this.appendToolCatalogBrain('', tools) }, ...cloned];
+    return [
+      { role: 'system', content: this.appendToolCatalogBrain('', tools, catalogNames) },
+      ...cloned,
+    ];
+  }
+
+  private buildFullToolRegistry(
+    allTools: ToolDefinition[],
+    quarantinedToolNames: Set<string>,
+  ): Map<string, ToolDefinition> {
+    const registry = new Map<string, ToolDefinition>();
+    for (const tool of allTools || []) {
+      if (!tool?.name || quarantinedToolNames.has(tool.name)) {
+        continue;
+      }
+      registry.set(tool.name, tool);
+    }
+    return registry;
+  }
+
+  private buildInitialLazyToolExposure(
+    fullRegistry: Map<string, ToolDefinition>,
+  ): ToolDefinition[] {
+    const brain = new Set<string>(AGENT_BRAIN_TOOL_NAMES);
+    const exposed: ToolDefinition[] = [];
+    const seen = new Set<string>();
+
+    for (const name of AGENT_BRAIN_TOOL_NAMES) {
+      const full = fullRegistry.get(name);
+      if (!full || seen.has(name)) continue;
+      exposed.push(full);
+      seen.add(name);
+    }
+
+    for (const [name, full] of fullRegistry) {
+      if (seen.has(name) || brain.has(name)) continue;
+      exposed.push(this.toLazyCompactToolDefinition(full));
+      seen.add(name);
+    }
+
+    return exposed;
+  }
+
+  private toLazyCompactToolDefinition(tool: ToolDefinition): ToolDefinition {
+    const compact = toCompact(tool);
+    return {
+      name: tool.name,
+      description: compact.description || tool.name,
+      category: tool.category,
+      dangerLevel: tool.dangerLevel,
+      requiresPermission: tool.requiresPermission,
+      metadata: {
+        ...(tool.metadata || {}),
+        [LAZY_COMPACT_META_KEY]: true,
+      },
+      parameters: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
+    };
+  }
+
+  private isLazyCompactTool(tool: ToolDefinition): boolean {
+    return tool?.metadata?.[LAZY_COMPACT_META_KEY] === true;
+  }
+
+  private tryStrongFallbackAfterDefaultFailure(
+    roleScopeId: string,
+    current: WorkspaceLlmStrategy,
+    error: unknown,
+  ): WorkspaceLlmStrategy | null {
+    try {
+      const { LlmRoleRoutingService } = require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
+      const roles = new LlmRoleRoutingService().getConfig(roleScopeId);
+      if (!roles.strongOnDefaultFailure || !roles.strong) {
+        return null;
+      }
+      if (current.role === 'strong') {
+        return null;
+      }
+      const message = error instanceof Error ? error.message : String(error || '');
+      if (!/429|rate|quota|unavailable|timeout|ECONN|5\d\d/i.test(message)) {
+        return null;
+      }
+      return resolveWorkspaceLlmStrategy('unknown', 'unknown', {
+        configuredProviderName: current.providerName,
+        isProviderUsable: (name) => this.llmRuntime.isProviderAvailable(name),
+        roleScopeId,
+        defaultFailed: true,
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  private ensureFullToolSchema(
+    activeTools: ToolDefinition[],
+    fullRegistry: Map<string, ToolDefinition>,
+    toolName: string,
+  ): { tools: ToolDefinition[]; expanded: boolean } {
+    const full = fullRegistry.get(toolName);
+    if (!full) {
+      return { tools: activeTools, expanded: false };
+    }
+
+    const current = activeTools.find((tool) => tool.name === toolName);
+    if (current && !this.isLazyCompactTool(current)) {
+      return { tools: activeTools, expanded: false };
+    }
+
+    const byName = new Map(activeTools.map((tool) => [tool.name, tool]));
+    byName.set(toolName, full);
+    return { tools: Array.from(byName.values()), expanded: true };
+  }
+
+  /**
+   * Budget tool text for the next LLM turn. Full output remains in ToolResultCache when cacheable.
+   */
+  private budgetToolResultForLlm(
+    toolName: string,
+    result: string,
+    fromCache: boolean,
+  ): { text: string; truncated: boolean; originalChars: number } {
+    const original = String(result ?? '');
+    const originalChars = original.length;
+    if (originalChars <= MAX_TOOL_RESULT_CHARS_FOR_LLM) {
+      const prefix = fromCache ? `[cache hit for ${toolName}]\n` : '';
+      return { text: prefix + original, truncated: false, originalChars };
+    }
+
+    const head = original.slice(0, MAX_TOOL_RESULT_CHARS_FOR_LLM);
+    const omitted = originalChars - MAX_TOOL_RESULT_CHARS_FOR_LLM;
+    const note = [
+      '',
+      `[truncated tool output: showing ${MAX_TOOL_RESULT_CHARS_FOR_LLM} of ${originalChars} chars; ${omitted} omitted]`,
+      'If you need more, re-call the same tool with a narrower query, path, or limit — do not invent the omitted content.',
+    ].join('\n');
+    const prefix = fromCache ? `[cache hit for ${toolName}]\n` : '';
+    return { text: prefix + head + note, truncated: true, originalChars };
+  }
+
+  /**
+   * Summarize older tool messages so multi-round turns do not re-send full I/O every time.
+   * Keeps the most recent `keepRecent` tool messages intact. Mutates `messages` in place.
+   * @returns number of tool messages compacted
+   */
+  private compactOlderToolHistory(messages: ChatMessage[], keepRecent: number): number {
+    const toolIndexes: number[] = [];
+    for (let i = 0; i < messages.length; i += 1) {
+      if (messages[i]?.role === 'tool') {
+        toolIndexes.push(i);
+      }
+    }
+    if (toolIndexes.length <= keepRecent) {
+      return 0;
+    }
+
+    const toCompact = toolIndexes.slice(0, toolIndexes.length - keepRecent);
+    let compacted = 0;
+    for (const idx of toCompact) {
+      const msg = messages[idx];
+      const raw = String(msg.content || '');
+      if (raw.includes('[compacted tool history]')) {
+        continue;
+      }
+      const toolName = String(msg.toolName || 'tool');
+      const preview = raw.replace(/\s+/g, ' ').trim().slice(0, 240);
+      messages[idx] = {
+        ...msg,
+        content: [
+          `[compacted tool history] tool=${toolName} original_chars=${raw.length}`,
+          preview ? `preview: ${preview}${raw.length > 240 ? '…' : ''}` : 'preview: (empty)',
+          'Details were truncated to save context. Re-call the tool if you need the full payload again.',
+        ].join('\n'),
+      };
+      compacted += 1;
+    }
+    return compacted;
   }
 
   private appendProductRuntimeContext(
@@ -501,66 +916,31 @@ export class ConversationalAgent {
     const platform = os.platform();
     const arch = os.arch();
     const workspace = process.cwd();
-    const commandsList = TELEGRAM_COMMAND_CATALOG.map((command) => {
-      const usage = command.usage ? ` ${command.usage}` : '';
-      return `/${command.command}${usage} - ${command.description}`;
-    }).join('\n');
 
     const lines = [
-      'You are **Zavorth**, an intelligent, clear, and reliable personal assistant.',
-      'Speak like a useful product assistant, not like an internal system. Prioritize clarity, naturalness, and objectivity.',
-      'When the question is simple, answer simply. When it is technical, be technical only to the necessary level.',
-      'Your priority is to feel like a reliable and pleasant assistant, not a diagnostics panel.',
+      'You are **Zavorth**, a clear, reliable personal assistant.',
+      'Be concise. Prefer answers over internal jargon. Voice and text share the same tools.',
       '',
-      '**IDENTITY AND TONE:**',
-      '- Answer as an assistant that genuinely helps with everyday work.',
-      '- Avoid dumping architecture, executor names, risk labels, gateways, workflows, or internal jargon unless it is needed.',
-      '- Do not call the user by a name that came only from automatic audio transcription; confirm first or use neutral wording.',
-      '- Respond in English by default. Do not switch UI or product-facing language unless an explicit task requires translating user-provided content.',
-      '- Do not recite the command list unless the user is asking for help, a menu, or capabilities.',
-      '- For common questions, provide the answer first. Add extra context only if it genuinely helps.',
-      '- If the user asks what Zavorth is, describe it briefly and warmly as an intelligent assistant/orchestrator.',
-      '',
-      '**MACHINE CONTEXT:**',
-      `- Current date: ${currentDate}`,
-      `- Current workspace: ${workspace}`,
+      '**CONTEXT:**',
+      `- Date: ${currentDate}`,
+      `- Workspace: ${workspace}`,
       `- Platform: ${platform} (${arch})`,
       '',
-      '**REAL CAPABILITIES:**',
-      'You can converse, search, summarize, guide, and route tasks to specialized executors when that makes sense.',
-      'The input channel does not limit your capabilities: voice and text requests can use the same available tools.',
-      'When the user asks to list, switch, or pin an LLM provider/model, use the configure_llm_profile tool when available.',
-      'When the user asks to change Zavorth configuration, operational state, or governance, use zavorth_action when available: first action.schema.lookup, then action.preview, and action.apply only with structured approval/confirmation.',
-      'Do not invent slash commands, CLI commands, or shell commands for first-class Zavorth operations when an Action Harness action exists.',
-      'When the request depends on current, unstable, or web-verifiable information, use web_search when available; do not say you lack real-time access without trying the tool.',
-      'Use get_datetime when the answer depends on the current date/time.',
-      'Use tools because they are genuinely needed, not because of fixed keywords: common recipes can be answered from general knowledge; viral recipes, prices, current positions, news, software versions, or trends require verification.',
-      'For recommendations, comparisons, purchases, rankings, reports, sourced requests, and decisions that depend on external context, use source search/ranking instead of answering only from model memory.',
-      'For any tool result, respect the evidence: if QUALITY_GATE, errors, weak sources, conflicting results, or insufficient data appear, state the limitation and answer only the supported part.',
+      '**HOW TO WORK:**',
+      '- Use tools when facts need verification, files change, or side effects are required; not for fixed keywords.',
+      '- Prefer `web_search` for current/unstable facts; `get_datetime` for clock time; `zavorth_action` for product config (schema → preview → apply).',
+      '- Keep tool use efficient: 1–3 rounds, batch parallel reads/searches, one strong search over many weak ones.',
+      '- Respect tool evidence (QUALITY_GATE, errors, weak sources, truncation notes). Never invent success or sources.',
+      '- High-stakes topics (health, law, finance, research): search when tools allow; separate fact vs interpretation; not personalized professional advice.',
+      '- Destructive or sensitive actions need clear confirmation/approval first.',
+      '- Slash/UI commands exist for ops; do not dump command menus unless the user asks for help or capabilities.',
       buildUntrustedContentFirewallInstruction(),
       this.hallucinationMitigation.buildInstruction(),
-      'For medicine/health, law, finance, scientific research, markets, public policy, and current roles, treat the answer as evidence-sensitive: search sources when web_search is available and separate fact, interpretation, and caution.',
-      'For scientific papers, prefer results with DOI, PubMed, SciELO, arXiv, journals, universities, or publishers; provide links and do not invent metadata.',
-      'For law, prefer official sources, courts, legislation, case law, decisions, and dates; do not present the response as personalized legal advice.',
-      'For health, prefer official sources, guidelines, PubMed/clinical trials, and reviews; do not present the response as a diagnosis or individual medical guidance.',
-      'For complex requests such as reports with research, analysis, files, or charts, chain the required tools and deliver the best artifact possible.',
-      'If the user asks for subagents, delegation, or specialists, decompose the task and use available specialized tools such as web search, external AI consultation, sandboxing, and file creation, then synthesize everything into a coherent final response.',
-      'Destructive actions, credentials, purchases, third-party messages, dangerous shell commands, or sensitive desktop automation require clear confirmation or approval before execution.',
-      'If the request is everyday work, you do not need to mention executors, gateways, workflows, risk, or internal architecture.',
-      'Mention the executor used only if it genuinely helps the user understand what happened.',
-      '',
-      '**KNOWN COMMANDS (INTERNAL REFERENCE):**',
-      commandsList,
       '',
       '**RULES:**',
-      '1. Be clear and human. Avoid unnecessary jargon.',
-      '2. Do not invent news, file states, or commands.',
-      '3. If you do not know, say so directly.',
-      '4. For task status questions, answer briefly and usefully.',
-      '5. Do not turn ordinary questions into overly technical answers.',
-      '6. In research and explanations, prefer clean, organized text that is easy to show to others.',
-      '7. Avoid listing Zavorth internal details unless the user asked for them.',
-      '',
+      '1. Clear and human.',
+      '2. Do not invent news, files, or commands.',
+      '3. If you do not know, say so.',
     ];
 
     if (mode === 'direct') {
@@ -571,23 +951,18 @@ export class ConversationalAgent {
             .filter(Boolean),
         ),
       );
-      lines.push(
-        '',
-        '**DIRECT MODE:**',
-        '- Answer the user directly without delegating to the autonomous engine.',
-      );
+      lines.push('', '**DIRECT MODE:** Answer the user directly without autonomous engine delegation.');
       if (normalizedStyleHints.length > 0) {
         lines.push(
           '',
-          '**PREFERRED FORMAT FOR THIS RESPONSE:**',
+          '**PREFERRED FORMAT:**',
           ...normalizedStyleHints.map((hint) => `- ${hint}`),
         );
       }
     } else {
       lines.push(
         '',
-        '**AUTONOMOUS DELEGATION:**',
-        '- Answer the user naturally; operational routing is decided by structured policies outside the textual response.',
+        '**DEFAULT MODE:** Answer naturally; structured policies outside this text handle operational routing.',
       );
     }
 

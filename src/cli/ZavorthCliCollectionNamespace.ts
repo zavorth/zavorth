@@ -38,6 +38,7 @@ import { SkillCuratorPlaneService } from '../skills/SkillCuratorPlaneService.js'
 import { runSkills as runSkillsNamespace } from './skills/ZavorthCliSkillsNamespace.js';
 import { runPlugins as runPluginsNamespace } from './plugins/ZavorthCliPluginsNamespace.js';
 import { AgentRunService } from '../runtime/agent/AgentRunService.js';
+import { AgentUnifiedHealthService } from '../services/AgentUnifiedHealthService.js';
 import { TerminalPanel } from './presentation/TerminalPanel.js';
 import { ChannelGatewayFactory } from '../gateways/ChannelGatewayFactory.js';
 import { runCertify } from './certify/ZavorthCliCertifyNamespace.js';
@@ -596,7 +597,184 @@ export async function runHealth(root: string, args: string[]) {
     nodeModules: existsSync(path.join(root, 'node_modules')),
     receipts: existsSync(path.join(stateDir(root), 'receipts')),
   };
-  return render(args, 'Zavorth health', Object.entries(checks).map(([key, value]) => `${key}: ${value ? 'ready' : 'missing'}`), checks);
+  const workspaceId = `workspace-${createHash('sha256').update(path.resolve(root)).digest('hex').slice(0, 16)}`;
+
+  const providers: Array<{
+    id: string;
+    label: string;
+    read: () => { status: 'healthy' | 'attention' | 'critical' | 'unavailable'; summary: string; recommendedAction: string | null };
+  }> = Object.entries(checks).map(([id, ready]) => ({
+    id,
+    label: id === 'nodeModules' ? 'Dependencies' : `${id.slice(0, 1).toUpperCase()}${id.slice(1)}`,
+    read: () => ({
+      status: ready ? 'healthy' as const : 'attention' as const,
+      summary: ready ? `${id} is ready.` : `${id} is missing.`,
+      recommendedAction: ready ? null : id === 'nodeModules' ? 'Run npm install.' : 'Run zavorth setup.',
+    }),
+  }));
+
+  // Live LLM / roles / governance diagnostics (best-effort).
+  providers.push({
+    id: 'llm-providers',
+    label: 'LLM providers',
+    read: () => {
+      try {
+        const runtime = new LlmRuntimeService();
+        const names = ['gemini', 'openai', 'anthropic', 'deepseek', 'xai', 'openrouter'];
+        const usable = names.filter((name) => {
+          try {
+            return runtime.isProviderAvailable(name);
+          } catch {
+            return false;
+          }
+        });
+        if (usable.length === 0) {
+          return {
+            status: 'attention' as const,
+            summary: 'No LLM provider credentials look usable right now.',
+            recommendedAction: 'Configure at least one provider API key (e.g. GEMINI_API_KEY).',
+          };
+        }
+        return {
+          status: 'healthy' as const,
+          summary: `Usable providers: ${usable.join(', ')}.`,
+          recommendedAction: null,
+        };
+      } catch (error: unknown) {
+        return {
+          status: 'unavailable' as const,
+          summary: error instanceof Error ? error.message : 'LLM runtime unavailable.',
+          recommendedAction: 'Run zavorth doctor for provider setup.',
+        };
+      }
+    },
+  });
+
+  providers.push({
+    id: 'llm-roles',
+    label: 'LLM roles store',
+    read: () => {
+      try {
+        const { LlmRoleRoutingService } = require('../services/llm/LlmRoleRoutingService.js') as typeof import('../services/llm/LlmRoleRoutingService.js');
+        const { resolveLlmRoleScopeId } = require('../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../contracts/runtime/LlmRoleRoutingContract.js');
+        const roles = new LlmRoleRoutingService();
+        const scopeId = resolveLlmRoleScopeId({ userId: process.env.USER || process.env.USERNAME || 'cli', surface: 'cli' });
+        const cfg = roles.getConfig(scopeId);
+        const runtime = new LlmRuntimeService();
+        const healthIssues = roles.healthCheck(scopeId, (name) => runtime.isProviderAvailable(name));
+        if (healthIssues.some((issue) => issue.severity === 'error')) {
+          return {
+            status: 'critical' as const,
+            summary: healthIssues.map((issue) => issue.message).join(' | '),
+            recommendedAction: 'Run zavorth roles setup or /model setup.',
+          };
+        }
+        if (!cfg.rolesConfigured) {
+          return {
+            status: 'attention' as const,
+            summary: 'Default/strong roles are not configured yet.',
+            recommendedAction: 'Run zavorth roles setup when multiple models are available.',
+          };
+        }
+        if (healthIssues.length > 0) {
+          return {
+            status: 'attention' as const,
+            summary: healthIssues.map((issue) => issue.message).join(' | '),
+            recommendedAction: 'Review role bindings with zavorth roles status.',
+          };
+        }
+        return {
+          status: 'healthy' as const,
+          summary: `Roles configured for ${scopeId} (default=${cfg.default ? `${cfg.default.provider}/${cfg.default.model}` : 'n/a'}).`,
+          recommendedAction: null,
+        };
+      } catch (error: unknown) {
+        return {
+          status: 'unavailable' as const,
+          summary: error instanceof Error ? error.message : 'Roles store unavailable.',
+          recommendedAction: null,
+        };
+      }
+    },
+  });
+
+  providers.push({
+    id: 'channels',
+    label: 'Channel gateways',
+    read: () => {
+      try {
+        const factory = new ChannelGatewayFactory();
+        const list = typeof (factory as { listConfigured?: () => string[] }).listConfigured === 'function'
+          ? (factory as { listConfigured: () => string[] }).listConfigured()
+          : [];
+        const telegram = Boolean(String(process.env.TELEGRAM_BOT_TOKEN || '').trim());
+        const discord = Boolean(String(process.env.DISCORD_BOT_TOKEN || process.env.DISCORD_TOKEN || '').trim());
+        const configured = [
+          telegram ? 'telegram' : null,
+          discord ? 'discord' : null,
+          ...list,
+        ].filter(Boolean);
+        if (configured.length === 0) {
+          return {
+            status: 'attention' as const,
+            summary: 'No chat channel credentials detected (Telegram/Discord/…).',
+            recommendedAction: 'Configure a channel token when you want multi-surface chat.',
+          };
+        }
+        return {
+          status: 'healthy' as const,
+          summary: `Channel signals: ${Array.from(new Set(configured)).join(', ')}.`,
+          recommendedAction: null,
+        };
+      } catch {
+        return {
+          status: 'unavailable' as const,
+          summary: 'Channel gateway factory unavailable in this runtime.',
+          recommendedAction: null,
+        };
+      }
+    },
+  });
+
+  providers.push({
+    id: 'governance',
+    label: 'Agent governance',
+    read: () => {
+      try {
+        const missionGate = existsSync(path.join(root, 'src', 'services', 'AgentMissionCompletionGate.ts'))
+          || existsSync(path.join(root, 'dist', 'services', 'AgentMissionCompletionGate.js'));
+        const budget = existsSync(path.join(root, 'src', 'services', 'AgentRuntimeBudgetEnforcementService.ts'))
+          || existsSync(path.join(root, 'dist', 'services', 'AgentRuntimeBudgetEnforcementService.js'));
+        const memory = existsSync(path.join(root, 'src', 'services', 'AgentProvenanceMemoryService.ts'))
+          || existsSync(path.join(root, 'dist', 'services', 'AgentProvenanceMemoryService.js'));
+        const ready = missionGate && budget && memory;
+        return {
+          status: ready ? 'healthy' as const : 'attention' as const,
+          summary: ready
+            ? 'Mission gate, budget enforcement and provenance memory modules are present.'
+            : 'One or more governance modules are missing from this install.',
+          recommendedAction: ready ? null : 'Rebuild or restore agent governance services.',
+        };
+      } catch {
+        return {
+          status: 'unavailable' as const,
+          summary: 'Could not inspect governance modules.',
+          recommendedAction: null,
+        };
+      }
+    },
+  });
+
+  const health = await new AgentUnifiedHealthService({
+    workspaceId,
+    providers,
+  }).readSnapshot();
+  return render(
+    args,
+    'Zavorth health',
+    [health.summary, ...health.diagnostics.map((entry) => `${entry.label}: ${entry.status} | ${entry.summary}`)],
+    { ...checks, agentHealth: health },
+  );
 }
 
 export async function runHooks(root: string, args: string[]) {

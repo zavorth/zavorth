@@ -105,6 +105,42 @@ export class AgentRunCorePipeline<TBaseline> {
   }
 
   public async finalize(run: UniversalAgentRun, baseline: TBaseline): Promise<void> {
+    // Governed missions cannot end as completed without independent verification.
+    if (String(run.status || '').toLowerCase() === 'completed') {
+      try {
+        const { gateRunCompletionFromMetadata } = require('../../services/AgentMissionCompletionGate.js') as typeof import('../../services/AgentMissionCompletionGate.js');
+        const gate = gateRunCompletionFromMetadata({
+          runId: run.id,
+          proposedStatus: run.status,
+          metadata: (run.metadata || {}) as Record<string, unknown>,
+        });
+        if (gate.blocked) {
+          // Agent runs use execution statuses; map incomplete verification to failed.
+          run.status = 'failed';
+          run.summary = [
+            String(run.summary || '').trim(),
+            gate.reason,
+          ].filter(Boolean).join(' ').trim();
+          run.metadata = {
+            ...run.metadata,
+            missionVerification: gate.verification,
+            missionCompletionBlocked: true,
+            missionCompletionReason: gate.reason,
+          };
+          this.appendReceipt(run, 'mission-verification-blocked');
+        } else if (gate.verification) {
+          run.metadata = {
+            ...run.metadata,
+            missionVerification: gate.verification,
+            missionCompletionBlocked: false,
+            missionCompletionReason: gate.reason,
+          };
+        }
+      } catch {
+        // Optional gate — do not fail finalize if module missing.
+      }
+    }
+
     this.options.finishBaseline(run, baseline);
     this.appendReceipt(run, 'finalized');
     this.options.applyMetadataDiet(run);
