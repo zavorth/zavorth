@@ -41,7 +41,7 @@ function mockDeps(
   };
 }
 
-describe('Hermes-style free-text: always agent (no free-text NLU packs)', () => {
+describe('agent-first free-text: always agent (no free-text NLU packs)', () => {
   const envKeys = [
     'ZAVORTH_TELEGRAM_AGENT_FIRST',
     'ZAVORTH_SURFACE_AGENT_FIRST',
@@ -64,7 +64,7 @@ describe('Hermes-style free-text: always agent (no free-text NLU packs)', () => 
     resetSurfaceAgentFirstMetrics();
   });
 
-  it('always routes free text to the agent (Hermes-style)', () => {
+  it('always routes free text to the agent (agent-first)', () => {
     expect(isTelegramAgentFirstFreeTextEnabled()).toBe(true);
     expect(isSurfaceAgentFirstEnabled('telegram')).toBe(true);
     expect(

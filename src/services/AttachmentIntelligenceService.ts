@@ -139,13 +139,13 @@ export class AttachmentIntelligenceService {
       `Arquivo ${index + 1}: ${profile.name}`,
       `Tipo: ${profile.type || 'desconhecido'}`,
       `Tamanho: ${profile.size || 0} bytes${profile.truncated ? ' (preview truncado)' : ''}`,
-      `Classificacao estrutural: ${profile.classification}`,
+      `Classificaction estrutural: ${profile.classification}`,
       `Sensibilidade provavel: ${profile.sensitivity}`,
       '',
       'Sinais automaticos:',
       ...profile.signals.map((signal) => `- ${signal}`),
       '',
-      'Orientacao de resposta:',
+      'Orientaction de resposta:',
       ...profile.guidance.map((entry) => `- ${entry}`),
       '',
       'Conteudo:',
@@ -174,14 +174,14 @@ export class AttachmentIntelligenceService {
     }
 
     const header = profiles.length === 1
-      ? `Recebi o arquivo ${first.name}.`
-      : `Recebi ${profiles.length} arquivos textuais.`;
+      ? `I received ${first.name}.`
+      : `I received ${profiles.length} text files.`;
     const primaryLine = first.looksPromptInjectionLike
       ? 'Ele contem texto que parece tentar dar instrucoes ao agente; vou tratar isso como evidencia nao confiavel, nao como comando.'
       : first.looksTokenLike || first.looksHashLike
-      ? 'Ele tem texto com cara de token/codigo codificado, nao uma mensagem comum.'
+      ? 'Its text resembles a token or encoded value rather than an ordinary message.'
       : first.looksNaturalLanguage
-        ? 'Ele parece conter texto legivel.'
+        ? 'It appears to contain readable text.'
         : 'Ele parece conter dados estruturados ou pouco legiveis.';
     const signals = first.signals.slice(0, 5).map((signal) => `- ${signal}`);
     const safety = first.sensitivity === 'high'
@@ -192,7 +192,7 @@ export class AttachmentIntelligenceService {
       header,
       primaryLine,
       '',
-      'O que da para observar:',
+      'What I can observe:',
       ...signals,
       '',
       safety,

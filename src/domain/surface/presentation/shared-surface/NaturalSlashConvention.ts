@@ -246,17 +246,17 @@ export const NATURAL_SLASH_POLICIES: Record<string, NaturalSlashPolicy> = {
     // Keep every pack head-token here so free prompts do not swallow control verbs
     controlVerbs: [
       'status', 'help', 'summary', 'resumo',
-      'start', 'run', 'iniciar',
-      'stop', 'parar',
-      'profile', 'perfil', 'profiles', 'perfis',
-      'list', 'listar', 'sessions', 'sessoes',
-      'approvals', 'approval', 'permissoes', 'aprovacoes',
-      'approve', 'aprovar', 'reject', 'rejeitar',
+      'start', 'run',
+      'stop',
+      'profile', 'profiles',
+      'list', 'sessions',
+      'approvals', 'approval',
+      'approve', 'reject',
       'inspect', 'show', 'tail', 'logs',
-      'resume', 'retomar',
+      'resume',
       'web', 'attach',
     ],
-    multiWordControlPrefixes: ['profile ', 'perfil ', 'start ', 'run ', 'iniciar '],
+    multiWordControlPrefixes: ['profile ', 'start ', 'run '],
     freeText: {
       kind: 'custom',
       rewrite: (raw) => {

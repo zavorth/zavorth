@@ -95,7 +95,7 @@ export class ZavorthHostLiveCertificationService {
         nextStep: this.buildNextStep(entries),
       },
       narrative: {
-        headline: 'Certificacao live do host Zavorth',
+        headline: 'Certificaction live of the host Zavorth',
         operatorSummary:
           `${summary.liveReady}/${summary.total} canal(is) live-ready, ${summary.hostReady} host-ready, `
           + `${summary.contractOnly} contract-only, ${summary.stubOrPartial} stub/partial.`,

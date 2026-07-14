@@ -107,7 +107,7 @@ export class AgentRunPolicyFlows {
       id: this.service.idFactory('agent-event'),
       runId: run.id,
       kind: 'status',
-      title: 'Capability loop governado',
+      title: 'Governed capability loop',
       detail: snapshot.summary,
       status: snapshot.blockedCapabilityIds.length > 0 ? 'pending' : 'done',
       createdAt: generatedAt,

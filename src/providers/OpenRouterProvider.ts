@@ -47,7 +47,7 @@ export class OpenRouterProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openRouterModel;
 
     try {
-      logger.info(`[OpenRouter] Chamando modelo: ${modelName}`);
+      logger.info(`[OpenRouter] Calling model: ${modelName}`);
       const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
         providerName: this.name,
         tools,
@@ -83,7 +83,7 @@ export class OpenRouterProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openRouterModel;
 
     try {
-      logger.info(`[OpenRouter] Streaming modelo: ${modelName}`);
+      logger.info(`[OpenRouter] Streaming model: ${modelName}`);
       const nativeToolPayload = buildOpenAiCompatibleNativeToolPayload({
         providerName: this.name,
         tools,

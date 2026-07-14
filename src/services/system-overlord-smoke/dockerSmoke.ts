@@ -184,7 +184,7 @@ export async function runDockerSmoke(input: {
               summary: `Docker supervisionado executou ${probe.command} no container ${container}, mas nao conseguiu remover o container temporario do smoke.`,
               detail: cleanup.stderr || cleanup.stdout || null,
               error: cleanup.errorMessage || 'Falha ao remover container temporario.',
-              operatorNextStep: `Rode "docker rm -f ${container}" e revise o adapter supervisionado do Docker.`,
+              operatorNextStep: `Run "docker rm -f ${container}" e revise o adapter supervisionado do Docker.`,
             };
           }
           containerProvisionedBySmoke = false;

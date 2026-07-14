@@ -307,7 +307,7 @@ export class ZavorthSandboxControlPlaneService {
         removeContainerOrVm: true,
         ttlMs: 24 * 60 * 60 * 1000,
         notes: [
-          'Workspace temporario removido no finally.',
+          'Workspace temporary removido no finally.',
           'Container/VM/processo encerrado em timeout ou cancelamento.',
           'Artefatos precisam ser coletados explicitamente.',
         ],

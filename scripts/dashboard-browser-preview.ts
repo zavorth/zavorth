@@ -127,12 +127,12 @@ function buildPreviewHtml(defaultFixtureId: string): string {
       let text = String(value ?? "");
       const replacements = [
         ["pronto", "ready"],
-        ["atenÃƒÂ§ÃƒÂ£o", "attention"],
-        ["atenÃ§Ã£o", "attention"],
+        ["atenção", "attention"],
+        ["atenção", "attention"],
         ["bloqueado", "blocked"],
         ["aguardando approval", "waiting approval"],
         ["concluido", "completed"],
-        ["concluÃ­do", "completed"],
+        ["concluído", "completed"],
         ["pensando", "thinking"],
         ["rodando", "running"],
         ["na fila", "queued"],
@@ -142,7 +142,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["Aprovacao pendente", "Pending approval"],
         ["AprovaÃ§Ã£o pendente", "Pending approval"],
         ["Acao sensivel aguardando confirmacao.", "Sensitive action waiting for confirmation."],
-        ["AÃ§Ã£o sensÃ­vel aguardando confirmaÃ§Ã£o.", "Sensitive action waiting for confirmation."],
+        ["Ação sensível aguardando confirmação.", "Sensitive action waiting for confirmation."],
         ["Existe job aprovado aguardando worker/executor.", "An approved job is waiting for a worker/executor."],
         ["Run atual", "Current run"],
         ["Run recebida pelo runtime universal.", "Run received by the universal runtime."],
@@ -170,14 +170,14 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["Identidade padrao do ZavorthControl ao vivo.", "Default live ZavorthControl identity."],
         ["Conversa", "Conversation"],
         ["Sessoes", "Sessions"],
-        ["SessÃµes", "Sessions"],
+        ["Sessões", "Sessions"],
         ["Historico", "History"],
-        ["HistÃ³rico", "History"],
+        ["Histórico", "History"],
         ["Ferramentas", "Tools"],
         ["Configuracao", "Config"],
-        ["ConfiguraÃ§Ã£o", "Config"],
+        ["Configuração", "Config"],
         ["Sessao", "Session"],
-        ["SessÃ£o", "Session"],
+        ["Sessão", "Session"],
         ["Pedido recebido", "Request received"],
         ["Run registrada.", "Run registered."],
         ["Abrir doctor", "Open doctor"],
@@ -210,7 +210,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["A leitura ficou registrada na timeline do run.", "The read was recorded in the run timeline."],
         ["Selecionado porque o run precisa operar dentro do escopo de workspace.", "Selected because the run needs to operate within the workspace scope."],
         ["Uso baixo para a sessao.", "Low session usage."],
-        ["Uso baixo para a sessÃ£o.", "Low session usage."],
+        ["Uso baixo para a sessão.", "Low session usage."],
         ["corrija este erro", "fix this error"],
         ["compare esta pasta", "compare this folder"],
         ["gere um relatorio", "generate a report"],
@@ -266,14 +266,14 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["Render seguro: sem chamadas de rede no zavorthControl.", "Safe render: no zavorthControl network calls."],
         ["Verifique policy de render.", "Check render policy."],
         ["Revisar approval", "Review approval"],
-        ["AÃ§Ã£o sensÃ­vel aguardando vocÃª.", "Sensitive action waiting for you."],
+        ["Ação sensível aguardando você.", "Sensitive action waiting for you."],
         ["Resolver bloqueio operacional.", "Resolve operational blocker."],
         ["Revisar artifact", "Review artifact"],
-        ["Entrega pronta para revisÃ£o.", "Artifact ready for review."],
+        ["Entrega pronta para revisão.", "Artifact ready for review."],
         ["Ver status", "View status"],
         ["Runtime sem bloqueio crÃ­tico.", "Runtime has no critical blocker."],
         ["Missao atual", "Current mission"],
-        ["MissÃ£o atual", "Current mission"],
+        ["Missão atual", "Current mission"],
         ["ferramentas:", "tools:"],
         ["sem bloqueio", "no blocker"],
         ["entregas prontas", "artifacts ready"],
@@ -290,7 +290,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["Ler arquivo", "Read file"],
         ["Budget do run calculado", "Run budget calculated"],
         ["Channel local estavel para desenvolvimento.", "Stable local channel for development."],
-        ["Channel local estÃ¡vel para desenvolvimento.", "Stable local channel for development."],
+        ["Channel local estável para desenvolvimento.", "Stable local channel for development."],
         ["Gateway aceitando eventos do ZavorthControl.", "Gateway accepting ZavorthControl events."],
         ["Nenhuma aÃ§Ã£o sensÃ­vel waiting confirmaÃ§Ã£o.", "No sensitive action waiting for confirmation."],
         ["Nenhuma acao sensivel waiting confirmacao.", "No sensitive action waiting for confirmation."],
@@ -334,7 +334,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         ["Nenhuma execuÃƒÂ§ÃƒÂ£o ativa agora.", "No active execution right now."],
         ["Nenhuma execuÃ§Ã£o ativa agora.", "No active execution right now."],
         ["Peca ao Zavorth", "Ask Zavorth"],
-        ["PeÃ§a ao Zavorth", "Ask Zavorth"],
+        ["Peça ao Zavorth", "Ask Zavorth"],
         ["Enviar", "Send"],
         ["Painel", "Panel"],
         ["Canais", "Channels"],
@@ -384,7 +384,7 @@ function buildPreviewHtml(defaultFixtureId: string): string {
 
     const humanRuntimeStatus = (status) => ({
       ready: "pronto",
-      degraded: "atenÃ§Ã£o",
+      degraded: "atenção",
       blocked: "bloqueado",
       offline: "offline",
     })[status] || status || "unknown";
@@ -715,12 +715,12 @@ function buildPreviewHtml(defaultFixtureId: string): string {
     const renderMissionBrief = (vm) => {
       const run = vm.agentRun;
       const action = vm.approvals.length > 0
-        ? { label: "Revisar approval", description: "AÃ§Ã£o sensÃ­vel aguardando vocÃª." }
+        ? { label: "Revisar approval", description: "Ação sensível aguardando você." }
         : vm.runtime.blockers.length > 0
           ? { label: "Abrir doctor", description: "Resolver bloqueio operacional." }
           : vm.artifacts.length > 0
-            ? { label: "Revisar artifact", description: "Entrega pronta para revisÃ£o." }
-            : { label: "Ver status", description: "Runtime sem bloqueio crÃ­tico." };
+            ? { label: "Revisar artifact", description: "Entrega pronta para revisão." }
+            : { label: "Ver status", description: "Runtime sem bloqueio crítico." };
 
       return '<section class="bcc-mission-brief" data-status="' + escapeHtml(vm.runtime.status) + '"><div class="bcc-mission-brief__primary"><span class="bcc-card__label">Missao atual</span><h1>' + escapeHtml(run?.title || "ZavorthControl pronto") + '</h1><p>' + escapeHtml(run?.summary || vm.runtime.summary) + '</p><div class="bcc-mission-brief__badges">' + badge(humanRuntimeStatus(vm.runtime.status), toneForRuntime(vm.runtime.status)) + badge(vm.modelProfile.modelLabel) + badge("ferramentas: " + vm.toolExposure.mode, vm.toolExposure.mode === "restricted" ? "warn" : "info") + '</div></div><div class="bcc-mission-brief__metrics">' + metric("Run", run ? humanAgentStatus(run.status) : "idle", run?.updatedAt || vm.generatedAt, run?.status === "failed" ? "danger" : run?.status === "waiting_approval" ? "warn" : "ok") + metric("Approvals", String(vm.counts.approvals), vm.counts.approvals > 0 ? "aguardando voce" : "sem bloqueio", vm.counts.approvals > 0 ? "warn" : "ok") + metric("Artifacts", String(vm.counts.artifacts), vm.counts.artifacts > 0 ? "entregas prontas" : "sem artifact", vm.counts.artifacts > 0 ? "info" : "ok") + metric("Health", humanRuntimeStatus(vm.health.status), vm.health.summary, toneForRuntime(vm.health.status)) + '</div><button class="bcc-mission-brief__action" type="button"><span>' + escapeHtml(action.label) + '</span><small>' + escapeHtml(action.description) + '</small></button></section>';
     };
@@ -734,10 +734,10 @@ function buildPreviewHtml(defaultFixtureId: string): string {
         .map((check) => '<div class="bcc-health-row" data-status="' + escapeHtml(check.status) + '"><span>' + escapeHtml(check.label) + '</span><small>' + escapeHtml(check.detail || humanRuntimeStatus(check.status)) + '</small></div>')
         .join("") || '<p class="bcc-empty-note">Nenhum check detalhado foi retornado.</p>';
       const tools = vm.toolExposure.tools.slice(0, 5)
-        .map((tool) => '<span class="bcc-tool-chip" data-risk="' + escapeHtml(tool.risk) + '">' + escapeHtml(tool.label) + (tool.requiresApproval ? " Â· approval" : "") + '</span>')
+        .map((tool) => '<span class="bcc-tool-chip" data-risk="' + escapeHtml(tool.risk) + '">' + escapeHtml(tool.label) + (tool.requiresApproval ? " · approval" : "") + '</span>')
         .join("") || '<p class="bcc-empty-note">Nenhuma ferramenta exposta neste snapshot.</p>';
 
-      return '<div class="bcc-overview-stack"><section class="bcc-overview-hero" data-status="' + escapeHtml(vm.runtime.status) + '"><div><span class="bcc-card__label">Cockpit</span><h2>' + escapeHtml(run?.title || "Sem run ativa") + '</h2><p>' + escapeHtml(run?.summary || vm.runtime.summary) + '</p></div><div class="bcc-overview-hero__rail">' + badge(humanRuntimeStatus(vm.runtime.status), toneForRuntime(vm.runtime.status)) + badge(vm.adapterSource.label) + '</div></section><div class="bcc-state-grid">' + stateCard("Approval", vm.counts.approvals > 0 ? vm.counts.approvals + " pendente" : "limpo", vm.approvals[0]?.reason || "Nenhuma aÃ§Ã£o sensÃ­vel aguardando confirmaÃ§Ã£o.", vm.counts.approvals > 0 ? "warn" : "ok") + stateCard("Artifact", vm.counts.artifacts > 0 ? vm.counts.artifacts + " pronto" : "nenhum", vm.artifacts[0]?.title || "As entregas aparecem aqui quando ficarem prontas.", vm.counts.artifacts > 0 ? "info" : "ok") + stateCard("Budget", vm.budget.status, vm.budget.summary, vm.budget.status === "exceeded" ? "danger" : vm.budget.status === "attention" ? "warn" : "ok") + stateCard("Replay", vm.replay.status, vm.replay.summary, vm.replay.status === "available" ? "info" : "ok") + '</div><div class="bcc-overview-columns"><section class="bcc-card"><p class="bcc-card__label">Linha do tempo</p><h2 class="bcc-card__title">' + escapeHtml(run ? humanAgentStatus(run.status) : "Idle") + '</h2><div class="bcc-card__body"><div class="bcc-run-timeline">' + timeline + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Doctor</p><h2 class="bcc-card__title">' + escapeHtml(humanRuntimeStatus(vm.health.status)) + '</h2><div class="bcc-card__body"><div class="bcc-health-list">' + health + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Ferramentas</p><h2 class="bcc-card__title">' + escapeHtml(vm.toolExposure.summary) + '</h2><div class="bcc-card__body"><div class="bcc-tool-chip-grid">' + tools + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Release</p><h2 class="bcc-card__title">' + escapeHtml(vm.releaseStatus.version || vm.releaseStatus.channel) + '</h2><div class="bcc-card__body"><p>' + escapeHtml(vm.releaseStatus.summary) + '</p></div></section></div></div>';
+      return '<div class="bcc-overview-stack"><section class="bcc-overview-hero" data-status="' + escapeHtml(vm.runtime.status) + '"><div><span class="bcc-card__label">Cockpit</span><h2>' + escapeHtml(run?.title || "Sem run ativa") + '</h2><p>' + escapeHtml(run?.summary || vm.runtime.summary) + '</p></div><div class="bcc-overview-hero__rail">' + badge(humanRuntimeStatus(vm.runtime.status), toneForRuntime(vm.runtime.status)) + badge(vm.adapterSource.label) + '</div></section><div class="bcc-state-grid">' + stateCard("Approval", vm.counts.approvals > 0 ? vm.counts.approvals + " pendente" : "limpo", vm.approvals[0]?.reason || "Nenhuma ação sensível aguardando confirmação.", vm.counts.approvals > 0 ? "warn" : "ok") + stateCard("Artifact", vm.counts.artifacts > 0 ? vm.counts.artifacts + " pronto" : "nenhum", vm.artifacts[0]?.title || "As entregas aparecem aqui quando ficarem prontas.", vm.counts.artifacts > 0 ? "info" : "ok") + stateCard("Budget", vm.budget.status, vm.budget.summary, vm.budget.status === "exceeded" ? "danger" : vm.budget.status === "attention" ? "warn" : "ok") + stateCard("Replay", vm.replay.status, vm.replay.summary, vm.replay.status === "available" ? "info" : "ok") + '</div><div class="bcc-overview-columns"><section class="bcc-card"><p class="bcc-card__label">Linha do tempo</p><h2 class="bcc-card__title">' + escapeHtml(run ? humanAgentStatus(run.status) : "Idle") + '</h2><div class="bcc-card__body"><div class="bcc-run-timeline">' + timeline + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Doctor</p><h2 class="bcc-card__title">' + escapeHtml(humanRuntimeStatus(vm.health.status)) + '</h2><div class="bcc-card__body"><div class="bcc-health-list">' + health + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Ferramentas</p><h2 class="bcc-card__title">' + escapeHtml(vm.toolExposure.summary) + '</h2><div class="bcc-card__body"><div class="bcc-tool-chip-grid">' + tools + '</div></div></section><section class="bcc-card"><p class="bcc-card__label">Release</p><h2 class="bcc-card__title">' + escapeHtml(vm.releaseStatus.version || vm.releaseStatus.channel) + '</h2><div class="bcc-card__body"><p>' + escapeHtml(vm.releaseStatus.summary) + '</p></div></section></div></div>';
     };
 
     const renderOverviewBase = renderOverview;

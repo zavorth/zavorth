@@ -142,7 +142,7 @@ export class NodeOnboardingService {
             : 'current',
         summary: firstHeartbeat
           ? 'Node publicou heartbeat e ja aparece no mesh.'
-          : 'Aguardando heartbeat do companion pareado.',
+          : 'Waiting for heartbeat do companion pareado.',
         actionHint: firstHeartbeat ? null : 'Mantenha o companion rodando ate o status mudar para online.',
       },
       {
@@ -276,7 +276,7 @@ export class NodeOnboardingService {
       case 'online':
         return 'Node online aguardando validacao final.';
       case 'paired':
-        return 'Pairing concluido, aguardando heartbeat.';
+        return 'Pairing completed, aguardando heartbeat.';
       case 'draft':
         return 'Pairing draft pronto para bootstrap.';
       case 'blocked':

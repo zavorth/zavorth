@@ -160,10 +160,7 @@ export type TelegramCommandRoutingServiceDeps = {
   mnemosMemoryUxController?: {
     handleMnemos: (ctx: Context, args: string, userId: string) => Promise<void>;
   } | null;
-  naturalCapabilityRouter?: {
-    dispatch: (ctx: Context, effectiveText: string, userId: string) => Promise<boolean>;
-  } | null;
-  // Certification matrix: Modo Echo
+  // Certification matrix: Echo mode
   echoPreferenceStore?: {
     isEchoModeActive: (userId?: string | null) => Promise<boolean>;
     setEchoMode: (active: boolean, userId?: string | null) => Promise<any>;
@@ -200,7 +197,7 @@ export class TelegramCommandRoutingService {
     effectiveText: string,
     userId: string,
   ): Promise<boolean> {
-    // Hermes-style: free text is never intercepted by natural-capability regex packs.
+    // agent-first: free text is never intercepted by natural-capability regex packs.
     // Capability routing only applies to explicit slash commands elsewhere in this switch.
 
     switch (parsed.command_type) {

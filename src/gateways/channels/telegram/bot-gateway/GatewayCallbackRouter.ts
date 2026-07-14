@@ -64,7 +64,7 @@ export class GatewayCallbackRouter {
 
       if (data.startsWith('xcard:')) {
         if (!/^xcard:[a-z0-9:-]{1,80}$/i.test(data)) {
-          await ctx.answerCallbackQuery({ text: 'Action card invalido.' });
+          await ctx.answerCallbackQuery({ text: 'Invalid action card.' });
           return;
         }
         if (this.deps.handleExperienceActionCardCallback) {

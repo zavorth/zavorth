@@ -336,7 +336,7 @@ export class ZavorthChannelMeshService {
         if (entry.transport === 'webhook') {
           return `${entry.readiness === 'ready'
             ? 'Use /channels broadcast-test instagram e confirme o callback em /api/webhooks/instagram.'
-            : 'Complete business account, verify token, recipients permitidos e callback /api/webhooks/instagram antes do rollout.'}${suffix}`;
+            : 'Complete business account, verify token, recipients allowed e callback /api/webhooks/instagram antes do rollout.'}${suffix}`;
         }
         return `${entry.readiness === 'ready'
           ? 'Use /channels broadcast-test instagram para validar o outbox local supervisionado do Instagram.'

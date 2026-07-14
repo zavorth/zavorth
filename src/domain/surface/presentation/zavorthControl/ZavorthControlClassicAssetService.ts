@@ -22,8 +22,8 @@ export class ZavorthControlClassicAssetService {
   public render(input: ZavorthControlClassicAssetInput): string {
     const { host, port, publicBaseUrl, auditReplaySummary, auditTrailSummary } = input;
     const publicUrlBlock = publicBaseUrl
-      ? `<p class="muted" style="margin-top:0;">URL publica configurada: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
-      : '<p class="muted" style="margin-top:0;">Painel local. No URL publica configurada.</p>';
+      ? `<p class="muted" style="margin-top:0;">Public URL configured: <a href="${escapeHtml(publicBaseUrl)}" target="_blank">${escapeHtml(publicBaseUrl)}</a></p>`
+      : '<p class="muted" style="margin-top:0;">Local panel. No Public URL configured.</p>';
     const webAppBlock = '<p class="muted" style="margin-top:0;">Entrada web principal: <a href="/zavorthControl">/zavorthControl</a>. As antigas rotas /app e /classic foram removidas.</p>';
     const sidecarIntroBlock = '<div id="sidecar-links" class="card" style="margin-bottom:24px;">Carregando sidecars...</div>';
     const operationsBriefBlock = '<div id="operations-brief" class="card" style="margin-bottom:24px;">Carregando briefing do operador...</div>';

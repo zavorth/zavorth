@@ -63,7 +63,7 @@ export function buildRunArtifactReceiptReplayCliSnapshot(input: {
   run.artifacts = [
     {
       id: 'artifact-cli-replay',
-      title: 'Plano de replay auditavel',
+      title: 'Plano de replay auditable',
       kind: 'plan',
       createdAt: run.updatedAt,
       sessionId: run.sessionId,

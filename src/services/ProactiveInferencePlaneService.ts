@@ -249,7 +249,7 @@ export class ProactiveInferencePlaneService {
 Seu trabalho e sugerir apenas a proxima acao com maior valor real, e somente quando fizer sentido pedir aprovacao.
 Responda estritamente em JSON valido seguindo o schema esperado. Se nao houver uma acao forte, retorne {"suggestAction": false}.
 
---- MEMORIA HIBRIDA ---
+--- MEMORY HIBRIDA ---
 ${memoryContext || 'Sem contexto relevante recuperado.'}
 
 --- WARNINGS ---

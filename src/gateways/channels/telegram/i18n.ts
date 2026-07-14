@@ -9,7 +9,7 @@
  *   import { t } from '../../../gateways/channels/telegram/i18n.js';
  *   await ctx.reply(t('auth.access_restricted'));
  *
- * Hermes-style routing: free text goes to the agent; explicit /slash commands
+ * agent-first routing: free text goes to the agent; explicit /slash commands
  * are handled by command routers. Free-text NLU packs were removed.
  */
 

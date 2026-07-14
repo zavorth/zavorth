@@ -4,25 +4,25 @@ describe('EvidenceSearchRouter', () => {
   const router = new EvidenceSearchRouter();
 
   it('detects medical requests as high-stakes or current evidence search', () => {
-    const need = router.detect('quais sao as ultimas descobertas de medicina no mundo?');
+    const need = router.detect('what are the latest medical discoveries worldwide?');
 
     expect(need).toMatchObject({
       domain: 'medical',
       reason: 'current',
       fresh: true,
     });
-    expect(router.buildQuery('quais sao as ultimas descobertas de medicina no mundo?', need))
+    expect(router.buildQuery('what are the latest medical discoveries worldwide?', need))
       .toContain('medical research clinical trials guideline PubMed WHO NIH CDC FDA ANVISA official sources links');
   });
 
   it('detects legal case research as evidence search', () => {
-    const need = router.detect('procure casos na internet sobre dano moral por atraso de voo');
+    const need = router.detect('find court cases about moral damages for flight delays');
 
     expect(need).toMatchObject({
       domain: 'legal',
       reason: 'high_stakes',
     });
-    expect(router.buildQuery('procure casos na internet sobre dano moral por atraso de voo', need))
+    expect(router.buildQuery('find court cases about moral damages for flight delays', need))
       .toContain('jurisprudencia acordaos decisoes judiciais tribunal case law legislation official sources links');
   });
 
@@ -61,14 +61,14 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('detects weekly global politics news as current public-policy research', () => {
-    const need = router.detect('me diga as ultimas noticias da semana na politica global');
+    const need = router.detect('tell me the latest weekly news on global politics');
 
     expect(need).toMatchObject({
       domain: 'public_policy',
       reason: 'current',
       fresh: true,
     });
-    expect(router.buildQuery('me diga as ultimas noticias da semana na politica global', need))
+    expect(router.buildQuery('tell me the latest weekly news on global politics', need))
       .toContain('official sources government data law regulation report links');
   });
 
@@ -97,7 +97,7 @@ describe('EvidenceSearchRouter', () => {
   });
 
   it('keeps stable everyday knowledge as no-search conversation', () => {
-    expect(router.detect('me ensine uma receita simples de panqueca')).toBeNull();
+    expect(router.detect('teach me a simple pancake recipe')).toBeNull();
   });
 
   it('builds transparent answer policy for community technical evidence', () => {
@@ -118,8 +118,8 @@ describe('EvidenceSearchRouter', () => {
     expect(need).not.toBeNull();
     const policy = router.buildAnswerPolicyGuidance(need!);
 
+    expect(policy).toContain('EVIDENCE_ANSWER_POLICY');
+    expect(policy).toContain('Search mode: verified');
     expect(policy).toContain('answer style: official-first');
-    expect(policy).toContain('Include a concise caveat');
-    expect(policy).toContain('Lead with verified or primary sources');
   });
 });

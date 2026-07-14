@@ -340,7 +340,7 @@ export class CapabilityAutopilotPreflightApplyDryRunExecutorService {
       ),
       this.check(
         'capability-autopilot-preflight-dry-run:attempted',
-        'dry-run concluido',
+        'dry-run completed',
         executions.every((execution) =>
           execution.dryRunConfirmed &&
           execution.dryRunAttempted &&

@@ -161,7 +161,7 @@ export class BootIntegrityService {
       },
       {
         id: 'tmp-dir',
-        label: 'diretorio temporario',
+        label: 'diretorio temporary',
         kind: 'directory',
         path: this.runtimeConfig.tmpDir || path.resolve(process.cwd(), 'tmp'),
         required: true,
@@ -214,7 +214,7 @@ export class BootIntegrityService {
       },
       {
         id: 'host-identity',
-        label: 'identidade confiavel do host',
+        label: 'trusted host identity',
         kind: 'runtime-file',
         path: this.runtimeConfig.hostIdentityFile || path.join(runtimeDir, 'authorized-host.json'),
         required: false,
@@ -332,7 +332,7 @@ export class BootIntegrityService {
         spec,
         targetPath,
         spec.required ? 'fail' : 'warn',
-        `arquivo invalido ou inacessivel: ${this.errorMessage(error)}`,
+        `arquivo invalid ou inacessivel: ${this.errorMessage(error)}`,
         false,
         metadata,
       );

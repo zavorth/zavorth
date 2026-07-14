@@ -24,7 +24,7 @@ export class SkillMiningService {
       suggestions.push({
         id: 'skill-mining.repo-change-loop',
         kind: 'workflow',
-        title: 'Fluxo governado de alteracao de projeto',
+        title: 'Fluxo governado de alteraction de projeto',
         summary: 'Analisa o repo, prepara patch, revisa risco, roda testes permitidos e deixa apply sob aprovacao.',
         activationDefault: 'disabled',
       });

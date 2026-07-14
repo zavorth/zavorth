@@ -212,7 +212,7 @@ export class SatelliteTransportService {
       && envelope.type !== 'auth.response'
       && envelope.type !== 'heartbeat.ping'
     ) {
-      this.sendError(session, 'NOT_AUTHENTICATED', 'Autenticacao necessaria.', envelope.messageId);
+      this.sendError(session, 'NOT_AUTHENTICATED', 'Autenticaction necessaria.', envelope.messageId);
       return;
     }
 

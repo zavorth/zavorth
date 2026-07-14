@@ -280,7 +280,7 @@ export class MultiAgentPipelineRunner {
         title: 'Etapa bloqueada',
         summary: decision.reason,
         text: [
-          `A etapa ${stage.label} foi bloqueada antes de executar.`,
+          `Stage ${stage.label} foi bloqueada antes de executar.`,
           '',
           `Motivo: ${decision.reason}`,
         ].join('\n'),

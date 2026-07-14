@@ -1,4 +1,4 @@
-﻿# Workspace MCP Pack â€” Architecture, Sandbox & Permissions
+﻿# Workspace MCP Pack — Architecture, Sandbox & Permissions
 
 The **Workspace MCP Pack** is a specialized, local-only Model Context Protocol (MCP) server designed to run within the Zavorth Desktop application. When a user selects a local folder on their computer, Zavorth initializes a Workspace Session and starts this server, strictly containment-sandboxing the agent's operations within that root directory.
 

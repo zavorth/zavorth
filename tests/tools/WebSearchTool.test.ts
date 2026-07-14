@@ -105,12 +105,12 @@ describe('WebSearchTool', () => {
     } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'noticias das ultimas 24 horas',
+      query: 'news from the last 24 hours',
       limit: 3,
     });
 
     expect(result).toMatch(
-      /Filtro temporal: resultados publicados recentemente conforme o pedido\.|Temporal filter: results were published recently according to the request\./i,
+      /Filtro temporal:|Time filter:|Temporal filter:|results (?:were )?published recently/i,
     );
     expect(result).toContain('Fresh headline');
     expect(result).not.toContain('Old headline');
@@ -280,8 +280,8 @@ describe('WebSearchTool', () => {
         text: jest.fn().mockResolvedValue(`
           <rss><channel>
             <item>
-              <title>ONU convoca reuniao sobre conflito regional</title>
-              <link>https://www.dw.com/pt/onu-conflito-regional</link>
+              <title>UN calls meeting on regional conflict</title>
+              <link>https://www.dw.com/en/un-regional-conflict</link>
               <source url="https://www.dw.com">DW</source>
               <description>Diplomatas discutem sancoes, ajuda humanitaria e negociacoes.</description>
               <pubDate>Thu, 16 Apr 2026 09:00:00 GMT</pubDate>
@@ -298,7 +298,7 @@ describe('WebSearchTool', () => {
       } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'ultimas noticias da semana na politica global',
+      query: 'latest weekly news on global politics',
       domainProfile: 'public_policy',
       limit: 5,
     });
@@ -312,7 +312,7 @@ describe('WebSearchTool', () => {
     expect(result).toContain('World leaders meet at summit over sanctions and ceasefire plan');
     expect(result).toContain('US and China officials hold diplomacy talks');
     expect(result).toContain('NATO ministers meet as Ukraine war diplomacy intensifies');
-    expect(result).toContain('ONU convoca reuniao sobre conflito regional');
+    expect(result).toContain('UN calls meeting on regional conflict');
     expect(result).not.toContain('Film festival opens');
     expect(result).toMatch(/Diversidade de hosts: 5\/5|Host diversity: 5\/5/i);
     expect(search).not.toHaveBeenCalled();
@@ -350,7 +350,7 @@ describe('WebSearchTool', () => {
       .mockResolvedValueOnce({ ok: true, status: 200, text: jest.fn().mockResolvedValue('<rss><channel></channel></rss>') } as any);
 
     const result = await new WebSearchTool().execute({
-      query: 'ultimas noticias da semana na politica global',
+      query: 'latest weekly news on global politics',
       domainProfile: 'public_policy',
       limit: 5,
     });
@@ -380,15 +380,15 @@ describe('WebSearchTool', () => {
         text: jest.fn().mockResolvedValue(`
           <rss><channel>
             <item>
-              <title>VÍDEOS: Jornal Anhanguera 2ª Edição-TO</title>
+              <title>VIDEOS: Local evening news reel</title>
               <link>https://example.com/video</link>
-              <description>Veja os principais vídeos do jornal local.</description>
+              <description>See the main videos from the local news show.</description>
               <pubDate>Sun, 19 Apr 2026 08:30:00 GMT</pubDate>
             </item>
             <item>
-              <title>Lotofácil concurso 3665: resultado deste sábado</title>
-              <link>https://example.com/lotofacil</link>
-              <description>Resultado deste concurso.</description>
+              <title>Lottery drawing 3665: results for this Saturday</title>
+              <link>https://example.com/lottery</link>
+              <description>Results for this drawing.</description>
               <pubDate>Sun, 19 Apr 2026 09:00:00 GMT</pubDate>
             </item>
           </channel></rss>
@@ -397,7 +397,7 @@ describe('WebSearchTool', () => {
       .mockRejectedValueOnce(new Error('Bing unavailable'));
 
     const result = await new WebSearchTool().execute({
-      query: 'noticias 18 de abril de 2026',
+      query: 'news 2026-04-18',
       limit: 5,
     });
 
@@ -406,7 +406,7 @@ describe('WebSearchTool', () => {
     expect(result).toMatch(
       /Nao encontrei resultados de noticias recentes suficientes|I could not find enough recent news results|not find enough recent news/i,
     );
-    expect(result).not.toContain('Lotofácil concurso 3665');
+    expect(result).not.toContain('Lottery drawing 3665');
   });
 
   it('ranks medical primary sources and extracts page evidence', async () => {
@@ -695,7 +695,7 @@ describe('WebSearchTool', () => {
     expect(result).toMatch(/Diversidade de hosts: 2\/3|Host diversity: 2\/3/i);
     expect(result).toContain('Air fryer benchmark comparison');
     expect(result).not.toContain('Air fryer review three');
-    expect(result).toContain('Data extraida: 2026-04-18');
+    expect(result).toContain('Extracted date: 2026-04-18');
     expect(result).toContain('Hands-on testing, comparison notes');
   });
 

@@ -115,7 +115,7 @@ export class TeamsGateway implements LiveChannelBroadcastGatewayContract {
     body: Record<string, unknown>;
   }): Promise<TeamsWebhookResult> {
     if (!this.verifySecret(input.headers)) {
-      this.lastError = 'Teams webhook rejeitado por secret invalido.';
+      this.lastError = 'Teams webhook rejected due to invalid secret.';
       this.writeStatus();
       return {
         statusCode: 401,

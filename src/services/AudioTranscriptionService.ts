@@ -9,6 +9,7 @@ import {
   type VoicePreferenceService,
 } from './voice/VoicePreferenceService.js';
 import { recordVoiceMetric } from './voice/VoiceMetricsService.js';
+import { normalizeVoiceLanguage, whisperLanguageParam } from './voice/VoiceLanguage.js';
 
 export type AudioTranscriptionProvider =
   | 'gemini'
@@ -118,15 +119,18 @@ export class AudioTranscriptionService {
       return fail(`${resolved.message} ${resolved.configureHint}`);
     }
 
-    // Phase 4 — language: preference/env wins over caller unless caller is more specific
+    // Phase 4 + polish — language: preference/env wins over caller unless caller is more specific;
+    // normalize free tags (pt-BR, portuguese) → Whisper ISO + Deepgram-friendly codes.
     const prefLang = resolved.language && resolved.language !== 'auto' ? resolved.language : null;
     const callerLang = input.language && String(input.language).trim() && String(input.language) !== 'auto'
       ? String(input.language).trim()
       : null;
-    const language = callerLang || prefLang || 'auto';
+    const languageRaw = callerLang || prefLang || 'auto';
+    const languageNorm = normalizeVoiceLanguage(languageRaw);
+    const language = languageNorm.isAuto ? 'auto' : languageNorm.whisper;
     const enrichedInput: AudioTranscriptionInput = {
       ...input,
-      language: language === 'auto' ? null : language,
+      language: whisperLanguageParam(language),
     };
 
     // Phase 4 — hard timeout budget for whole cascade (not only per provider)
@@ -418,8 +422,11 @@ export class AudioTranscriptionService {
         );
         formData.append('model', input.model);
         formData.append('response_format', 'json');
-        if (input.input.language && input.input.language !== 'auto') {
-          formData.append('language', input.input.language);
+        {
+          const whisperLang = whisperLanguageParam(input.input.language);
+          if (whisperLang) {
+            formData.append('language', whisperLang);
+          }
         }
         const response = await safeFetch(input.endpoint, {
           method: 'POST',
@@ -449,7 +456,11 @@ export class AudioTranscriptionService {
       throw new Error('Deepgram is not configured.');
     }
     const model = config.deepgramTranscriptionModel;
-    const url = `https://api.deepgram.com/v1/listen?model=${encodeURIComponent(model)}&detect_language=true&smart_format=true`;
+    const langNorm = normalizeVoiceLanguage(input.language);
+    const langQuery = langNorm.isAuto || !langNorm.deepgram
+      ? 'detect_language=true'
+      : `language=${encodeURIComponent(langNorm.deepgram)}`;
+    const url = `https://api.deepgram.com/v1/listen?model=${encodeURIComponent(model)}&${langQuery}&smart_format=true`;
     const response = await safeFetch(url, {
       method: 'POST',
       headers: {

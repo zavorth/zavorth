@@ -101,7 +101,7 @@ function describeInstagram(runtime: PlatformCapabilityRuntime): CapabilityDescri
               : 'Instagram Messaging API foi escolhida como provider-alvo, mas faltam business account id, access token ou verify token.'
             : 'Instagram segue em modo local supervisionado enquanto as credenciais oficiais da Meta nao sao conectadas.',
           runtimeReady
-            ? 'Instagram runtime esta saudavel e aceita testes de outbound controlados nos recipients permitidos.'
+            ? 'Instagram runtime esta saudavel e aceita testes de outbound controlados nos recipients allowed.'
             : 'Instagram ja tem hints de runtime, mas ainda depende de policy, webhook ou bootstrap final.',
           policyReady
             ? `Rollout por recipient ativo para ${allowedRecipients.length} recipient(s) do Instagram.`
@@ -304,7 +304,7 @@ function describeWhatsApp(runtime: PlatformCapabilityRuntime): CapabilityDescrip
           runtimeReady
             ? runtimeStatus?.mode === 'cloud-api'
               ? 'WhatsApp Cloud API esta saudavel e ja pode receber webhook e enviar mensagens reais nos chats permitidos.'
-              : 'WhatsApp runtime local supervisionado esta saudavel e aceita testes de outbound controlados.'
+              : 'WhatsApp runtime supervised local esta saudavel e aceita testes de outbound controlados.'
             : 'WhatsApp ja tem hints de runtime, mas ainda depende de policy ou bootstrap final.',
           policyReady
             ? `Rollout por chat ativo para ${config.whatsappAllowedChatIds.length} chat(s) do WhatsApp.`
@@ -385,7 +385,7 @@ function describeSlack(runtime: PlatformCapabilityRuntime): CapabilityDescriptor
           runtimeReady
             ? runtimeStatus?.mode === 'native'
               ? 'Slack native outbound esta saudavel e ja pode emitir mensagens reais nos canais permitidos.'
-              : 'Slack runtime local supervisionado esta saudavel e aceita testes de outbound controlados.'
+              : 'Slack runtime supervised local esta saudavel e aceita testes de outbound controlados.'
             : 'Slack ja tem hints de runtime, mas ainda depende de policy ou bootstrap final.',
           policyReady
             ? `Rollout por canal ativo para ${config.slackAllowedChannelIds.length} canal(is) do Slack.`

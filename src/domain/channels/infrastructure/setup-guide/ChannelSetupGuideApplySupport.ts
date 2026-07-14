@@ -203,7 +203,7 @@ function buildEnvValues(
         ZAVORTH_CHANNEL_POLICY_EMAIL_ALLOWED: pickValue(values.allowedRecipients, process.env.ZAVORTH_CHANNEL_POLICY_EMAIL_ALLOWED, ''),
       };
     default:
-      throw new Error(`Canal nao suportado: ${channelId}.`);
+      throw new Error(`Unsupported channel: ${channelId}.`);
   }
 }
 
@@ -351,7 +351,7 @@ function buildApplySummary(channelId: ChannelSetupChannelId, mode: ChannelSetupM
         ? 'Email SMTP/IMAP ficou preparado como fallback operacional.'
         : 'Email local-outbox ficou preparado como fallback operacional.';
     default:
-      return 'Canal preparado.';
+      return 'Channel prepared.';
   }
 }
 
@@ -482,7 +482,7 @@ function normalizeChannelId(value: string | null | undefined): ChannelSetupChann
     case 'email':
       return normalized;
     default:
-      throw new Error(`Canal nao suportado: ${value}.`);
+      throw new Error(`Unsupported channel: ${value}.`);
   }
 }
 

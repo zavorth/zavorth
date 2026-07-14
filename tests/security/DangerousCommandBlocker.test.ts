@@ -70,7 +70,7 @@ describe('DangerousCommandBlocker', () => {
     });
 
     it('should throw Error on dangerous commands', () => {
-      expect(() => DangerousCommandBlocker.validateOrThrow('rm -rf /')).toThrow('[SECURITY] Comando bloqueado pela policy allowlist');
+      expect(() => DangerousCommandBlocker.validateOrThrow('rm -rf /')).toThrow('[SECURITY] Command blocked by allowlist policy');
     });
   });
 });

@@ -15,7 +15,7 @@ interface ModerationResult {
 }
 
 /**
- * GroupModerationService — encapsula acoes de moderacao administrativa do Telegram.
+ * GroupModerationService — encapsula acoes de moderaction administrativa do Telegram.
  * Todas as acoes sao logadas no AuditLogger para rastreabilidade.
  */
 export class GroupModerationService {

@@ -443,7 +443,7 @@ function analyzeSource(input: {
       severity: 'warning',
       sourcePath: input.relativePath,
       line: null,
-      message: 'Arquivo maior que o limite; importacao foi truncada antes do preview.',
+      message: 'Arquivo maior que o limite; importaction foi truncada antes do preview.',
     });
   }
   if (input.contentBeforeRedaction !== input.contentAfterRedaction) {

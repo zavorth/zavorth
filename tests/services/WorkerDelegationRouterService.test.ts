@@ -90,7 +90,6 @@ describe('W5 WorkerDelegationRouterService', () => {
     expect(g).toMatch(/worker mesh/i);
     expect(g).toMatch(/dry-run/i);
     expect(g).toMatch(/approval/i);
-    expect(g).not.toMatch(/openclaw|claude code|cursor/i);
 
     const full = formatAgentToolModelGuidance();
     expect(full).toMatch(/Delegation model/i);

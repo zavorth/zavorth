@@ -101,7 +101,7 @@ describe('OperationalSecurityDoctor', () => {
         expect.objectContaining({ id: 'core-security-controls', status: 'pass' }),
         expect.objectContaining({ id: 'agent-security-inventory', status: 'pass' }),
       ]));
-      expect(formatOperationalSecurityDoctorReport(report)).toContain('[zavorth-security] status: saudavel');
+      expect(formatOperationalSecurityDoctorReport(report)).toContain('[zavorth-security] status: healthy');
     });
   });
 
@@ -169,7 +169,7 @@ describe('OperationalSecurityDoctor', () => {
           expect.objectContaining({
             id: 'approval-signing-key',
             status: 'pass',
-            summary: expect.stringMatching(/sera criada automaticamente|será criada automaticamente|ready on demand|automaticamente/i),
+            summary: expect.stringMatching(/sera criada automaticamente|será criada automaticamente|will be created automatically|ready on demand|automaticamente/i),
           }),
         ]));
         expect(fs.existsSync(keyFile)).toBe(false);

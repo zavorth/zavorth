@@ -140,6 +140,14 @@ import type {
   UniversalApprovalRequest,
 } from './UniversalAgentRuntimeTypes.js';
 import { asErrorLike } from '../../utils/errorLike.js';
+import { AgentRunLifecycleSupport } from './AgentRunLifecycleSupport.js';
+import { AgentRunGovernanceSupport } from './AgentRunGovernanceSupport.js';
+import { AgentRunApprovalGovernanceSupport } from './AgentRunApprovalGovernanceSupport.js';
+import { AgentRunRuntimeEventSupport } from './AgentRunRuntimeEventSupport.js';
+import { AgentRunExecutionSupport } from './AgentRunExecutionSupport.js';
+import { normalizeText, recordOrNull } from './AgentRunValueHelpers.js';
+export { normalizeText, recordOrNull } from './AgentRunValueHelpers.js';
+
 export type { UniversalAgentLlmRuntime } from './AgentRunLlmRuntimeExecutor.js';
 export type { UniversalAgentToolRuntime } from './AgentRunEchoHandsExecutor.js';
 
@@ -239,6 +247,8 @@ export type AgentRunRuntimeEventBus = {
 export type AgentRunExecutionOptions = {
   executor?: UniversalAgentExecutor | null;
   toolRuntime?: UniversalAgentToolRuntime | null;
+  /** Optional AbortSignal (voice barge-in / client cancel) */
+  signal?: AbortSignal | null;
 };
 
 export type AgentRunSteeringInput = {
@@ -259,163 +269,157 @@ type SwarmScalePlaneRuntime = Pick<SwarmScalePlaneService, 'launch' | 'resume' |
 export type SelfModificationRuntime = Pick<SelfModificationCommandService, 'createGoalPreview'>;
 export type WatchModeRuntime = Pick<ComputerUseWatchModeService, 'startRun'>;
 
-export function normalizeText(value: unknown, fallback = ''): string {
-  const text = String(value ?? '').trim();
-  return text || fallback;
-}
-
 function defaultIdFactory(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
-}
-
 export class AgentRunService {
-  declare private applyProviderArena: Function;
-  declare private applyProviderMeshConsolidation: Function;
-  declare private applyArtifactMemory: Function;
-  declare private applyPersonalOpsAutopilot: Function;
-  declare private applyAgentTeamCompiler: Function;
-  declare private applyAskBeforeAssumptionPolicy: Function;
-  declare private applyCrossChannelContinuity: Function;
-  declare private applySelfingZavorthControl: Function;
-  declare private applyRunArtifactReceiptReplay: Function;
-  declare private applyProductizationEvidence: Function;
-  declare private applyProductEntryRuntime: Function;
-  declare private applyReleaseInstallerRollbackPath: Function;
-  declare private applyPublicSiteDocsDemoSync: Function;
-  declare private applyFeedbackTelemetryProductLoop: Function;
-  declare private applyPublicAdoptionPilotLoop: Function;
-  declare private applyIntegrationShowcasePartnerSurface: Function;
-  declare private applyReleaseAdoptionReadiness: Function;
-  declare private applyReleaseCandidatePreCanaryGate: Function;
-  declare private applyBlueprintCompletionGate: Function;
-  declare private resolveTrustSliderDecision: Function;
+  private readonly __agentRunServiceBrand = true;
+  public readonly lifecycleSupport: AgentRunLifecycleSupport;
+  public readonly governanceSupport: AgentRunGovernanceSupport;
+  public readonly approvalGovernanceSupport: AgentRunApprovalGovernanceSupport;
+  public readonly runtimeEventSupport: AgentRunRuntimeEventSupport;
+  public readonly executionSupport: AgentRunExecutionSupport;
+  declare public applyProviderArena: Function;
+  declare public applyProviderMeshConsolidation: Function;
+  declare public applyArtifactMemory: Function;
+  declare public applyPersonalOpsAutopilot: Function;
+  declare public applyAgentTeamCompiler: Function;
+  declare public applyAskBeforeAssumptionPolicy: Function;
+  declare public applyCrossChannelContinuity: Function;
+  declare public applySelfingZavorthControl: Function;
+  declare public applyRunArtifactReceiptReplay: Function;
+  declare public applyProductizationEvidence: Function;
+  declare public applyProductEntryRuntime: Function;
+  declare public applyReleaseInstallerRollbackPath: Function;
+  declare public applyPublicSiteDocsDemoSync: Function;
+  declare public applyFeedbackTelemetryProductLoop: Function;
+  declare public applyPublicAdoptionPilotLoop: Function;
+  declare public applyIntegrationShowcasePartnerSurface: Function;
+  declare public applyReleaseAdoptionReadiness: Function;
+  declare public applyReleaseCandidatePreCanaryGate: Function;
+  declare public applyBlueprintCompletionGate: Function;
+  declare public resolveTrustSliderDecision: Function;
   declare public serializeTrustSliderDecision: Function;
-  declare private resolveTrustSliderLevel: Function;
-  declare private resolveTrustSliderUserRole: Function;
-  declare private resolveBooleanFlag: Function;
-  declare private createUniversalPreviewResultIfRequested: Function;
-  declare private createCapabilityNegotiationProposalIfNeeded: Function;
-  declare private createCapabilityNegotiationBlockedResult: Function;
-  declare private createToolRehearsalProposalIfNeeded: Function;
-  declare private createToolRehearsalBlockedResult: Function;
-  declare private createSwarmEscalationProposalIfNeeded: Function;
-  declare private createSelfModificationPreviewIfNeeded: Function;
-  declare private createSelfModificationActionProposalIfNeeded: Function;
+  declare public resolveTrustSliderLevel: Function;
+  declare public resolveTrustSliderUserRole: Function;
+  declare public resolveBooleanFlag: Function;
+  declare public createUniversalPreviewResultIfRequested: Function;
+  declare public createCapabilityNegotiationProposalIfNeeded: Function;
+  declare public createCapabilityNegotiationBlockedResult: Function;
+  declare public createToolRehearsalProposalIfNeeded: Function;
+  declare public createToolRehearsalBlockedResult: Function;
+  declare public createSwarmEscalationProposalIfNeeded: Function;
+  declare public createSelfModificationPreviewIfNeeded: Function;
+  declare public createSelfModificationActionProposalIfNeeded: Function;
   declare public canExecute: Function;
   declare public shouldBypassCapabilityNegotiationForSpecializedFlow: Function;
-  declare private shouldProposeSwarmEscalation: Function;
-  declare private shouldCreateSelfModificationPreview: Function;
-  declare private shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: Function;
-  declare private hasResolvedTool: Function;
-  declare private collectResolvedToolIds: Function;
-  declare private collectNaturalCapabilityToolIds: Function;
-  declare private collectSpecializedToolIdsFromText: Function;
-  declare private serializeSelfModificationPreview: Function;
-  declare private buildSelfModificationPreviewReply: Function;
-  declare private buildUniversalPreviewReply: Function;
-  declare private buildCapabilityNegotiationReply: Function;
-  declare private buildToolRehearsalReply: Function;
-  declare private acknowledgeApprovedSelfModificationActionProposalIfNeeded: Function;
-  declare private createWatchModeVisualProposalIfNeeded: Function;
-  declare private acknowledgeApprovedWatchModeVisualProposalIfNeeded: Function;
-  declare private serializeWatchModeRun: Function;
-  declare private buildWatchModeVisualProposalReply: Function;
-  declare private resolveWatchModeVisualRequest: Function;
-  declare private resolveWatchModeTargetWindow: Function;
-  declare private isWatchModePolicyAllowlisted: Function;
-  declare private buildSelfModificationActionProposalReply: Function;
-  declare private resolveSelfModificationActionRequest: Function;
-  declare private resolveSelfModificationActionTargetId: Function;
-  declare private extractSelfModificationTargetIdFromText: Function;
-  declare private resolveSuggestedSubagents: Function;
-  declare private buildSwarmEscalationReply: Function;
-  declare private executeApprovedSwarmProposalIfNeeded: Function;
-  declare private serializeSwarmLaunchResult: Function;
-  declare private buildSwarmExecutionReply: Function;
-  declare private resolveSwarmScalePlan: Function;
-  declare private shouldUseSwarmScalePlane: Function;
-  declare private executeApprovedSwarmScaleProposal: Function;
-  declare private serializeSwarmScaleSnapshot: Function;
-  declare private buildSwarmScaleProposalReply: Function;
-  declare private buildSwarmScaleExecutionReply: Function;
+  declare public shouldProposeSwarmEscalation: Function;
+  declare public shouldCreateSelfModificationPreview: Function;
+  declare public shouldUseNaturalCapabilityDiscoveryWithoutNegotiation: Function;
+  declare public hasResolvedTool: Function;
+  declare public collectResolvedToolIds: Function;
+  declare public collectNaturalCapabilityToolIds: Function;
+  declare public serializeSelfModificationPreview: Function;
+  declare public buildSelfModificationPreviewReply: Function;
+  declare public buildUniversalPreviewReply: Function;
+  declare public buildCapabilityNegotiationReply: Function;
+  declare public buildToolRehearsalReply: Function;
+  declare public acknowledgeApprovedSelfModificationActionProposalIfNeeded: Function;
+  declare public createWatchModeVisualProposalIfNeeded: Function;
+  declare public acknowledgeApprovedWatchModeVisualProposalIfNeeded: Function;
+  declare public serializeWatchModeRun: Function;
+  declare public buildWatchModeVisualProposalReply: Function;
+  declare public resolveWatchModeVisualRequest: Function;
+  declare public resolveWatchModeTargetWindow: Function;
+  declare public isWatchModePolicyAllowlisted: Function;
+  declare public buildSelfModificationActionProposalReply: Function;
+  declare public resolveSelfModificationActionRequest: Function;
+  declare public resolveSelfModificationActionTargetId: Function;
+  declare public extractSelfModificationTargetIdFromText: Function;
+  declare public resolveSuggestedSubagents: Function;
+  declare public buildSwarmEscalationReply: Function;
+  declare public executeApprovedSwarmProposalIfNeeded: Function;
+  declare public serializeSwarmLaunchResult: Function;
+  declare public buildSwarmExecutionReply: Function;
+  declare public resolveSwarmScalePlan: Function;
+  declare public shouldUseSwarmScalePlane: Function;
+  declare public executeApprovedSwarmScaleProposal: Function;
+  declare public serializeSwarmScaleSnapshot: Function;
+  declare public buildSwarmScaleProposalReply: Function;
+  declare public buildSwarmScaleExecutionReply: Function;
 
   readonly now: () => Date;
   readonly idFactory: (prefix: string) => string;
-  private runtimeEventBus: AgentRunRuntimeEventBus | null;
-  private readonly runtimeEventBusSubscribers: AgentRunRuntimeEventBus[] = [];
-  private readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
-  private readonly evidenceWorker: AgentRunEvidenceWorker | null;
-  private readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
+  public runtimeEventBus: AgentRunRuntimeEventBus | null;
+  public readonly runtimeEventBusSubscribers: AgentRunRuntimeEventBus[] = [];
+  public readonly evidenceWorkerMode: 'inline' | 'async-heavy' | 'worker-first-heavy';
+  public readonly evidenceWorker: AgentRunEvidenceWorker | null;
+  public readonly asyncEvidenceCollectorIds: AgentRunEvidenceCollectorId[] | null;
   readonly executor: UniversalAgentExecutor | null;
   readonly llmRuntimeExecutor: AgentRunLlmRuntimeExecutor;
   readonly steeringStream: AgentRunSteeringStream;
-  private readonly onRunCreated: ((run: UniversalAgentRun, request: UniversalAgentRequest) => void) | null;
-  private readonly onRunCompleted: ((run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string) => void) | null;
-  private readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
-  private readonly executorBoundary: AgentRunExecutorBoundary;
-  private readonly swarmHierarchyService: SwarmHierarchyRuntime | null;
-  private readonly swarmScalePlaneService: SwarmScalePlaneRuntime | null;
-  private selfModificationService: SelfModificationRuntime | null;
-  private watchModeService: WatchModeRuntime | null;
-  private readonly toolRuntime: UniversalAgentToolRuntime | null;
-  private readonly echoHandsExecutor: AgentRunEchoHandsExecutor;
-  private readonly toolPolicy: ToolExposurePolicy;
-  private readonly runBudgetPolicy: RunBudgetPolicy;
-  private readonly policyKernel: AgentRunPolicyKernel;
-  private readonly failureResultBuilder: AgentRunFailureResultBuilder;
+  public readonly onRunCreated: ((run: UniversalAgentRun, request: UniversalAgentRequest) => void) | null;
+  public readonly onRunCompleted: ((run: UniversalAgentRun, request: UniversalAgentRequest, replyText: string) => void) | null;
+  public readonly corePipeline: AgentRunCorePipeline<CoreDietBaselineDraft>;
+  public readonly executorBoundary: AgentRunExecutorBoundary;
+  public readonly swarmHierarchyService: SwarmHierarchyRuntime | null;
+  public readonly swarmScalePlaneService: SwarmScalePlaneRuntime | null;
+  public selfModificationService: SelfModificationRuntime | null;
+  public watchModeService: WatchModeRuntime | null;
+  public readonly toolRuntime: UniversalAgentToolRuntime | null;
+  public readonly echoHandsExecutor: AgentRunEchoHandsExecutor;
+  public readonly toolPolicy: ToolExposurePolicy;
+  public readonly runBudgetPolicy: RunBudgetPolicy;
+  public readonly policyKernel: AgentRunPolicyKernel;
+  public readonly failureResultBuilder: AgentRunFailureResultBuilder;
   readonly intelligenceFabricCanary: AgentRunIntelligenceFabricCanary;
-  private readonly executionEscalationPolicy: ExecutionEscalationPolicy;
+  public readonly executionEscalationPolicy: ExecutionEscalationPolicy;
   readonly replyPipeline: ReplyPipeline;
   readonly evidencePipeline: AgentRunEvidencePipeline;
-  private readonly evidenceStore: AgentRunEvidenceStore;
-  private readonly canonicalContextService: AgentRunCanonicalContextService;
-  private readonly runFactory: AgentRunFactory;
+  public readonly evidenceStore: AgentRunEvidenceStore;
+  public readonly canonicalContextService: AgentRunCanonicalContextService;
+  public readonly runFactory: AgentRunFactory;
   readonly riskHooks: AgentRunRiskHooks;
   readonly auditHooks: AgentRunAuditHooks;
-  private readonly trustSliderPolicy: TrustSliderPolicyService;
+  public readonly trustSliderPolicy: TrustSliderPolicyService;
   readonly capabilityLoopGovernance: CapabilityLoopGovernanceService;
   readonly safetyNarrative: SafetyNarrativeService;
   readonly memoryWithReceipts: MemoryWithReceiptsService;
   readonly capabilityNegotiation: CapabilityNegotiationService;
   readonly toolRehearsal: ToolRehearsalService;
-  private readonly selfingZavorthControl: SelfingZavorthControlService;
-  private readonly artifactMemory: ArtifactMemoryService;
-  private readonly personalOpsAutopilot: PersonalOpsAutopilotService;
-  private readonly agentTeamCompiler: AgentTeamCompilerService;
-  private readonly crossChannelContinuity: CrossChannelContinuityService;
-  private readonly askBeforeAssumptionPolicy: AskBeforeAssumptionPolicyService;
-  private readonly providerMeshConsolidation: ProviderMeshConsolidationService;
+  public readonly selfingZavorthControl: SelfingZavorthControlService;
+  public readonly artifactMemory: ArtifactMemoryService;
+  public readonly personalOpsAutopilot: PersonalOpsAutopilotService;
+  public readonly agentTeamCompiler: AgentTeamCompilerService;
+  public readonly crossChannelContinuity: CrossChannelContinuityService;
+  public readonly askBeforeAssumptionPolicy: AskBeforeAssumptionPolicyService;
+  public readonly providerMeshConsolidation: ProviderMeshConsolidationService;
   readonly universalIntentTrustEnforcement: UniversalIntentTrustEnforcementService;
-  private readonly runArtifactReceiptReplay: RunArtifactReceiptReplayService;
-  private readonly productizationEvidence: ProductizationEvidenceService;
-  private readonly productEntryRuntime: ProductEntryRuntimeService;
-  private readonly releaseInstallerRollbackPath: ReleaseInstallerRollbackPathService;
-  private readonly publicSiteDocsDemoSync: PublicSiteDocsDemoSyncService;
-  private readonly feedbackTelemetryProductLoop: FeedbackTelemetryProductLoopService;
-  private readonly publicAdoptionPilotLoop: PublicAdoptionPilotLoopService;
-  private readonly integrationShowcasePartnerSurface: IntegrationShowcasePartnerSurfaceService;
-  private readonly releaseAdoptionReadiness: ReleaseAdoptionReadinessService;
-  private readonly releaseCandidatePreCanaryGate: ReleaseCandidatePreCanaryGateService;
-  private readonly blueprintCompletionGate: BlueprintCompletionGateService;
-  private readonly providerArena: ProviderArenaService;
+  public readonly runArtifactReceiptReplay: RunArtifactReceiptReplayService;
+  public readonly productizationEvidence: ProductizationEvidenceService;
+  public readonly productEntryRuntime: ProductEntryRuntimeService;
+  public readonly releaseInstallerRollbackPath: ReleaseInstallerRollbackPathService;
+  public readonly publicSiteDocsDemoSync: PublicSiteDocsDemoSyncService;
+  public readonly feedbackTelemetryProductLoop: FeedbackTelemetryProductLoopService;
+  public readonly publicAdoptionPilotLoop: PublicAdoptionPilotLoopService;
+  public readonly integrationShowcasePartnerSurface: IntegrationShowcasePartnerSurfaceService;
+  public readonly releaseAdoptionReadiness: ReleaseAdoptionReadinessService;
+  public readonly releaseCandidatePreCanaryGate: ReleaseCandidatePreCanaryGateService;
+  public readonly blueprintCompletionGate: BlueprintCompletionGateService;
+  public readonly providerArena: ProviderArenaService;
   readonly skillMcpQuarantine: SkillMcpQuarantineService;
   readonly autoSkillInvocation: Pick<AgentRunAutomaticSkillInvocationService, 'apply'> | null;
   readonly llmBrain: Pick<ZavorthLlmBrainService, 'buildRunSnapshot'>;
-  private readonly skillPromotionGate: Pick<
+  public readonly skillPromotionGate: Pick<
     SkillPromotionGate,
     'materializeCandidate' | 'dryPreviewFromIntent' | 'preview' | 'apply' | 'reject'
   > | null;
-  private readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
-  private readonly modelPickerContractService: AgentRunModelPickerContractService | null;
-  private readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
-  private readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
-  private readonly metadataEvidenceHelpers = new AgentRunMetadataEvidenceHelpers();
+  public readonly nativeAutonomySpine: Pick<ZavorthNativeAutonomySpineService, 'buildSnapshot'> | null;
+  public readonly modelPickerContractService: AgentRunModelPickerContractService | null;
+  public readonly naturalFirstApprovalSafety: NaturalFirstApprovalSafetyService;
+  public readonly naturalFirstMemoryContinuity: NaturalFirstMemoryContinuityService;
+  public readonly metadataEvidenceHelpers = new AgentRunMetadataEvidenceHelpers();
   readonly appliedEvidenceSnapshotChains = new WeakSet<UniversalAgentRun>();
 
   constructor(runtime: AgentRunServiceRuntime = {}) {
@@ -599,95 +603,38 @@ export class AgentRunService {
     this.evidencePipeline = this.createEvidencePipeline();
     this.policyKernel = this.createPolicyKernel();
     this.corePipeline = this.createCorePipeline();
+    this.lifecycleSupport = new AgentRunLifecycleSupport(this);
+    this.governanceSupport = new AgentRunGovernanceSupport(this);
+    this.approvalGovernanceSupport = new AgentRunApprovalGovernanceSupport(this);
+    this.runtimeEventSupport = new AgentRunRuntimeEventSupport(this);
+    this.executionSupport = new AgentRunExecutionSupport(this);
   }
 
   public attachSelfModificationService(service: SelfModificationRuntime | null | undefined): void {
-    this.selfModificationService = service || null;
+    return this.lifecycleSupport.attachSelfModificationService(service);
   }
 
   public attachWatchModeService(service: WatchModeRuntime | null | undefined): void {
-    this.watchModeService = service || null;
+    return this.lifecycleSupport.attachWatchModeService(service);
   }
 
   public attachRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
-    this.runtimeEventBus = service || null;
+    return this.lifecycleSupport.attachRuntimeEventBus(service);
   }
 
   public addRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
-    if (!service || this.runtimeEventBusSubscribers.includes(service)) {
-      return;
-    }
-    this.runtimeEventBusSubscribers.push(service);
+    return this.lifecycleSupport.addRuntimeEventBus(service);
   }
 
   public removeRuntimeEventBus(service: AgentRunRuntimeEventBus | null | undefined): void {
-    if (!service) {
-      return;
-    }
-    const index = this.runtimeEventBusSubscribers.indexOf(service);
-    if (index >= 0) {
-      this.runtimeEventBusSubscribers.splice(index, 1);
-    }
+    return this.lifecycleSupport.removeRuntimeEventBus(service);
   }
 
   public recordSteering(
     run: UniversalAgentRun,
     input: AgentRunSteeringInput,
   ): UniversalAgentSteeringEntry {
-    const text = normalizeText(input.text);
-    if (!text) {
-      throw new Error('Steering requires text.');
-    }
-    const now = this.now().toISOString();
-    const backoffMs = Math.max(0, Number(input.backoffMs || 0));
-    const maxAttempts = Math.max(1, Number(input.maxAttempts || 1));
-    const entry: UniversalAgentSteeringEntry = {
-      id: this.idFactory('agent-steer'),
-      runId: run.id,
-      sessionId: normalizeText(input.sessionId, run.sessionId),
-      text,
-      source: normalizeText(input.source, 'operator-steering'),
-      status: 'accepted',
-      createdAt: now,
-      updatedAt: now,
-      ackId: this.idFactory('steering-ack'),
-      queueItemId: normalizeText(input.queueItemId) || null,
-      replaceTargetId: normalizeText(input.replaceTargetId) || null,
-      replacedById: null,
-      cancelledAt: null,
-      cancelReason: null,
-      attempts: 0,
-      maxAttempts,
-      backoffMs,
-      nextRetryAt: backoffMs > 0 ? new Date(Date.parse(now) + backoffMs).toISOString() : null,
-      metadata: {
-        ...(input.metadata || {}),
-        nativeAgentRunSteering: true,
-      },
-    };
-    run.steering = [...(run.steering || []), entry];
-    run.updatedAt = now;
-    run.events.push({
-      id: `${entry.id}:accepted`,
-      runId: run.id,
-      kind: 'steering',
-      title: 'Steering accepted',
-      detail: text,
-      status: 'done',
-      createdAt: now,
-      metadata: {
-        steeringId: entry.id,
-        ackId: entry.ackId,
-        queueItemId: entry.queueItemId || null,
-        replaceTargetId: entry.replaceTargetId || null,
-        backoffMs,
-        maxAttempts,
-        nativeAgentRunSteering: true,
-      },
-    });
-    this.syncRunSteeringMetadata(run);
-    this.publishSteeringFrame(run, entry, 'accepted');
-    return entry;
+    return this.lifecycleSupport.recordSteering(run, input);
   }
 
   public cancelSteering(
@@ -696,37 +643,7 @@ export class AgentRunService {
     reason = 'Cancelled by operator.',
     metadata: Record<string, unknown> | null = null,
   ): UniversalAgentSteeringEntry | null {
-    const target = this.findSteeringEntry(run, steeringId);
-    if (!target || target.status === 'cancelled') {
-      return target || null;
-    }
-    const now = this.now().toISOString();
-    target.status = 'cancelled';
-    target.cancelledAt = now;
-    target.cancelReason = normalizeText(reason, 'Cancelled by operator.');
-    target.updatedAt = now;
-    target.metadata = {
-      ...(target.metadata || {}),
-      ...(metadata || {}),
-    };
-    run.updatedAt = now;
-    run.events.push({
-      id: `${target.id}:cancelled`,
-      runId: run.id,
-      kind: 'steering',
-      title: 'Steering cancelled',
-      detail: target.cancelReason,
-      status: 'done',
-      createdAt: now,
-      metadata: {
-        steeringId: target.id,
-        ackId: target.ackId,
-        nativeAgentRunSteering: true,
-      },
-    });
-    this.syncRunSteeringMetadata(run);
-    this.publishSteeringFrame(run, target, 'cancelled');
-    return target;
+    return this.lifecycleSupport.cancelSteering(run, steeringId, reason, metadata);
   }
 
   public replaceSteering(
@@ -734,36 +651,7 @@ export class AgentRunService {
     steeringId: string,
     input: AgentRunSteeringInput,
   ): UniversalAgentSteeringEntry | null {
-    const target = this.findSteeringEntry(run, steeringId);
-    if (!target || target.status === 'cancelled') {
-      return null;
-    }
-    const now = this.now().toISOString();
-    target.status = 'superseded';
-    target.updatedAt = now;
-    run.events.push({
-      id: `${target.id}:superseded`,
-      runId: run.id,
-      kind: 'steering',
-      title: 'Steering superseded',
-      detail: target.text,
-      status: 'done',
-      createdAt: now,
-      metadata: {
-        steeringId: target.id,
-        ackId: target.ackId,
-        nativeAgentRunSteering: true,
-      },
-    });
-    const replacement = this.recordSteering(run, {
-      ...input,
-      replaceTargetId: target.id,
-    });
-    target.replacedById = replacement.id;
-    target.updatedAt = replacement.createdAt;
-    this.syncRunSteeringMetadata(run);
-    this.publishSteeringFrame(run, target, 'superseded');
-    return replacement;
+    return this.lifecycleSupport.replaceSteering(run, steeringId, input);
   }
 
   public recordLifecycleDefenseReview(
@@ -771,66 +659,40 @@ export class AgentRunService {
     phase: AgentRunRiskReviewStage,
     now: string = this.now().toISOString(),
   ): void {
-    this.applyDefenseReview(run, phase, run.metadata, now);
-    run.updatedAt = now;
+    return this.lifecycleSupport.recordLifecycleDefenseReview(run, phase, now);
   }
 
   public readEvidenceSnapshot(
     run: UniversalAgentRun,
     keyOrRefId: string,
   ): Record<string, unknown> | null {
-    return this.evidenceStore.get(run, keyOrRefId)
-      || this.evidenceStore.getByRef(run, keyOrRefId);
+    return this.lifecycleSupport.readEvidenceSnapshot(run, keyOrRefId);
   }
 
   public snapshotEvidenceRefs(run: UniversalAgentRun) {
-    return this.evidenceStore.snapshot(run);
+    return this.lifecycleSupport.snapshotEvidenceRefs(run);
   }
 
-  private findSteeringEntry(
+  public findSteeringEntry(
     run: UniversalAgentRun,
     steeringId: string,
   ): UniversalAgentSteeringEntry | null {
-    const id = normalizeText(steeringId);
-    if (!id) return null;
-    return (run.steering || []).find((entry) => entry.id === id || entry.id.startsWith(id)) || null;
+    return this.lifecycleSupport.findSteeringEntry(run, steeringId);
   }
 
-  private syncRunSteeringMetadata(run: UniversalAgentRun): void {
-    const entries = (run.steering || []).slice(-50);
-    const active = entries.filter((entry) => entry.status === 'accepted' || entry.status === 'applied');
-    run.metadata = {
-      ...run.metadata,
-      agentRunSteering: {
-        schemaVersion: 1,
-        source: 'AgentRunService',
-        total: entries.length,
-        active: active.length,
-        latestAckId: entries.at(-1)?.ackId || null,
-        entries,
-      },
-    };
+  public syncRunSteeringMetadata(run: UniversalAgentRun): void {
+    return this.lifecycleSupport.syncRunSteeringMetadata(run);
   }
 
-  private publishSteeringFrame(
+  public publishSteeringFrame(
     run: UniversalAgentRun,
     entry: UniversalAgentSteeringEntry,
     action: AgentRunSteeringStreamAction,
   ): void {
-    const frame = this.steeringStream.publish(run.id, entry, action);
-    run.metadata = {
-      ...run.metadata,
-      agentRunSteeringStream: {
-        schemaVersion: 1,
-        source: 'AgentRunSteeringStream',
-        lastSequence: frame.sequence,
-        lastAction: frame.action,
-        lastAckId: frame.ackId,
-      },
-    };
+    return this.lifecycleSupport.publishSteeringFrame(run, entry, action);
   }
 
-  private createPolicyKernel(): AgentRunPolicyKernel {
+  public createPolicyKernel(): AgentRunPolicyKernel {
     return new AgentRunPolicyKernel({
       now: this.now,
       idFactory: this.idFactory,
@@ -840,7 +702,7 @@ export class AgentRunService {
     });
   }
 
-  private createCorePipeline(): AgentRunCorePipeline<CoreDietBaselineDraft> {
+  public createCorePipeline(): AgentRunCorePipeline<CoreDietBaselineDraft> {
     return new AgentRunCorePipeline<CoreDietBaselineDraft>({
       createRun: (request, baseline) => this.createRun(request, baseline),
       timeStage: (run, baseline, name, action) => this.metadataEvidenceHelpers.timeCoreDietStage(run, baseline, name, action),
@@ -854,7 +716,7 @@ export class AgentRunService {
     });
   }
 
-  private createEvidencePipeline(): AgentRunEvidencePipeline {
+  public createEvidencePipeline(): AgentRunEvidencePipeline {
     const steps: AgentRunEvidencePipelineStep[] = [
       {
         id: 'memoryWithReceipts',
@@ -1168,6 +1030,7 @@ export class AgentRunService {
     this.applyCapabilityLoopGovernance(run, input);
 
     this.onRunCompleted?.(run, input, replyText);
+    await this.applyNativeAutonomySpine(run, input, finalAssistantText || run.summary);
 
       return this.replyPipeline.buildResult({
         run,
@@ -1176,7 +1039,9 @@ export class AgentRunService {
     } finally {
       if (run) {
         await this.corePipeline.finalize(run, baseline);
-        await this.applyNativeAutonomySpine(run, input, finalAssistantText || run.summary);
+        if (!run.metadata.nativeAutonomySpine) {
+          await this.applyNativeAutonomySpine(run, input, finalAssistantText || run.summary);
+        }
         await runPluginOsHook({
           event: 'agent.after_turn',
           workspace: String(input.workspace || run.workspace || '').trim() || null,
@@ -1191,125 +1056,31 @@ export class AgentRunService {
     }
   }
 
-  private createNaturalFirstMemoryContinuityIfNeeded(
+  public createNaturalFirstMemoryContinuityIfNeeded(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
-    if (!this.naturalFirstMemoryContinuity.shouldHandle(run, request)) {
-      return null;
-    }
-    const generatedAt = this.now().toISOString();
-    const memoryWithReceipts = this.applyMemoryWithReceipts(run, generatedAt);
-    return this.naturalFirstMemoryContinuity.apply({
-      run,
-      request,
-      generatedAt,
-      memoryWithReceipts,
-    });
+    return this.governanceSupport.createNaturalFirstMemoryContinuityIfNeeded(run, request);
   }
 
-  private applyNaturalFirstApprovalSafety(
+  public applyNaturalFirstApprovalSafety(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): void {
-    this.naturalFirstApprovalSafety.record({
-      run,
-      request,
-      generatedAt: this.now().toISOString(),
-    });
+    return this.governanceSupport.applyNaturalFirstApprovalSafety(run, request);
   }
 
-  private createNaturalFirstApprovalFallbackIfNeeded(
+  public createNaturalFirstApprovalFallbackIfNeeded(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
-    const generatedAt = this.now().toISOString();
-    const snapshot = this.naturalFirstApprovalSafety.record({
-      run,
-      request,
-      generatedAt,
-    });
-    if (!this.naturalFirstApprovalSafety.shouldOpenFallbackApproval(snapshot)) {
-      return null;
-    }
-    return this.naturalFirstApprovalSafety.openFallbackApproval({
-      run,
-      request,
-      generatedAt,
-      idFactory: this.idFactory,
-    });
+    return this.governanceSupport.createNaturalFirstApprovalFallbackIfNeeded(run, request);
   }
 
-  private createAgenticManagedAgentPreviewIfNeeded(
+  public createAgenticManagedAgentPreviewIfNeeded(
     run: UniversalAgentRun,
   ): UniversalAgentRunResult | null {
-    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
-    if (normalizeText(agenticRoute?.selectedRoute) !== 'remote-agent-preview') {
-      return null;
-    }
-    const existingApprovalId = normalizeText(agenticRoute?.approvalId);
-    const existingApproval = existingApprovalId
-      ? run.approvals.find((approval) => approval.id === existingApprovalId)
-      : null;
-    if (existingApproval?.status === 'approved') {
-      return null;
-    }
-
-    const now = this.now().toISOString();
-    const approval: UniversalApprovalRequest = existingApproval || {
-      id: this.idFactory('agent-approval'),
-      runId: run.id,
-      title: 'Approve isolated execution',
-      reason: normalizeText(
-        agenticRoute?.explanation,
-        'This request may need isolated analysis or execution; Zavorth needs approval before calling a remote agent.',
-      ),
-      risk: 'danger',
-      status: 'pending',
-      createdAt: now,
-    };
-    if (!existingApproval) {
-      run.approvals.push(approval);
-    }
-    run.status = 'waiting_approval';
-    run.summary = 'Isolated execution is prepared. No remote agent was called without approval.';
-    run.updatedAt = now;
-    run.metadata = {
-      ...run.metadata,
-      agenticRoute: {
-        ...agenticRoute,
-        approvalId: approval.id,
-        previewStatus: 'waiting-approval',
-      },
-    };
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: 'approval',
-      title: 'Isolated execution preview',
-      detail: 'Zavorth prepared a governed remote call and paused until explicit approval.',
-      status: 'pending',
-      createdAt: now,
-      metadata: {
-        approvalId: approval.id,
-        providerRoute: normalizeText(agenticRoute?.providerRoute, 'gemini-managed-agent'),
-        noRemoteCallPerformed: true,
-        store: false,
-      },
-    });
-
-    return this.replyPipeline.buildResult({
-      run,
-      text: [
-        'I can use an isolated execution path for this request, but I need your approval first.',
-        '',
-        'What would happen:',
-        '- governed call to a remote agent or sandbox;',
-        '- server-side history stays off by default;',
-        '- timeline and evidence are recorded in Zavorth;',
-        '- execution stays auditable inside the approved scope.',
-      ].join('\n'),
-    });
+    return this.governanceSupport.createAgenticManagedAgentPreviewIfNeeded(run);
   }
 
   public async resumeApprovedRun(
@@ -1317,525 +1088,106 @@ export class AgentRunService {
     request: UniversalAgentRequest,
     options: AgentRunExecutionOptions = {},
   ): Promise<UniversalAgentRunResult> {
-    run.status = 'running';
-    run.summary = 'Approval received. Execution resumed safely.';
-    run.updatedAt = this.now().toISOString();
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: 'status',
-      title: 'Execution resumed',
-      detail: 'The approval gate released the scoped execution path.',
-      status: 'done',
-      createdAt: run.updatedAt,
-    });
-    this.markCapabilityNegotiationApprovedIfNeeded(run, run.updatedAt);
-    this.markToolRehearsalApprovedIfNeeded(run, run.updatedAt);
-    this.applyDefenseReview(run, 'resume', run.metadata, run.updatedAt);
-
-    try {
-      const swarmResult = await this.executeApprovedSwarmProposalIfNeeded(run, request);
-      if (swarmResult) {
-        return swarmResult;
-      }
-    } catch (error: unknown) {return this.buildFailureResult(run, error, 'swarm');
-    }
-
-    const selfModificationActionResult = this.acknowledgeApprovedSelfModificationActionProposalIfNeeded(run, request);
-    if (selfModificationActionResult) {
-      return selfModificationActionResult;
-    }
-
-    try {
-      const watchModeVisualResult = await this.acknowledgeApprovedWatchModeVisualProposalIfNeeded(run, request);
-      if (watchModeVisualResult) {
-        return watchModeVisualResult;
-      }
-    } catch (error: unknown) {return this.buildFailureResult(run, error, 'watch-mode');
-    }
-
-    this.applyToolRehearsal(run, request, run.updatedAt);
-    const toolRehearsalProposal = this.createToolRehearsalProposalIfNeeded(run, request);
-    if (toolRehearsalProposal) {
-      return toolRehearsalProposal;
-    }
-
-    const agenticManagedAgentResult = await this.executeApprovedAgenticManagedAgentIfNeeded(run, request);
-    if (agenticManagedAgentResult) {
-      return agenticManagedAgentResult;
-    }
-
-    await this.applyAutomaticSkillInvocationIfNeeded(run, request);
-
-    let executorResult: UniversalAgentExecutorResult;
-    try {
-      executorResult = await this.execute(run, request, options);
-    } catch (error: unknown) {return this.buildFailureResult(run, error, 'executor');
-    }
-    this.applyExecutorResult(run, executorResult);
-    this.applyCapabilityLoopGovernance(run, request);
-    const replyText = normalizeText(
-      executorResult.replyText,
-      run.summary || 'Execution resumed safely.',
-    );
-    await this.publishAssistantReplyStream(run, replyText, {
-      source: 'approval-resume',
-      providerNativeTokenStreaming: false,
-    });
-
-    return this.replyPipeline.buildResult({
-      run,
-      text: replyText,
-    });
+    return this.governanceSupport.resumeApprovedRun(run, request, options);
   }
 
-  private applyTrustSliderReview(
+  public applyTrustSliderReview(
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
-    const now = this.now().toISOString();
-    const enforcement = this.applyUniversalIntentTrustEnforcement(run, input, now);
-    const decision = enforcement.trustSlider;
-    const metadata = this.serializeTrustSliderDecision(decision);
-    run.metadata = {
-      ...run.metadata,
-      trustSlider: metadata,
-      trustPosture: {
-        source: 'TrustSliderPolicyService',
-        trustMode: decision.level,
-        permissionScope: decision.permissionScope,
-        sandboxTier: decision.sandboxTier,
-        permissionBoundary: decision.permissionBoundary,
-        blocked: decision.blocked,
-      },
-    };
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: 'status',
-      title: 'Trust Slider aplicado',
-      detail: decision.reason,
-      status: decision.blocked ? 'failed' : 'done',
-      createdAt: now,
-      metadata,
-    });
-    run.updatedAt = now;
-    this.applyCapabilityLoopGovernance(run, input, decision);
-
-    if (!decision.blocked) {
-      return null;
-    }
-
-    run.status = 'failed';
-    run.summary = `Trust Slider blocked execution in ${decision.level} mode.`;
-    const narrative = this.applySafetyNarrative(run, now);
-    return this.replyPipeline.buildResult({
-      run,
-      text: [
-        'No tools were executed.',
-        '',
-        narrative.userMessage,
-      ].join('\n'),
-    });
+    return this.governanceSupport.applyTrustSliderReview(run, input);
   }
 
-  private async executeApprovedAgenticManagedAgentIfNeeded(
+  public async executeApprovedAgenticManagedAgentIfNeeded(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): Promise<UniversalAgentRunResult | null> {
-    const agenticRoute = recordOrNull(run.metadata.agenticRoute);
-    if (normalizeText(agenticRoute?.selectedRoute) !== 'remote-agent-preview') {
-      return null;
-    }
-    const approvalId = normalizeText(agenticRoute?.approvalId);
-    const approval = run.approvals.find((entry) => entry.id === approvalId && entry.status === 'approved');
-    if (!approval) {
-      return null;
-    }
-
-    const executor = new GeminiManagedAgentExecutor();
-    const execution = await executor.execute({
-      execution_id: this.idFactory('execution'),
-      task_id: run.id,
-      executor: 'gemini_managed_agent',
-      workspace: normalizeText(request.workspace || run.workspace, 'workspace-not-declared'),
-      objective: request.text,
-      instructions: [
-        'Execute somente a analise solicitada dentro da fronteira governada.',
-        'Nao tente persistir segredos, credenciais ou historico server-side.',
-        'Retorne conclusao, evidencias e proximos passos seguros.',
-      ],
-      allowed_paths: [],
-      blocked_paths: [],
-      allowed_commands: [],
-      blocked_commands: [],
-      timeout_seconds: 120,
-      dry_run: false,
-      requires_backup: false,
-      metadata: {
-        approval_id: approval.id,
-        approved: true,
-        store: false,
-        source_run_id: run.id,
-        trace_id: run.traceId,
-      },
-    });
-    const now = this.now().toISOString();
-    const success = execution.success === true;
-    const replyText = normalizeText(
-      execution.stdout,
-      success
-        ? 'Remote agent completed governed execution.'
-        : normalizeText(execution.error_message, 'Remote agent did not complete execution.'),
-    );
-    const executorResult: UniversalAgentExecutorResult = {
-      status: success ? 'completed' : 'failed',
-      summary: success
-        ? 'Isolated execution completed by the governed remote agent.'
-        : 'Isolated execution failed or was refused by the remote agent policy.',
-      replyText,
-      events: [
-        {
-          kind: success ? 'reply' : 'error',
-          title: success ? 'Execucao isolada concluida' : 'Execucao isolada indisponivel',
-          detail: replyText,
-          status: success ? 'done' : 'failed',
-          createdAt: now,
-          metadata: {
-            executor: execution.executor,
-            executionId: execution.execution_id,
-            errorCode: execution.error_code,
-            actions: execution.actions_executed,
-          },
-        },
-      ],
-      metadata: {
-        agenticManagedAgentExecution: {
-          source: 'AgentRunService',
-          providerRoute: normalizeText(agenticRoute?.providerRoute, 'gemini-managed-agent'),
-          executionId: execution.execution_id,
-          success,
-          errorCode: execution.error_code,
-          metadata: execution.metadata,
-        },
-      },
-    };
-    this.applyExecutorResult(run, executorResult);
-    this.applyCapabilityLoopGovernance(run, request);
-    await this.publishAssistantReplyStream(run, replyText, {
-      source: 'agentic-managed-agent',
-      providerNativeTokenStreaming: false,
-    });
-    return this.replyPipeline.buildResult({ run, text: replyText });
+    return this.governanceSupport.executeApprovedAgenticManagedAgentIfNeeded(run, request);
   }
 
-  private applyUniversalIntentTrustEnforcement(
+  public applyUniversalIntentTrustEnforcement(
     run: UniversalAgentRun,
     request?: UniversalAgentRequest | null,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ): UniversalIntentTrustEnforcementSnapshot {
-    const snapshot = this.universalIntentTrustEnforcement.buildSnapshot({
-      run,
-      request,
-      generatedAt,
-    });
-    run.metadata = {
-      ...run.metadata,
-      universalIntent: snapshot.universalIntent,
-      universalIntentTrustEnforcement: snapshot,
-    };
-    return snapshot;
+    return this.approvalGovernanceSupport.applyUniversalIntentTrustEnforcement(run, request, generatedAt);
   }
 
-  private applyCapabilityLoopGovernance(
+  public applyCapabilityLoopGovernance(
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
     trustSlider: TrustSliderPolicyDecision | null = null,
   ): void {
-    const generatedAt = this.now().toISOString();
-    const snapshot = this.capabilityLoopGovernance.buildSnapshot({
-      run,
-      request: input,
-      trustSlider,
-      generatedAt,
-    });
-    run.metadata = {
-      ...run.metadata,
-      capabilityLoopGovernance: snapshot,
-      capabilityLoopStatus: {
-        source: 'CapabilityLoopGovernanceService',
-        requestedCapabilityIds: snapshot.requestedCapabilityIds,
-        blockedCapabilityIds: snapshot.blockedCapabilityIds,
-        degradedCapabilityIds: snapshot.degradedCapabilityIds,
-        summary: snapshot.summary,
-      },
-    };
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: 'status',
-      title: 'Capability loop governado',
-      detail: snapshot.summary,
-      status: snapshot.blockedCapabilityIds.length > 0 ? 'pending' : 'done',
-      createdAt: generatedAt,
-      metadata: {
-        source: 'CapabilityLoopGovernanceService',
-        requestedCapabilityIds: snapshot.requestedCapabilityIds,
-        blockedCapabilityIds: snapshot.blockedCapabilityIds,
-        degradedCapabilityIds: snapshot.degradedCapabilityIds,
-      },
-    });
-    run.updatedAt = generatedAt;
-    this.applyEvidenceSnapshotChainOnce(run, input, generatedAt);
+    return this.approvalGovernanceSupport.applyCapabilityLoopGovernance(run, input, trustSlider);
   }
 
-  private applySafetyNarrative(
+  public applySafetyNarrative(
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
-    const narrative = this.safetyNarrative.buildSnapshot({
-      run,
-      generatedAt,
-    });
-    run.metadata = {
-      ...run.metadata,
-      safetyNarrative: narrative,
-    };
-    this.applyEvidenceSnapshotChainOnce(run, null, generatedAt);
-    return narrative;
+    return this.approvalGovernanceSupport.applySafetyNarrative(run, generatedAt);
   }
 
-  private applyEvidenceSnapshotChainOnce(
+  public applyEvidenceSnapshotChainOnce(
     run: UniversalAgentRun,
     input: UniversalAgentRequest | null,
     generatedAt: string,
   ): void {
-    if (this.appliedEvidenceSnapshotChains.has(run)) {
-      return;
-    }
-
-    this.appliedEvidenceSnapshotChains.add(run);
-    this.evidencePipeline.applySecondary({
-      run,
-      request: input,
-      generatedAt,
-    });
+    return this.approvalGovernanceSupport.applyEvidenceSnapshotChainOnce(run, input, generatedAt);
   }
 
-  private applyMemoryWithReceipts(
+  public applyMemoryWithReceipts(
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
-    const snapshot = this.memoryWithReceipts.buildSnapshot({
-      run,
-      generatedAt,
-    });
-    if (snapshot.receipts.length === 0 && !recordOrNull(run.metadata.memoryWithReceipts)) {
-      return null;
-    }
-    run.metadata = {
-      ...run.metadata,
-      memoryWithReceipts: snapshot,
-    };
-    return snapshot;
+    return this.approvalGovernanceSupport.applyMemoryWithReceipts(run, generatedAt);
   }
 
-  private async applyAutomaticSkillInvocationIfNeeded(
+  public async applyAutomaticSkillInvocationIfNeeded(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): Promise<void> {
-    if (!this.autoSkillInvocation) {
-      return;
-    }
-    const existing = recordOrNull(run.metadata.autoSkillInvocation);
-    if (existing && ['selected', 'blocked', 'failed'].includes(normalizeText(existing.status))) {
-      return;
-    }
-    try {
-      await this.autoSkillInvocation.apply({ run, request });
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      const generatedAt = this.now().toISOString();
-      const reason = error instanceof Error ? err.message : String(error);
-      run.metadata = {
-        ...run.metadata,
-        autoSkillInvocation: {
-          contractVersion: 'agent-run-automatic-skill-invocation/1',
-          source: 'AgentRunAutomaticSkillInvocationService',
-          generatedAt,
-          status: 'failed',
-          selectedSkillName: null,
-          supportSkillName: null,
-          mode: 'dry-run',
-          bridgeStatus: 'error',
-          receiptIds: [],
-          promptEnvelopeText: null,
-          rawSecretsSerialized: false,
-          reason,
-          skillCount: 0,
-        },
-      };
-      run.events.push({
-        id: this.idFactory('agent-event'),
-        runId: run.id,
-        kind: 'planning',
-        title: 'Skill auto-selected',
-        detail: reason,
-        status: 'pending',
-        createdAt: generatedAt,
-        metadata: {
-          source: 'AgentRunAutomaticSkillInvocationService',
-          contractVersion: 'agent-run-automatic-skill-invocation/1',
-          status: 'failed',
-          reason,
-          rawSecretsSerialized: false,
-        },
-      });
-    }
+    return this.approvalGovernanceSupport.applyAutomaticSkillInvocationIfNeeded(run, request);
   }
 
-  private applySkillMcpQuarantine(
+  public applySkillMcpQuarantine(
     run: UniversalAgentRun,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ) {
-    const snapshot = this.skillMcpQuarantine.buildSnapshot({
-      run,
-      generatedAt,
-    });
-    if (snapshot.summary.total === 0 && !recordOrNull(run.metadata.skillMcpQuarantine)) {
-      return null;
-    }
-    run.metadata = {
-      ...run.metadata,
-      skillMcpQuarantine: snapshot,
-    };
-    return snapshot;
+    return this.approvalGovernanceSupport.applySkillMcpQuarantine(run, generatedAt);
   }
 
-  private applyCapabilityNegotiation(
+  public applyCapabilityNegotiation(
     run: UniversalAgentRun,
     request?: UniversalAgentRequest,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ): CapabilityNegotiationSnapshot | null {
-    const existing = recordOrNull(run.metadata.capabilityNegotiation);
-    const existingStatus = normalizeText(existing?.status);
-    if (existingStatus === 'waiting-approval' || existingStatus === 'approved') {
-      return existing as CapabilityNegotiationSnapshot;
-    }
-    if (request && this.shouldBypassCapabilityNegotiationForSpecializedFlow(run, request)) {
-      return null;
-    }
-
-    const snapshot = this.capabilityNegotiation.buildSnapshot({
-      run,
-      request,
-      generatedAt,
-    });
-    if (snapshot.status === 'not-needed' && !existing) {
-      return null;
-    }
-    run.metadata = {
-      ...run.metadata,
-      capabilityNegotiation: snapshot,
-    };
-    return snapshot;
+    return this.approvalGovernanceSupport.applyCapabilityNegotiation(run, request, generatedAt);
   }
 
-  private markCapabilityNegotiationApprovedIfNeeded(
+  public markCapabilityNegotiationApprovedIfNeeded(
     run: UniversalAgentRun,
     approvedAt: string = run.updatedAt || this.now().toISOString(),
   ): void {
-    const existing = recordOrNull(run.metadata.capabilityNegotiation);
-    if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
-      return;
-    }
-    const approvalId = normalizeText(existing.approvalId)
-      || normalizeText(recordOrNull(existing.proposal)?.approvalId);
-    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
-      return;
-    }
-    const scope = recordOrNull(existing.scope) || {};
-    run.metadata = {
-      ...run.metadata,
-      capabilityNegotiation: {
-        ...existing,
-        status: 'approved',
-        approved: true,
-        approvedAt,
-        scope: {
-          ...scope,
-          approved: true,
-        },
-        policy: {
-          ...(recordOrNull(existing.policy) || {}),
-          approvalsStillRequired: false,
-        },
-        nextSafeAction: 'Executar apenas dentro do escopo aprovado.',
-      },
-    };
+    return this.approvalGovernanceSupport.markCapabilityNegotiationApprovedIfNeeded(run, approvedAt);
   }
 
-  private applyToolRehearsal(
+  public applyToolRehearsal(
     run: UniversalAgentRun,
     request?: UniversalAgentRequest,
     generatedAt: string = run.updatedAt || this.now().toISOString(),
   ): ToolRehearsalSnapshot | null {
-    const existing = recordOrNull(run.metadata.toolRehearsal);
-    const existingStatus = normalizeText(existing?.status);
-    if (existingStatus === 'waiting-approval' || existingStatus === 'approved') {
-      return existing as ToolRehearsalSnapshot;
-    }
-
-    const snapshot = this.toolRehearsal.buildSnapshot({
-      run,
-      request,
-      generatedAt,
-    });
-    if (snapshot.status === 'not-needed' && !existing) {
-      return null;
-    }
-    run.metadata = {
-      ...run.metadata,
-      toolRehearsal: snapshot,
-    };
-    return snapshot;
+    return this.approvalGovernanceSupport.applyToolRehearsal(run, request, generatedAt);
   }
 
-  private markToolRehearsalApprovedIfNeeded(
+  public markToolRehearsalApprovedIfNeeded(
     run: UniversalAgentRun,
     approvedAt: string = run.updatedAt || this.now().toISOString(),
   ): void {
-    const existing = recordOrNull(run.metadata.toolRehearsal);
-    if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
-      return;
-    }
-    const approvalId = normalizeText(existing.approvalId)
-      || normalizeText(recordOrNull(existing.approval)?.approvalId);
-    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
-      return;
-    }
-    run.metadata = {
-      ...run.metadata,
-      toolRehearsal: {
-        ...existing,
-        status: 'approved',
-        approved: true,
-        approvedAt,
-        approval: {
-          ...(recordOrNull(existing.approval) || {}),
-          required: false,
-          approvalId,
-        },
-        policy: {
-          ...(recordOrNull(existing.policy) || {}),
-          approvalsStillRequired: false,
-        },
-        nextSafeAction: 'Executar somente as calls ensaiadas e aprovadas.',
-      },
-    };
+    return this.approvalGovernanceSupport.markToolRehearsalApprovedIfNeeded(run, approvedAt);
   }
 
-  private readModelPickerContractForProviderArena() {
+  public readModelPickerContractForProviderArena() {
     if (!this.modelPickerContractService) {
       return null;
     }
@@ -1845,7 +1197,7 @@ export class AgentRunService {
     }
   }
 
-  private finishCoreDietBaseline(run: UniversalAgentRun, baseline: CoreDietBaselineDraft): void {
+  public finishCoreDietBaseline(run: UniversalAgentRun, baseline: CoreDietBaselineDraft): void {
     this.metadataEvidenceHelpers.finishCoreDietBaseline(
       run,
       baseline,
@@ -1853,257 +1205,71 @@ export class AgentRunService {
     );
   }
 
-  private countScheduledEvidenceWorkerJobs(run: UniversalAgentRun): number {
+  public countScheduledEvidenceWorkerJobs(run: UniversalAgentRun): number {
     const evidenceWorkers = recordOrNull(run.metadata.evidenceWorkers);
     const receipts = Array.isArray(evidenceWorkers?.receipts) ? evidenceWorkers.receipts : [];
     return receipts.filter((receipt) => recordOrNull(receipt)?.status === 'scheduled').length;
   }
 
-  private applyMetadataDiet(run: UniversalAgentRun): void {
+  public applyMetadataDiet(run: UniversalAgentRun): void {
     this.metadataEvidenceHelpers.applyMetadataDiet(run, this.evidenceStore.snapshot(run).refs);
   }
 
-  private async publishRuntimeEvent(
+  public async publishRuntimeEvent(
     run: UniversalAgentRun,
     type: AgentRunRuntimeEventType,
     payload: Record<string, unknown> = {},
   ): Promise<void> {
-    const eventBuses = this.getRuntimeEventBuses();
-    const receipt = {
-      type,
-      emittedAt: this.now().toISOString(),
-      runId: run.id,
-      status: run.status,
-    };
-    this.appendRuntimeEventReceipt(run, {
-      ...receipt,
-      delivery: eventBuses.length > 0 ? 'pending' : 'not-configured',
-    });
-    if (eventBuses.length === 0) {
-      return;
-    }
-
-    const runtimePayload = {
-      ...payload,
-      runId: run.id,
-      traceId: run.traceId,
-      requestId: run.requestId,
-      sessionId: run.sessionId,
-      userId: run.userId,
-      channel: run.channel,
-      status: run.status,
-      surfaceChatId: this.resolveRuntimeEventSurfaceChatId(run),
-      surfaceThreadId: this.resolveRuntimeEventMetadataText(run, 'threadId'),
-      surfaceTaskId: this.resolveRuntimeEventMetadataText(run, 'taskId'),
-    };
-    let delivered = 0;
-    const errors: string[] = [];
-    try {
-      for (const eventBus of eventBuses) {
-        try {
-          await eventBus.emit(type, runtimePayload);
-          delivered += 1;
-        } catch (error: unknown) {
-          const err = asErrorLike(error);
-          errors.push(error instanceof Error ? err.message : String(error));
-        }
-      }
-      if (delivered === 0 && errors.length > 0) {
-        throw new Error(errors.join('; '));
-      }
-      this.appendRuntimeEventReceipt(run, {
-        ...receipt,
-        delivery: errors.length > 0 ? 'partial' : 'delivered',
-        delivered,
-        failed: errors.length,
-        error: errors.length > 0 ? errors.join('; ') : undefined,
-      });
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      this.appendRuntimeEventReceipt(run, {
-        ...receipt,
-        delivery: 'failed',
-        error: error instanceof Error ? err.message : String(error),
-      });
-    }
+    return this.runtimeEventSupport.publishRuntimeEvent(run, type, payload);
   }
 
-  private async publishAssistantReplyStream(
+  public async publishAssistantReplyStream(
     run: UniversalAgentRun,
     text: string,
     metadata: Record<string, unknown> = {},
   ): Promise<void> {
-    const replyText = normalizeText(text);
-    if (!replyText) {
-      return;
-    }
-    const chunks = this.chunkAssistantStreamText(replyText);
-    const streamId = `${run.id}:assistant`;
-    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
-      ...metadata,
-      streamId,
-      phase: 'start',
-      done: false,
-      chunkIndex: 0,
-      totalChunks: chunks.length,
-      accumulated: '',
-      delta: '',
-      rawChainOfThoughtExposed: false,
-    });
-
-    let accumulated = '';
-    for (let index = 0; index < chunks.length; index += 1) {
-      accumulated += chunks[index];
-      await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
-        ...metadata,
-        streamId,
-        phase: 'delta',
-        done: false,
-        chunkIndex: index + 1,
-        totalChunks: chunks.length,
-        accumulated,
-        delta: chunks[index],
-        rawChainOfThoughtExposed: false,
-      });
-    }
-
-    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
-      ...metadata,
-      streamId,
-      phase: 'done',
-      done: true,
-      chunkIndex: chunks.length,
-      totalChunks: chunks.length,
-      accumulated,
-      delta: '',
-      rawChainOfThoughtExposed: false,
-    });
+    return this.runtimeEventSupport.publishAssistantReplyStream(run, text, metadata);
   }
 
-  private async publishAssistantReplyStreamDone(
+  public async publishAssistantReplyStreamDone(
     run: UniversalAgentRun,
     text: string,
     metadata: Record<string, unknown> = {},
   ): Promise<void> {
-    const replyText = normalizeText(text);
-    if (!replyText) {
-      return;
-    }
-    await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
-      ...metadata,
-      streamId: `${run.id}:assistant`,
-      phase: 'done',
-      done: true,
-      chunkIndex: 0,
-      totalChunks: null,
-      accumulated: replyText,
-      delta: '',
-      rawChainOfThoughtExposed: false,
-    });
+    return this.runtimeEventSupport.publishAssistantReplyStreamDone(run, text, metadata);
   }
 
-  private chunkAssistantStreamText(text: string): string[] {
-    const normalized = String(text || '');
-    const maxChars = 180;
-    const chunks: string[] = [];
-    let current = '';
-    for (const token of normalized.split(/(\s+)/)) {
-      if (!token) continue;
-      if (current && current.length + token.length > maxChars) {
-        chunks.push(current);
-        current = token;
-        continue;
-      }
-      current += token;
-    }
-    if (current) {
-      chunks.push(current);
-    }
-    return chunks.length > 0 ? chunks : [normalized];
+  public chunkAssistantStreamText(text: string): string[] {
+    return this.runtimeEventSupport.chunkAssistantStreamText(text);
   }
 
-  private appendRuntimeEventReceipt(run: UniversalAgentRun, receipt: Record<string, unknown>): void {
-    const existing = recordOrNull(run.metadata.runtimeEventBus);
-    const events = Array.isArray(existing?.events) ? existing.events.slice(-19) : [];
-    run.metadata = {
-      ...run.metadata,
-      runtimeEventBus: {
-        source: 'AgentRunService',
-        stage: 2,
-        gate: 'source-agent-runtime-bridge',
-        configured: this.getRuntimeEventBuses().length > 0,
-        subscriberCount: this.getRuntimeEventBuses().length,
-        snapshot: this.readRuntimeEventBusSnapshot(),
-        events: [
-          ...events,
-          receipt,
-        ],
-      },
-    };
+  public appendRuntimeEventReceipt(run: UniversalAgentRun, receipt: Record<string, unknown>): void {
+    return this.runtimeEventSupport.appendRuntimeEventReceipt(run, receipt);
   }
 
-  private getRuntimeEventBuses(): AgentRunRuntimeEventBus[] {
-    return [
-      this.runtimeEventBus,
-      ...this.runtimeEventBusSubscribers,
-    ].filter((eventBus): eventBus is AgentRunRuntimeEventBus => Boolean(eventBus));
+  public getRuntimeEventBuses(): AgentRunRuntimeEventBus[] {
+    return this.runtimeEventSupport.getRuntimeEventBuses();
   }
 
-  private readRuntimeEventBusSnapshot(): unknown {
-    return this.getRuntimeEventBuses().map((eventBus, index) => {
-      if (!eventBus.snapshot) {
-        return { index, snapshot: null };
-      }
-      try {
-        return { index, snapshot: eventBus.snapshot() };
-      } catch (error: unknown) {return { index, snapshot: null };
-      }
-    });
+  public readRuntimeEventBusSnapshot(): unknown {
+    return this.runtimeEventSupport.readRuntimeEventBusSnapshot();
   }
 
-  private resolveRuntimeEventSurfaceChatId(run: UniversalAgentRun): string | null {
-    return this.resolveRuntimeEventMetadataText(run, 'chatId')
-      || this.resolveRuntimeEventMetadataText(run, 'surfaceChatId')
-      || run.sessionId
-      || null;
+  public resolveRuntimeEventSurfaceChatId(run: UniversalAgentRun): string | null {
+    return this.runtimeEventSupport.resolveRuntimeEventSurfaceChatId(run);
   }
 
-  private resolveRuntimeEventMetadataText(run: UniversalAgentRun, key: string): string | null {
-    const metadata = recordOrNull(run.metadata);
-    const text = String(metadata?.[key] ?? '').trim();
-    return text || null;
+  public resolveRuntimeEventMetadataText(run: UniversalAgentRun, key: string): string | null {
+    return this.runtimeEventSupport.resolveRuntimeEventMetadataText(run, key);
   }
 
-  private applyCachedEvidenceSnapshot<TSnapshot extends Record<string, unknown>>(
+  public applyCachedEvidenceSnapshot<TSnapshot extends Record<string, unknown>>(
     run: UniversalAgentRun,
     key: string,
     buildSnapshot: () => TSnapshot,
     attachSnapshot: (snapshot: TSnapshot) => void,
   ): TSnapshot {
-    const fingerprint = this.metadataEvidenceHelpers.buildEvidenceSnapshotFingerprint(run);
-    const existing = recordOrNull(run.metadata[key]);
-    if (this.metadataEvidenceHelpers.readEvidenceSnapshotFingerprint(run, key) === fingerprint) {
-      const cached = existing || this.metadataEvidenceHelpers.readCachedEvidenceSnapshot(run, key);
-      if (cached) {
-        this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'cache-hit');
-        return cached as TSnapshot;
-      }
-    }
-
-    const snapshot = buildSnapshot();
-    const material = existing || this.metadataEvidenceHelpers.isMaterialEvidenceSnapshot(snapshot);
-    this.metadataEvidenceHelpers.writeCachedEvidenceSnapshot(run, key, snapshot);
-    this.evidenceStore.put(run, key, snapshot, Boolean(material));
-    if (!material) {
-      this.metadataEvidenceHelpers.writeEvidenceSnapshotFingerprint(run, key, fingerprint);
-      this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'built-skipped');
-      return snapshot;
-    }
-
-    attachSnapshot(snapshot);
-    this.metadataEvidenceHelpers.writeEvidenceSnapshotFingerprint(run, key, fingerprint);
-    this.metadataEvidenceHelpers.recordCoreDietSnapshot(run, key, 'built-attached');
-    return snapshot;
+    return this.runtimeEventSupport.applyCachedEvidenceSnapshot(run, key, buildSnapshot, attachSnapshot);
   }
 
   public createRun(input: UniversalAgentRequest, baseline?: CoreDietBaselineDraft): UniversalAgentRun {
@@ -2119,436 +1285,92 @@ export class AgentRunService {
     return run;
   }
 
-  private applyIntelligenceFabricCanary(
+  public applyIntelligenceFabricCanary(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
     options: AgentRunExecutionOptions = {},
   ): void {
-    this.intelligenceFabricCanary.apply({
-      run,
-      request,
-      canOrientModel: !options.executor && !this.executor && this.llmRuntimeExecutor.isAvailable(),
-    });
+    return this.executionSupport.applyIntelligenceFabricCanary(run, request, options);
   }
 
-  private applyIntelligenceFabricDraftGuidanceIfRequested(
+  public applyIntelligenceFabricDraftGuidanceIfRequested(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
-    const metadata = recordOrNull(request.metadata) || {};
-    const planId = normalizeText(metadata.intelligenceFabricApplyDraftPlanId || metadata.intelligenceFabricDraftPlanId);
-    const requested = Boolean(planId)
-      && (metadata.intelligenceFabricApplyDraftGuidance === true || /\b(aplicar|aplique|apply|commit)\b.*\b(rascunho|draft)\b/i.test(request.text));
-    if (!requested) {
-      return null;
-    }
-    const result = this.intelligenceFabricCanary.applyDraftGuidancePlan({
-      run,
-      planId,
-      permissionId: normalizeText(metadata.intelligenceFabricApprovalId),
-      approvedBy: normalizeText(metadata.approvedBy) || request.userId,
-      approveNow: metadata.intelligenceFabricApproveDraftPlan === true,
-    });
-    const now = this.now().toISOString();
-    run.updatedAt = now;
-    run.status = result.applied ? 'completed' : result.status === 'waiting_approval' ? 'waiting_approval' : 'failed';
-    run.summary = result.summary;
-    run.metadata = { ...run.metadata, intelligenceFabricDraftApply: result };
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: result.applied ? 'artifact' : 'approval',
-      title: result.applied ? 'Rascunho aplicado pelo Mutation Plane' : 'Rascunho aguardando approval',
-      detail: result.summary,
-      status: result.applied ? 'done' : 'pending',
-      createdAt: now,
-      metadata: { planId: result.planId, status: result.status, approvalRequired: result.approvalRequired, diffReceipt: result.diffReceipt, diffReceiptText: result.diffReceiptText, rollbackArtifactPath: result.execution?.rollbackArtifactPath || null },
-    });
-    return this.replyPipeline.buildResult({ run, text: result.summary });
+    return this.executionSupport.applyIntelligenceFabricDraftGuidanceIfRequested(run, request);
   }
 
-  private async execute(
+  public async execute(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
     options: AgentRunExecutionOptions = {},
   ): Promise<UniversalAgentExecutorResult> {
-    const profileBundle = resolveProfileRuntimeBundleFromRun(run);
-    return executionContextScope.run({
-      traceId: run.traceId,
-      runId: run.id,
-      sessionId: run.sessionId,
-      surface: run.channel,
-      requestedBy: run.userId,
-      profile: normalizeText(run.metadata.profile, profileBundle?.id || ''),
-      workspace: run.workspace || request.workspace || null,
-      profileBundle,
-      metadata: run.metadata,
-    }, () => this.executorBoundary.execute({
-      run,
-      request,
-      executorOverride: options.executor,
-      toolRuntimeOverride: options.toolRuntime,
-    }));
+    return this.executionSupport.execute(run, request, options);
   }
 
-  private async applyNativeAutonomySpine(
+  public async applyNativeAutonomySpine(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
     replyText: string,
   ): Promise<void> {
-    const generatedAt = this.now().toISOString();
-    try {
-      const { getProductSurfaceRuntime } = require('../../services/ZavorthProductSurfaceRuntimeService.js') as typeof import('../../services/ZavorthProductSurfaceRuntimeService.js');
-      const toolCallCount = Math.max(
-        run.events.filter((event) => event.kind === 'tool').length,
-        request.requestedTools?.length || 0,
-      );
-      const userId = run.userId || request.userId || 'local-user';
-      const surface = run.channel || request.channel || 'agent-run';
-      const chatId = normalizeText(
-        run.metadata?.chatId,
-        normalizeText(request.metadata?.chatId, run.sessionId),
-      ) || null;
-      const explicitAllow = run.metadata?.allowLearningWrite ?? request.metadata?.allowLearningWrite;
-      const result = await getProductSurfaceRuntime(process.cwd()).recordSuccessfulTurn({
-        userId,
-        surface,
-        userMessage: request.text,
-        assistantText: replyText,
-        toolCallCount,
-        turnId: run.id,
-        sessionId: run.sessionId,
-        chatId,
-        allowLearningWrite: typeof explicitAllow === 'boolean' ? explicitAllow : null,
-      });
-
-      run.metadata = {
-        ...run.metadata,
-        productSurfaceLearning: result,
-      };
-
-      const writeDetail = result.appliedPreferences > 0 || result.draftedSkills > 0
-        ? `Learning wrote ${result.appliedPreferences} preference(s) and ${result.draftedSkills} skill draft(s) for user ${userId}; skill-library install remains blocked.`
-        : 'Turn-end learning projected; durable writes require autonomous learning mode.';
-      run.events.push({
-        id: this.idFactory('agent-event'),
-        runId: run.id,
-        kind: 'memory',
-        title: 'Product surface learning reviewed turn',
-        detail: writeDetail,
-        status: 'done',
-        createdAt: generatedAt,
-        metadata: {
-          source: 'ZavorthProductSurfaceRuntimeService',
-          status: result.ok ? 'ready' : 'attention',
-          learningMode: result.mode || 'governed',
-          appliedPreferences: result.appliedPreferences,
-          draftedSkills: result.draftedSkills,
-          userId,
-        },
-      });
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      run.metadata = {
-        ...run.metadata,
-        productSurfaceLearning: {
-          ok: false,
-          error: error instanceof Error ? err.message : String(error),
-        },
-      };
-    }
+    return this.executionSupport.applyNativeAutonomySpine(run, request, replyText);
   }
 
-  private applyExecutorResult(
+  public applyExecutorResult(
     run: UniversalAgentRun,
     result: UniversalAgentExecutorResult,
   ): void {
-    const now = this.now().toISOString();
-    run.status = result.status || 'completed';
-    run.summary = normalizeText(result.summary, run.summary);
-    run.updatedAt = now;
-    this.markAcceptedSteeringApplied(run, now);
-    const mergedMetadata = {
-      ...run.metadata,
-      ...(result.metadata || {}),
-    };
-    const resultArtifacts = Array.isArray(result.artifacts) ? result.artifacts : null;
-    if (resultArtifacts) {
-      if (shouldPersistZavorthArtifacts(mergedMetadata)) {
-        run.artifacts = resultArtifacts;
-      } else {
-        const policy = resolveZavorthArtifactPolicyFromMetadata(mergedMetadata);
-        run.artifacts = [];
-        mergedMetadata.artifactPolicySuppressed = {
-          count: resultArtifacts.length,
-          reason: policy?.reason || 'artifact-policy-disabled',
-        };
-      }
-    }
-    applyAgentRunLlmRuntimeRouteReceipt({
-      run,
-      mergedMetadata,
-      now,
-      idFactory: this.idFactory,
-    });
-    run.memorySignals = result.memorySignals || run.memorySignals;
-    run.metadata = mergedMetadata;
-    promoteIntelligenceFabricDraftWorkspaceWrites({ run, canary: this.intelligenceFabricCanary, now, idFactory: this.idFactory });
-    this.evidencePipeline.applyPostExecutor({
-      run,
-      request: null,
-      generatedAt: now,
-    });
-    (result.events || []).forEach((event) => {
-      run.events.push({
-        id: event.id || this.idFactory('agent-event'),
-        runId: run.id,
-        kind: event.kind,
-        title: event.title,
-        detail: event.detail,
-        status: event.status,
-        createdAt: event.createdAt || now,
-        metadata: event.metadata,
-      });
-    });
-    this.applyDefenseReview(run, 'post-executor', run.metadata, now);
-    this.evidencePipeline.applySecondary({
-      run,
-      request: null,
-      generatedAt: now,
-    });
-    this.syncRunSteeringMetadata(run);
+    return this.executionSupport.applyExecutorResult(run, result);
   }
 
-  private markAcceptedSteeringApplied(run: UniversalAgentRun, now: string): void {
-    const accepted = (run.steering || []).filter((entry) => entry.status === 'accepted');
-    if (accepted.length === 0) return;
-    for (const entry of accepted) {
-      entry.status = 'applied';
-      entry.updatedAt = now;
-      run.events.push({
-        id: `${entry.id}:applied`,
-        runId: run.id,
-        kind: 'steering',
-        title: 'Steering applied',
-        detail: entry.text,
-        status: 'done',
-        createdAt: now,
-        metadata: {
-          steeringId: entry.id,
-          ackId: entry.ackId,
-          nativeAgentRunSteering: true,
-        },
-      });
-      this.publishSteeringFrame(run, entry, 'applied');
-    }
+  public markAcceptedSteeringApplied(run: UniversalAgentRun, now: string): void {
+    return this.executionSupport.markAcceptedSteeringApplied(run, now);
   }
 
-  private applyLlmBrainMaturity(
+  public applyLlmBrainMaturity(
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
     executorResult: UniversalAgentExecutorResult,
   ): ZavorthLlmBrainSnapshot {
-    const snapshot = this.llmBrain.buildRunSnapshot({
-      run,
-      request,
-      executorResult,
-    });
-    run.metadata = {
-      ...run.metadata,
-      zavorthLlmBrain: snapshot,
-    };
-    run.events.push({
-      id: this.idFactory('agent-event'),
-      runId: run.id,
-      kind: 'status',
-      title: 'Model loop readiness',
-      detail: snapshot.summary,
-      status: snapshot.status === 'blocked' ? 'failed' : 'done',
-      createdAt: snapshot.generatedAt,
-      metadata: {
-        contractVersion: snapshot.contractVersion,
-        brainMode: snapshot.brainMode,
-        visualStreamingReady: snapshot.streaming.visualStreamingReady,
-        nativeToolLoopEnabled: snapshot.toolAgency.nativeToolLoopEnabled,
-        llmRequestedTools: snapshot.toolAgency.llmRequestedTools,
-        skillEvolutionStatus: snapshot.skillEvolution.status,
-        requiresHumanLiveQa: snapshot.qa.requiresHumanLiveQa,
-      },
-    });
-    return snapshot;
+    return this.executionSupport.applyLlmBrainMaturity(run, request, executorResult);
   }
 
-  private async publishLlmBrainRuntimeEvents(
+  public async publishLlmBrainRuntimeEvents(
     run: UniversalAgentRun,
     snapshot: ZavorthLlmBrainSnapshot,
     request?: UniversalAgentRequest,
   ): Promise<void> {
-    await this.publishRuntimeEvent(run, 'agent.stream.lifecycle', {
-      brainMode: snapshot.brainMode,
-      streamEvents: snapshot.streaming.events.length,
-      visualStreamingReady: snapshot.streaming.visualStreamingReady,
-      status: snapshot.status,
-    });
-    if (snapshot.toolAgency.requested > 0) {
-      await this.publishRuntimeEvent(run, 'agent.stream.tool', {
-        requested: snapshot.toolAgency.requested,
-        executed: snapshot.toolAgency.executed,
-        denied: snapshot.toolAgency.denied,
-        deferred: snapshot.toolAgency.sideEffectsDeferred,
-      });
-    }
-    if (snapshot.streaming.events.some((event) => event.kind === 'assistant')) {
-      await this.publishRuntimeEvent(run, 'agent.stream.assistant', {
-        replyEvents: snapshot.streaming.events.filter((event) => event.kind === 'assistant').length,
-        rawChainOfThoughtExposed: false,
-      });
-    }
-    if (snapshot.skillEvolution.status === 'candidate-ready') {
-      const materializeSource = normalizeText(request?.text)
-        || normalizeText(run.input)
-        || normalizeText(run.summary)
-        || run.id;
-      let candidateId: string | null = null;
-      let registryPersisted = false;
-      if (this.skillPromotionGate) {
-        try {
-          const materialized = this.skillPromotionGate.materializeCandidate({
-            intentText: materializeSource,
-            candidateKind: snapshot.skillEvolution.candidateKind,
-            runId: run.id,
-            sessionId: run.sessionId || null,
-            requestedBy: run.userId || null,
-            sourceSurface: String(run.channel || 'agent-run'),
-            approvalRequired: snapshot.skillEvolution.approvalRequired,
-            suggestedCommand: snapshot.skillEvolution.suggestedCommand,
-          });
-          candidateId = materialized.candidateId;
-          registryPersisted = Boolean(materialized.record);
-          run.metadata = {
-            ...run.metadata,
-            skillEvolutionCandidate: {
-              candidateId,
-              status: materialized.status,
-              registryPersisted,
-              silentInstallBlocked: true,
-              receiptId: materialized.continuity.receipt?.receiptId || null,
-            },
-          };
-        } catch {
-          registryPersisted = false;
-        }
-      }
-      if (this.skillPromotionGate && this.isComplexSkillPromotionRun(run, snapshot)) {
-        try {
-          const dryPreview = await this.skillPromotionGate.dryPreviewFromIntent({
-            intentText: materializeSource,
-            requestedBy: run.userId || null,
-            sourceSurface: 'agent-run:complex-task',
-            procedureOnly: true,
-          });
-          run.metadata = {
-            ...run.metadata,
-            skillPromotionDryPreview: {
-              candidateId: dryPreview.candidateId,
-              status: dryPreview.status,
-              summary: dryPreview.summary,
-              installed: false,
-              silentInstallBlocked: true,
-            },
-          };
-        } catch {
-          // Dry preview is optional and must never fail the agent run.
-        }
-      }
-      await this.publishRuntimeEvent(run, 'agent.skill.evolution.candidate', {
-        candidateKind: snapshot.skillEvolution.candidateKind,
-        approvalRequired: snapshot.skillEvolution.approvalRequired,
-        suggestedCommand: snapshot.skillEvolution.suggestedCommand,
-        candidateId,
-        registryPersisted,
-        silentInstallBlocked: true,
-      });
-    }
-    if (snapshot.qa.requiresHumanLiveQa) {
-      await this.publishRuntimeEvent(run, 'agent.adapter.proof.required', {
-        channel: snapshot.adapterCoverage.channel,
-        provider: snapshot.adapterCoverage.provider,
-        route: snapshot.adapterCoverage.route,
-        longTailFamilies: snapshot.adapterCoverage.longTailFamilies,
-      });
-    }
+    return this.executionSupport.publishLlmBrainRuntimeEvents(run, snapshot, request);
   }
 
-  private isComplexSkillPromotionRun(
+  public isComplexSkillPromotionRun(
     run: UniversalAgentRun,
     snapshot: ZavorthLlmBrainSnapshot,
   ): boolean {
-    const toolEvents = run.events.filter((event) => event.kind === 'tool').length;
-    const textLength = normalizeText(run.input).length + normalizeText(run.summary).length;
-    return snapshot.toolAgency.executed >= 2
-      || snapshot.toolAgency.requested >= 3
-      || toolEvents >= 2
-      || textLength >= 240
-      || run.artifacts.length >= 2;
+    return this.executionSupport.isComplexSkillPromotionRun(run, snapshot);
   }
 
-  private defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
-    if (phase === 'pre-executor') {
-      return 'preExecutor';
-    }
-    if (phase === 'post-executor') {
-      return 'postExecutor';
-    }
-    return phase;
+  public defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
+    return this.executionSupport.defenseReviewMetadataKey(phase);
   }
 
-  private applyDefenseReview(
+  public applyDefenseReview(
     run: UniversalAgentRun,
     phase: AgentRunRiskReviewStage,
     metadataTarget: Record<string, unknown>,
     now: string = this.now().toISOString(),
   ): void {
-    const review = this.riskHooks.review({ run, phase });
-    const lifecycleDefense = recordOrNull(metadataTarget.lifecycleDefense) || {};
-    metadataTarget.lifecycleDefense = {
-      ...lifecycleDefense,
-      [this.defenseReviewMetadataKey(phase)]: review,
-    };
-    run.events.push(this.auditHooks.buildRiskReviewEvent({
-      run,
-      review,
-      now,
-      idFactory: this.idFactory,
-    }));
+    return this.executionSupport.applyDefenseReview(run, phase, metadataTarget, now);
   }
 
-  private buildFailureResult(
+  public buildFailureResult(
     run: UniversalAgentRun,
     error: unknown,
     source: string,
   ): UniversalAgentRunResult {
-    return this.failureResultBuilder.build(run, error, source);
+    return this.executionSupport.buildFailureResult(run, error, source);
   }
 
-}
-
-function resolveProfileRuntimeBundleFromRun(run: UniversalAgentRun): ProfileRuntimeBundle | null {
-  const direct = recordOrNull(run.metadata.profileBundle)
-    || recordOrNull(run.metadata.profileRuntimeBundle);
-  if (!direct) {
-    return null;
-  }
-  if (
-    typeof direct.id !== 'string'
-    || typeof direct.checksum !== 'string'
-    || !recordOrNull(direct.runtimePolicy)
-    || !recordOrNull(direct.runtimePolicyBundle)
-    || !recordOrNull(direct.cognitiveContextBundle)
-  ) {
-    return null;
-  }
-  return direct as ProfileRuntimeBundle;
 }
 
 installAgentRunSpecializedFlows(AgentRunService);

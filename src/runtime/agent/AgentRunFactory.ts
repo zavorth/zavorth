@@ -131,7 +131,10 @@ function resolveImportedCapabilityBlockedTools(riskReports: Record<string, unkno
       continue;
     }
 
-    const reportToolNames = normalizeStringList(report.toolNames);
+    const reportToolNames = Array.from(new Set([
+      ...normalizeStringList(report.declaredToolNames),
+      ...normalizeStringList(report.toolNames),
+    ]));
     if (reportToolNames.length > 0) {
       blockedTools.push(...reportToolNames);
     } else {
@@ -395,7 +398,7 @@ export class AgentRunFactory {
       taskKind: normalizeText(naturalCapabilityDiscovery.intentCategory),
       taskSubtype: normalizeText(input.metadata?.taskSubtype),
       hasInlineData: Array.isArray(metadataAttachments) && metadataAttachments.length > 0,
-      allowImplicit: input.metadata?.autoLiveSubagents !== false,
+      allowImplicit: false,
     });
     const subagentAutoInvocation = subagentAutoDecision.shouldInvoke || subagentAutoDecision.requiresApproval
       ? {

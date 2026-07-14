@@ -325,7 +325,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       }
     }
     lines.push('');
-    lines.push(`proxima etapa recomendada: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
+    lines.push(`proxima etapa recommended: ${snapshot.nextRecommendedGate.gate} - ${snapshot.nextRecommendedGate.title}`);
     lines.push(snapshot.nextRecommendedGate.reason);
     return lines.join('\n');
   }
@@ -496,7 +496,7 @@ export class CapabilityAutopilotCanaryMonitoringPromotionGateService {
       ),
       this.check(
         'capability-autopilot-canary-promotion:health',
-        'sinais de saude dentro do budget',
+        'sinais de health dentro do budget',
         options.errorRatePercent <= options.maxErrorRatePercent &&
           options.p95LatencyMs <= options.maxP95LatencyMs &&
           options.successRatePercent >= options.minSuccessRatePercent &&

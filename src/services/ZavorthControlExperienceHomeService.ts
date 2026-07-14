@@ -307,7 +307,7 @@ export class ZavorthControlExperienceHomeService {
         `- ${question.label}: ${question.question} | ${question.command}`,
       ),
       '',
-      '[permissoes]',
+      '[permissions]',
       snapshot.permissionPanel.summary,
       ...snapshot.permissionPanel.items.map((item) =>
         `- ${item.label}: ${item.statusLabel} | risk=${item.risk} | ${item.actionLabel} | ${item.href}`,

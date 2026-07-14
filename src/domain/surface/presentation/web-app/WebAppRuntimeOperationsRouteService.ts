@@ -69,7 +69,7 @@ export class WebAppRuntimeOperationsRouteService {
   ): Promise<boolean> {
     if (pathname === '/api/web/gateway/runtime' && req.method === 'GET') {
       if (!deps.gatewayRuntime) {
-        deps.writeJson(res, { ok: false, error: 'Gateway runtime canÃƒÂ´nico unavailable.' }, 503);
+        deps.writeJson(res, { ok: false, error: 'Gateway runtime canônico unavailable.' }, 503);
         return true;
       }
       const requestedSessionId = String(url.searchParams.get('sessionId') || '').trim();

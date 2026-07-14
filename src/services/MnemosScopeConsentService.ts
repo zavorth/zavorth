@@ -30,8 +30,8 @@ type CreateProposalInput = {
 };
 
 const WHOLE_COMPUTER_PATTERNS = [
-  /\b(pc|computador|maquina|maquina toda|notebook)\s+(inteiro|todo|toda)\b/i,
-  /\b(procurar|buscar|vasculhar|indexar)\s+(no|na|em)\s+(pc|computador|maquina|notebook)\s+(inteiro|todo|toda)\b/i,
+  /\b(pc|computador|machine|machine toda|notebook)\s+(inteiro|todo|toda)\b/i,
+  /\b(procurar|buscar|vasculhar|indexar)\s+(no|na|em)\s+(pc|computador|machine|notebook)\s+(inteiro|todo|toda)\b/i,
   /\b(entire|whole)\s+(pc|computer|machine|disk|drive)\b/i,
 ];
 

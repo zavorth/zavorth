@@ -182,7 +182,7 @@ export function formatReleaseInstallerRollbackSnapshot(
     `- bundle publico: ${snapshot.release.releaseBundleStatus}`,
     `- installer preview: ${snapshot.installer.previewAvailable ? 'ready' : 'pending'}`,
     `- rollback: ${snapshot.rollback.rollbackAvailable ? 'ready' : 'pending'}`,
-    `- canary: ${snapshot.readiness.canStartCanary ? 'released' : 'dormente'}`,
+    `- canary: ${snapshot.readiness.canStartCanary ? 'released' : 'dormant'}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Gates',

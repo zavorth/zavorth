@@ -570,7 +570,7 @@ export class ProviderMeshConsolidationService {
         id: `provider-mesh:${input.input.run.id}:contracts`,
         kind: 'contracts',
         source: 'ModelPickerContract',
-        detail: 'Contratos canonicos de familia, rota, modelo e perfil selecionado estao ligados.',
+        detail: 'Contratos canonicals de familia, rota, modelo e perfil selecionado estao ligados.',
         status: 'ready',
       },
       {

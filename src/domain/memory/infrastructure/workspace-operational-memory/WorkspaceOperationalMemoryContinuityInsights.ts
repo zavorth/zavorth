@@ -54,7 +54,7 @@ export function buildContinuityRecommendations(input: ContinuityRecommendationIn
       kind: 'resume_workflow',
       label: resumableWorkflow.resume_stage_label
         ? `Retomar workflow ${resumableWorkflow.workflow_name} em ${resumableWorkflow.resume_stage_label}`
-        : `Retomar workflow ${resumableWorkflow.workflow_name}`,
+        : `Resume workflow ${resumableWorkflow.workflow_name}`,
       reason: resumableWorkflow.resume_stage_label
         ? `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} etapa(s) concluida(s), e a retomada mais util agora e ${resumableWorkflow.resume_stage_label}.`
         : `Existe um workflow ${resumableWorkflow.workflow_name} ainda aberto com ${resumableWorkflow.completed_stages}/${resumableWorkflow.total_stages} etapa(s) concluida(s).`,

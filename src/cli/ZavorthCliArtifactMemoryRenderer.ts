@@ -40,7 +40,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
           summary: 'Relatorio de validacao de Artifact Memory com gates e testes focados.',
         },
         'artifact-memory-diff': {
-          summary: 'Diff de implementacao conectando runtime, CLI e ZavorthControl.',
+          summary: 'Diff de implementaction conectando runtime, CLI e ZavorthControl.',
         },
       },
     },
@@ -65,7 +65,7 @@ export function buildArtifactMemoryCliSnapshot(input: {
     },
     {
       id: 'artifact-memory-diff',
-      title: 'Diff de implementacao Artifact Memory',
+      title: 'Diff de implementaction Artifact Memory',
       kind: 'diff',
       createdAt: run.updatedAt,
       sessionId: input.sessionId,

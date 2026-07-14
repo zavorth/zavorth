@@ -78,14 +78,14 @@ function formatPlatformActionExecution(result: ZavorthPlatformActionExecution): 
       {
         title: 'Summary',
         lines: [
-          `- alvo: ${selectedLabel}`,
+          `- target: ${selectedLabel}`,
           `- acao: ${result.actionId}`,
           `- status: ${result.status}`,
         ],
         tone: executionTone,
       },
       {
-        title: 'Detalhes',
+        title: 'Details',
         lines: result.details.slice(0, 4).map((detail) => `- ${detail}`),
         tone: 'neutral',
       },
@@ -103,8 +103,8 @@ function formatPlatformPublishResult(result: ZavorthPlatformPublishResult): stri
   return renderCliScreen({
     eyebrow: 'Plugins',
     eyebrowTone: publishTone,
-    title: 'Publish do platform ready',
-    summary: `${result.packageId}@${result.version} ficou preparado para release.`,
+    title: 'Platform publish ready',
+    summary: `${result.packageId}@${result.version} is prepared for release.`,
     mode: 'compact',
     showWordmark: false,
     panels: [
@@ -113,13 +113,13 @@ function formatPlatformPublishResult(result: ZavorthPlatformPublishResult): stri
         lines: [
           `- release: ${result.releaseId}`,
           `- status: ${result.uploadStatus}`,
-          `- arquivos: ${result.fileCount}`,
-          `- assinatura: ${result.signature.slice(0, 20)}...`,
+          `- files: ${result.fileCount}`,
+          `- signature: ${result.signature.slice(0, 20)}...`,
         ],
         tone: publishTone,
       },
       {
-        title: 'Arquivos',
+        title: 'Files',
         lines: [`- bundle: ${result.outputFile}`],
         tone: 'neutral',
       },
@@ -139,7 +139,7 @@ function formatAIGatewayGatewayStatus(
   return renderCliScreen({
     eyebrow: 'AIGateway',
     eyebrowTone: status.ready ? 'success' : status.enabled ? 'warning' : 'muted',
-    title: mode === 'route' ? 'Rota do AIGateway' : 'AIGateway do Zavorth',
+    title: mode === 'route' ? 'AIGateway route' : 'Zavorth AIGateway',
     summary: status.message,
     mode: 'compact',
     showWordmark: false,
@@ -148,14 +148,14 @@ function formatAIGatewayGatewayStatus(
         title: 'Em resumo',
         lines: [
           `- state: ${normalizeAIGatewayStatusLabel(status)}`,
-          `- rota local: ${status.baseUrl}`,
+          `- local route: ${status.baseUrl}`,
           `- upstream: ${status.upstreamBaseUrl}`,
           `- processo: ${status.running ? `ativo (pid ${formatCliValue(status.pid ? String(status.pid) : null)})` : 'inativo'}`,
         ],
         tone: status.ready ? 'success' : status.enabled ? 'warning' : 'muted',
       },
       {
-        title: 'Malha',
+        title: 'Mesh',
         lines: [
           `- host: ${status.host}:${status.port}`,
           `- exposicao: ${status.localOnly ? 'local apenas' : 'acessivel externamente'}`,
@@ -176,7 +176,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
   return renderCliScreen({
     eyebrow: 'AIGateway',
     eyebrowTone: report.status === 'passed' ? 'success' : 'warning',
-    title: 'Doctor do AIGateway',
+    title: 'AIGateway doctor',
     summary: report.summary,
     mode: 'compact',
     showWordmark: false,
@@ -185,7 +185,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
         title: 'Em resumo',
         lines: [
           `- status: ${report.status}`,
-          `- alvo: ${report.checkedTarget}`,
+          `- target: ${report.checkedTarget}`,
           `- gateway: ${report.baseUrl}`,
           `- upstream: ${report.upstreamBaseUrl}`,
         ],
@@ -196,7 +196,7 @@ function formatAIGatewayDoctorReport(report: AIGatewayCompatibilityDoctorReport)
         lines: [
           `- http: ${report.httpStatus ?? 'not provided'}`,
           `- overlay: ${formatCliValue(report.overlayFile)}`,
-          report.error ? `- erro: ${report.error}` : null,
+          report.error ? `- error: ${report.error}` : null,
         ].filter(Boolean) as string[],
         tone: report.error ? 'danger' : 'neutral',
       },
@@ -217,7 +217,7 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
   return renderCliScreen({
     eyebrow: 'AIGateway',
     eyebrowTone: syncTone,
-    title: 'Sync do AIGateway',
+    title: 'AIGateway sync',
     summary: report.summary,
     mode: 'compact',
     showWordmark: false,
@@ -228,17 +228,17 @@ function formatAIGatewaySyncReport(report: AIGatewayUpstreamSyncReport): string 
           `- acao: ${report.action}`,
           `- status: ${report.status}`,
           `- automatic rollback: ${report.rollbackApplied ? 'yes' : 'no'}`,
-          report.error ? `- erro: ${report.error}` : null,
+          report.error ? `- error: ${report.error}` : null,
         ].filter(Boolean) as string[],
         tone: syncTone,
       },
       {
-        title: 'Compatibilidade',
+        title: 'Compatibility',
         lines: [`- ${report.compat ? `${report.compat.status} :: ${sanitizeHumanCliText(report.compat.summary)}` : 'not provided'}`],
         tone: 'neutral',
       },
       {
-        title: 'Arquivos',
+        title: 'Files',
         lines: [
           `- status file: ${report.statusFile}`,
           `- compat file: ${report.compatFile}`,
@@ -317,9 +317,9 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
   const highlighted = snapshot.families.slice(0, 2);
   const selected = snapshot.catalog?.selected || null;
   return renderCliScreen({
-    eyebrow: 'Ferramentas',
+    eyebrow: 'Tools',
     eyebrowTone: snapshot.summary.ready > 0 ? 'info' : 'muted',
-    title: 'Ferramentas do Zavorth',
+    title: 'Zavorth tools',
     summary: compactPlatformLine(snapshot.narrative.headline),
     mode: 'compact',
     showWordmark: false,
@@ -327,7 +327,7 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
       {
         title: 'Agora',
         lines: [
-          `- familias: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'pronta', 'prontas')} | ${formatCount(snapshot.summary.partial, 'partial', 'parciais')}`,
+          `- families: ${formatCount(snapshot.summary.families, 'total', 'total')} | ${formatCount(snapshot.summary.ready, 'ready', 'ready')} | ${formatCount(snapshot.summary.partial, 'partial', 'partial')}`,
           `- resumo: ${compactPlatformLine(snapshot.narrative.operatorSummary)}`,
         ],
         tone: snapshot.summary.ready > 0 ? 'info' : 'muted',
@@ -337,7 +337,7 @@ function formatToolSurfaceSnapshot(snapshot: ZavorthToolSurfaceSnapshot): string
         lines: selected
           ? [
             `- ${selected.label}`,
-            `- familia: ${formatToolFamilyLabel(selected.familyLabel)}`,
+            `- family: ${formatToolFamilyLabel(selected.familyLabel)}`,
             `- state: ${selected.readiness}`,
             `- resumo: ${compactPlatformLine(selected.summary)}`,
             selected.command ? `- command: ${selected.command}` : null,
@@ -359,7 +359,7 @@ function formatHookPlaneSnapshot(snapshot: ZavorthHookPlaneSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Hooks',
     eyebrowTone: snapshot.summary.registeredHooks > 0 ? 'info' : 'muted',
-    title: 'Hooks do Zavorth',
+    title: 'Zavorth hooks',
     summary: sanitizeHumanCliText(snapshot.narrative.headline),
     mode: 'compact',
     showWordmark: false,
@@ -367,8 +367,8 @@ function formatHookPlaneSnapshot(snapshot: ZavorthHookPlaneSnapshot): string {
       {
         title: 'Em resumo',
         lines: [
-          `- eventos: ${snapshot.summary.supportedEvents} total | ${snapshot.summary.coveredEvents} cobertos`,
-          `- hooks registrados: ${snapshot.summary.registeredHooks} | workspaces: ${snapshot.summary.workspaces}`,
+          `- events: ${snapshot.summary.supportedEvents} total | ${snapshot.summary.coveredEvents} covered`,
+          `- registered hooks: ${snapshot.summary.registeredHooks} | workspaces: ${snapshot.summary.workspaces}`,
           `- resumo: ${sanitizeHumanCliText(snapshot.narrative.operatorSummary)}`,
         ],
         tone: snapshot.summary.registeredHooks > 0 ? 'info' : 'muted',

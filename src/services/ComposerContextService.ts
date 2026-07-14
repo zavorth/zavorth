@@ -6,6 +6,10 @@ const CONTEXT_ACTIONS = new Set([
 ]);
 
 export class ComposerContextService {
+  public hasCommandMention(mentions: WebComposerMention[]): boolean {
+    return this.getSelectedCommand(mentions) !== null;
+  }
+
   public hasContextualMentions(mentions: WebComposerMention[]): boolean {
     return this.getContextualMentions(mentions).length > 0;
   }
@@ -27,20 +31,31 @@ export class ComposerContextService {
     mentions: WebComposerMention[],
   ): string {
     const normalizedMessage = String(message || '').trim();
+    const selectedCommand = this.getSelectedCommand(mentions);
     const contextBlocks = this.getContextualMentions(mentions)
       .map((mention) => this.buildContextBlock(mention))
       .filter(Boolean);
 
+    const commandMessage = selectedCommand && !normalizedMessage.startsWith(selectedCommand)
+      ? [selectedCommand, normalizedMessage].filter(Boolean).join(' ')
+      : normalizedMessage;
+
     if (!contextBlocks.length) {
-      return normalizedMessage;
+      return commandMessage;
     }
 
     const contextSection = [
-      '[Contexto do composer]',
+      '[Composer context]',
       ...contextBlocks,
     ].join('\n');
 
-    return [normalizedMessage, contextSection].filter(Boolean).join('\n\n').trim();
+    return [commandMessage, contextSection].filter(Boolean).join('\n\n').trim();
+  }
+
+  private getSelectedCommand(mentions: WebComposerMention[]): string | null {
+    const commandMention = (Array.isArray(mentions) ? mentions : []).find((mention) => mention?.type === 'command');
+    const command = String(commandMention?.payload?.command || commandMention?.id || '').trim();
+    return command.startsWith('/') ? command : null;
   }
 
   private getContextualMentions(mentions: WebComposerMention[]): WebComposerMention[] {
@@ -64,11 +79,11 @@ export class ComposerContextService {
 
   private buildFileContextBlock(mention: WebComposerMention): string {
     const lines = [
-      'Arquivo selecionado para este pedido:',
-      this.buildDetailLine('Nome', mention.payload?.fileName),
-      this.buildDetailLine('Caminho', mention.payload?.path),
+      'Selected file for this request:',
+      this.buildDetailLine('Name', mention.payload?.fileName),
+      this.buildDetailLine('Path', mention.payload?.path),
       this.buildDetailLine('Workspace', mention.payload?.workspace),
-      this.buildDetailLine('Tarefa de origem', this.shortTaskRef(mention.payload?.taskId)),
+      this.buildDetailLine('Source task', this.shortTaskRef(mention.payload?.taskId)),
       'Use este arquivo como contexto principal para a execucao.',
     ].filter(Boolean);
 
@@ -77,16 +92,16 @@ export class ComposerContextService {
 
   private buildArtifactContextBlock(mention: WebComposerMention): string {
     const lines = [
-      'Artefato selecionado para este pedido:',
-      this.buildDetailLine('Nome', mention.payload?.name || mention.payload?.key),
+      'Selected artifact for this request:',
+      this.buildDetailLine('Name', mention.payload?.name || mention.payload?.key),
       this.buildDetailLine(
-        'Tipo',
+        'Type',
         [mention.payload?.kind, mention.payload?.type].filter(Boolean).join(' / '),
       ),
-      this.buildDetailLine('Caminho', mention.payload?.path),
+      this.buildDetailLine('Path', mention.payload?.path),
       this.buildDetailLine('URL', mention.payload?.url),
       this.buildDetailLine('Resumo', mention.payload?.summary || mention.payload?.description),
-      this.buildDetailLine('Tarefa de origem', this.shortTaskRef(mention.payload?.taskId)),
+      this.buildDetailLine('Source task', this.shortTaskRef(mention.payload?.taskId)),
       'Use este artefato como referencia principal para a execucao.',
     ].filter(Boolean);
 

@@ -15,7 +15,7 @@ export class ArchitectureDecisionRecorder {
       title,
       status: 'draft',
       decision: truncateAgentOsText(input.decision || 'Registrar decisao antes de aplicar impacto relevante.', 400),
-      alternativesConsidered: (input.alternatives || ['manter fluxo atual', 'aplicar mudanca minima', 'usar transacao governada'])
+      alternativesConsidered: (input.alternatives || ['keep current flow', 'apply minimal change', 'use governed transaction'])
         .slice(0, 5)
         .map((entry) => truncateAgentOsText(entry, 180)),
       consequences: (input.consequences || ['mais rastreabilidade', 'rollback mais claro', 'menor chance de regressao silenciosa'])

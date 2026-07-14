@@ -1,5 +1,5 @@
 /**
- * Hermes-style free-text routing: free text always goes to the agent.
+ * agent-first free-text routing: free text always goes to the agent.
  * Surfaces are adapters; none is product-primary.
  *
  * Deterministic only:
@@ -54,7 +54,7 @@ export function readDefaultOnFlag(
 }
 
 /**
- * Free text is always agent-owned (Hermes-style).
+ * Free text is always agent-owned (agent-first).
  * Env kill switches are accepted for metrics/compat but do not re-enable free-text NLU packs.
  */
 export function isTelegramAgentFirstFreeTextEnabled(
@@ -85,7 +85,7 @@ export function shouldPassNaturalTextToAgent(
   if (!text) return false;
   if (input.hasParsedSlashCommand) return false;
   if (text.startsWith('/')) return false;
-  // Always agent for free text (Hermes-style). Env kept only so tests can still call this API.
+  // Always agent for free text (agent-first). Env kept only so tests can still call this API.
   void env;
   void input.platform;
   return true;
@@ -108,7 +108,7 @@ export function resetSurfaceAgentFirstMetrics(): void {
 
 export function formatSurfaceAgentFirstMetricsText(): string {
   return [
-    'Surface routing (Hermes-style):',
+    'Surface routing (agent-first):',
     '  mode: free text → agent; slash → deterministic handlers',
     '  free-text NLU packs: removed',
     `  metrics: pass_to_agent=${metrics.naturalSkippedForAgent} slash=${metrics.slashDeterministic}`,

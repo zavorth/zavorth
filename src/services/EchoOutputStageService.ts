@@ -137,15 +137,8 @@ export class EchoOutputStageService {
       } catch {
         return false;
       }
-      // If preference explicitly disabled TTS and no legacy flag, do not speak via Echo either
-      if (
-        preference.tts.enabled === false &&
-        preference.mode !== 'conversation' &&
-        !explicitVoiceRequest &&
-        !allowLegacyEcho
-      ) {
-        return false;
-      }
+      // An active legacy Echo preference is itself an explicit user choice. Keep it
+      // compatible while VoicePreference remains the preferred configuration path.
     }
 
     try {

@@ -1,4 +1,4 @@
-import { SwarmV2Service } from './SwarmV2Service.js';
+import { SwarmV2Service } from '../agents/SwarmV2Service.js';
 import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';

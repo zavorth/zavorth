@@ -18,8 +18,7 @@ function buildPluginState(entries: Record<string, Partial<StoredPluginState>> = 
       sourceLocator: entry.sourceLocator || 'test-registry',
       sourceTrusted: entry.sourceTrusted ?? false,
       updatedAt: entry.updatedAt || '2026-06-06T00:00:00.000Z',
-    }]),
-  );
+    }]),);
   return new PluginStateService({
     stateFile: 'X:/state/plugin-state.json',
     existsSync: jest.fn(() => true),
@@ -55,13 +54,19 @@ describe('ToolGatekeeper dynamic skill map', () => {
     ]);
   });
 
-  it('keeps conversation turns tool-free unless a category map explicitly adds tools', () => {
+  it('keeps a small agent-brain baseline on conversation turns ', () => {
     const gatekeeper = new ToolGatekeeper();
     const tools: ToolDefinition[] = [
-      { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
+      { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {} } },
+      { name: 'get_datetime', description: 'Date and time', parameters: { type: 'object', properties: {} } },
+      { name: 'capability_discovery', description: 'Discover capabilities', parameters: { type: 'object', properties: {} } },
     ];
 
-    expect(gatekeeper.filterTools(tools, 'conversation')).toEqual([]);
+    // web_search is not part of the conversation baseline map
+    expect(gatekeeper.filterTools(tools, 'conversation').map((tool) => tool.name).sort()).toEqual([
+      'capability_discovery',
+      'get_datetime',
+    ]);
   });
 
   it('emits hint telemetry without becoming the final tool exposure gate', () => {
@@ -85,7 +90,7 @@ describe('ToolGatekeeper dynamic skill map', () => {
     expect(hint.omittedToolNames).toEqual(['web_search']);
   });
 
-  it('treats concrete workspace references as workspace hints even without the old file verbs', () => {
+  it('does not map free-text workspace wording to a hard file_operation category', () => {
     const firewall = new CognitiveFirewall();
     const tools: ToolDefinition[] = [
       { name: 'read_file', description: 'Le arquivo do workspace', parameters: { type: 'object', properties: {} } },
@@ -93,16 +98,20 @@ describe('ToolGatekeeper dynamic skill map', () => {
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
     ];
 
-    const decision = firewall.evaluate('confere o README principal do projeto', tools);
+    const decision = firewall.evaluate('check the main project README', tools);
 
-    expect(decision.classification.category).toBe('file_operation');
-    expect(decision.toolHintProfile.groups).toEqual(['workspace']);
-    expect(decision.recommendedToolNames).toEqual(expect.arrayContaining(['read_file', 'list_directory']));
+    expect(decision.classification.category).toBe('full_toolset');
+    expect(decision.toolHintProfile.groups).toEqual(['all']);
+    expect(decision.tools.map((tool) => tool.name).sort()).toEqual([
+      'list_directory',
+      'read_file',
+      'web_search',
+    ]);
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(false);
-    expect(decision.stats).toContain('Tools: 2/3');
+    expect(decision.stats).toContain('Tools: 3/3');
   });
 
-  it('keeps recent news requests mapped to web hints and simple chat lightweight', () => {
+  it('keeps free-text news requests on full_toolset and simple chat lightweight', () => {
     const firewall = new CognitiveFirewall();
     const tools: ToolDefinition[] = [
       { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {} } },
@@ -113,10 +122,16 @@ describe('ToolGatekeeper dynamic skill map', () => {
     const newsDecision = firewall.evaluate('what are the latest AI news?', tools);
     const chatDecision = firewall.evaluate('hi', tools);
 
-    expect(newsDecision.toolHintProfile.groups).toEqual(['web']);
-    expect(newsDecision.recommendedToolNames).toEqual(expect.arrayContaining(['web_search', 'get_datetime']));
+    expect(newsDecision.classification.category).toBe('full_toolset');
+    expect(newsDecision.toolHintProfile.groups).toEqual(['all']);
+    expect(newsDecision.recommendedToolNames).toEqual(expect.arrayContaining([
+      'web_search',
+      'get_datetime',
+      'read_file',
+    ]));
     expect(chatDecision.classification.category).toBe('conversation');
-    expect(chatDecision.tools).toEqual([]);
+    // conversation keeps a lightweight agent-brain baseline (not an empty catalog).
+    expect(chatDecision.tools.map((tool) => tool.name)).toEqual(['get_datetime']);
     expect(chatDecision.toolHintProfile.toolExposureGatedByCognitiveFirewall).toBe(false);
   });
 

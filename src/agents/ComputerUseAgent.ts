@@ -418,7 +418,7 @@ If the objective has already been reached, return: {"action": "done", "reasoning
         payload: args.payload,
       }),
       mapResult: (output) => {
-        const failed = /^(error|erro)\b/i.test(String(output || '').trim());
+        const failed = /^(error|failed)\b/i.test(String(output || '').trim());
         return resultFromToolOutcome({
           ok: !failed,
           status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),

@@ -372,7 +372,7 @@ export class ZavorthFirstRunHumanOnboardingService {
   }
 
   /**
-   * Free-text NLU packs removed (Hermes-style: free text → agent).
+   * Free-text NLU packs removed (agent-first: free text → agent).
    * Surfaces use /start + buttons; applyStep for structured API.
    */
   public matchNaturalCommand(_text: string): null | { kind: 'status' | 'restart' | 'skip' } {

@@ -85,7 +85,7 @@ export function buildNodeCapabilitiesRegistry(
     },
     {
       id: 'clipboard.write',
-      description: 'Escreve texto explicito no clipboard do host pareado.',
+      description: 'Writes explicit text to the paired host clipboard.',
     },
     {
       id: 'notifications.send',

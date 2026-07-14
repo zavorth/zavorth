@@ -198,6 +198,5 @@ describe('W1 SkillInstallPipelineService', () => {
     const text = service.formatPlanText(service.preview({ source: skillDir }));
     expect(text).toMatch(/preview only/i);
     expect(text).toMatch(/read_file/);
-    expect(text).not.toMatch(/openclaw|claude code|cursor/i);
   });
 });

@@ -380,7 +380,7 @@ export function buildAgentTeamCompiler(input: AnyRecord): ZavorthControlAgentTea
       edges: array<AnyRecord>(topology.edges).map((edge, index) => ({
         from: text(edge.from, `role-${index + 1}`),
         to: text(edge.to, `role-${index + 2}`),
-        reason: text(edge.reason, 'handoff governado'),
+        reason: text(edge.reason, 'governed handoff'),
       })).slice(0, 12),
     },
     summary: {
@@ -778,7 +778,7 @@ function naturalFirstRuntimeFrom(agentRun: AnyRecord): AnyRecord | null {
       noToolExecutionBeforeApproval: safety.enforcement?.noToolExecutionBeforeApproval ?? true,
       noApprovalBypass: safety.enforcement?.noApprovalBypass ?? true,
     },
-    nextSafeAction: safety.nextSafeAction || 'Continuar pelo gateway governado.',
+    nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
       { id: 'received', label: 'Mensagem recebida', status: 'done' },
       { id: 'classified', label: `Classificada como ${label}`, status: 'done' },

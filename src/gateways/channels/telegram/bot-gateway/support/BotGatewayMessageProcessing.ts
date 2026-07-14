@@ -72,7 +72,7 @@ export async function processTextMessage(
     return;
   }
 
-  // Hermes-style: free text never goes through priority interceptors.
+  // agent-first: free text never goes through priority interceptors.
   // Only explicit slash commands may be handled before the agent.
   const isSlashText = String(text || '').trim().startsWith('/');
   if (isSlashText && (await runtime.priorityCommandService.handle(ctx, text))) {
@@ -135,6 +135,10 @@ export async function processTextMessage(
     if (handled) {
       return;
     }
+  }
+
+  if (await tryHandleExplicitAgentApproval(runtime, ctx, parsed, effectiveText, chatId, userId, telegramContract)) {
+    return;
   }
 
   if (
@@ -264,6 +268,38 @@ export async function processTextMessage(
   });
 }
 
+async function tryHandleExplicitAgentApproval(
+  runtime: BotGatewaySupportRuntime,
+  ctx: Context,
+  parsed: ParsedCommand,
+  text: string,
+  chatId: string,
+  userId: string,
+  telegramContract: ReturnType<TelegramChannelContractService['buildContract']>,
+): Promise<boolean> {
+  if (
+    !runtime.agentGateway
+    || (parsed.command_type !== '/approve' && parsed.command_type !== '/reject')
+  ) {
+    return false;
+  }
+
+  const dailyAssistant = new TelegramDailyAssistantService({
+    agentGateway: runtime.agentGateway,
+  });
+  const result = await dailyAssistant.handleApprovalIntent({
+    text,
+    userId,
+    sessionId: telegramContract.threadId || chatId,
+  });
+  if (!result || result.receipt.status === 'approval-not-found') {
+    return false;
+  }
+
+  await ctx.reply(result.text);
+  return true;
+}
+
 function hasExecutionAttachmentPayload(
   inlineData?: Array<{ mimeType: string; data: string }>,
   ingressMetadata?: NaturalConversationIngressMetadata,
@@ -330,7 +366,7 @@ async function tryHandleNaturalConversationThroughAgentGateway(
   const dailyAssistant = new TelegramDailyAssistantService({
     agentGateway: runtime.agentGateway,
   });
-  // Hermes-style: never mutate approvals via free-text phrase regex.
+  // agent-first: never mutate approvals via free-text phrase regex.
   // Use /approve|/reject or callback_data task:approve|reject only.
 
   const hasExecutionAttachment = hasExecutionAttachmentPayload(inlineData, ingressMetadata);

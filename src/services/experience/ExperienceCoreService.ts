@@ -1,5 +1,5 @@
 import { ActionCardService } from './ActionCardService.js';
-import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../ZavorthSpeculativeAutonomyService.js';
+import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import {
   ZavorthRuntimeStateBusService,
 } from '../ZavorthRuntimeStateBusService.js';
@@ -90,6 +90,10 @@ import type {
   ZavorthRuntimeStateBusSnapshot,
 } from '../../contracts/ZavorthRuntimeStateBusContract.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
+import { ExperienceProjectionSupport } from './ExperienceProjectionSupport.js';
+import { ExperienceContinuitySupport } from './ExperienceContinuitySupport.js';
+import { ExperienceActionDecisionSupport } from './ExperienceActionDecisionSupport.js';
+
 type AgentGatewayLike = Pick<
   ZavorthAgentGateway,
   'handle' | 'buildSnapshot' | 'approve' | 'reject'
@@ -220,29 +224,33 @@ function action(input: {
 }
 
 export class ExperienceCoreService {
-  private readonly now: () => Date;
-  private readonly agentGateway: AgentGatewayLike | null;
-  private readonly memoryPlane: ExperienceCoreRuntime['memoryPlane'];
-  private readonly runtimeAccessReadiness: ExperienceCoreRuntime['runtimeAccessReadiness'];
-  private readonly router: NaturalCommandRouterService;
-  private readonly learningOs: LearningOSService;
-  private readonly journeyEngine: JourneyEngineService;
-  private readonly trustLens: TrustLensService;
-  private readonly actionCards: ActionCardService;
-  private readonly diffReview: DiffReviewService;
-  private readonly executionGraph: ExecutionGraphService;
-  private readonly contextRecovery: ContextRecoveryService;
-  private readonly autoHealing: AutoHealingProjectionService;
-  private readonly reasoningSummary: ReasoningSummaryService;
-  private readonly pulseBrief: PulseBriefService;
-  private readonly responseProfiles: ResponseProfilePreferenceService;
-  private readonly selfHealingUx: ZavorthSelfHealingUxService;
-  private readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
-  private readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
-  private readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
-  private readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
-  private readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
-  private readonly runtimeSecureIntegration: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
+  private readonly __experienceCoreBrand = true;
+  public readonly projectionSupport: ExperienceProjectionSupport;
+  public readonly continuitySupport: ExperienceContinuitySupport;
+  public readonly actionDecisionSupport: ExperienceActionDecisionSupport;
+  public readonly now: () => Date;
+  public readonly agentGateway: AgentGatewayLike | null;
+  public readonly memoryPlane: ExperienceCoreRuntime['memoryPlane'];
+  public readonly runtimeAccessReadiness: ExperienceCoreRuntime['runtimeAccessReadiness'];
+  public readonly router: NaturalCommandRouterService;
+  public readonly learningOs: LearningOSService;
+  public readonly journeyEngine: JourneyEngineService;
+  public readonly trustLens: TrustLensService;
+  public readonly actionCards: ActionCardService;
+  public readonly diffReview: DiffReviewService;
+  public readonly executionGraph: ExecutionGraphService;
+  public readonly contextRecovery: ContextRecoveryService;
+  public readonly autoHealing: AutoHealingProjectionService;
+  public readonly reasoningSummary: ReasoningSummaryService;
+  public readonly pulseBrief: PulseBriefService;
+  public readonly responseProfiles: ResponseProfilePreferenceService;
+  public readonly selfHealingUx: ZavorthSelfHealingUxService;
+  public readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
+  public readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
+  public readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
+  public readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
+  public readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
+  public readonly runtimeSecureIntegration: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 
   constructor(runtime: ExperienceCoreRuntime = {}) {
     this.now = runtime.now || (() => new Date());
@@ -283,6 +291,9 @@ export class ExperienceCoreService {
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       });
+    this.projectionSupport = new ExperienceProjectionSupport(this);
+    this.continuitySupport = new ExperienceContinuitySupport(this);
+    this.actionDecisionSupport = new ExperienceActionDecisionSupport(this);
   }
 
   public buildHome(input: ExperienceHomeInput = {}): ExperienceSnapshot {
@@ -731,34 +742,51 @@ export class ExperienceCoreService {
 
       let runResult: UniversalAgentRunResult | null = null;
       if (plan.shouldExecuteAgent && this.agentGateway) {
-        const handledRun = await this.agentGateway.handle({
-          userId: command.userId,
-          sessionId: command.sessionId,
-          channel: command.surface,
-          text: command.text,
-          workspace: command.workspace || runtimeWorkspace || null,
-          modelProfile: runtimeModelProfile,
-          metadata: {
-            ...(command.metadata || {}),
-            responseProfile: command.responseProfile || undefined,
-            effortControl: runtimeState?.state.effort.snapshot,
-            runtimeState: runtimeState
-              ? {
-                model: runtimeState.state.model,
-                workspace: runtimeState.state.workspace,
-                statusbar: runtimeState.projections.statusbar,
-                lifecycle: runtimeState.projections.lifecycle,
-              }
-              : undefined,
-            experiencePlan: {
-              id: plan.id,
-              kind: plan.kind,
-              risk: plan.risk,
-              requiresApproval: plan.requiresApproval,
-              autonomyMode: command.autonomyMode,
+        // Voice barge-in: optional AbortSignal attached in-process via metadata
+        const voiceSignal = (command.metadata as { voiceAbortSignal?: AbortSignal } | undefined)
+          ?.voiceAbortSignal;
+        if (voiceSignal?.aborted) {
+          return this.finalizeCommandResult(command, {
+            ok: false,
+            handled: true,
+            plan,
+            snapshot: this.buildHome(command),
+            replies: [],
+            receipts: [],
+            error: 'Voice turn aborted (barge-in).',
+          });
+        }
+        const gatewayRequest = {
+            userId: command.userId,
+            sessionId: command.sessionId,
+            channel: command.surface,
+            text: command.text,
+            workspace: command.workspace || runtimeWorkspace || null,
+            modelProfile: runtimeModelProfile,
+            metadata: {
+              ...(command.metadata || {}),
+              responseProfile: command.responseProfile || undefined,
+              effortControl: runtimeState?.state.effort.snapshot,
+              runtimeState: runtimeState
+                ? {
+                  model: runtimeState.state.model,
+                  workspace: runtimeState.state.workspace,
+                  statusbar: runtimeState.projections.statusbar,
+                  lifecycle: runtimeState.projections.lifecycle,
+                }
+                : undefined,
+              experiencePlan: {
+                id: plan.id,
+                kind: plan.kind,
+                risk: plan.risk,
+                requiresApproval: plan.requiresApproval,
+                autonomyMode: command.autonomyMode,
+              },
             },
-          },
-        });
+          };
+        const handledRun = voiceSignal
+          ? await this.agentGateway.handle(gatewayRequest, { signal: voiceSignal })
+          : await this.agentGateway.handle(gatewayRequest);
         runResult = handledRun || null;
         if (runResult) {
           runResult = await this.maybeRetryProviderFallback(command, plan, runResult);
@@ -846,7 +874,7 @@ export class ExperienceCoreService {
     }
   }
 
-  private publishRuntimeStateProjection(input: {
+  public publishRuntimeStateProjection(input: {
     surface: ExperienceSurface;
     sessionId: string | null;
     userId: string;
@@ -1019,7 +1047,7 @@ export class ExperienceCoreService {
     return this.safeRuntimeStateSnapshot();
   }
 
-  private publishRuntimeApprovalDecision(command: ExperienceCommand, found: boolean): void {
+  public publishRuntimeApprovalDecision(command: ExperienceCommand, found: boolean): void {
     if (!command.approval?.id) {
       return;
     }
@@ -1044,7 +1072,7 @@ export class ExperienceCoreService {
     });
   }
 
-  private publishRuntimeLearningDecision(
+  public publishRuntimeLearningDecision(
     command: ExperienceCommand,
     learning: Awaited<ReturnType<LearningOSService['decide']>>,
   ): void {
@@ -1072,7 +1100,7 @@ export class ExperienceCoreService {
     });
   }
 
-  private attachRuntimeStateSnapshot(snapshot: ExperienceSnapshot): void {
+  public attachRuntimeStateSnapshot(snapshot: ExperienceSnapshot): void {
     const runtimeState = this.safeRuntimeStateSnapshot();
     if (!runtimeState) {
       return;
@@ -1083,7 +1111,7 @@ export class ExperienceCoreService {
     };
   }
 
-  private safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
+  public safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
     } catch (error: unknown) {logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
@@ -1091,7 +1119,7 @@ export class ExperienceCoreService {
     }
   }
 
-  private safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
+  public safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
     try {
       return this.agentGateway?.buildSnapshot(input) || null;
     } catch (error: unknown) {logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
@@ -1099,1382 +1127,257 @@ export class ExperienceCoreService {
     }
   }
 
-  private collectApprovals(runs: UniversalAgentRun[]): UniversalApprovalRequest[] {
-    return runs
-      .flatMap((run) => run.approvals)
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  public collectApprovals(runs: UniversalAgentRun[]): UniversalApprovalRequest[] {
+    return this.projectionSupport.collectApprovals(runs);
   }
 
-  private buildTimeline(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[]): ExperienceTimelineItem[] {
-    const sourceRuns = activeRun ? [activeRun] : runs.slice(0, 3);
-    const items: ExperienceTimelineItem[] = sourceRuns.flatMap((run) =>
-      run.events.map((event) => ({
-        id: event.id,
-        runId: run.id,
-        title: event.title,
-        detail: event.detail || run.summary || event.kind,
-        status: event.status === 'failed' ? 'failed' as const : event.status,
-        kind: this.timelineKind(event.kind),
-        createdAt: event.createdAt,
-      })),
-    );
-    return items
-      .sort((left, right) => left.createdAt.localeCompare(right.createdAt))
-      .slice(-20);
+  public buildTimeline(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[]): ExperienceTimelineItem[] {
+    return this.projectionSupport.buildTimeline(activeRun, runs);
   }
 
-  private timelineKind(kind: string): ExperienceTimelineItem['kind'] {
-    if (kind === 'input') return 'intent';
-    if (kind === 'planning') return 'planning';
-    if (kind === 'tool') return 'tool';
-    if (kind === 'approval') return 'approval';
-    if (kind === 'memory') return 'memory';
-    if (kind === 'reply') return 'reply';
-    if (kind === 'artifact') return 'receipt';
-    return 'status';
+  public timelineKind(kind: string): ExperienceTimelineItem['kind'] {
+    return this.projectionSupport.timelineKind(kind);
   }
 
-  private buildReceipts(
+  public buildReceipts(
     activeRun: UniversalAgentRun | null,
     runs: UniversalAgentRun[],
     approvals: UniversalApprovalRequest[],
   ): ExperienceReceipt[] {
-    const sourceRuns = activeRun ? [activeRun] : runs.slice(0, 4);
-    const runReceipts = sourceRuns.map((run) => ({
-      id: `run:${run.id}`,
-      title: run.title,
-      detail: run.summary || `Status: ${run.status}`,
-      status: run.status === 'failed'
-        ? 'failed' as const
-        : run.status === 'waiting_approval'
-          ? 'pending' as const
-          : run.status === 'completed'
-            ? 'ready' as const
-            : 'pending' as const,
-      source: 'run' as const,
-      createdAt: run.updatedAt,
-    }));
-    const approvalReceipts = approvals.slice(0, 6).map((approval) => ({
-      id: `approval:${approval.id}`,
-      title: approval.title,
-      detail: approval.reason,
-      status: approval.status === 'pending' ? 'pending' as const : 'ready' as const,
-      source: 'approval' as const,
-      createdAt: approval.createdAt,
-    }));
-    return [...runReceipts, ...approvalReceipts]
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-      .slice(0, 12);
+    return this.projectionSupport.buildReceipts(activeRun, runs, approvals);
   }
 
-  private buildMemorySignals(activeRun: UniversalAgentRun | null, workspace: string | null): ExperienceMemorySignal[] {
-    const runSignals = (activeRun?.memorySignals || []).map((signal) => ({
-      id: signal.id,
-      title: signal.title,
-      summary: signal.summary,
-      layer: signal.layer,
-      confidence: signal.confidence ?? null,
-    }));
-    if (runSignals.length > 0) return runSignals.slice(0, 8);
-
-    try {
-      const snapshot = this.memoryPlane?.buildSnapshot({ workspaceHint: workspace || undefined });
-      const record = recordOrNull(snapshot);
-      const summary = recordOrNull(record?.summary);
-      const artifacts = Number(summary?.artifacts || summary?.memoryArtifacts || 0);
-      if (artifacts > 0) {
-        return [{
-          id: 'memory-plane:artifacts',
-          title: 'Memory Plane',
-          summary: `${artifacts} artefato(s) de memoria disponiveis para recall governado.`,
-          layer: 'semantic',
-          confidence: 0.7,
-        }];
-      }
-    } catch (error: unknown) {logger.warn('[ExperienceCore] buildMemorySignals memoryPlane fallback failed:', error);
-    }
-    return [];
+  public buildMemorySignals(activeRun: UniversalAgentRun | null, workspace: string | null): ExperienceMemorySignal[] {
+    return this.projectionSupport.buildMemorySignals(activeRun, workspace);
   }
 
-  private buildLlmBrainLearningCandidates(
+  public buildLlmBrainLearningCandidates(
     activeRun: UniversalAgentRun | null,
     llmBrain: ZavorthLlmBrainSnapshot | null,
   ): ExperienceLearningCandidate[] {
-    if (!activeRun || !llmBrain) return [];
-    const signal = llmBrain.skillEvolution;
-    if (signal.status === 'needs-more-signal') return [];
-    const quarantined = signal.status === 'quarantined';
-    return [{
-      contractVersion: LEARNING_CANDIDATE_CONTRACT_VERSION,
-      id: `llm-brain:${activeRun.id}`,
-      title: signal.candidateKind === 'skill-improvement'
-        ? 'Skill improvement signal'
-        : signal.candidateKind === 'auto-skill'
-          ? 'Reusable skill signal'
-          : 'Procedure learning signal',
-      origin: 'llm-brain',
-      observedPattern: signal.summary,
-      recommendation: quarantined
-        ? 'Keep quarantined. Learning cannot alter security policy, approvals, sandbox, effect boundary or allowlists.'
-        : 'Review this run as a possible reusable skill, Mnemos procedure or nudge before promoting behavior.',
-      confidence: quarantined ? 0.2 : 0.82,
-      impact: quarantined
-        ? 'Does not alter behavior.'
-        : 'Can improve future routing, procedures or skill suggestions only after approval.',
-      dataUsed: [
-        llmBrain.summary,
-        `tools requested=${llmBrain.toolAgency.requested} executed=${llmBrain.toolAgency.executed}`,
-        `session=${llmBrain.session.sessionId}`,
-      ],
-      suggestedAction: signal.suggestedCommand || 'zavorth learn',
-      state: quarantined ? 'quarantined' : 'pending',
-      createdAt: llmBrain.generatedAt,
-      updatedAt: llmBrain.generatedAt,
-    }];
+    return this.projectionSupport.buildLlmBrainLearningCandidates(activeRun, llmBrain);
   }
 
-  private safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
-    try {
-      return this.runtimeStateBus?.buildSnapshot() || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] safeRuntimeStateSnapshot failed:', error);
-      return null;
-    }
+  public safeRuntimeStateSnapshot(): ZavorthRuntimeStateBusSnapshot | null {
+    return this.projectionSupport.safeRuntimeStateSnapshot();
   }
 
-  private buildReachSnapshot(): import('./ExperienceContracts.js').ExperienceReachSnapshot {
-    try {
-      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
-      const snap = new ZavorthHumanReachService({ projectRoot: process.cwd() }).buildSnapshot();
-      return {
-        contractVersion: 'zavorth-human-reach/1',
-        headline: snap.headline,
-        summary: snap.summary,
-        preferredPathId: snap.preferredPathId,
-        stableReadyCount: snap.stableReadyCount,
-        paths: snap.paths.map((pathItem) => ({
-          id: pathItem.id,
-          title: pathItem.title,
-          summary: pathItem.summary,
-          statusLabel: pathItem.statusLabel,
-          ready: pathItem.ready,
-          stable: pathItem.stable,
-          recommended: pathItem.recommended,
-          howToStart: pathItem.howToStart,
-          nextStep: pathItem.nextStep,
-          productTier: pathItem.productTier,
-        })),
-      };
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] buildReachSnapshot failed:', error);
-      return {
-        contractVersion: 'zavorth-human-reach/1',
-        headline: 'Where you can reach me',
-        summary: 'Channel catalog unavailable right now.',
-        preferredPathId: null,
-        stableReadyCount: 0,
-        paths: [],
-      };
-    }
+  public buildReachSnapshot(): import('./ExperienceContracts.js').ExperienceReachSnapshot {
+    return this.projectionSupport.buildReachSnapshot();
   }
 
-  private tryHandleReachCommand(command: ExperienceCommand): ExperienceCommandResult | null {
-    try {
-      const { ZavorthHumanReachService } = require('../ZavorthHumanReachService.js') as typeof import('../ZavorthHumanReachService.js');
-      const service = new ZavorthHumanReachService({ projectRoot: process.cwd() });
-      const matched = service.matchNaturalCommand(command.text);
-      if (!matched) return null;
-      const snapshot = this.buildHome(command);
-      const text = matched.kind === 'list'
-        ? service.formatDigestLines().join('\n')
-        : service.formatPathGuide(matched.pathId || 'telegram').join('\n');
-      return {
-        ok: true,
-        handled: true,
-        plan: {
-          kind: 'status',
-          title: 'Onde me encontrar',
-          summary: snapshot.reach?.summary || 'Caminhos de alcance',
-          nextSafeAction: matched.kind === 'list' ? 'Ask for a telegram guide if you want to set up the phone.' : null,
-        } as any,
-        snapshot,
-        replies: [this.replyFromText(text, command, snapshot.agent.activeRunId)],
-        receipts: snapshot.receipts,
-        error: null,
-      };
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] tryHandleReachCommand failed:', error);
-      return null;
-    }
+  public tryHandleReachCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    return this.projectionSupport.tryHandleReachCommand(command);
   }
 
-  private buildSuperpowersSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
-    try {
-      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
-      const snap = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd(), userId: userId || null }).buildSnapshot();
-      return {
-        contractVersion: 'zavorth-human-superpowers/1',
-        headline: snap.headline,
-        summary: snap.summary,
-        readyCount: snap.readyCount,
-        learnedCount: snap.learnedCount,
-        powers: snap.powers.slice(0, 16).map((power) => ({
-          id: power.id,
-          title: power.title,
-          summary: power.summary,
-          howToAsk: power.howToAsk,
-          examples: power.examples,
-          trustLabel: power.trustLabel,
-          ready: power.ready,
-          nextStep: power.nextStep,
-        })),
-      };
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] buildSuperpowersSnapshot failed:', error);
-      return {
-        contractVersion: 'zavorth-human-superpowers/1',
-        headline: 'What I can do for you',
-        summary: 'Catalog unavailable right now.',
-        readyCount: 0,
-        learnedCount: 0,
-        powers: [],
-      };
-    }
+  public buildSuperpowersSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
+    return this.projectionSupport.buildSuperpowersSnapshot(userId);
   }
 
-  private tryHandleSuperpowersCommand(command: ExperienceCommand): ExperienceCommandResult | null {
-    try {
-      const { ZavorthHumanSuperpowersService } = require('../ZavorthHumanSuperpowersService.js') as typeof import('../ZavorthHumanSuperpowersService.js');
-      const service = new ZavorthHumanSuperpowersService({ projectRoot: process.cwd() });
-      const matched = service.matchNaturalCommand(command.text);
-      if (!matched) return null;
-      const snapshot = this.buildHome(command);
-      if (matched.kind === 'list') {
-        const text = service.formatDigestLines().join('\n');
-        return {
-          ok: true,
-          handled: true,
-          plan: {
-            kind: 'status',
-            title: 'Superpowers',
-            summary: snapshot.superpowers?.summary || 'Human capability catalog.',
-            nextSafeAction: 'Ask for a capability in plain language.',
-          } as any,
-          snapshot,
-          replies: [this.replyFromText(text, command, snapshot.agent.activeRunId)],
-          receipts: snapshot.receipts,
-          error: null,
-        };
-      }
-      const found = service.findByNeed(matched.query || command.text);
-      const lines = found.length
-        ? [
-          `For "${matched.query}", this helps:`,
-          ...found.slice(0, 5).map((power) => `• ${power.title} — ${power.howToAsk}${power.ready ? '' : ` (${power.nextStep || 'needs setup'})`}`),
-          'You can ask directly, without a technical command.',
-        ]
-        : ['I could not match a clear superpower. Ask "what can you do?" (or "o que voce sabe fazer?") for the list.'];
-      return {
-        ok: true,
-        handled: true,
-        plan: {
-          kind: 'status',
-          title: 'Superpowers',
-          summary: `Suggestions for: ${matched.query}`,
-          nextSafeAction: found[0]?.howToAsk || null,
-        } as any,
-        snapshot,
-        replies: [this.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
-        receipts: snapshot.receipts,
-        error: null,
-      };
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] tryHandleSuperpowersCommand failed:', error);
-      return null;
-    }
+  public tryHandleSuperpowersCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    return this.projectionSupport.tryHandleSuperpowersCommand(command);
   }
 
-  private getFirstRunService(userId?: string | null): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
-    const { ZavorthFirstRunHumanOnboardingService } = require('../ZavorthFirstRunHumanOnboardingService.js') as typeof import('../ZavorthFirstRunHumanOnboardingService.js');
-    return new ZavorthFirstRunHumanOnboardingService({
-      projectRoot: process.cwd(),
-      now: () => this.now(),
-      userId: userId || null,
-    });
+  public getFirstRunService(userId?: string | null): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
+    return this.continuitySupport.getFirstRunService(userId);
   }
 
-  private buildFirstRunSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceFirstRunSnapshot {
-    const snap = this.getFirstRunService(userId).buildSnapshot();
-    return {
-      contractVersion: 'zavorth-first-run-human/1',
-      required: snap.required,
-      completed: snap.completed,
-      currentStep: snap.currentStep,
-      headline: snap.headline,
-      summary: snap.summary,
-      nextPrompt: snap.nextPrompt,
-      welcomeLines: snap.welcomeLines,
-      steps: snap.steps,
-    };
+  public buildFirstRunSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceFirstRunSnapshot {
+    return this.continuitySupport.buildFirstRunSnapshot(userId);
   }
 
-  private buildFirstRunActionCards(
+  public buildFirstRunActionCards(
     firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
   ): import('./ExperienceContracts.js').ExperienceActionCard[] {
-    if (!firstRun.required) return [];
-    const step = firstRun.steps.find((entry) => !entry.done);
-    if (!step) return [];
-    const now = this.now().toISOString();
-    return [{
-      contractVersion: 'ExperienceActionCard/v1',
-      id: `card:first-run:${step.key}`,
-      source: 'learning',
-      title: `Setup · ${step.title}`,
-      summary: step.prompt,
-      risk: 'safe',
-      status: 'pending',
-      scope: 'first-run',
-      sandbox: 'not-applicable',
-      affectedFiles: [],
-      affectedCommands: [],
-      ttlSeconds: null,
-      receiptHint: `first-run step ${step.id}`,
-      createdAt: now,
-      actions: step.examples.slice(0, 4).map((example) => ({
-        id: `first-run:${step.key}:${example}`,
-        label: example,
-        kind: 'learning' as const,
-        command: example,
-        route: null,
-        risk: 'safe' as const,
-        requiresApproval: false,
-        reason: step.prompt,
-      })),
-    }];
+    return this.continuitySupport.buildFirstRunActionCards(firstRun);
   }
 
-  private buildFirstRunNextActions(
+  public buildFirstRunNextActions(
     firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
   ): import('./ExperienceContracts.js').ExperienceAction[] {
-    const step = firstRun.steps.find((entry) => !entry.done);
-    if (!step) return [];
-    return step.examples.slice(0, 3).map((example) => ({
-      id: `first-run:${step.key}:${example}`,
-      label: example,
-      kind: 'learning' as const,
-      command: example,
-      route: null,
-      risk: 'safe' as const,
-      requiresApproval: false,
-      reason: step.prompt,
-    }));
+    return this.continuitySupport.buildFirstRunNextActions(firstRun);
   }
 
   /**
-   * Hermes-style: free text never advances first-run.
+   * agent-first: free text never advances first-run.
    * Only explicit setup intent or structured /start-like verbs.
    */
-  private tryHandleFirstRunCommand(command: ExperienceCommand): ExperienceCommandResult | null {
-    const service = this.getFirstRunService(command.userId);
-    const text = String(command.text || '').trim();
-    const normalized = text.toLowerCase();
-    const explicitSetup =
-      command.intent === 'setup'
-      || /^(?:\/)?(?:start\s+)?(?:setup|onboarding|tour|restart setup|reset setup|skip setup)$/i.test(normalized)
-      || /^(?:\/start)\b/.test(normalized);
-
-    if (!explicitSetup) {
-      // Free text belongs to the agent path; do not steal for wizard answers.
-      return null;
-    }
-
-    if (/restart|reset/i.test(normalized)) {
-      const snapshotState = service.reset();
-      const snapshot = this.buildHome(command);
-      return {
-        ok: true,
-        handled: true,
-        plan: {
-          kind: 'status',
-          title: 'First run',
-          summary: snapshotState.headline,
-          nextSafeAction: 'Use buttons or /start lang=en surface=telegram learn=yes',
-        } as any,
-        snapshot,
-        replies: [this.replyFromText(
-          [...snapshotState.welcomeLines, '', 'Use /start buttons (or structured /start args). Free text goes to the agent.'].join('\n'),
-          command,
-          snapshot.agent.activeRunId,
-        )],
-        receipts: snapshot.receipts,
-        error: null,
-      };
-    }
-
-    if (/skip/i.test(normalized)) {
-      const done = service.complete({
-        language: service.buildSnapshot().state.language || 'en',
-        surface: service.buildSnapshot().state.surface || 'desktop',
-        allowLearning: service.buildSnapshot().state.allowLearning ?? true,
-      });
-      const snapshot = this.buildHome(command);
-      return {
-        ok: true,
-        handled: true,
-        plan: {
-          kind: 'status',
-          title: 'First run',
-          summary: done.summary,
-          nextSafeAction: null,
-        } as any,
-        snapshot,
-        replies: [this.replyFromText(done.summary, command, snapshot.agent.activeRunId)],
-        receipts: snapshot.receipts,
-        error: null,
-      };
-    }
-
-    // Status / open setup card only — never answer() free-text wizard steps here.
-    const snap = service.buildSnapshot();
-    const snapshot = this.buildHome(command);
-    const lines = [
-      ...snap.welcomeLines,
-      '',
-      'Hermes-style: finish setup with /start buttons or structured args.',
-      'Examples: /start setup · /start skip · /start lang=en surface=telegram learn=yes',
-      'Free text is handled by the agent.',
-    ];
-    return {
-      ok: true,
-      handled: true,
-      plan: {
-        kind: 'status',
-        title: 'First run',
-        summary: snap.headline,
-        nextSafeAction: snap.nextPrompt || 'Use /start buttons',
-      } as any,
-      snapshot,
-      replies: [this.replyFromText(lines.join('\n'), command, snapshot.agent.activeRunId)],
-      receipts: snapshot.receipts,
-      error: null,
-    };
+  public tryHandleFirstRunCommand(command: ExperienceCommand): ExperienceCommandResult | null {
+    return this.continuitySupport.tryHandleFirstRunCommand(command);
   }
 
-  private listLearnedRuntimeItems(userId?: string | null): Array<{ id: string; title: string; summary: string; kind: string }> {
-    try {
-      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
-      return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null })
-        .listLearned()
-        .slice(0, 8)
-        .map((item) => ({
-          id: item.id,
-          title: item.title,
-          summary: item.summary,
-          kind: item.kind,
-        }));
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] listLearnedRuntimeItems failed:', error);
-      return [];
-    }
+  public listLearnedRuntimeItems(userId?: string | null): Array<{ id: string; title: string; summary: string; kind: string }> {
+    return this.continuitySupport.listLearnedRuntimeItems(userId);
   }
 
-  private undoLearnedRuntimeItem(id: string, userId?: string | null): { ok: boolean; summary: string } {
-    try {
-      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
-      return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null }).undo(id);
-    } catch (error: unknown) {
-      logger.warn('[ExperienceCore] undoLearnedRuntimeItem failed:', error);
-      return { ok: false, summary: 'Nao foi possivel desfazer o aprendizado agora.' };
-    }
+  public undoLearnedRuntimeItem(id: string, userId?: string | null): { ok: boolean; summary: string } {
+    return this.continuitySupport.undoLearnedRuntimeItem(id, userId);
   }
 
-  private workboardProjectionFromRuntimeState(
+  public workboardProjectionFromRuntimeState(
     runtimeState: ZavorthRuntimeStateBusSnapshot | null,
   ): Record<string, unknown> | null {
-    if (!runtimeState) return null;
-    const fromProjection = runtimeState.projections?.workboard || null;
-    const fromState = runtimeState.state?.workboard || null;
-    const workboard = fromProjection || fromState;
-    if (!workboard) return null;
-    // Only surface when there is something useful to render (tasks, sessions, or boards).
-    const hasContent = Boolean(
-      (Array.isArray(workboard.tasks) && workboard.tasks.length > 0)
-      || (Array.isArray(workboard.sessions) && workboard.sessions.length > 0)
-      || (Array.isArray(workboard.boards) && workboard.boards.length > 0),
-    );
-    return hasContent ? (workboard as unknown as Record<string, unknown>) : null;
+    return this.continuitySupport.workboardProjectionFromRuntimeState(runtimeState);
   }
 
-  private safeRuntimeStateSync(command: ExperienceCommand): ZavorthRuntimeStateBusSnapshot | null {
-    try {
-      return this.runtimeStateBus?.syncExperienceCommand({
-        surface: command.surface,
-        userId: command.userId,
-        sessionId: command.sessionId || null,
-        workspace: command.workspace || null,
-        text: command.text,
-        responseProfile: command.responseProfile || null,
-        metadata: command.metadata || {},
-      }) || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] safeRuntimeStateSync failed, falling back to snapshot:', error);
-      return this.safeRuntimeStateSnapshot();
-    }
+  public safeRuntimeStateSync(command: ExperienceCommand): ZavorthRuntimeStateBusSnapshot | null {
+    return this.continuitySupport.safeRuntimeStateSync(command);
   }
 
-  private workspacePathFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): string | null {
-    const workspace = runtimeState?.state.workspace || null;
-    if (!workspace?.path) {
-      return null;
-    }
-    if (workspace.kind === 'folder' || workspace.kind === 'project' || workspace.kind === 'zavorth') {
-      return workspace.path;
-    }
-    return null;
+  public workspacePathFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): string | null {
+    return this.continuitySupport.workspacePathFromRuntimeState(runtimeState);
   }
 
-  private modelProfileFromRuntimeState(
+  public modelProfileFromRuntimeState(
     runtimeState: ZavorthRuntimeStateBusSnapshot | null,
   ): Partial<UniversalAgentModelProfile> | undefined {
-    const model = runtimeState?.state.model || null;
-    if (!model?.id || model.connected !== true) {
-      return undefined;
-    }
-    return {
-      providerLabel: model.provider,
-      modelLabel: model.label,
-      routingPolicy: 'gateway',
-      routeId: model.id,
-      familyId: model.provider,
-      ready: true,
-      selectionExplanation: [
-        `Runtime state selected ${model.label} from ${model.source || 'runtime'}.`,
-      ],
-    };
+    return this.continuitySupport.modelProfileFromRuntimeState(runtimeState);
   }
 
-  private buildNativeAutonomySpineProjection(
+  public buildNativeAutonomySpineProjection(
     spine: Record<string, unknown> | null,
   ): Record<string, unknown> | null {
-    if (!spine) {
-      return null;
-    }
-    const learning = recordOrNull(spine.learning);
-    const skillForge = recordOrNull(spine.skillForge);
-    const dynamicMission = recordOrNull(spine.dynamicMission);
-    const dynamicMissionWorkflow = recordOrNull(dynamicMission?.workflow);
-    const dynamicMissionApproval = recordOrNull(dynamicMission?.approval);
-    const dreamCycle = recordOrNull(spine.dreamCycle);
-    const dreamCandidateStore = recordOrNull(dreamCycle?.candidateStore);
-    const channel = recordOrNull(spine.channel);
-    const backend = recordOrNull(spine.backend);
-    const reviewCenter = recordOrNull(spine.reviewCenter);
-    const safety = recordOrNull(spine.safety);
-    const summary = recordOrNull(spine.summary);
-    const channelReadiness = recordOrNull(channel?.readiness);
-    const backendReadiness = recordOrNull(backend?.readiness);
-
-    return {
-      version: normalizeText(spine.version, 'native-autonomy-spine/v1'),
-      generatedAt: normalizeText(spine.generatedAt),
-      status: normalizeText(spine.status, 'attention'),
-      stages: Array.isArray(spine.stages)
-        ? spine.stages.map((stage) => {
-            const record = recordOrNull(stage);
-            return {
-              id: normalizeText(record?.id),
-              status: normalizeText(record?.status, 'attention'),
-              summary: normalizeText(record?.summary),
-            };
-          }).filter((stage) => stage.id)
-        : [],
-      learningCandidates: Array.isArray(learning?.candidates) ? learning.candidates.length : 0,
-      skillDrafts: Array.isArray(skillForge?.drafts) ? skillForge.drafts.length : 0,
-      dynamicMissionTasks: Array.isArray(dynamicMissionWorkflow?.tasks) ? dynamicMissionWorkflow.tasks.length : 0,
-      dynamicMissionApprovalRequired: dynamicMissionApproval?.required === true,
-      dreamCandidateMemories: Array.isArray(dreamCandidateStore?.memories) ? dreamCandidateStore.memories.length : 0,
-      dreamQuarantineItems: Array.isArray(dreamCycle?.quarantine) ? dreamCycle.quarantine.length : 0,
-      channel: channel
-        ? {
-          liveReady: channelReadiness?.liveReady === true,
-          defaultRouteAllowed: channelReadiness?.defaultRouteAllowed === true,
-        }
-        : null,
-      backend: backend
-        ? {
-          liveReady: backendReadiness?.liveReady === true,
-          liveMutationAllowed: backendReadiness?.liveMutationAllowed === true,
-        }
-        : null,
-      summary: summary
-        ? {
-          organicLearningReady: summary.organicLearningReady === true,
-          skillForgeReady: summary.skillForgeReady === true,
-          dynamicMissionReady: summary.dynamicMissionReady === true,
-          dreamCycleReady: summary.dreamCycleReady === true,
-          liveChannelReady: summary.liveChannelReady === true,
-          backendProviderReady: summary.backendProviderReady === true,
-        }
-        : null,
-      reviewActions: Array.isArray(reviewCenter?.actions)
-        ? reviewCenter.actions.map((entry) => normalizeText(entry)).filter(Boolean).slice(0, 8)
-        : [],
-      receiptCount: Array.isArray(reviewCenter?.receipts) ? reviewCenter.receipts.length : 0,
-      quietLanes: reviewCenter?.quietLanes === true,
-      rawSecretsSerialized: safety?.rawSecretsSerialized === false ? false : null,
-    };
+    return this.continuitySupport.buildNativeAutonomySpineProjection(spine);
   }
 
-  private mergeLearningCandidates(
+  public mergeLearningCandidates(
     primary: ExperienceLearningCandidate[],
     secondary: ExperienceLearningCandidate[],
   ): ExperienceLearningCandidate[] {
-    const seen = new Set<string>();
-    return [...secondary, ...primary].filter((candidate) => {
-      if (seen.has(candidate.id)) return false;
-      seen.add(candidate.id);
-      return true;
-    });
+    return this.continuitySupport.mergeLearningCandidates(primary, secondary);
   }
 
-  private buildChat(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[]) {
-    const sourceRuns = activeRun ? [activeRun] : runs.slice(0, 4);
-    return sourceRuns.flatMap((run) => {
-      const user = {
-        id: `input:${run.id}`,
-        role: 'user' as const,
-        text: run.input,
-        createdAt: run.createdAt,
-        runId: run.id,
-      };
-      const assistant = {
-        id: `summary:${run.id}`,
-        role: 'assistant' as const,
-        text: run.summary || run.title,
-        createdAt: run.updatedAt,
-        runId: run.id,
-      };
-      return [user, assistant];
-    }).slice(-12);
+  public buildChat(activeRun: UniversalAgentRun | null, runs: UniversalAgentRun[]) {
+    return this.continuitySupport.buildChat(activeRun, runs);
   }
 
-  private toExperienceApproval(approval: UniversalApprovalRequest): ExperienceApproval {
-    return {
-      id: approval.id,
-      runId: approval.runId,
-      title: approval.title,
-      reason: approval.reason,
-      summary: approval.reason,
-      risk: approval.risk,
-      status: approval.status,
-      createdAt: approval.createdAt,
-      actions: [
-        action({
-          id: `approve:${approval.id}`,
-          label: 'Aprovar',
-          kind: 'approval',
-          command: `zavorth approve ${approval.id}`,
-          risk: approval.risk,
-          reason: 'Permite continuar a acao governada.',
-        }),
-        action({
-          id: `reject:${approval.id}`,
-          label: 'Rejeitar',
-          kind: 'approval',
-          command: `zavorth reject ${approval.id}`,
-          risk: approval.risk,
-          reason: 'Mantem a acao bloqueada.',
-        }),
-      ],
-      surfaceProjection: this.buildDesktopApprovalSurfaceProjection(approval),
-    };
+  public toExperienceApproval(approval: UniversalApprovalRequest): ExperienceApproval {
+    return this.continuitySupport.toExperienceApproval(approval);
   }
 
   /**
    * Project once|session|always|deny controls for desktop (and API consumers).
    * Falls back to a local synthesis if projection fails.
    */
-  private buildDesktopApprovalSurfaceProjection(
+  public buildDesktopApprovalSurfaceProjection(
     approval: UniversalApprovalRequest,
   ): ExperienceApprovalSurfaceProjection {
-    try {
-      const response = buildAgentPermissionApprovalResponse({
-        approvalId: approval.id,
-        title: approval.title,
-        summary: approval.reason,
-        riskLabel: String(approval.risk || ''),
-      });
-      const projected = projectResponseForChannel('desktop', response);
-      const opts = (projected.replyOptions || {}) as Record<string, unknown>;
-      const shortcuts = Array.isArray(opts.shortcuts) ? opts.shortcuts : undefined;
-      const copyTargets = Array.isArray(opts.copyTargets) ? opts.copyTargets : undefined;
-      const openReceipt =
-        opts.openReceipt && typeof opts.openReceipt === 'object'
-          ? (opts.openReceipt as ExperienceApprovalSurfaceProjection['openReceipt'])
-          : null;
-      if (shortcuts && shortcuts.length > 0) {
-        return {
-          shortcuts: shortcuts as ExperienceApprovalSurfaceProjection['shortcuts'],
-          copyTargets: copyTargets as ExperienceApprovalSurfaceProjection['copyTargets'],
-          openReceipt,
-          surfaceActions: Array.isArray(opts.surfaceActions) ? opts.surfaceActions : undefined,
-          keyboardShortcuts: opts.keyboardShortcuts !== false,
-        };
-      }
-    } catch (error: unknown) {
-      logger.debug('experience.approval.surface_projection_failed', {
-        approvalId: approval.id,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-
-    return {
-      shortcuts: [
-        { key: '1', choice: 'once', label: 'Run once' },
-        { key: '2', choice: 'session', label: 'Session' },
-        { key: '3', choice: 'always', label: 'Always' },
-        { key: '4', choice: 'deny', label: 'Deny' },
-      ],
-      copyTargets: [{ id: 'approvalId', label: 'Copy approval id', value: approval.id }],
-      keyboardShortcuts: true,
-    };
+    return this.continuitySupport.buildDesktopApprovalSurfaceProjection(approval);
   }
 
-  private buildHealth(
+  public buildHealth(
     agentSnapshot: ZavorthAgentGatewaySnapshot | null,
     pendingLearning: number,
     approvals: UniversalApprovalRequest[],
   ): ExperienceSnapshot['health'] {
-    const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
-    const warnings: string[] = [];
-    if (!agentSnapshot) warnings.push('Agent Gateway nao esta conectado a esta superficie.');
-    if (pendingApprovals > 0) warnings.push(`${pendingApprovals} aprovacao(oes) pendente(s).`);
-    if (pendingLearning > 0) warnings.push(`${pendingLearning} aprendizado(s) aguardando revisao.`);
-    const status: ExperienceHealthStatus = !agentSnapshot
-      ? 'attention'
-      : pendingApprovals > 0
-        ? 'attention'
-        : 'ready';
-    return {
-      status,
-      summary: warnings.length > 0
-        ? warnings[0]
-        : 'Zavorth pronto para linguagem natural, approvals, receipts e learning governado.',
-      warnings,
-    };
+    return this.continuitySupport.buildHealth(agentSnapshot, pendingLearning, approvals);
   }
 
-  private buildNextActions(
+  public buildNextActions(
     status: ExperienceHealthStatus,
     pendingApprovals: number,
     pendingLearning: number,
   ): ExperienceAction[] {
-    const actions: ExperienceAction[] = [
-      action({
-        id: 'natural.ask',
-        label: 'Pedir algo ao Zavorth',
-        kind: 'natural',
-        command: 'zavorth ask "<pedido>"',
-        reason: 'Entrada natural-first principal.',
-      }),
-      action({
-        id: 'zavorthControl.open',
-        label: 'Abrir ZavorthControl',
-        kind: 'navigation',
-        command: 'zavorth open',
-        route: '/zavorthControl',
-        reason: 'Superficie visual oficial.',
-      }),
-    ];
-    if (pendingApprovals > 0 || status === 'attention') {
-      actions.push(action({
-        id: 'approvals.review',
-        label: 'Revisar aprovacoes',
-        kind: 'approval',
-        command: 'zavorth approve',
-        risk: 'attention',
-        reason: 'Resolve bloqueios governados.',
-      }));
-    }
-    if (pendingLearning > 0) {
-      actions.push(action({
-        id: 'learning.review',
-        label: 'Revisar aprendizados',
-        kind: 'learning',
-        command: 'zavorth learn',
-        reason: 'Promove apenas padroes aprovados.',
-      }));
-    }
-    return actions;
+    return this.continuitySupport.buildNextActions(status, pendingApprovals, pendingLearning);
   }
 
-  private async handleActionCardDecision(
+  public async handleActionCardDecision(
     command: ExperienceCommand,
     plan: ReturnType<NaturalCommandRouterService['route']>,
   ): Promise<ExperienceCommandResult | null> {
-    const actionId = command.actionCardDecision?.actionId || '';
-    const approvalMatch = /^(approve|reject):(.+)$/.exec(actionId);
-    if (approvalMatch) {
-      const decision = approvalMatch[1] as 'approve' | 'reject';
-      const approvalId = approvalMatch[2];
-      const result = decision === 'approve'
-        ? await this.agentGateway?.approve(approvalId)
-        : await this.agentGateway?.reject(approvalId);
-      this.publishRuntimeApprovalDecision({
-        ...command,
-        approval: { id: approvalId, decision },
-      }, Boolean(result));
-      const snapshot = this.buildHome(command);
-      const reply = this.replyFromText(
-        result
-          ? `Action card resolvido: ${decision === 'approve' ? 'aprovado' : 'rejeitado'} ${approvalId}.`
-          : `Nao encontrei aprovacao pendente para ${approvalId}.`,
-        command,
-        result?.run?.id || snapshot.agent.activeRunId,
-      );
-      return {
-        ok: Boolean(result),
-        handled: true,
-        plan,
-        snapshot,
-        replies: [reply],
-        receipts: snapshot.receipts,
-        error: result ? null : 'Approval not found.',
-      };
-    }
-
-    const firstRunMatch = /^first-run:(language|surface|learning):(.+)$/.exec(actionId);
-    if (firstRunMatch) {
-      const key = firstRunMatch[1];
-      const value = firstRunMatch[2];
-      const service = this.getFirstRunService(command.userId);
-      const snapshotBefore = service.buildSnapshot();
-      if (key === 'language') service.applyStep({ language: value });
-      if (key === 'surface') service.applyStep({ surface: value });
-      if (key === 'learning') service.applyStep({ allowLearning: /^(sim|yes|true|1|on)$/i.test(value) });
-      const home = this.buildHome(command);
-      const summary = service.needsOnboarding()
-        ? (service.buildSnapshot().nextPrompt || snapshotBefore.nextPrompt || 'Continue o setup.')
-        : service.buildSnapshot().welcomeLines.join('\n');
-      return {
-        ok: true,
-        handled: true,
-        plan,
-        snapshot: home,
-        replies: [this.replyFromText(summary, command, home.agent.activeRunId)],
-        receipts: home.receipts,
-        error: null,
-      };
-    }
-
-    const learningMatch = /^learn:(approve|reject|forget):(.+)$/.exec(actionId);
-    if (learningMatch) {
-      if (learningMatch[1] === 'forget') {
-        const undo = this.undoLearnedRuntimeItem(learningMatch[2], command.userId);
-        const snapshot = this.buildHome(command);
-        this.attachRuntimeStateSnapshot(snapshot);
-        return {
-          ok: undo.ok,
-          handled: true,
-          plan,
-          snapshot,
-          replies: [this.replyFromText(undo.summary, command, snapshot.agent.activeRunId)],
-          receipts: snapshot.receipts,
-          error: undo.ok ? null : undo.summary,
-        };
-      }
-      const learning = await this.learningOs.decide({
-        candidateId: learningMatch[2],
-        decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
-        workspace: command.workspace || null,
-      });
-      const snapshot = this.buildHome(command);
-      this.publishRuntimeLearningDecision({
-        ...command,
-        learning: {
-          candidateId: learningMatch[2],
-          decision: learningMatch[1] === 'approve' ? 'approve' : 'reject',
-        },
-      }, learning);
-      this.attachRuntimeStateSnapshot(snapshot);
-      return {
-        ok: learning.ok,
-        handled: true,
-        plan,
-        snapshot,
-        replies: [this.replyFromText(learning.summary, command, snapshot.agent.activeRunId)],
-        receipts: snapshot.receipts,
-        error: learning.ok ? null : learning.summary,
-      };
-    }
-
-    const selfHealingMatch = /^self-healing:([^:]+):(.+)$/.exec(actionId);
-    if (selfHealingMatch) {
-      const healingAction = selfHealingMatch[2] || '';
-      if (healingAction.includes('configure-provider')) {
-        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
-          ...plan,
-          kind: 'provider-setup',
-          title: 'Provider setup',
-          summary: 'Connect a model provider inside the conversation.',
-          nextSafeAction: 'Tell me the provider to connect, then provide the credential only when asked.',
-        }));
-      }
-      if (healingAction.includes('configure-channel')) {
-        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
-          ...plan,
-          kind: 'channel-setup',
-          title: 'Channel setup',
-          summary: 'Connect a communication surface inside the conversation.',
-          nextSafeAction: 'Tell me the surface to connect, then provide token, webhook or pairing details only when asked.',
-        }));
-      }
-      const snapshot = this.buildHome(command);
-      return this.finalizeCommandResult(command, {
-        ok: true,
-        handled: true,
-        plan,
-        snapshot,
-        replies: [this.replyFromText(
-          'I have the recovery action. Send the original request again and I will retry with the prepared fallback or ask only for the missing input.',
-          command,
-          snapshot.agent.activeRunId,
-        )],
-        receipts: snapshot.receipts,
-        error: null,
-      });
-    }
-
-    const healingCancelMatch = /^healing:cancel:(.+)$/.exec(actionId);
-    if (healingCancelMatch) {
-      const targetRunId = healingCancelMatch[1] || command.actionCardDecision?.cardId || null;
-      defaultZavorthSpeculativeAutonomyCancellationRegistry.requestCancel(targetRunId, 'experience-action-card');
-      const snapshot = this.buildHome(command);
-      return {
-        ok: true,
-        handled: true,
-        plan,
-        snapshot,
-        replies: [this.replyFromText(
-          'Pedido de cancelamento do auto-healing registrado. O loop especulativo deve parar e exibir o ultimo erro em vez de consumir mais budget.',
-          command,
-          snapshot.agent.activeRunId,
-        )],
-        receipts: snapshot.receipts,
-        error: null,
-      };
-    }
-
-    const snapshot = this.buildHome(command);
-    return {
-      ok: true,
-      handled: true,
-      plan,
-      snapshot,
-      replies: [this.replyFromText(
-        `Action card ${command.actionCardDecision?.cardId} selecionado. Acao ${actionId} exige a superficie apropriada ou novo plano governado.`,
-        command,
-        snapshot.agent.activeRunId,
-      )],
-      receipts: snapshot.receipts,
-      error: null,
-    };
+    return this.actionDecisionSupport.handleActionCardDecision(command, plan);
   }
 
-  private buildContextualSetupResult(
+  public buildContextualSetupResult(
     command: ExperienceCommand,
     plan: ReturnType<NaturalCommandRouterService['route']>,
   ): ExperienceCommandResult {
-    const snapshot = this.buildHome(command);
-    const target = plan.kind === 'provider-setup' ? 'provider' : 'channel';
-    const replyText = target === 'provider'
-      ? [
-        'I can connect a model provider from here without exposing secrets.',
-        '',
-        'Tell me one of these:',
-        '- "use Gemini"',
-        '- "use OpenRouter"',
-        '- "use Ollama local"',
-        '- "connect Groq"',
-        '',
-        'When a key is needed, I will ask for it explicitly, store only a redacted SecretRef path, run an explicit live proof, and create a receipt.',
-      ].join('\n')
-      : [
-        'I can connect a communication surface from here.',
-        '',
-        'Tell me the surface you want, for example Telegram, Discord, Slack, Signal, WhatsApp, Matrix or Email.',
-        'I will ask only for the exact token, webhook, pairing code or allowlisted user id needed by that surface.',
-        '',
-        'Remote surfaces stay least-privilege until pairing, allowlist and proof receipts exist.',
-      ].join('\n');
-    return {
-      ok: true,
-      handled: true,
-      plan,
-      snapshot,
-      replies: [this.replyFromText(replyText, command, snapshot.agent.activeRunId)],
-      receipts: snapshot.receipts,
-      error: null,
-    };
+    return this.actionDecisionSupport.buildContextualSetupResult(command, plan);
   }
 
-  private contextualSetupKind(
+  public contextualSetupKind(
     command: ExperienceCommand,
     plan: ReturnType<NaturalCommandRouterService['route']>,
   ): 'provider-setup' | 'channel-setup' | null {
-    if (plan.kind === 'provider-setup' || plan.kind === 'channel-setup') return plan.kind;
-    const text = normalizeKey(command.text);
-    const explicitSetup = command.intent === 'setup' || /\b(connect|configure|setup|pair|use)\b/.test(command.text.toLowerCase());
-    if (!explicitSetup) return null;
-    if (/\b(openai|gemini|google|anthropic|claude|openrouter|ollama|lmstudio|groq|mistral|deepseek|provider|model|api-key|key)\b/.test(text)) {
-      return 'provider-setup';
-    }
-    if (/\b(telegram|discord|slack|signal|whatsapp|matrix|email|teams|line|irc|twitch|nostr|channel|surface|webhook|pair)\b/.test(text)) {
-      return 'channel-setup';
-    }
-    return null;
+    return this.actionDecisionSupport.contextualSetupKind(command, plan);
   }
 
-  private async maybeRetryProviderFallback(
+  public async maybeRetryProviderFallback(
     command: ExperienceCommand,
     plan: ReturnType<NaturalCommandRouterService['route']>,
     firstResult: UniversalAgentRunResult,
   ): Promise<UniversalAgentRunResult> {
-    if (firstResult.ok !== false || !this.agentGateway) return firstResult;
-
-    const firstSnapshot = this.buildHome({
-      surface: command.surface,
-      userId: command.userId,
-      sessionId: firstResult.run.sessionId || command.sessionId || null,
-      workspace: command.workspace || firstResult.run.workspace || null,
-      activeRunId: firstResult.run.id,
-      responseProfile: command.responseProfile || null,
-    });
-    const matrix = this.safeProviderReadinessMatrix();
-    const projection = this.selfHealingUx.buildProjection({
-      attempted: plan.title,
-      commandText: command.text,
-      snapshot: firstSnapshot,
-      error: firstResult.run.summary || firstResult.replies.map((reply) => reply.text).join('\n'),
-      providerMatrix: matrix,
-    });
-    const fallbackProvider = this.selectFallbackProvider(projection, firstResult.run.modelProfile.providerLabel);
-    if (!fallbackProvider || !isProviderHealingIssue(projection.issue)) {
-      return firstResult;
-    }
-
-    try {
-      const retryResult = await this.agentGateway.handle({
-        userId: command.userId,
-        sessionId: command.sessionId,
-        channel: command.surface,
-        text: command.text,
-        workspace: command.workspace || null,
-        metadata: {
-          ...(command.metadata || {}),
-          providerName: fallbackProvider,
-          responseProfile: command.responseProfile || undefined,
-          selfHealingProviderFallback: {
-            fromProvider: firstResult.run.modelProfile.providerLabel || null,
-            selectedProvider: fallbackProvider,
-            issue: projection.issue,
-            previousRunId: firstResult.run.id,
-          },
-          experiencePlan: {
-            id: plan.id,
-            kind: plan.kind,
-            risk: plan.risk,
-            requiresApproval: plan.requiresApproval,
-            autonomyMode: command.autonomyMode,
-          },
-        },
-      });
-      this.selfHealingReceipts.append({
-        projection,
-        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
-        status: retryResult.ok ? 'applied' : 'failed',
-        applied: true,
-        fallbackProvider,
-        summary: retryResult.ok
-          ? `Provider fallback retried through ${fallbackProvider} after ${projection.issue}.`
-          : `Provider fallback through ${fallbackProvider} was attempted but still failed.`,
-      });
-      return retryResult.ok ? retryResult : firstResult;
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      this.selfHealingReceipts.append({
-        projection,
-        action: projection.actions.find((candidate) => candidate.kind === 'retry_fallback') || projection.actions[0] || null,
-        status: 'failed',
-        applied: true,
-        fallbackProvider,
-        summary: `Provider fallback through ${fallbackProvider} failed: ${error instanceof Error ? err.message : String(error || 'unknown error')}.`,
-      });
-      return firstResult;
-    }
+    return this.actionDecisionSupport.maybeRetryProviderFallback(command, plan, firstResult);
   }
 
-  private finalizeCommandResult(
+  public finalizeCommandResult(
     command: ExperienceCommand,
     result: ExperienceCommandResult,
   ): ExperienceCommandResult {
-    const projection = this.selfHealingUx.buildProjection({
-      attempted: result.plan.title,
-      commandText: command.text,
-      result,
-      snapshot: result.snapshot,
-    });
-    if (!projection.shouldRender) return result;
-
-    const primaryAction = projection.actions[0] || null;
-    const status = projection.needsUserInput
-      ? 'needs_user'
-      : projection.canZavorthRepair
-        ? 'proposed'
-        : 'blocked';
-    const receipt = this.selfHealingReceipts.append({
-      projection,
-      action: primaryAction,
-      status,
-      applied: false,
-      summary: projection.problem,
-    });
-    const selfHealingCards = this.buildSelfHealingActionCards(projection, receipt);
-    const snapshot: ExperienceSnapshot = {
-      ...result.snapshot,
-      actionCards: this.mergeActionCards(selfHealingCards, result.snapshot.actionCards || []),
-      receipts: this.mergeExperienceReceipts(
-        [this.selfHealingReceiptToExperienceReceipt(receipt)],
-        result.snapshot.receipts,
-      ),
-      raw: {
-        ...(result.snapshot.raw || {}),
-        selfHealing: projection,
-        selfHealingReceipt: receipt,
-      },
-    };
-    return {
-      ...result,
-      snapshot,
-      receipts: snapshot.receipts,
-    };
+    return this.actionDecisionSupport.finalizeCommandResult(command, result);
   }
 
-  private buildSelfHealingActionCards(
+  public buildSelfHealingActionCards(
     projection: ZavorthSelfHealingProjection,
     receipt: ZavorthSelfHealingReceipt,
   ): ExperienceActionCard[] {
-    if (projection.issue === 'none') return [];
-    return [{
-      contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
-      id: `self-healing:${projection.issue}:${receipt.id.split(':').pop()}`,
-      source: 'self-healing',
-      title: this.selfHealingCardTitle(projection),
-      summary: projection.nextSafeAction,
-      risk: this.selfHealingRisk(projection),
-      status: projection.needsUserInput || projection.canZavorthRepair ? 'pending' : 'ready',
-      scope: projection.setup?.target || 'current request',
-      sandbox: projection.setup?.target === 'sandbox' ? 'required' : 'not required',
-      affectedFiles: [],
-      affectedCommands: projection.actions.map((candidate) => candidate.command).filter((entry): entry is string => Boolean(entry)),
-      ttlSeconds: 3600,
-      receiptHint: receipt.id,
-      actions: projection.actions.slice(0, 4).map((candidate) => this.selfHealingActionToExperienceAction(projection, candidate)),
-      createdAt: receipt.createdAt,
-    }];
+    return this.actionDecisionSupport.buildSelfHealingActionCards(projection, receipt);
   }
 
-  private buildSelfHealingCardsFromReceipts(receipts: ZavorthSelfHealingReceipt[]): ExperienceActionCard[] {
-    return receipts
-      .filter((receipt) => receipt.status === 'proposed' || receipt.status === 'needs_user' || receipt.status === 'failed')
-      .slice(0, 3)
-      .map((receipt) => {
-        const target = receipt.issue.startsWith('channel_')
-          ? 'channel'
-          : receipt.issue.startsWith('provider_')
-            ? 'provider'
-            : receipt.issue === 'sandbox_unavailable'
-              ? 'sandbox'
-              : receipt.issue === 'runtime_unavailable'
-                ? 'runtime'
-                : 'request';
-        return {
-          contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
-          id: `self-healing:receipt:${receipt.id.split(':').pop()}`,
-          source: 'self-healing' as const,
-          title: receipt.applied ? `Recovered ${target}` : `Recover ${target}`,
-          summary: receipt.nextSafeAction,
-          risk: receipt.approvalRequired ? 'attention' as const : 'safe' as const,
-          status: receipt.status === 'failed' ? 'blocked' as const : 'pending' as const,
-          scope: target,
-          sandbox: target === 'sandbox' ? 'required' : 'not required',
-          affectedFiles: [],
-          affectedCommands: [],
-          ttlSeconds: 3600,
-          receiptHint: receipt.id,
-          actions: this.actionsForSelfHealingReceipt(receipt),
-          createdAt: receipt.createdAt,
-        };
-      });
+  public buildSelfHealingCardsFromReceipts(receipts: ZavorthSelfHealingReceipt[]): ExperienceActionCard[] {
+    return this.actionDecisionSupport.buildSelfHealingCardsFromReceipts(receipts);
   }
 
-  private actionsForSelfHealingReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceAction[] {
-    if (receipt.issue.startsWith('provider_')) {
-      return [
-        action({
-          id: `self-healing:${receipt.issue}:configure-provider`,
-          label: 'Configure provider',
-          kind: 'healing',
-          command: 'connect a provider',
-          risk: 'safe',
-          reason: 'Continue provider setup inside the conversation without exposing secrets.',
-        }),
-        action({
-          id: `self-healing:${receipt.issue}:retry-fallback`,
-          label: 'Retry fallback',
-          kind: 'healing',
-          command: receipt.fallbackProvider ? `retry with ${receipt.fallbackProvider}` : 'retry with fallback',
-          risk: 'safe',
-          reason: 'Use an allowed gateway fallback route when one is ready.',
-        }),
-      ];
-    }
-    if (receipt.issue.startsWith('channel_')) {
-      return [action({
-        id: `self-healing:${receipt.issue}:configure-channel`,
-        label: 'Connect surface',
-        kind: 'healing',
-        command: 'connect a channel',
-        risk: 'safe',
-        reason: 'Collect only the missing token, webhook or pairing detail.',
-      })];
-    }
-    if (receipt.issue === 'approval_required') {
-      return [action({
-        id: `self-healing:${receipt.issue}:review-approval`,
-        label: 'Review approval',
-        kind: 'approval',
-        command: 'review pending approval',
-        risk: 'attention',
-        requiresApproval: false,
-        reason: 'Show scope, risk and receipt preview before deciding.',
-      })];
-    }
-    return [action({
-      id: `self-healing:${receipt.issue}:inspect`,
-      label: 'Inspect recovery',
-      kind: 'healing',
-      risk: 'attention',
-      reason: receipt.summary,
-    })];
+  public actionsForSelfHealingReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceAction[] {
+    return this.actionDecisionSupport.actionsForSelfHealingReceipt(receipt);
   }
 
-  private selfHealingActionToExperienceAction(
+  public selfHealingActionToExperienceAction(
     projection: ZavorthSelfHealingProjection,
     healingAction: ZavorthSelfHealingAction,
   ): ExperienceAction {
-    return action({
-      id: `self-healing:${projection.issue}:${healingAction.id}`,
-      label: healingAction.label,
-      kind: 'healing',
-      command: healingAction.command || healingAction.prompt || null,
-      risk: this.selfHealingRisk(projection),
-      requiresApproval: healingAction.approvalRequired,
-      reason: healingAction.detail,
-    });
+    return this.actionDecisionSupport.selfHealingActionToExperienceAction(projection, healingAction);
   }
 
-  private selfHealingReceiptToExperienceReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceReceipt {
-    return {
-      id: receipt.id,
-      title: receipt.applied ? `Self-healing applied: ${receipt.issue}` : `Self-healing prepared: ${receipt.issue}`,
-      detail: receipt.summary,
-      status: receipt.status === 'applied' || receipt.status === 'skipped'
-        ? 'ready'
-        : receipt.status === 'failed'
-          ? 'failed'
-          : receipt.status === 'blocked'
-            ? 'blocked'
-            : 'pending',
-      source: 'self-healing',
-      createdAt: receipt.createdAt,
-    };
+  public selfHealingReceiptToExperienceReceipt(receipt: ZavorthSelfHealingReceipt): ExperienceReceipt {
+    return this.actionDecisionSupport.selfHealingReceiptToExperienceReceipt(receipt);
   }
 
-  private selfHealingCardTitle(projection: ZavorthSelfHealingProjection): string {
-    if (projection.issue.startsWith('provider_')) return 'Provider recovery';
-    if (projection.issue.startsWith('channel_')) return 'Channel setup';
-    if (projection.issue === 'approval_required') return 'Approval needed';
-    if (projection.issue === 'sandbox_unavailable') return 'Sandbox recovery';
-    if (projection.issue === 'runtime_unavailable') return 'Runtime recovery';
-    return 'Recovery plan';
+  public selfHealingCardTitle(projection: ZavorthSelfHealingProjection): string {
+    return this.actionDecisionSupport.selfHealingCardTitle(projection);
   }
 
-  private selfHealingRisk(projection: ZavorthSelfHealingProjection): ExperienceAction['risk'] {
-    if (projection.issue === 'approval_required' || projection.issue === 'sandbox_unavailable') return 'attention';
-    if (projection.issue === 'runtime_unavailable') return 'attention';
-    if (projection.issue === 'unknown_failure') return 'attention';
-    return 'safe';
+  public selfHealingRisk(projection: ZavorthSelfHealingProjection): ExperienceAction['risk'] {
+    return this.actionDecisionSupport.selfHealingRisk(projection);
   }
 
-  private mergeExperienceReceipts(
+  public mergeExperienceReceipts(
     primary: ExperienceReceipt[],
     secondary: ExperienceReceipt[],
   ): ExperienceReceipt[] {
-    const seen = new Set<string>();
-    return [...primary, ...secondary]
-      .filter((receipt) => {
-        if (seen.has(receipt.id)) return false;
-        seen.add(receipt.id);
-        return true;
-      })
-      .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-      .slice(0, 12);
+    return this.actionDecisionSupport.mergeExperienceReceipts(primary, secondary);
   }
 
-  private mergeActionCards(
+  public mergeActionCards(
     primary: ExperienceActionCard[],
     secondary: ExperienceActionCard[],
   ): ExperienceActionCard[] {
-    const seen = new Set<string>();
-    return [...primary, ...secondary]
-      .filter((card) => {
-        if (seen.has(card.id)) return false;
-        seen.add(card.id);
-        return true;
-      })
-      .slice(0, 12);
+    return this.actionDecisionSupport.mergeActionCards(primary, secondary);
   }
 
-  private safeProviderReadinessMatrix() {
-    try {
-      return this.providerReadinessMatrix.buildSnapshot({
-        includeAdvanced: false,
-        probe: false,
-        live: false,
-      });
-    } catch (error: unknown) {logger.warn('[ExperienceCore] safeProviderReadinessMatrix failed:', error);
-      return null;
-    }
+  public safeProviderReadinessMatrix() {
+    return this.actionDecisionSupport.safeProviderReadinessMatrix();
   }
 
-  private selectFallbackProvider(
+  public selectFallbackProvider(
     projection: ZavorthSelfHealingProjection,
     attemptedProvider: string | null | undefined,
   ): string | null {
-    const attempted = normalizeKey(attemptedProvider);
-    for (const candidate of projection.fallback?.candidates || []) {
-      if (normalizeKey(candidate) && normalizeKey(candidate) !== attempted) return candidate;
-    }
-    return null;
+    return this.actionDecisionSupport.selectFallbackProvider(projection, attemptedProvider);
   }
 
-  private replyFromText(text: string, command: ExperienceCommand, runId: string | null) {
-    return {
-      id: `experience-reply:${Date.now().toString(36)}`,
-      role: 'assistant' as const,
-      text,
-      createdAt: this.now().toISOString(),
-      runId,
-    };
+  public replyFromText(text: string, command: ExperienceCommand, runId: string | null) {
+    return this.actionDecisionSupport.replyFromText(text, command, runId);
   }
 }
 

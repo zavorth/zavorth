@@ -36,7 +36,7 @@ type ChannelConnectionPlaybookDeps = {
 
 const CHANNEL_HINTS: Partial<Record<PlatformKey, string[]>> = {
   telegram: [
-    'Use um bot dedicado e limite TELEGRAM_ALLOWED_USER_IDS aos operadores reais.',
+    'Use um bot dedicado e limite TELEGRAM_ALLOWED_USER_IDS aos operatores reais.',
     'Telegram nao precisa de URL publica para comecar.',
   ],
   discord: [
@@ -120,7 +120,7 @@ export class ChannelConnectionPlaybookService {
       playbooks,
       summary,
       operatorSummary:
-        `${summary.total} canais cobertos; ${summary.needsConfig} precisam de credenciais, `
+        `${summary.total} channels covered; ${summary.needsConfig} need credentials, `
         + `${summary.readyToValidate} estao prontos para doctor, ${summary.liveReady} tem prova live e `
         + `${summary.defaultRouteAllowed} pode virar rota padrao.`,
     };
@@ -130,7 +130,7 @@ export class ChannelConnectionPlaybookService {
     const snapshot = this.buildSnapshot(input);
     const selected = snapshot.selected;
     const lines = [
-      'Playbook de conexao de canais do Zavorth',
+      'Zavorth channel connection playbook',
       '',
       snapshot.operatorSummary,
       'Catalogado ou scaffoldado nao significa conectado ao vivo.',
@@ -300,7 +300,7 @@ export class ChannelConnectionPlaybookService {
     const lastHealthPassed = meshEntry?.lastHealth === 'passed';
 
     return [
-      this.step('choose-channel', 'Escolher canal e modo', 'done', null, [
+      this.step('choose-channel', 'Choose channel e modo', 'done', null, [
         `${selected.label} selecionado em modo ${selected.setupMode}.`,
       ]),
       this.step('prepare-scaffold', 'Preparar scaffold seguro', hasScaffold ? 'done' : 'next', commands.apply, [
@@ -317,7 +317,7 @@ export class ChannelConnectionPlaybookService {
           ? `Configure o provedor para chamar ${selected.webhookUrl}.`
           : 'Este modo nao exige webhook publico.',
       ]),
-      this.step('set-allowlist', 'Fechar allowlist de operadores e destinatarios', allowlistMissing ? 'next' : hasSecrets ? 'done' : 'pending', null, [
+      this.step('set-allowlist', 'Fechar allowlist de operatores e destinatarios', allowlistMissing ? 'next' : hasSecrets ? 'done' : 'pending', null, [
         ...(CHANNEL_HINTS[selected.channelId] || []),
       ]),
       this.step('run-doctor', 'Rodar doctor do canal', lastHealthPassed ? 'done' : hasSecrets ? 'next' : 'blocked', commands.doctor, [
@@ -358,7 +358,7 @@ export class ChannelConnectionPlaybookService {
       return `${selected.label} esta preparado para ${selected.setupMode}, mas ainda precisa de credenciais/allowlist.`;
     }
     if (meshEntry?.readiness === 'ready') {
-      return `${selected.label} esta configurado/catalogado; falta prova operacional live.`;
+      return `${selected.label} is configured/catalogado; falta prova operacional live.`;
     }
     return selected.summary;
   }

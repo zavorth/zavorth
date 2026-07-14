@@ -8,7 +8,7 @@ import {
 } from '../contracts/ZavorthAgentPracticalityCompletionContract.js';
 import type { SurfaceResponse } from '../domain/surface/application/surface-response/index.js';
 import { ZavorthAgentSurfaceUxService } from './ZavorthAgentSurfaceUxService.js';
-import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '../agents/ZavorthSubagentRuntimeService.js';
 
 type Runtime = {
   now?: () => Date;

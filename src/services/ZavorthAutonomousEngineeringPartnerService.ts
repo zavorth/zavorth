@@ -575,7 +575,7 @@ export class ZavorthAutonomousEngineeringPartnerService {
       mission.status = 'paused';
       mission.pauseReason = blockers[0];
       mission.updatedAt = this.now().toISOString();
-      this.writeMission(state, mission, `Conclusao bloqueada para ${mission.id}.`);
+      this.writeMission(state, mission, `Conclusao blocked for ${mission.id}.`);
       return {
         generatedAt: this.now().toISOString(),
         status: mission.status,
@@ -1191,13 +1191,13 @@ export class ZavorthAutonomousEngineeringPartnerService {
       blockers.push(`Budget de actions excedido: ${usage.actions}/${budget.maxActions}.`);
     }
     if (usage.mutableActions > budget.maxMutableActions) {
-      blockers.push(`Budget de mutacoes excedido: ${usage.mutableActions}/${budget.maxMutableActions}.`);
+      blockers.push(`Budget de mutations excedido: ${usage.mutableActions}/${budget.maxMutableActions}.`);
     }
     if (usage.cost > budget.maxCost) {
       blockers.push(`Budget de custo excedido: ${usage.cost}/${budget.maxCost}.`);
     }
     if (usage.durationMs > budget.maxDurationMs) {
-      blockers.push(`Budget de duracao excedido: ${usage.durationMs}/${budget.maxDurationMs}ms.`);
+      blockers.push(`Budget de duraction excedido: ${usage.durationMs}/${budget.maxDurationMs}ms.`);
     }
     if (usage.networkCalls > budget.maxNetworkCalls) {
       blockers.push(`Budget de rede excedido: ${usage.networkCalls}/${budget.maxNetworkCalls}.`);

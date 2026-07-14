@@ -216,7 +216,7 @@ describe('ZavorthControl response cortex QA gate', () => {
         },
       ],
       voice: {
-        transcript: 'pesquise artigos recentes sobre agentes autonomos',
+        transcript: 'search recent articles about autonomous agents',
         language: 'en-US',
         confidence: 0.92,
       },
@@ -257,7 +257,7 @@ describe('ZavorthControl response cortex QA gate', () => {
             expect.objectContaining({ id: 'web.search' }),
           ],
           voice: expect.objectContaining({
-            transcript: 'pesquise artigos recentes sobre agentes autonomos',
+            transcript: 'search recent articles about autonomous agents',
             language: 'en-US',
           }),
         }),

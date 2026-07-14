@@ -176,7 +176,40 @@ export abstract class WebhookGateway implements GatewayChannelAdapter {
 
     const userId = String(extracted.userId || '').trim();
     const chatId = String(extracted.chatId || '').trim() || this.id;
-    const rawText = String(extracted.rawText || '').trim();
+    let rawText = String(extracted.rawText || '').trim();
+
+    // Gap 5 — voice notes on messaging webhooks (WhatsApp/Slack/etc.) when payload carries audio URL
+    try {
+      const {
+        extractAudioMediaFromPayload,
+        ingestMessagingVoiceFromUrl,
+        mergeMessagingVoiceText,
+      } = await import('../services/voice/MessagingChannelVoiceIngest.js');
+      let resolvedMedia = extractAudioMediaFromPayload(webhookPayload);
+      const extractedMediaUrl = String((extracted as { mediaUrl?: string }).mediaUrl || '').trim();
+      if (!resolvedMedia?.url && extractedMediaUrl) {
+        resolvedMedia = { url: extractedMediaUrl, mimeType: 'audio/ogg' };
+      }
+      if (resolvedMedia?.url || resolvedMedia?.mediaId) {
+        const voice = await ingestMessagingVoiceFromUrl({
+          url: resolvedMedia.url,
+          mediaId: resolvedMedia.mediaId,
+          mimeType: resolvedMedia.mimeType,
+          fileName: resolvedMedia.fileName,
+          surface: this.id,
+          userId,
+          source: resolvedMedia.source,
+        });
+        if (voice.ok && voice.agentText) {
+          rawText = mergeMessagingVoiceText(rawText, voice);
+        } else if (!rawText && voice.message) {
+          rawText = voice.message;
+        }
+      }
+    } catch (error: unknown) {
+      logger.warn('[WebhookGateway] voice note ingest soft-failed', error);
+    }
+
     if (!rawText) {
       return false;
     }

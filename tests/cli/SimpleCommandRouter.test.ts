@@ -23,18 +23,10 @@ describe('SimpleCommandRouter', () => {
     });
   });
 
-  it('maps talk/run and connect/learn intents', () => {
+  it('maps EN talk/run/where intents (no multi-language CLI synonym packs)', () => {
     expect(resolveZavorthSimpleCommand(['run', 'review this'])).toEqual({
       kind: 'passthrough',
       args: ['ask', 'review this'],
-    });
-    expect(resolveZavorthSimpleCommand(['conectar', 'telegram'])).toEqual({
-      kind: 'passthrough',
-      args: ['connect', 'telegram'],
-    });
-    expect(resolveZavorthSimpleCommand(['aprender'])).toEqual({
-      kind: 'passthrough',
-      args: ['learn'],
     });
     expect(resolveZavorthSimpleCommand(['where'])).toEqual({
       kind: 'passthrough',
@@ -43,6 +35,15 @@ describe('SimpleCommandRouter', () => {
     expect(resolveZavorthSimpleCommand(['reach-fabric', 'status'])).toEqual({
       kind: 'passthrough',
       args: ['reach', 'status'],
+    });
+    // Non-English first tokens are not rewritten (use EN commands or free text → agent).
+    expect(resolveZavorthSimpleCommand(['conectar', 'telegram'])).toEqual({
+      kind: 'passthrough',
+      args: ['conectar', 'telegram'],
+    });
+    expect(resolveZavorthSimpleCommand(['aprender'])).toEqual({
+      kind: 'passthrough',
+      args: ['aprender'],
     });
   });
 

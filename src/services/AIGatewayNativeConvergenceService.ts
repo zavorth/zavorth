@@ -280,7 +280,7 @@ export class AIGatewayNativeConvergenceService {
       evidence: [
         hasBudget ? 'run.metadata.runBudget presente.' : '',
         hasCorrelation ? 'run.metadata.providerRouteBudgetCorrelation presente.' : '',
-        hasRoute ? 'Rota LLM do run esta registrada.' : '',
+        hasRoute ? 'Run LLM route is registered.' : '',
         providerHealthVisible ? `Gateway health: ${input.runtimeSnapshot?.gatewayControlApi.health.status}.` : '',
       ].filter(Boolean),
       blockers: status === 'ready' ? [] : [

@@ -224,7 +224,7 @@ export class SessionContinuityService {
     return {
       kind: 'fresh-session',
       label: 'Iniciar nova sessao',
-      reason: 'Nao ha continuidade relevante registrada ainda.',
+      reason: 'There is no continuidade relevante registrada ainda.',
       prompt: null,
     };
   }

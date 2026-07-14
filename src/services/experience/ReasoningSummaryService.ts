@@ -40,7 +40,7 @@ export class ReasoningSummaryService {
     const lastTimeline = timeline[timeline.length - 1] || null;
 
     return {
-      understood: summarize(run?.input || input.fallbackText || '', 'Aguardando um pedido natural do usuario.'),
+      understood: summarize(run?.input || input.fallbackText || '', 'Waiting for um pedido natural do usuario.'),
       risk,
       tools,
       approvalReason: pendingApproval?.reason || (input.trust?.approvalCount ? input.trust.summary : null),

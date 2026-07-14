@@ -152,7 +152,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
         id: 'run-failed-001',
         status: 'failed',
         title: 'Renderizar painel',
-        summary: 'Renderer bloqueado por erro estruturado.',
+        summary: 'Renderer blocked by structured error.',
       },
       health: {
         status: 'blocked',
@@ -280,7 +280,7 @@ const fixtures: Record<ZavorthControlZavorthControlFixtureId, Fixture> = {
         status: 'degraded',
         checks: [
           { id: 'provider-primary', label: 'Provider primario', status: 'degraded' },
-          { id: 'channel-primary', label: 'Canal primario', status: 'ready' },
+          { id: 'channel-primary', label: 'Primary channel', status: 'ready' },
         ],
       },
       integrations: [{ id: 'provider-primary', label: 'Provider primario', status: 'degraded' }],

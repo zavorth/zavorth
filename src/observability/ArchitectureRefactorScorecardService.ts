@@ -185,9 +185,7 @@ const LEGACY_HOTSPOT_BASELINE: Record<string, number> = {
   'zavorth-cli.ts': 4019,
   'cli/ZavorthCliSurfaceHelpers.ts': 2286,
   'runtime/agent/AgentRunService.ts': 2227,
-  'services/ZavorthSpeculativeAutonomyService.ts': 2179,
   'domain/surface/presentation/web-app/WebAppRuntimeStateRouteService.ts': 2163,
-  'services/SwarmV2Service.ts': 1922,
   'ai-gateway/app/(zavorthControl)/control/command-center/projections/zavorthAgentGatewayRuntimeProjection.ts': 1662,
   'cli/ZavorthCliRegistry.ts': 1574,
   'ai-gateway/app/(zavorthControl)/control/command-center/components/CommandCenterControlShell.tsx': 1561,
@@ -211,7 +209,7 @@ const CRITICAL_FLOWS = [
     id: 'telegram-commands',
     label: 'Telegram commands e dispatch conversacional',
     command: 'npm run test:gateway:smoke',
-    notes: 'A refatoracao nao pode quebrar o roteamento multissuperficie.',
+    notes: 'Refactoring must not break multi-surface routing.',
   },
   {
     id: 'approvals',
@@ -259,7 +257,7 @@ const CANONICAL_EXECUTION_ENGINES = [
   },
   {
     id: 'swarm',
-    files: ['src/services/CanonicalExecutionPipelineService.ts', 'src/services/SwarmV2Service.ts'],
+    files: ['src/services/CanonicalExecutionPipelineService.ts', 'src/agents/SwarmV2Service.ts'],
   },
   {
     id: 'selfmod',
@@ -562,7 +560,7 @@ export class ArchitectureRefactorScorecardService {
     if (snapshot.actions.length > 0) {
       lines.push(
         '',
-        'Acoes sugeridas:',
+        'Suggested actions:',
         ...snapshot.actions.map((entry) =>
           `- ${entry.label}: ${entry.reason}${entry.command ? ` | ${entry.command}` : ''}`),
       );
@@ -604,7 +602,7 @@ export class ArchitectureRefactorScorecardService {
     return [
       {
         id: 'line-limit',
-        label: 'Nenhum hotspot novo ou regredido acima de 1500 linhas',
+        label: 'No new or regressed hotspot above 1500 lines',
         status: input.hotspots.length === 0 ? 'passed' : 'failed',
         summary:
           input.hotspots.length === 0
@@ -689,9 +687,9 @@ export class ArchitectureRefactorScorecardService {
         label: 'Dependencias cruzadas entre dominios oficiais',
         status: input.dependencyGraph.summary.crossDomainViolations === 0 ? 'passed' : 'failed',
         summary:
-          `${input.dependencyGraph.summary.crossDomainViolations} dependencia(s) cruzada(s) nao autorizada(s) `
+          `${input.dependencyGraph.summary.crossDomainViolations} unauthorized cross-domain dependency(ies) `
           + `e ${input.dependencyGraph.summary.crossDomainEdges} aresta(s) entre dominios auditadas.`,
-        target: '0 dependencia cruzada nao autorizada entre dominios oficiais',
+        target: '0 unauthorized cross-domain dependencies between official domains',
         observed: `${input.dependencyGraph.summary.crossDomainViolations} violacao(oes)`,
       },
       {
@@ -847,7 +845,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'expand-official-domain-ownership',
         label: 'Expandir ownership dos dominios oficiais restantes',
         severity: 'warn',
-        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem e observability devem operar com camadas explicitas, nao so seed/facade.',
+        reason: 'Surface, gateway, memory, transports, trust-governance, platform-ecosystem e observability devem operar com camadas explicitas, not only seed/facade.',
         command: 'npm run ops:architecture:json',
       });
     }
@@ -865,7 +863,7 @@ export class ArchitectureRefactorScorecardService {
         id: 'fix-domain-cross-dependencies',
         label: 'Remover dependencia cruzada indevida entre dominios',
         severity: 'warn',
-        reason: 'Dominios oficiais devem depender de contracts, adapters e services canonicos, nao importar outro dominio diretamente sem allowlist explicita.',
+        reason: 'Dominios oficiais devem depender de contracts, adapters e services canonicos, not import another domain directly without an explicit allowlist.',
         command: 'npm run qa:architecture',
       });
     }

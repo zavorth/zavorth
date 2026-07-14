@@ -44,7 +44,7 @@ export async function inspectTelegramChannel(
       summary: 'Telegram nativo esta habilitado, mas ainda faltam prerequisitos operacionais.',
       error: 'Campos ausentes: TELEGRAM_ALLOWED_USER_IDS.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Telegram exige bot token e ao menos um operador permitido.'],
+      details: ['Telegram exige bot token e ao menos um operator permitido.'],
     };
   }
 
@@ -58,7 +58,7 @@ export async function inspectTelegramChannel(
       summary: 'Telegram nativo validado localmente pela configuracao do operador.',
       error: null,
       recommendedAction: null,
-      details: [`Operadores permitidos: ${config.allowedUserIds.length}.`],
+      details: [`Operatores permitidos: ${config.allowedUserIds.length}.`],
     };
   }
 
@@ -85,7 +85,7 @@ export async function inspectTelegramChannel(
       recommendedAction: null,
       details: [
         `Bot id: ${String(payload.result.id)}.`,
-        `Operadores permitidos: ${config.allowedUserIds.length}.`,
+        `Operatores permitidos: ${config.allowedUserIds.length}.`,
       ],
     };
   } catch (error: unknown) {
@@ -188,7 +188,7 @@ export async function inspectDiscordChannel(deps: NativeInspectorDeps): Promise<
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Discord nativo registrou erro recente.',
+      summary: 'Native Discord recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],
@@ -290,7 +290,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'Slack stub registrou erro recente.',
+        summary: 'Slack stub recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
         details: ['Revise o ultimo erro do snapshot antes de ampliar o uso do Slack local.'],
@@ -303,7 +303,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'Slack stub validado localmente pelo snapshot do runtime.',
+      summary: 'Slack stub validated locally by the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
@@ -366,7 +366,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       summary: 'Slack nativo ainda nao confirmou runtime pronto.',
       error: 'O snapshot do Slack indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o runtime do host e confirme o webhook /api/webhooks/slack.'],
+      details: ['Suba o runtime of the host e confirme o webhook /api/webhooks/slack.'],
     };
   }
 
@@ -377,7 +377,7 @@ export async function inspectSlackChannel(deps: NativeInspectorDeps): Promise<Ch
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'Slack nativo registrou erro recente.',
+      summary: 'Native Slack recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],
@@ -494,7 +494,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'WhatsApp stub registrou erro recente.',
+        summary: 'WhatsApp stub recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
         details: ['Revise o ultimo erro do snapshot antes de ampliar o uso do WhatsApp local.'],
@@ -507,7 +507,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'WhatsApp stub validado localmente pelo snapshot do runtime.',
+      summary: 'WhatsApp stub validated locally by the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
@@ -555,7 +555,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
         enabled,
         configured: true,
         status: 'failed',
-        summary: 'WhatsApp Baileys registrou erro recente.',
+        summary: 'WhatsApp Baileys recorded a recent error.',
         error: status.lastError,
         recommendedAction: 'npm run test:channels:smoke',
         details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout do provider Baileys.'],
@@ -568,7 +568,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'passed',
-      summary: 'WhatsApp Baileys validado localmente pelo snapshot do runtime.',
+      summary: 'WhatsApp Baileys validated locally by the runtime snapshot.',
       error: null,
       recommendedAction: null,
       details: [
@@ -634,7 +634,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       summary: 'WhatsApp Cloud API ainda nao confirmou runtime pronto.',
       error: 'O snapshot do WhatsApp indica started=false.',
       recommendedAction: 'npm run test:channels:smoke',
-      details: ['Suba o runtime do host e confirme o callback /api/webhooks/whatsapp.'],
+      details: ['Suba o runtime of the host e confirme o callback /api/webhooks/whatsapp.'],
     };
   }
 
@@ -659,7 +659,7 @@ export async function inspectWhatsAppChannel(deps: NativeInspectorDeps): Promise
       enabled,
       configured: true,
       status: 'failed',
-      summary: 'WhatsApp Cloud API registrou erro recente.',
+      summary: 'WhatsApp Cloud API recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout.'],

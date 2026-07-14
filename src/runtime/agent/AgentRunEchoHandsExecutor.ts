@@ -73,7 +73,7 @@ export class AgentRunEchoHandsExecutor {
       const result = await toolRuntime!.executeTool('echo_hands', args);
       return {
         status: 'completed',
-        summary: 'Echo Hands executado via tool runtime governado.',
+        summary: 'Echo Hands executed via governed tool runtime.',
         replyText: result,
         events: [
           {

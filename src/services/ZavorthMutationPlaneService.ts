@@ -231,7 +231,7 @@ export class ZavorthMutationPlaneService {
         reason: this.cleanText(reason, plan.approval.reason),
       },
     }, 'plan.rejected', `Plano rejeitado${rejectedBy ? ` por ${this.cleanText(rejectedBy)}` : ''}.`, {
-      reason: this.cleanText(reason, 'Rejeitado pelo operador.'),
+      reason: this.cleanText(reason, 'Rejeitado by the operator.'),
     });
     this.writePlan(updated);
     return updated;
@@ -245,7 +245,7 @@ export class ZavorthMutationPlaneService {
     const updated = this.appendAudit({
       ...plan,
     }, 'plan.deferred', `Plano adiado${deferredBy ? ` por ${this.cleanText(deferredBy)}` : ''}.`, {
-      reason: this.cleanText(reason, 'Adiado pelo operador.'),
+      reason: this.cleanText(reason, 'Adiado by the operator.'),
     });
     this.writePlan(updated);
     return updated;

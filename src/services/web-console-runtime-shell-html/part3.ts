@@ -73,7 +73,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">MCP</p>
             <strong id="hub-control-plane-mcp-state">Sem leitura</strong>
             <p id="hub-control-plane-mcp-summary" class="muted-copy">
-              Servidores MCP, tools, resources e doctor ficam consolidados aqui.
+              Servidores MCP, tools, resources e doctor ficam consolidados here.
             </p>
           </article>
         </div>
@@ -179,7 +179,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">Governance</p>
         <h2>Governance, tenants e policy</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform e transports numa camada unica de governanca operacional.
+          This view junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform e transports numa camada unica de governanca operacional.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -323,7 +323,7 @@ export function buildRuntimeShellHtmlPart3(): string {
             <p class="profile-tag">SDKs</p>
             <strong id="ecosystem-control-plane-sdk-state">Sem leitura</strong>
             <p id="ecosystem-control-plane-sdk-summary" class="muted-copy">
-              O estado dos SDKs TypeScript e Python fica visivel aqui.
+              O estado dos SDKs TypeScript e Python fica visivel here.
             </p>
           </article>
           <article class="ops-summary-card">

@@ -126,7 +126,7 @@ export class VideoGenRunwayTool extends BaseTool {
       if (parsed.error) return `Runway error: ${parsed.error.message || JSON.stringify(parsed.error)}`;
 
       const lines: string[] = [
-        `Video geracao iniciada:`,
+        `Video generation started:`,
         `  Task ID: ${parsed.id}`,
         `  Status: ${parsed.status}`,
         `  Modelo: ${model}`,

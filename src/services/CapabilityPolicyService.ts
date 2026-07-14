@@ -69,7 +69,7 @@ export class CapabilityPolicyService {
       return {
         allowed: false,
         requiresApproval: true,
-        reason: `A capability ${capability} exige perfil ${requiredProfile}; perfil atual: ${profile}.`,
+        reason: `The capability ${capability} exige perfil ${requiredProfile}; perfil atual: ${profile}.`,
         capability,
         profile,
         requiredProfile,
@@ -87,7 +87,7 @@ export class CapabilityPolicyService {
         requiresApproval: !request.approved,
         reason: request.approved
           ? `Aprovacao recebida para autonomia nivel ${requiredAutonomyLevel}.`
-          : `A capability ${capability} exige autonomia nivel ${requiredAutonomyLevel}; nivel atual: ${autonomyLevel}.`,
+          : `The capability ${capability} exige autonomia nivel ${requiredAutonomyLevel}; nivel atual: ${autonomyLevel}.`,
         capability,
         profile,
         requiredProfile,

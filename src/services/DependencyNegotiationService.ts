@@ -26,7 +26,7 @@ export class DependencyNegotiationService {
           : 'ZAVORTH.md: sem instrucoes extras detectadas.',
       ];
       if (scriptHints.length > 0) {
-        lines.push(`Scripts detectados: ${scriptHints.join(' | ')}.`);
+        lines.push(`Detected scripts: ${scriptHints.join(' | ')}.`);
       }
       lines.push(
         input.intent.preferredCapability

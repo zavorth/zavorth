@@ -56,14 +56,14 @@ export function buildStructuredStitchBrief(
 
   if (/\b(chat|conversa|telegram|mensagens?)\b/.test(lower)) bullets.push('chat principal para conversar com o assistente');
   if (/\b(orquestra|llm|modelos?|gemini|openai|claude|deepseek|external-executor|zavorthBridge)\b/.test(lower)) bullets.push('hub de orquestracao de agentes e modelos');
-  if (/\b(permiss|seguran|policy|trustedboundary|aprov)\b/.test(lower)) bullets.push('clear permissions and security panel');
+  if (/\b(permiss|secur|policy|trustedboundary|approv)\b/.test(lower)) bullets.push('clear permissions and security panel');
   if (/\b(memoria|memory|audit|auditoria|log)\b/.test(lower)) bullets.push('blocos para memoria, auditoria e historico');
   if (/\b(wsl|sistema|terminal|execu|automation|automacao|host supervisor|supervisionado)\b/.test(lower)) bullets.push('cards de automacao e controle do sistema');
-  if (/\b(zavorthControl|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('visual premium, moderno e bem organizado');
+  if (/\b(zavorthControl|web|site|premium|glass|glassmorphism)\b/.test(lower)) bullets.push('premium modern visual layout');
 
   const uniqueBullets = Array.from(new Set(bullets)).slice(0, compact ? 4 : 6);
   const aesthetic = compact
-    ? 'Estilo premium, legivel e moderno.'
+    ? 'Premium, readable, modern style.'
     : 'Estilo premium e moderno, com identidade forte, layout limpo e boa hierarquia visual.';
   const deviceHint =
     request.metadata?.stitch_device_type || request.metadata?.task_metadata?.stitch_device_type

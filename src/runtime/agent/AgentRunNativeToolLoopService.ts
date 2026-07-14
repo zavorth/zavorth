@@ -24,7 +24,7 @@ import {
   ZavorthSpeculativeAutonomyService,
   type PrepareZavorthSpeculativeAutonomyInput,
   type ZavorthSpeculativeAutonomyResult,
-} from '../../services/ZavorthSpeculativeAutonomyService.js';
+} from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import {
   resolveCanvasSessionServiceForRuntime,
   syncSpeculativeAutonomyToCanvas,
@@ -32,7 +32,6 @@ import {
   type CanvasSpeculativeAutonomySyncSnapshot,
 } from '../../services/CanvasRuntimeSyncService.js';
 import { ZavorthTerminalBackendsService } from '../../services/ZavorthTerminalBackendsService.js';
-
 import { ProviderNativeCapabilityMatrixService } from '../../services/llm/ProviderNativeCapabilityMatrixService.js';
 import { buildStructuredToolFailurePlan } from './StructuredToolFailurePlan.js';
 import {
@@ -68,6 +67,21 @@ import {
   resolveMaxExposedTools,
   type ToolExposureProfileName,
 } from './tools/ToolExposureProfile.js';
+import {
+  buildDeferredToolEffectMessage,
+  buildMutationPlanMetadata,
+  buildProviderNativeFallbackToolCalls,
+  buildToolEffectBoundaryMetadata,
+  buildToolEvent,
+  buildToolMessage,
+  enrichNativeToolArgs,
+  extractCommandsFromToolArgs,
+  extractWorkspaceWritesFromToolArgs,
+  resolveMutationDomain,
+  resolveSpeculativeSandboxIsolation,
+  resolveTerminalBackend,
+  resolveToolAliases,
+} from './AgentRunNativeToolLoopHelpers.js';
 
 export type NativeToolLoopStats = {
   requested: number;
@@ -113,7 +127,6 @@ type Runtime = {
 const MAX_NATIVE_TOOL_ROUNDS = 5;
 const HARD_NATIVE_TOOL_ROUNDS = 12;
 const MAX_NATIVE_TOOL_CALLS_PER_ROUND = 8;
-/** Default safe-profile max; prefer resolveMaxExposedTools(profile) at call sites. */
 const MAX_EXPOSED_NATIVE_TOOLS = 12;
 const MAX_CATALOG_MATERIALIZED_TOOLS = 4;
 const NATIVE_TOOL_CONTEXT_CHARS = 60_000;
@@ -132,7 +145,6 @@ type ToolCallRepair = {
   repaired: boolean;
   reason?: string;
 };
-
 type ExecuteToolAttemptResult = {
   output: string;
   attempts: number;
@@ -150,7 +162,6 @@ export class AgentRunNativeToolLoopService {
   private readonly profileReceipts = new ProfileEnforcementReceiptService();
   private readonly toolCatalogByRun = new Map<string, ToolCatalogState>();
   private readonly compactionService = new ContextCompactionService();
-
   constructor(runtime: Runtime) {
     this.llmRuntime = runtime.llmRuntime;
     this.toolRuntime = runtime.toolRuntime;
@@ -169,11 +180,9 @@ export class AgentRunNativeToolLoopService {
       : runtime.terminalBackendsService || new ZavorthTerminalBackendsService();
     this.continuityKernel = runtime.continuityKernel || new OperatorContinuityKernel();
   }
-
   public maxRounds(): number {
     return MAX_NATIVE_TOOL_ROUNDS;
   }
-
   public maxRoundsFor(run: UniversalAgentRun, request?: UniversalAgentRequest): number {
     const profileLimit = this.resolveRuntimePolicyBundle(run)?.maxToolRounds;
     const requestedLimit = numberFromUnknown(request?.metadata?.nativeToolMaxRounds)
@@ -183,7 +192,6 @@ export class AgentRunNativeToolLoopService {
     const max = Math.max(MAX_NATIVE_TOOL_ROUNDS, raw || MAX_NATIVE_TOOL_ROUNDS);
     return Math.min(HARD_NATIVE_TOOL_ROUNDS, max);
   }
-
   public resolveNativeTools(run: UniversalAgentRun, request: UniversalAgentRequest): ToolDefinition[] {
     if (!this.toolRuntime?.getToolDefinitions) return [];
     if (this.toolRuntime.isAvailable && !this.toolRuntime.isAvailable()) return [];
@@ -196,10 +204,10 @@ export class AgentRunNativeToolLoopService {
     const runtimePolicy = this.resolveRuntimePolicyBundle(run);
     const exposureProfile = resolveExposureProfile({ run, request });
     const maxExposedTools = resolveMaxExposedTools(exposureProfile);
-
     const allowedTools = definitions.filter((tool) => {
       if (this.toolRuntime?.hasTool && !this.toolRuntime.hasTool(tool.name)) return false;
-      const aliases = this.resolveToolAliases(tool.name);
+      const aliases = resolveToolAliases(tool.name);
+      const isApproved = aliases.some((alias) => approved.has(alias));
       const profileDecision = runtimePolicy
         ? this.applyProfileToolPolicy({
           run,
@@ -208,11 +216,17 @@ export class AgentRunNativeToolLoopService {
           aliases,
         })
         : 'neutral';
-      if (profileDecision === 'blocked' || profileDecision === 'requires_approval') {
+      if (profileDecision === 'blocked') {
+        return false;
+      }
+      if (
+        profileDecision === 'requires_approval'
+        && !isApproved
+        && !aliases.some((alias) => isProfileAlwaysExpose(exposureProfile, alias))
+      ) {
         return false;
       }
 
-      const isApproved = aliases.some((alias) => approved.has(alias));
       // Destructive tools only when explicitly approved.
       if (aliases.some((alias) => isDestructiveExposureTool(alias) || isDestructiveExposureTool(tool.name))) {
         return isApproved;
@@ -313,14 +327,14 @@ export class AgentRunNativeToolLoopService {
           result = recovery.result;
           stopReasonRecoveryUsed = true;
           stats.stopReasonRecoveries += 1;
-          events.push(this.buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
+          events.push(buildToolEvent(input.run, 'llm.stop_reason_recovery', 'Continuation requested after an incomplete provider stop reason.', 'done', {
             reason: 'stop-reason-recovery',
             finishReason: recovery.previousFinishReason,
           }));
         }
         const declaredToolCalls = result.response.toolCalls || [];
         const fallbackToolCalls = declaredToolCalls.length === 0
-          ? this.buildProviderNativeFallbackToolCalls({
+          ? buildProviderNativeFallbackToolCalls({
             result,
             run: input.run,
             request: input.request,
@@ -359,8 +373,8 @@ export class AgentRunNativeToolLoopService {
             if (catalogResult.materializedTools > 0) {
               knownToolNames = new Set(input.tools.map((tool) => tool.name));
             }
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
-            events.push(this.buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, catalogResult.output));
+            events.push(buildToolEvent(input.run, toolCall.name, catalogResult.output, 'done', {
               reason: 'compact-tool-catalog',
               toolCallId: toolCall.id,
               materializedTools: catalogResult.materializedTools,
@@ -375,8 +389,8 @@ export class AgentRunNativeToolLoopService {
               knownToolNames,
             });
             stats.planningCalls += 1;
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, plan));
-            events.push(this.buildToolEvent(input.run, toolCall.name, plan, 'done', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, plan));
+            events.push(buildToolEvent(input.run, toolCall.name, plan, 'done', {
               reason: 'agent-run-tool-planning',
               toolCallId: toolCall.id,
             }));
@@ -386,8 +400,8 @@ export class AgentRunNativeToolLoopService {
             stats.denied += 1;
             stats.unknownToolCalls += 1;
             const denied = `Tool ${toolCall.name} nao esta exposta para este run.${repair?.reason ? ` ${repair.reason}` : ''}`;
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
-            events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, denied));
+            events.push(buildToolEvent(input.run, toolCall.name, denied, 'failed', {
               reason: 'tool-not-exposed',
               toolCallId: toolCall.id,
               candidates: this.findToolCandidates(toolCall.name, knownToolNames).slice(0, 5),
@@ -424,12 +438,12 @@ export class AgentRunNativeToolLoopService {
               status: 'blocked',
               summary: denied,
             });
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, denied));
-            events.push(this.buildToolEvent(input.run, toolCall.name, denied, 'failed', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, denied));
+            events.push(buildToolEvent(input.run, toolCall.name, denied, 'failed', {
               reason: 'effect-boundary-deny',
               toolCallId: toolCall.id,
               sourceTrust,
-              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
               operatorContinuity: this.continuityKernel.toPublicView(continuity),
             }));
             continue;
@@ -446,7 +460,7 @@ export class AgentRunNativeToolLoopService {
               mapping: effectMapping,
               rehearsalEnvelope,
             });
-            const deferred = this.buildDeferredToolEffectMessage(toolCall.name, effectMapping);
+            const deferred = buildDeferredToolEffectMessage(toolCall.name, effectMapping);
             const continuity = this.finalizeEffectBoundaryContinuity({
               run: input.run,
               toolCall,
@@ -455,15 +469,15 @@ export class AgentRunNativeToolLoopService {
               summary: deferred,
               mutationPlanId: deferredPlan.mutationPlan?.id || null,
             });
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, deferred));
-            events.push(this.buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, deferred));
+            events.push(buildToolEvent(input.run, toolCall.name, deferred, 'failed', {
               reason: 'effect-boundary-deferred',
               toolCallId: toolCall.id,
               sourceTrust,
-              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
               effectRehearsal: rehearsalEnvelope,
               operatorContinuity: this.continuityKernel.toPublicView(continuity),
-              ...(deferredPlan.mutationPlan ? { mutationPlan: this.buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
+              ...(deferredPlan.mutationPlan ? { mutationPlan: buildMutationPlanMetadata(deferredPlan.mutationPlan) } : {}),
               ...(deferredPlan.speculativeAutonomy ? { superZavorthSpeculativeAutonomy: buildSpeculativeAutonomyReceipt(deferredPlan.speculativeAutonomy) } : {}),
               ...(deferredPlan.zCanvasSession ? { zCanvasSession: deferredPlan.zCanvasSession } : {}),
               ...(deferredPlan.terminalBackendPlan ? { terminalBackendPlan: deferredPlan.terminalBackendPlan } : {}),
@@ -481,7 +495,7 @@ export class AgentRunNativeToolLoopService {
           const rawToolArgs = influencedByUntrustedContent
             ? withUntrustedInputMetadata(toolCall.arguments, 'agent-run-llm-native-loop-contained-untrusted-evidence')
             : toolCall.arguments;
-          const toolArgs = this.enrichNativeToolArgs({
+          const toolArgs = enrichNativeToolArgs({
             toolName: toolCall.name,
             args: rawToolArgs,
             providerName: result.providerName,
@@ -502,12 +516,12 @@ export class AgentRunNativeToolLoopService {
             }
             stats.executed += 1;
             evidenceTexts.push(`${toolCall.name}:\n${clampText(toolResult, 6000)}`);
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, toolResult));
-            events.push(this.buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, toolResult));
+            events.push(buildToolEvent(input.run, toolCall.name, toolResult, 'done', {
               toolCallId: toolCall.id,
               sourceTrust,
               ...(repair?.repaired ? { toolCallRepair: repair.reason || 'normalized-tool-call' } : {}),
-              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
               operatorContinuity: this.buildAppliedToolContinuityView({
                 seed: continuitySeed,
                 toolName: toolCall.name,
@@ -543,11 +557,11 @@ export class AgentRunNativeToolLoopService {
               recoveryPlan.userVisibleSummary,
             ].filter(Boolean).join('\n');
             evidenceTexts.push(`${toolCall.name}:\n${message}`);
-            toolMessages.push(this.buildToolMessage(toolCall.name, toolCall.id, message));
-            events.push(this.buildToolEvent(input.run, toolCall.name, message, 'failed', {
+            toolMessages.push(buildToolMessage(toolCall.name, toolCall.id, message));
+            events.push(buildToolEvent(input.run, toolCall.name, message, 'failed', {
               toolCallId: toolCall.id,
               sourceTrust,
-              effectBoundary: this.buildToolEffectBoundaryMetadata(effectMapping),
+              effectBoundary: buildToolEffectBoundaryMetadata(effectMapping),
               operatorContinuity: this.buildAppliedToolContinuityView({
                 seed: continuitySeed,
                 toolName: toolCall.name,
@@ -666,7 +680,7 @@ export class AgentRunNativeToolLoopService {
     exposureProfile: ToolExposureProfileName = 'safe',
   ): ToolDefinition[] {
     const requestText = normalizeText(`${request.text} ${run.input} ${(request.requestedTools || []).join(' ')}`).toLowerCase();
-    const requested = new Set((request.requestedTools || []).flatMap((tool) => this.resolveToolAliases(tool)));
+    const requested = new Set((request.requestedTools || []).flatMap((tool) => resolveToolAliases(tool)));
     return [...tools].sort((left, right) => scoreTool(right) - scoreTool(left));
 
     function scoreTool(tool: ToolDefinition): number {
@@ -779,7 +793,7 @@ export class AgentRunNativeToolLoopService {
     }
 
     const aliasMatch = [...knownToolNames].find((name) =>
-      this.resolveToolAliases(name).some((alias) => normalizeToolKey(alias) === normalized));
+      resolveToolAliases(name).some((alias) => normalizeToolKey(alias) === normalized));
     if (aliasMatch) {
       return {
         toolCall: { ...toolCall, name: aliasMatch, arguments: args },
@@ -1148,137 +1162,6 @@ export class AgentRunNativeToolLoopService {
     return rounds;
   }
 
-  private resolveToolAliases(toolName: string): string[] {
-    const normalized = normalizeText(toolName).toLowerCase();
-    const aliases: Record<string, string[]> = {
-      read_file: ['read_file', 'read', 'workspace.read'],
-      'workspace.read': ['workspace.read', 'read_file', 'read'],
-      list_directory: ['list_directory', 'ls', 'workspace.list'],
-      'workspace.list': ['workspace.list', 'list_directory', 'ls'],
-      web_search: ['web_search', 'web.search', 'network_fetch'],
-      'web.search': ['web.search', 'web_search', 'network_fetch'],
-      get_datetime: ['get_datetime', 'datetime', 'time.now'],
-      write_file: ['write_file', 'write', 'workspace.write', 'filesystem.write'],
-      create_file: ['create_file', 'write_file', 'workspace.write', 'filesystem.write'],
-      remote_shell: ['remote_shell', 'shell.exec', 'bash.exec'],
-      run_sandbox_code: ['run_sandbox_code', 'sandbox.execute'],
-      zavorth_action: ['zavorth_action', 'action.lookup', 'action.preview', 'action.apply'],
-      [COMPACT_TOOL_CATALOG_NAME]: [COMPACT_TOOL_CATALOG_NAME, 'tool.catalog', 'tools.search', 'tool.search'],
-      [TOOL_PLANNER_NAME]: [TOOL_PLANNER_NAME, 'tool.plan', 'agent.plan', 'subagent.plan'],
-    };
-    return Array.from(new Set([
-      normalized,
-      normalized.replace(/_/g, '.'),
-      ...(aliases[normalized] || []),
-    ].filter(Boolean)));
-  }
-
-  private buildProviderNativeFallbackToolCalls(input: {
-    result: LlmRuntimeResult;
-    run: UniversalAgentRun;
-    request?: UniversalAgentRequest;
-    knownToolNames: Set<string>;
-  }): ToolCall[] {
-    if (!input.knownToolNames.has('web_search')) {
-      return [];
-    }
-    const assessments = PROVIDER_NATIVE_CAPABILITY_MATRIX.assessFallback({
-      providerName: input.result.providerName,
-      modelName: input.result.modelName,
-      metadata: input.result.metadata,
-      content: input.result.response.content,
-    });
-    const searchFallback = assessments.find((assessment) =>
-      assessment.capability === 'native_search'
-      && assessment.fallbackRecommended
-      && assessment.fallbackToolName === 'web_search');
-    if (!searchFallback) {
-      return [];
-    }
-    const query = normalizeText(input.request?.text || input.run.input || input.run.title || input.run.summary);
-    if (!query) {
-      return [];
-    }
-    return [{
-      id: `provider_native_fallback_${Date.now().toString(36)}`,
-      name: 'web_search',
-      arguments: {
-        query,
-        mode: 'verify',
-        providerNativeFallback: {
-          version: 'provider-native-fallback/1',
-          fromProvider: input.result.providerName,
-          fromModel: input.result.modelName,
-          providerToolName: searchFallback.providerToolName,
-          reason: searchFallback.reason,
-          requiredEvidence: 'citations',
-        },
-      },
-    }];
-  }
-
-  private buildToolMessage(toolName: string, toolCallId: string, content: unknown): ChatMessage {
-    return {
-      role: 'tool',
-      toolCallId,
-      toolName,
-      content: wrapToolOutputForLlm(toolName, clampText(content, 6000), {
-        source: 'agent_run_llm_native_tool_result',
-        tool_call_id: toolCallId,
-      }),
-    };
-  }
-
-  private buildToolEvent(
-    run: UniversalAgentRun,
-    toolName: string,
-    detail: unknown,
-    status: 'done' | 'failed',
-    metadata: Record<string, unknown>,
-  ): NativeToolLoopResult['events'][number] {
-    return {
-      kind: 'tool',
-      title: toolName,
-      detail: clampText(detail, 1200),
-      status,
-      metadata: {
-        source: 'AgentRunNativeToolLoopService',
-        runId: run.id,
-        toolId: toolName,
-        governedBy: 'ToolRuntimeService',
-        ...metadata,
-      },
-    };
-  }
-
-  private buildToolEffectBoundaryMetadata(mapping: ToolEffectMapping): Record<string, unknown> {
-    return {
-      version: 'effect-boundary-tool-call/1',
-      action: mapping.decision.action,
-      allowed: mapping.decision.allowed,
-      rule: mapping.decision.rule,
-      risk: mapping.decision.risk,
-      readOnly: mapping.analysis.readOnly,
-      hasRealSideEffect: mapping.analysis.hasRealSideEffect,
-      safeObservation: mapping.decision.action === 'allow' && mapping.analysis.readOnly,
-      effectSummary: mapping.analysis.summary,
-      reasons: mapping.decision.reasons,
-    };
-  }
-
-  private buildDeferredToolEffectMessage(toolName: string, mapping: ToolEffectMapping): string {
-    const action = mapping.decision.action;
-    if (action === 'sandbox_only') {
-      return `Tool ${toolName} nao foi executada diretamente. A effect boundary classificou a chamada como side effect governado e exige ensaio em sandbox antes de commit. Resumo: ${mapping.analysis.summary}`;
-    }
-    if (action === 'require_user_confirmation') {
-      return `Tool ${toolName} nao foi executada diretamente. A effect boundary exige confirmacao do usuario antes desse efeito. Resumo: ${mapping.analysis.summary}`;
-    }
-    if (action === 'require_admin_policy') {
-      return `Tool ${toolName} nao foi executada diretamente. A effect boundary exige policy administrativa antes desse efeito. Resumo: ${mapping.analysis.summary}`;
-    }
-    return `Tool ${toolName} nao foi executada diretamente. A effect boundary permite execucao direta somente para observacoes seguras reconhecidas. Decisao: ${action}. Resumo: ${mapping.analysis.summary}`;
-  }
 
   private async createPlanForDeferredEffect(input: {
     run: UniversalAgentRun;
@@ -1292,8 +1175,8 @@ export class AgentRunNativeToolLoopService {
     terminalBackendPlan: Record<string, unknown> | null;
   }> {
     const args = input.mapping.actionIntent.args || {};
-    const workspaceWrites = this.extractWorkspaceWritesFromToolArgs(args);
-    const commands = this.extractCommandsFromToolArgs(args);
+    const workspaceWrites = extractWorkspaceWritesFromToolArgs(args);
+    const commands = extractCommandsFromToolArgs(args);
     const speculativeAutonomy = await this.prepareSpeculativeAutonomyForDeferredWrite({
       run: input.run,
       toolName: input.toolName,
@@ -1337,7 +1220,7 @@ export class AgentRunNativeToolLoopService {
       source: 'effect-boundary',
       toolName: input.toolName,
       actionIntent: input.mapping.actionIntent,
-      effectBoundary: this.buildToolEffectBoundaryMetadata(input.mapping),
+      effectBoundary: buildToolEffectBoundaryMetadata(input.mapping),
       effectRehearsal: input.rehearsalEnvelope,
       workspaceWrites,
       commands,
@@ -1352,7 +1235,7 @@ export class AgentRunNativeToolLoopService {
       },
     };
     const planInput: CreateZavorthMutationPlanInput = {
-      domain: this.resolveMutationDomain(input.mapping),
+      domain: resolveMutationDomain(input.mapping),
       actionId: `effect-boundary:${input.run.id}:${input.mapping.toolCallId}`,
       title: `Effect Boundary: ${input.toolName}`,
       summary: `Side effect deferred by Effect Boundary for ${input.toolName}. Review sandbox/rehearsal before applying.`,
@@ -1434,7 +1317,7 @@ export class AgentRunNativeToolLoopService {
       createMutationPlan: true,
       approvalRequired: true,
       maxCorrectionRounds: 1,
-      sandboxIsolation: this.resolveSpeculativeSandboxIsolation(input.run),
+      sandboxIsolation: resolveSpeculativeSandboxIsolation(input.run),
     };
     try {
       return await this.speculativeAutonomy.prepare(preparedInput);
@@ -1453,7 +1336,7 @@ export class AgentRunNativeToolLoopService {
     try {
       const snapshot = this.terminalBackends.execute({
         action: 'terminal.plan',
-        backend: this.resolveTerminalBackend(input.run),
+        backend: resolveTerminalBackend(input.run),
         command: input.commands[0],
         workspace: normalizeText(input.run.workspace || input.run.metadata.workspaceRoot || process.cwd()),
         live: false,
@@ -1475,132 +1358,6 @@ export class AgentRunNativeToolLoopService {
     }
   }
 
-  private resolveMutationDomain(mapping: ToolEffectMapping): CreateZavorthMutationPlanInput['domain'] {
-    const effect = mapping.analysis.effect;
-    if (effect.processSpawn.length > 0 || effect.deletes.some((resource) => resource.kind === 'process') || effect.networkEgress.length > 0) {
-      return 'sandbox';
-    }
-    if (effect.secretAccess.length > 0) return 'capability';
-    return 'selfmod';
-  }
-
-  private resolveSpeculativeSandboxIsolation(run: UniversalAgentRun): PrepareZavorthSpeculativeAutonomyInput['sandboxIsolation'] {
-    const raw = normalizeText(
-      run.metadata.speculativeSandboxIsolation
-      || run.metadata.sandboxIsolation
-      || run.metadata.executionSandbox
-      || process.env.ZAVORTH_SPECULATIVE_SANDBOX_ISOLATION,
-    ).toLowerCase();
-    if (['container', 'docker', 'gvisor', 'runsc'].includes(raw)) {
-      return 'container';
-    }
-    if (['microvm', 'micro-vm', 'firecracker'].includes(raw)) {
-      return 'microvm';
-    }
-    if (['local', 'local-copy', 'copy'].includes(raw)) {
-      return 'local-copy';
-    }
-    return 'auto';
-  }
-
-  private resolveTerminalBackend(run: UniversalAgentRun): 'local' | 'docker' | 'ssh' | 'wsl' | 'vercel-sandbox' | 'modal' | 'daytona' {
-    const raw = normalizeText(
-      run.metadata.terminalBackend
-      || run.metadata.executionBackend
-      || process.env.ZAVORTH_DEFAULT_MUTATION_BACKEND,
-    ).toLowerCase();
-    if (raw === 'ssh') return 'ssh';
-    if (raw === 'wsl') return 'wsl';
-    if (raw === 'vercel' || raw === 'vercel-sandbox') return 'vercel-sandbox';
-    if (raw === 'modal') return 'modal';
-    if (raw === 'daytona') return 'daytona';
-    if (raw === 'local') return 'local';
-    return 'docker';
-  }
-
-  private extractWorkspaceWritesFromToolArgs(args: Record<string, unknown>): Array<{ path: string; content: string }> {
-    const pathValue = normalizeText(args.path || args.filePath || args.target_file || args.target || args.workspacePath);
-    const contentValue = typeof args.content === 'string'
-      ? args.content
-      : typeof args.code_content === 'string'
-        ? args.code_content
-        : typeof args.text === 'string'
-          ? args.text
-          : '';
-    return pathValue ? [{ path: pathValue, content: contentValue }] : [];
-  }
-
-  private extractCommandsFromToolArgs(args: Record<string, unknown>): string[] {
-    return [args.command, args.cmd, args.script, args.shell]
-      .flatMap((candidate) => Array.isArray(candidate) ? candidate : [candidate])
-      .map((candidate) => normalizeText(candidate))
-      .filter(Boolean);
-  }
-
-  private buildMutationPlanMetadata(plan: ZavorthMutationPlan): Record<string, unknown> {
-    return {
-      id: plan.id,
-      status: plan.status,
-      domain: plan.domain,
-      actionId: plan.actionId,
-      approvalRequired: plan.approval.required,
-      approvalStatus: plan.approval.status,
-      riskLevel: plan.riskLevel,
-      payloadHash: plan.payloadHash,
-    };
-  }
-
-  private enrichNativeToolArgs(input: {
-    toolName: string;
-    args: Record<string, unknown>;
-    providerName: string;
-    modelName: string | null;
-    continuity?: {
-      continuityId: string;
-      runId: string;
-      toolCallId: string;
-      sourceSurface: string;
-    };
-  }): Record<string, unknown> {
-    const existingMetadata = input.args.metadata && typeof input.args.metadata === 'object' && !Array.isArray(input.args.metadata)
-      ? input.args.metadata as Record<string, unknown>
-      : {};
-    const withContinuity = input.continuity
-      ? {
-          ...input.args,
-          metadata: {
-            ...existingMetadata,
-            continuityId: input.continuity.continuityId,
-            runId: input.continuity.runId,
-            toolCallId: input.continuity.toolCallId,
-            sourceSurface: input.continuity.sourceSurface,
-          },
-        }
-      : input.args;
-
-    if (normalizeText(input.toolName).toLowerCase() !== 'web_search') {
-      return withContinuity;
-    }
-    const providerHints = withContinuity.providerHints && typeof withContinuity.providerHints === 'object' && !Array.isArray(withContinuity.providerHints)
-      ? withContinuity.providerHints as Record<string, unknown>
-      : {};
-    const providerId = normalizeText(
-      providerHints.providerId
-      || providerHints.preferredProvider
-      || withContinuity.provider
-      || withContinuity.providerId
-      || input.providerName,
-    );
-    return {
-      ...withContinuity,
-      providerHints: {
-        ...providerHints,
-        ...(providerId ? { providerId } : {}),
-        ...(input.modelName ? { modelName: input.modelName } : {}),
-        source: 'agent-native-tool-loop',
-      },
-    };
-  }
 
   private buildAppliedToolContinuityView(input: {
     seed: ReturnType<OperatorContinuityKernel['begin']>;

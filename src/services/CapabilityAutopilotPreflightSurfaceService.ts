@@ -274,7 +274,7 @@ export class CapabilityAutopilotPreflightSurfaceService {
       actions.push(this.action({
         id: 'resume-after-check',
         kind: 'resume_after_check',
-        label: surface === 'api' ? 'resume_after_check' : 'Retomar apos check',
+        label: surface === 'api' ? 'resume_after_check' : 'Resume after check',
         description: 'Retomar somente depois da validacao governada.',
         command: surface === 'cli' ? `npm run capability-autopilot:resume -- --capability=${hint.capabilityId}` : null,
         route: this.route(surface, hint, 'resume'),

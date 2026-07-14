@@ -329,7 +329,7 @@ export class ZavorthRuntimeStabilityControlPlaneService {
     if ((Number(input.nodes?.summary?.online || 0) || 0) === 0) {
       actions.push({
         id: 'node-host-bootstrap',
-        label: 'Subir um node host supervisionado',
+        label: 'Subir um node supervised host',
         severity: 'warn',
         reason: 'Nenhum node esta online neste momento; a fleet ainda nao sustenta invokes remotos.',
         command: 'npm run nodes:host',

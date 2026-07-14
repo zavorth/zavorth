@@ -303,7 +303,7 @@ export class ZavorthCapabilityActivationFlowService {
     }
     if (status === 'blocked') {
       return {
-        headline: `Ativacao de ${target.label} bloqueada.`,
+        headline: `Ativaction de ${target.label} bloqueada.`,
         operatorSummary: 'O fluxo encontrou uma barreira de importacao, readiness ou policy.',
         nextAction: 'Corrigir os bloqueios antes de gerar novo plano.',
       };

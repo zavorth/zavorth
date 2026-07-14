@@ -216,7 +216,7 @@ export class ZavorthHubControlPlaneService {
       `Plugins: ${snapshot.summary.plugins} | trusted: ${snapshot.summary.pluginsTrusted}.`,
       `Platform: ${snapshot.summary.platformEntries} entradas | colecoes: ${snapshot.summary.collections} | recipes: ${snapshot.summary.platformRecipes}.`,
       `Skills: ${snapshot.summary.skillsVisible} visiveis | recipes prontas: ${snapshot.summary.skillRecipesReady}.`,
-      `MCP: ${snapshot.summary.mcpConnected}/${snapshot.summary.mcpEnabled} habilitado(s) | total manifesto: ${snapshot.summary.mcpServers} | falhando: ${snapshot.summary.mcpFailed} | tools: ${snapshot.summary.mcpTools} | resources: ${snapshot.summary.mcpResources}.`,
+      `MCP: ${snapshot.summary.mcpConnected}/${snapshot.summary.mcpEnabled} habilitado(s) | total manifesto: ${snapshot.summary.mcpServers} | failurendo: ${snapshot.summary.mcpFailed} | tools: ${snapshot.summary.mcpTools} | resources: ${snapshot.summary.mcpResources}.`,
       `Registry remoto: ${snapshot.sync.status} | ${snapshot.sync.summary}`,
       '',
       'Superficies:',

@@ -1,8 +1,9 @@
 # Telegram free-text: agent-first (intent-regex deleted)
 
-> **Surface-agnostic product rule:** agent-first free text is the default on **every** surface (Telegram, Desktop, Control, CLI, …), not only Telegram.
-> See `docs/product/surface-agent-contracts.md` (C1/C2/C3).
-> Global kill: `ZAVORTH_SURFACE_AGENT_FIRST=0`. Telegram-only kill: `ZAVORTH_TELEGRAM_AGENT_FIRST=0`.
+> Free text is agent-owned on every surface (Telegram, Desktop, Control, CLI, …).
+> See `docs/product/surface-agent-contracts.md` and `docs/product/agent-tool-routing.md`.
+>
+> Free-text keyword packs are removed. Middleware only handles channel pairing; natural language goes to the agent (LLM + tools).
 
 ## Product model
 
@@ -49,8 +50,6 @@ Does **not** restore deleted free-text intent packs. There is **no** `ZAVORTH_TE
 | `ZAVORTH_SURFACE_AGENT_FIRST=1` | Free text → agent on all shared-surface platforms |
 | `ZAVORTH_TELEGRAM_AGENT_FIRST=0` | Ops kill switch (table above) |
 
-See also: [monorepo-open-items-closeout.md](./monorepo-open-items-closeout.md).
-
 ## Multilingual
 
 - Free text: covered by the LLM (not a phrase dictionary).
@@ -78,7 +77,7 @@ No natural-pack dependencies are assembled for free-text interceptors. Slash pac
 
 ## Related
 
+- [agent-tool-routing.md](./agent-tool-routing.md)
+- [surface-agent-contracts.md](./surface-agent-contracts.md)
 - [skills-universal-install.md](./skills-universal-install.md)
 - [workers-mesh.md](./workers-mesh.md)
-- [skill-worker-mesh-qa-gate.md](./skill-worker-mesh-qa-gate.md)
-- [skill-worker-mesh-waves-closeout.md](./skill-worker-mesh-waves-closeout.md)

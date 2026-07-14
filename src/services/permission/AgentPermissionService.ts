@@ -1,5 +1,5 @@
 /**
- * Agent-wide permission evaluator + memory (Hermes/MiMo style).
+ * Agent-wide permission evaluator + memory (standard style).
  * - once: allow this time only
  * - session: remember for session/workspace until TTL
  * - always: persist allow rule

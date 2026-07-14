@@ -256,7 +256,7 @@ export class PermissionService {
       reason: input.reason,
       requested_by: input.requested_by || null,
       decided_by: input.requested_by || null,
-      decision_note: 'Politica aprovada diretamente pelo operador.',
+      decision_note: 'Politica approved diretamente by the operator.',
       metadata: this.normalizePermissionMetadata(
         input.executor,
         input.kind,

@@ -395,8 +395,8 @@ export class GatewaySessionSnapshotSupport {
         kind: 'review-latest',
         label: titleHint ? `Continuar ${titleHint}` : 'Continuar contexto',
         reason: reason
-          ? `O workflow anterior foi encerrado pelo operador: ${reason}.`
-          : 'O workflow anterior foi encerrado pelo operador.',
+          ? `O workflow anterior foi encerrado by the operator: ${reason}.`
+          : 'O workflow anterior foi encerrado by the operator.',
         prompt,
       };
     }

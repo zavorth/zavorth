@@ -10,7 +10,7 @@ export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito de pesquisa web.',
+    routing_reason: 'Explicit web research command.',
     routing_confidence: 1,
     command: {
       command: 'research',
@@ -35,7 +35,7 @@ export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito de pesquisa profunda.',
+    routing_reason: 'Explicit deep research command.',
     routing_confidence: 1,
     command: {
       command: 'deepresearch',

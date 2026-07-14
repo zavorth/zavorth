@@ -96,7 +96,7 @@ export class CodexExecutor implements IExecutor {
     return [
       prompt,
       '',
-      'Permissoes persistentes aprovadas:',
+      'Approved persistent permissions:',
       ...policyLines,
     ].join('\n');
   }

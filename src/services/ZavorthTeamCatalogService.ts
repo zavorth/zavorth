@@ -132,7 +132,7 @@ const TEAM_TEMPLATES: TeamTemplate[] = [
         role: 'reviewer',
         label: 'ExternalExecutor Reviewer',
         executor: 'external_executor',
-        responsibility: 'Revisa a implementacao e tenta encontrar regressao, risco e ajuste final.',
+        responsibility: 'Revisa a implementaction e tenta encontrar regressao, risco e ajuste final.',
       },
     ],
   },
@@ -471,7 +471,7 @@ export class ZavorthTeamCatalogService {
         label: 'Discord channel',
         status: 'blocked',
         summary: 'The runtime is in minimal exposure, so /workflow does not appear in Discord channels.',
-        actionHint: 'Move to operator exposure if you want slash /workflow in operational context.',
+        actionHint: 'Move tthe operator exposure if you want slash /workflow in operational context.',
       };
     }
 

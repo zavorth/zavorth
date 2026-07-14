@@ -347,7 +347,7 @@ export class CompanionControlService {
       return {
         ok: result.ok,
         summary: result.message,
-        reason: 'Desligamento supervisionado do WSL.',
+        reason: 'Supervised WSL shutdown.',
         payload: result as unknown as CompanionActionPayload,
       };
     }
@@ -468,7 +468,7 @@ export class CompanionControlService {
       const result = await this.zavorthBridgeControl.restart();
       return {
         ok: result.ok,
-        summary: result.message || 'Restart supervisionado do ZavorthBridge executado.',
+        summary: result.message || 'Supervised ZavorthBridge restart executed.',
         reason: 'Restart via surface nativa do ZavorthBridge.',
         payload: result as unknown as CompanionActionPayload,
       };

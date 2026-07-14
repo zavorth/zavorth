@@ -286,7 +286,7 @@ export class ChannelSetupAssistantService {
     if (!selected) {
       return [{
         id: 'choose-channel',
-        label: 'Escolher canal',
+        label: 'Choose channel',
         command: 'Quero conectar ao Discord',
       }];
     }

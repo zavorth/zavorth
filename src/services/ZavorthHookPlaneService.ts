@@ -62,7 +62,7 @@ const SUPPORTED_EVENTS: Array<{
     id: 'after-task-dispatch',
     label: 'Depois do dispatch',
     phase: 'dispatch',
-    description: 'Executa passos de pos-processamento apos a criacao da task.',
+    description: 'Executa passos de pos-processamento apos a criaction da task.',
     status: 'ready',
   },
   {

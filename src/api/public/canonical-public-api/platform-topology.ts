@@ -192,7 +192,7 @@ export function readPlatformCatalog(
       targetIds: Array.isArray(entry.targetIds) ? entry.targetIds.slice() : [],
     })),
     narrative: {
-      headline: snapshot.narrative?.headline || 'Platform catalog do Zavorth',
+      headline: snapshot.narrative?.headline || 'Zavorth platform catalog',
       operatorSummary: snapshot.narrative?.operatorSummary || 'Public catalog ready.',
     },
   };

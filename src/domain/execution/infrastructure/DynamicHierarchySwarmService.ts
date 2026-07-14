@@ -10,7 +10,7 @@ import {
 } from '../../../runtime/agent/subagents/index.js';
 import { CanonicalExecutionPipelineService } from '../../../services/CanonicalExecutionPipelineService.js';
 
-import { SwarmV2Service } from '../../../services/SwarmV2Service.js';
+import { SwarmV2Service } from '../../../agents/SwarmV2Service.js';
 
 export type DynamicHierarchyComplexity = 'low' | 'medium' | 'high';
 

@@ -236,7 +236,7 @@ export class PublicAdoptionReadinessService {
         `risco mapeado: ${risk.title}`,
         exists ? 'pass' : 'fail',
         exists
-          ? `mitigacao documentada: ${risk.mitigation}`
+          ? `mitigaction documentada: ${risk.mitigation}`
           : `risco precisa apontar para evidencia local: ${risk.evidencePath}`,
         risk.evidencePath,
         [`severity=${risk.severity}`],
@@ -289,7 +289,7 @@ export class PublicAdoptionReadinessService {
       ok ? 'pass' : 'fail',
       ok
         ? 'planejamento do ciclo aponta para a Readiness checkpoint 4 com gate proprio.'
-        : 'docs/product-direction precisa manter Readiness checkpoint 4 e seu gate planejado.',
+        : 'docs/product-direction must keep Readiness checkpoint 4 e seu gate planejado.',
       'docs/product-direction.md',
       [`credential-vault4=${hasPhase}`, `gate54=${hasGate}`],
     );

@@ -435,7 +435,7 @@ export class NexusFacadeService {
         {
           id: 'capabilities',
           label: 'Capacidades',
-          value: capabilityNextStep ? 'Ajustar' : 'Prontas',
+          value: capabilityNextStep ? 'Ajustar' : 'Readys',
           tone: capabilityNextStep ? 'attention' : 'ok',
           detail: capabilityNextStep || 'Sem proximo passo pendente.',
         },

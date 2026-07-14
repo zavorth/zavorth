@@ -2,28 +2,28 @@
 import java.util.Properties
 
 val dnsjavaInetAddressResolverService = "META-INF/services/java.net.spi.InetAddressResolverProvider"
-val openClawAndroidVersionFile = rootProject.file("Config/Version.properties")
-val openClawAndroidVersionProperties =
+val zavorthAndroidVersionFile = rootProject.file("Config/Version.properties")
+val zavorthAndroidVersionProperties =
   Properties().apply {
-    if (!openClawAndroidVersionFile.isFile) {
+    if (!zavorthAndroidVersionFile.isFile) {
       error("Missing Android version properties. Run `pnpm android:version:sync`.")
     }
-    openClawAndroidVersionFile.inputStream().use(::load)
+    zavorthAndroidVersionFile.inputStream().use(::load)
   }
 
 fun requireZavorthAndroidVersionProperty(name: String): String =
-  openClawAndroidVersionProperties.getProperty(name)?.trim()?.takeIf { it.isNotEmpty() }
+  zavorthAndroidVersionProperties.getProperty(name)?.trim()?.takeIf { it.isNotEmpty() }
     ?: error("Missing $name in Config/Version.properties. Run `pnpm android:version:sync`.")
 
-val openClawAndroidVersionName = requireZavorthAndroidVersionProperty("OPENCLAW_ANDROID_VERSION_NAME")
-val openClawAndroidVersionCode =
-  requireZavorthAndroidVersionProperty("OPENCLAW_ANDROID_VERSION_CODE").toIntOrNull()
-    ?: error("OPENCLAW_ANDROID_VERSION_CODE must be an integer in Config/Version.properties.")
+val zavorthAndroidVersionName = requireZavorthAndroidVersionProperty("ZAVORTH_ANDROID_VERSION_NAME")
+val zavorthAndroidVersionCode =
+  requireZavorthAndroidVersionProperty("ZAVORTH_ANDROID_VERSION_CODE").toIntOrNull()
+    ?: error("ZAVORTH_ANDROID_VERSION_CODE must be an integer in Config/Version.properties.")
 
-val androidStoreFile = providers.gradleProperty("OPENCLAW_ANDROID_STORE_FILE").orNull?.takeIf { it.isNotBlank() }
-val androidStorePassword = providers.gradleProperty("OPENCLAW_ANDROID_STORE_PASSWORD").orNull?.takeIf { it.isNotBlank() }
-val androidKeyAlias = providers.gradleProperty("OPENCLAW_ANDROID_KEY_ALIAS").orNull?.takeIf { it.isNotBlank() }
-val androidKeyPassword = providers.gradleProperty("OPENCLAW_ANDROID_KEY_PASSWORD").orNull?.takeIf { it.isNotBlank() }
+val androidStoreFile = providers.gradleProperty("ZAVORTH_ANDROID_STORE_FILE").orNull?.takeIf { it.isNotBlank() }
+val androidStorePassword = providers.gradleProperty("ZAVORTH_ANDROID_STORE_PASSWORD").orNull?.takeIf { it.isNotBlank() }
+val androidKeyAlias = providers.gradleProperty("ZAVORTH_ANDROID_KEY_ALIAS").orNull?.takeIf { it.isNotBlank() }
+val androidKeyPassword = providers.gradleProperty("ZAVORTH_ANDROID_KEY_PASSWORD").orNull?.takeIf { it.isNotBlank() }
 val resolvedAndroidStoreFile =
   androidStoreFile?.let { storeFilePath ->
     if (storeFilePath.startsWith("~/")) {
@@ -44,9 +44,9 @@ val wantsAndroidReleaseBuild =
 
 if (wantsAndroidReleaseBuild && !hasAndroidReleaseSigning) {
   error(
-    "Missing Android release signing properties. Set OPENCLAW_ANDROID_STORE_FILE, " +
-      "OPENCLAW_ANDROID_STORE_PASSWORD, OPENCLAW_ANDROID_KEY_ALIAS, and " +
-      "OPENCLAW_ANDROID_KEY_PASSWORD in ~/.gradle/gradle.properties.",
+    "Missing Android release signing properties. Set ZAVORTH_ANDROID_STORE_FILE, " +
+      "ZAVORTH_ANDROID_STORE_PASSWORD, ZAVORTH_ANDROID_KEY_ALIAS, and " +
+      "ZAVORTH_ANDROID_KEY_PASSWORD in ~/.gradle/gradle.properties.",
   )
 }
 
@@ -83,8 +83,8 @@ android {
     applicationId = "dev.zavorth.companion"
     minSdk = 31
     targetSdk = 36
-    versionCode = openClawAndroidVersionCode
-    versionName = openClawAndroidVersionName
+    versionCode = zavorthAndroidVersionCode
+    versionName = zavorthAndroidVersionName
     ndk {
       // Support all major ABIs — native libs are tiny (~47 KB per ABI)
       abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")

@@ -1,33 +1,11 @@
-
 /**
- * ChannelMessageMiddleware — Plugs into any gateway's message pipeline
- * to add commandless mode and adaptive formatting.
- *
- * This middleware intercepts incoming messages, detects intent,
- * and formats responses for the target channel. It works with
- * the existing NaturalInvocationRouter and PresentationAdapter.
- *
- * Usage:
- *   const middleware = new ZavorthChannelMessageMiddleware();
- *
- *   // In your gateway's message handler:
- *   const result = await middleware.processIncoming({
- *     text: message,
- *     channelId: 'telegram',
- *     userId: '123',
- *   });
- *
- *   if (result.handled) {
- *     await ctx.reply(result.response.text);
- *   }
+ * Channel message middleware: pairing gate for remote channels.
+ * Free text is not handled here; the agent gateway owns natural language.
  */
 
-import { ZavorthCommandlessModeService, type CommandlessInput } from './ZavorthCommandlessModeService.js';
 import { ZavorthPresentationAdapterService, type UniversalResponse } from './ZavorthPresentationAdapterService.js';
 import { ZavorthChannelCapabilitiesService } from './ZavorthChannelCapabilitiesService.js';
-import { detectDeviceLocale } from './ZavorthIntentI18n.js';
 import { getChannelPairingService } from './ZavorthChannelPairingService.js';
-import { asErrorLike } from '../utils/errorLike.js';
 
 export interface MiddlewareInput {
   text: string;
@@ -52,30 +30,22 @@ export interface MiddlewareResult {
 }
 
 export class ZavorthChannelMessageMiddleware {
-  private readonly commandless: ZavorthCommandlessModeService;
   private readonly presentation: ZavorthPresentationAdapterService;
   private readonly caps: ZavorthChannelCapabilitiesService;
 
   constructor(deps?: {
-    commandless?: ZavorthCommandlessModeService;
     presentation?: ZavorthPresentationAdapterService;
     caps?: ZavorthChannelCapabilitiesService;
   }) {
     this.caps = deps?.caps ?? new ZavorthChannelCapabilitiesService();
     this.presentation = deps?.presentation ?? new ZavorthPresentationAdapterService(this.caps);
-    this.commandless = deps?.commandless ?? new ZavorthCommandlessModeService({
-      presentation: this.presentation,
-      caps: this.caps,
-    });
   }
 
   /**
-   * Process an incoming message through the middleware pipeline.
-   * Returns a result indicating whether the message was handled
-   * and the formatted response if so.
+   * Pairing-only. Free text always returns handled=false so the agent owns the turn.
    */
   public async processIncoming(input: MiddlewareInput): Promise<MiddlewareResult> {
-    const locale = input.locale ?? detectDeviceLocale();
+    const locale = String(input.locale || 'en').trim() || 'en';
 
     const isLocalChannel = input.channelId === 'cli' || input.channelId === 'web';
     if (!isLocalChannel && input.userId) {
@@ -94,63 +64,30 @@ export class ZavorthChannelMessageMiddleware {
             requiresApproval: false,
             locale,
           };
-        } else {
-          return {
-            handled: true,
-            response: {
-              text: '🔒 Access Denied. To link this channel with Zavorth, please enter the single-use pairing code shown in your server console.',
-            },
-            action: 'pairing_required',
-            confidence: 1.0,
-            requiresApproval: false,
-            locale,
-          };
         }
+        return {
+          handled: true,
+          response: {
+            text: '🔒 Access Denied. To link this channel with Zavorth, please enter the single-use pairing code shown in your server console.',
+          },
+          action: 'pairing_required',
+          confidence: 1.0,
+          requiresApproval: false,
+          locale,
+        };
       }
     }
 
-    try {
-      const commandlessInput: CommandlessInput = {
-        message: input.text,
-        channelId: input.channelId,
-        userId: input.userId,
-        isFirstInteraction: input.isFirstInteraction,
-        locale,
-      };
-
-      const result = await this.commandless.process(commandlessInput);
-
-      return {
-        handled: true,
-        response: {
-          text: result.formatted.text,
-          buttons: result.formatted.buttons,
-        },
-        action: result.action,
-        confidence: result.confidence,
-        requiresApproval: result.requiresApproval,
-        locale: result.detectedLanguage,
-      };
-    } catch (error: unknown) {
-      const err = asErrorLike(error);
-      // Graceful degradation: if middleware fails, let the gateway handle it
-      return {
-        handled: false,
-        response: null,
-        action: 'error',
-        confidence: 0,
-        requiresApproval: false,
-        locale,
-        error: error instanceof Error ? err.message : String(error),
-      };
-    }
+    return {
+      handled: false,
+      response: null,
+      action: 'agent_first',
+      confidence: 0,
+      requiresApproval: false,
+      locale,
+    };
   }
 
-  /**
-   * Format an existing response for a specific channel.
-   * Useful when the agent has already generated a response
-   * and you need to adapt it for the target channel.
-   */
   public formatForChannel(
     response: UniversalResponse,
     channelId: string,
@@ -162,28 +99,17 @@ export class ZavorthChannelMessageMiddleware {
     };
   }
 
-  /**
-   * Check if a message looks like a command (starts with /).
-   * Commands should bypass the middleware.
-   */
   public isCommand(text: string): boolean {
     return text.trim().startsWith('/');
   }
 
-  /**
-   * Get a localized greeting for a channel.
-   */
-  public getGreeting(channelId: string, locale?: string): string {
-    const lang = locale ?? detectDeviceLocale();
+  /** Simple greeting helper (not a routing brain). */
+  public getGreeting(_channelId: string, locale?: string): string {
+    const lang = String(locale || 'en').split(/[-_]/)[0].toLowerCase();
     const greetings: Record<string, string> = {
-      en: "Hi! I'm Zavorth. Ask me anything — no commands needed.",
-      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — sem comandos.',
-      es: '¡Hola! Soy Zavorth. Pide lo que necesites — sin comandos.',
-      fr: 'Bonjour ! Je suis Zavorth. Demandez-moi n\'importe quoi — sans commandes.',
-      de: 'Hallo! Ich bin Zavorth. Frag mich was du willst — ohne Befehle.',
-      ja: 'こんにちは！Zavorthです。何でも聞いてください — コマンド不要です。',
-      zh: '你好！我是Zavorth。随时问我 — 不需要命令。',
-      ko: '안녕하세요! Zavorth입니다. 뭐든 물어보세요 — 명령어 불필요.',
+      en: "Hi! I'm Zavorth. Ask me anything — I use tools when needed.",
+      pt: 'Oi! Sou o Zavorth. Pode me pedir qualquer coisa — uso tools quando preciso.',
+      es: '¡Hola! Soy Zavorth. Pide lo que necesites — uso tools cuando hace falta.',
     };
     return greetings[lang] ?? greetings.en;
   }

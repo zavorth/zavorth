@@ -20,7 +20,7 @@ export class ModelPickerExplainabilityService {
       case 'fallback':
         return 'Lista vinda de fallback curado porque discovery ao vivo nao esta disponivel.';
       case 'custom_model':
-        return 'Lista vinda de modelos customizados pelo operador.';
+        return 'Lista vinda de modelos customizados by the operator.';
       case 'imported_model':
         return 'Lista vinda de modelos importados.';
       case 'provider_catalog':

@@ -69,7 +69,7 @@ export async function runBrowserSmoke(
     actionId: action.actionId,
     runtimeTarget: action.decision.runtimeTarget,
     summary: `Browser control supervisionado navegou para ${resolvedUrl}.`,
-    detail: title ? `Titulo observado: ${title}` : 'Navegacao local concluida.',
+    detail: title ? `Titulo observado: ${title}` : 'Navegaction local concluida.',
     error: null,
     operatorNextStep: null,
   };

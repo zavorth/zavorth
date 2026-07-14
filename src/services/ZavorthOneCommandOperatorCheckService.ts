@@ -276,7 +276,7 @@ function buildZavorthControlPermissionArea(snapshot: ZavorthControlExperienceHom
       `zavorthControlCanExecute=${zavorthControlCanExecute}`,
       permissionPanel?.defaultPosture || 'permissionPanel=missing',
     ],
-    nextAction: complete ? '/zavorthControl' : 'Rodar zavorth zavorthControl-home e corrigir projection de permissoes.',
+    nextAction: complete ? '/zavorthControl' : 'Rodar zavorth zavorthControl-home e corrigir projection de permissions.',
   };
 }
 
@@ -313,7 +313,7 @@ function buildSafetyArea(input: {
     label: 'Operator Safety',
     status: ok ? 'ready' : 'blocked',
     summary: ok
-      ? 'Sem prompt/tool/transacao live oculta; segredos e approvals seguem governados.'
+      ? 'Sem prompt/tool/transaction live oculta; segredos e approvals seguem governados.'
       : 'Uma garantia de seguranca do operador falhou.',
     evidence: [
       `liveProbeRequested=${input.live}`,

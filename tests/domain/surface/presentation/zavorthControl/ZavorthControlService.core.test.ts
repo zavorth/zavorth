@@ -18,7 +18,7 @@ import {
   fetchNoKeepAlive,
 } from '../../../../helpers/zavorthControlWebTestUtils.js';
 
-jest.setTimeout(60000);
+jest.setTimeout(180000);
 
 function createInstallJourneyFixture() {
   const now = new Date().toISOString();

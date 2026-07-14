@@ -295,7 +295,7 @@ export class ZavorthAgentGateway {
     options: AgentRunExecutionOptions & {
       totp?: string | null;
       surface?: string | null;
-      /** Hermes/MiMo style: once | session | always | deny */
+      /** standard style: once | session | always | deny */
       choice?: string | null;
       workspaceId?: string | null;
       sessionId?: string | null;

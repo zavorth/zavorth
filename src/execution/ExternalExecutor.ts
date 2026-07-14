@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/index.js';
 import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import { IExecutor } from '../contracts/IExecutor.js';
-import { WorkspaceResolver } from '../security/WorkspaceResolver.js';type ExternalExecutorTransport = 'wsl' | 'direct';
+import { WorkspaceResolver } from '../security/WorkspaceResolver.js';
+type ExternalExecutorTransport = 'wsl' | 'direct';
 
 type ExternalExecutorSettings = {
   cliPath: string;
@@ -353,7 +354,7 @@ export class ExternalExecutor implements IExecutor {
             '',
             scopedWriteEnforced
               ? 'Permissoes extras aprovadas pelo operador (escrita apenas onde constar "leitura e escrita"):'
-              : 'Permissoes extras aprovadas pelo operador (respeite exatamente estes limites):',
+              : 'Extra operator-approved permissions (respect these limits exactly):',
             ...allowedPathPolicyLines,
           ]
         : []),

@@ -43,7 +43,7 @@ export class OpenCodeProvider implements ILlmProvider {
     const modelName = options?.modelName || config.openCodeModel;
 
     try {
-      logger.info(`[OpenCode] Chamando modelo: ${modelName}`);
+      logger.info(`[OpenCode] Calling model: ${modelName}`);
       const response = await this.client.chat.completions.create({
         model: modelName,
         messages: convertChatMessagesToOpenAI(messages),

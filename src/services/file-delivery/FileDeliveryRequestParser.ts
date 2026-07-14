@@ -94,7 +94,7 @@ export class FileDeliveryRequestParser {
     const normalized = requestWithoutPath
       .replace(/\/(?:arquivo|task)\b/gi, ' ')
       .replace(/\b(download|downloads|desktop|documentos?|docs|workspace|repo|repositorio|projeto)\b/gi, ' ')
-      .replace(/\b(achar|encontrar|localizar|buscar|procura|procure|cad[eÃª]|olha|olhe)\b/gi, ' ')
+      .replace(/\b(achar|encontrar|localizar|buscar|procura|procure|cad[eê]|olha|olhe)\b/gi, ' ')
       .replace(/\b(mais recente|mais novo|ultima|ultimo|ultimas|ultimos|hoje|ontem|essa semana|esta semana|esse mes|este mes)\b/gi, ' ')
       .replace(/[^\w.\- ]+/g, ' ')
       .toLowerCase();
@@ -116,7 +116,7 @@ export class FileDeliveryRequestParser {
     const normalized = text.toLowerCase();
     const sendIntent = /(me\s+envia|me\s+envie|me\s+manda|manda\s+pra\s+mim|envie|enviar|manda|anexa|anexa\s+pra\s+mim|me\s+mande)/i;
     const listIntent = /(o\s+que\s+tem|quais\s+arquivos|quais\s+pastas|listar|liste|lista|mostra\s+o\s+que\s+tem|mostrar\s+arquivos|conteudo\s+da\s+pasta|conteudo\s+de)/i;
-    const searchIntent = /(achar|encontrar|localizar|buscar|procura|procure|cad[eÃª]|olha|olhe)/i;
+    const searchIntent = /(achar|encontrar|localizar|buscar|procura|procure|cad[eê]|olha|olhe)/i;
     const filePattern = /(arquivo|pdf|html|htm|css|js|json|md|tsx?|jsx|pasta|zip|documento|planilha|imagem|foto|downloads?|desktop|documentos?|docs|workspace|repositorio|repo|c:\\|\\|\/)/i;
     return filePattern.test(normalized) && (sendIntent.test(normalized) || listIntent.test(normalized) || searchIntent.test(normalized));
   }

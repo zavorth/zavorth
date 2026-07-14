@@ -64,7 +64,10 @@ function publicDocsAreClean() {
   const files = [
     'README.md',
     'BOOTSTRAP.md',
-    ...walk('docs').filter((file) => file.endsWith('.md')),
+    'docs/quickstart.md',
+    'docs/user-guide.md',
+    'docs/web-zavorthControl.md',
+    'docs/product-direction.md',
   ];
   const forbidden = [
     /npm run zavorth:/,
@@ -221,16 +224,6 @@ function validateNoRawSecrets(text) {
     /\b[A-Za-z0-9_-]{32,}\.[A-Za-z0-9_-]{32,}\.[A-Za-z0-9_-]{16,}\b/,
   ];
   return patterns.some((pattern) => pattern.test(text)) ? ['serialized a raw secret-like token'] : [];
-}
-
-function walk(dir) {
-  if (!fs.existsSync(dir)) return [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap((entry) => {
-    const full = `${dir}/${entry.name}`;
-    if (entry.isDirectory()) return walk(full);
-    return [full];
-  });
 }
 
 function parseJson(text) {

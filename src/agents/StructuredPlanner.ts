@@ -122,10 +122,10 @@ export class StructuredPlanner {
       `- Preferred provider: ${trace.provider.providerName}${trace.provider.modelName ? `/${trace.provider.modelName}` : ''}.`,
       `- Provider strategy source: ${trace.provider.selectionSource}.`,
       trace.skills.primarySkill
-        ? `- Skill sugerida: @${trace.skills.primarySkill.name} (${trace.skills.primarySkill.description}).`
+        ? `- Suggested skill: @${trace.skills.primarySkill.name} (${trace.skills.primarySkill.description}).`
         : '- Nenhuma skill teve aderencia alta o suficiente para guiar o plano.',
       ...(trace.skills.supportingSkills.length > 0
-        ? [`- Skills de apoio: ${trace.skills.supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`]
+        ? [`- Supporting skills: ${trace.skills.supportingSkills.map((entry) => `@${entry.name}`).join(', ')}.`]
         : []),
       '- Use esses sinais como contexto de orquestracao antes de montar o JSON final.',
     ];
@@ -163,7 +163,7 @@ export class StructuredPlanner {
           : (typeof cleaned.risk_level === 'number' ? cleaned.risk_level : 1) >= 2,
       steps: Array.isArray(cleaned.steps) ? cleaned.steps : [],
       validation_steps: Array.isArray(cleaned.validation_steps) ? cleaned.validation_steps : [],
-      success_condition: cleaned.success_condition || 'Instrucoes executadas com sucesso',
+      success_condition: cleaned.success_condition || 'Instructions executed successfully',
       rollback_condition: cleaned.rollback_condition || 'Nenhuma condicao de rollback definida',
       notes: this.buildDecisionNotes(Array.isArray(cleaned.notes) ? cleaned.notes : [], trace, providerUsed),
     };

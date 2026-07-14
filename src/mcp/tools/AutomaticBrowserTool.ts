@@ -369,7 +369,7 @@ export class AutomaticBrowserTool {
 
     const selector = String(args?.selector || '').trim();
     if (!selector) {
-      throw new Error('inspect_dom_element requer um seletor CSS valido.');
+      throw new Error('inspect_dom_element requires a valid CSS selector.');
     }
 
     const page = this.getActivePage();
@@ -742,14 +742,14 @@ export class AutomaticBrowserTool {
   private async normalizeUrl(value: unknown): Promise<string> {
     const url = String(value || '').trim();
     if (!url) {
-      throw new Error('browser_navigate requer uma URL absoluta.');
+      throw new Error('browser_navigate requires an absolute URL.');
     }
 
     try {
       const parsed = await this.validateNavigationUrl(url);
       return parsed.toString();
     } catch (error: unknown) { const err = asErrorLike(error); const e = err;
-      throw new Error(`URL invalida para browser_navigate: "${url}".`);
+      throw new Error(`Invalid URL for browser_navigate: "${url}".`);
     }
   }
 
@@ -765,7 +765,7 @@ export class AutomaticBrowserTool {
   private normalizeSelector(value: unknown, action: string): string {
     const selector = String(value || '').trim();
     if (!selector) {
-      throw new Error(`${action} requer um seletor CSS valido.`);
+      throw new Error(`${action} requires a valid CSS selector.`);
     }
     return selector;
   }

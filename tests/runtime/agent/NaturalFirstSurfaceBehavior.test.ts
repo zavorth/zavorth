@@ -14,9 +14,9 @@ type Stage9SurfaceCase = {
   expectedMetadataKey?: string;
 };
 
-const PHASE_9_SURFACES: UniversalAgentChannel[] = ['web', 'cli', 'telegram', 'api'];
+const SURFACES: UniversalAgentChannel[] = ['web', 'cli', 'telegram', 'api'];
 
-const PHASE_9_CASES: Stage9SurfaceCase[] = [
+const SURFACE_CASES: Stage9SurfaceCase[] = [
   {
     label: 'short greeting',
     text: 'oi',
@@ -32,38 +32,39 @@ const PHASE_9_CASES: Stage9SurfaceCase[] = [
     expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
-    label: 'channel setup',
+    label: 'channel setup (agent free-text, not capability NLU)',
     text: 'conecta Telegram',
-    expectedRoute: 'capability-discovery',
-    executorMode: 'optional',
-    expectedMetadataKey: 'naturalCapabilityDiscovery',
+    expectedRoute: 'llm-reply',
+    executorMode: 'none',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
-    label: 'tool command',
+    label: 'shell-looking free text (no keyword force)',
     text: 'rode npm test',
-    expectedRoute: 'tool-preview',
+    expectedRoute: 'llm-reply',
     executorMode: 'none',
-    expectedMetadataKey: 'naturalFirstApprovalSafety',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
-    label: 'dangerous mutation',
+    label: 'mutation-looking free text (no keyword force)',
     text: 'apague dist e faca push',
-    expectedRoute: 'approval-proposal',
+    expectedRoute: 'llm-reply',
     executorMode: 'none',
-    expectedMetadataKey: 'naturalFirstApprovalSafety',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
-    label: 'repo work',
+    label: 'repo work (agent free-text, not operational phrase map)',
     text: 'analise esse repo',
-    expectedRoute: 'governed-execution',
-    executorMode: 'required',
+    expectedRoute: 'llm-reply',
+    executorMode: 'none',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
   {
-    label: 'memory recall',
+    label: 'memory recall (agent free-text without memory metadata)',
     text: 'como resolvemos aquilo?',
-    expectedRoute: 'memory-recall',
+    expectedRoute: 'llm-reply',
     executorMode: 'none',
-    expectedMetadataKey: 'naturalFirstMemoryContinuity',
+    expectedMetadataKey: 'naturalFirstLlmRuntime',
   },
 ];
 
@@ -75,27 +76,26 @@ function createIdFactory(seed: string) {
 function createExecutor() {
   return jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ request }) => ({
     status: 'completed',
-    summary: `Executor governado recebeu ${request.channel}.`,
+    summary: `Governed executor received ${request.channel}.`,
     replyText: `executed:${request.channel}:${request.text}`,
   }));
 }
 
-describe('Natural First surface behavior Certification matrix', () => {
+describe('Natural First surface behavior Certification matrix ', () => {
   const classifier = new NaturalFirstRunClassifier();
 
   it.each(
-    PHASE_9_SURFACES.flatMap((channel) => PHASE_9_CASES.map((surfaceCase) => ({
+    SURFACES.flatMap((channel) => SURFACE_CASES.map((surfaceCase) => ({
       channel,
       surfaceCase,
-    }))),
-  )('classifies $surfaceCase.label on $channel as $surfaceCase.expectedRoute', ({ channel, surfaceCase }) => {
+    }))),)('classifies $surfaceCase.label on $channel as $surfaceCase.expectedRoute', ({ channel, surfaceCase }) => {
     expect(classifier.classify({
       text: surfaceCase.text,
       channel,
       userId: `${channel}:user`,
       sessionId: `${channel}:session`,
     })).toEqual(expect.objectContaining({
-      contractVersion: 'natural-first-classifier/3',
+      contractVersion: 'natural-first-classifier/4',
       shouldEnterGateway: true,
       route: surfaceCase.expectedRoute,
       context: expect.objectContaining({
@@ -110,7 +110,7 @@ describe('Natural First surface behavior Certification matrix', () => {
     }));
   });
 
-  it.each(PHASE_9_SURFACES)('keeps slash commands as shortcuts on %s', (channel) => {
+  it.each(SURFACES)('keeps slash commands as shortcuts on %s', (channel) => {
     expect(classifier.classify({
       text: '/status',
       channel,
@@ -122,11 +122,10 @@ describe('Natural First surface behavior Certification matrix', () => {
   });
 
   it.each(
-    PHASE_9_SURFACES.flatMap((channel) => PHASE_9_CASES.map((surfaceCase) => ({
+    SURFACES.flatMap((channel) => SURFACE_CASES.map((surfaceCase) => ({
       channel,
       surfaceCase,
-    }))),
-  )('runs $surfaceCase.label through ZavorthAgentGateway on $channel', async ({ channel, surfaceCase }) => {
+    }))),)('runs $surfaceCase.label through ZavorthAgentGateway on $channel', async ({ channel, surfaceCase }) => {
     const executor = createExecutor();
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-05-11T16:00:00.000Z'),
@@ -150,7 +149,7 @@ describe('Natural First surface behavior Certification matrix', () => {
       inputKind: 'free-text',
     }));
     expect(route).toEqual(expect.objectContaining({
-      contractVersion: 'natural-first-classifier/3',
+      contractVersion: 'natural-first-classifier/4',
       shouldEnterGateway: true,
       route: surfaceCase.expectedRoute,
     }));

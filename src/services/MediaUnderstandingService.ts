@@ -340,7 +340,7 @@ export class MediaUnderstandingService {
 
     return {
       allowed: true,
-      reason: 'Midia aprovada pela politica de analise.',
+      reason: 'Midia approved pela politica de analise.',
       policySource: 'content-type-policy',
       sourceValidated,
     };

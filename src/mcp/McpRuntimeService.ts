@@ -669,7 +669,7 @@ export class McpRuntimeService {
           if (existing.fingerprint !== fingerprint) {
             this.logRepo.log(
               'warn', 'MCP',
-              `Ferramenta pending "${namespacedName}" teve fingerprint alterado. Atualizando registro pending.`,
+              `Pending tool "${namespacedName}" had fingerprint changed. Updating pending registry.`,
             );
             // Always use 'schema_drift' when the fingerprint changes — regardless of the original pendingReason
             this.policyFileService.markToolPending(policyDoc, namespacedName, fingerprint, 'schema_drift', description);

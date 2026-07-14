@@ -287,7 +287,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
         `deviceDoctorOk=${pack.satellite.deviceDoctorOk}`,
       ],
       receiptIds: [pack.satellite.receipt.id],
-      notes: ['S6 treats browser/PWA capability proof as the first-class implementation path.'],
+      notes: ['S6 treats browser/PWThe capability proof as the first-class implementation path.'],
     });
   }
 
@@ -522,7 +522,7 @@ export class ZavorthSemanticNativeCompanionDeviceCapabilityCertificationService 
           `satelliteUnsupportedNativeApisExplicit=${pack.satellite.unsupportedNativeApisExplicit}`,
         ],
         receiptIds: [pack.satellite.receipt.id, `${RECEIPT_PREFIX}.policy.unsupported-native-apis-explicit`],
-        notes: ['Unsupported means visible to operators, not hidden fallback behavior.'],
+        notes: ['Unsupported means visible tthe operators, not hidden fallback behavior.'],
       }),
       this.claim({
         kind: 'no-app-code-copy-policy',

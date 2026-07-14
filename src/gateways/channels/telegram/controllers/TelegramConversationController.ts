@@ -178,7 +178,7 @@ export class TelegramConversationController {
         return;
       }
 
-      // Hermes-style: free text always goes to the agent.
+      // agent-first: free text always goes to the agent.
       // First-run is only via /start + buttons (TelegramHubController), not free-text wizard answers.
 
       const memoryContext = userId ? await memoryService.getMemoryContext(userId, messageText) : '';
@@ -209,7 +209,7 @@ export class TelegramConversationController {
       const contextualMessage = contextSections.length
         ? `${wrapUntrustedContent('untrusted_telegram_content', contextSections.join('\n\n'), {
             source: 'telegram_conversation_context_bundle',
-          })}\n\nMENSAGEM ATUAL DO USUARIO:\n${effectiveMessageText}`
+          })}\n\nCURRENT USER MESSAGE:\n${effectiveMessageText}`
         : effectiveMessageText;
       const preLlmAutonomyDecision = this.decisionService.decideAutonomousExecution(
         task,

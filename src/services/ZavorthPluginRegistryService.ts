@@ -136,7 +136,7 @@ export class ZavorthPluginRegistryService {
       selected,
       featuredIds: this.buildFeaturedIds(entries),
       narrative: {
-        headline: `Zavorth expÃµe ${summary.total} item(ns) no plano de plugins, skills e extensoes.`,
+        headline: `Zavorth expõe ${summary.total} item(ns) no plano de plugins, skills e extensoes.`,
         operatorSummary:
           summary.workspaceExtensions > 0
             ? `${summary.installed} registrado(s), ${summary.trusted} trusted, ${summary.workspaceExtensions} extensao(oes) vindas de ZAVORTH.md e ${summary.catalogBacked} item(ns) ancorado(s) no registry local.`

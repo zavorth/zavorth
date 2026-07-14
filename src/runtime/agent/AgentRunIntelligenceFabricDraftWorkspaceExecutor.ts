@@ -578,7 +578,7 @@ function validatePatch(patch: AgentRunIntelligenceFabricDraftWorkspacePatch, rel
     return 'Caminho de patch invalido ou fora do workspace.';
   }
   if (!Array.isArray(patch.hunks) || patch.hunks.length === 0) {
-    return 'Patch bloqueado porque nao ha hunks estruturados.';
+    return 'Patch bloqueado porque there is no hunks estruturados.';
   }
   if (patch.hunks.length > 12) {
     return 'Patch bloqueado porque excede 12 hunks em um unico arquivo.';

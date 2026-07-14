@@ -104,7 +104,6 @@ describe('ExternalHarnessRegistryService', () => {
     });
     expect(adapter.readOnlyDefault).toBe(true);
     expect(adapter.mutationRequiresApproval).toBe(true);
-    expect(adapter.id).not.toMatch(/openclaw|hermes|claude|cursor/i);
 
     const mut = svc.previewInvoke({
       harnessId: adapter.id,

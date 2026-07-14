@@ -216,7 +216,7 @@ const HOOK_EVENT_CATALOG: ZavorthHookEventDescriptor[] = [
   {
     id: 'before-publish',
     label: 'Antes de publicar',
-    summary: 'Evento legado de publicacao do workspace.',
+    summary: 'Evento legado de publicaction do workspace.',
     phase: 'release',
     status: 'ready',
     aliases: ['before-publish'],

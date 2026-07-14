@@ -175,7 +175,7 @@ export async function initializeBootstrapFoundation(
     logRepo.log(
       'info',
       'Bootstrap',
-      `Capability dormente ${cleanup.capabilityId}: cleanup de ${cleanup.removedPaths.length} path(s) no boot.`,
+      `Dormant capability ${cleanup.capabilityId}: cleaned ${cleanup.removedPaths.length} path(s) at boot.`,
     );
   }
   for (const capability of preflight.capabilities) {
@@ -454,7 +454,7 @@ export async function startRemoteRuntimeServices(
     foundation.capabilityLifecycleService.markCapabilityState(
       'remote',
       'dormant',
-      `Perfil ${foundation.runtimeProfileService.getProfile()} manteve sidecars remotos dormentes.`,
+      `Profile ${foundation.runtimeProfileService.getProfile()} kept remote sidecars dormant.`,
     );
     foundation.logRepo.log(
       'info',
@@ -469,7 +469,7 @@ export async function startRemoteRuntimeServices(
       foundation.capabilityLifecycleService.markCapabilityState(
         'remote',
         'active',
-        'Gateway AIGateway detectado como saudavel.',
+        'AIGateway detected as healthy.',
       );
       foundation.logRepo.log('info', 'AIGatewayGateway', 'Gateway proprio do AIGateway ja estava online em outro processo.');
     } else {

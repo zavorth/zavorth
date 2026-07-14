@@ -103,7 +103,7 @@ export class CodeReviewTool extends BaseTool {
 
       if (focus === 'security' || focus === 'all') {
         if (/eval\s*\(/.test(line)) {
-          addFinding({ severity: 'critical', category: 'security', line: lineNum, message: 'Uso de eval() detectado.', suggestion: 'Substitua eval() por alternativas mais seguras.' });
+          addFinding({ severity: 'critical', category: 'security', line: lineNum, message: 'Use of eval() detected.', suggestion: 'Replace eval() with safer alternatives.' });
         }
         if (/innerHTML\s*=/.test(line)) {
           addFinding({ severity: 'error', category: 'security', line: lineNum, message: 'Atribuicao direta a innerHTML.', suggestion: 'Use textContent ou sanitize o HTML antes de atribuir.' });
@@ -124,7 +124,7 @@ export class CodeReviewTool extends BaseTool {
           addFinding({ severity: 'warning', category: 'performance', line: lineNum, message: 'SELECT * detected.', suggestion: 'Select only the columns you need.' });
         }
         if (/JSON\.parse.*JSON\.stringify/.test(line)) {
-          addFinding({ severity: 'info', category: 'performance', line: lineNum, message: 'Deep clone via JSON parse/stringify.', suggestion: 'Considere structuredClone() para melhor performance.' });
+          addFinding({ severity: 'info', category: 'performance', line: lineNum, message: 'Deep clone via JSON parse/stringify.', suggestion: 'Consider structuredClone() for better performance.' });
         }
       }
 

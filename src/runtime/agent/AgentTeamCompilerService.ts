@@ -889,7 +889,7 @@ export class AgentTeamCompilerService {
       case 'verifier':
         return 'Verificacao independente reduz regressao antes de handoff.';
       case 'provider-specialist':
-        return 'Provider Arena deve informar custo, saude e fallback antes do lancamento.';
+        return 'Provider Arena deve informar custo, health e fallback antes do lancamento.';
       case 'safety-reviewer':
         return 'Acoes de equipe precisam passar por policy, approval e quarantine.';
       case 'memory-curator':

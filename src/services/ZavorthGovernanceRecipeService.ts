@@ -38,7 +38,7 @@ export type ZavorthGovernanceRecipeRuntime = ZavorthCapabilityHubRuntime & {
 const DEFAULT_GOVERNANCE_RECIPES: GovernanceRecipeDefinition[] = [
   {
     id: 'safe-channel-activation',
-    label: 'Ativacao segura de canal',
+    label: 'Ativaction segura de canal',
     summary: 'Configura um canal com readiness, allowlist, approval para envio e receipts por mensagem.',
     targetKinds: ['channel', 'integration'],
     tags: ['channel', 'setup', 'approval', 'receipt'],

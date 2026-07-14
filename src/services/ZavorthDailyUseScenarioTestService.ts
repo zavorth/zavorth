@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { config } from '../config/index.js';
-import { SwarmV2Service, type SwarmV2TrackedSnapshot } from './SwarmV2Service.js';
+import { SwarmV2Service, type SwarmV2TrackedSnapshot } from '../agents/SwarmV2Service.js';
 import { ZavorthAgentReviewService, type ZavorthAgentReviewSnapshot } from './ZavorthAgentReviewService.js';
 import { ZavorthProviderModelCatalogService } from './ZavorthProviderModelCatalogService.js';
 import { ZavorthSkillCuratorLiveLoopService } from './ZavorthSkillCuratorLiveLoopService.js';
@@ -251,7 +251,7 @@ export class ZavorthDailyUseScenarioTestService {
     const destructive = Number(snapshot.summary.destructiveProposals || 0);
     const confusionSignals = [
       ...(metadataRepairs > 0 ? [`Ainda existem ${metadataRepairs} reparos de metadata seguros.`] : []),
-      ...(destructive > 0 ? [`Existem ${destructive} merges destrutivos; precisam continuar separados do apply seguro.`] : []),
+      ...(destructive > 0 ? [`There are ${destructive} merges destrutivos; precisam continuar separados do apply seguro.`] : []),
     ];
     return {
       id: 'skill-curator',
@@ -295,7 +295,7 @@ export class ZavorthDailyUseScenarioTestService {
     return {
       id: 'telegram-remoto',
       title: 'Telegram remoto',
-      userSays: 'Estou fora do PC. Continue por aqui e me avise se precisar aprovar algo.',
+      userSays: 'Estou fora do PC. Continue por here e me avise se precisar aprovar algo.',
       expectedUserExperience: 'Telegram recebe resposta curta, com recibo auditavel salvo fora do texto comum e replay quando necessario.',
       status: hasReceipt && hasPolicy ? 'passed' : 'attention',
       confusionSignals,

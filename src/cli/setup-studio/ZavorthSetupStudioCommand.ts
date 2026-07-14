@@ -1,27 +1,31 @@
 import { applyZavorthSetupStudioEnvPlan, resolveSetupStudioProvider, ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS } from '../ZavorthSetupStudioService.js';
 import { buildZavorthSetupStudioSnapshot, type BuildZavorthSetupStudioSnapshotInput } from './ZavorthSetupStudioState.js';
+import { renderZavorthSetupAppliedSummary, renderZavorthSetupStudioFinalReview, renderZavorthSetupSecurityNotice, renderZavorthSetupStudioSnapshot } from './ZavorthSetupStudioFlow.js';
 import {
-  renderZavorthOnboardingBrandLine,
-  renderZavorthOnboardingPrelude,
-  renderZavorthOnboardingWordmark,
-  renderZavorthSetupAppliedSummary,
-  renderZavorthSetupStudioFinalReview,
-  renderZavorthSetupSecurityNotice,
-  renderZavorthSetupStudioSnapshot,
-} from './ZavorthSetupStudioFlow.js';
+  providerHint,
+  renderAutomationHooksPanel,
+  renderControlUiPanel,
+  renderExistingConfigPanel,
+  renderGatewayPanel,
+  renderHatchPanel,
+  renderHomeSelectionPanel,
+  renderHowChannelsWorkPanel,
+  renderModelCheckPanel,
+  renderSetupStudioHero,
+  renderSkillGovernanceIntroPanel,
+  renderSkillGovernanceSelectionPanel,
+  renderSkillsStatusPanel,
+  renderWebSearchIntroPanel,
+  renderWebSearchProviderPanel,
+  resolveSetupHomeChoice,
+  searchSecretEnvLabel,
+} from './ZavorthSetupStudioPanels.js';
 import { renderZavorthSetupStudioInk } from './ZavorthSetupStudioInkRenderer.js';
-import {
-  renderZavorthProviderLiveValidationResult,
-  validateZavorthProviderLive,
-  writeZavorthProviderLiveValidationProof,
-} from '../ZavorthProviderLiveValidationService.js';
+import { renderZavorthProviderLiveValidationResult, validateZavorthProviderLive, writeZavorthProviderLiveValidationProof } from '../ZavorthProviderLiveValidationService.js';
 
 import { ZavorthSetupStudioProgressStore } from './ZavorthSetupStudioProgressStore.js';
 import { normalizeSetupSection } from './ZavorthSetupStudioWizardContract.js';
-import {
-  renderZavorthChannelLiveValidationResult,
-  validateZavorthChannelLive,
-} from './ZavorthChannelLiveValidationService.js';
+import { renderZavorthChannelLiveValidationResult, validateZavorthChannelLive } from './ZavorthChannelLiveValidationService.js';
 
 import type { ZavorthSetupStudioSection, ZavorthSetupStudioSnapshot } from './ZavorthSetupStudioSchema.js';
 import picocolors from 'picocolors';
@@ -29,6 +33,7 @@ import { ZavorthFirstBootDetectionService } from '../../services/ZavorthFirstBoo
 import { FirstRunPersonalizationService } from '../../services/FirstRunPersonalizationService.js';
 import { ZavorthConversationalSetupService } from '../../services/ZavorthConversationalSetupService.js';
 import { orange, sanitizeOutput, withTimeout } from './ZavorthSetupStudioCommandUtils.js';
+import { readAllFlags, readEnvUpdateValue, readFlag, restoreEnvironment, snapshotEnvironment } from './ZavorthSetupStudioArguments.js';
 import { logger } from '../../logger.js';
 
 export type RunZavorthSetupStudioInput = {
@@ -90,16 +95,10 @@ class SetupStudioCancelled extends Error {
 }
 
 export function renderZavorthSetupCancelledMessage(): string {
-  return [
-    'First Light cancelled.',
-    'Nothing was changed.',
-    'Resume anytime: zavorth setup',
-  ].join('\n');
+  return ['First Light cancelled.', 'Nothing was changed.', 'Resume anytime: zavorth setup'].join('\n');
 }
 
-export async function runZavorthSetupStudioCommand(
-  input: RunZavorthSetupStudioInput,
-): Promise<RunZavorthSetupStudioResult> {
+export async function runZavorthSetupStudioCommand(input: RunZavorthSetupStudioInput): Promise<RunZavorthSetupStudioResult> {
   const parsedSetupArgs = parseSetupStudioArgs(input.args || []);
   const args = parsedSetupArgs.args;
   const setupSection = parsedSetupArgs.section;
@@ -108,19 +107,11 @@ export async function runZavorthSetupStudioCommand(
   const apply = args.includes('--apply') || (nonInteractive && !args.includes('--dry-run') && !args.includes('--preview'));
   const dryRun = args.includes('--dry-run') || args.includes('--preview') || !apply;
   const wantsTui = args.includes('--tui') || args.includes('--fullscreen');
-  const interactive = input.forceInteractive === true || (
-    Boolean(process.stdin?.isTTY && process.stdout?.isTTY)
-    && !json
-    && !nonInteractive
-    && setupSection === 'all'
-    && (wantsTui || !hasDirectConfiguration(args))
-  );
+  const interactive = input.forceInteractive === true || (Boolean(process.stdin?.isTTY && process.stdout?.isTTY) && !json && !nonInteractive && setupSection === 'all' && (wantsTui || !hasDirectConfiguration(args)));
 
   let answers: SetupStudioCliAnswers;
   try {
-    answers = interactive
-      ? await collectInteractiveAnswers(input.projectRoot)
-      : collectArgsAnswers(args, setupSection);
+    answers = interactive ? await collectInteractiveAnswers(input.projectRoot) : collectArgsAnswers(args, setupSection);
   } catch (error) {
     if (error instanceof SetupStudioCancelled) {
       const snapshot = buildZavorthSetupStudioSnapshot({
@@ -212,7 +203,9 @@ export async function runZavorthSetupStudioCommand(
               mission: workspaceHint.suggestedMission,
             };
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+          } catch (err) {
+            logger.warn('[auto-fix] Empty catch block', err);
+          }
         } else {
           res.output += `\nConversational setup completed automatically with workspace mission: "${workspaceHint.suggestedMission}"\n`;
         }
@@ -222,7 +215,9 @@ export async function runZavorthSetupStudioCommand(
             const parsedOutput = JSON.parse(res.output);
             parsedOutput.conversationalSetupError = e instanceof Error ? e.message : String(e);
             res.output = `${JSON.stringify(parsedOutput, null, 2)}\n`;
-          } catch (err) { logger.warn("[auto-fix] Empty catch block", err); }
+          } catch (err) {
+            logger.warn('[auto-fix] Empty catch block', err);
+          }
         } else {
           res.output += `\nWarning: Auto conversational setup failed: ${e instanceof Error ? e.message : String(e)}\n`;
         }
@@ -255,11 +250,7 @@ export async function runZavorthSetupStudioCommand(
       }
       if (inkResult.action === 'channel') {
         const channelId = inkResult.channelId || 'telegram';
-        const output = [
-          `Channel setup selected: ${channelId}`,
-          `Run: zavorth channels ${channelId}`,
-          '',
-        ].join('\n');
+        const output = [`Channel setup selected: ${channelId}`, `Run: zavorth channels ${channelId}`, ''].join('\n');
         return {
           exitCode: 0,
           output,
@@ -276,10 +267,7 @@ export async function runZavorthSetupStudioCommand(
         writtenKeys: [],
       };
     }
-    const fallbackOutput = [
-      inkResult.output.trim(),
-      renderZavorthSetupStudioSnapshot(snapshot),
-    ].filter(Boolean).join('\n');
+    const fallbackOutput = [inkResult.output.trim(), renderZavorthSetupStudioSnapshot(snapshot)].filter(Boolean).join('\n');
     return {
       exitCode: 0,
       output: `${fallbackOutput}\n`,
@@ -289,9 +277,7 @@ export async function runZavorthSetupStudioCommand(
     };
   }
 
-  const output = json
-    ? `${JSON.stringify(redactSnapshotForOutput(snapshot), null, 2)}\n`
-    : `${renderZavorthSetupStudioSnapshot(snapshot)}\n`;
+  const output = json ? `${JSON.stringify(redactSnapshotForOutput(snapshot), null, 2)}\n` : `${renderZavorthSetupStudioSnapshot(snapshot)}\n`;
   return {
     exitCode: 0,
     output,
@@ -320,21 +306,14 @@ async function runSetupStudioSkillsVerification(projectRoot: string): Promise<Ru
   const snapshot = buildZavorthSetupStudioSnapshot({ projectRoot, dryRun: true });
   return {
     exitCode: result.exitCode,
-    output: [
-      'Zavorth skill verification',
-      '',
-      result.output,
-    ].join('\n'),
+    output: ['Zavorth skill verification', '', result.output].join('\n'),
     snapshot,
     applied: false,
     writtenKeys: [],
   };
 }
 
-async function runSetupStudioProviderLive(
-  projectRoot: string,
-  snapshot: ZavorthSetupStudioSnapshot,
-): Promise<RunZavorthSetupStudioResult> {
+async function runSetupStudioProviderLive(projectRoot: string, snapshot: ZavorthSetupStudioSnapshot): Promise<RunZavorthSetupStudioResult> {
   const validation = await validateZavorthProviderLive({
     projectRoot,
     providerId: snapshot.plan.provider.id,
@@ -343,11 +322,7 @@ async function runSetupStudioProviderLive(
     explicitUserConsent: true,
   });
   const proof = writeZavorthProviderLiveValidationProof(projectRoot, validation);
-  const output = [
-    renderZavorthProviderLiveValidationResult(validation),
-    proof.written && proof.path ? `Proof: ${proof.path}` : null,
-    '',
-  ].filter(Boolean).join('\n');
+  const output = [renderZavorthProviderLiveValidationResult(validation), proof.written && proof.path ? `Proof: ${proof.path}` : null, ''].filter(Boolean).join('\n');
   return {
     exitCode: validation.status === 'passed' ? 0 : 1,
     output,
@@ -357,18 +332,8 @@ async function runSetupStudioProviderLive(
   };
 }
 
-async function runSetupStudioChannelLive(
-  projectRoot: string,
-  snapshot: ZavorthSetupStudioSnapshot,
-  channelId: string,
-): Promise<RunZavorthSetupStudioResult> {
-  const tokenKey = channelId === 'telegram'
-    ? 'TELEGRAM_BOT_TOKEN'
-    : channelId === 'discord'
-      ? 'DISCORD_BOT_TOKEN'
-      : channelId === 'slack'
-        ? 'SLACK_BOT_TOKEN'
-        : null;
+async function runSetupStudioChannelLive(projectRoot: string, snapshot: ZavorthSetupStudioSnapshot, channelId: string): Promise<RunZavorthSetupStudioResult> {
+  const tokenKey = channelId === 'telegram' ? 'TELEGRAM_BOT_TOKEN' : channelId === 'discord' ? 'DISCORD_BOT_TOKEN' : channelId === 'slack' ? 'SLACK_BOT_TOKEN' : null;
   const result = await validateZavorthChannelLive({
     channelId,
     token: tokenKey ? readEnvUpdateValue(snapshot, tokenKey) : null,
@@ -384,10 +349,7 @@ async function runSetupStudioChannelLive(
   };
 }
 
-async function runSetupStudioHatch(
-  projectRoot: string,
-  snapshot?: ZavorthSetupStudioSnapshot,
-): Promise<RunZavorthSetupStudioResult> {
+async function runSetupStudioHatch(projectRoot: string, snapshot?: ZavorthSetupStudioSnapshot): Promise<RunZavorthSetupStudioResult> {
   if (snapshot && snapshot.plan.provider.id !== 'deferred') {
     const live = await runLiveHatchConversation(snapshot);
     if (live) {
@@ -427,39 +389,33 @@ async function runLiveHatchConversation(snapshot: ZavorthSetupStudioSnapshot): P
     ProviderFactory.clearCache();
     const llm = ProviderFactory.create(provider.id);
     const response = await withTimeout(
-      () => llm.chat([
-        {
-          role: 'system',
-          content: 'You are Zavorth during setup hatch. Reply briefly, confidently, and do not expose secrets.',
-        },
-        {
-          role: 'user',
-          content: 'Introduce yourself in one short paragraph and tell me the next safe step after setup.',
-        },
-      ], [], { modelName: snapshot.plan.provider.modelId }),
+      () =>
+        llm.chat(
+          [
+            {
+              role: 'system',
+              content: 'You are Zavorth during setup hatch. Reply briefly, confidently, and do not expose secrets.',
+            },
+            {
+              role: 'user',
+              content: 'Introduce yourself in one short paragraph and tell me the next safe step after setup.',
+            },
+          ],
+          [],
+          { modelName: snapshot.plan.provider.modelId },
+        ),
       25000,
     );
     ProviderFactory.clearCache();
     return {
       ok: true,
-      output: [
-        'Zavorth live hatch',
-        '',
-        sanitizeOutput(response.content || 'Provider answered, but returned an empty message.', snapshot),
-        '',
-      ].join('\n'),
+      output: ['Zavorth live hatch', '', sanitizeOutput(response.content || 'Provider answered, but returned an empty message.', snapshot), ''].join('\n'),
     };
   } catch (error) {
     logger.warn('[Zavorth Setup Studio Command] cache operation failed', error);
     return {
       ok: false,
-      output: [
-        'Zavorth live hatch failed.',
-        sanitizeOutput(error instanceof Error ? error.message : String(error), snapshot),
-        '',
-        'No persistent runtime was started. Fix the provider settings or run zavorth doctor.',
-        '',
-      ].join('\n'),
+      output: ['Zavorth live hatch failed.', sanitizeOutput(error instanceof Error ? error.message : String(error), snapshot), '', 'No persistent runtime was started. Fix the provider settings or run zavorth doctor.', ''].join('\n'),
     };
   } finally {
     restoreEnvironment(envSnapshot);
@@ -503,13 +459,16 @@ function applySnapshot(snapshot: ZavorthSetupStudioSnapshot, json: boolean): Run
   };
   const output = json
     ? `${JSON.stringify(outputPayload, null, 2)}\n`
-    : `${renderZavorthSetupAppliedSummary({
-      ...snapshot,
-      safety: {
-        ...snapshot.safety,
-        dryRun: false,
-      },
-    }, result)}\n`;
+    : `${renderZavorthSetupAppliedSummary(
+        {
+          ...snapshot,
+          safety: {
+            ...snapshot.safety,
+            dryRun: false,
+          },
+        },
+        result,
+      )}\n`;
   return {
     exitCode: 0,
     output,
@@ -557,7 +516,11 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const homeChoice = await p.select({
     message: 'Where should Zavorth store this instance home?',
     options: [
-      { value: '__current__', label: baselineSnapshot.home.isolated ? 'Keep current ZAVORTH_HOME' : 'Compat mode in this project', hint: baselineSnapshot.home.source },
+      {
+        value: '__current__',
+        label: baselineSnapshot.home.isolated ? 'Keep current ZAVORTH_HOME' : 'Compat mode in this project',
+        hint: baselineSnapshot.home.source,
+      },
       { value: '__default__', label: 'Use isolated home beside this project', hint: '.zavorth-home' },
       { value: '__custom__', label: 'Choose a custom home path' },
     ],
@@ -567,9 +530,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const customHome = homeChoice === '__custom__'
-    ? await p.text({ message: 'ZAVORTH_HOME path', initialValue: baselineSnapshot.home.root })
-    : '';
+  const customHome = homeChoice === '__custom__' ? await p.text({ message: 'ZAVORTH_HOME path', initialValue: baselineSnapshot.home.root }) : '';
   if (p.isCancel(customHome)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -637,16 +598,12 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const wakeCommand = wakeDetectorMode === 'custom-command'
-    ? await p.text({ message: 'Wake detector command', placeholder: 'local-wake-detector' })
-    : '';
+  const wakeCommand = wakeDetectorMode === 'custom-command' ? await p.text({ message: 'Wake detector command', placeholder: 'local-wake-detector' }) : '';
   if (p.isCancel(wakeCommand)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const wakeArgs = wakeDetectorMode === 'custom-command'
-    ? await p.text({ message: 'Wake detector args', placeholder: '--model local' })
-    : '';
+  const wakeArgs = wakeDetectorMode === 'custom-command' ? await p.text({ message: 'Wake detector args', placeholder: '--model local' }) : '';
   if (p.isCancel(wakeArgs)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -670,20 +627,21 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const modelId = modelChoice === '__manual__'
-    ? await p.text({
-      message: 'Model ID',
-      initialValue: provider.defaultModel,
-    })
-    : provider.defaultModel;
+  const modelId =
+    modelChoice === '__manual__'
+      ? await p.text({
+          message: 'Model ID',
+          initialValue: provider.defaultModel,
+        })
+      : provider.defaultModel;
   if (p.isCancel(modelId)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
   const providerSecret = provider.needsSecret
     ? await p.password({
-      message: `Paste ${provider.secretEnvKeys[0]} now, or leave empty to configure later`,
-    })
+        message: `Paste ${provider.secretEnvKeys[0]} now, or leave empty to configure later`,
+      })
     : '';
   if (p.isCancel(providerSecret)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -699,37 +657,27 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     throw new SetupStudioCancelled();
   }
   const selectedChannelSet = new Set((selectedRemoteChannels as string[]).map((channel) => channel.toLowerCase()));
-  const telegramBotToken = selectedChannelSet.has('telegram')
-    ? await p.password({ message: 'Telegram bot token' })
-    : '';
+  const telegramBotToken = selectedChannelSet.has('telegram') ? await p.password({ message: 'Telegram bot token' }) : '';
   if (p.isCancel(telegramBotToken)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const telegramAllowedUserIds = selectedChannelSet.has('telegram')
-    ? await p.text({ message: 'Telegram allowed user IDs, comma-separated', initialValue: '' })
-    : '';
+  const telegramAllowedUserIds = selectedChannelSet.has('telegram') ? await p.text({ message: 'Telegram allowed user IDs, comma-separated', initialValue: '' }) : '';
   if (p.isCancel(telegramAllowedUserIds)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const discordBotToken = selectedChannelSet.has('discord')
-    ? await p.password({ message: 'Discord bot token, or leave empty to configure later' })
-    : '';
+  const discordBotToken = selectedChannelSet.has('discord') ? await p.password({ message: 'Discord bot token, or leave empty to configure later' }) : '';
   if (p.isCancel(discordBotToken)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const slackBotToken = selectedChannelSet.has('slack')
-    ? await p.password({ message: 'Slack bot token, or leave empty to configure later' })
-    : '';
+  const slackBotToken = selectedChannelSet.has('slack') ? await p.password({ message: 'Slack bot token, or leave empty to configure later' }) : '';
   if (p.isCancel(slackBotToken)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const emailSmtpUrl = selectedChannelSet.has('email')
-    ? await p.password({ message: 'Email SMTP URL, or leave empty to configure later' })
-    : '';
+  const emailSmtpUrl = selectedChannelSet.has('email') ? await p.password({ message: 'Email SMTP URL, or leave empty to configure later' }) : '';
   if (p.isCancel(emailSmtpUrl)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -745,8 +693,8 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const searchSecretLabel = searchSecretEnvLabel(normalizedSearchProvider);
   const searchSecret = searchSecretLabel
     ? await p.password({
-      message: `Paste ${searchSecretLabel} now, or leave empty to configure later`,
-    })
+        message: `Paste ${searchSecretLabel} now, or leave empty to configure later`,
+      })
     : '';
   if (p.isCancel(searchSecret)) {
     p.cancel('First Light cancelled. Nothing was changed.');
@@ -795,11 +743,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
       p.cancel('First Light cancelled. Nothing was changed.');
       throw new SetupStudioCancelled();
     }
-    for (const prompt of [
-      'Set GOOGLE_PLACES_API_KEY for location tools?',
-      'Set OPENAI_API_KEY for speech tools?',
-      'Set ELEVENLABS_API_KEY for voice output?',
-    ]) {
+    for (const prompt of ['Set GOOGLE_PLACES_API_KEY for location tools?', 'Set OPENAI_API_KEY for speech tools?', 'Set ELEVENLABS_API_KEY for voice output?']) {
       const answer = await p.confirm({ message: prompt, initialValue: false });
       if (p.isCancel(answer)) {
         p.cancel('First Light cancelled. Nothing was changed.');
@@ -811,7 +755,11 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const memoryMode = await p.select({
     message: 'Memory mode',
     options: [
-      { value: 'local-metadata', label: 'Local metadata (preferences, approvals and usage signals)', hint: 'recommended' },
+      {
+        value: 'local-metadata',
+        label: 'Local metadata (preferences, approvals and usage signals)',
+        hint: 'recommended',
+      },
       { value: 'local-summary', label: 'Local summaries (short project/context summaries)', hint: 'more context' },
       { value: 'off', label: 'Off (do not use Mnemos during setup)', hint: 'no memory setup now' },
     ],
@@ -837,9 +785,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
   }
-  const customScanDir = vaultScope === 'custom'
-    ? await p.text({ message: 'Custom scan path', initialValue: projectRoot })
-    : '';
+  const customScanDir = vaultScope === 'custom' ? await p.text({ message: 'Custom scan path', initialValue: projectRoot }) : '';
   if (p.isCancel(customScanDir)) {
     p.cancel('First Light cancelled. Nothing was changed.');
     throw new SetupStudioCancelled();
@@ -857,8 +803,15 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   const gatewayAction = await p.select({
     message: baselineSnapshot.gateway.installed ? 'Runtime service already installed' : 'Runtime service',
     options: [
-      { value: 'restart', label: baselineSnapshot.gateway.installed ? 'Show restart command' : 'Show start command', hint: 'setup will not start persistent processes' },
-      { value: 'install', label: baselineSnapshot.gateway.installed ? 'Show reinstall command' : 'Show service preparation command' },
+      {
+        value: 'restart',
+        label: baselineSnapshot.gateway.installed ? 'Show restart command' : 'Show start command',
+        hint: 'setup will not start persistent processes',
+      },
+      {
+        value: 'install',
+        label: baselineSnapshot.gateway.installed ? 'Show reinstall command' : 'Show service preparation command',
+      },
       { value: 'skip', label: 'Skip for now' },
     ],
     initialValue: baselineSnapshot.gateway.installed ? 'restart' : 'skip',
@@ -911,182 +864,7 @@ async function collectInteractiveAnswers(projectRoot: string): Promise<SetupStud
   };
 }
 
-function renderExistingConfigPanel(snapshot: ZavorthSetupStudioSnapshot): string {
-  return [
-    `Workspace: ${snapshot.projectRoot}`,
-    `Home: ${snapshot.home.root} (${snapshot.home.source}${snapshot.home.isolated ? ', isolated' : ', compat'})`,
-    `Gateway: ${snapshot.gateway.installed ? 'local detected' : 'not installed'} via loopback`,
-    `Profile: ${snapshot.existingConfig.profileExists ? 'detected' : 'not found'}`,
-    `.env: ${snapshot.existingConfig.envExists ? 'detected' : 'not found'}`,
-    `Provider: ${snapshot.existingConfig.configuredProvider || 'not configured'}`,
-    `Channels: ${snapshot.existingConfig.configuredChannels.join(', ') || 'none'}`,
-  ].join('\n');
-}
-
-function renderHomeSelectionPanel(home: string | null, previousSource: string): string {
-  return [
-    home
-      ? `Selected ZAVORTH_HOME: ${home}`
-      : `Keeping current home mode: ${previousSource}`,
-    'Setup writes the selection only after final confirmation.',
-    'You can switch later with: zavorth home switch --home <path> --apply',
-  ].join('\n');
-}
-
-function renderSkillGovernanceIntroPanel(): string {
-  return [
-    'Casual: fewer prompts for normal personal skill imports.',
-    'Governed: stricter review for teams, legal/compliance, or sensitive workspaces.',
-    'Both modes keep hard blockers active for exfiltration, destructive scripts, unsafe paths and restricted licenses.',
-    'You can switch later with: zavorth skills governance governed --apply',
-  ].join('\n');
-}
-
-function renderSkillGovernanceSelectionPanel(mode: string): string {
-  return mode === 'governed'
-    ? [
-        'Selected: Governed.',
-        'Skill imports will require stricter risk/license review and clearer audit evidence.',
-      ].join('\n')
-    : [
-        'Selected: Casual.',
-        'Zavorth keeps daily imports smooth, but does not bypass hard security or license blockers.',
-      ].join('\n');
-}
-
-function resolveSetupHomeChoice(projectRoot: string, choice: string, customHome: string, currentHome: string): string | null {
-  if (choice === '__custom__') {
-    return customHome.trim() || currentHome;
-  }
-  if (choice === '__default__') {
-    return `${projectRoot.replace(/[\\/]$/u, '')}${projectRoot.includes('\\') ? '\\' : '/'}${'.zavorth-home'}`;
-  }
-  return null;
-}
-
-function renderModelCheckPanel(providerId: string, needsSecret: boolean, secretKey: string | null, secretProvided: boolean): string {
-  if (providerId === 'deferred') {
-    return [
-      'No model was selected yet.',
-      'Zavorth can still prepare local setup, but LLM tasks need a provider before live use.',
-      'Run: zavorth providers',
-    ].join('\n');
-  }
-  if (!needsSecret || secretProvided) {
-    return [
-      `Provider "${providerId}" is configured for setup.`,
-      'Live validation still runs only after explicit consent.',
-    ].join('\n');
-  }
-  return [
-    `No auth configured for provider "${providerId}".`,
-    `The agent may fail until ${secretKey || 'the provider key'} is added.`,
-    'Run: zavorth providers or repeat setup with a key.',
-  ].join('\n');
-}
-
-function renderHowChannelsWorkPanel(): string {
-  return [
-    'Inbound channel safety defaults to pairing: unknown senders should get paired or allowlisted first.',
-    'Remote channels can trigger tools only through policy, scope and evidence.',
-    'For shared or public inboxes, keep trust boundaries separate.',
-    '',
-    'Common surfaces:',
-    'Telegram: bot token + user allowlist.',
-    'Discord: bot token and approved guild/channel scope.',
-    'Slack: bot/socket token with channel allowlist.',
-    'Signal/WhatsApp/iMessage/Matrix/LINE/Zalo/Teams/Google Chat: bridge or API credentials plus pairing.',
-    'ZavorthControl: local visual control plane for approvals, diffs and evidence.',
-  ].join('\n');
-}
-
-function renderWebSearchIntroPanel(): string {
-  return [
-    'Web search lets Zavorth look things up online when the LLM needs current sources.',
-    'Some providers need an API key; local/model context keeps the agent local-first.',
-    'Search adapters must return verifiable URLs or citations before results are treated as web evidence.',
-  ].join('\n');
-}
-
-function renderWebSearchProviderPanel(provider: string, secretProvided: boolean): string {
-  if (provider === 'skip') {
-    return [
-      'Web search is skipped.',
-      'Zavorth will use model knowledge, local files and configured tools only.',
-    ].join('\n');
-  }
-  if (provider === 'local') {
-    return [
-      'Local/model context selected.',
-      'No external web request is made by this provider.',
-    ].join('\n');
-  }
-  return [
-    `${provider} selected.`,
-    secretProvided
-      ? 'A key was captured through a secret field.'
-      : 'No key was provided; this provider is configurable, not live yet.',
-  ].join('\n');
-}
-
-function renderSkillsStatusPanel(snapshot: ZavorthSetupStudioSnapshot): string {
-  return [
-    `Eligible: ${snapshot.skills.eligible}`,
-    `Missing requirements: ${snapshot.skills.missingRequirements}`,
-    `Unsupported on this OS: ${snapshot.skills.unsupportedOnThisOs}`,
-    `Blocked by policy: ${snapshot.skills.blockedByPolicy}`,
-    '',
-    ...snapshot.skills.highlights.map((item) => `- ${item}`),
-  ].join('\n');
-}
-
-function renderAutomationHooksPanel(enabled: boolean): string {
-  return [
-    enabled
-      ? 'Automation templates will be prepared in .zavorth/hooks.'
-      : 'No automation templates will be prepared now.',
-    'Templates stay disabled until you review and enable them.',
-    'They can create local Mnemos summaries, evidence and governed notification outbox entries.',
-    'They never run shell commands directly.',
-    'Setup later: zavorth hooks',
-  ].join('\n');
-}
-
-function renderGatewayPanel(snapshot: ZavorthSetupStudioSnapshot): string {
-  return [
-    `Runtime: ${snapshot.gateway.recommendedRuntime}`,
-    `Gateway: ${snapshot.gateway.installed ? 'detected' : 'not detected'}`,
-    `Start: ${snapshot.gateway.startCommand}`,
-    `Control: ${snapshot.controlUi.url}`,
-    `Token: ${snapshot.controlUi.tokenStatus}`,
-    '',
-    snapshot.gateway.detail,
-  ].join('\n');
-}
-
-function renderControlUiPanel(snapshot: ZavorthSetupStudioSnapshot): string {
-  return [
-    `Web UI: ${snapshot.controlUi.url}`,
-    `Token: ${snapshot.controlUi.tokenStatus}`,
-    `Open: ${snapshot.controlUi.openCommand}`,
-    `Docs: ${snapshot.controlUi.docsCommand}`,
-  ].join('\n');
-}
-
-function renderHatchPanel(snapshot: ZavorthSetupStudioSnapshot): string {
-  return [
-    'Your workspace is ready for a first terminal chat once a provider is configured.',
-    `Recommended mode: ${snapshot.hatch.recommendedMode}`,
-    `First prompt: ${snapshot.hatch.bootstrapPrompt}`,
-    '',
-    ...snapshot.hatch.commands.map((command) => `- ${command}`),
-  ].join('\n');
-}
-
-async function selectSetupProvider(
-  p: typeof import('@clack/prompts'),
-  initialProviderId = 'openai',
-): Promise<string | symbol> {
+async function selectSetupProvider(p: typeof import('@clack/prompts'), initialProviderId = 'openai'): Promise<string | symbol> {
   const popularIds = ['openai', 'anthropic', 'gemini', 'openrouter', 'local'];
   const popularOptions = popularIds
     .map((providerId) => resolveSetupStudioProvider(providerId))
@@ -1123,20 +901,7 @@ async function selectSetupProvider(
   });
 }
 
-function providerHint(providerId: string, defaultModel: string): string {
-  if (providerId === 'openai') return 'ChatGPT/Codex API key';
-  if (providerId === 'anthropic') return 'Claude API key';
-  if (providerId === 'gemini') return 'Gemini API key';
-  if (providerId === 'openrouter') return 'multi-provider gateway';
-  if (providerId === 'local') return 'no key; local-first';
-  return defaultModel;
-}
-
-async function selectSetupChannels(
-  p: typeof import('@clack/prompts'),
-  projectRoot: string,
-  channelBrowseInitial: 'all' | 'none' = 'all',
-): Promise<string[] | symbol> {
+async function selectSetupChannels(p: typeof import('@clack/prompts'), projectRoot: string, channelBrowseInitial: 'all' | 'none' = 'all'): Promise<string[] | symbol> {
   const snapshot = buildZavorthSetupStudioSnapshot({
     projectRoot,
     ...defaultAnswers(),
@@ -1208,13 +973,10 @@ async function selectSetupChannels(
   if (p.isCancel(allSelected)) {
     return allSelected;
   }
-  return Array.from(new Set([...(selectedBase.values()), ...(allSelected as string[])]));
+  return Array.from(new Set([...selectedBase.values(), ...(allSelected as string[])]));
 }
 
-async function selectSetupSearchProvider(
-  p: typeof import('@clack/prompts'),
-  initialProvider: SetupStudioCliAnswers['searchProvider'] = 'local',
-): Promise<string | symbol> {
+async function selectSetupSearchProvider(p: typeof import('@clack/prompts'), initialProvider: SetupStudioCliAnswers['searchProvider'] = 'local'): Promise<string | symbol> {
   const selected = await p.select({
     message: 'Web/search provider',
     options: [
@@ -1222,7 +984,11 @@ async function selectSetupSearchProvider(
       { value: 'brave', label: 'Brave Search', hint: 'managed web search; requires key' },
       { value: 'google', label: 'Google/Gemini Search', hint: 'Google Search or Gemini grounding key' },
       { value: 'grok', label: 'Grok', hint: 'xAI web search; requires key' },
-      { value: '__more_search__', label: 'More search providers...', hint: 'Kimi, MiniMax, Ollama, Perplexity, Tavily, Firecrawl' },
+      {
+        value: '__more_search__',
+        label: 'More search providers...',
+        hint: 'Kimi, MiniMax, Ollama, Perplexity, Tavily, Firecrawl',
+      },
       { value: 'skip', label: 'Skip for now', hint: 'keep the agent local-first' },
     ],
     initialValue: initialProvider,
@@ -1248,40 +1014,6 @@ async function selectSetupSearchProvider(
     ],
     initialValue: 'brave',
   });
-}
-
-function searchSecretEnvLabel(provider: string): string | null {
-  switch (provider) {
-    case 'brave':
-      return 'BRAVE_SEARCH_API_KEY';
-    case 'google':
-      return 'GEMINI_API_KEY or GOOGLE_API_KEY';
-    case 'grok':
-      return 'XAI_API_KEY';
-    case 'kimi':
-      return 'KIMI_API_KEY or MOONSHOT_API_KEY';
-    case 'minimax':
-      return 'MINIMAX_CODE_PLAN_KEY, MINIMAX_CODING_API_KEY or MINIMAX_API_KEY';
-    case 'perplexity':
-      return 'PERPLEXITY_API_KEY';
-    case 'tavily':
-      return 'TAVILY_API_KEY';
-    case 'firecrawl':
-      return 'FIRECRAWL_API_KEY';
-    default:
-      return null;
-  }
-}
-
-async function renderSetupStudioHero(): Promise<string> {
-  return [
-    renderZavorthOnboardingPrelude(),
-    '',
-    renderZavorthOnboardingWordmark(),
-    renderZavorthOnboardingBrandLine(),
-    '',
-    '',
-  ].join('\n');
 }
 
 function parseSetupStudioArgs(rawArgs: string[]): { args: string[]; section: ZavorthSetupStudioSection } {
@@ -1316,21 +1048,9 @@ function stripSetupSectionFlags(args: string[]): string[] {
 }
 
 function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSection = 'all'): SetupStudioCliAnswers {
-  const mode = normalizeSetupMode(
-    readFlag(args, 'setup-mode')
-    || readFlag(args, 'mode')
-    || (args.includes('--blank-slate') ? 'blank-slate' : null),
-  );
-  const configHandling = normalizeConfigHandling(
-    readFlag(args, 'config-handling')
-    || readFlag(args, 'config')
-    || (args.includes('--reset') ? 'reset' : null),
-    undefined,
-  );
-  const providerId = readFlag(args, 'provider')
-    || readFlag(args, 'provider-id')
-    || resolveProviderQuery(readFlag(args, 'provider-query') || readFlag(args, 'search-provider-name'))
-    || 'deferred';
+  const mode = normalizeSetupMode(readFlag(args, 'setup-mode') || readFlag(args, 'mode') || (args.includes('--blank-slate') ? 'blank-slate' : null));
+  const configHandling = normalizeConfigHandling(readFlag(args, 'config-handling') || readFlag(args, 'config') || (args.includes('--reset') ? 'reset' : null), undefined);
+  const providerId = readFlag(args, 'provider') || readFlag(args, 'provider-id') || resolveProviderQuery(readFlag(args, 'provider-query') || readFlag(args, 'search-provider-name')) || 'deferred';
   const provider = resolveSetupStudioProvider(providerId);
   const answers: SetupStudioCliAnswers = {
     mode,
@@ -1338,19 +1058,14 @@ function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSect
     setupSection,
     zavorthHome: readFlag(args, 'home') || readFlag(args, 'zavorth-home'),
     skillsGovernanceMode: normalizeSkillsGovernanceMode(
-      readFlag(args, 'skills-governance')
-      || readFlag(args, 'skill-governance')
-      || readFlag(args, 'skills-governance-mode')
-      || readFlag(args, 'skill-governance-mode')
-      || process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE
-      || 'casual',
+      readFlag(args, 'skills-governance') || readFlag(args, 'skill-governance') || readFlag(args, 'skills-governance-mode') || readFlag(args, 'skill-governance-mode') || process.env.ZAVORTH_SKILLS_GOVERNANCE_MODE || 'casual',
     ),
     wakeDetectorMode: normalizeWakeDetectorMode(
-      readFlag(args, 'wake-detector')
-      || readFlag(args, 'wake-mode')
-      || (args.includes('--wake-disabled') ? 'disabled' : null)
-      || (args.includes('--wake-custom-command') ? 'custom-command' : null)
-      || (args.includes('--wake-default-local') ? 'default-local' : null),
+      readFlag(args, 'wake-detector') ||
+        readFlag(args, 'wake-mode') ||
+        (args.includes('--wake-disabled') ? 'disabled' : null) ||
+        (args.includes('--wake-custom-command') ? 'custom-command' : null) ||
+        (args.includes('--wake-default-local') ? 'default-local' : null),
     ),
     wakeCommand: readFlag(args, 'wake-command'),
     wakeArgs: readFlag(args, 'wake-args'),
@@ -1370,19 +1085,8 @@ function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSect
     scanDirs: readAllFlags(args, 'scan-dir'),
   };
   return applySetupModeDefaults(answers, {
-    skillsGovernanceMode: hasAnyFlag(args, [
-      'skills-governance',
-      'skill-governance',
-      'skills-governance-mode',
-      'skill-governance-mode',
-    ]),
-    wakeDetectorMode: hasAnyFlag(args, [
-      'wake-detector',
-      'wake-mode',
-      'wake-disabled',
-      'wake-custom-command',
-      'wake-default-local',
-    ]),
+    skillsGovernanceMode: hasAnyFlag(args, ['skills-governance', 'skill-governance', 'skills-governance-mode', 'skill-governance-mode']),
+    wakeDetectorMode: hasAnyFlag(args, ['wake-detector', 'wake-mode', 'wake-disabled', 'wake-custom-command', 'wake-default-local']),
     searchProvider: hasAnyFlag(args, ['search-provider', 'web-search-provider']),
     enableHooks: args.includes('--enable-hooks') || args.includes('--hooks'),
     memoryMode: hasAnyFlag(args, ['memory-mode']),
@@ -1390,11 +1094,7 @@ function collectArgsAnswers(args: string[], setupSection: ZavorthSetupStudioSect
   });
 }
 
-function mergeAnswersWithProgress(
-  answers: SetupStudioCliAnswers,
-  progress: ReturnType<ZavorthSetupStudioProgressStore['read']>,
-  args: string[],
-): SetupStudioCliAnswers {
+function mergeAnswersWithProgress(answers: SetupStudioCliAnswers, progress: ReturnType<ZavorthSetupStudioProgressStore['read']>, args: string[]): SetupStudioCliAnswers {
   if (!progress || answers.configHandling === 'reset') {
     return answers;
   }
@@ -1404,9 +1104,7 @@ function mergeAnswersWithProgress(
   const hooksExplicit = args.includes('--enable-hooks') || args.includes('--hooks');
   return {
     ...answers,
-    providerId: !providerExplicit && answers.providerId === 'deferred' && progress.providerId
-      ? progress.providerId
-      : answers.providerId,
+    providerId: !providerExplicit && answers.providerId === 'deferred' && progress.providerId ? progress.providerId : answers.providerId,
     modelId: !modelExplicit && progress.modelId ? progress.modelId : answers.modelId,
     searchProvider: !searchExplicit && progress.webSearchProvider ? progress.webSearchProvider : answers.searchProvider,
     enableHooks: !hooksExplicit && typeof progress.hooksEnabled === 'boolean' ? progress.hooksEnabled : answers.enableHooks,
@@ -1445,52 +1143,54 @@ function hasAnyFlag(args: string[], names: string[]): boolean {
 }
 
 function hasDirectConfiguration(args: string[]): boolean {
-  return args.some((arg) => [
-    '--setup-mode',
-    '--mode',
-    '--section',
-    '--setup-section',
-    '--blank-slate',
-    '--config-handling',
-    '--config',
-    '--reset',
-    '--provider',
-    '--provider-id',
-    '--provider-query',
-    '--search-provider-name',
-    '--model',
-    '--model-id',
-    '--telegram-token',
-    '--telegram-users',
-    '--discord-token',
-    '--slack-token',
-    '--email-smtp-url',
-    '--smtp-url',
-    '--search-provider',
-    '--web-search-provider',
-    '--search-secret',
-    '--web-search-secret',
-    '--memory-mode',
-    '--vault-scope',
-    '--scan-dir',
-    '--home',
-    '--zavorth-home',
-    '--skills-governance',
-    '--skill-governance',
-    '--skills-governance-mode',
-    '--skill-governance-mode',
-    '--wake-detector',
-    '--wake-mode',
-    '--wake-command',
-    '--wake-args',
-    '--wake-disabled',
-    '--wake-custom-command',
-    '--wake-default-local',
-    '--enable-hooks',
-    '--hooks',
-    '--key',
-    '--skip-conversational',
-  ].some((name) => arg === name || arg.startsWith(`${name}=`)));
+  return args.some((arg) =>
+    [
+      '--setup-mode',
+      '--mode',
+      '--section',
+      '--setup-section',
+      '--blank-slate',
+      '--config-handling',
+      '--config',
+      '--reset',
+      '--provider',
+      '--provider-id',
+      '--provider-query',
+      '--search-provider-name',
+      '--model',
+      '--model-id',
+      '--telegram-token',
+      '--telegram-users',
+      '--discord-token',
+      '--slack-token',
+      '--email-smtp-url',
+      '--smtp-url',
+      '--search-provider',
+      '--web-search-provider',
+      '--search-secret',
+      '--web-search-secret',
+      '--memory-mode',
+      '--vault-scope',
+      '--scan-dir',
+      '--home',
+      '--zavorth-home',
+      '--skills-governance',
+      '--skill-governance',
+      '--skills-governance-mode',
+      '--skill-governance-mode',
+      '--wake-detector',
+      '--wake-mode',
+      '--wake-command',
+      '--wake-args',
+      '--wake-disabled',
+      '--wake-custom-command',
+      '--wake-default-local',
+      '--enable-hooks',
+      '--hooks',
+      '--key',
+      '--skip-conversational',
+    ].some((name) => arg === name || arg.startsWith(`${name}=`)),
+  );
 }
 
 type SetupModeExplicitFlags = {
@@ -1542,10 +1242,7 @@ export function resolveSetupModeDefaults(value: string | null): SetupModeDefault
   };
 }
 
-function applySetupModeDefaults(
-  answers: SetupStudioCliAnswers,
-  explicit: SetupModeExplicitFlags,
-): SetupStudioCliAnswers {
+function applySetupModeDefaults(answers: SetupStudioCliAnswers, explicit: SetupModeExplicitFlags): SetupStudioCliAnswers {
   const defaults = resolveSetupModeDefaults(answers.mode);
 
   if (answers.mode === 'safe') {
@@ -1588,7 +1285,9 @@ function applySetupModeDefaults(
 }
 
 function normalizeSetupMode(value: string | null): SetupStudioCliAnswers['mode'] {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'safe' || normalized === 'advanced' || normalized === 'blank-slate') {
     return normalized;
   }
@@ -1598,11 +1297,10 @@ function normalizeSetupMode(value: string | null): SetupStudioCliAnswers['mode']
   return 'quickstart';
 }
 
-function normalizeConfigHandling(
-  value: string | null,
-  fallback: SetupStudioCliAnswers['configHandling'],
-): SetupStudioCliAnswers['configHandling'] {
-  const normalized = String(value || '').trim().toLowerCase();
+function normalizeConfigHandling(value: string | null, fallback: SetupStudioCliAnswers['configHandling']): SetupStudioCliAnswers['configHandling'] {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'keep' || normalized === 'review' || normalized === 'reset') {
     return normalized;
   }
@@ -1610,14 +1308,16 @@ function normalizeConfigHandling(
 }
 
 function resolveProviderQuery(value: string | null): string | null {
-  const query = String(value || '').trim().toLowerCase();
+  const query = String(value || '')
+    .trim()
+    .toLowerCase();
   if (!query) {
     return null;
   }
-  const matches = ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS
-    .map((provider) => ({
-      provider,
-      score: provider.id === query
+  const matches = ZAVORTH_SETUP_STUDIO_PROVIDER_OPTIONS.map((provider) => ({
+    provider,
+    score:
+      provider.id === query
         ? 0
         : provider.id.startsWith(query)
           ? 1
@@ -1632,7 +1332,7 @@ function resolveProviderQuery(value: string | null): string | null {
                   : provider.defaultModel.toLowerCase().includes(query)
                     ? 6
                     : 99,
-    }))
+  }))
     .filter((entry) => entry.score < 99)
     .sort((left, right) => left.score - right.score || left.provider.label.localeCompare(right.provider.label));
   const match = matches[0]?.provider || null;
@@ -1640,16 +1340,7 @@ function resolveProviderQuery(value: string | null): string | null {
 }
 
 function normalizeSearchProvider(value: string | null): SetupStudioCliAnswers['searchProvider'] {
-  return value === 'skip'
-    || value === 'brave'
-    || value === 'ollama-web'
-    || value === 'google'
-    || value === 'grok'
-    || value === 'kimi'
-    || value === 'minimax'
-    || value === 'perplexity'
-    || value === 'tavily'
-    || value === 'firecrawl'
+  return value === 'skip' || value === 'brave' || value === 'ollama-web' || value === 'google' || value === 'grok' || value === 'kimi' || value === 'minimax' || value === 'perplexity' || value === 'tavily' || value === 'firecrawl'
     ? value
     : 'local';
 }
@@ -1659,70 +1350,21 @@ function normalizeMemoryMode(value: string | null): SetupStudioCliAnswers['memor
 }
 
 function normalizeVaultScope(value: string | null): SetupStudioCliAnswers['vaultScope'] {
-  return value === 'documents' || value === 'downloads' || value === 'custom' || value === 'whole-pc'
-    ? value
-    : 'skip';
+  return value === 'documents' || value === 'downloads' || value === 'custom' || value === 'whole-pc' ? value : 'skip';
 }
 
 function normalizeSkillsGovernanceMode(value: string | null): SetupStudioCliAnswers['skillsGovernanceMode'] {
-  const normalized = String(value || '').trim().toLowerCase();
-  return normalized === 'governed' || normalized === 'strict' || normalized === 'enterprise'
-    ? 'governed'
-    : 'casual';
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  return normalized === 'governed' || normalized === 'strict' || normalized === 'enterprise' ? 'governed' : 'casual';
 }
 
 function normalizeWakeDetectorMode(value: string | null): SetupStudioCliAnswers['wakeDetectorMode'] {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'off' || normalized === 'disabled' || normalized === 'disable') return 'disabled';
   if (normalized === 'custom' || normalized === 'custom-command') return 'custom-command';
   return 'default-local';
-}
-
-function readFlag(args: string[], name: string): string | null {
-  const inline = args.find((arg) => arg.startsWith(`--${name}=`));
-  if (inline) {
-    return inline.slice(name.length + 3);
-  }
-  const index = args.indexOf(`--${name}`);
-  return index >= 0 && args[index + 1] && !args[index + 1].startsWith('--') ? args[index + 1] : null;
-}
-
-function readAllFlags(args: string[], name: string): string[] {
-  const values: string[] = [];
-  const prefix = `--${name}=`;
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg.startsWith(prefix)) {
-      values.push(arg.slice(prefix.length));
-    } else if (arg === `--${name}` && args[index + 1] && !args[index + 1].startsWith('--')) {
-      values.push(args[index + 1]);
-      index += 1;
-    }
-  }
-  return values;
-}
-
-function readEnvUpdateValue(snapshot: ZavorthSetupStudioSnapshot, key: string | null): string | null {
-  if (!key) {
-    return null;
-  }
-  return snapshot.plan.envUpdates.find((entry) => entry.key === key)?.value || null;
-}
-
-function snapshotEnvironment(snapshot: ZavorthSetupStudioSnapshot): Map<string, string | undefined> {
-  const keys = new Set([
-    'ZAVORTH_DEFAULT_PROVIDER',
-    ...snapshot.plan.envUpdates.map((entry) => entry.key),
-  ]);
-  return new Map(Array.from(keys).map((key) => [key, process.env[key]]));
-}
-
-function restoreEnvironment(snapshot: Map<string, string | undefined>): void {
-  for (const [key, value] of snapshot.entries()) {
-    if (value === undefined) {
-      delete process.env[key];
-    } else {
-      process.env[key] = value;
-    }
-  }
 }

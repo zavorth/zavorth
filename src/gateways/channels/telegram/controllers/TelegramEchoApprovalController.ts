@@ -11,7 +11,8 @@ import {
 } from '../../../../gateways/channels/telegram/TelegramEchoSurfaceClient.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 
-export type TelegramEchoApprovalClient = Pick<
+
+export type TelegramEchoApprovalClient = Pick<
   TelegramEchoSurfaceClient,
   'getSurfaceContext' | 'readPendingPermissions' | 'resolvePermission'
 >;
@@ -153,7 +154,7 @@ export class TelegramEchoApprovalController {
   } {
     const [actionRaw = 'list', ...rest] = String(args || '').trim().split(/\s+/).filter(Boolean);
     const action = actionRaw.toLowerCase();
-    if (['approve', 'aprovar', 'allow'].includes(action)) {
+    if (['approve', 'allow'].includes(action)) {
       return { action: 'approve', reference: rest.join(' ') };
     }
     if (['reject', 'deny', 'negar', 'rejeitar'].includes(action)) {

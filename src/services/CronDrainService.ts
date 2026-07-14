@@ -1,7 +1,7 @@
 /**
  * Cron/schedule drain visibility on shutdown.
  *
- * Surfaces in-progress processDue work and due routines so operators can see
+ * Surfaces in-progress processDue work and due routines sthe operators can see
  * what would be interrupted. Waits briefly for in-flight materialization.
  */
 

@@ -453,7 +453,7 @@ export class ZavorthHost {
   private handleHandoffReload(message: any): void {
     const requestId = String(message?.requestId || '').trim() || `reload-${this.now()}`;
     const payload = message?.payload || {};
-    const reason = String(payload.reason || '').trim() || 'Reload supervisionado solicitado pelo worker.';
+    const reason = String(payload.reason || '').trim() || 'Supervised reload requested by the worker.';
     const requestedBy = String(payload.requestedBy || '').trim() || 'unknown';
     const notifyChatId = String(payload.notifyChatId || '').trim();
     const forceRestart = payload.forceRestart !== false;

@@ -880,7 +880,7 @@ export class ZavorthGatewayRuntimeService {
         requiresApproval: false,
         status: 'available',
         source: 'zavorth-runtime',
-        summary: 'Resume saude do AIGateway e do control plane anexado.',
+        summary: 'Resume health do AIGateway e do control plane anexado.',
       },
       {
         id: 'combos.list',

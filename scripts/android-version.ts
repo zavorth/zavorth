@@ -30,8 +30,8 @@ function main(argv = process.argv.slice(2)): number {
   if (options.format === "shell") {
     process.stdout.write(
       [
-        `OPENCLAW_ANDROID_VERSION_NAME=${version.canonicalVersion}`,
-        `OPENCLAW_ANDROID_VERSION_CODE=${version.versionCode}`,
+        `ZAVORTH_ANDROID_VERSION_NAME=${version.canonicalVersion}`,
+        `ZAVORTH_ANDROID_VERSION_CODE=${version.versionCode}`,
       ].join("\n") + "\n",
     );
   } else {

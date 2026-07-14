@@ -8,71 +8,29 @@ describe('ZavorthChannelMessageMiddleware', () => {
   });
 
   describe('processIncoming', () => {
-    it('should handle a file read request', async () => {
+    it('agent-first: free text is never claimed by middleware', async () => {
       const result = await middleware.processIncoming({
         text: 'read the file report.md',
-        channelId: 'telegram',
+        channelId: 'cli',
         userId: 'user123',
         locale: 'en',
       });
 
-      expect(result.handled).toBe(true);
-      expect(result.action).toBe('read_file');
-      expect(result.response).not.toBeNull();
-      expect(result.response!.text).toBeDefined();
+      expect(result.handled).toBe(false);
+      expect(result.action).toBe('agent_first');
+      expect(result.response).toBeNull();
     });
 
-    it('should handle a greeting', async () => {
+    it('agent-first: greetings pass through to the agent', async () => {
       const result = await middleware.processIncoming({
         text: 'hello!',
-        channelId: 'whatsapp',
+        channelId: 'web',
         userId: 'user456',
         locale: 'en',
       });
 
-      expect(result.handled).toBe(true);
-      expect(result.action).toBe('greeting');
-    });
-
-    it('should handle Portuguese input', async () => {
-      const result = await middleware.processIncoming({
-        text: 'enviar um email para o time',
-        channelId: 'telegram',
-        userId: 'user789',
-        locale: 'pt',
-      });
-
-      expect(result.handled).toBe(true);
-      expect(result.action).toBe('email');
-      expect(result.locale).toBe('pt-BR');
-    });
-
-    it('should handle unknown input gracefully', async () => {
-      const result = await middleware.processIncoming({
-        text: 'xyzzy plugh random123',
-        channelId: 'telegram',
-        userId: 'user101',
-        locale: 'en',
-      });
-
-      expect(result.handled).toBe(true);
-      expect(result.action).toBe('conversation');
-    });
-
-    it('should return error result on failure', async () => {
-      const failingMiddleware = new ZavorthChannelMessageMiddleware({
-        commandless: {
-          process: async () => { throw new Error('Test error'); },
-        } as any,
-      });
-
-      const result = await failingMiddleware.processIncoming({
-        text: 'test',
-        channelId: 'telegram',
-      });
-
       expect(result.handled).toBe(false);
-      expect(result.error).toContain('Test error');
+      expect(result.action).toBe('agent_first');
     });
   });
 
@@ -93,33 +51,11 @@ describe('ZavorthChannelMessageMiddleware', () => {
       );
       expect(result.text).toContain('**Test**');
     });
-
-    it('should format a choice with buttons for Telegram', () => {
-      const result = middleware.formatForChannel(
-        { type: 'choice', text: 'Pick:', options: ['A', 'B'] },
-        'telegram',
-      );
-      expect(result.buttons).toHaveLength(2);
-    });
-
-    it('should format a choice as list for WhatsApp', () => {
-      const result = middleware.formatForChannel(
-        { type: 'choice', text: 'Pick:', options: ['A', 'B'] },
-        'whatsapp',
-      );
-      expect(result.buttons).toBeUndefined();
-      expect(result.text).toContain('1\uFE0F\u20E3');
-    });
   });
 
   describe('getGreeting', () => {
     it('should return English greeting', () => {
       const greeting = middleware.getGreeting('telegram', 'en');
-      expect(greeting).toContain('Zavorth');
-    });
-
-    it('should return Portuguese greeting', () => {
-      const greeting = middleware.getGreeting('telegram', 'pt');
       expect(greeting).toContain('Zavorth');
     });
   });

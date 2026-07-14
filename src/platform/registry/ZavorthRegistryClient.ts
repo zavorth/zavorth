@@ -91,7 +91,7 @@ export class ZavorthRegistryClient {
     const publisherTrusted = await this.trustPolicy.isPublisherTrusted(info.publisherId);
     const signatureTrusted = await this.trustPolicy.validateSignature(info.id, info.version, info.signature);
     if (!publisherTrusted || !signatureTrusted || !info.sourceTrusted) {
-      throw new Error(`Pacote bloqueado pela trust policy: ${info.id}.`);
+      throw new Error(`Package blocked by trust policy: ${info.id}.`);
     }
 
     const result = await this.platformActions.execute({
@@ -107,7 +107,7 @@ export class ZavorthRegistryClient {
     const publisherTrusted = await this.trustPolicy.isPublisherTrusted(info.publisherId);
     const signatureTrusted = await this.trustPolicy.validateSignature(info.id, info.version, info.signature);
     if (!publisherTrusted || !signatureTrusted || !info.sourceTrusted) {
-      throw new Error(`Pacote bloqueado pela trust policy: ${info.id}.`);
+      throw new Error(`Package blocked by trust policy: ${info.id}.`);
     }
 
     return this.platformActions.execute({

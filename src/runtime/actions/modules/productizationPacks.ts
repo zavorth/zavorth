@@ -11,7 +11,7 @@ import type {
 import { ZavorthExtensionPluginSdkService } from '../../../services/ZavorthExtensionPluginSdkService.js';
 
 import { ZavorthTerminalBackendsService } from '../../../services/ZavorthTerminalBackendsService.js';
-import { ZavorthSubagentRuntimeService } from '../../../services/ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '../../../agents/ZavorthSubagentRuntimeService.js';
 import { HttpSpeechSynthesisLiveAdapter } from '../../../adapters/speech/SpeechVoiceLiveAdapters.js';
 import { SpeechRuntimeService } from '../../../services/SpeechRuntimeService.js';
 import { GeminiVoiceService } from '../../../providers/GeminiVoiceService.js';

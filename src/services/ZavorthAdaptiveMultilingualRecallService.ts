@@ -16,7 +16,7 @@ const QUERY_ALIASES: Array<{ canonical: string; aliases: RegExp[] }> = [
   },
   {
     canonical: 'evidence',
-    aliases: [/\bevid[eê]ncias?\b/i, /\bevidencias?\b/i, /\bevidence\b/i, /\bproof\b/i, /\bpruebas?\b/i],
+    aliases: [/\bevid[eê]ncias?\b/i, /\bevidences?\b/i, /\bevidence\b/i, /\bproof\b/i, /\bpruebas?\b/i],
   },
   {
     canonical: 'concise',

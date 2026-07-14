@@ -148,7 +148,7 @@ export function resolveSyncRoleSelection(input: {
 
   const objective = input.objective.toLowerCase();
   const wanted = ['planner', 'researcher'];
-  if (/(implementar|implemente|code|codigo|patch|corrigir|fix|build|test|teste|execut)/i.test(objective)) {
+  if (/(implement|code|patch|fix|build|test|execute)/i.test(objective)) {
     wanted.push('implementer');
   }
   if (/(seguranca|security|risco|approval|permiss|secret|vulnerab|auditoria)/i.test(objective)) {

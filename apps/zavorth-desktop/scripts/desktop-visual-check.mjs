@@ -21,6 +21,10 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const artifactsDir = join(root, 'tests', 'visual', 'artifacts');
 const baselinesDir = join(root, 'tests', 'visual', 'baselines');
 const update = process.argv.includes('--update') || process.env.ZAVORTH_VISUAL_UPDATE === '1';
+const requestedScene = process.argv
+  .find((argument) => argument.startsWith('--scene='))
+  ?.slice('--scene='.length)
+  .trim() || null;
 const maxDiffRatio = Number(process.env.ZAVORTH_VISUAL_MAX_DIFF || '0.02');
 
 mkdirSync(artifactsDir, { recursive: true });
@@ -126,6 +130,9 @@ async function dismissOnboarding(page) {
 const SCENES = [
   {
     id: 'onboarding-providers',
+    // Playwright captures the modal from the renderer deterministically; on
+    // Windows, BrowserWindow.capturePage can race a transient focus repaint.
+    usePageCapture: true,
     prepare: async (page) => {
       await page.waitForSelector('.zvd-onboarding-overlay .zvd-onboarding-providers-grid', { timeout: 8000 });
       const providerCards = page.locator('.zvd-onboarding-provider-card');
@@ -232,10 +239,11 @@ const SCENES = [
     prepare: async (page) => {
       const opened = await openSidebarPanel(page, panel);
       if (!opened) throw new Error(`Could not open ${panel}`);
-      await page.waitForTimeout(500);
+      await page.locator(selector).first().waitFor({ state: 'visible', timeout: 8000 });
+      await page.locator('.zvd-panel-loading').waitFor({ state: 'hidden', timeout: 8000 });
     },
     assert: async (page) => {
-      await page.waitForSelector(`${selector}, .zvd-app`, { timeout: 8000 });
+      await page.waitForSelector(selector, { timeout: 8000 });
     },
   })),
   {
@@ -243,13 +251,24 @@ const SCENES = [
     prepare: async (page) => {
       const opened = await openSidebarPanel(page, 'settings');
       if (!opened) throw new Error('Could not open Settings');
-      await page.waitForTimeout(400);
+      await page.locator('.zvd-settings-section').first().waitFor({
+        state: 'visible',
+        timeout: 8000,
+      });
+      await page.locator('.zvd-panel-loading').waitFor({
+        state: 'hidden',
+        timeout: 8000,
+      });
+      await page.waitForFunction(() => {
+        const updates = document.querySelector('[aria-label="Install and updates"]');
+        const content = updates?.textContent || '';
+        return Boolean(updates) && !content.includes('never') && !content.includes('\u2014');
+      }, { timeout: 8000 });
+      // Allow the native window to finish its focus repaint before capturePage.
+      await page.waitForTimeout(300);
     },
     assert: async (page) => {
-      await page.waitForSelector(
-        '.zvd-settings-section, .zvd-settings-overlay, [data-panel="settings"].is-active, .zvd-app',
-        { timeout: 8000 },
-      );
+      await page.waitForSelector('.zvd-settings-section', { timeout: 8000 });
     },
   },
   {
@@ -309,14 +328,31 @@ const SCENES = [
 ];
 
 function comparePng(actualPath, baselinePath, diffPath) {
-  const actual = PNG.sync.read(readFileSync(actualPath));
-  const baseline = PNG.sync.read(readFileSync(baselinePath));
+  let actual = PNG.sync.read(readFileSync(actualPath));
+  let baseline = PNG.sync.read(readFileSync(baselinePath));
   if (actual.width !== baseline.width || actual.height !== baseline.height) {
-    return {
-      ok: false,
-      reason: `size mismatch actual=${actual.width}x${actual.height} baseline=${baseline.width}x${baseline.height}`,
-      ratio: 1,
+    const widthDelta = Math.abs(actual.width - baseline.width);
+    const heightDelta = Math.abs(actual.height - baseline.height);
+    if (widthDelta > 1 || heightDelta > 1) {
+      return {
+        ok: false,
+        reason: `size mismatch actual=${actual.width}x${actual.height} baseline=${baseline.width}x${baseline.height}`,
+        ratio: 1,
+      };
+    }
+
+    const width = Math.min(actual.width, baseline.width);
+    const height = Math.min(actual.height, baseline.height);
+    const crop = (source) => {
+      const target = new PNG({ width, height });
+      for (let y = 0; y < height; y += 1) {
+        const sourceStart = y * source.width * 4;
+        source.data.copy(target.data, y * width * 4, sourceStart, sourceStart + width * 4);
+      }
+      return target;
     };
+    actual = crop(actual);
+    baseline = crop(baseline);
   }
   const diff = new PNG({ width: actual.width, height: actual.height });
   const mismatched = pixelmatch(
@@ -340,7 +376,17 @@ try {
   await stabilizePage(page);
   await page.waitForTimeout(400);
 
-  for (const scene of SCENES) {
+  const scenes = requestedScene
+    ? SCENES.filter((scene) => scene.id === requestedScene)
+    : SCENES;
+  if (requestedScene && scenes.length === 0) {
+    throw new Error(`Unknown visual scene: ${requestedScene}`);
+  }
+  if (requestedScene && requestedScene !== 'onboarding-providers') {
+    await dismissOnboarding(page);
+  }
+
+  for (const scene of scenes) {
     const artifactPath = join(artifactsDir, `${scene.id}.png`);
     const baselinePath = join(baselinesDir, `${scene.id}.png`);
     const diffPath = join(artifactsDir, `${scene.id}.diff.png`);
@@ -348,7 +394,7 @@ try {
     try {
       await scene.prepare(page);
       await scene.assert(page);
-      await captureScreenshot(page, artifactPath, app);
+      await captureScreenshot(page, artifactPath, scene.usePageCapture ? null : app);
 
       if (update) {
         writeFileSync(baselinePath, readFileSync(artifactPath));

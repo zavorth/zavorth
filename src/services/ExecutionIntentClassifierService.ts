@@ -81,7 +81,7 @@ export class ExecutionIntentClassifierService {
 
     if (taskKind && taskSubtype) {
       confidence = 'high';
-      rationale.push(`Classificacao explicita recebida: ${taskKind}/${taskSubtype}.`);
+      rationale.push(`Classificaction explicita recebida: ${taskKind}/${taskSubtype}.`);
     } else {
       const classified = classifyWorkspaceTaskProfile({
         text: normalizedText,

@@ -9,7 +9,8 @@ import { MccPathfinderService } from './MccPathfinderService.js';
 import {
 isMnemosAvailable,
   buildMnemosCognitiveInstruction,
-} from './MnemosCognitiveProtocol.js';export type ContextResolverLayer = {
+} from './MnemosCognitiveProtocol.js';
+export type ContextResolverLayer = {
   id: string;
   label: string;
   summary: string;

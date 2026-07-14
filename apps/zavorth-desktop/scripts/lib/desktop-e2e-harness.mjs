@@ -331,41 +331,62 @@ export async function stabilizePage(page) {
 
 /**
  * Capture a PNG of the Electron window.
- * Prefers BrowserWindow.capturePage (reliable on Windows); falls back to Playwright page.screenshot.
+ * Prefers a CSS-viewport renderer capture; native capturePage is a fallback
+ * because Windows can expose transient partial repaints between lazy panels.
  */
 export async function captureScreenshot(page, outPath, app = null) {
   await stabilizePage(page);
 
-  if (app) {
-    try {
-      const { writeFileSync } = await import('node:fs');
-      const png = await app.evaluate(async ({ BrowserWindow }) => {
-        const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
-        if (!win) return null;
-        const image = await win.capturePage();
-        return image.toPNG().toString('base64');
-      });
-      if (png) {
-        writeFileSync(outPath, Buffer.from(png, 'base64'));
-        return true;
-      }
-    } catch (error) {
-      console.warn(`WARN  electron capturePage failed: ${error.message}`);
-    }
-  }
-
   try {
+    const nativeViewport = app
+      ? await app.evaluate(({ BrowserWindow }) => {
+          const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+          if (!win) return null;
+          const [width, height] = win.getContentSize();
+          return { width, height };
+        })
+      : null;
+    const viewport = nativeViewport || await page.evaluate(() => ({
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight,
+    }));
     await page.screenshot({
       path: outPath,
-      fullPage: false,
+      clip: {
+        x: 0,
+        y: 0,
+        width: viewport.width,
+        height: viewport.height,
+      },
       animations: 'disabled',
       caret: 'hide',
       timeout: 10000,
     });
     return true;
   } catch (error) {
+    if (!app) {
+      throw new Error(`screenshot failed for ${outPath}: ${error.message}`);
+    }
+    console.warn(`WARN  renderer screenshot failed; using Electron fallback: ${error.message}`);
+  }
+
+  try {
+    const { writeFileSync } = await import('node:fs');
+    const png = await app.evaluate(async ({ BrowserWindow }) => {
+      const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+      if (!win) return null;
+      const image = await win.capturePage();
+      return image.toPNG().toString('base64');
+    });
+    if (png) {
+      writeFileSync(outPath, Buffer.from(png, 'base64'));
+      return true;
+    }
+  } catch (error) {
     throw new Error(`screenshot failed for ${outPath}: ${error.message}`);
   }
+
+  throw new Error(`screenshot failed for ${outPath}: no renderer or Electron image available`);
 }
 
 export { root };

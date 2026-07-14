@@ -128,8 +128,8 @@ export class SupervisedExecutionGatewayRecordBuilder {
     const decidedAt = new Date().toISOString();
     const reason = String(input.reason || '').trim() || (
       input.decision === 'approve'
-        ? 'Aprovado pelo operador.'
-        : 'Rejeitado pelo operador.'
+        ? 'Aprovado by the operator.'
+        : 'Rejeitado by the operator.'
     );
     const nextLifecycle = this.buildActionLifecycleRecord({
       actionId: input.action.actionId,

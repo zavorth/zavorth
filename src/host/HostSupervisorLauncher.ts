@@ -56,7 +56,7 @@ export function startExternalLauncherReload(
       '-WaitForPid',
       String(deps.processRef.pid || process.pid),
       '-Reason',
-      String(input.reason || '').trim() || 'Reload supervisionado solicitado pelo host.',
+      String(input.reason || '').trim() || 'Supervised reload requested by the host.',
       '-RequestedBy',
       String(input.requestedBy || '').trim() || 'unknown',
     ];
@@ -88,7 +88,7 @@ export function startExternalLauncherReload(
 
     return {
       accepted: true,
-      summary: 'Launcher supervisionado externo preparado com sucesso.',
+      summary: 'External supervised launcher prepared successfully.',
     };
   } catch (error: unknown) {
     const err = asErrorLike(error);

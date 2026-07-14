@@ -360,7 +360,7 @@ export class ZavorthEcosystemControlPlaneService {
     if (input.guides.some((entry) => !entry.exists)) {
       actions.push({
         id: 'guides-missing',
-        label: 'Fechar os guias de integracao faltantes',
+        label: 'Fechar os guias de integraction faltantes',
         severity: 'warn',
         reason: 'Terceiros ainda nao conseguem seguir todos os caminhos com docs dedicadas.',
         command: null,

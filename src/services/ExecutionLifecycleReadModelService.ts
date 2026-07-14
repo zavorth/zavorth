@@ -353,7 +353,7 @@ export class ExecutionLifecycleReadModelService {
       ].join(' '),
       nextAction: blockedSignals > 0
         ? 'Revisar approvals, falhas e bloqueios correlacionados por runId.'
-        : 'Manter correlacao traceId/runId nas proximas execucoes.',
+        : 'Manter correlaction traceId/runId nas proximas execucoes.',
     };
   }
 

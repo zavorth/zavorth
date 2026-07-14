@@ -1,5 +1,5 @@
 /**
- * Standard agent permission model (Hermes / MiMo / IDE style).
+ * Standard agent permission model.
  * Choices: once | session | always | deny
  * Decisions: allow | ask | deny
  * No TOTP. Surfaces only render the same four actions.

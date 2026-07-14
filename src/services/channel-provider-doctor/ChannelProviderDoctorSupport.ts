@@ -75,7 +75,7 @@ export function inspectSignalChannel(environment: ChannelProviderDoctorEnvironme
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'Signal bridge registrou erro recente.',
+      summary: 'Signal bridge recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o ultimo erro do snapshot antes de ampliar o rollout do Signal.'],
@@ -162,7 +162,7 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'iMessage Mac bridge registrou erro recente.',
+      summary: 'iMessage Mac bridge recorded a recent error.',
       error: status.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o ultimo erro do snapshot antes de permitir envio por iMessage.'],
@@ -182,7 +182,7 @@ export function inspectIMessageChannel(environment: ChannelProviderDoctorEnviron
       `Recipients permitidos: ${environment.envList('IMESSAGE_ALLOWED_RECIPIENTS').length}.`,
       environment.envBoolean('IMESSAGE_READ_ONLY', true)
         ? 'Modo read-only esta ativo; envio continua exigindo promocao explicita.'
-        : 'Envio habilitado por env; mantenha approval/trust por recipient.',
+        : 'Send enabled by env; keep approval/trust per recipient.',
     ],
   };
 }
@@ -239,7 +239,7 @@ export function inspectTeamsChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'Teams registrou snapshot ruim no runtime.',
+      summary: 'Teams recorded a bad runtime snapshot.',
       error: status?.started === false ? 'O snapshot do Teams indica started=false.' : status?.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise o Bot Framework/Graph antes de abrir o canal em tenant real.'],
@@ -301,7 +301,7 @@ export function inspectEmailChannel(environment: ChannelProviderDoctorEnvironmen
       enabled: true,
       configured: true,
       status: 'failed',
-      summary: 'Email registrou snapshot ruim no runtime.',
+      summary: 'Email recorded a bad runtime snapshot.',
       error: status?.started === false ? 'O snapshot de Email indica started=false.' : status?.lastError,
       recommendedAction: 'npm run test:channels:smoke',
       details: ['Revise SMTP/IMAP antes de abrir approval por email.'],

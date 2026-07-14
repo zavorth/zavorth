@@ -243,8 +243,8 @@ See `apps/ios/VERSIONING.md` for the detailed spec.
 - Local/manual Debug builds default to `ZavorthPushMode=localSandbox`, direct APNs registration, and a development `aps-environment` entitlement. Local/manual Release builds default to `ZavorthPushMode=localProduction` and direct production APNs registration.
 - Your selected team/profile must support Push Notifications for the app bundle ID you are signing.
 - If push capability or provisioning is wrong, APNs registration fails at runtime (check Xcode logs for `APNs registration failed`).
-- The Zavorth gateway host also needs direct APNs auth configured separately with these gateway env vars (legacy key names): `OPENCLAW_APNS_TEAM_ID`, `OPENCLAW_APNS_KEY_ID`, and either `OPENCLAW_APNS_PRIVATE_KEY_P8` or `OPENCLAW_APNS_PRIVATE_KEY_PATH`.
-- Recommended gateway-host storage for the APNs `.p8` file is `~/.zavorth/credentials/apns/AuthKey_<KEYID>.p8` with restrictive permissions, then point `OPENCLAW_APNS_PRIVATE_KEY_PATH` (legacy key name) at that file.
+- The Zavorth gateway host also needs direct APNs auth configured separately with these gateway env vars (legacy key names): `ZAVORTH_APNS_TEAM_ID`, `ZAVORTH_APNS_KEY_ID`, and either `ZAVORTH_APNS_PRIVATE_KEY_P8` or `ZAVORTH_APNS_PRIVATE_KEY_PATH`.
+- Recommended gateway-host storage for the APNs `.p8` file is `~/.zavorth/credentials/apns/AuthKey_<KEYID>.p8` with restrictive permissions, then point `ZAVORTH_APNS_PRIVATE_KEY_PATH` (legacy key name) at that file.
 - `apps/ios/fastlane/.env` only covers App Store Connect / Fastlane auth; it does not provide gateway APNs credentials for local direct-push testing.
 - Debug builds default to sandbox APNs through `ZavorthPushMode=localSandbox`; Release builds default to production APNs through `ZavorthPushMode=localProduction`.
 
@@ -256,7 +256,7 @@ See `apps/ios/VERSIONING.md` for the detailed spec.
 - The app persists the relay handle metadata locally so reconnects can republish the gateway registration without re-registering on every connect.
 - If the relay base URL changes in a later build, the app refreshes the relay registration instead of reusing the old relay origin.
 - App Store release mode uses the internal `production` relay profile, production APNs, App Attest, and a StoreKit app transaction JWS during registration.
-- Gateway-side relay sending is configured through `gateway.push.apns.relay.baseUrl` in `zavorth.json`. `OPENCLAW_APNS_RELAY_BASE_URL` (legacy key name) remains a temporary Zavorth gateway env override only.
+- Gateway-side relay sending is configured through `gateway.push.apns.relay.baseUrl` in `zavorth.json`. `ZAVORTH_APNS_RELAY_BASE_URL` (legacy key name) remains a temporary Zavorth gateway env override only.
 
 ## Official Build Relay Trust Model
 

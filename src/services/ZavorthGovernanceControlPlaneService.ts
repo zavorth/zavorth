@@ -423,7 +423,7 @@ export class ZavorthGovernanceControlPlaneService {
         label: 'Kill switch ativo',
         severity: 'critical',
         decision: 'deny',
-        rationale: 'O host supervisionado esta bloqueando novas acoes ate revisao manual.',
+        rationale: 'O supervised host esta bloqueando novas acoes ate revisao manual.',
         command: '/runtime',
       });
     }

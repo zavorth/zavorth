@@ -212,7 +212,7 @@ export class ZavorthRemoteTransportActionService {
     if (selected.readiness === 'ready') {
       return this.finish('prepare', selected, 'manual', `${selected.label} ja esta pronto no plano remoto.`, [
         selected.operatorSummary,
-        'Nao ha preparo adicional obrigatorio neste momento.',
+        'There is no prepair adicional obrigatorio neste momento.',
       ]);
     }
 
@@ -221,7 +221,7 @@ export class ZavorthRemoteTransportActionService {
       ...(selected.actionHint ? [`Comando sugerido: ${selected.actionHint}`] : []),
       ...selected.details.slice(0, 3),
     ];
-    return this.finish('prepare', selected, 'applied', `${selected.label} recebeu um roteiro de preparo.`, details);
+    return this.finish('prepare', selected, 'applied', `${selected.label} recebeu um roteiro de prepair.`, details);
   }
 
   private async executeSmoke(selected: ZavorthRemoteTransportEntry): Promise<ZavorthRemoteTransportActionExecution> {

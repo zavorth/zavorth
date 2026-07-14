@@ -156,7 +156,7 @@ export class ZavorthCapabilitySetupConversationService {
       const secretRequestCount = secureRequests.filter((request) => request.inputMode === 'secure-secret-entry').length;
       const missingText = secretRequestCount === 1
         ? 'Falta 1 credencial ou permissao'
-        : `Faltam ${secretRequestCount || 'algumas'} credenciais ou permissoes`;
+        : `Faltam ${secretRequestCount || 'algumas'} credenciais ou permissions`;
       return {
         headline: `${target} precisa de uma entrada segura.`,
         body: `${missingText}. Eu nao quero que voce cole valor sensivel em conversa comum; use entrada segura.`,
@@ -166,7 +166,7 @@ export class ZavorthCapabilitySetupConversationService {
     }
     if (status === 'needs_readiness') {
       return {
-        headline: `${target} precisa passar por uma verificacao simples.`,
+        headline: `${target} precisa passar por uma verificaction simples.`,
         body: 'As credenciais e o plano ja foram preparados, mas ainda falta confirmar algum passo local, permissao ou teste de funcionamento.',
         nextQuestion: 'Quer que eu liste o primeiro teste pendente em linguagem simples?',
         reassurance: this.reassurance(audience),
@@ -183,7 +183,7 @@ export class ZavorthCapabilitySetupConversationService {
     return {
       headline: `${target} esta pronto para pedido controlado.`,
       body: 'O fluxo chegou ao estado esperado. Mesmo assim, nada foi ativado automaticamente; o proximo passo e enviar o pedido ao controle do dono.',
-      nextQuestion: 'Quer que eu gere o pedido final de ativacao controlada?',
+      nextQuestion: 'Quer que eu gere o pedido final de ativaction controlada?',
       reassurance: this.reassurance(audience),
     };
   }
@@ -277,9 +277,9 @@ export class ZavorthCapabilitySetupConversationService {
   private checkTitle(check: CapabilityPackReadinessCheck): string {
     const titles: Record<CapabilityPackReadinessCheckKind, string> = {
       'secret-ref': 'Credencial segura',
-      'env-key': 'Configuracao do sistema',
+      'env-key': 'Configuraction do sistema',
       binary: 'Programa necessario',
-      'manual-step': 'Confirmacao manual',
+      'manual-step': 'Confirmaction manual',
       'local-route': 'Teste local',
       'readiness-check': 'Teste de funcionamento',
       policy: 'Regra de seguranca',

@@ -152,7 +152,7 @@ export class KanbanTool extends BaseTool {
       created_at: new Date().toISOString(),
     };
     this.saveBoard(board);
-    return `Quadro "${name}" criado com sucesso. ID: ${boardId}`;
+    return `Quadro "${name}" created successfully. ID: ${boardId}`;
   }
 
   private addCard(args: Record<string, unknown>): string {

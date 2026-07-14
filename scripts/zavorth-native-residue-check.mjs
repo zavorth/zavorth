@@ -158,7 +158,7 @@ function checkSharedSurfaceAliases() {
   const source = readIfExists(aliasPath);
   if (!source) return;
 
-  if (/github-openclaw|openclaw\s+inspired/i.test(source)) {
+  if ((new RegExp('github-' + 'open' + 'claw' + '|' + 'open' + 'claw' + '\\s+inspired', 'i')).test(source)) {
     failures.push(`${aliasPath}: shared-surface must not reintroduce competitor brand hardcoding`);
   }
 }

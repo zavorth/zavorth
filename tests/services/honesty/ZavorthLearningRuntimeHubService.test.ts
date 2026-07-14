@@ -73,7 +73,7 @@ describe('ZavorthLearningRuntimeHubService', () => {
     expect(snapshot.items.length).toBe(1);
     expect(snapshot.promptBlock).toContain('prefiro respostas curtas');
     expect(snapshot.promptBlock).toContain('learned_preferences');
-    // Free-text NLU packs removed (Hermes-style).
+    // Free-text NLU packs removed (agent-first).
     expect(hub.matchNaturalCommand('o que voce aprendeu?')).toBeNull();
     expect(hub.matchNaturalCommand('desfazer aprendizado curtas')).toBeNull();
 

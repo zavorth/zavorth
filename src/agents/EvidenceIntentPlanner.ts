@@ -42,10 +42,10 @@ const HIGH_STAKES_DOMAINS = new Set<EvidenceSearchDomain>([
   'public_policy',
 ]);
 
-const COMMUNITY_SOURCE_HINTS = /\b(reddit|x\.com|twitter|hacker\s*news|hn|forum|forums?|stack\s*overflow|stackoverflow|github\s+issues?|issues?|discussao|discussao|opiniao|opinioes|o\s+que\s+acham|people\s+say|community|comunidade|relatos?|experiencias?|review\s+de\s+usuarios?)\b/;
+const COMMUNITY_SOURCE_HINTS = /\b(reddit|x\.com|twitter|hacker\s*news|hn|forum|forums?|stack\s*overflow|stackoverflow|github\s+issues?|issues?|discussion|opinion|opinions|people\s+say|community|reports?|experiences?|user\s+reviews?)\b/;
 const TROUBLESHOOTING_HINTS = /\b(bug|erro|error|crash|issue|falha|quebra|quebrou|nao\s+funciona|not\s+working|como\s+resolver|resolver|fix|setup|configurar|config|instalar|install|workaround|compatibilidade|regressao|stacktrace|traceback)\b/;
-const FORMAL_EVIDENCE_HINTS = /\b(oficial|official|documentacao|docs?|guideline|diretriz|regulamento|lei|legislacao|jurisprudencia|pubmed|anvisa|fda|who|oms|nih|cdc|sec|cvm|banco\s+central|paper|doi|artigo\s+cientifico|clinical\s+trial)\b/;
-const REVIEW_OR_DECISION_HINTS = /\b(review|avaliacao|vale\s+a\s+pena|custo\s*beneficio|comparativo|comparar|vs\.?|versus|benchmark|melhor(?:es)?|best|opinioes?|experiencias?)\b/;
+const FORMAL_EVIDENCE_HINTS = /\b(official|docs?|guideline|regulation|law|legislation|jurisprudence|pubmed|anvisa|fda|who|nih|cdc|sec|paper|doi|scientific\s+article|clinical\s+trial)\b/;
+const REVIEW_OR_DECISION_HINTS = /\b(review|evaluation|worth\s+it|cost[-\s]?benefit|comparative|compare|vs\.?|versus|benchmark|best|opinions?|experiences?)\b/;
 const CURRENT_PUBLIC_DISCUSSION_HINTS = /\b(viral|trending|trend|debate|controversia|repercussao|lancamento|novo\s+modelo|nova\s+versao|recente|latest|today|hoje|agora)\b/;
 
 export class EvidenceIntentPlanner {

@@ -292,16 +292,16 @@ export class CapabilityAutopilotFallbackResumeRunService {
       task_id: this.safeId(`${input.resumeIntent.taskId || input.resumeIntent.intentId}-fallback-resume`),
       objective: input.resumeIntent.executionRequest?.objective ||
         input.resumeIntent.plan?.objective ||
-        `Retomar pedido original via ${input.selectedFallback.label}.`,
+        `Resume original request via ${input.selectedFallback.label}.`,
       context: [
-        'Retomada governada apos fallback explicito do Capability Autopilot.',
+        'Governed resume after explicit Capability Autopilot fallback.',
         `fallback=${input.selectedFallback.label}`,
         `handoff=${input.handoff.status}`,
         `original=${input.resumeIntent.rawText}`,
       ].join(' | '),
       assumptions: [
         'O fallback ja foi escolhido explicitamente pelo usuario.',
-        'A capability alternativa passou pelo handoff/readiness antes desta retomada.',
+        'The capability alternativa passou pelo handoff/readiness antes desta retomada.',
         'ExecutionGateway continua responsavel por policy, hooks, modo operacional e telemetry.',
       ],
       executor_recommendation: input.executorName,
@@ -312,7 +312,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       validation_steps: [
         'Registrar resultado da retomada no receipt do Capability Autopilot.',
       ],
-      success_condition: 'Pedido original retomado pelo executor alternativo governado.',
+      success_condition: 'Original request resumed by the alternate governed executor.',
       rollback_condition: null,
       notes: [
         `fallbackId=${input.selectedFallback.id}`,
@@ -431,7 +431,7 @@ export class CapabilityAutopilotFallbackResumeRunService {
       return `Pedido retomado via ${selectedFallback.label}.`;
     }
     if (status === 'blocked') {
-      return `ExecutionGateway bloqueou retomada via ${selectedFallback.label}.`;
+      return `ExecutionGateway blocked resume via ${selectedFallback.label}.`;
     }
     return `Resume via ${selectedFallback.label} failed.`;
   }

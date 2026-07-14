@@ -4,63 +4,38 @@ type CountLabel = {
 };
 
 const COUNT_PATTERNS: Array<[RegExp, CountLabel]> = [
-  [/(\d+)\s+item\(ns\)/gi, { singular: 'item', plural: 'items' }],
+  [/(\d+)\s+item\(s\)/gi, { singular: 'item', plural: 'items' }],
   [/(\d+)\s+node\(s\)/gi, { singular: 'node', plural: 'nodes' }],
   [/(\d+)\s+plugin\(s\)/gi, { singular: 'plugin', plural: 'plugins' }],
   [/(\d+)\s+skill\(s\)/gi, { singular: 'skill', plural: 'skills' }],
   [/(\d+)\s+MCP\(s\)/g, { singular: 'MCP', plural: 'MCPs' }],
   [/(\d+)\s+recipe\(s\)/gi, { singular: 'recipe', plural: 'recipes' }],
-  [/(\d+)\s+colecao\(oes\)/gi, { singular: 'collection', plural: 'collections' }],
-  [/(\d+)\s+dominio\(s\)/gi, { singular: 'domain', plural: 'domains' }],
-  [/(\d+)\s+canal\(is\)/gi, { singular: 'channel', plural: 'channels' }],
+  [/(\d+)\s+collection\(s\)/gi, { singular: 'collection', plural: 'collections' }],
+  [/(\d+)\s+domain\(s\)/gi, { singular: 'domain', plural: 'domains' }],
+  [/(\d+)\s+channel\(s\)/gi, { singular: 'channel', plural: 'channels' }],
   [/(\d+)\s+modo\(s\)/gi, { singular: 'mode', plural: 'modes' }],
-  [/(\d+)\s+artefato\(s\)/gi, { singular: 'artifact', plural: 'artifacts' }],
-  [/(\d+)\s+alvo\(s\)/gi, { singular: 'target', plural: 'targets' }],
-  [/(\d+)\s+transporte\(s\)/gi, { singular: 'transport', plural: 'transports' }],
-  [/(\d+)\s+familia\(s\)/gi, { singular: 'family', plural: 'families' }],
+  [/(\d+)\s+artifact\(s\)/gi, { singular: 'artifact', plural: 'artifacts' }],
+  [/(\d+)\s+target\(s\)/gi, { singular: 'target', plural: 'targets' }],
+  [/(\d+)\s+transport\(s\)/gi, { singular: 'transport', plural: 'transports' }],
+  [/(\d+)\s+famil(?:y|ies)/gi, { singular: 'family', plural: 'families' }],
   [/(\d+)\s+team\(s\)/gi, { singular: 'team', plural: 'teams' }],
   [/(\d+)\s+workspace\(s\)/gi, { singular: 'workspace', plural: 'workspaces' }],
-  [/(\d+)\s+comando\(s\)/gi, { singular: 'command', plural: 'commands' }],
+  [/(\d+)\s+command\(s\)/gi, { singular: 'command', plural: 'commands' }],
   [/(\d+)\s+task\(s\)/gi, { singular: 'task', plural: 'tasks' }],
   [/(\d+)\s+hook\(s\)/gi, { singular: 'hook', plural: 'hooks' }],
   [/(\d+)\s+host\(s\)/gi, { singular: 'host', plural: 'hosts' }],
   [/(\d+)\s+pairing\(s\)/gi, { singular: 'pairing', plural: 'pairings' }],
-  [/(\d+)\s+procedimento\(s\)/gi, { singular: 'procedure', plural: 'procedures' }],
-  [/(\d+)\s+candidato\(s\)/gi, { singular: 'candidate', plural: 'candidates' }],
-  [/(\d+)\s+entrada\(s\)/gi, { singular: 'entry', plural: 'entries' }],
-  [/(\d+)\s+etapa\(s\)/gi, { singular: 'step', plural: 'steps' }],
-  [/(\d+)\s+descoberta\(s\)/gi, { singular: 'discovery', plural: 'discoveries' }],
-  [/(\d+)\s+liberacao\(oes\)/gi, { singular: 'release', plural: 'releases' }],
-  [/(\d+)\s+permissao\(oes\)/gi, { singular: 'permission', plural: 'permissions' }],
-  [/(\d+)\s+aprovacao\(oes\)/gi, { singular: 'approval', plural: 'approvals' }],
-  [/(\d+)\s+confirmacao\(oes\)/gi, { singular: 'confirmation', plural: 'confirmations' }],
-  [/(\d+)\s+recuperacao\(oes\)/gi, { singular: 'recovery', plural: 'recoveries' }],
-  [/(\d+)\s+invocacao\(oes\)/gi, { singular: 'invocation', plural: 'invocations' }],
-  [/(\d+)\s+episodico\(s\)/gi, { singular: 'episodic', plural: 'episodic' }],
-  [/(\d+)\s+semantico\(s\)/gi, { singular: 'semantic', plural: 'semantic' }],
-  [/(\d+)\s+aprovado\(s\)/gi, { singular: 'approved', plural: 'approved' }],
-  [/(\d+)\s+rejeitado\(s\)/gi, { singular: 'rejected', plural: 'rejected' }],
-  [/(\d+)\s+promovido\(s\)/gi, { singular: 'promoted', plural: 'promoted' }],
-  [/(\d+)\s+published\(s\)/gi, { singular: 'published', plural: 'published' }],
-  [/(\d+)\s+pending\(s\)/gi, { singular: 'pending', plural: 'pending' }],
-  [/(\d+)\s+ready\(s\)/gi, { singular: 'ready', plural: 'ready' }],
-  [/(\d+)\s+partial\(is\)/gi, { singular: 'partial', plural: 'partial' }],
-  [/(\d+)\s+planejado\(s\)/gi, { singular: 'planned', plural: 'planned' }],
-  [/(\d+)\s+planejada\(s\)/gi, { singular: 'planned', plural: 'planned' }],
-  [/(\d+)\s+configured\(s\)/gi, { singular: 'configured', plural: 'configured' }],
-  [/(\d+)\s+desabilitado\(s\)/gi, { singular: 'disabled', plural: 'disabled' }],
-  [/(\d+)\s+pareado\(s\)/gi, { singular: 'paired', plural: 'paired' }],
-  [/(\d+)\s+adotado\(s\)/gi, { singular: 'adopted', plural: 'adopted' }],
-  [/(\d+)\s+registrado\(s\)/gi, { singular: 'registered', plural: 'registered' }],
-  [/(\d+)\s+validado\(s\)/gi, { singular: 'validated', plural: 'validated' }],
-  [/(\d+)\s+resolvido\(s\)/gi, { singular: 'resolved', plural: 'resolved' }],
-  [/(\d+)\s+concluida\(s\)/gi, { singular: 'completed', plural: 'completed' }],
-  [/(\d+)\s+expirado\(s\)/gi, { singular: 'expired', plural: 'expired' }],
-  [/(\d+)\s+antigo\(s\)/gi, { singular: 'old', plural: 'old' }],
-  [/(\d+)\s+antiga\(s\)/gi, { singular: 'old', plural: 'old' }],
-  [/(\d+)\s+pura\(s\)/gi, { singular: 'pure', plural: 'pure' }],
-  [/(\d+)\s+visivel\(is\)/gi, { singular: 'visible', plural: 'visible' }],
-  [/(\d+)\s+invocavel\(is\)/gi, { singular: 'invocable', plural: 'invocable' }],
+  [/(\d+)\s+procedure\(s\)/gi, { singular: 'procedure', plural: 'procedures' }],
+  [/(\d+)\s+candidate\(s\)/gi, { singular: 'candidate', plural: 'candidates' }],
+  [/(\d+)\s+entr(?:y|ies)/gi, { singular: 'entry', plural: 'entries' }],
+  [/(\d+)\s+step\(s\)/gi, { singular: 'step', plural: 'steps' }],
+  [/(\d+)\s+discover(?:y|ies)/gi, { singular: 'discovery', plural: 'discoveries' }],
+  [/(\d+)\s+release\(s\)/gi, { singular: 'release', plural: 'releases' }],
+  [/(\d+)\s+permission\(s\)/gi, { singular: 'permission', plural: 'permissions' }],
+  [/(\d+)\s+approval\(s\)/gi, { singular: 'approval', plural: 'approvals' }],
+  [/(\d+)\s+confirmation\(s\)/gi, { singular: 'confirmation', plural: 'confirmations' }],
+  [/(\d+)\s+recover(?:y|ies)/gi, { singular: 'recovery', plural: 'recoveries' }],
+  [/(\d+)\s+invocation\(s\)/gi, { singular: 'invocation', plural: 'invocations' }],
 ];
 
 function normalizeCount(value: number | string | null | undefined): number {
@@ -120,24 +95,6 @@ function sanitizeHumanCliText(value: string | null | undefined): string {
     .replace(/\bnpm run test:channels:smoke\b/gi, 'zavorth ops run validate-channel-providers')
     .replace(/\bnpm run test:transports:smoke\b/gi, 'zavorth ops run validate-remote-transports')
     .replace(/\bnpm run sandbox:wasm:smoke\b/gi, 'zavorth ops run validate-wasm-smoke')
-    .replace(/\bnodes pareado\(s\)/gi, 'paired nodes')
-    .replace(/\bpaired node\(s\)/gi, 'paired node')
-    .replace(/\bplugins instalado\(s\)/gi, 'installed plugins')
-    .replace(/\binstalled plugin\(s\)/gi, 'installed plugin')
-    .replace(/\bitens antigo\(s\)/gi, 'old items')
-    .replace(/\bold item\(s\)/gi, 'old item')
-    .replace(/\bpairings expirado\(s\)/gi, 'expired pairings')
-    .replace(/\bexpired pairing\(s\)/gi, 'expired pairing')
-    .replace(/\bdescobertas pura\(s\)/gi, 'pure discoveries')
-    .replace(/\bpure discovery\(s\)/gi, 'pure discovery')
-    .replace(/\bcanais ready\(s\)/gi, 'channels ready')
-    .replace(/\bchannel ready\(s\)/gi, 'channel ready')
-    .replace(/\bmodos de runtime ready\(s\)/gi, 'runtime modes ready')
-    .replace(/\bruntime mode ready\(s\)/gi, 'runtime mode ready')
-    .replace(/\bartefatos recente\(s\)/gi, 'recent artifacts')
-    .replace(/\brecent artifact\(s\)/gi, 'recent artifact')
-    .replace(/\btransportes remoto\(s\) ready\(s\)/gi, 'remote transports ready')
-    .replace(/\btransport remoto\(s\) ready\(s\)/gi, 'remote transport ready')
     .replace(/\bclaimed\b/gi, 'processing')
     .replace(/\bn\/d\b/gi, 'not provided')
     .trim();

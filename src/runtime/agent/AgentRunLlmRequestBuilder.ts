@@ -100,7 +100,7 @@ export class AgentRunLlmRequestBuilder {
       'Do not invent slash commands, CLI commands or shell commands for first-class Zavorth actions.',
       'If a needed capability is not visible or a tool fails, explain what you tried, why it failed, and the next safe repair or configuration step.',
       isNaturalFirstLlmReplyRun(run)
-        ? 'Natural First route: llm-reply. Treat this as a natural free-form question: answer without calling tools and without inventing executions.'
+        ? 'Natural First free-text: use visible tools when they improve correctness. Never invent tool executions without receipts. If a needed tool is missing or fails, say so clearly and suggest the next safe step (slash/UI/approval).'
         : '',
       buildUntrustedContentFirewallInstruction(),
       this.runtime.hallucinationInstruction(),

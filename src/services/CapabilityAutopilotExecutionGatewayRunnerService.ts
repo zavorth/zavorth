@@ -274,7 +274,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
     dryRun: boolean,
   ): string {
     if (!decision.allowed) {
-      return `ExecutionGateway bloqueou o repair: ${decision.reason}`;
+      return `ExecutionGateway blocked the repair: ${decision.reason}`;
     }
     if (dryRun) {
       return 'ExecutionGateway validou o repair em dry-run.';
@@ -304,7 +304,7 @@ export class CapabilityAutopilotExecutionGatewayRunnerService implements Capabil
       {
         kind: decision.allowed ? 'executor' : 'policy',
         source: 'ExecutionGateway',
-        summary: decision.allowed ? 'Gateway permitiu o repair.' : 'Gateway bloqueou o repair.',
+        summary: decision.allowed ? 'Gateway allowed the repair.' : 'Gateway blocked the repair.',
         detail: decision.reason,
         checkedTarget: step.command?.executor || null,
         status: decision.allowed ? 'allowed' : 'blocked',

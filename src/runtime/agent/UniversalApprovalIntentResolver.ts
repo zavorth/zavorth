@@ -272,7 +272,7 @@ function parseApprovalIntent(
 
 function normalizeDecision(value: UniversalApprovalIntentResolveInput['decision'] | string | null | undefined): UniversalApprovalDecision | null {
   const normalized = normalizeText(value);
-  if (['approved', 'approve', 'aprovar', 'aprova'].includes(normalized)) {
+  if (['approved', 'approve', 'allow'].includes(normalized)) {
     return 'approved';
   }
   if (['rejected', 'reject', 'rejeitar', 'rejeite', 'negar'].includes(normalized)) {

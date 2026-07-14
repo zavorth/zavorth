@@ -47,7 +47,7 @@ export function buildSelfingZavorthControlCliSnapshot(input: {
             {
               path: 'SOUL.md',
               exists: true,
-              summary: 'Identidade viva do Zavorth.',
+              summary: 'Living Zavorth identity.',
             },
             {
               path: 'USER.md',
@@ -101,7 +101,7 @@ export function formatSelfingZavorthControlSnapshot(
     `- workspace: ${snapshot.identity.workspaceName}`,
     `- memory: ${snapshot.summary.memoryReceiptCount} receipt(s), ${snapshot.summary.lowConfidenceMemoryCount} baixa confianca`,
     `- editaveis: ${snapshot.summary.editableCardCount}; sensiveis: ${snapshot.summary.sensitiveCardCount}`,
-    `- sugestoes: ${snapshot.summary.updateSuggestionCount}`,
+    `- suggestions: ${snapshot.summary.updateSuggestionCount}`,
     `- next step: ${snapshot.nextSafeAction}`,
     '',
     'Cards',

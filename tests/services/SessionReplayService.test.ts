@@ -258,7 +258,7 @@ describe('SessionReplayService', () => {
       expect.objectContaining({
         generatedAt: '2026-04-02T12:00:00.000Z',
         headline: expect.stringContaining('task-web'),
-        operatorSummary: expect.stringContaining('1 tarefa(s) recentes'),
+        operatorSummary: expect.stringContaining('1 recent task(s)'),
         dominantSurface: 'web',
         executionContext: expect.objectContaining({
           traceId: 'trace-web-1',

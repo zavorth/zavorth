@@ -633,7 +633,7 @@ export class EngineeringCoreService {
   }
 
   private textApproves(rawText: string): boolean {
-    return /^(sim|pode|pode seguir|sim pode seguir|sim pode instalar|aplique|execute|rode|continua|continue)$/i.test(
+    return /^(sim|pode|can continue|sim can continue|sim pode instalar|aplique|execute|rode|continua|continue)$/i.test(
       String(rawText || '').trim(),
     );
   }
@@ -643,7 +643,7 @@ export class EngineeringCoreService {
     if (!normalized) {
       return null;
     }
-    if (/^(continue|continua|segue|pode seguir|prossiga|sim pode instalar|sim pode seguir)$/i.test(normalized)) {
+    if (/^(continue|continua|segue|can continue|prossiga|sim pode instalar|sim can continue)$/i.test(normalized)) {
       return 'continue';
     }
     if (/^(status do run|status disso|e agora\?|deu certo\?)$/i.test(normalized)) {

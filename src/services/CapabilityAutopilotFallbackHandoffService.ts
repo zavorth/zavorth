@@ -264,7 +264,7 @@ export class CapabilityAutopilotFallbackHandoffService {
       steps,
       validators: [{
         id: 'validate-fallback-readiness',
-        title: 'Validar readiness do fallback',
+        title: 'Validate fallback readiness',
         kind: 'manual',
         target: capabilityId,
         successCondition: 'Capability alternativa pronta e segura para retomar.',

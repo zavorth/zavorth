@@ -142,7 +142,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
       const node = document.getElementById('operations-cockpit');
       if (!node) return;
       if (!cockpit || cockpit.error) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar o cockpit operacional.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar o operational cockpit.</div>';
         return;
       }
 
@@ -196,7 +196,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         + '<div class="cockpit-mini-grid">'
         + '<div class="cockpit-mini-card"><strong>Status do runtime</strong><div>' + escapeHtml(runtime.uptimeLabel || 'n/d') + '</div><small>' + escapeHtml(runtime.platformLabel || 'n/d') + '</small></div>'
         + '<div class="cockpit-mini-card"><strong>Memoria</strong><div>' + escapeHtml(runtime.memoryLabel || 'n/d') + '</div><small>' + escapeHtml(runtime.heapLabel || 'n/d') + '</small></div>'
-        + '<div class="cockpit-mini-card"><strong>Sidecars</strong><div>' + escapeHtml(String(summary.readySidecars || 0)) + '/' + escapeHtml(String(summary.enabledSidecars || 0)) + '</div><small>Prontos / habilitados</small></div>'
+        + '<div class="cockpit-mini-card"><strong>Sidecars</strong><div>' + escapeHtml(String(summary.readySidecars || 0)) + '/' + escapeHtml(String(summary.enabledSidecars || 0)) + '</div><small>Ready / enabled</small></div>'
         + '<div class="cockpit-mini-card"><strong>Disco livre</strong><div>' + escapeHtml(String(summary.freeDiskPercent || 0)) + '%</div><small>Publish: ' + escapeHtml(summary.publishAgeLabel || 'n/d') + '</small></div>'
         + '</div>'
         + '<div class="sidecar-card">'
@@ -317,8 +317,8 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         + '<div class="report-card report-section"><strong>Resumo executivo</strong><ul class="report-list">' + summaryItems + '</ul></div>'
         + '<div class="report-card report-section"><strong>Tasks recentes</strong><ul class="report-list">'
         + '<li>Ativas agora: ' + escapeHtml(String(tasks.activeCount || 0)) + '</li>'
-        + '<li>Concluidas nas ultimas 24h: ' + escapeHtml(String(tasks.completedLast24h || 0)) + '</li>'
-        + '<li>Falharam nas ultimas 24h: ' + escapeHtml(String(tasks.failedLast24h || 0)) + '</li>'
+        + '<li>Completed in last 24h: ' + escapeHtml(String(tasks.completedLast24h || 0)) + '</li>'
+        + '<li>Failed in last 24h: ' + escapeHtml(String(tasks.failedLast24h || 0)) + '</li>'
         + '<li>Aguardando aprovacao: ' + escapeHtml(String(tasks.waitingApprovalLast24h || 0)) + '</li>'
         + '<li>Executores mais usados: ' + escapeHtml((tasks.topExecutors || []).join(' | ') || 'sem volume relevante') + '</li>'
         + '</ul></div>'
@@ -352,7 +352,7 @@ function zavorthControlClassicClientOverviewOperationsCockpit() {
         }
         await navigator.clipboard.writeText(String(value || ''));
         showToast(successMessage || 'Conteudo copiado.', false);
-      } catch (error: unknown) {showToast('No foi possivel copiar o conteudo.', true);
+      } catch (error: unknown) {showToast('Could not copiar o conteudo.', true);
       }
     }
 

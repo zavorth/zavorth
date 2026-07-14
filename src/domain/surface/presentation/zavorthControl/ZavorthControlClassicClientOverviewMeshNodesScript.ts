@@ -11,7 +11,7 @@ function zavorthControlClassicClientOverviewMeshNodes() {
       const node = document.getElementById('operations-nodes');
       if (!node) return;
       if (!nodeMesh || 'error' in (nodeMesh as NodeMeshErrorPayload)) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar o Node Mesh.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar o Node Mesh.</div>';
         return;
       }
 

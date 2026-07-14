@@ -61,9 +61,9 @@ export class ZavorthBridgeRemotePlaybookService {
         manualSteps.push('Ative o modo remoto e confirme que a sessao local continua acessivel.');
         retryGuidance = report.repairPolicy.cooldownActive
           ? report.repairPolicy.reason || 'Espere o cooldown antes de insistir.'
-          : 'Rode `npm run zavorthBridge:remote:doctor -- --repair` ou use `--force` se estiver assumindo o risco conscientemente.';
+          : 'Run `npm run zavorthBridge:remote:doctor -- --repair` ou use `--force` se estiver assumindo o risco conscientemente.';
         escalation = report.repairPolicy.flappingLikely
-          ? 'O modo remoto vem oscilando; revise politica de energia e restauracao automatica.'
+          ? 'O modo remoto vem oscilando; revise politica de energia e restauraction automatica.'
           : null;
         break;
       default:

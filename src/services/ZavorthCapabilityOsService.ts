@@ -302,7 +302,7 @@ export class ZavorthCapabilityOsService {
       fallback: {
         chain: fallbackChain,
         reason: fallbackChain.length > 0
-          ? `Se ${capability.executor_preference || 'a rota principal'} falhar, tente ${fallbackChain[0]}.`
+          ? `Se ${capability.executor_preference || 'a rota principal'} failurer, tente ${fallbackChain[0]}.`
           : 'Sem fallback automatico alem da conversa supervisionada.',
       },
       routing: {

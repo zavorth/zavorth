@@ -172,7 +172,7 @@ export class ActionCardService {
             command: `zavorth diff approve ${review.id}`,
             risk: review.risk,
             requiresApproval: true,
-            reason: 'Recompoe o mutation plan e passa por policy antes do host.',
+            reason: 'Recompoe o mutation plan e passa por policy antes of the host.',
           }),
           makeAction({
             id: `diff:review:${review.id}`,

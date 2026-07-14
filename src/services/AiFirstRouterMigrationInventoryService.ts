@@ -18,9 +18,10 @@ export type AiFirstRouterInventoryEntry = {
     | 'policy-guardrail'
     | 'tool-action'
     | 'transport-router'
-    | 'control-plane';
+    | 'control-plane'
+    | 'deleted';
   migrationDecision: AiFirstRouterMigrationDecision;
-  phaseTarget: 'checkpoint-1' | 'checkpoint-2' | 'checkpoint-3' | 'checkpoint-4' | 'checkpoint-5' | 'checkpoint-7' | 'keep';
+  phaseTarget: 'checkpoint-1' | 'checkpoint-2' | 'checkpoint-3' | 'checkpoint-4' | 'checkpoint-5' | 'checkpoint-7' | 'keep' | 'done';
   reason: string;
   aiFirstRole: string;
   evidence: string[];
@@ -214,7 +215,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     migrationDecision: 'keep-tool-or-action',
     phaseTarget: 'checkpoint-4',
     reason: 'Deve executar planos aprovados, nao decidir sozinho o significado principal do pedido.',
-    aiFirstRole: 'Executor governado para planos AI-first normalizados.',
+    aiFirstRole: 'Governed executor for normalized AI-first plans.',
     evidence: ['ToolExposurePolicy', 'UniversalPreviewModeService', 'AgentRunLlmRuntimeExecutor'],
   },
   {
@@ -226,7 +227,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     migrationDecision: 'promote-ai-first',
     phaseTarget: 'checkpoint-5',
     reason: 'Ja usa LLM, mas ainda permite heuristica forte vencer antes do modelo.',
-    aiFirstRole: 'Skill selection vira subdecisao dentro do plano IA; heuristicas ficam fallback.',
+    aiFirstRole: 'Skill selection vira subdecision dentro do plano IA; heuristicas ficam fallback.',
     evidence: ['routeWithHeuristics', 'routeWithLlm', 'mergeSelections'],
   },
   {
@@ -249,8 +250,8 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     currentDecisionStyle: 'regex-heuristic',
     migrationDecision: 'promote-ai-first',
     phaseTarget: 'checkpoint-5',
-    reason: 'E exatamente o tipo de arvore que deve ser rebaixada: IA entende o pedido, esta classe aplica fallback/extracao segura.',
-    aiFirstRole: 'Fallback de extracao e executor de setup recebido do plano IA validado.',
+    reason: 'E exatamente o tipo de arvore que deve ser rebaixada: IA entende o pedido, esta classe aplica fallback/extraction segura.',
+    aiFirstRole: 'Fallback de extraction e executor de setup recebido do plano IA validado.',
     evidence: ['CHANNEL_MODE_PATTERNS', 'extractEntries', 'wantsApply', 'wantsDoctor', 'wantsTest'],
   },
   {
@@ -262,7 +263,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     migrationDecision: 'keep-tool-or-action',
     phaseTarget: 'checkpoint-4',
     reason: 'E uma capacidade de execucao/estado, nao o cerebro semantico.',
-    aiFirstRole: 'Ferramenta acionada pelo executor depois que o plano IA passou por policy.',
+    aiFirstRole: 'Tool invoked by the executor after the AI plan passed policy.',
     evidence: ['buildSession', 'apply', 'runDoctor', 'resolveStatus'],
   },
   {
@@ -273,21 +274,21 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     currentDecisionStyle: 'control-plane',
     migrationDecision: 'keep-policy-guardrail',
     phaseTarget: 'checkpoint-3',
-    reason: 'Deve continuar garantindo preview-first, approval e redacao de secrets.',
+    reason: 'Deve continuar garantindo preview-first, approval e redaction de secrets.',
     aiFirstRole: 'Control plane de validacao e recibos para configuracoes propostas pela IA.',
     evidence: ['previewOnly=true', 'approvalRequiredForMutation=true', 'rawIntentStored=false'],
   },
   {
     id: 'telegram-natural-capability-routing',
     label: 'Telegram natural capability routing',
-    filePath: 'src/telegram/TelegramNaturalCapabilityRoutingService.ts',
-    currentRole: 'Intercepta texto livre no Telegram e desvia para controllers por heuristica.',
-    currentDecisionStyle: 'transport-router',
+    filePath: 'src/gateways/channels/telegram/TelegramNaturalCapabilityRoutingService.ts',
+    currentRole: 'Removed — free text uses the agent gateway; slash owns explicit commands.',
+    currentDecisionStyle: 'deleted',
     migrationDecision: 'promote-ai-first',
-    phaseTarget: 'checkpoint-5',
-    reason: 'Superficies devem chamar o mesmo AI-first router padrao, nao ter cerebros locais diferentes.',
+    phaseTarget: 'done',
+    reason: 'Free-text natural capability routing was removed; agent + slash remain.',
     aiFirstRole: 'Adaptador de transporte que envia texto para o router padrao e respeita decisoes de policy.',
-    evidence: ['shouldHandleFreeForm', 'looksLikeAutomationIntent', 'NaturalLanguageRouter.route'],
+    evidence: ['deleted-file', 'agent free text', 'slash packs'],
   },
   {
     id: 'automation-intent-service',
@@ -322,7 +323,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     migrationDecision: 'keep-policy-guardrail',
     phaseTarget: 'checkpoint-3',
     reason: 'Compatibilidade de runtime e credencial deve continuar deterministica.',
-    aiFirstRole: 'Valida se um plano IA de modelo/rota pode usar adaptador suportado.',
+    aiFirstRole: 'Valida se um plano IA de model/route pode usar adaptador suportado.',
     evidence: ['FIRST_CLASS_PROVIDERS', 'isGateway', 'isLocal', 'isAnthropic', 'isOpenAiCompatible'],
   },
   {
@@ -477,7 +478,7 @@ export class AiFirstRouterMigrationInventoryService {
         `- Papel atual: ${entry.currentRole}`,
         `- Estilo atual: ${entry.currentDecisionStyle}`,
         `- Decisao: ${entry.migrationDecision}`,
-        `- Etapa alvo: ${entry.phaseTarget}`,
+        `- Target stage: ${entry.phaseTarget}`,
         `- Papel AI-first: ${entry.aiFirstRole}`,
         `- Motivo: ${entry.reason}`,
         `- Evidencia: ${entry.evidence.join('; ')}`,
@@ -487,7 +488,7 @@ export class AiFirstRouterMigrationInventoryService {
       '',
       ...snapshot.gates.map((gate) => `- ${gate.label}: ${gate.status} - ${gate.detail}`),
       '',
-      '## Proxima Etapa Recomendada',
+      '## Recommended Next Stage',
       '',
       'Intent model: criar o contrato do plano IA, sem executar nada ainda.',
     ];

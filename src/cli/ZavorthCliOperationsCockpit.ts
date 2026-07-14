@@ -75,7 +75,6 @@ function cleanHumanLine(value: string | null | undefined, fallback = 'not provid
     .replace(/\bzavorth ops run [a-z0-9:_-]+\b/gi, 'zavorth doctor')
     .replace(/\bnpm(?:\.cmd)?\s+run\s+[a-z0-9:_-]+\b/gi, 'zavorth doctor')
     .replace(/\bsidecars?\b/gi, 'local components')
-    .replace(/\bExiste local components habilitado\b/gi, 'Existem local components habilitados')
     .replace(/\bruntime\b/gi, 'Zavorth')
     .replace(/\s+/g, ' ')
     .trim();
@@ -160,7 +159,7 @@ function summarizeMemory(memorySnapshot: any): CliStage25MemorySummary | null {
     recentArtifact: recentArtifact?.label ? cleanHumanLine(recentArtifact.label) : null,
     suggestedAction: suggestedAction
       ? {
-          label: cleanHumanLine(suggestedAction.label, 'Retomar trabalho recente'),
+          label: cleanHumanLine(suggestedAction.label, 'Resume recent work'),
           command: formatHumanCommand(suggestedAction.command),
         }
       : null,
@@ -245,7 +244,7 @@ function buildUnifiedActions(params: {
       id: 'memory-suggested-action',
       label: params.memory.suggestedAction.label,
       command: params.memory.suggestedAction.command,
-      reason: 'Ha um trabalho recente que pode ser retomado.',
+      reason: 'There is recent work that can be resumed.',
       priority: 'normal',
       source: 'memory',
     });
@@ -449,11 +448,11 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
   panels.push({
     title: 'Faca agora',
     lines: snapshot.unified.nextActions.slice(0, 3).map((action) =>
-      `- ${compactLine(action.label, 72)}: ${formatHumanCommand(action.command)} | porque: ${compactLine(action.reason, 72)}`),
+      `- ${compactLine(action.label, 72)}: ${formatHumanCommand(action.command)} | reason: ${compactLine(action.reason, 72)}`),
     tone: 'brand',
   });
   panels.push({
-    title: 'Fontes do retrato',
+    title: 'Snapshot sources',
     lines: [
       `- status: ${snapshot.unified.sourceHealth.status ? 'ok' : 'unavailable'}`,
       `- doctor: ${snapshot.unified.sourceHealth.doctor ? 'ok' : 'unavailable'}`,
@@ -468,8 +467,8 @@ export function formatCliOperationsCockpitSnapshot(snapshot: CliOperationsCockpi
   return renderCliScreen({
     eyebrow: 'Ops',
     eyebrowTone: postureTone,
-    title: 'Operation do Zavorth',
-    summary: formatCliValue(snapshot.unified.headline, 'Retrato operacional consolidado do Zavorth.'),
+    title: 'Zavorth operation',
+    summary: formatCliValue(snapshot.unified.headline, 'Consolidated operational snapshot for Zavorth.'),
     mode: 'compact',
     showWordmark: false,
     panels,

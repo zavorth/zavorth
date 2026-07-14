@@ -27,7 +27,7 @@ export async function startRuntimeWatchers(
     foundation.logRepo.log(
       'info',
       'RealZavorthBridgeWatcher',
-      `Watcher remoto mantido dormente no perfil ${foundation.runtimeProfileService.getProfile()}.`,
+      `Remote watcher kept dormant on profile ${foundation.runtimeProfileService.getProfile()}.`,
     );
   }
 
@@ -50,7 +50,7 @@ export async function startRuntimeWatchers(
     foundation.logRepo.log(
       'info',
       'MailboxWatcher',
-      `Mailbox watcher remoto mantido dormente no perfil ${foundation.runtimeProfileService.getProfile()}.`,
+      `Remote mailbox watcher kept dormant on profile ${foundation.runtimeProfileService.getProfile()}.`,
     );
   }
 }

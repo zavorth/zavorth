@@ -268,7 +268,7 @@ export class CapabilityAutopilotApprovedRepairRunnerService {
         step,
         startedAt,
         status: 'succeeded',
-        summary: `${step.title} registrado.`,
+        summary: `${step.title} recorded.`,
         detail: step.summary,
       });
     }

@@ -272,7 +272,7 @@ export class SkillRoutingService {
       return {
         score: 3,
         matchedBundleTags: ['documentation', 'requirements'],
-        reasons: ['Ha um sinal claro de RFC, design doc ou especificacao tecnica.'],
+        reasons: ['Ha um sinal claro de RFC, design doc ou especificaction tecnica.'],
       };
     }
 

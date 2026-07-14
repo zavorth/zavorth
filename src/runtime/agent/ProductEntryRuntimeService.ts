@@ -18,7 +18,8 @@ import type { ProductizationEvidenceSnapshot } from './ProductizationEvidenceSer
 import type {
   UniversalAgentChannel,
   UniversalAgentRun,
-} from './UniversalAgentRuntimeTypes.js';export const PRODUCT_ENTRY_RUNTIME_CONTRACT_VERSION = '2026-05-04.product-entry' as const;
+} from './UniversalAgentRuntimeTypes.js';
+export const PRODUCT_ENTRY_RUNTIME_CONTRACT_VERSION = '2026-05-04.product-entry' as const;
 
 export type ProductEntryRuntimeStatus =
   | 'ready'

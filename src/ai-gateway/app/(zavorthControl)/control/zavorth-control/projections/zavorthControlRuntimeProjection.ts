@@ -156,7 +156,7 @@ function eventsFromNativeZavorthControlViews(zavorthControlRegistry: AnyRecord, 
       id: 'native-first-policy:adapter-refresh',
       kind: 'status',
       title: 'Adapter refresh explicit',
-      detail: policy.adapterRefreshAllowed ? 'Refresh explicito habilitado por policy.' : 'Refresh por adapter legado desativado no caminho padrao.',
+      detail: policy.adapterRefreshAllowed ? 'Explicit refresh enabled by policy.' : 'Legacy adapter refresh disabled on the default path.',
       status: 'done',
     },
   ];

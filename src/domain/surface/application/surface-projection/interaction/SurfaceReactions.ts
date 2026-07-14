@@ -23,7 +23,7 @@ export type SurfaceReactionMapping = {
   label?: string;
 };
 
-/** Default permission reaction set (Hermes/OpenClaw-style low friction). */
+/** Default permission reaction set (low-friction low friction). */
 export const DEFAULT_PERMISSION_REACTIONS: SurfaceReactionMapping[] = [
   {
     emoji: '✅',

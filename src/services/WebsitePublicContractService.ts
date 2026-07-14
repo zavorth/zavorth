@@ -224,7 +224,7 @@ export class WebsitePublicContractService {
       ok ? 'pass' : 'fail',
       ok
         ? 'site esta configurado para build/export estatico sem servidor persistente.'
-        : 'next.config.js precisa manter output export e images.unoptimized=true.',
+        : 'next.config.js must keep output export e images.unoptimized=true.',
       'next.config.js',
       [`outputExport=${hasExport}`, `imagesUnoptimized=${hasUnoptimized}`],
     );
@@ -374,7 +374,7 @@ export class WebsitePublicContractService {
       'rotas exportadas',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
-        ? 'build exportou todas as rotas publicas obrigatorias.'
+        ? 'build exportou todas as rotas publicas required.'
         : 'build nao exportou todas as rotas publicas obrigatorias.',
       'out',
       missing.map((route) => `faltando: ${route}`),

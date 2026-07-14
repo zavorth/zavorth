@@ -1,63 +1,54 @@
 import { IntentClassifier } from '../../src/cognitive-firewall';
 
-describe('IntentClassifier contextual hints', () => {
+describe('IntentClassifier free-text hints', () => {
   const classifier = new IntentClassifier();
 
   it.each([
-    ['create a summary of the meeting', 'file-conversation-context'],
-    ['run this reasoning again', 'execution-conversation-context'],
-    ['open my mind and think differently', 'file-conversation-context'],
-    ['save me from this', 'file-conversation-context'],
-  ])('downgrades conversational false positive: %s', (text, signal) => {
+    'hi',
+    'hello',
+    'thanks',
+    'ok',
+    'bye',
+  ])('marks trivial chat as conversation: %s', (text) => {
     const result = classifier.classify(text);
 
     expect(result.category).toBe('conversation');
-    expect(result.confidence).toBeLessThan(0.75);
+    expect(result.isTrivialChat).toBe(true);
     expect(result.isHardDecision).toBe(false);
-    expect(result.downgradedBy).toContain(signal);
-    expect(result.secondPass).toEqual(expect.objectContaining({
-      source: 'ContextualIntentSecondPass',
-      stage: 7,
-      mode: 'local-contextual',
-    }));
+    expect(result.secondPass.finalCategory).toBe('conversation');
   });
 
   it.each([
-    ['create a file README.md', 'file_operation'],
-    ['list the src directory', 'file_operation'],
-    ['run the tests', 'execution'],
-    ['execute npm test', 'execution'],
-    ['configure the claude model', 'configuration'],
-    ['remember that I prefer short answers', 'memory'],
-  ])('keeps concrete technical intents as hints: %s', (text, category) => {
+    'create a file README.md',
+    'list the src directory',
+    'run the tests',
+    'execute npm test',
+    'configure the claude model',
+    'remember that I prefer short answers',
+    'what are the latest AI news?',
+    'create a summary of the meeting',
+    'save this for me',
+    "don't open any file or read the README, just explain the concept",
+  ])('does not map free-text words to capability categories: %s', (text) => {
     const result = classifier.classify(text);
 
-    expect(result.category).toBe(category);
-    expect(result.confidence).toBeGreaterThanOrEqual(0.75);
+    expect(result.category).toBe('full_toolset');
+    expect(result.isTrivialChat).toBe(false);
     expect(result.isHardDecision).toBe(false);
-    expect(result.secondPass.verdict).toBe('confirmed');
+    expect(result.confidence).toBe(0.5);
+    expect(result.secondPass).toEqual(expect.objectContaining({
+      source: 'ContextualIntentSecondPass',
+      verdict: 'left-ambiguous',
+      originalCategory: 'full_toolset',
+      finalCategory: 'full_toolset',
+      signals: expect.arrayContaining(['model-owned-free-text']),
+    }));
   });
 
-  it('classifies weak file operations as memory when ambiguous', () => {
-    const result = classifier.classify('save this for me');
-
-    expect(result.category).toBe('memory');
-    expect(result.confidence).toBeGreaterThanOrEqual(0.75);
-    expect(result.isHardDecision).toBe(false);
-  });
-
-  it('second pass downgrades explicit no-tool workspace mentions', () => {
-    const result = classifier.classify('don\'t open any file or read the README, just explain the concept');
+  it('classifies empty input as conversation', () => {
+    const result = classifier.classify('   ');
 
     expect(result.category).toBe('conversation');
-    expect(result.isHardDecision).toBe(false);
-    expect(result.confidence).toBeLessThanOrEqual(0.6);
-    expect(result.downgradedBy).toContain('second-pass-explicit-no-tool-request');
-    expect(result.secondPass).toEqual(expect.objectContaining({
-      verdict: 'downgraded',
-      originalCategory: 'file_operation',
-      finalCategory: 'conversation',
-      signals: expect.arrayContaining(['explicit-no-tool-request']),
-    }));
+    expect(result.isTrivialChat).toBe(true);
   });
 });

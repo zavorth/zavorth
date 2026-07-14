@@ -214,7 +214,7 @@ export class ZavorthAndroidAdbBridgeService {
       blocks: [
         {
           kind: 'text',
-          title: 'Device governado',
+          title: 'Governed device',
           text: this.formatSnapshotText(snapshot),
         },
         {

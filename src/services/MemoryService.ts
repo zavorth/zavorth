@@ -368,7 +368,7 @@ export class MemoryService {
       sections.push(renderedRelevant);
     }
     if (renderedRecent) {
-      sections.push('Memorias recentes:');
+      sections.push('Memorys recentes:');
       sections.push(renderedRecent);
     }
 

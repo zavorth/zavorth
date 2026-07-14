@@ -41,7 +41,7 @@ const TARGETS: Array<{
   },
   {
     id: 'developer-workstation',
-    label: 'Estacao de desenvolvimento',
+    label: 'Estaction de desenvolvimento',
     recommendedProfile: 'dev',
     fallbackProfile: 'desktop',
     alwaysOnReady: false,

@@ -9,7 +9,7 @@ describe('CapabilityRegistry', () => {
 
     const capability = registry.matchImplicit(
       '/task',
-      'pesquise na web se deixar a tampa do notebook quase fechada faz mal',
+      'search the web whether leaving a laptop lid almost closed is harmful',
     );
 
     expect(capability?.id).toBe('route-web-research');

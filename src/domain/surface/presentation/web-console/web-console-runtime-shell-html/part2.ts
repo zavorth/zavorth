@@ -87,7 +87,7 @@ export function buildRuntimeShellHtmlPart2(): string {
       </section>
 
       <section id="session-workspace-card" class="handoff-card">
-        <h2>Workspace dthe session</h2>
+        <h2>Workspace of the session</h2>
         <p class="muted-copy section-note">
           Esta e a control UI operacional dthe session: chat vivo, approvals, diffs, capabilities, recursos, companions e health no mesmo plano do gateway.
         </p>
@@ -102,7 +102,7 @@ export function buildRuntimeShellHtmlPart2(): string {
             <p class="profile-tag">Sessao atual</p>
             <strong id="session-workspace-state">Valide o token</strong>
             <p id="session-workspace-summary" class="muted-copy">
-              O shell protegido mostra aqui the session ativa, tarefas, approvals e continuidade.
+              O shell protegido mostra aqui the session ativa, tarefas, approvals e continuity.
             </p>
             <ul id="session-workspace-details" class="handoff-list compact">
               <li>Valide o token para carregar the session ativa do gateway.</li>
@@ -263,7 +263,7 @@ export function buildRuntimeShellHtmlPart2(): string {
       </section>
 
       <section id="ops-mesh-card" class="handoff-card">
-        <h2>Malha operacional</h2>
+        <h2>Operational mesh</h2>
         <p class="muted-copy section-note">
           Resumo curto de nodes, canais, transportes remotos e integrations registradas neste host.
         </p>
@@ -324,7 +324,7 @@ export function buildRuntimeShellHtmlPart2(): string {
           </article>
           <article id="ops-keepalive-card" class="ops-summary-card">
             <p class="profile-tag">Supervisao local</p>
-            <strong id="ops-keepalive-state">Verificando</strong>
+            <strong id="ops-keepalive-state">Checking</strong>
             <p id="ops-keepalive-summary" class="muted-copy">
               O keepalive supervisionado acompanha AIGateway, gateway e node-host.
             </p>

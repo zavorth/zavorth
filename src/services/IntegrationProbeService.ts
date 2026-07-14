@@ -376,7 +376,7 @@ export class IntegrationProbeService {
           ? 'ExternalExecutor CLI respondeu ao probe real'
           : 'ExternalExecutor CLI nao respondeu ao probe real',
         detail: available
-          ? 'O external runner local/WSL aceitou a checagem de disponibilidade.'
+          ? 'O external runner local/WSL aceitou a check de disponibilidade.'
           : 'O Zavorth nao conseguiu confirmar a disponibilidade real da CLI do external runner.',
         checkedTarget: this.resolveExternalExecutorTarget(),
         httpStatus: null,

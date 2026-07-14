@@ -168,7 +168,7 @@ export class GatewaySurfaceConformanceService {
       findings.push(this.fail('natural-first-slash-shortcut', 'Slash command deve permanecer atalho do command router.'));
     }
     if (policy.operatorCommandEntrypoint !== 'command-router-shortcut' || !policy.commandShortcutAllowed) {
-      findings.push(this.fail('natural-first-operator-shortcut', 'Comando operador explicito deve declarar atalho de command router.'));
+      findings.push(this.fail('natural-first-operator-shortcut', 'Comanthe operator explicito deve declarar atalho de command router.'));
     }
     if (policy.llmDirectEntryAllowed !== false) {
       findings.push(this.fail('natural-first-no-direct-llm', 'Superficie nao pode declarar LLM como entrada direta para texto livre.'));
@@ -648,7 +648,7 @@ export function buildApiGatewaySurfaceDescriptor(): GatewaySurfaceDescriptor {
     },
     degradedMode: {
       supported: true,
-      summary: 'Sem auth/API key exigida, a API permanece local-only ou rejeita mutacoes conforme politica.',
+      summary: 'Sem auth/API key exigida, a API permanece local-only ou rejeita mutations conforme politica.',
     },
     docs: {
       operatorGuide: 'docs/product-direction.md',

@@ -256,67 +256,36 @@ function buildPublicRationale(input: {
   return `${input.reason} Fonte: ${source}. Roles: ${roles}. Gatilhos: ${input.triggers.join(', ') || 'n/d'};${risks}.`;
 }
 
-function collectExplicitSubagentTriggers(plain: string): string[] {
-  return collect(plain, [
-    ['explicit-subagents', /\b(use|usar|usa|rode|rodar)?\s*subagentes?\b|\bsubagents?\b/],
-    ['sessions-spawn', /\bsessions[_-]?spawn\b/],
-    ['delegation', /\bdelegue|delega|delegar\b/],
-    ['spawn-agent', /\bspawn\b|\bswarm\b|\bagentes?\s+em\s+paralelo\b/],
-    ['one-agent-another', /\bmande\s+um\s+agente\b|\bmanda\s+um\s+agente\b|\bum\s+agente\b.*\boutro\b/],
-    ['specialists', /\bespecialistas?\b.*\b(revis|audit|valid|compar|pesquis)/],
-  ]);
+/** Free-text keywords never auto-start subagents. LLM + tools own multi-agent choice. */
+function collectExplicitSubagentTriggers(_plain: string): string[] {
+  return [];
 }
 
 function collectImplicitComplexityTriggers(
-  plain: string,
+  _plain: string,
   input: Pick<ZavorthSubagentAutoInvocationInput, 'taskKind' | 'taskSubtype'>,
 ): string[] {
-  const triggers = collect(plain, [
-    ['deep-audit', /\bauditori[ae]|audite|security review|revisao de seguranca|procure falhas|brechas\b/],
-    ['deep-investigation', /\binvestigue|investigar|analise profundamente|verifique profundamente|varra\b/],
-    ['whole-workspace', /\btodo o zavorth|zavorth inteiro|projeto inteiro|codigo inteiro|codebase inteira\b/],
-    ['multi-step-validation', /\b(valid\w*|testar|testes)\b.*\b(revis\w*|audit|compar|garant|cobertura|achados?)\b/],
-    ['comparison-matrix', /\bmatriz\b.*\bcompar|comparativo completo|compare profundamente\b/],
-    ['large-synthesis', /\brelatorio completo|plano completo|arquitetura completa|certificacao\b/],
-  ]);
+  const triggers: string[] = [];
   const taskKind = normalize(input.taskKind).toLowerCase();
   const taskSubtype = normalize(input.taskSubtype).toLowerCase();
   if (['security', 'audit', 'ops'].includes(taskKind)) triggers.push(`task-kind:${taskKind}`);
   if (['comparison', 'audit', 'verification', 'qa'].includes(taskSubtype)) triggers.push(`task-subtype:${taskSubtype}`);
-  if (plain.length > 220 && /\b(revis|analis|valid|garant|compar|audit|test)\b/.test(plain)) {
-    triggers.push('long-complex-request');
-  }
   return Array.from(new Set(triggers));
 }
 
-function collectRiskSignals(plain: string): string[] {
-  return collect(plain, [
-    ['workspace-mutation', /\b(write|edit|modify|delete|remove|apply|patch|commit|push|deploy|salve|edite|altere|apague|remova|corrija|implemente|crie arquivo|renomeie|mova)\b/],
-    ['command-execution', /\b(shell|terminal|powershell|cmd|exec|execute|run command|rode comando|comando|npm install|pip install|rm -rf)\b/],
-    ['external-side-effect', /\b(send|publish|post|whatsapp|telegram|discord|signal|imessage|email|gmail|slack|envie|publique|poste|mensagem)\b/],
-    ['sensitive-network', /\b(fetch|http:\/\/|https:\/\/|localhost|127\.0\.0\.1|169\.254|url|api|webhook|internet|pesquise online|research online)\b/],
-    ['secret-sensitive', /\b(api key|token|secret|segredo|credencial|senha|ssh key|private key)\b/],
-  ]);
+function collectRiskSignals(_plain: string): string[] {
+  return [];
 }
 
 function inferAutoRoles(
-  plain: string,
-  explicitSubagentRequest: boolean,
-  implicit: string[],
+  _plain: string,
+  _explicitSubagentRequest: boolean,
+  _implicit: string[],
 ): string[] {
-  const roles = ['planner'];
-  if (/\b(pesquis|research|fontes|evidencia|evidence)\b/.test(plain)) roles.push('researcher');
-  if (/\b(audit|auditori|seguran|security|brecha|falha|vulnerab|risco|revis\w*)\b/.test(plain)) roles.push('auditor');
-  if (/\b(test|qa|validar|validacao|verificar|garantir|cobertura)\b/.test(plain)) roles.push('qa');
-  if (/\b(codigo|code|implementar|patch|edit|corrija)\b/.test(plain)) roles.push('coder');
-  if (!explicitSubagentRequest && implicit.length > 0 && roles.length === 1) {
-    roles.push('auditor', 'qa');
-  }
-  return Array.from(new Set(roles)).slice(0, 4);
+  return ['planner'];
 }
 
-function inferMode(plain: string, roleIds: string[]): ZavorthSubagentRuntimeMode {
-  if (/\b(session|sessao|persistente|thread|topico|topic)\b/.test(plain)) return 'session';
+function inferMode(_plain: string, roleIds: string[]): ZavorthSubagentRuntimeMode {
   if (roleIds.length > 1) return 'oneshot';
   return 'oneshot';
 }

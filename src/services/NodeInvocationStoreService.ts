@@ -210,7 +210,7 @@ export class NodeInvocationStoreService {
         claimedAt: null,
         staleAt: null,
         staleReason: null,
-        resultSummary: entry.resultSummary || 'Invocacao recolocada na fila apos recover operacional.',
+        resultSummary: entry.resultSummary || 'Invocaction recolocada na fila apos recover operacional.',
         completedAt: null,
       }, {
         status: 'planned',
@@ -414,7 +414,7 @@ export class NodeInvocationStoreService {
       status: 'cancelled',
       completedAt: nowIso,
       ok: false,
-      resultSummary: entry.resultSummary || 'Invocacao cancelada automaticamente apos expirar na fila do Node Mesh.',
+      resultSummary: entry.resultSummary || 'Invocaction cancelada automaticamente apos expirar na fila do Node Mesh.',
       staleAt: entry.staleAt || nowIso,
       staleReason: entry.staleReason || 'pending-expired',
     }, {

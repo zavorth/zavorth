@@ -586,6 +586,7 @@ describe('TelegramZavorthBridgeController', () => {
       task_id: 'task-ag-4',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
+      metadata: { responseDecision: { requestedTools: ['web_search'] } },
     } as any;
 
     await controller.handleTaskExecution(ctx, task, 'pesquise as ultimas noticias de tecnologia do dia');
@@ -606,6 +607,7 @@ describe('TelegramZavorthBridgeController', () => {
       task_id: 'task-ag-5',
       chat_id: '123',
       workspace: 'C:/workspace/zavorth',
+      metadata: { responseDecision: { requestedTools: ['web_search'] } },
     } as any;
 
     await controller.handleTaskExecution(ctx, task, 'pesquise as principais noticias de tecnologia do dia');

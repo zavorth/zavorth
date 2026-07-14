@@ -1,4 +1,4 @@
-import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '../agents/ZavorthSubagentRuntimeService.js';
 import type { SkillMetadata } from '../skills/SkillLoader.js';
 import { SkillLoader } from '../skills/SkillLoader.js';
 import {

@@ -16,19 +16,17 @@ export const INTENT_CONNECT_CHANNEL_TOKENS = new Set([
   'msteams',
 ]);
 
+/** English-only intent sub-verbs (no multi-language CLI synonym packs). */
 export const INTENT_ANYONE_LEARN_VERBS = new Set([
   '',
   'digest',
   'learned',
-  'o-que-aprendi',
   'undo',
-  'desfazer',
   'forget',
   'powers',
   'superpowers',
   'skills',
   'reach',
-  'canais',
   'where',
   'learn-on',
   'learn-off',

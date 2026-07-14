@@ -17,7 +17,7 @@ export function buildCockpitHighlights(
   const remoteTransportDoctor = operations.remoteTransportDoctor;
   const zavorthBridgeMobileAccess = operations.zavorthBridgeMobileAccess;
   const highlights = [
-    `${summary.readySidecars}/${summary.enabledSidecars} sidecars habilitados estao prontos.`,
+    `${summary.readySidecars}/${summary.enabledSidecars} enabled sidecars are ready.`,
     `${summary.freeDiskPercent}% de espaco livre em disco.`,
     `Ultimo publish: ${summary.publishAgeLabel}.`,
   ];
@@ -80,7 +80,7 @@ export function buildCockpitHighlights(
     if (whatsAppChannel.started && whatsAppChannel.recipientsConfigured > 0 && !whatsAppChannel.lastError) {
       if (whatsAppChannel.mode === 'cloud-api') {
         highlights.push(
-          `WhatsApp Cloud API ativa; ${whatsAppChannel.recipientsConfigured} chat(s) permitidos${whatsAppChannel.phoneNumberId ? ` no phone number ${whatsAppChannel.phoneNumberId}` : ''}.`,
+          `WhatsApp Cloud API active; ${whatsAppChannel.recipientsConfigured} allowed chat(s)${whatsAppChannel.phoneNumberId ? ` on phone number ${whatsAppChannel.phoneNumberId}` : ''}.`,
         );
       } else {
         highlights.push(
@@ -133,7 +133,7 @@ export function buildCockpitHighlights(
   } else if (nodeMeshSmoke?.status === 'failed') {
     highlights.push('Node Mesh com falha no ultimo smoke real; revise a malha antes de confiar em invokes remotos.');
   } else if (nodeMeshSmoke?.status === 'running') {
-    highlights.push('Node Mesh em validacao por smoke real neste momento.');
+    highlights.push('Node Mesh is under real smoke validation right now.');
   } else {
     highlights.push('Node Mesh ainda sem smoke real recente registrado neste host.');
   }
@@ -154,7 +154,7 @@ export function buildCockpitHighlights(
   if (remoteTransportDoctor?.status === 'passed' && !remoteTransportDoctor.stale) {
     const passedItems = (remoteTransportDoctor.items || []).filter((item) => item.status === 'passed');
     highlights.push(
-      `Transportes remotos validados por doctor ${formatAge(now, remoteTransportDoctor.checkedAt)}; ${passedItems.length} fluxo(s) confirmados.`,
+      `Transportes remotos validados por doctor ${formatAge(now, remoteTransportDoctor.checkedAt)}; ${passedItems.length} flow(s) confirmados.`,
     );
   } else if (remoteTransportDoctor?.status === 'passed' && remoteTransportDoctor.stale) {
     highlights.push('Transportes remotos tinham doctor valido, mas o relatorio ficou velho e precisa ser renovado.');
@@ -163,7 +163,7 @@ export function buildCockpitHighlights(
       remoteTransportDoctor.summary || 'Doctor dos transportes remotos falhou e ainda existem pendencias no plano remoto.',
     );
   } else if (remoteTransportDoctor?.status === 'running') {
-    highlights.push('Doctor dos transportes remotos em validacao neste momento.');
+    highlights.push('Remote transport doctor is validating right now.');
   } else {
     highlights.push('Doctor dos transportes remotos ainda nao foi executado neste host.');
   }

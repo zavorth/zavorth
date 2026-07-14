@@ -305,7 +305,7 @@ export class NodeHostCapabilityService {
       return 'system.run bloqueou segredo bruto no comando. Use um canal de credenciais aprovado.';
     }
     if (SYSTEM_RUN_SHELL_META.test(command)) {
-      return 'system.run bloqueou metacaracteres de shell. Use comandos simples e argumentos literais.';
+      return 'system.run bloqueou metacharacters de shell. Use comandos simples e argumentos literais.';
     }
 
     const parsed = tokenizeSystemRunCommand(command);

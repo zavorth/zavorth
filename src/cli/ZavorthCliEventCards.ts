@@ -134,7 +134,7 @@ export function formatCliChatReplyEventCard(reply: string): string | null {
   const approvalCommand = extractCliApprovalCommand(normalized);
   if (
     approvalCommand
-    && /\b(aprov|approval|autoriza|permiss|permit|confirm)\w*/i.test(normalized)
+    && /\b(approval|authorize|permission|permit|confirm)\w*/i.test(normalized)
   ) {
     return formatCliApprovalRequiredEventCard({
       body: normalized,

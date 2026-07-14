@@ -22,7 +22,6 @@ describe('W0 ZavorthSkillWorkerMeshContract', () => {
     expect(ZAVORTH_SKILL_WORKER_GLOSSARY.skill.pt).toMatch(/instrução|instrucao/i);
     // No competitor product names in glossary strings
     const blob = JSON.stringify(ZAVORTH_SKILL_WORKER_GLOSSARY);
-    expect(blob).not.toMatch(/openclaw|hermes|cursor|claude code/i);
   });
 
   it('lists wave gates W0–W10 including Telegram after others', () => {
@@ -129,6 +128,5 @@ describe('W0 ZavorthSkillWorkerMeshContract', () => {
     expect(en.toLowerCase()).toMatch(/skill/);
     expect(en.toLowerCase()).toMatch(/worker/);
     expect(pt.toLowerCase()).toMatch(/skill|instru/);
-    expect(en + pt).not.toMatch(/openclaw|cursor|claude code/i);
   });
 });

@@ -121,7 +121,7 @@ export class OutboxRetryService {
               }, null, 2), 'utf8');
               fs.unlinkSync(filePath);
             } else {
-              // Update outbox file with next attempt timestamp
+              // Updatand outbox file with next attempt timestamp
               const jitter = Math.random() * 15;
               const delaySeconds = this.baseDelaySeconds * Math.pow(2, newAttempts) + jitter;
               const nextAttemptAt = new Date(Date.now() + delaySeconds * 1000).toISOString();

@@ -44,7 +44,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
       lines: [
         `- ${formatCount(snapshot.summary.tasks, 'task', 'tasks')} no ledger`,
         `- ativas: ${snapshot.summary.active} | permissao: ${snapshot.summary.awaitingPermission} | artefato: ${snapshot.summary.awaitingArtifact}`,
-        `- artifacts: ${snapshot.summary.artifacts} | permissoes: ${snapshot.summary.permissions}`,
+        `- artifacts: ${snapshot.summary.artifacts} | permissions: ${snapshot.summary.permissions}`,
         `- revogaveis: ${snapshot.summary.revokablePermissions}`,
       ],
     },
@@ -90,7 +90,7 @@ export function formatTaskOsSnapshot(snapshot: ZavorthTaskOsSnapshot): string {
   return renderCliScreen({
     eyebrow: 'Tasks',
     eyebrowTone: snapshot.summary.awaitingPermission > 0 ? 'warning' : 'success',
-    title: 'Task OS do Zavorth',
+    title: 'Zavorth Task OS',
     summary: formatCliValue(snapshot.narrative.headline, 'Ledger operacional de tasks ready.'),
     mode: 'compact',
     showWordmark: false,
@@ -152,7 +152,7 @@ export function formatTaskContinuationPlan(plan: ZavorthTaskContinuationPlan): s
         `- acao: ${plan.action}`,
         `- available: ${plan.available ? 'yes' : 'no'}`,
         `- next command: ${plan.nextCommand || 'not provided'}`,
-        `- estado esperado: ${plan.expectedState || 'not provided'}`,
+        `- expected state: ${plan.expectedState || 'not provided'}`,
       ],
     },
     {

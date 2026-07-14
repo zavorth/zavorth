@@ -1003,7 +1003,7 @@ function countUsageOutcomes(text: string, needle: string): Omit<ZavorthSkillCura
       Math.min(text.length, index + needle.length + USAGE_CONTEXT_RADIUS),
     );
     outcome.receipts += /\breceipt\b|\brecibo\b/.test(context) ? 1 : 0;
-    outcome.approvals += /\bapproval\b|\bapproved\b|\baprovad[oa]\b|\baprovacao\b/.test(context) ? 1 : 0;
+    outcome.approvals += /\bapproval\b|\bapproved\b|\baprovad[oa]\b|\bapproval\b/.test(context) ? 1 : 0;
     outcome.successes += /\bsuccess\b|\bpassed\b|\bapplied\b|\bok\b|\bsucceeded\b/.test(context) ? 1 : 0;
     outcome.failures += /\bfailed\b|\bblocked\b|\berror\b|\bfalh[ao]\b|\bbloquead[oa]\b/.test(context) ? 1 : 0;
     index = text.indexOf(needle, index + needle.length);

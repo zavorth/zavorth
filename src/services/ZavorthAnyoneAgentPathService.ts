@@ -371,7 +371,7 @@ export class ZavorthAnyoneAgentPathService {
         id: 'desktop',
         title: 'App / Desktop',
         status: 'ready-hint',
-        summary: 'Melhor caminho no computador.',
+        summary: 'Better caminho no computador.',
         nextStep: 'zavorth open',
       }];
     }

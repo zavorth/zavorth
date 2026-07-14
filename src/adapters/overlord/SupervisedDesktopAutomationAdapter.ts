@@ -158,7 +158,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
       })),
       execute: async () => this.tool.execute(toolArgs),
       mapResult: (output) => {
-        const failed = /^(error|erro)\b/i.test(String(output || '').trim());
+        const failed = /^(error|failed)\b/i.test(String(output || '').trim());
         return resultFromToolOutcome({
           ok: !failed,
           status: failed ? 'failed' : (readOnly ? 'observation' : 'applied'),
@@ -190,7 +190,7 @@ export class SupervisedDesktopAutomationAdapter implements SystemOverlordRuntime
     }
 
     const result = sealed.value;
-    const ok = !/^(error|erro)\b/i.test(String(result || '').trim());
+    const ok = !/^(error|failed)\b/i.test(String(result || '').trim());
 
     return {
       ok,

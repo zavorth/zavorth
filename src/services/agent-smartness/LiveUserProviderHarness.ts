@@ -7,11 +7,31 @@ import type { ChatMessage, ToolDefinition } from '../../providers/ILlmProvider.j
 import { ZavorthI18nService } from '../../i18n/ZavorthI18nService.js';
 import { LlmRuntimeService, type LlmRuntimeResult } from '../llm/LlmRuntimeService.js';
 import { resolveUserProviderSelection, type UserProviderSelection } from '../UserSelectionResolver.js';
+import {
+  DEFAULT_LIVE_PROVIDER_MODELS as DEFAULT_MODELS,
+  liveProviderFamilyFromId as familyFromProviderId,
+  resolveLiveCredentials,
+  type LiveProviderFamily,
+  type ResolvedLiveCredentials,
+} from './LiveProviderCredentials.js';
+import {
+  extractAnthropicText,
+  extractAnthropicToolUse,
+  extractGeminiFunctionCall,
+  extractGeminiText,
+  extractOpenAiText,
+  extractOpenAiToolCall,
+  multiStepTextPasses,
+} from './LiveProviderResponseParsers.js';
+
+export {
+  resolveLiveCredentials,
+  type LiveProviderFamily,
+  type ResolvedLiveCredentials,
+} from './LiveProviderCredentials.js';
 
 export const LIVE_PROBE_TOKEN = 'ZAVORTH_LIVE_OK';
 export const LIVE_MULTI_STEP_TOKEN = 'ZAVORTH_LIVE_MS_OK';
-
-export type LiveProviderFamily = 'gemini' | 'openai' | 'anthropic';
 
 export type LiveHttpRequest = {
   url: string;
@@ -29,26 +49,10 @@ export type LiveHttpResponse = {
 export type LiveHttpTransport = (req: LiveHttpRequest) => Promise<LiveHttpResponse>;
 type LiveLlmRuntime = Pick<LlmRuntimeService, 'chatDetailed'>;
 
-export type ResolvedLiveCredentials = {
-  family: LiveProviderFamily | null;
-  providerId: string;
-  modelId: string;
-  apiKey: string;
-  selection: UserProviderSelection;
-  credentialSource: 'selection' | 'single-key-infer' | 'none';
-  reason?: string;
-};
-
 export type LiveHarnessResult = {
   status: 'pass' | 'fail' | 'blocked';
   notes: string;
   evidence: Record<string, unknown>;
-};
-
-const DEFAULT_MODELS: Record<LiveProviderFamily, string> = {
-  gemini: 'gemini-2.5-flash',
-  openai: 'gpt-4o-mini',
-  anthropic: 'claude-3-5-haiku-latest',
 };
 
 function defaultTransport(req: LiveHttpRequest): Promise<LiveHttpResponse> {
@@ -79,113 +83,6 @@ function defaultTransport(req: LiveHttpRequest): Promise<LiveHttpResponse> {
   });
 }
 
-function familyFromProviderId(providerId: string | null | undefined): LiveProviderFamily | null {
-  const id = String(providerId || '').trim().toLowerCase();
-  if (!id) return null;
-  if (
-    id === 'gemini'
-    || id === 'gemma'
-    || id === 'google'
-    || id === 'google-ai-studio'
-    || id.includes('gemini')
-  ) {
-    return 'gemini';
-  }
-  if (id === 'openai' || id === 'oa' || id.startsWith('openai')) {
-    return 'openai';
-  }
-  if (id === 'anthropic' || id === 'claude' || id.includes('anthropic')) {
-    return 'anthropic';
-  }
-  return null;
-}
-
-function keyForFamily(family: LiveProviderFamily, env: NodeJS.ProcessEnv): string {
-  if (family === 'gemini') return String(env.GEMINI_API_KEY || env.GOOGLE_API_KEY || '').trim();
-  if (family === 'openai') return String(env.OPENAI_API_KEY || '').trim();
-  return String(env.ANTHROPIC_API_KEY || '').trim();
-}
-
-function availableKeyFamilies(env: NodeJS.ProcessEnv): LiveProviderFamily[] {
-  const out: LiveProviderFamily[] = [];
-  if (keyForFamily('gemini', env).length >= 12) out.push('gemini');
-  if (keyForFamily('openai', env).length >= 12) out.push('openai');
-  if (keyForFamily('anthropic', env).length >= 12) out.push('anthropic');
-  return out;
-}
-
-/**
- * Resolve which provider to use for live harnesses.
- * Never invents Gemini when the user chose another provider or none.
- */
-export function resolveLiveCredentials(input: {
-  projectRoot?: string;
-  env?: NodeJS.ProcessEnv;
-}): ResolvedLiveCredentials {
-  const env = input.env || process.env;
-  const selection = resolveUserProviderSelection({ projectRoot: input.projectRoot, env });
-  const selectedFamily = familyFromProviderId(selection.providerId);
-  const available = availableKeyFamilies(env);
-
-  if (selectedFamily) {
-    const apiKey = keyForFamily(selectedFamily, env);
-    if (apiKey.length < 12) {
-      return {
-        family: selectedFamily,
-        providerId: selection.providerId || selectedFamily,
-        modelId: selection.modelId || DEFAULT_MODELS[selectedFamily],
-        apiKey: '',
-        selection,
-        credentialSource: 'none',
-        reason: `Provider "${selection.providerId}" is selected but no matching API key is configured.`,
-      };
-    }
-    return {
-      family: selectedFamily,
-      providerId: selection.providerId || selectedFamily,
-      modelId: selection.modelId || DEFAULT_MODELS[selectedFamily],
-      apiKey,
-      selection,
-      credentialSource: 'selection',
-    };
-  }
-
-  if (available.length === 1) {
-    const family = available[0];
-    return {
-      family,
-      providerId: family,
-      modelId: DEFAULT_MODELS[family],
-      apiKey: keyForFamily(family, env),
-      selection,
-      credentialSource: 'single-key-infer',
-    };
-  }
-
-  if (available.length > 1) {
-    return {
-      family: null,
-      providerId: 'unconfigured',
-      modelId: '',
-      apiKey: '',
-      selection,
-      credentialSource: 'none',
-      reason:
-        'Multiple provider keys present and no user provider selected. '
-        + 'Set LLM_PROVIDER / preference or leave a single key family.',
-    };
-  }
-
-  return {
-    family: null,
-    providerId: 'unconfigured',
-    modelId: '',
-    apiKey: '',
-    selection,
-    credentialSource: 'none',
-    reason: 'No provider selected and no API keys found (OPENAI_API_KEY / ANTHROPIC_API_KEY / GEMINI_API_KEY).',
-  };
-}
 
 function redact(text: string): string {
   return text
@@ -303,10 +200,6 @@ function multiStepNoToolNotes(providerLabel: string, body: string, status?: numb
 
 function exactProbeToken(text: string): boolean {
   return String(text || '').trim() === LIVE_PROBE_TOKEN;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export class LiveUserProviderHarness {
@@ -1548,112 +1441,5 @@ export class LiveUserProviderHarness {
         autoCertified: false,
       },
     };
-  }
-}
-
-/**
- * Strict multi-step finish: token + marker only (optional surrounding quotes/punctuation).
- * Rejects long prose that merely embeds the token string.
- */
-function multiStepTextPasses(text: string, markerValue: string): boolean {
-  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
-  if (!normalized) return false;
-  const pattern = new RegExp(
-    `^["'\`]*${escapeRegExp(LIVE_MULTI_STEP_TOKEN)}\\s+${escapeRegExp(markerValue)}["'\`.,!;:]*$`,
-    'i',
-  );
-  return pattern.test(normalized);
-}
-
-function extractGeminiText(body: string): string {
-  try {
-    const parsed = JSON.parse(body);
-    const parts = parsed?.candidates?.[0]?.content?.parts;
-    if (!Array.isArray(parts)) return '';
-    return parts.map((part: { text?: string }) => String(part?.text || '')).join('\n');
-  } catch {
-    return '';
-  }
-}
-
-function extractGeminiFunctionCall(body: string): { name: string; args: Record<string, unknown> } | null {
-  try {
-    const parsed = JSON.parse(body);
-    const parts = parsed?.candidates?.[0]?.content?.parts;
-    if (!Array.isArray(parts)) return null;
-    for (const part of parts) {
-      if (part?.functionCall?.name === 'zavorth_live_marker') {
-        return {
-          name: String(part.functionCall.name),
-          args: (part.functionCall.args && typeof part.functionCall.args === 'object')
-            ? part.functionCall.args
-            : {},
-        };
-      }
-    }
-  } catch {
-    return null;
-  }
-  return null;
-}
-
-function extractOpenAiText(body: string): string {
-  try {
-    const parsed = JSON.parse(body);
-    return String(parsed?.choices?.[0]?.message?.content || '');
-  } catch {
-    return '';
-  }
-}
-
-function extractOpenAiToolCall(body: string): { id: string; name: string; raw: unknown } | null {
-  try {
-    const parsed = JSON.parse(body);
-    const toolCalls = parsed?.choices?.[0]?.message?.tool_calls;
-    if (!Array.isArray(toolCalls) || toolCalls.length === 0) return null;
-    const match = toolCalls.find(
-      (entry: { function?: { name?: string } }) => String(entry?.function?.name || '') === 'zavorth_live_marker',
-    ) || null;
-    if (!match) return null;
-    return {
-      id: String(match.id || 'tool_call_0'),
-      name: String(match.function?.name || ''),
-      raw: match,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function extractAnthropicText(body: string): string {
-  try {
-    const parsed = JSON.parse(body);
-    const content = parsed?.content;
-    if (!Array.isArray(content)) return '';
-    return content
-      .filter((part: { type?: string }) => part?.type === 'text')
-      .map((part: { text?: string }) => String(part?.text || ''))
-      .join('\n');
-  } catch {
-    return '';
-  }
-}
-
-function extractAnthropicToolUse(body: string): { id: string; name: string; raw: unknown } | null {
-  try {
-    const parsed = JSON.parse(body);
-    const content = parsed?.content;
-    if (!Array.isArray(content)) return null;
-    const tool = content.find(
-      (part: { type?: string; name?: string }) => part?.type === 'tool_use' && part?.name === 'zavorth_live_marker',
-    );
-    if (!tool) return null;
-    return {
-      id: String(tool.id || 'tool_use_0'),
-      name: String(tool.name || ''),
-      raw: tool,
-    };
-  } catch {
-    return null;
   }
 }

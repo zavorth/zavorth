@@ -70,7 +70,7 @@ describe('AiStudioExecutor', () => {
 
     const result = await executor.execute(
       buildRequest({
-        instructions: ['Pesquise as principais noticias de IA de hoje.'],
+        instructions: ['Search the main AI news for today.'],
       }) as any,
     );
 
@@ -202,7 +202,7 @@ describe('AiStudioExecutor', () => {
     const executor = new AiStudioExecutor();
     const result = await executor.execute(
       buildRequest({
-        instructions: ['Pesquise as principais noticias de tecnologia de hoje.'],
+        instructions: ['Search the main technology news for today.'],
         metadata: {
           aistudio_allowed_tools: ['google_search'],
         },

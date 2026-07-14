@@ -194,5 +194,5 @@ GitHub Actions workflow: `.github/workflows/skill-registry-sign.yml`
 ## Related docs
 
 - `docs/product/skills-universal-install.md` — install / preview / consent
-- `docs/product/monorepo-open-items-closeout.md` — residual ops vs product status
+- `docs/product/launch-readiness.md` — ops readiness bar
 - `docs/plugin-os-marketplace-hosting.md` — plugin marketplace remote hosting (adjacent plane)

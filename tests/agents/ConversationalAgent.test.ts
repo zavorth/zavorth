@@ -3,6 +3,16 @@ import { config } from '../../src/config/index';
 import { STRUCTURED_AGENT_RUN_ACTION_TYPE } from '../../src/contracts/runtime/StructuredAgentRunContract';
 
 describe('ConversationalAgent', () => {
+  const originalProvider = (config as any).llmProvider;
+
+  beforeEach(() => {
+    (config as any).llmProvider = 'gemini';
+  });
+
+  afterEach(() => {
+    (config as any).llmProvider = originalProvider;
+  });
+
   it('builds a user-facing system instruction while keeping known commands', () => {
     const agent = new ConversationalAgent();
     const instruction = agent.buildSystemInstruction();
@@ -12,27 +22,20 @@ describe('ConversationalAgent', () => {
     expect(instruction).toMatch(/\/selfmod/i);
     expect(instruction).toMatch(/\/remote\b/i);
     expect(instruction).toMatch(
-      /Voce e o \*\*Zavorth\*\*|You are \*\*Zavorth\*\*, an intelligent, clear, and reliable personal assistant/i,
-    );
+      /Voce e o \*\*Zavorth\*\*|You are \*\*Zavorth\*\*, an intelligent, clear, and reliable personal assistant/i,);
     expect(instruction).toMatch(
-      /Fale como um assistente util de produto|Speak like a useful product assistant/i,
-    );
+      /Fale como um assistente util de produto|Speak like a useful product assistant/i,);
     expect(instruction).toMatch(
-      /Se o pedido for cotidiano, nao precisa falar de executor|If the request is everyday work, you do not need to mention executors/i,
-    );
+      /Se o pedido for cotidiano, nao precisa falar de executor|If the request is everyday work, you do not need to mention executors/i,);
     expect(instruction).toMatch(
-      /Nao transforme perguntas comuns em respostas excessivamente tecnicas|Do not turn ordinary questions into overly technical answers/i,
-    );
+      /Nao transforme perguntas comuns em respostas excessivamente tecnicas|Do not turn ordinary questions into overly technical answers/i,);
     expect(instruction).toMatch(
-      /Nao recite a lista de comandos|Do not recite the command list/i,
-    );
+      /Nao recite a lista de comandos|Do not recite the command list/i,);
     expect(instruction).toMatch(
-      /Sua prioridade e parecer um assistente confiavel|Your priority is to feel like a reliable and pleasant assistant/i,
-    );
+      /Sua prioridade e parecer um assistente confiavel|Your priority is to feel like a reliable and pleasant assistant/i,);
     expect(instruction).toMatch(/DISCIPLINA ANTI-ALUCINACAO|ANTI-HALLUCINATION|hallucination/i);
     expect(instruction).toMatch(
-      /roteamento operacional e decidido por politicas estruturadas|structured|Action Harness|approval/i,
-    );
+      /roteamento operacional e decidido por politicas estruturadas|structured|Action Harness|approval/i,);
     expect(instruction).not.toMatch(/responda na primeira linha exatamente|respond on the first line exactly/i);
   });
 
@@ -42,16 +45,16 @@ describe('ConversationalAgent', () => {
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
         response: {
-          content: 'altere o sistema',
+          content: 'change the system',
         },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    const defaultResponse = await agent.chat('altere o sistema');
+    const defaultResponse = await agent.chat('change the system');
 
     expect(defaultResponse.action).toBeUndefined();
-    expect(defaultResponse.text).toBe('altere o sistema');
+    expect(defaultResponse.text).toBe('change the system');
     expect(defaultResponse.escalation).toEqual(expect.objectContaining({
       shouldEscalate: false,
       source: 'none',
@@ -65,19 +68,19 @@ describe('ConversationalAgent', () => {
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
         response: {
-          content: 'O CEO atual da Example Corp e Ana Silva.',
+          content: 'The current CEO of Example Corp is Ana Silva.',
         },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    const response = await agent.chat('quem e o CEO atual da Example Corp?', undefined, {
+    const response = await agent.chat('who is the current CEO of Example Corp?', undefined, {
       mode: 'direct',
     });
 
     expect(response.text).toContain('Reliability note');
     expect(response.text).toContain('I need to verify before treating it as fact');
-    expect(response.text).toContain('O CEO atual da Example Corp e Ana Silva.');
+    expect(response.text).toContain('The current CEO of Example Corp is Ana Silva.');
   });
 
   it('can request structured autonomous escalation without using the legacy marker', async () => {
@@ -86,23 +89,23 @@ describe('ConversationalAgent', () => {
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
         response: {
-          content: 'Vou encaminhar essa execucao pelo runtime estruturado.',
+          content: 'I will route this execution through the structured runtime.',
         },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    const response = await agent.chat('rode a validacao focada', undefined, {
+    const response = await agent.chat('run focused validation', undefined, {
       executionEscalation: {
         target: 'graph_runtime',
-        taskGoal: 'rode a validacao focada',
+        taskGoal: 'run focused validation',
       },
     });
 
-    expect(response.text).toBe('Acionando o motor autonomo para alterar o sistema...');
+    expect(response.text).toBe('Starting the autonomous runtime to change the system...');
     expect(response.action).toEqual(expect.objectContaining({
       type: STRUCTURED_AGENT_RUN_ACTION_TYPE,
-      payload: 'rode a validacao focada',
+      payload: 'run focused validation',
       metadata: expect.objectContaining({
         canonicalEscalation: true,
       }),
@@ -112,7 +115,7 @@ describe('ConversationalAgent', () => {
       target: 'graph_runtime',
       source: 'structured',
       reason: 'graph-runtime-required',
-      taskGoal: 'rode a validacao focada',
+      taskGoal: 'run focused validation',
     }));
   });
 
@@ -126,7 +129,7 @@ describe('ConversationalAgent', () => {
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    await agent.chat('compare provedores para code review', undefined, {
+    await agent.chat('compare providers for code review', undefined, {
       taskKind: 'research',
       taskSubtype: 'comparison',
     });
@@ -135,12 +138,12 @@ describe('ConversationalAgent', () => {
       expect.any(Array),
       undefined,
       expect.objectContaining({
-        providerName: 'openrouter',
-        modelName: config.graphResearchDeepModel || config.openRouterModel,
-        allowFallback: true,
-        fallbackOrder: expect.arrayContaining(['openai', 'aigateway', 'gemini']),
-      }),
-    );
+        // Workspace strategy stays on the user-configured provider; task kind only picks model.
+        providerName: 'gemini',
+        modelName: expect.any(String),
+        allowFallback: false,
+        fallbackOrder: [],
+      }),);
   });
 
   it('uses task profile to choose summarization model and keeps direct style hints in direct mode', async () => {
@@ -148,16 +151,16 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Resumo pronto.' },
+        response: { content: 'Summary ready.' },
       }),
     } as any;
     const agent = new ConversationalAgent(llmRuntime);
 
-    await agent.chat('resuma as noticias da semana', undefined, {
+    await agent.chat("summarize this week's news", undefined, {
       mode: 'direct',
       taskKind: 'research',
       taskSubtype: 'summarization',
-      styleHints: ['Abra com um resumo executivo curto.'],
+      styleHints: ['Open with a short executive summary.'],
     });
 
     expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
@@ -165,57 +168,47 @@ describe('ConversationalAgent', () => {
         expect.objectContaining({
           role: 'system',
           content: expect.stringMatching(
-            /FORMATO PREFERENCIAL DESTA RESPOSTA|PREFERRED FORMAT FOR THIS RESPONSE/i,
-          ),
+            /FORMATO PREFERENCIAL DESTA RESPOSTA|PREFERRED FORMAT FOR THIS RESPONSE/i,),
         }),
       ]),
       undefined,
       expect.objectContaining({
         providerName: 'gemini',
         modelName: config.graphResearchSummaryModel || config.aiStudioModel || config.geminiModel,
-        allowFallback: true,
-      }),
-    );
+        allowFallback: false,
+      }),);
   });
 
-  it('auto-injects web search context for recent news requests', async () => {
+  it('does not pre-run web_search for free-text news; exposes the tool for the model', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Resumo com noticias atuais.' },
+        response: { content: 'Summary with current news.' },
       }),
     } as any;
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados da busca para noticias recentes.'),
+      executeTool: jest.fn().mockResolvedValue('Search results for recent news.'),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    await agent.chat('resuma as noticias das ultimas 24 horas', undefined, {
+    await agent.chat('summarize news from the last 24 hours', undefined, {
       mode: 'direct',
       taskKind: 'research',
       taskSubtype: 'summarization',
     });
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('resuma as noticias das ultimas 24 horas'),
-      limit: 8,
-      deep: true,
-      extractPages: true,
-    }));
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
     expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('Automatic web search context'),
-        }),
+        expect.objectContaining({ role: 'user', content: 'summarize news from the last 24 hours' }),
       ]),
       expect.arrayContaining([
         expect.objectContaining({ name: 'web_search' }),
@@ -226,10 +219,10 @@ describe('ConversationalAgent', () => {
       .filter((entry: any) => entry.role === 'system')
       .map((entry: any) => String(entry.content || ''))
       .join('\n');
-    expect(systemMessages).toContain('EVIDENCE_ANSWER_POLICY');
+    expect(systemMessages).not.toContain('Automatic web search context');
   });
 
-  it('reuses automatic search context instead of hitting web_search twice', async () => {
+  it('runs web_search only when the model issues a tool call', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn()
@@ -242,26 +235,29 @@ describe('ConversationalAgent', () => {
         })
         .mockResolvedValueOnce({
           providerName: 'gemini',
-          response: { content: 'Resumo com base nas fontes encontradas.' },
+          response: { content: 'Summary based on the sources found.' },
         }),
     } as any;
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('QUALITY_GATE: fresh_news_results_ok\nFontes recentes.'),
+      executeTool: jest.fn().mockResolvedValue('QUALITY_GATE: fresh_news_results_ok\nRecent sources.'),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    await agent.chat('me diga as ultimas noticias da semana na politica global', undefined, {
+    await agent.chat('tell me the latest weekly news on global politics', undefined, {
       mode: 'direct',
     });
 
     expect(toolRuntime.executeTool).toHaveBeenCalledTimes(1);
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
+      query: 'repeat',
+    }));
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
     expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(expect.arrayContaining([
       expect.objectContaining({
@@ -271,38 +267,7 @@ describe('ConversationalAgent', () => {
     ]));
   });
 
-  it('rewrites AI news requests into a global AI news search query', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Resumo com noticias de IA.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados globais de noticias de IA.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('me diga as ultimas noticias de IA no mundo', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('latest artificial intelligence AI news worldwide recent'),
-      limit: 8,
-      domainProfile: 'ai_news',
-    }));
-  });
-
-  it('strips internal voice metadata before deciding whether to search', async () => {
+  it('strips internal voice metadata before the LLM sees free text', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
@@ -314,16 +279,16 @@ describe('ConversationalAgent', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('Nao deveria pesquisar.'),
+      executeTool: jest.fn().mockResolvedValue('Should not search.'),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
     await agent.chat(
-      '[Automatically transcribed audio] Detected language: en-US. STT provider: gemini. Use this transcript as an auditory draft, not as confirmation of the user name or identity. Reply in the same language as the transcript unless the user explicitly requested another language. Voce consegue me mandar um audio me respondendo?',
+      '[Automatically transcribed audio] Detected language: en-US. STT provider: gemini. Use this transcript as an auditory draft, not as confirmation of the user name or identity. Reply in the same language as the transcript unless the user explicitly requested another language. Can you send me an audio reply?',
       undefined,
       { mode: 'direct' },
     );
@@ -332,28 +297,28 @@ describe('ConversationalAgent', () => {
     expect(llmRuntime.chatDetailed.mock.calls[0][0]).toEqual(expect.arrayContaining([
       expect.objectContaining({
         role: 'user',
-        content: 'Voce consegue me mandar um audio me respondendo?',
+        content: 'Can you send me an audio reply?',
       }),
     ]));
   });
 
-  it('uses recent conversation context when searching details for a previously cited news item', async () => {
+  it('does not auto-search follow-ups; model owns tool use with context messages', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Detalhes verificados da noticia.' },
+        response: { content: 'Verified news details.' },
       }),
     } as any;
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('Resultado detalhado com fontes.'),
+      executeTool: jest.fn().mockResolvedValue('Detailed result with sources.'),
     };
     const contextEngine = {
       prepareAsync: jest.fn().mockResolvedValue({
@@ -364,17 +329,17 @@ describe('ConversationalAgent', () => {
             role: 'assistant',
             content: '1. OpenAI releases new ChatGPT research tools - https://example.com/openai',
           },
-          { role: 'user', content: 'me explique mais sobre essa noticia que voce citou' },
+          { role: 'user', content: 'explain more about that news item you mentioned' },
         ],
-        tools: [{ name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {}, required: [] } }],
+        tools: [{ name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {}, required: [] } }],
         useFastModel: false,
         firewallStats: 'stats',
-        intentCategory: 'research',
+        intentCategory: 'full_toolset',
       }),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime, contextEngine } as any);
 
-    await agent.chat('me explique mais sobre essa noticia que voce citou', undefined, {
+    await agent.chat('explain more about that news item you mentioned', undefined, {
       mode: 'direct',
       requireContextEngine: true,
       userId: 'user-1',
@@ -382,78 +347,55 @@ describe('ConversationalAgent', () => {
       surface: 'telegram',
     });
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('OpenAI releases new ChatGPT research tools'),
-      limit: 8,
-      deep: true,
-      extractPages: true,
-    }));
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: 'user',
+          content: 'explain more about that news item you mentioned',
+        }),
+      ]),
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'web_search' }),
+      ]),
+      expect.any(Object),
+    );
   });
 
-  it('auto-searches consumer decision requests with a consumer evidence profile', async () => {
+  it.each([
+    'what is the best notebook cost benefit in 2026?',
+    'write a report with sources about remote work impacts',
+    'who is the current Chief Justice of the US Supreme Court?',
+    'what are the latest medical discoveries worldwide?',
+    'find court cases about moral damages for flight delays',
+    'find scientific articles about CRISPR and send the links',
+    'teach me a simple pancake recipe',
+  ])('does not keyword-auto-search free text: %s', async (message) => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Recomendacao com fontes.' },
+        response: { content: 'Direct model answer without pre-search.' },
       }),
     } as any;
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados de reviews e comparativos.'),
+      executeTool: jest.fn(),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    await agent.chat('qual melhor notebook custo beneficio em 2026?', undefined, {
-      mode: 'direct',
-    });
+    await agent.chat(message, undefined, { mode: 'direct' });
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('current reviews comparison buying guide official specs price warranty independent sources links'),
-      limit: 8,
-      domainProfile: 'consumer',
-      deep: true,
-      extractPages: true,
-    }));
-  });
-
-  it('auto-searches general reports with sources without a domain-specific keyword', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Relatorio geral com fontes.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados gerais com fontes diversas.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('faca um relatorio com fontes sobre impactos do home office', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('reliable sources references official data guide links'),
-      limit: 8,
-      domainProfile: 'general',
-      deep: true,
-      extractPages: true,
-    }));
+    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
+    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual(
+      expect.arrayContaining([expect.objectContaining({ name: 'web_search' })]),
+    );
   });
 
   it('refuses natural-surface LLM calls when ContextEngine.prepareAsync is required but unavailable', async () => {
@@ -465,7 +407,7 @@ describe('ConversationalAgent', () => {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
@@ -473,7 +415,7 @@ describe('ConversationalAgent', () => {
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    await expect(agent.chat('resuma as noticias atuais', undefined, {
+    await expect(agent.chat('summarize current news', undefined, {
       mode: 'direct',
       requireContextEngine: true,
       userId: 'user-1',
@@ -490,20 +432,20 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'Resposta preparada pelo contexto.' },
+        response: { content: 'Response prepared by context.' },
       }),
     } as any;
     const toolDefinitions = [
       {
         name: 'get_datetime',
-        description: 'Data e hora',
+        description: 'Date and time',
         parameters: { type: 'object', properties: {}, required: [] },
       },
     ];
     const contextDecision = {
       messages: [
         { role: 'system', content: 'system via context engine' },
-        { role: 'user', content: 'ola pelo web' },
+        { role: 'user', content: 'hello via web' },
       ],
       tools: toolDefinitions,
       useFastModel: false,
@@ -522,7 +464,7 @@ describe('ConversationalAgent', () => {
       contextEngine,
     } as any);
 
-    await agent.chat('ola pelo web', undefined, {
+    await agent.chat('hello via web', undefined, {
       mode: 'direct',
       requireContextEngine: true,
       userId: 'user-web',
@@ -532,24 +474,29 @@ describe('ConversationalAgent', () => {
     });
 
     expect(contextEngine.prepareAsync).toHaveBeenCalledWith(
-      'ola pelo web',
+      'hello via web',
       'user-web',
       'web:session-1',
       'web',
       toolDefinitions,
       expect.stringMatching(/Voce e o \*\*Zavorth\*\*|You are \*\*Zavorth\*\*/i),
       'workspace extra',
-      undefined,
-    );
+      undefined,);
+    // tool catalog is injected into the system message before chatDetailed.
     expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
-      contextDecision.messages,
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: 'system',
+          content: expect.stringMatching(/AVAILABLE TOOLS/i),
+        }),
+        expect.objectContaining({ role: 'user', content: 'hello via web' }),
+      ]),
       toolDefinitions,
       expect.objectContaining({
-        providerName: 'aigateway',
-        allowFallback: true,
-        fallbackOrder: ['gemini', 'openrouter'],
-      }),
-    );
+        providerName: 'gemini',
+        allowFallback: false,
+        fallbackOrder: [],
+      }),);
   });
 
   it('uses ContextEngine toolHintProfile as policy input before falling back to legacy tools', async () => {
@@ -557,29 +504,29 @@ describe('ConversationalAgent', () => {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
       chatDetailed: jest.fn().mockResolvedValue({
         providerName: 'gemini',
-        response: { content: 'README conferido.' },
+        response: { content: 'README checked.' },
       }),
     } as any;
     const readFileTool = {
       name: 'read_file',
-      description: 'Le arquivo',
+      description: 'Read file',
       parameters: { type: 'object', properties: {}, required: [] },
     };
     const listDirectoryTool = {
       name: 'list_directory',
-      description: 'Lista diretorio',
+      description: 'List directory',
       parameters: { type: 'object', properties: {}, required: [] },
     };
     const webSearchTool = {
       name: 'web_search',
-      description: 'Busca web',
+      description: 'Web search',
       parameters: { type: 'object', properties: {}, required: [] },
     };
     const contextEngine = {
       prepareAsync: jest.fn().mockResolvedValue({
         messages: [
           { role: 'system', content: 'system via context engine' },
-          { role: 'user', content: 'confere o README principal do projeto' },
+          { role: 'user', content: 'check the main project README' },
         ],
         tools: [webSearchTool],
         toolHintProfile: {
@@ -610,7 +557,7 @@ describe('ConversationalAgent', () => {
       contextEngine,
     } as any);
 
-    await agent.chat('confere o README principal do projeto', undefined, {
+    await agent.chat('check the main project README', undefined, {
       mode: 'direct',
       requireContextEngine: true,
       userId: 'user-web',
@@ -618,16 +565,19 @@ describe('ConversationalAgent', () => {
       surface: 'web',
     });
 
-    expect(llmRuntime.chatDetailed.mock.calls[0][1].map((tool: any) => tool.name)).toEqual([
-      'read_file',
+    // Context hint recommends workspace tools;  agent-brain also merges catalog tools
+    // present in the runtime (e.g. web_search) so free text stays intelligent.
+    expect(llmRuntime.chatDetailed.mock.calls[0][1].map((tool: any) => tool.name).sort()).toEqual([
       'list_directory',
+      'read_file',
+      'web_search',
     ]);
   });
 
   it('marks tool calls as untrusted when context contains external evidence wrappers', async () => {
     const createFileTool = {
       name: 'create_file',
-      description: 'Cria arquivo',
+      description: 'Create file',
       parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] },
     };
     const llmRuntime = {
@@ -673,7 +623,7 @@ describe('ConversationalAgent', () => {
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime, contextEngine } as any);
 
-    await agent.chat('resuma a evidencia', undefined, {
+    await agent.chat('summarize the evidence', undefined, {
       mode: 'direct',
       requireContextEngine: true,
       userId: 'user-web',
@@ -695,7 +645,7 @@ describe('ConversationalAgent', () => {
   it('propagates untrusted provenance from multimodal attachments into tool calls', async () => {
     const createFileTool = {
       name: 'create_file',
-      description: 'Cria arquivo',
+      description: 'Create file',
       parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] },
     };
     const llmRuntime = {
@@ -749,180 +699,6 @@ describe('ConversationalAgent', () => {
     }));
   });
 
-  it('auto-injects web search context for current non-news public facts', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Resposta verificada.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultado com fonte atual.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('quem e o presidente do STF?', undefined, {
-      mode: 'direct',
-      taskKind: 'research',
-      taskSubtype: 'general',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('quem e o presidente do STF?'),
-      limit: 8,
-      deep: true,
-    }));
-    expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('web-backed/evidence-sensitive request'),
-        }),
-      ]),
-      expect.any(Array),
-      expect.any(Object),
-    );
-  });
-
-  it('auto-searches high-stakes medical discovery requests with source-oriented query terms', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Resumo medico com cautela e fontes.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados medicos recentes.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('quais sao as ultimas descobertas de medicina no mundo?', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('medical research clinical trials guideline PubMed WHO NIH CDC FDA ANVISA official sources links'),
-      limit: 8,
-      domainProfile: 'medical',
-      extractPages: true,
-    }));
-    expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('domain: medical'),
-        }),
-      ]),
-      expect.any(Array),
-      expect.any(Object),
-    );
-  });
-
-  it('auto-searches legal case research requests with jurisprudence-oriented query terms', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Casos encontrados com links.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados juridicos.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('procure casos na internet sobre dano moral por atraso de voo', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('jurisprudencia acordaos decisoes judiciais tribunal case law legislation official sources links'),
-      limit: 8,
-      domainProfile: 'legal',
-    }));
-  });
-
-  it('auto-searches scientific article requests with DOI and publisher query terms', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Artigos cientificos com links.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados academicos.'),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('procure artigos cientificos sobre CRISPR e envie os links', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: expect.stringContaining('scientific articles papers DOI PubMed SciELO arXiv journal university publisher links'),
-      limit: 8,
-      domainProfile: 'scientific',
-    }));
-  });
-
-  it('does not auto-search stable general knowledge such as ordinary recipes', async () => {
-    const llmRuntime = {
-      isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
-      chatDetailed: jest.fn().mockResolvedValue({
-        providerName: 'gemini',
-        response: { content: 'Receita explicada naturalmente.' },
-      }),
-    } as any;
-    const toolRuntime = {
-      getToolDefinitions: jest.fn().mockReturnValue([
-        {
-          name: 'web_search',
-          description: 'Busca web',
-          parameters: { type: 'object', properties: {}, required: [] },
-        },
-      ]),
-      executeTool: jest.fn(),
-    };
-    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
-
-    await agent.chat('me ensine uma receita simples de panqueca', undefined, {
-      mode: 'direct',
-    });
-
-    expect(toolRuntime.executeTool).not.toHaveBeenCalled();
-  });
-
   it('executes conversational tool calls and follows up with tool results', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn((name: string) => ['gemini', 'aigateway', 'openrouter'].includes(name)),
@@ -936,27 +712,27 @@ describe('ConversationalAgent', () => {
         })
         .mockResolvedValueOnce({
           providerName: 'gemini',
-          response: { content: 'Resumo final com base na busca.' },
+          response: { content: 'Summary based on the search.' },
         }),
     } as any;
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue([
         {
           name: 'web_search',
-          description: 'Busca web',
+          description: 'Web search',
           parameters: { type: 'object', properties: {}, required: [] },
         },
       ]),
-      executeTool: jest.fn().mockResolvedValue('Resultados frescos da web.'),
+      executeTool: jest.fn().mockResolvedValue('Fresh web results.'),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    // Research-oriented wording keeps web_search available after cognitive firewall filtering.
+    // Model tool call path: free text does not pre-run search.
     const response = await agent.chat('pesquise as ultimas noticias de IA no mundo com fontes');
 
     expect(toolRuntime.executeTool).toHaveBeenCalledWith(
       'web_search',
-      expect.objectContaining({ query: expect.any(String) }),
+      expect.objectContaining({ query: 'latest news' }),
     );
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
     expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(
@@ -966,16 +742,14 @@ describe('ConversationalAgent', () => {
           toolCallId: 'call-1',
           content: expect.stringContaining('<untrusted_tool_output'),
         }),
-      ]),
-    );
+      ]),);
     expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          content: expect.stringContaining('Resultados frescos da web.'),
+          content: expect.stringContaining('Fresh web results.'),
         }),
-      ]),
-    );
-    expect(response.text).toBe('Resumo final com base na busca.');
+      ]),);
+    expect(response.text).toBe('Summary based on the search.');
   });
 
   it('exposes intent-relevant tools to voice/text conversations and can chain multiple tool rounds', async () => {
@@ -998,159 +772,111 @@ describe('ConversationalAgent', () => {
               name: 'create_file',
               arguments: {
                 filepath: 'reports/market.md',
-                content: '# Relatorio\n\nGrafico: ...',
+                content: '# Report\n\nChart: ...',
               },
             }],
           },
         })
         .mockResolvedValueOnce({
           providerName: 'gemini',
-          response: { content: 'Relatorio completo criado em output/reports/market.md.' },
+          response: { content: 'Full report created at output/reports/market.md.' },
         }),
     } as any;
     const toolDefinitions = [
       {
         name: 'web_search',
-        description: 'Busca web',
+        description: 'Web search',
         parameters: { type: 'object', properties: {}, required: [] },
       },
       {
         name: 'create_file',
-        description: 'Cria arquivo',
+        description: 'Create file',
         parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] },
       },
       {
         name: 'remote_shell',
-        description: 'Executa shell',
+        description: 'Run shell',
         parameters: { type: 'object', properties: {}, required: ['command'] },
       },
     ];
     const toolRuntime = {
       getToolDefinitions: jest.fn().mockReturnValue(toolDefinitions),
       executeTool: jest.fn()
-        .mockResolvedValueOnce('Contexto automatico de tendencias.')
-        .mockResolvedValueOnce('Tendencias encontradas.')
-        .mockResolvedValueOnce('Arquivo criado.'),
+        .mockResolvedValueOnce('Trends found.')
+        .mockResolvedValueOnce('File created.'),
     };
     const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    const response = await agent.chat('use ferramentas para pesquisar tendencias e montar um relatorio', undefined, {
+    // Full catalog is exposed (including remote_shell); model chooses which tools to call.
+    const response = await agent.chat('research market trends and create a report file with sources', undefined, {
       mode: 'direct',
     });
 
     expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual(expect.arrayContaining([
       expect.objectContaining({ name: 'web_search' }),
       expect.objectContaining({ name: 'create_file' }),
-    ]));
-    expect(llmRuntime.chatDetailed.mock.calls[0][1]).not.toEqual(expect.arrayContaining([
       expect.objectContaining({ name: 'remote_shell' }),
     ]));
     expect(toolRuntime.executeTool).toHaveBeenNthCalledWith(1, 'web_search', expect.objectContaining({
-      query: expect.stringContaining('pesquisar tendencias'),
-      limit: 8,
+      query: 'market trends',
     }));
     expect(toolRuntime.executeTool).toHaveBeenNthCalledWith(2, 'create_file', expect.objectContaining({
       filepath: 'reports/market.md',
-      content: '# Relatorio\n\nGrafico: ...',
-      metadata: expect.objectContaining({
-        sourceTrust: 'untrusted-content',
-        inputTrust: 'untrusted-content',
-      }),
+      content: '# Report\n\nChart: ...',
     }));
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(3);
-    expect(response.text).toBe('Relatorio completo criado em output/reports/market.md.');
+    expect(response.text).toBe('Full report created at output/reports/market.md.');
   });
 
-  it('auto-routes complex read-only requests to live subagents before the normal LLM path', async () => {
+  it('complex free-text stays on the LLM tool path (no keyword auto-subagent steal)', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn(() => true),
-      chatDetailed: jest.fn(),
-    } as any;
-    const subagentInvocationGateway = {
-      invokeFromTask: jest.fn().mockResolvedValue({
-        status: 'completed',
-        selectedRunId: 'run-1',
-        receipts: [],
-        timeline: [],
-        runs: [{
-          runId: 'run-1',
-          output: 'Auditoria concluida com achados priorizados.',
-          summary: 'Auditoria concluida.',
-          autoInvocation: {
-            selectedBy: 'implicit-complexity',
-            confidence: 0.9,
-            mode: 'oneshot',
-            roles: [{ roleId: 'auditor', whySelected: 'auditoria profunda' }],
-          },
-          workerResults: [{
-            status: 'completed',
-            roleId: 'auditor',
-            summary: 'Auditor revisou riscos sem mutar workspace.',
-            output: 'Sem mutacao.',
-          }],
-        }],
-        autoInvocationTelemetry: {
-          latest: {
-            selectedBy: 'implicit-complexity',
-            confidence: 0.9,
-            mode: 'oneshot',
-            roles: [{ roleId: 'auditor', whySelected: 'auditoria profunda' }],
-          },
+      chatDetailed: jest.fn().mockResolvedValue({
+        providerName: 'gemini',
+        response: {
+          content: 'I will use tools (e.g. zavorth_delegate / agent_manager) when a multi-agent team is needed.',
         },
       }),
-      renderReport: jest.fn(),
-    };
-    const agent = new ConversationalAgent({
-      llmRuntime,
-      subagentInvocationGateway,
-    } as any);
+    } as any;
+    const agent = new ConversationalAgent({ llmRuntime } as any);
 
-    const response = await agent.chat('faca uma auditoria profunda em todo o Zavorth, procure falhas e valide os achados');
+    const response = await agent.chat(
+      'do a deep audit of all of Zavorth, find failures and validate the findings',
+      undefined,
+      { mode: 'direct' },);
 
-    expect(subagentInvocationGateway.invokeFromTask).toHaveBeenCalledWith(expect.objectContaining({
-      live: true,
-      mode: 'oneshot',
-      roleIds: expect.arrayContaining(['planner', 'auditor', 'qa']),
-      maxLiveWorkers: expect.any(Number),
-      persistState: false,
-    }));
-    expect(llmRuntime.chatDetailed).not.toHaveBeenCalled();
-    expect(response.text).toMatch(/Acionei subagentes governados|I started governed subagents/i);
-    expect(response.text).toMatch(/Decisao: implicit-complexity|Decision: implicit-complexity/i);
-    expect(response.text).toMatch(/Papeis: auditor - auditoria profunda|Roles: auditor - auditoria profunda/i);
-    expect(response.text).toContain('Auditoria concluida com achados priorizados.');
+    expect(llmRuntime.chatDetailed).toHaveBeenCalled();
+    expect(response.text).toMatch(/tools|zavorth_delegate|agent_manager|multi-agent/i);
   });
 
-  it('keeps risky explicit subagent requests behind approval instead of running live', async () => {
+  it('explicit subagent free-text also reaches the LLM with brain tools available', async () => {
     const llmRuntime = {
       isProviderAvailable: jest.fn(() => true),
-      chatDetailed: jest.fn(),
-    } as any;
-    const subagentInvocationGateway = {
-      invokeFromTask: jest.fn().mockResolvedValue({
-        status: 'approval-required',
-        selectedRunId: null,
-        receipts: [{
-          reasons: ['workspace-mutation-or-command-requires-approval'],
-        }],
-        timeline: [],
-        runs: [],
+      chatDetailed: jest.fn().mockResolvedValue({
+        providerName: 'gemini',
+        response: {
+          content: 'Use zavorth_delegate or agent_manager for multi-agent work; mutations need approval.',
+        },
       }),
-      renderReport: jest.fn(),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([
+        { name: 'zavorth_delegate', description: 'Delegate to subagents', parameters: { type: 'object', properties: {}, required: [] } },
+        { name: 'agent_manager', description: 'Manage agents', parameters: { type: 'object', properties: {}, required: [] } },
+        { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {}, required: [] } },
+      ]),
+      executeTool: jest.fn(),
     };
-    const agent = new ConversationalAgent({
-      llmRuntime,
-      subagentInvocationGateway,
-    } as any);
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
 
-    const response = await agent.chat('use subagentes para editar os arquivos e aplicar patch no projeto');
+    const response = await agent.chat(
+      'use subagents to edit the files and apply a patch to the project',
+      undefined,
+      { mode: 'direct' },);
 
-    expect(subagentInvocationGateway.invokeFromTask).toHaveBeenCalledWith(expect.objectContaining({
-      live: false,
-      roleIds: expect.arrayContaining(['planner']),
-    }));
-    expect(llmRuntime.chatDetailed).not.toHaveBeenCalled();
-    expect(response.text).toMatch(/exige aprovacao|requires approval/i);
-    expect(response.text).toContain('workspace-mutation-or-command-requires-approval');
+    expect(llmRuntime.chatDetailed).toHaveBeenCalled();
+    const exposed = llmRuntime.chatDetailed.mock.calls[0][1]?.map((tool: any) => tool.name) || [];
+    expect(exposed).toEqual(expect.arrayContaining(['zavorth_delegate', 'agent_manager']));
+    expect(response.text).toMatch(/zavorth_delegate|agent_manager|approval/i);
   });
 });

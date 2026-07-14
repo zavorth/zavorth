@@ -58,14 +58,14 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
 
       <section id="operator-cockpit-card" class="handoff-card">
         <p class="profile-tag">Cockpit</p>
-        <h2>Cockpit do operador</h2>
+        <h2>Operator cockpit</h2>
         <p class="muted-copy section-note">
           Estes nove blocos sao a leitura canonica do Zavorth neste host: runtime, sessions, approvals, resources, companions, health, nodes, transports e integrations.
         </p>
         <div class="ops-summary-grid cockpit-summary-grid">
           <article id="cockpit-runtime-card" class="ops-summary-card cockpit-mini-card">
             <p class="profile-tag">Runtime</p>
-            <strong id="cockpit-runtime-state">Verificando</strong>
+            <strong id="cockpit-runtime-state">Checking</strong>
             <p id="cockpit-runtime-summary" class="muted-copy">
               O resumo do runtime aparece aqui assim que o host responder.
             </p>
@@ -176,7 +176,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             class="action-button secondary"
             data-copy=""
             hidden
-          >Copiar rota secundaria</button>
+          >Copy secundaria</button>
           <a id="priority-secondary-open" class="action-button secondary" href="#" hidden>Abrir rota secundaria</a>
         </div>
         <ul id="priority-next-steps" class="handoff-list compact">
@@ -191,7 +191,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run ops:go"
-            >Copiar rota Dev</button>
+            >Copy Dev</button>
           </article>
           <article class="priority-profile-card">
             <p class="profile-tag">Operator</p>
@@ -201,7 +201,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run ops:ready"
-            >Copiar rota Operator</button>
+            >Copy Operator</button>
           </article>
           <article class="priority-profile-card">
             <p class="profile-tag">Headless</p>
@@ -211,7 +211,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
               type="button"
               class="action-button secondary compact-action"
               data-copy="npm run cli -- status"
-            >Copiar rota Headless</button>
+            >Copy Headless</button>
           </article>
         </div>
       </section>
@@ -238,7 +238,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <article class="ops-summary-card">
             <p class="profile-tag">Chat</p>
             <strong><code>zavorth chat</code></strong>
-            <p class="muted-copy">Entra no terminal conversacional oficial.</p>
+            <p class="muted-copy">Enter the official conversational terminal.</p>
             <button id="product-command-chat" type="button" class="action-button secondary compact-action" data-copy="npm run cli -- chat">Copiar chat</button>
           </article>
           <article class="ops-summary-card">
@@ -287,7 +287,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <article class="profile-card">
             <p class="profile-tag">Headless</p>
             <h3 id="alt-headless-title">Use o Zavorth so por terminal</h3>
-            <p id="alt-headless-summary">Melhor para automacao local, REPL e operacao sem shell grafico.</p>
+            <p id="alt-headless-summary">Melhor para automacao local, REPL e operacao sem graphical shell.</p>
             <ul id="alt-headless-steps" class="handoff-list compact">
               <li><code>npm run cli -- status</code></li>
               <li><code>npm run cli:repl</code></li>
@@ -299,7 +299,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
       </section>
 
       <section class="handoff-card">
-        <h2>Desbloquear orientacoes do runtime</h2>
+        <h2>Desbloquear orientactions do runtime</h2>
         <p class="muted-copy">
           Valide o token para ver a recommendation oficial, a jornada de instalacao e o estado remoto deste host.
           The token does not leave this machine; it stays only in the current browser.
@@ -333,7 +333,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
             <li>Runtime do agente</li>
             <li>CLI e terminal oficiais</li>
             <li>API HTTP e SSE</li>
-            <li>Workflows, approvals, continuidade e artefatos</li>
+            <li>Workflows, approvals, continuity e artefatos</li>
           </ul>
         </article>
         <article class="handoff-card">
@@ -348,7 +348,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
         <article class="handoff-card">
           <h2>Snapshot rapido</h2>
           <ul class="handoff-list">
-            <li>Gateway: <strong id="gateway-status-detail">Verificando</strong></li>
+            <li>Gateway: <strong id="gateway-status-detail">Checking</strong></li>
             <li>Dominios inicializados: <strong id="gateway-domain-detail">Detectando</strong></li>
             <li>Nodes visiveis: <strong id="node-count-detail">Detectando</strong></li>
             <li>Transportes: <strong id="transport-count-detail">Detectando</strong></li>
@@ -358,7 +358,7 @@ export function buildRuntimeShellHtmlPart1(input: { externalWebClientUrl: string
           <h2>Fronteira do produto</h2>
           <ul class="handoff-list">
             <li><code>/zavorthControl</code> = entrada principal do Zavorth web</li>
-            <li><code>/satellite</code> = superficie movel/PWA quando configurada</li>
+            <li><code>/satellite</code> = superficie movel/PWA quando configured</li>
             <li><code>/api/*</code> = contrato de runtime para CLI, web e clientes futuros</li>
             <li><code>/app</code> e <code>/classic</code> = removidos; use <code>/zavorthControl</code></li>
             <li><code>zavorth-web</code> = cliente externo, quando configurado</li>

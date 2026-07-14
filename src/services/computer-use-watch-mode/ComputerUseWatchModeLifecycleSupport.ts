@@ -218,7 +218,7 @@ export class ComputerUseWatchModeLifecycleSupport {
           this.pushTimeline(run, {
             type: 'screenshot',
             summary: screenshotPath
-              ? `Screenshot capturado na iteracao ${snapshot.iteration}.`
+              ? `Screenshot capturado na iteraction ${snapshot.iteration}.`
               : `Screenshot indisponivel na iteracao ${snapshot.iteration}.`,
             iteration: snapshot.iteration,
             riskLevel: 'low',
@@ -311,7 +311,7 @@ export class ComputerUseWatchModeLifecycleSupport {
       run.status = 'cancelled';
       run.finishedAt = new Date().toISOString();
       run.updatedAt = run.finishedAt;
-      run.lastError = `Budget de duracao excedido (${budget.maxDurationMs}ms).`;
+      run.lastError = `Budget de duraction excedido (${budget.maxDurationMs}ms).`;
       run.pendingApprovalId = null;
       this.rejectPendingWaiters(run);
       this.cleanupRunArtifacts(run);
@@ -545,7 +545,7 @@ export class ComputerUseWatchModeLifecycleSupport {
 
   private buildPlannedSummary(action: ComputerUseAction, iteration: number): string {
     const suffix = action.targetText || action.payload || action.windowTitle || 'sem alvo textual';
-    return `Iteracao ${iteration}: agente planejou ${action.action} (${suffix}).`;
+    return `Iteraction ${iteration}: agente planejou ${action.action} (${suffix}).`;
   }
 
   private buildFinishSummary(status: WatchModeRunStatus, error: string | null): string {

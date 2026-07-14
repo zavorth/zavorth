@@ -1,30 +1,10 @@
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { createHash } from 'crypto';
-import {
-  firstArg,
-  readFlag,
-  stateDir,
-  readArray,
-  readJson,
-  writeJson,
-  appendJsonArray,
-  idWithTime,
-  runProcess,
-  render,
-  splitList,
-  walkFiles,
-  isInside,
-  safeString
-} from '../ZavorthCliSharedHelpers.js';
-import {
-  idFromSpec,
-  resolveNpmCommand
-} from '../ZavorthCliLiveNamespaces.js';
+import { firstArg, readFlag, stateDir, readArray, readJson, writeJson, appendJsonArray, idWithTime, runProcess, render, isInside } from '../ZavorthCliSharedHelpers.js';
+import { idFromSpec, resolveNpmCommand } from '../ZavorthCliLiveNamespaces.js';
 import { PluginStateBridgeService } from '../../services/PluginStateBridgeService.js';
 import { PluginDiscoveryService } from '../../services/PluginDiscoveryService.js';
-import { PluginScaffoldService } from '../../services/PluginScaffoldService.js';
 import { PluginDevService, formatSnapshotText } from '../../services/PluginDevService.js';
 import { PluginUrlInstallService } from '../../services/PluginUrlInstallService.js';
 import { PluginTestHarnessService } from '../../services/PluginTestHarnessService.js';
@@ -45,59 +25,32 @@ import { PluginOsPromptInjectionService } from '../../services/PluginOsPromptInj
 import { PluginOsSuggestService } from '../../services/PluginOsSuggestService.js';
 import { PluginOsReceiptTimelineService } from '../../services/PluginOsReceiptTimelineService.js';
 import { PluginOsPermissionPreviewService } from '../../services/PluginOsPermissionPreviewService.js';
-
+import {
+  buildPluginRecord,
+  calculatePluginChecksum,
+  doctorPlugin,
+  findPlugin,
+  isLocalPluginSpec,
+  normalizePermissions,
+  pluginPermissionLines,
+  pluginSandboxForPermissions,
+  resolvePluginPath,
+  resolveScaffoldOptions,
+  runPluginHook,
+  sanitizePluginRecord,
+  scaffoldPlugin,
+  writePluginRuntimeState,
+} from './ZavorthCliPluginsHelpers.js';
+import { PLUGIN_HELP_LINES } from './ZavorthCliPluginsHelp.js';
 type JsonObject = Record<string, unknown>;
-
-const PLUGIN_HELP_LINES = [
-  'Zavorth Plugin OS commands (alias: zavorth plugin ...):',
-  '  list                         Show local + bridged Plugin OS state',
-  '  install <path|url|marketplace:id> [--yes] [--enable]',
-  '  uninstall <id> [--yes]       Remove bridge state + .zavorth/plugins package',
-  '  enable|disable <id> [--yes]',
-  '  inspect <id>                 Bridge + discovery detail',
-  '  preview <id>                 Permission / risk preview (never auto-enables)',
-  '  doctor [id]                  Validation / eligibility checks',
-  '  marketplace|search [query] [--curated] [--remote]  Unified catalog (curated+bundled+remote)',
-  '  marketplace show <id>        Preview install path (bundled copy / URL / materialize)',
-  '  marketplace install <id> [--yes] [--enable]  Install from marketplace catalog',
-  '  marketplace refresh-remote   Fetch ZAVORTH_PLUGIN_MARKETPLACE_URL into cache',
-  '  create <id> --kind <kind> [--dir path] [--yes]  Scaffold via create-zavorth-plugin',
-  '  new <id> [--kind tool] [--run] [--yes]   Minimal ping scaffold (+ install/enable with --run)',
-  '  recommend <intent> [--limit N] [--llm]   Rank plugins for an intent (no auto-enable)',
-  '  suggest <intent>                 Suggest-to-enable (Enable vs Recommend-only CTAs)',
-  '  receipts [limit]                 Human activity timeline (forge/enable/onboarding)',
-  '  inject-mode [compact|standard|full|ab|off] [--sample N]  Prompt inject prefs',
-  '  forge [plan] "<intent>" [--id id] [--apply --yes] [--enable]',
-  '  forge apply <previewDir|id> --yes [--enable]',
-  '  mcp list|status [serverId]   List configured MCP servers',
-  '  mcp materialize <serverId> --yes [--force]',
-  '  dev <path> [--watch] [--write-manifest] [--watch-ms N] [--trust review|trusted]',
-  '  scaffold <id> --yes [--kind tool|channel|memory|provider|agent|diagnostics] [--ts]',
-  '  trust <id> <review|trusted|blocked> [--yes]',
-  '  sign <path> [--yes]          Write SIGNATURE (sha256 + ed25519 if private key set)',
-  '  os|runtime                   Discovery + bridge snapshot',
-  '  plane|status                 Control-plane summary (includes metrics + curated catalog)',
-  '  metrics [--persist]          Load funnel / marketplace / MCP observability',
-  '  telemetry [windowHours]      Aggregated Plugin OS telemetry rollup',
-  '  agent-surface [--inject]     Compact catalog block for agent prompts',
-  '  onboarding status|plan|apply|undo [profile] [--optional id,id] [--yes] [--force]',
-  '  wizard [start|next|back|profile|optional|inject|apply|show]  Multi-step onboarding wizard',
-  '  telemetry history [--hours N] [--bucket N]   Time-series buckets',
-  '  test <path>                  Run Plugin OS test harness',
-  '  create-plugin                Alias of create (third-party scaffold CLI)',
-  '',
-  'Env: ZAVORTH_PLUGIN_WATCH=1  ZAVORTH_PLUGIN_REQUIRE_SIGNATURE=1',
-  '     ZAVORTH_PLUGIN_HMAC_SECRET=...  ZAVORTH_LOCALE=pt-BR',
-  '     ZAVORTH_PLUGIN_ED25519_PUBLIC_KEY=...  ZAVORTH_PLUGIN_ED25519_PRIVATE_KEY=...',
-  '     ZAVORTH_PLUGIN_DEV=1  ZAVORTH_PLUGIN_ROUTER_LLM=1  ZAVORTH_PLUGIN_FORGE_LLM=1',
-  '     ZAVORTH_PLUGIN_OS_BOOTSTRAP=0  ZAVORTH_PLUGIN_OS_RUNTIME=0',
-  '     ZAVORTH_PLUGIN_OS_PROMPT=0     Disable agent system-prompt injection',
-];
 
 export async function runPlugins(root: string, args: string[]) {
   const action = firstArg(args, 'list');
-  const pkg = await readJson(path.join(root, 'package.json'), {}) as JsonObject;
-  const deps = Object.keys({ ...((pkg.dependencies as JsonObject) || {}), ...((pkg.devDependencies as JsonObject) || {}) });
+  const pkg = (await readJson(path.join(root, 'package.json'), {})) as JsonObject;
+  const deps = Object.keys({
+    ...((pkg.dependencies as JsonObject) || {}),
+    ...((pkg.devDependencies as JsonObject) || {}),
+  });
   const pluginFile = path.join(stateDir(root), 'plugins.json');
   const local = await readArray(pluginFile);
   const runtimeFile = path.join(stateDir(root), 'plugins-runtime.json');
@@ -121,10 +74,7 @@ export async function runPlugins(root: string, args: string[]) {
     const persist = args.includes('--persist') || args.includes('--write');
     if (persist) {
       const written = observability.persistSnapshot(root);
-      return render(args, 'Zavorth plugin metrics', [
-        ...written.snapshot.formatText().split('\n'),
-        written.path ? `persisted: ${written.path}` : 'persist soft-failed',
-      ], {
+      return render(args, 'Zavorth plugin metrics', [...written.snapshot.formatText().split('\n'), written.path ? `persisted: ${written.path}` : 'persist soft-failed'], {
         ok: written.ok,
         metrics: written.snapshot,
         path: written.path,
@@ -145,10 +95,7 @@ export async function runPlugins(root: string, args: string[]) {
         root,
         recordTelemetry: true,
       });
-      return render(args, 'Zavorth plugin agent surface (inject)', [
-        `injected=${injection.injected} reason=${injection.reason}`,
-        injection.block || '(empty)',
-      ], {
+      return render(args, 'Zavorth plugin agent surface (inject)', [`injected=${injection.injected} reason=${injection.reason}`, injection.block || '(empty)'], {
         ok: injection.injected,
         injection,
         surface: {
@@ -173,7 +120,9 @@ export async function runPlugins(root: string, args: string[]) {
   }
 
   if (action === 'telemetry') {
-    const sub = String(args[1] || '').trim().toLowerCase();
+    const sub = String(args[1] || '')
+      .trim()
+      .toLowerCase();
     const telemetry = new PluginOsTelemetryService({ projectRoot: root });
     if (sub === 'history') {
       const windowHours = Number(readFlag(args, 'hours') || 168) || 168;
@@ -201,13 +150,15 @@ export async function runPlugins(root: string, args: string[]) {
       projectRoot: root,
       onboarding: new PluginOsOnboardingService({ projectRoot: root, stateBridge: bridge }),
     });
-    const sub = String(args[1] || 'start').trim().toLowerCase();
+    const sub = String(args[1] || 'start')
+      .trim()
+      .toLowerCase();
     const stateFile = path.join(stateDir(root), 'plugin-os-wizard.json');
 
     const loadWizardState = async () => {
       if (!existsSync(stateFile)) return wizard.start({ root });
       try {
-        const raw = await readJson(stateFile, null) as any;
+        const raw = (await readJson(stateFile, null)) as any;
         if (!raw || !raw.step) return wizard.start({ root });
         // rebuild from saved fields
         let state = wizard.start({
@@ -267,7 +218,9 @@ export async function runPlugins(root: string, args: string[]) {
     if (sub === 'profile') {
       const profile = String(args[2] || readFlag(args, 'profile') || '').trim();
       if (!profile) {
-        return render(args, 'Zavorth plugin wizard', ['Usage: wizard profile <minimal|core|recommended|full>'], { ok: false });
+        return render(args, 'Zavorth plugin wizard', ['Usage: wizard profile <minimal|core|recommended|full>'], {
+          ok: false,
+        });
       }
       state = wizard.setProfile(state, profile, { root });
       await saveWizardState(state);
@@ -292,35 +245,35 @@ export async function runPlugins(root: string, args: string[]) {
     }
     if (sub === 'apply' || sub === 'finish') {
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugin wizard', [
-          'Preview only — pass --yes to apply.',
-          ...state.formatText().split('\n'),
-        ], { ok: false, dryRun: true, state });
+        return render(args, 'Zavorth plugin wizard', ['Preview only — pass --yes to apply.', ...state.formatText().split('\n')], { ok: false, dryRun: true, state });
       }
       const applied = wizard.apply(state, { root, approved: true, force: args.includes('--force') });
       await saveWizardState(applied.state);
-      return render(args, 'Zavorth plugin wizard apply', [
-        ...applied.result.formatText().split('\n'),
-        '',
-        ...applied.state.formatText().split('\n'),
-      ], { ok: applied.result.ok, result: applied.result, state: applied.state });
+      return render(args, 'Zavorth plugin wizard apply', [...applied.result.formatText().split('\n'), '', ...applied.state.formatText().split('\n')], { ok: applied.result.ok, result: applied.result, state: applied.state });
     }
 
-    return render(args, 'Zavorth plugin wizard', [
-      'Usage:',
-      '  zavorth plugins wizard start',
-      '  zavorth plugins wizard next|back|show',
-      '  zavorth plugins wizard profile recommended',
-      '  zavorth plugins wizard optional gmail',
-      '  zavorth plugins wizard optional gmail --off',
-      '  zavorth plugins wizard inject compact|standard|full|ab|off [--sample 50]',
-      '  zavorth plugins wizard apply --yes',
-    ], { ok: false });
+    return render(
+      args,
+      'Zavorth plugin wizard',
+      [
+        'Usage:',
+        '  zavorth plugins wizard start',
+        '  zavorth plugins wizard next|back|show',
+        '  zavorth plugins wizard profile recommended',
+        '  zavorth plugins wizard optional gmail',
+        '  zavorth plugins wizard optional gmail --off',
+        '  zavorth plugins wizard inject compact|standard|full|ab|off [--sample 50]',
+        '  zavorth plugins wizard apply --yes',
+      ],
+      { ok: false },
+    );
   }
 
   if (action === 'onboarding' || action === 'onboard') {
     const onboarding = new PluginOsOnboardingService({ projectRoot: root, stateBridge: bridge });
-    const sub = String(args[1] || 'status').trim().toLowerCase();
+    const sub = String(args[1] || 'status')
+      .trim()
+      .toLowerCase();
     if (sub === 'status' || sub === 'show') {
       const status = onboarding.status(root);
       return render(args, 'Zavorth plugin onboarding', status.formatText().split('\n'), {
@@ -332,7 +285,10 @@ export async function runPlugins(root: string, args: string[]) {
       const profile = String(args[2] || readFlag(args, 'profile') || '').trim() || undefined;
       const optionalRaw = readFlag(args, 'optional') || readFlag(args, 'opt') || '';
       const optionalIds = optionalRaw
-        ? String(optionalRaw).split(/[,\s]+/u).map((id) => id.trim()).filter(Boolean)
+        ? String(optionalRaw)
+            .split(/[,\s]+/u)
+            .map((id) => id.trim())
+            .filter(Boolean)
         : [];
       const plan = onboarding.plan(profile, { root, optionalIds });
       return render(args, 'Zavorth plugin onboarding plan', plan.formatText().split('\n'), {
@@ -344,14 +300,14 @@ export async function runPlugins(root: string, args: string[]) {
       const profile = String(args[2] || readFlag(args, 'profile') || '').trim() || undefined;
       const optionalRaw = readFlag(args, 'optional') || readFlag(args, 'opt') || '';
       const optionalIds = optionalRaw
-        ? String(optionalRaw).split(/[,\s]+/u).map((id) => id.trim()).filter(Boolean)
+        ? String(optionalRaw)
+            .split(/[,\s]+/u)
+            .map((id) => id.trim())
+            .filter(Boolean)
         : [];
       if (!args.includes('--yes')) {
         const plan = onboarding.plan(profile, { root, optionalIds });
-        return render(args, 'Zavorth plugin onboarding apply', [
-          'Preview only — pass --yes to apply.',
-          ...plan.formatText().split('\n'),
-        ], { ok: false, dryRun: true, plan });
+        return render(args, 'Zavorth plugin onboarding apply', ['Preview only — pass --yes to apply.', ...plan.formatText().split('\n')], { ok: false, dryRun: true, plan });
       }
       const result = onboarding.apply(profile, {
         root,
@@ -367,14 +323,17 @@ export async function runPlugins(root: string, args: string[]) {
     if (sub === 'undo' || sub === 'revert') {
       if (!args.includes('--yes')) {
         const status = onboarding.status(root);
-        return render(args, 'Zavorth plugin onboarding undo', [
-          'Preview only — pass --yes to disable plugins enabled by last onboarding.',
-          'Does not delete packages.',
-          ...status.formatText().split('\n'),
-          status.enabledIds?.length
-            ? `would disable: ${status.enabledIds.join(', ')}`
-            : 'would disable: (no enabledIds recorded)',
-        ], { ok: false, dryRun: true, status });
+        return render(
+          args,
+          'Zavorth plugin onboarding undo',
+          [
+            'Preview only — pass --yes to disable plugins enabled by last onboarding.',
+            'Does not delete packages.',
+            ...status.formatText().split('\n'),
+            status.enabledIds?.length ? `would disable: ${status.enabledIds.join(', ')}` : 'would disable: (no enabledIds recorded)',
+          ],
+          { ok: false, dryRun: true, status },
+        );
       }
       const result = onboarding.undo({ root, approved: true });
       return render(args, 'Zavorth plugin onboarding undo', result.formatText().split('\n'), {
@@ -382,94 +341,96 @@ export async function runPlugins(root: string, args: string[]) {
         result,
       });
     }
-    return render(args, 'Zavorth plugin onboarding', [
-      'Usage:',
-      '  zavorth plugins onboarding status',
-      '  zavorth plugins onboarding plan [minimal|core|recommended|full] [--optional gmail,linear]',
-      '  zavorth plugins onboarding apply [profile] [--optional gmail] --yes [--force]',
-      '  zavorth plugins onboarding undo --yes',
-    ], { ok: false });
+    return render(
+      args,
+      'Zavorth plugin onboarding',
+      [
+        'Usage:',
+        '  zavorth plugins onboarding status',
+        '  zavorth plugins onboarding plan [minimal|core|recommended|full] [--optional gmail,linear]',
+        '  zavorth plugins onboarding apply [profile] [--optional gmail] --yes [--force]',
+        '  zavorth plugins onboarding undo --yes',
+      ],
+      { ok: false },
+    );
   }
 
   if (action === 'sign') {
     const pluginPath = args[1] || readFlag(args, 'path') || readFlag(args, 'dir') || '';
     if (!pluginPath) {
-      return render(args, 'Zavorth plugin sign', [
-        'Usage: zavorth plugins sign <path> [--yes]',
-        'Writes SIGNATURE with sha256=... and ed25519=... when ZAVORTH_PLUGIN_ED25519_PRIVATE_KEY is set.',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin sign', ['Usage: zavorth plugins sign <path> [--yes]', 'Writes SIGNATURE with sha256=... and ed25519=... when ZAVORTH_PLUGIN_ED25519_PRIVATE_KEY is set.'], { ok: false });
     }
     const target = path.resolve(root, pluginPath);
     if (!existsSync(target)) {
       return render(args, 'Zavorth plugin sign', [`Path not found: ${target}`], { ok: false });
     }
     if (!args.includes('--yes')) {
-      return render(args, 'Zavorth plugin sign', [
-        `Preview sign: ${target}`,
-        'Will write SIGNATURE (sha256 + ed25519 if private key is configured).',
-        'Add --yes to write the sidecar.',
-      ], { dryRun: true, path: target });
+      return render(args, 'Zavorth plugin sign', [`Preview sign: ${target}`, 'Will write SIGNATURE (sha256 + ed25519 if private key is configured).', 'Add --yes to write the sidecar.'], { dryRun: true, path: target });
     }
     const signatureService = new PluginSignatureService();
     const signed = signatureService.signPackage(target, { yes: true });
-    return render(args, 'Zavorth plugin sign', [
-      signed.ok ? `Signed: ${signed.packageDir}` : `Sign failed: ${signed.packageDir}`,
-      `Checksum: ${signed.packageChecksum || 'none'}`,
-      `SIGNATURE: ${signed.signaturePath}`,
-      `ed25519: ${signed.ed25519 ? 'yes' : 'no (private key not set)'}`,
-      ...signed.findings.map((line) => `  - ${line}`),
-    ], { ok: signed.ok, result: signed });
+    return render(
+      args,
+      'Zavorth plugin sign',
+      [
+        signed.ok ? `Signed: ${signed.packageDir}` : `Sign failed: ${signed.packageDir}`,
+        `Checksum: ${signed.packageChecksum || 'none'}`,
+        `SIGNATURE: ${signed.signaturePath}`,
+        `ed25519: ${signed.ed25519 ? 'yes' : 'no (private key not set)'}`,
+        ...signed.findings.map((line) => `  - ${line}`),
+      ],
+      { ok: signed.ok, result: signed },
+    );
   }
 
   if (action === 'test') {
     const pluginPath = args[1] || readFlag(args, 'path') || readFlag(args, 'dir') || '';
     if (!pluginPath) {
-      return render(args, 'Zavorth plugin test', [
-        'Usage: zavorth plugins test <path>',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin test', ['Usage: zavorth plugins test <path>'], { ok: false });
     }
     const harness = new PluginTestHarnessService({ stateBridge: bridge });
     const result = await harness.run({ root, pluginPath });
-    const lines = [
-      `Plugin test: ${result.pluginId || '<unknown>'}`,
-      `Path: ${result.pluginPath}`,
-      `ok=${result.ok}`,
-      ...result.results.map((item) => `  ${item.ok ? 'ok' : 'fail'} ${item.name}: ${item.detail}`),
-    ];
+    const lines = [`Plugin test: ${result.pluginId || '<unknown>'}`, `Path: ${result.pluginPath}`, `ok=${result.ok}`, ...result.results.map((item) => `  ${item.ok ? 'ok' : 'fail'} ${item.name}: ${item.detail}`)];
     return render(args, 'Zavorth plugin test', lines, { ok: result.ok, result });
   }
 
   if (action === 'new') {
     const id = idFromSpec(args[1] || readFlag(args, 'id') || '');
     if (!id) {
-      return render(args, 'Zavorth plugin new', [
-        'Usage: zavorth plugins new <id> [--kind tool] [--run] [--yes]',
-        'Creates plugins/<id> with a minimal main.ping template.',
-        '--run implies --yes and enables trust=trusted (local dev preset).',
-      ], { ok: false });
+      return render(
+        args,
+        'Zavorth plugin new',
+        ['Usage: zavorth plugins new <id> [--kind tool] [--run] [--yes]', 'Creates plugins/<id> with a minimal main.ping template.', '--run implies --yes and enables trust=trusted (local dev preset).'],
+        { ok: false },
+      );
     }
     const kind = String(readFlag(args, 'kind') || readFlag(args, 'module-kind') || 'tool').trim() || 'tool';
     const run = args.includes('--run');
     const yes = args.includes('--yes') || run;
-    const targetDir = path.resolve(root, readFlag(args, 'dir') || path.join('plugins', id));
+    const targetDir = path.resolve(root, readFlag(args, 'dir') || id);
     if (!isInside(root, targetDir)) {
       return render(args, 'Zavorth plugin new', ['Refusing to create plugin outside the workspace.'], { ok: false });
     }
     if (!yes) {
-      return render(args, 'Zavorth plugin new', [
-        `Preview new plugin: ${id}`,
-        `Target: ${targetDir}`,
-        `Kind: ${kind}`,
-        'Files: manifest.json, index.js (main.ping), package.json, README.md',
-        run ? 'Mode: --run (scaffold + install + enable trusted)' : 'Mode: scaffold only (use --run to install/enable)',
-        'Add --yes or --run to execute.',
-      ], {
-        dryRun: true,
-        id,
-        targetDir,
-        kind,
-        run,
-      });
+      return render(
+        args,
+        'Zavorth plugin new',
+        [
+          `Preview new plugin: ${id}`,
+          `Target: ${targetDir}`,
+          `Kind: ${kind}`,
+          'Files: manifest.json, index.js (main.ping), package.json, README.md',
+          run ? 'Mode: --run (scaffold + install + enable trusted)' : 'Mode: scaffold only (use --run to install/enable)',
+          'Add --yes or --run to execute.',
+        ],
+        {
+          dryRun: true,
+          id,
+          targetDir,
+          kind,
+          run,
+        },
+      );
     }
     // --run implies yes and performs install+enable; bare --yes scaffolds only.
     const result = await new PluginNewService({ stateBridge: bridge }).run({
@@ -486,12 +447,16 @@ export async function runPlugins(root: string, args: string[]) {
   }
 
   if (action === 'suggest') {
-    const intent = String(args.slice(1).filter((a) => !String(a).startsWith('--')).join(' ') || readFlag(args, 'intent') || '').trim();
+    const intent = String(
+      args
+        .slice(1)
+        .filter((a) => !String(a).startsWith('--'))
+        .join(' ') ||
+        readFlag(args, 'intent') ||
+        '',
+    ).trim();
     if (!intent) {
-      return render(args, 'Zavorth plugin suggest', [
-        'Usage: zavorth plugins suggest "<intent>"',
-        'Never auto-enables — shows Enable vs Recommend-only actions.',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin suggest', ['Usage: zavorth plugins suggest "<intent>"', 'Never auto-enables — shows Enable vs Recommend-only actions.'], { ok: false });
     }
     const result = await new PluginOsSuggestService({ projectRoot: root, stateBridge: bridge }).suggest({
       root,
@@ -519,30 +484,34 @@ export async function runPlugins(root: string, args: string[]) {
     const injection = new PluginOsPromptInjectionService({ projectRoot: root });
     if (!mode) {
       const prefs = injection.loadPrefs(root);
-      return render(args, 'Zavorth plugin inject-mode', [
-        `mode=${prefs.injectMode}`,
-        `sample=${prefs.injectSamplePercent}%`,
-        prefs.updatedAt ? `updated=${prefs.updatedAt}` : null,
-        'Default product mode is compact. full/ab need ZAVORTH_PLUGIN_OS_PROMPT_ALLOW_FULL=1 in production.',
-      ].filter(Boolean) as string[], { ok: true, injectPrefs: prefs });
+      return render(
+        args,
+        'Zavorth plugin inject-mode',
+        [
+          `mode=${prefs.injectMode}`,
+          `sample=${prefs.injectSamplePercent}%`,
+          prefs.updatedAt ? `updated=${prefs.updatedAt}` : null,
+          'Default product mode is compact. full/ab need ZAVORTH_PLUGIN_OS_PROMPT_ALLOW_FULL=1 in production.',
+        ].filter(Boolean) as string[],
+        { ok: true, injectPrefs: prefs },
+      );
     }
     const sample = Number(readFlag(args, 'sample') || 100) || 100;
-    const saved = injection.savePrefs({
-      injectMode: mode as any,
-      injectSamplePercent: sample,
-    }, root);
-    return render(args, 'Zavorth plugin inject-mode', [
-      `saved mode=${saved.injectMode} sample=${saved.injectSamplePercent}%`,
-    ], { ok: true, injectPrefs: saved });
+    const saved = injection.savePrefs(
+      {
+        injectMode: mode as any,
+        injectSamplePercent: sample,
+      },
+      root,
+    );
+    return render(args, 'Zavorth plugin inject-mode', [`saved mode=${saved.injectMode} sample=${saved.injectSamplePercent}%`], { ok: true, injectPrefs: saved });
   }
 
   if (action === 'recommend') {
     const intentParts = args.slice(1).filter((part) => !part.startsWith('--'));
     const intent = intentParts.join(' ').trim() || String(readFlag(args, 'intent') || readFlag(args, 'query') || '').trim();
     if (!intent) {
-      return render(args, 'Zavorth plugin recommend', [
-        'Usage: zavorth plugins recommend "<intent>" [--limit N] [--llm]',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin recommend', ['Usage: zavorth plugins recommend "<intent>" [--limit N] [--llm]'], { ok: false });
     }
     const limitRaw = readFlag(args, 'limit');
     const limit = limitRaw ? Number(limitRaw) : 5;
@@ -561,24 +530,24 @@ export async function runPlugins(root: string, args: string[]) {
 
   if (action === 'forge') {
     const forge = new PluginForgeService({ projectRoot: root, stateBridge: bridge });
-    const sub = String(args[1] || '').trim().toLowerCase();
+    const sub = String(args[1] || '')
+      .trim()
+      .toLowerCase();
     const isApply = sub === 'apply';
     const isPlan = sub === 'plan' || sub === '';
 
     if (isApply) {
       const previewRef = args[2] || readFlag(args, 'preview') || readFlag(args, 'dir') || readFlag(args, 'id') || '';
       if (!previewRef) {
-        return render(args, 'Zavorth plugin forge apply', [
-          'Usage: zavorth plugins forge apply <previewDir|id> --yes [--enable]',
-        ], { ok: false });
+        return render(args, 'Zavorth plugin forge apply', ['Usage: zavorth plugins forge apply <previewDir|id> --yes [--enable]'], { ok: false });
       }
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugin forge apply', [
-          `Preview apply: ${previewRef}`,
-          'Will copy forge preview into .zavorth/plugins/<id> (or plugins/ with --bundled).',
-          'Does not auto-enable unless --enable.',
-          'Add --yes to apply (approved).',
-        ], { dryRun: true, previewRef });
+        return render(
+          args,
+          'Zavorth plugin forge apply',
+          [`Preview apply: ${previewRef}`, 'Will copy forge preview into .zavorth/plugins/<id> (or plugins/ with --bundled).', 'Does not auto-enable unless --enable.', 'Add --yes to apply (approved).'],
+          { dryRun: true, previewRef },
+        );
       }
       const result = await forge.apply(previewRef, {
         approved: true,
@@ -593,16 +562,15 @@ export async function runPlugins(root: string, args: string[]) {
     }
 
     // plan (default) or forge "<intent>" [--apply --yes]
-    const intentParts = (sub === 'plan' ? args.slice(2) : args.slice(1))
-      .filter((part) => !part.startsWith('--'));
-    const intent = intentParts.join(' ').trim()
-      || String(readFlag(args, 'intent') || readFlag(args, 'query') || '').trim();
+    const intentParts = (sub === 'plan' ? args.slice(2) : args.slice(1)).filter((part) => !part.startsWith('--'));
+    const intent = intentParts.join(' ').trim() || String(readFlag(args, 'intent') || readFlag(args, 'query') || '').trim();
     if (!intent && isPlan) {
-      return render(args, 'Zavorth plugin forge', [
-        'Usage: zavorth plugins forge plan "<intent>" [--id my-id]',
-        '       zavorth plugins forge "<intent>" [--apply --yes] [--enable]',
-        '       zavorth plugins forge apply <previewDir|id> --yes [--enable]',
-      ], { ok: false });
+      return render(
+        args,
+        'Zavorth plugin forge',
+        ['Usage: zavorth plugins forge plan "<intent>" [--id my-id]', '       zavorth plugins forge "<intent>" [--apply --yes] [--enable]', '       zavorth plugins forge apply <previewDir|id> --yes [--enable]'],
+        { ok: false },
+      );
     }
     const plan = await forge.plan(intent, {
       id: readFlag(args, 'id') || undefined,
@@ -615,11 +583,7 @@ export async function runPlugins(root: string, args: string[]) {
       });
     }
     if (!args.includes('--yes')) {
-      return render(args, 'Zavorth plugin forge', [
-        ...plan.formatText().split('\n'),
-        '',
-        'Plan ready. Add --apply --yes to materialize the package.',
-      ], { ok: plan.ok, dryRun: true, result: plan });
+      return render(args, 'Zavorth plugin forge', [...plan.formatText().split('\n'), '', 'Plan ready. Add --apply --yes to materialize the package.'], { ok: plan.ok, dryRun: true, result: plan });
     }
     if (!plan.ok) {
       return render(args, 'Zavorth plugin forge', plan.formatText().split('\n'), {
@@ -633,21 +597,17 @@ export async function runPlugins(root: string, args: string[]) {
       root,
       target: args.includes('--bundled') ? 'plugins' : 'zavorth',
     });
-    return render(args, 'Zavorth plugin forge', [
-      ...plan.formatText().split('\n'),
-      '',
-      ...applied.formatText().split('\n'),
-    ], { ok: plan.ok && applied.ok, plan, apply: applied });
+    return render(args, 'Zavorth plugin forge', [...plan.formatText().split('\n'), '', ...applied.formatText().split('\n')], { ok: plan.ok && applied.ok, plan, apply: applied });
   }
 
   if (action === 'mcp') {
     const mcp = new PluginMcpBridgeService({ projectRoot: root });
-    const sub = String(args[1] || 'list').trim().toLowerCase();
+    const sub = String(args[1] || 'list')
+      .trim()
+      .toLowerCase();
     if (sub === 'list' || sub === 'ls') {
       const servers = mcp.listServers({ root });
-      const lines = servers.length
-        ? servers.map((server) => `- ${server.id} enabled=${server.enabled} | ${server.summary}`)
-        : ['No MCP servers found in config/mcp-servers.json'];
+      const lines = servers.length ? servers.map((server) => `- ${server.id} enabled=${server.enabled} | ${server.summary}`) : ['No MCP servers found in config/mcp-servers.json'];
       return render(args, 'Zavorth plugin mcp list', lines, {
         ok: true,
         servers,
@@ -657,41 +617,35 @@ export async function runPlugins(root: string, args: string[]) {
       const serverId = args[2] || readFlag(args, 'id') || readFlag(args, 'server') || '';
       const servers = mcp.listServers({ root });
       if (!serverId) {
-        return render(args, 'Zavorth plugin mcp status', [
-          `configured=${servers.length}`,
-          ...servers.map((server) => `- ${server.id} enabled=${server.enabled}`),
-        ], { ok: true, servers });
+        return render(args, 'Zavorth plugin mcp status', [`configured=${servers.length}`, ...servers.map((server) => `- ${server.id} enabled=${server.enabled}`)], { ok: true, servers });
       }
       const hit = servers.find((server) => server.id === serverId);
       if (!hit) {
-        return render(args, 'Zavorth plugin mcp status', [
-          `MCP server not found: ${serverId}`,
-          `Known: ${servers.map((s) => s.id).join(', ') || 'none'}`,
-        ], { ok: false });
+        return render(args, 'Zavorth plugin mcp status', [`MCP server not found: ${serverId}`, `Known: ${servers.map((s) => s.id).join(', ') || 'none'}`], { ok: false });
       }
-      return render(args, 'Zavorth plugin mcp status', [
-        `id: ${hit.id}`,
-        `enabled: ${hit.enabled}`,
-        `command: ${hit.command || 'n/a'}`,
-        `capability: ${hit.capability || 'n/a'}`,
-        hit.enabled
-          ? 'Server is enabled in config/mcp-servers.json'
-          : `Enable MCP server ${hit.id} in config/mcp-servers.json`,
-      ], { ok: true, server: hit });
+      return render(
+        args,
+        'Zavorth plugin mcp status',
+        [
+          `id: ${hit.id}`,
+          `enabled: ${hit.enabled}`,
+          `command: ${hit.command || 'n/a'}`,
+          `capability: ${hit.capability || 'n/a'}`,
+          hit.enabled ? 'Server is enabled in config/mcp-servers.json' : `Enable MCP server ${hit.id} in config/mcp-servers.json`,
+        ],
+        { ok: true, server: hit },
+      );
     }
     if (sub === 'materialize' || sub === 'create') {
       const serverId = args[2] || readFlag(args, 'id') || readFlag(args, 'server') || '';
       if (!serverId) {
-        return render(args, 'Zavorth plugin mcp materialize', [
-          'Usage: zavorth plugins mcp materialize <serverId> --yes [--force]',
-        ], { ok: false });
+        return render(args, 'Zavorth plugin mcp materialize', ['Usage: zavorth plugins mcp materialize <serverId> --yes [--force]'], { ok: false });
       }
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugin mcp materialize', [
-          `Preview materialize bridge for MCP server: ${serverId}`,
-          'Writes .zavorth/plugins/mcp-<id>/ with mcp.invoke + mcp.status.',
-          'Add --yes to write the package.',
-        ], { dryRun: true, serverId });
+        return render(args, 'Zavorth plugin mcp materialize', [`Preview materialize bridge for MCP server: ${serverId}`, 'Writes .zavorth/plugins/mcp-<id>/ with mcp.invoke + mcp.status.', 'Add --yes to write the package.'], {
+          dryRun: true,
+          serverId,
+        });
       }
       const result = mcp.materializeBridgePlugin(serverId, {
         root,
@@ -702,23 +656,18 @@ export async function runPlugins(root: string, args: string[]) {
         result,
       });
     }
-    return render(args, 'Zavorth plugin mcp', [
-      'Usage:',
-      '  zavorth plugins mcp list',
-      '  zavorth plugins mcp status [serverId]',
-      '  zavorth plugins mcp materialize <serverId> --yes [--force]',
-    ], { ok: false });
+    return render(args, 'Zavorth plugin mcp', ['Usage:', '  zavorth plugins mcp list', '  zavorth plugins mcp status [serverId]', '  zavorth plugins mcp materialize <serverId> --yes [--force]'], { ok: false });
   }
 
   if (action === 'dev') {
     const pluginPath = args[1] || readFlag(args, 'path') || readFlag(args, 'dir') || '';
     if (!pluginPath) {
-      return render(args, 'Zavorth plugin dev', [
-        'Usage: zavorth plugins dev <path> [--trust review|trusted] [--no-enable] [--watch] [--write-manifest] [--watch-ms N] [--json]',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin dev', ['Usage: zavorth plugins dev <path> [--trust review|trusted] [--no-enable] [--watch] [--write-manifest] [--watch-ms N] [--json]'], { ok: false });
     }
-    const trustRaw = String(readFlag(args, 'trust') || 'trusted').trim().toLowerCase();
-    const trust = trustRaw === 'review' ? 'review' as const : 'trusted' as const;
+    const trustRaw = String(readFlag(args, 'trust') || 'trusted')
+      .trim()
+      .toLowerCase();
+    const trust = trustRaw === 'review' ? ('review' as const) : ('trusted' as const);
     const enable = !args.includes('--no-enable');
     const watch = args.includes('--watch');
     const writeManifest = args.includes('--write-manifest');
@@ -757,8 +706,7 @@ export async function runPlugins(root: string, args: string[]) {
 
     const lines = formatSnapshotText(snapshot).split('\n');
     return render(args, 'Zavorth plugin dev', lines, {
-      ok: snapshot.steps.every((step) => step.ok)
-        || snapshot.steps.some((step) => step.id === 'runtime-bootstrap' && step.ok),
+      ok: snapshot.steps.every((step) => step.ok) || snapshot.steps.some((step) => step.id === 'runtime-bootstrap' && step.ok),
       snapshot: {
         generatedAt: snapshot.generatedAt,
         pluginPath: snapshot.pluginPath,
@@ -775,7 +723,7 @@ export async function runPlugins(root: string, args: string[]) {
   }
   if (action === 'scaffold' || action === 'create') {
     const id = idFromSpec(args[1] || readFlag(args, 'id') || 'zavorth-plugin');
-    const targetDir = path.resolve(root, readFlag(args, 'dir') || path.join('plugins', id));
+    const targetDir = path.resolve(root, readFlag(args, 'dir') || id);
     const moduleKind = String(readFlag(args, 'module-kind') || readFlag(args, 'kind') || 'tool').trim() || 'tool';
     const scaffoldOptions = resolveScaffoldOptions(args);
     if (!isInside(root, targetDir)) {
@@ -804,24 +752,27 @@ export async function runPlugins(root: string, args: string[]) {
       });
     }
     const created = await scaffoldPlugin(root, targetDir, id, moduleKind, scaffoldOptions);
-    return render(args, 'Zavorth plugin scaffold', [
-      `Created Plugin OS scaffold: ${id}`,
-      `Target: ${targetDir}`,
-      `Kind: ${moduleKind}`,
-      `Language: ${scaffoldOptions.language}`,
-      'Next: zavorth plugins dev ./plugins/<id>',
-      'Or: zavorth plugins install ./plugins/<id> --yes',
-      'Then: zavorth plugins enable <id> --yes',
-      'Test: zavorth plugins test ./plugins/<id>',
-    ], { plugin: created });
+    return render(
+      args,
+      'Zavorth plugin scaffold',
+      [
+        `Created Plugin OS scaffold: ${id}`,
+        `Target: ${targetDir}`,
+        `Kind: ${moduleKind}`,
+        `Language: ${scaffoldOptions.language}`,
+        'Next: zavorth plugins dev ./plugins/<id>',
+        'Or: zavorth plugins install ./plugins/<id> --yes',
+        'Then: zavorth plugins enable <id> --yes',
+        'Test: zavorth plugins test ./plugins/<id>',
+      ],
+      { plugin: created },
+    );
   }
 
   if (action === 'uninstall' || action === 'remove') {
     const id = args[1] || readFlag(args, 'id') || '';
     if (!id) {
-      return render(args, 'Zavorth plugins', [
-        'Usage: zavorth plugins uninstall <id> [--yes]',
-      ], { ok: false });
+      return render(args, 'Zavorth plugins', ['Usage: zavorth plugins uninstall <id> [--yes]'], { ok: false });
     }
     const selected = findPlugin(local, id);
     const bridged = bridge.resolve(id);
@@ -844,11 +795,7 @@ export async function runPlugins(root: string, args: string[]) {
 
     const nextLocal = local.filter((item) => {
       const record = item as JsonObject;
-      return String(record.id) !== id
-        && String(record.name) !== id
-        && String(record.spec) !== id
-        && String(record.id) !== bridged.pluginId
-        && String(record.name) !== bridged.pluginId;
+      return String(record.id) !== id && String(record.name) !== id && String(record.spec) !== id && String(record.id) !== bridged.pluginId && String(record.name) !== bridged.pluginId;
     });
     await writeJson(pluginFile, nextLocal);
     const after = bridge.markUninstalled(bridged.pluginId || id);
@@ -861,39 +808,24 @@ export async function runPlugins(root: string, args: string[]) {
         deletedPackage = true;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return render(args, 'Zavorth plugins', [
-          `Uninstalled bridge state for ${bridged.pluginId || id}`,
-          `Package delete soft-failed: ${message}`,
-        ], { ok: true, bridged: after, deletedPackage: false });
+        return render(args, 'Zavorth plugins', [`Uninstalled bridge state for ${bridged.pluginId || id}`, `Package delete soft-failed: ${message}`], { ok: true, bridged: after, deletedPackage: false });
       }
     }
 
-    return render(args, 'Zavorth plugins', [
-      `Uninstalled: ${bridged.pluginId || id}`,
-      `Package deleted: ${deletedPackage ? 'yes' : 'no'}`,
-    ], { ok: true, bridged: after, deletedPackage });
+    return render(args, 'Zavorth plugins', [`Uninstalled: ${bridged.pluginId || id}`, `Package deleted: ${deletedPackage ? 'yes' : 'no'}`], { ok: true, bridged: after, deletedPackage });
   }
   if (action === 'install') {
     const marketplaceFlag = readFlag(args, 'marketplace') || readFlag(args, 'from');
     const rawSpec = args[1] || '';
-    const marketplaceId = marketplaceFlag
-      || (rawSpec.startsWith('marketplace:') ? rawSpec.slice('marketplace:'.length) : '');
+    const marketplaceId = marketplaceFlag || (rawSpec.startsWith('marketplace:') ? rawSpec.slice('marketplace:'.length) : '');
     if (marketplaceId) {
       const market = new PluginOsMarketplaceService({ projectRoot: root, stateBridge: bridge });
       const preview = market.preview(marketplaceId, { root });
       if (!preview.ok || !preview.entry) {
-        return render(args, 'Zavorth plugins', [
-          `Marketplace plugin not found: ${marketplaceId}`,
-          'Use: zavorth plugins marketplace',
-          '     zavorth plugins marketplace show <id>',
-        ], { ok: false });
+        return render(args, 'Zavorth plugins', [`Marketplace plugin not found: ${marketplaceId}`, 'Use: zavorth plugins marketplace', '     zavorth plugins marketplace show <id>'], { ok: false });
       }
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugins', [
-          preview.formatText(),
-          '',
-          'Add --yes to install. Add --enable to enable after install.',
-        ], { dryRun: true, preview });
+        return render(args, 'Zavorth plugins', [preview.formatText(), '', 'Add --yes to install. Add --enable to enable after install.'], { dryRun: true, preview });
       }
       const installed = await market.install(preview.entry.id, {
         root,
@@ -901,44 +833,48 @@ export async function runPlugins(root: string, args: string[]) {
         force: args.includes('--force'),
       });
       if (!installed.ok) {
-        return render(args, 'Zavorth plugins', [
-          installed.formatText(),
-        ], { ok: false, install: installed });
+        return render(args, 'Zavorth plugins', [installed.formatText()], { ok: false, install: installed });
       }
       // refresh local plugin list for CLI state file
       const refreshedLocal = await readArray(pluginFile);
-      return render(args, 'Zavorth plugins', [
-        installed.formatText(),
-        args.includes('--enable')
-          ? 'Enabled: yes'
-          : `Next: zavorth plugins enable ${installed.pluginId} --yes`,
-      ], { ok: true, install: installed, plugins: refreshedLocal.length });
+      return render(args, 'Zavorth plugins', [installed.formatText(), args.includes('--enable') ? 'Enabled: yes' : `Next: zavorth plugins enable ${installed.pluginId} --yes`], {
+        ok: true,
+        install: installed,
+        plugins: refreshedLocal.length,
+      });
     }
 
     const spec = rawSpec;
     if (!spec) {
-      return render(args, 'Zavorth plugins', [
-        'Usage: zavorth plugins install <package-or-path|url> [--yes]',
-        '       zavorth plugins install marketplace:<id> [--yes] [--enable]',
-        '       zavorth plugins install --marketplace <id> [--yes] [--enable]',
-        '       zavorth plugins install https://example.com/plugin.tgz --yes',
-      ], { ok: false });
+      return render(
+        args,
+        'Zavorth plugins',
+        [
+          'Usage: zavorth plugins install <package-or-path|url> [--yes]',
+          '       zavorth plugins install marketplace:<id> [--yes] [--enable]',
+          '       zavorth plugins install --marketplace <id> [--yes] [--enable]',
+          '       zavorth plugins install https://example.com/plugin.tgz --yes',
+        ],
+        { ok: false },
+      );
     }
 
     const urlInstaller = new PluginUrlInstallService({ projectRoot: root });
     if (urlInstaller.isUrlSpec(spec)) {
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugins', [
-          `Preview URL install: ${spec}`,
-          'Downloads to .zavorth/cache/plugin-downloads/ and extracts under .zavorth/plugins/<id>.',
-          'Add --yes to download, extract, and register via PluginStateBridge.',
-        ], { dryRun: true, url: spec });
+        return render(
+          args,
+          'Zavorth plugins',
+          [`Preview URL install: ${spec}`, 'Downloads to .zavorth/cache/plugin-downloads/ and extracts under .zavorth/plugins/<id>.', 'Add --yes to download, extract, and register via PluginStateBridge.'],
+          { dryRun: true, url: spec },
+        );
       }
       const downloaded = await urlInstaller.downloadAndExtract(spec);
       if (!downloaded.ok || !downloaded.packageDir || !downloaded.pluginId) {
-        return render(args, 'Zavorth plugins', [
-          `URL install failed: ${downloaded.error || 'unknown error'}`,
-        ], { ok: false, download: downloaded });
+        return render(args, 'Zavorth plugins', [`URL install failed: ${downloaded.error || 'unknown error'}`], {
+          ok: false,
+          download: downloaded,
+        });
       }
       const relativeDir = path.relative(root, downloaded.packageDir).replace(/\\/gu, '/');
       const localSpec = relativeDir.startsWith('.') ? relativeDir : `./${relativeDir}`;
@@ -967,26 +903,35 @@ export async function runPlugins(root: string, args: string[]) {
         /* soft-fail bridge */
       }
       const verify = downloaded.verify;
-      return render(args, 'Zavorth plugins', [
-        `URL install applied: ${downloaded.pluginId}`,
-        `Package: ${localSpec}`,
-        `Bytes: ${downloaded.bytes || 0}`,
-        `Checksum: ${checksum || verify?.packageChecksum || 'none'}`,
-        `Verify: ${verify?.status || 'unsigned'}`,
-        ...(verify?.findings || []).slice(0, 3).map((line) => `  - ${line}`),
-      ], {
-        ok: true,
-        record: sanitizePluginRecord(record),
-        download: downloaded,
-        verify: verify || null,
-      });
+      return render(
+        args,
+        'Zavorth plugins',
+        [
+          `URL install applied: ${downloaded.pluginId}`,
+          `Package: ${localSpec}`,
+          `Bytes: ${downloaded.bytes || 0}`,
+          `Checksum: ${checksum || verify?.packageChecksum || 'none'}`,
+          `Verify: ${verify?.status || 'unsigned'}`,
+          ...(verify?.findings || []).slice(0, 3).map((line) => `  - ${line}`),
+        ],
+        {
+          ok: true,
+          record: sanitizePluginRecord(record),
+          download: downloaded,
+          verify: verify || null,
+        },
+      );
     }
 
     const manifest = await resolvePluginManifest(root, spec, args);
     const checksum = await calculatePluginChecksum(root, spec);
     const expectedChecksum = readFlag(args, 'checksum') || '';
     if (expectedChecksum && checksum && expectedChecksum !== checksum) {
-      return render(args, 'Zavorth plugins', ['Checksum mismatch. Plugin was not installed.'], { ok: false, expectedChecksum, actualChecksum: checksum });
+      return render(args, 'Zavorth plugins', ['Checksum mismatch. Plugin was not installed.'], {
+        ok: false,
+        expectedChecksum,
+        actualChecksum: checksum,
+      });
     }
 
     let localVerify: { ok: boolean; status: string; findings: string[]; packageChecksum?: string } | null = null;
@@ -995,10 +940,7 @@ export async function runPlugins(root: string, args: string[]) {
         const packageDir = path.resolve(root, spec);
         localVerify = new PluginUrlInstallService({ projectRoot: root }).verifyLocalPackage(packageDir);
         if (!localVerify.ok) {
-          return render(args, 'Zavorth plugins', [
-            `Local package signature verification failed (${localVerify.status}).`,
-            ...(localVerify.findings || []).slice(0, 4),
-          ], { ok: false, verify: localVerify });
+          return render(args, 'Zavorth plugins', [`Local package signature verification failed (${localVerify.status}).`, ...(localVerify.findings || []).slice(0, 4)], { ok: false, verify: localVerify });
         }
       } catch {
         /* soft-fail local verify plumbing */
@@ -1008,18 +950,21 @@ export async function runPlugins(root: string, args: string[]) {
     const record = buildPluginRecord(spec, manifest, checksum, args);
     if (!args.includes('--yes')) {
       const permissions = (record.permissions as string[]) || [];
-      return render(args, 'Zavorth plugins', [
-        `Preview install: ${spec}`,
-        `Manifest: ${manifest.found ? 'found' : 'fallback'}`,
-        `Permissions: ${permissions.join(', ') || 'none'}`,
-        `Checksum: ${checksum || 'pending-after-install'}`,
-        `Verify: ${localVerify?.status || 'n/a'}`,
-        'Add --yes to install/register this plugin.',
-      ], { record: sanitizePluginRecord(record), manifest, verify: localVerify });
+      return render(
+        args,
+        'Zavorth plugins',
+        [
+          `Preview install: ${spec}`,
+          `Manifest: ${manifest.found ? 'found' : 'fallback'}`,
+          `Permissions: ${permissions.join(', ') || 'none'}`,
+          `Checksum: ${checksum || 'pending-after-install'}`,
+          `Verify: ${localVerify?.status || 'n/a'}`,
+          'Add --yes to install/register this plugin.',
+        ],
+        { record: sanitizePluginRecord(record), manifest, verify: localVerify },
+      );
     }
-    const install = isLocalPluginSpec(root, spec)
-      ? { exitCode: 0, output: 'local plugin registered without npm install', durationMs: 0, timedOut: false }
-      : await runProcess(resolveNpmCommand(), ['install', spec, '--save'], root, 120000);
+    const install = isLocalPluginSpec(root, spec) ? { exitCode: 0, output: 'local plugin registered without npm install', durationMs: 0, timedOut: false } : await runProcess(resolveNpmCommand(), ['install', spec, '--save'], root, 120000);
     record.status = install.exitCode === 0 ? 'installed' : 'install-failed';
     record.installedAt = new Date().toISOString();
     record.exitCode = install.exitCode;
@@ -1039,19 +984,27 @@ export async function runPlugins(root: string, args: string[]) {
         /* soft-fail bridge sync */
       }
     }
-    return render(args, 'Zavorth plugins', [`Install ${record.status}: ${spec}`, install.output.slice(0, 800)], { record: sanitizePluginRecord(record), install });
+    return render(args, 'Zavorth plugins', [`Install ${record.status}: ${spec}`, install.output.slice(0, 800)], {
+      record: sanitizePluginRecord(record),
+      install,
+    });
   }
   if (action === 'manifest') {
     const id = args[1] || readFlag(args, 'id') || '';
     const selected = findPlugin(local, id);
     if (!selected) return render(args, 'Zavorth plugins', [`Plugin not found: ${id || '<missing>'}`], { ok: false });
-    return render(args, 'Zavorth plugin manifest', [
-      `id: ${String(selected.id)}`,
-      `name: ${String(selected.name || selected.spec)}`,
-      `version: ${String(selected.version || 'unknown')}`,
-      `permissions: ${((selected.permissions as string[]) || []).join(', ') || 'none'}`,
-      `checksum: ${String(selected.checksum || 'none')}`,
-    ], { plugin: sanitizePluginRecord(selected) });
+    return render(
+      args,
+      'Zavorth plugin manifest',
+      [
+        `id: ${String(selected.id)}`,
+        `name: ${String(selected.name || selected.spec)}`,
+        `version: ${String(selected.version || 'unknown')}`,
+        `permissions: ${((selected.permissions as string[]) || []).join(', ') || 'none'}`,
+        `checksum: ${String(selected.checksum || 'none')}`,
+      ],
+      { plugin: sanitizePluginRecord(selected) },
+    );
   }
   if (action === 'doctor') {
     const id = args[1] || readFlag(args, 'id') || '';
@@ -1065,9 +1018,9 @@ export async function runPlugins(root: string, args: string[]) {
         const selectedPlugins = snapshot.plugins.filter((plugin) => plugin.selected);
         const lines = selectedPlugins.length
           ? selectedPlugins.slice(0, 30).map((plugin) => {
-            const findings = plugin.validation.findings.slice(0, 2).join('; ') || 'no findings';
-            return `- ${plugin.pluginId} valid=${plugin.validation.ok} eligible=${plugin.loadEligible} trust=${plugin.state.trust} :: ${findings}`;
-          })
+              const findings = plugin.validation.findings.slice(0, 2).join('; ') || 'no findings';
+              return `- ${plugin.pluginId} valid=${plugin.validation.ok} eligible=${plugin.loadEligible} trust=${plugin.state.trust} :: ${findings}`;
+            })
           : ['No selected discovery plugins found.'];
         return render(args, 'Zavorth plugin doctor', lines, {
           ok: selectedPlugins.every((plugin) => plugin.validation.ok),
@@ -1104,12 +1057,7 @@ export async function runPlugins(root: string, args: string[]) {
     } catch {
       /* soft-fail discovery doctor */
     }
-    const lines = selected
-      ? [
-        ...checks.map((check) => `${check.ok ? 'ok' : 'fail'} ${check.id}: ${check.summary}`),
-        ...discoveryFindings,
-      ]
-      : [`Plugin not found: ${id || '<missing>'}`];
+    const lines = selected ? [...checks.map((check) => `${check.ok ? 'ok' : 'fail'} ${check.id}: ${check.summary}`), ...discoveryFindings] : [`Plugin not found: ${id || '<missing>'}`];
     return render(args, 'Zavorth plugin doctor', lines, {
       ok: selected ? checks.every((check) => check.ok) : false,
       checks,
@@ -1119,10 +1067,7 @@ export async function runPlugins(root: string, args: string[]) {
   if (action === 'preview' || action === 'permissions') {
     const id = args[1] || readFlag(args, 'id') || '';
     if (!id) {
-      return render(args, 'Zavorth plugin preview', [
-        'Usage: zavorth plugins preview <id>',
-        'Shows permission / risk summary. Never auto-enables.',
-      ], { ok: false });
+      return render(args, 'Zavorth plugin preview', ['Usage: zavorth plugins preview <id>', 'Shows permission / risk summary. Never auto-enables.'], { ok: false });
     }
     const previewService = new PluginOsPermissionPreviewService({
       projectRoot: root,
@@ -1197,17 +1142,22 @@ export async function runPlugins(root: string, args: string[]) {
     } catch {
       permissionLines = [];
     }
-    return render(args, 'Zavorth plugin inspect', [
-      `id: ${bridged.pluginId}`,
-      `installed: ${bridged.installed}`,
-      `enabled: ${bridged.enabled}`,
-      `trust: ${bridged.trust}`,
-      `runtimeState: ${bridged.runtimeState}`,
-      `sourceLocator: ${bridged.sourceLocator || 'none'}`,
-      `loadEligible: ${discovered ? String(discovered.loadEligible) : 'unknown'}`,
-      `manifestPath: ${discovered ? String(discovered.manifestPath || 'none') : 'not discovered'}`,
-      ...permissionLines,
-    ], { bridged, discovery: discovered, permissionPreview });
+    return render(
+      args,
+      'Zavorth plugin inspect',
+      [
+        `id: ${bridged.pluginId}`,
+        `installed: ${bridged.installed}`,
+        `enabled: ${bridged.enabled}`,
+        `trust: ${bridged.trust}`,
+        `runtimeState: ${bridged.runtimeState}`,
+        `sourceLocator: ${bridged.sourceLocator || 'none'}`,
+        `loadEligible: ${discovered ? String(discovered.loadEligible) : 'unknown'}`,
+        `manifestPath: ${discovered ? String(discovered.manifestPath || 'none') : 'not discovered'}`,
+        ...permissionLines,
+      ],
+      { bridged, discovery: discovered, permissionPreview },
+    );
   }
   if (action === 'os' || action === 'runtime') {
     try {
@@ -1216,11 +1166,7 @@ export async function runPlugins(root: string, args: string[]) {
         stateLookup: bridge.asStateLookup(),
       });
       const snapshot = discovery.discover();
-      const lines = [
-        ...bridge.formatSnapshotText().split('\n'),
-        '',
-        discovery.formatSnapshotText(snapshot),
-      ];
+      const lines = [...bridge.formatSnapshotText().split('\n'), '', discovery.formatSnapshotText(snapshot)];
       return render(args, 'Zavorth plugin OS', lines, {
         bridged: bridge.list(),
         os: snapshot.summary,
@@ -1229,98 +1175,87 @@ export async function runPlugins(root: string, args: string[]) {
           valid: snapshot.summary.valid,
           loadEligible: snapshot.summary.loadEligible,
           selected: snapshot.summary.selected,
-          plugins: snapshot.plugins.filter((plugin) => plugin.selected).map((plugin) => ({
-            pluginId: plugin.pluginId,
-            loadEligible: plugin.loadEligible,
-            trust: plugin.state.trust,
-            enabled: plugin.state.enabled,
-            runtimeState: plugin.state.runtimeState,
-          })),
+          plugins: snapshot.plugins
+            .filter((plugin) => plugin.selected)
+            .map((plugin) => ({
+              pluginId: plugin.pluginId,
+              loadEligible: plugin.loadEligible,
+              trust: plugin.state.trust,
+              enabled: plugin.state.enabled,
+              runtimeState: plugin.state.runtimeState,
+            })),
         },
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return render(args, 'Zavorth plugin OS', [
-        bridge.formatSnapshotText(),
-        `Discovery unavailable: ${message}`,
-      ], { bridged: bridge.list(), ok: false });
+      return render(args, 'Zavorth plugin OS', [bridge.formatSnapshotText(), `Discovery unavailable: ${message}`], {
+        bridged: bridge.list(),
+        ok: false,
+      });
     }
   }
   if (action === 'trust') {
     const id = args[1] || readFlag(args, 'id') || '';
-    const trustValue = String(args[2] || readFlag(args, 'trust') || '').trim().toLowerCase();
+    const trustValue = String(args[2] || readFlag(args, 'trust') || '')
+      .trim()
+      .toLowerCase();
     if (!id || !['review', 'trusted', 'blocked'].includes(trustValue)) {
-      return render(args, 'Zavorth plugins', ['Usage: zavorth plugins trust <id> <review|trusted|blocked> [--yes]'], { ok: false });
+      return render(args, 'Zavorth plugins', ['Usage: zavorth plugins trust <id> <review|trusted|blocked> [--yes]'], {
+        ok: false,
+      });
     }
     if ((trustValue === 'trusted' || trustValue === 'blocked') && !args.includes('--yes')) {
-      return render(args, 'Zavorth plugins', [
-        `Trust preview: ${id} -> ${trustValue}`,
-        'Add --yes to apply this trust change.',
-      ], { dryRun: true, pluginId: id, trust: trustValue });
+      return render(args, 'Zavorth plugins', [`Trust preview: ${id} -> ${trustValue}`, 'Add --yes to apply this trust change.'], { dryRun: true, pluginId: id, trust: trustValue });
     }
     const bridged = bridge.setTrust(id, trustValue as 'review' | 'trusted' | 'blocked');
-    return render(args, 'Zavorth plugins', [
-      `Trust set: ${bridged.pluginId} -> ${bridged.trust}`,
-      `runtimeState: ${bridged.runtimeState}`,
-    ], { bridged });
+    return render(args, 'Zavorth plugins', [`Trust set: ${bridged.pluginId} -> ${bridged.trust}`, `runtimeState: ${bridged.runtimeState}`], { bridged });
   }
   if (action === 'marketplace' || action === 'search') {
     const market = new PluginOsMarketplaceService({ projectRoot: root, stateBridge: bridge });
-    const sub = String(args[1] || '').trim().toLowerCase();
+    const sub = String(args[1] || '')
+      .trim()
+      .toLowerCase();
     if (sub === 'refresh-remote' || sub === 'remote-refresh') {
       const refreshed = await market.refreshRemote({ root });
-      return render(args, 'Zavorth plugin marketplace remote', [
-        `ok=${refreshed.ok}`,
-        refreshed.cachePath ? `cache: ${refreshed.cachePath}` : 'cache: n/a',
-        `entries=${refreshed.entries.length}`,
-        ...refreshed.findings.map((line) => `  - ${line}`),
-      ], { ok: refreshed.ok, result: refreshed });
+      return render(
+        args,
+        'Zavorth plugin marketplace remote',
+        [`ok=${refreshed.ok}`, refreshed.cachePath ? `cache: ${refreshed.cachePath}` : 'cache: n/a', `entries=${refreshed.entries.length}`, ...refreshed.findings.map((line) => `  - ${line}`)],
+        { ok: refreshed.ok, result: refreshed },
+      );
     }
     if (sub === 'show' || sub === 'preview' || sub === 'info') {
       const id = String(args[2] || readFlag(args, 'id') || '').trim();
       if (!id) {
-        return render(args, 'Zavorth plugin marketplace', [
-          'Usage: zavorth plugins marketplace show <id>',
-        ], { ok: false });
+        return render(args, 'Zavorth plugin marketplace', ['Usage: zavorth plugins marketplace show <id>'], {
+          ok: false,
+        });
       }
       const preview = market.preview(id, { root });
-      return render(args, 'Zavorth plugin marketplace show', [
-        preview.formatText(),
-      ], { ok: preview.ok, preview });
+      return render(args, 'Zavorth plugin marketplace show', [preview.formatText()], { ok: preview.ok, preview });
     }
     if (sub === 'install') {
       const id = String(args[2] || readFlag(args, 'id') || '').trim();
       if (!id) {
-        return render(args, 'Zavorth plugin marketplace', [
-          'Usage: zavorth plugins marketplace install <id> [--yes] [--enable]',
-        ], { ok: false });
+        return render(args, 'Zavorth plugin marketplace', ['Usage: zavorth plugins marketplace install <id> [--yes] [--enable]'], { ok: false });
       }
       const preview = market.preview(id, { root });
       if (!args.includes('--yes')) {
-        return render(args, 'Zavorth plugin marketplace install', [
-          preview.formatText(),
-          '',
-          'Add --yes to install. Optional --enable.',
-        ], { dryRun: true, preview });
+        return render(args, 'Zavorth plugin marketplace install', [preview.formatText(), '', 'Add --yes to install. Optional --enable.'], { dryRun: true, preview });
       }
       const installed = await market.install(id, {
         root,
         enable: args.includes('--enable'),
         force: args.includes('--force'),
       });
-      return render(args, 'Zavorth plugin marketplace install', [
-        installed.formatText(),
-      ], { ok: installed.ok, install: installed });
+      return render(args, 'Zavorth plugin marketplace install', [installed.formatText()], {
+        ok: installed.ok,
+        install: installed,
+      });
     }
 
-    const reserved = new Set([
-      'refresh-remote', 'remote-refresh', 'show', 'preview', 'info', 'install',
-    ]);
-    const query = String(
-      args.slice(1).find((part) => part && !part.startsWith('--') && !reserved.has(part))
-      || readFlag(args, 'query')
-      || '',
-    ).trim();
+    const reserved = new Set(['refresh-remote', 'remote-refresh', 'show', 'preview', 'info', 'install']);
+    const query = String(args.slice(1).find((part) => part && !part.startsWith('--') && !reserved.has(part)) || readFlag(args, 'query') || '').trim();
     // Default includes remote cache when present. --local skips remote merge.
     const includeRemote = !args.includes('--local');
     const listed = market.list({
@@ -1329,9 +1264,7 @@ export async function runPlugins(root: string, args: string[]) {
       includeRemote,
       limit: 200,
     });
-    return render(args, 'Zavorth plugin marketplace', [
-      listed.formatText(),
-    ], {
+    return render(args, 'Zavorth plugin marketplace', [listed.formatText()], {
       ok: listed.ok,
       plugins: listed.entries,
       sources: listed.sources,
@@ -1345,10 +1278,9 @@ export async function runPlugins(root: string, args: string[]) {
     const kind = String(readFlag(args, 'kind') || 'tool').trim();
     const dir = readFlag(args, 'dir') || readFlag(args, 'out') || '';
     if (!id) {
-      return render(args, 'Zavorth plugins create', [
-        'Usage: zavorth plugins create <id> --kind tool|provider|channel|memory|media|voice|search|diagnostics|bridge [--dir path] [--yes]',
-        'Alias: create-zavorth-plugin (standalone CLI)',
-      ], { ok: false });
+      return render(args, 'Zavorth plugins create', ['Usage: zavorth plugins create <id> --kind tool|provider|channel|memory|media|voice|search|diagnostics|bridge [--dir path] [--yes]', 'Alias: create-zavorth-plugin (standalone CLI)'], {
+        ok: false,
+      });
     }
     const cliPath = path.join(root, 'bin', 'create-zavorth-plugin.js');
     const createArgs = [id, '--kind', kind];
@@ -1367,25 +1299,23 @@ export async function runPlugins(root: string, args: string[]) {
       return render(args, 'Zavorth plugins create', [created.formatText()], { ok: created.ok, result: created });
     }
     if (!args.includes('--yes') && !args.includes('--dry-run')) {
-      return render(args, 'Zavorth plugins create', [
-        `Preview create: ${id}`,
-        `kind: ${kind}`,
-        dir ? `dir: ${dir}` : `dir: ./${id} (default)`,
-        'Add --yes to write scaffold files (or --dry-run).',
-        'Standalone: node bin/create-zavorth-plugin.js <id> --kind <kind>',
-      ], { dryRun: true, id, kind, dir: dir || null });
+      return render(
+        args,
+        'Zavorth plugins create',
+        [`Preview create: ${id}`, `kind: ${kind}`, dir ? `dir: ${dir}` : `dir: ./${id} (default)`, 'Add --yes to write scaffold files (or --dry-run).', 'Standalone: node bin/create-zavorth-plugin.js <id> --kind <kind>'],
+        { dryRun: true, id, kind, dir: dir || null },
+      );
     }
     const result = await runProcess(process.execPath, [cliPath, ...createArgs], root, 60000);
-    return render(args, 'Zavorth plugins create', [
-      result.exitCode === 0 ? `Created plugin scaffold: ${id}` : `Create failed: ${id}`,
-      result.output.slice(0, 1200),
-    ], { ok: result.exitCode === 0, result });
+    return render(args, 'Zavorth plugins create', [result.exitCode === 0 ? `Created plugin scaffold: ${id}` : `Create failed: ${id}`, result.output.slice(0, 1200)], { ok: result.exitCode === 0, result });
   }
   if (action === 'permissions') {
     const id = args[1] || readFlag(args, 'id') || '';
     const selected = findPlugin(local, id);
     if (!selected) return render(args, 'Zavorth plugin permissions', [`Plugin not found: ${id || '<missing>'}`], { ok: false });
-    return render(args, 'Zavorth plugin permissions', pluginPermissionLines(selected), { plugin: sanitizePluginRecord(selected) });
+    return render(args, 'Zavorth plugin permissions', pluginPermissionLines(selected), {
+      plugin: sanitizePluginRecord(selected),
+    });
   }
   if (action === 'hooks') {
     const id = args[1] || readFlag(args, 'id') || '';
@@ -1401,9 +1331,17 @@ export async function runPlugins(root: string, args: string[]) {
     if (!selected) return render(args, 'Zavorth plugin hook', [`Plugin not found: ${id || '<missing>'}`], { ok: false });
     const command = String(((selected.hooks || {}) as JsonObject)[hook] || '');
     if (!command) return render(args, 'Zavorth plugin hook', [`Hook not found: ${hook || '<missing>'}`], { ok: false });
-    if (!args.includes('--yes')) return render(args, 'Zavorth plugin hook', [`Hook preview: ${hook}`, `Command: ${command}`, 'Add --yes to run this hook in the plugin sandbox.'], { dryRun: true, plugin: sanitizePluginRecord(selected), hook, command });
+    if (!args.includes('--yes'))
+      return render(args, 'Zavorth plugin hook', [`Hook preview: ${hook}`, `Command: ${command}`, 'Add --yes to run this hook in the plugin sandbox.'], { dryRun: true, plugin: sanitizePluginRecord(selected), hook, command });
     const result = await runPluginHook(root, selected, command);
-    await appendJsonArray(path.join(stateDir(root), 'receipts', 'plugins.json'), { id: idWithTime('plugin-receipt'), pluginId: selected.id, hook, status: result.exitCode === 0 ? 'completed' : 'failed', createdAt: new Date().toISOString(), durationMs: result.durationMs });
+    await appendJsonArray(path.join(stateDir(root), 'receipts', 'plugins.json'), {
+      id: idWithTime('plugin-receipt'),
+      pluginId: selected.id,
+      hook,
+      status: result.exitCode === 0 ? 'completed' : 'failed',
+      createdAt: new Date().toISOString(),
+      durationMs: result.durationMs,
+    });
     return render(args, 'Zavorth plugin hook', [`Hook ${result.exitCode === 0 ? 'completed' : 'failed'}: ${hook}`, result.output.slice(0, 800)], { result });
   }
   if (['enable', 'disable'].includes(action)) {
@@ -1411,11 +1349,7 @@ export async function runPlugins(root: string, args: string[]) {
     const selected = findPlugin(local, id);
     if (!selected) return render(args, 'Zavorth plugins', [`Plugin not found: ${id || '<missing>'}`], { ok: false });
     if (action === 'enable' && !args.includes('--yes')) {
-      return render(args, 'Zavorth plugins', [
-        `Enable preview: ${id}`,
-        ...pluginPermissionLines(selected),
-        'Add --yes to enable this plugin in runtime state.',
-      ], { dryRun: true, plugin: sanitizePluginRecord(selected) });
+      return render(args, 'Zavorth plugins', [`Enable preview: ${id}`, ...pluginPermissionLines(selected), 'Add --yes to enable this plugin in runtime state.'], { dryRun: true, plugin: sanitizePluginRecord(selected) });
     }
     selected.enabled = action === 'enable';
     selected.updatedAt = new Date().toISOString();
@@ -1439,7 +1373,12 @@ export async function runPlugins(root: string, args: string[]) {
     } catch {
       /* soft-fail bridge sync */
     }
-    await appendJsonArray(path.join(stateDir(root), 'receipts', 'plugins.json'), { id: idWithTime('plugin-receipt'), pluginId: selected.id, action, createdAt: new Date().toISOString() });
+    await appendJsonArray(path.join(stateDir(root), 'receipts', 'plugins.json'), {
+      id: idWithTime('plugin-receipt'),
+      pluginId: selected.id,
+      action,
+      createdAt: new Date().toISOString(),
+    });
     return render(args, 'Zavorth plugins', [`${action === 'enable' ? 'Enabled' : 'Disabled'}: ${id}`], {
       plugin: sanitizePluginRecord(selected),
       bridged: bridge.resolve(String(selected.id)),
@@ -1467,17 +1406,22 @@ export async function runPlugins(root: string, args: string[]) {
     discoveryLines = [];
   }
 
-  return render(args, 'Zavorth plugins', [
-    `package dependencies: ${deps.length}`,
-    `local plugin records: ${local.length}`,
-    ...local.slice(0, 10).map((item) => `- ${String((item as JsonObject).id || (item as JsonObject).name)} | ${String((item as JsonObject).status || 'registered')} | ${Boolean((item as JsonObject).enabled) ? 'enabled' : 'disabled'}`),
-    ...(discoveryLines.length ? ['', 'Plugin OS discovery:', ...discoveryLines] : []),
-  ], {
-    dependencies: deps.length,
-    plugins: local.map(sanitizePluginRecord),
-    os: discoverySummary,
-    bridged: bridgedList,
-  });
+  return render(
+    args,
+    'Zavorth plugins',
+    [
+      `package dependencies: ${deps.length}`,
+      `local plugin records: ${local.length}`,
+      ...local.slice(0, 10).map((item) => `- ${String((item as JsonObject).id || (item as JsonObject).name)} | ${String((item as JsonObject).status || 'registered')} | ${Boolean((item as JsonObject).enabled) ? 'enabled' : 'disabled'}`),
+      ...(discoveryLines.length ? ['', 'Plugin OS discovery:', ...discoveryLines] : []),
+    ],
+    {
+      dependencies: deps.length,
+      plugins: local.map(sanitizePluginRecord),
+      os: discoverySummary,
+      bridged: bridgedList,
+    },
+  );
 }
 
 async function resolvePluginManifest(root: string, spec: string, args: string[]): Promise<JsonObject> {
@@ -1486,36 +1430,28 @@ async function resolvePluginManifest(root: string, spec: string, args: string[])
   if (explicit) candidates.push(explicit);
   if (isLocalPluginSpec(root, spec)) {
     const base = resolvePluginPath(root, spec);
-    candidates.push(
-      path.join(base, 'manifest.json'),
-      path.join(base, 'zavorth.plugin.json'),
-      path.join(base, 'plugin.json'),
-    );
+    candidates.push(path.join(base, 'manifest.json'), path.join(base, 'zavorth.plugin.json'), path.join(base, 'plugin.json'));
   }
   for (const manifestPath of candidates) {
     if (!manifestPath || !existsSync(manifestPath)) continue;
-    const raw = await readJson(manifestPath, {}) as JsonObject;
+    const raw = (await readJson(manifestPath, {})) as JsonObject;
     const permissionsRaw = Array.isArray(raw.permissions)
       ? raw.permissions.map((item) => {
-        if (item && typeof item === 'object' && !Array.isArray(item)) {
-          return String((item as JsonObject).kind || '');
-        }
-        return String(item || '');
-      })
+          if (item && typeof item === 'object' && !Array.isArray(item)) {
+            return String((item as JsonObject).kind || '');
+          }
+          return String(item || '');
+        })
       : raw.permissions;
     return {
       found: true,
       path: manifestPath,
       name: raw.label || raw.name || raw.id || idFromSpec(spec),
       version: raw.version || '0.0.0',
-      entry: (raw.entrypoint && typeof raw.entrypoint === 'object'
-        ? (raw.entrypoint as JsonObject).module
-        : null) || raw.entry || raw.main || null,
+      entry: (raw.entrypoint && typeof raw.entrypoint === 'object' ? (raw.entrypoint as JsonObject).module : null) || raw.entry || raw.main || null,
       permissions: normalizePermissions(permissionsRaw),
       hooks: raw.hooks && typeof raw.hooks === 'object' ? raw.hooks : {},
-      sandbox: raw.sandbox && typeof raw.sandbox === 'object'
-        ? raw.sandbox
-        : pluginSandboxForPermissions(normalizePermissions(permissionsRaw)),
+      sandbox: raw.sandbox && typeof raw.sandbox === 'object' ? raw.sandbox : pluginSandboxForPermissions(normalizePermissions(permissionsRaw)),
       signature: raw.signature || null,
       schemaVersion: raw.schemaVersion || null,
     };
@@ -1530,191 +1466,4 @@ async function resolvePluginManifest(root: string, spec: string, args: string[])
     sandbox: pluginSandboxForPermissions(normalizePermissions(readFlag(args, 'permissions') || '')),
     signature: readFlag(args, 'signature') || null,
   };
-}
-
-async function calculatePluginChecksum(root: string, spec: string): Promise<string> {
-  if (!isLocalPluginSpec(root, spec)) return '';
-  const pluginPath = resolvePluginPath(root, spec);
-  if (!existsSync(pluginPath)) return '';
-  const files = (await walkFiles(pluginPath, 500))
-    .filter((file) => !/[\\\/](node_modules|\.git)[\\\/]/u.test(file))
-    .sort();
-  const hash = createHash('sha256');
-  for (const file of files) {
-    const relative = path.relative(pluginPath, file).replace(/\\/gu, '/');
-    hash.update(relative);
-    hash.update(await fs.readFile(file));
-  }
-  return hash.digest('hex');
-}
-
-function buildPluginRecord(spec: string, manifest: JsonObject, checksum: string, args: string[]): JsonObject {
-  const permissions = normalizePermissions(readFlag(args, 'permissions') || manifest.permissions || '');
-  const record = {
-    id: idFromSpec(String(manifest.name || spec)),
-    spec,
-    name: String(manifest.name || idFromSpec(spec)),
-    version: String(manifest.version || '0.0.0'),
-    status: 'install-preview',
-    enabled: false,
-    manifestFound: Boolean(manifest.found),
-    entry: manifest.entry || null,
-    permissions,
-    sandbox: manifest.sandbox || pluginSandboxForPermissions(permissions),
-    hooks: manifest.hooks || {},
-    checksum,
-    signature: readFlag(args, 'signature') || manifest.signature || null,
-    installedAt: null,
-    createdAt: new Date().toISOString(),
-  };
-  return record;
-}
-
-function normalizePermissions(value: unknown): string[] {
-  const source = Array.isArray(value) ? value : splitList(String(value || ''));
-  return Array.from(new Set(source.map((entry) => String(entry || '').trim().toLowerCase()).filter(Boolean))).sort();
-}
-
-function pluginSandboxForPermissions(permissions: string[]): JsonObject {
-  return {
-    network: permissions.some((permission) => /network|http|webhook|external/iu.test(permission)),
-    workspaceRead: permissions.some((permission) => /read|workspace|file/iu.test(permission)),
-    workspaceWrite: permissions.some((permission) => /write|mutate|delete/iu.test(permission)),
-    shell: permissions.some((permission) => /shell|process|exec/iu.test(permission)),
-    defaultMode: permissions.length === 0 ? 'metadata-only' : 'approval-required',
-  };
-}
-
-function findPlugin(items: unknown[], id: string): JsonObject | undefined {
-  return items.find((plugin) => {
-    const item = plugin as JsonObject;
-    return String(item.id) === id || String(item.spec) === id || String(item.name) === id;
-  }) as JsonObject | undefined;
-}
-
-async function doctorPlugin(root: string, plugin: JsonObject): Promise<Array<{ id: string; ok: boolean; summary: string }>> {
-  const checks: Array<{ id: string; ok: boolean; summary: string }> = [];
-  checks.push({ id: 'manifest', ok: Boolean(plugin.manifestFound), summary: Boolean(plugin.manifestFound) ? 'Manifest is present.' : 'Plugin uses fallback manifest metadata.' });
-  checks.push({ id: 'checksum', ok: Boolean(plugin.checksum), summary: plugin.checksum ? 'Checksum is recorded.' : 'Checksum is unavailable for remote package until install proof.' });
-  checks.push({ id: 'permissions', ok: Array.isArray(plugin.permissions), summary: `${((plugin.permissions as string[]) || []).length} permission(s) declared.` });
-  const entry = String(plugin.entry || '');
-  if (entry && isLocalPluginSpec(root, String(plugin.spec || ''))) {
-    const entryPath = path.join(resolvePluginPath(root, String(plugin.spec)), entry);
-    checks.push({ id: 'entry', ok: existsSync(entryPath), summary: existsSync(entryPath) ? 'Entry file exists.' : `Entry file is missing: ${entry}` });
-  } else {
-    checks.push({ id: 'entry', ok: true, summary: entry ? 'Entry is declared.' : 'No entry declared; plugin is metadata/hooks only.' });
-  }
-  checks.push({ id: 'sandbox', ok: Boolean(plugin.sandbox), summary: `Sandbox mode: ${safeString(plugin.sandbox)}` });
-  return checks;
-}
-
-async function scaffoldPlugin(
-  root: string,
-  targetDir: string,
-  id: string,
-  moduleKindInput = 'tool',
-  options: { withHooks?: boolean; withTools?: boolean; language?: 'js' | 'ts' } = {},
-): Promise<JsonObject> {
-  const service = new PluginScaffoldService();
-  const created = service.scaffold({
-    root,
-    id,
-    targetDir,
-    moduleKind: moduleKindInput,
-    kind: moduleKindInput,
-    withHooks: options.withHooks,
-    withTools: options.withTools,
-    language: options.language,
-  });
-  return {
-    id: created.id,
-    targetDir: created.targetDir,
-    moduleKind: created.moduleKind,
-    language: created.language,
-    files: created.files,
-    manifest: created.manifest,
-    checksum: await calculatePluginChecksum(root, path.relative(root, targetDir)),
-  };
-}
-
-function resolveScaffoldOptions(args: string[]): {
-  withHooks: boolean;
-  withTools: boolean;
-  language: 'js' | 'ts';
-} {
-  let withHooks = true;
-  let withTools = true;
-  const withFlag = readFlag(args, 'with');
-  if (withFlag) {
-    const parts = splitList(withFlag).map((part) => part.toLowerCase());
-    withHooks = parts.includes('hooks') || parts.includes('hook');
-    withTools = parts.includes('tools') || parts.includes('tool');
-  }
-  if (args.includes('--hooks') || args.includes('--with-hooks')) {
-    withHooks = true;
-  }
-  if (args.includes('--tools') || args.includes('--with-tools')) {
-    withTools = true;
-  }
-  if (args.includes('--no-hooks')) {
-    withHooks = false;
-  }
-  if (args.includes('--no-tools')) {
-    withTools = false;
-  }
-  const languageFlag = String(readFlag(args, 'language') || '').trim().toLowerCase();
-  const language: 'js' | 'ts' = args.includes('--ts') || languageFlag === 'ts' || languageFlag === 'typescript'
-    ? 'ts'
-    : 'js';
-  return { withHooks, withTools, language };
-}
-
-function pluginPermissionLines(plugin: JsonObject): string[] {
-  const permissions = ((plugin.permissions as string[]) || []);
-  const sandbox = (plugin.sandbox || {}) as JsonObject;
-  return [
-    `Permissions: ${permissions.join(', ') || 'none'}`,
-    `Sandbox: network=${String(sandbox.network ?? false)} write=${String(sandbox.workspaceWrite ?? false)} shell=${String(sandbox.shell ?? false)}`,
-    'All sensitive plugin abilities remain policy/approval gated.',
-  ];
-}
-
-async function runPluginHook(root: string, plugin: JsonObject, command: string): Promise<{ exitCode: number; output: string; durationMs: number; timedOut: boolean }> {
-  const sandbox = (plugin.sandbox || {}) as JsonObject;
-  if (sandbox.shell !== true && /(^|\s)(cmd|powershell|bash|sh|node|npm|pnpm|yarn)\b/iu.test(command)) {
-    return { exitCode: 126, output: 'Plugin hook requested shell/process execution but manifest did not declare shell permission.', durationMs: 0, timedOut: false };
-  }
-  return runProcess(command, [], isLocalPluginSpec(root, String(plugin.spec || '')) ? resolvePluginPath(root, String(plugin.spec)) : root, 30000);
-}
-
-async function writePluginRuntimeState(file: string, plugins: unknown[]): Promise<void> {
-  const enabled = plugins
-    .map((plugin) => plugin as JsonObject)
-    .filter((plugin) => plugin.enabled === true)
-    .map((plugin) => ({
-      id: plugin.id,
-      name: plugin.name,
-      version: plugin.version,
-      entry: plugin.entry || null,
-      permissions: plugin.permissions || [],
-      sandbox: plugin.sandbox || {},
-      hooks: plugin.hooks || {},
-      checksum: plugin.checksum || null,
-    }));
-  await writeJson(file, { version: 1, updatedAt: new Date().toISOString(), enabled });
-}
-
-function sanitizePluginRecord(value: unknown): JsonObject {
-  const item = { ...((value || {}) as JsonObject) };
-  if (item.signature) item.signature = '***';
-  return item;
-}
-
-function isLocalPluginSpec(root: string, spec: string): boolean {
-  if (!spec) return false;
-  return spec.startsWith('.') || spec.startsWith('/') || /^[a-zA-Z]:[\\/]/u.test(spec) || existsSync(path.resolve(root, spec));
-}
-
-function resolvePluginPath(root: string, spec: string): string {
-  return path.resolve(root, spec);
 }

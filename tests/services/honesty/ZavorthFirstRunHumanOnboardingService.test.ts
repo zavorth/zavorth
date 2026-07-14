@@ -35,7 +35,7 @@ describe('ZavorthFirstRunHumanOnboardingService', () => {
     expect(resolveLearningRuntimePolicy({ projectRoot: tempDir, userId: 'local-user' }).mode).toBe('governed');
   });
 
-  it('does not match free-text setup NLU packs (Hermes-style)', () => {
+  it('does not match free-text setup NLU packs (agent-first)', () => {
     const service = new ZavorthFirstRunHumanOnboardingService({ projectRoot: tempDir });
     expect(service.matchNaturalCommand('comecar')).toBeNull();
     expect(service.matchNaturalCommand('pular setup')).toBeNull();

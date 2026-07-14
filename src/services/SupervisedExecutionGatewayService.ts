@@ -431,7 +431,7 @@ export class SupervisedExecutionGatewayService {
       throw new Error('Acao supervisionada nao encontrada para cancelamento.');
     }
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
-    const reason = String(input.reason || '').trim() || 'Cancelado pelo operador.';
+    const reason = String(input.reason || '').trim() || 'Cancelado by the operator.';
 
     if (latest.status === 'pending_approval' || latest.status === 'dry_run') {
       return this.ledger.record(this.recordBuilder.buildMutationRecord(latest, {
@@ -505,7 +505,7 @@ export class SupervisedExecutionGatewayService {
     }
 
     const requestedBy = String(input.requestedBy || '').trim() || 'operator';
-    const reason = String(input.reason || '').trim() || 'Rollback supervisionado solicitado pelo operador.';
+    const reason = String(input.reason || '').trim() || 'Rollback supervisionado solicitado by the operator.';
     const rollbackActionId = `rollback-${crypto.randomUUID()}`;
     const createdAt = new Date().toISOString();
     const rollbackResult = await adapter.rollback(latest, reason);

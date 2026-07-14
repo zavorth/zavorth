@@ -395,19 +395,6 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).not.toContain('token=abc123456789');
   });
 
-  it('routes natural visual requests without privileging a specific channel', async () => {
-    const pack = buildPack();
-    const ctx = buildCtx('confirme visualmente no celular se a tela mostra erro');
-
-    const handled = await pack.maybeHandleNaturalInvocation(
-      ctx as any,
-      'confirme visualmente no celular se a tela mostra erro',
-    );
-
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
 
   it('routes /vision browser inspect through the browser vision bridge', async () => {
     const pack = buildPack();
@@ -499,19 +486,6 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).toContain('terminal');
   });
 
-  it('routes natural desktop requests to the computer control plane', async () => {
-    const pack = buildPack();
-    const ctx = buildCtx('olhe a janela do app Notepad no computador');
-
-    const handled = await pack.maybeHandleNaturalInvocation(
-      ctx as any,
-      'olhe a janela do app Notepad no computador',
-    );
-
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
 
   it('routes /device inspect through the Android ADB bridge', async () => {
     const pack = buildPack();
@@ -565,95 +539,8 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     expect(replyText).toContain('install-uninstall');
   });
 
-  it('routes natural Android requests to the device bridge', async () => {
-    const pack = buildPack();
-    const ctx = buildCtx('olhe meu celular android e confirme visualmente');
 
-    const handled = await pack.maybeHandleNaturalInvocation(
-      ctx as any,
-      'olhe meu celular android e confirme visualmente',
-    );
 
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
-
-  it('routes explicit perception subagent requests through read-only subagents', async () => {
-    const invoke = jest.fn(async (input: any) => ({
-      generatedAt: new Date().toISOString(),
-      contractVersion: 'test',
-      source: 'ZavorthSubagentRuntimeService',
-      status: 'completed',
-      action: 'subagents.spawn',
-      mode: input.mode,
-      selectedSessionId: 'session-1',
-      selectedRunId: 'run-1',
-      sessions: [],
-      runs: [],
-      timeline: [],
-      parentChildTree: [],
-      summary: {
-        sessions: 1,
-        activeSessions: 0,
-        runs: 1,
-        runningRuns: 0,
-        completedRuns: 1,
-        approvalRequiredRuns: 0,
-        deniedRuns: 0,
-        policyReceipts: 1,
-        subagentReceipts: 1,
-        workerResults: 2,
-        failedWorkerResults: 0,
-        liveRuns: 0,
-        invocationReceipts: 1,
-        workspaceMutationPerformed: false,
-        externalIoPerformed: false,
-        upstreamRuntimeCodeExecuted: false,
-        autoInvocationDecisions: 0,
-      },
-      autoInvocationTelemetry: {
-        latest: null,
-        decisions: [],
-        dashboardProjection: { available: false, title: '', summary: '', selectedBy: '', roles: [], triggers: [], riskSignals: [], nextSafeAction: '' },
-      },
-      limits: {},
-      policy: {},
-      receipts: [],
-      commands: {},
-    }));
-    const pack = buildPack({
-      subagentInvocationGatewayService: {
-        executeCommand: jest.fn(),
-        invoke,
-        renderReport: jest.fn(),
-      } as any,
-    });
-    const ctx = buildCtx('use subagentes para revisar o que aparece na tela');
-
-    const handled = await pack.maybeHandleNaturalInvocation(
-      ctx as any,
-      'use subagentes para revisar o que aparece na tela',
-    );
-
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
-
-  it('routes natural browser requests to browser structured inspection', async () => {
-    const pack = buildPack();
-    const ctx = buildCtx('acesse https://example.com e veja o site');
-
-    const handled = await pack.maybeHandleNaturalInvocation(
-      ctx as any,
-      'acesse https://example.com e veja o site',
-    );
-
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
 
   it('routes /invoke through the natural invocation router', async () => {
     const plan = jest.fn(async (input: any) => naturalPlan(input.text, {
@@ -686,53 +573,11 @@ describe('SharedSurfaceEcosystemCommandPack', () => {
     });
   });
 
-  it('handles natural subagent phrases without requiring a slash command', async () => {
-    const plan = jest.fn(async (input: any) => naturalPlan(input.text, {
-      channel: input.channel,
-      actorId: input.actorId,
-      primaryAction: 'spawn_team',
-    }));
-    const pack = buildPack({
-      naturalInvocationRouterService: {
-        plan,
-        renderPlan: jest.fn(),
-      } as any,
-    });
-    const ctx = buildCtx('mande um agente pesquisar e outro revisar canais');
 
-    const handled = await pack.maybeHandleNaturalInvocation(ctx as any, 'mande um agente pesquisar e outro revisar canais');
 
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
-  });
-
-  it('maps natural running-status phrases to subagents.list', async () => {
-    const executeCommand = jest.fn(async () => ({
-      status: 'ready',
-      action: 'subagents.list',
-      mode: 'oneshot',
-      summary: { liveRuns: 0, workerResults: 0 },
-    }));
-    const plan = jest.fn();
-    const pack = buildPack({
-      subagentInvocationGatewayService: {
-        executeCommand,
-        invoke: jest.fn(),
-        renderReport: jest.fn((snapshot: any) => `Subagents ${snapshot.action}`),
-      } as any,
-      naturalInvocationRouterService: {
-        plan,
-        renderPlan: jest.fn(),
-      } as any,
-    });
-    const ctx = buildCtx('o que esta rodando agora?');
-
-    const handled = await pack.maybeHandleNaturalInvocation(ctx as any, 'o que esta rodando agora?');
-
-    expect(handled).toBe(false);
-    // free-text natural invocation disabled (agent-first)
-    expect(ctx.reply).not.toHaveBeenCalled();
+  it('Phase 3: free-text natural invocation API is deleted from the pack', () => {
+    const pack = buildPack();
+    expect((pack as any).maybeHandleNaturalInvocation).toBeUndefined();
   });
 
   it('ignores unrelated commands', async () => {

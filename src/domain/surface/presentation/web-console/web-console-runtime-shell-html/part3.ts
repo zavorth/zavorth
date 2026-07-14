@@ -45,7 +45,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">Gateway Boundary</p>
         <h2>Hub + MCP product plane</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta Integration Hub, plugin plane, platform plane, skill plane e MCP num cockpit unico para discovery, trust, sync e doctor.
+          This view junta Integration Hub, plugin plane, platform plane, skill plane e MCP num cockpit unico para discovery, trust, sync e doctor.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -223,7 +223,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">Governance</p>
         <h2>Governance, tenants e policy</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform e transports numa camada unica de governanca operacional.
+          This view junta tenants, trust decisions, allowlists, channels, nodes, plugins, platform e transports numa camada unica de governanca operacional.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">
@@ -436,7 +436,7 @@ export function buildRuntimeShellHtmlPart3(): string {
         <p class="profile-tag">Ecosystem</p>
         <h2>Ecossistema, SDKs e third-party platform</h2>
         <p class="muted-copy section-note">
-          Esta leitura junta SDKs oficiais, guias publicos, publish, recipes e o catalogo do platform plane num cockpit unico para integradores e operadores.
+          This view junta SDKs oficiais, guias publicos, publish, recipes e o catalogo do platform plane num cockpit unico para integradores e operadores.
         </p>
         <div class="ops-summary-grid">
           <article class="ops-summary-card">

@@ -3,7 +3,8 @@ import crypto from 'crypto';
 import type * as http from 'http';
 import path from 'path';
 import { IMessageBroker } from '../../../contracts/IMessageBroker.js';
-import { truncateSlackText } from '../../../utils/text.js';import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
+import { truncateSlackText } from '../../../utils/text.js';
+import { type LiveChannelBroadcastGatewayContract, PlatformKey } from '../../../contracts/PlatformContract.js';
 import { config } from '../../../config/index.js';
 import { logger } from '../../../logger.js';
 
@@ -104,7 +105,7 @@ export class SlackGateway implements LiveChannelBroadcastGatewayContract {
     body: Record<string, unknown>;
   }): Promise<SlackWebhookResult> {
     if (!this.verifySlackSignature(input.headers, input.rawBody)) {
-      this.lastError = 'Slack webhook rejeitado por assinatura invalida.';
+      this.lastError = 'Slack webhook rejected due to invalid signature.';
       this.writeStatus();
       return {
         statusCode: 401,

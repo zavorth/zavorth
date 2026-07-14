@@ -30,10 +30,7 @@ Zavorth Control can project a setup checklist for the three daily-use foundation
 
 The checklist is projection-only. It shows state, proof and next commands, but sensitive sends, live probes and terminal mutation remain approval-bound in the runtime.
 
-```bash
-npm run zavorth:dashboard-setup-checklist
-npm run zavorth:dashboard-setup-checklist:json
-```
+The same checklist is available from Zavorth Control and the public CLI without requiring internal script names.
 
 ## Daily Product Experience
 
@@ -46,11 +43,7 @@ the first screen can answer:
 - what did Zavorth learn or change?
 - what still needs proof before it can be live?
 
-```bash
-npm run zavorth:daily-product-experience
-npm run zavorth:daily-product-experience:json
-npm run zavorth:daily-product-experience:check
-```
+Maintainer projection and certification commands live in [operations.md](./operations.md).
 
 The projection exposes `chatReady` (provider proven) and a short `happyPath`
 separate from optional full platform setup. It renders at `/control` with

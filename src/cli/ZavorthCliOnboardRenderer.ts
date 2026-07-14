@@ -5,7 +5,7 @@ import {
 import { padCliVisualText, paintCliTone } from './ZavorthCliVisualTheme.js';
 
 export const ZAVORTH_ONBOARD_STEPS = [
-  { label: 'Modelo', summary: 'escolher a IA principal' },
+  { label: 'Model', summary: 'choose the primary AI' },
   { label: 'Acesso', summary: 'definir porta e uso local' },
   { label: 'Seguranca', summary: 'ativar capacidades com cuidado' },
   { label: 'Pessoa', summary: 'calibrar identidade, usuario e tom' },
@@ -19,20 +19,20 @@ export function formatZavorthOnboardBanner(options: {
 } = {}): string {
   const header = formatZavorthMascotBlock([
     paintCliTone(ZAVORTH_CLI_BRAND_NAME, 'brand'),
-    'Vamos preparar seu assistente local',
-    paintCliTone('Leva menos de 2 minutos', 'muted'),
+    "Let's prepare your local assistant",
+    paintCliTone('Takes less than 2 minutes', 'muted'),
   ]);
   const steps = ZAVORTH_ONBOARD_STEPS.map((step, index) =>
     formatOnboardStep(index + 1, step.label, step.summary));
-  const currentModel = String(options.currentModel || 'modelo atual').trim() || 'modelo atual';
+  const currentModel = String(options.currentModel || 'current model').trim() || 'current model';
 
   return [
     ...header,
     '',
-    paintCliTone('O que vamos fazer', 'muted'),
+    paintCliTone('What we will do', 'muted'),
     ...steps,
     '',
-    `${paintCliTone('Modelo atual', 'muted')}: ${currentModel}`,
+    `${paintCliTone('Current model', 'muted')}: ${currentModel}`,
   ].join('\n');
 }
 
@@ -41,10 +41,10 @@ export function formatZavorthOnboardNonInteractiveHint(): string {
     '',
     `${paintCliTone('Aviso', 'warning')}: o setup guiado precisa de um terminal interativo.`,
     `${paintCliTone('Abra', 'info')}: PowerShell, Windows Terminal ou terminal do VS Code.`,
-    `${paintCliTone('Rode', 'info')}: zavorth setup`,
+    `${paintCliTone('Run', 'info')}: zavorth setup`,
     `${paintCliTone('Preview', 'info')}: zavorth setup --dry-run`,
-    `${paintCliTone('JSON seguro', 'info')}: zavorth setup --json --dry-run`,
-    `${paintCliTone('Repo clonado', 'info')}: npm run setup`,
+    `${paintCliTone('Safe JSON', 'info')}: zavorth setup --json --dry-run`,
+    `${paintCliTone('Cloned repo', 'info')}: npm run setup`,
     `${paintCliTone('Depois', 'success')}: zavorth go ou npm run go abre o Home em /zavorthControl`,
     `${paintCliTone('Diagnostico', 'muted')}: zavorth doctor ou npm run doctor`,
   ].join('\n');

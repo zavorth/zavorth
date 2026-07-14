@@ -126,7 +126,7 @@ export class ZavorthCapabilityCertificationPackService {
       ], 'npm run zavorth:zavorthControl-visual-qa --silent'),
     ];
     const finalStatus = resolveStatus(phases);
-    phases.push(phase('final-certification', 'Certificacao final e hardening', finalStatus, [
+    phases.push(phase('final-certification', 'Certificaction final e hardening', finalStatus, [
       `passed=${phases.filter((entry) => entry.status === 'passed').length}`,
       `blocked=${phases.filter((entry) => entry.status === 'blocked').length}`,
     ], 'npm run zavorth:capability-certification:check --silent'));

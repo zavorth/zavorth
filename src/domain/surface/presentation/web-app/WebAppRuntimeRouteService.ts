@@ -13,7 +13,7 @@ import { SharedSurfaceConsistencyService } from '../../../../services/SharedSurf
 import { WebConsoleAssetService } from '../web-console/WebConsoleAssetService.js';
 import { WebRealtimeService } from '../../../../services/WebRealtimeService.js';
 import type { SessionV2Service } from '../../../../services/SessionV2Service.js';
-import type { SwarmV2Service } from '../../../../services/SwarmV2Service.js';
+import type { SwarmV2Service } from '../../../../agents/SwarmV2Service.js';
 import type { SwarmScalePlaneRuntimeService } from '../../../../services/SwarmScalePlaneRuntimeService.js';
 import type { EngineeringCoreService } from '../../../../services/EngineeringCoreService.js';
 import type { SystemOverlordControlService } from '../../../../services/SystemOverlordControlService.js';

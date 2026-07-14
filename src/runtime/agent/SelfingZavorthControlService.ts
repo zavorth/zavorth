@@ -604,7 +604,7 @@ export class SelfingZavorthControlService {
       suggestions.push({
         id: 'selfing:suggestion:low-confidence-memory',
         section: 'memory',
-        title: 'Revisar memorias de baixa confianca',
+        title: 'Revisar memorys de baixa confianca',
         detail: `${lowConfidenceCount} memoria(s) precisam de correcao, esquecimento ou confirmacao.`,
         reason: 'A feature Memory With Receipts exige origem e confianca antes de usar memoria em resposta.',
         sensitive: true,

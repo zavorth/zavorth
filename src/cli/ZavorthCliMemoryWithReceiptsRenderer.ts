@@ -75,7 +75,7 @@ export function formatMemoryWithReceiptsSnapshot(
     `- run: ${snapshot.identifiers.runId}`,
     `- memory: ${snapshot.summary.memoryCount} item(ns) com ${snapshot.summary.receiptCount} receipt(s)`,
     `- confianca media: ${snapshot.summary.averageConfidence ?? 'n/a'}`,
-    `- auditavel: ${String(snapshot.audit.allMemoryHasReceipt)}`,
+    `- auditable: ${String(snapshot.audit.allMemoryHasReceipt)}`,
     `- origem respondida: ${String(snapshot.audit.canAnswerSourceQuestion)}`,
     `- corrigir/esquecer: ${String(snapshot.audit.canForgetOrCorrect)}`,
     `- next step: ${snapshot.nextSafeAction}`,

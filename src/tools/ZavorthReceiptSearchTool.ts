@@ -192,9 +192,9 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       lines.push(`${icon} ${risk} ${approval} [${receipt.id}]`);
       lines.push(`  Tool: ${receipt.tool} | Acao: ${receipt.action}`);
       lines.push(`  Timestamp: ${receipt.timestamp}`);
-      lines.push(`  Session: ${receipt.session_id} | Canal: ${receipt.channel} | User: ${receipt.user}`);
+      lines.push(`  Session: ${receipt.session_id} | Channel: ${receipt.channel} | User: ${receipt.user}`);
       lines.push(`  Risco: ${receipt.risk_level} | Aprovacao: ${receipt.approval_status} | Duration: ${receipt.duration_ms}ms`);
-      lines.push(`  Resultado: ${receipt.result_summary.slice(0, 120)}`);
+      lines.push(`  Result: ${receipt.result_summary.slice(0, 120)}`);
     }
 
     return lines.join('\n');
@@ -213,13 +213,13 @@ export class ZavorthReceiptSearchTool extends BaseTool {
       `  - Tool: ${receipt.tool}`,
       `  - Acao: ${receipt.action}`,
       `  - Args: ${JSON.stringify(receipt.args).slice(0, 200)}`,
-      `  - Resultado: ${receipt.result_summary}`,
+      `  - Result: ${receipt.result_summary}`,
       `  - Success: ${receipt.success ? 'Yes' : 'No'}`,
       `  - Risk level: ${receipt.risk_level}`,
       `  - Aprovacao: ${receipt.approval_status}`,
       `  - Session: ${receipt.session_id}`,
-      `  - Usuario: ${receipt.user}`,
-      `  - Canal: ${receipt.channel}`,
+      `  - User: ${receipt.user}`,
+      `  - Channel: ${receipt.channel}`,
       `  - Duration: ${receipt.duration_ms}ms`,
     ];
 
@@ -257,16 +257,16 @@ export class ZavorthReceiptSearchTool extends BaseTool {
     }
 
     const lines: string[] = [
-      `Statistics de Receipts (${receipts.length} total):`,
+      `Receipt statistics (${receipts.length} total):`,
       '',
       `Sucesso: ${successCount} (${((successCount / receipts.length) * 100).toFixed(1)}%)`,
       `Falha: ${failCount} (${((failCount / receipts.length) * 100).toFixed(1)}%)`,
-      `Duration media: ${(totalDuration / receipts.length).toFixed(0)}ms`,
+      `Average duration: ${(totalDuration / receipts.length).toFixed(0)}ms`,
       '',
-      'Por Tool:',
+      'By tool:',
       ...Object.entries(byTool).sort((a, b) => b[1] - a[1]).map(([tool, count]) => `  ${tool}: ${count}`),
       '',
-      'Por Risco:',
+      'By risk:',
       ...Object.entries(byRisk).map(([risk, count]) => `  ${risk}: ${count}`),
       '',
       'Por Aprovacao:',

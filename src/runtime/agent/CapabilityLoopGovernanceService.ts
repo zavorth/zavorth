@@ -287,7 +287,7 @@ const CAPABILITY_CATALOG: CapabilityCatalogEntry[] = [
     policyMode: 'runtime-invariant',
     trustModes: ['protected', 'collaborator', 'overlord'],
     permission: 'none',
-    description: 'createdAt/updatedAt/eventos sao a fonte canonica de timing do run.',
+    description: 'createdAt/updatedAt/eventos sao a fonte canonical de timing do run.',
     toolIds: [],
     metadataKeys: ['runBudget', 'lifecycleDefense'],
     statusPath: '/zavorthControl/runs/:runId#events',

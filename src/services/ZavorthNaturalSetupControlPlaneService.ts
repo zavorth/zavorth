@@ -291,7 +291,7 @@ export class ZavorthNaturalSetupControlPlaneService {
     if (input.missingEnvKeys > 0) {
       actions.push({
         id: 'fill-missing-env',
-        label: 'Preencher o que falta',
+        label: 'Preencher what is missing',
         severity: 'warn',
         reason: `Ainda faltam ${input.missingEnvKeys} chave(s) obrigatoria(s) para ${this.text(input.selected?.label, 'o canal')}.`,
         command: this.text(input.selected?.operatorNextStep, `npm run channels:assistant -- --channel ${this.text(input.selected?.channelId, '')}`),

@@ -272,7 +272,7 @@ export class ExecutionGateway {
         WorkspaceResolver.validate(plan.workspace_recommendation);
       }
       return null;
-    } catch (error: unknown) { const err = asErrorLike(error); return `Workspace invalido: ${err.message}`;
+    } catch (error: unknown) { const err = asErrorLike(error); return `Invalid workspace: ${err.message}`;
     }
   }
 

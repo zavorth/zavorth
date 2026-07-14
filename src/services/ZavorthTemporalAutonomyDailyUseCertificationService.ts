@@ -40,7 +40,7 @@ export class ZavorthTemporalAutonomyDailyUseCertificationService {
     const liveTickCertification = dailyOpsReadiness.liveTickCertification;
     const channelCapability = new ZavorthChannelCapabilityAwarenessService({ now }).buildSnapshot();
     const agentRunRecovery = new ZavorthContextRecoveryAssimilationService({ now }).buildSnapshot({
-      text: 'Continue a tarefa diaria mesmo se o provider falhar, preservando contexto e approvals.',
+      text: 'Continue a tarefa diaria mesmo se o provider failurer, preservando contexto e approvals.',
       surface: 'scheduler',
       actorId: 'checkpoint-8-certification',
       sessionId: 'checkpoint-8-daily-use',

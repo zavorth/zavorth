@@ -112,9 +112,9 @@ function stageLabel(stage: ChannelProgressStage): string {
     case 'approval_waiting':
       return 'Aguardando aprovacao';
     case 'tool_completed':
-      return 'Ferramenta concluida';
+      return 'Tool completed';
     case 'final':
-      return 'Concluido';
+      return 'Completed';
     case 'failed':
       return 'Falhou';
     case 'cancelled':

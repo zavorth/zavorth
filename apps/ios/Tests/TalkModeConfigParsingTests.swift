@@ -336,7 +336,7 @@ import Testing
             "talk": [
                 "providers": [
                     "elevenlabs": [
-                        "apiKey": "__OPENCLAW_REDACTED__",
+                        "apiKey": "__ZAVORTH_REDACTED__",
                         "voiceId": "bIHbv24MWmeRgasZH58o",
                     ],
                 ],
@@ -357,7 +357,7 @@ import Testing
                 "resolved": [
                     "provider": "elevenlabs",
                     "config": [
-                        "apiKey": "__OPENCLAW_REDACTED__",
+                        "apiKey": "__ZAVORTH_REDACTED__",
                         "voiceId": "bIHbv24MWmeRgasZH58o",
                     ],
                 ],
@@ -376,7 +376,7 @@ import Testing
         #expect(parsed.realtimeProvider == "openai")
         #expect(parsed.realtimeModelId == "gpt-realtime-2")
         #expect(parsed.realtimeVoiceId == "cedar")
-        #expect(parsed.rawConfigApiKey == "__OPENCLAW_REDACTED__")
+        #expect(parsed.rawConfigApiKey == "__ZAVORTH_REDACTED__")
     }
 
     @Test func leavesNativeModeForManagedRoomRealtimeTransport() {

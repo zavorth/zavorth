@@ -149,7 +149,7 @@ export function formatWorkspaceMemoryAction(result: ZavorthMemoryReviewActionRes
       title: 'Review atualizado',
       tone: 'info',
       lines: [
-        `- memorias: ${result.review.review.total}`,
+        `- memorys: ${result.review.review.total}`,
         `- preferencias: ${result.review.preferenceLedger.total}`,
         `- workspace: ${result.review.workspaceProfile.slug}`,
       ],

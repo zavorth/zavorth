@@ -126,7 +126,7 @@ export class UserExperienceIntentRouter {
     }
 
     if (matchesAny(text, GREETING_PATTERNS)) {
-      return this.decision('chat', 'high', false, false, false, false, 'Saudacao ou resposta curta deve ser conversa direta.', signals);
+      return this.decision('chat', 'high', false, false, false, false, 'Saudaction ou resposta curta deve ser conversa direta.', signals);
     }
 
     if (hasLink && !explicitWebOperation) {

@@ -363,7 +363,7 @@ export class WorkflowRunSupport {
     const now = this.runtime.now().toISOString();
     run.operator_state = 'closed';
     run.operator_closed_at = now;
-    run.operator_close_reason = String(input.reason || '').trim() || 'workflow encerrado pelo operador';
+    run.operator_close_reason = String(input.reason || '').trim() || 'workflow encerrado by the operator';
     run.operator_closed_by_surface = String(input.surface || '').trim() || null;
     run.updated_at = now;
     this.syncRunDerivedState(run);

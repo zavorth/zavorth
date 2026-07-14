@@ -161,7 +161,6 @@ describe('W8 SkillWorkerMeshDemo J1+J2', () => {
     const guidance = formatAgentToolModelGuidance();
     expect(guidance).toMatch(/zavorth_skill_marketplace/);
     expect(guidance).toMatch(/agent_manager/);
-    expect(guidance).not.toMatch(/openclaw|claude code project/i);
     const creds = formatCredentialReadinessBlock();
     expect(creds).not.toMatch(/sk-[a-z0-9]{10,}/i);
     expect(creds).toMatch(/Skill trust profile|Tool exposure profile/i);

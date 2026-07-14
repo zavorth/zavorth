@@ -242,7 +242,7 @@ export function buildRuntimeShellHtmlPart4(): string {
 
       <section id="system-overlord-card" class="handoff-card system-overlord-card">
         <p class="profile-tag">System Overlord</p>
-        <h2>Controle supervisionado do host</h2>
+        <h2>Controle supervisionado of the host</h2>
         <p class="muted-copy section-note">
           Capabilities, niveis de autonomia, adapters e ultimas acoes passam por policy, ledger e approvals antes de tocar no host.
         </p>

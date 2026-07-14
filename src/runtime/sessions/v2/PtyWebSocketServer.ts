@@ -11,7 +11,8 @@ import { SessionManager } from './SessionManager.js';
 
 import type { AgentState, SessionEventMap } from './AgentState.js';
 import type { RegisterSessionOwnershipInput, SessionGarbageCollectorPolicy } from './SessionOwnershipContract.js';
-import type { SessionRegistryService } from './SessionRegistryService.js';type PtySessionController = {
+import type { SessionRegistryService } from './SessionRegistryService.js';
+type PtySessionController = {
   getEvents(): {
     on<K extends keyof SessionEventMap>(event: K, listener: SessionEventMap[K]): unknown;
     removeListener<K extends keyof SessionEventMap>(event: K, listener: SessionEventMap[K]): unknown;

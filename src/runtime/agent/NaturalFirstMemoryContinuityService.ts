@@ -162,8 +162,8 @@ export class NaturalFirstMemoryContinuityService {
     const cited = receipts.slice(0, 4).map((receipt, index) => {
       const title = compact(receipt.title || receipt.memoryId || `memoria ${index + 1}`, 96);
       const summary = compact(receipt.summary, 220);
-      const source = compact(receipt.source || receipt.sourceType || 'fonte registrada', 120);
-      return `${index + 1}. ${title}: ${summary}\n   Fonte: ${source}`;
+      const source = compact(receipt.source || receipt.sourceType || 'registered source', 120);
+      return `${index + 1}. ${title}: ${summary}\n   Source: ${source}`;
     });
     return [
       'Encontrei memoria com origem registrada para continuar:',

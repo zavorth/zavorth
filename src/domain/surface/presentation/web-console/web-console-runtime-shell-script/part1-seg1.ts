@@ -462,7 +462,7 @@ export const runtimeShellScriptPart1Seg1: string = [
     "let gatewayControlSocketRequestSequence = 0;",
     "const gatewayControlSocketPendingRequests = new Map();",
     "let publicShellSnapshot = {",
-    "  gatewayLabel: 'Verificando',",
+    "  gatewayLabel: 'Checking',",
     "  initializedDomains: 'Detectando',",
     "  nodeCount: 'Detectando',",
     "  transportCount: 'Detectando',",

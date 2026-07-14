@@ -187,7 +187,7 @@ function zavorthControlClassicClientOverviewMeshChannels() {
       const node = document.getElementById('operations-channels');
       if (!node) return;
       if (!channelMesh || channelMesh.error) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar o Channel Mesh.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar o Channel Mesh.</div>';
         return;
       }
 

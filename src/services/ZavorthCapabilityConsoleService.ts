@@ -104,7 +104,7 @@ export class ZavorthCapabilityConsoleService {
       approvalSurface: {
         diffPreviewSupported: true,
         runObservatoryCommand: 'zavorth observatory --json',
-        approveApplyInstruction: 'Revise a Previa de alteracao e peça ao Zavorth: aplicar rascunho <planId>.',
+        approveApplyInstruction: 'Revise a Previa de alteraction e peça ao Zavorth: aplicar rascunho <planId>.',
         rollbackInstruction: 'Depois do apply, use o rollback artifact apontado no Run Observatory.',
       },
       narrative: this.narrative(view, summary),
@@ -122,7 +122,7 @@ export class ZavorthCapabilityConsoleService {
       `Catalogo: ${snapshot.summary.visibleCatalogItems}/${snapshot.summary.totalCatalogItems} itens visiveis`,
       `Packs: ${snapshot.summary.packs} pack(s), ${snapshot.summary.packItems} item(s) declarativo(s)`,
       `Tickets: ${snapshot.summary.openTickets} aberto(s), ${snapshot.summary.readyTickets} pronto(s)`,
-      `Pedidos: ${snapshot.summary.activationRequests} pedido(s) de ativacao controlada`,
+      `Pedidos: ${snapshot.summary.activationRequests} pedido(s) de ativaction controlada`,
     ];
 
     if (snapshot.readiness) {

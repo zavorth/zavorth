@@ -105,15 +105,15 @@ export class AutonomousHousekeepingAgentService {
     if (input.triggerMaintenance !== false && this.maintenanceAutomation) {
       const status = this.maintenanceAutomation.triggerNow(
         requestedBy,
-        'Housekeeping autonomo disparou manutencao supervisionada.',
+        'Autonomous housekeeping triggered supervised maintenance.',
       );
       operations.push({
         id: 'scheduled-maintenance',
         label: 'Maintenance Trigger',
         status: 'completed',
         summary: status.lastActionId
-          ? `Manutencao supervisionada disparada via ${status.lastActionId}.`
-          : (status.note || 'Manutencao supervisionada disparada.'),
+          ? `Supervised maintenance triggered via ${status.lastActionId}.`
+          : (status.note || 'Supervised maintenance triggered.'),
         command: 'npm run ops:maintain:scheduled',
         artifactId: status.lastActionId || null,
       });
@@ -167,8 +167,8 @@ export class AutonomousHousekeepingAgentService {
         kind: 'plan',
         status: 'planned',
         id: `housekeeping-${this.now().toISOString()}`,
-        objective: 'Rodar housekeeping autonomo supervisionado.',
-        summary: 'Housekeeping autonomo planejado.',
+        objective: 'Run supervised autonomous housekeeping.',
+        summary: 'Autonomous housekeeping planned.',
         requestedBy,
         surface: 'housekeeping-agent',
       },
@@ -176,7 +176,7 @@ export class AutonomousHousekeepingAgentService {
         engine: 'automation',
         kind: 'run',
         status: posture === 'critical' ? 'failed' : 'completed',
-        objective: 'Rodar housekeeping autonomo supervisionado.',
+        objective: 'Run supervised autonomous housekeeping.',
         summary: this.buildSummary(architecture, operations),
         requestedBy,
         surface: 'housekeeping-agent',
@@ -210,7 +210,7 @@ export class AutonomousHousekeepingAgentService {
   private deriveRefactorGoal(architecture: ArchitectureRefactorSnapshot): string {
     const mostUrgentAction = architecture.actions[0];
     if (mostUrgentAction) {
-      return `Preparar refactor supervisionado para: ${mostUrgentAction.label}. Motivo: ${mostUrgentAction.reason}`;
+      return `Prepare supervised refactor for: ${mostUrgentAction.label}. Motivo: ${mostUrgentAction.reason}`;
     }
     return 'Preparar uma rodada pequena de limpeza arquitetural supervisionada no Zavorth.';
   }

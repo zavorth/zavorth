@@ -71,7 +71,7 @@ export class ZavorthControlFinalProductPolishService {
           && files.runtimeBridgeJs.includes('loadControlState'),
         approvalsInboxReady: files.chatSurfaceJs.includes('approvalCount')
           && files.chatSurfaceJs.includes('onResolveApproval')
-          && files.contextRailJs.includes('Aguardando sua revisao'),
+          && files.contextRailJs.includes('Waiting for sua revisao'),
         receiptsViewerReady: files.chatSurfaceJs.includes('View receipt')
           && files.contextRailJs.includes('View receipt'),
         missionTimelineReady: files.contextRailJs.includes('ZavorthControlTaskTimeline')
@@ -172,7 +172,7 @@ export class ZavorthControlFinalProductPolishService {
         kind: 'approval',
         passed: files.chatSurfaceJs.includes('approvalCount')
           && files.chatSurfaceJs.includes('onResolveApproval')
-          && files.contextRailJs.includes('Aguardando sua revisao'),
+          && files.contextRailJs.includes('Waiting for sua revisao'),
         userVisible: true,
         defaultSimple: true,
         evidence: ['chat approval strip', 'context rail review copy'],

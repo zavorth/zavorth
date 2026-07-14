@@ -141,7 +141,7 @@ export const runtimeShellScriptPart6Seg2: string = [
     "  setText(",
     "    remoteCardNote,",
     "    action === 'remote'",
-    "      ? 'Este e o aprofundamento principal agora: feche o rollout remoto oficial antes de operar fora da maquina.'",
+    "      ? 'Este e o aprofundamento principal agora: feche o rollout remoto oficial antes de operar outside this machine.'",
     "      : 'Use este caminho when you quiser operar fora dthis machine ou publicar o shell remoto oficial.',",
     "  );",
     "",

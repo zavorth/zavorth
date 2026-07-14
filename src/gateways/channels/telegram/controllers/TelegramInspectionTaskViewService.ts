@@ -172,7 +172,7 @@ export class TelegramInspectionTaskViewService {
       pending: 'active', pendente: 'active', pendentes: 'active', active: 'active', ativo: 'active', ativos: 'active',
       approval: 'approval', approvals: 'approval', aprovacao: 'approval', aprovacoes: 'approval', waiting_approval: 'approval',
       failed: 'failed', falha: 'failed', falhas: 'failed', erro: 'failed', erros: 'failed',
-      completed: 'completed', done: 'completed', concluidas: 'completed', concluida: 'completed', finalizadas: 'completed', finalizada: 'completed',
+      completed: 'completed', done: 'completed', finished: 'completed',
     };
 
     for (const token of tokens) {

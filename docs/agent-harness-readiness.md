@@ -87,13 +87,13 @@ Docs:
 Credential readiness also reports skill trust + exposure profile **presence only**
 (no secrets).
 
-### W8 QA gate
+### Skill/worker mesh QA
 
 ```bash
 npm run qa:skill-worker-mesh
 ```
 
-See [skill-worker-mesh-qa-gate.md](./product/skill-worker-mesh-qa-gate.md) before starting Telegram agent-first (W9).
+Free-text routing: [product/agent-tool-routing.md](./product/agent-tool-routing.md), [product/telegram-agent-first.md](./product/telegram-agent-first.md).
 
 ## P3 — Remote marketplace host pack
 

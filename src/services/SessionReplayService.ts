@@ -197,10 +197,10 @@ export class SessionReplayService {
   }): string {
     const parts = [
       input.tasks.length
-        ? `${input.tasks.length} tarefa(s) recentes`
+        ? `${input.tasks.length} recent task(s)`
         : 'no recent tasks',
       input.workflowRuns.length
-        ? `${input.workflowRuns.length} workflow(s) composto(s)`
+        ? `${input.workflowRuns.length} composite workflow(s)`
         : 'sem workflows compostos',
       input.permissions.filter((permission) => permission.status === 'pending').length
         ? `${input.permissions.filter((permission) => permission.status === 'pending').length} confirmacao(oes) pendente(s)`
@@ -208,10 +208,10 @@ export class SessionReplayService {
     ];
 
     if (input.recentArtifacts.length) {
-      parts.push(`${input.recentArtifacts.length} entrega(s) prontas`);
+      parts.push(`${input.recentArtifacts.length} ready artifact(s)`);
     }
     if (input.dominantSurface) {
-      parts.push(`origem dominante em ${input.dominantSurface}`);
+      parts.push(`dominant source: ${input.dominantSurface}`);
     }
 
     return parts.join(' | ');

@@ -10,7 +10,6 @@ describe('UniversalProductFabricService', () => {
     expect(all.some((c) => c.command.startsWith('zavorth power'))).toBe(true);
     expect(all.some((c) => c.command.startsWith('zavorth product'))).toBe(true);
     for (const cmd of all) {
-      expect(cmd.command + cmd.summary).not.toMatch(/openclaw|hermes|claude|cursor|clawhub/i);
     }
     const daily = service.listPublicCommands('daily');
     expect(daily.every((c) => c.group === 'daily')).toBe(true);

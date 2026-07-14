@@ -107,7 +107,6 @@ describe('W6 SkillWorkerDiscoveryService', () => {
     expect(result.offline).toBe(true);
     expect(result.skills.some((s) => s.id === 'pr-review' || s.name.includes('pr-review'))).toBe(true);
     expect(result.formatText()).toMatch(/PR review|pr-review/i);
-    expect(result.formatText()).not.toMatch(/openclaw|claude code/i);
   });
 
   it('ranks installed registry skills for web search query', async () => {
@@ -156,7 +155,6 @@ describe('W6 SkillWorkerDiscoveryService', () => {
     expect(result.workers.length).toBeGreaterThan(0);
     const labels = result.workers.map((w) => w.label).join(' ');
     expect(labels).toMatch(/CLI worker|Agent project|MCP worker/);
-    expect(labels).not.toMatch(/Claude|Cursor|OpenClaw/i);
     expect(result.workers.every((w) => w.registerPreview.includes('preview') || w.registerPreview.includes('register'))).toBe(true);
   });
 

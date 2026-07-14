@@ -1,10 +1,10 @@
 ﻿<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <capability
-        android:name="custom.actions.intent.ASK_OPENCLAW"
+        android:name="custom.actions.intent.ASK_ZAVORTH"
         app:queryPatterns="@array/ask_zavorth_query_patterns">
         <intent
-            android:action="dev.zavorth.companion.action.ASK_OPENCLAW"
+            android:action="dev.zavorth.companion.action.ASK_ZAVORTH"
             android:targetPackage="dev.zavorth.companion"
             android:targetClass="dev.zavorth.companion.MainActivity">
             <parameter

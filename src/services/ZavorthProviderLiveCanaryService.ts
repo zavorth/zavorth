@@ -10,7 +10,7 @@ import {
 
 import { ProviderFactory } from '../providers/ProviderFactory.js';
 import { ZavorthProviderReadinessMatrixService } from './ZavorthProviderReadinessMatrixService.js';
-import { ZavorthSubagentRuntimeService } from './ZavorthSubagentRuntimeService.js';
+import { ZavorthSubagentRuntimeService } from '../agents/ZavorthSubagentRuntimeService.js';
 import { logger } from '../logger.js';
 import { asErrorLike } from '../utils/errorLike.js';
 

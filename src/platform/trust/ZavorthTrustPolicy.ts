@@ -112,7 +112,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
         operation: 'signature_validation',
         target: entry.id,
         allowed: false,
-        reason: 'Estado local marcou a fonte do pacote como nao confiavel.',
+        reason: 'Local state marked the package source as untrusted.',
       });
       return false;
     }
@@ -136,7 +136,7 @@ export class DefaultTrustPolicy implements ZavorthTrustPolicy {
       target: normalized || 'unknown',
       allowed,
       reason: allowed
-        ? 'Publisher reconhecido como confiavel.'
+        ? 'Publisher recognized as trusted.'
         : 'Publisher nao esta na lista confiavel.',
     });
     return allowed;

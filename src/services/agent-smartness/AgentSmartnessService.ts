@@ -184,7 +184,7 @@ export class AgentSmartnessService {
     });
     const reply = service.buildReplyText(snapshot, { run, request, generatedAt, memoryWithReceipts: null });
     const replyLower = reply.toLowerCase();
-    const claimsMemory = /\bi remember\b|\byou told me\b|\byour favorite editor is\b|\bseu editor favorito\b/.test(replyLower);
+    const claimsMemory = /\bi remember\b|\byou told me\b|\byour favorite editor is\b/.test(replyLower);
     const pass = snapshot.status === 'memory-empty'
       && snapshot.policy.noMemoryInvented === true
       && !claimsMemory

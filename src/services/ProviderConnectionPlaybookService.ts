@@ -191,7 +191,7 @@ export class ProviderConnectionPlaybookService {
         `${entry.label} selecionado com modelo ${entry.currentModelName || 'nao definido'}.`,
       ]),
       step('add-credentials', 'Adicionar credenciais como segredo local', authMissing ? 'next' : 'done', null, [
-        authMissing ? `Faltam: ${missingInputKeys.join(', ')}.` : 'Chaves obrigatorias aparecem configuradas.',
+        authMissing ? `Faltam: ${missingInputKeys.join(', ')}.` : 'Chaves required aparecem configuradas.',
         'Valores brutos nunca entram no snapshot.',
       ]),
       step('configure-base-url', 'Configurar base URL quando necessario', baseUrlMissing ? 'next' : 'done', null, [

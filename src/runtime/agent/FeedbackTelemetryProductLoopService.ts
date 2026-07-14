@@ -1,6 +1,7 @@
 import type { FeedbackTelemetryContractSnapshot } from '../../contracts/FeedbackTelemetryContract.js';
 import type { PublicSiteDocsDemoSyncSnapshot } from './PublicSiteDocsDemoSyncService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.feedback-telemetry' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_CONTRACT_VERSION = '2026-05-04.feedback-telemetry' as const;
 export const FEEDBACK_TELEMETRY_PRODUCT_LOOP_METADATA_KEY = 'feedbackTelemetryProductLoop' as const;
 
 export type FeedbackTelemetryProductLoopStatus =
@@ -389,7 +390,7 @@ export class FeedbackTelemetryProductLoopService {
         command: 'zavorth public-sync --json',
         detail: input.publicSync
           ? `Public sync esta ${input.publicSync.status}.`
-          : 'Feedback loop precisa da Channel mesh9 publicada no run.',
+          : 'Feedback loop needs Channel mesh9 publicada no run.',
         critical: true,
       },
       {

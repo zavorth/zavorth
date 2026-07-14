@@ -73,6 +73,8 @@ Power-user and maintainer docs. Useful for deep runtime work; not required for f
 - Temporary plans and private audits do not belong here.
 - Commands in docs should be user-facing commands or stable maintainer commands.
 
-## Historical plans
+## Architecture (routing)
 
-Historical audits and phase-plan stubs were removed from the public tree. Live residual work (Value Waves V8–V12, launch bar) lives under **[docs/product/](./product/)** — start with [WAVES-UNIFIED-CLOSEOUT.md](./product/WAVES-UNIFIED-CLOSEOUT.md) and [launch-readiness.md](./product/launch-readiness.md).
+- [product/agent-tool-routing.md](./product/agent-tool-routing.md) — free text vs slash/tools
+- [product/surface-agent-contracts.md](./product/surface-agent-contracts.md) — surface contracts
+- [product/telegram-agent-first.md](./product/telegram-agent-first.md) — Telegram free-text path

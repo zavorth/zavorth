@@ -1,6 +1,7 @@
 import type { IntegrationShowcaseSnapshot } from '../../contracts/IntegrationShowcaseContract.js';
 import type { PublicAdoptionPilotLoopSnapshot } from './PublicAdoptionPilotLoopService.js';
-import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.integration-showcase' as const;
+import type { UniversalAgentRun } from './UniversalAgentRuntimeTypes.js';
+export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_CONTRACT_VERSION = '2026-05-04.integration-showcase' as const;
 export const INTEGRATION_SHOWCASE_PARTNER_SURFACE_METADATA_KEY = 'integrationShowcasePartnerSurface' as const;
 
 export type IntegrationShowcasePartnerSurfaceStatus =
@@ -487,7 +488,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         command: 'npm run qa:integration-showcase',
         detail: input.trustPlaneReady
           ? 'Approval, policy e audit trail aparecem como controles publicos.'
-          : 'Showcase precisa evidenciar approval, policy e audit trail.',
+          : 'Showcase precisa evidencer approval, policy e audit trail.',
         critical: true,
       },
       {
@@ -560,7 +561,7 @@ export class IntegrationShowcasePartnerSurfaceService {
         label: 'Partner surface',
         routeOrCommand: 'partner-surface.json',
         status: input.partnerSurfaceReady ? 'ready' : 'needs-action',
-        detail: 'Partner surface separa compatibilidade de parceria formal.',
+        detail: 'Partner surface seto compatibilidade de parceria formal.',
       },
       {
         id: 'next-phase',

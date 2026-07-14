@@ -482,7 +482,7 @@ export class ZavorthSessionPlaneService {
     if (history.replay?.recommendedEntry) {
       lines.push(
         '',
-        `Melhor entrada: ${history.replay.recommendedEntry.label}.`,
+        `Better entrada: ${history.replay.recommendedEntry.label}.`,
         history.replay.recommendedEntry.reason,
       );
     }

@@ -421,7 +421,7 @@ export class AutoRepairValidationService {
     if (process.platform !== 'win32') {
       return this.createSkippedValidationStep(
         'launcher-dry-run',
-        'O dry-run do launcher supervisionado so roda no Windows.',
+        'O dry-run do supervised launcher so roda no Windows.',
       );
     }
 

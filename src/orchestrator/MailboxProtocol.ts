@@ -2,7 +2,8 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { Task } from '../contracts/TaskContract.js';
-import { logger } from '../logger.js';export type MailboxAgent = 'ZAVORTH_BRIDGE' | 'CODEX';
+import { logger } from '../logger.js';
+export type MailboxAgent = 'ZAVORTH_BRIDGE' | 'CODEX';
 
 type SignedEnvelopeFields = {
   protocol: string;
@@ -202,7 +203,7 @@ export class MailboxProtocol {
       Buffer.from('AUTO', 'utf8').toString('base64');
 
     if (!agent || !action || !messageId || !taskId || !timestamp || !promptBase64) {
-      return { accepted: false, reason: 'Mensagem rejeitada: campos obrigatorios ausentes.' };
+      return { accepted: false, reason: 'Message rejected: required fields missing.' };
     }
 
     const fields: SignedEnvelopeFields = {
@@ -219,7 +220,7 @@ export class MailboxProtocol {
 
     const expectedSignature = this.sign(fields);
     if (!this.safeCompare(signature, expectedSignature)) {
-      return { accepted: false, reason: 'Mensagem rejeitada: assinatura invalida.' };
+      return { accepted: false, reason: 'Message rejected: invalid signature.' };
     }
 
     if (protocol !== DEFAULT_PROTOCOL) {

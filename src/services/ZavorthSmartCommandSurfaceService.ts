@@ -146,7 +146,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     id: 'skills',
     aliases: ['skills', 'skill', 'habilidades'],
     label: 'Skills',
-    summary: 'Lista, busca ou prepara uso/criacao de skills pelo mesh governado.',
+    summary: 'Lista, busca ou preto uso/criaction de skills pelo mesh governado.',
     risk: 'low',
     executionMode: 'state-preview',
     canonicalSlash: '/skills [query]',
@@ -177,7 +177,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
   },
   {
     id: 'status',
-    aliases: ['status', 'estado', 'ready'],
+    aliases: ['status', 'ready'],
     label: 'Status',
     summary: 'Mostra prontidao operacional e proximo passo claro.',
     risk: 'none',
@@ -190,7 +190,7 @@ const SMART_COMMANDS: ZavorthSmartCommandResolution[] = [
     id: 'sethome',
     aliases: ['sethome', 'home', 'workspace-home', 'definir-home'],
     label: 'Definir home',
-    summary: 'Prepara troca do workspace/home padrao; escrita exige approval.',
+    summary: 'Preto troca do workspace/home padrao; escrita exige approval.',
     risk: 'medium',
     executionMode: 'approval-gated',
     canonicalSlash: '/sethome <path>',
@@ -402,7 +402,7 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
   }
   if (command.id === 'compress') {
     return {
-      title: 'Compactacao de contexto preparada',
+      title: 'Compactaction de contexto preparada',
       body: 'Vou compactar contexto conversacional preservando objetivo, decisoes, approvals, memoria procedural e receipts.',
       hints: ['Preview primeiro; aplicar compactacao persistente exige confirmacao quando alterar memoria.'],
     };
@@ -451,9 +451,9 @@ function replyFor(command: ZavorthSmartCommandResolution, ctx: CommandContext): 
     return {
       title: args ? 'Home preparado' : 'Home do workspace',
       body: args
-        ? `Novo home proposto: ${args}. Gravacao persistente exige approval e path seguro.`
+        ? `Novo home proposto: ${args}. Gravaction persistente exige approval e path seguro.`
         : 'Informe um caminho: /sethome <path>. O Zavorth vai validar antes de gravar.',
-      hints: ['Nao ha varredura automatica do computador.', 'Use caminhos explicitos.'],
+      hints: ['There is no varredura automatica do computador.', 'Use caminhos explicitos.'],
     };
   }
   if (command.id === 'loop') {

@@ -336,7 +336,7 @@ export class ZavorthToolCatalogService {
         kind: 'integration',
         source: `integration:${manifest.category || 'generic'}`,
         readiness,
-        summary: String(manifest.summary || 'Integracao catalogada no Zavorth.').trim(),
+        summary: String(manifest.summary || 'Integraction catalogada no Zavorth.').trim(),
         command: manifest.connectCommand || null,
         details: [
           manifest.category ? `Categoria: ${manifest.category}` : null,

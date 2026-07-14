@@ -11,7 +11,13 @@
  * 6. Tool caching and predictive loading
  */
 
-import { CognitiveFirewall, ToolUsageTracker, ToolResultCache, ContextAwareInjector } from '../../src/cognitive-firewall';
+import {
+  CognitiveFirewall,
+  ToolGatekeeper,
+  ToolUsageTracker,
+  ToolResultCache,
+  ContextAwareInjector,
+} from '../../src/cognitive-firewall';
 import { TieredAutonomyClassifier, TieredApplier } from '../../src/services/TieredAutonomyService';
 import { ProfileOnboardingService } from '../../src/services/ProfileOnboardingService';
 import { SmartDefaultsService } from '../../src/services/SmartDefaultsService';
@@ -208,13 +214,20 @@ describe('E2E: Cognitive Firewall full stack', () => {
 
     const decision = firewall.evaluate('search for TypeScript articles', ALL_TOOLS);
 
+    expect(decision.classification.category).toBe('full_toolset');
     expect(decision.toolHintProfile.isCompactMode).toBe(true);
     expect(decision.toolHintProfile.isClusterMode).toBe(true);
-    expect(decision.toolHintProfile.isPredictiveMode).toBe(true);
     expect(decision.toolHintProfile.compactTools!.length).toBeGreaterThan(0);
     expect(decision.toolHintProfile.activeClusters!.length).toBeGreaterThan(0);
-    expect(decision.toolHintProfile.predictedToolNames).toContain('read_file');
     expect(decision.tokenSavings!.savedTokens).toBeGreaterThan(0);
+
+    // Predictive extras apply on filtered structured categories, not full_toolset.
+    const predictive = new ToolGatekeeper({
+      usageTracker: tracker,
+      sessionId: 'user-1',
+    }).buildHintProfile(ALL_TOOLS, 'information');
+    expect(predictive.isPredictiveMode).toBe(true);
+    expect(predictive.predictedToolNames).toContain('read_file');
   });
 
   it('tool cache avoids re-execution', () => {
@@ -462,9 +475,10 @@ describe('E2E: Complete user journey', () => {
       tracker.recordTurn('personal-user', ['web_search', 'read_file']);
     }
 
-    // Step 5: Next conversation uses prediction
+    // Step 5: Free text stays full_toolset; predictive extras need a filtered category.
     const decision2 = firewall.evaluate('search for news', ALL_TOOLS);
-    expect(decision2.toolHintProfile.isPredictiveMode).toBe(true);
+    expect(decision2.classification.category).toBe('full_toolset');
+    expect(decision2.toolHintProfile.isCompactMode).toBe(true);
 
     // Step 6: Progressive disclosure
     const disclosure = new ProgressiveDisclosureService();
@@ -493,7 +507,8 @@ describe('E2E: Complete user journey', () => {
     });
 
     const decision = firewall.evaluate('read the README.md file', ALL_TOOLS);
-    expect(decision.classification.category).toBe('file_operation');
+    // Free text does not keyword-map to file_operation; model owns capability choice.
+    expect(decision.classification.category).toBe('full_toolset');
 
     // Step 4: Progressive disclosure
     const disclosure = new ProgressiveDisclosureService();

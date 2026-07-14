@@ -1,4 +1,5 @@
-import { spawn, type ChildProcess } from 'child_process';export type SupervisedProcessExecutionResult = {
+import { spawn, type ChildProcess } from 'child_process';
+export type SupervisedProcessExecutionResult = {
   ok: boolean;
   exitCode: number | null;
   stdout: string;
@@ -48,7 +49,7 @@ export async function executeSupervisedProcess(input: {
         stdout,
         stderr,
         errorCode: 'process_timeout',
-        errorMessage: `Processo supervisionado excedeu o timeout de ${timeoutMs}ms.`,
+        errorMessage: `Supervised process exceeded the timeout of ${timeoutMs}ms.`,
       });
     }, timeoutMs);
 

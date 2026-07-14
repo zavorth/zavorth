@@ -14,7 +14,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
     const node = document.getElementById('operations-plugins');
     if (!node) return;
     if (!plugins || 'error' in (plugins as PluginPlaneErrorPayload)) {
-      node.innerHTML = '<div class="muted">No foi possivel carregar o plugin plane.</div>';
+      node.innerHTML = '<div class="muted">Could not carregar o plugin plane.</div>';
       return;
     }
 

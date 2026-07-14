@@ -211,11 +211,11 @@ export class PilotLoopService {
       .map((item) => `${item.path}: ${item.phrase}`);
     return this.check(
       'pilot-loop:feedback-foundation',
-      'fundacao feedback opt-in da Readiness checkpoint 2',
+      'fundaction feedback opt-in da Readiness checkpoint 2',
       missing.length === 0 ? 'pass' : 'fail',
       missing.length === 0
         ? 'feedback opt-in, preview redigido, revoke/delete e ledger local ja existem como base.'
-        : 'Readiness checkpoint 7 depende da fundacao de feedback opt-in da Readiness checkpoint 2.',
+        : 'Readiness checkpoint 7 depende da fundaction de feedback opt-in da Readiness checkpoint 2.',
       undefined,
       missing,
     );

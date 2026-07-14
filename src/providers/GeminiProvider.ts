@@ -23,7 +23,8 @@ import {
   ToolDefinition,
 } from './ILlmProvider.js';
 
-import { isProviderAbortError } from './ProviderAbort.js';interface GeminiGroundingChunk {
+import { isProviderAbortError } from './ProviderAbort.js';
+interface GeminiGroundingChunk {
   web?: { uri?: string; title?: string };
 }
 

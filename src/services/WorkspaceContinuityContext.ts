@@ -407,7 +407,7 @@ function buildWorkflowRunActions(input: {
       kind: 'resume_workflow',
       label: input.stageLabel
         ? `Retomar workflow em ${input.stageLabel}`
-        : 'Retomar workflow',
+        : 'Resume workflow',
       command,
       reason: input.reason,
       workflowRunId: input.runId,
@@ -432,8 +432,8 @@ function buildClosedWorkflowFollowupPrompt(input: {
   );
   parts.push(
     input.closeReason
-      ? `O workflow anterior foi encerrado pelo operador: ${input.closeReason}.`
-      : 'O workflow anterior foi encerrado pelo operador.',
+      ? `O workflow anterior foi encerrado by the operator: ${input.closeReason}.`
+      : 'O workflow anterior foi encerrado by the operator.',
   );
   if (input.recentArtifactName) {
     parts.push(`Use ${input.recentArtifactName} como base para decidir o proximo passo util.`);
@@ -503,7 +503,7 @@ function buildOperationalInsight(operationalMemory: Record<string, any>): string
     const subtype = asText(routeOutcome.task_subtype);
     const rationale = asText(routeOutcome.rationale);
     return normalizeInsightText(
-      `Melhor rota recente: ${executor} fecha ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
+      `Better rota recente: ${executor} fecha ${kind}${subtype && subtype !== 'general' ? `/${subtype}` : ''}${rationale ? ` (${rationale})` : ''}.`,
     );
   }
 

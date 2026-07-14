@@ -65,7 +65,7 @@ export class ZavorthHandoffPreviewEngine {
       }
     }
     if (!activeMandate) {
-      activeMandate = 'Aguardando novo mandato consolidado do operador.';
+      activeMandate = 'Waiting for novo mandato consolidado the operator.';
     }
 
     // 2. Current Architecture Decisions

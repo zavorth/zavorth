@@ -25,10 +25,10 @@ import type {
 } from '../contracts/RemoteMeshNotebookScopedMcpServerContract.js';
 
 import type {
-JsonRpcRequest,
+  JsonRpcRequest,
   RemoteMeshNotebookDockerObservabilityProvider,
   RemoteMeshNotebookProjectFileReadProvider,
-} from './RemoteMeshNotebookScopedMcpServerService.js';
+} from '../mesh/RemoteMeshNotebookScopedMcpServerService.js';
 
 const execFileAsync = promisify(execFile);
 

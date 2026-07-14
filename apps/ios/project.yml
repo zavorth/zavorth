@@ -106,12 +106,12 @@ targets:
           swiftlint lint --config "$SRCROOT/.swiftlint.yml" --use-script-input-file-lists
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_ENTITLEMENTS: "$(OPENCLAW_CODE_SIGN_ENTITLEMENTS)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_APP_PROFILE)"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_ENTITLEMENTS: "$(ZAVORTH_CODE_SIGN_ENTITLEMENTS)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_APP_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(ZAVORTH_APP_PROFILE)"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
@@ -120,15 +120,15 @@ targets:
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
       configs:
         Debug:
-          OPENCLAW_CODE_SIGN_ENTITLEMENTS: Sources/Zavorth.entitlements
-          OPENCLAW_APNS_ENTITLEMENT_ENVIRONMENT: development
-          OPENCLAW_PUSH_MODE: localSandbox
-          OPENCLAW_PUSH_RELAY_BASE_URL: ""
+          ZAVORTH_CODE_SIGN_ENTITLEMENTS: Sources/Zavorth.entitlements
+          ZAVORTH_APNS_ENTITLEMENT_ENVIRONMENT: development
+          ZAVORTH_PUSH_MODE: localSandbox
+          ZAVORTH_PUSH_RELAY_BASE_URL: ""
         Release:
-          OPENCLAW_CODE_SIGN_ENTITLEMENTS: Sources/Zavorth.entitlements
-          OPENCLAW_APNS_ENTITLEMENT_ENVIRONMENT: production
-          OPENCLAW_PUSH_MODE: localProduction
-          OPENCLAW_PUSH_RELAY_BASE_URL: ""
+          ZAVORTH_CODE_SIGN_ENTITLEMENTS: Sources/Zavorth.entitlements
+          ZAVORTH_APNS_ENTITLEMENT_ENVIRONMENT: production
+          ZAVORTH_PUSH_MODE: localProduction
+          ZAVORTH_PUSH_RELAY_BASE_URL: ""
     info:
       path: Sources/Info.plist
       properties:
@@ -138,10 +138,10 @@ targets:
           - CFBundleURLName: dev.zavorth.companion
             CFBundleURLSchemes:
               - zavorth
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        ZavorthCanonicalVersion: "$(OPENCLAW_IOS_VERSION)"
-        ZavorthAppGroupIdentifier: "$(OPENCLAW_APP_GROUP_ID)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        ZavorthCanonicalVersion: "$(ZAVORTH_IOS_VERSION)"
+        ZavorthAppGroupIdentifier: "$(ZAVORTH_APP_GROUP_ID)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -149,7 +149,7 @@ targets:
           - audio
           - remote-notification
         BGTaskSchedulerPermittedIdentifiers:
-          - "$(OPENCLAW_APP_BUNDLE_ID).bgrefresh"
+          - "$(ZAVORTH_APP_BUNDLE_ID).bgrefresh"
         NSLocalNetworkUsageDescription: Zavorth discovers and connects to your Zavorth gateway on the local network.
         NSAppTransportSecurity:
           NSAllowsArbitraryLoadsInWebContent: true
@@ -170,8 +170,8 @@ targets:
         NSSpeechRecognitionUsageDescription: Zavorth uses on-device speech recognition for talk mode and voice wake.
         NSSupportsLiveActivities: true
         ITSAppUsesNonExemptEncryption: false
-        ZavorthPushMode: "$(OPENCLAW_PUSH_MODE)"
-        ZavorthPushRelayBaseURL: "$(OPENCLAW_PUSH_RELAY_BASE_URL)"
+        ZavorthPushMode: "$(ZAVORTH_PUSH_MODE)"
+        ZavorthPushRelayBaseURL: "$(ZAVORTH_PUSH_RELAY_BASE_URL)"
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationPortraitUpsideDown
@@ -190,14 +190,14 @@ targets:
       - sdk: AppIntents.framework
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
         CODE_SIGN_ENTITLEMENTS: ShareExtension/ZavorthShareExtension.entitlements
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
         ENABLE_APPINTENTS_METADATA: NO
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_SHARE_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_SHARE_PROFILE)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_SHARE_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(ZAVORTH_SHARE_PROFILE)"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
@@ -205,9 +205,9 @@ targets:
       path: ShareExtension/Info.plist
       properties:
         CFBundleDisplayName: Zavorth Share
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        ZavorthAppGroupIdentifier: "$(OPENCLAW_APP_GROUP_ID)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        ZavorthAppGroupIdentifier: "$(ZAVORTH_APP_GROUP_ID)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShareViewController"
@@ -232,11 +232,11 @@ targets:
       - sdk: ActivityKit.framework
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_ACTIVITY_WIDGET_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_ACTIVITY_WIDGET_PROFILE)"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_ACTIVITY_WIDGET_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(ZAVORTH_ACTIVITY_WIDGET_PROFILE)"
         TARGETED_DEVICE_FAMILY: "1,2"
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
@@ -245,8 +245,8 @@ targets:
       path: ActivityWidget/Info.plist
       properties:
         CFBundleDisplayName: Zavorth Activity
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
         NSSupportsLiveActivities: true
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
@@ -267,27 +267,27 @@ targets:
       Debug: Config/Signing.xcconfig
       Release: Config/Signing.xcconfig
     attributes:
-      DevelopmentTeam: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-      ProvisioningStyle: "$(OPENCLAW_CODE_SIGN_STYLE)"
+      DevelopmentTeam: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+      ProvisioningStyle: "$(ZAVORTH_CODE_SIGN_STYLE)"
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
         ENABLE_APPINTENTS_METADATA: NO
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_WATCH_APP_BUNDLE_ID)"
-        PROVISIONING_PROFILE_SPECIFIER: "$(OPENCLAW_WATCH_APP_PROFILE)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_WATCH_APP_BUNDLE_ID)"
+        PROVISIONING_PROFILE_SPECIFIER: "$(ZAVORTH_WATCH_APP_PROFILE)"
         SWIFT_STRICT_CONCURRENCY: complete
         SWIFT_VERSION: "6.0"
     info:
       path: WatchApp/Info.plist
       properties:
         CFBundleDisplayName: Zavorth
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
-        WKCompanionAppBundleIdentifier: "$(OPENCLAW_APP_BUNDLE_ID)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
+        WKCompanionAppBundleIdentifier: "$(ZAVORTH_APP_BUNDLE_ID)"
         WKApplication: true
 
   ZavorthTests:
@@ -307,10 +307,10 @@ targets:
       - sdk: AppIntents.framework
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID).tests"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_APP_BUNDLE_ID).tests"
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
         SWIFT_VERSION: "6.0"
         SWIFT_STRICT_CONCURRENCY: complete
@@ -320,8 +320,8 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: ZavorthTests
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
 
   ZavorthLogicTests:
     type: bundle.unit-test
@@ -335,10 +335,10 @@ targets:
       - package: ZavorthKit
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID).logic-tests"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_APP_BUNDLE_ID).logic-tests"
         ENABLE_APP_INTENTS_METADATA_GENERATION: NO
         SWIFT_EMIT_CONST_VALUE_PROTOCOLS: ""
         SWIFT_VERSION: "6.0"
@@ -347,8 +347,8 @@ targets:
       path: Tests/Info.plist
       properties:
         CFBundleDisplayName: ZavorthLogicTests
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"
 
   ZavorthUITests:
     type: bundle.ui-testing
@@ -362,10 +362,10 @@ targets:
       - target: Zavorth
     settings:
       base:
-        CODE_SIGN_IDENTITY: "$(OPENCLAW_CODE_SIGN_IDENTITY)"
-        CODE_SIGN_STYLE: "$(OPENCLAW_CODE_SIGN_STYLE)"
-        DEVELOPMENT_TEAM: "$(OPENCLAW_DEVELOPMENT_TEAM)"
-        PRODUCT_BUNDLE_IDENTIFIER: "$(OPENCLAW_APP_BUNDLE_ID).ui-tests"
+        CODE_SIGN_IDENTITY: "$(ZAVORTH_CODE_SIGN_IDENTITY)"
+        CODE_SIGN_STYLE: "$(ZAVORTH_CODE_SIGN_STYLE)"
+        DEVELOPMENT_TEAM: "$(ZAVORTH_DEVELOPMENT_TEAM)"
+        PRODUCT_BUNDLE_IDENTIFIER: "$(ZAVORTH_APP_BUNDLE_ID).ui-tests"
         SDKROOT: iphoneos
         SUPPORTED_PLATFORMS: "iphonesimulator iphoneos"
         SUPPORTS_MACCATALYST: NO
@@ -376,5 +376,5 @@ targets:
       path: UITests/Info.plist
       properties:
         CFBundleDisplayName: ZavorthUITests
-        CFBundleShortVersionString: "$(OPENCLAW_MARKETING_VERSION)"
-        CFBundleVersion: "$(OPENCLAW_BUILD_VERSION)"
+        CFBundleShortVersionString: "$(ZAVORTH_MARKETING_VERSION)"
+        CFBundleVersion: "$(ZAVORTH_BUILD_VERSION)"

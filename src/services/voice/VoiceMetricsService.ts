@@ -1,6 +1,11 @@
 /**
- * Phase 4 — fine metrics for voice STT/TTS (latencies, failures, language).
+ * Phase 4 + Gap 4 — voice metrics with optional durable JSONL append.
+ * In-memory ring buffer for live snapshot; disk for history (no secrets).
  */
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { config } from '../../config/index.js';
 
 export const VOICE_METRICS_CONTRACT_VERSION = 'voice-metrics/v1' as const;
 
@@ -30,10 +35,53 @@ export type VoiceMetricsSnapshot = {
   dictation: { ok: number; fail: number };
   duplex: { sessions: number; turns: number };
   recent: VoiceMetricEvent[];
+  persistentPath?: string | null;
 };
 
 const MAX = 300;
 const events: VoiceMetricEvent[] = [];
+
+/** Redact likely secrets from metric messages before disk. */
+function sanitizeMessage(raw: string | null | undefined): string | null {
+  if (raw == null) return null;
+  let s = String(raw);
+  // tokens / api keys patterns
+  s = s.replace(/\b(sk-[A-Za-z0-9_-]{10,})\b/g, '[redacted]');
+  s = s.replace(/\b(Bearer\s+)[A-Za-z0-9._\-]+/gi, '$1[redacted]');
+  s = s.replace(/\b(api[_-]?key|token|secret|password)\s*[:=]\s*\S+/gi, '$1=[redacted]');
+  if (s.length > 500) s = `${s.slice(0, 500)}…`;
+  return s;
+}
+
+function resolveMetricsPath(): string {
+  const override = String(process.env.ZAVORTH_VOICE_METRICS_PATH || '').trim();
+  if (override) return path.resolve(override);
+  const root = path.resolve(config.projectRoot || process.cwd());
+  return path.join(root, 'data', 'runtime', 'voice', 'metrics.jsonl');
+}
+
+function persistEnabled(): boolean {
+  const v = String(process.env.ZAVORTH_VOICE_METRICS_PERSIST || 'true').toLowerCase();
+  return v !== '0' && v !== 'false' && v !== 'off';
+}
+
+function appendPersistent(entry: VoiceMetricEvent): void {
+  if (!persistEnabled()) return;
+  if (process.env.NODE_ENV === 'test' && !process.env.ZAVORTH_VOICE_METRICS_PATH) {
+    return; // avoid writing into repo during unit tests unless path set
+  }
+  try {
+    const filePath = resolveMetricsPath();
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    const line = JSON.stringify({
+      ...entry,
+      message: sanitizeMessage(entry.message),
+    });
+    fs.appendFileSync(filePath, `${line}\n`, { encoding: 'utf8' });
+  } catch {
+    // never break voice path on metrics IO
+  }
+}
 
 export function recordVoiceMetric(
   event: Omit<VoiceMetricEvent, 'at'> & { at?: string },
@@ -49,11 +97,12 @@ export function recordVoiceMetric(
     latencyMs: event.latencyMs ?? null,
     chars: event.chars ?? null,
     code: event.code ?? null,
-    message: event.message ?? null,
+    message: sanitizeMessage(event.message),
     source: event.source ?? null,
   };
   events.push(entry);
   if (events.length > MAX) events.splice(0, events.length - MAX);
+  appendPersistent(entry);
   return entry;
 }
 
@@ -93,6 +142,7 @@ export function getVoiceMetricsSnapshot(limit = 40): VoiceMetricsSnapshot {
       turns: duplex.filter((e) => e.code === 'turn').length,
     },
     recent: events.slice(-Math.max(1, Math.min(100, limit))),
+    persistentPath: persistEnabled() ? resolveMetricsPath() : null,
   };
 }
 

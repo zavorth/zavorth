@@ -637,7 +637,7 @@ function isLowFrictionDoctorAttention(doctor: OperationalSecurityDoctorReport): 
   const attentionChecks = doctor.checks.filter((check) => check.status === 'attention');
   return attentionChecks.length === 1
     && attentionChecks[0].id === 'approval-signing-key'
-    && /sera criada automaticamente|será criada automaticamente/i.test(attentionChecks[0].summary);
+    && /sera criada automaticamente|será criada automaticamente|will be created automatically|created automatically on first/i.test(attentionChecks[0].summary);
 }
 
 function sha256File(filePath: string): string {

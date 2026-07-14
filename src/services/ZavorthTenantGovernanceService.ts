@@ -211,7 +211,7 @@ export class ZavorthTenantGovernanceService {
     const reviewMemoryPlane = this.createAction(
       'review-memoryplane',
       'Revisar /memoryplane',
-      'Retoma contexto, entregas e memorias ligadas a este tenant.',
+      'Retoma contexto, entregas e memorys ligadas a este tenant.',
       '/memoryplane',
       'secondary',
       'guided',
@@ -506,7 +506,7 @@ export class ZavorthTenantGovernanceService {
       return 'Usar este plano para fechar onboarding, owner scope e allowlists antes de abrir novas superficies.';
     }
     if (input.summary.sharedCount > 0) {
-      return 'Revisar periodicamente owners, canais permitidos e policy profiles dos tenants compartilhados.';
+      return 'Revisar periodicamente owners, canais allowed e policy profiles dos tenants compartilhados.';
     }
     return 'Quando novas superficies nascerem, observe os tenants aqui antes de liberar automacoes.';
   }

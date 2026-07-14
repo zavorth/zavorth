@@ -12,7 +12,8 @@ import { ZavorthFederatedMeshControlPlaneService } from '@zavorth/mesh/ZavorthFe
 import { ZavorthMutationPlaneService } from '@zavorth/services/ZavorthMutationPlaneService.js';
 import { ZavorthRolloutReadinessControlPlaneService } from '@zavorth/services/ZavorthRolloutReadinessControlPlaneService.js';
 import { ZavorthSkillEvolutionService } from '@zavorth/skills/ZavorthSkillEvolutionService.js';
-import { ZavorthWatchModeControlPlaneService } from '@zavorth/services/ZavorthWatchModeControlPlaneService.js';export type CanvasEntityKind =
+import { ZavorthWatchModeControlPlaneService } from '@zavorth/services/ZavorthWatchModeControlPlaneService.js';
+export type CanvasEntityKind =
   | 'chat'
   | 'file'
   | 'diff'

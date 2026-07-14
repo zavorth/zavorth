@@ -144,7 +144,7 @@ export class DeepSearchService {
 
       const topResults: SearchResult[] = rawResults.results.slice(0, 5);
       const searchContext = topResults
-        .map((result, index) => `[${index + 1}] Titulo: ${result.title}\nURL: ${result.url}\nResumo: ${result.description}\n`)
+        .map((result, index) => `[${index + 1}] Titulo: ${result.title}\nURL: ${result.url}\nSummary: ${result.description}\n`)
         .join('\n');
 
       const summaryPrompt = [
@@ -158,7 +158,7 @@ export class DeepSearchService {
         '- Resuma extraindo os pontos principais de forma clara',
         '- Se houver dados contraditorios, aponte a divergencia',
         '- Se for noticia, foque no O Que, Quem, Onde, Quando, Por que',
-        '- Seja neutro e analitico',
+        '- Sealready neutro e analitico',
         '- Formate com marcadores Markdown',
         '- Finalize listando as fontes numeradas com URLs',
       ].join('\n');
@@ -260,7 +260,7 @@ export class DeepSearchService {
     const lines = [`Resultados brutos para "${query}":`, ''];
 
     results.forEach((result, index) => {
-      lines.push(`${index + 1}. ${result.title || 'Sem titulo'}`);
+      lines.push(`${index + 1}. ${result.title || 'Untitled'}`);
       lines.push(`URL: ${result.url || 'sem URL'}`);
       lines.push(`Resumo: ${result.description || 'Sem resumo.'}`);
       lines.push('');

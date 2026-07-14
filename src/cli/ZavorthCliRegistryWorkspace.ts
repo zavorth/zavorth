@@ -247,7 +247,7 @@ function executeWorkspaceDoctor(command: WorkspaceCliCommand): WorkspaceCliPaylo
     ok: issues.length === 0 && examples.invalid === 0,
     message: issues.length === 0
       ? 'Developer Workspace doctor passou nos checks principais.'
-      : 'Developer Workspace doctor encontrou ajustes obrigatorios.',
+      : 'Developer Workspace doctor found required adjustments.',
     manifestPath: resolved.resolved.manifestPath,
     errors: issues,
     warnings,
@@ -298,7 +298,7 @@ function executeWorkspaceStop(
     ok: failures.length === 0,
     message: failures.length === 0
       ? 'Developer Workspace enviou stop para os processos selecionados.'
-      : 'Developer Workspace tentou parar processos, mas alguns falharam.',
+      : 'Developer Workspace tried to stop processes, but some failed.',
     manifestPath: resolved.manifestPath,
     approvalRequired: true,
     approvalSatisfied: true,

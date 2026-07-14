@@ -34,17 +34,17 @@ For the first setup or rotation, provide the Play upload keystore and a local si
 
 ```bash
 MATCH_PASSWORD=<signing repo password> \
-OPENCLAW_ANDROID_UPLOAD_KEYSTORE=<path-to-upload-keystore.jks> \
-OPENCLAW_ANDROID_SIGNING_PROPERTIES=<path-to-android-signing.properties> \
+ZAVORTH_ANDROID_UPLOAD_KEYSTORE=<path-to-upload-keystore.jks> \
+ZAVORTH_ANDROID_SIGNING_PROPERTIES=<path-to-android-signing.properties> \
 pnpm android:release:signing:sync:push
 ```
 
 The source signing properties file must contain:
 
 ```properties
-OPENCLAW_ANDROID_STORE_PASSWORD=<store-password>
-OPENCLAW_ANDROID_KEY_ALIAS=<upload-key-alias>
-OPENCLAW_ANDROID_KEY_PASSWORD=<key-password>
+ZAVORTH_ANDROID_STORE_PASSWORD=<store-password>
+ZAVORTH_ANDROID_KEY_ALIAS=<upload-key-alias>
+ZAVORTH_ANDROID_KEY_PASSWORD=<key-password>
 ```
 
 Store the Google Play upload key, not the irreplaceable app signing key, when Play App Signing is enabled.

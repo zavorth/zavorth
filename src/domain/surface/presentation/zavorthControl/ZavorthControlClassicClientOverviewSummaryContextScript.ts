@@ -140,7 +140,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
       const node = document.getElementById('operations-brief');
       if (!node) return;
       if (!brief || brief.error) {
-        node.innerHTML = '<div class="muted">No foi possivel carregar o briefing do operador.</div>';
+        node.innerHTML = '<div class="muted">Could not carregar o operator briefing.</div>';
         return;
       }
 
@@ -308,7 +308,7 @@ function zavorthControlClassicClientOverviewSummaryContext() {
         ? 'Origem: ' + escapeHtml(focusTask.source || 'n/d')
           + ' | Status: ' + escapeHtml(focusTask.status || 'n/d')
           + ' | Atualizada ' + escapeHtml(formatRelativeTime(focusTask.updatedAt))
-        : 'Use Telegram ou /app para criar um novo fio de continuidade.';
+        : 'Use Telegram ou /app para criar um novo fio de continuity.';
       const recentItems = recentTasks.length
         ? recentTasks.slice(0, 4).map((task) =>
             '<li><strong>' + escapeHtml(task.shortId || 'task') + '</strong> · '

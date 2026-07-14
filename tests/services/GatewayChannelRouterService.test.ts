@@ -69,7 +69,7 @@ describe('GatewayChannelRouterService', () => {
     );
   });
 
-  it('spawns web sessions canonically through the session store', () => {
+  it('spawns web sessions canonicaly through the session store', () => {
     const router = new GatewayChannelRouterService({
       sessionStoreService: new GatewaySessionStoreService({
         createWebSession: () => 'session-web-2',

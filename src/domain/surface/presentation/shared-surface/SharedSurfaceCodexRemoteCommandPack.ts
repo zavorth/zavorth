@@ -345,14 +345,11 @@ export class SharedSurfaceCodexRemoteCommandPack {
     switch (head) {
       case 'help':
       case 'summary':
-      case 'resumo':
         return { mode: 'help', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'profiles':
-      case 'perfis':
         return { mode: 'profiles', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'profile':
-      case 'perfil':
-        if (['create', 'add', 'novo'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (['create', 'add'].includes(String(tokens[1] || '').trim().toLowerCase())) {
           return {
             mode: 'profile-create',
             profileId: String(tokens[2] || '').trim() || null,
@@ -362,7 +359,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
             title: null,
           };
         }
-        if (['update', 'edit', 'atualizar'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (['update', 'edit'].includes(String(tokens[1] || '').trim().toLowerCase())) {
           return {
             mode: 'profile-update',
             profileId: String(tokens[2] || '').trim() || null,
@@ -372,7 +369,7 @@ export class SharedSurfaceCodexRemoteCommandPack {
             title: null,
           };
         }
-        if (['delete', 'remove', 'remover'].includes(String(tokens[1] || '').trim().toLowerCase())) {
+        if (['delete', 'remove'].includes(String(tokens[1] || '').trim().toLowerCase())) {
           return {
             mode: 'profile-delete',
             profileId: String(tokens[2] || '').trim() || null,
@@ -385,13 +382,10 @@ export class SharedSurfaceCodexRemoteCommandPack {
         return { mode: 'profile', profileId: tail, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'approvals':
       case 'approval':
-      case 'permissoes':
         return { mode: 'approvals', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'approve':
-      case 'aprovar':
         return { mode: 'approve', profileId: null, sessionId: null, permissionId: String(tokens[1] || '').trim() || null, prompt: null, title: null };
       case 'reject':
-      case 'rejeitar':
         return {
           mode: 'reject',
           profileId: null,
@@ -402,7 +396,6 @@ export class SharedSurfaceCodexRemoteCommandPack {
         };
       case 'start':
       case 'run':
-      case 'iniciar':
         return {
           mode: 'start',
           profileId: null,
@@ -413,7 +406,6 @@ export class SharedSurfaceCodexRemoteCommandPack {
         };
       case 'sessions':
       case 'list':
-      case 'listar':
         return { mode: 'sessions', profileId: null, sessionId: null, permissionId: null, prompt: null, title: null };
       case 'inspect':
       case 'show':
@@ -422,7 +414,6 @@ export class SharedSurfaceCodexRemoteCommandPack {
       case 'logs':
         return { mode: 'tail', profileId: null, sessionId: tail, permissionId: null, prompt: null, title: null };
       case 'resume':
-      case 'retomar':
         return {
           mode: 'resume',
           profileId: null,
@@ -432,7 +423,6 @@ export class SharedSurfaceCodexRemoteCommandPack {
           title: null,
         };
       case 'stop':
-      case 'parar':
         return { mode: 'stop', profileId: null, sessionId: tail, permissionId: null, prompt: null, title: null };
       case 'web':
       case 'attach':

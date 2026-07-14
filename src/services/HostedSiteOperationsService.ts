@@ -250,7 +250,7 @@ export class HostedSiteOperationsService {
       ok ? 'pass' : 'fail',
       ok
         ? 'next.config.js usa output export, distDir isolado e imagens unoptimized.'
-        : 'next.config.js precisa manter export estatico, distDir isolado e images.unoptimized=true.',
+        : 'next.config.js must keep export estatico, distDir isolado e images.unoptimized=true.',
       'next.config.js',
       [`outputExport=${hasExport}`, `distDirEnv=${hasDistDir}`, `imagesUnoptimized=${hasUnoptimized}`],
     );
@@ -428,7 +428,7 @@ export class HostedSiteOperationsService {
       'smoke local/preview',
       ok ? 'pass' : 'fail',
       ok
-        ? 'smoke estatico validou todas as rotas publicas obrigatorias.'
+        ? 'smoke estatico validou todas as rotas publicas required.'
         : 'smoke estatico falhou ou nao cobriu todas as rotas obrigatorias.',
       this.smokeArtifactPath,
       missing.map((route) => `faltando/falhou: ${route}`),
@@ -476,7 +476,7 @@ export class HostedSiteOperationsService {
       hasNextDoc && hasGate ? 'pass' : 'fail',
       hasNextDoc && hasGate
         ? 'planejamento aponta para Readiness checkpoint 5 e gate qa:distribution-hardening.'
-        : 'docs/product-direction precisa manter Readiness checkpoint 5 e gate qa:distribution-hardening planejados.',
+        : 'docs/product-direction must keep Readiness checkpoint 5 e gate qa:distribution-hardening planejados.',
       'docs/product-direction.md',
       [`nextDoc=${hasNextDoc}`, `gate=${hasGate}`],
     );

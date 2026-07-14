@@ -6,7 +6,7 @@ import { defaultTelegramExperienceActionCardRegistry } from '../../../../gateway
 import { TelegramMnemosController } from '../../../../gateways/channels/telegram/controllers/TelegramMnemosController.js';
 import { TelegramMnemosMemoryUxController } from '../../../../gateways/channels/telegram/controllers/TelegramMnemosMemoryUxController.js';
 import { TelegramCommandRoutingService } from '../../../../gateways/channels/telegram/TelegramCommandRoutingService.js';
-import { TelegramNaturalCapabilityRoutingService } from '../../../../gateways/channels/telegram/TelegramNaturalCapabilityRoutingService.js';
+
 import { TelegramPriorityCommandService } from '../../../../gateways/channels/telegram/TelegramPriorityCommandService.js';
 import { TelegramSchedulerBootstrap } from '../../../../gateways/channels/telegram/TelegramSchedulerSupport.js';
 import { createBotGatewaySupport } from '../../../../gateways/channels/telegram/bot-gateway/BotGatewaySupportBootstrap.js';
@@ -175,12 +175,6 @@ export function finalizeBotGatewayBootstrap(
     fileDeliveryController: gw.fileDeliveryController,
     swarmController: gw.swarmController,
     mnemosMemoryUxController: gw.mnemosMemoryUxController,
-    naturalCapabilityRouter: new TelegramNaturalCapabilityRoutingService({
-      fileDeliveryController: gw.fileDeliveryController,
-      inspectionController: gw.inspectionController,
-      researchController: gw.researchController,
-      schedulerController: gw.schedulerController,
-    }),
     echoPreferenceStore: gw.zavorthBridgePreferenceStore,
   });
   gw.priorityCommandService = new TelegramPriorityCommandService({

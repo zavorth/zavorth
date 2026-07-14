@@ -40,7 +40,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
     {
       id: 'daily-report',
       label: 'Daily report',
-      description: 'Resumo diario operacional enviado aos operadores.',
+      description: 'Resumo diario operacional enviado aos operatores.',
       availability: 'optional',
       activationMode: 'lazy',
       approvalRequired: false,
@@ -115,7 +115,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
         notes: 'Baixa binarios e libs multimidia apenas quando exigidos.',
       },
       cleanupPaths: [],
-      fallbackBehavior: 'Mantem respostas textuais e orienta a habilitacao da trilha multimidia.',
+      fallbackBehavior: 'Mantem respostas textuais e orienta a habilitaction da trilha multimidia.',
     },
     {
       id: 'qa',
@@ -126,7 +126,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       approvalRequired: true,
       enabledByDefaultProfiles: ['full'],
       idleTtlMs: DEFAULT_TTLS.visualQa,
-      estimatedFootprint: { ramIdleMb: 160, diskMb: 1024, processCount: 1, notes: 'Playwright, browsers e artefatos temporarios.' },
+      estimatedFootprint: { ramIdleMb: 160, diskMb: 1024, processCount: 1, notes: 'Playwright, browsers e artefatos temporarys.' },
       provisioningRecipe: {
         commands: ['npm run test:web:visual:real'],
         notes: 'Provisiona QA visual apenas quando explicitamente exigido.',
@@ -218,7 +218,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
     },
     {
       id: 'watch-mode',
-      label: 'Watch Mode supervisionado',
+      label: 'Supervised Watch Mode',
       description: 'Computer-use visual lazy, com strict approval, TTL de screenshots e limite de run.',
       availability: 'optional',
       activationMode: 'lazy',
@@ -295,7 +295,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 28, diskMb: 8, processCount: 0, notes: 'Gateway opcional do canal WhatsApp.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
     {
       id: 'slack',
@@ -308,7 +308,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 28, diskMb: 8, processCount: 0, notes: 'Gateway opcional do canal Slack.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
     {
       id: 'signal',
@@ -321,7 +321,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 24, diskMb: 8, processCount: 0, notes: 'Bridge local com outbox supervisionado.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
     {
       id: 'imessage',
@@ -334,7 +334,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 24, diskMb: 8, processCount: 0, notes: 'Bridge local/macOS com guardrails.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
     {
       id: 'teams',
@@ -347,7 +347,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 28, diskMb: 8, processCount: 0, notes: 'Webhook/outbox supervisionado para Teams.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
     {
       id: 'email',
@@ -360,7 +360,7 @@ export function buildCapabilityManifests(): CapabilityManifest[] {
       idleTtlMs: null,
       estimatedFootprint: { ramIdleMb: 20, diskMb: 8, processCount: 0, notes: 'SMTP/IMAP com outbox supervisionado.' },
       provisioningRecipe: null,
-      fallbackBehavior: 'Mantem os demais canais online.',
+      fallbackBehavior: 'Keeps the other channels online.',
     },
   ];
 }

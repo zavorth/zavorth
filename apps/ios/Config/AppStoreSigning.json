@@ -10,7 +10,7 @@
       "displayName": "Zavorth",
       "bundleId": "dev.zavorth.companion",
       "platform": "IOS",
-      "profileKey": "OPENCLAW_APP_PROFILE",
+      "profileKey": "ZAVORTH_APP_PROFILE",
       "profileName": "Zavorth App Store dev.zavorth.companion",
       "capabilities": ["PUSH_NOTIFICATIONS", "APP_GROUPS", "APP_ATTEST"],
       "appGroups": ["group.dev.zavorth.companion.shared"]
@@ -20,7 +20,7 @@
       "displayName": "Zavorth Share",
       "bundleId": "dev.zavorth.companion.share",
       "platform": "IOS",
-      "profileKey": "OPENCLAW_SHARE_PROFILE",
+      "profileKey": "ZAVORTH_SHARE_PROFILE",
       "profileName": "Zavorth App Store dev.zavorth.companion.share",
       "capabilities": ["APP_GROUPS"],
       "appGroups": ["group.dev.zavorth.companion.shared"]
@@ -30,7 +30,7 @@
       "displayName": "Zavorth Activity Widget",
       "bundleId": "dev.zavorth.companion.activitywidget",
       "platform": "IOS",
-      "profileKey": "OPENCLAW_ACTIVITY_WIDGET_PROFILE",
+      "profileKey": "ZAVORTH_ACTIVITY_WIDGET_PROFILE",
       "profileName": "Zavorth App Store dev.zavorth.companion.activitywidget",
       "capabilities": []
     },
@@ -39,7 +39,7 @@
       "displayName": "Zavorth Watch App",
       "bundleId": "dev.zavorth.companion.watchkitapp",
       "platform": "IOS",
-      "profileKey": "OPENCLAW_WATCH_APP_PROFILE",
+      "profileKey": "ZAVORTH_WATCH_APP_PROFILE",
       "profileName": "Zavorth App Store dev.zavorth.companion.watchkitapp",
       "capabilities": []
     }

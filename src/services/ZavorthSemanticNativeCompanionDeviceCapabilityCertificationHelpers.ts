@@ -137,7 +137,7 @@ export function capabilityPriority(capabilityId: ZavorthNativeCapabilityId): Zav
 export function targetEquivalent(target: ZavorthNativeRuntimeTarget): string {
   switch (target) {
     case 'satellite-pwa':
-      return 'Browser-first Satellite/PWA capability bridge.';
+      return 'Browser-first Satellite/PWThe capability bridge.';
     case 'desktop-companion':
       return 'Desktop companion host capability reporter.';
     case 'shared-device-runtime':

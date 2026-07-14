@@ -239,7 +239,7 @@ export class CompanionLifecyclePolicy {
                 ? 'Ainda existem processos residuais do Docker Desktop; vale limpar o companion.'
                 : 'Docker Desktop nao esta disponivel.'
               : hasContainers
-                ? `Existem ${runtime.runningContainerCount} container(es) rodando.`
+                ? `There are ${runtime.runningContainerCount} container(es) rodando.`
                 : 'Sem containers ativos; encerrar costuma ser seguro.',
           command: `/companion hibernate ${companionId}`,
         },

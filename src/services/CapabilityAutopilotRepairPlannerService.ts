@@ -258,7 +258,7 @@ export class CapabilityAutopilotRepairPlannerService {
         steps.push(this.step(
           'prepare-binary',
           'install_binary',
-          'Preparar binario local',
+          'Prepare local binary',
           this.buildMissingBinarySummary(readiness),
           permissionIds,
           'Binario fica instalado ou visivel no PATH.',
@@ -288,7 +288,7 @@ export class CapabilityAutopilotRepairPlannerService {
         steps.push(this.step(
           'prepare-runtime',
           'start_service',
-          'Preparar runtime auxiliar',
+          'Prepare helper runtime',
           'Preparar Docker, browser, sidecar ou servico necessario conforme policy.',
           permissionIds,
           'Runtime auxiliar fica pronto ou falha com evidencia.',
@@ -360,7 +360,7 @@ export class CapabilityAutopilotRepairPlannerService {
     const validators: CapabilityValidationStep[] = [
       {
         id: 'readiness-snapshot',
-        title: 'Recalcular readiness',
+        title: 'Recalculate readiness',
         kind: 'manual',
         target: diagnosis.capabilityId,
         successCondition: 'CapabilityReadinessSnapshot.ready deve ser true antes de retomar.',
@@ -417,7 +417,7 @@ export class CapabilityAutopilotRepairPlannerService {
       })),
       {
         id: 'fallback-manual-guidance',
-        label: 'Orientacao manual',
+        label: 'Orientaction manual',
         executorName: null,
         capabilityId: null,
         reason: 'Explicar ao usuario como preparar a ferramenta sem automacao.',
@@ -504,10 +504,10 @@ export class CapabilityAutopilotRepairPlannerService {
     return this.step(
       'resume-original-intent',
       'resume_original_intent',
-      'Retomar pedido original',
+      'Resume original request',
       `Retomar: ${resumeIntent.rawText || resumeIntent.normalizedText}`,
       permissionIds,
-      'Pedido original volta ao fluxo depois da validacao.',
+      'Original request returns to the flow after validation.',
     );
   }
 

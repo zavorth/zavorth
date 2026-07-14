@@ -38,6 +38,10 @@ ZavorthExternalAgentAdapterKind,
   ZavorthExternalAgentIsolationKind,
   ZavorthExternalAgentNetworkMode,
 } from '../../../../contracts/ZavorthExternalAgentGatewayContract.js';
+import { WebAppRuntimeProjectionSupport } from './WebAppRuntimeProjectionSupport.js';
+import { WebAppRuntimeInteractionSupport } from './WebAppRuntimeInteractionSupport.js';
+import { WebAppRuntimePersistenceSupport } from './WebAppRuntimePersistenceSupport.js';
+
 type RuntimeRecord = Record<string, unknown>;
 type WebSessionContext = RuntimeRecord & {
   userId: string;
@@ -97,6 +101,10 @@ export type WebAppRuntimeStateRouteHelpers = {
 };
 
 export class WebAppRuntimeStateRouteService {
+  private readonly __runtimeStateRoutesBrand = true;
+  public readonly projectionSupport = new WebAppRuntimeProjectionSupport(this);
+  public readonly interactionSupport = new WebAppRuntimeInteractionSupport(this);
+  public readonly persistenceSupport = new WebAppRuntimePersistenceSupport(this);
   public async handleRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -1050,1172 +1058,256 @@ export class WebAppRuntimeStateRouteService {
     return false;
   }
 
-  private buildAgentRunQuery(url: URL): RuntimeRecord {
-    const activeRunId = String(url.searchParams.get('runId') || '').trim() || null;
-    const activeTraceId = String(url.searchParams.get('traceId') || '').trim() || null;
-    const runStatus = this.readAgentRunStatuses(url);
-    const limitValue = Number(url.searchParams.get('limit'));
-
-    return {
-      activeRunId,
-      activeTraceId,
-      runStatus,
-      runLimit: Number.isFinite(limitValue) && limitValue > 0 ? Math.floor(limitValue) : undefined,
-    };
+  public buildAgentRunQuery(url: URL): RuntimeRecord {
+    return this.projectionSupport.buildAgentRunQuery(url);
   }
 
-  private buildAgentRunSnapshotOptions(
+  public buildAgentRunSnapshotOptions(
     activeSessionId: string | null,
     query: RuntimeRecord,
   ): RuntimeRecord {
-    const hasDirectRunQuery = Boolean(
-      query.activeRunId
-        || query.activeTraceId
-        || query.runStatus,
-    );
-
-    return {
-      ...query,
-      activeSessionId: hasDirectRunQuery ? null : activeSessionId,
-    };
+    return this.projectionSupport.buildAgentRunSnapshotOptions(activeSessionId, query);
   }
 
-  private readAgentRunStatuses(url: URL): string | string[] | undefined {
-    const values = [
-      ...url.searchParams.getAll('status'),
-      ...url.searchParams.getAll('runStatus'),
-    ]
-      .flatMap((value) => String(value || '').split(','))
-      .map((value) => value.trim().toLowerCase().replace(/[\s-]+/g, '_'))
-      .filter((value) => AGENT_RUN_STATUS_VALUES.has(value));
-    const uniqueValues = Array.from(new Set(values));
-    if (uniqueValues.length === 0) {
-      return undefined;
-    }
-    return uniqueValues.length === 1 ? uniqueValues[0] : uniqueValues;
+  public readAgentRunStatuses(url: URL): string | string[] | undefined {
+    return this.projectionSupport.readAgentRunStatuses(url);
   }
 
-  private buildUnavailableAgentGatewaySnapshot(
+  public buildUnavailableAgentGatewaySnapshot(
     generatedAt: string,
     input: RuntimeRecord,
   ): RuntimeRecord {
-    const query = {
-      runId: input.activeRunId || null,
-      traceId: input.activeTraceId || null,
-      sessionId: input.activeSessionId || null,
-      status: input.runStatus || null,
-      limit: input.runLimit || 50,
-    };
-
-    return {
-      generatedAt,
-      source: {
-        kind: 'universal-agent-runtime',
-        label: 'Zavorth Agent Gateway',
-      },
-      activeRun: null,
-      runs: [],
-      runObservatory: {
-        generatedAt,
-        query,
-        totalRuns: 0,
-        matchedRuns: 0,
-        indexes: {
-          runIds: [],
-          traceIds: [],
-          sessionIds: [],
-          statuses: [],
-        },
-        runs: [],
-      },
-      workflowJobs: [],
-      workflowQueue: {
-        kind: 'memory',
-        label: 'Agent gateway unavailable',
-        version: 'agent-workflow-queue-store/v1',
-        capabilities: {
-          durable: false,
-          localOnly: true,
-          multiHostSafe: false,
-          atomicClaim: false,
-          lease: false,
-          heartbeat: false,
-          backoff: false,
-          retry: false,
-        },
-        notes: [
-          'O ZavorthControl carregou, mas o Zavorth Agent Gateway ainda nao foi acoplado a este processo.',
-        ],
-      },
-    };
+    return this.projectionSupport.buildUnavailableAgentGatewaySnapshot(generatedAt, input);
   }
 
-  private attachLlmRuntimeTelemetry(snapshot: RuntimeRecord): RuntimeRecord {
-    const runObservatory = snapshot.runObservatory && typeof snapshot.runObservatory === 'object'
-      ? { ...snapshot.runObservatory }
-      : {};
-    return {
-      ...snapshot,
-      runObservatory: {
-        ...runObservatory,
-        llmTelemetry: defaultLlmRuntimeTelemetryService.buildSnapshot({ recentLimit: 10 }),
-      },
-    };
+  public attachLlmRuntimeTelemetry(snapshot: RuntimeRecord): RuntimeRecord {
+    return this.projectionSupport.attachLlmRuntimeTelemetry(snapshot);
   }
 
-  private async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthControlProviderCockpitService();
-    return service.buildProjection({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-      providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
-      selectedProviderId: String(url.searchParams.get('selectedProvider') || url.searchParams.get('selectedProviderId') || '').trim() || null,
-      live: false,
-      allowAllLive: false,
-    }) as Promise<RuntimeRecord>;
+  public async buildProviderCockpitProjection(url: URL): Promise<RuntimeRecord> {
+    return this.projectionSupport.buildProviderCockpitProjection(url);
   }
 
-  private async buildProviderModelCatalogProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthProviderModelCatalogService();
-    return service.buildSnapshot({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-      providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
-      selectedProviderId: String(url.searchParams.get('selectedProvider') || url.searchParams.get('selectedProviderId') || '').trim() || null,
-      live: false,
-      allowAllLive: false,
-    }) as Promise<RuntimeRecord>;
+  public async buildProviderModelCatalogProjection(url: URL): Promise<RuntimeRecord> {
+    return this.projectionSupport.buildProviderModelCatalogProjection(url);
   }
 
-  private async buildProviderActivationProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthProviderActivationService();
-    return service.buildSnapshot({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-      providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
-      liveConfigured: false,
-      allowAllLive: false,
-    }) as Promise<RuntimeRecord>;
+  public async buildProviderActivationProjection(url: URL): Promise<RuntimeRecord> {
+    return this.projectionSupport.buildProviderActivationProjection(url);
   }
 
-  private async buildZavorthControlContractAdapterProjection(
+  public async buildZavorthControlContractAdapterProjection(
     url: URL,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<RuntimeRecord | null> {
-    if (!deps.publicApi) {
-      return null;
-    }
-    const service = new ZavorthControlContractAdapterService(deps.publicApi);
-    return service.buildSnapshot({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-      providerId: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
-      selectedProviderId: String(url.searchParams.get('selectedProvider') || url.searchParams.get('selectedProviderId') || '').trim() || null,
-      approvalStatus: 'pending',
-      missionRequest: String(url.searchParams.get('request') || url.searchParams.get('q') || '').trim() || null,
-      missionTemplateId: String(url.searchParams.get('templateId') || '').trim() || null,
-    }) as Promise<RuntimeRecord>;
+    return this.projectionSupport.buildZavorthControlContractAdapterProjection(url, deps);
   }
 
-  private async buildProviderSelectionProjection(url: URL): Promise<RuntimeRecord> {
-    const service = new ZavorthProviderSelectionUxService();
-    return service.buildSnapshot({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-      target: String(url.searchParams.get('provider') || url.searchParams.get('providerId') || '').trim() || null,
-      intent: String(url.searchParams.get('providerIntent') || url.searchParams.get('intent') || '').trim() || null,
-      requireLiveEvidence: this.readBooleanParam(url, 'requireLive') || this.readBooleanParam(url, 'liveProof'),
-      live: false,
-    }) as Promise<RuntimeRecord>;
+  public async buildProviderSelectionProjection(url: URL): Promise<RuntimeRecord> {
+    return this.projectionSupport.buildProviderSelectionProjection(url);
   }
 
-  private async buildProviderPreferenceProjection(): Promise<RuntimeRecord> {
-    const service = new ZavorthProviderPreferencePersistenceService();
-    const preference = await service.readPreference();
-    return {
-      surface: 'provider-preference-projection',
-      generatedAt: new Date().toISOString(),
-      preference,
-      safety: {
-        projectionOnly: true,
-        rawSecretsSerialized: false,
-        mutatesConfig: false,
-        zavorthControlExecutionAuthority: false,
-      },
-      commands: {
-        inspect: 'zavorth providers preference --json',
-        rollback: preference?.receiptId ? `zavorth providers rollback ${preference.receiptId} --confirm` : null,
-      },
-    };
+  public async buildProviderPreferenceProjection(): Promise<RuntimeRecord> {
+    return this.projectionSupport.buildProviderPreferenceProjection();
   }
 
-  private buildVisualReceiptsProjection(url: URL): RuntimeRecord {
-    const service = new ZavorthVisualReceiptUxService();
-    return service.buildSnapshot({
-      includeAdvanced: this.readBooleanParam(url, 'advanced'),
-    }) as RuntimeRecord;
+  public buildVisualReceiptsProjection(url: URL): RuntimeRecord {
+    return this.projectionSupport.buildVisualReceiptsProjection(url);
   }
 
-  private buildSensitiveActionFlowUxProjection(url: URL): RuntimeRecord {
-    const service = new ZavorthSensitiveActionFlowUxService();
-    return service.buildSnapshot({
-      request: String(
-        url.searchParams.get('request')
-        || url.searchParams.get('q')
-        || 'Review this workspace in read-only mode.',
-      ).trim(),
-      decision: this.readSensitiveActionDecision(url.searchParams.get('decision')),
-      approvalId: String(url.searchParams.get('approvalId') || url.searchParams.get('approval-id') || '').trim() || null,
-      sandboxReady: this.readBooleanParam(url, 'sandboxReady') || this.readBooleanParam(url, 'sandbox-ready'),
-      source: 'web',
-    }) as RuntimeRecord;
+  public buildSensitiveActionFlowUxProjection(url: URL): RuntimeRecord {
+    return this.projectionSupport.buildSensitiveActionFlowUxProjection(url);
   }
 
-  private buildActiveMissionUxProjection(input: {
+  public buildActiveMissionUxProjection(input: {
     runtimeSnapshot: RuntimeRecord;
     sensitiveActionFlowUx: RuntimeRecord;
     visualReceipts: RuntimeRecord;
     providerSelectionUx: RuntimeRecord;
     providerPreference: RuntimeRecord;
   }): RuntimeRecord {
-    const service = new ZavorthActiveMissionUxService();
-    return service.buildSnapshot(input) as RuntimeRecord;
+    return this.projectionSupport.buildActiveMissionUxProjection(input);
   }
 
-  private buildApprovalActionCardsUxProjection(input: {
+  public buildApprovalActionCardsUxProjection(input: {
     runtimeSnapshot: RuntimeRecord;
     sensitiveActionFlowUx: RuntimeRecord;
     visualReceipts: RuntimeRecord;
     activeMissionUx: RuntimeRecord;
   }): RuntimeRecord {
-    const service = new ZavorthApprovalActionCardsUxService();
-    const approvals = Array.isArray(input.runtimeSnapshot?.approvals)
-      ? input.runtimeSnapshot.approvals as RuntimeRecord[]
-      : [];
-    return service.buildSnapshot({
-      approvals,
-      sensitiveActionFlowUx: input.sensitiveActionFlowUx,
-      visualReceipts: input.visualReceipts,
-      activeMissionUx: input.activeMissionUx,
-    }) as RuntimeRecord;
+    return this.projectionSupport.buildApprovalActionCardsUxProjection(input);
   }
 
-  private attachProviderCockpit(
+  public attachProviderCockpit(
     snapshot: RuntimeRecord,
     providerCockpit: RuntimeRecord,
   ): RuntimeRecord {
-    const activeRun = this.isRecord(snapshot.activeRun) ? snapshot.activeRun : null;
-    const activeRunMetadata = this.isRecord(activeRun?.metadata) ? activeRun.metadata : null;
-    const hasRunProviderCockpit = this.isRecord(activeRunMetadata?.providerCockpit);
-    return {
-      ...snapshot,
-      providerCockpit,
-      activeRun: activeRun && !hasRunProviderCockpit
-        ? {
-          ...activeRun,
-          metadata: {
-            ...(activeRunMetadata || {}),
-            providerCockpit,
-          },
-        }
-        : snapshot.activeRun,
-    };
+    return this.projectionSupport.attachProviderCockpit(snapshot, providerCockpit);
   }
 
-  private attachProviderSelection(
+  public attachProviderSelection(
     snapshot: RuntimeRecord,
     providerSelectionUx: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      providerSelectionUx,
-    };
+    return this.projectionSupport.attachProviderSelection(snapshot, providerSelectionUx);
   }
 
-  private attachProviderPreference(
+  public attachProviderPreference(
     snapshot: RuntimeRecord,
     providerPreference: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      providerPreference,
-    };
+    return this.projectionSupport.attachProviderPreference(snapshot, providerPreference);
   }
 
-  private attachVisualReceipts(
+  public attachVisualReceipts(
     snapshot: RuntimeRecord,
     visualReceipts: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      visualReceipts,
-    };
+    return this.projectionSupport.attachVisualReceipts(snapshot, visualReceipts);
   }
 
-  private attachSensitiveActionFlowUx(
+  public attachSensitiveActionFlowUx(
     snapshot: RuntimeRecord,
     sensitiveActionFlowUx: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      sensitiveActionFlowUx,
-    };
+    return this.projectionSupport.attachSensitiveActionFlowUx(snapshot, sensitiveActionFlowUx);
   }
 
-  private attachActiveMissionUx(
+  public attachActiveMissionUx(
     snapshot: RuntimeRecord,
     activeMissionUx: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      activeMissionUx,
-    };
+    return this.projectionSupport.attachActiveMissionUx(snapshot, activeMissionUx);
   }
 
-  private attachApprovalActionCardsUx(
+  public attachApprovalActionCardsUx(
     snapshot: RuntimeRecord,
     approvalActionCardsUx: RuntimeRecord,
   ): RuntimeRecord {
-    return {
-      ...snapshot,
-      approvalActionCardsUx,
-    };
+    return this.projectionSupport.attachApprovalActionCardsUx(snapshot, approvalActionCardsUx);
   }
 
-  private attachZavorthControlContractAdapter(
+  public attachZavorthControlContractAdapter(
     snapshot: RuntimeRecord,
     contractAdapter: RuntimeRecord | null,
   ): RuntimeRecord {
-    if (!contractAdapter) {
-      return snapshot;
-    }
-    return {
-      ...snapshot,
-      contractAdapter,
-      contractsV1: contractAdapter,
-      providersV1: contractAdapter.providers,
-      channelsV1: contractAdapter.channels,
-      approvalsV1: contractAdapter.approvals,
-      receiptsV1: contractAdapter.receipts,
-      missionsV1: contractAdapter.missions,
-      runtime: {
-        ...(this.isRecord(snapshot.runtime) ? snapshot.runtime : {}),
-        contractAdapter: {
-          contractVersion: contractAdapter.contractVersion,
-          source: contractAdapter.source,
-          consistency: contractAdapter.consistency,
-          safety: contractAdapter.safety,
-        },
-      },
-    };
+    return this.projectionSupport.attachZavorthControlContractAdapter(snapshot, contractAdapter);
   }
 
-  private async handleZavorthControlActionRequest(
+  public async handleZavorthControlActionRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.publicApi) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'canonical_public_api_unavailable',
-        detail: 'ZavorthControl action wiring requires the runtime API v1 service.',
-      }, 503);
-      return;
-    }
-
-    const body = await deps.readJsonBody(req);
-    const action = String(body?.action || body?.kind || '').trim().toLowerCase();
-    const requestedBy = String(body?.requestedBy || 'control-ui').trim() || 'control-ui';
-    let result: RuntimeRecord;
-
-    switch (action) {
-      case 'approval.approve':
-      case 'approval.approve_once':
-      case 'approve':
-        result = await deps.publicApi.approveApproval({
-          approvalId: String(body?.approvalId || body?.id || '').trim(),
-          decidedBy: requestedBy,
-          note: String(body?.note || body?.reason || '').trim() || null,
-        }) as RuntimeRecord;
-        break;
-      case 'approval.deny':
-      case 'approval.reject':
-      case 'deny':
-      case 'reject':
-        result = await deps.publicApi.denyApproval({
-          approvalId: String(body?.approvalId || body?.id || '').trim(),
-          decidedBy: requestedBy,
-          reason: String(body?.reason || body?.note || '').trim() || null,
-        }) as RuntimeRecord;
-        break;
-      case 'mission.cancel':
-      case 'cancel':
-        result = await deps.publicApi.cancelMission({
-          missionId: String(body?.missionId || body?.id || '').trim(),
-          requestedBy,
-          reason: String(body?.reason || body?.note || '').trim() || null,
-        }) as RuntimeRecord;
-        break;
-      case 'provider.test':
-        result = await deps.publicApi.testProvider({
-          providerId: String(body?.providerId || body?.id || '').trim(),
-          live: body?.live === true,
-          approved: body?.approved === true || body?.confirmed === true,
-        }) as RuntimeRecord;
-        break;
-      case 'channel.action':
-        result = await deps.publicApi.executeChannelAction({
-          channelId: String(body?.channelId || body?.id || '').trim(),
-          actionId: String(body?.actionId || '').trim(),
-          requestedBy,
-          approved: body?.approved === true || body?.confirmed === true,
-        }) as RuntimeRecord;
-        break;
-      default:
-        deps.writeJson(res, {
-          ok: false,
-          error: 'unsupported_command_center_action',
-          detail: 'Use approval.approve, approval.deny, mission.cancel, provider.test or channel.action.',
-          safety: {
-            controllerMutatedDirectly: false,
-            zavorthControlCanExecute: false,
-            policyBrokerRequiredForMutableActions: true,
-          },
-        }, 400);
-        return;
-    }
-
-    deps.writeJson(res, {
-      ok: result.ok !== false,
-      generatedAt: new Date().toISOString(),
-      action,
-      result,
-      safety: {
-        controllerMutatedDirectly: false,
-        delegatedToRuntimeApiV1: true,
-        zavorthControlCanExecute: false,
-        policyBrokerRequiredForMutableActions: true,
-        rawSecretsSerialized: false,
-      },
-    }, 200);
+    return this.interactionSupport.handleZavorthControlActionRequest(req, res, deps);
   }
 
-  private async handleZavorthControlChatRequest(
+  public async handleZavorthControlChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.processChatSend && !deps.publicApi) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'canonical_chat_runtime_unavailable',
-        detail: 'ZavorthControl chat wiring requires the canonical web conversation runtime.',
-      }, 503);
-      return;
-    }
-
-    const body = await deps.readJsonBody(req);
-    const message = String(body?.message || body?.text || '').trim();
-    if (!message) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'empty_zavorthControl_message',
-        detail: 'ZavorthControl chat requires a non-empty message.',
-      }, 400);
-      return;
-    }
-    if (deps.processChatSend) {
-      const requestMetadata = this.isRecord(body?.metadata) ? body.metadata : {};
-      const workflowIntent = this.resolveMetadataRecord(body?.workflowIntent, requestMetadata.workflowIntent);
-      const composerSettings = this.resolveMetadataRecord(body?.composerSettings, requestMetadata.composerSettings);
-      const experienceProfile = this.resolveExperienceProfileMetadata(
-        body?.experienceProfile,
-        requestMetadata.experienceProfile,
-      );
-      const result = await deps.processChatSend({
-        ...body,
-        message,
-        source: 'zavorth-control',
-        metadata: {
-          ...requestMetadata,
-          zavorthControlChat: true,
-          ...(workflowIntent ? { workflowIntent } : {}),
-          ...(composerSettings ? { composerSettings } : {}),
-          ...(experienceProfile ? { experienceProfile } : {}),
-        },
-      });
-      deps.writeJson(res, {
-        ok: true,
-        generatedAt: new Date().toISOString(),
-        sessionId: result.sessionId,
-        taskId: result.taskId || null,
-        runId: result.taskId || null,
-        chat: result,
-        data: result,
-        snapshot: result.snapshot,
-        safety: {
-          delegatedToCanonicalWebRuntime: true,
-          zavorthControlCanExecute: false,
-          policyBrokerRequiredForTools: true,
-          rawSecretsSerialized: false,
-        },
-      }, 200);
-      return;
-    }
-
-    const publicApi = deps.publicApi;
-    if (!publicApi) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'canonical_public_api_unavailable',
-        detail: 'ZavorthControl chat fallback requires the runtime API v1 service.',
-      }, 503);
-      return;
-    }
-
-    const result = await publicApi.submitChat({
-      message,
-      sessionId: String(body?.sessionId || '').trim() || null,
-      live: body?.live === true || body?.execute === true,
-    });
-
-    deps.writeJson(res, {
-      ok: result.accepted,
-      generatedAt: new Date().toISOString(),
-      chat: result,
-      data: result,
-      mission: result.mission,
-      safety: {
-        delegatedToRuntimeApiV1: true,
-        zavorthControlCanExecute: false,
-        dryRunByDefault: true,
-        liveRequiresExplicitFlag: true,
-        policyBrokerRequiredForTools: true,
-        rawSecretsSerialized: false,
-      },
-    }, 200);
+    return this.interactionSupport.handleZavorthControlChatRequest(req, res, deps);
   }
 
-  private async handleZavorthControlSideChatRequest(
+  public async handleZavorthControlSideChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.processChatSend) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'canonical_chat_runtime_unavailable',
-        detail: 'Detached zavorthControl chat requires the canonical web conversation runtime.',
-      }, 503);
-      return;
-    }
-
-    const body = await deps.readJsonBody(req);
-    const message = String(body?.message || body?.text || '').trim();
-    const kind = String(body?.kind || 'side').trim().toLowerCase() || 'side';
-    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
-    if (!message && attachments.length === 0) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'empty_detached_message',
-        detail: 'Detached side-channel messages need text or attachments.',
-      }, 400);
-      return;
-    }
-    const sourceSessionId = String(body?.sessionId || '').trim();
-    const sideSessionId = String(body?.sideSessionId || [
-      sourceSessionId || 'web',
-      kind.replace(/[^a-z0-9_-]/gi, '') || 'side',
-      Date.now().toString(36),
-    ].filter(Boolean).join(':')).trim();
-    const result = await deps.processChatSend({
-      ...body,
-      message: message || 'Review the attached files.',
-      sessionId: sideSessionId,
-      source: 'zavorth-control-side-channel',
-      detached: true,
-      excludeFromTranscript: true,
-      parentSessionId: sourceSessionId || null,
-      metadata: {
-        ...(this.isRecord(body?.metadata) ? body.metadata : {}),
-        detachedSideChannel: true,
-        sideChannelKind: kind,
-        parentSessionId: sourceSessionId || null,
-      },
-    });
-
-    deps.writeJson(res, {
-      ok: true,
-      generatedAt: new Date().toISOString(),
-      detached: true,
-      excludeFromTranscript: true,
-      kind,
-      sideSessionId,
-      sourceSessionId: sourceSessionId || null,
-      sessionId: sideSessionId,
-      taskId: result.taskId || null,
-      runId: result.taskId || null,
-      chat: result,
-      data: result,
-      snapshot: result.snapshot,
-      safety: {
-        delegatedToCanonicalWebRuntime: true,
-        detachedFromMainTranscript: true,
-        parentTranscriptUntouched: true,
-        sideSessionIsolated: true,
-        rawSecretsSerialized: false,
-      },
-    }, 200);
+    return this.interactionSupport.handleZavorthControlSideChatRequest(req, res, deps);
   }
 
-  private async handleZavorthControlSteerChatRequest(
+  public async handleZavorthControlSteerChatRequest(
     req: http.IncomingMessage,
     res: http.ServerResponse,
     deps: WebAppRuntimeRouteDeps,
   ): Promise<void> {
-    if (!deps.agentGateway?.steer) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'native_agent_run_steering_unavailable',
-        detail: 'Active-run steering requires ZavorthAgentGateway.steer.',
-      }, 503);
-      return;
-    }
-
-    const body = await deps.readJsonBody(req);
-    const message = String(body?.message || body?.text || '').trim();
-    const sessionId = String(body?.sessionId || '').trim();
-    const runId = String(body?.runId || body?.activeRunId || '').trim();
-    const action = ['cancel', 'replace'].includes(String(body?.action || body?.steerAction || '').trim().toLowerCase())
-      ? String(body?.action || body?.steerAction).trim().toLowerCase() as 'cancel' | 'replace'
-      : 'add';
-    if (!sessionId) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'session_id_required',
-        detail: 'Active-run steering requires the current canonical session id.',
-      }, 400);
-      return;
-    }
-    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
-    if (action !== 'cancel' && !message && attachments.length === 0) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'empty_steer_message',
-        detail: 'Steering requires text or attachments.',
-      }, 400);
-      return;
-    }
-    if (action !== 'add' && !String(body?.steeringId || body?.replaceTargetId || body?.queueItemId || '').trim()) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'steering_id_required',
-        detail: 'Cancel/replace steering requires a steering id or queue item id.',
-      }, 400);
-      return;
-    }
-
-    const result = deps.agentGateway.steer({
-      action,
-      runId: runId || null,
-      sessionId,
-      source: 'zavorth-control-steer',
-      text: message || (action === 'cancel' ? 'Cancelled by operator.' : 'Review the attached files.'),
-      queueItemId: String(body?.queueItemId || '').trim() || null,
-      steeringId: String(body?.steeringId || '').trim() || null,
-      replaceTargetId: String(body?.replaceTargetId || '').trim() || null,
-      backoffMs: Number(body?.backoffMs || 0),
-      maxAttempts: Number(body?.maxAttempts || 1),
-      metadata: {
-        ...(this.isRecord(body?.metadata) ? body.metadata : {}),
-        activeRunSteer: true,
-        nativeAgentRunSteering: true,
-        steerTargetRunId: runId || null,
-        action,
-        attachments,
-        selectedSkills: Array.isArray(body?.selectedSkills) ? body.selectedSkills : [],
-        voice: this.isRecord(body?.voice) ? body.voice : null,
-        composerSettings: this.isRecord(body?.composerSettings) ? body.composerSettings : null,
-      },
-    });
-    if (!result.ok) {
-      deps.writeJson(res, {
-        ok: false,
-        generatedAt: new Date().toISOString(),
-        steered: false,
-        action,
-        error: result.error || 'steering_not_accepted',
-        runId: result.run?.id || runId || null,
-        sessionId,
-        run: result.run,
-        safety: {
-          delegatedToNativeAgentGateway: true,
-          nativeAgentRunSteering: true,
-          rawSecretsSerialized: false,
-        },
-      }, result.error === 'active_run_not_found' ? 404 : 409);
-      return;
-    }
-
-    deps.writeJson(res, {
-      ok: true,
-      generatedAt: new Date().toISOString(),
-      steered: true,
-      action,
-      ack: result.ack,
-      steering: result.steering,
-      runId: result.run?.id || runId || null,
-      sessionId,
-      run: result.run,
-      chat: result,
-      data: result,
-      snapshot: {
-        activeRun: result.run,
-        runs: result.run ? [result.run] : [],
-        steering: result.run?.steering || [],
-      },
-      safety: {
-        delegatedToNativeAgentGateway: true,
-        nativeAgentRunSteering: true,
-        transcriptScope: 'active-session',
-        rawSecretsSerialized: false,
-      },
-    }, 200);
+    return this.interactionSupport.handleZavorthControlSteerChatRequest(req, res, deps);
   }
 
-  private isProviderLiveProbeRequested(url: URL): boolean {
-    return this.readBooleanParam(url, 'live')
-      || this.readBooleanParam(url, 'probeLive')
-      || this.readBooleanParam(url, 'allowAllLive');
+  public isProviderLiveProbeRequested(url: URL): boolean {
+    return this.persistenceSupport.isProviderLiveProbeRequested(url);
   }
 
-  private readBooleanParam(url: URL, name: string): boolean {
-    const raw = String(url.searchParams.get(name) || '').trim().toLowerCase();
-    return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+  public readBooleanParam(url: URL, name: string): boolean {
+    return this.persistenceSupport.readBooleanParam(url, name);
   }
 
-  private resolveMetadataRecord(primary: unknown, fallback: unknown): RuntimeRecord | null {
-    if (this.isRecord(primary)) return primary;
-    if (this.isRecord(fallback)) return fallback;
-    return null;
+  public resolveMetadataRecord(primary: unknown, fallback: unknown): RuntimeRecord | null {
+    return this.persistenceSupport.resolveMetadataRecord(primary, fallback);
   }
 
-  private resolveExperienceProfileMetadata(primary: unknown, fallback: unknown): RuntimeRecord | string | null {
-    if (this.isRecord(primary)) return primary;
-    if (typeof primary === 'string') {
-      return primary.trim() || null;
-    }
-    if (this.isRecord(fallback)) return fallback;
-    if (typeof fallback === 'string') {
-      return fallback.trim() || null;
-    }
-    return null;
+  public resolveExperienceProfileMetadata(primary: unknown, fallback: unknown): RuntimeRecord | string | null {
+    return this.persistenceSupport.resolveExperienceProfileMetadata(primary, fallback);
   }
 
-  private isRecord(value: unknown): value is RuntimeRecord {
-    return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+  public isRecord(value: unknown): value is RuntimeRecord {
+    return this.persistenceSupport.isRecord(value);
   }
 
-  private buildSessionToolsGatewaySnapshot(canonicalState: RuntimeRecord): RuntimeRecord {
-    const directGateway = asRecord(canonicalState.gateway);
-    if (directGateway) {
-      return directGateway;
-    }
-    const sessionsSummary = asRecord(canonicalState.sessionsSummary);
-    const gatewaySessionTools = asRecord(canonicalState.gatewaySessionTools);
-    const gatewaySessionsSummary = asRecord(gatewaySessionTools?.sessionsSummary);
-    const sessions = asRecord(canonicalState.sessions);
-    const sessionEntries = Array.isArray(sessions?.entries) ? sessions.entries : [];
-
-    const sessionTargets = Number(
-      sessionsSummary?.total
-      ?? gatewaySessionsSummary?.total
-      ?? sessions?.total
-      ?? (sessionEntries.length > 0
-        ? sessionEntries.length
-        : Array.isArray(canonicalState.sessions)
-          ? canonicalState.sessions.length
-          : 0),
-    );
-    const snapshot = asRecord(canonicalState.snapshot);
-
-    return {
-      generatedAt: text(snapshot?.generatedAt) || new Date().toISOString(),
-      summary: {
-        sessionTargets,
-      },
-      narrative: {
-        headline: sessionTargets > 0
-          ? 'Gateway resumido para session tools.'
-          : 'Gateway resumido sem sessoes vinculadas.',
-        operatorSummary: `${sessionTargets} alvo(s) de sessao disponivel(is) para continuidade rapida.`,
-      },
-    };
+  public buildSessionToolsGatewaySnapshot(canonicalState: RuntimeRecord): RuntimeRecord {
+    return this.persistenceSupport.buildSessionToolsGatewaySnapshot(canonicalState);
   }
 
-  private buildCurrentModelProfile(snapshot: RuntimeRecord): RuntimeRecord {
-    const activeRunProfile = asRecord(asRecord(snapshot.activeRun)?.modelProfile);
-    const latestRun = Array.isArray(snapshot?.runs)
-      ? asRecord(snapshot.runs.find((run) => Boolean(asRecord(asRecord(run)?.modelProfile))))
-      : null;
-    const latestRunProfile = asRecord(latestRun?.modelProfile);
-    const profile = this.isKnownModelProfile(activeRunProfile)
-      ? activeRunProfile
-      : this.isKnownModelProfile(latestRunProfile)
-        ? latestRunProfile
-        : null;
-    const configuredProvider = this.normalizeProviderName((config.llmProvider || ''));
-    const configuredModel = this.resolveConfiguredModel(configuredProvider);
-
-    return {
-      providerLabel: String(
-        profile?.providerLabel
-        || profile?.provider
-        || this.formatProviderLabel(configuredProvider),
-      ).trim(),
-      modelLabel: String(
-        profile?.modelLabel
-        || profile?.model
-        || configuredModel
-        || 'modelo atual nao informado',
-      ).trim(),
-      routingPolicy: String(
-        profile?.routingPolicy
-        || (configuredProvider === 'aigateway' ? 'gateway' : 'direct'),
-      ).trim(),
-      fallbackModelLabel: String(profile?.fallbackModelLabel || '').trim() || undefined,
-      supportsTools: profile?.supportsTools ?? true,
-      supportsVision: profile?.supportsVision,
-      supportsStreaming: profile?.supportsStreaming ?? true,
-    };
+  public buildCurrentModelProfile(snapshot: RuntimeRecord): RuntimeRecord {
+    return this.persistenceSupport.buildCurrentModelProfile(snapshot);
   }
 
-  private isKnownModelProfile(profile: RuntimeRecord | null | undefined): boolean {
-    const modelLabel = String(profile?.modelLabel || profile?.model || '').trim().toLowerCase();
-    return Boolean(
-      modelLabel
-      && ![
-        'modelo atual',
-        'modelo nao informado',
-        'modelo atual nao informado',
-      ].includes(modelLabel),
-    );
+  public isKnownModelProfile(profile: RuntimeRecord | null | undefined): boolean {
+    return this.persistenceSupport.isKnownModelProfile(profile);
   }
 
-  private normalizeProviderName(provider: string): string {
-    return String(provider || '').trim().toLowerCase().replace(/[\s_-]+/g, '');
+  public normalizeProviderName(provider: string): string {
+    return this.persistenceSupport.normalizeProviderName(provider);
   }
 
-  private formatProviderLabel(provider: string): string {
-    switch (this.normalizeProviderName(provider)) {
-      case 'aigateway':
-        return 'Zavorth Gateway';
-      case 'gemini':
-        return 'Gemini';
-      case 'deepseek':
-        return 'DeepSeek';
-      case 'openai':
-        return 'OpenAI';
-      case 'minimax':
-        return 'MiniMax';
-      case 'openrouter':
-        return 'OpenRouter';
-      case 'qwen':
-      case 'puter':
-        return 'Qwen';
-      case 'opencode':
-        return 'OpenCode';
-      case 'ollama':
-        return 'Ollama';
-      default:
-        return provider || 'Provider nao informado';
-    }
+  public formatProviderLabel(provider: string): string {
+    return this.persistenceSupport.formatProviderLabel(provider);
   }
 
-  private resolveConfiguredModel(provider: string): string {
-    switch (this.normalizeProviderName(provider)) {
-      case 'aigateway':
-        return config.AIGatewayModel;
-      case 'gemini':
-        return config.geminiModel;
-      case 'deepseek':
-        return config.deepseekModel;
-      case 'openai':
-        return config.openaiModel;
-      case 'minimax':
-        return config.minimaxModel;
-      case 'openrouter':
-        return config.openRouterModel;
-      case 'qwen':
-      case 'puter':
-        return config.qwenModel;
-      case 'opencode':
-        return config.openCodeModel;
-      default:
-        return '';
-    }
+  public resolveConfiguredModel(provider: string): string {
+    return this.persistenceSupport.resolveConfiguredModel(provider);
   }
 
-  private async handleStateRequest(
+  public async handleStateRequest(
     res: http.ServerResponse,
     url: URL,
     deps: WebAppRuntimeRouteDeps,
     helpers: WebAppRuntimeStateRouteHelpers,
   ): Promise<void> {
-    const sessionId = deps.resolveSessionId(url);
-    const sessionContext = helpers.buildSessionContext(sessionId);
-    const fullDetail = helpers.isFullDetailRequested(url);
-    const gatewayRuntimeSnapshot = deps.gatewayRuntime
-      ? await deps.gatewayRuntime.buildCanonicalSnapshot({
-          ...sessionContext,
-          hydrated: fullDetail,
-        })
-      : null;
-    const runtimeGatewayAny = deps.runtimeGateway as unknown as
-      | ({
-          buildSnapshot: (input: RuntimeRecord) => RuntimeRecord;
-          buildShellSnapshot?: (input: RuntimeRecord) => {
-            generatedAt: string;
-            summary: RuntimeRecord;
-            narrative: RuntimeRecord;
-            memoryPlane?: {
-              generatedAt: string;
-              summary: RuntimeRecord;
-              narrative: RuntimeRecord;
-            } | null;
-            controlPlane?: {
-              generatedAt: string;
-              summary: RuntimeRecord;
-              narrative: RuntimeRecord;
-            } | null;
-          };
-        } & RuntimeRecord)
-      | null;
-    const gateway = gatewayRuntimeSnapshot?.gateway || (runtimeGatewayAny
-      ? fullDetail
-        ? runtimeGatewayAny.buildSnapshot(sessionContext)
-        : typeof runtimeGatewayAny.buildShellSnapshot === 'function'
-          ? runtimeGatewayAny.buildShellSnapshot(sessionContext)
-          : runtimeGatewayAny.buildSnapshot(sessionContext)
-      : null);
-    const snapshot = await deps.realtime.getResolvedSnapshot(sessionId);
-    const session = deps.runtimeGatewaySessionTools?.readHistoryFast({
-      userId: sessionContext.userId,
-      sessionId: sessionContext.sessionId,
-      chatId: sessionContext.chatId,
-    }) || null;
-    const memoryPlane = gateway?.memoryPlane || await deps.buildMemoryPlaneSnapshot(sessionId);
-    const productMode = helpers.buildProductMode();
-    const memoryRecall = await helpers.previewGatewayMemoryRecall({
-      sessionId,
-      query: helpers.buildRecallQueryFromSnapshot(snapshot),
-      limit: 5,
-    });
-    const layeredMemory = await deps.buildLayeredMemoryStatus(sessionId);
-    const layeredMemoryMetrics = await deps.readLayeredMemoryMetrics(sessionId);
-    const learningPlane = await deps.buildLearningPlaneStatus(sessionId);
-    const learningMetrics = await deps.buildLearningPlaneMetrics(sessionId);
-    const opsQuality = await deps.buildOpsQuality(sessionId);
-    const controlPlane = gateway?.controlPlane || null;
-    const sessionPlane = await deps.buildSessionPlaneStatusSummary(sessionId);
-    deps.writeJson(
-      res,
-      helpers.buildLightweightStateResponse({
-        snapshot,
-        productMode,
-        modeEscalation: deps.modeEscalation?.buildSnapshot(
-          String(url.searchParams.get('sessionId') || '').trim() || 'state-bootstrap',
-        ) || null,
-        uiSurfaceHints: helpers.buildUiSurfaceHints(productMode, {
-          localControlEntry: '/zavorthControl',
-          localControlReady: true,
-          telegramReady: true,
-          discordReady: false,
-          cliReady: true,
-        }),
-        gateway,
-        session,
-        memoryPlane,
-        memoryRecall,
-        layeredMemory,
-        layeredMemoryMetrics,
-        learningPlane,
-        learningMetrics,
-        opsQuality,
-        controlPlane,
-        sessionPlane,
-        gatewayRuntime: gatewayRuntimeSnapshot,
-      }),
-      200,
-    );
+    return this.persistenceSupport.handleStateRequest(res, url, deps, helpers);
   }
 
-  private buildCanonicalStateResponse(
+  public buildCanonicalStateResponse(
     canonicalState: RuntimeRecord,
     extra: RuntimeRecord = {},
   ): RuntimeRecord {
-    return {
-      ok: true,
-      snapshot: canonicalState.snapshot,
-      productMode: canonicalState.productMode,
-      gateway: canonicalState.gateway,
-      session: canonicalState.session,
-      sessions: canonicalState.sessions,
-      sessionsSummary: canonicalState.sessionsSummary,
-      gatewaySessionTools: canonicalState.gatewaySessionTools,
-      memoryPlane: canonicalState.memoryPlane,
-      memoryRecall: canonicalState.memoryRecall,
-      controlPlane: canonicalState.controlPlane,
-      sessionPlane: canonicalState.sessionPlane,
-      approvalPlane: canonicalState.approvalPlane,
-      capabilityPlane: canonicalState.capabilityPlane,
-      artifactPlane: canonicalState.artifactPlane,
-      selfmodPlane: canonicalState.selfmodPlane,
-      resourcePlane: canonicalState.resourcePlane,
-      companionPlane: canonicalState.companionPlane,
-      uiSurfaceHints: canonicalState.uiSurfaceHints,
-      runtimeWarnings: canonicalState.runtimeWarnings,
-      actionRecommendations: canonicalState.actionRecommendations,
-      ...extra,
-    };
+    return this.persistenceSupport.buildCanonicalStateResponse(canonicalState, extra);
   }
 
-  private readSensitiveActionDecision(value: string | null): ZavorthSensitiveActionFlowDecision {
-    const normalized = String(value || '').trim();
-    if (normalized === 'approve' || normalized === 'deny') return normalized;
-    return 'none';
+  public readSensitiveActionDecision(value: string | null): ZavorthSensitiveActionFlowDecision {
+    return this.persistenceSupport.readSensitiveActionDecision(value);
   }
 
-  private readZavorthControlMemoryFacts(url: URL): RuntimeRecord {
-    const state = this.readZavorthControlMemoryStore();
-    const sessionId = String(url.searchParams.get('sessionId') || '').trim();
-    const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') || 24) || 24));
-    const facts = state.facts
-      .filter((fact) => !sessionId || !fact.sessionId || fact.sessionId === sessionId)
-      .slice(-limit)
-      .reverse();
-    return {
-      ok: true,
-      contractVersion: '2026-05-30.zavorthControl.memory-facts.v1',
-      query: { sessionId, limit },
-      facts,
-      stats: {
-        total: facts.length,
-        persisted: state.facts.length,
-      },
-    };
+  public readZavorthControlMemoryFacts(url: URL): RuntimeRecord {
+    return this.persistenceSupport.readZavorthControlMemoryFacts(url);
   }
 
-  private applyZavorthControlMemoryAction(url: URL, body: RuntimeRecord): RuntimeRecord {
-    const action = String(body.action || '').trim().toLowerCase();
-    const id = String(body.id || body.memoryId || body.key || '').trim();
-    if (!['forget', 'promote', 'correct'].includes(action)) {
-      return {
-        ok: false,
-        error: 'unsupported memory action',
-        allowedActions: ['forget', 'promote', 'correct'],
-      };
-    }
-    if (!id) {
-      return {
-        ok: false,
-        error: 'memory id is required',
-      };
-    }
-    const state = this.readZavorthControlMemoryStore();
-    const before = state.facts.length;
-    let matched = false;
-    if (action === 'forget') {
-      state.facts = state.facts.filter((fact) => fact.id !== id && fact.key !== id);
-      matched = before !== state.facts.length;
-    } else {
-      const now = new Date().toISOString();
-      state.facts = state.facts.map((fact) => {
-        if (fact.id !== id && fact.key !== id) return fact;
-        matched = true;
-        const metadata = asRecord(fact.metadata) || {};
-        if (action === 'promote') {
-          return {
-            ...fact,
-            updatedAt: now,
-            metadata: {
-              ...metadata,
-              promotedAt: now,
-              trust: {
-                ...(asRecord(metadata.trust) || {}),
-                level: 'operator-approved',
-                durableTruth: true,
-              },
-              provenance: metadata.provenance || 'operator-approved',
-            },
-          };
-        }
-        const content = text(body.content || body.summary);
-        return {
-          ...fact,
-          content: content || fact.content,
-          updatedAt: now,
-          metadata: {
-            ...metadata,
-            correctedAt: now,
-            correctionReason: text(body.reason) || 'zavorthControl correction',
-            trust: {
-              ...(asRecord(metadata.trust) || {}),
-              level: 'operator-approved',
-              durableTruth: true,
-            },
-            provenance: metadata.provenance || 'operator-approved',
-          },
-        };
-      });
-    }
-    this.writeZavorthControlMemoryStore(state);
-    const sessionId = String(body.sessionId || url.searchParams.get('sessionId') || '').trim();
-    const nextUrl = new URL(url.toString());
-    if (sessionId) nextUrl.searchParams.set('sessionId', sessionId);
-    return {
-      ok: matched,
-      action,
-      applied: { id },
-      memory: this.readZavorthControlMemoryFacts(nextUrl),
-    };
+  public applyZavorthControlMemoryAction(url: URL, body: RuntimeRecord): RuntimeRecord {
+    return this.persistenceSupport.applyZavorthControlMemoryAction(url, body);
   }
 
-  private readZavorthControlMemoryStore(): { facts: RuntimeRecord[] } {
-    const filePath = this.zavorthControlMemoryStorePath();
-    try {
-      if (!fs.existsSync(filePath)) return { facts: [] };
-      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8')) as RuntimeRecord;
-      const facts = Array.isArray(parsed.facts) ? parsed.facts : [];
-      return {
-        facts: facts
-          .map((fact) => asRecord(fact))
-          .filter(Boolean)
-          .map((fact) => ({
-            id: text(fact?.id) || text(fact?.key) || `memory-${Date.now()}`,
-            key: text(fact?.key) || text(fact?.id),
-            type: text(fact?.type) || 'factual',
-            content: text(fact?.content) || text(fact?.summary) || text(fact?.key),
-            sessionId: text(fact?.sessionId),
-            metadata: asRecord(fact?.metadata) || {},
-            createdAt: text(fact?.createdAt) || new Date().toISOString(),
-            updatedAt: text(fact?.updatedAt) || text(fact?.createdAt) || new Date().toISOString(),
-            expiresAt: text(fact?.expiresAt) || null,
-          }))
-          .filter((fact) => fact.content),
-      };
-    } catch (error: unknown) {logger.warn('[Web App Runtime State] creation failed', error);
-    return { facts: [] };
-  }
+  public readZavorthControlMemoryStore(): { facts: RuntimeRecord[] } {
+    return this.persistenceSupport.readZavorthControlMemoryStore();
   }
 
-  private writeZavorthControlMemoryStore(state: { facts: RuntimeRecord[] }): void {
-    const filePath = this.zavorthControlMemoryStorePath();
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify({
-      facts: state.facts,
-      updatedAt: new Date().toISOString(),
-    }, null, 2), 'utf8');
+  public writeZavorthControlMemoryStore(state: { facts: RuntimeRecord[] }): void {
+    return this.persistenceSupport.writeZavorthControlMemoryStore(state);
   }
 
-  private zavorthControlMemoryStorePath(): string {
-    return path.resolve(config.projectRoot || process.cwd(), 'data', 'runtime', 'zavorth-control-memory-facts.json');
+  public zavorthControlMemoryStorePath(): string {
+    return this.persistenceSupport.zavorthControlMemoryStorePath();
   }
 }
 

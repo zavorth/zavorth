@@ -152,7 +152,7 @@ export function formatPublicAdoptionPilotLoopSnapshot(
   lines.push('- workspace payload was not stored');
   lines.push('- ledger permanece local');
   lines.push('- zavorthControl usa apenas agregados');
-  lines.push('- piloto exige owner explicito');
+  lines.push('- pilot requires an explicit owner');
 
   lines.push('', 'Rotas e comandos');
   lines.push(`- Feedback: ${snapshot.surface.feedbackRoute}`);
@@ -319,7 +319,7 @@ function buildPublicAdoptionPilotLoopFixtureMetadata() {
         { id: 'feedback-count-by-area', label: 'Feedback por area', aggregateOnly: true, excludesPayload: true, source: 'redacted feedback preview' },
         { id: 'severity-mix', label: 'Distribuicao por severidade', aggregateOnly: true, excludesPayload: true, source: 'triage rules' },
         { id: 'pilot-status', label: 'Status dos pilotos', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
-        { id: 'follow-up-aging', label: 'Follow-ups pendings', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
+        { id: 'follow-up-aging', label: 'Follow-ups pending', aggregateOnly: true, excludesPayload: true, source: 'local pilot ledger' },
       ],
       checks: [
         { id: 'pilot-loop:feedback-preview', title: 'feedback preview redigido', status: 'pass', reason: 'preview redigido sem envio', evidence: ['feedback-preview-redacted.json'] },

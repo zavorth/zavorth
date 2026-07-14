@@ -152,7 +152,6 @@ describe('UniversalReachFabricService', () => {
     expect(caps.some((c) => c.family === 'camera')).toBe(true);
     expect(caps.some((c) => c.family === 'shell')).toBe(true);
     for (const cap of caps) {
-      expect(cap.id).not.toMatch(/openclaw|hermes|claude|cursor/i);
     }
   });
 

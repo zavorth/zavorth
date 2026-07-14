@@ -88,7 +88,7 @@ export function buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2Offic
     bottlenecks.push({
       id: 'output-spread',
       severity: 'info',
-      summary: 'Uma role produziu muito mais contexto que as outras; revise a sintese por vies de volume.',
+      summary: 'One role produced much more context than the others; review the synthesis for volume bias.',
     });
   }
   const synthesisConfidence = Math.max(0, Math.min(100, Math.round(
@@ -102,12 +102,12 @@ export function buildReplayInsights(snapshot: SwarmSnapshot, state: SwarmV2Offic
     status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
     operatorSummary: events.length === 0
       ? 'Replay ainda sem eventos.'
-      : `${events.length} evento(s), ${completedRoles}/${state.roles.length} role(s) concluidas, confianca ${synthesisConfidence}/100.`,
+      : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
     timeline: [
-      buildReplayTimelineItem('queued', 'Fila', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
+      buildReplayTimelineItem('queued', 'Queue', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
       buildReplayTimelineItem('roles', 'Roles', events, ['role.started', 'role.output', 'role.finished'], state.queueStatus === 'running' ? 'active' : completedRoles > 0 ? 'done' : 'pending'),
       buildReplayTimelineItem('batches', 'Batches', events, ['batch.started', 'batch.finished'], state.batches.some((batch) => batch.status === 'failed') ? 'failed' : state.batches.some((batch) => batch.status === 'running') ? 'active' : 'done'),
-      buildReplayTimelineItem('synthesis', 'Sintese', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
+      buildReplayTimelineItem('synthesis', 'Synthesis', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
     ],
     byRole: roleOutputs.map((role) => ({
       ...role,

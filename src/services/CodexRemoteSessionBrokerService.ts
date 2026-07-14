@@ -141,7 +141,7 @@ export class CodexRemoteSessionBrokerService {
   }): Promise<CodexRemoteBrokerSessionDetail> {
     const prompt = String(input.prompt || '').trim();
     if (!prompt) {
-      throw new Error('Codex Remote start requer um prompt.');
+      throw new Error('Codex Remote start requires a prompt.');
     }
     const profile = this.profiles.resolveExecutionProfile(input.profileId);
     const session = this.sessions.createSession({
@@ -405,7 +405,7 @@ export class CodexRemoteSessionBrokerService {
   ): string {
     if (state === 'inactive') {
       return timeoutSeconds
-        ? `Guardrail inativo; limite de ${timeoutSeconds}s.`
+        ? `Guardrail inactive; limite de ${timeoutSeconds}s.`
         : 'Guardrail inativo; sem timeout configurado.';
     }
     if (state === 'stale') {

@@ -225,7 +225,7 @@ export class CapabilityAutopilotReceiptService {
     const permissionCount = parts.repairPlan?.permissionRequirements.length || 0;
     const fallbackCount = parts.repairPlan?.fallbackOptions.length || 0;
     const resumeHint = parts.resumeIntent || parts.repairPlan?.resumeIntent
-      ? ' Depois da validacao, eu consigo retomar exatamente o pedido original.'
+      ? ' After validation, I can resume the original request exactly.'
       : '';
 
     if (parts.repairPlan?.status === 'validated') {

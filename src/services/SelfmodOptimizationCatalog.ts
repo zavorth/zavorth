@@ -52,7 +52,7 @@ export class SelfmodOptimizationCatalog {
       opportunities.push({
         id: 'wsl-hibernate-review',
         category: 'companion',
-        title: 'Revisar hibernacao do WSL apos apply',
+        title: 'Revisar hibernaction do WSL apos apply',
         summary: 'Se a mudanca usar sandbox, Docker ou runtime Linux, vale revisar se o WSL pode voltar a dormir depois.',
         recommendedCommand: '/companion inspect wsl',
         appliesBecause: ['Mudanca cita WSL/Linux/sandbox e pode reativar distro auxiliar.'],

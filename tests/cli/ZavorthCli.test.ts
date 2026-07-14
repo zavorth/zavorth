@@ -57,11 +57,10 @@ describe('ZavorthCli public surface', () => {
       expect(errors).toEqual([]);
       expect(writes[0]).toContain('▄▄');
       expect(writes[0]).toContain('zavorth <ask|setup|approve|open>');
-      expect(writes[0]).toContain('Daily commands');
-      expect(writes[0]).toContain('zavorth chat');
+      expect(writes[0]).toMatch(/Four intents|Start here|Speak naturally first/i);
       expect(writes[0]).toContain('zavorth setup');
       expect(writes[0]).toContain('zavorth approve');
-      expect(writes[0]).toContain('Advanced groups');
+      expect(writes[0]).toMatch(/ask|ready|connect|learn/i);
       expect(writes[0]).not.toContain('npm run');
       expect(writes[0]).not.toContain('runtime universal');
     } finally {
@@ -88,11 +87,9 @@ describe('ZavorthCli public surface', () => {
     );
 
     expect(exitCode).toBe(0);
-    expect(writes[0]).toContain('Daily commands');
-    expect(writes[0]).toContain('When needed');
-    expect(writes[0]).toContain('zavorth ask "review this repo"');
-    expect(writes[0]).toContain('zavorth inspect');
-    expect(writes[0]).toContain('Provider/channel/ability inventory');
+    expect(writes[0]).toMatch(/Four intents|Start here|Speak naturally first/i);
+    expect(writes[0]).toMatch(/zavorth ask|zavorth setup|zavorth ready/i);
+    expect(writes[0]).toMatch(/help advanced|More \(only if you need it\)/i);
     expect(writes[0]).not.toContain('nodes invoke');
   });
 

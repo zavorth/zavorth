@@ -160,7 +160,7 @@ const PROFILE_CATALOG: ZavorthExperienceProfile[] = [
       'avançado',
       'especialista',
       'controle total',
-      'operador',
+      'operator',
     ],
   },
 ];

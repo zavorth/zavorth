@@ -75,6 +75,9 @@ import type { PluginItem } from '../views/panels/PluginMarketplacePanel';
 import type { RuntimeWorkboardProjection } from '../workboard/runtimeWorkboardProjection';
 import { t } from '../i18n';
 import { useVoiceDictation } from '../voice/useVoiceDictation';
+import { useDuplexCall } from '../voice/useDuplexCall';
+import { VoiceCallStatusBanner } from '../voice/VoiceCallStatusBanner';
+import { setMessages } from '../store/session';
 import { ProofStrip } from '../components/ProofStrip';
 import type { DesktopReceipt } from '../desktop-state/receiptsLedger';
 import { appendReceipt } from '../desktop-state/receiptsLedger';
@@ -361,6 +364,45 @@ export function DesktopShell(props: {
     onChange: props.onInput,
     onNotice: props.onNotice,
   });
+
+  const voiceCall = useDuplexCall({
+    language: undefined,
+    experienceSessionId: props.currentSessionId || null,
+    workspace: props.workspaceScope?.path || props.workspaceScope?.id || null,
+    injectChat: (turn) => {
+      const now = new Date().toISOString();
+      setMessages((current) => [
+        ...current,
+        {
+          id: `voice-call-user-${Date.now()}`,
+          role: 'user',
+          content: turn.userText,
+          at: now,
+          title: 'Voice call',
+        },
+        {
+          id: `voice-call-agent-${Date.now() + 1}`,
+          role: 'assistant',
+          content: turn.agentText,
+          at: now,
+          title: 'Voice call',
+        },
+      ]);
+    },
+    onNotice: props.onNotice,
+  });
+
+  const toggleVoiceCall = useCallback(() => {
+    if (voiceCall.active) {
+      void voiceCall.end();
+      return;
+    }
+    // Stop pure dictation if a call starts
+    if (voice.listening) {
+      voice.stop?.();
+    }
+    void voiceCall.start();
+  }, [voice, voiceCall]);
 
   const activeToolCount = useMemo(() => {
     if (!props.busy) return 0;
@@ -786,6 +828,20 @@ export function DesktopShell(props: {
                 onOpenReceipt={() => props.onPanel('receipts')}
                 riskBudgetState={props.riskBudgetState}
               />
+              <VoiceCallStatusBanner
+                active={voiceCall.active}
+                phase={voiceCall.phase}
+                webrtcState={voiceCall.webrtcState}
+                mediaMode={voiceCall.mediaMode}
+                mediaPlane={voiceCall.mediaPlane}
+                busy={voiceCall.busy}
+                lastError={voiceCall.lastError}
+                rms={voiceCall.rms}
+                interim={voiceCall.interim}
+                titleLabel={t('composer.voiceCallActive')}
+                endLabel={t('composer.voiceCallStop')}
+                onEnd={() => void voiceCall.end()}
+              />
               <ThreadView
                 approvals={props.approvals}
                 busy={props.busy}
@@ -818,6 +874,11 @@ export function DesktopShell(props: {
                 onSubmit={async value => { await props.onSubmit(value); }}
                 onVoice={voice.toggle}
                 voiceListening={voice.listening}
+                onVoiceCall={toggleVoiceCall}
+                voiceCallActive={voiceCall.active}
+                voiceCallPhase={voiceCall.phase}
+                voiceCallRms={voiceCall.rms}
+                voiceCallStatusLabel={voiceCall.statusLabel}
                 onWorkspaceFolder={props.onWorkspaceFolder}
                 onWorkspaceScope={props.onWorkspaceScope}
                 messages={props.messages}

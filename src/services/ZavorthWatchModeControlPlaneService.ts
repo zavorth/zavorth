@@ -158,7 +158,7 @@ export class ZavorthWatchModeControlPlaneService {
   public renderReport(input: { limit?: number } = {}): string {
     const snapshot = this.buildSnapshot(input);
     const lines = [
-      'Watch mode: Watch Mode supervisionado',
+      'Watch mode: Supervised Watch Mode',
       '',
       snapshot.narrative.operatorSummary,
       `Postura: ${snapshot.summary.posture}.`,
@@ -166,7 +166,7 @@ export class ZavorthWatchModeControlPlaneService {
       `Buffers: artifacts ${snapshot.summary.artifactEntries} | throttled screenshots ${snapshot.summary.throttledScreenshots} | dropped timeline ${snapshot.summary.droppedTimelineEntries} | handles ${snapshot.summary.activeVisualHandles}.`,
       `Custo operacional: ${snapshot.cost.level} (${snapshot.cost.score}/100) | ${snapshot.cost.summary}`,
       `Policy: strict default ${snapshot.summary.strictApprovalDefault ? 'on' : 'off'} | apps ${snapshot.summary.allowedApps} | sites ${snapshot.summary.allowedSites} | redaction ${snapshot.summary.screenshotRedactionMode}/${snapshot.summary.sensitiveScreenPolicy}.`,
-      `Budget default: iteracoes ${snapshot.summary.maxIterations} | duracao ${snapshot.summary.maxDurationMs}ms | screenshots ${snapshot.summary.maxScreenshots} | TTL ${snapshot.summary.screenshotTtlMs}ms.`,
+      `Budget default: iteracoes ${snapshot.summary.maxIterations} | duraction ${snapshot.summary.maxDurationMs}ms | screenshots ${snapshot.summary.maxScreenshots} | TTL ${snapshot.summary.screenshotTtlMs}ms.`,
       '',
       'Cards operacionais:',
       ...snapshot.cards.map((entry) =>

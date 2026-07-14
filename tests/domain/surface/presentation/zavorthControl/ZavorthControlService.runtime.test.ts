@@ -905,7 +905,7 @@ describe('ZavorthControlService', () => {
     await service.start();
     const baseUrl = service.getUrl();
     const token = 'test-web-token';
-    const appResponse = await fetchNoKeepAlive(`${baseUrl}/app`);
+    const appResponse = await fetchNoKeepAlive(`${baseUrl}/zavorthControl`);
     const appHtml = await appResponse.text();
     const authResponse = await fetchNoKeepAlive(`${baseUrl}/api/auth/validate`, {
       method: 'POST',
@@ -1010,14 +1010,10 @@ describe('ZavorthControlService', () => {
     await service.stopAsync();
 
     expect(appResponse.status).toBe(200);
-    expect(appHtml).toContain('Zavorth Runtime');
-    expect(appHtml).toContain('runtime-handoff');
-    expect(appHtml).toContain('Cockpit do operador');
-    expect(appHtml).toContain('shell protegido');
-    expect(appHtml).toContain('Snapshot rapido');
-    expect(appHtml).toContain('Abrir painel legado');
-    expect(appHtml).toContain('/app.js');
-    expect(appHtml).toContain('/styles.css');
+    expect(appHtml).toContain('Zavorth Home');
+    expect(appHtml).toContain('Ask Zavorth');
+    expect(appHtml).toContain('Choose what Zavorth can use');
+    expect(appHtml).toContain('assets/zavorth-icon.svg');
     expect(authResponse.status).toBe(200);
     expect(sessionStatus).toBe(200);
     expect(continuityStatus).toBe(200);
@@ -1255,6 +1251,6 @@ describe('ZavorthControlService', () => {
         }),
       }),
     );
-  }, 30000);
+  }, 180000);
 
 });

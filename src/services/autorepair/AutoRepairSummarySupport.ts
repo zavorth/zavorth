@@ -158,7 +158,7 @@ export function buildAutoRepairRunSummary(
   }
 
   if (report.reloadRequest?.summary) {
-    lines.push(`Reload supervisionado: ${report.reloadRequest.summary}`);
+    lines.push(`Supervised reload: ${report.reloadRequest.summary}`);
   } else if (needsReload && process.env.ZAVORTH_SUPERVISED !== 'true') {
     lines.push(
       'O reparo terminou fora do host supervisionado. O launcher supervisionado pode seguir com o boot usando as mudancas novas.',

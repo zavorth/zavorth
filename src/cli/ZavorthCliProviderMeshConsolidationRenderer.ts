@@ -70,8 +70,8 @@ export function formatProviderMeshConsolidationSnapshot(
     `- session: ${snapshot.identifiers.sessionId}`,
     `- status: ${snapshot.status}`,
     `- manifests: ${snapshot.summary.manifestCount}`,
-    `- familias: ${snapshot.summary.familyCount}`,
-    `- rotas: ${snapshot.summary.readyRouteCount}/${snapshot.summary.routeCount} prontas`,
+    `- families: ${snapshot.summary.familyCount}`,
+    `- routes: ${snapshot.summary.readyRouteCount}/${snapshot.summary.routeCount} ready`,
     `- models: ${snapshot.summary.modelCount}`,
     `- selected: ${snapshot.selected.providerLabel}/${snapshot.selected.modelLabel} (${snapshot.selected.ready ? 'ready' : 'pending'})`,
     `- next step: ${snapshot.nextSafeAction}`,
@@ -83,10 +83,10 @@ export function formatProviderMeshConsolidationSnapshot(
     lines.push(`- ${key}: ${value ? 'ok' : 'pending'}`);
   }
 
-  lines.push('', 'Familias');
+  lines.push('', 'Families');
   for (const family of snapshot.families.slice(0, 8)) {
     lines.push(
-      `- ${family.label}: ${family.readyRouteCount}/${family.routeCount} rotas prontas`,
+      `- ${family.label}: ${family.readyRouteCount}/${family.routeCount} routes ready`,
       `  caps: ${family.capabilities.slice(0, 6).join(', ') || 'n/a'}${family.selected ? ' - selecionada' : ''}`,
     );
   }

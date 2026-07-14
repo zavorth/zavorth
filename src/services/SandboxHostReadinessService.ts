@@ -542,7 +542,7 @@ export class SandboxHostReadinessService {
         'local-jail:e2e',
         result,
         result.stdout.includes('zavorth-local-jail-ok')
-          ? 'Local-jail executou codigo efemero e limpou o workspace temporario.'
+          ? 'Local-jail executou codigo efemero e limpou o workspace temporary.'
           : 'Local-jail executou, mas a saida esperada nao apareceu.',
       );
     } catch (error: unknown) {logger.warn('[Sandbox Host Readiness] process execution failed', error);

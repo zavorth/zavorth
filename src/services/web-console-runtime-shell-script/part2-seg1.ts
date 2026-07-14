@@ -586,7 +586,7 @@ export const runtimeShellScriptPart2Seg1: string = [
     "  ]);",
     "  if (normalizeText(recommendedEntry?.label) || normalizeText(recommendedEntry?.reason)) {",
     "    items.push(",
-    "      '<strong>Melhor entrada:</strong> '",
+    "      '<strong>Better entrada:</strong> '",
     "      + escapeHtml(recommendedEntry?.label || 'Retomar contexto')",
     "      + (normalizeText(recommendedEntry?.reason) ? ' - ' + escapeHtml(recommendedEntry.reason) : ''),",
     "    );",

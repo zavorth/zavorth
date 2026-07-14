@@ -43,7 +43,7 @@ export function pushWorkflowActions(
     snapshot: buildActionSnapshot({
       actionId: `resume-workflow:${workflowRunId}:${workflowStageId || 'latest'}`,
       actionType: 'resume-workflow',
-      title: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Retomar workflow',
+      title: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Resume workflow',
       description: workflowReason || `Continue ${workflowName} a partir da etapa interrompida.`,
       category: 'workflow',
       availability: buildActionAvailability(
@@ -55,7 +55,7 @@ export function pushWorkflowActions(
       equivalents: {
         web: {
           mode: 'inline',
-          label: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Retomar workflow',
+          label: workflowStageLabel ? `Retomar ${workflowStageLabel}` : 'Resume workflow',
           value: workflowRunId,
         },
         telegram: {

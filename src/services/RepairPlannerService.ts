@@ -65,7 +65,7 @@ export class RepairPlannerService {
           actions,
         };
       default:
-        actions.push({ kind: 'ask_user', label: 'Pedir contexto adicional ao operador' });
+        actions.push({ kind: 'ask_user', label: 'Pedir contexto adicional athe operator' });
         return {
           kind: 'human_required',
           summary: classification.summary,

@@ -48,7 +48,7 @@ export class McpClientManager {
   public async connect(registry: ToolRegistry): Promise<void> {
     logger.info(`[MCP] Tentando conexao via STDIO com servidor: ${this.name}...`);
     await this.client.connect(this.transport);
-    logger.info(`[MCP] Servidor [${this.name}] conectado com sucesso!`);
+    logger.info(`[MCP] Servidor [${this.name}] connected successfully!`);
 
     await this.discoverAndRegisterTools(registry);
   }
@@ -99,7 +99,7 @@ export class McpClientManager {
         this.client,
         safeName,
         tool.name,
-        tool.description || `Ferramenta externa MCP: ${tool.name}`,
+        tool.description || `External MCP tool: ${tool.name}`,
         parameters,
         {
           pluginId: `mcp:${this.name}`,
@@ -111,7 +111,7 @@ export class McpClientManager {
         mcpTool,
         createMcpAgentToolSecurityDefinition(
           safeName,
-          tool.description || `Ferramenta externa MCP: ${tool.name}`,
+          tool.description || `External MCP tool: ${tool.name}`,
         ),
       );
     }

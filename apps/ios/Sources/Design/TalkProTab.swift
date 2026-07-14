@@ -79,14 +79,14 @@ struct TalkProTab: View {
                     }
             }
             .presentationDetents([.medium, .large])
-            .openClawSheetChrome()
+            .zavorthSheetChrome()
         }
         .sheet(isPresented: self.$showTalkIssueDetails) {
             if let fallbackIssue = self.fallbackIssue {
                 TalkRuntimeIssueDetailsSheet(
                     issue: fallbackIssue,
                     onOpenSettings: self.openSettings)
-                    .openClawSheetChrome()
+                    .zavorthSheetChrome()
             }
         }
         .onAppear { self.alignPersistedTalkState() }

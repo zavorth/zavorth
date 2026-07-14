@@ -77,7 +77,7 @@ export class TelegramMenuController {
       '- `/zavorthControl` — painel web',
       '- `/trust` — confianca e limites',
       '- `/commands` — lista avancada (so se precisar)',
-      '- `/perm` — permissoes pendentes',
+      '- `/perm` — permissions pendentes',
       '- `/lock` — trava de emergencia',
       '',
       '*Aprendizado*',

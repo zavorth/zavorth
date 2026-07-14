@@ -258,7 +258,7 @@ function naturalFirstRuntimeFromRun(run: AnyRecord): AnyRecord | null {
       noToolExecutionBeforeApproval: safety.enforcement?.noToolExecutionBeforeApproval ?? true,
       noApprovalBypass: safety.enforcement?.noApprovalBypass ?? true,
     },
-    nextSafeAction: safety.nextSafeAction || 'Continuar pelo gateway governado.',
+    nextSafeAction: safety.nextSafeAction || 'Continue through the governed gateway.',
     stages: [
       { id: 'received', label: 'Mensagem recebida', status: 'done' },
       { id: 'classified', label: `Classificada como ${label}`, status: 'done' },

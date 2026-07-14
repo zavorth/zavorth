@@ -11,6 +11,7 @@ Rules are organized by context and have severity levels:
 
 - **strict**: Use TypeScript strict mode for new code
 - **strict**: Never commit secrets, keys, or tokens
+- **strict**: Never add free-text intent regex/keyword packs that route user natural language; new capabilities are tools and/or slash/UI (agent-first)
 - **prefer**: Prefer functional patterns over classes
 - **prefer**: Add JSDoc comments for public APIs
 - **suggest**: Use early returns to reduce nesting

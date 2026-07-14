@@ -58,7 +58,7 @@ export class TelegramOpsRuntimeCommandService {
   }
 
   /**
-   * Slash-only (Hermes-style). Free-text NLU phrases are not supported.
+   * Slash-only (agent-first). Free-text NLU phrases are not supported.
    * Examples: /remote on|off|status, /remoto ativar|desativar|status
    */
   public parseRemoteModeCommand(rawText: string): RemoteModeCommand | null {

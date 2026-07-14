@@ -98,7 +98,7 @@ def validate_required_screenshots!(paths)
 end
 
 def snapshot_devices
-  raw = ENV["OPENCLAW_SNAPSHOT_DEVICES"].to_s.strip
+  raw = ENV["ZAVORTH_SNAPSHOT_DEVICES"].to_s.strip
   return default_snapshot_devices if raw.empty?
 
   raw.split(",").map(&:strip).reject(&:empty?)
@@ -117,7 +117,7 @@ def default_snapshot_devices
 end
 
 def watch_snapshot_device
-  raw = ENV["OPENCLAW_WATCH_SNAPSHOT_DEVICE"].to_s.strip
+  raw = ENV["ZAVORTH_WATCH_SNAPSHOT_DEVICE"].to_s.strip
   raw.empty? ? DEFAULT_WATCH_SNAPSHOT_DEVICE : raw
 end
 
@@ -415,7 +415,7 @@ def capture_watch_screenshot
     write_watch_screenshot_mode_defaults(udid, screenshot_mode_bundle_identifiers)
     status_bar_overridden = set_watch_status_bar_override(udid)
     sh(
-      "SIMCTL_CHILD_OPENCLAW_WATCH_SCREENSHOT_MODE=1 #{shell_join([
+      "SIMCTL_CHILD_ZAVORTH_WATCH_SCREENSHOT_MODE=1 #{shell_join([
         "xcrun",
         "simctl",
         "launch",
@@ -1357,7 +1357,7 @@ platform :ios do
 
   desc "Generate screenshots, update App Store metadata and review attachment, then upload an App Store build"
   lane :release_upload do
-    unless ENV["OPENCLAW_IOS_RELEASE_WRAPPER"] == "1"
+    unless ENV["ZAVORTH_IOS_RELEASE_WRAPPER"] == "1"
       UI.user_error!("Use `pnpm ios:release:upload`; direct Fastlane TestFlight upload is disabled.")
     end
 

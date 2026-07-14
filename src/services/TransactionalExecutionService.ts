@@ -109,8 +109,8 @@ export class TransactionalExecutionService {
       return this.commitBlocked(plan.id, transactionId, 'Commit bloqueado sem Risk Gate confirmado.');
     }
     if (payload.source !== 'ZavorthAgentOs' || payload.commitRequiresRiskGate !== true || payload.liveActionApplied === true) {
-      this.mutationPlane.markBlocked(plan.id, 'Payload de transacao Agent OS invalido.');
-      return this.commitBlocked(plan.id, transactionId, 'Payload de transacao Agent OS invalido.');
+      this.mutationPlane.markBlocked(plan.id, 'Payload de transaction Agent OS invalido.');
+      return this.commitBlocked(plan.id, transactionId, 'Payload de transaction Agent OS invalido.');
     }
     const workspaceRoot = stringOrNull(payload.workspaceRoot);
     const workspaceWrites = parseWorkspaceWrites(payload.workspaceWrites);

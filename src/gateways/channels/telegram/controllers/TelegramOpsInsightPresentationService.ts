@@ -123,7 +123,7 @@ export class TelegramOpsInsightPresentationService {
       'Modos',
       `- Apresentacao: ${modes.presentationEnabled ? 'ativo' : 'inativo'}`,
       `- Demo: ${modes.demoEnabled ? 'ativo' : 'inativo'}`,
-      `- Operador: ${modes.operatorEnabled ? 'ativo' : 'inativo'}`,
+      `- Operator: ${modes.operatorEnabled ? 'ativo' : 'inativo'}`,
       '',
       'Sidecars',
       `- AIGateway: ${this.formatSidecarStatusLine(AIGateway, AIGateway?.baseUrl)}`,
