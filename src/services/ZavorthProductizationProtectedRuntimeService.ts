@@ -523,6 +523,84 @@ export class ZavorthProductizationProtectedRuntimeService {
       artifacts,
       receiptId,
       nextAction: this.missionNextAction({ status, needsApproval, sandbox: input.sandbox }),
+      definition: {
+        objective: input.request,
+        expectedOutcome: input.template.summary,
+        completionCriteria: input.template.expectedArtifacts.map((artifact, index) => ({
+          id: `artifact-${index + 1}`,
+          description: `Produce and independently verify ${artifact}.`,
+          requiredEvidence: ['artifact_digest'],
+          minimumEvidenceCount: 1,
+        })),
+        boundaries: {
+          workspaceRoots: ['.'],
+          allowedFilePatterns: readOnly ? ['**/*'] : [],
+          deniedFilePatterns: ['**/.env*', '**/*.pem', '**/*.key'],
+          allowedServices: [],
+          networkAccess: input.template.requiresNetwork ? 'read_only' : 'denied',
+          maximumDurationMs: null,
+        },
+        approvalRequirements: needsApproval ? [{
+          id: `approval-${id}`,
+          description: 'Approve the scoped mutable or elevated-risk work before execution.',
+          requiredBefore: 'Any mutable or elevated-risk action.',
+        }] : [],
+        verificationRequirements: [
+          'Use evidence captured by the runtime, verifier or Policy Broker.',
+          'Do not accept executor narrative as completion evidence.',
+        ],
+        stopConditions: [
+          'Stop when a declared boundary would be exceeded.',
+          'Stop when required approval or independent evidence is unavailable.',
+        ],
+        rollbackPlan: input.template.requiresMutation
+          ? 'Restore changed files from the governed rollback receipt.'
+          : null,
+      },
+    };
+  }
+
+  /**
+   * Mark a mission completed only after independent verification succeeds.
+   * Executor narrative / self-claims never complete a mission alone.
+   */
+  public completeMissionWithVerification(input: {
+    mission: ZavorthMissionContract;
+    evidence: unknown[];
+    verifiedAt?: string;
+  }): ZavorthMissionContract {
+    const { gateMissionCompletion } = require('./AgentMissionCompletionGate.js') as typeof import('./AgentMissionCompletionGate.js');
+    const definition = input.mission.definition;
+    if (!definition) {
+      return {
+        ...input.mission,
+        status: 'blocked',
+        nextAction: 'Mission definition is required before completion can be verified.',
+      };
+    }
+    const gate = gateMissionCompletion({
+      missionId: input.mission.id,
+      definition,
+      evidence: input.evidence,
+      proposedStatus: 'completed',
+      verifiedAt: input.verifiedAt,
+    });
+    return {
+      ...input.mission,
+      status: (gate.allowedStatus as ZavorthMissionContract['status']) || 'blocked',
+      nextAction: gate.blocked
+        ? gate.reason
+        : 'Mission completed with independent verification receipt.',
+      timeline: [
+        ...input.mission.timeline,
+        {
+          id: `verify-${input.mission.id}`,
+          at: input.verifiedAt || new Date().toISOString(),
+          status: gate.blocked ? 'blocked' : 'done',
+          title: gate.blocked ? 'Verification incomplete' : 'Verification passed',
+          summary: gate.reason,
+        },
+      ],
     };
   }
 

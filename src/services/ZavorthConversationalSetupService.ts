@@ -14,12 +14,17 @@ import {
 import type { ZavorthExperienceProfileId } from '../contracts/ZavorthExperienceProfileContract.js';
 import { ZavorthExperienceProfileService } from './ZavorthExperienceProfileService.js';
 import { asErrorLike } from '../utils/errorLike';
+import { ZavorthI18nService } from '../i18n/ZavorthI18nService.js';
+import { resolveFromNavigator } from '../i18n/localeDetector.js';
+import type { LocaleSource } from '../i18n/types.js';
+import { ConversationalSetupStateStore } from './onboarding/ConversationalSetupStateStore.js';
 
 export type ZavorthConversationalSetupInput = {
   agentName?: unknown;
   userName?: unknown;
   preferredAddress?: unknown;
   language?: unknown;
+  uiLocale?: unknown;
   primaryUse?: unknown;
   intent?: unknown;
   experienceProfile?: unknown;
@@ -39,6 +44,22 @@ export type ZavorthConversationalSetupInput = {
 export type ZavorthConversationalSetupRuntime = {
   personalization?: FirstRunPersonalizationService;
   experienceProfiles?: ZavorthExperienceProfileService;
+  stateStore?: ConversationalSetupStateStore;
+  i18n?: ZavorthI18nService;
+  localeSource?: LocaleSource;
+};
+
+export type ZavorthConversationalSetupIntakeOptions = {
+  locale?: string | null;
+  confirmPreviewToken?: string | null;
+};
+
+export type ZavorthConversationalSetupIntakeResult = {
+  reply: string;
+  finished: boolean;
+  status: 'collecting' | 'awaiting_confirmation' | 'applied' | 'confirmation_invalid';
+  confirmationToken?: string;
+  preview?: ZavorthConversationalSetupContract['preview'];
 };
 
 const SECRET_PATTERNS = [
@@ -52,15 +73,21 @@ const SECRET_PATTERNS = [
 export class ZavorthConversationalSetupService {
   private readonly personalization: FirstRunPersonalizationService;
   private readonly experienceProfiles: ZavorthExperienceProfileService;
+  private readonly stateStore: ConversationalSetupStateStore;
+  private readonly i18n: ZavorthI18nService;
+  private readonly localeSource: LocaleSource;
 
   constructor(runtime: ZavorthConversationalSetupRuntime = {}) {
     this.personalization = runtime.personalization || new FirstRunPersonalizationService();
     this.experienceProfiles = runtime.experienceProfiles || new ZavorthExperienceProfileService();
+    this.stateStore = runtime.stateStore || new ConversationalSetupStateStore();
+    this.i18n = runtime.i18n || new ZavorthI18nService();
+    this.localeSource = runtime.localeSource || { env: process.env };
   }
 
   public buildSnapshot(input: ZavorthConversationalSetupInput = {}): ZavorthConversationalSetupContract {
     const primaryUse = clean(input.primaryUse) || clean(input.intent);
-    const uiLanguage: ZavorthConversationalSetupLanguage = 'en-US';
+    const uiLanguage = this.resolveUiLanguage(input.uiLocale);
     const experience = this.experienceProfiles.buildContract({
       profile: input.experienceProfile,
       intent: primaryUse,
@@ -68,7 +95,7 @@ export class ZavorthConversationalSetupService {
     });
     const answers = this.buildAnswers(input, uiLanguage, experience.selected.profileId);
     const secretDetected = hasRawSecret(input);
-    const questions = buildQuestions(answers);
+    const questions = buildQuestions(answers, this.i18n, uiLanguage);
     const missingRequired = questions.some((question) => question.required && question.status === 'pending');
     const canApply = input.apply === true && input.confirmLocalProfile === true && !secretDetected && !missingRequired;
     const blockedReason = secretDetected
@@ -277,14 +304,53 @@ export class ZavorthConversationalSetupService {
   public async runFirstMessageIntake(
     sessionId: string,
     history: ChatMessage[],
-    workspaceHint?: { type: string; suggestedMission: string },
-  ): Promise<{
-    reply: string;
-    finished: boolean;
-  }> {
+    _workspaceHint?: { type: string; suggestedMission: string },
+    options: ZavorthConversationalSetupIntakeOptions = {},
+  ): Promise<ZavorthConversationalSetupIntakeResult> {
     const llmService = new LlmRuntimeService();
 
-    // 1. Ask LLM to extract JSON from the history
+    if (clean(options.confirmPreviewToken)) {
+      const confirmed = this.stateStore.consumeConfirmed(sessionId, clean(options.confirmPreviewToken) || '');
+      if (!confirmed) {
+        return {
+          reply: this.i18n.t('onboarding.conversation.confirmation_invalid', {
+            locale: this.resolveUiLanguage(options.locale),
+            fallback: 'This setup preview is invalid or expired. Please review a new preview before confirming.',
+          }),
+          finished: false,
+          status: 'confirmation_invalid',
+        };
+      }
+      const applied = this.buildSnapshot({
+        ...confirmed.answers,
+        uiLocale: confirmed.locale,
+        apply: true,
+        confirmLocalProfile: true,
+        completeBootstrap: true,
+      });
+      if (applied.status !== 'applied') {
+        return {
+          reply: applied.safety.blockedReason || this.i18n.t('onboarding.conversation.apply_failed', {
+            locale: confirmed.locale,
+            fallback: 'The local profile could not be applied safely. Review the setup answers and try again.',
+          }),
+          finished: false,
+          status: 'confirmation_invalid',
+        };
+      }
+      return {
+        reply: this.i18n.t('onboarding.conversation.applied', {
+          locale: confirmed.locale,
+          fallback: 'Setup complete. I am ready to help with your first mission.',
+        }),
+        finished: true,
+        status: 'applied',
+        preview: applied.preview,
+      };
+    }
+
+    const locale = this.resolveUiLanguage(options.locale);
+
     const extractionPrompt = `You are a helper parsing a conversation history between a user and an assistant who is configuring the Zavorth agent.
 Analyze the conversation history and extract the following parameters as JSON. Return ONLY a valid JSON object. If a parameter is not mentioned, return null.
 
@@ -310,7 +376,7 @@ Here is the conversation history:
 ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
 `;
 
-    let extracted: any = {};
+    let extracted: Record<string, unknown> = {};
     try {
       const response = await llmService.chat([
         { role: 'user', content: extractionPrompt }
@@ -326,54 +392,41 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
       logger.error('Extraction from onboarding history failed', err);
     }
 
-    // 2. Build snapshot with extracted answers
-    const snapshot = this.buildSnapshot({
+    const draftAnswers: ZavorthConversationalSetupInput = {
       agentName: extracted.agentName,
       userName: extracted.userName,
       preferredAddress: extracted.userName,
       language: extracted.language,
+      uiLocale: locale,
       experienceProfile: extracted.experienceProfile,
       detailLevel: extracted.detailLevel,
       primaryUse: extracted.primaryUse,
-    });
+    };
+    const snapshot = this.buildSnapshot(draftAnswers);
 
     const isAllAnswered = snapshot.questions.every((q) => q.status === 'answered' || !q.required);
 
     if (snapshot.status === 'ready' || isAllAnswered) {
-      // 3. Apply setup!
-      const applySnapshot = this.buildSnapshot({
-        agentName: extracted.agentName,
-        userName: extracted.userName,
-        preferredAddress: extracted.userName,
-        language: extracted.language,
-        experienceProfile: extracted.experienceProfile,
-        detailLevel: extracted.detailLevel,
-        primaryUse: extracted.primaryUse,
-        apply: true,
-        confirmLocalProfile: true,
-        completeBootstrap: true,
-      });
-
-      const mission = workspaceHint?.suggestedMission || 'revisar os arquivos locais';
-      
-      const summaryPrompt = `Onboarding conversational setup is complete. Write a warm, professional, and concise greeting (max 3-4 sentences) summarizing the applied configuration and suggesting the first mission:
-- User name: ${extracted.userName || 'Operator'}
-- Language: ${extracted.language || 'English'}
-- Profile: ${extracted.experienceProfile || 'personal'}
-- Suggested Mission: ${mission}
-
-Make sure to speak in the user's preferred language (e.g. Portuguese if language is Portuguese).
-`;
-      const replyResponse = await llmService.chat([
-        { role: 'user', content: summaryPrompt }
-      ]);
-
+      if (snapshot.safety.rawSecretDetected) {
+        return {
+          reply: snapshot.safety.blockedReason || 'A secret-like value was detected. Remove credentials from the setup answers.',
+          finished: false,
+          status: 'collecting',
+        };
+      }
+      const persistedAnswers = toPersistedDraft(snapshot);
+      const { confirmationToken } = this.stateStore.savePreview(sessionId, persistedAnswers, locale);
       return {
-        reply: replyResponse.content || 'Setup concluído! Estou pronto para ajudar.',
-        finished: true,
+        reply: this.i18n.t('onboarding.conversation.review_preview', {
+          locale,
+          fallback: 'Review this setup preview. Confirm it explicitly to apply the local profile, or edit any answer first.',
+        }),
+        finished: false,
+        status: 'awaiting_confirmation',
+        confirmationToken,
+        preview: snapshot.preview,
       };
     } else {
-      // Find the first pending required question
       const nextQuestion = snapshot.questions.find((q) => q.status === 'pending' && q.required)
         || snapshot.questions.find((q) => q.status === 'pending');
 
@@ -385,14 +438,37 @@ Available choices (if choice type): ${nextQuestion?.choices ? nextQuestion.choic
 Ask the user this question in a friendly, conversational, and natural way. Keep it to 1-2 sentences.
 Speak in the user's preferred language if known (default to Portuguese if history seems to be in Portuguese or English if not). Do not output anything else, just the question.
 `;
-      const replyResponse = await llmService.chat([
-        { role: 'user', content: questionPrompt }
-      ]);
+      const reply = await this.tryGenerateReply(llmService, questionPrompt, 'next question');
 
       return {
-        reply: replyResponse.content || nextQuestion?.prompt || 'Qual seu nome?',
+        reply: reply || nextQuestion?.prompt || 'What should I call you?',
         finished: false,
+        status: 'collecting',
       };
+    }
+  }
+
+  private resolveUiLanguage(explicitLocale?: unknown): ZavorthConversationalSetupLanguage {
+    return this.i18n.resolveFromSource({
+      ...this.localeSource,
+      explicitLocale: clean(explicitLocale) || resolveFromNavigator() || this.localeSource.explicitLocale,
+    });
+  }
+
+  private async tryGenerateReply(
+    llmService: LlmRuntimeService,
+    prompt: string,
+    purpose: string,
+  ): Promise<string | null> {
+    try {
+      const response = await llmService.chat([{ role: 'user', content: prompt }]);
+      return clean(response.content);
+    } catch (error: unknown) {
+      logger.warn(
+        `Conversational onboarding ${purpose} unavailable; using deterministic fallback`,
+        asErrorLike(error),
+      );
+      return null;
     }
   }
 }
@@ -412,7 +488,11 @@ function resolveStatus(input: {
   return input.missingRequired ? 'needs_input' : 'ready';
 }
 
-function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConversationalSetupQuestion[] {
+function buildQuestions(
+  answers: ZavorthConversationalSetupAnswers,
+  i18n: ZavorthI18nService,
+  locale: string,
+): ZavorthConversationalSetupQuestion[] {
   const profile = answers.experienceProfileId;
   const isTechnical = profile === 'developer' || profile === 'business' || profile === 'power';
   const isGoverned = profile === 'business' || profile === 'power';
@@ -420,8 +500,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
   const rows: Array<Omit<ZavorthConversationalSetupQuestion, 'status' | 'answerPreview'> & { answer: string | null }> = [
     {
       id: 'agent-name',
-      label: 'Agent name',
-      prompt: 'What should this agent be called?',
+      label: i18n.t('onboarding.conversation.questions.agent_name.label', { locale, fallback: 'Agent name' }),
+      prompt: i18n.t('onboarding.conversation.questions.agent_name.prompt', { locale, fallback: 'What should this agent be called?' }),
       kind: 'text',
       required: true,
       visible: true,
@@ -429,8 +509,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
     },
     {
       id: 'user-name',
-      label: 'Your name',
-      prompt: 'What should Zavorth call you?',
+      label: i18n.t('onboarding.conversation.questions.user_name.label', { locale, fallback: 'Your name' }),
+      prompt: i18n.t('onboarding.conversation.questions.user_name.prompt', { locale, fallback: 'What should Zavorth call you?' }),
       kind: 'text',
       required: true,
       visible: true,
@@ -438,8 +518,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
     },
     {
       id: 'preferred-language',
-      label: 'Preferred conversation language',
-      prompt: 'Which language should Zavorth use when speaking with you?',
+      label: i18n.t('onboarding.conversation.questions.preferred_language.label', { locale, fallback: 'Preferred conversation language' }),
+      prompt: i18n.t('onboarding.conversation.questions.preferred_language.prompt', { locale, fallback: 'Which language should Zavorth use when speaking with you?' }),
       kind: 'text',
       required: true,
       visible: true,
@@ -447,8 +527,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
     },
     {
       id: 'experience-profile',
-      label: 'Experience profile',
-      prompt: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?',
+      label: i18n.t('onboarding.conversation.questions.experience_profile.label', { locale, fallback: 'Experience profile' }),
+      prompt: i18n.t('onboarding.conversation.questions.experience_profile.prompt', { locale, fallback: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?' }),
       kind: 'choice',
       required: true,
       visible: true,
@@ -457,8 +537,8 @@ function buildQuestions(answers: ZavorthConversationalSetupAnswers): ZavorthConv
     },
     {
       id: 'detail-level',
-      label: 'Detail level',
-      prompt: 'Do you prefer simple or advanced detail?',
+      label: i18n.t('onboarding.conversation.questions.detail_level.label', { locale, fallback: 'Detail level' }),
+      prompt: i18n.t('onboarding.conversation.questions.detail_level.prompt', { locale, fallback: 'Do you prefer simple or advanced detail?' }),
       kind: 'choice',
       required: true,
       visible: true,
@@ -564,6 +644,25 @@ function buildPreview(
     firstMission: answers.firstSafeMission
       ? `Suggested first mission: ${answers.firstSafeMission}.`
       : 'Suggested first mission: a safe read-only review to validate the environment.',
+  };
+}
+
+function toPersistedDraft(snapshot: ZavorthConversationalSetupContract): ZavorthConversationalSetupInput {
+  return {
+    agentName: snapshot.answers.agentName,
+    userName: snapshot.answers.userName,
+    preferredAddress: snapshot.answers.preferredAddress,
+    language: snapshot.answers.preferredLanguage,
+    uiLocale: snapshot.uiLanguage,
+    primaryUse: snapshot.answers.primaryUse,
+    experienceProfile: snapshot.answers.experienceProfileId,
+    detailLevel: snapshot.answers.detailLevel,
+    approvalChannel: snapshot.answers.approvalChannel,
+    firstSafeMission: snapshot.answers.firstSafeMission,
+    domain: snapshot.answers.domain,
+    learningStyle: snapshot.answers.learningStyle,
+    timezone: snapshot.answers.timezone,
+    weekendPolicy: snapshot.answers.weekendPolicy,
   };
 }
 

@@ -403,6 +403,20 @@ export class MemoryService {
         ? candidate.category
         : `draft_${candidate.category || 'general'}`;
       await this.remember(userId, candidate.key, candidate.value, category);
+      try {
+        const { writeGovernedMemoryProvenance } = require('./AgentProvenanceMemoryBridge.js') as typeof import('./AgentProvenanceMemoryBridge.js');
+        writeGovernedMemoryProvenance({
+          userId,
+          key: candidate.key,
+          value: candidate.value,
+          category,
+          surface: 'memory-auto-extract',
+          eventId: `auto-extract-${Date.now()}`,
+          confidence: 0.5,
+        });
+      } catch {
+        // provenance bridge optional
+      }
     }
     return {
       candidates,
@@ -420,6 +434,20 @@ export class MemoryService {
     if (!item || item.status !== 'pending') return null;
     if (options.actorUserId && item.userId !== options.actorUserId) return null;
     await this.remember(item.userId, item.key, item.value, item.category);
+    try {
+      const { writeGovernedMemoryProvenance } = require('./AgentProvenanceMemoryBridge.js') as typeof import('./AgentProvenanceMemoryBridge.js');
+      writeGovernedMemoryProvenance({
+        userId: item.userId,
+        key: item.key,
+        value: item.value,
+        category: item.category,
+        surface: 'memory-draft-promote',
+        eventId: `promote-${id}`,
+        confidence: 0.75,
+      });
+    } catch {
+      // provenance bridge optional
+    }
     return this.draftStore.promote(id, { actorUserId: options.actorUserId || item.userId });
   }
 

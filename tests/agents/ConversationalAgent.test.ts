@@ -13,30 +13,67 @@ describe('ConversationalAgent', () => {
     (config as any).llmProvider = originalProvider;
   });
 
-  it('builds a user-facing system instruction while keeping known commands', () => {
+  it('builds a lean user-facing system instruction without dumping slash command catalogs', () => {
     const agent = new ConversationalAgent();
     const instruction = agent.buildSystemInstruction();
 
-    expect(instruction).toMatch(/\/tasks?\b/i);
-    expect(instruction).toMatch(/\/auto\b/i);
-    expect(instruction).toMatch(/\/selfmod/i);
-    expect(instruction).toMatch(/\/remote\b/i);
-    expect(instruction).toMatch(
-      /Voce e o \*\*Zavorth\*\*|You are \*\*Zavorth\*\*, an intelligent, clear, and reliable personal assistant/i,);
-    expect(instruction).toMatch(
-      /Fale como um assistente util de produto|Speak like a useful product assistant/i,);
-    expect(instruction).toMatch(
-      /Se o pedido for cotidiano, nao precisa falar de executor|If the request is everyday work, you do not need to mention executors/i,);
-    expect(instruction).toMatch(
-      /Nao transforme perguntas comuns em respostas excessivamente tecnicas|Do not turn ordinary questions into overly technical answers/i,);
-    expect(instruction).toMatch(
-      /Nao recite a lista de comandos|Do not recite the command list/i,);
-    expect(instruction).toMatch(
-      /Sua prioridade e parecer um assistente confiavel|Your priority is to feel like a reliable and pleasant assistant/i,);
-    expect(instruction).toMatch(/DISCIPLINA ANTI-ALUCINACAO|ANTI-HALLUCINATION|hallucination/i);
-    expect(instruction).toMatch(
-      /roteamento operacional e decidido por politicas estruturadas|structured|Action Harness|approval/i,);
+    expect(instruction).toMatch(/You are \*\*Zavorth\*\*/i);
+    expect(instruction).toMatch(/Use tools when facts need verification/i);
+    expect(instruction).toMatch(/web_search/i);
+    expect(instruction).toMatch(/Slash\/UI commands exist/i);
+    expect(instruction).toMatch(/DISCIPLINA ANTI-ALUCINACAO|ANTI-HALLUCINATION|hallucination|Never invent/i);
+    // Lean prompt: no full slash catalog dump every turn
+    expect(instruction).not.toMatch(/KNOWN COMMANDS \(INTERNAL REFERENCE\)/i);
+    expect(instruction).not.toMatch(/\/selfmod/i);
     expect(instruction).not.toMatch(/responda na primeira linha exatamente|respond on the first line exactly/i);
+  });
+
+  it('exposes brain tools with full schema and other tools as compact lazy stubs', async () => {
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: jest.fn().mockResolvedValue({
+        providerName: 'gemini',
+        response: { content: 'ok' },
+      }),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([
+        {
+          name: 'web_search',
+          description: 'Search the web for current information and sources.',
+          parameters: {
+            type: 'object',
+            properties: { query: { type: 'string', description: 'Query' } },
+            required: ['query'],
+          },
+        },
+        {
+          name: 'remote_shell',
+          description: 'Run a shell command on a remote host with full control options.',
+          parameters: {
+            type: 'object',
+            properties: {
+              command: { type: 'string', description: 'Shell command' },
+              cwd: { type: 'string', description: 'Working directory' },
+            },
+            required: ['command'],
+          },
+        },
+      ]),
+      executeTool: jest.fn(),
+    };
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
+    await agent.chat('hello there', undefined, { mode: 'direct' });
+
+    const tools = llmRuntime.chatDetailed.mock.calls[0][1] as any[];
+    const web = tools.find((t) => t.name === 'web_search');
+    const shell = tools.find((t) => t.name === 'remote_shell');
+    expect(web?.parameters?.properties?.query).toBeDefined();
+    expect(shell?.metadata?.lazyCompact).toBe(true);
+    expect(Object.keys(shell?.parameters?.properties || {})).toHaveLength(0);
+    const system = String(llmRuntime.chatDetailed.mock.calls[0][0].find((m: any) => m.role === 'system')?.content || '');
+    expect(system).toMatch(/lazy/i);
+    expect(system).toMatch(/remote_shell/);
   });
 
   it('does not convert reply text markers into actions', async () => {
@@ -168,7 +205,8 @@ describe('ConversationalAgent', () => {
         expect.objectContaining({
           role: 'system',
           content: expect.stringMatching(
-            /FORMATO PREFERENCIAL DESTA RESPOSTA|PREFERRED FORMAT FOR THIS RESPONSE/i,),
+            /PREFERRED FORMAT|FORMATO PREFERENCIAL|Open with a short executive summary/i,
+          ),
         }),
       ]),
       undefined,
@@ -176,7 +214,8 @@ describe('ConversationalAgent', () => {
         providerName: 'gemini',
         modelName: config.graphResearchSummaryModel || config.aiStudioModel || config.geminiModel,
         allowFallback: false,
-      }),);
+      }),
+    );
   });
 
   it('does not pre-run web_search for free-text news; exposes the tool for the model', async () => {
@@ -479,24 +518,28 @@ describe('ConversationalAgent', () => {
       'web:session-1',
       'web',
       toolDefinitions,
-      expect.stringMatching(/Voce e o \*\*Zavorth\*\*|You are \*\*Zavorth\*\*/i),
+      expect.stringMatching(/You are \*\*Zavorth\*\*/i),
       'workspace extra',
-      undefined,);
-    // tool catalog is injected into the system message before chatDetailed.
+      undefined,
+    );
+    // Lazy tool catalog is injected into the system message before chatDetailed.
     expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
           role: 'system',
-          content: expect.stringMatching(/AVAILABLE TOOLS/i),
+          content: expect.stringMatching(/TOOLS \(lazy\)|get_datetime/i),
         }),
         expect.objectContaining({ role: 'user', content: 'hello via web' }),
       ]),
-      toolDefinitions,
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'get_datetime' }),
+      ]),
       expect.objectContaining({
         providerName: 'gemini',
         allowFallback: false,
         fallbackOrder: [],
-      }),);
+      }),
+    );
   });
 
   it('uses ContextEngine toolHintProfile as policy input before falling back to legacy tools', async () => {
@@ -697,6 +740,144 @@ describe('ConversationalAgent', () => {
         untrustedContent: true,
       }),
     }));
+  });
+
+  it('truncates oversized tool results before the follow-up LLM turn', async () => {
+    const huge = 'H'.repeat(15_000);
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [{ id: 'call-big', name: 'web_search', arguments: { query: 'big' } }],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: { content: 'Answered with truncated evidence.' },
+        }),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([
+        {
+          name: 'web_search',
+          description: 'Web search',
+          parameters: { type: 'object', properties: {}, required: [] },
+        },
+      ]),
+      executeTool: jest.fn().mockResolvedValue(huge),
+    };
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
+    const response = await agent.chat('search something large', undefined, { mode: 'direct' });
+
+    const toolMsg = llmRuntime.chatDetailed.mock.calls[1][0].find((m: any) => m.role === 'tool');
+    expect(String(toolMsg.content)).toContain('truncated tool output');
+    expect(String(toolMsg.content).length).toBeLessThan(huge.length);
+    expect(response.toolTelemetry?.truncatedToolResults).toBe(1);
+    expect(response.text).toBe('Answered with truncated evidence.');
+  });
+
+  it('reuses cached read-only tool results on identical args', async () => {
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [
+              { id: 'c1', name: 'web_search', arguments: { query: 'same' } },
+              { id: 'c2', name: 'web_search', arguments: { query: 'same' } },
+            ],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: { content: 'Done.' },
+        }),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([
+        {
+          name: 'web_search',
+          description: 'Web search',
+          parameters: { type: 'object', properties: {}, required: [] },
+        },
+      ]),
+      executeTool: jest.fn().mockResolvedValue('QUALITY_GATE: ok\nCached body'),
+    };
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
+    const response = await agent.chat('search twice same query', undefined, { mode: 'direct' });
+
+    expect(toolRuntime.executeTool).toHaveBeenCalledTimes(1);
+    expect(response.toolTelemetry?.toolCacheHits).toBe(1);
+    const toolMsgs = llmRuntime.chatDetailed.mock.calls[1][0].filter((m: any) => m.role === 'tool');
+    expect(toolMsgs.some((m: any) => String(m.content).includes('cache hit'))).toBe(true);
+  });
+
+  it('compacts older tool history after multiple tool rounds', async () => {
+    const llmRuntime = {
+      isProviderAvailable: jest.fn(() => true),
+      chatDetailed: jest.fn()
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [
+              { id: 'a1', name: 'web_search', arguments: { query: 'a1' } },
+              { id: 'a2', name: 'web_search', arguments: { query: 'a2' } },
+            ],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [
+              { id: 'b1', name: 'web_search', arguments: { query: 'b1' } },
+              { id: 'b2', name: 'web_search', arguments: { query: 'b2' } },
+            ],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: {
+            content: '',
+            toolCalls: [
+              { id: 'c1', name: 'web_search', arguments: { query: 'c1' } },
+              { id: 'c2', name: 'web_search', arguments: { query: 'c2' } },
+            ],
+          },
+        })
+        .mockResolvedValueOnce({
+          providerName: 'gemini',
+          response: { content: 'Finished multi-round.' },
+        }),
+    } as any;
+    const toolRuntime = {
+      getToolDefinitions: jest.fn().mockReturnValue([
+        {
+          name: 'web_search',
+          description: 'Web search',
+          parameters: { type: 'object', properties: {}, required: [] },
+        },
+      ]),
+      executeTool: jest.fn().mockImplementation(async (_name: string, args: any) => `RESULT:${args.query}`),
+    };
+    const agent = new ConversationalAgent({ llmRuntime, toolRuntime } as any);
+    const response = await agent.chat('multi round research', undefined, { mode: 'direct' });
+
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(4);
+    // After 3 tool rounds we should have compacted older tool messages at least once.
+    expect(response.toolTelemetry?.historyCompactions).toBeGreaterThanOrEqual(1);
+    const lastMessages = llmRuntime.chatDetailed.mock.calls[3][0];
+    const compacted = lastMessages.filter(
+      (m: any) => m.role === 'tool' && String(m.content).includes('[compacted tool history]'),
+    );
+    expect(compacted.length).toBeGreaterThanOrEqual(1);
+    expect(response.text).toBe('Finished multi-round.');
   });
 
   it('executes conversational tool calls and follows up with tool results', async () => {

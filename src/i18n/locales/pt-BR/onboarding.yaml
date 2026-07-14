@@ -35,3 +35,25 @@ progress:
   step_of: "Passo {current} de {total}"
   completing: "Completando configuração..."
   almost_done: "Quase pronto..."
+
+conversation:
+  review_preview: "Revise esta prévia da configuração. Confirme explicitamente para aplicar o perfil local ou edite qualquer resposta antes."
+  confirmation_invalid: "Esta prévia da configuração é inválida ou expirou. Revise uma nova prévia antes de confirmar."
+  apply_failed: "Não foi possível aplicar o perfil local com segurança. Revise as respostas e tente novamente."
+  applied: "Configuração concluída. Estou pronto para ajudar com sua primeira missão."
+  questions:
+    agent_name:
+      label: "Nome do agente"
+      prompt: "Como este agente deve se chamar?"
+    user_name:
+      label: "Seu nome"
+      prompt: "Como o Zavorth deve chamar você?"
+    preferred_language:
+      label: "Idioma da conversa"
+      prompt: "Qual idioma o Zavorth deve usar ao falar com você?"
+    experience_profile:
+      label: "Perfil de experiência"
+      prompt: "Você usará o Zavorth para vida pessoal, criação, código, negócios ou operação avançada?"
+    detail_level:
+      label: "Nível de detalhe"
+      prompt: "Você prefere detalhes simples ou avançados?"
