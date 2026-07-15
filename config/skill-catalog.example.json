@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "zavorth.skill-catalog.v1",
+  "notes": [
+    "Example skill catalog fixture — not a third-party product hub.",
+    "Host any similar JSON on a public HTTPS CDN / GitHub raw URL.",
+    "Set ZAVORTH_SKILL_CATALOG_URL to that URL, then: zavorth skill catalog refresh",
+    "Install still requires: zavorth skill catalog install <id> --consent"
+  ],
+  "entries": [
+    {
+      "id": "example-local-demo",
+      "name": "Example Local Demo Skill",
+      "summary": "Placeholder entry pointing at an in-repo skill pack path (adjust source for your host).",
+      "source": "skill-library/native",
+      "version": "1.0.0",
+      "tags": ["example", "local", "demo"],
+      "tools": ["read_file"]
+    },
+    {
+      "id": "example-https-pack",
+      "name": "Example HTTPS Pack",
+      "summary": "Illustrative remote source field — replace with a real git/zip URL you trust.",
+      "source": "https://github.com/example/zavorth-skill-pack",
+      "version": "0.1.0",
+      "tags": ["example", "remote"],
+      "digest": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    }
+  ]
+}

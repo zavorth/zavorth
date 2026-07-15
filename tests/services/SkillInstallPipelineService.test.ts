@@ -1,26 +1,20 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION,
-} from '../../src/contracts/skill/ZavorthSkillWorkerMeshContract.js';
+import { ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION } from '../../src/contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { SkillInstallPipelineService } from '../../src/services/SkillInstallPipelineService.js';
 
 function writeSkillFixture(root: string, skillName = 'demo-skill'): string {
   const skillDir = path.join(root, skillName);
   fs.mkdirSync(skillDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(skillDir, 'SKILL.md'),
-    '# Demo skill\n\nUse read_file when needed.\n',
-    'utf8',
-  );
+  fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '# Demo skill\n\nUse read_file when needed.\n', 'utf8');
   fs.writeFileSync(
     path.join(skillDir, 'manifest.json'),
     JSON.stringify(
       {
         name: skillName,
         version: '1.0.0',
-        description: 'Fixture skill for W1 pipeline tests',
+        description: 'Fixture skill for install pipeline tests',
         author: 'zavorth-test',
         category: 'other',
         tags: ['test'],
@@ -39,7 +33,7 @@ function writeSkillFixture(root: string, skillName = 'demo-skill'): string {
   return skillDir;
 }
 
-describe('W1 SkillInstallPipelineService', () => {
+describe('SkillInstallPipelineService', () => {
   let tempRoot: string;
   let projectRoot: string;
   let service: SkillInstallPipelineService;
@@ -102,10 +96,10 @@ describe('W1 SkillInstallPipelineService', () => {
 
     const stored = remoteService.getReceipt(receipt.id);
     expect(stored?.id).toBe(receipt.id);
-    expect(JSON.stringify(stored)).not.toMatch(/api_key\s*=\s*\w{8,}/i);
+    expect(JSON.stringify(stored)).not.toMatch(/api_key\s*=\s*\w{8}/i);
   });
 
-  it('may auto-consent clean local packages under daily trust policy (W2)', async () => {
+  it('may auto-consent clean local packages under daily trust policy', async () => {
     const skillDir = writeSkillFixture(tempRoot, 'local-auto');
     const prev = process.cwd();
     process.chdir(projectRoot);
@@ -151,7 +145,7 @@ describe('W1 SkillInstallPipelineService', () => {
       const target = receipt.targetDir || path.join(projectRoot, 'skills', String(receipt.skillId));
       expect(fs.existsSync(path.join(target, 'SKILL.md'))).toBe(true);
       expect(receipt.toolBinds.some((b) => b.declaredName === 'read_file')).toBe(true);
-      // W3: read_file must bind direct, not stay unresolved
+      // read_file must bind direct, not stay unresolved
       const readBind = receipt.toolBinds.find((b) => b.declaredName === 'read_file');
       expect(readBind?.status).toBe('direct');
       expect(readBind?.resolvedName).toBe('read_file');
@@ -161,7 +155,7 @@ describe('W1 SkillInstallPipelineService', () => {
     }
   });
 
-  it('W3 aliases sandbox_execution on install receipt', async () => {
+  it('aliases sandbox_execution on install receipt', async () => {
     const skillDir = path.join(tempRoot, 'alias-skill');
     fs.mkdirSync(skillDir, { recursive: true });
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), '# Alias skill\n', 'utf8');
@@ -198,5 +192,74 @@ describe('W1 SkillInstallPipelineService', () => {
     const text = service.formatPlanText(service.preview({ source: skillDir }));
     expect(text).toMatch(/preview only/i);
     expect(text).toMatch(/read_file/);
+  });
+
+  it('preview emits SkillIR + digest', () => {
+    const skillDir = writeSkillFixture(tempRoot, 'ir-preview');
+    const plan = service.preview({ source: skillDir });
+    expect(plan.skillIr).toBeTruthy();
+    expect(plan.skillIr?.parserId).toBe('skill-md-v1');
+    expect(plan.skillIrDigest).toMatch(/^[a-f0-9]{64}$/);
+    expect(plan.parserId).toBe('skill-md-v1');
+    expect(plan.declaredTools.map((t) => t.name)).toContain('read_file');
+  });
+
+  it('apply receipt includes toolBinds table fields and skillIrDigest', async () => {
+    const skillDir = path.join(tempRoot, 'search-alias');
+    fs.mkdirSync(skillDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(skillDir, 'SKILL.md'),
+      '---\nname: search-alias\ntools:\n  - name: search_query\n  - name: phantom_tool_zz\n---\n# Search\n',
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(skillDir, 'manifest.json'),
+      JSON.stringify({
+        name: 'search-alias',
+        version: '1.0.0',
+        description: 'alias + unresolved',
+        author: 'zavorth-test',
+        tools: [{ name: 'search_query' }, { name: 'phantom_tool_zz' }],
+      }),
+      'utf8',
+    );
+    const prev = process.cwd();
+    process.chdir(projectRoot);
+    try {
+      const svc = new SkillInstallPipelineService({
+        projectRoot,
+        receiptsDir: path.join(projectRoot, 'data', 'runtime', 'skill-install-receipts'),
+        now: () => new Date('2026-07-14T18:00:00.000Z'),
+      });
+      const receipt = await svc.apply({ source: skillDir, consent: true });
+      expect(['applied', 'partial']).toContain(receipt.status);
+      expect(receipt.skillIrDigest).toMatch(/^[a-f0-9]{64}$/);
+      expect(receipt.parserId).toBe('skill-md-v1');
+      const searchBind = receipt.toolBinds.find((b) => b.declaredName === 'search_query');
+      expect(searchBind?.status).toBe('aliased');
+      expect(searchBind?.resolvedName).toBe('web_search');
+      // phantom may gateway or unresolved depending on fallbacks; never invents phantom as registry name
+      const phantom = receipt.toolBinds.find((b) => b.declaredName === 'phantom_tool_zz');
+      expect(phantom).toBeTruthy();
+      expect(phantom?.resolvedName).not.toBe('phantom_tool_zz');
+      if (phantom?.status === 'unresolved') {
+        expect(phantom.guidanceOnly).toBe(true);
+      }
+      const text = svc.formatReceiptText(receipt);
+      expect(text).toMatch(/tool binds/i);
+      expect(text).toMatch(/search_query/);
+    } finally {
+      process.chdir(prev);
+    }
+  });
+
+  it('opaque folder previews as guidance-only IR', () => {
+    const dir = path.join(tempRoot, 'opaque-pack');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, 'NOTES.txt'), 'just notes', 'utf8');
+    const plan = service.preview({ source: dir });
+    expect(plan.parserId).toBe('opaque-guidance-v1');
+    expect(plan.skillIr?.guidanceOnly).toBe(true);
+    expect(plan.skillIrDigest).toBeTruthy();
   });
 });

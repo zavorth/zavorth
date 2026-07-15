@@ -1,0 +1,16 @@
+{
+  "name": "fixture-skill-md",
+  "version": "1.2.0",
+  "description": "SkillIR skill-md-v1 fixture",
+  "author": "zavorth-test",
+  "tools": [
+    {
+      "name": "search_query",
+      "description": "Search the web"
+    },
+    {
+      "name": "unknown_widget",
+      "description": "Not a real tool"
+    }
+  ]
+}

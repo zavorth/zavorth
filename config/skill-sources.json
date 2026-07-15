@@ -1,6 +1,12 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-07T00:00:00.000Z",
+  "updatedAt": "2026-07-15T00:00:00.000Z",
+  "notes": [
+    "Local sources are scanned offline for skill search/install.",
+    "Optional remote search kinds (user-configured): github-topic, npm-keyword, https-catalog.",
+    "Remote kinds use the user query as the search term — no product brand defaults.",
+    "Set enabled=true and config fields only when you want network discovery."
+  ],
   "sources": [
     {
       "id": "zavorth-native",
@@ -46,9 +52,7 @@
       "createIfMissing": true,
       "ownership": "workspace",
       "registrySource": "zavorth:local-workspace",
-      "notes": [
-        "Local library curated by Zavorth for ready-to-use skills."
-      ]
+      "notes": ["Local library curated by Zavorth for ready-to-use skills."]
     },
     {
       "id": "nexus-core",
@@ -61,9 +65,54 @@
       "createIfMissing": true,
       "ownership": "workspace",
       "registrySource": "zavorth:nexus-core-skills",
+      "notes": ["Colecao completa de skills da engine do Nexus Mesh.", "Habilitadas e confiaveis por padrao."]
+    },
+    {
+      "id": "optional-github-topic-search",
+      "label": "Optional GitHub topic search (disabled by default)",
+      "kind": "github-topic",
+      "trust": "review",
+      "enabled": false,
+      "ingestionMode": "remote-search",
+      "config": {
+        "topic": "",
+        "note": "When enabled, remote search uses the user query (and optional topic filter). Empty topic = query only."
+      },
+      "ownership": "user",
       "notes": [
-        "Colecao completa de skills da engine do Nexus Mesh.",
-        "Habilitadas e confiaveis por padrao."
+        "Disabled by default so search stays offline until the operator opts in.",
+        "Does not hardcode third-party product hubs."
+      ]
+    },
+    {
+      "id": "optional-npm-keyword-search",
+      "label": "Optional npm keyword search (disabled by default)",
+      "kind": "npm-keyword",
+      "trust": "review",
+      "enabled": false,
+      "ingestionMode": "remote-search",
+      "config": {
+        "keyword": "",
+        "note": "When enabled, uses npm registry search with the user query plus optional keyword."
+      },
+      "ownership": "user",
+      "notes": ["Disabled by default. Prefer explicit package names or git URLs for install."]
+    },
+    {
+      "id": "optional-https-skill-catalog",
+      "label": "Optional HTTPS skill catalog (disabled by default)",
+      "kind": "https-catalog",
+      "trust": "review",
+      "enabled": false,
+      "ingestionMode": "remote-catalog",
+      "config": {
+        "url": "",
+        "note": "When enabled with a public HTTPS JSON URL (or set ZAVORTH_SKILL_CATALOG_URL), use zavorth skill catalog refresh|list|install."
+      },
+      "ownership": "user",
+      "notes": [
+        "Disabled by default so installs stay local until the operator opts in.",
+        "SSRF-guarded public HTTPS only. Schema: config/skill-catalog.example.json"
       ]
     }
   ]

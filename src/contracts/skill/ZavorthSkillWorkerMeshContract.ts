@@ -14,9 +14,12 @@
  */
 
 import type { ZavorthExternalAgentAdapterKind } from '../external/ZavorthExternalAgentGatewayContract.js';
+import type { ZavorthSkillIr, ZavorthSkillIrParserId } from './ZavorthSkillIrContract.js';
 
-export const ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION =
-  '2026-07-13.skill-worker-mesh-w0' as const;
+export const ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION = '2026-07-14.skill-worker-mesh' as const;
+
+export type { ZavorthSkillIr, ZavorthSkillIrParserId } from './ZavorthSkillIrContract.js';
+export { ZAVORTH_SKILL_IR_CONTRACT_VERSION } from './ZavorthSkillIrContract.js';
 
 // ---------------------------------------------------------------------------
 // Glossary tokens (stable ids for docs / UI / prompts)
@@ -82,11 +85,7 @@ export type ZavorthDeclaredSkillTool = {
   description?: string;
 };
 
-export type ZavorthSkillToolBindStatus =
-  | 'direct'
-  | 'aliased'
-  | 'gateway'
-  | 'unresolved';
+export type ZavorthSkillToolBindStatus = 'direct' | 'aliased' | 'gateway' | 'unresolved';
 
 export type ZavorthSkillToolBinding = {
   declaredName: string;
@@ -94,6 +93,11 @@ export type ZavorthSkillToolBinding = {
   status: ZavorthSkillToolBindStatus;
   /** e.g. alias map hit, zavorth_action fallback, missing from registry */
   note?: string;
+  /**
+   * When true, the declared name has no executor: treat as procedure guidance only.
+   * Unresolved binds set this so models never invent tools.
+   */
+  guidanceOnly?: boolean;
 };
 
 export type ZavorthSkillInstallRisk = {
@@ -105,12 +109,10 @@ export type ZavorthSkillInstallRisk = {
 };
 
 // ---------------------------------------------------------------------------
-// Skill install plan + receipt (W1–W3 implement against these)
+// Skill install plan + receipt
 // ---------------------------------------------------------------------------
 
-/**
- * Preview of a skill install (dry). W1 `preview(source)` returns this shape.
- */
+/** Preview of a skill install (dry-run; no disk write). */
 export type SkillInstallPlan = {
   contractVersion: typeof ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION;
   kind: 'skill-install-plan';
@@ -132,6 +134,11 @@ export type SkillInstallPlan = {
   previewOnly: true;
   applyBlockedWithoutConsent: true;
   nextSafeAction: string;
+  /** Normalized pack snapshot (shape-based SkillIR). */
+  skillIr?: ZavorthSkillIr | null;
+  skillIrDigest?: string | null;
+  /** Shape parser id when IR present. */
+  parserId?: ZavorthSkillIrParserId | null;
 };
 
 /**
@@ -147,7 +154,7 @@ export type SkillInstallReceipt = {
   skillId: string | null;
   targetDir: string | null;
   materialized: boolean;
-  /** Tool binds after reconcile (W3); empty on pure preview. */
+  /** Tool binds after install; empty on pure preview when not local. */
   toolBinds: ZavorthSkillToolBinding[];
   smoke: {
     ran: boolean;
@@ -159,22 +166,19 @@ export type SkillInstallReceipt = {
   secretLikePresent: boolean;
   approvalGranted: boolean;
   reason: string;
+  /** Normalized pack snapshot / digest for runtime consumers. */
+  skillIr?: ZavorthSkillIr | null;
+  skillIrDigest?: string | null;
+  parserId?: ZavorthSkillIrParserId | null;
 };
 
 // ---------------------------------------------------------------------------
-// Worker profile + invoke receipt (W4–W5 implement against these)
+// Worker profile + invoke receipt
 // ---------------------------------------------------------------------------
 
-export type ZavorthWorkerAdapterKind =
-  | ZavorthExternalAgentAdapterKind
-  | 'internal';
+export type ZavorthWorkerAdapterKind = ZavorthExternalAgentAdapterKind | 'internal';
 
-export type ZavorthWorkerHealthStatus =
-  | 'unknown'
-  | 'healthy'
-  | 'degraded'
-  | 'unreachable'
-  | 'disabled';
+export type ZavorthWorkerHealthStatus = 'unknown' | 'healthy' | 'degraded' | 'unreachable' | 'disabled';
 
 /**
  * Unified worker — external agent profile or internal subagent slot.
@@ -230,90 +234,6 @@ export type WorkerInvokeReceipt = {
   durationMs: number | null;
   reason: string;
 };
-
-// ---------------------------------------------------------------------------
-// Capability gate checklist tokens (services may import for product gates)
-// ---------------------------------------------------------------------------
-
-export const ZAVORTH_SKILL_WORKER_WAVE_IDS = [
-  'W0',
-  'W1',
-  'W2',
-  'W3',
-  'W4',
-  'W5',
-  'W6',
-  'W7',
-  'W8',
-  'W9',
-  'W10',
-] as const;
-
-export type ZavorthSkillWorkerWaveId = (typeof ZAVORTH_SKILL_WORKER_WAVE_IDS)[number];
-
-export type ZavorthSkillWorkerWaveGate = {
-  waveId: ZavorthSkillWorkerWaveId;
-  /** Human-readable done criteria for this wave (product language). */
-  doneWhen: string[];
-};
-
-/**
- * Canonical "done when" lines — keep in sync with the temporary wave doc.
- */
-export const ZAVORTH_SKILL_WORKER_WAVE_GATES: ZavorthSkillWorkerWaveGate[] = [
-  {
-    waveId: 'W0',
-    doneWhen: [
-      'SkillInstallPlan, SkillInstallReceipt, WorkerProfile, WorkerInvokeReceipt exist as shared types',
-      'Glossary skill/tool/plugin/worker/receipt is documented in-contract',
-      'Later waves import these types instead of inventing parallel shapes',
-    ],
-  },
-  {
-    waveId: 'W1',
-    doneWhen: [
-      'preview → approve → apply → receipt for skill install shares one service for CLI and tool',
-    ],
-  },
-  {
-    waveId: 'W2',
-    doneWhen: ['Trust score is evidence-based; no competitor publisher defaults'],
-  },
-  {
-    waveId: 'W3',
-    doneWhen: ['Post-install tool binds resolve direct/alias/gateway/unresolved with receipt'],
-  },
-  {
-    waveId: 'W4',
-    doneWhen: ['Workers list/health/invoke use WorkerProfile + WorkerInvokeReceipt'],
-  },
-  {
-    waveId: 'W5',
-    doneWhen: ['Router chooses local tools vs worker without brand hardcoding'],
-  },
-  {
-    waveId: 'W6',
-    doneWhen: ['Search/discover for skills and workers works offline for local fixtures'],
-  },
-  {
-    waveId: 'W7',
-    doneWhen: ['Daily-ops exposure includes skill + worker tools with brand-agnostic help'],
-  },
-  {
-    waveId: 'W8',
-    doneWhen: ['Focused QA green; gate before Telegram agent-first'],
-  },
-  {
-    waveId: 'W9',
-    doneWhen: [
-      'Telegram natural text goes to LLM; slash commands stay deterministic; mesh tools stable first',
-    ],
-  },
-  {
-    waveId: 'W10',
-    doneWhen: ['Temporary planning docs removed after essentials migrated to permanent product docs'],
-  },
-];
 
 /** Thirty-second pitch for operators / prompts. */
 export function formatSkillWorkerMeshPitch(locale: 'en' | 'pt' = 'en'): string {
