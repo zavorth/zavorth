@@ -3,20 +3,18 @@ import fs from 'fs';
 import path from 'path';
 import { DiffManager } from '../../execution/DiffManager.js';
 import { logger } from '../../logger.js';
+import { type SelfmodResourceImpact } from './SelfModificationCommandTypes.js';
 import {
-  ALLOWED_EXTENSIONS,
-  ALLOWED_TOP_LEVEL_DIRS,
-  type SelfmodResourceImpact,
-} from './SelfModificationCommandTypes.js';
+  SelfModificationPathPolicyService,
+  type SelfmodPathCheckContext,
+} from './SelfModificationPathPolicyService.js';
 
 export function hashSelfModificationContent(content: string): string {
   return crypto.createHash('sha256').update(content, 'utf8').digest('hex');
 }
 
 export function toSelfModificationRelativePath(projectRoot: string, targetPath: string): string {
-  const absolute = path.isAbsolute(targetPath)
-    ? targetPath
-    : path.resolve(projectRoot, targetPath);
+  const absolute = path.isAbsolute(targetPath) ? targetPath : path.resolve(projectRoot, targetPath);
   return path.relative(projectRoot, absolute).replace(/\\/g, '/');
 }
 
@@ -27,7 +25,10 @@ export function tryGenerateSelfModificationDiff(
 ): string | undefined {
   try {
     return DiffManager.generateDiff(oldContent, newContent, fileName);
-  } catch (error: unknown) {logger.warn('[Self Modification Command Utils] creation failed', error); return undefined; }
+  } catch (error: unknown) {
+    logger.warn('[Self Modification Command Utils] creation failed', error);
+    return undefined;
+  }
 }
 
 export function formatSelfModificationResourceImpact(resourceImpact: SelfmodResourceImpact): string {
@@ -62,41 +63,36 @@ export function tryParseSelfModificationJson(rawValue: string): Record<string, a
 }
 
 export function extractSelfModificationPathFromGoal(goal: string): string | null {
-  const match = String(goal || '').match(/\b(?:src|tests|config|scripts)\/[A-Za-z0-9._/\-]+\b/);
+  const match = String(goal || '').match(/\b(?:src|tests|config|scripts|skills|plugins|docs)\/[A-Za-z0-9._/\-]+\b/);
   return match ? match[0].replace(/\\/g, '/') : null;
 }
 
-export function validateSelfModificationTarget(rawFilePath: string): { allowed: boolean; reason: string } {
-  const input = String(rawFilePath || '').trim();
-  if (!input) {
-    return { allowed: false, reason: 'Informe o arquivo relativo alvo.' };
-  }
+let defaultPathPolicy: SelfModificationPathPolicyService | null = null;
 
-  if (path.isAbsolute(input)) {
-    return {
-      allowed: false,
-      reason: 'Path bloqueado. Use apenas arquivos relativos dentro da raiz do Zavorth.',
-    };
+function getDefaultPathPolicy(): SelfModificationPathPolicyService {
+  if (!defaultPathPolicy) {
+    defaultPathPolicy = new SelfModificationPathPolicyService({
+      projectRoot: findSelfModificationProjectRoot(),
+    });
   }
+  return defaultPathPolicy;
+}
 
-  const normalized = input.replace(/\\/g, '/');
-  const topLevel = normalized.split('/')[0];
-  if (!ALLOWED_TOP_LEVEL_DIRS.has(topLevel)) {
-    return {
-      allowed: false,
-      reason: 'Path bloqueado. Use apenas arquivos relativos em src/, tests/, config/ ou scripts/.',
-    };
-  }
-
-  const extension = path.extname(normalized).toLowerCase();
-  if (!ALLOWED_EXTENSIONS.has(extension)) {
-    return {
-      allowed: false,
-      reason: `Extensao nao suportada para /selfmod: ${extension || '[sem extensao]'}.`,
-    };
-  }
-
-  return { allowed: true, reason: 'ok' };
+/**
+ * Path policy check. Optional context for core src/** paths.
+ */
+export function validateSelfModificationTarget(
+  rawFilePath: string,
+  context: SelfmodPathCheckContext = {},
+  policy?: SelfModificationPathPolicyService,
+): { allowed: boolean; reason: string; tier?: string } {
+  const svc = policy || getDefaultPathPolicy();
+  const result = svc.check(rawFilePath, context);
+  return {
+    allowed: result.allowed,
+    reason: result.reason,
+    tier: result.tier,
+  };
 }
 
 export function findSelfModificationProjectRoot(startDir = process.cwd()): string {

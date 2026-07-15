@@ -11,6 +11,7 @@ import { SelfmodRuntimeGuard } from './SelfmodRuntimeGuard.js';
 import {
   type GoalPlannerResult,
   type GoalPreviewChange,
+  type MultiFilePreviewInput,
   type PreviewArtifact,
   type SelfModificationApplyResult,
   type SelfModificationPreviewResult,
@@ -24,6 +25,10 @@ import { SelfModificationArtifactStore } from './selfmod-command/SelfModificatio
 import { SelfModificationGoalPlanner } from './selfmod-command/SelfModificationGoalPlanner.js';
 import { SelfModificationPreviewSupport } from './selfmod-command/SelfModificationPreviewSupport.js';
 import { SelfModificationValidationSupport } from './selfmod-command/SelfModificationValidationSupport.js';
+import {
+  SelfModificationPathPolicyService,
+  type SelfmodPathCheckContext,
+} from './selfmod-command/SelfModificationPathPolicyService.js';
 import { CanonicalExecutionPipelineService } from './CanonicalExecutionPipelineService.js';
 import {
   findSelfModificationProjectRoot,
@@ -36,11 +41,13 @@ import {
 
 export type {
   ChangeSetManifest,
+  MultiFilePreviewInput,
   SelfModificationApplyResult,
   SelfModificationPreviewResult,
   SelfModificationRollbackResult,
   SelfmodValidationReport,
 } from './selfmod-command/SelfModificationCommandTypes.js';
+export { SelfModificationPathPolicyService } from './selfmod-command/SelfModificationPathPolicyService.js';
 
 export class SelfModificationCommandService {
   private readonly projectRoot: string;
@@ -53,6 +60,7 @@ export class SelfModificationCommandService {
   private readonly validationSupport: SelfModificationValidationSupport;
   private readonly previewSupport: SelfModificationPreviewSupport;
   private readonly applySupport: SelfModificationApplySupport;
+  private readonly pathPolicy: SelfModificationPathPolicyService;
   private readonly canonicalExecution: CanonicalExecutionPipelineService;
   private provider?: ILlmProvider;
 
@@ -71,15 +79,16 @@ export class SelfModificationCommandService {
     selfmodOptimizationCatalog?: SelfmodOptimizationCatalog;
     selfmodRuntimeGuard?: SelfmodRuntimeGuard;
     canonicalExecutionPipeline?: CanonicalExecutionPipelineService;
+    pathPolicy?: SelfModificationPathPolicyService;
   }) {
     this.projectRoot = options?.projectRoot || findSelfModificationProjectRoot();
     const previewDir = options?.previewDir || config.selfmodPreviewDir;
     const goalPreviewDir = options?.goalPreviewDir || config.selfmodGoalPreviewDir;
     const historyDir = options?.historyDir || config.selfmodHistoryDir;
     const shadowWorkspaceDir = options?.shadowWorkspaceDir || config.selfmodShadowWorkspaceDir;
+    this.pathPolicy = options?.pathPolicy || new SelfModificationPathPolicyService({ projectRoot: this.projectRoot });
 
-    this.safeModificationService =
-      options?.safeModificationService || new SafeModificationService(this.projectRoot);
+    this.safeModificationService = options?.safeModificationService || new SafeModificationService(this.projectRoot);
     this.engine =
       options?.engine ||
       new SelfModificationService({
@@ -88,13 +97,16 @@ export class SelfModificationCommandService {
       });
     this.provider = options?.provider;
 
-    const patternMemoryFile = options?.patternMemoryFile ||
+    const patternMemoryFile =
+      options?.patternMemoryFile ||
       (options?.projectRoot
         ? path.resolve(this.projectRoot, 'data', 'runtime', 'selfmod-pattern-memory.json')
         : config.selfmodPatternMemoryFile);
-    this.selfmodPatternMemory = options?.selfmodPatternMemory || new SelfmodPatternMemory({
-      filePath: patternMemoryFile,
-    });
+    this.selfmodPatternMemory =
+      options?.selfmodPatternMemory ||
+      new SelfmodPatternMemory({
+        filePath: patternMemoryFile,
+      });
     this.selfmodImpactAnalyzer =
       options?.selfmodImpactAnalyzer ||
       new SelfmodImpactAnalyzer({
@@ -119,20 +131,21 @@ export class SelfModificationCommandService {
       selfmodPatternMemory: this.selfmodPatternMemory,
       selfmodImpactAnalyzer: this.selfmodImpactAnalyzer,
       shadowWorkspaceDir,
-      validateCommandTarget: (rawFilePath) => this.validateCommandTarget(rawFilePath),
+      projectRoot: this.projectRoot,
+      validateCommandTarget: (rawFilePath, context) => this.validateCommandTarget(rawFilePath, context),
       planGoalChanges: (goal) => this.planGoalChanges(goal),
       writeShadowWorkspace: (workspaceDir, changes) => this.writeShadowWorkspace(workspaceDir, changes),
       writePreviewArtifact: (artifact) => this.writePreviewArtifact(artifact),
       toRelativePath: (targetPath) => this.toRelativePath(targetPath),
       hashContent: (content) => this.hashContent(content),
-      tryGenerateDiff: (oldContent, newContent, fileName) =>
-        this.tryGenerateDiff(oldContent, newContent, fileName),
+      tryGenerateDiff: (oldContent, newContent, fileName) => this.tryGenerateDiff(oldContent, newContent, fileName),
       defaultValidationPlan: (relativePaths) => this.defaultValidationPlan(relativePaths),
-      runDeepValidation: (relativePaths, stagedChanges) =>
-        this.runDeepValidation(relativePaths, stagedChanges),
+      runDeepValidation: (relativePaths, stagedChanges) => this.runDeepValidation(relativePaths, stagedChanges),
       formatResourceImpact: (resourceImpact) => this.formatResourceImpact(resourceImpact),
+      shouldSkipDeepBuild: (relativePaths) => this.shouldSkipDeepBuild(relativePaths),
     });
     this.applySupport = new SelfModificationApplySupport({
+      projectRoot: this.projectRoot,
       safeModificationService: this.safeModificationService,
       selfmodPatternMemory: this.selfmodPatternMemory,
       readPreviewArtifact: (previewId) => this.readPreviewArtifact(previewId),
@@ -140,8 +153,10 @@ export class SelfModificationCommandService {
       tryDeletePreviewArtifact: (previewId, kind) => this.tryDeletePreviewArtifact(previewId, kind),
       getHistoryArtifactPath: (changeId) => this.getHistoryArtifactPath(changeId),
       hashContent: (content) => this.hashContent(content),
-      tryGenerateDiff: (oldContent, newContent, fileName) =>
-        this.tryGenerateDiff(oldContent, newContent, fileName),
+      tryGenerateDiff: (oldContent, newContent, fileName) => this.tryGenerateDiff(oldContent, newContent, fileName),
+      policyValidationCommands: () => this.pathPolicy.getValidationCommands(),
+      requirePolicyValidationOnApply: () => this.pathPolicy.requireValidationOnApply(),
+      promoteHintEnabled: () => this.pathPolicy.promoteHintEnabled(),
     });
     this.canonicalExecution = options?.canonicalExecutionPipeline || new CanonicalExecutionPipelineService();
 
@@ -163,10 +178,7 @@ export class SelfModificationCommandService {
     });
   }
 
-  public async createGoalPreview(
-    goal: string,
-    requestedBy: string,
-  ): Promise<SelfModificationPreviewResult> {
+  public async createGoalPreview(goal: string, requestedBy: string): Promise<SelfModificationPreviewResult> {
     const result = await this.previewSupport.createGoalPreview(goal, requestedBy);
     return this.withSelfModificationLifecycle(result, {
       operation: 'preview',
@@ -177,10 +189,26 @@ export class SelfModificationCommandService {
     });
   }
 
-  public async applyPreview(
-    previewId: string,
-    requestedBy: string,
-  ): Promise<SelfModificationApplyResult> {
+  /**
+   * Multi-file structured preview under one preview_id.
+   * Explicit contents only — free-text chat never writes.
+   */
+  public async createMultiFilePreview(input: MultiFilePreviewInput): Promise<SelfModificationPreviewResult> {
+    const result = await this.previewSupport.createMultiFilePreview(input);
+    return this.withSelfModificationLifecycle(result, {
+      operation: 'preview',
+      requestedBy: input.requestedBy,
+      objective: input.summary || `multi-file selfmod (${input.files?.length || 0})`,
+      id: result.previewId || 'selfmod-multi-preview',
+      artifactId: result.previewId || null,
+    });
+  }
+
+  public getPathPolicy(): SelfModificationPathPolicyService {
+    return this.pathPolicy;
+  }
+
+  public async applyPreview(previewId: string, requestedBy: string): Promise<SelfModificationApplyResult> {
     const result = await this.applySupport.applyPreview(previewId, requestedBy);
     return this.withSelfModificationLifecycle(result, {
       operation: 'apply',
@@ -191,10 +219,7 @@ export class SelfModificationCommandService {
     });
   }
 
-  public async rollbackChangeSet(
-    changeId: string,
-    requestedBy: string,
-  ): Promise<SelfModificationRollbackResult> {
+  public async rollbackChangeSet(changeId: string, requestedBy: string): Promise<SelfModificationRollbackResult> {
     const result = await this.applySupport.rollbackChangeSet(changeId, requestedBy);
     return this.withSelfModificationLifecycle(result, {
       operation: 'rollback',
@@ -260,8 +285,19 @@ export class SelfModificationCommandService {
     return this.goalPlanner.planGoalChanges(goal);
   }
 
-  private validateCommandTarget(rawFilePath: string): { allowed: boolean; reason: string } {
-    return validateSelfModificationTarget(rawFilePath);
+  private validateCommandTarget(
+    rawFilePath: string,
+    context: SelfmodPathCheckContext = {},
+  ): { allowed: boolean; reason: string; tier?: string } {
+    return validateSelfModificationTarget(rawFilePath, context, this.pathPolicy);
+  }
+
+  private shouldSkipDeepBuild(relativePaths: string[]): boolean {
+    if (!relativePaths.length) return false;
+    return relativePaths.every((p) => {
+      const check = this.pathPolicy.check(p);
+      return check.allowed && this.pathPolicy.shouldSkipDeepBuild(check.tier);
+    });
   }
 
   private writeShadowWorkspace(shadowWorkspaceDir: string, changes: GoalPreviewChange[]): void {
@@ -276,11 +312,11 @@ export class SelfModificationCommandService {
     return this.artifactStore.readPreviewArtifact(previewId);
   }
 
-  private deletePreviewArtifact(previewId: string, kind: 'file' | 'goal'): void {
+  private deletePreviewArtifact(previewId: string, kind: 'file' | 'goal' | 'multi'): void {
     this.artifactStore.deletePreviewArtifact(previewId, kind);
   }
 
-  private tryDeletePreviewArtifact(previewId: string, kind: 'file' | 'goal'): void {
+  private tryDeletePreviewArtifact(previewId: string, kind: 'file' | 'goal' | 'multi'): void {
     this.artifactStore.tryDeletePreviewArtifact(previewId, kind);
   }
 
@@ -296,11 +332,7 @@ export class SelfModificationCommandService {
     return toSelfModificationRelativePath(this.projectRoot, targetPath);
   }
 
-  private tryGenerateDiff(
-    oldContent: string,
-    newContent: string,
-    fileName: string,
-  ): string | undefined {
+  private tryGenerateDiff(oldContent: string, newContent: string, fileName: string): string | undefined {
     return tryGenerateSelfModificationDiff(oldContent, newContent, fileName);
   }
 
@@ -315,7 +347,7 @@ export class SelfModificationCommandService {
 
   private getProvider(): ILlmProvider {
     if (!this.provider) {
-      this.provider = ProviderFactory.create((config.llmProvider || ''));
+      this.provider = ProviderFactory.create(config.llmProvider || '');
     }
     return this.provider;
   }

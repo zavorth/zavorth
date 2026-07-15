@@ -1,4 +1,3 @@
-
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -9,9 +8,10 @@ import type { SelfmodPatternMemory } from '../SelfmodPatternMemory.js';
 import { logger } from '../../logger.js';
 import { tService } from '../../i18n/services.js';
 import type {
-FilePreviewArtifact,
+  FilePreviewArtifact,
   GoalPlannerResult,
   GoalPreviewChange,
+  MultiFilePreviewInput,
   PreviewArtifact,
   SelfModificationPreviewResult,
   SelfmodResourceImpact,
@@ -19,6 +19,7 @@ FilePreviewArtifact,
   StagedValidationChange,
 } from './SelfModificationCommandTypes.js';
 import { asErrorLike } from '../../utils/errorLike.js';
+import type { SelfmodPathCheckContext } from './SelfModificationPathPolicyService.js';
 
 type SelfModificationPreviewSupportOptions = {
   engine: Pick<SelfModificationService, 'previewModification'>;
@@ -26,7 +27,11 @@ type SelfModificationPreviewSupportOptions = {
   selfmodPatternMemory: Pick<SelfmodPatternMemory, 'rememberPreview'>;
   selfmodImpactAnalyzer: Pick<SelfmodImpactAnalyzer, 'analyzeGoalPreview'>;
   shadowWorkspaceDir: string;
-  validateCommandTarget: (rawFilePath: string) => { allowed: boolean; reason: string };
+  projectRoot: string;
+  validateCommandTarget: (
+    rawFilePath: string,
+    context?: SelfmodPathCheckContext,
+  ) => { allowed: boolean; reason: string; tier?: string };
   planGoalChanges: (goal: string) => Promise<GoalPlannerResult>;
   writeShadowWorkspace: (shadowWorkspaceDir: string, changes: GoalPreviewChange[]) => void;
   writePreviewArtifact: (artifact: PreviewArtifact) => void;
@@ -34,11 +39,10 @@ type SelfModificationPreviewSupportOptions = {
   hashContent: (content: string) => string;
   tryGenerateDiff: (oldContent: string, newContent: string, fileName: string) => string | undefined;
   defaultValidationPlan: (relativePaths: string[]) => string[];
-  runDeepValidation: (
-    relativePaths: string[],
-    stagedChanges: StagedValidationChange[],
-  ) => SelfmodValidationReport[];
+  runDeepValidation: (relativePaths: string[], stagedChanges: StagedValidationChange[]) => SelfmodValidationReport[];
   formatResourceImpact: (resourceImpact: SelfmodResourceImpact) => string;
+  /** When true, skip project:build deep validation (standard-tier skill/plugin packs). */
+  shouldSkipDeepBuild?: (relativePaths: string[]) => boolean;
 };
 
 export class SelfModificationPreviewSupport {
@@ -82,22 +86,23 @@ export class SelfModificationPreviewSupport {
           success: false,
           mode: 'file',
           relativePath: this.options.toRelativePath(preview.absolutePath),
-          summary:
-            'A proposta de auto-modificacao foi rejeitada porque a validacao de sintaxe falhou.',
+          summary: 'A proposta de auto-modificacao foi rejeitada porque a validacao de sintaxe falhou.',
           validationOutput: validation.output,
         };
       }
 
       const relativePath = this.options.toRelativePath(preview.absolutePath);
-      const deepValidations = this.options.runDeepValidation(
-        [relativePath],
-        [{
+      const staged = [
+        {
           absolutePath: preview.absolutePath,
           previousContent: preview.currentContent,
           nextContent: preview.proposedContent,
           originalExists: fs.existsSync(preview.absolutePath),
-        }],
-      );
+        },
+      ];
+      const deepValidations = this.options.shouldSkipDeepBuild?.([relativePath])
+        ? []
+        : this.options.runDeepValidation([relativePath], staged);
       const failedDeepValidation = deepValidations.find((entry) => !entry.passes);
       if (failedDeepValidation) {
         return {
@@ -132,28 +137,21 @@ export class SelfModificationPreviewSupport {
         previewId,
         relativePath,
         summary: preview.summary,
-        diffSummary: this.options.tryGenerateDiff(
-          preview.currentContent,
-          preview.proposedContent,
-          relativePath,
-        ),
+        diffSummary: this.options.tryGenerateDiff(preview.currentContent, preview.proposedContent, relativePath),
         validationPlan: this.options.defaultValidationPlan([relativePath]),
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Self Modification Preview] validation failed', error);
-    return {
+      return {
         success: false,
         mode: 'file',
         summary: tService('selfmod.preview.build_failed', { reason: err.message }),
       };
-  }
+    }
   }
 
-  public async createGoalPreview(
-    goal: string,
-    requestedBy: string,
-  ): Promise<SelfModificationPreviewResult> {
+  public async createGoalPreview(goal: string, requestedBy: string): Promise<SelfModificationPreviewResult> {
     const normalizedGoal = String(goal || '').trim();
     if (!normalizedGoal) {
       return {
@@ -183,7 +181,10 @@ export class SelfModificationPreviewSupport {
           return {
             success: false,
             mode: 'goal',
-            summary: tService('selfmod.preview.change_blocked', { path: plannedChange.filePath, reason: targetValidation.reason }),
+            summary: tService('selfmod.preview.change_blocked', {
+              path: plannedChange.filePath,
+              reason: targetValidation.reason,
+            }),
           };
         }
 
@@ -230,24 +231,21 @@ export class SelfModificationPreviewSupport {
           currentContent: preview.currentContent,
           originalHash: this.options.hashContent(preview.currentContent),
           originalExists: fs.existsSync(preview.absolutePath),
-          diffSummary: this.options.tryGenerateDiff(
-            preview.currentContent,
-            preview.proposedContent,
-            relativePath,
-          ),
+          diffSummary: this.options.tryGenerateDiff(preview.currentContent, preview.proposedContent, relativePath),
           validationOutput: validation.output,
         });
       }
 
-      const deepValidations = this.options.runDeepValidation(
-        changes.map((change) => change.relativePath),
-        changes.map((change) => ({
-          absolutePath: change.absolutePath,
-          previousContent: change.currentContent,
-          nextContent: change.generatedContent,
-          originalExists: change.originalExists,
-        })),
-      );
+      const relativePaths = changes.map((change) => change.relativePath);
+      const staged = changes.map((change) => ({
+        absolutePath: change.absolutePath,
+        previousContent: change.currentContent,
+        nextContent: change.generatedContent,
+        originalExists: change.originalExists,
+      }));
+      const deepValidations = this.options.shouldSkipDeepBuild?.(relativePaths)
+        ? []
+        : this.options.runDeepValidation(relativePaths, staged);
       validations.push(...deepValidations);
       const failedDeepValidation = deepValidations.find((entry) => !entry.passes);
       if (failedDeepValidation) {
@@ -263,7 +261,7 @@ export class SelfModificationPreviewSupport {
       this.options.writeShadowWorkspace(shadowWorkspaceDir, changes);
       const optimizationAnalysis = this.options.selfmodImpactAnalyzer.analyzeGoalPreview({
         goal: normalizedGoal,
-        relativePaths: changes.map((change) => change.relativePath),
+        relativePaths,
         resourceImpact: plan.resourceImpact,
         changeCount: changes.length,
       });
@@ -281,6 +279,10 @@ export class SelfModificationPreviewSupport {
         changes,
         validations,
         optimizationAnalysis,
+        rollbackPlan: changes.map((c) => ({
+          relativePath: c.relativePath,
+          originalExists: c.originalExists,
+        })),
       };
       this.options.selfmodPatternMemory.rememberPreview({
         goal: normalizedGoal,
@@ -299,21 +301,201 @@ export class SelfModificationPreviewSupport {
           .filter(Boolean)
           .join('\n\n'),
         changeCount: changes.length,
-        validationPlan: Array.from(new Set([
-          ...plan.validationPlan,
-          ...this.options.defaultValidationPlan(changes.map((change) => change.relativePath)),
-        ])),
+        validationPlan: Array.from(
+          new Set([
+            ...plan.validationPlan,
+            ...this.options.defaultValidationPlan(changes.map((change) => change.relativePath)),
+          ]),
+        ),
         resourceImpact: this.options.formatResourceImpact(plan.resourceImpact),
         optimizationAnalysis,
       };
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Self Modification Preview] validation failed', error);
-    return {
+      return {
         success: false,
         mode: 'goal',
         summary: `Could not build the objective changeset.\n\nReason: ${err.message || error}`,
       };
+    }
   }
+
+  /**
+   * Structured multi-file / multi-hunk preview under one preview_id.
+   * Content is provided explicitly — no free-text auto-write.
+   */
+  public async createMultiFilePreview(input: MultiFilePreviewInput): Promise<SelfModificationPreviewResult> {
+    const files = Array.isArray(input.files) ? input.files : [];
+    if (!files.length) {
+      return {
+        success: false,
+        mode: 'multi',
+        summary: 'Provide at least one file with relativePath + content for multi-file preview.',
+      };
+    }
+    if (files.length > 40) {
+      return {
+        success: false,
+        mode: 'multi',
+        summary: 'Multi-file preview limited to 40 files per preview_id.',
+      };
+    }
+
+    const pathContext: SelfmodPathCheckContext = {
+      buildMode: input.buildMode,
+      ownerOrTrusted: input.ownerOrTrusted,
+    };
+    const changes: GoalPreviewChange[] = [];
+    const validations: SelfmodValidationReport[] = [];
+
+    try {
+      for (const file of files) {
+        const relativePath = String(file.relativePath || '')
+          .trim()
+          .replace(/\\/g, '/');
+        const targetValidation = this.options.validateCommandTarget(relativePath, pathContext);
+        if (!targetValidation.allowed) {
+          return {
+            success: false,
+            mode: 'multi',
+            summary: `Path blocked: ${relativePath} — ${targetValidation.reason}`,
+            relativePath,
+          };
+        }
+
+        const absolutePath = path.resolve(this.options.projectRoot, relativePath);
+        if (!absolutePath.startsWith(path.resolve(this.options.projectRoot))) {
+          return {
+            success: false,
+            mode: 'multi',
+            summary: `Path escapes workspace: ${relativePath}`,
+          };
+        }
+
+        const originalExists = fs.existsSync(absolutePath);
+        const currentContent = originalExists ? fs.readFileSync(absolutePath, 'utf8') : '';
+        const generatedContent = String(file.content ?? '');
+        const instruction = String(file.instruction || 'structured multi-file hunk').trim();
+
+        const syntax = this.options.safeModificationService.validateCandidate(absolutePath, generatedContent);
+        if (!syntax.passes) {
+          return {
+            success: false,
+            mode: 'multi',
+            relativePath,
+            summary: `Syntax validation failed for ${relativePath}.`,
+            validationOutput: syntax.output,
+          };
+        }
+
+        changes.push({
+          relativePath,
+          absolutePath,
+          instruction,
+          summary: instruction,
+          generatedContent,
+          currentContent,
+          originalHash: this.options.hashContent(currentContent),
+          originalExists,
+          diffSummary: this.options.tryGenerateDiff(currentContent, generatedContent, relativePath),
+        });
+      }
+
+      const relativePaths = changes.map((c) => c.relativePath);
+      const staged = changes.map((c) => ({
+        absolutePath: c.absolutePath,
+        previousContent: c.currentContent,
+        nextContent: c.generatedContent,
+        originalExists: c.originalExists,
+      }));
+      const deepValidations = this.options.shouldSkipDeepBuild?.(relativePaths)
+        ? []
+        : this.options.runDeepValidation(relativePaths, staged);
+      validations.push(...deepValidations);
+      const failedDeep = deepValidations.find((e) => !e.passes);
+      if (failedDeep) {
+        return {
+          success: false,
+          mode: 'multi',
+          summary: `Deep validation blocked ${failedDeep.filePath}.`,
+          validationOutput: deepValidations.map((e) => `[${e.filePath}] ${e.output}`).join('\n\n'),
+        };
+      }
+
+      const previewId = crypto.randomUUID();
+      const shadowWorkspaceDir = path.join(this.options.shadowWorkspaceDir, previewId);
+      this.options.writeShadowWorkspace(shadowWorkspaceDir, changes);
+
+      const resourceImpact: SelfmodResourceImpact = {
+        ramIdleMb: 0,
+        diskMb: Math.max(
+          1,
+          Math.round(changes.reduce((n, c) => n + Buffer.byteLength(c.generatedContent, 'utf8'), 0) / (1024 * 1024)),
+        ),
+        processCount: 0,
+        notes: 'multi-file structured preview',
+      };
+      const summary = String(input.summary || '').trim() || `Multi-file selfmod preview (${changes.length} file(s))`;
+
+      const validationCommands = Array.isArray(input.validationCommands)
+        ? input.validationCommands.map(String).filter(Boolean)
+        : [];
+
+      const artifact: PreviewArtifact = {
+        kind: 'multi',
+        previewId,
+        goal: `multi-file:${changes.length}`,
+        summary,
+        createdAt: new Date().toISOString(),
+        requestedBy: input.requestedBy,
+        resourceImpact,
+        validationPlan: [
+          ...this.options.defaultValidationPlan(relativePaths),
+          ...(validationCommands.length ? validationCommands.map((c) => `Apply gate: ${c}`) : []),
+        ],
+        validationCommands,
+        requireValidationCommandsOnApply:
+          input.requireValidationCommandsOnApply === true || validationCommands.length > 0,
+        shadowWorkspaceDir,
+        changes,
+        validations,
+        rollbackPlan: changes.map((c) => ({
+          relativePath: c.relativePath,
+          originalExists: c.originalExists,
+        })),
+      };
+
+      this.options.writePreviewArtifact(artifact);
+      this.options.selfmodPatternMemory.rememberPreview({
+        goal: artifact.goal,
+        relativePaths,
+        analysis: null,
+      });
+
+      return {
+        success: true,
+        mode: 'multi',
+        previewId,
+        summary,
+        changeCount: changes.length,
+        relativePaths,
+        rollbackPlan: artifact.rollbackPlan,
+        validationPlan: artifact.validationPlan,
+        diffSummary: changes
+          .map((c) => c.diffSummary)
+          .filter(Boolean)
+          .join('\n\n'),
+        resourceImpact: this.options.formatResourceImpact(resourceImpact),
+      };
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      logger.warn('[Self Modification Preview] multi-file failed', error);
+      return {
+        success: false,
+        mode: 'multi',
+        summary: `Could not build multi-file preview.\n\nReason: ${err.message || error}`,
+      };
+    }
   }
 }
