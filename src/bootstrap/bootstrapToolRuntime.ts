@@ -561,15 +561,27 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     /* soft */
   }
 
-  // P2: after Plugin OS wires tools, drop phantom skill tool names from firewall maps.
+  // Avoid late async BOOT logs / requires after tests or dispose tear down.
+  let toolRuntimeDisposed = false;
+
+  // After Plugin OS wires tools, drop phantom skill tool names from firewall maps.
   void pluginOsBootstrapPromise.then(() => {
+    if (toolRuntimeDisposed) return;
     try {
-      const { reconcileSkillToolsWithRegistry } = require('../services/SkillToolRegistryBridge.js');
-      const result = reconcileSkillToolsWithRegistry(toolRegistry);
-      if (result.dropped?.length) {
-        logger.info(`[BOOT] skill-tool-reconcile dropped=${result.dropped.length} kept=${result.kept.length}`);
+      const bridge = require('../services/SkillToolRegistryBridge.js') as {
+        reconcileSkillToolsWithRegistry?: (registry: unknown) => {
+          dropped?: string[];
+          kept?: string[];
+        };
+      };
+      const reconcile = bridge?.reconcileSkillToolsWithRegistry;
+      if (typeof reconcile !== 'function') return;
+      const result = reconcile(toolRegistry);
+      if (!toolRuntimeDisposed && result?.dropped?.length) {
+        logger.info(`[BOOT] skill-tool-reconcile dropped=${result.dropped.length} kept=${result.kept?.length ?? 0}`);
       }
     } catch (error: unknown) {
+      if (toolRuntimeDisposed) return;
       const message = error instanceof Error ? error.message : String(error);
       logger.warn(`[BOOT] skill-tool-reconcile soft-failed: ${message}`);
     }
@@ -578,22 +590,26 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   // Non-blocking: after bootstrap settles, optionally start package dir watches + persist metrics.
   void pluginOsBootstrapPromise.then(
     (snap: { summary?: { loaded?: number; wired?: number; failed?: number } } | null) => {
+      if (toolRuntimeDisposed) return;
       try {
         const watchResult = pluginOsWatch.start();
         if (watchResult.started) {
           logger.info(`[BOOT] plugin-os-watch started (watching=${watchResult.watching})`);
         }
       } catch (error: unknown) {
+        if (toolRuntimeDisposed) return;
         const message = error instanceof Error ? error.message : String(error);
         logger.warn(`[BOOT] plugin-os-watch failed: ${message}`);
       }
+      if (toolRuntimeDisposed) return;
       try {
         const persisted = pluginOsObservability.persistSnapshot(pluginOsProjectRoot);
-        if (persisted.ok) {
+        if (!toolRuntimeDisposed && persisted.ok) {
           logger.info(
             `[BOOT] plugin-os-metrics health=${persisted.snapshot.health} loaded=${snap?.summary?.loaded ?? 'n/a'} path=${persisted.path}`,
           );
         }
+        if (toolRuntimeDisposed) return;
         try {
           const { PluginOsTelemetryService } = require('../services/PluginOsTelemetryService.js');
           const telemetry = new PluginOsTelemetryService({
@@ -614,12 +630,14 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
           /* soft-fail telemetry */
         }
       } catch (error: unknown) {
+        if (toolRuntimeDisposed) return;
         const message = error instanceof Error ? error.message : String(error);
         logger.warn(`[BOOT] plugin-os-metrics failed: ${message}`);
       }
     },
   );
   const dispose = () => {
+    toolRuntimeDisposed = true;
     try {
       const { setPluginOsHookPipeline, runPluginOsHook } = require('../services/PluginOsHookPipelineAccess.js');
       void runPluginOsHook({ event: 'shutdown.before', context: { source: 'bootstrapToolRuntime.dispose' } });

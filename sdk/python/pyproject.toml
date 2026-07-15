@@ -41,6 +41,9 @@ select = ["E", "F", "I", "N", "UP", "W"]
 # PEP 604 `X | None` syntax requires Python 3.10; the SDK promises 3.9.
 ignore = ["UP045"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["zavorth"]
+
 [tool.pytest.ini_options]
 minversion = "8"
 testpaths = ["tests"]
