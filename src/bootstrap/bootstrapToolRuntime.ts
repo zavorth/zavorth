@@ -524,6 +524,8 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
     projectRoot: pluginOsProjectRoot,
     runtime: pluginOsRuntime,
   });
+  // Avoid late async BOOT logs / requires after tests or dispose tear down.
+  let toolRuntimeDisposed = false;
   let pluginOsBootstrapPromise = Promise.resolve(null);
   if (process.env.ZAVORTH_PLUGIN_OS_RUNTIME !== '0') {
     pluginOsBootstrapPromise = pluginOsRuntime
@@ -538,18 +540,22 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
         },
       })
       .then((snap: { summary?: { loaded?: number; wired?: number } }) => {
+        if (toolRuntimeDisposed) return snap;
         logger.info(`[BOOT] plugin-os-ready (loaded=${snap?.summary?.loaded ?? 0} wired=${snap?.summary?.wired ?? 0})`);
         try {
           const adapterSnap = pluginOsWireAdapters.snapshot();
-          logger.info(
-            `[BOOT] plugin-os-adapters channels=${adapterSnap.channels.length} memory=${adapterSnap.memoryBackends.length} providers=${adapterSnap.providers.length}`,
-          );
+          if (!toolRuntimeDisposed) {
+            logger.info(
+              `[BOOT] plugin-os-adapters channels=${adapterSnap.channels.length} memory=${adapterSnap.memoryBackends.length} providers=${adapterSnap.providers.length}`,
+            );
+          }
         } catch {
           /* soft */
         }
         return snap;
       })
       .catch((error: unknown) => {
+        if (toolRuntimeDisposed) return null;
         const message = error instanceof Error ? error.message : String(error);
         logger.warn(`[BOOT] plugin-os bootstrap failed: ${message}`);
         return null;
@@ -560,9 +566,6 @@ export function createBootstrapToolRuntime(logRepo: LogRepository) {
   } catch {
     /* soft */
   }
-
-  // Avoid late async BOOT logs / requires after tests or dispose tear down.
-  let toolRuntimeDisposed = false;
 
   // After Plugin OS wires tools, drop phantom skill tool names from firewall maps.
   void pluginOsBootstrapPromise.then(() => {
