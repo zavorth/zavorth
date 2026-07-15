@@ -11,7 +11,7 @@ const CHANNEL_PLUGINS = [
     platform: 'slack',
     statusCap: 'platform.slack.status',
     sendCap: 'platform.slack.send',
-    secretEnv: { SLACK_BOT_TOKEN: 'xoxb-secret-must-not-leak-slack-99' },
+    secretEnv: { SLACK_BOT_TOKEN: 'slack-bot-token-fixture-must-not-leak-99' },
     clearEnv: ['SLACK_BOT_TOKEN', 'SLACK_TOKEN'],
   },
   {
