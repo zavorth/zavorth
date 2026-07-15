@@ -26,8 +26,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Restricted Access'),
-    expect.objectContaining({ parse_mode: 'Markdown' }),
+      expect.stringContaining('Restricted Access'),
+      expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -41,9 +41,7 @@ describe('AuthGuard', () => {
       from: { id: 42 },
       message: {
         message_id: 12,
-        new_chat_members: [
-          { id: 7, is_bot: false, first_name: 'Nova' },
-        ],
+        new_chat_members: [{ id: 7, is_bot: false, first_name: 'Nova' }],
       },
       reply: jest.fn().mockResolvedValue(undefined),
       api: {
@@ -122,14 +120,11 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(getChatMember).not.toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ reply_to_message_id: 77 }),
-    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ reply_to_message_id: 77 }));
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('blocks natural-language ZavorthBridge control shortcuts for vice-owners', async () => {
+  it('does not treat free-text bridge phrases as privileged shortcuts for vice-owners (agent-first)', async () => {
     config.allowedUserIds = ['42'];
     config.telegramUserRoles = { '42': ['vice-owner'] };
 
@@ -144,9 +139,29 @@ describe('AuthGuard', () => {
 
     await middleware(ctx, next);
 
+    // Free text is agent-owned; only explicit slash ops tokens stay privileged.
+    expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringContaining('Restricted Access'), expect.anything());
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('blocks explicit slash ZavorthBridge control for vice-owners', async () => {
+    config.allowedUserIds = ['42'];
+    config.telegramUserRoles = { '42': ['vice-owner'] };
+
+    const middleware = AuthGuard.middleware();
+    const ctx = {
+      chat: { id: 1, type: 'private' },
+      from: { id: 42 },
+      message: { text: '/ag_open', message_id: 100 },
+      reply: jest.fn().mockResolvedValue(undefined),
+    } as any;
+    const next = jest.fn();
+
+    await middleware(ctx, next);
+
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Restricted Access'),
-    expect.objectContaining({ parse_mode: 'Markdown' }),
+      expect.stringContaining('Restricted Access'),
+      expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -167,8 +182,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Restricted Access'),
-    expect.objectContaining({ parse_mode: 'Markdown' }),
+      expect.stringContaining('Restricted Access'),
+      expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -189,8 +204,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Restricted Access'),
-    expect.objectContaining({ parse_mode: 'Markdown' }),
+      expect.stringContaining('Restricted Access'),
+      expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -211,8 +226,8 @@ describe('AuthGuard', () => {
     await middleware(ctx, next);
 
     expect(ctx.reply).toHaveBeenCalledWith(
-    expect.stringContaining('Restricted Access'),
-    expect.objectContaining({ parse_mode: 'Markdown' }),
+      expect.stringContaining('Restricted Access'),
+      expect.objectContaining({ parse_mode: 'Markdown' }),
     );
     expect(next).not.toHaveBeenCalled();
   });

@@ -52,16 +52,26 @@ for (const marker of requiredMarkers) {
   }
 }
 
-function runPreview(text) {
+function runPreview(text, extraArgs = []) {
   const output = execFileSync(
     process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-preview.ts', '--json', '--text', text],
+    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-preview.ts', '--json', '--text', text, ...extraArgs],
     { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
   );
   return JSON.parse(output);
 }
 
-const trade = runPreview('Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.');
+const freeText = runPreview('Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.');
+if (freeText.intent.kind !== 'unknown-transaction') {
+  failures.push(`free text must not activate product kind, got ${freeText.intent.kind}`);
+}
+
+const trade = runPreview('Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.', [
+  '--kind',
+  'execute-trade',
+  '--action-kind',
+  'trade-order',
+]);
 if (trade.status !== 'ready-for-review') {
   failures.push(`trade preview status mismatch: ${trade.status}`);
 }
@@ -75,12 +85,12 @@ if (trade.policy.liveActionApplied !== false || trade.policy.executableNow !== f
   failures.push('trade preview must not be executable or apply live action');
 }
 
-const vague = runPreview('Compre isso para mim depois.');
+const vague = runPreview('Buy this for me later.', ['--kind', 'purchase-product']);
 if (vague.status !== 'needs-clarification') {
   failures.push(`vague preview should need clarification, got ${vague.status}`);
 }
 
-const secret = runPreview('Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.');
+const secret = runPreview('Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.');
 if (secret.status !== 'blocked') {
   failures.push(`secret preview should be blocked, got ${secret.status}`);
 }

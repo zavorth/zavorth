@@ -63,10 +63,10 @@ export type ZavorthConversationalSetupIntakeResult = {
 };
 
 const SECRET_PATTERNS = [
-  /\bsk-[A-Za-z0-9_-]{12,}\b/g,
-  /\bAIza[0-9A-Za-z_-]{20,}\b/g,
-  /\bxox[baprs]-[0-9A-Za-z-]{10,}\b/g,
-  /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g,
+  /\bsk-[A-Za-z0-9_-]{12}\b/g,
+  /\bAIza[0-9A-Za-z_-]{20}\b/g,
+  /\bxox[baprs]-[0-9A-Za-z-]{10}\b/g,
+  /\bgh[pousr]_[A-Za-z0-9_]{20}\b/g,
   /\b(?:api[_ -]?key|token|secret)\s*[:=]\s*[^\s]+/gi,
 ];
 
@@ -104,9 +104,12 @@ export class ZavorthConversationalSetupService {
         ? 'Applying setup requires --confirm-local-profile so local identity files are never changed accidentally.'
         : null;
     const applyResult = canApply
-      ? this.personalization.applyAnswers(this.toPersonalizationAnswers(input, answers, experience.selected.explanation), {
-          completeBootstrap: input.completeBootstrap === true,
-        })
+      ? this.personalization.applyAnswers(
+          this.toPersonalizationAnswers(input, answers, experience.selected.explanation),
+          {
+            completeBootstrap: input.completeBootstrap === true,
+          },
+        )
       : null;
 
     const status = resolveStatus({
@@ -217,7 +220,8 @@ export class ZavorthConversationalSetupService {
   }
 
   public renderText(snapshot: ZavorthConversationalSetupContract): string {
-    return [
+    const locale = snapshot.uiLanguage;
+    const lines = [
       '[zavorth-setup] conversational first run',
       `status=${snapshot.status} uiLanguage=${snapshot.uiLanguage} preferredLanguage=${snapshot.answers.preferredLanguage || 'not set'}`,
       `profile=${snapshot.answers.experienceProfileId} mode=${snapshot.experience.selected.dailyMode}/${snapshot.experience.selected.detailMode}`,
@@ -225,9 +229,7 @@ export class ZavorthConversationalSetupService {
       '[questions]',
       ...snapshot.questions
         .filter((q) => q.visible)
-        .map((question) =>
-          `- ${question.id}: ${question.status} | ${question.prompt}`,
-        ),
+        .map((question) => `- ${question.id}: ${question.status} | ${question.prompt}`),
       '',
       '[preview]',
       snapshot.preview.agentIntroduction,
@@ -243,8 +245,34 @@ export class ZavorthConversationalSetupService {
       snapshot.writePlan.previewOnly
         ? 'preview-only; add --apply --confirm-local-profile after reviewing.'
         : `applied; files=${snapshot.applyResult?.writtenFiles.length || 0}`,
-      '',
-    ].join('\n');
+    ];
+
+    if (snapshot.status === 'applied') {
+      lines.push(
+        '',
+        '[complete]',
+        this.i18n.t('onboarding.steps.complete.title', {
+          locale,
+          fallback: 'Setup Complete',
+        }),
+        this.i18n.t('onboarding.steps.complete.summary', {
+          locale,
+          fallback: 'Your Zavorth is ready!',
+        }),
+        this.i18n.t('onboarding.steps.complete.next_steps', {
+          locale,
+          fallback: 'Next steps:',
+        }),
+        this.i18n.t('onboarding.steps.complete.learning_tip', {
+          locale,
+          fallback:
+            'Zavorth saves multi-tool workflows as local skill drafts; promote them with zavorth learn when ready.',
+        }),
+      );
+    }
+
+    lines.push('');
+    return lines.join('\n');
   }
 
   private buildAnswers(
@@ -283,15 +311,21 @@ export class ZavorthConversationalSetupService {
       preferredAddress: answers.preferredAddress || answers.userName || 'Operator',
       primaryLanguage: answers.preferredLanguage || answers.uiLanguage,
       preferredTone: clean(input.preferredTone) || defaultTone(profile),
-      responseDensity: answers.detailLevel === 'advanced' || explanation === 'audit' ? 'dense when useful; concise by default' : 'plain and concise',
-      initiativeLevel: profile === 'personal'
-        ? 'proactive with reminders and guidance; ask before risky action'
-        : 'proactive with planning, previews and safe next steps',
+      responseDensity:
+        answers.detailLevel === 'advanced' || explanation === 'audit'
+          ? 'dense when useful; concise by default'
+          : 'plain and concise',
+      initiativeLevel:
+        profile === 'personal'
+          ? 'proactive with reminders and guidance; ask before risky action'
+          : 'proactive with planning, previews and safe next steps',
       candorLevel: 'honest, respectful and direct',
-      challengePreference: profile === 'business' || profile === 'developer' || profile === 'power'
-        ? 'challenge weak plans early with evidence'
-        : 'gently point out risks and better options',
-      externalActionPosture: 'ask before writes, spending, public messages, installs, network-sensitive actions or irreversible changes',
+      challengePreference:
+        profile === 'business' || profile === 'developer' || profile === 'power'
+          ? 'challenge weak plans early with evidence'
+          : 'gently point out risks and better options',
+      externalActionPosture:
+        'ask before writes, spending, public messages, installs, network-sensitive actions or irreversible changes',
       domain: answers.domain,
       learningStyle: answers.learningStyle,
       errorHandlingDefault: null,
@@ -330,19 +364,27 @@ export class ZavorthConversationalSetupService {
       });
       if (applied.status !== 'applied') {
         return {
-          reply: applied.safety.blockedReason || this.i18n.t('onboarding.conversation.apply_failed', {
-            locale: confirmed.locale,
-            fallback: 'The local profile could not be applied safely. Review the setup answers and try again.',
-          }),
+          reply:
+            applied.safety.blockedReason ||
+            this.i18n.t('onboarding.conversation.apply_failed', {
+              locale: confirmed.locale,
+              fallback: 'The local profile could not be applied safely. Review the setup answers and try again.',
+            }),
           finished: false,
           status: 'confirmation_invalid',
         };
       }
+      const appliedReply = this.i18n.t('onboarding.conversation.applied', {
+        locale: confirmed.locale,
+        fallback: 'Setup complete. I am ready to help with your first mission.',
+      });
+      const learningTip = this.i18n.t('onboarding.steps.complete.learning_tip', {
+        locale: confirmed.locale,
+        fallback:
+          'Zavorth saves multi-tool workflows as local skill drafts; promote them with zavorth learn when ready.',
+      });
       return {
-        reply: this.i18n.t('onboarding.conversation.applied', {
-          locale: confirmed.locale,
-          fallback: 'Setup complete. I am ready to help with your first mission.',
-        }),
+        reply: `${appliedReply}\n${learningTip}`,
         finished: true,
         status: 'applied',
         preview: applied.preview,
@@ -378,9 +420,7 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
 
     let extracted: Record<string, unknown> = {};
     try {
-      const response = await llmService.chat([
-        { role: 'user', content: extractionPrompt }
-      ]);
+      const response = await llmService.chat([{ role: 'user', content: extractionPrompt }]);
       const content = response.content || '';
       const jsonStart = content.indexOf('{');
       const jsonEnd = content.lastIndexOf('}') + 1;
@@ -409,7 +449,9 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
     if (snapshot.status === 'ready' || isAllAnswered) {
       if (snapshot.safety.rawSecretDetected) {
         return {
-          reply: snapshot.safety.blockedReason || 'A secret-like value was detected. Remove credentials from the setup answers.',
+          reply:
+            snapshot.safety.blockedReason ||
+            'A secret-like value was detected. Remove credentials from the setup answers.',
           finished: false,
           status: 'collecting',
         };
@@ -419,7 +461,8 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
       return {
         reply: this.i18n.t('onboarding.conversation.review_preview', {
           locale,
-          fallback: 'Review this setup preview. Confirm it explicitly to apply the local profile, or edit any answer first.',
+          fallback:
+            'Review this setup preview. Confirm it explicitly to apply the local profile, or edit any answer first.',
         }),
         finished: false,
         status: 'awaiting_confirmation',
@@ -427,8 +470,9 @@ ${history.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`).join('\n')}
         preview: snapshot.preview,
       };
     } else {
-      const nextQuestion = snapshot.questions.find((q) => q.status === 'pending' && q.required)
-        || snapshot.questions.find((q) => q.status === 'pending');
+      const nextQuestion =
+        snapshot.questions.find((q) => q.status === 'pending' && q.required) ||
+        snapshot.questions.find((q) => q.status === 'pending');
 
       const questionPrompt = `Onboarding conversation for Zavorth.
 The user is answering questions to configure their local profile. We need to ask them about the field: "${nextQuestion?.label}".
@@ -464,10 +508,7 @@ Speak in the user's preferred language if known (default to Portuguese if histor
       const response = await llmService.chat([{ role: 'user', content: prompt }]);
       return clean(response.content);
     } catch (error: unknown) {
-      logger.warn(
-        `Conversational onboarding ${purpose} unavailable; using deterministic fallback`,
-        asErrorLike(error),
-      );
+      logger.warn(`Conversational onboarding ${purpose} unavailable; using deterministic fallback`, asErrorLike(error));
       return null;
     }
   }
@@ -497,125 +538,147 @@ function buildQuestions(
   const isTechnical = profile === 'developer' || profile === 'business' || profile === 'power';
   const isGoverned = profile === 'business' || profile === 'power';
 
-  const rows: Array<Omit<ZavorthConversationalSetupQuestion, 'status' | 'answerPreview'> & { answer: string | null }> = [
-    {
-      id: 'agent-name',
-      label: i18n.t('onboarding.conversation.questions.agent_name.label', { locale, fallback: 'Agent name' }),
-      prompt: i18n.t('onboarding.conversation.questions.agent_name.prompt', { locale, fallback: 'What should this agent be called?' }),
-      kind: 'text',
-      required: true,
-      visible: true,
-      answer: answers.agentName,
-    },
-    {
-      id: 'user-name',
-      label: i18n.t('onboarding.conversation.questions.user_name.label', { locale, fallback: 'Your name' }),
-      prompt: i18n.t('onboarding.conversation.questions.user_name.prompt', { locale, fallback: 'What should Zavorth call you?' }),
-      kind: 'text',
-      required: true,
-      visible: true,
-      answer: answers.preferredAddress || answers.userName,
-    },
-    {
-      id: 'preferred-language',
-      label: i18n.t('onboarding.conversation.questions.preferred_language.label', { locale, fallback: 'Preferred conversation language' }),
-      prompt: i18n.t('onboarding.conversation.questions.preferred_language.prompt', { locale, fallback: 'Which language should Zavorth use when speaking with you?' }),
-      kind: 'text',
-      required: true,
-      visible: true,
-      answer: answers.preferredLanguage,
-    },
-    {
-      id: 'experience-profile',
-      label: i18n.t('onboarding.conversation.questions.experience_profile.label', { locale, fallback: 'Experience profile' }),
-      prompt: i18n.t('onboarding.conversation.questions.experience_profile.prompt', { locale, fallback: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?' }),
-      kind: 'choice',
-      required: true,
-      visible: true,
-      choices: ['personal', 'creator', 'developer', 'business', 'power'],
-      answer: answers.experienceProfileId,
-    },
-    {
-      id: 'detail-level',
-      label: i18n.t('onboarding.conversation.questions.detail_level.label', { locale, fallback: 'Detail level' }),
-      prompt: i18n.t('onboarding.conversation.questions.detail_level.prompt', { locale, fallback: 'Do you prefer simple or advanced detail?' }),
-      kind: 'choice',
-      required: true,
-      visible: true,
-      choices: ['simple', 'advanced'],
-      answer: answers.detailLevel,
-    },
-    {
-      id: 'primary-use',
-      label: 'Primary use',
-      prompt: 'What do you most want to do with Zavorth?',
-      kind: 'text',
-      required: false,
-      visible: true,
-      answer: answers.primaryUse,
-    },
-    {
-      id: 'approval-channel',
-      label: 'Approvals',
-      prompt: 'Where should sensitive approvals appear?',
-      kind: 'choice',
-      required: false,
-      visible: isGoverned,
-      visibleReason: 'Relevant for business and power profiles with governed workflows.',
-      choices: ['zavorthControl', 'satellite', 'telegram', 'cli'],
-      answer: answers.approvalChannel,
-    },
-    {
-      id: 'first-safe-mission',
-      label: 'First mission',
-      prompt: 'Which safe first mission should Zavorth suggest?',
-      kind: 'text',
-      required: false,
-      visible: isTechnical,
-      visibleReason: 'Relevant for developer, business and power profiles.',
-      answer: answers.firstSafeMission,
-    },
-    {
-      id: 'domain',
-      label: 'Domain expertise',
-      prompt: 'What is your primary domain of expertise?',
-      kind: 'text',
-      required: false,
-      visible: isTechnical,
-      visibleReason: 'Relevant for developer, business and power profiles.',
-      answer: answers.domain,
-    },
-    {
-      id: 'learning-style',
-      label: 'Learning style',
-      prompt: 'How do you prefer to learn new things?',
-      kind: 'choice',
-      required: false,
-      visible: isTechnical,
-      visibleReason: 'Relevant for developer, business and power profiles.',
-      choices: ['examples-first', 'theory-first', 'hands-on', 'visual', 'step-by-step'],
-      answer: answers.learningStyle,
-    },
-    {
-      id: 'timezone',
-      label: 'Timezone',
-      prompt: 'What is your timezone?',
-      kind: 'text',
-      required: false,
-      visible: true,
-      answer: answers.timezone,
-    },
-    {
-      id: 'weekend-policy',
-      label: 'Weekend behavior',
-      prompt: 'Should I behave differently on weekends?',
-      kind: 'choice',
-      required: false,
-      visible: true,
-      choices: ['normal', 'reduced-activity', 'urgent-only'],
-      answer: answers.weekendPolicy,
-    },
-  ];
+  const rows: Array<Omit<ZavorthConversationalSetupQuestion, 'status' | 'answerPreview'> & { answer: string | null }> =
+    [
+      {
+        id: 'agent-name',
+        label: i18n.t('onboarding.conversation.questions.agent_name.label', { locale, fallback: 'Agent name' }),
+        prompt: i18n.t('onboarding.conversation.questions.agent_name.prompt', {
+          locale,
+          fallback: 'What should this agent be called?',
+        }),
+        kind: 'text',
+        required: true,
+        visible: true,
+        answer: answers.agentName,
+      },
+      {
+        id: 'user-name',
+        label: i18n.t('onboarding.conversation.questions.user_name.label', { locale, fallback: 'Your name' }),
+        prompt: i18n.t('onboarding.conversation.questions.user_name.prompt', {
+          locale,
+          fallback: 'What should Zavorth call you?',
+        }),
+        kind: 'text',
+        required: true,
+        visible: true,
+        answer: answers.preferredAddress || answers.userName,
+      },
+      {
+        id: 'preferred-language',
+        label: i18n.t('onboarding.conversation.questions.preferred_language.label', {
+          locale,
+          fallback: 'Preferred conversation language',
+        }),
+        prompt: i18n.t('onboarding.conversation.questions.preferred_language.prompt', {
+          locale,
+          fallback: 'Which language should Zavorth use when speaking with you?',
+        }),
+        kind: 'text',
+        required: true,
+        visible: true,
+        answer: answers.preferredLanguage,
+      },
+      {
+        id: 'experience-profile',
+        label: i18n.t('onboarding.conversation.questions.experience_profile.label', {
+          locale,
+          fallback: 'Experience profile',
+        }),
+        prompt: i18n.t('onboarding.conversation.questions.experience_profile.prompt', {
+          locale,
+          fallback: 'Will you use Zavorth for daily life, creation, code, business or advanced operation?',
+        }),
+        kind: 'choice',
+        required: true,
+        visible: true,
+        choices: ['personal', 'creator', 'developer', 'business', 'power'],
+        answer: answers.experienceProfileId,
+      },
+      {
+        id: 'detail-level',
+        label: i18n.t('onboarding.conversation.questions.detail_level.label', { locale, fallback: 'Detail level' }),
+        prompt: i18n.t('onboarding.conversation.questions.detail_level.prompt', {
+          locale,
+          fallback: 'Do you prefer simple or advanced detail?',
+        }),
+        kind: 'choice',
+        required: true,
+        visible: true,
+        choices: ['simple', 'advanced'],
+        answer: answers.detailLevel,
+      },
+      {
+        id: 'primary-use',
+        label: 'Primary use',
+        prompt: 'What do you most want to do with Zavorth?',
+        kind: 'text',
+        required: false,
+        visible: true,
+        answer: answers.primaryUse,
+      },
+      {
+        id: 'approval-channel',
+        label: 'Approvals',
+        prompt: 'Where should sensitive approvals appear?',
+        kind: 'choice',
+        required: false,
+        visible: isGoverned,
+        visibleReason: 'Relevant for business and power profiles with governed workflows.',
+        choices: ['zavorthControl', 'satellite', 'telegram', 'cli'],
+        answer: answers.approvalChannel,
+      },
+      {
+        id: 'first-safe-mission',
+        label: 'First mission',
+        prompt: 'Which safe first mission should Zavorth suggest?',
+        kind: 'text',
+        required: false,
+        visible: isTechnical,
+        visibleReason: 'Relevant for developer, business and power profiles.',
+        answer: answers.firstSafeMission,
+      },
+      {
+        id: 'domain',
+        label: 'Domain expertise',
+        prompt: 'What is your primary domain of expertise?',
+        kind: 'text',
+        required: false,
+        visible: isTechnical,
+        visibleReason: 'Relevant for developer, business and power profiles.',
+        answer: answers.domain,
+      },
+      {
+        id: 'learning-style',
+        label: 'Learning style',
+        prompt: 'How do you prefer to learn new things?',
+        kind: 'choice',
+        required: false,
+        visible: isTechnical,
+        visibleReason: 'Relevant for developer, business and power profiles.',
+        choices: ['examples-first', 'theory-first', 'hands-on', 'visual', 'step-by-step'],
+        answer: answers.learningStyle,
+      },
+      {
+        id: 'timezone',
+        label: 'Timezone',
+        prompt: 'What is your timezone?',
+        kind: 'text',
+        required: false,
+        visible: true,
+        answer: answers.timezone,
+      },
+      {
+        id: 'weekend-policy',
+        label: 'Weekend behavior',
+        prompt: 'Should I behave differently on weekends?',
+        kind: 'choice',
+        required: false,
+        visible: true,
+        choices: ['normal', 'reduced-activity', 'urgent-only'],
+        answer: answers.weekendPolicy,
+      },
+    ];
 
   return rows.map((row) => ({
     id: row.id,
@@ -683,10 +746,12 @@ function hasRawSecret(input: ZavorthConversationalSetupInput): boolean {
     input.timezone,
     input.weekendPolicy,
   ].map((value) => String(value || ''));
-  return values.some((value) => SECRET_PATTERNS.some((pattern) => {
-    pattern.lastIndex = 0;
-    return pattern.test(value);
-  }));
+  return values.some((value) =>
+    SECRET_PATTERNS.some((pattern) => {
+      pattern.lastIndex = 0;
+      return pattern.test(value);
+    }),
+  );
 }
 
 function redactSecret(value: string | null): string | null {

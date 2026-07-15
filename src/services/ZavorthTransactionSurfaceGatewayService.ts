@@ -20,10 +20,7 @@ import type {
   ZavorthTransactionRuntimeRunResult,
   ZavorthTransactionRuntimeStatus,
 } from '../contracts/ZavorthTransactionRuntimeContract.js';
-import type {
-  UniversalAgentChannel,
-} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
-
+import type { UniversalAgentChannel } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 type SurfaceGatewayDeps = {
   now?: () => Date;
@@ -50,6 +47,15 @@ export class ZavorthTransactionSurfaceGatewayService {
     const now = this.now();
     const surface = input.surface ?? 'natural-first';
     const channel = surfaceToChannel(surface);
+    const structuredKind = input.kind;
+    const structuredAction = input.actionKind;
+    const isStructuredTransaction = structuredKind !== undefined || structuredAction !== undefined;
+    const isPreviewOnlyAction =
+      structuredAction === 'price-monitor' ||
+      structuredAction === 'market-data-read' ||
+      structuredAction === 'cart-preview' ||
+      structuredKind === 'monitor-price' ||
+      structuredKind === 'unknown-transaction';
     const naturalFirst = this.classifier.classify({
       text: input.text,
       channel,
@@ -57,12 +63,20 @@ export class ZavorthTransactionSurfaceGatewayService {
       sessionId: input.sessionId,
       workspace: input.workspace,
       availableTools: ['zavorth.transaction-runtime', 'zavorth.transaction-preview', 'zavorth.transaction-approval'],
+      // Structured kind/action only — free text never activates transaction routes.
+      transactionApprovalIntent: isStructuredTransaction && !isPreviewOnlyAction,
+      transactionPreviewIntent: isStructuredTransaction && isPreviewOnlyAction,
       metadata: {
         transactionSurface: surface,
+        ...(structuredKind ? { transactionKind: structuredKind } : {}),
+        ...(structuredAction ? { transactionActionKind: structuredAction } : {}),
       },
     });
     const runtime = this.runtime.run({
       text: input.text,
+      kind: input.kind,
+      actionKind: input.actionKind,
+      targetKind: input.targetKind,
       channel,
       mode: input.mode,
       approve: input.approve,
@@ -120,7 +134,9 @@ export class ZavorthTransactionSurfaceGatewayService {
       `[transaction-surface] executable-now: ${projection.executableNow}`,
       `[transaction-surface] live-action-applied: ${projection.liveActionApplied}`,
       `[transaction-surface] reply: ${projection.replyText}`,
-      ...projection.actions.map((action) => `[transaction-surface] action: ${action.id} enabled=${action.enabled} reason=${action.reason}`),
+      ...projection.actions.map(
+        (action) => `[transaction-surface] action: ${action.id} enabled=${action.enabled} reason=${action.reason}`,
+      ),
     ].join('\n');
   }
 }
@@ -181,7 +197,12 @@ function buildCards(runtime: ZavorthTransactionRuntimeRunResult): ZavorthTransac
       kind: 'connector',
       title: 'Typed Connector',
       status: runtime.connectorRun?.status ?? 'not-run',
-      severity: runtime.connectorRun?.status === 'simulated' ? 'success' : runtime.connectorRun?.status === 'blocked' ? 'danger' : 'info',
+      severity:
+        runtime.connectorRun?.status === 'simulated'
+          ? 'success'
+          : runtime.connectorRun?.status === 'blocked'
+            ? 'danger'
+            : 'info',
       lines: [
         `connector=${runtime.connectorRun?.connector?.id ?? 'none'}`,
         `payload=${runtime.connectorRun?.payload?.method ?? 'none'}`,
@@ -229,9 +250,10 @@ function buildActions(
     enabled: runtime.status === 'approval-required',
     requiresConfirmation: true,
     command: `${baseCommand} --approve`,
-    reason: runtime.status === 'approval-required'
-      ? 'Approval is required before simulation can continue.'
-      : 'Approval is not currently the blocking step.',
+    reason:
+      runtime.status === 'approval-required'
+        ? 'Approval is required before simulation can continue.'
+        : 'Approval is not currently the blocking step.',
   });
 
   actions.push({
@@ -241,9 +263,10 @@ function buildActions(
     enabled: runtime.status === 'approval-required',
     requiresConfirmation: true,
     command: `${baseCommand} --reject`,
-    reason: runtime.status === 'approval-required'
-      ? 'The operator can reject this preview before any simulation continues.'
-      : 'There is no pending approval preview to reject.',
+    reason:
+      runtime.status === 'approval-required'
+        ? 'The operator can reject this preview before any simulation continues.'
+        : 'There is no pending approval preview to reject.',
   });
 
   actions.push({
@@ -252,9 +275,10 @@ function buildActions(
     label: 'Provide credential ref',
     enabled: runtime.status === 'credential-required',
     requiresConfirmation: false,
-    reason: runtime.status === 'credential-required'
-      ? 'A valid transaction credential ref is required before connector simulation.'
-      : 'Credential ref is not currently required.',
+    reason:
+      runtime.status === 'credential-required'
+        ? 'A valid transaction credential ref is required before connector simulation.'
+        : 'Credential ref is not currently required.',
   });
 
   actions.push({

@@ -5,10 +5,7 @@ import {
   type ExperienceContextRecoveryOption,
   type ExperienceSurface,
 } from './ExperienceContracts.js';
-import type {
-  UniversalAgentRun,
-  UniversalApprovalRequest,
-} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { UniversalAgentRun, UniversalApprovalRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 export type ContextRecoveryBuildInput = {
   text?: string | null;
@@ -30,12 +27,14 @@ function normalizeText(value: unknown): string {
 
 function uniqueOptions(options: ExperienceContextRecoveryOption[]): ExperienceContextRecoveryOption[] {
   const seen = new Set<string>();
-  return options.filter((option) => {
-    const key = `${option.label}:${option.command}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  }).sort((left, right) => right.confidence - left.confidence);
+  return options
+    .filter((option) => {
+      const key = `${option.label}:${option.command}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((left, right) => right.confidence - left.confidence);
 }
 
 export class ContextRecoveryService {
@@ -57,9 +56,9 @@ export class ContextRecoveryService {
       status: ambiguous ? 'needs-selection' : 'idle',
       question: ambiguous
         ? allOptions.length > options.length
-          ? `I found ${allOptions.length} alvos possiveis. Mostro os ${options.length} mais relevantes here; vealready todos no ZavorthControl.`
-          : 'Encontrei mais de um alvo possivel. Qual deles voce quer usar?'
-        : 'Contexto suficiente para continuar sem pergunta extra.',
+          ? `I found ${allOptions.length} possible targets. Showing the ${options.length} most relevant here; see all in ZavorthControl.`
+          : 'I found more than one possible target. Which one do you want to use?'
+        : 'Enough context to continue without an extra question.',
       options: ambiguous ? options : [],
       overflow: {
         totalOptions: allOptions.length,
@@ -74,7 +73,11 @@ export class ContextRecoveryService {
   private isAmbiguous(normalized: string, optionCount: number): boolean {
     if (optionCount < 2) return false;
     if (!normalized) return false;
-    return /\b(isso|isto|aquilo|esse|essa|aquele|aquela|ele|ela|la|ali|corrija|aprova|aprovar|rejeita|rejeitar|ver diff|revise esse modulo)\b/.test(normalized);
+    // Pronoun / anaphora detection for continuity only — recovers context and does
+    // not activate approve/reject or other product features from free text.
+    return /\b(isso|isto|aquilo|esse|essa|aquele|aquela|ele|ela|la|ali|this|that|it|those|these|them)\b/.test(
+      normalized,
+    );
   }
 
   private approvalOptions(approvals: UniversalApprovalRequest[]): ExperienceContextRecoveryOption[] {
@@ -82,8 +85,8 @@ export class ContextRecoveryService {
       .filter((approval) => approval.status === 'pending')
       .map((approval, index) => ({
         id: `approval-${index + 1}`,
-        label: approval.title || `Aprovacao ${index + 1}`,
-        detail: approval.reason || 'Aprovacao pendente.',
+        label: approval.title || `Approval ${index + 1}`,
+        detail: approval.reason || 'Pending approval.',
         command: `zavorth approve ${approval.id}`,
         confidence: 0.9 - index * 0.05,
       }));
@@ -110,7 +113,7 @@ export class ContextRecoveryService {
       id: `run-${index + 1}`,
       label: run.title || run.id,
       detail: run.summary || run.input || `Status ${run.status}.`,
-      command: `zavorth ask "continue a jornada ${run.id}"`,
+      command: `zavorth ask "continue journey ${run.id}"`,
       confidence: activeRun?.id === run.id ? 0.86 : 0.72 - index * 0.04,
     }));
   }

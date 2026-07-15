@@ -46,8 +46,14 @@ try {
     }
   }
 
-  const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionLiveMicroRolloutCertificationService.ts'), 'utf8');
+  const contractText = readFileSync(
+    join(root, 'src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.ts'),
+    'utf8',
+  );
+  const serviceText = readFileSync(
+    join(root, 'src/services/ZavorthTransactionLiveMicroRolloutCertificationService.ts'),
+    'utf8',
+  );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
     'zavorth-transaction-live-micro-rollout-certification/checkpoint-14-15',
@@ -112,10 +118,10 @@ try {
     failures.push('certification packet missing future micro-rollout certification');
   }
   if (
-    certified.safety?.liveMicroRolloutAuthorized !== false
-    || certified.safety?.liveExecutionAuthorized !== false
-    || certified.safety?.liveActionApplied !== false
-    || certified.certificationPacket?.externalSideEffects !== false
+    certified.safety?.liveMicroRolloutAuthorized !== false ||
+    certified.safety?.liveExecutionAuthorized !== false ||
+    certified.safety?.liveActionApplied !== false ||
+    certified.certificationPacket?.externalSideEffects !== false
   ) {
     failures.push('Intent model4-15 must keep live rollout and live execution disabled');
   }
@@ -161,7 +167,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -218,7 +224,11 @@ function baseArgs(ref) {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -282,19 +292,23 @@ function rollbackArgs() {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runCertification(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-micro-rollout-certification.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-micro-rollout-certification.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runCertificationExpectFailure(args) {

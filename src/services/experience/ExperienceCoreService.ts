@@ -1,8 +1,6 @@
 import { ActionCardService } from './ActionCardService.js';
 import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
-import {
-  ZavorthRuntimeStateBusService,
-} from '../ZavorthRuntimeStateBusService.js';
+import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
 import {
   ZavorthRuntimeCapabilitiesService,
   type ZavorthRuntimeCapabilitiesSnapshot,
@@ -12,9 +10,7 @@ import {
   type ZavorthRuntimeOperationalSpineSyncInput,
   type ZavorthRuntimeOperationalSpineSyncResult,
 } from '../ZavorthRuntimeOperationalSpineService.js';
-import {
-  ZavorthRuntimeSecureIntegrationService,
-} from '../ZavorthRuntimeSecureIntegrationService.js';
+import { ZavorthRuntimeSecureIntegrationService } from '../ZavorthRuntimeSecureIntegrationService.js';
 
 import { logger } from '../../logger.js';
 import { tService } from '../../i18n/services.js';
@@ -79,10 +75,7 @@ import type {
 } from '../../contracts/ZavorthSelfHealingUxContract.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import {
-  ZavorthAgentMaturityService,
-  type ZavorthAgentMaturitySnapshot,
-} from '../ZavorthAgentMaturityService.js';
+import { ZavorthAgentMaturityService, type ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
 
 import type {
   ZavorthRuntimeStateBusActionInput,
@@ -94,17 +87,16 @@ import { ExperienceProjectionSupport } from './ExperienceProjectionSupport.js';
 import { ExperienceContinuitySupport } from './ExperienceContinuitySupport.js';
 import { ExperienceActionDecisionSupport } from './ExperienceActionDecisionSupport.js';
 
-type AgentGatewayLike = Pick<
-  ZavorthAgentGateway,
-  'handle' | 'buildSnapshot' | 'approve' | 'reject'
->;
+type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'approve' | 'reject'>;
 
 export type ExperienceCoreRuntime = {
   now?: () => Date;
   agentGateway?: AgentGatewayLike | null;
   memoryPlane?: Pick<ZavorthMemoryPlaneService, 'buildSnapshot'> | null;
-  learningPlane?: Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction'>
-    & Partial<Pick<ZavorthLearningPlaneService, 'resetState' | 'exportState'>> | null;
+  learningPlane?:
+    | (Pick<ZavorthLearningPlaneService, 'buildSnapshot' | 'executeAction'> &
+        Partial<Pick<ZavorthLearningPlaneService, 'resetState' | 'exportState'>>)
+    | null;
   runtimeAccessReadiness?: Pick<RuntimeAccessReadinessService, 'inspect'> | null;
   router?: NaturalCommandRouterService;
   learningOs?: LearningOSService;
@@ -122,7 +114,10 @@ export type ExperienceCoreRuntime = {
   selfHealingReceipts?: ZavorthSelfHealingReceiptService;
   providerReadinessMatrix?: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   agentMaturity?: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
-  runtimeStateBus?: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
+  runtimeStateBus?: Pick<
+    ZavorthRuntimeStateBusService,
+    'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'
+  > | null;
   runtimeOperationalSpine?: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
   runtimeSecureIntegration?: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 };
@@ -144,9 +139,7 @@ function normalizeText(value: unknown, fallback = ''): string {
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function isLiveRunStatus(status: unknown): boolean {
@@ -175,8 +168,12 @@ function isSimpleDateTimeQuestion(text: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(normalized);
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(normalized);
+  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
+    normalized,
+  );
+  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
+    normalized,
+  );
   return asksTime || asksDate;
 }
 
@@ -184,7 +181,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
   if (!isSimpleDateTimeQuestion(text)) return null;
   const timeZone = inferRequestedTimeZone(text);
   try {
-    const formatted = new Intl.DateTimeFormat('pt-BR', {
+    const formatted = new Intl.DateTimeFormat('en-US', {
       timeZone,
       weekday: 'long',
       year: 'numeric',
@@ -195,9 +192,10 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       second: '2-digit',
       timeZoneName: 'short',
     }).format(now);
-    return `Agora em ${timeZone} é ${formatted}.`;
-  } catch (error: unknown) {logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
-    return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
+    return `It is now ${formatted} in ${timeZone}.`;
+  } catch (error: unknown) {
+    logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
+    return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
 }
 
@@ -248,7 +246,10 @@ export class ExperienceCoreService {
   public readonly selfHealingReceipts: ZavorthSelfHealingReceiptService;
   public readonly providerReadinessMatrix: Pick<ZavorthProviderReadinessMatrixService, 'buildSnapshot'>;
   public readonly agentMaturity: Pick<ZavorthAgentMaturityService, 'buildSnapshot'>;
-  public readonly runtimeStateBus: Pick<ZavorthRuntimeStateBusService, 'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'> | null;
+  public readonly runtimeStateBus: Pick<
+    ZavorthRuntimeStateBusService,
+    'buildSnapshot' | 'syncExperienceCommand' | 'dispatch' | 'appendReceipt'
+  > | null;
   public readonly runtimeOperationalSpine: Pick<ZavorthRuntimeOperationalSpineService, 'syncOperationalState'> | null;
   public readonly runtimeSecureIntegration: Pick<ZavorthRuntimeSecureIntegrationService, 'dispatch'> | null;
 
@@ -258,10 +259,12 @@ export class ExperienceCoreService {
     this.memoryPlane = runtime.memoryPlane || null;
     this.runtimeAccessReadiness = runtime.runtimeAccessReadiness || null;
     this.router = runtime.router || new NaturalCommandRouterService();
-    this.learningOs = runtime.learningOs || new LearningOSService({
-      now: this.now,
-      learningPlane: runtime.learningPlane || null,
-    });
+    this.learningOs =
+      runtime.learningOs ||
+      new LearningOSService({
+        now: this.now,
+        learningPlane: runtime.learningPlane || null,
+      });
     this.journeyEngine = runtime.journeyEngine || new JourneyEngineService();
     this.trustLens = runtime.trustLens || new TrustLensService();
     this.actionCards = runtime.actionCards || new ActionCardService();
@@ -274,23 +277,29 @@ export class ExperienceCoreService {
     this.responseProfiles = runtime.responseProfiles || new ResponseProfilePreferenceService({ now: this.now });
     this.selfHealingUx = runtime.selfHealingUx || new ZavorthSelfHealingUxService();
     this.selfHealingReceipts = runtime.selfHealingReceipts || new ZavorthSelfHealingReceiptService({ now: this.now });
-    this.providerReadinessMatrix = runtime.providerReadinessMatrix || new ZavorthProviderReadinessMatrixService({ now: this.now });
+    this.providerReadinessMatrix =
+      runtime.providerReadinessMatrix || new ZavorthProviderReadinessMatrixService({ now: this.now });
     this.agentMaturity = runtime.agentMaturity || new ZavorthAgentMaturityService();
-    this.runtimeStateBus = runtime.runtimeStateBus === null
-      ? null
-      : runtime.runtimeStateBus || new ZavorthRuntimeStateBusService({ now: this.now });
-    this.runtimeOperationalSpine = runtime.runtimeOperationalSpine === null || !this.runtimeStateBus
-      ? null
-      : runtime.runtimeOperationalSpine || new ZavorthRuntimeOperationalSpineService({
-        now: this.now,
-        runtimeStateBus: this.runtimeStateBus,
-      });
-    this.runtimeSecureIntegration = runtime.runtimeSecureIntegration === null || !this.runtimeStateBus
-      ? null
-      : runtime.runtimeSecureIntegration || new ZavorthRuntimeSecureIntegrationService({
-        now: this.now,
-        runtimeStateBus: this.runtimeStateBus,
-      });
+    this.runtimeStateBus =
+      runtime.runtimeStateBus === null
+        ? null
+        : runtime.runtimeStateBus || new ZavorthRuntimeStateBusService({ now: this.now });
+    this.runtimeOperationalSpine =
+      runtime.runtimeOperationalSpine === null || !this.runtimeStateBus
+        ? null
+        : runtime.runtimeOperationalSpine ||
+          new ZavorthRuntimeOperationalSpineService({
+            now: this.now,
+            runtimeStateBus: this.runtimeStateBus,
+          });
+    this.runtimeSecureIntegration =
+      runtime.runtimeSecureIntegration === null || !this.runtimeStateBus
+        ? null
+        : runtime.runtimeSecureIntegration ||
+          new ZavorthRuntimeSecureIntegrationService({
+            now: this.now,
+            runtimeStateBus: this.runtimeStateBus,
+          });
     this.projectionSupport = new ExperienceProjectionSupport(this);
     this.continuitySupport = new ExperienceContinuitySupport(this);
     this.actionDecisionSupport = new ExperienceActionDecisionSupport(this);
@@ -309,7 +318,9 @@ export class ExperienceCoreService {
     });
     const activeRun = agentSnapshot?.activeRun || null;
     const runs = agentSnapshot?.runs || [];
-    const jitMap = ((globalThis as unknown as { globalPendingJitApprovals: Map<string, unknown> }).globalPendingJitApprovals ??= new Map());
+    const jitMap = ((
+      globalThis as unknown as { globalPendingJitApprovals: Map<string, unknown> }
+    ).globalPendingJitApprovals ??= new Map());
     const jitApprovals: UniversalApprovalRequest[] = Array.from(jitMap.values()).map((jit: any) => ({
       id: jit.id,
       runId: String(jit.runId || activeRun?.id || 'jit-elevation'),
@@ -319,10 +330,7 @@ export class ExperienceCoreService {
       status: 'pending',
       createdAt: jit.createdAt,
     }));
-    const approvals = [
-      ...this.collectApprovals(runs),
-      ...jitApprovals,
-    ];
+    const approvals = [...this.collectApprovals(runs), ...jitApprovals];
     const timeline = this.buildTimeline(activeRun, runs);
     const receipts = this.mergeExperienceReceipts(
       this.selfHealingReceipts.toExperienceReceipts(6),
@@ -336,13 +344,13 @@ export class ExperienceCoreService {
     const agentMaturity = this.agentMaturity.buildSnapshot({
       run: activeRun,
       request: activeRun
-        ? {
-          userId,
-          channel: activeRun.channel,
-          text: activeRun.input || activeRun.title || '',
-          workspace: workspace || activeRun.workspace || undefined,
-          requestedTools: [],
-        } as UniversalAgentRequest
+        ? ({
+            userId,
+            channel: activeRun.channel,
+            text: activeRun.input || activeRun.title || '',
+            workspace: workspace || activeRun.workspace || undefined,
+            requestedTools: [],
+          } as UniversalAgentRequest)
         : null,
       now: this.now(),
     }) as ZavorthAgentMaturitySnapshot;
@@ -364,8 +372,8 @@ export class ExperienceCoreService {
     const executionGraph = this.executionGraph.build({ activeRun, runs, timeline, generatedAt });
     const reasoningSummary = this.reasoningSummary.build({ activeRun, timeline, trust });
     const learnedItems = this.listLearnedRuntimeItems(userId);
-    const superpowersForCards = this.buildSuperpowersSnapshot(userId).powers
-      .filter((power) => power.ready)
+    const superpowersForCards = this.buildSuperpowersSnapshot(userId)
+      .powers.filter((power) => power.ready)
       .slice(0, 3)
       .map((power) => ({
         id: power.id,
@@ -406,10 +414,7 @@ export class ExperienceCoreService {
     });
     const actionCards = this.mergeActionCards(
       this.buildFirstRunActionCards(firstRun),
-      this.mergeActionCards(
-        baseActionCards,
-        this.buildSelfHealingCardsFromReceipts(this.selfHealingReceipts.list(4)),
-      ),
+      this.mergeActionCards(baseActionCards, this.buildSelfHealingCardsFromReceipts(this.selfHealingReceipts.list(4))),
     );
     const nextActions = firstRun.required
       ? this.buildFirstRunNextActions(firstRun)
@@ -432,20 +437,21 @@ export class ExperienceCoreService {
       trust,
       requestedProfile: input.responseProfile || persistedProfile || null,
     });
-    const runtimeState = input.metadata?.skipRuntimeProjection === true
-      ? this.safeRuntimeStateSnapshot()
-      : this.publishRuntimeStateProjection({
-        surface,
-        sessionId: sessionId || activeRun?.sessionId || null,
-        userId,
-        workspace: workspace || activeRun?.workspace || null,
-        agentSnapshot,
-        activeRun,
-        approvals,
-        pendingLearningCount,
-        memorySignalCount: memorySignals.length,
-        healthSummary: health.summary,
-      });
+    const runtimeState =
+      input.metadata?.skipRuntimeProjection === true
+        ? this.safeRuntimeStateSnapshot()
+        : this.publishRuntimeStateProjection({
+            surface,
+            sessionId: sessionId || activeRun?.sessionId || null,
+            userId,
+            workspace: workspace || activeRun?.workspace || null,
+            agentSnapshot,
+            activeRun,
+            approvals,
+            pendingLearningCount,
+            memorySignalCount: memorySignals.length,
+            healthSummary: health.summary,
+          });
 
     return {
       contractVersion: EXPERIENCE_SNAPSHOT_CONTRACT_VERSION,
@@ -466,13 +472,13 @@ export class ExperienceCoreService {
       chat: {
         messages: this.buildChat(activeRun, runs),
         suggestions: firstRun.required
-          ? firstRun.steps.find((step) => !step.done)?.examples.slice(0, 4) || ['portugues', 'telegram', 'sim']
+          ? firstRun.steps.find((step) => !step.done)?.examples.slice(0, 4) || ['english', 'telegram', 'yes']
           : [
-            'o que voce sabe fazer?',
-            'onde te acho?',
-            tService('experience.review_workspace'),
-            tService('experience.show_pending_learning'),
-          ],
+              'what can you do?',
+              'where can I find you?',
+              tService('experience.review_workspace'),
+              tService('experience.show_pending_learning'),
+            ],
       },
       approvals: approvals.map((approval) => this.toExperienceApproval(approval)),
       timeline,
@@ -480,8 +486,8 @@ export class ExperienceCoreService {
       memory: {
         signals: memorySignals,
         summary: memorySignals.length
-          ? `${memorySignals.length} sinal(is) de memoria ativo(s).`
-          : 'Memoria pronta para capturar contexto validado.',
+          ? `${memorySignals.length} active memory signal(s).`
+          : 'Memory is ready to capture validated context.',
       },
       learning: {
         candidates: learningCandidates,
@@ -518,11 +524,11 @@ export class ExperienceCoreService {
       raw: {
         agentGateway: agentSnapshot
           ? {
-            generatedAt: agentSnapshot.generatedAt,
-            runCount: agentSnapshot.runs.length,
-            workflowJobCount: agentSnapshot.workflowJobs.length,
-            queueAdapter: agentSnapshot.workflowQueue.kind,
-          }
+              generatedAt: agentSnapshot.generatedAt,
+              runCount: agentSnapshot.runs.length,
+              workflowJobCount: agentSnapshot.workflowJobs.length,
+              queueAdapter: agentSnapshot.workflowQueue.kind,
+            }
           : null,
         nativeAutonomySpine,
         runtimeState,
@@ -584,23 +590,21 @@ export class ExperienceCoreService {
     try {
       if (command.approval?.id) {
         const meta = (command.metadata || {}) as Record<string, unknown>;
-        const choice = String(
-          meta.choice || meta.permissionChoice || command.approval.decision || 'once',
-        ).trim();
+        const choice = String(meta.choice || meta.permissionChoice || command.approval.decision || 'once').trim();
         const surface = String(command.surface || 'experience').trim() || 'experience';
-        let result: Awaited<ReturnType<NonNullable<typeof this.agentGateway>['approve']>> | null =
-          null;
+        let result: Awaited<ReturnType<NonNullable<typeof this.agentGateway>['approve']>> | null = null;
         let gateError: string | null = null;
         try {
           if (command.approval.decision === 'reject' || choice === 'deny') {
             result = (await this.agentGateway?.reject(command.approval.id)) ?? null;
           } else {
-            result = (await this.agentGateway?.approve(command.approval.id, {
-              surface,
-              choice: choice === 'approve' ? 'once' : choice,
-              workspaceId: command.workspace || null,
-              sessionId: command.sessionId || null,
-            })) ?? null;
+            result =
+              (await this.agentGateway?.approve(command.approval.id, {
+                surface,
+                choice: choice === 'approve' ? 'once' : choice,
+                workspaceId: command.workspace || null,
+                sessionId: command.sessionId || null,
+              })) ?? null;
           }
         } catch (error: unknown) {
           gateError = error instanceof Error ? error.message : String(error);
@@ -608,13 +612,15 @@ export class ExperienceCoreService {
         if (result) {
           this.publishRuntimeApprovalDecision(command, true);
         }
-        const snapshot = result ? this.buildHome(command) : this.buildHome({
-          ...command,
-          metadata: {
-            ...command.metadata,
-            skipRuntimeProjection: true,
-          },
-        });
+        const snapshot = result
+          ? this.buildHome(command)
+          : this.buildHome({
+              ...command,
+              metadata: {
+                ...command.metadata,
+                skipRuntimeProjection: true,
+              },
+            });
         const reply = this.replyFromText(
           gateError
             ? `Approval blocked: ${gateError}`
@@ -670,20 +676,16 @@ export class ExperienceCoreService {
         if (diffResult.contextRecovery) {
           snapshot.contextRecovery = diffResult.contextRecovery;
         }
-        const reply = this.replyFromText(
-          diffResult.summary,
-          command,
-          snapshot.agent.activeRunId,
-        );
-          return this.finalizeCommandResult(command, {
-            ok: diffResult.ok,
-            handled: true,
-            plan,
-            snapshot,
-            replies: [reply],
-            receipts: snapshot.receipts,
-            error: diffResult.ok ? null : diffResult.summary,
-          });
+        const reply = this.replyFromText(diffResult.summary, command, snapshot.agent.activeRunId);
+        return this.finalizeCommandResult(command, {
+          ok: diffResult.ok,
+          handled: true,
+          plan,
+          snapshot,
+          replies: [reply],
+          receipts: snapshot.receipts,
+          error: diffResult.ok ? null : diffResult.summary,
+        });
       }
 
       if (command.contextRecoveryDecision?.recoveryId) {
@@ -704,7 +706,12 @@ export class ExperienceCoreService {
         });
       }
 
-      if (plan.kind === 'zavorthControl' || plan.kind === 'diagnostics' || plan.kind === 'learning' || plan.kind === 'memory') {
+      if (
+        plan.kind === 'zavorthControl' ||
+        plan.kind === 'diagnostics' ||
+        plan.kind === 'learning' ||
+        plan.kind === 'memory'
+      ) {
         const snapshot = this.buildHome(command);
         const reply = this.replyFromText(plan.nextSafeAction, command, snapshot.agent.activeRunId);
         return this.finalizeCommandResult(command, {
@@ -720,10 +727,13 @@ export class ExperienceCoreService {
 
       const contextualSetupKind = this.contextualSetupKind(command, plan);
       if (contextualSetupKind) {
-        return this.finalizeCommandResult(command, this.buildContextualSetupResult(command, {
-          ...plan,
-          kind: contextualSetupKind,
-        }));
+        return this.finalizeCommandResult(
+          command,
+          this.buildContextualSetupResult(command, {
+            ...plan,
+            kind: contextualSetupKind,
+          }),
+        );
       }
 
       const localDateTimeAnswer = buildLocalDateTimeAnswer(command.text, this.now());
@@ -743,8 +753,7 @@ export class ExperienceCoreService {
       let runResult: UniversalAgentRunResult | null = null;
       if (plan.shouldExecuteAgent && this.agentGateway) {
         // Voice barge-in: optional AbortSignal attached in-process via metadata
-        const voiceSignal = (command.metadata as { voiceAbortSignal?: AbortSignal } | undefined)
-          ?.voiceAbortSignal;
+        const voiceSignal = (command.metadata as { voiceAbortSignal?: AbortSignal } | undefined)?.voiceAbortSignal;
         if (voiceSignal?.aborted) {
           return this.finalizeCommandResult(command, {
             ok: false,
@@ -757,33 +766,33 @@ export class ExperienceCoreService {
           });
         }
         const gatewayRequest = {
-            userId: command.userId,
-            sessionId: command.sessionId,
-            channel: command.surface,
-            text: command.text,
-            workspace: command.workspace || runtimeWorkspace || null,
-            modelProfile: runtimeModelProfile,
-            metadata: {
-              ...(command.metadata || {}),
-              responseProfile: command.responseProfile || undefined,
-              effortControl: runtimeState?.state.effort.snapshot,
-              runtimeState: runtimeState
-                ? {
+          userId: command.userId,
+          sessionId: command.sessionId,
+          channel: command.surface,
+          text: command.text,
+          workspace: command.workspace || runtimeWorkspace || null,
+          modelProfile: runtimeModelProfile,
+          metadata: {
+            ...(command.metadata || {}),
+            responseProfile: command.responseProfile || undefined,
+            effortControl: runtimeState?.state.effort.snapshot,
+            runtimeState: runtimeState
+              ? {
                   model: runtimeState.state.model,
                   workspace: runtimeState.state.workspace,
                   statusbar: runtimeState.projections.statusbar,
                   lifecycle: runtimeState.projections.lifecycle,
                 }
-                : undefined,
-              experiencePlan: {
-                id: plan.id,
-                kind: plan.kind,
-                risk: plan.risk,
-                requiresApproval: plan.requiresApproval,
-                autonomyMode: command.autonomyMode,
-              },
+              : undefined,
+            experiencePlan: {
+              id: plan.id,
+              kind: plan.kind,
+              risk: plan.risk,
+              requiresApproval: plan.requiresApproval,
+              autonomyMode: command.autonomyMode,
             },
-          };
+          },
+        };
         const handledRun = voiceSignal
           ? await this.agentGateway.handle(gatewayRequest, { signal: voiceSignal })
           : await this.agentGateway.handle(gatewayRequest);
@@ -803,12 +812,12 @@ export class ExperienceCoreService {
       });
       const replies = runResult?.replies?.length
         ? runResult.replies.map((reply) => ({
-          id: reply.id,
-          role: 'assistant' as const,
-          text: reply.text,
-          createdAt: reply.createdAt,
-          runId: reply.runId,
-        }))
+            id: reply.id,
+            role: 'assistant' as const,
+            text: reply.text,
+            createdAt: reply.createdAt,
+            runId: reply.runId,
+          }))
         : [this.replyFromText(plan.summary, command, snapshot.agent.activeRunId)];
       return this.finalizeCommandResult(command, {
         ok: runResult?.ok ?? true,
@@ -819,7 +828,8 @@ export class ExperienceCoreService {
         receipts: snapshot.receipts,
         error: runResult?.ok === false ? snapshot.agent.summary : null,
       });
-    } catch (error: unknown) {const snapshot = this.buildHome(command);
+    } catch (error: unknown) {
+      const snapshot = this.buildHome(command);
       const message = `Experience Core failed: ${errorMessage(error, 'unknown error')}.`;
       return this.finalizeCommandResult(command, {
         ok: false,
@@ -838,14 +848,18 @@ export class ExperienceCoreService {
       activeRunId: input.runId,
       activeSessionId: input.sessionId || null,
     });
-    const run = agentSnapshot?.activeRun || agentSnapshot?.runs.find((candidate) => candidate.id === input.runId) || null;
+    const run =
+      agentSnapshot?.activeRun || agentSnapshot?.runs.find((candidate) => candidate.id === input.runId) || null;
     return this.buildTimeline(run, run ? [run] : []);
   }
 
-  public dispatchRuntimeStateAction(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
+  public dispatchRuntimeStateAction(
+    input: ZavorthRuntimeStateBusActionInput,
+  ): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeSecureIntegration?.dispatch(input) || this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] dispatchRuntimeStateAction failed:', error);
       return null;
     }
   }
@@ -859,7 +873,8 @@ export class ExperienceCoreService {
         now: this.now,
         runtimeStateBus: this.runtimeStateBus,
       }).buildSnapshot();
-    } catch (error: unknown) {logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] buildRuntimeCapabilities failed:', error);
       return null;
     }
   }
@@ -868,8 +883,9 @@ export class ExperienceCoreService {
     input: ZavorthRuntimeOperationalSpineSyncInput = {},
   ): Promise<ZavorthRuntimeOperationalSpineSyncResult | null> {
     try {
-      return await this.runtimeOperationalSpine?.syncOperationalState(input) || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
+      return (await this.runtimeOperationalSpine?.syncOperationalState(input)) || null;
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] syncRuntimeOperationalState failed:', error);
       return null;
     }
   }
@@ -981,9 +997,10 @@ export class ExperienceCoreService {
         domain: {
           domain: 'cron',
           status: liveWorkflowJobs.length > 0 ? 'running' : 'ready',
-          summary: liveWorkflowJobs.length > 0
-            ? `${liveWorkflowJobs.length} workflow job(s) active in the local queue.`
-            : 'Cron and workflow queue are idle.',
+          summary:
+            liveWorkflowJobs.length > 0
+              ? `${liveWorkflowJobs.length} workflow job(s) active in the local queue.`
+              : 'Cron and workflow queue are idle.',
           actionIds: ['runtime.cron.open', 'runtime.cron.pause', 'runtime.cron.sync'],
         },
         metadata: {
@@ -1004,13 +1021,14 @@ export class ExperienceCoreService {
         domain: {
           domain: 'context',
           status: input.pendingLearningCount > 0 ? 'attention' : 'ready',
-          summary: input.pendingLearningCount > 0
-            ? `${input.pendingLearningCount} learning candidate(s) waiting for review.`
-            : input.memorySignalCount > 0
-              ? `${input.memorySignalCount} memory signal(s) attached to the active context.`
-              : input.workspace
-                ? `Context scoped to ${input.workspace}.`
-                : 'Context plane ready.',
+          summary:
+            input.pendingLearningCount > 0
+              ? `${input.pendingLearningCount} learning candidate(s) waiting for review.`
+              : input.memorySignalCount > 0
+                ? `${input.memorySignalCount} memory signal(s) attached to the active context.`
+                : input.workspace
+                  ? `Context scoped to ${input.workspace}.`
+                  : 'Context plane ready.',
           actionIds: ['runtime.context.open', 'runtime.context.sync'],
         },
         metadata: {
@@ -1111,10 +1129,13 @@ export class ExperienceCoreService {
     };
   }
 
-  public safeDispatchRuntimeState(input: ZavorthRuntimeStateBusActionInput): ZavorthRuntimeStateBusDispatchResult | null {
+  public safeDispatchRuntimeState(
+    input: ZavorthRuntimeStateBusActionInput,
+  ): ZavorthRuntimeStateBusDispatchResult | null {
     try {
       return this.runtimeStateBus?.dispatch(input) || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] safeDispatchRuntimeState failed:', error);
       return null;
     }
   }
@@ -1122,7 +1143,8 @@ export class ExperienceCoreService {
   public safeAgentSnapshot(input: ZavorthAgentGatewaySnapshotOptions): ZavorthAgentGatewaySnapshot | null {
     try {
       return this.agentGateway?.buildSnapshot(input) || null;
-    } catch (error: unknown) {logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
+    } catch (error: unknown) {
+      logger.warn('[ExperienceCore] safeAgentSnapshot failed:', error);
       return null;
     }
   }
@@ -1170,7 +1192,9 @@ export class ExperienceCoreService {
     return this.projectionSupport.tryHandleReachCommand(command);
   }
 
-  public buildSuperpowersSnapshot(userId?: string | null): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
+  public buildSuperpowersSnapshot(
+    userId?: string | null,
+  ): import('./ExperienceContracts.js').ExperienceSuperpowersSnapshot {
     return this.projectionSupport.buildSuperpowersSnapshot(userId);
   }
 
@@ -1178,7 +1202,9 @@ export class ExperienceCoreService {
     return this.projectionSupport.tryHandleSuperpowersCommand(command);
   }
 
-  public getFirstRunService(userId?: string | null): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
+  public getFirstRunService(
+    userId?: string | null,
+  ): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
     return this.continuitySupport.getFirstRunService(userId);
   }
 
@@ -1206,7 +1232,9 @@ export class ExperienceCoreService {
     return this.continuitySupport.tryHandleFirstRunCommand(command);
   }
 
-  public listLearnedRuntimeItems(userId?: string | null): Array<{ id: string; title: string; summary: string; kind: string }> {
+  public listLearnedRuntimeItems(
+    userId?: string | null,
+  ): Array<{ id: string; title: string; summary: string; kind: string }> {
     return this.continuitySupport.listLearnedRuntimeItems(userId);
   }
 
@@ -1234,9 +1262,7 @@ export class ExperienceCoreService {
     return this.continuitySupport.modelProfileFromRuntimeState(runtimeState);
   }
 
-  public buildNativeAutonomySpineProjection(
-    spine: Record<string, unknown> | null,
-  ): Record<string, unknown> | null {
+  public buildNativeAutonomySpineProjection(spine: Record<string, unknown> | null): Record<string, unknown> | null {
     return this.continuitySupport.buildNativeAutonomySpineProjection(spine);
   }
 
@@ -1310,10 +1336,7 @@ export class ExperienceCoreService {
     return this.actionDecisionSupport.maybeRetryProviderFallback(command, plan, firstResult);
   }
 
-  public finalizeCommandResult(
-    command: ExperienceCommand,
-    result: ExperienceCommandResult,
-  ): ExperienceCommandResult {
+  public finalizeCommandResult(command: ExperienceCommand, result: ExperienceCommandResult): ExperienceCommandResult {
     return this.actionDecisionSupport.finalizeCommandResult(command, result);
   }
 
@@ -1351,17 +1374,11 @@ export class ExperienceCoreService {
     return this.actionDecisionSupport.selfHealingRisk(projection);
   }
 
-  public mergeExperienceReceipts(
-    primary: ExperienceReceipt[],
-    secondary: ExperienceReceipt[],
-  ): ExperienceReceipt[] {
+  public mergeExperienceReceipts(primary: ExperienceReceipt[], secondary: ExperienceReceipt[]): ExperienceReceipt[] {
     return this.actionDecisionSupport.mergeExperienceReceipts(primary, secondary);
   }
 
-  public mergeActionCards(
-    primary: ExperienceActionCard[],
-    secondary: ExperienceActionCard[],
-  ): ExperienceActionCard[] {
+  public mergeActionCards(primary: ExperienceActionCard[], secondary: ExperienceActionCard[]): ExperienceActionCard[] {
     return this.actionDecisionSupport.mergeActionCards(primary, secondary);
   }
 
@@ -1391,8 +1408,10 @@ function normalizeKey(value: unknown): string {
 }
 
 function isProviderHealingIssue(issue: string): boolean {
-  return issue === 'provider_auth'
-    || issue === 'provider_quota'
-    || issue === 'provider_timeout'
-    || issue === 'provider_unavailable';
+  return (
+    issue === 'provider_auth' ||
+    issue === 'provider_quota' ||
+    issue === 'provider_timeout' ||
+    issue === 'provider_unavailable'
+  );
 }

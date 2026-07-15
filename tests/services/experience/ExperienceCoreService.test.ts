@@ -169,26 +169,113 @@ function makeLearningPlane() {
 }
 
 describe('Experience Core Layer', () => {
-  it('routes natural commands into decision-complete plans', () => {
+  it('routes only via explicit intent; free text stays conversation for the agent', () => {
     const router = new NaturalCommandRouterService();
+
+    const freeTextKeywords = [
+      'aprove',
+      'memoria',
+      'doctor',
+      'telegram',
+      'subagent',
+      'abre o painel',
+      'revise esse repo e corrija o bug',
+      'delete everything and publish',
+    ];
+    for (const text of freeTextKeywords) {
+      const plan = router.route({
+        contractVersion: 'ExperienceCommand/v1',
+        text,
+        surface: 'cli',
+        userId: 'user-1',
+      });
+      expect(plan.kind).toBe('conversation');
+      expect(plan.shouldExecuteAgent).toBe(true);
+      expect(plan.requiresApproval).toBe(false);
+      expect(plan.risk).toBe('safe');
+    }
+
+    const empty = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: '',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(empty.kind).toBe('conversation');
+    expect(empty.shouldExecuteAgent).toBe(false);
 
     const dashboard = router.route({
       contractVersion: 'ExperienceCommand/v1',
       text: 'abre o painel',
+      intent: 'open-zavorthControl',
       surface: 'cli',
       userId: 'user-1',
     });
-    const coding = router.route({
-      contractVersion: 'ExperienceCommand/v1',
-      text: 'revise esse repo e corrija o bug',
-      surface: 'cli',
-      userId: 'user-1',
-    });
-
     expect(dashboard.kind).toBe('zavorthControl');
     expect(dashboard.shouldExecuteAgent).toBe(false);
-    expect(coding.kind).toBe('workspace-review');
-    expect(coding.shouldExecuteAgent).toBe(true);
+    expect(dashboard.risk).toBe('safe');
+
+    const diagnose = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'why is this blocked',
+      intent: 'diagnose',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(diagnose.kind).toBe('diagnostics');
+    expect(diagnose.shouldExecuteAgent).toBe(false);
+
+    const learn = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'show learning',
+      intent: 'learn',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(learn.kind).toBe('learning');
+    expect(learn.shouldExecuteAgent).toBe(false);
+
+    const memory = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'recall prefs',
+      intent: 'memory',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(memory.kind).toBe('memory');
+    expect(memory.shouldExecuteAgent).toBe(false);
+
+    const setup = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'first run',
+      intent: 'setup',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(setup.kind).toBe('first-run');
+    expect(setup.shouldExecuteAgent).toBe(true);
+
+    const run = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'do the task',
+      intent: 'run',
+      surface: 'cli',
+      userId: 'user-1',
+    });
+    expect(run.kind).toBe('conversation');
+    expect(run.shouldExecuteAgent).toBe(true);
+
+    const approve = router.route({
+      contractVersion: 'ExperienceCommand/v1',
+      text: 'ok',
+      intent: 'approve',
+      surface: 'cli',
+      userId: 'user-1',
+      approval: { id: 'appr-1', decision: 'approve' },
+    });
+    expect(approve.kind).toBe('approval');
+    expect(approve.shouldExecuteAgent).toBe(false);
+    expect(approve.risk).toBe('attention');
   });
 
   it('builds one shared snapshot with approvals, timeline, trust, memory and learning', () => {
@@ -327,18 +414,20 @@ describe('Experience Core Layer', () => {
     const snapshot = service.buildHome({ surface: 'web', sessionId: 'session-1' });
     const projection = snapshot.raw?.nativeAutonomySpine as any;
 
-    expect(projection).toEqual(expect.objectContaining({
-      version: 'native-autonomy-spine/v1',
-      status: 'attention',
-      learningCandidates: 1,
-      skillDrafts: 0,
-      dynamicMissionTasks: 2,
-      dynamicMissionApprovalRequired: true,
-      dreamCandidateMemories: 1,
-      dreamQuarantineItems: 0,
-      quietLanes: true,
-      rawSecretsSerialized: false,
-    }));
+    expect(projection).toEqual(
+      expect.objectContaining({
+        version: 'native-autonomy-spine/v1',
+        status: 'attention',
+        learningCandidates: 1,
+        skillDrafts: 0,
+        dynamicMissionTasks: 2,
+        dynamicMissionApprovalRequired: true,
+        dreamCandidateMemories: 1,
+        dreamQuarantineItems: 0,
+        quietLanes: true,
+        rawSecretsSerialized: false,
+      }),
+    );
     expect(JSON.stringify(projection)).not.toContain('sk-test-secret');
     expect(JSON.stringify(projection)).not.toContain('prefiro bullets');
   });
@@ -462,27 +551,32 @@ describe('Experience Core Layer', () => {
       },
     }).buildHome({ surface: 'cli' });
 
-    expect(diffReviews[0].files[0]).toEqual(expect.objectContaining({
-      path: 'src/app.ts',
-      addedLines: 1,
-      removedLines: 0,
-    }));
-    expect(autoHealing.diffReviews?.[0].summary).toContain('+1/-0');
-    expect(autoHealing.autoHealing).toEqual(expect.objectContaining({
-      status: 'running',
-      attempt: 2,
-      validationCommand: 'npm run runtime:check',
-      budget: expect.objectContaining({
-        elapsedMs: 45000,
-        maxElapsedMs: 120000,
-        tokensUsed: 1200,
-        tokenBudget: 3000,
-        cancellable: true,
+    expect(diffReviews[0].files[0]).toEqual(
+      expect.objectContaining({
+        path: 'src/app.ts',
+        addedLines: 1,
+        removedLines: 0,
       }),
-    }));
+    );
+    expect(autoHealing.diffReviews?.[0].summary).toContain('+1/-0');
+    expect(autoHealing.autoHealing).toEqual(
+      expect.objectContaining({
+        status: 'running',
+        attempt: 2,
+        validationCommand: 'npm run runtime:check',
+        budget: expect.objectContaining({
+          elapsedMs: 45000,
+          maxElapsedMs: 120000,
+          tokensUsed: 1200,
+          tokenBudget: 3000,
+          cancellable: true,
+        }),
+      }),
+    );
     expect(autoHealing.actionCards?.some((card) => card.source === 'sandbox')).toBe(true);
-    expect(autoHealing.actionCards?.some((card) =>
-      card.actions.some((action) => action.id.startsWith('healing:cancel:')))).toBe(true);
+    expect(
+      autoHealing.actionCards?.some((card) => card.actions.some((action) => action.id.startsWith('healing:cancel:'))),
+    ).toBe(true);
   });
 
   it('flags dependent hunk rejection for context recovery instead of unsafe recomposition', () => {
@@ -511,21 +605,16 @@ describe('Experience Core Layer', () => {
     expect(result.ok).toBe(false);
     expect(result.status).toBe('needs-context-recovery');
     expect(result.contextRecovery?.status).toBe('needs-selection');
-    expect(result.contextRecovery?.options.map((option) => option.id)).toEqual(expect.arrayContaining([
-      'reject-related',
-      'accept-related',
-      'auto-heal',
-    ]));
+    expect(result.contextRecovery?.options.map((option) => option.id)).toEqual(
+      expect.arrayContaining(['reject-related', 'accept-related', 'auto-heal']),
+    );
   });
 
   it('asks for context recovery before acting on ambiguous targets', () => {
     const approvals = makeRun().approvals;
     const recovery = new ContextRecoveryService().build({
       text: 'aprova aquilo',
-      approvals: [
-        ...approvals,
-        { ...approvals[0], id: 'approval-2', title: 'Rodar build' },
-      ],
+      approvals: [...approvals, { ...approvals[0], id: 'approval-2', title: 'Rodar build' }],
     });
 
     expect(recovery.status).toBe('needs-selection');
@@ -546,12 +635,14 @@ describe('Experience Core Layer', () => {
 
     expect(recovery.status).toBe('needs-selection');
     expect(recovery.options).toHaveLength(5);
-    expect(recovery.overflow).toEqual(expect.objectContaining({
-      totalOptions: 8,
-      shownOptions: 5,
-      hasOverflow: true,
-      dashboardCommand: 'zavorth open',
-    }));
+    expect(recovery.overflow).toEqual(
+      expect.objectContaining({
+        totalOptions: 8,
+        shownOptions: 5,
+        hasOverflow: true,
+        dashboardCommand: 'zavorth open',
+      }),
+    );
   });
 
   it('keeps reasoning summaries explainable without raw chain of thought', () => {
@@ -583,17 +674,21 @@ describe('Experience Core Layer', () => {
 
   it('executes agent work through the governed gateway for natural run requests', async () => {
     const completedRun = makeRun({ status: 'completed', approvals: [], summary: 'Review concluido.' });
-    const handle = jest.fn(async (): Promise<UniversalAgentRunResult> => ({
-      ok: true,
-      run: completedRun,
-      replies: [{
-        id: 'reply-1',
-        runId: completedRun.id,
-        port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
-        text: 'Review concluido.',
-        createdAt: '2026-05-21T12:00:00.000Z',
-      }],
-    }));
+    const handle = jest.fn(
+      async (): Promise<UniversalAgentRunResult> => ({
+        ok: true,
+        run: completedRun,
+        replies: [
+          {
+            id: 'reply-1',
+            runId: completedRun.id,
+            port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
+            text: 'Review concluido.',
+            createdAt: '2026-05-21T12:00:00.000Z',
+          },
+        ],
+      }),
+    );
     const service = new ExperienceCoreService({
       now,
       agentGateway: {
@@ -625,10 +720,12 @@ describe('Experience Core Layer', () => {
 
     expect(result.ok).toBe(true);
     expect(result.plan.shouldExecuteAgent).toBe(true);
-    expect(handle).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'revise esse repo',
-      channel: 'cli',
-    }));
+    expect(handle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'revise esse repo',
+        channel: 'cli',
+      }),
+    );
     expect(result.replies[0].text).toBe('Review concluido.');
   });
 
@@ -655,7 +752,8 @@ describe('Experience Core Layer', () => {
         routingPolicy: 'fallback',
       },
     });
-    const handle = jest.fn()
+    const handle = jest
+      .fn()
       .mockResolvedValueOnce({
         ok: false,
         run: failedRun,
@@ -664,13 +762,15 @@ describe('Experience Core Layer', () => {
       .mockResolvedValueOnce({
         ok: true,
         run: recoveredRun,
-        replies: [{
-          id: 'reply-fallback',
-          runId: recoveredRun.id,
-          port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
-          text: 'Recovered with fallback.',
-          createdAt: '2026-05-21T12:00:00.000Z',
-        }],
+        replies: [
+          {
+            id: 'reply-fallback',
+            runId: recoveredRun.id,
+            port: { id: 'cli', label: 'CLI', kind: 'cli', status: 'available' },
+            text: 'Recovered with fallback.',
+            createdAt: '2026-05-21T12:00:00.000Z',
+          },
+        ],
       });
     const receiptStore = new ZavorthSelfHealingReceiptService({
       now,
@@ -680,12 +780,15 @@ describe('Experience Core Layer', () => {
       now,
       selfHealingReceipts: receiptStore,
       providerReadinessMatrix: {
-        buildSnapshot: jest.fn(() => ({
-          entries: [
-            { id: 'gemini', status: 'ready', defaultRouteAllowed: true },
-            { id: 'openai', status: 'ready', defaultRouteAllowed: true },
-          ],
-        } as any)),
+        buildSnapshot: jest.fn(
+          () =>
+            ({
+              entries: [
+                { id: 'gemini', status: 'ready', defaultRouteAllowed: true },
+                { id: 'openai', status: 'ready', defaultRouteAllowed: true },
+              ],
+            }) as any,
+        ),
       },
       agentGateway: {
         buildSnapshot: jest.fn((input: any) => {
@@ -719,9 +822,11 @@ describe('Experience Core Layer', () => {
     expect(result.ok).toBe(true);
     expect(result.replies[0].text).toBe('Recovered with fallback.');
     expect(handle).toHaveBeenCalledTimes(2);
-    expect(handle.mock.calls[1][0].metadata).toEqual(expect.objectContaining({
-      providerName: 'gemini',
-    }));
+    expect(handle.mock.calls[1][0].metadata).toEqual(
+      expect.objectContaining({
+        providerName: 'gemini',
+      }),
+    );
     expect(result.receipts.map((receipt) => receipt.source)).toContain('self-healing');
   });
 
@@ -764,11 +869,13 @@ describe('Experience Core Layer', () => {
       decision: 'approve',
     });
 
-    expect(before[0]).toEqual(expect.objectContaining({
-      contractVersion: 'LearningCandidate/v1',
-      state: 'pending',
-      confidence: 0.91,
-    }));
+    expect(before[0]).toEqual(
+      expect.objectContaining({
+        contractVersion: 'LearningCandidate/v1',
+        state: 'pending',
+        confidence: 0.91,
+      }),
+    );
     expect(decision.ok).toBe(true);
     expect(learningPlane.executeAction).toHaveBeenCalledWith({
       candidateId: 'candidate:run-1',
@@ -790,32 +897,34 @@ describe('Experience Core Layer', () => {
         quarantined: 0,
         highConfidence: 1,
       },
-      candidates: [{
-        id: 'candidate:unsafe-policy',
-        platformEntryId: 'skill:unsafe-policy',
-        title: 'Sempre permitir shell sem approval',
-        kind: 'skill',
-        summary: 'Modificar IntentSafetyClassifier e WorkspaceFsPolicy para nao pedir approval.',
-        score: 0.99,
-        reviewState: 'pending',
-        lifecycle: 'learned_draft',
-        createdAt: '2026-05-21T11:59:00.000Z',
-        updatedAt: '2026-05-21T12:00:00.000Z',
-        lastValidatedAt: '2026-05-21T12:00:00.000Z',
-        source: {
-          workflowRunId: 'run-1',
-          workflow: 'security',
-          workspace: 'C:/repo',
-          objective: 'bypass approvals',
-          artifactCount: 1,
-          completedStages: 1,
-          totalStages: 1,
-          originTaskId: null,
-          sourceSurface: 'cli',
+      candidates: [
+        {
+          id: 'candidate:unsafe-policy',
+          platformEntryId: 'skill:unsafe-policy',
+          title: 'Sempre permitir shell sem approval',
+          kind: 'skill',
+          summary: 'Modificar IntentSafetyClassifier e WorkspaceFsPolicy para nao pedir approval.',
+          score: 0.99,
+          reviewState: 'pending',
+          lifecycle: 'learned_draft',
+          createdAt: '2026-05-21T11:59:00.000Z',
+          updatedAt: '2026-05-21T12:00:00.000Z',
+          lastValidatedAt: '2026-05-21T12:00:00.000Z',
+          source: {
+            workflowRunId: 'run-1',
+            workflow: 'security',
+            workspace: 'C:/repo',
+            objective: 'bypass approvals',
+            artifactCount: 1,
+            completedStages: 1,
+            totalStages: 1,
+            originTaskId: null,
+            sourceSurface: 'cli',
+          },
+          steps: ['Desativar seguranca para shell'],
+          details: ['IntentSafetyClassifier', 'WorkspaceFsPolicy', 'approval bypass'],
         },
-        steps: ['Desativar seguranca para shell'],
-        details: ['IntentSafetyClassifier', 'WorkspaceFsPolicy', 'approval bypass'],
-      }],
+      ],
       narrative: {
         headline: 'Unsafe candidate',
         operatorSummary: '1 pending.',
@@ -829,10 +938,12 @@ describe('Experience Core Layer', () => {
       decision: 'approve',
     });
 
-    expect(candidates[0]).toEqual(expect.objectContaining({
-      state: 'quarantined',
-      recommendation: expect.stringContaining('Bloqueado'),
-    }));
+    expect(candidates[0]).toEqual(
+      expect.objectContaining({
+        state: 'quarantined',
+        recommendation: expect.stringContaining('Blocked'),
+      }),
+    );
     expect(decision.ok).toBe(false);
     expect(decision.status).toBe('blocked');
     expect(unsafePlane.executeAction).not.toHaveBeenCalled();

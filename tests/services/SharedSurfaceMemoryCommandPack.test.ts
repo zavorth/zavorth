@@ -148,7 +148,7 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith('Memory plane indisponivel neste runtime compartilhado.');
+    expect(ctx.reply).toHaveBeenCalledWith('Memory plane unavailable in this shared runtime.');
   });
 
   it('renders the memory plane snapshot with artifacts, memories and suggested actions', async () => {
@@ -163,14 +163,16 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/memoryplane', '');
 
     expect(handled).toBe(true);
-    expect(buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({
-      userId: 'telegram-user',
-      platform: 'telegram',
-      chatId: 'telegram:chat-1',
-      sessionId: 'telegram:chat-1',
-      sourceUserId: 'telegram-user',
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Retomada e entregas do Zavorth'));
+    expect(buildSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'telegram-user',
+        platform: 'telegram',
+        chatId: 'telegram:chat-1',
+        sessionId: 'telegram:chat-1',
+        sourceUserId: 'telegram-user',
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth resume and deliveries'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Build report: Build verde.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('gateway: Gateway pronto para smoke.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Abrir replay: /sessionhistory latest'));
@@ -208,13 +210,15 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/memory', '');
 
     expect(handled).toBe(true);
-    expect(buildStatus).toHaveBeenCalledWith(expect.objectContaining({
-      userId: 'telegram-user',
-      platform: 'telegram',
-      chatId: 'telegram:chat-1',
-      sessionId: 'telegram:chat-1',
-      workspaceHint: null,
-    }));
+    expect(buildStatus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'telegram-user',
+        platform: 'telegram',
+        chatId: 'telegram:chat-1',
+        sessionId: 'telegram:chat-1',
+        workspaceHint: null,
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Layered memory indexada.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Total: 9.'));
   });
@@ -248,11 +252,13 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/memory', 'search gateway');
 
     expect(handled).toBe(true);
-    expect(search).toHaveBeenCalledWith(expect.objectContaining({
-      query: 'gateway',
-      userId: 'telegram-user',
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Consulta: gateway.'));
+    expect(search).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query: 'gateway',
+        userId: 'telegram-user',
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Query: gateway.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Gateway smoke [semantic]'));
   });
 
@@ -288,17 +294,19 @@ describe('SharedSurfaceMemoryCommandPack', () => {
     expect(readProcedures).toHaveBeenCalledWith({
       workspaceHint: null,
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Procedural memory do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth procedural memory'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('-> Rodar build'));
   });
 
   it('routes natural memory intents through the same command handlers', async () => {
-    const buildSnapshot = jest.fn(async () => buildMemoryPlaneSnapshot({
-      narrative: {
-        headline: 'Retomada natural pronta.',
-        operatorSummary: 'Contexto natural resolvido.',
-      },
-    }));
+    const buildSnapshot = jest.fn(async () =>
+      buildMemoryPlaneSnapshot({
+        narrative: {
+          headline: 'Retomada natural pronta.',
+          operatorSummary: 'Contexto natural resolvido.',
+        },
+      }),
+    );
     const pack = buildPack({
       memoryPlaneService: {
         buildSnapshot,

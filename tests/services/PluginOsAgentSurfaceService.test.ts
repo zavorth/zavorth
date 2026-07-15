@@ -55,8 +55,9 @@ describe('PluginOsAgentSurfaceService', () => {
     expect(surface.enabledPluginIds).toContain('web-search');
     expect(surface.recommendHints.some((hint) => /never auto-enable/i.test(hint))).toBe(true);
 
+    // Exact plugin id match (structural). Free-text soft-ranking is intentionally off.
     const ranked = await service.recommendForAgent({
-      intent: 'search the web',
+      intent: 'web-search',
       root,
       limit: 3,
     });

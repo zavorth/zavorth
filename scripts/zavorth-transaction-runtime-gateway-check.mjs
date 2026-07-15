@@ -48,7 +48,12 @@ try {
 
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionRuntimeContract.ts'), 'utf8');
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionRuntimeOrchestratorService.ts'), 'utf8');
-  for (const marker of ['zavorth-transaction-runtime/checkpoint-6', 'externalSideEffects: false', 'credential-validation', 'typed-connector']) {
+  for (const marker of [
+    'zavorth-transaction-runtime/checkpoint-6',
+    'externalSideEffects: false',
+    'credential-validation',
+    'typed-connector',
+  ]) {
     if (!contractText.includes(marker) && !serviceText.includes(marker)) {
       failures.push(`missing marker: ${marker}`);
     }
@@ -78,7 +83,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--mode',
     'paper',
   ]);
@@ -93,7 +102,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -106,7 +119,11 @@ try {
   if (simulated.credentialValidation?.status !== 'ready' || simulated.connectorRun?.status !== 'simulated') {
     failures.push('credential or connector stage did not complete');
   }
-  if (simulated.externalSideEffects !== false || simulated.liveActionApplied !== false || simulated.executableNow !== false) {
+  if (
+    simulated.externalSideEffects !== false ||
+    simulated.liveActionApplied !== false ||
+    simulated.executableNow !== false
+  ) {
     failures.push('runtime simulation must remain side-effect-free');
   }
 
@@ -117,13 +134,20 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
     '--require-credential',
   ]);
-  if (missingCredential.status !== 'credential-required' || !missingCredential.blockers.includes('credential_ref_required')) {
+  if (
+    missingCredential.status !== 'credential-required' ||
+    !missingCredential.blockers.includes('credential_ref_required')
+  ) {
     failures.push(`credential-required mismatch: ${missingCredential.status}`);
   }
 
@@ -134,7 +158,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Monitore notebook abaixo de R$3500 e me avise.',
+    'Monitor notebook below R$3500 and notify me.',
+    '--kind',
+    'monitor-price',
+    '--action-kind',
+    'price-monitor',
     '--mode',
     'sandbox',
   ]);
@@ -149,7 +177,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -171,7 +199,9 @@ try {
 
   console.log('[transaction-runtime-runtime-gateway-check] ok');
   console.log('- contract, service, CLI, docs and tests are present');
-  console.log('- natural transaction text runs through preview, approval, credential validation and typed connector simulation');
+  console.log(
+    '- natural transaction text runs through preview, approval, credential validation and typed connector simulation',
+  );
   console.log('- approval and credential gates block incomplete runs');
   console.log('- runtime stays side-effect-free and live-disabled');
 } finally {
@@ -179,19 +209,23 @@ try {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runRuntime(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-runtime.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-runtime.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runRuntimeExpectFailure(args) {

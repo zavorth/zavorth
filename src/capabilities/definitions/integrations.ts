@@ -1,5 +1,12 @@
 import { CapabilityDefinition } from '../../contracts/CapabilityContract.js';
 
+/**
+ * Integration capabilities (slash commands + policies).
+ *
+ * Free-text capability activation is dead: CapabilityRegistry.matchImplicit
+ * always returns null. Tool selection for free text is LLM full_toolset.
+ * Slash commands, aliases, and explicit command handlers remain intact.
+ */
 export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
   {
     id: 'command-file-delivery',
@@ -103,8 +110,8 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     routing_confidence: 1,
     command: {
       command: 'logs',
-      description: 'Mostra logs recentes.',
-      usage: '[quantidade]',
+      description: 'Shows recent logs.',
+      usage: '[count]',
       section: 'monitoring',
       privateMenu: false,
       groupMenu: false,
@@ -116,16 +123,16 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     id: 'command-capabilities',
     label: 'Capabilities',
     type: 'integration',
-    description: 'Lista capabilities e plugins carregados.',
+    description: 'Lists loaded capabilities and plugins.',
     intent: 'capability_inspection',
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito para ver capabilities carregadas.',
+    routing_reason: 'Explicit command to list loaded capabilities.',
     routing_confidence: 1,
     command: {
       command: 'capabilities',
-      description: 'Lista capabilities e plugins carregados.',
+      description: 'Lists loaded capabilities and plugins.',
       section: 'monitoring',
       privateMenu: false,
       groupMenu: false,
@@ -142,7 +149,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Comando explicito para abrir o zavorthControl.',
+    routing_reason: 'Explicit command to open ZavorthControl.',
     routing_confidence: 1,
     command: {
       command: 'zavorthControl',
@@ -159,7 +166,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     id: 'command-mcp',
     label: 'MCP Servers',
     type: 'integration',
-    description: 'Gerencia servidores MCP: instalar, remover, listar e verificar status.',
+    description: 'Manages MCP servers: install, remove, list, and check status.',
     intent: 'mcp_management',
     executor_preference: null,
     dispatch_mode: 'execution',
@@ -168,7 +175,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     routing_confidence: 1,
     command: {
       command: 'mcp',
-      description: 'Gerencia servidores MCP (install, remove, status, enable, disable).',
+      description: 'Manages MCP servers (install, remove, status, enable, disable).',
       usage: '<install|remove|status|enable|disable> [id] [command] [args...]',
       section: 'monitoring',
       privateMenu: true,
@@ -179,37 +186,29 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
   },
   {
     id: 'media.generate',
-    label: 'Geracao de Midia',
+    label: 'Media Generation',
     type: 'integration',
-    description: 'Gera imagens, videos ou audio a partir de prompt textual.',
+    description: 'Generates images, video, or audio from a text prompt.',
     intent: 'media_generation',
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Pedido envolve geracao de midia visual ou sonora.',
-    routing_confidence: 0.90,
+    routing_reason: 'Explicit media generation command.',
+    routing_confidence: 0.9,
     priority: 90,
     allowed_command_types: ['/task', '/auto'],
     command: {
       command: 'imagine',
       aliases: ['img', 'gerar_imagem', 'generate_image'],
-      description: 'Gera imagens a partir de um prompt textual.',
-      usage: '<prompt descritivo>',
+      description: 'Generates images from a text prompt.',
+      usage: '<descriptive prompt>',
       section: 'execution',
       privateMenu: true,
       groupMenu: true,
       explicit_executor: null,
       handler_action: 'media_generate',
     },
-    matchers: [
-      {
-        patterns: [
-          '\\b(gere|gerar|crie|criar|faca|fazer|produza|produzir|desenhe|desenhar)\\b.*\\b(imagem|imagens|foto|fotos|ilustracao|ilustracoes|arte|artwork|picture|image|icon|icone|banner|thumbnail|wallpaper)\\b',
-          '\\b(imagem|foto|ilustracao|arte|picture|image)\\b.*\\b(de|do|da|com|sobre|mostrando|showing)\\b',
-          '\\b(imagine|visualize|render|renderize)\\b',
-        ],
-      },
-    ],
+    // No free-text matchers — LLM full_toolset selects media tools.
     policy: {
       executor: 'media.generate',
       requiresApproval: false,
@@ -223,12 +222,13 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     id: 'media.understand',
     label: 'Media Analysis',
     type: 'integration',
-    description: 'Analyzes images, audio, and video: describes, extracts text (OCR), classifies, and answers questions about content.',
+    description:
+      'Analyzes images, audio, and video: describes, extracts text (OCR), classifies, and answers questions about content.',
     intent: 'media_understanding',
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Request involves analysis, description, or understanding of received media.',
+    routing_reason: 'Explicit media analysis command.',
     routing_confidence: 0.88,
     priority: 88,
     allowed_command_types: ['/task', '/auto'],
@@ -243,15 +243,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
       explicit_executor: null,
       handler_action: 'media_understand',
     },
-    matchers: [
-      {
-        patterns: [
-          '\\b(analise|analisar|descreva|descrever|identifique|identificar|leia|ler)\\b.*\\b(imagem|foto|imagens|fotos|screenshot|print|captura|tela|audio|video|midia)\\b',
-          '\\b(o que|que|quem|qual|como)\\b.*\\b(tem|esta|aparece|mostra|diz|fala)\\b.*\\b(imagem|foto|audio|video|arquivo|midia)\\b',
-          '\\b(ocr|transcrever|transcreva|extrair texto|extraia texto)\\b',
-        ],
-      },
-    ],
+    // No free-text matchers — LLM full_toolset selects media tools.
     policy: {
       executor: 'media.understand',
       requiresApproval: false,
@@ -270,13 +262,13 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Pedido envolve gerenciamento do Satellite ou acesso remoto via PWA.',
+    routing_reason: 'Explicit Satellite / remote PWA management command.',
     routing_confidence: 0.85,
     priority: 80,
     command: {
       command: 'satellite',
       aliases: ['sat', 'pwa'],
-      description: 'Gerencia o Zavorth Satellite PWA (status, sessoes ativas, URL).',
+      description: 'Manages the Zavorth Satellite PWA (status, active sessions, URL).',
       usage: '[status|sessions|url]',
       section: 'monitoring',
       privateMenu: true,
@@ -295,21 +287,21 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
   },
   {
     id: 'search.query',
-    label: 'Busca Web Unificada',
+    label: 'Unified Web Search',
     type: 'integration',
-    description: 'Busca web unificada com modos rapido, profundo e grounded.',
+    description: 'Unified web search with quick, deep, and grounded modes.',
     intent: 'web_search',
     executor_preference: null,
     dispatch_mode: 'execution',
     requires_planning: false,
-    routing_reason: 'Pedido envolve pesquisa, busca ou consulta na web.',
+    routing_reason: 'Explicit web search command.',
     routing_confidence: 0.92,
     priority: 92,
     allowed_command_types: ['/task', '/auto'],
     command: {
       command: 'search',
       aliases: ['web_search', 'search web'],
-      description: 'Busca web unificada com ranking de evidencia.',
+      description: 'Unified web search with evidence ranking.',
       usage: '<query> [mode=quick|deep|grounded]',
       section: 'search',
       privateMenu: true,
@@ -317,14 +309,7 @@ export const INTEGRATION_CAPABILITIES: CapabilityDefinition[] = [
       explicit_executor: null,
       handler_action: 'search_query',
     },
-    matchers: [
-      {
-        patterns: [
-          '\\b(search|find|look\\s+up|research)\\b.*\\b(web|internet|online|google)\\b',
-          '\\b(news|headlines)\\b.*\\b(today|latest|recent|online|internet)\\b',
-        ],
-      },
-    ],
+    // No free-text matchers — LLM full_toolset selects search tools.
     policy: {
       executor: 'search.query',
       requiresApproval: false,

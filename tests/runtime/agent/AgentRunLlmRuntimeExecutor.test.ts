@@ -72,48 +72,55 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     const result = await executor.executeIfAvailable(run(), request());
 
     expect(result?.replyText).toBe('Resposta');
-    expect(result?.metadata?.llmRuntimeStream).toEqual(expect.objectContaining({
-      assistantStreamEmitted: true,
-      providerNativeTokenStreaming: true,
-      deltaCount: 1,
-      providerName: 'openai',
-      modelName: 'gpt-stream',
-    }));
-    expect(emitted).toEqual(expect.arrayContaining([
+    expect(result?.metadata?.llmRuntimeStream).toEqual(
       expect.objectContaining({
-        type: 'agent.stream.assistant',
-        payload: expect.objectContaining({
-          phase: 'delta',
-          delta: 'Resposta',
-          accumulated: 'Resposta',
-          providerNativeTokenStreaming: true,
-        }),
+        assistantStreamEmitted: true,
+        providerNativeTokenStreaming: true,
+        deltaCount: 1,
+        providerName: 'openai',
+        modelName: 'gpt-stream',
       }),
-      expect.objectContaining({
-        type: 'agent.stream.assistant',
-        payload: expect.objectContaining({
-          phase: 'done',
-          done: true,
-          providerName: 'openai',
+    );
+    expect(emitted).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'agent.stream.assistant',
+          payload: expect.objectContaining({
+            phase: 'delta',
+            delta: 'Resposta',
+            accumulated: 'Resposta',
+            providerNativeTokenStreaming: true,
+          }),
         }),
-      }),
-    ]));
+        expect.objectContaining({
+          type: 'agent.stream.assistant',
+          payload: expect.objectContaining({
+            phase: 'done',
+            done: true,
+            providerName: 'openai',
+          }),
+        }),
+      ]),
+    );
   });
 
   it('exposes governed read tools to the main LLM and feeds observations back before final answer', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '',
-            toolCalls: [{
-              id: 'call-read',
-              name: 'read_file',
-              arguments: { filePath: 'README.md' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-read',
+                name: 'read_file',
+                arguments: { filePath: 'README.md' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -143,65 +150,75 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     const result = await executor.executeIfAvailable(run(), request());
 
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
-    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([
-      expect.objectContaining({ name: 'read_file' }),
-    ]);
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('read_file', expect.objectContaining({
-      filePath: 'README.md',
-      metadata: expect.objectContaining({
-        runId: 'run-1',
-        sourceSurface: 'agent-native-tool-loop',
-        toolCallId: 'call-read',
-      }),
-    }));
-    expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(expect.arrayContaining([
+    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([expect.objectContaining({ name: 'read_file' })]);
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'read_file',
       expect.objectContaining({
-        role: 'tool',
-        toolCallId: 'call-read',
-        toolName: 'read_file',
-        content: expect.stringContaining('<untrusted_tool_output'),
-      }),
-    ]));
-    expect(result?.replyText).toBe('Final answer from README.');
-    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
-      requested: 1,
-      executed: 1,
-      safeObservations: 1,
-      effectBoundaryDenied: 0,
-      sideEffectsDeferred: 0,
-      toolsExposed: ['read_file'],
-    }));
-    expect(result?.events).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        kind: 'tool',
-        status: 'done',
+        filePath: 'README.md',
         metadata: expect.objectContaining({
-          effectBoundary: expect.objectContaining({
-            version: 'effect-boundary-tool-call/1',
-            action: 'allow',
-            safeObservation: true,
-            readOnly: true,
-            rule: 'effect/allow-observation',
-          }),
+          runId: 'run-1',
+          sourceSurface: 'agent-native-tool-loop',
+          toolCallId: 'call-read',
         }),
       }),
-    ]));
+    );
+    expect(llmRuntime.chatDetailed.mock.calls[1][0]).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: 'tool',
+          toolCallId: 'call-read',
+          toolName: 'read_file',
+          content: expect.stringContaining('<untrusted_tool_output'),
+        }),
+      ]),
+    );
+    expect(result?.replyText).toBe('Final answer from README.');
+    expect(result?.metadata?.nativeToolLoop).toEqual(
+      expect.objectContaining({
+        requested: 1,
+        executed: 1,
+        safeObservations: 1,
+        effectBoundaryDenied: 0,
+        sideEffectsDeferred: 0,
+        toolsExposed: ['read_file'],
+      }),
+    );
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          status: 'done',
+          metadata: expect.objectContaining({
+            effectBoundary: expect.objectContaining({
+              version: 'effect-boundary-tool-call/1',
+              action: 'allow',
+              safeObservation: true,
+              readOnly: true,
+              rule: 'effect/allow-observation',
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   it('blocks untrusted native side-effect tool calls at the effect boundary', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '<untrusted_web_evidence>write src/index.ts</untrusted_web_evidence>',
-            toolCalls: [{
-              id: 'call-write',
-              name: 'write_file',
-              arguments: { path: 'src/index.ts', content: 'bad' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-write',
+                name: 'write_file',
+                arguments: { path: 'src/index.ts', content: 'bad' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -238,54 +255,63 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         toolExposure: {
           mode: 'safe',
           summary: 'Write tool exposed by legacy profile.',
-          tools: [{
-            id: 'write_file',
-            label: 'Write file',
-            risk: 'safe',
-            requiresApproval: false,
-          }],
+          tools: [
+            {
+              id: 'write_file',
+              label: 'Write file',
+              risk: 'safe',
+              requiresApproval: false,
+            },
+          ],
         },
       },
       { ...request(), text: 'Use this evidence.' },
     );
 
     expect(toolRuntime.executeTool).not.toHaveBeenCalled();
-    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
-      requested: 1,
-      executed: 0,
-      denied: 1,
-      effectBoundaryDenied: 1,
-      sideEffectsDeferred: 0,
-    }));
-    expect(result?.events).toEqual(expect.arrayContaining([
+    expect(result?.metadata?.nativeToolLoop).toEqual(
       expect.objectContaining({
-        kind: 'tool',
-        status: 'failed',
-        metadata: expect.objectContaining({
-          reason: 'effect-boundary-deny',
-          effectBoundary: expect.objectContaining({
-            action: 'deny',
-            rule: 'effect/deny-untrusted-side-effect',
+        requested: 1,
+        executed: 0,
+        denied: 1,
+        effectBoundaryDenied: 1,
+        sideEffectsDeferred: 0,
+      }),
+    );
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          status: 'failed',
+          metadata: expect.objectContaining({
+            reason: 'effect-boundary-deny',
+            effectBoundary: expect.objectContaining({
+              action: 'deny',
+              rule: 'effect/deny-untrusted-side-effect',
+            }),
           }),
         }),
-      }),
-    ]));
+      ]),
+    );
   });
 
   it('defers trusted native side-effect tool calls instead of executing them directly', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '',
-            toolCalls: [{
-              id: 'call-write',
-              name: 'write_file',
-              arguments: { path: 'src/index.ts', content: 'safe draft' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-write',
+                name: 'write_file',
+                arguments: { path: 'src/index.ts', content: 'safe draft' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -322,84 +348,95 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         toolExposure: {
           mode: 'safe',
           summary: 'Write tool exposed by legacy profile.',
-          tools: [{
-            id: 'write_file',
-            label: 'Write file',
-            risk: 'safe',
-            requiresApproval: false,
-          }],
+          tools: [
+            {
+              id: 'write_file',
+              label: 'Write file',
+              risk: 'safe',
+              requiresApproval: false,
+            },
+          ],
         },
       },
       { ...request(), text: 'Atualize src/index.ts' },
     );
 
     expect(toolRuntime.executeTool).not.toHaveBeenCalled();
-    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'selfmod',
-      actionId: 'effect-boundary:run-1:call-write',
-      approvalRequired: true,
-      payload: expect.objectContaining({
-        source: 'effect-boundary',
-        workspaceWrites: [{ path: 'src/index.ts', content: 'safe draft' }],
-      }),
-    }));
-    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
-    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
-      requested: 1,
-      executed: 0,
-      denied: 1,
-      effectBoundaryDenied: 0,
-      sideEffectsDeferred: 1,
-    }));
-    expect(result?.events).toEqual(expect.arrayContaining([
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(
       expect.objectContaining({
-        kind: 'tool',
-        status: 'failed',
-        metadata: expect.objectContaining({
-          reason: 'effect-boundary-deferred',
-          effectBoundary: expect.objectContaining({
-            action: 'sandbox_only',
-            rule: 'effect/sandbox-mutation',
-            hasRealSideEffect: true,
-          }),
-          effectRehearsal: expect.objectContaining({
-            kind: 'effect-rehearsal-envelope',
-            toolCallId: 'call-write',
-            rehearsal: expect.objectContaining({
-              status: 'prepared',
-              commitPlan: expect.objectContaining({
-                status: 'rehearsal_required',
-                rehearsalRequired: true,
-              }),
-              rollbackPlan: expect.objectContaining({
-                available: true,
-              }),
-            }),
-          }),
-          mutationPlan: expect.objectContaining({
-            id: 'effect-plan-1',
-            status: 'waiting_approval',
-            approvalRequired: true,
-          }),
+        domain: 'selfmod',
+        actionId: 'effect-boundary:run-1:call-write',
+        approvalRequired: true,
+        payload: expect.objectContaining({
+          source: 'effect-boundary',
+          workspaceWrites: [{ path: 'src/index.ts', content: 'safe draft' }],
         }),
       }),
-    ]));
+    );
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
+    expect(result?.metadata?.nativeToolLoop).toEqual(
+      expect.objectContaining({
+        requested: 1,
+        executed: 0,
+        denied: 1,
+        effectBoundaryDenied: 0,
+        sideEffectsDeferred: 1,
+      }),
+    );
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          status: 'failed',
+          metadata: expect.objectContaining({
+            reason: 'effect-boundary-deferred',
+            effectBoundary: expect.objectContaining({
+              action: 'sandbox_only',
+              rule: 'effect/sandbox-mutation',
+              hasRealSideEffect: true,
+            }),
+            effectRehearsal: expect.objectContaining({
+              kind: 'effect-rehearsal-envelope',
+              toolCallId: 'call-write',
+              rehearsal: expect.objectContaining({
+                status: 'prepared',
+                commitPlan: expect.objectContaining({
+                  status: 'rehearsal_required',
+                  rehearsalRequired: true,
+                }),
+                rollbackPlan: expect.objectContaining({
+                  available: true,
+                }),
+              }),
+            }),
+            mutationPlan: expect.objectContaining({
+              id: 'effect-plan-1',
+              status: 'waiting_approval',
+              approvalRequired: true,
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   it('creates mutation plans for non-file sandboxed side effects too', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '',
-            toolCalls: [{
-              id: 'call-shell',
-              name: 'shell.exec',
-              arguments: { command: 'npm test' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-shell',
+                name: 'shell.exec',
+                arguments: { command: 'npm test' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -433,57 +470,68 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
     const result = await executor.executeIfAvailable(
       {
         ...run(),
+        approvals: [{ id: 'approval-shell', status: 'approved' } as any],
+        events: [{ metadata: { approvalId: 'approval-shell', toolId: 'shell.exec' } } as any],
         toolExposure: {
           mode: 'safe',
-          summary: 'Shell tool exposed by legacy profile.',
-          tools: [{
-            id: 'shell.exec',
-            label: 'Shell exec',
-            risk: 'safe',
-            requiresApproval: false,
-          }],
+          summary: 'Approved shell tool exposed for effect-boundary rehearsal.',
+          tools: [
+            {
+              id: 'shell.exec',
+              label: 'Shell exec',
+              risk: 'dangerous',
+              requiresApproval: true,
+            },
+          ],
         },
       },
       { ...request(), text: 'Rode os testes' },
     );
 
     expect(toolRuntime.executeTool).not.toHaveBeenCalled();
-    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'sandbox',
-      actionId: 'effect-boundary:run-1:call-shell',
-      approvalRequired: true,
-      resourceImpact: expect.objectContaining({
-        processCount: 1,
-        externalExposure: 'local',
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domain: 'sandbox',
+        actionId: 'effect-boundary:run-1:call-shell',
+        approvalRequired: true,
+        resourceImpact: expect.objectContaining({
+          processCount: 1,
+          externalExposure: 'local',
+        }),
+        payload: expect.objectContaining({
+          source: 'effect-boundary',
+          workspaceWrites: [],
+          commands: ['npm test'],
+        }),
       }),
-      payload: expect.objectContaining({
-        source: 'effect-boundary',
-        workspaceWrites: [],
-        commands: ['npm test'],
+    );
+    expect(result?.metadata?.nativeToolLoop).toEqual(
+      expect.objectContaining({
+        requested: 1,
+        executed: 0,
+        denied: 1,
+        sideEffectsDeferred: 1,
       }),
-    }));
-    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
-      requested: 1,
-      executed: 0,
-      denied: 1,
-      sideEffectsDeferred: 1,
-    }));
+    );
   });
 
   it('routes native write tool effects through speculative sandbox before approval when a workspace is known', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '',
-            toolCalls: [{
-              id: 'call-write',
-              name: 'write_file',
-              arguments: { path: 'src/index.ts', content: 'sandbox draft' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-write',
+                name: 'write_file',
+                arguments: { path: 'src/index.ts', content: 'sandbox draft' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -554,54 +602,63 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
         toolExposure: {
           mode: 'safe',
           summary: 'Write tool exposed by legacy profile.',
-          tools: [{
-            id: 'write_file',
-            label: 'Write file',
-            risk: 'safe',
-            requiresApproval: false,
-          }],
+          tools: [
+            {
+              id: 'write_file',
+              label: 'Write file',
+              risk: 'safe',
+              requiresApproval: false,
+            },
+          ],
         },
       },
       { ...request(), text: 'Atualize src/index.ts', workspace: 'C:/repo' },
     );
 
     expect(toolRuntime.executeTool).not.toHaveBeenCalled();
-    expect(speculativeAutonomyService.prepare).toHaveBeenCalledWith(expect.objectContaining({
-      workspaceRoot: 'C:/repo',
-      writes: [{ path: 'src/index.ts', content: 'sandbox draft' }],
-      createMutationPlan: true,
-      approvalRequired: true,
-    }));
-    expect(mutationPlane.createPlan).not.toHaveBeenCalled();
-    expect(result?.events).toEqual(expect.arrayContaining([
+    expect(speculativeAutonomyService.prepare).toHaveBeenCalledWith(
       expect.objectContaining({
-        kind: 'tool',
-        metadata: expect.objectContaining({
-          reason: 'effect-boundary-deferred',
-          mutationPlan: expect.objectContaining({ id: 'spec-plan-1' }),
-          superZavorthSpeculativeAutonomy: expect.objectContaining({
-            id: 'native-spec-1',
-            mutationPlanId: 'spec-plan-1',
+        workspaceRoot: 'C:/repo',
+        writes: [{ path: 'src/index.ts', content: 'sandbox draft' }],
+        createMutationPlan: true,
+        approvalRequired: true,
+      }),
+    );
+    expect(mutationPlane.createPlan).not.toHaveBeenCalled();
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          metadata: expect.objectContaining({
+            reason: 'effect-boundary-deferred',
+            mutationPlan: expect.objectContaining({ id: 'spec-plan-1' }),
+            superZavorthSpeculativeAutonomy: expect.objectContaining({
+              id: 'native-spec-1',
+              mutationPlanId: 'spec-plan-1',
+            }),
           }),
         }),
-      }),
-    ]));
+      ]),
+    );
   });
 
   it('lets the LLM use public web search for current external knowledge without manual approval', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
           route: route(),
           response: {
             content: '',
-            toolCalls: [{
-              id: 'call-search',
-              name: 'web_search',
-              arguments: { query: 'latest technology news today', mode: 'grounded' },
-            }],
+            toolCalls: [
+              {
+                id: 'call-search',
+                name: 'web_search',
+                arguments: { query: 'latest technology news today', mode: 'grounded' },
+              },
+            ],
             finishReason: 'tool_calls',
           },
         })
@@ -628,60 +685,73 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
       toolRuntime,
     });
 
-    const result = await executor.executeIfAvailable(
-      run(),
-      { ...request(), text: 'What are the latest technology news today?' },
-    );
+    const result = await executor.executeIfAvailable(run(), {
+      ...request(),
+      text: 'What are the latest technology news today?',
+      // Structured flag only — free-text never auto-exposes web_search / provider-native search.
+      metadata: { enableWebTools: true },
+      requestedTools: ['web_search'],
+    });
 
-    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([
-      expect.objectContaining({ name: 'web_search' }),
-    ]);
-    expect(llmRuntime.chatDetailed.mock.calls[0][2]).toEqual(expect.objectContaining({
-      providerNativeTools: [expect.objectContaining({
-        name: 'google_search',
-        requiredEvidence: 'grounding_metadata',
-      })],
-    }));
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: 'latest technology news today',
-      mode: 'grounded',
-      providerHints: {
-        providerId: 'gemini',
-        modelName: 'test-model',
-        source: 'agent-native-tool-loop',
-      },
-      metadata: expect.objectContaining({
-        runId: 'run-1',
-        sourceSurface: 'agent-native-tool-loop',
-        toolCallId: 'call-search',
-      }),
-    }));
-    expect(result?.metadata?.nativeToolLoop).toEqual(expect.objectContaining({
-      requested: 1,
-      executed: 1,
-      denied: 0,
-      safeObservations: 1,
-      effectBoundaryDenied: 0,
-      sideEffectsDeferred: 0,
-    }));
-    expect(result?.events).toEqual(expect.arrayContaining([
+    expect(llmRuntime.chatDetailed.mock.calls[0][1]).toEqual([expect.objectContaining({ name: 'web_search' })]);
+    expect(llmRuntime.chatDetailed.mock.calls[0][2]).toEqual(
       expect.objectContaining({
-        kind: 'tool',
-        status: 'done',
-        metadata: expect.objectContaining({
-          effectBoundary: expect.objectContaining({
-            action: 'allow',
-            safeObservation: true,
-            readOnly: true,
+        providerNativeTools: [
+          expect.objectContaining({
+            name: 'google_search',
+            requiredEvidence: 'grounding_metadata',
           }),
+        ],
+      }),
+    );
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'web_search',
+      expect.objectContaining({
+        query: 'latest technology news today',
+        mode: 'grounded',
+        providerHints: {
+          providerId: 'gemini',
+          modelName: 'test-model',
+          source: 'agent-native-tool-loop',
+        },
+        metadata: expect.objectContaining({
+          runId: 'run-1',
+          sourceSurface: 'agent-native-tool-loop',
+          toolCallId: 'call-search',
         }),
       }),
-    ]));
+    );
+    expect(result?.metadata?.nativeToolLoop).toEqual(
+      expect.objectContaining({
+        requested: 1,
+        executed: 1,
+        denied: 0,
+        safeObservations: 1,
+        effectBoundaryDenied: 0,
+        sideEffectsDeferred: 0,
+      }),
+    );
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          status: 'done',
+          metadata: expect.objectContaining({
+            effectBoundary: expect.objectContaining({
+              action: 'allow',
+              safeObservation: true,
+              readOnly: true,
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   it('falls back to governed web_search when provider-native search returns no verifiable citation', async () => {
     const llmRuntime = {
-      chatDetailed: jest.fn()
+      chatDetailed: jest
+        .fn()
         .mockResolvedValueOnce({
           providerName: 'gemini',
           modelName: 'test-model',
@@ -703,14 +773,16 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
             },
             providerNativeCapabilityMatrix: {
               fallbackRecommended: true,
-              assessments: [{
-                capability: 'native_search',
-                providerToolName: 'google_search',
-                fallbackToolName: 'web_search',
-                fallbackRecommended: true,
-                evidenceSatisfied: false,
-                citationCount: 0,
-              }],
+              assessments: [
+                {
+                  capability: 'native_search',
+                  providerToolName: 'google_search',
+                  fallbackToolName: 'web_search',
+                  fallbackRecommended: true,
+                  evidenceSatisfied: false,
+                  citationCount: 0,
+                },
+              ],
             },
           },
         })
@@ -737,37 +809,45 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
       toolRuntime,
     });
 
-    const result = await executor.executeIfAvailable(
-      run(),
-      { ...request(), text: 'What is the latest AI infrastructure news today?' },
-    );
+    const result = await executor.executeIfAvailable(run(), {
+      ...request(),
+      text: 'What is the latest AI infrastructure news today?',
+      // Structured flag only — free-text never auto-exposes web_search / provider-native search.
+      metadata: { enableWebTools: true },
+      requestedTools: ['web_search'],
+    });
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('web_search', expect.objectContaining({
-      query: 'What is the latest AI infrastructure news today?',
-      mode: 'verify',
-      providerNativeFallback: expect.objectContaining({
-        version: 'provider-native-fallback/1',
-        fromProvider: 'gemini',
-        providerToolName: 'google_search',
-      }),
-      providerHints: expect.objectContaining({
-        providerId: 'gemini',
-        modelName: 'test-model',
-      }),
-    }));
-    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
-    expect(result?.replyText).toBe('Final answer grounded by Zavorth web_search fallback.');
-    expect(result?.events).toEqual(expect.arrayContaining([
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'web_search',
       expect.objectContaining({
-        kind: 'tool',
-        status: 'done',
-        metadata: expect.objectContaining({
-          providerNativeFallback: expect.objectContaining({
-            providerToolName: 'google_search',
-          }),
+        query: 'What is the latest AI infrastructure news today?',
+        mode: 'verify',
+        providerNativeFallback: expect.objectContaining({
+          version: 'provider-native-fallback/1',
+          fromProvider: 'gemini',
+          providerToolName: 'google_search',
+        }),
+        providerHints: expect.objectContaining({
+          providerId: 'gemini',
+          modelName: 'test-model',
         }),
       }),
-    ]));
+    );
+    expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(2);
+    expect(result?.replyText).toBe('Final answer grounded by Zavorth web_search fallback.');
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          status: 'done',
+          metadata: expect.objectContaining({
+            providerNativeFallback: expect.objectContaining({
+              providerToolName: 'google_search',
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   it('routes structured workspace drafts through Super Zavorth speculative autonomy before returning', async () => {
@@ -824,47 +904,55 @@ describe('AgentRunLlmRuntimeExecutor native tool loop', () => {
       { ...request(), workspace: 'C:/repo' },
     );
 
-    expect(speculativeAutonomyService.prepare).toHaveBeenCalledWith(expect.objectContaining({
-      workspaceRoot: 'C:/repo',
-      writes: [{ path: 'src/a.ts', content: 'export const a = 1;\n' }],
-      patches: [],
-      createMutationPlan: true,
-      approvalRequired: true,
-    }));
+    expect(speculativeAutonomyService.prepare).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspaceRoot: 'C:/repo',
+        writes: [{ path: 'src/a.ts', content: 'export const a = 1;\n' }],
+        patches: [],
+        createMutationPlan: true,
+        approvalRequired: true,
+      }),
+    );
     expect(result?.replyText).toContain('Super Zavorth: ensaio especulativo aprovado em sandbox');
     expect(canvasSessionService.createFromSpeculativeAutonomyResult).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'spec-run-1' }),
       'shield',
     );
-    expect(result?.events).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        kind: 'artifact',
-        title: 'Super Zavorth speculative autonomy',
-        status: 'done',
-        metadata: expect.objectContaining({
-          mutationPlanId: 'plan-1',
-          zCanvasSession: expect.objectContaining({
-            sessionId: 'canvas-1',
-            attemptCount: 1,
+    expect(result?.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'artifact',
+          title: 'Super Zavorth speculative autonomy',
+          status: 'done',
+          metadata: expect.objectContaining({
+            mutationPlanId: 'plan-1',
+            zCanvasSession: expect.objectContaining({
+              sessionId: 'canvas-1',
+              attemptCount: 1,
+            }),
           }),
         }),
-      }),
+        expect.objectContaining({
+          kind: 'artifact',
+          title: 'Z-Canvas sandbox preview',
+          status: 'done',
+        }),
+      ]),
+    );
+    expect(result?.metadata?.superZavorthSpeculativeAutonomy).toEqual(
       expect.objectContaining({
-        kind: 'artifact',
-        title: 'Z-Canvas sandbox preview',
-        status: 'done',
+        id: 'spec-run-1',
+        status: 'approved',
+        mutationPlanId: 'plan-1',
       }),
-    ]));
-    expect(result?.metadata?.superZavorthSpeculativeAutonomy).toEqual(expect.objectContaining({
-      id: 'spec-run-1',
-      status: 'approved',
-      mutationPlanId: 'plan-1',
-    }));
-    expect(result?.metadata?.zCanvasSession).toEqual(expect.objectContaining({
-      ok: true,
-      sessionId: 'canvas-1',
-      sandboxRunId: 'spec-run-1',
-    }));
+    );
+    expect(result?.metadata?.zCanvasSession).toEqual(
+      expect.objectContaining({
+        ok: true,
+        sessionId: 'canvas-1',
+        sandboxRunId: 'spec-run-1',
+      }),
+    );
   });
 });
 
@@ -906,7 +994,7 @@ function run(): UniversalAgentRun {
     approvals: [],
     artifacts: [],
     memorySignals: [],
-    metadata: {},
+    metadata: { productSurfacePrompt: 'No saved product-surface context for this isolated test.' },
   };
 }
 

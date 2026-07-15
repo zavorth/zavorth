@@ -50,7 +50,12 @@ try {
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionSurfaceContract.ts'), 'utf8');
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionSurfaceGatewayService.ts'), 'utf8');
   const classifierText = readFileSync(join(root, 'src/runtime/agent/NaturalFirstRunClassifier.ts'), 'utf8');
-  for (const marker of ['zavorth-transaction-surface/checkpoint-7', 'request-approval', 'provide-credential-ref', 'TRANSACTION_APPROVAL_PATTERNS']) {
+  for (const marker of [
+    'zavorth-transaction-surface/checkpoint-7',
+    'request-approval',
+    'provide-credential-ref',
+    'TRANSACTION_APPROVAL_PATTERNS',
+  ]) {
     if (!contractText.includes(marker) && !serviceText.includes(marker) && !classifierText.includes(marker)) {
       failures.push(`missing marker: ${marker}`);
     }
@@ -82,7 +87,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--mode',
     'paper',
   ]);
@@ -102,7 +111,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -112,7 +125,11 @@ try {
   if (simulated.status !== 'simulated' || simulated.runtime.connectorRun?.status !== 'simulated') {
     failures.push(`simulated projection mismatch: ${simulated.status}`);
   }
-  if (simulated.externalSideEffects !== false || simulated.liveActionApplied !== false || simulated.executableNow !== false) {
+  if (
+    simulated.externalSideEffects !== false ||
+    simulated.liveActionApplied !== false ||
+    simulated.executableNow !== false
+  ) {
     failures.push('surface projection must remain live-disabled');
   }
   if (!simulated.cards.some((card) => card.kind === 'safety' && card.lines.includes('liveActionApplied=false'))) {
@@ -128,7 +145,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Monitore notebook abaixo de R$3500 e me avise.',
+    'Monitor notebook below R$3500 and notify me.',
+    '--kind',
+    'monitor-price',
+    '--action-kind',
+    'price-monitor',
     '--mode',
     'sandbox',
   ]);
@@ -148,7 +169,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -178,19 +199,23 @@ try {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runSurface(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-surface.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-surface.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runSurfaceExpectFailure(args) {

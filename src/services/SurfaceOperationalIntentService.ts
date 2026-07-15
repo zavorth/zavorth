@@ -10,18 +10,12 @@ import type {
 } from '../contracts/ZavorthResponseDecisionContract.js';
 
 import { inferUniversalAgentRequestedTools } from '../runtime/agent/index.js';
-import {
-  UniversalIntentService,
-  type UniversalIntentDecision,
-} from '../runtime/uni/index.js';
+import { UniversalIntentService, type UniversalIntentDecision } from '../runtime/uni/index.js';
 
 import { LlmRuntimeService } from './llm/LlmRuntimeService.js';
 import type { ChatMessage } from '../providers/ILlmProvider.js';
 import { logger } from '../logger.js';
-import {
-  UserExperienceIntentRouter,
-  type UserExperienceIntentDecision,
-} from './UserExperienceIntentRouter.js';
+import { UserExperienceIntentRouter, type UserExperienceIntentDecision } from './UserExperienceIntentRouter.js';
 
 export type SurfaceOperationalIntent = {
   surface: 'web' | 'cli' | 'telegram' | 'discord' | string;
@@ -70,23 +64,24 @@ export class SurfaceOperationalIntentService {
   private readonly semanticClassifier: SemanticOperationalIntentClassifier | null;
   private readonly semanticTimeoutMs: number;
   private readonly universalIntentService: Pick<UniversalIntentService, 'decide'> | null;
-  private readonly ownerControlledDefaultActivationService: Pick<AiFirstOwnerControlledDefaultActivationService, 'status'> | null;
+  private readonly ownerControlledDefaultActivationService: Pick<
+    AiFirstOwnerControlledDefaultActivationService,
+    'status'
+  > | null;
   private readonly uxIntentRouter: Pick<UserExperienceIntentRouter, 'decide'> | null;
 
   constructor(options: SurfaceOperationalIntentServiceOptions = {}) {
-    this.semanticClassifier = options.semanticClassifier === undefined
-      ? new LlmRuntimeService()
-      : options.semanticClassifier;
+    this.semanticClassifier =
+      options.semanticClassifier === undefined ? new LlmRuntimeService() : options.semanticClassifier;
     this.semanticTimeoutMs = Math.max(100, Number(options.semanticTimeoutMs || 900) || 900);
-    this.universalIntentService = options.universalIntentService === undefined
-      ? new UniversalIntentService()
-      : options.universalIntentService;
-    this.ownerControlledDefaultActivationService = options.ownerControlledDefaultActivationService === undefined
-      ? new AiFirstOwnerControlledDefaultActivationService()
-      : options.ownerControlledDefaultActivationService;
-    this.uxIntentRouter = options.uxIntentRouter === undefined
-      ? new UserExperienceIntentRouter()
-      : options.uxIntentRouter;
+    this.universalIntentService =
+      options.universalIntentService === undefined ? new UniversalIntentService() : options.universalIntentService;
+    this.ownerControlledDefaultActivationService =
+      options.ownerControlledDefaultActivationService === undefined
+        ? new AiFirstOwnerControlledDefaultActivationService()
+        : options.ownerControlledDefaultActivationService;
+    this.uxIntentRouter =
+      options.uxIntentRouter === undefined ? new UserExperienceIntentRouter() : options.uxIntentRouter;
   }
 
   public classify(input: SurfaceOperationalIntent): SurfaceOperationalIntentDecision {
@@ -97,12 +92,13 @@ export class SurfaceOperationalIntentService {
       capabilityIds: resourceCapabilityIds,
       fallbackTool: null,
     });
-    const uxIntent = this.uxIntentRouter?.decide({
-      text,
-      explicitExecution: input.explicitExecution,
-      hasAttachments: input.hasAttachments,
-      hasContextualMentions: input.hasContextualMentions,
-    }) || null;
+    const uxIntent =
+      this.uxIntentRouter?.decide({
+        text,
+        explicitExecution: input.explicitExecution,
+        hasAttachments: input.hasAttachments,
+        hasContextualMentions: input.hasContextualMentions,
+      }) || null;
 
     if (input.hasContextualMentions) {
       return {
@@ -114,12 +110,12 @@ export class SurfaceOperationalIntentService {
     }
 
     if (
-      uxIntent
-      && uxIntent.confidence === 'high'
-      && !uxIntent.shouldUseTools
-      && requestedTools.length === 0
-      && !input.explicitExecution
-      && !input.hasAttachments
+      uxIntent &&
+      uxIntent.confidence === 'high' &&
+      !uxIntent.shouldUseTools &&
+      requestedTools.length === 0 &&
+      !input.explicitExecution &&
+      !input.hasAttachments
     ) {
       return {
         shouldExecute: false,
@@ -168,11 +164,12 @@ export class SurfaceOperationalIntentService {
     if (uxIntent?.shouldUseTools && uxIntent.explicitAction && uxIntent.explicitTarget) {
       return {
         shouldExecute: true,
-        requestedTools: uxIntent.kind === 'diagnose'
-          ? ['status.inspect']
-          : uxIntent.kind === 'configure'
-            ? ['configuration.preview']
-            : ['workflow.preview'],
+        requestedTools:
+          uxIntent.kind === 'diagnose'
+            ? ['status.inspect']
+            : uxIntent.kind === 'configure'
+              ? ['configuration.preview']
+              : ['workflow.preview'],
         uxIntent,
         reason: uxIntent.shouldAskApproval ? 'ux-approval-intent' : 'ux-tool-intent',
       };
@@ -185,7 +182,6 @@ export class SurfaceOperationalIntentService {
       reason: 'conversation-only',
     };
   }
-
 
   public async classifyWithSemantic(input: SurfaceOperationalIntent): Promise<SurfaceOperationalIntentDecision> {
     const structural = this.classify(input);
@@ -272,37 +268,38 @@ export class SurfaceOperationalIntentService {
       diagnostics: {
         surface: input.surface,
         shouldExecute: intentDecision.shouldExecute,
-        semantic: intentDecision.reason === 'semantic-operational'
-          || intentDecision.reason === 'semantic-conversation'
-          || intentDecision.reason === 'semantic-unavailable',
+        semantic:
+          intentDecision.reason === 'semantic-operational' ||
+          intentDecision.reason === 'semantic-conversation' ||
+          intentDecision.reason === 'semantic-unavailable',
         uxIntent: intentDecision.uxIntent
           ? {
-            kind: intentDecision.uxIntent.kind,
-            confidence: intentDecision.uxIntent.confidence,
-            shouldUseTools: intentDecision.uxIntent.shouldUseTools,
-            shouldAskApproval: intentDecision.uxIntent.shouldAskApproval,
-            reason: intentDecision.uxIntent.reason,
-          }
+              kind: intentDecision.uxIntent.kind,
+              confidence: intentDecision.uxIntent.confidence,
+              shouldUseTools: intentDecision.uxIntent.shouldUseTools,
+              shouldAskApproval: intentDecision.uxIntent.shouldAskApproval,
+              reason: intentDecision.uxIntent.reason,
+            }
           : null,
         universalIntent: universalIntent
           ? {
-            intent: universalIntent.intent,
-            risk: universalIntent.risk,
-            nextSafeAction: universalIntent.nextSafeAction,
-            requiresClarification: universalIntent.requiresClarification,
-            requiresPermission: universalIntent.requiresPermission,
-          }
+              intent: universalIntent.intent,
+              risk: universalIntent.risk,
+              nextSafeAction: universalIntent.nextSafeAction,
+              requiresClarification: universalIntent.requiresClarification,
+              requiresPermission: universalIntent.requiresPermission,
+            }
           : null,
         trustSlider: universalIntent
           ? {
-            level: universalIntent.trustSlider.level,
-            decision: universalIntent.trustSlider.decision,
-            sandboxTier: universalIntent.trustSlider.sandboxTier,
-            permissionBoundary: universalIntent.trustSlider.permissionBoundary,
-            permissionScope: universalIntent.trustSlider.permissionScope,
-            hostAllowed: universalIntent.trustSlider.hostAllowed,
-            blocked: universalIntent.trustSlider.blocked,
-          }
+              level: universalIntent.trustSlider.level,
+              decision: universalIntent.trustSlider.decision,
+              sandboxTier: universalIntent.trustSlider.sandboxTier,
+              permissionBoundary: universalIntent.trustSlider.permissionBoundary,
+              permissionScope: universalIntent.trustSlider.permissionScope,
+              hostAllowed: universalIntent.trustSlider.hostAllowed,
+              blocked: universalIntent.trustSlider.blocked,
+            }
           : null,
       },
     };
@@ -322,11 +319,15 @@ export class SurfaceOperationalIntentService {
         capabilityIds: intentDecision.requestedTools,
         riskHints: {
           approvalRequired: input.resourceImpact?.approvalRequired || false,
-          externalSideEffect: input.resourceImpact?.budget?.externalExposure === 'network'
-            || input.resourceImpact?.budget?.externalExposure === 'public',
+          externalSideEffect:
+            input.resourceImpact?.budget?.externalExposure === 'network' ||
+            input.resourceImpact?.budget?.externalExposure === 'public',
         },
       });
-    } catch (error: unknown) {logger.warn('[Surface Operational] module import failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Surface Operational] module import failed', error);
+      return null;
+    }
   }
 
   private collectCapabilityIds(input: SurfaceOperationalIntent): string[] {
@@ -366,9 +367,8 @@ export class SurfaceOperationalIntentService {
     if (input.resourceImpact?.approvalRequired) {
       return 'approval';
     }
-    if (this.hasTool(requestedTools, 'read_file') && this.looksLikeFileInspection(input.text)) {
-      return 'file-inspection';
-    }
+    // Free-text never keyword-routes to local-inspector; agent runtime owns inspection.
+    // Explicit structured tools still go through agent-runtime (LLM + tools).
     return 'operation';
   }
 
@@ -393,7 +393,10 @@ export class SurfaceOperationalIntentService {
     if (mode === 'conversation') {
       return { type: 'none', value: null };
     }
-    if (input.hasAttachments || this.hasAnyTool(requestedTools, ['media.inspect', 'image.inspect', 'audio.transcribe'])) {
+    if (
+      input.hasAttachments ||
+      this.hasAnyTool(requestedTools, ['media.inspect', 'image.inspect', 'audio.transcribe'])
+    ) {
       return { type: 'media', value: null };
     }
     if (this.hasAnyTool(requestedTools, ['network_fetch', 'web.search', 'browser.open'])) {
@@ -431,19 +434,8 @@ export class SurfaceOperationalIntentService {
       });
     }
 
-    const showableArtifactTools = [
-      'pdf.generate',
-      'report.send',
-      'artifact.create',
-      'artifact.export',
-      'diff.export',
-    ];
-    const artifactCreatingTools = [
-      ...showableArtifactTools,
-      'write_file',
-      'filesystem.write',
-      'file.edit',
-    ];
+    const showableArtifactTools = ['pdf.generate', 'report.send', 'artifact.create', 'artifact.export', 'diff.export'];
+    const artifactCreatingTools = [...showableArtifactTools, 'write_file', 'filesystem.write', 'file.edit'];
     const shouldCreateArtifact = this.hasAnyTool(requestedTools, artifactCreatingTools);
     const shouldShowArtifactInChat = this.hasAnyTool(requestedTools, showableArtifactTools);
 
@@ -462,9 +454,11 @@ export class SurfaceOperationalIntentService {
     if (intentDecision.reason === 'semantic-unavailable') {
       return 'low';
     }
-    if (intentDecision.reason === 'ux-conversation-first'
-      || intentDecision.reason === 'ux-tool-intent'
-      || intentDecision.reason === 'ux-approval-intent') {
+    if (
+      intentDecision.reason === 'ux-conversation-first' ||
+      intentDecision.reason === 'ux-tool-intent' ||
+      intentDecision.reason === 'ux-approval-intent'
+    ) {
       return intentDecision.uxIntent?.confidence || 'high';
     }
     if (intentDecision.reason === 'semantic-operational' || intentDecision.reason === 'semantic-conversation') {
@@ -501,12 +495,11 @@ export class SurfaceOperationalIntentService {
     return requestedTools.some((tool) => accepted.has(tool));
   }
 
-  private looksLikeFileInspection(text: string): boolean {
-    return this.looksLikeFolderTarget(text) || /\b(file|arquivo|logs?|repo|repositorio|repository|modulo|module|codigo|code)\b/i.test(this.normalizeText(text));
-  }
-
+  /** Path kind hints for response targets only when tools are already structured — never free-text feature activation. */
   private looksLikeFolderTarget(text: string): boolean {
-    return /\b(pasta|folder|downloads?|desktop|documentos?|workspace|diretorio|directory)\b/i.test(this.normalizeText(text));
+    return /\b(pasta|folder|downloads?|desktop|documentos?|workspace|diretorio|directory)\b/i.test(
+      this.normalizeText(text),
+    );
   }
 
   private normalizeText(text: string): string {
@@ -522,9 +515,10 @@ export class SurfaceOperationalIntentService {
       return false;
     }
     const normalized = this.normalizeText(raw);
-    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(normalized);
+    return !/\b(pesquise|pesquisar|buscar|busque|procure|acesse|acessar|abra|abrir|navegue|fetch|baixe|download|leia|ler|resuma|resumir|analise|analisar|explique|explicar|extraia|extrair|verifique|verificar)\b/i.test(
+      normalized,
+    );
   }
-
 
   private shouldAskSemanticClassifier(
     input: SurfaceOperationalIntent,
@@ -641,10 +635,16 @@ export class SurfaceOperationalIntentService {
       return {
         shouldExecute: parsed.shouldExecute,
         requestedTools: Array.isArray(parsed.requestedTools)
-          ? parsed.requestedTools.map((tool: unknown) => String(tool || '').trim()).filter(Boolean).slice(0, 8)
+          ? parsed.requestedTools
+              .map((tool: unknown) => String(tool || '').trim())
+              .filter(Boolean)
+              .slice(0, 8)
           : [],
       };
-    } catch (error: unknown) {logger.warn('[Surface Operational] JSON parse failed', error); return null; }
+    } catch (error: unknown) {
+      logger.warn('[Surface Operational] JSON parse failed', error);
+      return null;
+    }
   }
 
   private async withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
@@ -664,20 +664,17 @@ export class SurfaceOperationalIntentService {
     }
   }
 
-  private resourceRequiresWork(
-    resourceImpact: TaskResourceImpact | null,
-    resourceCapabilityIds: string[],
-  ): boolean {
+  private resourceRequiresWork(resourceImpact: TaskResourceImpact | null, resourceCapabilityIds: string[]): boolean {
     if (!resourceImpact) {
       return false;
     }
     return Boolean(
-      resourceImpact.heavy
-      || resourceImpact.approvalRequired
-      || resourceCapabilityIds.length > 0
-      || resourceImpact.budget?.recurring
-      || resourceImpact.budget?.externalExposure === 'network'
-      || resourceImpact.budget?.externalExposure === 'public',
+      resourceImpact.heavy ||
+        resourceImpact.approvalRequired ||
+        resourceCapabilityIds.length > 0 ||
+        resourceImpact.budget?.recurring ||
+        resourceImpact.budget?.externalExposure === 'network' ||
+        resourceImpact.budget?.externalExposure === 'public',
     );
   }
 }

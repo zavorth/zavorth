@@ -92,7 +92,7 @@ describe('ZavorthReceiptSearchTool', () => {
 
   it('gets stats', async () => {
     const result = await tool.execute({ action: 'stats' });
-    expect(result).toContain('Statistics');
+    expect(result).toContain('Receipt statistics');
     expect(result).toContain('2');
   });
 

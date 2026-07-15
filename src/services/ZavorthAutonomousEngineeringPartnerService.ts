@@ -1,15 +1,14 @@
 import { ZavorthAutomationControlPlaneService } from './ZavorthAutomationControlPlaneService.js';
 import { logger } from '../logger.js';
-
 import fs from 'fs';
 import path from 'path';
+import { createHash } from 'crypto';
 import { config } from '../config/index.js';
 import type {
   ZavorthMutationPlan,
   ZavorthMutationRiskLevel,
   ZavorthReadinessGate,
 } from '../contracts/ZavorthMutationPlaneContract.js';
-
 import { ZavorthFederatedMeshControlPlaneService } from './ZavorthFederatedMeshControlPlaneService.js';
 import { ZavorthHardwareActionPlaneService } from './ZavorthHardwareActionPlaneService.js';
 import { ZavorthMutationPlaneService } from './ZavorthMutationPlaneService.js';
@@ -38,9 +37,8 @@ import type {
   ZavorthAutonomyBudget,
   ZavorthAutonomyLevel,
 } from '../contracts/AutonomousEngineeringPartnerContract.js';
-
 import {
-AUTONOMY_LEVELS,
+  AUTONOMY_LEVELS,
   buildAuditId,
   buildEvidenceId,
   buildMissionId,
@@ -64,6 +62,7 @@ AUTONOMY_LEVELS,
   statusFromPosture,
 } from './autonomous-partner/AutonomousPartnerUtils.js';
 import { asErrorLike } from '../utils/errorLike.js';
+import { AgentRuntimeBudgetEnforcementService } from './AgentRuntimeBudgetEnforcementService.js';
 
 export type {
   AutonomousMissionCheckpoint,
@@ -134,6 +133,7 @@ type AutonomousPartnerRuntime = {
   readFileSync?: typeof fs.readFileSync;
   writeFileSync?: typeof fs.writeFileSync;
   mkdirSync?: typeof fs.mkdirSync;
+  budgetEnforcementService?: Pick<AgentRuntimeBudgetEnforcementService, 'authorize'>;
 };
 
 type AutonomousPartnerSources = {
@@ -179,41 +179,56 @@ export class ZavorthAutonomousEngineeringPartnerService {
   private readonly readFileSync: typeof fs.readFileSync;
   private readonly writeFileSync: typeof fs.writeFileSync;
   private readonly mkdirSync: typeof fs.mkdirSync;
+  private readonly budgetEnforcement: Pick<AgentRuntimeBudgetEnforcementService, 'authorize'>;
+  private readonly workspaceId: string;
 
   constructor(runtime: AutonomousPartnerRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.workspaceRoot = String(runtime.workspaceRoot || config.projectRoot || process.cwd()).trim();
+    this.workspaceId = `workspace-${createHash('sha256').update(path.resolve(this.workspaceRoot)).digest('hex').slice(0, 16)}`;
     this.stateFile = String(
-      runtime.stateFile
-      || path.join(this.workspaceRoot, 'data', 'runtime', 'autonomous-partner', 'missions.json'),
+      runtime.stateFile || path.join(this.workspaceRoot, 'data', 'runtime', 'autonomous-partner', 'missions.json'),
     );
-    this.rolloutReadiness = runtime.rolloutReadinessService === null
-      ? null
-      : runtime.rolloutReadinessService || new ZavorthRolloutReadinessControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
-    this.sandboxControlPlane = runtime.sandboxControlPlaneService === null
-      ? null
-      : runtime.sandboxControlPlaneService || new ZavorthSandboxControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
-    this.federatedMesh = runtime.federatedMeshService === null
-      ? null
-      : runtime.federatedMeshService || new ZavorthFederatedMeshControlPlaneService({ now: this.now });
-    this.canvasWorkspace = runtime.canvasWorkspaceService === null
-      ? null
-      : runtime.canvasWorkspaceService || new CanvasWorkspaceService({ now: this.now, workspaceRoot: this.workspaceRoot });
-    this.automationControlPlane = runtime.automationControlPlaneService === null
-      ? null
-      : runtime.automationControlPlaneService || new ZavorthAutomationControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
-    this.evalControlPlane = runtime.evalControlPlaneService === null
-      ? null
-      : runtime.evalControlPlaneService || null;
-    this.replayLearning = runtime.replayLearningService === null
-      ? null
-      : runtime.replayLearningService || new ZavorthReplayLearningService({ now: this.now, projectRoot: this.workspaceRoot });
-    this.skillEvolution = runtime.skillEvolutionService === null
-      ? null
-      : runtime.skillEvolutionService || new ZavorthSkillEvolutionService({ now: this.now, projectRoot: this.workspaceRoot });
-    this.hardwareActionPlane = runtime.hardwareActionPlaneService === null
-      ? null
-      : runtime.hardwareActionPlaneService || new ZavorthHardwareActionPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
+    this.rolloutReadiness =
+      runtime.rolloutReadinessService === null
+        ? null
+        : runtime.rolloutReadinessService ||
+          new ZavorthRolloutReadinessControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
+    this.sandboxControlPlane =
+      runtime.sandboxControlPlaneService === null
+        ? null
+        : runtime.sandboxControlPlaneService ||
+          new ZavorthSandboxControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
+    this.federatedMesh =
+      runtime.federatedMeshService === null
+        ? null
+        : runtime.federatedMeshService || new ZavorthFederatedMeshControlPlaneService({ now: this.now });
+    this.canvasWorkspace =
+      runtime.canvasWorkspaceService === null
+        ? null
+        : runtime.canvasWorkspaceService ||
+          new CanvasWorkspaceService({ now: this.now, workspaceRoot: this.workspaceRoot });
+    this.automationControlPlane =
+      runtime.automationControlPlaneService === null
+        ? null
+        : runtime.automationControlPlaneService ||
+          new ZavorthAutomationControlPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
+    this.evalControlPlane = runtime.evalControlPlaneService === null ? null : runtime.evalControlPlaneService || null;
+    this.replayLearning =
+      runtime.replayLearningService === null
+        ? null
+        : runtime.replayLearningService ||
+          new ZavorthReplayLearningService({ now: this.now, projectRoot: this.workspaceRoot });
+    this.skillEvolution =
+      runtime.skillEvolutionService === null
+        ? null
+        : runtime.skillEvolutionService ||
+          new ZavorthSkillEvolutionService({ now: this.now, projectRoot: this.workspaceRoot });
+    this.hardwareActionPlane =
+      runtime.hardwareActionPlaneService === null
+        ? null
+        : runtime.hardwareActionPlaneService ||
+          new ZavorthHardwareActionPlaneService({ now: this.now, workspaceRoot: this.workspaceRoot });
     this.mutationPlane = runtime.mutationPlaneService || new ZavorthMutationPlaneService();
     this.trustDecision = runtime.trustDecisionService || new TrustDecisionService();
     this.policyLedger = runtime.policyLedgerService || new TrustPlanePolicyLedgerService();
@@ -221,9 +236,13 @@ export class ZavorthAutonomousEngineeringPartnerService {
     this.readFileSync = runtime.readFileSync || fs.readFileSync.bind(fs);
     this.writeFileSync = runtime.writeFileSync || fs.writeFileSync.bind(fs);
     this.mkdirSync = runtime.mkdirSync || fs.mkdirSync.bind(fs);
+    this.budgetEnforcement =
+      runtime.budgetEnforcementService || new AgentRuntimeBudgetEnforcementService({ now: this.now });
   }
 
-  public async buildSnapshot(input: { limit?: number; includeSources?: boolean } = {}): Promise<AutonomousPartnerSnapshot> {
+  public async buildSnapshot(
+    input: { limit?: number; includeSources?: boolean } = {},
+  ): Promise<AutonomousPartnerSnapshot> {
     const limit = Math.max(1, Math.min(Number(input.limit || 12), 50));
     const state = this.readState();
     const sources = await this.readSources();
@@ -236,7 +255,8 @@ export class ZavorthAutonomousEngineeringPartnerService {
     const pausedMissions = missions.filter((entry) => entry.status === 'paused').length;
     const blockedMissions = missions.filter((entry) => entry.status === 'blocked' || entry.status === 'failed').length;
     const completedMissions = missions.filter((entry) => entry.status === 'completed').length;
-    const pendingMissionApprovals = missions.filter((entry) => entry.status === 'waiting_approval').length + pendingPlans.length;
+    const pendingMissionApprovals =
+      missions.filter((entry) => entry.status === 'waiting_approval').length + pendingPlans.length;
     const unavailableSourcePlanes = sourceHealth.filter((entry) => entry.status === 'unavailable').length;
     const summary = {
       posture: this.resolveSnapshotPosture({
@@ -290,10 +310,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
       narrative: {
         headline: 'Autonomous Engineering Partner',
         operatorSummary:
-          `${missions.length} missao(oes), ${activeMissions} ativa(s), ${pausedMissions} pausada(s), `
-          + `${pendingMissionApprovals} approval(s) pendente(s), core idle=${summary.coreIdle ? 'sim' : 'nao'}, `
-          + `runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
-        nextAction: actions[0]?.label || 'Delegar uma missao com budget explicito e revisar os checkpoints antes de aplicar.',
+          `${missions.length} missao(oes), ${activeMissions} ativa(s), ${pausedMissions} pausada(s), ` +
+          `${pendingMissionApprovals} approval(s) pendente(s), core idle=${summary.coreIdle ? 'sim' : 'nao'}, ` +
+          `runtime pesado iniciado=${summary.heavyRuntimesStarted ? 'sim' : 'nao'}.`,
+        nextAction:
+          actions[0]?.label || 'Delegar uma missao com budget explicito e revisar os checkpoints antes de aplicar.',
       },
     };
   }
@@ -422,7 +443,9 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (!readinessGate.canProceed || trustDecision.decision === 'blocked') {
       linkedPlan = this.mutationPlane.markBlocked(
         linkedPlan.id,
-        trustDecision.decision === 'blocked' ? trustDecision.reason : readinessGate.blockers[0] || 'Mission readiness blocked.',
+        trustDecision.decision === 'blocked'
+          ? trustDecision.reason
+          : readinessGate.blockers[0] || 'Mission readiness blocked.',
       );
       mission.status = 'blocked';
       mission.pauseReason = linkedPlan.audit.at(-1)?.message || mission.pauseReason;
@@ -468,12 +491,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
     });
     mission.status = mission.status === 'waiting_approval' ? 'running' : mission.status;
     mission.updatedAt = this.now().toISOString();
-    mission.evidence.unshift(this.buildEvidence({
-      kind: 'approval',
-      status: 'passed',
-      summary: `MutationPlan ${plan.id} aprovado.`,
-      ref: `mutation-plan:${plan.id}`,
-    }));
+    mission.evidence.unshift(
+      this.buildEvidence({
+        kind: 'approval',
+        status: 'passed',
+        summary: `MutationPlan ${plan.id} aprovado.`,
+        ref: `mutation-plan:${plan.id}`,
+      }),
+    );
     this.writeMission(state, mission, `Missao ${mission.id} aprovada.`);
     return {
       generatedAt: this.now().toISOString(),
@@ -492,7 +517,15 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (!mission) {
       return this.progressBlocked('Missao nao encontrada para progresso.', null);
     }
-    mission.usage = this.mergeUsage(mission.usage, input);
+    const authorization = await this.budgetEnforcement.authorize({
+      workspaceId: this.workspaceId,
+      missionId: mission.id,
+      budget: mission.budget,
+      usage: mission.usage,
+      requested: input,
+      riskLevel: normalizeRisk(input.riskLevel),
+    });
+    if (authorization.allowed) mission.usage = this.mergeUsage(mission.usage, input);
     if (input.evidence) {
       mission.evidence.unshift(this.buildEvidence(input.evidence));
     }
@@ -501,16 +534,18 @@ export class ZavorthAutonomousEngineeringPartnerService {
     } else if (mission.status === 'planned' || mission.status === 'waiting_approval') {
       mission.status = mission.status === 'waiting_approval' ? 'waiting_approval' : 'running';
     }
-    const blockers = this.evaluateBudget(mission, input.riskLevel);
+    const blockers = authorization.allowed ? this.evaluateBudget(mission, input.riskLevel) : authorization.blockers;
     if (blockers.length > 0) {
       mission.status = 'paused';
       mission.pauseReason = blockers[0];
-      mission.evidence.unshift(this.buildEvidence({
-        kind: 'log',
-        status: 'warning',
-        summary: `Missao pausada: ${blockers[0]}`,
-        ref: null,
-      }));
+      mission.evidence.unshift(
+        this.buildEvidence({
+          kind: 'log',
+          status: 'warning',
+          summary: `Missao pausada: ${blockers[0]}`,
+          ref: null,
+        }),
+      );
     }
     mission.updatedAt = this.now().toISOString();
     this.writeMission(state, mission, cleanText(input.summary, `Progresso registrado para ${mission.id}.`));
@@ -538,12 +573,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
     mission.status = 'paused';
     mission.pauseReason = cleanText(input.reason, 'Pausa manual solicitada.');
     mission.updatedAt = this.now().toISOString();
-    mission.evidence.unshift(this.buildEvidence({
-      kind: 'log',
-      status: 'warning',
-      summary: mission.pauseReason,
-      ref: null,
-    }));
+    mission.evidence.unshift(
+      this.buildEvidence({
+        kind: 'log',
+        status: 'warning',
+        summary: mission.pauseReason,
+        ref: null,
+      }),
+    );
     this.writeMission(state, mission, `Missao ${mission.id} pausada.`);
     return {
       generatedAt: this.now().toISOString(),
@@ -603,18 +640,21 @@ export class ZavorthAutonomousEngineeringPartnerService {
       rollbackPlan,
       completedAt: this.now().toISOString(),
     };
-    mission.evidence.unshift(this.buildEvidence({
-      kind: 'checkpoint',
-      status: 'passed',
-      summary: mission.result.summary,
-      ref: `mission:${mission.id}:result`,
-    }));
+    mission.evidence.unshift(
+      this.buildEvidence({
+        kind: 'checkpoint',
+        status: 'passed',
+        summary: mission.result.summary,
+        ref: `mission:${mission.id}:result`,
+      }),
+    );
     if (mission.mutationPlanId) {
       try {
         this.mutationPlane.markApplied(mission.mutationPlanId, mission.result.summary, ['mission.complete']);
-      } catch (error: unknown) {// Completion evidence should survive even if the mutation plan was already expired or applied.
-      logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
-    }
+      } catch (error: unknown) {
+        // Completion evidence should survive even if the mutation plan was already expired or applied.
+        logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
+      }
     }
     this.writeMission(state, mission, `Missao ${mission.id} concluida.`);
     this.appendLedger({
@@ -639,27 +679,18 @@ export class ZavorthAutonomousEngineeringPartnerService {
   }
 
   private async readSources(): Promise<AutonomousPartnerSources> {
-    const [
-      rollout,
-      sandbox,
-      federatedMesh,
-      canvas,
-      automation,
-      evals,
-      replayLearning,
-      skillEvolution,
-      hardware,
-    ] = await Promise.all([
-      this.safeSnapshot(this.rolloutReadiness, { scope: 'local', includeSources: false }),
-      this.safeSnapshot(this.sandboxControlPlane, {}),
-      this.safeSnapshot(this.federatedMesh, {}),
-      this.safeSnapshot(this.canvasWorkspace, { limit: 8 }),
-      this.safeSnapshot(this.automationControlPlane, { limit: 8 }),
-      this.safeSnapshot(this.evalControlPlane, { sourceSurface: 'autonomous-partner' }),
-      this.safeSnapshot(this.replayLearning, { limit: 8 }),
-      this.safeSnapshot(this.skillEvolution, {}),
-      this.safeSnapshot(this.hardwareActionPlane, {}),
-    ]);
+    const [rollout, sandbox, federatedMesh, canvas, automation, evals, replayLearning, skillEvolution, hardware] =
+      await Promise.all([
+        this.safeSnapshot(this.rolloutReadiness, { scope: 'local', includeSources: false }),
+        this.safeSnapshot(this.sandboxControlPlane, {}),
+        this.safeSnapshot(this.federatedMesh, {}),
+        this.safeSnapshot(this.canvasWorkspace, { limit: 8 }),
+        this.safeSnapshot(this.automationControlPlane, { limit: 8 }),
+        this.safeSnapshot(this.evalControlPlane, { sourceSurface: 'autonomous-partner' }),
+        this.safeSnapshot(this.replayLearning, { limit: 8 }),
+        this.safeSnapshot(this.skillEvolution, {}),
+        this.safeSnapshot(this.hardwareActionPlane, {}),
+      ]);
     return {
       rollout,
       sandbox,
@@ -673,7 +704,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     };
   }
 
-  private async safeSnapshot(service: SnapshotLike | null, input: Record<string, unknown>): Promise<ControlPlaneSnapshot | null> {
+  private async safeSnapshot(
+    service: SnapshotLike | null,
+    input: Record<string, unknown>,
+  ): Promise<ControlPlaneSnapshot | null> {
     if (!service) {
       return null;
     }
@@ -682,11 +716,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
     } catch (error: unknown) {
       const err = asErrorLike(error);
       logger.warn('[Zavorth Autonomous Engineering Partner] creation failed', error);
-    return {
+      return {
         unavailable: true,
         error: error instanceof Error ? err.message : String(error),
       };
-  }
+    }
   }
 
   private buildMissionPolicy(input: {
@@ -697,26 +731,32 @@ export class ZavorthAutonomousEngineeringPartnerService {
   }): AutonomousMissionPolicy {
     const text = input.objective.toLowerCase();
     const mutable = input.mutable === true || infersMutableMission(text);
-    const rolloutGateRequired = mutable || /\b(deploy|release|production|prod|beta|rollback|publicar|lancar)\b/u.test(text);
-    const sandboxRequired = /\b(codigo|code|script|patch|dependency|npm|python|powershell|unknown|internet|sandbox)\b/u.test(text);
+    const rolloutGateRequired =
+      mutable || /\b(deploy|release|production|prod|beta|rollback|publicar|lancar)\b/u.test(text);
+    const sandboxRequired =
+      /\b(codigo|code|script|patch|dependency|npm|python|powershell|unknown|internet|sandbox)\b/u.test(text);
     const meshRoutingAllowed = /\b(remote|remoto|server|servidor|gpu|node|fleet|celular|mobile)\b/u.test(text);
     const automationAllowed = /\b(automacao|automation|schedule|recorrente|todo dia|cron|outbox)\b/u.test(text);
-    const hardwareActionsAllowed = /\b(hardware|iot|domotica|luz|sensor|mqtt|home assistant|device|dispositivo)\b/u.test(text);
+    const hardwareActionsAllowed =
+      /\b(hardware|iot|domotica|luz|sensor|mqtt|home assistant|device|dispositivo)\b/u.test(text);
     const learningAllowed = /\b(aprenda|learn|replay|skill|gêmeo|gemeo|style|estilo)\b/u.test(text);
     const approvalRequired =
-      mutable
-      || input.autonomyLevel === 'supervised'
-      || input.autonomyLevel === 'delegated'
-      || input.autonomyLevel === 'autonomous-with-budget'
-      || riskRank(input.riskLevel) >= riskRank('high');
+      mutable ||
+      input.autonomyLevel === 'supervised' ||
+      input.autonomyLevel === 'delegated' ||
+      input.autonomyLevel === 'autonomous-with-budget' ||
+      riskRank(input.riskLevel) >= riskRank('high');
     return {
       approvalRequired,
       approvalReason: approvalRequired
         ? 'Missao autonoma ou mutavel exige approval, budget e checkpoints antes de execucao.'
         : 'Missao de assistencia/draft permanece em preview sem aplicar mutacoes.',
-      applyMode: input.autonomyLevel === 'assist' || input.autonomyLevel === 'draft'
-        ? 'preview-only'
-        : input.autonomyLevel === 'autonomous-with-budget' ? 'budgeted-supervised' : 'approval-gated',
+      applyMode:
+        input.autonomyLevel === 'assist' || input.autonomyLevel === 'draft'
+          ? 'preview-only'
+          : input.autonomyLevel === 'autonomous-with-budget'
+            ? 'budgeted-supervised'
+            : 'approval-gated',
       rolloutGateRequired,
       sandboxRequired,
       meshRoutingAllowed,
@@ -752,113 +792,144 @@ export class ZavorthAutonomousEngineeringPartnerService {
         plane: 'workspace-canvas',
         required: input.policy.canvasReviewRequired,
         status: input.sources.canvas ? statusFromPosture(input.sources.canvas?.summary?.posture) : 'warning',
-        summary: input.sources.canvas?.narrative?.operatorSummary || 'Canvas indisponivel; fallback CLI permanece valido.',
+        summary:
+          input.sources.canvas?.narrative?.operatorSummary || 'Canvas indisponivel; fallback CLI permanece valido.',
         command: 'npm run ops:canvas',
       }),
     ];
     if (input.policy.rolloutGateRequired) {
-      checkpoints.push(this.checkpoint({
-        id: 'rollout-readiness',
-        label: 'Rollout readiness',
-        plane: 'rollout-readiness',
-        required: true,
-        status: gateStatusToCheckpoint(input.sources.rollout?.summary?.gateStatus, input.sources.rollout?.summary?.canProceed),
-        summary: input.sources.rollout?.narrative?.operatorSummary || 'Rollout gate indisponivel.',
-        command: 'npm run ops:rollout-readiness',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'rollout-readiness',
+          label: 'Rollout readiness',
+          plane: 'rollout-readiness',
+          required: true,
+          status: gateStatusToCheckpoint(
+            input.sources.rollout?.summary?.gateStatus,
+            input.sources.rollout?.summary?.canProceed,
+          ),
+          summary: input.sources.rollout?.narrative?.operatorSummary || 'Rollout gate indisponivel.',
+          command: 'npm run ops:rollout-readiness',
+        }),
+      );
     }
     if (input.policy.sandboxRequired) {
       const ready = input.sources.sandbox?.summary?.untrustedExecutionReady === true;
-      checkpoints.push(this.checkpoint({
-        id: 'sandbox-envelope',
-        label: 'Sandbox para codigo desconhecido',
-        plane: 'sandbox',
-        required: false,
-        status: ready ? 'passed' : 'warning',
-        summary: ready
-          ? 'Sandbox forte disponivel para trechos desconhecidos.'
-          : 'Sandbox forte nao esta pronto; missao deve manter apply em preview/dry-run.',
-        command: 'npm run ops:sandbox',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'sandbox-envelope',
+          label: 'Sandbox para codigo desconhecido',
+          plane: 'sandbox',
+          required: false,
+          status: ready ? 'passed' : 'warning',
+          summary: ready
+            ? 'Sandbox forte disponivel para trechos desconhecidos.'
+            : 'Sandbox forte nao esta pronto; missao deve manter apply em preview/dry-run.',
+          command: 'npm run ops:sandbox',
+        }),
+      );
     }
     if (input.policy.meshRoutingAllowed) {
       const infra = String(input.sources.federatedMesh?.summary?.infrastructureState || 'dormant');
-      checkpoints.push(this.checkpoint({
-        id: 'federated-runtime-route',
-        label: 'Escolha de runtime federado',
-        plane: 'federated-mesh',
-        required: false,
-        status: infra === 'mesh_online' ? 'passed' : 'warning',
-        summary: input.sources.federatedMesh?.narrative?.operatorSummary || 'Mesh dormente; fallback local deve existir.',
-        command: 'npm run ops:federated-mesh',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'federated-runtime-route',
+          label: 'Escolha de runtime federado',
+          plane: 'federated-mesh',
+          required: false,
+          status: infra === 'mesh_online' ? 'passed' : 'warning',
+          summary:
+            input.sources.federatedMesh?.narrative?.operatorSummary || 'Mesh dormente; fallback local deve existir.',
+          command: 'npm run ops:federated-mesh',
+        }),
+      );
     }
     if (input.policy.automationAllowed) {
-      checkpoints.push(this.checkpoint({
-        id: 'automation-outbox',
-        label: 'Automation budget/outbox',
-        plane: 'automations',
-        required: false,
-        status: statusFromPosture(input.sources.automation?.summary?.posture),
-        summary: input.sources.automation?.narrative?.operatorSummary || 'Automations indisponivel; recorrencia deve ficar em draft.',
-        command: 'npm run ops:automations',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'automation-outbox',
+          label: 'Automation budget/outbox',
+          plane: 'automations',
+          required: false,
+          status: statusFromPosture(input.sources.automation?.summary?.posture),
+          summary:
+            input.sources.automation?.narrative?.operatorSummary ||
+            'Automations indisponivel; recorrencia deve ficar em draft.',
+          command: 'npm run ops:automations',
+        }),
+      );
     }
     if (input.policy.evalRegressionGateRequired) {
-      const canProceed = input.sources.evals?.regressionGate?.canProceed !== false && input.sources.evals?.regressionGate?.rolloutBlocked !== true;
-      checkpoints.push(this.checkpoint({
-        id: 'eval-regression-gate',
-        label: 'Eval regression gate',
-        plane: 'evals',
-        required: true,
-        status: canProceed ? statusFromPosture(input.sources.evals?.summary?.posture) : 'blocked',
-        summary: input.sources.evals?.narrative?.operatorSummary || 'Eval indisponivel; manter como draft ate haver evidencia.',
-        command: 'npm run ops:evals',
-      }));
+      const canProceed =
+        input.sources.evals?.regressionGate?.canProceed !== false &&
+        input.sources.evals?.regressionGate?.rolloutBlocked !== true;
+      checkpoints.push(
+        this.checkpoint({
+          id: 'eval-regression-gate',
+          label: 'Eval regression gate',
+          plane: 'evals',
+          required: true,
+          status: canProceed ? statusFromPosture(input.sources.evals?.summary?.posture) : 'blocked',
+          summary:
+            input.sources.evals?.narrative?.operatorSummary ||
+            'Eval indisponivel; manter como draft ate haver evidencia.',
+          command: 'npm run ops:evals',
+        }),
+      );
     }
     if (input.policy.replayLearningAllowed) {
-      checkpoints.push(this.checkpoint({
-        id: 'replay-learning-suggest-only',
-        label: 'Replay learning suggest-only',
-        plane: 'replay-learning',
-        required: false,
-        status: statusFromPosture(input.sources.replayLearning?.summary?.posture),
-        summary: input.sources.replayLearning?.narrative?.operatorSummary || 'Replay learning indisponivel.',
-        command: 'npm run ops:replay-learning',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'replay-learning-suggest-only',
+          label: 'Replay learning suggest-only',
+          plane: 'replay-learning',
+          required: false,
+          status: statusFromPosture(input.sources.replayLearning?.summary?.posture),
+          summary: input.sources.replayLearning?.narrative?.operatorSummary || 'Replay learning indisponivel.',
+          command: 'npm run ops:replay-learning',
+        }),
+      );
     }
     if (input.policy.skillEvolutionAllowed) {
-      checkpoints.push(this.checkpoint({
-        id: 'skill-evolution-draft-first',
-        label: 'Skill evolution draft-first',
-        plane: 'skill-evolution',
-        required: false,
-        status: statusFromPosture(input.sources.skillEvolution?.summary?.posture),
-        summary: input.sources.skillEvolution?.actions?.[0] || 'Skill evolution deve ficar draft/sandbox/eval antes de install.',
-        command: 'npm run ops:skill-evolution',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'skill-evolution-draft-first',
+          label: 'Skill evolution draft-first',
+          plane: 'skill-evolution',
+          required: false,
+          status: statusFromPosture(input.sources.skillEvolution?.summary?.posture),
+          summary:
+            input.sources.skillEvolution?.actions?.[0] ||
+            'Skill evolution deve ficar draft/sandbox/eval antes de install.',
+          command: 'npm run ops:skill-evolution',
+        }),
+      );
     }
     if (input.policy.hardwareActionsAllowed) {
       const blocked = input.sources.hardware?.summary?.emergencyStopActive === true;
-      checkpoints.push(this.checkpoint({
-        id: 'hardware-emergency-stop',
-        label: 'Hardware emergency stop',
-        plane: 'hardware',
-        required: true,
-        status: blocked ? 'blocked' : statusFromPosture(input.sources.hardware?.summary?.posture),
-        summary: input.sources.hardware?.narrative?.operatorSummary || 'Hardware action plane indisponivel.',
-        command: 'npm run ops:hardware',
-      }));
+      checkpoints.push(
+        this.checkpoint({
+          id: 'hardware-emergency-stop',
+          label: 'Hardware emergency stop',
+          plane: 'hardware',
+          required: true,
+          status: blocked ? 'blocked' : statusFromPosture(input.sources.hardware?.summary?.posture),
+          summary: input.sources.hardware?.narrative?.operatorSummary || 'Hardware action plane indisponivel.',
+          command: 'npm run ops:hardware',
+        }),
+      );
     }
-    checkpoints.push(this.checkpoint({
-      id: 'final-evidence-pack',
-      label: 'Evidence pack final',
-      plane: 'autonomous-partner',
-      required: true,
-      status: 'pending',
-      summary: 'Resultado deve incluir evidencias, testes, diffs, logs e rollback quando possivel.',
-      command: 'npm run ops:partner',
-    }));
+    checkpoints.push(
+      this.checkpoint({
+        id: 'final-evidence-pack',
+        label: 'Evidence pack final',
+        plane: 'autonomous-partner',
+        required: true,
+        status: 'pending',
+        summary: 'Resultado deve incluir evidencias, testes, diffs, logs e rollback quando possivel.',
+        command: 'npm run ops:partner',
+      }),
+    );
     return checkpoints;
   }
 
@@ -872,16 +943,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
       .filter((entry) => entry.status === 'warning')
       .map((entry) => `${entry.label}: ${entry.summary}`);
     const blockers = requiredBlocked.map((entry) => `${entry.label}: ${entry.summary}`);
-    const status: ZavorthReadinessGate['status'] = blockers.length > 0 ? 'blocked' : warnings.length > 0 ? 'warning' : 'passed';
+    const status: ZavorthReadinessGate['status'] =
+      blockers.length > 0 ? 'blocked' : warnings.length > 0 ? 'warning' : 'passed';
     return {
       id: 'autonomous-mission-readiness',
       status,
       canProceed: blockers.length === 0,
       scope: 'mission',
-      reasons: [
-        `Objetivo: ${objective}`,
-        `${checkpoints.length} checkpoint(s) derivados dos control planes.`,
-      ],
+      reasons: [`Objetivo: ${objective}`, `${checkpoints.length} checkpoint(s) derivados dos control planes.`],
       warnings,
       blockers,
       checkedAt: this.now().toISOString(),
@@ -925,18 +994,29 @@ export class ZavorthAutonomousEngineeringPartnerService {
   }
 
   private evidenceFromCheckpoints(checkpoints: AutonomousMissionCheckpoint[]): AutonomousMissionEvidence[] {
-    return checkpoints.map((entry) => this.buildEvidence({
-      kind: 'checkpoint',
-      status: entry.status === 'passed' ? 'passed' : entry.status === 'blocked' ? 'failed' : entry.status === 'skipped' ? 'skipped' : 'warning',
-      summary: `${entry.label}: ${entry.summary}`,
-      ref: entry.command || entry.sourceRef,
-    }));
+    return checkpoints.map((entry) =>
+      this.buildEvidence({
+        kind: 'checkpoint',
+        status:
+          entry.status === 'passed'
+            ? 'passed'
+            : entry.status === 'blocked'
+              ? 'failed'
+              : entry.status === 'skipped'
+                ? 'skipped'
+                : 'warning',
+        summary: `${entry.label}: ${entry.summary}`,
+        ref: entry.command || entry.sourceRef,
+      }),
+    );
   }
 
-  private checkpoint(input: Omit<AutonomousMissionCheckpoint, 'sourceRef' | 'evidenceRefs'> & {
-    sourceRef?: string | null;
-    evidenceRefs?: string[];
-  }): AutonomousMissionCheckpoint {
+  private checkpoint(
+    input: Omit<AutonomousMissionCheckpoint, 'sourceRef' | 'evidenceRefs'> & {
+      sourceRef?: string | null;
+      evidenceRefs?: string[];
+    },
+  ): AutonomousMissionCheckpoint {
     return {
       ...input,
       sourceRef: input.sourceRef || null,
@@ -969,7 +1049,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
     ];
   }
 
-  private sourceHealth(plane: string, snapshot: ControlPlaneSnapshot | null, command: string): AutonomousPartnerSourceHealth {
+  private sourceHealth(
+    plane: string,
+    snapshot: ControlPlaneSnapshot | null,
+    command: string,
+  ): AutonomousPartnerSourceHealth {
     if (!snapshot || snapshot.unavailable) {
       return {
         plane,
@@ -982,17 +1066,26 @@ export class ZavorthAutonomousEngineeringPartnerService {
     return {
       plane,
       status: posture === 'blocked' ? 'critical' : posture === 'warning' ? 'attention' : 'healthy',
-      summary: snapshot?.narrative?.operatorSummary || snapshot?.summary?.posture || `${plane} respondeu snapshot leve.`,
+      summary:
+        snapshot?.narrative?.operatorSummary || snapshot?.summary?.posture || `${plane} respondeu snapshot leve.`,
       command,
     };
   }
 
   private listPendingMissionPlans(limit: number): ZavorthMutationPlan[] {
     try {
-      return this.mutationPlane.listPlans({ limit: Math.max(limit, 20), includeExpired: false })
-        .filter((entry) => entry.domain === 'autonomous-partner' && (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'))
+      return this.mutationPlane
+        .listPlans({ limit: Math.max(limit, 20), includeExpired: false })
+        .filter(
+          (entry) =>
+            entry.domain === 'autonomous-partner' &&
+            (entry.status === 'waiting_approval' || entry.status === 'approved' || entry.status === 'draft'),
+        )
         .slice(0, limit);
-    } catch (error: unknown) {logger.warn('[Zavorth Autonomous Engineering Partner] filesystem check failed', error); return []; }
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Autonomous Engineering Partner] filesystem check failed', error);
+      return [];
+    }
   }
 
   private describeAutonomyLevels(): AutonomousPartnerSnapshot['autonomyLevels'] {
@@ -1089,7 +1182,11 @@ export class ZavorthAutonomousEngineeringPartnerService {
     if (input.pausedMissions > 0 || input.blockedMissions > 0) {
       return 'critical';
     }
-    if (input.pendingMissionApprovals > 0 || input.unavailableSourcePlanes > 2 || input.sourceHealth.some((entry) => entry.status === 'critical')) {
+    if (
+      input.pendingMissionApprovals > 0 ||
+      input.unavailableSourcePlanes > 2 ||
+      input.sourceHealth.some((entry) => entry.status === 'critical')
+    ) {
       return 'attention';
     }
     return 'healthy';
@@ -1112,13 +1209,18 @@ export class ZavorthAutonomousEngineeringPartnerService {
       maxFilesystemWrites: positiveNumber(input?.maxFilesystemWrites, defaults.maxFilesystemWrites, 0, 10_000),
       maxExternalDeliveries: positiveNumber(input?.maxExternalDeliveries, defaults.maxExternalDeliveries, 0, 1000),
       pauseOnFailureCount: positiveNumber(input?.pauseOnFailureCount, defaults.pauseOnFailureCount, 1, 20),
-      requiresHumanReviewAboveRisk: normalizeRisk(input?.requiresHumanReviewAboveRisk || defaults.requiresHumanReviewAboveRisk),
+      requiresHumanReviewAboveRisk: normalizeRisk(
+        input?.requiresHumanReviewAboveRisk || defaults.requiresHumanReviewAboveRisk,
+      ),
       expiresAt: cleanText(input?.expiresAt, new Date(this.now().getTime() + maxDurationMs).toISOString()),
     };
   }
 
   private defaultBudgetFor(level: ZavorthAutonomyLevel, riskLevel: ZavorthMutationRiskLevel): ZavorthAutonomyBudget {
-    const base: Record<ZavorthAutonomyLevel, Omit<ZavorthAutonomyBudget, 'expiresAt' | 'requiresHumanReviewAboveRisk'>> = {
+    const base: Record<
+      ZavorthAutonomyLevel,
+      Omit<ZavorthAutonomyBudget, 'expiresAt' | 'requiresHumanReviewAboveRisk'>
+    > = {
       assist: {
         scope: 'run',
         maxActions: 4,
@@ -1183,7 +1285,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
     };
   }
 
-  private evaluateBudget(mission: AutonomousMissionRecord, observedRisk?: ZavorthMutationRiskLevel | string | null): string[] {
+  private evaluateBudget(
+    mission: AutonomousMissionRecord,
+    observedRisk?: ZavorthMutationRiskLevel | string | null,
+  ): string[] {
     const blockers: string[] = [];
     const usage = mission.usage;
     const budget = mission.budget;
@@ -1206,7 +1311,9 @@ export class ZavorthAutonomousEngineeringPartnerService {
       blockers.push(`Budget de filesystem writes excedido: ${usage.filesystemWrites}/${budget.maxFilesystemWrites}.`);
     }
     if (usage.externalDeliveries > budget.maxExternalDeliveries) {
-      blockers.push(`Budget de entregas externas excedido: ${usage.externalDeliveries}/${budget.maxExternalDeliveries}.`);
+      blockers.push(
+        `Budget de entregas externas excedido: ${usage.externalDeliveries}/${budget.maxExternalDeliveries}.`,
+      );
     }
     if (usage.failures >= budget.pauseOnFailureCount) {
       blockers.push(`Falhas repetidas atingiram limite: ${usage.failures}/${budget.pauseOnFailureCount}.`);
@@ -1240,11 +1347,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
       return this.defaultState();
     }
     try {
-      const parsed = JSON.parse(String(this.readFileSync(this.stateFile, 'utf8') || '{}')) as Partial<AutonomousPartnerState>;
+      const parsed = JSON.parse(
+        String(this.readFileSync(this.stateFile, 'utf8') || '{}'),
+      ) as Partial<AutonomousPartnerState>;
       return this.normalizeState(parsed);
-    } catch (error: unknown) {logger.warn('[Zavorth Autonomous Engineering Partner] JSON parse failed', error);
-    return this.defaultState();
-  }
+    } catch (error: unknown) {
+      logger.warn('[Zavorth Autonomous Engineering Partner] JSON parse failed', error);
+      return this.defaultState();
+    }
   }
 
   private writeMission(state: AutonomousPartnerState, mission: AutonomousMissionRecord, summary: string): void {
@@ -1253,13 +1363,16 @@ export class ZavorthAutonomousEngineeringPartnerService {
       throw new Error(`Missao invalida: ${mission.id || 'n/d'}.`);
     }
     state.missions[mission.id] = normalized;
-    state.audit = [this.buildAudit({
-      missionId: mission.id,
-      event: 'mission.updated',
-      status: mission.status,
-      requestedBy: mission.requestedBy,
-      summary,
-    }), ...state.audit].slice(0, 200);
+    state.audit = [
+      this.buildAudit({
+        missionId: mission.id,
+        event: 'mission.updated',
+        status: mission.status,
+        requestedBy: mission.requestedBy,
+        summary,
+      }),
+      ...state.audit,
+    ].slice(0, 200);
     this.writeState(state);
   }
 
@@ -1298,7 +1411,10 @@ export class ZavorthAutonomousEngineeringPartnerService {
       updatedAt: nullableText(input.updatedAt),
       missions,
       audit: Array.isArray(input.audit)
-        ? input.audit.map((entry) => this.normalizeAudit(entry)).filter((entry): entry is AutonomousPartnerAuditEntry => Boolean(entry)).slice(0, 200)
+        ? input.audit
+            .map((entry) => this.normalizeAudit(entry))
+            .filter((entry): entry is AutonomousPartnerAuditEntry => Boolean(entry))
+            .slice(0, 200)
         : [],
     };
   }
@@ -1336,15 +1452,19 @@ export class ZavorthAutonomousEngineeringPartnerService {
         externalDeliveries: nonNegative(raw.usage?.externalDeliveries),
         failures: nonNegative(raw.usage?.failures),
       },
-      policy: raw.policy || this.buildMissionPolicy({
-        objective,
-        autonomyLevel,
-        riskLevel,
-        mutable: null,
-      }),
+      policy:
+        raw.policy ||
+        this.buildMissionPolicy({
+          objective,
+          autonomyLevel,
+          riskLevel,
+          mutable: null,
+        }),
       plan: normalizeList(raw.plan),
       checkpoints: Array.isArray(raw.checkpoints)
-        ? raw.checkpoints.map((item) => this.normalizeCheckpoint(item)).filter((item): item is AutonomousMissionCheckpoint => Boolean(item))
+        ? raw.checkpoints
+            .map((item) => this.normalizeCheckpoint(item))
+            .filter((item): item is AutonomousMissionCheckpoint => Boolean(item))
         : [],
       evidence: Array.isArray(raw.evidence) ? raw.evidence.map((item) => this.buildEvidence(item)).slice(0, 100) : [],
       mutationPlanId: nullableText(raw.mutationPlanId),
@@ -1432,11 +1552,14 @@ export class ZavorthAutonomousEngineeringPartnerService {
         ],
         rollback: {
           available: input.mission.result?.rollbackAvailable === true,
-          reason: input.mission.result?.rollbackAvailable ? 'Rollback declarado no evidence pack.' : 'Rollback depende dos action planes usados pela missao.',
+          reason: input.mission.result?.rollbackAvailable
+            ? 'Rollback declarado no evidence pack.'
+            : 'Rollback depende dos action planes usados pela missao.',
         },
         result: input.summary,
       });
-    } catch (error: unknown) {// O mission control nao deve falhar por indisponibilidade do ledger.
+    } catch (error: unknown) {
+      // O mission control nao deve falhar por indisponibilidade do ledger.
       logger.warn('[Zavorth Autonomous Engineering Partner] operation failed', error);
     }
   }
@@ -1488,5 +1611,4 @@ export class ZavorthAutonomousEngineeringPartnerService {
       },
     };
   }
-
 }

@@ -50,8 +50,18 @@ const BUILTIN_CLUSTERS: ToolCluster[] = [
   },
   {
     name: 'memory',
-    description: 'Semantic memory, graph memory, and session search.',
-    toolNames: ['semantic_memory', 'memory_graph', 'session_search', 'session_search_fts5', 'zavorth_session_search', 'sessions.search'],
+    description: 'Semantic memory, graph memory, session search, and learned skill procedures.',
+    toolNames: [
+      'semantic_memory',
+      'memory_graph',
+      'conversation_recall',
+      'knowledge_recall',
+      'session_search',
+      'session_search_fts5',
+      'zavorth_session_search',
+      'sessions.search',
+      'use_learned_skill',
+    ],
     intentHints: ['memory'],
   },
   {
@@ -123,9 +133,7 @@ export class ToolClusterRegistry {
    * Returns clusters that are relevant for the given intent category.
    */
   getClustersForIntent(category: IntentCategory): ToolCluster[] {
-    return Array.from(this.clusters.values()).filter(
-      (cluster) => cluster.intentHints.includes(category),
-    );
+    return Array.from(this.clusters.values()).filter((cluster) => cluster.intentHints.includes(category));
   }
 
   /**
@@ -171,9 +179,7 @@ export class ToolClusterRegistry {
    * Finds which cluster(s) a given tool belongs to.
    */
   findClustersForTool(toolName: string): ToolCluster[] {
-    return Array.from(this.clusters.values()).filter(
-      (cluster) => cluster.toolNames.includes(toolName),
-    );
+    return Array.from(this.clusters.values()).filter((cluster) => cluster.toolNames.includes(toolName));
   }
 
   /**

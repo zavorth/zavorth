@@ -29,7 +29,9 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
 
   it('records a preview and grants approval without authorizing live execution', () => {
     const preview = service.buildPreviewFromText({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       channel: 'web',
     });
 
@@ -61,7 +63,9 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
 
   it('records a rejection as an auditable decision', () => {
     const preview = service.buildPreviewFromText({
-      text: 'Pague a fatura do cartao se ficar abaixo de R$900.',
+      text: 'Pay the card bill if it stays below R$900.',
+      kind: 'pay-bill',
+      actionKind: 'payment-submit',
       channel: 'api',
     });
 
@@ -81,7 +85,8 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
 
   it('blocks approval for clarification-needed previews', () => {
     const preview = service.buildPreviewFromText({
-      text: 'Compre isso para mim depois.',
+      text: 'Buy this for me later.',
+      kind: 'purchase-product',
     });
 
     service.recordPreview(preview, 'system');
@@ -100,7 +105,9 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
 
   it('does not allow duplicate approval decisions for the same preview', () => {
     const preview = service.buildPreviewFromText({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
     });
 
     service.recordPreview(preview, 'system');
@@ -114,7 +121,7 @@ describe('ZavorthTransactionApprovalLedgerService', () => {
 
   it('redacts secrets from approval ledger entries and file content', () => {
     const preview = service.buildPreviewFromText({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     });
 
     service.recordPreview(preview, 'system');

@@ -1,7 +1,10 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { handleZavorthCompletionsCommand, renderCompletionScript } from '../../../src/cli/completions/ZavorthCompletionsCommand.js';
+import {
+  handleZavorthCompletionsCommand,
+  renderCompletionScript,
+} from '../../../src/cli/completions/ZavorthCompletionsCommand.js';
 
 describe('Zavorth completions', () => {
   it('renders completion scripts for supported shells', () => {
@@ -14,7 +17,7 @@ describe('Zavorth completions', () => {
   it('includes channels and common commands', () => {
     const script = renderCompletionScript('bash');
     expect(script).toContain('stable beta nightly dev');
-    expect(script).toContain('update');
+    expect(script).toContain('doctor');
     expect(script).toContain('version');
     expect(script).toContain('--channel');
   });
@@ -29,12 +32,22 @@ describe('Zavorth completions', () => {
     const writer = { line: (value: string) => output.push(value) };
 
     try {
-      await handleZavorthCompletionsCommand({ commandName: 'completions', args: 'bash --install', flags: { json: false } as any, writer });
+      await handleZavorthCompletionsCommand({
+        commandName: 'completions',
+        args: 'bash --install',
+        flags: { json: false } as any,
+        writer,
+      });
       expect(output.join('\n')).toContain('Completion install preview');
       expect(fs.existsSync(path.join(home, '.zavorth', 'completions', 'zavorth.bash'))).toBe(false);
 
       output.length = 0;
-      await handleZavorthCompletionsCommand({ commandName: 'completions', args: 'bash --install --yes', flags: { json: false } as any, writer });
+      await handleZavorthCompletionsCommand({
+        commandName: 'completions',
+        args: 'bash --install --yes',
+        flags: { json: false } as any,
+        writer,
+      });
       expect(output.join('\n')).toContain('Completion script installed');
       expect(fs.existsSync(path.join(home, '.zavorth', 'completions', 'zavorth.bash'))).toBe(true);
       expect(fs.readFileSync(path.join(home, '.bashrc'), 'utf8')).toContain('Zavorth completions');

@@ -1,7 +1,4 @@
-import {
-  AgentRunService,
-  UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION,
-} from '../../../src/runtime/agent/index.js';
+import { AgentRunService, UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION } from '../../../src/runtime/agent/index.js';
 import type { UniversalAgentExecutor } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
@@ -23,7 +20,7 @@ describe('AgentRunService Universal Preview Mode', () => {
       channel: 'cli',
       sessionId: 'session-preview-only',
       text: 'simule corrigir o arquivo e rode testes sem executar',
-      requestedTools: [],
+      requestedTools: ['write_file', 'shell.exec'],
       metadata: {
         universalPreviewMode: {
           enabled: true,
@@ -34,21 +31,23 @@ describe('AgentRunService Universal Preview Mode', () => {
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('completed');
     expect(result.run.approvals).toEqual([]);
-    expect(result.run.metadata.universalPreviewMode).toEqual(expect.objectContaining({
-      contractVersion: UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION,
-      mode: 'preview-only',
-      previewOnly: true,
-      executorBlocked: true,
-      safety: expect.objectContaining({
-        noExecutionPerformed: true,
-        executorBlockedInPreviewMode: true,
-        toolsActuallyCalled: [],
+    expect(result.run.metadata.universalPreviewMode).toEqual(
+      expect.objectContaining({
+        contractVersion: UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION,
+        mode: 'preview-only',
+        previewOnly: true,
+        executorBlocked: true,
+        safety: expect.objectContaining({
+          noExecutionPerformed: true,
+          executorBlockedInPreviewMode: true,
+          toolsActuallyCalled: [],
+        }),
+        risk: expect.objectContaining({
+          highestRisk: 'danger',
+          requiresApproval: true,
+        }),
       }),
-      risk: expect.objectContaining({
-        highestRisk: 'danger',
-        requiresApproval: true,
-      }),
-    }));
+    );
     expect(result.replies[0].text).toContain('Universal Preview Mode - Universal Preview');
     expect(result.replies[0].text).toContain('nenhuma ferramenta foi executada');
   });
@@ -66,26 +65,30 @@ describe('AgentRunService Universal Preview Mode', () => {
       channel: 'web',
       sessionId: 'session-runtime-preview',
       text: 'corrija o arquivo e rode os testes',
-      requestedTools: [],
+      requestedTools: ['write_file', 'shell.exec'],
     });
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(result.run.metadata.universalPreviewMode).toEqual(expect.objectContaining({
-      contractVersion: UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION,
-      mode: 'runtime-preview',
-      safety: expect.objectContaining({
-        noExecutionPerformed: true,
-        executorBlockedInPreviewMode: false,
-      }),
-      risk: expect.objectContaining({
-        requiresApproval: true,
-      }),
-    }));
-    expect(result.run.approvals).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.universalPreviewMode).toEqual(
       expect.objectContaining({
-        status: 'pending',
+        contractVersion: UNIVERSAL_PREVIEW_MODE_CONTRACT_VERSION,
+        mode: 'runtime-preview',
+        safety: expect.objectContaining({
+          noExecutionPerformed: true,
+          executorBlockedInPreviewMode: false,
+        }),
+        risk: expect.objectContaining({
+          requiresApproval: true,
+        }),
       }),
-    ]));
+    );
+    expect(result.run.approvals).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          status: 'pending',
+        }),
+      ]),
+    );
   });
 });

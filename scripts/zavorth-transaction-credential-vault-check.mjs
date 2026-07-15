@@ -49,7 +49,12 @@ try {
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionCredentialContract.ts'), 'utf8');
   const credentialText = readFileSync(join(root, 'src/services/ZavorthTransactionCredentialRefService.ts'), 'utf8');
   const connectorText = readFileSync(join(root, 'src/services/ZavorthTransactionConnectorRegistryService.ts'), 'utf8');
-  for (const marker of ['zavorth-transaction-credential/checkpoint-5', 'rawSecretStored: false', 'valueReadableByLlm: false', 'credential_ref_format_invalid']) {
+  for (const marker of [
+    'zavorth-transaction-credential/checkpoint-5',
+    'rawSecretStored: false',
+    'valueReadableByLlm: false',
+    'credential_ref_format_invalid',
+  ]) {
     if (!contractText.includes(marker) && !credentialText.includes(marker) && !connectorText.includes(marker)) {
       failures.push(`missing marker: ${marker}`);
     }
@@ -131,7 +136,11 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -167,11 +176,13 @@ try {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runCredentialExpectFailure(args) {
@@ -187,9 +198,11 @@ function runCredentialExpectFailure(args) {
 }
 
 function runConnector(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-connector.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-connector.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }

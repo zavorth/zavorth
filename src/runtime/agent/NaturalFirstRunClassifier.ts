@@ -81,6 +81,11 @@ export type NaturalFirstRunClassificationInput = {
   workspace?: string | null;
   requestedTools?: string[];
   availableTools?: string[];
+  /**
+   * Structured transaction signals only (slash/UI/tool). Free text never sets these.
+   */
+  transactionApprovalIntent?: boolean;
+  transactionPreviewIntent?: boolean;
   metadata?: Record<string, unknown>;
 };
 
@@ -139,9 +144,7 @@ function normalizeSearchText(value: unknown): string {
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function normalizeList(value: unknown): string[] {
@@ -241,10 +244,7 @@ function resolveMetadataTools(metadata: Record<string, unknown>): {
   const responseDecision = recordOrNull(metadata.responseDecision);
   const toolHintProfile = recordOrNull(metadata.toolHintProfile);
   return {
-    requested: unique([
-      ...normalizeList(metadata.requestedTools),
-      ...normalizeList(responseDecision?.requestedTools),
-    ]),
+    requested: unique([...normalizeList(metadata.requestedTools), ...normalizeList(responseDecision?.requestedTools)]),
     available: unique([
       ...normalizeList(metadata.allowedTools),
       ...normalizeList(metadata.availableTools),
@@ -259,9 +259,7 @@ function resolveMetadataTools(metadata: Record<string, unknown>): {
 
 function isMemoryOrSessionTool(toolId: string): boolean {
   const normalizedTool = normalizeSearchText(toolId);
-  return normalizedTool.includes('memory')
-    || normalizedTool.includes('session')
-    || normalizedTool.includes('history');
+  return normalizedTool.includes('memory') || normalizedTool.includes('session') || normalizedTool.includes('history');
 }
 
 function confidenceFor(intent: NaturalFirstIntentKind, signalCount: number, risk: NaturalFirstRiskLevel): number {
@@ -280,10 +278,7 @@ function confidenceFor(intent: NaturalFirstIntentKind, signalCount: number, risk
   return Math.min(0.99, Number((base[intent] + signalBoost + riskBoost).toFixed(2)));
 }
 
-function buildCost(
-  route: NaturalFirstRoute,
-  context: NaturalFirstRuntimeContext,
-): NaturalFirstRunCost {
+function buildCost(route: NaturalFirstRoute, context: NaturalFirstRuntimeContext): NaturalFirstRunCost {
   if (route === 'light-chat' || route === 'slash-command') {
     return {
       tier: 'cheap',
@@ -299,10 +294,10 @@ function buildCost(
     };
   }
   if (
-    route === 'tool-preview'
-    || route === 'approval-proposal'
-    || route === 'capability-discovery'
-    || route === 'memory-recall'
+    route === 'tool-preview' ||
+    route === 'approval-proposal' ||
+    route === 'capability-discovery' ||
+    route === 'memory-recall'
   ) {
     return {
       tier: 'standard',
@@ -330,37 +325,28 @@ export class NaturalFirstRunClassifier {
     const text = normalizeSearchText(rawText);
     const metadata = input.metadata || {};
     const metadataTools = resolveMetadataTools(metadata);
-    const requestedTools = unique([
-      ...(input.requestedTools || []),
-      ...metadataTools.requested,
-    ]);
-    const availableTools = unique([
-      ...(input.availableTools || []),
-      ...metadataTools.available,
-    ]);
+    const requestedTools = unique([...(input.requestedTools || []), ...metadataTools.requested]);
+    const availableTools = unique([...(input.availableTools || []), ...metadataTools.available]);
     const approvalRequiredTools = unique(metadataTools.approvalRequired);
     const toolRisks = requestedTools.map(riskForTool);
     const toolRisk = maxRisk(toolRisks);
-    const highestRisk = maxRisk([
-      toolRisk,
-      approvalRequiredTools.length > 0 ? 'danger' : 'safe',
-    ]);
+    const highestRisk = maxRisk([toolRisk, approvalRequiredTools.length > 0 ? 'danger' : 'safe']);
     const memorySources = resolveMemorySources(metadata);
-    const memoryIntent = memorySources.length > 0
-      || requestedTools.some((tool) => {
+    const memoryIntent =
+      memorySources.length > 0 ||
+      requestedTools.some((tool) => {
         const normalizedTool = normalizeSearchText(tool);
         return normalizedTool.includes('memory') || normalizedTool.includes('session');
       });
-    const memoryOnlyTools = requestedTools.length > 0
-      && requestedTools.every((tool) => isMemoryOrSessionTool(tool));
+    const memoryOnlyTools = requestedTools.length > 0 && requestedTools.every((tool) => isMemoryOrSessionTool(tool));
     const capabilityIntent = false;
     const operationalIntent = false;
-    // Structured requested tools only — free text never forces tool routes via keywords.
+    // Structured requested tools / structured transaction flags only — free text never forces routes.
     const toolIntent = !memoryOnlyTools && requestedTools.length > 0;
     const textDanger = false;
     const textAttention = false;
-    const transactionApprovalIntent = false;
-    const transactionPreviewIntent = false;
+    const transactionApprovalIntent = input.transactionApprovalIntent === true;
+    const transactionPreviewIntent = input.transactionPreviewIntent === true;
     const lowSignalChat = false;
     const attachmentsCount = resolveAttachmentCount(metadata);
     const context: NaturalFirstRuntimeContext = {
@@ -642,12 +628,13 @@ export class NaturalFirstRunClassifier {
       ...(input.transactionApprovalIntent ? ['transaction-approval-intent'] : []),
       ...(input.transactionPreviewIntent ? ['transaction-preview-intent'] : []),
       ...(input.requestedTools.length > 0 ? [`requested-tools:${input.requestedTools.length}`] : []),
-      ...(input.approvalRequiredTools.length > 0 ? [`approval-required-tools:${input.approvalRequiredTools.join(',')}`] : []),
+      ...(input.approvalRequiredTools.length > 0
+        ? [`approval-required-tools:${input.approvalRequiredTools.join(',')}`]
+        : []),
       ...(input.toolRisk !== 'safe' ? [`tool-risk:${input.toolRisk}`] : []),
     ];
-    const requiresApproval = input.route === 'approval-proposal'
-      || input.highestRisk === 'danger'
-      || input.approvalRequiredTools.length > 0;
+    const requiresApproval =
+      input.route === 'approval-proposal' || input.highestRisk === 'danger' || input.approvalRequiredTools.length > 0;
     return {
       level: input.highestRisk,
       requiresApproval,
@@ -657,7 +644,10 @@ export class NaturalFirstRunClassifier {
   }
 
   private build(
-    input: Omit<NaturalFirstRunClassification, 'source' | 'contractVersion' | 'mode' | 'shouldEnterGateway' | 'requiresApproval'> & {
+    input: Omit<
+      NaturalFirstRunClassification,
+      'source' | 'contractVersion' | 'mode' | 'shouldEnterGateway' | 'requiresApproval'
+    > & {
       shouldEnterGateway?: boolean;
     },
   ): NaturalFirstRunClassification {

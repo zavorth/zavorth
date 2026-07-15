@@ -2,7 +2,10 @@ import { ShellNodeHostCommandRunner } from '../domain/nodes/infrastructure/node-
 import path from 'path';
 import type { NodeMeshCapabilityId } from '../contracts/NodeMeshContract.js';
 import { NODE_HOST_SUPPORTED_CAPABILITY_IDS } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityCatalog.js';
-import { buildExecutionResult, normalizeTimeout } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityExecutionHelpers.js';
+import {
+  buildExecutionResult,
+  normalizeTimeout,
+} from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityExecutionHelpers.js';
 import { NodeHostCapabilityFilesystemService } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityFilesystemService.js';
 import { NodeHostCapabilityHostSurfaceService } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityHostSurfaceService.js';
 import { NodeHostCapabilityMaintenanceService } from '../domain/nodes/infrastructure/node-host-capability/NodeHostCapabilityMaintenanceService.js';
@@ -15,7 +18,7 @@ import {
 import { detectSensitiveData, redactSensitiveText } from '../security/SensitiveDataGuard.js';
 import { logger } from '../logger.js';
 import type {
-NodeHostAssignment,
+  NodeHostAssignment,
   NodeHostCapabilityRuntime,
   NodeHostCommandRunner,
   NodeHostExecutionResult,
@@ -157,38 +160,80 @@ export class NodeHostCapabilityService {
       case 'system.run':
         return buildExecutionResult(assignment.id, await this.runSystemCommand(assignment.payload || null));
       case 'node.maintenance':
-        return buildExecutionResult(assignment.id, await this.runNodeMaintenance(assignment.action, assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.runNodeMaintenance(assignment.action, assignment.payload || null),
+        );
       case 'browser.proxy':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.proxyBrowser(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.proxyBrowser(assignment.payload || null),
+        );
       case 'device.info':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.describeDevice(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.describeDevice(assignment.payload || null),
+        );
       case 'files.read':
-        return buildExecutionResult(assignment.id, await this.filesystemService.readFileFromHost(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.filesystemService.readFileFromHost(assignment.payload || null),
+        );
       case 'files.write':
-        return buildExecutionResult(assignment.id, await this.filesystemService.writeFileToHost(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.filesystemService.writeFileToHost(assignment.payload || null),
+        );
       case 'files.watch':
-        return buildExecutionResult(assignment.id, await this.filesystemService.watchFilesFromHost(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.filesystemService.watchFilesFromHost(assignment.payload || null),
+        );
       case 'screen.capture':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.captureScreen(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.captureScreen(assignment.payload || null),
+        );
       case 'camera.capture':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.captureCamera(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.captureCamera(assignment.payload || null),
+        );
       case 'location.read':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.readLocation(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.readLocation(assignment.payload || null),
+        );
       case 'device.confirm':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.confirmDeviceAction(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.confirmDeviceAction(assignment.payload || null),
+        );
       case 'haptics.vibrate':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.vibrateHaptic(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.vibrateHaptic(assignment.payload || null),
+        );
       case 'clipboard.read':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.readClipboard(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.readClipboard(assignment.payload || null),
+        );
       case 'clipboard.write':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.writeClipboard(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.writeClipboard(assignment.payload || null),
+        );
       case 'notifications.send':
-        return buildExecutionResult(assignment.id, await this.hostSurfaceService.sendNotification(assignment.payload || null));
+        return buildExecutionResult(
+          assignment.id,
+          await this.hostSurfaceService.sendNotification(assignment.payload || null),
+        );
       default:
         return {
           invocationId: assignment.id,
           ok: false,
-          resultSummary: `Capability ${assignment.capabilityId} ainda nao foi implementada neste node host.`,
+          resultSummary: `Capability ${assignment.capabilityId} is not implemented on this node host yet.`,
           stderr: `unsupported capability: ${assignment.capabilityId}`,
           exitCode: null,
           data: {
@@ -202,14 +247,16 @@ export class NodeHostCapabilityService {
     return [...NODE_HOST_SUPPORTED_CAPABILITY_IDS];
   }
 
-  private async runSystemCommand(payload: Record<string, unknown> | null): Promise<Omit<NodeHostExecutionResult, 'invocationId'>> {
+  private async runSystemCommand(
+    payload: Record<string, unknown> | null,
+  ): Promise<Omit<NodeHostExecutionResult, 'invocationId'>> {
     const command = String(payload?.command || '').trim();
     if (!command) {
       return {
         ok: false,
-        resultSummary: 'A invocacao system.run nao trouxe payload.command.',
+        resultSummary: 'The system.run invocation did not include payload.command.',
         stdout: null,
-        stderr: 'payload.command ausente',
+        stderr: 'payload.command missing',
         exitCode: null,
         data: null,
       };
@@ -231,8 +278,8 @@ export class NodeHostCapabilityService {
     return {
       ok: result.ok,
       resultSummary: result.ok
-        ? 'Comando executado no node host.'
-        : `Comando saiu com codigo ${result.exitCode ?? 'desconhecido'}.`,
+        ? 'Command executed on the node host.'
+        : `Command exited with code ${result.exitCode ?? 'unknown'}.`,
       stdout,
       stderr,
       exitCode: result.exitCode,
@@ -243,10 +290,7 @@ export class NodeHostCapabilityService {
     };
   }
 
-  private evaluateSystemRunRequest(
-    command: string,
-    payload: Record<string, unknown> | null,
-  ): SystemRunPolicyDecision {
+  private evaluateSystemRunRequest(command: string, payload: Record<string, unknown> | null): SystemRunPolicyDecision {
     const requestedCwd = String(payload?.cwd || '').trim() || this.workspaceRoot;
     let cwd: string;
     try {
@@ -256,8 +300,9 @@ export class NodeHostCapabilityService {
         workspaceRoot: this.workspaceRoot,
         allowedRoots: this.allowedRoots,
       });
-    } catch (error: unknown) {logger.warn('[Node Host Capability] load operation failed', error);
-    return {
+    } catch (error: unknown) {
+      logger.warn('[Node Host Capability] load operation failed', error);
+      return {
         ok: false,
         result: buildScopeViolationResult({
           capabilityId: 'system.run',
@@ -267,7 +312,7 @@ export class NodeHostCapabilityService {
           allowedRoots: this.allowedRoots,
         }),
       };
-  }
+    }
 
     const policyError = this.validateSystemRunCommand(command);
     if (policyError) {
@@ -275,7 +320,7 @@ export class NodeHostCapabilityService {
         ok: false,
         result: {
           ok: false,
-          resultSummary: 'system.run bloqueou um comando fora da politica zero-trust do node host.',
+          resultSummary: 'system.run blocked a command outside the node host zero-trust policy.',
           stdout: null,
           stderr: policyError,
           exitCode: null,
@@ -296,16 +341,16 @@ export class NodeHostCapabilityService {
     }
 
     if (command.length > 2000) {
-      return 'system.run bloqueou comando acima de 2000 caracteres.';
+      return 'system.run blocked a command longer than 2000 characters.';
     }
     if (command.includes('\0') || /[\r\n]/u.test(command)) {
-      return 'system.run bloqueou comando com caracteres de controle.';
+      return 'system.run blocked a command with control characters.';
     }
     if (detectSensitiveData(command).length > 0) {
-      return 'system.run bloqueou segredo bruto no comando. Use um canal de credenciais aprovado.';
+      return 'system.run blocked a raw secret in the command. Use an approved credentials channel.';
     }
     if (SYSTEM_RUN_SHELL_META.test(command)) {
-      return 'system.run bloqueou metacharacters de shell. Use comandos simples e argumentos literais.';
+      return 'system.run blocked shell metacharacters. Use simple commands and literal arguments.';
     }
 
     const parsed = tokenizeSystemRunCommand(command);
@@ -316,26 +361,26 @@ export class NodeHostCapabilityService {
     const file = parsed.file;
     const binary = path.basename(file).toLowerCase();
     if (file.includes('/') || file.includes('\\')) {
-      return 'system.run exige binario pelo nome, sem caminho absoluto ou relativo.';
+      return 'system.run requires the binary by name, without an absolute or relative path.';
     }
     if (SYSTEM_RUN_FORBIDDEN_BINARIES.has(binary)) {
-      return `system.run bloqueou binario perigoso "${file}".`;
+      return `system.run blocked dangerous binary "${file}".`;
     }
     if (!this.allowedSystemRunBinaries().has(binary)) {
-      return `system.run bloqueou binario "${file}" fora da allowlist. Configure ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOWED_BINARIES para liberar explicitamente.`;
+      return `system.run blocked binary "${file}" outside the allowlist. Set ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOWED_BINARIES to allow it explicitly.`;
     }
     if (binary === 'git' || binary === 'git.exe') {
       const subcommand = String(parsed.args[0] || '').toLowerCase();
       if (subcommand && !SYSTEM_RUN_READ_ONLY_GIT_SUBCOMMANDS.has(subcommand)) {
-        return `system.run bloqueou git ${subcommand}; somente subcomandos read-only sao permitidos por padrao.`;
+        return `system.run blocked git ${subcommand}; only read-only subcommands are allowed by default.`;
       }
     }
     if (
-      SYSTEM_RUN_CODE_BINARIES.has(binary)
-      && !isVersionOnlySystemRun(parsed.args)
-      && String(this.env.ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE || '').toLowerCase() !== 'true'
+      SYSTEM_RUN_CODE_BINARIES.has(binary) &&
+      !isVersionOnlySystemRun(parsed.args) &&
+      String(this.env.ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE || '').toLowerCase() !== 'true'
     ) {
-      return `system.run bloqueou "${file}" porque ele pode executar codigo. Use ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE=true apenas em hosts confiaveis.`;
+      return `system.run blocked "${file}" because it can execute code. Set ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOW_CODE=true only on trusted hosts.`;
     }
 
     return null;
@@ -367,7 +412,10 @@ export class NodeHostCapabilityService {
   private allowedSystemRunBinaries(): Set<string> {
     const configured = String(this.env.ZAVORTH_NODE_HOST_SYSTEM_RUN_ALLOWED_BINARIES || '').trim();
     const values = configured
-      ? configured.split(',').map((entry) => entry.trim()).filter(Boolean)
+      ? configured
+          .split(',')
+          .map((entry) => entry.trim())
+          .filter(Boolean)
       : SYSTEM_RUN_DEFAULT_ALLOWED_BINARIES;
     return new Set(values.map((entry) => entry.toLowerCase()));
   }
@@ -376,17 +424,20 @@ export class NodeHostCapabilityService {
     action: string,
     payload: Record<string, unknown> | null,
   ): Promise<Omit<NodeHostExecutionResult, 'invocationId'>> {
-    const normalizedAction = String(action || payload?.mode || payload?.operation || 'doctor').trim().toLowerCase();
+    const normalizedAction = String(action || payload?.mode || payload?.operation || 'doctor')
+      .trim()
+      .toLowerCase();
     if (normalizedAction === 'doctor') {
       const requestedCapabilities = Array.isArray(payload?.requestedCapabilities)
-        ? payload?.requestedCapabilities as Array<string | null | undefined>
+        ? (payload?.requestedCapabilities as Array<string | null | undefined>)
         : [];
       const report = this.maintenanceService.buildNodeMaintenanceDoctorReport(requestedCapabilities);
       return {
         ok: true,
-        resultSummary: report.status === 'healthy'
-          ? 'Doctor do node host sem pendencias operacionais.'
-          : 'Doctor do node host encontrou pendencias locais.',
+        resultSummary:
+          report.status === 'healthy'
+            ? 'Node host doctor found no operational issues.'
+            : 'Node host doctor found local issues.',
         stdout: JSON.stringify(report, null, 2),
         stderr: null,
         exitCode: 0,
@@ -398,9 +449,10 @@ export class NodeHostCapabilityService {
       const report = this.maintenanceService.repairNodeMaintenanceState();
       return {
         ok: true,
-        resultSummary: report.removedResults > 0
-          ? `Repair do node host removeu ${report.removedResults} resultado(s) invalido(s).`
-          : 'Repair do node host nao precisou alterar o estado local.',
+        resultSummary:
+          report.removedResults > 0
+            ? `Node host repair removed ${report.removedResults} invalid result(s).`
+            : 'Node host repair did not need to change local state.',
         stdout: JSON.stringify(report, null, 2),
         stderr: null,
         exitCode: 0,
@@ -410,7 +462,7 @@ export class NodeHostCapabilityService {
 
     return {
       ok: false,
-      resultSummary: `node.maintenance nao reconhece a acao ${normalizedAction}.`,
+      resultSummary: `node.maintenance does not recognize action ${normalizedAction}.`,
       stdout: null,
       stderr: `unsupported maintenance action: ${normalizedAction}`,
       exitCode: null,
@@ -420,14 +472,15 @@ export class NodeHostCapabilityService {
       },
     };
   }
-
 }
 
 function isVersionOnlySystemRun(args: string[]): boolean {
   return args.length === 1 && ['--version', '-v', 'version'].includes(String(args[0] || ''));
 }
 
-function tokenizeSystemRunCommand(command: string): { ok: true; file: string; args: string[] } | { ok: false; error: string } {
+function tokenizeSystemRunCommand(
+  command: string,
+): { ok: true; file: string; args: string[] } | { ok: false; error: string } {
   const tokens: string[] = [];
   let current = '';
   let quote: '"' | "'" | null = null;
@@ -453,13 +506,13 @@ function tokenizeSystemRunCommand(command: string): { ok: true; file: string; ar
   }
 
   if (quote) {
-    return { ok: false, error: 'system.run bloqueou comando com aspas nao fechadas.' };
+    return { ok: false, error: 'system.run blocked a command with unclosed quotes.' };
   }
   if (current) {
     tokens.push(current);
   }
   if (tokens.length === 0) {
-    return { ok: false, error: 'system.run bloqueou comando vazio.' };
+    return { ok: false, error: 'system.run blocked an empty command.' };
   }
 
   return {

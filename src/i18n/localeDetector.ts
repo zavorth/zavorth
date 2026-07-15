@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { DEFAULT_LOCALE, KNOWN_LOCALES } from './types.js';
-import type { LocaleSource } from './types.js';const ENV_PRIORITY = [
+import type { LocaleSource } from './types.js';
+const ENV_PRIORITY = [
   'ZAVORTH_LANG',
   'LC_ALL',
   'LC_MESSAGES',
@@ -12,60 +13,63 @@ import type { LocaleSource } from './types.js';const ENV_PRIORITY = [
 ] as const;
 
 const LOCALE_MAP: Record<string, string> = {
-  'en': 'en-US',
+  en: 'en-US',
   'en-us': 'en-US',
   'en-gb': 'en-US',
-  'pt': 'pt-BR',
+  pt: 'pt-BR',
   'pt-br': 'pt-BR',
   'pt-pt': 'pt-BR',
-  'es': 'es-ES',
+  es: 'es-ES',
   'es-es': 'es-ES',
   'es-mx': 'es-ES',
   'es-ar': 'es-ES',
-  'fr': 'fr-FR',
+  fr: 'fr-FR',
   'fr-fr': 'fr-FR',
   'fr-ca': 'fr-FR',
-  'de': 'de-DE',
+  de: 'de-DE',
   'de-de': 'de-DE',
   'de-at': 'de-DE',
   'de-ch': 'de-DE',
-  'it': 'it-IT',
+  it: 'it-IT',
   'it-it': 'it-IT',
-  'ja': 'ja-JP',
+  ja: 'ja-JP',
   'ja-jp': 'ja-JP',
-  'zh': 'zh-CN',
+  zh: 'zh-CN',
   'zh-cn': 'zh-CN',
-  'zh-tw': 'zh-CN',
+  'zh-tw': 'zh-TW',
   'zh-hans': 'zh-CN',
-  'ko': 'ko-KR',
+  ko: 'ko-KR',
   'ko-kr': 'ko-KR',
-  'ru': 'ru-RU',
+  ru: 'ru-RU',
   'ru-ru': 'ru-RU',
-  'ar': 'ar-SA',
+  ar: 'ar-SA',
   'ar-sa': 'ar-SA',
   'ar-eg': 'ar-SA',
-  'tr': 'tr-TR',
+  tr: 'tr-TR',
   'tr-tr': 'tr-TR',
-  'uk': 'uk-UA',
+  uk: 'uk-UA',
   'uk-ua': 'uk-UA',
-  'id': 'id-ID',
+  id: 'id-ID',
   'id-id': 'id-ID',
-  'pl': 'pl-PL',
+  pl: 'pl-PL',
   'pl-pl': 'pl-PL',
-  'th': 'th-TH',
+  th: 'th-TH',
   'th-th': 'th-TH',
-  'vi': 'vi-VN',
+  vi: 'vi-VN',
   'vi-vn': 'vi-VN',
-  'nl': 'nl-NL',
+  nl: 'nl-NL',
   'nl-nl': 'nl-NL',
-  'fa': 'fa-IR',
+  fa: 'fa-IR',
   'fa-ir': 'fa-IR',
-  'hi': 'hi-IN',
+  hi: 'hi-IN',
   'hi-in': 'hi-IN',
 };
 
 export function normalizeLocale(input: string | null | undefined): string {
-  const raw = String(input || '').trim().toLowerCase().replace(/_/g, '-');
+  const raw = String(input || '')
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, '-');
   if (!raw) return DEFAULT_LOCALE;
 
   const direct = LOCALE_MAP[raw];
@@ -94,15 +98,8 @@ export function resolveFromNavigator(): string {
   return '';
 }
 
-export function resolveLocale(
-  source: LocaleSource,
-  fallback: string = DEFAULT_LOCALE,
-): string {
-  const raw =
-    source.explicitLocale ||
-    source.cookie ||
-    source.header ||
-    resolveFromEnv(source.env);
+export function resolveLocale(source: LocaleSource, fallback: string = DEFAULT_LOCALE): string {
+  const raw = source.explicitLocale || source.cookie || source.header || resolveFromEnv(source.env);
   return normalizeLocale(raw) || fallback;
 }
 
@@ -121,12 +118,15 @@ export function getAvailableLocales(localesDir: string): string[] {
         }
       }
     }
-  } catch (error: unknown) {// ignore
+  } catch (error: unknown) {
+    // ignore
   }
   return locales.sort();
 }
 
-export function getAvailableLocaleLabels(localesDir: string): Array<{ locale: string; label: string; hasTranslations: boolean }> {
+export function getAvailableLocaleLabels(
+  localesDir: string,
+): Array<{ locale: string; label: string; hasTranslations: boolean }> {
   const labels: Record<string, string> = {
     'en-US': 'English',
     'pt-BR': 'Português (Brasil)',

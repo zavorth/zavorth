@@ -23,11 +23,17 @@ const CLI_TO_SLASH: Record<string, string> = {
   deliberate: '/consensus',
   moa: '/consensus',
   'multi-model': '/consensus',
+  learn: '/learn',
+  'learning-loop': '/learn',
+  learningloop: '/learn',
   'learn-skill': '/learn-skill',
   learnskill: '/learn-skill',
   'skill-learn': '/learn-skill',
   model: '/model',
   'session-model': '/model',
+  roles: '/model',
+  'llm-roles': '/model',
+  strong: '/strong',
   session: '/sessions',
   sessions: '/sessions',
   sessionhistory: '/sessionhistory',
@@ -146,12 +152,7 @@ export function partitionCliTokens(tokens: string[]): {
     const t = tokens[i];
     if (t.startsWith('-')) {
       flags.push(t);
-      if (
-        !t.includes('=')
-        && tokens[i + 1]
-        && !tokens[i + 1].startsWith('-')
-        && !isBooleanFlag(t)
-      ) {
+      if (!t.includes('=') && tokens[i + 1] && !tokens[i + 1].startsWith('-') && !isBooleanFlag(t)) {
         flags.push(tokens[i + 1]);
         i += 1;
       }
@@ -165,22 +166,22 @@ export function partitionCliTokens(tokens: string[]): {
 function isBooleanFlag(token: string): boolean {
   const t = token.toLowerCase();
   return (
-    t === '--json'
-    || t === '--yes'
-    || t === '-y'
-    || t === '--help'
-    || t === '-h'
-    || t === '--debug'
-    || t === '--verbose'
-    || t === '--no-redact'
-    || t === '--enabled'
-    || t === '--disabled'
-    || t === '--fallback'
-    || t === '--plain'
-    || t === '--apply'
-    || t === '--consent'
-    || t === '--dry-run'
-    || t === '--plan'
+    t === '--json' ||
+    t === '--yes' ||
+    t === '-y' ||
+    t === '--help' ||
+    t === '-h' ||
+    t === '--debug' ||
+    t === '--verbose' ||
+    t === '--no-redact' ||
+    t === '--enabled' ||
+    t === '--disabled' ||
+    t === '--fallback' ||
+    t === '--plain' ||
+    t === '--apply' ||
+    t === '--consent' ||
+    t === '--dry-run' ||
+    t === '--plan'
   );
 }
 
@@ -214,9 +215,9 @@ export function naturalizeCliArgv(argv: string[]): {
   // CLI-only empty overrides: some CLIs show help on empty, not status
   // (session model CLI needs sessionId; empty should not become "status")
   if (
-    positionals.length === 0
-    && flags.length === 0
-    && (slashType === '/model' || command.replace(/^\/+/, '').toLowerCase() === 'session')
+    positionals.length === 0 &&
+    flags.length === 0 &&
+    (slashType === '/model' || command.replace(/^\/+/, '').toLowerCase() === 'session')
   ) {
     return {
       argv: [command.replace(/^\/+/, ''), ...flags],
@@ -231,9 +232,7 @@ export function naturalizeCliArgv(argv: string[]): {
 
   // Re-tokenize naturalized positionals; keep original multi-word by splitting on spaces
   // (same model as slash args after rewrite).
-  const newPositionals = natural.args
-    ? natural.args.split(/\s+/).filter(Boolean)
-    : [];
+  const newPositionals = natural.args ? natural.args.split(/\s+/).filter(Boolean) : [];
 
   const nextArgv = [command.replace(/^\/+/, ''), ...newPositionals, ...flags];
   return {
@@ -280,12 +279,10 @@ export function naturalizeCliSurfaceText(surfaceText: string): {
 }
 
 /** Register CLI alias → slash policy (plugins / tests). */
-export function registerCliNaturalMapping(
-  cliCommand: string,
-  slashType: string,
-  policy?: NaturalSlashPolicy,
-): void {
-  const bare = String(cliCommand || '').trim().replace(/^\/+/, '');
+export function registerCliNaturalMapping(cliCommand: string, slashType: string, policy?: NaturalSlashPolicy): void {
+  const bare = String(cliCommand || '')
+    .trim()
+    .replace(/^\/+/, '');
   if (!bare) return;
   CLI_TO_SLASH[bare] = slashType.startsWith('/') ? slashType : `/${slashType}`;
   CLI_TO_SLASH[bare.toLowerCase()] = CLI_TO_SLASH[bare];

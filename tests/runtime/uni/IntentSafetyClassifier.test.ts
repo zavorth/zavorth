@@ -22,6 +22,7 @@ describe('IntentSafetyClassifier Portuguese false-positive hardening', () => {
       contextHints: {
         workspacePath: 'C:/workspace/zavorth-core',
       },
+      requestedTools: ['workspace.read'],
     });
 
     expect(result.signals.shell).toBe(false);

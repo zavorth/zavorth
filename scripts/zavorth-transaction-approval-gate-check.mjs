@@ -46,7 +46,12 @@ try {
   }
 
   const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionApprovalLedgerService.ts'), 'utf8');
-  for (const marker of ['liveExecutionAuthorized: false', 'liveActionApplied: false', 'approval-blocked', 'payloadDigest']) {
+  for (const marker of [
+    'liveExecutionAuthorized: false',
+    'liveActionApplied: false',
+    'approval-blocked',
+    'payloadDigest',
+  ]) {
     if (!serviceText.includes(marker)) {
       failures.push(`missing service marker: ${marker}`);
     }
@@ -57,7 +62,11 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--decision',
     'approve',
     '--reason',
@@ -95,7 +104,7 @@ try {
     '--ledger-file',
     ledgerFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--decision',
     'approve',
   ]);

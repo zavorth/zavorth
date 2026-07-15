@@ -4,7 +4,7 @@ import path from 'path';
 import { CapabilityRegistry } from '../../src/capabilities/CapabilityRegistry';
 
 describe('CapabilityRegistry', () => {
-  it('loads builtin capabilities and matches implicit web research', () => {
+  it('never activates capabilities from free-text matchImplicit (model-owned routing)', () => {
     const registry = new CapabilityRegistry();
 
     const capability = registry.matchImplicit(
@@ -12,11 +12,10 @@ describe('CapabilityRegistry', () => {
       'search the web whether leaving a laptop lid almost closed is harmful',
     );
 
-    expect(capability?.id).toBe('route-web-research');
-    expect(capability?.executor_preference).toBe('web_research');
+    expect(capability).toBeNull();
   });
 
-  it('loads plugin manifests from disk', () => {
+  it('loads plugin manifests from disk and resolves explicit slash commands', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-capability-plugin-'));
     const pluginFile = path.join(tempDir, 'shipfix.json');
     fs.writeFileSync(
@@ -25,18 +24,18 @@ describe('CapabilityRegistry', () => {
         id: 'plugin-shipfix',
         label: 'Ship Fix',
         type: 'workflow',
-        description: 'Roda o workflow ship para ajustes rapidos.',
+        description: 'Runs the ship workflow for quick fixes.',
         intent: 'workflow_execution',
         executor_preference: 'workflow:ship',
         dispatch_mode: 'execution',
-        routing_reason: 'Workflow ship plugado via manifest.',
+        routing_reason: 'Ship workflow plugged via manifest.',
         routing_confidence: 1,
         command: {
           command: 'shipfix',
           aliases: ['sf'],
           explicit_executor: 'workflow:ship',
-          description: 'Executa o workflow ship para uma tarefa.',
-          usage: '<objetivo>',
+          description: 'Runs the ship workflow for a task.',
+          usage: '<goal>',
           section: 'execution',
         },
       }),

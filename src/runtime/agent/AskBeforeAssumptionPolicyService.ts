@@ -117,24 +117,24 @@ function normalizeText(value: unknown, fallback = ''): string {
 }
 
 function normalizeKey(value: unknown, fallback = 'assumption'): string {
-  return normalizeText(value, fallback)
-    .toLowerCase()
-    .replace(/[^a-z0-9_.:-]+/g, '-')
-    .replace(/^-+|-+$/g, '') || fallback;
+  return (
+    normalizeText(value, fallback)
+      .toLowerCase()
+      .replace(/[^a-z0-9_.:-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || fallback
+  );
 }
 
 function recordOrNull(value: unknown): LooseRecord | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as LooseRecord
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as LooseRecord) : null;
 }
 
 function listRecords(value: unknown): LooseRecord[] {
   return Array.isArray(value)
     ? value.flatMap((entry) => {
-      const record = recordOrNull(entry);
-      return record ? [record] : [];
-    })
+        const record = recordOrNull(entry);
+        return record ? [record] : [];
+      })
     : [];
 }
 
@@ -217,7 +217,9 @@ export class AskBeforeAssumptionPolicyService {
         assumptionCount: assumptions.length,
         questionCount: questions.length,
         blockerCount: assumptions.filter((assumption) => assumption.severity === 'danger').length,
-        mutableActionBlockedCount: assumptions.filter((assumption) => assumption.affectedActions.length > 0 && assumption.requiresAnswer).length,
+        mutableActionBlockedCount: assumptions.filter(
+          (assumption) => assumption.affectedActions.length > 0 && assumption.requiresAnswer,
+        ).length,
         highestSeverity,
         previewLinked: Boolean(recordOrNull(run.metadata.universalPreviewMode)),
         capabilityNegotiationLinked: Boolean(recordOrNull(run.metadata.capabilityNegotiation)),
@@ -262,57 +264,67 @@ export class AskBeforeAssumptionPolicyService {
 
   private explicitAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
     const raw = recordOrNull(run.metadata.askBeforeAssumptionPolicy);
-    return listRecords(raw?.assumptions).map((entry) => this.seed({
-      category: this.normalizeCategory(entry.category),
-      title: normalizeText(entry.title, 'Assuncao declarada'),
-      detail: redactText(entry.detail ?? entry.reason, 'Metadata declarou uma lacuna a confirmar.'),
-      severity: this.normalizeSeverity(entry.severity),
-      confidence: Number(entry.confidence) || 0.8,
-      missingInput: listStrings(entry.missingInput),
-      inferredFrom: ['metadata.askBeforeAssumptionPolicy'],
-      affectedActions: listStrings(entry.affectedActions),
-      requiresAnswer: entry.requiresAnswer !== false,
-      question: {
-        priority: this.normalizePriority(entry.priority),
-        question: normalizeText(entry.question, 'Pode confirmar esta escolha antes de continuar?'),
-        reason: redactText(entry.reason ?? entry.detail, 'Confirmacao declarada por metadata.'),
-        options: listStrings(entry.options),
-        blocksMutation: entry.blocksMutation !== false,
-        defaultAction: 'ask',
-      },
-    }));
+    return listRecords(raw?.assumptions).map((entry) =>
+      this.seed({
+        category: this.normalizeCategory(entry.category),
+        title: normalizeText(entry.title, 'Assuncao declarada'),
+        detail: redactText(entry.detail ?? entry.reason, 'Metadata declarou uma lacuna a confirmar.'),
+        severity: this.normalizeSeverity(entry.severity),
+        confidence: Number(entry.confidence) || 0.8,
+        missingInput: listStrings(entry.missingInput),
+        inferredFrom: ['metadata.askBeforeAssumptionPolicy'],
+        affectedActions: listStrings(entry.affectedActions),
+        requiresAnswer: entry.requiresAnswer !== false,
+        question: {
+          priority: this.normalizePriority(entry.priority),
+          question: normalizeText(entry.question, 'Pode confirmar esta escolha antes de continuar?'),
+          reason: redactText(entry.reason ?? entry.detail, 'Confirmacao declarada por metadata.'),
+          options: listStrings(entry.options),
+          blocksMutation: entry.blocksMutation !== false,
+          defaultAction: 'ask',
+        },
+      }),
+    );
   }
 
   private vagueTargetAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
     const text = normalizeSearchText(run.input);
-    const vague = /\b(isso|isto|aquilo|essa|esse|aquela|aquele|do jeito certo|melhore|arrume|corrija|ajuste)\b/.test(text);
-    const mutating = /\b(apague|delete|deleta|remova|publique|envie|deploy|commit|grave|escreva|altere|mude)\b/.test(text);
+    const vague = /\b(isso|isto|aquilo|essa|esse|aquela|aquele|do jeito certo|melhore|arrume|corrija|ajuste)\b/.test(
+      text,
+    );
+    const mutating = /\b(apague|delete|deleta|remova|publique|envie|deploy|commit|grave|escreva|altere|mude)\b/.test(
+      text,
+    );
     if (!vague && !mutating) {
       return [];
     }
-    return [this.seed({
-      category: mutating ? 'missing-target' : 'missing-scope',
-      title: mutating ? 'Alvo de mutacao nao confirmado' : 'Escopo ambiguo',
-      detail: mutating
-        ? 'O pedido sugere acao mutavel, mas o alvo/criterio exato nao esta totalmente confirmado.'
-        : 'O pedido contem referencia vaga; responder sem perguntar pode assumir escopo indevido.',
-      severity: mutating ? 'danger' : 'warning',
-      confidence: mutating ? 0.9 : 0.72,
-      missingInput: mutating ? ['alvo exato', 'criterio de sucesso', 'permissao'] : ['escopo desejado'],
-      inferredFrom: ['run.input'],
-      affectedActions: mutating ? ['workspace mutation', 'external publish'] : [],
-      requiresAnswer: true,
-      question: {
-        priority: mutating ? 'high' : 'medium',
-        question: mutating
-          ? 'Qual alvo exato posso alterar e qual resultado voce espera?'
-          : 'Qual escopo voce quer que eu considere antes de seguir?',
-        reason: 'Evitar assumir alvo ou criterio a partir de texto ambiguo.',
-        options: mutating ? ['explicar primeiro', 'preparar preview', 'aguardar alvo'] : ['perguntar', 'seguir leitura', 'resumir opcoes'],
-        blocksMutation: mutating,
-        defaultAction: mutating ? 'ask' : 'preview',
-      },
-    })];
+    return [
+      this.seed({
+        category: mutating ? 'missing-target' : 'missing-scope',
+        title: mutating ? 'Alvo de mutacao nao confirmado' : 'Escopo ambiguo',
+        detail: mutating
+          ? 'O pedido sugere acao mutavel, mas o alvo/criterio exato nao esta totalmente confirmado.'
+          : 'O pedido contem referencia vaga; responder sem perguntar pode assumir escopo indevido.',
+        severity: mutating ? 'danger' : 'warning',
+        confidence: mutating ? 0.9 : 0.72,
+        missingInput: mutating ? ['alvo exato', 'criterio de sucesso', 'permissao'] : ['escopo desejado'],
+        inferredFrom: ['run.input'],
+        affectedActions: mutating ? ['workspace mutation', 'external publish'] : [],
+        requiresAnswer: true,
+        question: {
+          priority: mutating ? 'high' : 'medium',
+          question: mutating
+            ? 'Qual alvo exato posso alterar e qual resultado voce espera?'
+            : 'Qual escopo voce quer que eu considere antes de seguir?',
+          reason: 'Evitar assumir alvo ou criterio a partir de texto ambiguo.',
+          options: mutating
+            ? ['explicar primeiro', 'preparar preview', 'aguardar alvo']
+            : ['perguntar', 'seguir leitura', 'resumir opcoes'],
+          blocksMutation: mutating,
+          defaultAction: mutating ? 'ask' : 'preview',
+        },
+      }),
+    ];
   }
 
   private mutableToolAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -322,25 +334,27 @@ export class AskBeforeAssumptionPolicyService {
     if (riskyTools.length === 0) {
       return [];
     }
-    return [this.seed({
-      category: 'risky-tool',
-      title: 'Ferramentas de risco exigem confirmacao',
-      detail: `${riskyTools.length} ferramenta(s) pedem approval ou risco elevado.`,
-      severity: riskyTools.some((tool) => tool.risk === 'danger') ? 'danger' : 'warning',
-      confidence: 0.93,
-      missingInput: ['approval explicito', 'escopo da ferramenta'],
-      inferredFrom: riskyTools.map((tool) => `tool:${tool.id}`),
-      affectedActions: riskyTools.map((tool) => tool.id),
-      requiresAnswer: true,
-      question: {
-        priority: riskyTools.some((tool) => tool.risk === 'danger') ? 'high' : 'medium',
-        question: 'Voce aprova esse escopo de ferramenta antes de executar algo mutavel?',
-        reason: 'Ferramentas de risco nao podem ser acionadas por suposicao.',
-        options: ['aprovar escopo', 'pedir preview', 'bloquear'],
-        blocksMutation: true,
-        defaultAction: 'ask',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'risky-tool',
+        title: 'Ferramentas de risco exigem confirmacao',
+        detail: `${riskyTools.length} ferramenta(s) pedem approval ou risco elevado.`,
+        severity: riskyTools.some((tool) => tool.risk === 'danger') ? 'danger' : 'warning',
+        confidence: 0.93,
+        missingInput: ['approval explicito', 'escopo da ferramenta'],
+        inferredFrom: riskyTools.map((tool) => `tool:${tool.id}`),
+        affectedActions: riskyTools.map((tool) => tool.id),
+        requiresAnswer: true,
+        question: {
+          priority: riskyTools.some((tool) => tool.risk === 'danger') ? 'high' : 'medium',
+          question: 'Voce aprova esse escopo de ferramenta antes de executar algo mutavel?',
+          reason: 'Ferramentas de risco nao podem ser acionadas por suposicao.',
+          options: ['aprovar escopo', 'pedir preview', 'bloquear'],
+          blocksMutation: true,
+          defaultAction: 'ask',
+        },
+      }),
+    ];
   }
 
   private previewAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -349,25 +363,27 @@ export class AskBeforeAssumptionPolicyService {
     if (!preview || risk?.previewRequired !== true) {
       return [];
     }
-    return [this.seed({
-      category: 'missing-permission',
-      title: 'Preview requerido antes de continuar',
-      detail: 'Universal Preview Mode marcou que o plano precisa de preview antes da acao real.',
-      severity: risk.requiresApproval === true ? 'danger' : 'warning',
-      confidence: 0.95,
-      missingInput: ['confirmacao do preview'],
-      inferredFrom: ['universalPreviewMode.risk'],
-      affectedActions: listStrings(risk.previewRequiredToolIds),
-      requiresAnswer: true,
-      question: {
-        priority: risk.requiresApproval === true ? 'high' : 'medium',
-        question: 'Quer que eu mostre o preview antes de qualquer execucao real?',
-        reason: 'A policy de preview deve vencer qualquer inferencia de linguagem natural.',
-        options: ['mostrar preview', 'ajustar escopo', 'cancelar'],
-        blocksMutation: true,
-        defaultAction: 'preview',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'missing-permission',
+        title: 'Preview requerido antes de continuar',
+        detail: 'Universal Preview Mode marcou que o plano precisa de preview antes da acao real.',
+        severity: risk.requiresApproval === true ? 'danger' : 'warning',
+        confidence: 0.95,
+        missingInput: ['confirmacao do preview'],
+        inferredFrom: ['universalPreviewMode.risk'],
+        affectedActions: listStrings(risk.previewRequiredToolIds),
+        requiresAnswer: true,
+        question: {
+          priority: risk.requiresApproval === true ? 'high' : 'medium',
+          question: 'Quer que eu mostre o preview antes de qualquer execucao real?',
+          reason: 'A policy de preview deve vencer qualquer inferencia de linguagem natural.',
+          options: ['mostrar preview', 'ajustar escopo', 'cancelar'],
+          blocksMutation: true,
+          defaultAction: 'preview',
+        },
+      }),
+    ];
   }
 
   private capabilityAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -375,25 +391,27 @@ export class AskBeforeAssumptionPolicyService {
     if (!negotiation || normalizeText(negotiation.status) !== 'waiting-approval') {
       return [];
     }
-    return [this.seed({
-      category: 'missing-permission',
-      title: 'Capability aguardando permissao',
-      detail: 'Capability Negotiation indica que ainda existe escopo a aprovar.',
-      severity: 'warning',
-      confidence: 0.9,
-      missingInput: ['capability aprovada', 'limites de escopo'],
-      inferredFrom: ['capabilityNegotiation.status'],
-      affectedActions: ['capability execution'],
-      requiresAnswer: true,
-      question: {
-        priority: 'medium',
-        question: 'Qual capability e escopo voce aprova para este pedido?',
-        reason: 'A execucao nao deve assumir permissoes alem do negociado.',
-        options: ['aprovar minimo', 'pedir preview', 'bloquear'],
-        blocksMutation: true,
-        defaultAction: 'ask',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'missing-permission',
+        title: 'Capability aguardando permissao',
+        detail: 'Capability Negotiation indica que ainda existe escopo a aprovar.',
+        severity: 'warning',
+        confidence: 0.9,
+        missingInput: ['capability aprovada', 'limites de escopo'],
+        inferredFrom: ['capabilityNegotiation.status'],
+        affectedActions: ['capability execution'],
+        requiresAnswer: true,
+        question: {
+          priority: 'medium',
+          question: 'Qual capability e escopo voce aprova para este pedido?',
+          reason: 'A execucao nao deve assumir permissoes alem do negociado.',
+          options: ['aprovar minimo', 'pedir preview', 'bloquear'],
+          blocksMutation: true,
+          defaultAction: 'ask',
+        },
+      }),
+    ];
   }
 
   private crossChannelAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -401,25 +419,27 @@ export class AskBeforeAssumptionPolicyService {
     if (!continuity || normalizeText(continuity.status) !== 'handoff-ready') {
       return [];
     }
-    return [this.seed({
-      category: 'channel-handoff',
-      title: 'Handoff de canal precisa confirmacao',
-      detail: 'Cross-Channel Continuity preparou handoff, mas nenhuma mensagem deve ser enviada sem approval.',
-      severity: 'warning',
-      confidence: 0.92,
-      missingInput: ['canal destino', 'approval do handoff'],
-      inferredFrom: ['crossChannelContinuity.status'],
-      affectedActions: ['cross-channel notification'],
-      requiresAnswer: true,
-      question: {
-        priority: 'medium',
-        question: 'Para qual canal devo preparar o handoff e voce aprova o envio?',
-        reason: 'Mudanca de canal nao deve acontecer por suposicao.',
-        options: ['manter canal atual', 'preparar preview', 'aprovar handoff'],
-        blocksMutation: true,
-        defaultAction: 'ask',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'channel-handoff',
+        title: 'Handoff de canal precisa confirmacao',
+        detail: 'Cross-Channel Continuity preparou handoff, mas nenhuma mensagem deve ser enviada sem approval.',
+        severity: 'warning',
+        confidence: 0.92,
+        missingInput: ['canal destino', 'approval do handoff'],
+        inferredFrom: ['crossChannelContinuity.status'],
+        affectedActions: ['cross-channel notification'],
+        requiresAnswer: true,
+        question: {
+          priority: 'medium',
+          question: 'Para qual canal devo preparar o handoff e voce aprova o envio?',
+          reason: 'Mudanca de canal nao deve acontecer por suposicao.',
+          options: ['manter canal atual', 'preparar preview', 'aprovar handoff'],
+          blocksMutation: true,
+          defaultAction: 'ask',
+        },
+      }),
+    ];
   }
 
   private agentTeamAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -427,25 +447,27 @@ export class AskBeforeAssumptionPolicyService {
     if (!team || normalizeText(team.status) !== 'waiting-approval') {
       return [];
     }
-    return [this.seed({
-      category: 'missing-permission',
-      title: 'Equipe de agentes aguardando approval',
-      detail: 'Agent Team Compiler compilou roles, mas launch de subagentes precisa confirmacao.',
-      severity: 'warning',
-      confidence: 0.9,
-      missingInput: ['approval de roles', 'budget de subagentes'],
-      inferredFrom: ['agentTeamCompiler.status'],
-      affectedActions: ['subagent launch'],
-      requiresAnswer: true,
-      question: {
-        priority: 'medium',
-        question: 'Voce aprova quais roles e budget antes de lancar subagentes?',
-        reason: 'Subagentes nao devem ser abertos por inferencia.',
-        options: ['revisar roles', 'aprovar minimo', 'cancelar'],
-        blocksMutation: true,
-        defaultAction: 'ask',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'missing-permission',
+        title: 'Equipe de agentes aguardando approval',
+        detail: 'Agent Team Compiler compilou roles, mas launch de subagentes precisa confirmacao.',
+        severity: 'warning',
+        confidence: 0.9,
+        missingInput: ['approval de roles', 'budget de subagentes'],
+        inferredFrom: ['agentTeamCompiler.status'],
+        affectedActions: ['subagent launch'],
+        requiresAnswer: true,
+        question: {
+          priority: 'medium',
+          question: 'Do you approve the roles and budget before launching subagents?',
+          reason: 'Subagentes nao devem ser abertos por inferencia.',
+          options: ['revisar roles', 'aprovar minimo', 'cancelar'],
+          blocksMutation: true,
+          defaultAction: 'ask',
+        },
+      }),
+    ];
   }
 
   private providerAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -454,25 +476,28 @@ export class AskBeforeAssumptionPolicyService {
     if (!summary || summary.fallbackUsed !== true) {
       return [];
     }
-    return [this.seed({
-      category: 'provider-route',
-      title: 'Fallback de provider precisa visibilidade',
-      detail: 'Provider Arena detectou fallback; nao assumir que o usuario aceita custo/latencia/rota sem explicitar.',
-      severity: 'info',
-      confidence: 0.82,
-      missingInput: ['preferencia de provider/modelo'],
-      inferredFrom: ['providerArena.summary.fallbackUsed'],
-      affectedActions: ['model route'],
-      requiresAnswer: false,
-      question: {
-        priority: 'low',
-        question: 'Quer manter o provider/modelo recomendado ou escolher outro?',
-        reason: 'Fallback deve ficar visivel antes de decisoes caras ou repetidas.',
-        options: ['manter recomendado', 'comparar arena', 'escolher outro'],
-        blocksMutation: false,
-        defaultAction: 'preview',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'provider-route',
+        title: 'Fallback de provider precisa visibilidade',
+        detail:
+          'Provider Arena detectou fallback; nao assumir que o usuario aceita custo/latencia/rota sem explicitar.',
+        severity: 'info',
+        confidence: 0.82,
+        missingInput: ['preferencia de provider/modelo'],
+        inferredFrom: ['providerArena.summary.fallbackUsed'],
+        affectedActions: ['model route'],
+        requiresAnswer: false,
+        question: {
+          priority: 'low',
+          question: 'Quer manter o provider/modelo recomendado ou escolher outro?',
+          reason: 'Fallback deve ficar visivel antes de decisoes caras ou repetidas.',
+          options: ['manter recomendado', 'comparar arena', 'escolher outro'],
+          blocksMutation: false,
+          defaultAction: 'preview',
+        },
+      }),
+    ];
   }
 
   private memoryAssumptions(run: UniversalAgentRun): AssumptionSeed[] {
@@ -483,25 +508,27 @@ export class AskBeforeAssumptionPolicyService {
     if (!memoryWriteLikely && Number(summary?.reusableCount || 0) <= 0 && !memoryWithReceipts) {
       return [];
     }
-    return [this.seed({
-      category: 'memory-write',
-      title: 'Memoria requer origem e consentimento',
-      detail: 'Promover informacao para memoria deve citar origem e depender de acao explicita.',
-      severity: memoryWriteLikely ? 'warning' : 'info',
-      confidence: memoryWriteLikely ? 0.85 : 0.68,
-      missingInput: ['o que lembrar', 'origem/receipt', 'escopo de memoria'],
-      inferredFrom: ['artifactMemory', 'memoryWithReceipts', 'run.input'],
-      affectedActions: ['memory write'],
-      requiresAnswer: memoryWriteLikely,
-      question: {
-        priority: memoryWriteLikely ? 'medium' : 'low',
-        question: 'O que exatamente devo lembrar e qual receipt devo citar?',
-        reason: 'Memoria sem origem vira suposicao persistente.',
-        options: ['citar artifact', 'salvar procedural', 'nao salvar'],
-        blocksMutation: memoryWriteLikely,
-        defaultAction: memoryWriteLikely ? 'ask' : 'preview',
-      },
-    })];
+    return [
+      this.seed({
+        category: 'memory-write',
+        title: 'Memoria requer origem e consentimento',
+        detail: 'Promover informacao para memoria deve citar origem e depender de acao explicita.',
+        severity: memoryWriteLikely ? 'warning' : 'info',
+        confidence: memoryWriteLikely ? 0.85 : 0.68,
+        missingInput: ['o que lembrar', 'origem/receipt', 'escopo de memoria'],
+        inferredFrom: ['artifactMemory', 'memoryWithReceipts', 'run.input'],
+        affectedActions: ['memory write'],
+        requiresAnswer: memoryWriteLikely,
+        question: {
+          priority: memoryWriteLikely ? 'medium' : 'low',
+          question: 'O que exatamente devo lembrar e qual receipt devo citar?',
+          reason: 'Memoria sem origem vira suposicao persistente.',
+          options: ['citar artifact', 'salvar procedural', 'nao salvar'],
+          blocksMutation: memoryWriteLikely,
+          defaultAction: memoryWriteLikely ? 'ask' : 'preview',
+        },
+      }),
+    ];
   }
 
   private seed(seed: AssumptionSeed): AssumptionSeed {
@@ -640,16 +667,16 @@ export class AskBeforeAssumptionPolicyService {
   private normalizeCategory(value: unknown): AskBeforeAssumptionCategory {
     const raw = normalizeText(value).toLowerCase();
     if (
-      raw === 'missing-scope'
-      || raw === 'missing-target'
-      || raw === 'missing-permission'
-      || raw === 'missing-data'
-      || raw === 'risky-tool'
-      || raw === 'channel-handoff'
-      || raw === 'provider-route'
-      || raw === 'memory-write'
-      || raw === 'selfmod'
-      || raw === 'workspace-mutation'
+      raw === 'missing-scope' ||
+      raw === 'missing-target' ||
+      raw === 'missing-permission' ||
+      raw === 'missing-data' ||
+      raw === 'risky-tool' ||
+      raw === 'channel-handoff' ||
+      raw === 'provider-route' ||
+      raw === 'memory-write' ||
+      raw === 'selfmod' ||
+      raw === 'workspace-mutation'
     ) {
       return raw;
     }

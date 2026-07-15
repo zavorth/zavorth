@@ -8,10 +8,7 @@ import {
   type ExperienceDiffHunk,
   type ExperienceDiffReview,
 } from './ExperienceContracts.js';
-import type {
-  UniversalAgentRun,
-  UniversalToolRiskLevel,
-} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { UniversalAgentRun, UniversalToolRiskLevel } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 export type DiffReviewBuildInput = {
   activeRun?: UniversalAgentRun | null;
@@ -52,9 +49,7 @@ function makeAction(input: {
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function hasDiffShape(text: string): boolean {
@@ -65,7 +60,7 @@ function safePreview(lines: string[]): string[] {
   return lines
     .filter((line) => line.startsWith('+') || line.startsWith('-') || line.startsWith(' '))
     .slice(0, 12)
-    .map((line) => line.length > 180 ? `${line.slice(0, 177)}...` : line);
+    .map((line) => (line.length > 180 ? `${line.slice(0, 177)}...` : line));
 }
 
 export class DiffReviewService {
@@ -78,13 +73,14 @@ export class DiffReviewService {
     reviews: ExperienceDiffReview[];
     decision: NonNullable<ExperienceCommand['diffDecision']>;
   }): DiffReviewDecisionResult {
-    const review = input.reviews.find((candidate) => candidate.id === input.decision.reviewId)
-      || (input.reviews.length === 1 ? input.reviews[0] : null);
+    const review =
+      input.reviews.find((candidate) => candidate.id === input.decision.reviewId) ||
+      (input.reviews.length === 1 ? input.reviews[0] : null);
     if (!review) {
       return {
         ok: false,
         status: 'not-found',
-        summary: `Nao encontrei o diff review ${input.decision.reviewId}.`,
+        summary: `I could not find diff review ${input.decision.reviewId}.`,
         contextRecovery: null,
       };
     }
@@ -104,23 +100,23 @@ export class DiffReviewService {
             options: [
               {
                 id: 'reject-related',
-                label: 'Rejeitar hunks relacionados',
-                detail: 'Remove o hunk selecionado e os hunks que parecem depender dele.',
+                label: 'Reject related hunks',
+                detail: 'Remove the selected hunk and hunks that appear to depend on it.',
                 command: `zavorth diff retry ${review.id} ${input.decision.targetId}`,
                 confidence: 0.82,
               },
               {
                 id: 'accept-related',
-                label: 'Aceitar hunks relacionados',
-                detail: 'Mantem os hunks depending juntos e exige policy antes of the host.',
+                label: 'Accept related hunks',
+                detail: 'Keep dependent hunks together and require policy before the host.',
                 command: `zavorth diff approve ${review.id}`,
                 confidence: 0.76,
               },
               {
                 id: 'auto-heal',
-                label: 'Auto-healing em sandbox',
-                detail: 'Permite que o sandbox tente recompor a selecao parcial antes de nova aprovacao.',
-                command: `zavorth run "recomponha ${review.id} em sandbox sem aplicar no host"`,
+                label: 'Auto-healing in sandbox',
+                detail: 'Let the sandbox recompose the partial selection before a new approval.',
+                command: `zavorth run "recompose ${review.id} in sandbox without applying on host"`,
                 confidence: 0.7,
               },
             ],
@@ -138,32 +134,24 @@ export class DiffReviewService {
     return {
       ok: true,
       status: 'recorded',
-      summary: `Decisao de diff registrada para ${input.decision.targetId}. A selecao parcial precisa recompor um mutation plan em sandbox e passar por policy antes do host.`,
+      summary: `Diff decision recorded for ${input.decision.targetId}. Partial selection must recompose a mutation plan in sandbox and pass policy before the host.`,
       contextRecovery: null,
     };
   }
 
   private findSources(input: DiffReviewBuildInput): DiffSource[] {
-    const runs = input.activeRun
-      ? [input.activeRun]
-      : (input.runs || []).slice(0, 5);
-    return runs.flatMap((run) => {
-      const text = this.findDiffText(run);
-      return text ? [{ run, text }] : [];
-    }).slice(0, 3);
+    const runs = input.activeRun ? [input.activeRun] : (input.runs || []).slice(0, 5);
+    return runs
+      .flatMap((run) => {
+        const text = this.findDiffText(run);
+        return text ? [{ run, text }] : [];
+      })
+      .slice(0, 3);
   }
 
   private findDiffText(run: UniversalAgentRun): string | null {
     const metadata = run.metadata || {};
-    const directKeys = [
-      'diff',
-      'patch',
-      'unifiedDiff',
-      'sandboxDiff',
-      'mutationDiff',
-      'diffPreview',
-      'finalDiff',
-    ];
+    const directKeys = ['diff', 'patch', 'unifiedDiff', 'sandboxDiff', 'mutationDiff', 'diffPreview', 'finalDiff'];
     for (const key of directKeys) {
       const value = metadata[key];
       if (typeof value === 'string' && hasDiffShape(value)) return value;
@@ -179,7 +167,11 @@ export class DiffReviewService {
     }
 
     const artifactDiff = run.artifacts.find((artifact) => artifact.kind === 'diff');
-    if (artifactDiff && typeof metadata[artifactDiff.id] === 'string' && hasDiffShape(String(metadata[artifactDiff.id]))) {
+    if (
+      artifactDiff &&
+      typeof metadata[artifactDiff.id] === 'string' &&
+      hasDiffShape(String(metadata[artifactDiff.id]))
+    ) {
       return String(metadata[artifactDiff.id]);
     }
     return null;
@@ -188,11 +180,14 @@ export class DiffReviewService {
   private parseSource(source: DiffSource, index: number): ExperienceDiffReview {
     const reviewId = `diff-review:${source.run.id}:${index + 1}`;
     const files = this.parseFiles(reviewId, source.text);
-    const totals = files.reduce((acc, file) => ({
-      added: acc.added + file.addedLines,
-      removed: acc.removed + file.removedLines,
-      hunkCount: acc.hunkCount + file.hunks.length,
-    }), { added: 0, removed: 0, hunkCount: 0 });
+    const totals = files.reduce(
+      (acc, file) => ({
+        added: acc.added + file.addedLines,
+        removed: acc.removed + file.removedLines,
+        hunkCount: acc.hunkCount + file.hunks.length,
+      }),
+      { added: 0, removed: 0, hunkCount: 0 },
+    );
     const risk = this.riskFor(files, source.run);
     const status: ExperienceDiffReview['status'] = files.length > 0 ? 'pending' : 'empty';
 
@@ -200,40 +195,42 @@ export class DiffReviewService {
       contractVersion: EXPERIENCE_DIFF_REVIEW_CONTRACT_VERSION,
       id: reviewId,
       runId: source.run.id,
-      title: files.length > 0 ? `Diff governado de ${source.run.title}` : 'Diff vazio',
-      summary: files.length > 0
-        ? `${files.length} arquivo(s), ${totals.hunkCount} hunk(s), +${totals.added}/-${totals.removed}.`
-        : 'Nenhuma alteracao revisavel foi encontrada no sandbox.',
+      title: files.length > 0 ? `Governed diff for ${source.run.title}` : 'Empty diff',
+      summary:
+        files.length > 0
+          ? `${files.length} file(s), ${totals.hunkCount} hunk(s), +${totals.added}/-${totals.removed}.`
+          : 'No reviewable change was found in the sandbox.',
       status,
       risk,
       files,
       actions: [
         makeAction({
           id: `diff:approve-plan:${reviewId}`,
-          label: 'Aprovar plano inteiro',
+          label: 'Approve full plan',
           kind: 'diff',
           command: `zavorth diff approve ${reviewId}`,
           risk,
           requiresApproval: true,
-          reason: 'A selecao recomposta volta para policy antes de tocar o host.',
+          reason: 'The recomposed selection returns to policy before touching the host.',
         }),
         makeAction({
           id: `diff:retry:${reviewId}`,
-          label: 'Nova tentativa sem hunks rejeitados',
+          label: 'Retry without rejected hunks',
           kind: 'diff',
           command: `zavorth diff retry ${reviewId}`,
           risk: 'attention',
           requiresApproval: true,
-          reason: 'Reabre o sandbox com escopo reduzido.',
+          reason: 'Reopens the sandbox with a reduced scope.',
         }),
       ],
       recomposition: {
         status: files.length > 0 ? 'needs-sandbox' : 'ready',
         selectedHunks: files.flatMap((file) => file.hunks.map((hunk) => hunk.id)),
         rejectedHunks: [],
-        summary: files.length > 0
-          ? 'Qualquer selecao parcial deve recompor um mutation plan em sandbox antes do host.'
-          : 'Sem hunks para recompor.',
+        summary:
+          files.length > 0
+            ? 'Any partial selection must recompose a mutation plan in sandbox before the host.'
+            : 'No hunks to recompose.',
         requiresSandbox: files.length > 0,
       },
     };
@@ -344,19 +341,24 @@ export class DiffReviewService {
 
   private findHunkDependencyConflict(review: ExperienceDiffReview, targetId: string): { summary: string } | null {
     const hunks = review.files.flatMap((file) => file.hunks.map((hunk) => ({ file, hunk })));
-    const target = hunks.find((entry) => entry.hunk.id === targetId)
-      || hunks.find((entry) => entry.hunk.id.endsWith(targetId));
+    const target =
+      hunks.find((entry) => entry.hunk.id === targetId) || hunks.find((entry) => entry.hunk.id.endsWith(targetId));
     if (!target) return null;
 
     const identifiers = this.extractDefinedIdentifiers(target.hunk.preview);
     if (identifiers.length === 0) return null;
-    const related = hunks.filter((entry) => entry.hunk.id !== target.hunk.id && this.usesAnyIdentifier(entry.hunk.preview, identifiers));
+    const related = hunks.filter(
+      (entry) => entry.hunk.id !== target.hunk.id && this.usesAnyIdentifier(entry.hunk.preview, identifiers),
+    );
     if (related.length === 0) return null;
 
     const names = identifiers.slice(0, 4).join(', ');
-    const relatedLabels = related.slice(0, 3).map((entry) => `${entry.file.path}:${entry.hunk.id.split(':').pop()}`).join(', ');
+    const relatedLabels = related
+      .slice(0, 3)
+      .map((entry) => `${entry.file.path}:${entry.hunk.id.split(':').pop()}`)
+      .join(', ');
     return {
-      summary: `A rejeicao de ${target.hunk.id} pode quebrar hunks relacionados (${relatedLabels}) que usam ${names}. Escolha como recompor em sandbox.`,
+      summary: `Rejecting ${target.hunk.id} may break related hunks (${relatedLabels}) that use ${names}. Choose how to recompose in sandbox.`,
     };
   }
 
@@ -383,7 +385,9 @@ export class DiffReviewService {
 
   private usesAnyIdentifier(preview: string[], identifiers: string[]): boolean {
     const text = preview.join('\n');
-    return identifiers.some((identifier) => new RegExp(`\\b${identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(text));
+    return identifiers.some((identifier) =>
+      new RegExp(`\\b${identifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(text),
+    );
   }
 
   private stableId(value: string): string {

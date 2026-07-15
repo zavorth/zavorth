@@ -11,18 +11,51 @@ import {
   LEGACY_EXTERNAL_COMMAND,
   LEGACY_EXTERNAL_REVIEW_COMMAND,
   LEGACY_EXTERNAL_REVIEW_DASH_COMMAND,
-} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';export class AuthGuard {
+} from '../../../gateways/channels/telegram/ExternalExecutorIdentity.js';
+export class AuthGuard {
   private static readonly FUN_COMMANDS = ['/roll', '/coinflip', '/8ball', '/joke', '/roulette'];
   private static readonly READ_ONLY_ALLOWED_COMMANDS = new Set([
-    '/start', '/help', '/menu', '/zavorth', '/settings', '/status', '/zavorthControl',
-    '/tasks', '/logs', '/files', '/diff', '/research', '/deepresearch',
-    '/memory', '/recall', '/snippets', '/snippet', '/remember', '/forget',
-    '/hostauth', '/changes', '/access', '/bootstrap', '/doctor',
+    '/start',
+    '/help',
+    '/menu',
+    '/zavorth',
+    '/settings',
+    '/status',
+    '/zavorthControl',
+    '/tasks',
+    '/logs',
+    '/files',
+    '/diff',
+    '/research',
+    '/deepresearch',
+    '/memory',
+    '/recall',
+    '/snippets',
+    '/snippet',
+    '/remember',
+    '/forget',
+    '/hostauth',
+    '/changes',
+    '/access',
+    '/bootstrap',
+    '/doctor',
   ]);
 
   private static readonly GROUP_ADMIN_COMMANDS = new Set([
-    '/ban', '/kick', '/mute', '/unmute', '/warn', '/warns', '/clearwarns',
-    '/rules', '/regras', '/stats', '/setwelcome', '/setbye', '/antispam', '/filter',
+    '/ban',
+    '/kick',
+    '/mute',
+    '/unmute',
+    '/warn',
+    '/warns',
+    '/clearwarns',
+    '/rules',
+    '/regras',
+    '/stats',
+    '/setwelcome',
+    '/setbye',
+    '/antispam',
+    '/filter',
   ]);
 
   private static readonly BLOCKED_COMMANDS_FOR_VICE_OWNER = new Set([
@@ -47,6 +80,7 @@ import {
     '/cleanup',
     '/mode',
     '/model',
+    '/strong',
     '/profile',
     '/enable',
     '/disable',
@@ -143,10 +177,13 @@ import {
                 await next();
                 return;
               }
-            } catch (error: unknown) {// Deny access if verification fails.
-      logger.warn('[Auth Guard] operation failed', error);
-    }
-            await ctx.reply('Only group administrators can use this command.', { reply_to_message_id: ctx.message?.message_id });
+            } catch (error: unknown) {
+              // Deny access if verification fails.
+              logger.warn('[Auth Guard] operation failed', error);
+            }
+            await ctx.reply('Only group administrators can use this command.', {
+              reply_to_message_id: ctx.message?.message_id,
+            });
             return;
           }
         }
@@ -162,9 +199,10 @@ import {
             ];
             const response = sarcasms[Math.floor(Math.random() * sarcasms.length)];
             await ctx.reply(response, { reply_to_message_id: ctx.message?.message_id });
-          } catch (error: unknown) {// ignore reply errors for unauthorized group noise
-      logger.warn('[Auth Guard] operation failed', error);
-    }
+          } catch (error: unknown) {
+            // ignore reply errors for unauthorized group noise
+            logger.warn('[Auth Guard] operation failed', error);
+          }
         }
         return;
       }
@@ -176,10 +214,7 @@ import {
         const text = ctx.message?.text || '';
         const commandType = normalizeTelegramCommandToken(text.split(' ')[0] || '');
 
-        if (
-          AuthGuard.BLOCKED_COMMANDS_FOR_VICE_OWNER.has(commandType) ||
-          AuthGuard.isHiddenPrivilegedInput(text)
-        ) {
+        if (AuthGuard.BLOCKED_COMMANDS_FOR_VICE_OWNER.has(commandType) || AuthGuard.isHiddenPrivilegedInput(text)) {
           await ctx.reply(
             '**Restricted Access:**\n\nYour current role cannot use this system/computer command. You still have access to search, memory, conversations, and analysis.',
             { parse_mode: 'Markdown' },
@@ -196,7 +231,8 @@ import {
   private static logSecurityBlock(userId: string, command: string) {
     try {
       logger.warn(`[Security] Non-admin role blocked while trying to execute: ${command}`);
-    } catch (error: unknown) {// ignore logging failures
+    } catch (error: unknown) {
+      // ignore logging failures
       logger.warn('[Auth Guard] process execution failed', error);
     }
   }
@@ -209,26 +245,31 @@ import {
 
     return Boolean(
       msg.new_chat_members ||
-      msg.left_chat_member ||
-      msg.new_chat_title !== undefined ||
-      msg.new_chat_photo ||
-      msg.delete_chat_photo !== undefined ||
-      msg.group_chat_created !== undefined ||
-      msg.supergroup_chat_created !== undefined ||
-      msg.channel_chat_created !== undefined ||
-      msg.message_auto_delete_timer_changed ||
-      msg.migrate_from_chat_id !== undefined ||
-      msg.migrate_to_chat_id !== undefined ||
-      msg.pinned_message ||
-      msg.forum_topic_created ||
-      msg.forum_topic_closed ||
-      msg.forum_topic_reopened ||
-      msg.general_forum_topic_hidden !== undefined ||
-      msg.general_forum_topic_unhidden !== undefined ||
-      msg.write_access_allowed
+        msg.left_chat_member ||
+        msg.new_chat_title !== undefined ||
+        msg.new_chat_photo ||
+        msg.delete_chat_photo !== undefined ||
+        msg.group_chat_created !== undefined ||
+        msg.supergroup_chat_created !== undefined ||
+        msg.channel_chat_created !== undefined ||
+        msg.message_auto_delete_timer_changed ||
+        msg.migrate_from_chat_id !== undefined ||
+        msg.migrate_to_chat_id !== undefined ||
+        msg.pinned_message ||
+        msg.forum_topic_created ||
+        msg.forum_topic_closed ||
+        msg.forum_topic_reopened ||
+        msg.general_forum_topic_hidden !== undefined ||
+        msg.general_forum_topic_unhidden !== undefined ||
+        msg.write_access_allowed,
     );
   }
 
+  /**
+   * Privileged slash tokens only (agent-first).
+   * Free-text NLU phrases no longer activate ops features, so they are not
+   * treated as hidden privileged shortcuts either — free text stays agent-owned.
+   */
   private static isHiddenPrivilegedInput(rawText: string): boolean {
     const normalized = rawText
       .trim()
@@ -237,44 +278,8 @@ import {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/\s+/g, ' ');
 
-    if (!normalized) {
+    if (!normalized || !normalized.startsWith('/')) {
       return false;
-    }
-
-    if (
-      // `normalized` is already lowercased — keep phrases lowercase so matches work.
-      normalized === 'abrir zavorthbridge' ||
-      normalized === 'status do zavorthbridge' ||
-      normalized === 'status zavorthbridge' ||
-      normalized === 'reiniciar zavorthbridge' ||
-      normalized === 'reiniciar o zavorthbridge' ||
-      normalized === 'ativar modo remoto' ||
-      normalized === 'ativar o modo remoto' ||
-      normalized === 'ligar modo remoto' ||
-      normalized === 'ligar o modo remoto' ||
-      normalized === 'desativar modo remoto' ||
-      normalized === 'desativar o modo remoto' ||
-      normalized === 'desligar modo remoto' ||
-      normalized === 'desligar o modo remoto' ||
-      normalized === 'status do modo remoto' ||
-      normalized === 'ver modo remoto' ||
-      normalized.includes('se autoatualize') ||
-      normalized.includes('se atualize') ||
-      normalized.includes('atualize o zavorth') ||
-      normalized.includes('recarregue o zavorth') ||
-      normalized.includes('reinicie o zavorth') ||
-      normalized.includes('religue o zavorth') ||
-      normalized.includes('se autorepare') ||
-      normalized.includes('se conserte') ||
-      normalized.includes('tente se corrigir') ||
-      normalized.includes('corrija o zavorth') ||
-      normalized.includes('faca autoreparo') ||
-      normalized.includes('se melhore') ||
-      normalized.includes('melhore o zavorth') ||
-      normalized.includes('se otimize') ||
-      normalized.includes('otimize o zavorth')
-    ) {
-      return true;
     }
 
     return (

@@ -64,7 +64,10 @@ export class ZavorthAcpServer {
   private readonly onToolCall?: (name: string, args: Record<string, unknown>) => Promise<string>;
   private readonly sessions: Map<string, AcpServerSession> = new Map();
   private readonly tools: Map<string, AcpServerToolDef> = new Map();
-  private readonly pendingRequests = new Map<string | number, { resolve: (val: any) => void; reject: (err: any) => void }>();
+  private readonly pendingRequests = new Map<
+    string | number,
+    { resolve: (val: any) => void; reject: (err: any) => void }
+  >();
   private status: AcpServerSnapshot['status'] = 'starting';
   private totalSessions = 0;
   private lastError: string | null = null;
@@ -150,11 +153,7 @@ export class ZavorthAcpServer {
     });
   }
 
-  async requestElevatedApproval(
-    type: string,
-    message: string,
-    metadata: Record<string, unknown>
-  ): Promise<boolean> {
+  async requestElevatedApproval(type: string, message: string, metadata: Record<string, unknown>): Promise<boolean> {
     try {
       const response = await this.sendRequest('client:requestElevatedApproval', {
         type,
@@ -202,7 +201,8 @@ export class ZavorthAcpServer {
       let msg: any;
       try {
         msg = JSON.parse(trimmed);
-      } catch (error: unknown) {this.sendError(null, JSONRPC_PARSE_ERROR, 'Parse error');
+      } catch (error: unknown) {
+        this.sendError(null, JSONRPC_PARSE_ERROR, 'Parse error');
         continue;
       }
 
@@ -388,24 +388,72 @@ export class ZavorthAcpServer {
       const result = await this.executeToolCall(toolName, args, session);
       this.sendResult(id, { content: [{ type: 'text', text: result }], isError: false });
     } catch (error: unknown) {
-      const err = asErrorLike(error); const errorText = err.message || 'Tool execution failed';
+      const err = asErrorLike(error);
+      const errorText = err.message || 'Tool execution failed';
       this.sendResult(id, { content: [{ type: 'text', text: errorText }], isError: true });
     }
   }
 
   private async processMessage(content: string, session: AcpServerSession): Promise<string> {
-    const toolCallMatch = content.match(/^use\s+(\w+)\s+(.*)/is);
+    const raw = String(content || '').trim();
+    const toolCallMatch = raw.match(/^use\s+(\w+)\s+(.*)/is);
     if (toolCallMatch) {
       const toolName = toolCallMatch[1];
       let args: Record<string, unknown> = {};
       try {
         args = JSON.parse(toolCallMatch[2]);
-      } catch (error: unknown) {args = { input: toolCallMatch[2] };
+      } catch (error: unknown) {
+        args = { input: toolCallMatch[2] };
       }
       return this.executeToolCall(toolName, args, session);
     }
 
-    return `Zavorth received your message. ${session.messagesProcessed} messages processed in this session. Use "use <ToolName> <args>" to invoke tools.`;
+    // Deterministic role slash on ACP surface (same store as other surfaces).
+    const slash = raw.match(/^\/(model|strong)(?:\s+(.*))?$/i);
+    if (slash) {
+      try {
+        const { LlmRoleSurfaceCommands } = await import('../services/llm/LlmRoleSurfaceCommands.js');
+        const { LlmRuntimeService } = await import('../services/llm/LlmRuntimeService.js');
+        const commands = new LlmRoleSurfaceCommands();
+        const runtime = new LlmRuntimeService();
+        const ctx = {
+          userId: session.id,
+          surface: 'acp',
+          isProviderUsable: (name: string) => runtime.isProviderAvailable(name),
+        };
+        if (String(slash[1]).toLowerCase() === 'strong') {
+          const mode = String(slash[2] || 'on')
+            .trim()
+            .toLowerCase();
+          const enabled = !(mode === 'off' || mode === 'default');
+          return commands.setForceStrong(ctx, enabled);
+        }
+        const handled = commands.handleModelArgs(ctx, String(slash[2] || '').trim());
+        if (handled.handled && handled.text) return handled.text;
+      } catch (error: unknown) {
+        const err = asErrorLike(error);
+        return `Role command failed: ${err.message || String(error)}`;
+      }
+    }
+
+    // Free-text conversational path with surface=acp so multi-surface role setup works here too.
+    try {
+      const { ConversationalAgent } = await import('../agents/ConversationalAgent.js');
+      const agent = new ConversationalAgent();
+      const response = await agent.chat(raw, undefined, {
+        mode: 'direct',
+        userId: session.id,
+        surface: 'acp',
+        chatId: session.id,
+      });
+      const text = String(response?.text || '').trim();
+      if (text) return text;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      return `Zavorth ACP chat failed: ${err.message || String(error)}. Use "use <ToolName> <args>" for tools.`;
+    }
+
+    return `Zavorth received your message. ${session.messagesProcessed} messages processed in this session. Use "use <ToolName> <args>" to invoke tools, or /model setup for LLM roles.`;
   }
 
   private async executeToolCall(
@@ -489,7 +537,7 @@ export class ZavorthAcpServer {
         const approved = await this.requestElevatedApproval(
           'path_traversal',
           'The agent is trying to read/write a file outside the workspace.',
-          { path: resolved }
+          { path: resolved },
         );
         if (approved) {
           args.bypassPathRestriction = true;
@@ -607,7 +655,8 @@ export class ZavorthAcpServer {
   private log(message: string): void {
     try {
       this.stderr.write(`[ACP] ${message}\n`);
-    } catch (error: unknown) {// ignore
+    } catch (error: unknown) {
+      // ignore
     }
   }
 }

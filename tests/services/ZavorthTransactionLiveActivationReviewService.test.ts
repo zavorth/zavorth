@@ -1,15 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 
 import { ZavorthTransactionLiveActivationReviewService } from '../../src/services/ZavorthTransactionLiveActivationReviewService.js';
 
@@ -26,14 +21,15 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model1 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model1 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionLiveActivationReviewService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -47,7 +43,9 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
 
   it('requires a Intent model0 candidate-ready envelope first', () => {
     const result = service.review({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -115,24 +113,28 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
     });
 
     expect(result.status).toBe('ready-for-live-activation-review');
-    expect(result.reviewPacket).toEqual(expect.objectContaining({
-      reviewOnly: true,
-      activationAuthorized: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-      separateLiveExecutorRequired: true,
-      rollbackDrillId: 'intent-model1-rollback-drill',
-      killSwitchId: 'intent-model1-kill-switch',
-    }));
-    expect(result.safety).toEqual(expect.objectContaining({
-      activationReviewOnly: true,
-      doesNotAuthorizeLiveExecution: true,
-      externalSideEffects: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-    }));
+    expect(result.reviewPacket).toEqual(
+      expect.objectContaining({
+        reviewOnly: true,
+        activationAuthorized: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+        separateLiveExecutorRequired: true,
+        rollbackDrillId: 'intent-model1-rollback-drill',
+        killSwitchId: 'intent-model1-kill-switch',
+      }),
+    );
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        activationReviewOnly: true,
+        doesNotAuthorizeLiveExecution: true,
+        externalSideEffects: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+      }),
+    );
     expect(result.gates.every((gate) => gate.passed)).toBe(true);
   });
 
@@ -155,15 +157,13 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
     expect(result.status).toBe('activation-policy-blocked');
     expect(result.reviewPacket).toBeUndefined();
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'canary-limit-ready', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'canary-limit-ready', passed: false })]),
     );
   });
 
   it('does not leak raw secrets from rejected activation review input', () => {
     const result = service.review({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -185,7 +185,9 @@ describe('ZavorthTransactionLiveActivationReviewService', () => {
 
   function baseReadyCandidateInput() {
     return {
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api' as const,
       approve: true,
       mode: 'paper' as const,

@@ -49,19 +49,23 @@ describe('ZavorthTransactionSurfaceGatewayService', () => {
 
   it('projects a web trade into approval cards and actions', () => {
     const projection = service.project({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'web',
       mode: 'paper',
     });
 
     expect(projection.status).toBe('approval-required');
     expect(projection.surface).toBe('web');
-    expect(projection.naturalFirst).toEqual(expect.objectContaining({
-      route: 'approval-proposal',
-      intent: 'sensitive-action',
-      shouldEnterGateway: true,
-      requiresApproval: true,
-    }));
+    expect(projection.naturalFirst).toEqual(
+      expect.objectContaining({
+        route: 'approval-proposal',
+        intent: 'sensitive-action',
+        shouldEnterGateway: true,
+        requiresApproval: true,
+      }),
+    );
     expect(projection.cards.map((card) => card.kind)).toEqual([
       'runtime-summary',
       'preview',
@@ -104,7 +108,9 @@ describe('ZavorthTransactionSurfaceGatewayService', () => {
     });
 
     const projection = service.project({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -114,11 +120,13 @@ describe('ZavorthTransactionSurfaceGatewayService', () => {
     expect(projection.status).toBe('simulated');
     expect(projection.runtime.connectorRun?.status).toBe('simulated');
     expect(projection.runtime.credentialValidation?.status).toBe('ready');
-    expect(projection.apiPayload).toEqual(expect.objectContaining({
-      status: 'simulated',
-      runId: projection.runtime.id,
-      previewId: projection.runtime.preview.id,
-    }));
+    expect(projection.apiPayload).toEqual(
+      expect.objectContaining({
+        status: 'simulated',
+        runId: projection.runtime.id,
+        previewId: projection.runtime.preview.id,
+      }),
+    );
     expect(projection.cards).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -137,7 +145,9 @@ describe('ZavorthTransactionSurfaceGatewayService', () => {
 
   it('projects a Telegram monitor as concise localized simulation text', () => {
     const projection = service.project({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       surface: 'telegram',
       mode: 'sandbox',
     });
@@ -151,7 +161,7 @@ describe('ZavorthTransactionSurfaceGatewayService', () => {
 
   it('redacts raw secrets before projecting surface payloads', () => {
     const projection = service.project({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       surface: 'web',
       approve: true,
       mode: 'paper',

@@ -14,7 +14,7 @@ import type { TaskResourceImpact } from '../contracts/TaskResourcePlannerContrac
 import type { CapabilityLifecycleService } from './CapabilityLifecycleService.js';
 import { logger } from '../logger.js';
 import {
-buildZavorthProductModeSnapshot,
+  buildZavorthProductModeSnapshot,
   type ZavorthProductMode,
   type ZavorthProductModeSnapshot,
 } from './ProductModeService.js';
@@ -121,9 +121,7 @@ export class ModeEscalationService {
     const baseMode = this.buildBaseSnapshot();
     const required = this.resolveRequiredMode(message, input.resourceImpact);
     const matchingGrant = this.findMatchingGrant(sessionId, required.requiredMode);
-    const effectiveMode = matchingGrant
-      ? this.buildModeSnapshot(matchingGrant.targetMode)
-      : baseMode;
+    const effectiveMode = matchingGrant ? this.buildModeSnapshot(matchingGrant.targetMode) : baseMode;
 
     if (this.compareModes(effectiveMode.id, required.requiredMode) >= 0) {
       if (matchingGrant?.scope === 'once') {
@@ -184,14 +182,24 @@ export class ModeEscalationService {
     decision: 'approve' | 'reject';
     scope?: ModeEscalationScope | null;
     requestedBy?: string | null;
+    sessionId?: string | null;
   }): ModeEscalationResolution {
-    const requestId = String(input.requestId || '').trim();
+    const sessionId = String(input.sessionId || '').trim();
+    let requestId = String(input.requestId || '').trim();
+    if (sessionId) {
+      const resolved = this.resolveRequestRef(sessionId, requestId || null);
+      if (resolved) requestId = resolved;
+    } else if (!requestId) {
+      // Bare approve without session: use newest global pending if unique.
+      const pending = this.state.requests.filter((entry) => entry.status === 'pending');
+      if (pending.length === 1) requestId = pending[0].id;
+    }
     if (!requestId) {
-      throw new Error('requestId obrigatorio para resolver o mode escalation.');
+      throw new Error('Use /mode approve or /mode approve 1 (from /mode) — not a long id.');
     }
     const request = this.state.requests.find((entry) => entry.id === requestId);
     if (!request) {
-      throw new Error(`Mode escalation nao encontrado: ${requestId}.`);
+      throw new Error('Use /mode approve or /mode approve 1 (pending escalation not found).');
     }
     if (request.status !== 'pending') {
       return {
@@ -264,12 +272,10 @@ export class ModeEscalationService {
     this.pruneResolvedRequests();
     const baseMode = this.buildBaseSnapshot();
     const activeGrant = this.findBestGrant(normalizedSessionId);
-    const effectiveMode = activeGrant
-      ? this.buildModeSnapshot(activeGrant.targetMode)
-      : baseMode;
-    const pendingRequest = this.state.requests.find((entry) =>
-      entry.sessionId === normalizedSessionId
-      && entry.status === 'pending');
+    const effectiveMode = activeGrant ? this.buildModeSnapshot(activeGrant.targetMode) : baseMode;
+    const pendingRequest = this.state.requests.find(
+      (entry) => entry.sessionId === normalizedSessionId && entry.status === 'pending',
+    );
     const activeGrants = this.state.grants
       .filter((entry) => this.isGrantVisibleForSession(entry, normalizedSessionId))
       .map((entry) => this.toGrant(entry))
@@ -293,12 +299,43 @@ export class ModeEscalationService {
       recentRequests,
       commands: {
         show: '/mode',
-        approve: '/mode approve <requestId> [once|session|host]',
-        reject: '/mode reject <requestId>',
+        // Prefer bare / ordinal — not long request ids.
+        approve: pendingRequest
+          ? '/mode approve  [once|session|host]  or  /mode approve 1'
+          : '/mode approve 1 [once|session|host]',
+        reject: pendingRequest ? '/mode reject  or  /mode reject 1' : '/mode reject 1',
         inspect: '/api/web/runtime/mode-escalation?sessionId=:id',
         resolve: '/api/web/runtime/mode-escalation/resolve',
       },
     };
+  }
+
+  /**
+   * Resolve a request ref for a session: bare, ordinal 1, short prefix, or full id.
+   */
+  public resolveRequestRef(sessionId: string, ref: string | null | undefined): string | null {
+    const normalizedSessionId = String(sessionId || '').trim() || 'unknown-session';
+    const pending = this.state.requests.filter(
+      (entry) => entry.sessionId === normalizedSessionId && entry.status === 'pending',
+    );
+    const token = String(ref || '').trim();
+    if (!token) {
+      return pending.length === 1 ? pending[0].id : pending[0]?.id || null;
+    }
+    const ordinal = token.match(/^#?(\d{1,2})$/)?.[1];
+    if (ordinal) {
+      const index = Number(ordinal) - 1;
+      if (Number.isFinite(index) && index >= 0 && index < pending.length) {
+        return pending[index].id;
+      }
+      return null;
+    }
+    const exact =
+      pending.find((entry) => entry.id === token) || this.state.requests.find((entry) => entry.id === token);
+    if (exact) return exact.id;
+    const prefixHits = pending.filter((entry) => entry.id.startsWith(token));
+    if (prefixHits.length === 1) return prefixHits[0].id;
+    return null;
   }
 
   private resolveRequiredMode(message: string, impact: TaskResourceImpact | null): RequiredModeResolution {
@@ -311,7 +348,9 @@ export class ModeEscalationService {
       reasons.push('a tarefa pede contexto de arquivos ou artifacts do workspace');
     }
 
-    if (/(codigo|code|diff|patch|editar|edit|commit|terminal|shell|build|teste|test|refactor|selfmod)/i.test(normalized)) {
+    if (
+      /(codigo|code|diff|patch|editar|edit|commit|terminal|shell|build|teste|test|refactor|selfmod)/i.test(normalized)
+    ) {
       requiredMode = this.maxMode(requiredMode, 'builder');
       reasons.push('a tarefa pede trilha de construcao com diff, tool cards ou selfmod');
     }
@@ -323,9 +362,13 @@ export class ModeEscalationService {
     }
 
     if (
-      /(watch mode|computer use|runtime|mesh|node host|node mesh|companion|docker|wsl|rollout|observability|gateway|tunnel|cloudflare|discord|zavorthBridge|remote)/i.test(normalized)
-      || (impact?.budget?.companionDependencies?.length || 0) > 0
-      || capabilityIds.some((entry) => ['watch-mode', 'remote', 'public-tunnel', 'recurring-automation'].includes(String(entry || '').trim()))
+      /(watch mode|computer use|runtime|mesh|node host|node mesh|companion|docker|wsl|rollout|observability|gateway|tunnel|cloudflare|discord|zavorthBridge|remote)/i.test(
+        normalized,
+      ) ||
+      (impact?.budget?.companionDependencies?.length || 0) > 0 ||
+      capabilityIds.some((entry) =>
+        ['watch-mode', 'remote', 'public-tunnel', 'recurring-automation'].includes(String(entry || '').trim()),
+      )
     ) {
       requiredMode = this.maxMode(requiredMode, 'operator');
       reasons.push('a tarefa pede controle operacional, companion ou exposure alem do modo basico');
@@ -334,12 +377,13 @@ export class ModeEscalationService {
     const recommendedScope =
       impact?.budget?.recurring || impact?.budget?.externalExposure === 'public'
         ? 'host'
-        : (impact?.heavy || (impact?.budget?.companionDependencies?.length || 0) > 0)
+        : impact?.heavy || (impact?.budget?.companionDependencies?.length || 0) > 0
           ? 'session'
           : 'once';
 
-    const fallback = impact?.budget?.fallback
-      || (requiredMode === 'operator'
+    const fallback =
+      impact?.budget?.fallback ||
+      (requiredMode === 'operator'
         ? 'Posso continuar no modo atual e sugerir um caminho mais leve, sem companions nem exposicao adicional.'
         : requiredMode === 'builder'
           ? 'Posso continuar no modo atual e manter a resposta apenas conceitual, sem diff nem execucao.'
@@ -367,26 +411,32 @@ export class ModeEscalationService {
     requiredMode: ZavorthProductMode,
     intent: string,
   ): PersistedModeEscalationRequest | null {
-    return this.state.requests.find((entry) =>
-      entry.sessionId === sessionId
-      && entry.requiredMode === requiredMode
-      && entry.status === 'pending'
-      && entry.intent === intent) || null;
+    return (
+      this.state.requests.find(
+        (entry) =>
+          entry.sessionId === sessionId &&
+          entry.requiredMode === requiredMode &&
+          entry.status === 'pending' &&
+          entry.intent === intent,
+      ) || null
+    );
   }
 
-  private findMatchingGrant(
-    sessionId: string,
-    requiredMode: ZavorthProductMode,
-  ): PersistedModeEscalationGrant | null {
-    return this.state.grants.find((entry) =>
-      this.isGrantVisibleForSession(entry, sessionId)
-      && this.compareModes(entry.targetMode, requiredMode) >= 0) || null;
+  private findMatchingGrant(sessionId: string, requiredMode: ZavorthProductMode): PersistedModeEscalationGrant | null {
+    return (
+      this.state.grants.find(
+        (entry) =>
+          this.isGrantVisibleForSession(entry, sessionId) && this.compareModes(entry.targetMode, requiredMode) >= 0,
+      ) || null
+    );
   }
 
   private findBestGrant(sessionId: string): PersistedModeEscalationGrant | null {
-    return this.state.grants
-      .filter((entry) => this.isGrantVisibleForSession(entry, sessionId))
-      .sort((left, right) => this.compareModes(right.targetMode, left.targetMode))[0] || null;
+    return (
+      this.state.grants
+        .filter((entry) => this.isGrantVisibleForSession(entry, sessionId))
+        .sort((left, right) => this.compareModes(right.targetMode, left.targetMode))[0] || null
+    );
   }
 
   private findGrantById(grantId: string): ModeEscalationGrant | null {
@@ -482,7 +532,9 @@ export class ModeEscalationService {
   }
 
   private normalizeScope(scope: string | null | undefined): ModeEscalationScope {
-    const normalized = String(scope || '').trim().toLowerCase();
+    const normalized = String(scope || '')
+      .trim()
+      .toLowerCase();
     if (normalized === 'session' || normalized === 'host') {
       return normalized;
     }
@@ -509,7 +561,8 @@ export class ModeEscalationService {
           requests: Array.isArray(parsed.requests) ? parsed.requests : [],
         };
       }
-    } catch (error: unknown) {// Keep runtime resilient even if the persisted file was corrupted.
+    } catch (error: unknown) {
+      // Keep runtime resilient even if the persisted file was corrupted.
       logger.warn('[Mode Escalation] JSON parse failed', error);
     }
     return {

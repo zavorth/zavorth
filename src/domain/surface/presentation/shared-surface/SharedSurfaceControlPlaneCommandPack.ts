@@ -22,9 +22,18 @@ type SharedSurfaceControlPlaneCommandPackDeps = {
   governanceControlPlaneService: Pick<ZavorthGovernanceControlPlaneService, 'buildSnapshot' | 'renderReport'>;
   replayLearningControlPlaneService: Pick<ZavorthReplayLearningControlPlaneService, 'buildSnapshot' | 'renderReport'>;
   ecosystemControlPlaneService: Pick<ZavorthEcosystemControlPlaneService, 'buildSnapshot' | 'renderReport'>;
-  distributedRuntimeControlPlaneService: Pick<ZavorthDistributedRuntimeControlPlaneService, 'buildSnapshot' | 'renderReport'>;
-  runtimeStabilityControlPlaneService: Pick<ZavorthRuntimeStabilityControlPlaneService, 'buildSnapshot' | 'renderReport'>;
-  rolloutReadinessControlPlaneService: Pick<ZavorthRolloutReadinessControlPlaneService, 'buildSnapshot' | 'renderReport'>;
+  distributedRuntimeControlPlaneService: Pick<
+    ZavorthDistributedRuntimeControlPlaneService,
+    'buildSnapshot' | 'renderReport'
+  >;
+  runtimeStabilityControlPlaneService: Pick<
+    ZavorthRuntimeStabilityControlPlaneService,
+    'buildSnapshot' | 'renderReport'
+  >;
+  rolloutReadinessControlPlaneService: Pick<
+    ZavorthRolloutReadinessControlPlaneService,
+    'buildSnapshot' | 'renderReport'
+  >;
   naturalSetupControlPlaneService: Pick<ZavorthNaturalSetupControlPlaneService, 'buildSnapshot' | 'renderReport'>;
 };
 
@@ -37,81 +46,94 @@ export class SharedSurfaceControlPlaneCommandPack {
         {
           id: 'evals',
           label: 'Eval observability evals',
-          buildSnapshot: (request) => this.deps.evalControlPlaneService.buildSnapshot(this.readEvalsQuery(request.query)),
+          buildSnapshot: (request) =>
+            this.deps.evalControlPlaneService.buildSnapshot(this.readEvalsQuery(request.query)),
         },
         {
           id: 'qa',
           label: 'QA release QA',
-          buildSnapshot: (request) => this.deps.qaControlPlaneService.buildSnapshot({
-            profile: this.readString(request.query, 'profile') || undefined,
-          }),
-          renderReport: (request) => this.deps.qaControlPlaneService.renderReport({
-            profile: this.readString(request.query, 'profile') || undefined,
-          }),
+          buildSnapshot: (request) =>
+            this.deps.qaControlPlaneService.buildSnapshot({
+              profile: this.readString(request.query, 'profile') || undefined,
+            }),
+          renderReport: (request) =>
+            this.deps.qaControlPlaneService.renderReport({
+              profile: this.readString(request.query, 'profile') || undefined,
+            }),
         },
         {
           id: 'governance',
           label: 'Governance governance',
-          buildSnapshot: (request) => this.deps.governanceControlPlaneService.buildSnapshot({
-            limit: this.readNumber(request.query, 'limit') || undefined,
-          }),
-          renderReport: (request) => this.deps.governanceControlPlaneService.renderReport({
-            limit: this.readNumber(request.query, 'limit') || undefined,
-          }),
+          buildSnapshot: (request) =>
+            this.deps.governanceControlPlaneService.buildSnapshot({
+              limit: this.readNumber(request.query, 'limit') || undefined,
+            }),
+          renderReport: (request) =>
+            this.deps.governanceControlPlaneService.renderReport({
+              limit: this.readNumber(request.query, 'limit') || undefined,
+            }),
         },
         {
           id: 'replay-learning',
           label: 'Replay learning replay learning',
-          buildSnapshot: (request) => this.deps.replayLearningControlPlaneService.buildSnapshot({
-            userId: this.readNullableString(request.query, 'userId'),
-            platform: this.readNullableString(request.query, 'platform'),
-            chatId: this.readNullableString(request.query, 'chatId'),
-            limit: this.readNumber(request.query, 'limit') || undefined,
-          }),
-          renderReport: (request) => this.deps.replayLearningControlPlaneService.renderReport({
-            userId: this.readNullableString(request.query, 'userId'),
-            platform: this.readNullableString(request.query, 'platform'),
-            chatId: this.readNullableString(request.query, 'chatId'),
-            limit: this.readNumber(request.query, 'limit') || undefined,
-          }),
+          buildSnapshot: (request) =>
+            this.deps.replayLearningControlPlaneService.buildSnapshot({
+              userId: this.readNullableString(request.query, 'userId'),
+              platform: this.readNullableString(request.query, 'platform'),
+              chatId: this.readNullableString(request.query, 'chatId'),
+              limit: this.readNumber(request.query, 'limit') || undefined,
+            }),
+          renderReport: (request) =>
+            this.deps.replayLearningControlPlaneService.renderReport({
+              userId: this.readNullableString(request.query, 'userId'),
+              platform: this.readNullableString(request.query, 'platform'),
+              chatId: this.readNullableString(request.query, 'chatId'),
+              limit: this.readNumber(request.query, 'limit') || undefined,
+            }),
         },
         {
           id: 'ecosystem',
           label: 'Ecosystem ecosystem',
-          buildSnapshot: (request) => this.deps.ecosystemControlPlaneService.buildSnapshot({
-            selectedId: this.readNullableString(request.query, 'selectedId'),
-            query: this.readNullableString(request.query, 'query'),
-          }),
-          renderReport: (request) => this.deps.ecosystemControlPlaneService.renderReport({
-            selectedId: this.readNullableString(request.query, 'selectedId'),
-            query: this.readNullableString(request.query, 'query'),
-          }),
+          buildSnapshot: (request) =>
+            this.deps.ecosystemControlPlaneService.buildSnapshot({
+              selectedId: this.readNullableString(request.query, 'selectedId'),
+              query: this.readNullableString(request.query, 'query'),
+            }),
+          renderReport: (request) =>
+            this.deps.ecosystemControlPlaneService.renderReport({
+              selectedId: this.readNullableString(request.query, 'selectedId'),
+              query: this.readNullableString(request.query, 'query'),
+            }),
         },
         {
           id: 'distributed-runtime',
           label: 'Distributed runtime distributed runtime',
-          buildSnapshot: (request) => this.deps.distributedRuntimeControlPlaneService.buildSnapshot({
-            selectedId: this.readNullableString(request.query, 'selectedId'),
-            query: this.readNullableString(request.query, 'query'),
-          }),
-          renderReport: (request) => this.deps.distributedRuntimeControlPlaneService.renderReport({
-            selectedId: this.readNullableString(request.query, 'selectedId'),
-            query: this.readNullableString(request.query, 'query'),
-          }),
+          buildSnapshot: (request) =>
+            this.deps.distributedRuntimeControlPlaneService.buildSnapshot({
+              selectedId: this.readNullableString(request.query, 'selectedId'),
+              query: this.readNullableString(request.query, 'query'),
+            }),
+          renderReport: (request) =>
+            this.deps.distributedRuntimeControlPlaneService.renderReport({
+              selectedId: this.readNullableString(request.query, 'selectedId'),
+              query: this.readNullableString(request.query, 'query'),
+            }),
         },
         {
           id: 'runtime-stability',
           label: 'Runtime stability',
           buildSnapshot: (request) => {
-            const deepDoctor = this.readOptionalBoolean(request.query, 'deepDoctor')
-              || this.readOptionalBoolean(request.query, 'refresh');
+            const deepDoctor =
+              this.readOptionalBoolean(request.query, 'deepDoctor') ||
+              this.readOptionalBoolean(request.query, 'refresh');
             return deepDoctor === true
               ? this.deps.runtimeStabilityControlPlaneService.buildSnapshot({ deepDoctor: true })
               : this.deps.runtimeStabilityControlPlaneService.buildSnapshot();
           },
           renderReport: (request) => {
-            const deepDoctor = this.readOptionalBoolean(request.query, 'deepDoctor')
-              || this.readOptionalBoolean(request.query, 'refresh');
+            const deepDoctor =
+              this.readOptionalBoolean(request.query, 'deepDoctor') ||
+              this.readOptionalBoolean(request.query, 'refresh');
             return deepDoctor === true
               ? this.deps.runtimeStabilityControlPlaneService.renderReport({ deepDoctor: true })
               : this.deps.runtimeStabilityControlPlaneService.renderReport();
@@ -120,40 +142,45 @@ export class SharedSurfaceControlPlaneCommandPack {
         {
           id: 'rollout-readiness',
           label: 'Rollout readiness',
-          buildSnapshot: (request) => this.deps.rolloutReadinessControlPlaneService.buildSnapshot({
-            profile: this.readNullableString(request.query, 'profile'),
-            scope: this.readNullableString(request.query, 'scope'),
-            refresh: this.readOptionalBoolean(request.query, 'refresh'),
-            includeSources: this.readOptionalBoolean(request.query, 'includeSources')
-              || this.readOptionalBoolean(request.query, 'full'),
-          }),
-          renderReport: (request) => this.deps.rolloutReadinessControlPlaneService.renderReport({
-            profile: this.readNullableString(request.query, 'profile'),
-            scope: this.readNullableString(request.query, 'scope'),
-            refresh: this.readOptionalBoolean(request.query, 'refresh'),
-          }),
+          buildSnapshot: (request) =>
+            this.deps.rolloutReadinessControlPlaneService.buildSnapshot({
+              profile: this.readNullableString(request.query, 'profile'),
+              scope: this.readNullableString(request.query, 'scope'),
+              refresh: this.readOptionalBoolean(request.query, 'refresh'),
+              includeSources:
+                this.readOptionalBoolean(request.query, 'includeSources') ||
+                this.readOptionalBoolean(request.query, 'full'),
+            }),
+          renderReport: (request) =>
+            this.deps.rolloutReadinessControlPlaneService.renderReport({
+              profile: this.readNullableString(request.query, 'profile'),
+              scope: this.readNullableString(request.query, 'scope'),
+              refresh: this.readOptionalBoolean(request.query, 'refresh'),
+            }),
         },
         {
           id: 'natural-setup',
           label: 'Natural setup',
-          buildSnapshot: (request) => this.deps.naturalSetupControlPlaneService.buildSnapshot({
-            intentText: this.readNullableString(request.query, 'intentText'),
-            channelId: this.readNullableString(request.query, 'channelId'),
-            mode: this.readNullableString(request.query, 'mode'),
-            autoApply: this.readOptionalBoolean(request.query, 'apply'),
-            autoDoctor: this.readOptionalBoolean(request.query, 'doctor'),
-            autoTest: this.readOptionalBoolean(request.query, 'test'),
-            localOnly: this.readOptionalBoolean(request.query, 'localOnly'),
-          }),
-          renderReport: (request) => this.deps.naturalSetupControlPlaneService.renderReport({
-            intentText: this.readNullableString(request.query, 'intentText'),
-            channelId: this.readNullableString(request.query, 'channelId'),
-            mode: this.readNullableString(request.query, 'mode'),
-            autoApply: this.readOptionalBoolean(request.query, 'apply'),
-            autoDoctor: this.readOptionalBoolean(request.query, 'doctor'),
-            autoTest: this.readOptionalBoolean(request.query, 'test'),
-            localOnly: this.readOptionalBoolean(request.query, 'localOnly'),
-          }),
+          buildSnapshot: (request) =>
+            this.deps.naturalSetupControlPlaneService.buildSnapshot({
+              intentText: this.readNullableString(request.query, 'intentText'),
+              channelId: this.readNullableString(request.query, 'channelId'),
+              mode: this.readNullableString(request.query, 'mode'),
+              autoApply: this.readOptionalBoolean(request.query, 'apply'),
+              autoDoctor: this.readOptionalBoolean(request.query, 'doctor'),
+              autoTest: this.readOptionalBoolean(request.query, 'test'),
+              localOnly: this.readOptionalBoolean(request.query, 'localOnly'),
+            }),
+          renderReport: (request) =>
+            this.deps.naturalSetupControlPlaneService.renderReport({
+              intentText: this.readNullableString(request.query, 'intentText'),
+              channelId: this.readNullableString(request.query, 'channelId'),
+              mode: this.readNullableString(request.query, 'mode'),
+              autoApply: this.readOptionalBoolean(request.query, 'apply'),
+              autoDoctor: this.readOptionalBoolean(request.query, 'doctor'),
+              autoTest: this.readOptionalBoolean(request.query, 'test'),
+              localOnly: this.readOptionalBoolean(request.query, 'localOnly'),
+            }),
         },
       ],
     });
@@ -165,62 +192,85 @@ export class SharedSurfaceControlPlaneCommandPack {
         await this.handleEvals(ctx, args);
         return true;
       case '/qa':
-        await ctx.reply(await this.renderPlaneReport(ctx, 'qa', {
-          profile: this.normalizeProfileArg(args),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'qa', {
+            profile: this.normalizeProfileArg(args),
+          }),
+        );
         return true;
       case '/governance':
-        await ctx.reply(await this.renderPlaneReport(ctx, 'governance', {
-          limit: this.extractLimitArg(args, 8),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'governance', {
+            limit: this.extractLimitArg(args, 8),
+          }),
+        );
         return true;
       case '/replayloop':
-        await ctx.reply(await this.renderPlaneReport(ctx, 'replay-learning', {
-          userId: String(ctx.userId || '').trim() || null,
-          platform: ctx.platform,
-          chatId: String(ctx.chatId || '').trim() || null,
-          limit: this.extractLimitArg(args, 8),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'replay-learning', {
+            userId: String(ctx.userId || '').trim() || null,
+            platform: ctx.platform,
+            chatId: String(ctx.chatId || '').trim() || null,
+            limit: this.extractLimitArg(args, 8),
+          }),
+        );
         return true;
       case '/ecosystem': {
         const normalizedArgs = String(args || '').trim();
-        await ctx.reply(await this.renderPlaneReport(ctx, 'ecosystem', {
-          selectedId: normalizedArgs || null,
-          query: normalizedArgs || null,
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'ecosystem', {
+            selectedId: normalizedArgs || null,
+            query: normalizedArgs || null,
+          }),
+        );
         return true;
       }
       case '/fleet': {
         const normalizedArgs = String(args || '').trim();
-        await ctx.reply(await this.renderPlaneReport(ctx, 'distributed-runtime', {
-          selectedId: normalizedArgs || null,
-          query: normalizedArgs || null,
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'distributed-runtime', {
+            selectedId: normalizedArgs || null,
+            query: normalizedArgs || null,
+          }),
+        );
         return true;
       }
       case '/stability':
-        await ctx.reply(await this.renderPlaneReport(ctx, 'runtime-stability', {
-          refresh: this.hasBooleanFlag(args, ['refresh', '--refresh', 'deepDoctor', '--deepDoctor', 'deep', '--deep']),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'runtime-stability', {
+            refresh: this.hasBooleanFlag(args, [
+              'refresh',
+              '--refresh',
+              'deepDoctor',
+              '--deepDoctor',
+              'deep',
+              '--deep',
+            ]),
+          }),
+        );
         return true;
       case '/rolloutqa':
-        await ctx.reply(await this.renderPlaneReport(ctx, 'rollout-readiness', {
-          profile: this.normalizeProfileArg(args),
-          scope: this.normalizeRolloutScopeArg(args),
-          refresh: this.hasBooleanFlag(args, ['refresh', '--refresh']),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'rollout-readiness', {
+            profile: this.normalizeProfileArg(args),
+            scope: this.normalizeRolloutScopeArg(args),
+            refresh: this.hasBooleanFlag(args, ['refresh', '--refresh']),
+          }),
+        );
         return true;
       case '/setupagent': {
         const normalizedArgs = String(args || '').trim();
-        await ctx.reply(await this.renderPlaneReport(ctx, 'natural-setup', {
-          intentText: normalizedArgs || null,
-          channelId: this.readFlag(args, ['channel', '--channel']),
-          mode: this.readFlag(args, ['mode', '--mode']),
-          apply: this.hasBooleanFlag(args, ['apply', '--apply', 'scaffold', '--scaffold']),
-          doctor: this.hasBooleanFlag(args, ['doctor', '--doctor', 'validate', '--validate']),
-          test: this.hasBooleanFlag(args, ['test', '--test', 'send-test', '--send-test']),
-          localOnly: this.hasBooleanFlag(args, ['local-only', '--local-only', 'localOnly']),
-        }));
+        await ctx.reply(
+          await this.renderPlaneReport(ctx, 'natural-setup', {
+            intentText: normalizedArgs || null,
+            channelId: this.readFlag(args, ['channel', '--channel']),
+            mode: this.readFlag(args, ['mode', '--mode']),
+            apply: this.hasBooleanFlag(args, ['apply', '--apply', 'scaffold', '--scaffold']),
+            doctor: this.hasBooleanFlag(args, ['doctor', '--doctor', 'validate', '--validate']),
+            test: this.hasBooleanFlag(args, ['test', '--test', 'send-test', '--send-test']),
+            localOnly: this.hasBooleanFlag(args, ['local-only', '--local-only', 'localOnly']),
+          }),
+        );
         return true;
       }
       default:
@@ -229,19 +279,20 @@ export class SharedSurfaceControlPlaneCommandPack {
   }
 
   private async handleEvals(ctx: IMessageContext, args: string): Promise<void> {
-    const snapshotResult = await this.controlPlaneApi.readSnapshot<any>(this.buildSnapshotRequest(ctx, 'evals', {
-      workspace: this.readFlag(args, ['workspace', '--workspace']),
-      sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),
-      executor: this.readFlag(args, ['executor', '--executor']),
-      workflow: this.readFlag(args, ['workflow', '--workflow']),
-    }));
+    const snapshotResult = await this.controlPlaneApi.readSnapshot<any>(
+      this.buildSnapshotRequest(ctx, 'evals', {
+        workspace: this.readFlag(args, ['workspace', '--workspace']),
+        sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),
+        executor: this.readFlag(args, ['executor', '--executor']),
+        workflow: this.readFlag(args, ['workflow', '--workflow']),
+      }),
+    );
     if (!snapshotResult.ok || !snapshotResult.data) {
-      await ctx.reply(this.renderControlPlaneReport(
-        'evals',
-        'Eval observability: Eval + Observability',
-        snapshotResult.summary,
-        { status: 'failed' },
-      ));
+      await ctx.reply(
+        this.renderControlPlaneReport('evals', 'Eval observability: Eval + Observability', snapshotResult.summary, {
+          status: 'failed',
+        }),
+      );
       return;
     }
     const snapshot = snapshotResult.data;
@@ -267,15 +318,21 @@ export class SharedSurfaceControlPlaneCommandPack {
         : 'Ultima baseline: historico ainda curto neste host.',
       snapshot.telemetry.recommendation ? `Recomendacao: ${snapshot.telemetry.recommendation}` : null,
       snapshot.history.recommendation ? `Tendencia: ${snapshot.history.recommendation}` : null,
-    ].filter(Boolean).join('\n');
-    await ctx.reply(this.renderControlPlaneReport('evals', 'Eval observability: Eval + Observability', text, {
-      query: this.readEvalsQuery(this.buildSnapshotRequest(ctx, 'evals', {
-        workspace: this.readFlag(args, ['workspace', '--workspace']),
-        sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),
-        executor: this.readFlag(args, ['executor', '--executor']),
-        workflow: this.readFlag(args, ['workflow', '--workflow']),
-      }).query),
-    }));
+    ]
+      .filter(Boolean)
+      .join('\n');
+    await ctx.reply(
+      this.renderControlPlaneReport('evals', 'Eval observability: Eval + Observability', text, {
+        query: this.readEvalsQuery(
+          this.buildSnapshotRequest(ctx, 'evals', {
+            workspace: this.readFlag(args, ['workspace', '--workspace']),
+            sourceSurface: this.readFlag(args, ['surface', '--surface', 'sourceSurface', '--source-surface']),
+            executor: this.readFlag(args, ['executor', '--executor']),
+            workflow: this.readFlag(args, ['workflow', '--workflow']),
+          }).query,
+        ),
+      }),
+    );
   }
 
   private async renderPlaneReport(
@@ -295,12 +352,9 @@ export class SharedSurfaceControlPlaneCommandPack {
         status: 'failed',
       });
     }
-    return this.renderControlPlaneReport(
-      planeId,
-      this.getPlaneTitle(planeId),
-      JSON.stringify(snapshot.data, null, 2),
-      { query },
-    );
+    return this.renderControlPlaneReport(planeId, this.getPlaneTitle(planeId), JSON.stringify(snapshot.data, null, 2), {
+      query,
+    });
   }
 
   private renderControlPlaneReport(
@@ -312,17 +366,19 @@ export class SharedSurfaceControlPlaneCommandPack {
       status?: SurfaceReceiptStatus;
     } = {},
   ): string {
-    return renderPlainSurfaceResponse(buildReportSurfaceResponse({
-      id: `control-plane-${planeId}`,
-      title,
-      text,
-      status: options.status || 'done',
-      policyProfile: 'shared-control-plane',
-      metadata: {
-        planeId,
-        query: options.query || null,
-      },
-    })).text;
+    return renderPlainSurfaceResponse(
+      buildReportSurfaceResponse({
+        id: `control-plane-${planeId}`,
+        title,
+        text,
+        status: options.status || 'done',
+        policyProfile: 'shared-control-plane',
+        metadata: {
+          planeId,
+          query: options.query || null,
+        },
+      }),
+    ).text;
   }
 
   private getPlaneTitle(planeId: string): string {
@@ -346,7 +402,7 @@ export class SharedSurfaceControlPlaneCommandPack {
       case 'natural-setup':
         return 'Natural setup';
       default:
-        return 'Control plane do Zavorth';
+        return 'Zavorth control plane';
     }
   }
 
@@ -365,13 +421,17 @@ export class SharedSurfaceControlPlaneCommandPack {
 
   private normalizeProfileArg(args: string): string {
     const explicit = this.readFlag(args, ['profile', '--profile']);
-    const normalizedArgs = String(explicit || args || '').trim().toLowerCase();
+    const normalizedArgs = String(explicit || args || '')
+      .trim()
+      .toLowerCase();
     return /\bbeta\b/.test(normalizedArgs) ? 'beta' : 'alpha';
   }
 
   private normalizeRolloutScopeArg(args: string): string {
     const explicit = this.readFlag(args, ['scope', '--scope']);
-    const normalizedArgs = String(explicit || args || '').trim().toLowerCase();
+    const normalizedArgs = String(explicit || args || '')
+      .trim()
+      .toLowerCase();
     if (/\brollback-only\b/.test(normalizedArgs)) {
       return 'rollback-only';
     }
@@ -401,7 +461,9 @@ export class SharedSurfaceControlPlaneCommandPack {
   }
 
   private hasBooleanFlag(args: string, flagNames: string[]): boolean {
-    const normalizedArgs = String(args || '').trim().toLowerCase();
+    const normalizedArgs = String(args || '')
+      .trim()
+      .toLowerCase();
     return flagNames.some((flag) => {
       const normalizedFlag = flag.replace(/^--/, '').toLowerCase();
       return new RegExp(`(?:^|\\s)--?${normalizedFlag}(?:\\s|$|=true\\b)`, 'i').test(normalizedArgs);

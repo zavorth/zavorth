@@ -40,13 +40,14 @@ export class NodeInvokeService {
     this.now = runtime.now || (() => new Date());
     this.registryService = runtime.registryService || new NodeRegistryService();
     this.capabilityService = runtime.capabilityService || new NodeCapabilityService();
-    this.invocationStoreService = runtime.invocationStoreService || new NodeInvocationStoreService({
-      now: this.now,
-    });
+    this.invocationStoreService =
+      runtime.invocationStoreService ||
+      new NodeInvocationStoreService({
+        now: this.now,
+      });
     this.canonicalExecution = runtime.canonicalExecutionPipeline || new CanonicalExecutionPipelineService();
-    this.deviceCapabilityPolicy = runtime.deviceCapabilityPolicy === null
-      ? null
-      : runtime.deviceCapabilityPolicy || new DeviceCapabilityPolicy();
+    this.deviceCapabilityPolicy =
+      runtime.deviceCapabilityPolicy === null ? null : runtime.deviceCapabilityPolicy || new DeviceCapabilityPolicy();
     this.liveNodeRegistry = runtime.liveNodeRegistry || globalLiveNodeRegistry;
   }
 
@@ -92,71 +93,89 @@ export class NodeInvokeService {
     return this.invocationStoreService.requeueStaleClaimed(node.id, limit);
   }
 
-  public summarizeNodeQueue(nodeId: string | null | undefined): ReturnType<NodeInvocationStoreService['summarizeNode']> {
+  public summarizeNodeQueue(
+    nodeId: string | null | undefined,
+  ): ReturnType<NodeInvocationStoreService['summarizeNode']> {
     return this.invocationStoreService.summarizeNode(nodeId);
   }
 
   private evaluate(request: NodeInvocationRequest, persist: boolean): NodeInvocationResult {
     const node = this.registryService.getNode(request.nodeId);
     if (!node) {
-      return this.withResultLifecycle({
-        ok: false,
-        status: 'unavailable',
-        nodeId: null,
-        capabilityId: request.capabilityId,
-        action: request.action,
-        reason: 'Node nao encontrado no registry atual.',
-        transport: null,
-        commandHint: 'Registre ou pareie o node antes de tentar invocar uma capacidade remota.',
-        queuedAt: null,
-      }, request, null);
+      return this.withResultLifecycle(
+        {
+          ok: false,
+          status: 'unavailable',
+          nodeId: null,
+          capabilityId: request.capabilityId,
+          action: request.action,
+          reason: 'Node not found in the current registry.',
+          transport: null,
+          commandHint: 'Register or pair the node before invoking a remote capability.',
+          queuedAt: null,
+        },
+        request,
+        null,
+      );
     }
 
     if (!node.paired || node.pairingStatus !== 'paired') {
-      return this.withResultLifecycle({
-        ok: false,
-        status: 'blocked',
-        nodeId: node.id,
-        capabilityId: request.capabilityId,
-        action: request.action,
-        reason: 'O node ainda nao concluiu o pareamento e segue fora do plano remoto.',
-        transport: node.transport,
-        commandHint: 'Finalize o pairing do node antes de liberar invocacoes remotas.',
-        queuedAt: null,
-      }, request, null);
+      return this.withResultLifecycle(
+        {
+          ok: false,
+          status: 'blocked',
+          nodeId: node.id,
+          capabilityId: request.capabilityId,
+          action: request.action,
+          reason: 'The node has not finished pairing and remains outside the remote plane.',
+          transport: node.transport,
+          commandHint: 'Finish node pairing before allowing remote invocations.',
+          queuedAt: null,
+        },
+        request,
+        null,
+      );
     }
 
     const policyDecision = this.resolvePolicyDecision(node, request.capabilityId);
     if (!policyDecision.capabilityDeclared) {
       const capability = this.capabilityService.describeCapability(request.capabilityId);
-      return this.withResultLifecycle({
-        ok: false,
-        status: 'blocked',
-        nodeId: node.id,
-        capabilityId: request.capabilityId,
-        action: request.action,
-        reason: `O node pareado nao declarou a capability ${capability.label}.`,
-        transport: node.transport,
-        commandHint: 'Atualize o catalogo de capabilities do node antes da invocacao.',
-        queuedAt: null,
-        policyDecision,
-      }, request, null);
+      return this.withResultLifecycle(
+        {
+          ok: false,
+          status: 'blocked',
+          nodeId: node.id,
+          capabilityId: request.capabilityId,
+          action: request.action,
+          reason: `The paired node did not declare the ${capability.label} capability.`,
+          transport: node.transport,
+          commandHint: 'Update the node capability catalog before invocation.',
+          queuedAt: null,
+          policyDecision,
+        },
+        request,
+        null,
+      );
     }
 
     if (!policyDecision.capabilityAllowed) {
       const capability = this.capabilityService.describeCapability(request.capabilityId);
-      return this.withResultLifecycle({
-        ok: false,
-        status: 'blocked',
-        nodeId: node.id,
-        capabilityId: request.capabilityId,
-        action: request.action,
-        reason: this.buildPolicyBlockedReason(policyDecision, capability.label),
-        transport: node.transport,
-        commandHint: this.buildPolicyBlockedHint(policyDecision),
-        queuedAt: null,
-        policyDecision,
-      }, request, null);
+      return this.withResultLifecycle(
+        {
+          ok: false,
+          status: 'blocked',
+          nodeId: node.id,
+          capabilityId: request.capabilityId,
+          action: request.action,
+          reason: this.buildPolicyBlockedReason(policyDecision, capability.label),
+          transport: node.transport,
+          commandHint: this.buildPolicyBlockedHint(policyDecision),
+          queuedAt: null,
+          policyDecision,
+        },
+        request,
+        null,
+      );
     }
 
     const queuedAt = this.now().toISOString();
@@ -177,29 +196,33 @@ export class NodeInvokeService {
         })
       : null;
 
-    const result = this.withResultLifecycle({
-      ok: true,
-      status: 'queued',
-      nodeId: node.id,
-      capabilityId: request.capabilityId,
-      action: request.action,
-      reason: persist
-        ? (node.status === 'online' || node.status === 'idle'
-            ? 'Invocacao colocada na fila do Node Mesh. O node host vai recebe-la no proximo heartbeat.'
-            : 'Invocacao colocada na fila do Node Mesh. Ela sera entregue quando o node voltar a publicar heartbeat.')
-        : (node.status === 'online' || node.status === 'idle'
-            ? 'O node esta online e pronto para aceitar invocacoes remotas.'
-            : 'O node aceita fila remota, mas precisa religar o heartbeat para consumir a invocacao.'),
-      transport: node.transport,
-      commandHint: persist
-        ? (node.status === 'online' || node.status === 'idle'
-            ? 'Acompanhe o proximo heartbeat do node para ver o resultado desta invocacao.'
-            : 'Religue o node host para consumir a fila pendente e devolver o resultado.')
-        : 'Use invoke() para realmente enfileirar a invocacao remota.',
-      queuedAt: record?.queuedAt || queuedAt,
-      invocationId: record?.id || null,
-      policyDecision,
-    }, request, record);
+    const result = this.withResultLifecycle(
+      {
+        ok: true,
+        status: 'queued',
+        nodeId: node.id,
+        capabilityId: request.capabilityId,
+        action: request.action,
+        reason: persist
+          ? node.status === 'online' || node.status === 'idle'
+            ? 'Invocation queued on the Node Mesh. The node host will receive it on the next heartbeat.'
+            : 'Invocation queued on the Node Mesh. It will be delivered when the node publishes heartbeat again.'
+          : node.status === 'online' || node.status === 'idle'
+            ? 'The node is online and ready to accept remote invocations.'
+            : 'The node accepts a remote queue, but must resume heartbeat to consume the invocation.',
+        transport: node.transport,
+        commandHint: persist
+          ? node.status === 'online' || node.status === 'idle'
+            ? 'Watch the next node heartbeat for the result of this invocation.'
+            : 'Bring the node host back online to drain the pending queue and return the result.'
+          : 'Use invoke() to actually enqueue the remote invocation.',
+        queuedAt: record?.queuedAt || queuedAt,
+        invocationId: record?.id || null,
+        policyDecision,
+      },
+      request,
+      record,
+    );
     if (persist) {
       this.liveNodeRegistry.recordInvocationQueued({
         nodeId: result.nodeId,
@@ -219,16 +242,18 @@ export class NodeInvokeService {
     const declaredCapabilityIds = this.capabilityService.normalizeCapabilityIds(node.capabilityIds);
     const registryApproved = this.capabilityService.normalizeCapabilityIds(node.approvedCapabilityIds || []);
     const devicePolicy = this.deviceCapabilityPolicy?.readPolicy(node.id) || null;
-    const allowedCapabilityIds = registryApproved.length > 0
-      ? registryApproved
-      : devicePolicy
-        ? this.capabilityService.normalizeCapabilityIds(devicePolicy.allowedCapabilities)
-        : declaredCapabilityIds;
-    const source = registryApproved.length > 0
-      ? 'registry-approved-capabilities'
-      : devicePolicy
-        ? 'device-capability-policy'
-        : 'declared-capabilities-fallback';
+    const allowedCapabilityIds =
+      registryApproved.length > 0
+        ? registryApproved
+        : devicePolicy
+          ? this.capabilityService.normalizeCapabilityIds(devicePolicy.allowedCapabilities)
+          : declaredCapabilityIds;
+    const source =
+      registryApproved.length > 0
+        ? 'registry-approved-capabilities'
+        : devicePolicy
+          ? 'device-capability-policy'
+          : 'declared-capabilities-fallback';
 
     return {
       source,
@@ -243,21 +268,18 @@ export class NodeInvokeService {
     };
   }
 
-  private buildPolicyBlockedReason(
-    decision: NodeInvocationPolicyDecision,
-    capabilityLabel: string,
-  ): string {
+  private buildPolicyBlockedReason(decision: NodeInvocationPolicyDecision, capabilityLabel: string): string {
     if (decision.source === 'device-capability-policy') {
-      return `A DeviceCapabilityPolicy do node nao aprovou a capability ${capabilityLabel}.`;
+      return `The node DeviceCapabilityPolicy did not approve the ${capabilityLabel} capability.`;
     }
-    return `A allowlist do node nao aprovou a capability ${capabilityLabel}.`;
+    return `The node allowlist did not approve the ${capabilityLabel} capability.`;
   }
 
   private buildPolicyBlockedHint(decision: NodeInvocationPolicyDecision): string {
     if (decision.source === 'device-capability-policy') {
-      return 'Atualize a DeviceCapabilityPolicy do node antes de liberar esta invocacao.';
+      return 'Update the node DeviceCapabilityPolicy before allowing this invocation.';
     }
-    return 'Atualize a allowlist aprovada do node antes de liberar esta invocacao.';
+    return 'Update the approved node allowlist before allowing this invocation.';
   }
 
   private withResultLifecycle(
@@ -265,36 +287,38 @@ export class NodeInvokeService {
     request: NodeInvocationRequest,
     record: NodeInvocationRecord | null,
   ): NodeInvocationResult {
-    const link = record?.execution_lifecycle && record.traceId && record.runId
-      ? {
-          traceId: record.traceId,
-          runId: record.runId,
-          sessionId: record.sessionId || null,
-          approvalId: record.approvalId || null,
-          artifactId: record.artifactId || null,
-          lifecycle: record.execution_lifecycle,
-        }
-      : this.canonicalExecution.buildLink({
-          engine: 'node-invoke',
-          kind: 'execution',
-          id: record?.id || `node-invoke:${result.nodeId || request.nodeId}:${request.capabilityId}:${request.action}`,
-          status: this.canonicalExecution.mapNodeInvocationStatus(result.status),
-          summary: result.reason,
-          requestedBy: request.requestedBy || null,
-          surface: request.surface || 'node-mesh',
-          traceId: request.correlation?.traceId || null,
-          runId: request.correlation?.runId || record?.id || null,
-          sessionId: request.sessionId || request.correlation?.sessionId || null,
-          approvalId: request.correlation?.approvalId || null,
-          artifactId: request.correlation?.artifactId || null,
-          metadata: {
-            nodeId: result.nodeId || request.nodeId,
-            capabilityId: request.capabilityId,
-            action: request.action,
-            transport: result.transport,
-            policyDecision: result.policyDecision || null,
-          },
-        });
+    const link =
+      record?.execution_lifecycle && record.traceId && record.runId
+        ? {
+            traceId: record.traceId,
+            runId: record.runId,
+            sessionId: record.sessionId || null,
+            approvalId: record.approvalId || null,
+            artifactId: record.artifactId || null,
+            lifecycle: record.execution_lifecycle,
+          }
+        : this.canonicalExecution.buildLink({
+            engine: 'node-invoke',
+            kind: 'execution',
+            id:
+              record?.id || `node-invoke:${result.nodeId || request.nodeId}:${request.capabilityId}:${request.action}`,
+            status: this.canonicalExecution.mapNodeInvocationStatus(result.status),
+            summary: result.reason,
+            requestedBy: request.requestedBy || null,
+            surface: request.surface || 'node-mesh',
+            traceId: request.correlation?.traceId || null,
+            runId: request.correlation?.runId || record?.id || null,
+            sessionId: request.sessionId || request.correlation?.sessionId || null,
+            approvalId: request.correlation?.approvalId || null,
+            artifactId: request.correlation?.artifactId || null,
+            metadata: {
+              nodeId: result.nodeId || request.nodeId,
+              capabilityId: request.capabilityId,
+              action: request.action,
+              transport: result.transport,
+              policyDecision: result.policyDecision || null,
+            },
+          });
     return {
       ...result,
       traceId: link.traceId,

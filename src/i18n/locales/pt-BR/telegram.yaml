@@ -206,3 +206,28 @@ zavorthControl:
   public_url: 'URL publica configurada:'
   remote_bridge: 'ZavorthBridge remoto para celular:'
   warnings: 'Avisos:'
+
+model:
+  status_header: "Papeis de LLM"
+  status_default: "Padrao"
+  status_strong: "Forte"
+  status_background: "Background"
+  status_fallback: "Forte se o padrao falhar"
+  status_help: "Use /model setup, /model default <provider/model>, /model strong <provider/model>, /strong on|off"
+  unrecognized: "Nao reconheci este provider/modelo: {target}. Tente: {targets}"
+  switched_model: "Pronto. Chat com **{label}** via Gemini API.\nModelo ativo: `{model}`\nProvider efetivo: `gemini`"
+  switched_provider: "Pronto. Chat com **{label}** nesta sessao."
+  strong_cleared: "O papel forte agora espelha o padrao."
+  fallback_on: "Se o modelo padrao falhar (limite/instabilidade), o Zavorth pode usar o papel forte."
+  fallback_off: "Fallback forte-se-falhar desligado."
+  strong_turn_on: "Papel forte ativo nos proximos turnos: {provider}/{model}. Use /strong off para parar."
+  strong_turn_off: "Voltando ao papel padrao nos proximos turnos."
+  strong_unconfigured: "Nenhum papel forte configurado. Use /model setup ou /model strong <provider/model>."
+  role_usage: "Uso: /model {role} <provider|model>"
+  setup_prompt: "Voce tem varios modelos usaveis ({usable}).\nPosso definir um papel **padrao** no dia a dia e um **forte** para tarefas dificeis.\nSugestao: padrao `{default}`, forte `{strong}`.\nResponda em qualquer idioma (ex. usa Gemini nos dois e escolhe, ou padrao Flash e forte Pro). Diga depois para pular."
+  setup_deferred: "Ok — nao pergunto de novo por um tempo. Voce pode rodar /model setup quando quiser."
+  setup_unclear: "Nao entendi bem. Tente algo como: padrao gemini flash, forte gemini pro — ou depois."
+  setup_confirm_nearest: "Nao achei a combinacao exata. Mais proximo disponivel:\n- padrao: `{default}`\n- forte: `{strong}`\nResponda sim para confirmar ou nao para cancelar."
+  setup_applied: "Papeis atualizados ({summary})."
+  setup_cancelled: "Cancelado. Papeis inalterados."
+  setup_failed: "Nao consegui concluir o setup agora. Tente /model status ou /model setup de novo."

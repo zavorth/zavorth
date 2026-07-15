@@ -2,13 +2,12 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v4 as uuidv4 } from 'uuid';
 import { ExecutionRequest, ExecutionResult } from '../contracts/ExecutionContract.js';
 import { IExecutor } from '../contracts/IExecutor.js';
-import { config } from '../config/index.js';type AiStudioBuiltinTool = 'google_search' | 'code_execution';
+import { config } from '../config/index.js';
+type AiStudioBuiltinTool = 'google_search' | 'code_execution';
 
 type JsonRecord = Record<string, unknown>;
 
-type AiStudioToolConfig =
-  | { googleSearch: JsonRecord }
-  | { codeExecution: JsonRecord };
+type AiStudioToolConfig = { googleSearch: JsonRecord } | { codeExecution: JsonRecord };
 
 type AiStudioContentPart = JsonRecord & {
   text?: unknown;
@@ -199,7 +198,9 @@ export class AiStudioExecutor implements IExecutor {
         if (functionCalls.length > 0) {
           const requestedService = this.normalizeServiceName(functionCalls[0]?.args?.service);
           const serviceReason = String(
-            functionCalls[0]?.args?.purpose || functionCalls[0]?.args?.reason || 'External service requested by the model.',
+            functionCalls[0]?.args?.purpose ||
+              functionCalls[0]?.args?.reason ||
+              'External service requested by the model.',
           ).trim();
           result.error_code = 'AISTUDIO_EXTERNAL_SERVICE_UNSUPPORTED';
           result.error_message = requestedService
@@ -216,7 +217,8 @@ export class AiStudioExecutor implements IExecutor {
           return result;
         }
       }
-    } catch (error: unknown) {const classified = this.classifyError(error);
+    } catch (error: unknown) {
+      const classified = this.classifyError(error);
       result.error_code = classified.code;
       result.error_message = classified.message;
       result.stderr = classified.stderr;
@@ -286,7 +288,8 @@ export class AiStudioExecutor implements IExecutor {
           ? 'Google AI Studio respondeu normalmente.'
           : 'Google AI Studio authenticated, but the probe response was not expected.',
       };
-    } catch (error: unknown) {const classified = this.classifyError(error);
+    } catch (error: unknown) {
+      const classified = this.classifyError(error);
       return { ok: false, message: classified.message };
     }
   }
@@ -336,14 +339,16 @@ export class AiStudioExecutor implements IExecutor {
   private resolveModelName(inlineModel: string | null, request: ExecutionRequest): string {
     return String(
       inlineModel ||
-      request.metadata?.aistudio_model ||
-      request.metadata?.task_metadata?.aistudio_model ||
-      config.aiStudioModel ||
-      config.geminiModel,
+        request.metadata?.aistudio_model ||
+        request.metadata?.task_metadata?.aistudio_model ||
+        config.aiStudioModel ||
+        config.geminiModel,
     ).trim();
   }
 
   private resolveRequestedTools(parsed: ParsedPromptOptions, request: ExecutionRequest): AiStudioBuiltinTool[] {
+    // Explicit structured tools only (tools=… prompt tokens + metadata-approved lists).
+    // Free-text prompt keywords must never inject google_search / code_execution.
     const tools = new Set<AiStudioBuiltinTool>(parsed.tools);
 
     for (const value of this.resolveApprovedList(request, 'aistudio_preferred_tools')) {
@@ -353,21 +358,11 @@ export class AiStudioExecutor implements IExecutor {
       }
     }
 
-    const normalizedPrompt = parsed.prompt
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    if (
-      /\b(ultima|ultimas|latest|today|hoje|noticias|news|pesquise|pesquisa|search|procure na web|web)\b/.test(normalizedPrompt)
-    ) {
-      tools.add('google_search');
-    }
-
-    if (
-      /\b(calcule|compute|python|csv|planilha|spreadsheet|analise numerica|dataframe|estatistica|grafico)\b/.test(normalizedPrompt)
-    ) {
-      tools.add('code_execution');
+    for (const value of this.resolveApprovedList(request, 'aistudio_allowed_tools')) {
+      const normalized = this.normalizeBuiltinTool(value);
+      if (normalized) {
+        tools.add(normalized);
+      }
     }
 
     return Array.from(tools);
@@ -426,7 +421,7 @@ export class AiStudioExecutor implements IExecutor {
   ): string {
     const forceFinalPlainResponse = Boolean(
       request.metadata?.aistudio_force_final_plain_response ||
-      request.metadata?.task_metadata?.aistudio_force_final_plain_response,
+        request.metadata?.task_metadata?.aistudio_force_final_plain_response,
     );
     const lines = [
       'You are Zavorth Google AI Studio executor.',
@@ -446,7 +441,9 @@ export class AiStudioExecutor implements IExecutor {
     }
 
     if (forceFinalPlainResponse) {
-      lines.push('Esta e uma tentativa de recuperacao. Feche a resposta em texto puro, em uma unica resposta final, sem deixar tool call aberta e sem pedir servicos externos.');
+      lines.push(
+        'Esta e uma tentativa de recuperacao. Feche a resposta em texto puro, em uma unica resposta final, sem deixar tool call aberta e sem pedir servicos externos.',
+      );
     }
 
     lines.push('', 'User request:', prompt);
@@ -454,7 +451,9 @@ export class AiStudioExecutor implements IExecutor {
   }
 
   private normalizeBuiltinTool(value: string): AiStudioBuiltinTool | null {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     switch (normalized) {
       case 'search':
       case 'google-search':
@@ -490,7 +489,7 @@ export class AiStudioExecutor implements IExecutor {
 
   private cleanFinalText(value: string): string {
     return String(value || '')
-      .replace(/\n{3,}/g, '\n\n')
+      .replace(/\n{3}/g, '\n\n')
       .trim();
   }
 
@@ -502,10 +501,7 @@ export class AiStudioExecutor implements IExecutor {
     codeOutputs: string[];
     groundingMetadata: AiStudioGroundingMetadata | null;
   }): string {
-    const lines = [
-      'Google AI Studio completed the task.',
-      `Model: ${input.modelName}`,
-    ];
+    const lines = ['Google AI Studio completed the task.', `Model: ${input.modelName}`];
 
     if (input.tools.length > 0) {
       lines.push(`Tools usadas: ${input.tools.join(', ')}`);
@@ -534,9 +530,7 @@ export class AiStudioExecutor implements IExecutor {
 
   private extractGroundingSources(groundingMetadata: AiStudioGroundingMetadata | null): string[] {
     const metadata = this.asRecord(groundingMetadata);
-    const chunks = Array.isArray(metadata.groundingChunks)
-      ? metadata.groundingChunks
-      : [];
+    const chunks = Array.isArray(metadata.groundingChunks) ? metadata.groundingChunks : [];
 
     return Array.from(
       new Set(
@@ -565,11 +559,13 @@ export class AiStudioExecutor implements IExecutor {
     }
 
     const candidate = this.extractFirstCandidate(rawResponse);
-    return candidate?.content?.parts
-      .map((part) => this.stringFromUnknown(part.text))
-      .filter(Boolean)
-      .join('\n')
-      .trim() || '';
+    return (
+      candidate?.content?.parts
+        .map((part) => this.stringFromUnknown(part.text))
+        .filter(Boolean)
+        .join('\n')
+        .trim() || ''
+    );
   }
 
   private classifyError(error: unknown): { code: string; message: string; stderr: string | null } {
@@ -603,7 +599,8 @@ export class AiStudioExecutor implements IExecutor {
     if (normalized.includes('google_search_retrieval is not supported')) {
       return {
         code: 'AISTUDIO_TOOL_CONFIG_ERROR',
-        message: 'O Google AI Studio falhou por uma configuracao invalida de busca web. O Zavorth ja deve tentar usar a tool correta em novas chamadas.',
+        message:
+          'O Google AI Studio falhou por uma configuracao invalida de busca web. O Zavorth ja deve tentar usar a tool correta em novas chamadas.',
         stderr: rawMessage || null,
       };
     }

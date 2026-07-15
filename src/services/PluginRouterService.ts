@@ -80,10 +80,7 @@ export class PluginRouterService {
     const resolvedRoot = path.resolve(root || process.cwd());
     const byId = new Map<string, PluginRouterCandidate>();
 
-    for (const base of [
-      path.join(resolvedRoot, 'plugins'),
-      path.join(resolvedRoot, '.zavorth', 'plugins'),
-    ]) {
+    for (const base of [path.join(resolvedRoot, 'plugins'), path.join(resolvedRoot, '.zavorth', 'plugins')]) {
       for (const candidate of this.scanPluginDir(base, resolvedRoot)) {
         byId.set(candidate.pluginId, candidate);
       }
@@ -99,10 +96,12 @@ export class PluginRouterService {
     }
 
     try {
-      const bridge = this.injectedBridge || new PluginStateBridgeService({
-        now: this.now,
-        projectRoot: resolvedRoot,
-      });
+      const bridge =
+        this.injectedBridge ||
+        new PluginStateBridgeService({
+          now: this.now,
+          projectRoot: resolvedRoot,
+        });
       for (const entry of bridge.list()) {
         const existing = byId.get(entry.pluginId);
         if (existing) {
@@ -137,13 +136,14 @@ export class PluginRouterService {
     const intent = String(input.intent || '').trim();
     const limit = Math.max(1, Math.min(50, Number(input.limit) || 5));
     const candidates = this.discoverCandidates(input.root, input.candidates);
+    // Default: no free-text keyword ranking. Prefer LLM, else exact plugin-id matches only.
     let recommendations = this.scoreCandidates(intent, candidates).slice(0, limit);
     let usedLlm = false;
 
-    const wantLlm = input.useLlm === true
-      || process.env.ZAVORTH_PLUGIN_ROUTER_LLM === '1';
+    // Prefer LLM whenever intent is non-empty free text (unless explicitly disabled).
+    const wantLlm = input.useLlm !== false && intent.length > 0 && process.env.ZAVORTH_PLUGIN_ROUTER_LLM !== '0';
 
-    if (wantLlm && intent) {
+    if (wantLlm) {
       try {
         const llmRanked = await this.tryLlmRank(intent, candidates, limit);
         if (llmRanked && llmRanked.length > 0) {
@@ -151,7 +151,7 @@ export class PluginRouterService {
           usedLlm = true;
         }
       } catch {
-        /* soft-fail to keyword ranking */
+        /* soft-fail: keep exact-id structural ranking only */
       }
     }
 
@@ -165,10 +165,13 @@ export class PluginRouterService {
         const lines = [
           `Plugin recommend: "${intent || '<empty>'}"`,
           `candidates=${candidates.length} usedLlm=${usedLlm}`,
-          ...recommendations.map((item, index) => (
-            `  ${index + 1}. ${item.pluginId} score=${item.score.toFixed(2)} — ${(item.reasons || []).join('; ') || 'keyword match'}`
-          )),
-          recommendations.length === 0 ? '  (no matches)' : '',
+          ...recommendations.map(
+            (item, index) =>
+              `  ${index + 1}. ${item.pluginId} score=${item.score.toFixed(2)} — ${(item.reasons || []).join('; ') || 'structural/llm match'}`,
+          ),
+          recommendations.length === 0
+            ? '  (no matches — free-text keyword ranking disabled; use LLM or exact plugin id)'
+            : '',
           'Never auto-enables plugins; recommendations only.',
         ].filter(Boolean);
         return lines.join('\n');
@@ -215,91 +218,42 @@ export class PluginRouterService {
     };
   }
 
+  /**
+   * Structural ranking only: exact plugin id / alias matches from the intent string.
+   * Free-text phrases never soft-rank plugins by keyword overlap (LLM owns free-text).
+   */
   public scoreCandidates(intent: string, candidates: PluginRouterCandidate[]): PluginRouterRecommendation[] {
-    const tokens = tokenize(intent);
-    if (tokens.length === 0) {
-      return candidates.map((candidate) => ({
-        pluginId: candidate.pluginId,
-        score: 0,
-        reasons: ['empty intent — unranked'],
-        capabilities: capabilityIds(candidate),
-        label: candidate.label,
-        summary: candidate.summary,
-        moduleKind: candidate.moduleKind,
-        path: candidate.path || null,
-      }));
+    const exactIds = extractExactPluginIds(intent, candidates);
+    if (exactIds.size === 0) {
+      return [];
     }
 
-    const scored = candidates.map((candidate) => {
-      const corpus = buildCorpus(candidate);
-      const reasons: string[] = [];
-      let score = 0;
-
-      for (const token of tokens) {
-        if (candidate.pluginId.toLowerCase().includes(token)) {
-          score += 4;
-          reasons.push(`id contains "${token}"`);
+    const scored = candidates
+      .map((candidate) => {
+        const id = candidate.pluginId.toLowerCase();
+        if (!exactIds.has(id) && !exactIds.has(candidate.pluginId)) {
+          return null;
         }
-        if ((candidate.label || '').toLowerCase().includes(token)) {
-          score += 3;
-          reasons.push(`label contains "${token}"`);
-        }
-        if ((candidate.summary || '').toLowerCase().includes(token)
-          || (candidate.description || '').toLowerCase().includes(token)) {
+        const reasons = [`exact plugin id match: ${candidate.pluginId}`];
+        let score = 100;
+        if (CURATED_FIRST_PARTY_IDS.has(candidate.pluginId)) {
           score += 2;
-          reasons.push(`summary matches "${token}"`);
+          reasons.push('curated first-party');
         }
-        for (const tag of candidate.tags || []) {
-          if (String(tag).toLowerCase().includes(token)) {
-            score += 2;
-            reasons.push(`tag "${tag}"`);
-          }
-        }
-        for (const cap of candidate.capabilities || []) {
-          const blob = [cap.id, cap.intent, cap.label, cap.summary].filter(Boolean).join(' ').toLowerCase();
-          if (blob.includes(token)) {
-            score += 3;
-            reasons.push(`capability matches "${token}"`);
-          }
-        }
-        for (const intentTag of candidate.intents || []) {
-          if (String(intentTag).toLowerCase().includes(token)) {
-            score += 2;
-            reasons.push(`intent "${intentTag}"`);
-          }
-        }
-        // fuzzy token presence in full corpus
-        if (corpus.includes(token) && !reasons.some((r) => r.includes(`"${token}"`))) {
-          score += 1;
-          reasons.push(`corpus hit "${token}"`);
-        }
-      }
+        return {
+          pluginId: candidate.pluginId,
+          score,
+          reasons,
+          capabilities: capabilityIds(candidate),
+          label: candidate.label,
+          summary: candidate.summary,
+          moduleKind: candidate.moduleKind,
+          path: candidate.path || null,
+        };
+      })
+      .filter(Boolean) as PluginRouterRecommendation[];
 
-      // boost common product intents
-      score += intentBoost(intent, candidate, reasons);
-      // Prefer curated first-party only when already relevant (score > 0).
-      if (score > 0 && CURATED_FIRST_PARTY_IDS.has(candidate.pluginId)) {
-        const curatedTag = (candidate.tags || []).some((tag) => /curated|first-party/iu.test(String(tag)));
-        score += curatedTag ? 3 : 2;
-        reasons.push('curated first-party boost');
-      }
-
-      const uniqueReasons = Array.from(new Set(reasons)).slice(0, 8);
-      return {
-        pluginId: candidate.pluginId,
-        score,
-        reasons: uniqueReasons,
-        capabilities: capabilityIds(candidate),
-        label: candidate.label,
-        summary: candidate.summary,
-        moduleKind: candidate.moduleKind,
-        path: candidate.path || null,
-      };
-    });
-
-    return scored
-      .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score || a.pluginId.localeCompare(b.pluginId));
+    return scored.sort((a, b) => b.score - a.score || a.pluginId.localeCompare(b.pluginId));
   }
 
   private scanPluginDir(base: string, root: string): PluginRouterCandidate[] {
@@ -323,28 +277,30 @@ export class PluginRouterService {
         const raw = JSON.parse(this.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
         const pluginId = String(raw.id || entry.name).trim();
         if (!pluginId) continue;
-        out.push(normalizeCandidate({
-          pluginId,
-          label: String(raw.label || pluginId),
-          summary: String(raw.summary || ''),
-          description: String(raw.description || ''),
-          moduleKind: String(raw.moduleKind || ''),
-          tags: Array.isArray(raw.tags) ? raw.tags.map(String) : [],
-          capabilities: Array.isArray(raw.capabilities)
-            ? (raw.capabilities as Array<Record<string, unknown>>).map((cap) => ({
-              id: cap.id ? String(cap.id) : undefined,
-              intent: cap.intent ? String(cap.intent) : undefined,
-              label: cap.label ? String(cap.label) : undefined,
-              summary: cap.summary ? String(cap.summary) : undefined,
-            }))
-            : [],
-          intents: Array.isArray(raw.capabilities)
-            ? (raw.capabilities as Array<Record<string, unknown>>)
-              .map((cap) => String(cap.intent || ''))
-              .filter(Boolean)
-            : [],
-          path: path.relative(root, packageDir).replace(/\\/gu, '/'),
-        }));
+        out.push(
+          normalizeCandidate({
+            pluginId,
+            label: String(raw.label || pluginId),
+            summary: String(raw.summary || ''),
+            description: String(raw.description || ''),
+            moduleKind: String(raw.moduleKind || ''),
+            tags: Array.isArray(raw.tags) ? raw.tags.map(String) : [],
+            capabilities: Array.isArray(raw.capabilities)
+              ? (raw.capabilities as Array<Record<string, unknown>>).map((cap) => ({
+                  id: cap.id ? String(cap.id) : undefined,
+                  intent: cap.intent ? String(cap.intent) : undefined,
+                  label: cap.label ? String(cap.label) : undefined,
+                  summary: cap.summary ? String(cap.summary) : undefined,
+                }))
+              : [],
+            intents: Array.isArray(raw.capabilities)
+              ? (raw.capabilities as Array<Record<string, unknown>>)
+                  .map((cap) => String(cap.intent || ''))
+                  .filter(Boolean)
+              : [],
+            path: path.relative(root, packageDir).replace(/\\/gu, '/'),
+          }),
+        );
       } catch {
         /* soft-fail invalid manifest */
       }
@@ -377,19 +333,16 @@ export class PluginRouterService {
     if (rankedIds.length === 0) return null;
 
     const byId = new Map(candidates.map((c) => [c.pluginId, c]));
-    const keyword = this.scoreCandidates(intent, candidates);
-    const keywordById = new Map(keyword.map((item) => [item.pluginId, item]));
     const out: PluginRouterRecommendation[] = [];
 
     for (let i = 0; i < rankedIds.length && out.length < limit; i += 1) {
       const pluginId = rankedIds[i];
       const candidate = byId.get(pluginId);
       if (!candidate) continue;
-      const base = keywordById.get(pluginId);
       out.push({
         pluginId,
-        score: Math.max(base?.score || 0, limit - i),
-        reasons: [`llm-ranked #${i + 1}`, ...(base?.reasons || []).slice(0, 4)],
+        score: limit - i,
+        reasons: [`llm-ranked #${i + 1}`],
         capabilities: capabilityIds(candidate),
         label: candidate.label,
         summary: candidate.summary,
@@ -418,31 +371,7 @@ function normalizeCandidate(input: PluginRouterCandidate): PluginRouterCandidate
 }
 
 function capabilityIds(candidate: PluginRouterCandidate): string[] {
-  return (candidate.capabilities || [])
-    .map((cap) => String(cap.id || '').trim())
-    .filter(Boolean);
-}
-
-function tokenize(intent: string): string[] {
-  return String(intent || '')
-    .toLowerCase()
-    .split(/[^a-z0-9]+/u)
-    .map((part) => part.trim())
-    .filter((part) => part.length >= 2);
-}
-
-function buildCorpus(candidate: PluginRouterCandidate): string {
-  return [
-    candidate.pluginId,
-    candidate.label,
-    candidate.summary,
-    candidate.description,
-    candidate.moduleKind,
-    ...(candidate.tags || []),
-    ...(candidate.intents || []),
-    ...capabilityIds(candidate),
-    ...(candidate.capabilities || []).flatMap((cap) => [cap.intent, cap.label, cap.summary]),
-  ].filter(Boolean).join(' ').toLowerCase();
+  return (candidate.capabilities || []).map((cap) => String(cap.id || '').trim()).filter(Boolean);
 }
 
 const CURATED_FIRST_PARTY_IDS = new Set([
@@ -463,35 +392,36 @@ const CURATED_FIRST_PARTY_IDS = new Set([
   'notion',
 ]);
 
-function intentBoost(
-  intent: string,
-  candidate: PluginRouterCandidate,
-  reasons: string[],
-): number {
-  const lower = intent.toLowerCase();
-  let boost = 0;
-  const rules: Array<{ match: RegExp; ids: string[]; reason: string }> = [
-    { match: /\b(search|web|google|duck|query)\b/u, ids: ['web-search'], reason: 'search intent boost' },
-    { match: /\b(github|pr|pull request|issue)\b/u, ids: ['github'], reason: 'github intent boost' },
-    { match: /\b(memory|remember|recall|store)\b/u, ids: ['memory-local', 'memory-honcho'], reason: 'memory intent boost' },
-    { match: /\b(cost|token|budget|spend)\b/u, ids: ['cost-tracker'], reason: 'cost intent boost' },
-    { match: /\b(browser|playwright|navigate|page)\b/u, ids: ['browser-playwright'], reason: 'browser intent boost' },
-    { match: /\b(security|scan|danger|eval|unsafe)\b/u, ids: ['security-guidance'], reason: 'security intent boost' },
-    { match: /\b(router|recommend|plugin)\b/u, ids: ['plugin-router-ai'], reason: 'router intent boost' },
-    { match: /\b(forge|scaffold|generate plugin|self.?mod)\b/u, ids: ['selfmod-plugin-forge'], reason: 'forge intent boost' },
-    { match: /\b(mcp|model context|materialize)\b/u, ids: ['mcp-bridge'], reason: 'mcp intent boost' },
-    { match: /\b(gmail|email|inbox|mail)\b/u, ids: ['gmail'], reason: 'gmail intent boost' },
-    { match: /\b(calendar|schedule|event|meeting)\b/u, ids: ['calendar'], reason: 'calendar intent boost' },
-    { match: /\b(linear|ticket|sprint)\b/u, ids: ['linear'], reason: 'linear intent boost' },
-    { match: /\b(notion|wiki|docs page)\b/u, ids: ['notion'], reason: 'notion intent boost' },
-  ];
-  for (const rule of rules) {
-    if (rule.match.test(lower) && rule.ids.includes(candidate.pluginId)) {
-      boost += 5;
-      reasons.push(rule.reason);
+/**
+ * Extract only exact plugin ids present as standalone tokens/phrases in intent.
+ * Does not soft-match free-text words against summaries/tags.
+ */
+function extractExactPluginIds(intent: string, candidates: PluginRouterCandidate[]): Set<string> {
+  const raw = String(intent || '').trim();
+  if (!raw) return new Set();
+  const lower = raw.toLowerCase();
+  const ids = new Set<string>();
+  // Whole intent equals a plugin id
+  for (const candidate of candidates) {
+    const id = candidate.pluginId;
+    if (!id) continue;
+    if (lower === id.toLowerCase()) {
+      ids.add(id);
+      ids.add(id.toLowerCase());
+      continue;
+    }
+    // Space/comma/semicolon separated id list (structured CLI-style intent)
+    const asToken = new RegExp(`(^|[,;\\s])${escapeRegExp(id)}(?=$|[,;\\s])`, 'i');
+    if (asToken.test(raw)) {
+      ids.add(id);
+      ids.add(id.toLowerCase());
     }
   }
-  return boost;
+  return ids;
+}
+
+function escapeRegExp(value: string): string {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function buildLlmPrompt(intent: string, catalog: unknown[]): string {
@@ -517,7 +447,7 @@ function parseRankedIds(text: string): string[] {
     /* fall through */
   }
   return raw
-    .split(/[\n,]/u)
+    .split(/[\n]/u)
     .map((line) => line.replace(/^[\s\-\d.]+/u, '').trim())
     .filter((line) => /^[a-z0-9][a-z0-9._-]*$/iu.test(line));
 }
@@ -537,7 +467,11 @@ async function tryDefaultLlmChat(prompt: string): Promise<string | null> {
     for (const candidate of candidates) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
-        const mod = req(candidate) as { LlmRuntimeService?: new () => { chat: (messages: Array<{ role: string; content: string }>) => Promise<{ content?: string; text?: string }> } };
+        const mod = req(candidate) as {
+          LlmRuntimeService?: new () => {
+            chat: (messages: Array<{ role: string; content: string }>) => Promise<{ content?: string; text?: string }>;
+          };
+        };
         if (!mod?.LlmRuntimeService) continue;
         const service = new mod.LlmRuntimeService();
         const response = await service.chat([{ role: 'user', content: prompt }]);

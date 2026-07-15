@@ -34,10 +34,12 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/plugins', 'trust openrouter');
 
     expect(handled).toBe(true);
-    expect(pluginActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      pluginId: 'openrouter',
-      actionId: 'trust',
-    }));
+    expect(pluginActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pluginId: 'openrouter',
+        actionId: 'trust',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('OpenRouter marcado como trusted.'));
   });
 
@@ -83,10 +85,12 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(initialChannelActionService.execute).not.toHaveBeenCalled();
-    expect(reboundChannelActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      channelId: 'discord',
-      actionId: 'broadcast-test',
-    }));
+    expect(reboundChannelActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channelId: 'discord',
+        actionId: 'broadcast-test',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teste de broadcast enviado para Discord.'));
   });
 
@@ -123,10 +127,12 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/channels', 'policy-reload telegram');
 
     expect(handled).toBe(true);
-    expect(channelActionService.execute).toHaveBeenCalledWith(expect.objectContaining({
-      channelId: 'telegram',
-      actionId: 'policy-reload',
-    }));
+    expect(channelActionService.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channelId: 'telegram',
+        actionId: 'policy-reload',
+      }),
+    );
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('sem reiniciar gateways ativos'));
   });
 
@@ -192,12 +198,14 @@ describe('SharedSurfaceIntegrationCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/transports', 'node-host');
 
     expect(handled).toBe(true);
-    expect(remoteTransportService.buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({
-      selectedId: 'node-host',
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Remote Transport Plane do Zavorth'));
+    expect(remoteTransportService.buildSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectedId: 'node-host',
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Remote Transport Plane'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node host transport'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('/nodepair headless'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetria:'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Telemetry:'));
   });
 });

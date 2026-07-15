@@ -1,10 +1,10 @@
 /**
  * CognitiveFirewall — local free-text hints + plugin quarantine.
  *
- * Orchestrates IntentClassifier + ToolGatekeeper for telemetry, cheap-model
- * selection on trivial chat, compact/cluster hints, and hard plugin quarantine.
- * Free-text capability choice is model-owned: non-trivial turns are full_toolset.
- * ConversationalAgent exposes the full catalog (minus quarantine).
+ * Orchestrates IntentClassifier + ToolGatekeeper for telemetry, compact/cluster
+ * hints, and hard plugin quarantine. Free-text capability choice is model-owned:
+ * non-empty free text is full_toolset. ConversationalAgent exposes the full
+ * catalog (minus quarantine).
  *
  * Optional LLM classification (disabled by default) only distinguishes
  * conversation vs full_toolset — never word→tool categories.
@@ -12,7 +12,7 @@
  * USO:
  *   const firewall = new CognitiveFirewall();
  *   const decision = firewall.evaluate(userMessage, allToolDefinitions);
- *   // decision.useFastModel → trivial chat may use a cheap model
+ *   // decision.useFastModel → always false on free-text path
  *   // decision.tools → hint profile tools (not the product free-text gate)
  */
 
@@ -31,7 +31,7 @@ export interface FirewallDecision {
   recommendedToolNames: string[];
   /** True when Cognitive Firewall blocked exposure of an untrusted plugin/capability. */
   toolExposureGatedByCognitiveFirewall: boolean;
-  /** If true, the message is trivial chat and can use a cheaper LLM. */
+  /** If true, a cheaper LLM may answer this turn (always false on free-text path). */
   useFastModel: boolean;
   /** Full intent classification for logging/debug. */
   classification: IntentClassification;
@@ -69,7 +69,7 @@ export class CognitiveFirewall {
     this.baseOptions = options ?? {};
     this.baseGatekeeper = new ToolGatekeeper(options);
     this.llmConfidenceThreshold = options?.llmConfidenceThreshold ?? 0.6;
-    
+
     // Initialize LLM classifier if enabled
     if (options?.enableLLMClassification) {
       this.llmClassifier = new LLMIntentClassifier({
@@ -113,22 +113,24 @@ export class CognitiveFirewall {
   ): Promise<FirewallDecision> {
     // Start with regex classification
     const regexClassification = this.regexClassifier.classify(userMessage);
-    
+
     // If LLM is enabled and regex confidence is low, use LLM
     if (this.llmClassifier && regexClassification.confidence < this.llmConfidenceThreshold) {
       try {
         const llmClassification = await this.llmClassifier.classify(userMessage);
-        
+
         // Use LLM classification if it has higher confidence
         if (llmClassification.confidence > regexClassification.confidence) {
-          console.log(`[CognitiveFirewall] LLM upgraded classification: ${regexClassification.category} (${regexClassification.confidence}) → ${llmClassification.category} (${llmClassification.confidence})`);
+          console.log(
+            `[CognitiveFirewall] LLM upgraded classification: ${regexClassification.category} (${regexClassification.confidence}) → ${llmClassification.category} (${llmClassification.confidence})`,
+          );
           return this.buildDecision(llmClassification, allTools, evaluateOptions);
         }
       } catch (error: unknown) {
         console.warn('[CognitiveFirewall] LLM classification failed, using regex:', error);
       }
     }
-    
+
     return this.buildDecision(regexClassification, allTools, evaluateOptions);
   }
 
@@ -190,7 +192,7 @@ export class CognitiveFirewall {
       toolHintProfile,
       recommendedToolNames: toolHintProfile.recommendedToolNames,
       toolExposureGatedByCognitiveFirewall: toolHintProfile.toolExposureGatedByCognitiveFirewall,
-      useFastModel: classification.isTrivialChat,
+      useFastModel: false,
       classification,
       stats,
       tokenSavings,

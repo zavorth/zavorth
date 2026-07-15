@@ -1,7 +1,7 @@
 import { ZavorthSubagentAutoInvocationPolicyService } from '../../src/services/ZavorthSubagentAutoInvocationPolicyService.js';
 
 describe('ZavorthSubagentAutoInvocationPolicyService', () => {
-  it('auto-selects live subagents for explicit read-only delegation without requiring --live', () => {
+  it('does not treat free-text subagent phrases as explicit request (LLM/tools decide)', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
@@ -10,17 +10,11 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
       mode: 'default',
     });
 
-    expect(decision.action).toBe('invoke_live_subagents');
-    expect(decision.shouldInvoke).toBe(true);
-    expect(decision.live).toBe(true);
-    expect(decision.roleIds).toEqual(expect.arrayContaining(['planner', 'auditor']));
-    expect(decision.telemetry.selectedBy).toBe('explicit-user-request');
-    expect(decision.telemetry.roles.map((role) => role.roleId)).toEqual(expect.arrayContaining(['planner', 'auditor']));
-    expect(decision.telemetry.publicRationale).toContain('pedido explicito');
-    expect(decision.telemetry.safety.noRawChainOfThought).toBe(true);
+    expect(decision.explicitSubagentRequest).toBe(false);
+    expect(decision.telemetry.selectedBy).not.toBe('explicit-user-request');
   });
 
-  it('uses implicit live subagents for complex read-only audits', () => {
+  it('marks structured security/audit task kinds as implicit complexity without free-text keywords', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
@@ -29,27 +23,23 @@ describe('ZavorthSubagentAutoInvocationPolicyService', () => {
       taskSubtype: 'audit',
     });
 
-    expect(decision.shouldInvoke).toBe(true);
     expect(decision.explicitSubagentRequest).toBe(false);
     expect(decision.implicitComplexityMatch).toBe(true);
-    expect(decision.confidence).toBeGreaterThanOrEqual(0.82);
-    expect(decision.telemetry.selectedBy).toBe('implicit-complexity');
-    expect(decision.telemetry.dashboard.status).toBe('auto-selected');
+    // Free-text phrase scores were removed (purity). Structured taskKind alone may not
+    // reach the auto-live confidence bar — LLM/tools still own multi-agent choice.
+    expect(decision.triggers.some((t) => t.startsWith('task-kind:') || t.startsWith('task-subtype:'))).toBe(true);
   });
 
-  it('requires approval for explicit subagents that would mutate the workspace', () => {
+  it('does not invent workspace-mutation risk from free-text patch phrases alone', () => {
     const service = new ZavorthSubagentAutoInvocationPolicyService();
 
     const decision = service.decide({
       text: 'use subagentes para editar os arquivos e aplicar patch no projeto',
     });
 
-    expect(decision.action).toBe('require_approval');
-    expect(decision.requiresApproval).toBe(true);
-    expect(decision.live).toBe(false);
-    expect(decision.riskSignals).toContain('workspace-mutation');
-    expect(decision.telemetry.dashboard.status).toBe('approval-required');
-    expect(decision.telemetry.dashboard.nextSafeAction).toContain('aprovacao');
+    // Risk signals and explicit request both empty without structured flags.
+    expect(decision.explicitSubagentRequest).toBe(false);
+    expect(decision.riskSignals).toEqual([]);
   });
 
   it('does not implicitly delegate in direct mode', () => {

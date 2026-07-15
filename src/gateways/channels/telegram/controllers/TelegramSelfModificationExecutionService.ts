@@ -4,6 +4,8 @@ import { ExecutionGateway } from '../../../../execution/ExecutionGateway.js';
 import { AuditLogger } from '../../../../monitoring/AuditLogger.js';
 import { logger } from '../../../../logger.js';
 import { SmartOutputService } from '../../../../services/SmartOutputService.js';
+import { buildSelfmodProposalPendingCard } from '../../../../services/SelfmodProposalPresentation.js';
+import { replyWithTelegramSurfaceResponse } from '../TelegramSurfaceResponseSender.js';
 import {
   SelfModificationApplyResult,
   SelfModificationCommandService,
@@ -52,18 +54,15 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { target_file: filePath },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
     const result = await this.deps.selfModificationService.createPreview(filePath, instruction, userId);
     await this.finishPreviewTask(ctx, task, result, filePath);
   }
 
-  public async runApply(
-    ctx: Context,
-    task: Task,
-    previewId: string,
-    userId: string,
-  ): Promise<void> {
+  public async runApply(ctx: Context, task: Task, previewId: string, userId: string): Promise<void> {
     this.deps.taskManager.advanceState(task, 'running');
     await this.deps.auditLogger
       .logEvent({
@@ -83,7 +82,9 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { preview_id: previewId },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
     const result = await this.deps.selfModificationService.applyPreview(previewId, userId);
     task.metadata = {
@@ -118,17 +119,14 @@ export class TelegramSelfModificationExecutionService {
           relative_path: result.relativePath,
         },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
     await SmartOutputService.reply(ctx, this.formatApplyReply(result));
   }
 
-  public async runGoalPreview(
-    ctx: Context,
-    task: Task,
-    goal: string,
-    userId: string,
-  ): Promise<void> {
+  public async runGoalPreview(ctx: Context, task: Task, goal: string, userId: string): Promise<void> {
     this.deps.taskManager.advanceState(task, 'running');
     await this.deps.auditLogger
       .logEvent({
@@ -148,18 +146,15 @@ export class TelegramSelfModificationExecutionService {
         execution_summary: null,
         metadata: { goal },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
     const result = await this.deps.selfModificationService.createGoalPreview(goal, userId);
     await this.finishPreviewTask(ctx, task, result, goal);
   }
 
-  public async runRollback(
-    ctx: Context,
-    task: Task,
-    changeId: string,
-    userId: string,
-  ): Promise<void> {
+  public async runRollback(ctx: Context, task: Task, changeId: string, userId: string): Promise<void> {
     this.deps.taskManager.advanceState(task, 'running');
     const result = await this.deps.selfModificationService.rollbackChangeSet(changeId, userId);
     task.metadata = {
@@ -193,7 +188,9 @@ export class TelegramSelfModificationExecutionService {
           restored_files: result.restoredFiles,
         },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
     await SmartOutputService.reply(ctx, this.formatRollbackReply(result));
   }
@@ -239,9 +236,50 @@ export class TelegramSelfModificationExecutionService {
           relative_path: result.relativePath,
         },
       })
-      .catch((err) => { logger.warn("[auto-fix] Empty catch block", err); });
+      .catch((err) => {
+        logger.warn('[auto-fix] Empty catch block', err);
+      });
 
+    // Proposal-time card: Apply/Reject buttons when surface supports them.
+    if (result.previewId) {
+      const card = buildSelfmodProposalPendingCard({
+        previewId: result.previewId,
+        summary: this.formatPreviewSummary(result),
+        relativePath: result.relativePath,
+        mode: result.mode,
+        changeCount: result.changeCount,
+        resourceImpact: result.resourceImpact,
+        diffSummary: result.diffSummary,
+        success: result.success,
+        channel: 'telegram',
+      });
+      try {
+        await replyWithTelegramSurfaceResponse(ctx, card.surfaceResponse, {
+          maxActionsPerRow: 2,
+        });
+        return;
+      } catch {
+        await SmartOutputService.reply(ctx, card.text);
+        return;
+      }
+    }
     await SmartOutputService.reply(ctx, this.formatPreviewReply(result));
+  }
+
+  private formatPreviewSummary(result: SelfModificationPreviewResult): string {
+    if (!result.success) {
+      return result.validationOutput
+        ? `${result.summary}\n\nValidation output:\n${result.validationOutput}`
+        : result.summary;
+    }
+    const head =
+      result.mode === 'goal'
+        ? `Multi-file preview ready for ${result.changeCount || 0} change(s).`
+        : `Preview ready for ${result.relativePath || 'file'}.`;
+    const plan = result.validationPlan?.length
+      ? `\nValidation plan:\n${result.validationPlan.map((entry) => `- ${entry}`).join('\n')}`
+      : '';
+    return `${head}\n${result.summary}${plan}`.trim();
   }
 
   private formatPreviewReply(result: SelfModificationPreviewResult): string {
@@ -255,10 +293,12 @@ export class TelegramSelfModificationExecutionService {
       result.mode === 'goal'
         ? `Multi-file preview ready for ${result.changeCount || 0} change(s).`
         : `Preview ready for ${result.relativePath}.`,
-      `Preview ID: ${result.previewId}`,
+      result.previewId
+        ? `Preview ref: ${result.previewId.length <= 12 ? result.previewId : result.previewId.slice(0, 8)}`
+        : null,
       '',
       `Summary: ${result.summary}`,
-    ];
+    ].filter((line) => line !== null) as string[];
 
     if (result.resourceImpact) {
       lines.push(`Estimated impact: ${result.resourceImpact}`);
@@ -272,15 +312,18 @@ export class TelegramSelfModificationExecutionService {
       lines.push('', 'Diff summary:', result.diffSummary);
     }
 
-    lines.push('', `To apply this exact version: /selfmod apply ${result.previewId}`);
+    lines.push(
+      '',
+      result.previewId
+        ? `Next: tap Apply on the card, or /selfmod apply ${result.previewId}`
+        : 'Next: re-run /selfmod preview after fixing blockers.',
+    );
     return lines.join('\n');
   }
 
   private formatApplyReply(result: SelfModificationApplyResult): string {
     if (!result.success) {
-      return result.diffSummary
-        ? `${result.summary}\n\nDiff summary:\n${result.diffSummary}`
-        : result.summary;
+      return result.diffSummary ? `${result.summary}\n\nDiff summary:\n${result.diffSummary}` : result.summary;
     }
 
     const lines = [

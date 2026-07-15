@@ -20,7 +20,7 @@ function zavorthControlClassicClientDataSnippets() {
     const c = document.getElementById('snippet-list-container') as HTMLElement | null;
     if (!c) return;
     if (currentSnippets.length === 0) {
-      c.innerHTML = '<div style="color:#9fb0c3">Sem snippets salvos.</div>';
+      c.innerHTML = '<div style="color:#9fb0c3">No saved snippets.</div>';
       return;
     }
     c.innerHTML = currentSnippets

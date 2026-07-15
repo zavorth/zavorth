@@ -43,7 +43,7 @@ describe('EmailTool', () => {
       body: 'Hello',
     });
     expect(result).toContain('Erro');
-    expect(result).toContain('email invalido');
+    expect(result).toContain('invalid email');
   });
 
   it('returns error when SMTP is not configured', async () => {
@@ -73,7 +73,7 @@ describe('EmailTool', () => {
       body: 'Test body content',
     });
     expect(result).toContain('Erro');
-    expect(result).toContain('envio real de email desabilitado');
+    expect(result).toContain('live email send is disabled');
   });
 
   it('handles multiple recipients validation', async () => {
@@ -108,7 +108,7 @@ describe('EmailTool', () => {
       subject: 'Test\r\nSubject',
       body: 'Body',
     });
-    expect(badSubject).toContain('Erro: assunto contem caracteres invalidos');
+    expect(badSubject).toContain('Error: subject contains invalid characters');
 
     const badCc = await tool.execute({
       to: 'test@example.com',
@@ -116,6 +116,6 @@ describe('EmailTool', () => {
       body: 'Body',
       cc: 'cc@example.com\nRCPT TO:victim@example.com',
     });
-    expect(badCc).toContain('Erro: CC contem caracteres invalidos');
+    expect(badCc).toContain('Error: CC contains invalid characters');
   });
 });

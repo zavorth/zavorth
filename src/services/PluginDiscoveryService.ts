@@ -85,25 +85,13 @@ export class PluginDiscoveryService {
   constructor(runtime: PluginDiscoveryRuntime = {}) {
     this.now = runtime.now || (() => new Date());
     this.projectRoot = path.resolve(runtime.projectRoot || process.cwd());
-    this.workspaceRoot = runtime.workspaceRoot === undefined
-      ? null
-      : runtime.workspaceRoot
-        ? path.resolve(runtime.workspaceRoot)
-        : null;
-    this.userHome = runtime.userHome === undefined
-      ? os.homedir()
-      : runtime.userHome
-        ? path.resolve(runtime.userHome)
-        : null;
-    this.bundledPluginsDir = runtime.bundledPluginsDir === undefined
-      ? null
-      : runtime.bundledPluginsDir;
-    this.workspacePluginsDir = runtime.workspacePluginsDir === undefined
-      ? null
-      : runtime.workspacePluginsDir;
-    this.userPluginsDir = runtime.userPluginsDir === undefined
-      ? null
-      : runtime.userPluginsDir;
+    this.workspaceRoot =
+      runtime.workspaceRoot === undefined ? null : runtime.workspaceRoot ? path.resolve(runtime.workspaceRoot) : null;
+    this.userHome =
+      runtime.userHome === undefined ? os.homedir() : runtime.userHome ? path.resolve(runtime.userHome) : null;
+    this.bundledPluginsDir = runtime.bundledPluginsDir === undefined ? null : runtime.bundledPluginsDir;
+    this.workspacePluginsDir = runtime.workspacePluginsDir === undefined ? null : runtime.workspacePluginsDir;
+    this.userPluginsDir = runtime.userPluginsDir === undefined ? null : runtime.userPluginsDir;
     this.zavorthVersion = String(runtime.zavorthVersion || '2.0.0').trim() || '2.0.0';
     this.stateLookup = runtime.stateLookup || null;
     this.registry = runtime.registry || new PluginRegistryService({ now: this.now });
@@ -115,11 +103,12 @@ export class PluginDiscoveryService {
 
   public discover(input: PluginDiscoveryInput = {}): ZavorthPluginDiscoverySnapshot {
     const projectRoot = path.resolve(input.projectRoot || this.projectRoot);
-    const workspaceRoot = input.workspaceRoot === undefined
-      ? this.workspaceRoot
-      : input.workspaceRoot
-        ? path.resolve(input.workspaceRoot)
-        : null;
+    const workspaceRoot =
+      input.workspaceRoot === undefined
+        ? this.workspaceRoot
+        : input.workspaceRoot
+          ? path.resolve(input.workspaceRoot)
+          : null;
 
     const sources = this.resolveSources(projectRoot, workspaceRoot);
     const candidates: DiscoveredCandidate[] = [];
@@ -143,14 +132,12 @@ export class PluginDiscoveryService {
     });
 
     const resolved = this.resolveSelection(candidates);
-    const plugins = resolved.plugins
-      .slice()
-      .sort((left, right) => {
-        if (left.selected !== right.selected) {
-          return left.selected ? -1 : 1;
-        }
-        return left.pluginId.localeCompare(right.pluginId);
-      });
+    const plugins = resolved.plugins.slice().sort((left, right) => {
+      if (left.selected !== right.selected) {
+        return left.selected ? -1 : 1;
+      }
+      return left.pluginId.localeCompare(right.pluginId);
+    });
 
     const bySource: Record<ZavorthPluginDiscoverySourceKind, number> = { ...EMPTY_BY_SOURCE };
     for (const plugin of plugins) {
@@ -211,9 +198,7 @@ export class PluginDiscoveryService {
   private resolveSources(projectRoot: string, workspaceRoot: string | null): ZavorthPluginDiscoverySource[] {
     const workspaceBase = workspaceRoot || projectRoot;
     const roots: Record<ZavorthPluginDiscoverySourceKind, string> = {
-      bundled: this.bundledPluginsDir
-        ? path.resolve(this.bundledPluginsDir)
-        : path.join(projectRoot, 'plugins'),
+      bundled: this.bundledPluginsDir ? path.resolve(this.bundledPluginsDir) : path.join(projectRoot, 'plugins'),
       workspace: this.workspacePluginsDir
         ? path.resolve(this.workspacePluginsDir)
         : path.join(workspaceBase, '.zavorth', 'plugins'),
@@ -283,7 +268,7 @@ export class PluginDiscoveryService {
     }
 
     const rawResult = this.readJsonObject(manifestHit.manifestPath);
-    if (!rawResult.ok) {
+    if (rawResult.ok === false) {
       const pluginId = this.normalizeId(folderName) || folderName;
       const state = this.resolveStateView(pluginId, null);
       const parseFindings = [rawResult.error];
@@ -308,7 +293,8 @@ export class PluginDiscoveryService {
     const raw = rawResult.value;
     const rawId = this.pickPluginId(raw, folderName);
     const pluginId = this.normalizeId(rawId) || this.normalizeId(folderName) || folderName;
-    const isPluginOs = String((raw as { schemaVersion?: unknown }).schemaVersion || '') === ZAVORTH_PLUGIN_OS_API_VERSION;
+    const isPluginOs =
+      String((raw as { schemaVersion?: unknown }).schemaVersion || '') === ZAVORTH_PLUGIN_OS_API_VERSION;
 
     let manifest: ZavorthPluginManifest | null = null;
     let validation: ZavorthPluginDiscoveryValidation;
@@ -389,13 +375,14 @@ export class PluginDiscoveryService {
 
       for (const item of ordered) {
         const selected = item === winner;
-        const loadEligible = selected
-          && item.validation.ok
-          && item.compatibility.ok
-          && item.state.trust !== 'blocked'
-          && item.state.installed === true
-          && item.state.enabled === true
-          && item.state.runtimeState === 'enabled';
+        const loadEligible =
+          selected &&
+          item.validation.ok &&
+          item.compatibility.ok &&
+          item.state.trust !== 'blocked' &&
+          item.state.installed === true &&
+          item.state.enabled === true &&
+          item.state.runtimeState === 'enabled';
         const { priority: _priority, ...rest } = item;
         plugins.push({
           ...rest,
@@ -434,9 +421,7 @@ export class PluginDiscoveryService {
         if (rangeResult === 'unparsable') {
           findings.push(`compatibility.zavorthVersion is unparsable: ${zavorthVersion}`);
         } else if (rangeResult === 'mismatch') {
-          findings.push(
-            `compatibility.zavorthVersion ${zavorthVersion} does not match runtime ${this.zavorthVersion}`,
-          );
+          findings.push(`compatibility.zavorthVersion ${zavorthVersion} does not match runtime ${this.zavorthVersion}`);
           ok = false;
         }
       }
@@ -445,17 +430,13 @@ export class PluginDiscoveryService {
     return { ok, findings };
   }
 
-  private resolveStateView(
-    pluginId: string,
-    manifest: ZavorthPluginManifest | null,
-  ): ZavorthPluginDiscoveryStateView {
+  private resolveStateView(pluginId: string, manifest: ZavorthPluginManifest | null): ZavorthPluginDiscoveryStateView {
     const defaultTrust: ZavorthPluginTrustLevel = manifest?.policy?.defaultTrust || 'review';
     const lookup = this.stateLookup?.resolve(pluginId) || null;
 
     const installed = lookup?.installed === true;
     const enabled = lookup?.enabled === true;
-    const trust: ZavorthPluginTrustLevel = lookup?.trust
-      || defaultTrust;
+    const trust: ZavorthPluginTrustLevel = lookup?.trust || defaultTrust;
     const installedRevision = lookup?.installedRevision ?? null;
     const sourceLocator = lookup?.sourceLocator ?? null;
     const runtimeState = this.mapRuntimeState({ trust, installed, enabled });
@@ -500,7 +481,9 @@ export class PluginDiscoveryService {
     return null;
   }
 
-  private readJsonObject(filePath: string): { ok: true; value: Record<string, unknown> } | { ok: false; error: string } {
+  private readJsonObject(
+    filePath: string,
+  ): { ok: true; value: Record<string, unknown> } | { ok: false; error: string } {
     try {
       const text = this.readFileSync(filePath, 'utf8');
       const parsed = JSON.parse(String(text));
@@ -526,10 +509,7 @@ export class PluginDiscoveryService {
     return folderName;
   }
 
-  private checkVersionRequirement(
-    requirement: string,
-    current: string,
-  ): 'match' | 'mismatch' | 'unparsable' {
+  private checkVersionRequirement(requirement: string, current: string): 'match' | 'mismatch' | 'unparsable' {
     const currentParts = this.parseSemver(current);
     if (!currentParts) {
       return 'unparsable';

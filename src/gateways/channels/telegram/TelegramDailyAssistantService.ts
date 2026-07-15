@@ -1,14 +1,16 @@
 import { createHash } from 'node:crypto';
 import {
-  renderUniversalApprovalIntentDecisionResult,
+  presentUniversalApprovalIntentDecision,
   RunArtifactReceiptReplayService,
   type UniversalAgentModelProfile,
   type UniversalAgentRequest,
   type UniversalAgentRun,
   type UniversalApprovalIntentDecisionResult,
+  type UniversalApprovalPresentation,
   type ZavorthAgentGateway,
 } from '../../../runtime/agent/index.js';
 import { ZavorthUserResponseRendererService } from '../../../services/ZavorthUserResponseRendererService.js';
+import type { SurfaceResponse } from '../../../domain/surface/application/surface-response/SurfaceResponseContract.js';
 
 type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'resolveApprovalIntent'>;
 
@@ -39,6 +41,9 @@ export type TelegramDailyAssistantTurnResult = {
   text: string;
   receipt: TelegramDailyAssistantReceipt;
   run: UniversalAgentRun | null;
+  /** Single- or multi-approval SurfaceResponse for buttoned transports (profile-driven). */
+  surfaceResponse?: SurfaceResponse | null;
+  approvalPresentation?: UniversalApprovalPresentation | null;
 };
 
 export type TelegramDailyAssistantTaskInput = {
@@ -62,16 +67,20 @@ export class TelegramDailyAssistantService {
   private readonly receiptReplay: RunArtifactReceiptReplayService;
   private readonly responseRenderer: ZavorthUserResponseRendererService;
 
-  public constructor(private readonly runtime: {
-    agentGateway: AgentGatewayLike;
-    now?: () => Date;
-    receiptReplay?: RunArtifactReceiptReplayService;
-    responseRenderer?: ZavorthUserResponseRendererService | null;
-  }) {
+  public constructor(
+    private readonly runtime: {
+      agentGateway: AgentGatewayLike;
+      now?: () => Date;
+      receiptReplay?: RunArtifactReceiptReplayService;
+      responseRenderer?: ZavorthUserResponseRendererService | null;
+    },
+  ) {
     this.now = runtime.now || (() => new Date());
-    this.receiptReplay = runtime.receiptReplay || new RunArtifactReceiptReplayService({
-      now: this.now,
-    });
+    this.receiptReplay =
+      runtime.receiptReplay ||
+      new RunArtifactReceiptReplayService({
+        now: this.now,
+      });
     this.responseRenderer = runtime.responseRenderer || new ZavorthUserResponseRendererService();
   }
 
@@ -89,9 +98,7 @@ export class TelegramDailyAssistantService {
       return null;
     }
 
-    const run = approvalIntent.result?.run
-      || approvalIntent.resolution.target?.run
-      || null;
+    const run = approvalIntent.result?.run || approvalIntent.resolution.target?.run || null;
     const receipt = this.buildReceipt({
       action: 'approval-decision',
       run,
@@ -99,20 +106,19 @@ export class TelegramDailyAssistantService {
       sessionId: input.sessionId,
       approvalResult: approvalIntent,
     });
+    // SurfaceProfile decides buttons (telegram/discord/web/…) vs text-only — not hard-coded.
+    const presentation = presentUniversalApprovalIntentDecision(approvalIntent, 'telegram');
     return {
       handled: true,
-      text: this.decorateWithReceipt(
-        renderUniversalApprovalIntentDecisionResult(approvalIntent),
-        receipt,
-      ),
+      text: this.decorateWithReceipt(presentation.text, receipt),
       receipt,
       run,
+      surfaceResponse: presentation.surfaceResponse,
+      approvalPresentation: presentation,
     };
   }
 
-  public async handleTask(
-    input: TelegramDailyAssistantTaskInput,
-  ): Promise<TelegramDailyAssistantTurnResult> {
+  public async handleTask(input: TelegramDailyAssistantTaskInput): Promise<TelegramDailyAssistantTurnResult> {
     const request: UniversalAgentRequest = {
       userId: input.userId,
       channel: 'telegram',
@@ -132,9 +138,17 @@ export class TelegramDailyAssistantService {
       },
     };
     const result = await this.runtime.agentGateway.handle(request);
-    const reply = String(result.replies[0]?.text || '').trim()
-      || result.run.summary
-      || 'Pedido processado pelo runtime universal.';
+    const replyPacket = result.replies[0];
+    const reply =
+      String(replyPacket?.text || '').trim() || result.run.summary || 'Pedido processado pelo runtime universal.';
+    const replyMeta =
+      replyPacket?.metadata && typeof replyPacket.metadata === 'object'
+        ? (replyPacket.metadata as Record<string, unknown>)
+        : null;
+    const surfaceFromReply =
+      replyMeta?.surfaceResponse && typeof replyMeta.surfaceResponse === 'object'
+        ? (replyMeta.surfaceResponse as SurfaceResponse)
+        : null;
     const receipt = this.buildReceipt({
       action: 'task-received',
       run: result.run,
@@ -146,6 +160,8 @@ export class TelegramDailyAssistantService {
       text: this.decorateWithReceipt(reply, receipt),
       receipt,
       run: result.run,
+      // Proposal-time single-pending Approve/Reject card when openers attached one.
+      surfaceResponse: surfaceFromReply,
     };
   }
 
@@ -158,25 +174,23 @@ export class TelegramDailyAssistantService {
   }): TelegramDailyAssistantReceipt {
     const generatedAt = this.now().toISOString();
     const run = input.run;
-    const approval = run?.approvals.find((entry) => entry.status === 'pending')
-      || run?.approvals.at(-1)
-      || input.approvalResult?.resolution.target?.approval
-      || null;
+    const approval =
+      run?.approvals.find((entry) => entry.status === 'pending') ||
+      run?.approvals.at(-1) ||
+      input.approvalResult?.resolution.target?.approval ||
+      null;
     const replay = run
       ? this.receiptReplay.buildSnapshot({
-        run,
-        relatedRuns: this.runtime.agentGateway.buildSnapshot({
-          activeSessionId: input.sessionId,
-        }).runs,
-        generatedAt,
-      })
+          run,
+          relatedRuns: this.runtime.agentGateway.buildSnapshot({
+            activeSessionId: input.sessionId,
+          }).runs,
+          generatedAt,
+        })
       : null;
-    const status = run?.status
-      || (
-        input.approvalResult?.resolution.status === 'ambiguous'
-          ? 'approval-ambiguous'
-          : 'approval-not-found'
-      );
+    const status =
+      run?.status ||
+      (input.approvalResult?.resolution.status === 'ambiguous' ? 'approval-ambiguous' : 'approval-not-found');
     return {
       id: createReceiptId({
         action: input.action,
@@ -200,9 +214,7 @@ export class TelegramDailyAssistantService {
       memorySignalCount: run?.memorySignals.length || 0,
       replayCommand: run ? `zavorth replay run ${run.id} --json` : null,
       replayFrameCount: replay?.summary.frameCount || 0,
-      replayReceiptCount: replay
-        ? replay.summary.featureReceiptCount + replay.summary.observatoryReceiptCount
-        : 0,
+      replayReceiptCount: replay ? replay.summary.featureReceiptCount + replay.summary.observatoryReceiptCount : 0,
       externalMutationBeforeApproval: false,
       receiptReturnedToTelegram: true,
     };
@@ -216,7 +228,8 @@ export class TelegramDailyAssistantService {
       approvalId: receipt.approvalId,
       approvalStatus: receipt.approvalStatus,
       replayCommand: receipt.replayCommand,
-      includeTechnicalFooter: receipt.action === 'approval-decision' || Boolean(receipt.approvalId) || receipt.status === 'failed',
+      includeTechnicalFooter:
+        receipt.action === 'approval-decision' || Boolean(receipt.approvalId) || receipt.status === 'failed',
     }).text;
   }
 }

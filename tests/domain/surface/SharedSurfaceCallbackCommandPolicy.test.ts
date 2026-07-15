@@ -7,9 +7,13 @@ import {
 
 describe('SharedSurfaceCallbackCommandPolicy', () => {
   it('normalizes read-only shared-surface callbacks', () => {
-    expect(normalizeSharedSurfaceCommandCallback('  /channels   status   whatsapp  ')).toBe('/channels status whatsapp');
+    expect(normalizeSharedSurfaceCommandCallback('  /channels   status   whatsapp  ')).toBe(
+      '/channels status whatsapp',
+    );
     expect(normalizeSharedSurfaceCommandCallback('/channels consistency')).toBe('/channels consistency');
-    expect(normalizeSharedSurfaceCommandCallback('/channels consistency whatsapp')).toBe('/channels consistency whatsapp');
+    expect(normalizeSharedSurfaceCommandCallback('/channels consistency whatsapp')).toBe(
+      '/channels consistency whatsapp',
+    );
     expect(normalizeSharedSurfaceCommandCallback('/commands page 2')).toBe('/commands page 2');
     expect(normalizeSharedSurfaceCommandCallback('/model gemma-2-27b-it')).toBe('/model gemma-2-27b-it');
     expect(normalizeSharedSurfaceCommandCallback('/readiness')).toBe('/readiness');
@@ -43,5 +47,17 @@ describe('SharedSurfaceCallbackCommandPolicy', () => {
     expect(isSharedSurfaceOperationalCallbackCommand('/channels status whatsapp')).toBe(true);
     expect(isSharedSurfaceChannelCallbackAction('login-qr')).toBe(true);
     expect(isSharedSurfaceChannelCallbackAction('logout')).toBe(false);
+  });
+
+  it('allows proposal-time approval slash callbacks (mode/perm/selfmod)', () => {
+    expect(normalizeSharedSurfaceCommandCallback('/mode approve once')).toBe('/mode approve once');
+    expect(normalizeSharedSurfaceCommandCallback('/mode reject')).toBe('/mode reject');
+    expect(normalizeSharedSurfaceCommandCallback('/perm approve 1')).toBe('/perm approve 1');
+    expect(normalizeSharedSurfaceCommandCallback('/perm reject 1')).toBe('/perm reject 1');
+    expect(normalizeSharedSurfaceCommandCallback('/selfmod apply preview-abc-123456')).toBe(
+      '/selfmod apply preview-abc-123456',
+    );
+    expect(normalizeSharedSurfaceCommandCallback('/approve 1')).toBe('/approve 1');
+    expect(normalizeSharedSurfaceCommandCallback('/reject 1')).toBe('/reject 1');
   });
 });

@@ -34,18 +34,11 @@ import { HostPowerModeService } from './HostPowerModeService.js';
 import { Database } from '../storage/Database.js';
 import { config } from '../config/index.js';
 import { OperationalMaturityService } from '../domain/platform-ecosystem/application/OperationalMaturityService.js';
-import {
-  SalesPackMvpService,
-} from '../domain/platform-ecosystem/application/sales-pack/index.js';
+import { SalesPackMvpService } from '../domain/platform-ecosystem/application/sales-pack/index.js';
 
 import { SalesPackChannelIoService } from './SalesPackChannelIoService.js';
-import type {
-  ZavorthControlAuthenticatedIdentity,
-  ZavorthControlAuthService,
-} from './ZavorthControlAuthService.js';
-import type {
-  SalesPackInboundMessageInput,
-} from '../contracts/SalesPackContract.js';
+import type { ZavorthControlAuthenticatedIdentity, ZavorthControlAuthService } from './ZavorthControlAuthService.js';
+import type { SalesPackInboundMessageInput } from '../contracts/SalesPackContract.js';
 import type { SalesPackChannelIoEnvelope } from '../contracts/SalesPackChannelIoContract.js';
 import type { ExperienceCommand, ExperienceSurface } from './experience/ExperienceContracts.js';
 import { ExperienceCoreService } from './experience/ExperienceCoreService.js';
@@ -100,13 +93,32 @@ type PlatformRouteContext = {
   salesPackBusinessMode: SalesPackBusinessModeService;
   salesPackChannelIo: SalesPackChannelIoService;
   localAccessRoutes: TrustedDeviceAccessRouteService;
-  handleExperienceRequest: (req: http.IncomingMessage, res: http.ServerResponse, url: URL, pathname: string, deps: ZavorthControlCoreRouteDeps) => Promise<boolean>;
+  handleExperienceRequest: (
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    url: URL,
+    pathname: string,
+    deps: ZavorthControlCoreRouteDeps,
+  ) => Promise<boolean>;
   handleNodeMeshLiveEvents: (req: http.IncomingMessage, res: http.ServerResponse) => void;
-  isNodeMeshLiveAuthorized: (req: http.IncomingMessage, url: URL, deps: ZavorthControlCoreRouteDeps, body?: Record<string, unknown>) => boolean;
+  isNodeMeshLiveAuthorized: (
+    req: http.IncomingMessage,
+    url: URL,
+    deps: ZavorthControlCoreRouteDeps,
+    body?: Record<string, unknown>,
+  ) => boolean;
   parseBoolean: (value: unknown) => boolean | null;
-  readBusinessModeIdentity: (req: http.IncomingMessage, url: URL, body: Record<string, unknown>, deps: ZavorthControlCoreRouteDeps) => { userId: string | null; profileId: string | null; authorized: boolean };
+  readBusinessModeIdentity: (
+    req: http.IncomingMessage,
+    url: URL,
+    body: Record<string, unknown>,
+    deps: ZavorthControlCoreRouteDeps,
+  ) => { userId: string | null; profileId: string | null; authorized: boolean };
   readOptionalString: (value: unknown) => string | null;
-  readSalesPackChannelIoEnvelope: (body: Record<string, unknown>, headers: http.IncomingHttpHeaders) => SalesPackChannelIoEnvelope;
+  readSalesPackChannelIoEnvelope: (
+    body: Record<string, unknown>,
+    headers: http.IncomingHttpHeaders,
+  ) => SalesPackChannelIoEnvelope;
   readSalesPackInboundMessage: (body: Record<string, unknown>) => SalesPackInboundMessageInput | null;
 };
 
@@ -153,8 +165,74 @@ export async function handleControlPlatformRoutes(
       return true;
     }
     try {
-      const { CostSavingsDashboardService } = require('./CostSavingsDashboardService.js') as typeof import('./CostSavingsDashboardService.js');
+      const { CostSavingsDashboardService } =
+        require('./CostSavingsDashboardService.js') as typeof import('./CostSavingsDashboardService.js');
       const snap = new CostSavingsDashboardService().buildSnapshot();
+      deps.writeJson(res, { ok: true, data: snap });
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+    }
+    return true;
+  }
+
+  if (pathname === '/api/v2/memory-graph' && req.method === 'GET') {
+    if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+    try {
+      const { MemoryGraphSnapshotService } =
+        require('./MemoryGraphSnapshotService.js') as typeof import('./MemoryGraphSnapshotService.js');
+      const snap = new MemoryGraphSnapshotService().buildSnapshot();
+      deps.writeJson(res, {
+        ok: true,
+        data: {
+          ...snap,
+          stats: {
+            nodeCount: snap.nodeCount,
+            edgeCount: snap.edgeCount,
+            byType: snap.byType,
+          },
+        },
+      });
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      deps.writeJson(res, { ok: false, error: (err as Error).message }, 500);
+    }
+    return true;
+  }
+
+  if (pathname === '/api/v2/session-export' && (req.method === 'GET' || req.method === 'POST')) {
+    if (deps.authService && !deps.authService.resolveAuthenticatedIdentity(req)) {
+      deps.writeJson(res, { ok: false, error: 'Unauthorized' }, 401);
+      return true;
+    }
+    try {
+      const { ZavorthSessionTranscriptExportService } =
+        require('./ZavorthSessionTranscriptExportService.js') as typeof import('./ZavorthSessionTranscriptExportService.js');
+      const query = url.searchParams;
+      let body: Record<string, unknown> = {};
+      if (
+        req.method === 'POST' &&
+        typeof (req as { body?: unknown }).body === 'object' &&
+        (req as { body?: unknown }).body
+      ) {
+        body = (req as { body?: Record<string, unknown> }).body || {};
+      }
+      const redactRaw = body.redact ?? query.get('redact');
+      const redact = redactRaw === false || redactRaw === 'false' || redactRaw === '0' ? false : true;
+      const service = new ZavorthSessionTranscriptExportService();
+      const snap = service.export({
+        sessionId: String(body.sessionId || query.get('session') || query.get('sessionId') || '').trim() || undefined,
+        format: String(body.format || query.get('format') || 'markdown').trim() as 'markdown' | 'html' | 'prompt',
+        title: String(body.title || query.get('title') || '').trim() || undefined,
+        exportPath: String(body.exportPath || query.get('exportPath') || '').trim() || undefined,
+        approvalId: String(body.approvalId || query.get('approvalId') || '').trim() || undefined,
+        redact,
+        includeSystem: body.includeSystem === true || query.get('includeSystem') === 'true',
+        messages: Array.isArray(body.messages) ? (body.messages as never) : undefined,
+      });
       deps.writeJson(res, { ok: true, data: snap });
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -201,10 +279,14 @@ export async function handleControlPlatformRoutes(
     }
     const enabled = context.parseBoolean(body.enabled);
     if (enabled === null) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'Campo "enabled" needs ser booleano.',
-      }, 400);
+      deps.writeJson(
+        res,
+        {
+          ok: false,
+          error: 'Campo "enabled" needs ser booleano.',
+        },
+        400,
+      );
       return true;
     }
     deps.writeJson(res, {
@@ -233,10 +315,14 @@ export async function handleControlPlatformRoutes(
     const body = await deps.readJsonBody(req);
     const input = context.readSalesPackInboundMessage(body);
     if (!input) {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'Campos "text" e "customerId" need ser strings not emptys.',
-      }, 400);
+      deps.writeJson(
+        res,
+        {
+          ok: false,
+          error: 'Campos "text" e "customerId" need ser strings not emptys.',
+        },
+        400,
+      );
       return true;
     }
 
@@ -260,12 +346,16 @@ export async function handleControlPlatformRoutes(
   if (pathname === '/api/v2/sales-pack/channel-io/inbound' && req.method === 'POST') {
     const body = await deps.readJsonBody(req);
     const result = context.salesPackChannelIo.receiveInbound(context.readSalesPackChannelIoEnvelope(body, req.headers));
-    deps.writeJson(res, {
-      ok: result.ok,
-      data: result,
-      snapshot: context.salesPack.buildSnapshot(),
-      channelIo: context.salesPackChannelIo.buildSnapshot(),
-    }, result.status === 'rejected' ? 400 : 200);
+    deps.writeJson(
+      res,
+      {
+        ok: result.ok,
+        data: result,
+        snapshot: context.salesPack.buildSnapshot(),
+        channelIo: context.salesPackChannelIo.buildSnapshot(),
+      },
+      result.status === 'rejected' ? 400 : 200,
+    );
     return true;
   }
 
@@ -273,8 +363,9 @@ export async function handleControlPlatformRoutes(
     const rawBody = await deps.readRawBody(req);
     let body: Record<string, unknown> = {};
     try {
-      body = rawBody.trim() ? JSON.parse(rawBody) as unknown as Record<string, unknown> : {};
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to WhatsApp Cloud API.' }, 400);
+      body = rawBody.trim() ? (JSON.parse(rawBody) as unknown as Record<string, unknown>) : {};
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to WhatsApp Cloud API.' }, 400);
       return true;
     }
     const result = context.salesPackChannelIo.receiveInbound({
@@ -284,12 +375,16 @@ export async function handleControlPlatformRoutes(
       rawBody,
       body,
     });
-    deps.writeJson(res, {
-      ok: result.ok,
-      data: result,
-      snapshot: context.salesPack.buildSnapshot(),
-      channelIo: context.salesPackChannelIo.buildSnapshot(),
-    }, result.status === 'rejected' ? 400 : 200);
+    deps.writeJson(
+      res,
+      {
+        ok: result.ok,
+        data: result,
+        snapshot: context.salesPack.buildSnapshot(),
+        channelIo: context.salesPackChannelIo.buildSnapshot(),
+      },
+      result.status === 'rejected' ? 400 : 200,
+    );
     return true;
   }
 
@@ -361,8 +456,9 @@ export async function handleControlPlatformRoutes(
     const rawBody = await deps.readRawBody(req);
     let body: Record<string, unknown> = {};
     try {
-      body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to webhook do Slack.' }, 400);
+      body = rawBody.trim() ? (JSON.parse(rawBody) as Record<string, unknown>) : {};
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to webhook do Slack.' }, 400);
       return true;
     }
 
@@ -430,8 +526,9 @@ export async function handleControlPlatformRoutes(
     const rawBody = await deps.readRawBody(req);
     let body: Record<string, unknown> = {};
     try {
-      body = rawBody.trim() ? JSON.parse(rawBody) as Record<string, unknown> : {};
-    } catch (error: unknown) {deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to webhook do Teams.' }, 400);
+      body = rawBody.trim() ? (JSON.parse(rawBody) as Record<string, unknown>) : {};
+    } catch (error: unknown) {
+      deps.writeJson(res, { ok: false, error: 'Payload JSON invalid to webhook do Teams.' }, 400);
       return true;
     }
     const result = await deps.teamsIngressGateway.handleWebhookEvent({
@@ -446,25 +543,24 @@ export async function handleControlPlatformRoutes(
 
   if (pathname === '/api/v2/a2ui/snapshot' && req.method === 'GET') {
     const surfaceId = url.searchParams.get('surfaceId') || undefined;
-    const snapshot = typeof deps.a2ui.readSnapshot === 'function'
-      ? deps.a2ui.readSnapshot(surfaceId)
-      : {
-          generatedAt: new Date().toISOString(),
-          protocolVersion: 'a2ui.v1',
-          capabilities: ['snapshot'],
-          allowedComponents: [],
-          surfaceId: surfaceId || null,
-          surfaces: typeof deps.a2ui.listSurfaces === 'function'
-            ? deps.a2ui.listSurfaces()
-            : [],
-          commands: {
-            snapshot: '/api/v2/a2ui/snapshot',
-            action: '/api/v2/a2ui/action',
-            events: '/api/v2/a2ui/events',
-            stream: '/api/v2/a2ui/stream',
-            assets: '/api/v2/a2ui/assets',
-          },
-        };
+    const snapshot =
+      typeof deps.a2ui.readSnapshot === 'function'
+        ? deps.a2ui.readSnapshot(surfaceId)
+        : {
+            generatedAt: new Date().toISOString(),
+            protocolVersion: 'a2ui.v1',
+            capabilities: ['snapshot'],
+            allowedComponents: [],
+            surfaceId: surfaceId || null,
+            surfaces: typeof deps.a2ui.listSurfaces === 'function' ? deps.a2ui.listSurfaces() : [],
+            commands: {
+              snapshot: '/api/v2/a2ui/snapshot',
+              action: '/api/v2/a2ui/action',
+              events: '/api/v2/a2ui/events',
+              stream: '/api/v2/a2ui/stream',
+              assets: '/api/v2/a2ui/assets',
+            },
+          };
     deps.writeJson(res, { ok: true, data: snapshot });
     return true;
   }
@@ -473,9 +569,10 @@ export async function handleControlPlatformRoutes(
     const surfaceId = url.searchParams.get('surfaceId') || undefined;
     const limitRaw = url.searchParams.get('limit');
     const limit = limitRaw ? safeParseInt(limitRaw, 20) : 20;
-    const events = typeof deps.a2ui.listEvents === 'function'
-      ? deps.a2ui.listEvents(surfaceId, Number.isFinite(limit) ? limit : 20)
-      : [];
+    const events =
+      typeof deps.a2ui.listEvents === 'function'
+        ? deps.a2ui.listEvents(surfaceId, Number.isFinite(limit) ? limit : 20)
+        : [];
     deps.writeJson(res, { ok: true, data: events });
     return true;
   }
@@ -484,46 +581,58 @@ export async function handleControlPlatformRoutes(
     const surfaceId = url.searchParams.get('surfaceId') || undefined;
     const limitRaw = url.searchParams.get('limit');
     const limit = limitRaw ? safeParseInt(limitRaw, 20) : 20;
-    const stream = typeof deps.a2ui.readStream === 'function'
-      ? deps.a2ui.readStream(surfaceId, Number.isFinite(limit) ? limit : 20)
-      : {
-          generatedAt: new Date().toISOString(),
-          protocolVersion: 'a2ui.v1',
-          surfaceId: surfaceId || null,
-          items: [],
-          commands: {
-            events: '/api/v2/a2ui/events',
-            action: '/api/v2/a2ui/action',
-          },
-        };
+    const stream =
+      typeof deps.a2ui.readStream === 'function'
+        ? deps.a2ui.readStream(surfaceId, Number.isFinite(limit) ? limit : 20)
+        : {
+            generatedAt: new Date().toISOString(),
+            protocolVersion: 'a2ui.v1',
+            surfaceId: surfaceId || null,
+            items: [],
+            commands: {
+              events: '/api/v2/a2ui/events',
+              action: '/api/v2/a2ui/action',
+            },
+          };
     deps.writeJson(res, { ok: true, data: stream });
     return true;
   }
 
   if (pathname === '/api/v2/a2ui/assets' && req.method === 'GET') {
     const surfaceId = url.searchParams.get('surfaceId') || undefined;
-    const assets = typeof deps.a2ui.listAssets === 'function'
-      ? deps.a2ui.listAssets(surfaceId)
-      : [];
+    const assets = typeof deps.a2ui.listAssets === 'function' ? deps.a2ui.listAssets(surfaceId) : [];
     deps.writeJson(res, { ok: true, data: assets });
     return true;
   }
 
   if (pathname === '/api/v2/a2ui/action' && req.method === 'POST') {
     const body = await deps.readJsonBody(req);
-    if (!body['surfaceId'] || typeof body['surfaceId'] !== 'string' || !body.actionId || typeof body.actionId !== 'string') {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'Campos "surfaceId" (string) e "actionId" (string) obrigatorios.',
-      }, 400);
+    if (
+      !body['surfaceId'] ||
+      typeof body['surfaceId'] !== 'string' ||
+      !body.actionId ||
+      typeof body.actionId !== 'string'
+    ) {
+      deps.writeJson(
+        res,
+        {
+          ok: false,
+          error: 'Campos "surfaceId" (string) e "actionId" (string) obrigatorios.',
+        },
+        400,
+      );
       return true;
     }
 
     if (typeof deps.a2ui.dispatchAction !== 'function') {
-      deps.writeJson(res, {
-        ok: false,
-        error: 'A2UI action dispatch unavailable nesta surface.',
-      }, 503);
+      deps.writeJson(
+        res,
+        {
+          ok: false,
+          error: 'A2UI action dispatch unavailable nesta surface.',
+        },
+        503,
+      );
       return true;
     }
 
@@ -532,7 +641,8 @@ export async function handleControlPlatformRoutes(
       actionId: body.actionId,
       requestedBy: typeof body['requestedBy'] === 'string' ? body['requestedBy'] : 'zavorthControl',
       payload: body.payload && typeof body.payload === 'object' ? (body.payload as Record<string, unknown>) : {},
-      correlation: body.correlation && typeof body.correlation === 'object' ? (body.correlation as Record<string, unknown>) : null,
+      correlation:
+        body.correlation && typeof body.correlation === 'object' ? (body.correlation as Record<string, unknown>) : null,
     });
     deps.writeJson(res, result, result.ok ? 200 : result.status === 'not_found' ? 404 : 409);
     return true;
@@ -559,7 +669,6 @@ export async function handleControlPlatformRoutes(
     });
     return true;
   }
-
 
   return null;
 }

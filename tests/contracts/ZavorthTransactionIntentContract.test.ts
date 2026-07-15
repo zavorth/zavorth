@@ -40,6 +40,7 @@ describe('ZavorthTransactionIntentContract', () => {
     expect(snapshot.invariants).toEqual(
       expect.arrayContaining([
         'Intent parsing never executes a transaction.',
+        'Free text never activates transaction kind; only structured kind/actionKind/targetKind may set product intent.',
         'Raw secrets are redacted before intent output is persisted or displayed.',
         'Every parsed intent carries a Transaction Plane safety decision.',
       ]),

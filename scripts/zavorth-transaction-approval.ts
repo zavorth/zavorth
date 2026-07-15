@@ -4,6 +4,9 @@ type CliOptions = {
   json: boolean;
   summary: boolean;
   text?: string;
+  kind?: import('../src/contracts/ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('../src/contracts/ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('../src/contracts/ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   decision?: 'approved' | 'rejected';
   reason?: string;
   actor?: 'owner' | 'operator' | 'system';
@@ -40,6 +43,9 @@ if (!options.text) {
 
 const preview = service.buildPreviewFromText({
   text: options.text,
+  kind: options.kind,
+  actionKind: options.actionKind,
+  targetKind: options.targetKind,
   channel: 'cli',
 });
 const previewEntry = service.recordPreview(preview, options.actor ?? 'system');
@@ -83,6 +89,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
     } else if (arg?.startsWith('--text=')) {
       options.text = arg.slice('--text='.length);
+    } else if (arg === '--kind') {
+      options.kind = args[index + 1] as CliOptions['kind'];
+      index += 1;
+    } else if (arg?.startsWith('--kind=')) {
+      options.kind = arg.slice('--kind='.length) as CliOptions['kind'];
+    } else if (arg === '--action-kind') {
+      options.actionKind = args[index + 1] as CliOptions['actionKind'];
+      index += 1;
+    } else if (arg?.startsWith('--action-kind=')) {
+      options.actionKind = arg.slice('--action-kind='.length) as CliOptions['actionKind'];
+    } else if (arg === '--target-kind') {
+      options.targetKind = args[index + 1] as CliOptions['targetKind'];
+      index += 1;
+    } else if (arg?.startsWith('--target-kind=')) {
+      options.targetKind = arg.slice('--target-kind='.length) as CliOptions['targetKind'];
     } else if (arg === '--decision') {
       options.decision = normalizeDecision(args[index + 1]);
       index += 1;
@@ -110,7 +131,9 @@ function parseArgs(args: string[]): CliOptions {
 }
 
 function normalizeDecision(value: string | undefined): 'approved' | 'rejected' | undefined {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (['approve', 'approved', 'aprovar', 'aprovado'].includes(normalized)) {
     return 'approved';
   }
@@ -121,7 +144,9 @@ function normalizeDecision(value: string | undefined): 'approved' | 'rejected' |
 }
 
 function normalizeActor(value: string | undefined): 'owner' | 'operator' | 'system' | undefined {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'owner' || normalized === 'operator' || normalized === 'system') {
     return normalized;
   }

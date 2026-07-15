@@ -46,8 +46,14 @@ try {
     }
   }
 
-  const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionSandboxAdapterCertificationContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionSandboxAdapterCertificationService.ts'), 'utf8');
+  const contractText = readFileSync(
+    join(root, 'src/contracts/ZavorthTransactionSandboxAdapterCertificationContract.ts'),
+    'utf8',
+  );
+  const serviceText = readFileSync(
+    join(root, 'src/services/ZavorthTransactionSandboxAdapterCertificationService.ts'),
+    'utf8',
+  );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
     'zavorth-transaction-sandbox-adapter-certification/checkpoint-12',
@@ -79,29 +85,25 @@ try {
   ]);
   const ref = credential.record?.ref;
 
-  const needsActivationReview = runCertificationExpectFailure([
-    ...baseArgs(ref),
-    '--safe-sandbox-adapter',
-  ]);
+  const needsActivationReview = runCertificationExpectFailure([...baseArgs(ref), '--safe-sandbox-adapter']);
   if (needsActivationReview.status !== 'activation-review-required') {
     failures.push(`activation review status mismatch: ${needsActivationReview.status}`);
   }
 
-  const needsAdapter = runCertificationExpectFailure([
-    ...readyActivationReviewArgs(ref),
-  ]);
+  const needsAdapter = runCertificationExpectFailure([...readyActivationReviewArgs(ref)]);
   if (needsAdapter.status !== 'adapter-manifest-required') {
     failures.push(`adapter manifest status mismatch: ${needsAdapter.status}`);
   }
 
-  const ready = runCertification([
-    ...readyActivationReviewArgs(ref),
-    '--safe-sandbox-adapter',
-  ]);
+  const ready = runCertification([...readyActivationReviewArgs(ref), '--safe-sandbox-adapter']);
   if (ready.status !== 'sandbox-certification-ready' || ready.certificationPacket?.certificationOnly !== true) {
     failures.push(`sandbox certification mismatch: ${ready.status}`);
   }
-  if (ready.certificationPacket?.sandboxExecutionAuthorized !== false || ready.certificationPacket?.liveExecutionAuthorized !== false || ready.safety.noSandboxNetworkCall !== true) {
+  if (
+    ready.certificationPacket?.sandboxExecutionAuthorized !== false ||
+    ready.certificationPacket?.liveExecutionAuthorized !== false ||
+    ready.safety.noSandboxNetworkCall !== true
+  ) {
     failures.push('Intent model2 packet must keep sandbox and live execution disabled');
   }
   if (!ready.gates.every((gate) => gate.passed === true)) {
@@ -176,7 +178,9 @@ try {
   console.log('[transaction-sandbox-adapter-certification-intent-model2-check] ok');
   console.log('- contract, service, CLI, docs and tests are present');
   console.log('- Intent model2 consumes Intent model1 review-ready packets');
-  console.log('- sandbox adapter manifests require allowlist, SecretRef, idempotency, timeout, rate limit and circuit breaker');
+  console.log(
+    '- sandbox adapter manifests require allowlist, SecretRef, idempotency, timeout, rate limit and circuit breaker',
+  );
   console.log('- certification-ready still performs no sandbox or live external I/O');
   console.log('- live endpoints and raw secrets remain blocked');
 } finally {
@@ -193,7 +197,11 @@ function baseArgs(ref) {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -246,19 +254,23 @@ function rollbackArgs() {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runCertification(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-sandbox-adapter-certification.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-sandbox-adapter-certification.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runCertificationExpectFailure(args) {

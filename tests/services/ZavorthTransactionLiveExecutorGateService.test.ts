@@ -1,27 +1,13 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
-import {
-  ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveExecutorGateContract.js';
-import {
-  ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
-import {
-  ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveExecutorGateContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_MICRO_ROLLOUT_CERTIFICATION_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveMicroRolloutCertificationContract.js';
+import { ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-
-
-
-
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 
 import { ZavorthTransactionLiveExecutorGateService } from '../../src/services/ZavorthTransactionLiveExecutorGateService.js';
 
@@ -38,14 +24,15 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model6 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model6 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionLiveExecutorGateService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -101,23 +88,27 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
     });
 
     expect(result.status).toBe('live-ready-held');
-    expect(result.readinessPacket).toEqual(expect.objectContaining({
-      liveExecutorReady: true,
-      readyForExternalAdapterBinding: true,
-      executionHeld: true,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-      externalSideEffects: false,
-      rawSecretPresent: false,
-    }));
-    expect(result.safety).toEqual(expect.objectContaining({
-      liveExecutorGateReady: true,
-      noBundledFinancialAdapter: true,
-      noLiveExecution: true,
-      liveExecutionAuthorized: false,
-      liveActionApplied: false,
-    }));
+    expect(result.readinessPacket).toEqual(
+      expect.objectContaining({
+        liveExecutorReady: true,
+        readyForExternalAdapterBinding: true,
+        executionHeld: true,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+        externalSideEffects: false,
+        rawSecretPresent: false,
+      }),
+    );
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        liveExecutorGateReady: true,
+        noBundledFinancialAdapter: true,
+        noLiveExecution: true,
+        liveExecutionAuthorized: false,
+        liveActionApplied: false,
+      }),
+    );
     expect(result.gates.every((gate) => gate.passed)).toBe(true);
   });
 
@@ -133,9 +124,7 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
     expect(result.status).toBe('live-policy-blocked');
     expect(result.readinessPacket).toBeUndefined();
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'live-execution-held', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'live-execution-held', passed: false })]),
     );
   });
 
@@ -152,16 +141,14 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
 
     expect(result.status).toBe('live-policy-blocked');
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'amount-within-micro-limit', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'amount-within-micro-limit', passed: false })]),
     );
   });
 
   it('does not leak raw secrets from blocked input', () => {
     const result = service.prepare({
       ...microRolloutCertifiedInput(),
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       liveOperatorConfirmed: true,
       liveOperatorIntent: ZAVORTH_TRANSACTION_LIVE_EXECUTOR_GATE_OWNER_PHRASE,
       useSafeLiveAdapterControls: true,
@@ -174,7 +161,9 @@ describe('ZavorthTransactionLiveExecutorGateService', () => {
 
   function baseReadyBeforeMicroRolloutCertification() {
     return {
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api' as const,
       approve: true,
       mode: 'paper' as const,

@@ -1,16 +1,16 @@
 import type {
+  ZavorthTransactionIntentKind,
+  ZavorthTransactionIntentTargetKind,
+} from './ZavorthTransactionIntentContract.js';
+import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneContract.js';
+import type {
   ZavorthTransactionRuntimeRunResult,
   ZavorthTransactionRuntimeStatus,
 } from './ZavorthTransactionRuntimeContract.js';
 
 export const ZAVORTH_TRANSACTION_SURFACE_CONTRACT_VERSION = 'zavorth-transaction-surface/checkpoint-7' as const;
 
-export type ZavorthTransactionSurfaceKind =
-  | 'web'
-  | 'cli'
-  | 'telegram'
-  | 'api'
-  | 'natural-first';
+export type ZavorthTransactionSurfaceKind = 'web' | 'cli' | 'telegram' | 'api' | 'natural-first';
 
 export type ZavorthTransactionSurfaceCardKind =
   | 'runtime-summary'
@@ -85,6 +85,10 @@ export type ZavorthTransactionSurfaceProjection = {
 
 export type ZavorthTransactionSurfaceProjectInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: ZavorthTransactionIntentKind;
+  actionKind?: ZavorthTransactionActionKind;
+  targetKind?: ZavorthTransactionIntentTargetKind;
   surface?: ZavorthTransactionSurfaceKind;
   userId?: string | null;
   sessionId?: string | null;

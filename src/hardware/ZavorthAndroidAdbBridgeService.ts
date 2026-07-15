@@ -112,7 +112,8 @@ const SENSITIVE_RULES: Array<{
   },
   {
     risk: 'destructive-adb',
-    pattern: /\b(factory reset|wipe|fastboot|reboot bootloader|root|su\b|rm -rf|delete data|clear data|pm clear|settings put|grant permission|revoke permission)\b/i,
+    pattern:
+      /\b(factory reset|wipe|fastboot|reboot bootloader|root|su\b|rm -rf|delete data|clear data|pm clear|settings put|grant permission|revoke permission)\b/i,
     reason: 'Destructive or privilege-changing ADB operations are blocked.',
   },
   {
@@ -139,10 +140,9 @@ export class ZavorthAndroidAdbBridgeService {
     const action = normalizeAction(input.action);
     const sourceSurface = String(input.sourceSurface || 'shared-surface').trim() || 'shared-surface';
     const artifactRoot = input.artifactRoot || this.artifactRoot;
-    const shouldProbe = input.live === true || action === 'device.status' || action === 'device.list' || action === 'device.doctor';
-    const discovery = shouldProbe
-      ? await this.discoverDevices(input.deviceSerial || null)
-      : emptyDiscovery();
+    const shouldProbe =
+      input.live === true || action === 'device.status' || action === 'device.list' || action === 'device.doctor';
+    const discovery = shouldProbe ? await this.discoverDevices(input.deviceSerial || null) : emptyDiscovery();
     const evidence = await this.collectEvidence(action, input, discovery, artifactRoot);
     const hardBlocks = detectHardBlocks(input, evidence);
     const steps = buildPlanSteps(action, input);
@@ -206,11 +206,15 @@ export class ZavorthAndroidAdbBridgeService {
       intent: 'status',
       title: 'Android ADB Device Bridge',
       summary: `${snapshot.status}: ${snapshot.policy.reason}`,
-      tone: snapshot.status === 'blocked' || snapshot.status === 'adb-unavailable' || snapshot.status === 'unauthorized'
-        ? 'danger'
-        : snapshot.status === 'approval-required' || snapshot.status === 'attention' || snapshot.status === 'redacted' || snapshot.status === 'no-device'
-          ? 'warning'
-          : 'success',
+      tone:
+        snapshot.status === 'blocked' || snapshot.status === 'adb-unavailable' || snapshot.status === 'unauthorized'
+          ? 'danger'
+          : snapshot.status === 'approval-required' ||
+              snapshot.status === 'attention' ||
+              snapshot.status === 'redacted' ||
+              snapshot.status === 'no-device'
+            ? 'warning'
+            : 'success',
       blocks: [
         {
           kind: 'text',
@@ -238,9 +242,13 @@ export class ZavorthAndroidAdbBridgeService {
         {
           kind: 'list',
           title: 'Plano',
-          items: snapshot.plan.steps.length > 0
-            ? snapshot.plan.steps.map((step) => `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`)
-            : ['Nenhum plano ativo. Use /device inspect, /device screenshot ou /device plan.'],
+          items:
+            snapshot.plan.steps.length > 0
+              ? snapshot.plan.steps.map(
+                  (step) =>
+                    `${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`,
+                )
+              : ['Nenhum plano ativo. Use /device inspect, /device screenshot ou /device plan.'],
         },
         ...receipts.map((entry) => ({
           kind: 'receipt' as const,
@@ -283,7 +291,10 @@ export class ZavorthAndroidAdbBridgeService {
       '',
       'Plan:',
       ...(snapshot.plan.steps.length > 0
-        ? snapshot.plan.steps.map((step) => `- ${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`)
+        ? snapshot.plan.steps.map(
+            (step) =>
+              `- ${step.kind}: ${step.label} | approval=${step.requiresApproval ? 'yes' : 'no'} | blocked=${step.blockedByDefault ? 'yes' : 'no'}`,
+          )
         : ['- none']),
       '',
       'Commands:',
@@ -366,7 +377,13 @@ export class ZavorthAndroidAdbBridgeService {
       evidence.readOnlyCommandsExecuted += 1;
       if (cat.ok && cat.stdoutText.trim()) {
         evidence.uiXml = cat.stdoutText;
-        evidence.uiDump = writeArtifact(artifactRoot, 'ui-dump', 'xml', Buffer.from(cat.stdoutText, 'utf8'), 'application/xml');
+        evidence.uiDump = writeArtifact(
+          artifactRoot,
+          'ui-dump',
+          'xml',
+          Buffer.from(cat.stdoutText, 'utf8'),
+          'application/xml',
+        );
       } else if (cat.error || cat.stderrText) {
         evidence.errors.push(cat.error || cat.stderrText);
       }
@@ -381,11 +398,23 @@ export class ZavorthAndroidAdbBridgeService {
     }
 
     if (action === 'device.logcat') {
-      const logcat = await this.safeRun([...serialArgs, 'logcat', '-d', '-t', String(input.maxLogLines || DEFAULT_LOG_LINES)]);
+      const logcat = await this.safeRun([
+        ...serialArgs,
+        'logcat',
+        '-d',
+        '-t',
+        String(input.maxLogLines || DEFAULT_LOG_LINES),
+      ]);
       evidence.readOnlyCommandsExecuted += 1;
       if (logcat.ok && logcat.stdoutText.trim()) {
         evidence.logcatText = filterLogcat(logcat.stdoutText, input.maxLogLines || DEFAULT_LOG_LINES);
-        evidence.logcat = writeArtifact(artifactRoot, 'logcat', 'txt', Buffer.from(evidence.logcatText || '', 'utf8'), 'text/plain');
+        evidence.logcat = writeArtifact(
+          artifactRoot,
+          'logcat',
+          'txt',
+          Buffer.from(evidence.logcatText || '', 'utf8'),
+          'text/plain',
+        );
       } else if (logcat.error || logcat.stderrText) {
         evidence.errors.push(logcat.error || logcat.stderrText);
       }
@@ -440,9 +469,24 @@ export class ZavorthAndroidAdbBridgeService {
       retentionTtlMs: 15 * 60 * 1000,
     });
     const status = input.status === 'ready' && vision.status === 'redacted' ? 'redacted' : input.status;
-    const decision = resolvePolicyDecision(status, input.hardBlocks, input.mutationRequested, input.approvalRequired, input.blockedByDefault, vision.policy.decision);
-    const planId = input.steps.length > 0 ? input.input.planId || makePlanId(input.input, input.steps) : input.input.planId || null;
-    const policyReason = resolvePolicyReason(status, input.hardBlocks, input.mutationRequested, input.approvalRequired, input.blockedByDefault, input.discovery);
+    const decision = resolvePolicyDecision(
+      status,
+      input.hardBlocks,
+      input.mutationRequested,
+      input.approvalRequired,
+      input.blockedByDefault,
+      vision.policy.decision,
+    );
+    const planId =
+      input.steps.length > 0 ? input.input.planId || makePlanId(input.input, input.steps) : input.input.planId || null;
+    const policyReason = resolvePolicyReason(
+      status,
+      input.hardBlocks,
+      input.mutationRequested,
+      input.approvalRequired,
+      input.blockedByDefault,
+      input.discovery,
+    );
     const selected = input.discovery.selected;
     return {
       contractVersion: ZAVORTH_ANDROID_ADB_BRIDGE_CONTRACT_VERSION,
@@ -471,13 +515,14 @@ export class ZavorthAndroidAdbBridgeService {
       doctor: {
         adbAvailable: input.discovery.available,
         deviceConnected: Boolean(selected),
-        authorization: selected?.state === 'authorized'
-          ? 'authorized'
-          : selected?.state === 'unauthorized'
-            ? 'unauthorized'
-            : selected
-              ? 'unknown'
-              : 'missing',
+        authorization:
+          selected?.state === 'authorized'
+            ? 'authorized'
+            : selected?.state === 'unauthorized'
+              ? 'unauthorized'
+              : selected
+                ? 'unknown'
+                : 'missing',
         screenReadable: Boolean(input.evidence.screenText || input.evidence.uiXml || input.evidence.screenshot),
         packageVisible: Boolean(input.input.packageName || input.evidence.currentActivity),
         activityVisible: Boolean(input.evidence.currentActivity || input.input.activityName),
@@ -492,7 +537,14 @@ export class ZavorthAndroidAdbBridgeService {
       },
       plan: {
         id: planId,
-        status: resolvePlanStatus(input.action, input.steps, input.hardBlocks, input.approvalRequired, input.blockedByDefault, input.input.approvalId),
+        status: resolvePlanStatus(
+          input.action,
+          input.steps,
+          input.hardBlocks,
+          input.approvalRequired,
+          input.blockedByDefault,
+          input.input.approvalId,
+        ),
         steps: input.steps,
         mutationRequested: input.mutationRequested,
         approvalRequired: input.approvalRequired,
@@ -550,32 +602,64 @@ export class ZavorthAndroidAdbBridgeService {
     blockedByDefault: boolean;
   }): ZavorthAndroidAdbReceipt[] {
     const receipts: ZavorthAndroidAdbReceipt[] = [];
-    receipts.push(receipt('adb', input.discovery.available ? 'done' : 'attention', input.discovery.available ? 'adb devices -l completed.' : input.discovery.error || 'ADB is unavailable.'));
+    receipts.push(
+      receipt(
+        'adb',
+        input.discovery.available ? 'done' : 'attention',
+        input.discovery.available ? 'adb devices -l completed.' : input.discovery.error || 'ADB is unavailable.',
+      ),
+    );
     if (input.discovery.selected) {
-      receipts.push(receipt('device', input.discovery.selected.state === 'authorized' ? 'done' : 'attention', `Device ${input.discovery.selected.serial} is ${input.discovery.selected.state}.`));
+      receipts.push(
+        receipt(
+          'device',
+          input.discovery.selected.state === 'authorized' ? 'done' : 'attention',
+          `Device ${input.discovery.selected.serial} is ${input.discovery.selected.state}.`,
+        ),
+      );
     }
     if (input.evidence.screenshot || input.evidence.uiDump || input.evidence.logcat) {
       receipts.push(receipt('artifact', 'done', 'Android evidence was stored as artifact references only.'));
     }
     if (input.steps.length > 0) {
-      receipts.push(receipt(
-        'plan',
-        input.blockedByDefault || input.hardBlocks.matched ? 'blocked' : input.approvalRequired ? 'approval-required' : 'done',
-        input.blockedByDefault
-          ? 'Install/uninstall or destructive ADB plans are blocked by default.'
-          : input.approvalRequired
-            ? 'Device tap, swipe, text, keyevent and intent plans require owner approval.'
-            : 'Read-only Android plan is ready.',
-      ));
+      receipts.push(
+        receipt(
+          'plan',
+          input.blockedByDefault || input.hardBlocks.matched
+            ? 'blocked'
+            : input.approvalRequired
+              ? 'approval-required'
+              : 'done',
+          input.blockedByDefault
+            ? 'Install/uninstall or destructive ADB plans are blocked by default.'
+            : input.approvalRequired
+              ? 'Device tap, swipe, text, keyevent and intent plans require owner approval.'
+              : 'Read-only Android plan is ready.',
+        ),
+      );
     }
     if (input.action === 'device.approve' && input.input.approvalId) {
-      receipts.push(receipt('approval', 'done', 'Approval reference accepted for preview; live mutation remains disabled in Connector registry.'));
+      receipts.push(
+        receipt(
+          'approval',
+          'done',
+          'Approval reference accepted for preview; live mutation remains disabled in Connector registry.',
+        ),
+      );
     }
     if (input.action === 'device.cancel') {
-      receipts.push(receipt('cancel', 'done', 'Device bridge cancel is represented as a safe preview; no mutation command was running.'));
+      receipts.push(
+        receipt(
+          'cancel',
+          'done',
+          'Device bridge cancel is represented as a safe preview; no mutation command was running.',
+        ),
+      );
     }
     if (input.hardBlocks.matched) {
-      receipts.push(receipt('block', 'blocked', input.hardBlocks.reason || 'Device request blocked by hard safety policy.'));
+      receipts.push(
+        receipt('block', 'blocked', input.hardBlocks.reason || 'Device request blocked by hard safety policy.'),
+      );
     }
     return receipts;
   }
@@ -588,7 +672,12 @@ export class ZavorthAndroidAdbBridgeService {
       commandAction('device-inspect', 'Inspect', snapshot.commands.inspect, 'secondary'),
       commandAction('device-plan', 'Plan', snapshot.commands.plan, 'secondary'),
       {
-        ...commandAction('device-approve', 'Approve', snapshot.plan.id ? `/device approve ${snapshot.plan.id}` : snapshot.commands.approve, 'success'),
+        ...commandAction(
+          'device-approve',
+          'Approve',
+          snapshot.plan.id ? `/device approve ${snapshot.plan.id}` : snapshot.commands.approve,
+          'success',
+        ),
         confirmationRequired: true,
         disabled: !snapshot.plan.id || snapshot.status === 'blocked',
       },
@@ -634,10 +723,7 @@ function buildAndroidSetupBlocks(snapshot: ZavorthAndroidAdbSnapshot): SurfaceRe
       kind: 'list',
       title: 'Ativar celular conectado',
       tone: 'warning',
-      items: [
-        ...items,
-        'When ready, "look at my phone" automatically uses read-only screenshots/UI dumps.',
-      ],
+      items: [...items, 'When ready, "look at my phone" automatically uses read-only screenshots/UI dumps.'],
     },
   ];
 }
@@ -667,12 +753,23 @@ class LocalAdbRunner implements ZavorthAdbRunner {
 }
 
 function normalizeAction(value: unknown): ZavorthAndroidAdbAction {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'list' || normalized === 'devices' || normalized === 'device.list') return 'device.list';
-  if (normalized === 'doctor' || normalized === 'android doctor' || normalized === 'device.doctor') return 'device.doctor';
-  if (normalized === 'observe' || normalized === 'inspect' || normalized === 'device.observe' || normalized === 'device.inspect') return 'device.observe';
-  if (normalized === 'screenshot' || normalized === 'capture' || normalized === 'device.screenshot') return 'device.screenshot';
-  if (normalized === 'ui_dump' || normalized === 'uidump' || normalized === 'dump' || normalized === 'device.ui_dump') return 'device.ui_dump';
+  if (normalized === 'doctor' || normalized === 'android doctor' || normalized === 'device.doctor')
+    return 'device.doctor';
+  if (
+    normalized === 'observe' ||
+    normalized === 'inspect' ||
+    normalized === 'device.observe' ||
+    normalized === 'device.inspect'
+  )
+    return 'device.observe';
+  if (normalized === 'screenshot' || normalized === 'capture' || normalized === 'device.screenshot')
+    return 'device.screenshot';
+  if (normalized === 'ui_dump' || normalized === 'uidump' || normalized === 'dump' || normalized === 'device.ui_dump')
+    return 'device.ui_dump';
   if (normalized === 'logcat' || normalized === 'logs' || normalized === 'device.logcat') return 'device.logcat';
   if (normalized === 'plan' || normalized === 'device.plan') return 'device.plan';
   if (normalized === 'approve' || normalized === 'device.approve') return 'device.approve';
@@ -711,14 +808,19 @@ function parseDevices(value: string, selectedSerial: string | null): ZavorthAndr
 }
 
 function normalizeDeviceState(value: string): ZavorthAndroidDeviceState {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'device') return 'authorized';
   if (normalized === 'unauthorized') return 'unauthorized';
   if (normalized === 'offline') return 'offline';
   return 'unknown';
 }
 
-function selectDevice(devices: ZavorthAndroidDeviceInfo[], selectedSerial: string | null): ZavorthAndroidDeviceInfo | null {
+function selectDevice(
+  devices: ZavorthAndroidDeviceInfo[],
+  selectedSerial: string | null,
+): ZavorthAndroidDeviceInfo | null {
   const selected = selectedSerial
     ? devices.find((device) => device.serial === selectedSerial) || null
     : devices.find((device) => device.state === 'authorized') || devices[0] || null;
@@ -736,41 +838,190 @@ function buildPlanSteps(action: ZavorthAndroidAdbAction, input: ZavorthAndroidAd
     return steps;
   }
   if (['device.observe', 'device.screenshot', 'device.ui_dump', 'device.logcat', 'device.doctor'].includes(action)) {
-    if (action === 'device.observe' || action === 'device.doctor') steps.push(planStep('read-current-activity', 'Read current foreground activity', ['shell', 'dumpsys', 'window', 'windows'], null, null));
-    if (action === 'device.observe' || action === 'device.screenshot') steps.push(planStep('capture-screenshot', 'Capture screenshot as artifact reference', ['exec-out', 'screencap', '-p'], null, null));
-    if (action === 'device.observe' || action === 'device.ui_dump') steps.push(planStep('dump-ui', 'Dump Android UI XML as redacted artifact', ['shell', 'uiautomator', 'dump'], null, null));
-    if (action === 'device.logcat') steps.push(planStep('read-logcat', 'Read filtered logcat tail', ['logcat', '-d', '-t'], null, null));
+    if (action === 'device.observe' || action === 'device.doctor')
+      steps.push(
+        planStep(
+          'read-current-activity',
+          'Read current foreground activity',
+          ['shell', 'dumpsys', 'window', 'windows'],
+          null,
+          null,
+        ),
+      );
+    if (action === 'device.observe' || action === 'device.screenshot')
+      steps.push(
+        planStep(
+          'capture-screenshot',
+          'Capture screenshot as artifact reference',
+          ['exec-out', 'screencap', '-p'],
+          null,
+          null,
+        ),
+      );
+    if (action === 'device.observe' || action === 'device.ui_dump')
+      steps.push(
+        planStep('dump-ui', 'Dump Android UI XML as redacted artifact', ['shell', 'uiautomator', 'dump'], null, null),
+      );
+    if (action === 'device.logcat')
+      steps.push(planStep('read-logcat', 'Read filtered logcat tail', ['logcat', '-d', '-t'], null, null));
     return steps;
   }
   if (action !== 'device.plan' && action !== 'device.approve') {
     return steps;
   }
-  const text = [
-    input.objective,
-    input.targetText,
-    input.payload,
-    input.packageName,
-    input.activityName,
-  ].map((entry) => String(entry || '')).join(' ').toLowerCase();
-  if (/\b(tap|toque|tocar|clique|clicar|apertar|pressione|button|botao)\b/.test(text) || input.targetText) {
-    steps.push(planStep('tap', 'Tap approved visible coordinate or element', ['shell', 'input', 'tap', '<x>', '<y>'], input.targetText || null, null));
+
+  // Free-text objective never infers mutation actions. Only structured fields:
+  // targetText → tap, payload → type-text, package/activity → start-intent,
+  // stepKinds / deviceAction enum → explicit action types.
+  const structuredKinds = resolveStructuredPlanStepKinds(input);
+  for (const kind of structuredKinds) {
+    if (kind === 'tap') {
+      steps.push(
+        planStep(
+          'tap',
+          'Tap approved visible coordinate or element',
+          ['shell', 'input', 'tap', '<x>', '<y>'],
+          input.targetText || null,
+          null,
+        ),
+      );
+    } else if (kind === 'swipe') {
+      steps.push(
+        planStep(
+          'swipe',
+          'Swipe approved direction after preview',
+          ['shell', 'input', 'swipe', '<x1>', '<y1>', '<x2>', '<y2>'],
+          input.targetText || null,
+          null,
+        ),
+      );
+    } else if (kind === 'type-text') {
+      steps.push(
+        planStep(
+          'type-text',
+          'Type approved text after preview',
+          ['shell', 'input', 'text', '<redacted>'],
+          input.targetText || null,
+          input.payload || null,
+        ),
+      );
+    } else if (kind === 'keyevent') {
+      steps.push(
+        planStep(
+          'keyevent',
+          'Send approved Android keyevent after preview',
+          ['shell', 'input', 'keyevent', '<key>'],
+          null,
+          input.payload || null,
+        ),
+      );
+    } else if (kind === 'start-intent') {
+      steps.push(
+        planStep(
+          'start-intent',
+          'Start approved package/activity after preview',
+          ['shell', 'am', 'start', '<package>/<activity>'],
+          input.activityName || input.packageName || null,
+          null,
+        ),
+      );
+    } else if (kind === 'install' || kind === 'uninstall') {
+      steps.push(
+        planStep(
+          kind,
+          'Install or uninstall is blocked by default',
+          ['install/uninstall', '<blocked>'],
+          input.packageName || null,
+          null,
+        ),
+      );
+    }
   }
-  if (/\b(swipe|deslize|arraste|rolar|scroll)\b/.test(text)) {
-    steps.push(planStep('swipe', 'Swipe approved direction after preview', ['shell', 'input', 'swipe', '<x1>', '<y1>', '<x2>', '<y2>'], input.targetText || null, null));
-  }
-  if (/\b(type|digite|texto|preencha|input|campo)\b/.test(text) || input.payload) {
-    steps.push(planStep('type-text', 'Type approved text after preview', ['shell', 'input', 'text', '<redacted>'], input.targetText || null, input.payload || input.objective || null));
-  }
-  if (/\b(key|keyevent|enter|back|home|voltar|tecla)\b/.test(text)) {
-    steps.push(planStep('keyevent', 'Send approved Android keyevent after preview', ['shell', 'input', 'keyevent', '<key>'], null, input.payload || null));
-  }
-  if (/\b(intent|activity|atividade|abrir app|open app|start)\b/.test(text) || input.packageName || input.activityName) {
-    steps.push(planStep('start-intent', 'Start approved package/activity after preview', ['shell', 'am', 'start', '<package>/<activity>'], input.activityName || input.packageName || null, null));
-  }
-  if (/\b(install|uninstall|pm install|pm uninstall|instalar|desinstalar)\b/.test(text)) {
-    steps.push(planStep('install', 'Install or uninstall is blocked by default', ['install/uninstall', '<blocked>'], input.packageName || null, null));
+
+  // Free text alone → safe read-only default (screenshot / activity info).
+  if (steps.length === 0) {
+    steps.push(
+      planStep(
+        'capture-screenshot',
+        'Capture screenshot as artifact reference (safe default without structured action)',
+        ['exec-out', 'screencap', '-p'],
+        null,
+        null,
+      ),
+    );
+    steps.push(
+      planStep(
+        'read-current-activity',
+        'Read current foreground activity (safe default without structured action)',
+        ['shell', 'dumpsys', 'window', 'windows'],
+        null,
+        null,
+      ),
+    );
   }
   return dedupeSteps(steps);
+}
+
+const PLAN_STEP_KIND_SET = new Set<ZavorthAndroidAdbPlanStepKind>([
+  'tap',
+  'swipe',
+  'type-text',
+  'keyevent',
+  'start-intent',
+  'install',
+  'uninstall',
+]);
+
+/**
+ * Resolve mutation plan steps from structured fields only.
+ * Free-text objective/screenText is never parsed for action type activation.
+ */
+function resolveStructuredPlanStepKinds(input: ZavorthAndroidAdbInput): ZavorthAndroidAdbPlanStepKind[] {
+  const kinds: ZavorthAndroidAdbPlanStepKind[] = [];
+
+  if (Array.isArray(input.stepKinds)) {
+    for (const entry of input.stepKinds) {
+      const kind = String(entry || '').trim() as ZavorthAndroidAdbPlanStepKind;
+      if (PLAN_STEP_KIND_SET.has(kind)) kinds.push(kind);
+    }
+  }
+
+  const actionEnum = String(input.deviceAction || input.actionType || '')
+    .trim()
+    .toLowerCase();
+  if (actionEnum === 'tap' || actionEnum === 'click') kinds.push('tap');
+  if (actionEnum === 'swipe' || actionEnum === 'scroll') kinds.push('swipe');
+  if (actionEnum === 'type' || actionEnum === 'type-text' || actionEnum === 'text') kinds.push('type-text');
+  if (actionEnum === 'key' || actionEnum === 'keyevent') kinds.push('keyevent');
+  if (actionEnum === 'intent' || actionEnum === 'start-intent' || actionEnum === 'start') kinds.push('start-intent');
+  if (actionEnum === 'install') kinds.push('install');
+  if (actionEnum === 'uninstall') kinds.push('uninstall');
+
+  // Field-driven defaults only when no conflicting structured action enum is set.
+  if (input.targetText) kinds.push('tap');
+  if (input.payload) {
+    const payloadReservedForNonType =
+      actionEnum === 'key' ||
+      actionEnum === 'keyevent' ||
+      actionEnum === 'install' ||
+      actionEnum === 'uninstall' ||
+      actionEnum === 'intent' ||
+      actionEnum === 'start-intent' ||
+      actionEnum === 'start' ||
+      actionEnum === 'swipe' ||
+      actionEnum === 'scroll';
+    if (!payloadReservedForNonType) {
+      kinds.push('type-text');
+    }
+  }
+  if (input.packageName || input.activityName) {
+    const packageReservedForInstall = actionEnum === 'install' || actionEnum === 'uninstall';
+    if (!packageReservedForInstall) {
+      kinds.push('start-intent');
+    }
+  }
+
+  return kinds;
 }
 
 function planStep(
@@ -818,7 +1069,9 @@ function detectHardBlocks(input: ZavorthAndroidAdbInput, evidence: EvidenceBundl
     evidence.uiXml,
     evidence.logcatText,
     evidence.currentActivity,
-  ].map((entry) => String(entry || '')).join('\n');
+  ]
+    .map((entry) => String(entry || ''))
+    .join('\n');
   const matches = SENSITIVE_RULES.filter((rule) => rule.pattern.test(haystack));
   const risks = [...new Set(matches.map((entry) => entry.risk))];
   return {
@@ -840,7 +1093,11 @@ function resolveStatus(input: {
 }): ZavorthAndroidAdbStatus {
   if (input.hardBlocks.matched || input.blockedByDefault) return 'blocked';
   if (input.approvalRequired || input.mutationRequested) return 'approval-required';
-  if ((input.input.live || ['device.status', 'device.list', 'device.doctor'].includes(input.action)) && !input.discovery.available) return 'adb-unavailable';
+  if (
+    (input.input.live || ['device.status', 'device.list', 'device.doctor'].includes(input.action)) &&
+    !input.discovery.available
+  )
+    return 'adb-unavailable';
   if (input.input.live && !input.discovery.selected) return 'no-device';
   if (input.discovery.selected && input.discovery.selected.state === 'unauthorized') return 'unauthorized';
   if (input.discovery.selected && input.discovery.selected.state !== 'authorized') return 'attention';
@@ -872,11 +1129,13 @@ function resolvePolicyReason(
 ): string {
   if (hardBlocks.matched) return hardBlocks.reason || 'Android device request was blocked by hard policy.';
   if (blockedByDefault) return 'ADB install/uninstall and destructive operations are blocked by default.';
-  if (status === 'adb-unavailable') return discovery.error || 'ADB is unavailable; install platform-tools or provide an ADB binary.';
+  if (status === 'adb-unavailable')
+    return discovery.error || 'ADB is unavailable; install platform-tools or provide an ADB binary.';
   if (status === 'no-device') return 'No authorized Android device was found for live observation.';
   if (status === 'unauthorized') return 'Android device is connected but not authorized for ADB.';
   if (approvalRequired) return 'Android tap, swipe, text input, keyevent and intent actions require owner approval.';
-  if (mutationRequested) return 'Android mutation remains preview-only even with an approval reference in Connector registry.';
+  if (mutationRequested)
+    return 'Android mutation remains preview-only even with an approval reference in Connector registry.';
   return 'Read-only Android ADB observation is allowed; live mutation is disabled.';
 }
 
@@ -895,17 +1154,23 @@ function resolvePlanStatus(
   return 'planned';
 }
 
-function nextSafeAction(status: ZavorthAndroidAdbStatus, input: {
-  hardBlocks: HardBlockResult;
-  mutationRequested: boolean;
-  approvalRequired: boolean;
-  discovery: AdbDiscovery;
-}): string {
-  if (input.hardBlocks.matched || status === 'blocked') return 'Use read-only inspect on a non-sensitive app, or ask for a safe explanation.';
-  if (status === 'adb-unavailable') return 'Install Android platform-tools or configure adb, then run /device android doctor.';
+function nextSafeAction(
+  status: ZavorthAndroidAdbStatus,
+  input: {
+    hardBlocks: HardBlockResult;
+    mutationRequested: boolean;
+    approvalRequired: boolean;
+    discovery: AdbDiscovery;
+  },
+): string {
+  if (input.hardBlocks.matched || status === 'blocked')
+    return 'Use read-only inspect on a non-sensitive app, or ask for a safe explanation.';
+  if (status === 'adb-unavailable')
+    return 'Install Android platform-tools or configure adb, then run /device android doctor.';
   if (status === 'no-device') return 'Connect a USB device with ADB enabled, then run /device android doctor.';
   if (status === 'unauthorized') return 'Confirm the ADB authorization prompt on the phone before live observation.';
-  if (input.approvalRequired || input.mutationRequested) return 'Review the preview and attach owner approval before any tap, swipe, text, keyevent or intent.';
+  if (input.approvalRequired || input.mutationRequested)
+    return 'Review the preview and attach owner approval before any tap, swipe, text, keyevent or intent.';
   return 'Observe first, then request /device plan before touching the phone.';
 }
 
@@ -920,7 +1185,11 @@ function inferScreenState(input: {
   hardBlocks: HardBlockResult;
   evidence: EvidenceBundle;
 }): ZavorthAndroidAdbSnapshot['device']['screenState'] {
-  if (input.hardBlocks.risks.some((risk) => risk === 'credential-or-mfa-screen' || risk === 'banking-or-payment' || risk === 'wallet-or-seed')) {
+  if (
+    input.hardBlocks.risks.some(
+      (risk) => risk === 'credential-or-mfa-screen' || risk === 'banking-or-payment' || risk === 'wallet-or-seed',
+    )
+  ) {
     return 'locked-or-sensitive';
   }
   if (input.evidence.screenText || input.evidence.uiXml || input.evidence.screenshot) return 'available';
@@ -937,7 +1206,10 @@ function joinEvidence(input: ZavorthAndroidAdbInput, evidence: EvidenceBundle): 
     evidence.logcatText,
     evidence.currentActivity,
     input.objective,
-  ].map((entry) => String(entry || '').trim()).filter(Boolean).join('\n');
+  ]
+    .map((entry) => String(entry || '').trim())
+    .filter(Boolean)
+    .join('\n');
 }
 
 function filterLogcat(value: string, maxLines: number): string {
@@ -950,9 +1222,11 @@ function filterLogcat(value: string, maxLines: number): string {
 
 function extractCurrentActivity(value: string): string | null {
   const text = String(value || '');
-  return text.match(/\bmCurrentFocus=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
-    || text.match(/\bmFocusedApp=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1]
-    || null;
+  return (
+    text.match(/\bmCurrentFocus=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
+    text.match(/\bmFocusedApp=.*?\s([A-Za-z0-9_.]+\/[A-Za-z0-9_.$]+)/)?.[1] ||
+    null
+  );
 }
 
 function writeArtifact(
@@ -980,12 +1254,15 @@ function writeArtifact(
 }
 
 function makePlanId(input: ZavorthAndroidAdbInput, steps: ZavorthAndroidAdbPlanStep[]): string {
-  const hash = crypto.createHash('sha256')
-    .update(JSON.stringify({
-      serial: input.deviceSerial || null,
-      objective: input.objective || null,
-      steps: steps.map((step) => step.kind),
-    }))
+  const hash = crypto
+    .createHash('sha256')
+    .update(
+      JSON.stringify({
+        serial: input.deviceSerial || null,
+        objective: input.objective || null,
+        steps: steps.map((step) => step.kind),
+      }),
+    )
     .digest('hex');
   return `device-plan-${hash.slice(0, 16)}`;
 }
@@ -1008,7 +1285,8 @@ function mapReceiptStatus(status: ZavorthAndroidAdbReceipt['status']): SurfaceRe
   if (status === 'allow_readonly') return 'allowed';
   if (status === 'allow_with_redaction') return 'allowed_with_redaction';
   if (status === 'require_user_confirmation') return 'require_user_confirmation';
-  if (status === 'require_admin_policy' || status === 'require_owner_approval' || status === 'approval-required') return 'require_admin_policy';
+  if (status === 'require_admin_policy' || status === 'require_owner_approval' || status === 'approval-required')
+    return 'require_admin_policy';
   if (status === 'deny') return 'denied';
   if (status === 'blocked') return 'blocked';
   if (status === 'attention' || status === 'skipped') return 'blocked';
@@ -1032,11 +1310,17 @@ function commandAction(
 }
 
 function hashShort(value: unknown): string {
-  return crypto.createHash('sha256').update(String(value || '')).digest('hex').slice(0, 8);
+  return crypto
+    .createHash('sha256')
+    .update(String(value || ''))
+    .digest('hex')
+    .slice(0, 8);
 }
 
 function safePreview(value: unknown, maxLength: number): string {
-  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  const text = String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return text.length > maxLength ? `${text.slice(0, Math.max(1, maxLength - 3))}...` : text;
 }
 

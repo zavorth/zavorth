@@ -12,7 +12,10 @@ import {
   ZavorthEffortControlService,
   type ZavorthEffortControlService as EffortServiceType,
 } from '../../services/ZavorthEffortControlService.js';
-import type { ZavorthEffortLevel, ZavorthProviderReasoningEffort } from '../../contracts/runtime/ZavorthEffortControlContract.js';
+import type {
+  ZavorthEffortLevel,
+  ZavorthProviderReasoningEffort,
+} from '../../contracts/runtime/ZavorthEffortControlContract.js';
 import { resolveCheapUserStackHop } from '../../services/llm/UserStackCostRoute.js';
 
 export type AgentRunCostRouteClass = 'premium' | 'standard' | 'background';
@@ -27,33 +30,30 @@ export type AgentRunCostEffortRoute = {
   suggestedProviderName: string | null;
   userModelPinned: boolean;
   savingsHint: string;
-  /** Phase 2: where the cheap hop came from (user stack / env / none). */
+  /** Where the cheap hop came from (user stack / env / none). */
   cheapHopSource: string | null;
 };
-
-const BACKGROUND_TEXT = /\b(summariz|resumo|digest|memory update|atualizar mem[oó]ria|title generat|t[ií]tulo|background|cheap route|fast answer)\b/i;
 
 export function classifyAgentRunCostEffortRoute(
   run: UniversalAgentRun,
   request: UniversalAgentRequest,
-  effortService: Pick<EffortServiceType, 'buildSnapshot' | 'toProviderReasoningEffort'> = new ZavorthEffortControlService(),
+  effortService: Pick<
+    EffortServiceType,
+    'buildSnapshot' | 'toProviderReasoningEffort'
+  > = new ZavorthEffortControlService(),
 ): AgentRunCostEffortRoute {
   const userModelPinned = hasUserPinnedModel(run, request);
   const useFastModel = resolveUseFastModel(run, request);
   const effortLevel = resolveEffortLevel(run, request);
-  const providerReasoningEffort = effortLevel
-    ? effortService.toProviderReasoningEffort(effortLevel)
-    : null;
+  const providerReasoningEffort = effortLevel ? effortService.toProviderReasoningEffort(effortLevel) : null;
 
   let routeClass: AgentRunCostRouteClass = 'standard';
   let reason = 'Default standard route for interactive agent turns.';
 
+  // Structured signals only (useFastModel / effortLevel). Free-text never selects cost route class.
   if (useFastModel) {
     routeClass = 'background';
-    reason = 'Kernel/intent marked useFastModel (trivial or zero-tool chat).';
-  } else if (BACKGROUND_TEXT.test(String(request.text || ''))) {
-    routeClass = 'background';
-    reason = 'Request text matches background/digest-style work.';
+    reason = 'Kernel/intent marked useFastModel.';
   } else if (effortLevel === 'ultra-code' || effortLevel === 'high') {
     routeClass = 'premium';
     reason = `Effort level ${effortLevel} prefers deeper synthesis.`;
@@ -62,14 +62,50 @@ export function classifyAgentRunCostEffortRoute(
     reason = 'Low effort maps to cheap worker routing.';
   }
 
-  const suggested = routeClass === 'background' && !userModelPinned
-    ? resolveBackgroundModelSuggestion()
-    : {
-      modelName: null as string | null,
-      providerName: null as string | null,
-      source: null as string | null,
-      hopReason: '',
-    };
+  let suggested =
+    routeClass === 'background' && !userModelPinned
+      ? resolveBackgroundModelSuggestion()
+      : {
+          modelName: null as string | null,
+          providerName: null as string | null,
+          source: null as string | null,
+          hopReason: '',
+        };
+
+  if (routeClass === 'premium' && !userModelPinned) {
+    try {
+      const { LlmRoleRoutingService } =
+        require('../../services/llm/LlmRoleRoutingService.js') as typeof import('../../services/llm/LlmRoleRoutingService.js');
+      const { resolveLlmRoleScopeId } =
+        require('../../contracts/runtime/LlmRoleRoutingContract.js') as typeof import('../../contracts/runtime/LlmRoleRoutingContract.js');
+      const meta = mergeMeta(run, request);
+      const userId = String(meta.userId || (run.metadata as { userId?: string } | undefined)?.userId || '').trim();
+      const surface = String(
+        meta.surface || (run.metadata as { surface?: string } | undefined)?.surface || 'agent-run',
+      ).trim();
+      const scopeId = resolveLlmRoleScopeId({ userId: userId || null, surface });
+      const fallbackProvider = String(meta.providerName || meta.llmProvider || '').trim() || 'gemini';
+      const fallbackModel = String(meta.modelName || meta.llmModel || '').trim() || undefined;
+      const resolved = new LlmRoleRoutingService().resolveRole(
+        scopeId,
+        { effortHigh: true, taskKind: String((request as { taskKind?: string } | undefined)?.taskKind || '') || null },
+        fallbackProvider,
+        fallbackModel,
+        () => true,
+      );
+      if (resolved.role === 'strong' && (resolved.modelName || resolved.providerName)) {
+        suggested = {
+          modelName: resolved.modelName || null,
+          providerName: resolved.providerName || null,
+          source: 'llm_role_strong',
+          hopReason: resolved.reason,
+        };
+        reason = `${reason}; ${resolved.reason}`;
+      }
+    } catch {
+      // optional role routing
+    }
+  }
 
   return {
     class: routeClass,
@@ -81,25 +117,25 @@ export function classifyAgentRunCostEffortRoute(
     suggestedProviderName: suggested.providerName,
     userModelPinned,
     cheapHopSource: suggested.source,
-    savingsHint: routeClass === 'background' && suggested.modelName
-      ? `Background route uses user-stack cheap hop ${suggested.providerName || 'provider'}/${suggested.modelName} (${suggested.source || 'stack'}).`
-      : routeClass === 'background'
-        ? 'Background route active; add a secondary model or fallback providers in your selection for automatic cheap routing.'
-        : 'Premium/standard route keeps the selected model.',
+    savingsHint:
+      routeClass === 'background' && suggested.modelName
+        ? `Background route uses user-stack cheap hop ${suggested.providerName || 'provider'}/${suggested.modelName} (${suggested.source || 'stack'}).`
+        : routeClass === 'premium' && suggested.modelName
+          ? `Premium route may use strong role ${suggested.providerName}/${suggested.modelName}.`
+          : routeClass === 'background'
+            ? 'Background route active; add a secondary model or fallback providers in your selection for automatic cheap routing.'
+            : 'Premium/standard route keeps the selected model.',
   };
 }
 
-export function applyCostEffortRouteToLlmOptions(
-  base: LlmRunOptions,
-  route: AgentRunCostEffortRoute,
-): LlmRunOptions {
+export function applyCostEffortRouteToLlmOptions(base: LlmRunOptions, route: AgentRunCostEffortRoute): LlmRunOptions {
   const next: LlmRunOptions = { ...base };
 
   if (
-    route.class === 'background'
-    && !route.userModelPinned
-    && route.suggestedModelName
-    && !normalizeText(base.modelName)
+    (route.class === 'background' || route.class === 'premium') &&
+    !route.userModelPinned &&
+    route.suggestedModelName &&
+    !normalizeText(base.modelName)
   ) {
     next.modelName = route.suggestedModelName;
     if (route.suggestedProviderName && !normalizeText(base.providerName)) {
@@ -131,7 +167,7 @@ function resolveUseFastModel(run: UniversalAgentRun, request: UniversalAgentRequ
   if (kernelHints?.useFastModel === true || kernelHints?.trivialChat === true) return true;
 
   const natural = recordOrNull(meta.naturalRoute) || recordOrNull(meta.__naturalRoute);
-  if (natural?.useFastModel === true || natural?.isTrivialChat === true) return true;
+  if (natural?.useFastModel === true) return true;
 
   return false;
 }
@@ -139,10 +175,10 @@ function resolveUseFastModel(run: UniversalAgentRun, request: UniversalAgentRequ
 function resolveEffortLevel(run: UniversalAgentRun, request: UniversalAgentRequest): ZavorthEffortLevel | null {
   const meta = mergeMeta(run, request);
   const raw = normalizeText(
-    meta.effortLevel
-    || meta.effort
-    || recordOrNull(meta.effortControl)?.effectiveLevel
-    || recordOrNull(run.metadata.effortControl)?.effectiveLevel,
+    meta.effortLevel ||
+      meta.effort ||
+      recordOrNull(meta.effortControl)?.effectiveLevel ||
+      recordOrNull(run.metadata.effortControl)?.effectiveLevel,
   );
   if (!raw) return null;
   const snapshot = new ZavorthEffortControlService().buildSnapshot({ level: raw });
@@ -168,9 +204,7 @@ function hasUserPinnedModel(run: UniversalAgentRun, request: UniversalAgentReque
   return false;
 }
 
-/**
- * Phase 2: cheap model from user stack (secondary / fallbacks / on-stack env), never product catalog.
- */
+/** Cheap model from user stack (secondary / fallbacks / on-stack env), never product catalog. */
 function resolveBackgroundModelSuggestion(): {
   modelName: string | null;
   providerName: string | null;
@@ -194,9 +228,7 @@ function mergeMeta(run: UniversalAgentRun, request: UniversalAgentRequest): Reco
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function normalizeText(value: unknown): string {

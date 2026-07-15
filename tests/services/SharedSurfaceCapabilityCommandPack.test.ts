@@ -122,8 +122,8 @@ describe('SharedSurfaceCapabilityCommandPack', () => {
 
     const reply = pack.buildCapabilitiesReply();
 
-    expect(reply).toContain('O que o Zavorth consegue fazer');
-    expect(reply).toContain('Base carregada: 2 capacidades');
+    expect(reply).toContain('What Zavorth can do');
+    expect(reply).toContain('Loaded base: 2 capabilities');
     expect(reply).toContain('Task: /task');
     expect(reply).toContain('demo: Plugin Demo');
   });
@@ -134,9 +134,9 @@ describe('SharedSurfaceCapabilityCommandPack', () => {
 
     await pack.handleEnable(ctx as any, 'sandbox once');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('aguardando approval'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('awaiting approval'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Impacto estimado: Sandbox, WSL e Docker Desktop.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Escopo: once.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Scope: once.'));
   });
 
   it('accepts free capability name as primary enable payload', async () => {
@@ -159,12 +159,12 @@ describe('SharedSurfaceCapabilityCommandPack', () => {
     await pack.handleEnable(ctx as any, 'sandbox');
 
     expect(enableCapability).toHaveBeenCalledWith('sandbox', 'telegram-user', 'host');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capability Sandbox habilitada.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capability Sandbox enabled.'));
     expect(ctx.reply).not.toHaveBeenCalledWith(expect.stringMatching(/^Uso:/));
   });
 
   it('disables non-core capabilities and suggests rollback', async () => {
-    const disableCapability = jest.fn(() => ({ notes: 'Desabilitada pelo operador.' }));
+    const disableCapability = jest.fn(() => ({ notes: 'Disabled by operator.' }));
     const pack = buildPack({
       capabilityLifecycleService: {
         getManifest: jest.fn(() => buildManifest({ approvalRequired: false })),
@@ -180,7 +180,7 @@ describe('SharedSurfaceCapabilityCommandPack', () => {
     await pack.handleDisable(ctx as any, 'sandbox');
 
     expect(disableCapability).toHaveBeenCalledWith('sandbox', 'telegram-user');
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capability Sandbox desabilitada.'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Capability Sandbox disabled.'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Rollback: /enable sandbox.'));
   });
 });

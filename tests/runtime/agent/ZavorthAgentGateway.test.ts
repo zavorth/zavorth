@@ -66,32 +66,38 @@ describe('ZavorthAgentGateway', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.run).toEqual(expect.objectContaining({
-      status: 'completed',
-      sessionId: 'session-1',
-      channel: 'web',
-      summary: 'Comparei o workspace e preparei um resumo.',
-    }));
-    expect(result.run.toolExposure).toEqual(expect.objectContaining({
-      mode: 'safe',
-      tools: expect.arrayContaining([
+    expect(result.run).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        sessionId: 'session-1',
+        channel: 'web',
+        summary: 'Comparei o workspace e preparei um resumo.',
+      }),
+    );
+    expect(result.run.toolExposure).toEqual(
+      expect.objectContaining({
+        mode: 'safe',
+        tools: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'read_file',
+            risk: 'safe',
+            requiresApproval: false,
+          }),
+        ]),
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          id: 'read_file',
-          risk: 'safe',
-          requiresApproval: false,
+          kind: 'input',
+          title: 'Request received',
+        }),
+        expect.objectContaining({
+          kind: 'tool',
+          title: 'workspace_compare',
         }),
       ]),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        kind: 'input',
-        title: 'Request received',
-      }),
-      expect.objectContaining({
-        kind: 'tool',
-        title: 'workspace_compare',
-      }),
-    ]));
+    );
     expect(result.run.artifacts).toEqual([
       expect.objectContaining({
         id: 'artifact-1',
@@ -104,7 +110,7 @@ describe('ZavorthAgentGateway', () => {
         text: 'Resumo pronto no Dashboard.',
         port: expect.objectContaining({
           kind: 'web',
-          label: 'Dashboard',
+          label: 'ZavorthControl',
           primary: true,
         }),
       }),
@@ -127,49 +133,57 @@ describe('ZavorthAgentGateway', () => {
 
     const subscription = gateway.attachChannelMeshEventBus(eventBus);
 
-    await eventBus.emit(buildInboundChannelEvent({
-      platform: 'slack',
-      userId: 'U123',
-      chatId: 'C-ops',
-      rawText: 'compare o deploy',
-      messageId: '171234.0001',
-      now: new Date('2026-04-27T13:59:30.000Z'),
-      fields: {
-        channelId: 'C-ops',
-      },
-    }));
+    await eventBus.emit(
+      buildInboundChannelEvent({
+        platform: 'slack',
+        userId: 'U123',
+        chatId: 'C-ops',
+        rawText: 'compare o deploy',
+        messageId: '171234.0001',
+        now: new Date('2026-04-27T13:59:30.000Z'),
+        fields: {
+          channelId: 'C-ops',
+        },
+      }),
+    );
 
     expect(executor).toHaveBeenCalledTimes(1);
-    expect(executor.mock.calls[0]?.[0].request).toEqual(expect.objectContaining({
-      userId: 'U123',
-      sessionId: 'slack:C-ops',
-      channel: 'api',
-      text: 'compare o deploy',
-      metadata: expect.objectContaining({
-        source: 'channel-mesh',
-        platform: 'slack',
-        normalizedInboundMessage: true,
-        channelMeshBridge: expect.objectContaining({
-          source: 'ZavorthAgentGateway.attachChannelMeshEventBus',
-          receivedAt: '2026-04-27T14:00:00.000Z',
+    expect(executor.mock.calls[0]?.[0].request).toEqual(
+      expect.objectContaining({
+        userId: 'U123',
+        sessionId: 'slack:C-ops',
+        channel: 'api',
+        text: 'compare o deploy',
+        metadata: expect.objectContaining({
+          source: 'channel-mesh',
+          platform: 'slack',
+          normalizedInboundMessage: true,
+          channelMeshBridge: expect.objectContaining({
+            source: 'ZavorthAgentGateway.attachChannelMeshEventBus',
+            receivedAt: '2026-04-27T14:00:00.000Z',
+          }),
         }),
       }),
-    }));
-    expect(gateway.buildSnapshot({ activeSessionId: 'slack:C-ops' }).activeRun).toEqual(expect.objectContaining({
-      channel: 'api',
-      sessionId: 'slack:C-ops',
-      input: 'compare o deploy',
-    }));
+    );
+    expect(gateway.buildSnapshot({ activeSessionId: 'slack:C-ops' }).activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'api',
+        sessionId: 'slack:C-ops',
+        input: 'compare o deploy',
+      }),
+    );
 
     subscription.detach();
-    await eventBus.emit(buildInboundChannelEvent({
-      platform: 'slack',
-      userId: 'U123',
-      chatId: 'C-ops',
-      rawText: 'ignorar depois do detach',
-      messageId: '171234.0002',
-      now: new Date('2026-04-27T14:01:00.000Z'),
-    }));
+    await eventBus.emit(
+      buildInboundChannelEvent({
+        platform: 'slack',
+        userId: 'U123',
+        chatId: 'C-ops',
+        rawText: 'ignorar depois do detach',
+        messageId: '171234.0002',
+        now: new Date('2026-04-27T14:01:00.000Z'),
+      }),
+    );
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(gateway.listRuns()).toHaveLength(1);
@@ -212,20 +226,19 @@ describe('ZavorthAgentGateway', () => {
       requestedTools: ['selfmod.preview'],
     });
 
-    expect(createGoalPreview).toHaveBeenCalledWith(
-      'proponha uma auto melhoria segura no boot',
-      'operator',
-    );
+    expect(createGoalPreview).toHaveBeenCalledWith('proponha uma auto melhoria segura no boot', 'operator');
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Preview de bootstrap preparado.');
-    expect(result.run.metadata).toEqual(expect.objectContaining({
-      selfModificationPreview: expect.objectContaining({
-        previewId: 'bootstrap-selfmod-preview-1',
-        previewFirst: true,
-        applyServiceCalled: false,
-        rollbackServiceCalled: false,
+    expect(result.run.metadata).toEqual(
+      expect.objectContaining({
+        selfModificationPreview: expect.objectContaining({
+          previewId: 'bootstrap-selfmod-preview-1',
+          previewFirst: true,
+          applyServiceCalled: false,
+          rollbackServiceCalled: false,
+        }),
       }),
-    }));
+    );
     expect(result.replies[0].text).toContain('Apply nao foi executado.');
   });
 
@@ -255,16 +268,20 @@ describe('ZavorthAgentGateway', () => {
 
     const deliveries = await memoryPort.sendAll(result.replies);
 
-    expect(result.run).toEqual(expect.objectContaining({
-      id: expect.stringMatching(/^agent-run-/),
-      requestId: 'request-identity',
-      traceId: 'trace-dashboard',
-      sessionId: 'session-identity',
-    }));
-    expect(result.run.metadata).toEqual(expect.objectContaining({
-      traceId: 'trace-dashboard',
-      adapterSource: 'universal-agent-runtime',
-    }));
+    expect(result.run).toEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^agent-run-/),
+        requestId: 'request-identity',
+        traceId: 'trace-dashboard',
+        sessionId: 'session-identity',
+      }),
+    );
+    expect(result.run.metadata).toEqual(
+      expect.objectContaining({
+        traceId: 'trace-dashboard',
+        adapterSource: 'universal-agent-runtime',
+      }),
+    );
     expect(deliveries).toEqual([
       expect.objectContaining({
         runId: result.run.id,
@@ -338,18 +355,19 @@ describe('ZavorthAgentGateway', () => {
     });
 
     expect(snapshot.activeRun?.id).toBe(second.run.id);
-    expect(snapshot.runObservatory).toEqual(expect.objectContaining({
-      query: expect.objectContaining({
-        traceId: 'trace-observatory-b',
-        status: 'failed',
+    expect(snapshot.runObservatory).toEqual(
+      expect.objectContaining({
+        query: expect.objectContaining({
+          traceId: 'trace-observatory-b',
+          status: 'failed',
+        }),
+        totalRuns: 2,
+        matchedRuns: 1,
       }),
-      totalRuns: 2,
-      matchedRuns: 1,
-    }));
-    expect(snapshot.runObservatory.indexes.sessionIds).toEqual(expect.arrayContaining([
-      'session-observatory-a',
-      'session-observatory-b',
-    ]));
+    );
+    expect(snapshot.runObservatory.indexes.sessionIds).toEqual(
+      expect.arrayContaining(['session-observatory-a', 'session-observatory-b']),
+    );
   });
 
   it('keeps imported capability trust metadata observable in gateway snapshots', async () => {
@@ -409,36 +427,40 @@ describe('ZavorthAgentGateway', () => {
       activeRunId: result.run.id,
     });
 
-    expect(snapshot.activeRun?.metadata.importedCapabilityTrust).toEqual(expect.objectContaining({
-      skill: {
-        trusted: 0,
-        safe: 1,
-        quarantined: 1,
-      },
-      mcp: {
-        trusted: 1,
-        safe: 0,
-        quarantined: 0,
-      },
-      total: {
-        trusted: 1,
-        safe: 1,
-        quarantined: 1,
-      },
-      hasQuarantined: true,
-      blockedTools: ['imported-skill-draft'],
-      toolExposureGatedByImportedCapabilityTrust: true,
-    }));
-    expect((snapshot.activeRun?.metadata.importedCapabilityTrust as any).riskReports).toEqual(expect.arrayContaining([
+    expect(snapshot.activeRun?.metadata.importedCapabilityTrust).toEqual(
       expect.objectContaining({
-        id: 'imported-skill-draft',
-        trustState: 'quarantined',
+        skill: {
+          trusted: 0,
+          safe: 1,
+          quarantined: 1,
+        },
+        mcp: {
+          trusted: 1,
+          safe: 0,
+          quarantined: 0,
+        },
+        total: {
+          trusted: 1,
+          safe: 1,
+          quarantined: 1,
+        },
+        hasQuarantined: true,
+        blockedTools: ['imported-skill-draft'],
+        toolExposureGatedByImportedCapabilityTrust: true,
       }),
-      expect.objectContaining({
-        id: 'zavorth-core',
-        trustState: 'trusted',
-      }),
-    ]));
+    );
+    expect((snapshot.activeRun?.metadata.importedCapabilityTrust as any).riskReports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'imported-skill-draft',
+          trustState: 'quarantined',
+        }),
+        expect.objectContaining({
+          id: 'zavorth-core',
+          trustState: 'trusted',
+        }),
+      ]),
+    );
   });
 
   it('suppresses executor artifacts when the response decision says artifacts are not allowed', async () => {
@@ -480,12 +502,14 @@ describe('ZavorthAgentGateway', () => {
 
     expect(result.run.status).toBe('completed');
     expect(result.run.artifacts).toEqual([]);
-    expect(result.run.metadata).toEqual(expect.objectContaining({
-      artifactPolicySuppressed: {
-        count: 1,
-        reason: 'conversation-response-does-not-create-artifact',
-      },
-    }));
+    expect(result.run.metadata).toEqual(
+      expect.objectContaining({
+        artifactPolicySuppressed: {
+          count: 1,
+          reason: 'conversation-response-does-not-create-artifact',
+        },
+      }),
+    );
   });
 
   it('stops before sensitive tools and opens an approval request', async () => {
@@ -514,19 +538,23 @@ describe('ZavorthAgentGateway', () => {
         status: 'pending',
       }),
     ]);
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'approval',
+          status: 'pending',
+        }),
+      ]),
+    );
+    expect(result.replies[0]).toEqual(
       expect.objectContaining({
-        kind: 'approval',
-        status: 'pending',
+        text: expect.stringContaining('Capability Negotiation'),
+        port: expect.objectContaining({
+          kind: 'cli',
+          label: 'Terminal',
+        }),
       }),
-    ]));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: expect.stringContaining('Capability Negotiation'),
-      port: expect.objectContaining({
-        kind: 'cli',
-        label: 'Terminal',
-      }),
-    }));
+    );
     expect(result.replies[0].text).toContain('Approval requerido: true');
   });
 
@@ -562,28 +590,34 @@ describe('ZavorthAgentGateway', () => {
     const approved = await gateway.approve(approvalId);
 
     expect(executor).toHaveBeenCalledTimes(1);
-    expect(approved).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'approved',
-      resumed: true,
-    }));
+    expect(approved).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'approved',
+        resumed: true,
+      }),
+    );
     expect(approved?.run.status).toBe('completed');
     expect(approved?.run.approvals[0].status).toBe('approved');
-    expect(approved?.replies[0]).toEqual(expect.objectContaining({
-      text: 'Aprovado. Continuei a execucao com seguranca.',
-    }));
+    expect(approved?.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'Aprovado. Continuei a execucao com seguranca.',
+      }),
+    );
   });
 
   it('resumes approved Echo Hands through the existing tool runtime without a parallel executor', async () => {
     const toolRuntime = {
       isAvailable: jest.fn(() => true),
       hasTool: jest.fn((toolName: string) => toolName === 'echo_hands'),
-      executeTool: jest.fn().mockResolvedValue(JSON.stringify({
-        ok: true,
-        action: 'open_app',
-        message: 'App iniciado: notepad.',
-        approvalRequired: false,
-      })),
+      executeTool: jest.fn().mockResolvedValue(
+        JSON.stringify({
+          ok: true,
+          action: 'open_app',
+          message: 'App iniciado: notepad.',
+          approvalRequired: false,
+        }),
+      ),
     };
     const gateway = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T13:15:00.000Z'),
@@ -608,27 +642,34 @@ describe('ZavorthAgentGateway', () => {
 
     const approved = await gateway.approve(pending.run.approvals[0].id);
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('echo_hands', expect.objectContaining({
-      action: 'open_app',
-      args: { app: 'notepad' },
-      trusted: true,
-      metadata: expect.objectContaining({
-        governedBy: 'ToolExposurePolicy',
-        sessionId: 'session-echo-tool-runtime',
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'echo_hands',
+      expect.objectContaining({
+        action: 'open_app',
+        args: { app: 'notepad' },
+        trusted: true,
+        metadata: expect.objectContaining({
+          governedBy: 'ToolExposurePolicy',
+          sessionId: 'session-echo-tool-runtime',
+        }),
       }),
-    }));
-    expect(approved).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'approved',
-      resumed: true,
-      queued: false,
-    }));
+    );
+    expect(approved).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'approved',
+        resumed: true,
+        queued: false,
+      }),
+    );
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.summary).toBe('Echo Hands executado via tool runtime governado.');
-    expect(approved?.workflowJob).toEqual(expect.objectContaining({
-      status: 'completed',
-      attempts: 1,
-    }));
+    expect(approved?.run.summary).toBe('Echo Hands executed via governed tool runtime.');
+    expect(approved?.workflowJob).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        attempts: 1,
+      }),
+    );
   });
 
   it('approves a natural swarm proposal through the existing workflow and swarm service', async () => {
@@ -642,17 +683,13 @@ describe('ZavorthAgentGateway', () => {
         maxDepth: 2,
         maxLeafRoles: 3,
         rootNodes: [],
-        leafRoles: [
-          { id: 'planner', label: 'Planner', systemPrompt: 'Plan.' },
-        ],
+        leafRoles: [{ id: 'planner', label: 'Planner', systemPrompt: 'Plan.' }],
         totalNodes: 1,
         traceId: input.hierarchyId,
         runId: input.hierarchyId,
         sessionId: null,
         execution_lifecycle: [],
-        subagentReceipts: [
-          { roleId: 'planner', status: 'planned' },
-        ],
+        subagentReceipts: [{ roleId: 'planner', status: 'planned' }],
       },
       snapshot: {
         swarmId: input.hierarchyId,
@@ -666,9 +703,7 @@ describe('ZavorthAgentGateway', () => {
         finishedAt: '2026-04-26T13:18:01.000Z',
         synthesizedOutput: 'Swarm finalizou a revisao.',
         execution_lifecycle: [],
-        subagentReceipts: [
-          { roleId: 'planner', status: 'completed' },
-        ],
+        subagentReceipts: [{ roleId: 'planner', status: 'completed' }],
       },
     }));
     const gateway = new ZavorthAgentGateway({
@@ -688,31 +723,39 @@ describe('ZavorthAgentGateway', () => {
     const approved = await gateway.approve(pending.run.approvals[0].id);
 
     expect(executor).not.toHaveBeenCalled();
-    expect(launchHierarchyAndWait).toHaveBeenCalledWith(expect.objectContaining({
-      hierarchyId: pending.run.id,
-      objective: 'monte uma equipe de agentes para revisar esta arquitetura',
-      requestedBy: 'grey',
-      surface: 'telegram',
-    }));
+    expect(launchHierarchyAndWait).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hierarchyId: pending.run.id,
+        objective: 'monte uma equipe de agentes para revisar esta arquitetura',
+        requestedBy: 'grey',
+        surface: 'telegram',
+      }),
+    );
     expect(launchHierarchy).not.toHaveBeenCalled();
-    expect(approved).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'approved',
-      resumed: true,
-      queued: false,
-    }));
+    expect(approved).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'approved',
+        resumed: true,
+        queued: false,
+      }),
+    );
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.run.metadata.swarmExecutionResult).toEqual(expect.objectContaining({
-      source: 'DynamicHierarchySwarmService',
-      launchServiceCalled: true,
-      status: 'completed',
-      asyncCompletionReturned: true,
-    }));
+    expect(approved?.run.metadata.swarmExecutionResult).toEqual(
+      expect.objectContaining({
+        source: 'DynamicHierarchySwarmService',
+        launchServiceCalled: true,
+        status: 'completed',
+        asyncCompletionReturned: true,
+      }),
+    );
     expect(approved?.replies[0].text).toContain('Swarm finalizou a revisao.');
-    expect(approved?.workflowJob).toEqual(expect.objectContaining({
-      status: 'completed',
-      attempts: 1,
-    }));
+    expect(approved?.workflowJob).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        attempts: 1,
+      }),
+    );
   });
 
   it('rejects a pending universal approval without calling the executor', async () => {
@@ -734,32 +777,38 @@ describe('ZavorthAgentGateway', () => {
     const rejected = await gateway.reject(pending.run.id);
 
     expect(executor).not.toHaveBeenCalled();
-    expect(rejected).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'rejected',
-      resumed: false,
-    }));
+    expect(rejected).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'rejected',
+        resumed: false,
+      }),
+    );
     expect(rejected?.run.status).toBe('cancelled');
     expect(rejected?.run.approvals[0].status).toBe('rejected');
-    expect(rejected?.run.metadata.lifecycleDefense).toEqual(expect.objectContaining({
-      cancelled: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'cancelled',
-        risk: 'danger',
-        blocked: false,
-        approvalRequiredToolIds: ['write_file'],
-      }),
-    }));
-    expect(rejected?.run.events).toEqual(expect.arrayContaining([
+    expect(rejected?.run.metadata.lifecycleDefense).toEqual(
       expect.objectContaining({
-        kind: 'status',
-        title: 'Defense hook cancelled',
-        status: 'done',
-        metadata: expect.objectContaining({
-          source: 'AgentRunAuditHooks',
+        cancelled: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'cancelled',
+          risk: 'danger',
+          blocked: false,
+          approvalRequiredToolIds: ['write_file'],
         }),
       }),
-    ]));
+    );
+    expect(rejected?.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'status',
+          title: 'Defense hook cancelled',
+          status: 'done',
+          metadata: expect.objectContaining({
+            source: 'AgentRunAuditHooks',
+          }),
+        }),
+      ]),
+    );
   });
 
   it('persists run history through the configured store', async () => {
@@ -788,11 +837,13 @@ describe('ZavorthAgentGateway', () => {
       runStore: new JsonAgentRunStore({ filePath }),
     });
 
-    expect(secondGateway.getRun(result.run.id)).toEqual(expect.objectContaining({
-      id: result.run.id,
-      sessionId: 'session-persisted',
-      summary: 'Run persistido.',
-    }));
+    expect(secondGateway.getRun(result.run.id)).toEqual(
+      expect.objectContaining({
+        id: result.run.id,
+        sessionId: 'session-persisted',
+        summary: 'Run persistido.',
+      }),
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -800,53 +851,63 @@ describe('ZavorthAgentGateway', () => {
   it('hydrates legacy persisted runs with a derived trace id', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-agent-legacy-runs-'));
     const filePath = path.join(dir, 'runs.json');
-    fs.writeFileSync(filePath, `${JSON.stringify({
-      version: 'zavorth-universal-agent-runs/1',
-      savedAt: '2026-04-26T13:35:00.000Z',
-      runs: [
+    fs.writeFileSync(
+      filePath,
+      `${JSON.stringify(
         {
-          id: 'run-legacy',
-          requestId: 'request-legacy',
-          sessionId: 'session-legacy',
-          userId: 'grey',
-          channel: 'web',
-          title: 'Run legado',
-          input: 'pedido antigo',
-          workspace: null,
-          status: 'completed',
-          createdAt: '2026-04-26T13:35:00.000Z',
-          updatedAt: '2026-04-26T13:35:00.000Z',
-          summary: 'Run salvo antes de traceId ser canonico.',
-          events: [],
-          toolExposure: {
-            mode: 'unknown',
-            summary: 'Sem ferramentas registradas.',
-            tools: [],
-          },
-          replyPorts: [],
-          modelProfile: {
-            providerLabel: 'Zavorth',
-            modelLabel: 'modelo legado',
-            routingPolicy: 'unknown',
-          },
-          approvals: [],
-          artifacts: [],
-          memorySignals: [],
-          metadata: {},
+          version: 'zavorth-universal-agent-runs/1',
+          savedAt: '2026-04-26T13:35:00.000Z',
+          runs: [
+            {
+              id: 'run-legacy',
+              requestId: 'request-legacy',
+              sessionId: 'session-legacy',
+              userId: 'grey',
+              channel: 'web',
+              title: 'Run legado',
+              input: 'pedido antigo',
+              workspace: null,
+              status: 'completed',
+              createdAt: '2026-04-26T13:35:00.000Z',
+              updatedAt: '2026-04-26T13:35:00.000Z',
+              summary: 'Run salvo antes de traceId ser canonico.',
+              events: [],
+              toolExposure: {
+                mode: 'unknown',
+                summary: 'Sem ferramentas registradas.',
+                tools: [],
+              },
+              replyPorts: [],
+              modelProfile: {
+                providerLabel: 'Zavorth',
+                modelLabel: 'modelo legado',
+                routingPolicy: 'unknown',
+              },
+              approvals: [],
+              artifacts: [],
+              memorySignals: [],
+              metadata: {},
+            },
+          ],
         },
-      ],
-    }, null, 2)}\n`, 'utf8');
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
 
     const gateway = new ZavorthAgentGateway({
       runStore: new JsonAgentRunStore({ filePath }),
     });
 
-    expect(gateway.getRun('run-legacy')).toEqual(expect.objectContaining({
-      traceId: 'web:session-legacy:request-legacy',
-      metadata: expect.objectContaining({
+    expect(gateway.getRun('run-legacy')).toEqual(
+      expect.objectContaining({
         traceId: 'web:session-legacy:request-legacy',
+        metadata: expect.objectContaining({
+          traceId: 'web:session-legacy:request-legacy',
+        }),
       }),
-    }));
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -874,19 +935,21 @@ describe('ZavorthAgentGateway', () => {
       },
     });
     const approvalId = pending.run.approvals[0].id;
-    const resumedExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(({ request, run }) => ({
-      status: 'completed',
-      summary: `Workflow duravel retomado para ${request.text}.`,
-      replyText: 'Retomei a execucao depois do restart.',
-      events: [
-        {
-          kind: 'tool',
-          title: 'durable-resume',
-          detail: run.id,
-          status: 'done',
-        },
-      ],
-    }));
+    const resumedExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(
+      ({ request, run }) => ({
+        status: 'completed',
+        summary: `Workflow duravel retomado para ${request.text}.`,
+        replyText: 'Retomei a execucao depois do restart.',
+        events: [
+          {
+            kind: 'tool',
+            title: 'durable-resume',
+            detail: run.id,
+            status: 'done',
+          },
+        ],
+      }),
+    );
     const secondGateway = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T13:45:00.000Z'),
       idFactory: createIdFactory(),
@@ -898,22 +961,28 @@ describe('ZavorthAgentGateway', () => {
     const approved = await secondGateway.approve(approvalId);
 
     expect(resumedExecutor).toHaveBeenCalledTimes(1);
-    expect(approved).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'approved',
-      resumed: true,
-      queued: false,
-    }));
+    expect(approved).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'approved',
+        resumed: true,
+        queued: false,
+      }),
+    );
     expect(approved?.run.status).toBe('completed');
-    expect(approved?.workflowJob).toEqual(expect.objectContaining({
-      runId: pending.run.id,
-      approvalId,
-      status: 'completed',
-      attempts: 1,
-    }));
-    expect(approved?.replies[0]).toEqual(expect.objectContaining({
-      text: 'Retomei a execucao depois do restart.',
-    }));
+    expect(approved?.workflowJob).toEqual(
+      expect.objectContaining({
+        runId: pending.run.id,
+        approvalId,
+        status: 'completed',
+        attempts: 1,
+      }),
+    );
+    expect(approved?.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'Retomei a execucao depois do restart.',
+      }),
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -946,17 +1015,21 @@ describe('ZavorthAgentGateway', () => {
 
     const approved = await secondGateway.approve(approvalId);
 
-    expect(approved).toEqual(expect.objectContaining({
-      ok: true,
-      decision: 'approved',
-      resumed: false,
-      queued: true,
-    }));
+    expect(approved).toEqual(
+      expect.objectContaining({
+        ok: true,
+        decision: 'approved',
+        resumed: false,
+        queued: true,
+      }),
+    );
     expect(approved?.run.status).toBe('queued');
-    expect(approved?.workflowJob).toEqual(expect.objectContaining({
-      status: 'queued',
-      attempts: 0,
-    }));
+    expect(approved?.workflowJob).toEqual(
+      expect.objectContaining({
+        status: 'queued',
+        attempts: 0,
+      }),
+    );
 
     const workerExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
@@ -976,10 +1049,12 @@ describe('ZavorthAgentGateway', () => {
     expect(workerExecutor).toHaveBeenCalledTimes(1);
     expect(processed).toHaveLength(1);
     expect(processed[0].run.status).toBe('completed');
-    expect(workerGateway.listWorkflowJobs()[0]).toEqual(expect.objectContaining({
-      status: 'completed',
-      attempts: 1,
-    }));
+    expect(workerGateway.listWorkflowJobs()[0]).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        attempts: 1,
+      }),
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -1011,15 +1086,17 @@ describe('ZavorthAgentGateway', () => {
     const release = new Promise<void>((resolve) => {
       releaseExecutor = resolve;
     });
-    const workerAExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(async () => {
-      startedExecutor();
-      await release;
-      return {
-        status: 'completed',
-        summary: 'Worker A concluiu.',
-        replyText: 'Worker A concluiu.',
-      };
-    });
+    const workerAExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(
+      async () => {
+        startedExecutor();
+        await release;
+        return {
+          status: 'completed',
+          summary: 'Worker A concluiu.',
+          replyText: 'Worker A concluiu.',
+        };
+      },
+    );
     const workerBExecutor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
       summary: 'Worker B nao deveria executar.',
@@ -1095,12 +1172,14 @@ describe('ZavorthAgentGateway', () => {
     const failed = await failingWorker.processQueuedWorkflows();
     expect(failed).toHaveLength(1);
     expect(failed[0].run.status).toBe('queued');
-    expect(failingWorker.listWorkflowJobs()[0]).toEqual(expect.objectContaining({
-      status: 'queued',
-      attempts: 1,
-      backoffMs: 1000,
-      lastError: 'falha transiente',
-    }));
+    expect(failingWorker.listWorkflowJobs()[0]).toEqual(
+      expect.objectContaining({
+        status: 'queued',
+        attempts: 1,
+        backoffMs: 1000,
+        lastError: 'falha transiente',
+      }),
+    );
 
     const earlyWorker = new ZavorthAgentGateway({
       now: () => new Date('2026-04-26T14:20:01.500Z'),
@@ -1137,10 +1216,12 @@ describe('ZavorthAgentGateway', () => {
     expect(retryExecutor).toHaveBeenCalledTimes(1);
     expect(retried).toHaveLength(1);
     expect(retried[0].run.status).toBe('completed');
-    expect(retryWorker.listWorkflowJobs()[0]).toEqual(expect.objectContaining({
-      status: 'completed',
-      attempts: 2,
-    }));
+    expect(retryWorker.listWorkflowJobs()[0]).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        attempts: 2,
+      }),
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -1171,10 +1252,12 @@ describe('ZavorthAgentGateway', () => {
       limit: 1,
     });
 
-    expect(claimedByOldWorker).toEqual(expect.objectContaining({
-      status: 'running',
-      leaseOwner: 'old-worker',
-    }));
+    expect(claimedByOldWorker).toEqual(
+      expect.objectContaining({
+        status: 'running',
+        leaseOwner: 'old-worker',
+      }),
+    );
 
     const executor = jest.fn<ReturnType<UniversalAgentExecutor>, Parameters<UniversalAgentExecutor>>(() => ({
       status: 'completed',
@@ -1196,10 +1279,12 @@ describe('ZavorthAgentGateway', () => {
     expect(executor).toHaveBeenCalledTimes(1);
     expect(recovered).toHaveLength(1);
     expect(recovered[0].run.status).toBe('completed');
-    expect(recoveryWorker.listWorkflowJobs()[0]).toEqual(expect.objectContaining({
-      status: 'completed',
-      attempts: 2,
-    }));
+    expect(recoveryWorker.listWorkflowJobs()[0]).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        attempts: 2,
+      }),
+    );
 
     fs.rmSync(dir, { recursive: true, force: true });
   });

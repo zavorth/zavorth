@@ -5,16 +5,11 @@ describe('AdaptivePersonaEngine', () => {
   const engine = new AdaptivePersonaEngine();
 
   // Helper to create mock classifications
-  function mockClassification(
-    category: IntentClassification['category'],
-    confidence: number,
-    isTrivialChat = false,
-  ): IntentClassification {
+  function mockClassification(category: IntentClassification['category'], confidence: number): IntentClassification {
     return {
       category,
       confidence,
       reason: 'test',
-      isTrivialChat,
       isHardDecision: false,
       downgradedBy: [],
       secondPass: {
@@ -70,9 +65,9 @@ describe('AdaptivePersonaEngine', () => {
     });
   });
 
-  describe('trivial chat', () => {
-    it('always returns conversational for trivial chat', () => {
-      const result = engine.resolve(mockClassification('conversation', 0.95, true));
+  describe('conversation category', () => {
+    it('returns conversational for high-confidence conversation', () => {
+      const result = engine.resolve(mockClassification('conversation', 0.95));
       expect(result.persona.type).toBe('conversational');
       expect(result.isAmbiguous).toBe(false);
     });

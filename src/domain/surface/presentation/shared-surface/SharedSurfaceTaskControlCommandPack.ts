@@ -1,17 +1,11 @@
 import type { IMessageContext } from '../../../../contracts/IMessageBroker.js';
 import type { Task } from '../../../../contracts/TaskContract.js';
 import { StateMachine } from '../../../../orchestrator/StateMachine.js';
-import type {
-  SurfaceControllerContext,
-  SurfaceTaskDispatcherLike,
-} from '../../../../services/SurfaceRuntime.js';
+import type { SurfaceControllerContext, SurfaceTaskDispatcherLike } from '../../../../services/SurfaceRuntime.js';
 import { RecentTaskResolver } from '../../../../services/RecentTaskResolver.js';
 
 import type { SharedSurfaceWorkflowGovernanceCommandPack } from './SharedSurfaceWorkflowGovernanceCommandPack.js';
-import {
-  extractRecentTaskContextKeywords,
-  normalizeNaturalTaskText,
-} from './SharedSurfaceTaskNaturalLanguage.js';
+import { extractRecentTaskContextKeywords, normalizeNaturalTaskText } from './SharedSurfaceTaskNaturalLanguage.js';
 
 type TaskApprovalController = {
   handleApproval: (ctx: SurfaceControllerContext, args: string) => Promise<void>;
@@ -68,9 +62,8 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleApproval(surfaceCtx, args);
-    } catch (error: unknown) {await ctx.reply(
-        `Could not approve that task right now.\n\nReason: ${getErrorMessage(error)}`,
-      );
+    } catch (error: unknown) {
+      await ctx.reply(`Could not approve that task right now.\n\nReason: ${getErrorMessage(error)}`);
     }
   }
 
@@ -85,7 +78,7 @@ export class SharedSurfaceTaskControlCommandPack {
       .split(/\s+/)
       .filter(Boolean)[0];
     if (!taskId) {
-      await ctx.reply('Use /reject <task_id>.');
+      await ctx.reply('Use /reject, /reject 1, or tap Reject — not a long id.');
       return;
     }
 
@@ -97,9 +90,8 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskApprovalController.handleRejection(surfaceCtx, taskId);
-    } catch (error: unknown) {await ctx.reply(
-        `Could not reject that task right now.\n\nReason: ${getErrorMessage(error)}`,
-      );
+    } catch (error: unknown) {
+      await ctx.reply(`Could not reject that task right now.\n\nReason: ${getErrorMessage(error)}`);
     }
   }
 
@@ -131,9 +123,8 @@ export class SharedSurfaceTaskControlCommandPack {
 
     try {
       await this.deps.taskExecutionController.handleUndo(surfaceCtx, task.task_id);
-    } catch (error: unknown) {await ctx.reply(
-        `Could not undo that task right now.\n\nReason: ${getErrorMessage(error)}`,
-      );
+    } catch (error: unknown) {
+      await ctx.reply(`Could not undo that task right now.\n\nReason: ${getErrorMessage(error)}`);
     }
   }
 
@@ -202,10 +193,7 @@ export class SharedSurfaceTaskControlCommandPack {
     );
   }
 
-  public resolveTaskReference(
-    ref: string,
-    ctx: Pick<IMessageContext, 'userId'>,
-  ): Task | null {
+  public resolveTaskReference(ref: string, ctx: Pick<IMessageContext, 'userId'>): Task | null {
     const normalized = String(ref || '').trim();
     if (!normalized || !this.deps.taskManager) {
       return null;
@@ -226,10 +214,7 @@ export class SharedSurfaceTaskControlCommandPack {
     return match || null;
   }
 
-  public resolveRecentTaskReference(
-    ctx: Pick<IMessageContext, 'userId'>,
-    keywords: string[],
-  ): Task | null {
+  public resolveRecentTaskReference(ctx: Pick<IMessageContext, 'userId'>, keywords: string[]): Task | null {
     if (!this.deps.taskManager?.getRecentTasks) {
       return null;
     }
@@ -325,10 +310,7 @@ export class SharedSurfaceTaskControlCommandPack {
     return score;
   }
 
-  private resolveRecentTaskApprovalId(
-    ctx: Pick<IMessageContext, 'userId'>,
-    keywords: string[],
-  ): string | null {
+  private resolveRecentTaskApprovalId(ctx: Pick<IMessageContext, 'userId'>, keywords: string[]): string | null {
     if (!this.deps.taskManager?.getRecentTasks) {
       return null;
     }
@@ -357,15 +339,7 @@ export class SharedSurfaceTaskControlCommandPack {
 
   private scoreUndoTaskMatch(task: Task, keywords: string[]): number {
     const haystack = normalizeNaturalTaskText(
-      [
-        task.raw_message,
-        task.result_summary,
-        task.error_summary,
-        task.intent,
-        task.target,
-      ]
-        .filter(Boolean)
-        .join(' '),
+      [task.raw_message, task.result_summary, task.error_summary, task.intent, task.target].filter(Boolean).join(' '),
     );
 
     let score = this.isUndoableTask(task) ? 5 : 0;
@@ -468,33 +442,37 @@ export class SharedSurfaceTaskControlCommandPack {
   }
 
   private formatRecentTaskNextStepReply(task: Task): string {
-    return [
-      RecentTaskResolver.formatTaskStatus(task),
-      '',
-      `Next step: ${this.describeRecentTaskNextStep(task)}`,
-    ].join('\n');
+    return [RecentTaskResolver.formatTaskStatus(task), '', `Next step: ${this.describeRecentTaskNextStep(task)}`].join(
+      '\n',
+    );
   }
 
   private describeRecentTaskNextStep(task: Task): string {
     const workflowRunId = String(task.metadata?.workflow_run_id || '').trim();
 
     if (this.isPendingTaskApproval(task)) {
-      return `approve the task with /approve ${task.task_id} to allow execution.`;
+      // No full UUID — tap button, bare /approve, or /approve 1 when several.
+      return 'tap Approve on the card, or send /approve (or /approve 1 if several are pending).';
     }
 
     if (workflowRunId) {
-      return `resume the workflow with "continue the task" or /workflow resume ${workflowRunId}.`;
+      // No full run id — /workflow resume resolves the latest open workflow for this user.
+      return 'resume with /workflow resume (latest open workflow for you).';
     }
 
     if (this.isUndoableTask(task)) {
-      return `if you want to undo what it changed, use /undo ${task.task_id} or say "undo the last task".`;
+      // Free-text "undo the last task" is not a deterministic feature route (agent-first).
+      return 'undo with /undo (most recent undoable task) when you want to reverse the change.';
     }
 
     if (StateMachine.isActive(String(task.status || '').trim() as Task['status'])) {
       return 'watch the run or ask for status again in a moment.';
     }
 
-    if (StateMachine.canRetry(String(task.status || '').trim() as Task['status']) && this.canCanonicallyResumeTaskExecution(task)) {
+    if (
+      StateMachine.canRetry(String(task.status || '').trim() as Task['status']) &&
+      this.canCanonicallyResumeTaskExecution(task)
+    ) {
       return 'this task can be redone as a new request, but the shared surface still avoids an implicit retry for this task id.';
     }
 
@@ -541,9 +519,18 @@ export class SharedSurfaceTaskControlCommandPack {
         task.metadata?.auto_route_executor ||
         task.metadata?.gateway_plan ||
         (Array.isArray(task.actions_planned) && task.actions_planned.length > 0) ||
-        ['/run', '/dryrun', '/codex', '/external', '/gemini', '/aistudio', '/stitch', '/jules', '/ag', '/bridge'].includes(
-          String(task.command_type || '').trim(),
-        ),
+        [
+          '/run',
+          '/dryrun',
+          '/codex',
+          '/external',
+          '/gemini',
+          '/aistudio',
+          '/stitch',
+          '/jules',
+          '/ag',
+          '/bridge',
+        ].includes(String(task.command_type || '').trim()),
     );
   }
 
@@ -594,5 +581,4 @@ export class SharedSurfaceTaskControlCommandPack {
 
     await this.deps.taskExecutionController.resumeTaskExecution(surfaceCtx, task);
   }
-
 }

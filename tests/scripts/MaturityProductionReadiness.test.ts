@@ -62,7 +62,7 @@ describe('maturity-production-readiness', () => {
     expect(report.checks.length).toBeGreaterThanOrEqual(7);
 
     const requiredIds = [
-      'phase-doc-status',
+      'product-governance-doc',
       'react-island-sources',
       'desktop-electron-updater-modules',
       'memory-backend-v2',
@@ -88,11 +88,7 @@ describe('maturity-production-readiness', () => {
     expect(payload.contractVersion).toBe('maturity-production-readiness/1');
     expect(payload.checks.some((c: { status: string }) => c.status === 'pass')).toBe(true);
     expect(payload.checks.map((c: { id: string }) => c.id)).toEqual(
-      expect.arrayContaining([
-        'phase-doc-status',
-        'react-island-sources',
-        'root-gate-scripts',
-      ]),
+      expect.arrayContaining(['product-governance-doc', 'react-island-sources', 'root-gate-scripts']),
     );
   });
 

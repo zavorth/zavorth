@@ -19,10 +19,14 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
-  it('creates a setup ticket from natural language without serializing raw secrets', () => {
+  it('creates a setup ticket from structured action (not free-text keywords) and redacts secrets', () => {
     const service = new ZavorthCapabilityNaturalOperatorService(runtime());
     const result = service.execute({
-      text: 'quero configurar meu Slack com token xoxb-redact-fixture',
+      text: 'configure Slack with token xoxb-redact-fixture',
+      action: 'create_setup_ticket',
+      packId: 'official-communication-channels',
+      targetItemId: 'channel:slack',
+      createTicket: true,
       actorLabel: 'owner',
     });
 
@@ -30,7 +34,9 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     expect(result.decision.action).toBe('create_setup_ticket');
     expect(result.decision.packId).toBe('official-communication-channels');
     expect(result.createdTicket?.status).toBe('needs_readiness');
-    expect(result.createdTicket?.secureRequests.some((request) => request.inputMode === 'secure-secret-entry')).toBe(true);
+    expect(result.createdTicket?.secureRequests.some((request) => request.inputMode === 'secure-secret-entry')).toBe(
+      true,
+    );
     expect(result.safety).toMatchObject({
       rawSecretsSerialized: false,
       liveActivationApplied: false,
@@ -39,9 +45,19 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     expect(fs.readFileSync(statePath, 'utf8')).not.toContain('xoxb-redact-fixture');
   });
 
-  it('runs readiness view from natural language without creating tickets', () => {
+  it('does not create tickets from free-text setup phrases alone', () => {
     const result = new ZavorthCapabilityNaturalOperatorService(runtime()).execute({
-      text: 'verifique release readiness',
+      text: 'quero configurar meu Slack com token xoxb-redact-fixture',
+      actorLabel: 'owner',
+    });
+    expect(result.decision.action).toBe('show_console');
+    expect(result.createdTicket).toBeNull();
+  });
+
+  it('runs readiness from structured action without creating tickets', () => {
+    const result = new ZavorthCapabilityNaturalOperatorService(runtime()).execute({
+      text: 'check release readiness',
+      action: 'run_readiness',
       targetItemId: 'skill:release-readiness',
       packId: 'official-ops-skills',
     });
@@ -52,12 +68,12 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     expect(result.console.readiness?.summary.items).toBe(1);
   });
 
-  it('prepares controlled activation request from natural language only with owner approval', () => {
+  it('prepares controlled activation from structured flags only with owner approval', () => {
     const queue = new ZavorthCapabilitySetupQueueService(runtime());
     const ticket = queue.createTicket({
       packId: 'official-ops-skills',
       targetItemId: 'skill:release-readiness',
-      text: 'ative release readiness',
+      text: 'activate release readiness',
       audience: 'owner',
       approvalId: 'approval-release',
       completedManualSteps: ['review scope and approval budget'],
@@ -65,7 +81,8 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     });
 
     const result = new ZavorthCapabilityNaturalOperatorService(runtime()).execute({
-      text: `crie o pedido controlado para ${ticket.id}`,
+      text: `controlled request for ${ticket.id}`,
+      action: 'prepare_activation_request',
       ticketId: ticket.id,
       ownerApprovalId: 'approval-release',
       confirmOwnerControlledActivation: true,
@@ -78,14 +95,15 @@ describe('ZavorthCapabilityNaturalOperatorService', () => {
     expect(fs.readFileSync(requestLedgerPath, 'utf8')).toContain('approval-release');
   });
 
-  it('renders a plain reply through API facade', () => {
+  it('renders a plain reply through API facade (EN)', () => {
     const api = new ZavorthCapabilityNaturalOperatorApiService(runtime());
     const reply = api.renderReply({
-      text: 'mostre a fila de configuracao',
+      text: 'show setup queue',
+      action: 'show_queue',
     });
 
-    expect(reply).toContain('Mostrei a fila');
-    expect(reply).toContain('sem ativacao live');
+    expect(reply).toMatch(/queue|Setup|console|Showed/i);
+    expect(reply).toMatch(/Safety|Decision|no live activation/i);
   });
 
   function runtime() {

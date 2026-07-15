@@ -15,12 +15,8 @@ import type {
   ZavorthTransactionZavorthControlProjection,
   ZavorthTransactionZavorthControlTone,
 } from '../contracts/ZavorthTransactionZavorthControlContract.js';
-import type {
-  ZavorthTransactionSurfaceKind,
-} from '../contracts/ZavorthTransactionSurfaceContract.js';
-import type {
-  ZavorthTransactionRuntimeStatus,
-} from '../contracts/ZavorthTransactionRuntimeContract.js';
+import type { ZavorthTransactionSurfaceKind } from '../contracts/ZavorthTransactionSurfaceContract.js';
+import type { ZavorthTransactionRuntimeStatus } from '../contracts/ZavorthTransactionRuntimeContract.js';
 import { ZavorthTransactionApprovalLedgerService } from './ZavorthTransactionApprovalLedgerService.js';
 
 import { ZavorthTransactionZavorthControlProjectionService } from './ZavorthTransactionZavorthControlProjectionService.js';
@@ -71,15 +67,19 @@ export class ZavorthTransactionCertificationService {
 
   public constructor(deps: CertificationDeps = {}) {
     this.now = deps.now ?? (() => new Date());
-    this.credentialRefs = deps.credentialRefs ?? new ZavorthTransactionCredentialRefService({
-      storeFile: deps.credentialStoreFile,
-      now: this.now,
-    });
-    this.zavorthControl = deps.zavorthControl ?? createZavorthControl({
-      now: this.now,
-      credentialRefs: this.credentialRefs,
-      ledgerFile: deps.ledgerFile,
-    });
+    this.credentialRefs =
+      deps.credentialRefs ??
+      new ZavorthTransactionCredentialRefService({
+        storeFile: deps.credentialStoreFile,
+        now: this.now,
+      });
+    this.zavorthControl =
+      deps.zavorthControl ??
+      createZavorthControl({
+        now: this.now,
+        credentialRefs: this.credentialRefs,
+        ledgerFile: deps.ledgerFile,
+      });
   }
 
   public buildSnapshot(): ZavorthTransactionCertificationContractSnapshot {
@@ -92,17 +92,17 @@ export class ZavorthTransactionCertificationService {
     const scenarios = buildScenarioSpecs().map((spec) => this.runScenario(spec, credentialRef));
     const gates = buildGates(scenarios);
     const failedScenarioCount = scenarios.filter((scenario) => scenario.status === 'failed').length;
-    const status: ZavorthTransactionCertificationStatus = failedScenarioCount === 0 && gates.every((gate) => gate.passed)
-      ? 'passed'
-      : 'failed';
+    const status: ZavorthTransactionCertificationStatus =
+      failedScenarioCount === 0 && gates.every((gate) => gate.passed) ? 'passed' : 'failed';
 
     return {
       version: ZAVORTH_TRANSACTION_CERTIFICATION_CONTRACT_VERSION,
       generatedAt,
       status,
-      summary: status === 'passed'
-        ? 'Transaction Plane Phases 0-8 certified as governed, redacted and live-disabled.'
-        : 'Transaction Plane certification failed; inspect failed scenarios and gates.',
+      summary:
+        status === 'passed'
+          ? 'Transaction Plane Phases 0-8 certified as governed, redacted and live-disabled.'
+          : 'Transaction Plane certification failed; inspect failed scenarios and gates.',
       scenarioCount: scenarios.length,
       passedScenarioCount: scenarios.length - failedScenarioCount,
       failedScenarioCount,
@@ -122,8 +122,13 @@ export class ZavorthTransactionCertificationService {
       `[transaction-certification] no-live-execution: ${report.safety.noLiveExecution}`,
       `[transaction-certification] no-raw-secret-serialized: ${report.safety.noRawSecretSerialized}`,
       `[transaction-certification] live-action-applied: ${report.safety.liveActionApplied}`,
-      ...report.gates.map((gate) => `[transaction-certification] gate: ${gate.kind} passed=${gate.passed} summary=${gate.summary}`),
-      ...report.scenarios.map((scenario) => `[transaction-certification] scenario: ${scenario.id} status=${scenario.status} observed=${scenario.observedStatus}/${scenario.observedTone}`),
+      ...report.gates.map(
+        (gate) => `[transaction-certification] gate: ${gate.kind} passed=${gate.passed} summary=${gate.summary}`,
+      ),
+      ...report.scenarios.map(
+        (scenario) =>
+          `[transaction-certification] scenario: ${scenario.id} status=${scenario.status} observed=${scenario.observedStatus}/${scenario.observedTone}`,
+      ),
       `[transaction-certification] next: ${report.nextStage}`,
     ].join('\n');
   }
@@ -208,7 +213,9 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
       label: 'Web trade stops at approval gate.',
       surface: 'web',
       input: () => ({
-        text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+        text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+        kind: 'execute-trade',
+        actionKind: 'trade-order',
         surface: 'web',
         mode: 'paper',
       }),
@@ -227,7 +234,9 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
       label: 'API approved paper trade reaches typed connector simulation.',
       surface: 'api',
       input: (credentialRef) => ({
-        text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+        text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+        kind: 'execute-trade',
+        actionKind: 'trade-order',
         surface: 'api',
         approve: true,
         mode: 'paper',
@@ -249,7 +258,9 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
       label: 'CLI approved trade asks for credential ref when required.',
       surface: 'cli',
       input: () => ({
-        text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+        text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+        kind: 'execute-trade',
+        actionKind: 'trade-order',
         surface: 'cli',
         approve: true,
         mode: 'paper',
@@ -271,7 +282,9 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
       label: 'Telegram monitor runs as non-live market-data simulation.',
       surface: 'telegram',
       input: () => ({
-        text: 'Monitore notebook abaixo de R$3500 e me avise.',
+        text: 'Monitor notebook below R$3500 and notify me.',
+        kind: 'monitor-price',
+        actionKind: 'price-monitor',
         surface: 'telegram',
         mode: 'sandbox',
       }),
@@ -290,14 +303,14 @@ function buildScenarioSpecs(): CertificationScenarioSpec[] {
       label: 'Web raw secret request is blocked and redacted.',
       surface: 'web',
       input: () => ({
-        text: `Compre ETH ate R$100 usando api_key=${RAW_SECRET_SENTINEL}.`,
+        text: `Buy ETH up to R$100 using api_key=${RAW_SECRET_SENTINEL}.`,
         surface: 'web',
         approve: true,
         mode: 'paper',
       }),
       expectedStatus: 'blocked',
       expectedTone: 'blocked',
-      expectedRoute: 'approval-proposal',
+      expectedRoute: 'llm-reply',
       expectedLane: 'safety',
       expectedTimeline: {
         preview: 'blocked',
@@ -318,28 +331,57 @@ function buildScenarioChecks(
   const checks: ZavorthTransactionCertificationScenarioCheck[] = [
     check('status', 'expected runtime status', spec.expectedStatus, projection.status),
     check('tone', 'expected cockpit tone', spec.expectedTone, projection.tone),
-    check('natural-first-route', 'expected Natural First route', spec.expectedRoute ?? 'any', spec.expectedRoute ? projection.surfaceProjection.naturalFirst.route : 'any'),
-    check('lane', 'expected cockpit lane', spec.expectedLane ?? 'any', spec.expectedLane && laneKinds.includes(spec.expectedLane) ? spec.expectedLane : 'missing'),
-    check('no-live-execution', 'live execution disabled', 'true/false/false', `${projection.safety.noLiveExecution}/${projection.safety.liveActionApplied}/${projection.safety.externalSideEffects}`),
-    check('redaction', 'raw secret not serialized', 'absent', serialized.includes(RAW_SECRET_SENTINEL) ? 'present' : 'absent'),
-    check('zavorthControl-shape', 'lanes and operator actions present', '>=8/>=6', `${projection.lanes.length}/${projection.operatorActions.length}`),
+    check(
+      'natural-first-route',
+      'expected Natural First route',
+      spec.expectedRoute ?? 'any',
+      spec.expectedRoute ? projection.surfaceProjection.naturalFirst.route : 'any',
+    ),
+    check(
+      'lane',
+      'expected cockpit lane',
+      spec.expectedLane ?? 'any',
+      spec.expectedLane && laneKinds.includes(spec.expectedLane) ? spec.expectedLane : 'missing',
+    ),
+    check(
+      'no-live-execution',
+      'live execution disabled',
+      'true/false/false',
+      `${projection.safety.noLiveExecution}/${projection.safety.liveActionApplied}/${projection.safety.externalSideEffects}`,
+    ),
+    check(
+      'redaction',
+      'raw secret not serialized',
+      'absent',
+      serialized.includes(RAW_SECRET_SENTINEL) ? 'present' : 'absent',
+    ),
+    check(
+      'zavorthControl-shape',
+      'lanes and operator actions present',
+      '>=8/>=6',
+      `${projection.lanes.length}/${projection.operatorActions.length}`,
+    ),
   ];
 
   if (spec.expectedEnabledAction) {
-    checks.push(check(
-      'enabled-action',
-      'expected operator action enabled',
-      spec.expectedEnabledAction,
-      enabledActions.includes(spec.expectedEnabledAction) ? spec.expectedEnabledAction : 'missing',
-    ));
+    checks.push(
+      check(
+        'enabled-action',
+        'expected operator action enabled',
+        spec.expectedEnabledAction,
+        enabledActions.includes(spec.expectedEnabledAction) ? spec.expectedEnabledAction : 'missing',
+      ),
+    );
   }
   if (spec.expectedConnectorStatus) {
-    checks.push(check(
-      'connector-status',
-      'expected typed connector status',
-      spec.expectedConnectorStatus,
-      projection.surfaceProjection.runtime.connectorRun?.status ?? 'not-run',
-    ));
+    checks.push(
+      check(
+        'connector-status',
+        'expected typed connector status',
+        spec.expectedConnectorStatus,
+        projection.surfaceProjection.runtime.connectorRun?.status ?? 'not-run',
+      ),
+    );
   }
   for (const [id, expected] of Object.entries(spec.expectedTimeline ?? {})) {
     checks.push(check(`timeline-${id}`, `timeline ${id}`, expected, timelineStatuses[id] ?? 'missing'));
@@ -355,9 +397,10 @@ function buildScenarioChecks(
     if (item.id === 'no-live-execution') {
       return {
         ...item,
-        passed: projection.safety.noLiveExecution === true
-          && projection.safety.liveActionApplied === false
-          && projection.safety.externalSideEffects === false,
+        passed:
+          projection.safety.noLiveExecution === true &&
+          projection.safety.liveActionApplied === false &&
+          projection.safety.externalSideEffects === false,
       };
     }
     return item;
@@ -390,28 +433,36 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
   }> = [
     {
       kind: 'natural-first-routing',
-      passed: scenarios.every((scenario) => scenario.naturalFirstRoute === 'approval-proposal' || scenario.naturalFirstRoute === 'tool-preview'),
-      summary: 'Natural First routes transactional free text into governed approval or preview paths.',
+      passed: scenarios.every(
+        (scenario) =>
+          scenario.naturalFirstRoute === 'llm-reply' ||
+          scenario.naturalFirstRoute === 'approval-proposal' ||
+          scenario.naturalFirstRoute === 'tool-preview',
+      ),
+      summary: 'Natural First keeps free text conversational; structured kind/slash/tools own product routes.',
       evidence: scenarios.map((scenario) => `${scenario.id}:${scenario.naturalFirstRoute}`),
     },
     {
       kind: 'approval-gate',
-      passed: scenarioById.get('web-trade-approval')?.observedStatus === 'approval-required'
-        && scenarioById.get('web-trade-approval')?.enabledActions.includes('request-approval') === true,
+      passed:
+        scenarioById.get('web-trade-approval')?.observedStatus === 'approval-required' &&
+        scenarioById.get('web-trade-approval')?.enabledActions.includes('request-approval') === true,
       summary: 'Real value movement blocks at explicit approval before simulation continues.',
       evidence: evidenceForScenario(scenarioById.get('web-trade-approval')),
     },
     {
       kind: 'credential-ref-gate',
-      passed: scenarioById.get('cli-credential-required')?.observedStatus === 'credential-required'
-        && scenarioById.get('cli-credential-required')?.enabledActions.includes('provide-credential-ref') === true,
+      passed:
+        scenarioById.get('cli-credential-required')?.observedStatus === 'credential-required' &&
+        scenarioById.get('cli-credential-required')?.enabledActions.includes('provide-credential-ref') === true,
       summary: 'Credential-dependent connector simulation asks for SecretRef metadata only.',
       evidence: evidenceForScenario(scenarioById.get('cli-credential-required')),
     },
     {
       kind: 'typed-connector-simulation',
-      passed: scenarioById.get('api-approved-paper-trade')?.connectorStatus === 'simulated'
-        && scenarioById.get('telegram-price-monitor')?.connectorStatus === 'simulated',
+      passed:
+        scenarioById.get('api-approved-paper-trade')?.connectorStatus === 'simulated' &&
+        scenarioById.get('telegram-price-monitor')?.connectorStatus === 'simulated',
       summary: 'Approved trade and monitor requests reach typed connector simulation without live effects.',
       evidence: [
         ...evidenceForScenario(scenarioById.get('api-approved-paper-trade')),
@@ -420,26 +471,38 @@ function buildGates(scenarios: ZavorthTransactionCertificationScenario[]): Zavor
     },
     {
       kind: 'zavorthControl-projection',
-      passed: scenarios.every((scenario) => scenario.laneKinds.includes('safety') && scenario.checks.some((item) => item.id === 'zavorthControl-shape' && item.passed)),
+      passed: scenarios.every(
+        (scenario) =>
+          scenario.laneKinds.includes('safety') &&
+          scenario.checks.some((item) => item.id === 'zavorthControl-shape' && item.passed),
+      ),
       summary: 'Every scenario renders cockpit lanes, timeline and operator actions.',
-      evidence: scenarios.map((scenario) => `${scenario.id}:lanes=${scenario.laneKinds.length}:actions=${scenario.enabledActions.join('|') || 'none'}`),
+      evidence: scenarios.map(
+        (scenario) =>
+          `${scenario.id}:lanes=${scenario.laneKinds.length}:actions=${scenario.enabledActions.join('|') || 'none'}`,
+      ),
     },
     {
       kind: 'cross-surface-consistency',
-      passed: ['web', 'api', 'cli', 'telegram'].every((surface) => surfaces.has(surface as ZavorthTransactionSurfaceKind)),
+      passed: ['web', 'api', 'cli', 'telegram'].every((surface) =>
+        surfaces.has(surface as ZavorthTransactionSurfaceKind),
+      ),
       summary: 'Certification covers Web, API, CLI and Telegram surfaces through the same projection path.',
       evidence: [...surfaces].sort(),
     },
     {
       kind: 'secret-redaction',
-      passed: scenarioById.get('web-raw-secret-blocked')?.observedStatus === 'blocked'
-        && scenarioById.get('web-raw-secret-blocked')?.checks.find((item) => item.id === 'redaction')?.passed === true,
+      passed:
+        scenarioById.get('web-raw-secret-blocked')?.observedStatus === 'blocked' &&
+        scenarioById.get('web-raw-secret-blocked')?.checks.find((item) => item.id === 'redaction')?.passed === true,
       summary: 'Raw transaction secrets are blocked and absent from certification output.',
       evidence: evidenceForScenario(scenarioById.get('web-raw-secret-blocked')),
     },
     {
       kind: 'no-live-execution',
-      passed: scenarios.every((scenario) => scenario.checks.find((item) => item.id === 'no-live-execution')?.passed === true),
+      passed: scenarios.every(
+        (scenario) => scenario.checks.find((item) => item.id === 'no-live-execution')?.passed === true,
+      ),
       summary: 'All scenarios preserve live-disabled safety flags.',
       evidence: scenarios.map((scenario) => `${scenario.id}:live=false`),
     },

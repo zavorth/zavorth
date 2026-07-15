@@ -60,7 +60,14 @@ describe('NaturalChannelSetupTurnService', () => {
         summary: 'Teste de broadcast enviado para Slack.',
         details: [],
         selected: null,
-        snapshot: { entries: [], summary: {}, selected: null, narrative: {}, featuredIds: [], generatedAt: '2026-04-11T12:02:00.000Z' },
+        snapshot: {
+          entries: [],
+          summary: {},
+          selected: null,
+          narrative: {},
+          featuredIds: [],
+          generatedAt: '2026-04-11T12:02:00.000Z',
+        },
       })),
     };
     const assistant = new ChannelSetupAssistantService({
@@ -81,11 +88,13 @@ describe('NaturalChannelSetupTurnService', () => {
     };
   }
 
-  it('turns a natural setup request into scaffold, doctor and send-test', async () => {
+  it('turns a structured setup request into scaffold, doctor and send-test', async () => {
     const { service, envFilePath, providerDoctorService, channelActions } = createService();
 
     const result = await service.buildTurn({
-      intentText: 'Quero conectar o Zavorth no Slack native. Slack bot token é xoxb-123. Signing secret é shh-456. Slack channel id é C123. Aplique, valide e mande um teste.',
+      intentText: 'Slack bot token is xoxb-123. Signing secret is shh-456. Slack channel id is C123.',
+      channelId: 'slack',
+      mode: 'native',
       requestedBy: 'tester',
       autoApply: true,
       autoDoctor: true,
@@ -101,13 +110,52 @@ describe('NaturalChannelSetupTurnService', () => {
     expect(result.sendTest?.status).toBe('applied');
     expect(result.promotionReady).toBe(true);
     expect(providerDoctorService.run).toHaveBeenCalled();
-    expect(channelActions.execute).toHaveBeenCalledWith(expect.objectContaining({
-      channelId: 'slack',
-      actionId: 'send-test',
-    }));
+    expect(channelActions.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channelId: 'slack',
+        actionId: 'send-test',
+      }),
+    );
     expect(envText).toContain('SLACK_BOT_TOKEN=xoxb-123');
     expect(envText).toContain('SLACK_SIGNING_SECRET=shh-456');
     expect(envText).toContain('SLACK_ALLOWED_CHANNEL_IDS=C123');
+    expect(result.naturalReply).toContain('Scaffold applied for slack');
+  });
+
+  it('does not activate apply/doctor/test from free-text keywords without structured flags', async () => {
+    const { service, envFilePath, providerDoctorService, channelActions } = createService();
+
+    const result = await service.buildTurn({
+      intentText:
+        'Quero conectar o Slack native. Configure, aplique, valide com doctor e mande um teste. SLACK_BOT_TOKEN=xoxb-123.',
+      channelId: 'slack',
+      requestedBy: 'tester',
+    });
+
+    expect(result.channelId).toBe('slack');
+    expect(result.applyResult).toBeNull();
+    expect(result.doctorResult).toBeNull();
+    expect(result.sendTest).toBeNull();
+    expect(providerDoctorService.run).not.toHaveBeenCalled();
+    expect(channelActions.execute).not.toHaveBeenCalled();
+    expect(fs.readFileSync(envFilePath, 'utf8')).toBe('');
+    expect(result.extractedEntries).toEqual(
+      expect.arrayContaining([expect.objectContaining({ key: 'SLACK_BOT_TOKEN' })]),
+    );
+    expect(result.naturalReply).toContain('I received from your request');
+  });
+
+  it('does not resolve install mode from free-text mode keywords', async () => {
+    const { service } = createService();
+
+    const result = await service.buildTurn({
+      intentText: 'Please use bridge relay mode for this channel setup.',
+      channelId: 'discord',
+    });
+
+    expect(result.channelId).toBe('discord');
+    // Without structured mode, free-text "bridge" must not force bridge.
+    expect(result.mode).not.toBe('bridge');
   });
 
   it('asks for the channel first when the request is still ambiguous', async () => {
@@ -126,7 +174,9 @@ describe('NaturalChannelSetupTurnService', () => {
     const { service, envFilePath, providerDoctorService, channelActions } = createService();
 
     const result = await service.buildTurn({
-      intentText: 'Quero conectar Slack native. SLACK_BOT_TOKEN=xoxb-secret. SLACK_SIGNING_SECRET=shh-secret. SLACK_ALLOWED_CHANNEL_IDS=C123. Aplique, valide e mande um teste.',
+      intentText: 'SLACK_BOT_TOKEN=xoxb-secret. SLACK_SIGNING_SECRET=shh-secret. SLACK_ALLOWED_CHANNEL_IDS=C123.',
+      channelId: 'slack',
+      mode: 'native',
       requestedBy: 'tester',
       autoApply: true,
       autoDoctor: true,
@@ -140,11 +190,13 @@ describe('NaturalChannelSetupTurnService', () => {
     expect(result.sendTest).toBeNull();
     expect(providerDoctorService.run).not.toHaveBeenCalled();
     expect(channelActions.execute).not.toHaveBeenCalled();
-    expect(result.extractedEntries).toEqual(expect.arrayContaining([
-      expect.objectContaining({ key: 'SLACK_BOT_TOKEN', valuePreview: 'xox***et' }),
-      expect.objectContaining({ key: 'SLACK_SIGNING_SECRET', valuePreview: 'shh***et' }),
-    ]));
-    expect(result.naturalReply).toContain('Preview seguro');
+    expect(result.extractedEntries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'SLACK_BOT_TOKEN', valuePreview: 'xox***et' }),
+        expect.objectContaining({ key: 'SLACK_SIGNING_SECRET', valuePreview: 'shh***et' }),
+      ]),
+    );
+    expect(result.naturalReply).toContain('Safe preview');
     expect(result.naturalReply).not.toContain('xoxb-secret');
     expect(result.naturalReply).not.toContain('shh-secret');
   });

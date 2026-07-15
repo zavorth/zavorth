@@ -16,7 +16,7 @@ import {
 
 type CapabilityLifecycleLike = Pick<
   CapabilityLifecycleService,
-  'getManifest'
+  | 'getManifest'
   | 'registerCapabilityDemand'
   | 'enableCapability'
   | 'disableCapability'
@@ -39,8 +39,8 @@ type SharedSurfaceCapabilityCommandPackDeps = {
 };
 
 export class SharedSurfaceCapabilityCommandPack {
-  private readonly deps: Required<Pick<SharedSurfaceCapabilityCommandPackDeps, 'capabilityRegistry'>>
-    & Omit<SharedSurfaceCapabilityCommandPackDeps, 'capabilityRegistry'>;
+  private readonly deps: Required<Pick<SharedSurfaceCapabilityCommandPackDeps, 'capabilityRegistry'>> &
+    Omit<SharedSurfaceCapabilityCommandPackDeps, 'capabilityRegistry'>;
 
   public constructor(deps: SharedSurfaceCapabilityCommandPackDeps) {
     this.deps = {
@@ -55,12 +55,16 @@ export class SharedSurfaceCapabilityCommandPack {
       return;
     }
 
-    const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
+    const tokens = String(args || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     const capabilityId = String(tokens[0] || '').trim();
-    const scopeCandidate = String(tokens[1] || '').trim().toLowerCase();
-    const scope = scopeCandidate === 'once' || scopeCandidate === 'session' || scopeCandidate === 'host'
-      ? scopeCandidate
-      : 'host';
+    const scopeCandidate = String(tokens[1] || '')
+      .trim()
+      .toLowerCase();
+    const scope =
+      scopeCandidate === 'once' || scopeCandidate === 'session' || scopeCandidate === 'host' ? scopeCandidate : 'host';
     if (!capabilityId) {
       await ctx.reply(
         [
@@ -82,10 +86,11 @@ export class SharedSurfaceCapabilityCommandPack {
 
     const requestedBy = String(ctx.userId || '').trim() || 'operator';
     const reason = `Habilitar ${manifest.label} via ${ctx.platform}.`;
-    const impact = await this.deps.taskResourcePlannerService?.planCapabilityEnable(capabilityId, {
-      requestedBy,
-      intent: reason,
-    }) || null;
+    const impact =
+      (await this.deps.taskResourcePlannerService?.planCapabilityEnable(capabilityId, {
+        requestedBy,
+        intent: reason,
+      })) || null;
     const mutationPlane = new ZavorthMutationPlaneService();
     const mutationPlan = mutationPlane.createPlan({
       domain: 'capability',
@@ -129,7 +134,8 @@ export class SharedSurfaceCapabilityCommandPack {
         capabilityId,
         reason,
         approvalScope: scope as any,
-        resourceImpact: this.deps.taskResourcePlannerService?.toMutationResourceImpact(impact) || mutationPlan.resourceImpact,
+        resourceImpact:
+          this.deps.taskResourcePlannerService?.toMutationResourceImpact(impact) || mutationPlan.resourceImpact,
         payload: {
           capabilityId,
           scope,
@@ -145,53 +151,64 @@ export class SharedSurfaceCapabilityCommandPack {
       }
       if (decision.decision === 'blocked') {
         plan = mutationPlane.markBlocked(plan.id, decision.reason);
-        await ctx.reply(this.formatCapabilityEnableReply({
-          applied: false,
-          waitingApproval: false,
-          capabilityId,
-          label: manifest.label,
-          scope,
-          impact,
-          mutationPlanId: plan.id,
-          summary: decision.reason,
-        }));
+        await ctx.reply(
+          this.formatCapabilityEnableReply({
+            applied: false,
+            waitingApproval: false,
+            capabilityId,
+            label: manifest.label,
+            scope,
+            impact,
+            mutationPlanId: plan.id,
+            summary: decision.reason,
+          }),
+        );
         return;
       }
       if (decision.decision === 'requires_approval') {
-        await ctx.reply(this.formatCapabilityEnableReply({
-          applied: false,
-          waitingApproval: true,
-          capabilityId,
-          label: manifest.label,
-          scope,
-          impact,
-          mutationPlanId: plan.id,
-          summary: decision.reason,
-        }));
+        await ctx.reply(
+          this.formatCapabilityEnableReply({
+            applied: false,
+            waitingApproval: true,
+            capabilityId,
+            label: manifest.label,
+            scope,
+            impact,
+            mutationPlanId: plan.id,
+            summary: decision.reason,
+          }),
+        );
         return;
       }
     }
 
     const enabled = this.deps.capabilityLifecycleService.enableCapability(capabilityId, requestedBy, scope as any);
-    this.deps.capabilityLifecycleService.markCapabilityState(capabilityId, 'active', `activated via shared surface by ${requestedBy}`);
-    this.deps.capabilityLifecycleService.registerCapabilityUsage(capabilityId, `capability activated in ${ctx.platform}`);
+    this.deps.capabilityLifecycleService.markCapabilityState(
+      capabilityId,
+      'active',
+      `activated via shared surface by ${requestedBy}`,
+    );
+    this.deps.capabilityLifecycleService.registerCapabilityUsage(
+      capabilityId,
+      `capability activated in ${ctx.platform}`,
+    );
     const appliedPlan = mutationPlane.markApplied(
       mutationPlan.id,
-      `Capability ${manifest.label} habilitada via shared surface.`,
+      `Capability ${manifest.label} enabled via shared surface.`,
       [`capability.enable:${capabilityId}`],
     );
-    await ctx.reply(this.formatCapabilityEnableReply({
-      applied: true,
-      waitingApproval: false,
-      capabilityId,
-      label: manifest.label,
-      scope,
-      impact,
-      mutationPlanId: appliedPlan.id,
-      summary: enabled?.fallbackBehavior
-        ? `${manifest.label} habilitada.`
-        : `Capability ${manifest.label} habilitada.`,
-    }));
+    await ctx.reply(
+      this.formatCapabilityEnableReply({
+        applied: true,
+        waitingApproval: false,
+        capabilityId,
+        label: manifest.label,
+        scope,
+        impact,
+        mutationPlanId: appliedPlan.id,
+        summary: enabled?.fallbackBehavior ? `${manifest.label} enabled.` : `Capability ${manifest.label} enabled.`,
+      }),
+    );
   }
 
   public async handleDisable(ctx: IMessageContext, args: string): Promise<void> {
@@ -200,26 +217,25 @@ export class SharedSurfaceCapabilityCommandPack {
       return;
     }
 
-    const capabilityId = String(args || '').trim().split(/\s+/).filter(Boolean)[0] || '';
+    const capabilityId =
+      String(args || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)[0] || '';
     if (!capabilityId) {
       await ctx.reply(
-        [
-          'Disable a capability by name.',
-          '',
-          '/disable <capability>',
-          '  Ex.: /disable sandbox',
-        ].join('\n'),
+        ['Disable a capability by name.', '', '/disable <capability>', '  Ex.: /disable sandbox'].join('\n'),
       );
       return;
     }
     if (capabilityId === 'core-runtime') {
-      await ctx.reply('core-runtime nao pode ser desabilitada.');
+      await ctx.reply('core-runtime cannot be disabled.');
       return;
     }
 
     const manifest = this.deps.capabilityLifecycleService.getManifest(capabilityId);
     if (!manifest) {
-      await ctx.reply(`Capability desconhecida: ${capabilityId}.`);
+      await ctx.reply(`Unknown capability: ${capabilityId}.`);
       return;
     }
 
@@ -230,7 +246,7 @@ export class SharedSurfaceCapabilityCommandPack {
       domain: 'capability',
       actionId: 'disable',
       title: `Disable capability ${manifest.label}`,
-      summary: `Desabilitar ${manifest.label} via ${ctx.platform}.`,
+      summary: `Disable ${manifest.label} via ${ctx.platform}.`,
       requestedBy,
       sourceSurface: ctx.platform,
       riskLevel: 'low',
@@ -241,21 +257,27 @@ export class SharedSurfaceCapabilityCommandPack {
         capabilityId,
       },
     });
-    mutationPlane.markApplied(plan.id, `Capability ${manifest.label} desabilitada via shared surface.`, [`capability.disable:${capabilityId}`]);
-    await ctx.reply(this.renderCapabilityAction(
-      'capability-disable',
-      `Capability ${manifest.label} desabilitada.`,
-      [
-      `Capability ${manifest.label} desabilitada.`,
-      '',
-      disabled?.notes ? `Estado: ${disabled.notes}` : 'A capability voltou para o modo leve/dormente.',
-      `Rollback: /enable ${capabilityId}.`,
-      ].filter(Boolean).join('\n'),
-      {
-        capabilityId,
-        mutationPlanId: plan.id,
-      },
-    ));
+    mutationPlane.markApplied(plan.id, `Capability ${manifest.label} disabled via shared surface.`, [
+      `capability.disable:${capabilityId}`,
+    ]);
+    await ctx.reply(
+      this.renderCapabilityAction(
+        'capability-disable',
+        `Capability ${manifest.label} disabled.`,
+        [
+          `Capability ${manifest.label} disabled.`,
+          '',
+          disabled?.notes ? `State: ${disabled.notes}` : 'Capability returned to light/dormant mode.',
+          `Rollback: /enable ${capabilityId}.`,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        {
+          capabilityId,
+          mutationPlanId: plan.id,
+        },
+      ),
+    );
   }
 
   private formatCapabilityEnableReply(input: {
@@ -282,20 +304,16 @@ export class SharedSurfaceCapabilityCommandPack {
       input.waitingApproval
         ? `Next: approve the mutation and retry /enable ${input.capabilityId} ${input.scope}.`
         : null,
-    ].filter(Boolean).join('\n');
-    return this.renderCapabilityAction(
-      'capability-enable',
-      input.summary,
-      text,
-      {
-        capabilityId: input.capabilityId,
-        scope: input.scope,
-        mutationPlanId: input.mutationPlanId,
-        status: input.applied ? 'done' : input.waitingApproval ? 'require_user_confirmation' : 'blocked',
-      },
-    );
+    ]
+      .filter(Boolean)
+      .join('\n');
+    return this.renderCapabilityAction('capability-enable', input.summary, text, {
+      capabilityId: input.capabilityId,
+      scope: input.scope,
+      mutationPlanId: input.mutationPlanId,
+      status: input.applied ? 'done' : input.waitingApproval ? 'require_user_confirmation' : 'blocked',
+    });
   }
-
 
   public buildCapabilitiesReply(): string {
     const summary = this.deps.capabilityRegistry.getSummary();
@@ -305,44 +323,44 @@ export class SharedSurfaceCapabilityCommandPack {
     const pluginCapabilities = capabilities.filter((capability) => capability.source === 'plugin');
 
     const lines = [
-      'O que o Zavorth consegue fazer',
+      'What Zavorth can do',
       '',
-      `Base carregada: ${summary.total} capacidades (${summary.builtin} nativas e ${summary.plugin} plugins).`,
-      `Comandos diretos: ${summary.commands} | rotas automaticas: ${summary.implicitRoutes}.`,
+      `Loaded base: ${summary.total} capabilities (${summary.builtin} native and ${summary.plugin} plugins).`,
+      `Direct commands: ${summary.commands} | automatic routes: ${summary.implicitRoutes}.`,
       '',
-      'Frentes principais hoje:',
-      '- Pesquisa e sintese de informacao',
-      '- Leitura, comparacao e envio de arquivos',
-      '- Execucao e revisao com agentes especializados',
+      'Main fronts today:',
+      '- Research and information synthesis',
+      '- File reading, comparison, and delivery',
+      '- Execution and review with specialized agents',
       '- Composite workflows and chained tasks',
-      '- Operacao, diagnostico e acompanhamento do runtime',
+      '- Runtime operations, diagnostics, and monitoring',
     ];
 
     if (commandCapabilities.length > 0) {
-      lines.push('', 'Atalhos mais visiveis:');
+      lines.push('', 'Most visible shortcuts:');
       for (const capability of commandCapabilities.slice(0, 8)) {
         lines.push(`- ${capability.label}: ${capability.command?.command}`);
       }
     }
 
     if (implicitCapabilities.length > 0) {
-      lines.push('', 'Rotas automaticas em destaque:');
+      lines.push('', 'Featured automatic routes:');
       for (const capability of implicitCapabilities.slice(0, 6)) {
         lines.push(`- ${capability.label}: ${capability.routing_reason || capability.description}`);
       }
     }
 
     if (pluginCapabilities.length > 0) {
-      lines.push('', 'Plugins declarativos ativos:');
+      lines.push('', 'Active declarative plugins:');
       for (const capability of pluginCapabilities.slice(0, 8)) {
         const command = capability.command?.command ? ` (${capability.command.command})` : '';
         lines.push(`- ${capability.plugin_name || capability.id}: ${capability.label}${command}`);
       }
     } else {
-      lines.push('', 'Plugins declarativos ativos: nenhum alem da base nativa.');
+      lines.push('', 'Active declarative plugins: none beyond the native base.');
     }
 
-    return this.renderCapabilityReport('capability-registry', 'O que o Zavorth consegue fazer', lines.join('\n'), {
+    return this.renderCapabilityReport('capability-registry', 'What Zavorth can do', lines.join('\n'), {
       total: summary.total,
       builtin: summary.builtin,
       plugin: summary.plugin,
@@ -355,13 +373,15 @@ export class SharedSurfaceCapabilityCommandPack {
     text: string,
     metadata: Record<string, unknown> = {},
   ): string {
-    return renderPlainSurfaceResponse(buildReportSurfaceResponse({
-      id: `shared-capability-${id}`,
-      title,
-      text,
-      policyProfile: 'shared-capability',
-      metadata,
-    })).text;
+    return renderPlainSurfaceResponse(
+      buildReportSurfaceResponse({
+        id: `shared-capability-${id}`,
+        title,
+        text,
+        policyProfile: 'shared-capability',
+        metadata,
+      }),
+    ).text;
   }
 
   private renderCapabilityAction(
@@ -371,16 +391,16 @@ export class SharedSurfaceCapabilityCommandPack {
     metadata: Record<string, unknown> & { status?: SurfaceReceiptStatus } = {},
   ): string {
     const { status, ...rest } = metadata;
-    return renderPlainSurfaceResponse(buildRuntimeSurfaceResponse({
-      id: `shared-capability-${id}`,
-      title: 'Capability lifecycle',
-      summary,
-      text,
-      status: status || 'done',
-      policyProfile: 'shared-capability',
-      metadata: rest,
-    })).text;
+    return renderPlainSurfaceResponse(
+      buildRuntimeSurfaceResponse({
+        id: `shared-capability-${id}`,
+        title: 'Capability lifecycle',
+        summary,
+        text,
+        status: status || 'done',
+        policyProfile: 'shared-capability',
+        metadata: rest,
+      }),
+    ).text;
   }
-
-
 }

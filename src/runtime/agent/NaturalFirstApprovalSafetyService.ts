@@ -5,6 +5,7 @@ import type {
   UniversalApprovalRequest,
   UniversalToolRiskLevel,
 } from './UniversalAgentRuntimeTypes.js';
+import { buildWaitingApprovalCard } from './UniversalApprovalPickerPresentation.js';
 
 export const NATURAL_FIRST_APPROVAL_SAFETY_CONTRACT_VERSION = 'natural-first-approval-safety/7' as const;
 
@@ -69,9 +70,7 @@ function normalizeText(value: unknown, fallback = ''): string {
 }
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function listStrings(value: unknown): string[] {
@@ -137,28 +136,26 @@ export class NaturalFirstApprovalSafetyService {
       .filter((tool) => tool.requiresApproval)
       .map((tool) => tool.id);
     const riskyToolIds = run.toolExposure.tools
-      .filter((tool) => tool.requiresApproval || tool.risk === 'danger' || tool.risk === 'attention' || tool.risk === 'unknown')
+      .filter(
+        (tool) =>
+          tool.requiresApproval || tool.risk === 'danger' || tool.risk === 'attention' || tool.risk === 'unknown',
+      )
       .map((tool) => tool.id);
     const discoveryApprovalRequired = discoverySafety?.requiresApproval === true;
     const discoveryPreviewRequired = discoverySafety?.previewRequired === true;
-    const routeRequiresApproval = routeRisk?.requiresApproval === true
-      || naturalFirstRoute?.requiresApproval === true
-      || isApprovalRequiredRoute(route, false);
-    const toolRequiresApproval = approvalRequiredToolIds.length > 0
-      || run.toolExposure.tools.some((tool) => tool.risk === 'danger');
-    const previewRequired = route === 'tool-preview'
-      || routeRisk?.previewRequired === true
-      || discoveryPreviewRequired;
-    const approvalRequired = routeRequiresApproval
-      || toolRequiresApproval
-      || discoveryApprovalRequired
-      || routeRisk?.level === 'danger';
+    const routeRequiresApproval =
+      routeRisk?.requiresApproval === true ||
+      naturalFirstRoute?.requiresApproval === true ||
+      isApprovalRequiredRoute(route, false);
+    const toolRequiresApproval =
+      approvalRequiredToolIds.length > 0 || run.toolExposure.tools.some((tool) => tool.risk === 'danger');
+    const previewRequired = route === 'tool-preview' || routeRisk?.previewRequired === true || discoveryPreviewRequired;
+    const approvalRequired =
+      routeRequiresApproval || toolRequiresApproval || discoveryApprovalRequired || routeRisk?.level === 'danger';
     const approvedIds = run.approvals
       .filter((approval) => approval.status === 'approved')
       .map((approval) => approval.id);
-    const pendingIds = run.approvals
-      .filter((approval) => approval.status === 'pending')
-      .map((approval) => approval.id);
+    const pendingIds = run.approvals.filter((approval) => approval.status === 'pending').map((approval) => approval.id);
     const riskLevel = maxRisk([
       normalizeRisk(routeRisk?.level),
       normalizeRisk(discoverySafety?.highestRisk),
@@ -172,13 +169,14 @@ export class NaturalFirstApprovalSafetyService {
       ...(previewRequired ? ['preview-required'] : []),
       ...listStrings(routeRisk?.reasons),
     ];
-    const status: NaturalFirstApprovalSafetyStatus = approvedIds.length > 0
-      ? 'approval-satisfied'
-      : approvalRequired
-        ? 'approval-required'
-        : previewRequired
-          ? 'preview-required'
-          : 'execution-allowed';
+    const status: NaturalFirstApprovalSafetyStatus =
+      approvedIds.length > 0
+        ? 'approval-satisfied'
+        : approvalRequired
+          ? 'approval-required'
+          : previewRequired
+            ? 'preview-required'
+            : 'execution-allowed';
     const executorBlockedUntilApproval = status === 'approval-required' && approvedIds.length === 0;
 
     return {
@@ -221,10 +219,12 @@ export class NaturalFirstApprovalSafetyService {
   }
 
   public shouldRecord(snapshot: NaturalFirstApprovalSafetySnapshot): boolean {
-    return snapshot.status !== 'execution-allowed'
-      || snapshot.route === 'tool-preview'
-      || snapshot.route === 'approval-proposal'
-      || snapshot.route === 'governed-execution';
+    return (
+      snapshot.status !== 'execution-allowed' ||
+      snapshot.route === 'tool-preview' ||
+      snapshot.route === 'approval-proposal' ||
+      snapshot.route === 'governed-execution'
+    );
   }
 
   public record(input: NaturalFirstApprovalSafetyInput): NaturalFirstApprovalSafetySnapshot {
@@ -254,10 +254,12 @@ export class NaturalFirstApprovalSafetyService {
   }
 
   public shouldOpenFallbackApproval(snapshot: NaturalFirstApprovalSafetySnapshot): boolean {
-    return snapshot.status === 'approval-required'
-      && snapshot.approvals.pendingIds.length === 0
-      && snapshot.approvals.approvedIds.length === 0
-      && snapshot.toolExposure.exposedToolIds.length === 0;
+    return (
+      snapshot.status === 'approval-required' &&
+      snapshot.approvals.pendingIds.length === 0 &&
+      snapshot.approvals.approvedIds.length === 0 &&
+      snapshot.toolExposure.exposedToolIds.length === 0
+    );
   }
 
   public openFallbackApproval(input: NaturalFirstApprovalSafetyFallbackInput): UniversalAgentRunResult {
@@ -266,7 +268,8 @@ export class NaturalFirstApprovalSafetyService {
       id: input.idFactory('approval'),
       runId: input.run.id,
       title: 'Aprovar intencao sensivel',
-      reason: 'A mensagem foi classificada como sensivel pelo Natural First, mas nenhuma tool concreta foi mapeada para um preview seguro.',
+      reason:
+        'A mensagem foi classificada como sensivel pelo Natural First, mas nenhuma tool concreta foi mapeada para um preview seguro.',
       risk: riskForApproval(firstSnapshot.risk.level),
       status: 'pending',
       createdAt: input.generatedAt,
@@ -315,6 +318,29 @@ export class NaturalFirstApprovalSafetyService {
       primary: true,
     };
 
+    // Proposal-time single-pending card (buttons when channel profile has inline_buttons).
+    const waitingCard = buildWaitingApprovalCard(
+      {
+        runId: run.id,
+        approvalId: approval.id,
+        userId: run.userId,
+        sessionId: run.sessionId,
+        channel: run.channel,
+        title: approval.title,
+        risk: approval.risk,
+        createdAt: approval.createdAt,
+      },
+      run.channel,
+    );
+    const baseText = [
+      'Approval needed — sensitive intent paused',
+      'This request looks sensitive and was stopped before any tool or executor ran.',
+      'Nothing has been executed. Approve only if you want a governed plan to continue.',
+    ].join('\n');
+    const replyText = waitingCard.usedNativeButtons
+      ? `${baseText}\n\nUse the Approve / Reject buttons below (or /approve / /reject).`
+      : `${baseText}\n\nReply with:\n  /approve\n  /reject`;
+
     return {
       ok: true,
       run,
@@ -323,19 +349,17 @@ export class NaturalFirstApprovalSafetyService {
           id: `${run.id}:reply:natural-first-approval`,
           runId: run.id,
           port,
-          text: [
-            'Aprovacao Natural First - Surface controls',
-            'O pedido parece sensivel e foi parado antes de qualquer executor ou tool.',
-            `Approval requerido: true`,
-            `Approval: ${approval.id}`,
-            'Nada foi executado. Aprove apenas se essa intencao deve seguir para um plano governado.',
-          ].join('\n'),
+          text: replyText,
           createdAt: input.generatedAt,
           metadata: {
             source: snapshot.source,
             contractVersion: snapshot.contractVersion,
             approvalId: approval.id,
             noToolExecuted: true,
+            surfaceResponse: waitingCard.surfaceResponse,
+            usedNativeButtons: waitingCard.usedNativeButtons,
+            approvalActions: waitingCard.actions,
+            singleApprovalCard: true,
           },
         },
       ],

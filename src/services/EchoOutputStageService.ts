@@ -1,14 +1,10 @@
-
 import { logger } from '../logger.js';
 import { config } from '../config/index.js';
 import type { AudioSynthesisOptions } from '../gateways/channels/telegram/AudioHandler.js';
 import { logEchoTrace } from '../gateways/channels/telegram/EchoTrace.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import { getVoicePreferenceService } from './voice/VoicePreferenceService.js';
-import {
-  resolveVoiceTts,
-  shouldAttemptPreferenceTts,
-} from './voice/VoiceTtsPolicy.js';
+import { resolveVoiceTts, shouldAttemptPreferenceTts } from './voice/VoiceTtsPolicy.js';
 import { recordVoiceMetric } from './voice/VoiceMetricsService.js';
 
 export type EchoOutputStageAudioHandler = {
@@ -42,6 +38,9 @@ export type EchoOutputStageRequest = {
   preferredLanguageCode?: string | null;
   policyHint?: AudioSynthesisOptions['policyHint'];
   forceVoice?: boolean;
+  /** Structured voice-reply request (UI / slash / session). Free text never sets this. */
+  preferVoiceReply?: boolean;
+  replyWithAudio?: boolean;
 };
 
 export type EchoOutputStageResult = {
@@ -87,37 +86,39 @@ export class EchoOutputStageService {
     const preferenceStore = this.deps.preferenceStore || null;
     const hasInteractiveControls = Boolean((request.options as Record<string, unknown> | undefined)?.reply_markup);
     const voiceAvailable = Boolean(request.sink.sendVoice);
-    const explicitVoiceRequest =
-      request.forceVoice === true ||
-      this.isExplicitVoiceReplyRequest(request.rawInput || '', text);
     const voiceFlow = request.voiceFlow || {};
+    // Structured flags only — free-text phrases never auto-enable voice replies.
+    const explicitVoiceRequest = this.isExplicitVoiceReplyRequest(request);
     const voicePrefs = getVoicePreferenceService();
     const preference = voicePrefs.get();
     const allowLegacyEcho =
       process.env.ZAVORTH_VOICE_ALLOW_LEGACY_ECHO_TTS === '1' ||
       process.env.ZAVORTH_VOICE_ALLOW_LEGACY_ECHO_TTS === 'true';
 
-    // Phase 3 — prefer sovereign VoicePreference TTS over silent product defaults.
+    // prefer sovereign VoicePreference TTS over silent product defaults.
     const preferenceTts = resolveVoiceTts({
       preference,
-      ttsReplyDesired: voiceFlow.ttsReplyDesired === true,
+      ttsReplyDesired: voiceFlow.ttsReplyDesired === true || request.preferVoiceReply === true,
       explicitVoiceRequest,
       allowLegacyEchoTts: allowLegacyEcho,
     });
 
     const wantsPreferenceTts = shouldAttemptPreferenceTts({
-      voiceFlow,
-      forceVoice: request.forceVoice,
-      rawInput: request.rawInput,
+      voiceFlow: {
+        ...voiceFlow,
+        ttsReplyDesired:
+          voiceFlow.ttsReplyDesired === true || request.preferVoiceReply === true || request.replyWithAudio === true,
+      },
+      forceVoice: request.forceVoice === true || explicitVoiceRequest,
       preference,
     });
 
     if (
-      request.allowVoice === false
-      || !voiceAvailable
-      || !audioHandler
-      || hasInteractiveControls
-      || text.length >= 4000
+      request.allowVoice === false ||
+      !voiceAvailable ||
+      !audioHandler ||
+      hasInteractiveControls ||
+      text.length >= 4000
     ) {
       return false;
     }
@@ -216,10 +217,7 @@ export class EchoOutputStageService {
             surface: request.surface,
             ttsMs: ttsLatencyMs,
             sendMs: Date.now() - sendStartedAt,
-            totalMs:
-              typeof voiceFlow.startedAtMs === 'number'
-                ? Date.now() - Number(voiceFlow.startedAtMs)
-                : null,
+            totalMs: typeof voiceFlow.startedAtMs === 'number' ? Date.now() - Number(voiceFlow.startedAtMs) : null,
             downloadMs: voiceFlow.downloadLatencyMs || null,
             sttMs: voiceFlow.sttLatencyMs || null,
             llmMs: voiceFlow.llmLatencyMs || null,
@@ -255,11 +253,10 @@ export class EchoOutputStageService {
     }
   }
 
-  private prepareSpokenText(
-    text: string,
-    policyHint: AudioSynthesisOptions['policyHint'] = 'default',
-  ): string {
-    const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  private prepareSpokenText(text: string, policyHint: AudioSynthesisOptions['policyHint'] = 'default'): string {
+    const normalized = String(text || '')
+      .replace(/\s+/g, ' ')
+      .trim();
     const configuredMaxChars = Math.max(120, config.tools.media.audio.ttsMaxChars);
     const maxChars =
       policyHint === 'safety'
@@ -286,17 +283,13 @@ export class EchoOutputStageService {
     return (output || normalized.slice(0, maxChars)).trim();
   }
 
-  private resolvePolicyHint(
-    spokenText: string,
-    preferredLanguageCode: string,
-  ): AudioSynthesisOptions['policyHint'] {
+  private resolvePolicyHint(spokenText: string, preferredLanguageCode: string): AudioSynthesisOptions['policyHint'] {
     const normalized = String(spokenText || '').trim();
-    const language = String(preferredLanguageCode || '').trim().toLowerCase();
+    const language = String(preferredLanguageCode || '')
+      .trim()
+      .toLowerCase();
     const edgeFriendly =
-      language === 'auto'
-      || language.startsWith('pt')
-      || language.startsWith('en')
-      || language.startsWith('es');
+      language === 'auto' || language.startsWith('pt') || language.startsWith('en') || language.startsWith('es');
 
     if (normalized.length <= 900 && edgeFriendly) {
       return 'short_reply';
@@ -319,33 +312,43 @@ export class EchoOutputStageService {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
-    const ptHits = (normalized.match(/\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique|ola|fale|resposta|voz|certo|tudo)\b/g) || []).length;
-    const enHits = (normalized.match(/\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain|hello|reply|voice|right|okay)\b/g) || []).length;
-    const esHits = (normalized.match(/\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica|hola|respuesta|voz|claro)\b/g) || []).length;
+    const ptHits = (
+      normalized.match(
+        /\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique|ola|fale|resposta|voz|certo|tudo)\b/g,
+      ) || []
+    ).length;
+    const enHits = (
+      normalized.match(
+        /\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain|hello|reply|voice|right|okay)\b/g,
+      ) || []
+    ).length;
+    const esHits = (
+      normalized.match(
+        /\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica|hola|respuesta|voz|claro)\b/g,
+      ) || []
+    ).length;
     if (ptHits >= enHits && ptHits >= esHits && ptHits > 0) return 'en-US';
     if (esHits >= enHits && esHits > 0) return 'es';
     if (enHits > 0) return 'en';
     return 'auto';
   }
 
-  private isExplicitVoiceReplyRequest(rawInput: string, responseText: string): boolean {
-    const normalized = `${rawInput}\n${responseText}`
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (!normalized) {
-      return false;
-    }
+  /**
+   * Voice-reply product activation is structured-only.
+   * Free-text phrases in rawInput/response never flip voice delivery.
+   */
+  private isExplicitVoiceReplyRequest(request: EchoOutputStageRequest): boolean {
+    if (request.forceVoice === true) return true;
+    if (request.preferVoiceReply === true) return true;
+    if (request.replyWithAudio === true) return true;
 
-    return (
-      /\b(respond[ae]r?|responda|responde|fale|mande|envie)\b.{0,40}\b(audio|voz)\b/.test(normalized)
-      || /\b(audio|voz)\b.{0,40}\b(resposta|reply|answer|response|responder|responda|responde)\b/.test(normalized)
-      || /\b(reply|answer|respond|send)\b.{0,40}\b(audio|voice)\b/.test(normalized)
-      || /\b(audio|voice)\b.{0,40}\b(reply|answer|response)\b/.test(normalized)
-      || /\b(respuesta|responde|respondeme|enviame|mandame)\b.{0,40}\b(audio|voz)\b/.test(normalized)
-    );
+    const flow = request.voiceFlow || {};
+    if (flow.forceVoice === true) return true;
+    if (flow.preferVoiceReply === true) return true;
+    if (flow.replyWithAudio === true) return true;
+    if (flow.ttsReplyDesired === true) return true;
+    if (flow.dictationMode === 'conversation') return true;
+
+    return false;
   }
 }

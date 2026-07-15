@@ -24,81 +24,29 @@ import type {
   ZavorthTransactionPlaneSafetyInput,
 } from '../contracts/ZavorthTransactionPlaneContract.js';
 
-type IntentRule = {
-  kind: ZavorthTransactionIntentKind;
+/**
+ * Structured kind → default action/target mapping.
+ * Free text never selects entries here — only input.kind / input.actionKind / input.targetKind.
+ */
+type KindDefaults = {
   actionKind: ZavorthTransactionActionKind;
   targetKind: ZavorthTransactionIntentTargetKind;
-  keywords: RegExp[];
 };
 
-const INTENT_RULES: readonly IntentRule[] = [
-  {
-    kind: 'withdraw-asset',
-    actionKind: 'asset-withdrawal',
-    targetKind: 'asset',
-    keywords: [/\b(saque|sacar|retire|retirar|withdraw)\b/i],
-  },
-  {
-    kind: 'transfer-asset',
-    actionKind: 'asset-transfer',
-    targetKind: 'asset',
-    keywords: [/\b(transfira|transferir|envie|mandar|send)\b/i, /\b(carteira|wallet|endereco)\b/i],
-  },
-  {
-    kind: 'execute-trade',
-    actionKind: 'trade-order',
-    targetKind: 'asset',
-    keywords: [/\b(compre|comprar|venda|vender|trade|ordem|order)\b/i, /\b(btc|eth|sol|usdt|acao|acoes|cripto|crypto)\b/i],
-  },
-  {
-    kind: 'convert-currency',
-    actionKind: 'currency-conversion',
-    targetKind: 'currency',
-    keywords: [/\b(converta|converter|troque|cambio|exchange)\b/i, /\b(real|reais|brl|usd|dolar|eur|euro)\b/i],
-  },
-  {
-    kind: 'buy-api-credits',
-    actionKind: 'api-credit-purchase',
-    targetKind: 'api-credit',
-    keywords: [/\b(credito|creditos|tokens?)\b/i, /\b(api|openai|anthropic|provider|provedor)\b/i],
-  },
-  {
-    kind: 'cancel-subscription',
-    actionKind: 'subscription-cancel',
-    targetKind: 'subscription',
-    keywords: [/\b(cancele|cancelar|cancelamento)\b/i, /\b(assinatura|plano|servico|service)\b/i],
-  },
-  {
-    kind: 'renew-service',
-    actionKind: 'subscription-create',
-    targetKind: 'service',
-    keywords: [/\b(renove|renovar|renew)\b/i, /\b(assinatura|dominio|servico|plano|service)\b/i],
-  },
-  {
-    kind: 'pay-bill',
-    actionKind: 'payment-submit',
-    targetKind: 'bill',
-    keywords: [/\b(pague|pagar|pagamento|pix|boleto|fatura|conta)\b/i],
-  },
-  {
-    kind: 'restock-inventory',
-    actionKind: 'purchase-submit',
-    targetKind: 'inventory-item',
-    keywords: [/\b(repor|reabastecer|estoque|restock|inventory)\b/i],
-  },
-  {
-    kind: 'monitor-price',
-    actionKind: 'price-monitor',
-    targetKind: 'product',
-    keywords: [/\b(monitore|monitorar|acompanhe|avise|alerta|watch)\b/i, /\b(preco|preco|abaixo|acima|cair|subir|queda)\b/i],
-  },
-  {
-    kind: 'purchase-product',
-    actionKind: 'purchase-submit',
-    targetKind: 'product',
-    keywords: [/\b(compre|comprar|pedido|checkout|carrinho)\b/i],
-  },
-] as const;
+const KIND_DEFAULTS: Readonly<Record<ZavorthTransactionIntentKind, KindDefaults>> = {
+  'withdraw-asset': { actionKind: 'asset-withdrawal', targetKind: 'asset' },
+  'transfer-asset': { actionKind: 'asset-transfer', targetKind: 'asset' },
+  'execute-trade': { actionKind: 'trade-order', targetKind: 'asset' },
+  'convert-currency': { actionKind: 'currency-conversion', targetKind: 'currency' },
+  'buy-api-credits': { actionKind: 'api-credit-purchase', targetKind: 'api-credit' },
+  'cancel-subscription': { actionKind: 'subscription-cancel', targetKind: 'subscription' },
+  'renew-service': { actionKind: 'subscription-create', targetKind: 'service' },
+  'pay-bill': { actionKind: 'payment-submit', targetKind: 'bill' },
+  'restock-inventory': { actionKind: 'purchase-submit', targetKind: 'inventory-item' },
+  'monitor-price': { actionKind: 'price-monitor', targetKind: 'product' },
+  'purchase-product': { actionKind: 'purchase-submit', targetKind: 'product' },
+  'unknown-transaction': { actionKind: 'cart-preview', targetKind: 'unknown' },
+};
 
 const ASSET_SYMBOLS = ['BTC', 'ETH', 'SOL', 'USDT', 'USDC', 'BNB', 'XRP', 'ADA', 'DOGE', 'MATIC'] as const;
 
@@ -113,13 +61,24 @@ export class ZavorthTransactionIntentService {
     const now = input.now ?? new Date();
     const redaction = redactTransactionSourceText(input.text);
     const normalized = normalizeText(redaction.text);
-    const rule = detectIntentRule(normalized);
-    const actionKind = rule?.actionKind ?? 'cart-preview';
-    const kind = rule?.kind ?? 'unknown-transaction';
-    const target = extractTarget(redaction.text, normalized, rule?.targetKind ?? 'unknown');
-    const limits = extractLimits(redaction.text);
-    const conditions = extractConditions(redaction.text, limits);
-    const window = extractWindow(redaction.text, now);
+
+    // Purity: free text never maps keywords to product kind. Structured input only.
+    const hasStructuredKind = input.kind !== undefined || input.actionKind !== undefined;
+    const kind: ZavorthTransactionIntentKind = input.kind ?? 'unknown-transaction';
+    const defaults = KIND_DEFAULTS[kind] ?? KIND_DEFAULTS['unknown-transaction'];
+    const actionKind: ZavorthTransactionActionKind = input.actionKind ?? defaults.actionKind;
+    const structuredTargetKind: ZavorthTransactionIntentTargetKind = input.targetKind ?? defaults.targetKind;
+
+    // Soft field extraction only when kind/action is structured — never activates kind from text.
+    const target = hasStructuredKind
+      ? extractTarget(redaction.text, normalized, structuredTargetKind)
+      : { kind: 'unknown' as const, label: 'unknown', vendorHints: [] as string[] };
+    const limits = hasStructuredKind ? extractLimits(redaction.text) : [];
+    const conditions = hasStructuredKind
+      ? extractConditions(redaction.text, limits)
+      : [{ kind: 'always' as const, rawText: 'no explicit condition detected' }];
+    const window = hasStructuredKind ? extractWindow(redaction.text, now) : undefined;
+
     const approvalPreference = detectApprovalPreference(normalized, actionKind);
     const simulationMode = detectSimulationMode(normalized, actionKind);
     const executionMode = simulationModeToExecutionMode(simulationMode);
@@ -160,7 +119,8 @@ export class ZavorthTransactionIntentService {
       extraction: {
         sourceWasRedacted: redaction.wasRedacted,
         redactionMarkers: redaction.markers,
-        detectedKeywords: detectKeywordLabels(normalized),
+        // Keywords never drive kind; surface structured kind only when present.
+        detectedKeywords: hasStructuredKind ? [kind] : [],
         detectedAssets: extractAssetSymbols(redaction.text),
         detectedCurrencies: extractCurrencyCodes(redaction.text),
         missingFields,
@@ -201,7 +161,10 @@ export class ZavorthTransactionIntentService {
     if (intent.conditions.length > 0) {
       lines.push(
         `[transaction-intent] conditions: ${intent.conditions
-          .map((condition) => `${condition.kind}${condition.value === undefined ? '' : `=${condition.value}${condition.unit ?? ''}`}`)
+          .map(
+            (condition) =>
+              `${condition.kind}${condition.value === undefined ? '' : `=${condition.value}${condition.unit ?? ''}`}`,
+          )
           .join(', ')}`,
       );
     }
@@ -239,20 +202,6 @@ function buildSafetyInput(input: {
   };
 }
 
-function detectIntentRule(text: string): IntentRule | undefined {
-  return INTENT_RULES.find((rule) => rule.keywords.every((keyword) => keyword.test(text)));
-}
-
-function detectKeywordLabels(text: string): string[] {
-  const labels = new Set<string>();
-  for (const rule of INTENT_RULES) {
-    if (rule.keywords.some((keyword) => keyword.test(text))) {
-      labels.add(rule.kind);
-    }
-  }
-  return [...labels];
-}
-
 function redactTransactionSourceText(text: string): { text: string; wasRedacted: boolean; markers: string[] } {
   const markers: string[] = [];
   let redacted = text.replace(
@@ -264,10 +213,13 @@ function redactTransactionSourceText(text: string): { text: string; wasRedacted:
     },
   );
 
-  redacted = redacted.replace(/\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/g, (match) => {
-    markers.push(match.slice(0, 2));
-    return '[REDACTED_SECRET]';
-  });
+  redacted = redacted.replace(
+    /\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/g,
+    (match) => {
+      markers.push(match.slice(0, 2));
+      return '[REDACTED_SECRET]';
+    },
+  );
 
   return {
     text: redacted,
@@ -283,7 +235,15 @@ function normalizeText(text: string): string {
     .toLowerCase();
 }
 
-function extractTarget(rawText: string, normalized: string, fallbackKind: ZavorthTransactionIntentTargetKind): ZavorthTransactionIntentTarget {
+/**
+ * Soft target field extraction. Does not activate product kind — caller supplies fallbackKind
+ * from structured input only.
+ */
+function extractTarget(
+  rawText: string,
+  normalized: string,
+  fallbackKind: ZavorthTransactionIntentTargetKind,
+): ZavorthTransactionIntentTarget {
   const assets = extractAssetSymbols(rawText);
   if (assets.length > 0) {
     return {
@@ -294,7 +254,9 @@ function extractTarget(rawText: string, normalized: string, fallbackKind: Zavort
     };
   }
 
-  const billMatch = rawText.match(/\b(fatura|boleto|conta|pix)\b(?:\s+(?:do|da|de)\s+([A-Za-z0-9 _.-]{2,40}))?/i);
+  const billMatch = rawText.match(
+    /\b(invoice|bill|fatura|boleto|conta|pix)\b(?:\s+(?:do|da|de|of|the)\s+([A-Za-z0-9 _.-]{2,40}))?/i,
+  );
   if (billMatch) {
     return {
       kind: 'bill',
@@ -303,7 +265,9 @@ function extractTarget(rawText: string, normalized: string, fallbackKind: Zavort
     };
   }
 
-  const subscriptionMatch = rawText.match(/\b(?:assinatura|plano|servico|service)\b(?:\s+(?:do|da|de)\s+([A-Za-z0-9 _.-]{2,50}))?/i);
+  const subscriptionMatch = rawText.match(
+    /\b(?:subscription|assinatura|plano|servico|service)\b(?:\s+(?:do|da|de|of|for)\s+([A-Za-z0-9 _.-]{2,50}))?/i,
+  );
   if (subscriptionMatch) {
     return {
       kind: fallbackKind === 'unknown' ? 'subscription' : fallbackKind,
@@ -312,7 +276,9 @@ function extractTarget(rawText: string, normalized: string, fallbackKind: Zavort
     };
   }
 
-  const productMatch = normalized.match(/\b(?:monitore|monitorar|compre|comprar|repor|reabastecer)\s+([a-z0-9 _.-]{2,60}?)(?:\s+(?:abaixo|acima|ate|se|por|em|no|na)\b|$)/i);
+  const productMatch = normalized.match(
+    /\b(?:monitor|monitore|monitorar|buy|purchase|compre|comprar|restock|repor|reabastecer)\s+([a-z0-9 _.-]{2,60}?)(?:\s+(?:below|above|abaixo|acima|ate|up\s+to|se|if|por|for|em|no|na|in|on)\b|$)/i,
+  );
   if (productMatch?.[1]) {
     return {
       kind: fallbackKind === 'unknown' ? 'product' : fallbackKind,
@@ -329,13 +295,16 @@ function extractTarget(rawText: string, normalized: string, fallbackKind: Zavort
 }
 
 function cleanTargetLabel(value: string): string {
-  const cleaned = value.replace(/\s+/g, ' ').replace(/[.,;:]+$/g, '').trim();
+  const cleaned = value
+    .replace(/\s+/g, ' ')
+    .replace(/[.,;:]+$/g, '')
+    .trim();
   return cleaned.length > 0 ? cleaned : 'unknown';
 }
 
 function extractVendorHints(text: string): string[] {
   const hints = new Set<string>();
-  for (const match of text.matchAll(/\b(?:na|no|pela|pelo|via)\s+([A-Z][A-Za-z0-9_.-]{2,40})/g)) {
+  for (const match of text.matchAll(/\b(?:na|no|pela|pelo|via|on|at|through)\s+([A-Z][A-Za-z0-9_.-]{2,40})/g)) {
     if (match[1]) {
       hints.add(match[1]);
     }
@@ -364,7 +333,7 @@ function extractCurrencyCodes(text: string): string[] {
   if (/\b(R\$|BRL|real|reais)\b/i.test(text)) {
     currencies.add('BRL');
   }
-  if (/\b(US\$|USD|dolar|dolares)\b/i.test(text)) {
+  if (/\b(US\$|USD|dolar|dolares|dollar|dollars)\b/i.test(text)) {
     currencies.add('USD');
   }
   if (/\b(EUR|euro|euros)\b/i.test(text)) {
@@ -376,11 +345,11 @@ function extractCurrencyCodes(text: string): string[] {
 function extractLimits(text: string): ZavorthTransactionIntentLimit[] {
   const limits: ZavorthTransactionIntentLimit[] = [];
   const patterns: Array<{ regex: RegExp; currency: string }> = [
-    { regex: /\b(?:R\$|BRL)\s*([0-9][0-9.,]*)/gi, currency: 'BRL' },
-    { regex: /\b([0-9][0-9.,]*)\s*(?:reais|BRL)\b/gi, currency: 'BRL' },
-    { regex: /\b(?:US\$|USD)\s*([0-9][0-9.,]*)/gi, currency: 'USD' },
-    { regex: /\b([0-9][0-9.,]*)\s*(?:dolares|dolar|USD)\b/gi, currency: 'USD' },
-    { regex: /\b(?:EUR)\s*([0-9][0-9.,]*)/gi, currency: 'EUR' },
+    { regex: /\b(?:R\$|BRL)\s*([0-9][0-9.]*)/gi, currency: 'BRL' },
+    { regex: /\b([0-9][0-9.]*)\s*(?:reais|BRL)\b/gi, currency: 'BRL' },
+    { regex: /\b(?:US\$|USD)\s*([0-9][0-9.]*)/gi, currency: 'USD' },
+    { regex: /\b([0-9][0-9.]*)\s*(?:dolares|dolar|dollars|dollar|USD)\b/gi, currency: 'USD' },
+    { regex: /\b(?:EUR)\s*([0-9][0-9.]*)/gi, currency: 'EUR' },
   ];
 
   for (const pattern of patterns) {
@@ -418,13 +387,13 @@ function parseLocalizedNumber(value: string): number | undefined {
 }
 
 function detectLimitScope(text: string): ZavorthTransactionIntentLimit['scope'] {
-  if (/\b(por dia|diario|daily)\b/i.test(text)) {
+  if (/\b(por dia|diario|daily|per day)\b/i.test(text)) {
     return 'daily';
   }
-  if (/\b(mandato|mandate|ate eu cancelar)\b/i.test(text)) {
+  if (/\b(mandato|mandate|ate eu cancelar|until i cancel)\b/i.test(text)) {
     return 'mandate';
   }
-  if (/\b(por transacao|cada compra|cada ordem)\b/i.test(text)) {
+  if (/\b(por transacao|cada compra|cada ordem|per transaction|each purchase|each order)\b/i.test(text)) {
     return 'per-transaction';
   }
   return 'per-transaction';
@@ -444,7 +413,7 @@ function dedupeLimits(limits: ZavorthTransactionIntentLimit[]): ZavorthTransacti
 
 function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]): ZavorthTransactionIntentCondition[] {
   const conditions: ZavorthTransactionIntentCondition[] = [];
-  const percentDrop = text.match(/\b(?:cair|queda|abaixar|abaixe|drop)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
+  const percentDrop = text.match(/\b(?:cair|queda|abaixar|abaixe|drop|drops?)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
   if (percentDrop?.[1]) {
     conditions.push({
       kind: 'percent-drop',
@@ -454,7 +423,7 @@ function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]
     });
   }
 
-  const percentRise = text.match(/\b(?:subir|alta|rise)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
+  const percentRise = text.match(/\b(?:subir|alta|rise|rises?)\D{0,20}([0-9]+(?:[,.][0-9]+)?)\s*%/i);
   if (percentRise?.[1]) {
     conditions.push({
       kind: 'percent-rise',
@@ -464,7 +433,10 @@ function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]
     });
   }
 
-  if (limits.length > 0 && /\b(abaixo|menor que|ate|no maximo|maximo)\b/i.test(text)) {
+  if (
+    limits.length > 0 &&
+    /\b(abaixo|menor que|ate|no maximo|maximo|below|under|up to|at most|maximum)\b/i.test(text)
+  ) {
     conditions.push({
       kind: 'price-below',
       value: limits[0]?.amount,
@@ -473,7 +445,7 @@ function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]
     });
   }
 
-  if (limits.length > 0 && /\b(acima|maior que|pelo menos|minimo)\b/i.test(text)) {
+  if (limits.length > 0 && /\b(acima|maior que|pelo menos|minimo|above|over|at least|minimum)\b/i.test(text)) {
     conditions.push({
       kind: 'price-above',
       value: limits[0]?.amount,
@@ -482,7 +454,11 @@ function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]
     });
   }
 
-  if (/\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme)\b/i.test(normalizeText(text))) {
+  if (
+    /\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme|ask for confirmation|confirm before|require approval)\b/i.test(
+      normalizeText(text),
+    )
+  ) {
     conditions.push({
       kind: 'manual-confirmation',
       rawText: 'manual confirmation requested',
@@ -493,7 +469,9 @@ function extractConditions(text: string, limits: ZavorthTransactionIntentLimit[]
 }
 
 function extractWindow(text: string, now: Date): ZavorthTransactionIntentWindow | undefined {
-  const duration = text.match(/\b(?:por|durante)\s+([0-9]+)\s+(minutos?|horas?|dias?|semanas?)\b/i);
+  const duration = text.match(
+    /\b(?:por|durante|for|during)\s+([0-9]+)\s+(minutos?|minutes?|horas?|hours?|dias?|days?|semanas?|weeks?)\b/i,
+  );
   if (duration?.[1] && duration[2]) {
     const amount = Number(duration[1]);
     const unit = normalizeText(duration[2]);
@@ -506,14 +484,14 @@ function extractWindow(text: string, now: Date): ZavorthTransactionIntentWindow 
     };
   }
 
-  const endOfMonth = /\b(fim do mes|final do mes)\b/i.test(normalizeText(text));
+  const endOfMonth = /\b(fim do mes|final do mes|end of (the )?month)\b/i.test(normalizeText(text));
   if (endOfMonth) {
     const expiresAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59));
     return {
       startsAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
-      durationText: 'fim do mes',
-      rawText: 'fim do mes',
+      durationText: 'end of month',
+      rawText: 'end of month',
     };
   }
 
@@ -522,11 +500,11 @@ function extractWindow(text: string, now: Date): ZavorthTransactionIntentWindow 
 
 function addDuration(now: Date, amount: number, unit: string): Date {
   const copy = new Date(now.getTime());
-  if (unit.startsWith('minuto')) {
+  if (unit.startsWith('minuto') || unit.startsWith('minute')) {
     copy.setUTCMinutes(copy.getUTCMinutes() + amount);
-  } else if (unit.startsWith('hora')) {
+  } else if (unit.startsWith('hora') || unit.startsWith('hour')) {
     copy.setUTCHours(copy.getUTCHours() + amount);
-  } else if (unit.startsWith('semana')) {
+  } else if (unit.startsWith('semana') || unit.startsWith('week')) {
     copy.setUTCDate(copy.getUTCDate() + amount * 7);
   } else {
     copy.setUTCDate(copy.getUTCDate() + amount);
@@ -538,10 +516,14 @@ function detectApprovalPreference(
   text: string,
   actionKind: ZavorthTransactionActionKind,
 ): ZavorthTransactionApprovalPreference {
-  if (/\b(sem aprovar|automatico|automaticamente|auto)\b/i.test(text)) {
+  if (/\b(sem aprovar|automatico|automaticamente|auto|without approval)\b/i.test(text)) {
     return 'auto-requested';
   }
-  if (/\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme|me avise)\b/i.test(text)) {
+  if (
+    /\b(peca confirmacao|confirmacao antes|aprovar|aprovacao|me confirme|me avise|ask for confirmation|confirm before|require approval)\b/i.test(
+      text,
+    )
+  ) {
     return 'explicit';
   }
   if (actionKind === 'price-monitor' || actionKind === 'market-data-read' || actionKind === 'cart-preview') {
@@ -563,7 +545,7 @@ function detectSimulationMode(
   if (/\b(sandbox|homologacao)\b/i.test(text)) {
     return 'sandbox-first';
   }
-  if (/\b(dry-run|teste|testar)\b/i.test(text)) {
+  if (/\b(dry-run|teste|testar|test)\b/i.test(text)) {
     return 'dry-run-first';
   }
   return 'preview-first';
@@ -609,16 +591,29 @@ function buildMissingFields(
   conditions: ZavorthTransactionIntentCondition[],
 ): string[] {
   const missing = new Set<string>();
+  if (kind === 'unknown-transaction') {
+    return [];
+  }
   if (target.kind === 'unknown' || target.label === 'unknown' || isAmbiguousTargetLabel(target.label)) {
     missing.add('target');
   }
   if (
-    ['purchase-product', 'pay-bill', 'execute-trade', 'convert-currency', 'restock-inventory', 'buy-api-credits'].includes(kind) &&
+    [
+      'purchase-product',
+      'pay-bill',
+      'execute-trade',
+      'convert-currency',
+      'restock-inventory',
+      'buy-api-credits',
+    ].includes(kind) &&
     limits.length === 0
   ) {
     missing.add('amount_or_limit');
   }
-  if (['monitor-price', 'execute-trade'].includes(kind) && conditions.every((condition) => condition.kind === 'always')) {
+  if (
+    ['monitor-price', 'execute-trade'].includes(kind) &&
+    conditions.every((condition) => condition.kind === 'always')
+  ) {
     missing.add('condition');
   }
   return [...missing];
@@ -626,7 +621,7 @@ function buildMissingFields(
 
 function isAmbiguousTargetLabel(label: string): boolean {
   const normalized = normalizeText(label);
-  return /^(isso|aquilo|esse|essa|este|esta|ele|ela|algo|coisa)\b/.test(normalized);
+  return /^(isso|aquilo|esse|essa|este|esta|ele|ela|algo|coisa|this|that|it|something)\b/.test(normalized);
 }
 
 function buildClarifyingQuestions(
@@ -636,19 +631,21 @@ function buildClarifyingQuestions(
 ): string[] {
   const questions: string[] = [];
   if (kind === 'unknown-transaction') {
-    questions.push('Qual transacao voce quer preparar: compra, pagamento, trade, conversao, assinatura ou monitoramento?');
+    questions.push(
+      'Which transaction do you want to prepare: purchase, payment, trade, conversion, subscription, or monitoring?',
+    );
   }
   if (missingFields.includes('target')) {
-    questions.push('Qual e o produto, ativo, servico, boleto ou assinatura alvo?');
+    questions.push('What is the target product, asset, service, bill, or subscription?');
   }
   if (missingFields.includes('amount_or_limit')) {
-    questions.push('Qual limite de valor devo usar antes de preparar qualquer preview?');
+    questions.push('What amount limit should I use before preparing any preview?');
   }
   if (missingFields.includes('condition')) {
-    questions.push('Qual condicao deve disparar o preview ou alerta?');
+    questions.push('What condition should trigger the preview or alert?');
   }
   if (decisionStatus === 'blocked') {
-    questions.push('Esse pedido contem segredo bruto ou acao critica; confirme um caminho seguro via vault/preview.');
+    questions.push('This request contains a raw secret or critical action; confirm a safe vault/preview path.');
   }
   return questions;
 }

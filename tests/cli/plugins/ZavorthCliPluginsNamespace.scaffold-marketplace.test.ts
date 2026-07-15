@@ -24,13 +24,7 @@ describe('ZavorthCliPluginsNamespace scaffold and marketplace install', () => {
     tempRoots.push(root);
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'tmp', version: '0.0.0' }), 'utf8');
 
-    await runPlugins(root, [
-      'scaffold',
-      'demo-cost-tracker',
-      '--module-kind',
-      'diagnostics',
-      '--yes',
-    ]);
+    await runPlugins(root, ['scaffold', 'demo-cost-tracker', '--module-kind', 'diagnostics', '--yes']);
 
     const targetDir = path.join(root, 'plugins', 'demo-cost-tracker');
     expect(fs.existsSync(path.join(targetDir, 'manifest.json'))).toBe(true);
@@ -59,19 +53,14 @@ describe('ZavorthCliPluginsNamespace scaffold and marketplace install', () => {
     tempRoots.push(root);
     fs.writeFileSync(path.join(root, 'package.json'), JSON.stringify({ name: 'tmp', version: '0.0.0' }), 'utf8');
 
-    await runPlugins(root, [
-      'install',
-      'marketplace:zavorth-plugin-cost-tracker',
-      '--yes',
-      '--enable',
-    ]);
+    await runPlugins(root, ['install', 'marketplace:zavorth-plugin-workspace-inspector', '--yes', '--enable']);
 
-    const packageDir = path.join(root, '.zavorth', 'plugins', 'zavorth-plugin-cost-tracker');
+    const packageDir = path.join(root, '.zavorth', 'plugins', 'zavorth-plugin-workspace-inspector');
     expect(fs.existsSync(path.join(packageDir, 'manifest.json'))).toBe(true);
     expect(fs.existsSync(path.join(packageDir, 'index.js'))).toBe(true);
 
     const bridge = new PluginStateBridgeService({ projectRoot: root });
-    const state = bridge.resolve('zavorth-plugin-cost-tracker');
+    const state = bridge.resolve('zavorth-plugin-workspace-inspector');
     expect(state.installed).toBe(true);
     expect(state.enabled).toBe(true);
     expect(state.runtimeState).toBe('enabled');

@@ -15,7 +15,7 @@ function buildCtx(rawText = '/integrations') {
 function buildPack(overrides: Record<string, any> = {}): SharedSurfaceIntegrationHubCommandPack {
   return new SharedSurfaceIntegrationHubCommandPack({
     integrationHubService: {
-      renderCatalogReport: jest.fn(() => 'Catalogo de integracoes do Zavorth'),
+      renderCatalogReport: jest.fn(() => 'Zavorth integration catalog'),
       renderManifestReport: jest.fn(() => 'Manifesto da integracao Discord'),
       renderConnectReport: jest.fn(() => 'Conexao guiada com Discord'),
     } as any,
@@ -25,7 +25,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceIntegratio
 
 describe('SharedSurfaceIntegrationHubCommandPack', () => {
   it('renders the integrations catalog without arguments', async () => {
-    const renderCatalogReport = jest.fn(() => 'Catalogo de integracoes do Zavorth');
+    const renderCatalogReport = jest.fn(() => 'Zavorth integration catalog');
     const pack = buildPack({
       integrationHubService: {
         renderCatalogReport,
@@ -39,7 +39,7 @@ describe('SharedSurfaceIntegrationHubCommandPack', () => {
 
     expect(handled).toBe(true);
     expect(renderCatalogReport).toHaveBeenCalledTimes(1);
-    expect(ctx.reply).toHaveBeenCalledWith('Catalogo de integracoes do Zavorth');
+    expect(ctx.reply).toHaveBeenCalledWith('Zavorth integration catalog');
   });
 
   it('renders an integration manifest when a target is provided', async () => {

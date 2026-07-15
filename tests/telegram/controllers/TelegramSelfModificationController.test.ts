@@ -172,15 +172,11 @@ describe('TelegramSelfModificationController', () => {
 
     await controller.handleCommand(ctx, 'src/sample.ts -- ajuste o guard');
 
-    expect(deps.selfModificationService.createPreview).toHaveBeenCalledWith(
-      'src/sample.ts',
-      'ajuste o guard',
-      '42',
-    );
+    expect(deps.selfModificationService.createPreview).toHaveBeenCalledWith('src/sample.ts', 'ajuste o guard', '42');
     expect(task.status).toBe('completed');
     expect(task.metadata.preview_id).toBe('preview-1');
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('/selfmod apply preview-1');
-      expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.any(Object));
+    expect(ctx.reply.mock.calls[0]?.[1]).toEqual(expect.any(Object));
   });
 
   it('applies a stored preview by id', async () => {
@@ -189,10 +185,12 @@ describe('TelegramSelfModificationController', () => {
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
-    const { controller, deps, task } = createController(createTask({
-      raw_message: '/selfmod apply preview-1',
-      normalized_message: '/selfmod apply preview-1',
-    }));
+    const { controller, deps, task } = createController(
+      createTask({
+        raw_message: '/selfmod apply preview-1',
+        normalized_message: '/selfmod apply preview-1',
+      }),
+    );
 
     await controller.handleCommand(ctx, 'apply preview-1');
 
@@ -211,10 +209,12 @@ describe('TelegramSelfModificationController', () => {
       from: { id: 42 },
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
-    const { controller, deps } = createController(createTask({
-      raw_message: '/selfmod apply preview-1',
-      normalized_message: '/selfmod apply preview-1',
-    }));
+    const { controller, deps } = createController(
+      createTask({
+        raw_message: '/selfmod apply preview-1',
+        normalized_message: '/selfmod apply preview-1',
+      }),
+    );
 
     await controller.handleCommand(ctx, 'apply preview-1');
 
@@ -258,10 +258,7 @@ describe('TelegramSelfModificationController', () => {
     await controller.handleCommand(ctx, 'goal -- criar capability de teste');
     await controller.handleCommand(ctx, 'rollback change-123');
 
-    expect(deps.selfModificationService.createGoalPreview).toHaveBeenCalledWith(
-      'criar capability de teste',
-      '42',
-    );
+    expect(deps.selfModificationService.createGoalPreview).toHaveBeenCalledWith('criar capability de teste', '42');
     expect(deps.selfModificationService.rollbackChangeSet).toHaveBeenCalledWith('change-123', '42');
   });
 
@@ -289,9 +286,6 @@ describe('TelegramSelfModificationController', () => {
 
     expect(task.status).toBe('failed');
     expect(deps.selfModificationService.createPreview).toHaveBeenCalled();
-    expect(ctx.reply).toHaveBeenCalledWith(
-      expect.stringMatching(/Saida da validacao|validation|Preview|bloqueado/i),
-      expect.any(Object),
-    );
+    expect(String(ctx.reply.mock.calls[0]?.[0] ?? '')).toMatch(/Saida da validacao|validation|Preview|bloqueado/i);
   });
 });

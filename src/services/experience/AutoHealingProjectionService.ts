@@ -1,7 +1,4 @@
-import {
-  EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION,
-  type ExperienceAutoHealing,
-} from './ExperienceContracts.js';
+import { EXPERIENCE_AUTO_HEALING_CONTRACT_VERSION, type ExperienceAutoHealing } from './ExperienceContracts.js';
 import type { UniversalAgentRun } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 
 export type AutoHealingProjectionInput = {
@@ -9,9 +6,7 @@ export type AutoHealingProjectionInput = {
 };
 
 function recordOrNull(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 }
 
 function numberOr(value: unknown, fallback: number): number {
@@ -39,12 +34,13 @@ export class AutoHealingProjectionService {
     const run = input.activeRun || null;
     const metadata = run?.metadata || {};
     const speculativeReceipt = recordOrNull(metadata.superZavorthSpeculativeAutonomy);
-    const healing = recordOrNull(metadata.autoHealing)
-      || recordOrNull(metadata.autoHeal)
-      || recordOrNull(metadata.selfHealing)
-      || recordOrNull(recordOrNull(metadata.sandbox)?.autoHealing)
-      || recordOrNull(speculativeReceipt?.autoHealing)
-      || null;
+    const healing =
+      recordOrNull(metadata.autoHealing) ||
+      recordOrNull(metadata.autoHeal) ||
+      recordOrNull(metadata.selfHealing) ||
+      recordOrNull(recordOrNull(metadata.sandbox)?.autoHealing) ||
+      recordOrNull(speculativeReceipt?.autoHealing) ||
+      null;
 
     if (!run || !healing) {
       return this.idle();
@@ -87,7 +83,9 @@ export class AutoHealingProjectionService {
   }
 
   private statusFor(value: unknown, runStatus: UniversalAgentRun['status']): ExperienceAutoHealing['status'] {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     if (normalized === 'running' || normalized === 'retrying' || normalized === 'fixing') return 'running';
     if (normalized === 'passed' || normalized === 'success' || normalized === 'validated') return 'passed';
     if (normalized === 'failed' || normalized === 'exhausted') return 'failed';
@@ -112,9 +110,11 @@ export class AutoHealingProjectionService {
     const maxElapsedMs = numberOr(healing.maxElapsedMs ?? healing.timeBudgetMs, 120_000);
     const inputTokens = Number(healing.inputTokens);
     const outputTokens = Number(healing.outputTokens);
-    const tokensUsed = healing.tokensUsed
-      ?? (Number.isFinite(inputTokens) || Number.isFinite(outputTokens)
-        ? Math.max(0, Number.isFinite(inputTokens) ? inputTokens : 0) + Math.max(0, Number.isFinite(outputTokens) ? outputTokens : 0)
+    const tokensUsed =
+      healing.tokensUsed ??
+      (Number.isFinite(inputTokens) || Number.isFinite(outputTokens)
+        ? Math.max(0, Number.isFinite(inputTokens) ? inputTokens : 0) +
+          Math.max(0, Number.isFinite(outputTokens) ? outputTokens : 0)
         : undefined);
     const tokenBudget = healing.tokenBudget ?? healing.maxTokens ?? null;
     const estimatedCostUsd = healing.estimatedCostUsd ?? healing.costUsd ?? null;
@@ -126,7 +126,7 @@ export class AutoHealingProjectionService {
       tokensUsed: tokensUsed === undefined ? null : numberOr(tokensUsed, 0),
       estimatedCostUsd: estimatedCostUsd === null ? null : numberOr(estimatedCostUsd, 0),
       cancellable,
-      cancelCommand: cancellable ? 'zavorth ask "parar auto-healing e mostrar erro"' : null,
+      cancelCommand: cancellable ? 'zavorth ask "stop auto-healing and show error"' : null,
     };
   }
 }

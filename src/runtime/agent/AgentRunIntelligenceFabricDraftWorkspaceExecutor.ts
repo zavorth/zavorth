@@ -118,7 +118,8 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
   private readonly rollbackRoot: string;
 
   constructor(runtime: DraftWorkspaceExecutorRuntime = {}) {
-    this.rollbackRoot = runtime.rollbackRoot || path.resolve(config.projectRoot, 'data', 'runtime', 'intelligence-fabric-rollbacks');
+    this.rollbackRoot =
+      runtime.rollbackRoot || path.resolve(config.projectRoot, 'data', 'runtime', 'intelligence-fabric-rollbacks');
   }
 
   public executePlan(input: {
@@ -135,7 +136,9 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
     const proposedActions = parseProposedActions(payload.proposedActions);
     const unsafeAction = proposedActions.find((action) => !isSafeRisk3WorkspaceWriteAction(action));
     if (unsafeAction) {
-      return blocked(`Acao ${unsafeAction.id || unsafeAction.kind} nao e write/edit reversivel de Risk 3 dentro do workspace.`);
+      return blocked(
+        `Acao ${unsafeAction.id || unsafeAction.kind} nao e write/edit reversivel de Risk 3 dentro do workspace.`,
+      );
     }
     const workspaceRoot = stringOrNull(payload.workspaceRoot) || input.run.workspace || null;
     if (!workspaceRoot) {
@@ -144,7 +147,9 @@ export class AgentRunIntelligenceFabricDraftWorkspaceExecutor {
     const writes = parseWorkspaceWrites(payload.workspaceWrites);
     const patches = parseWorkspacePatches(payload.workspacePatches);
     if (writes.length === 0 && patches.length === 0) {
-      return blocked('Nenhuma workspaceWrites explicita ou workspacePatches explicito foi encontrado; o executor nao inventa conteudo.');
+      return blocked(
+        'Nenhuma workspaceWrites explicita ou workspacePatches explicito foi encontrado; o executor nao inventa conteudo.',
+      );
     }
     const patchVerifier = readRecord(payload.workspacePatchVerifier);
     if (patches.length > 0 && patchVerifier.status === 'blocked') {
@@ -321,10 +326,11 @@ export function extractDraftWorkspaceWrites(value: unknown): AgentRunIntelligenc
 }
 
 export function extractDraftWorkspacePatches(value: unknown): AgentRunIntelligenceFabricDraftWorkspacePatch[] {
-  return parseWorkspacePatches(value).filter((patch) => (
-    !looksLikeSecret(patch.path)
-    && patch.hunks.every((hunk) => !looksLikeSecret(hunk.search) && !looksLikeSecret(hunk.replace))
-  ));
+  return parseWorkspacePatches(value).filter(
+    (patch) =>
+      !looksLikeSecret(patch.path) &&
+      patch.hunks.every((hunk) => !looksLikeSecret(hunk.search) && !looksLikeSecret(hunk.replace)),
+  );
 }
 
 export function previewDraftWorkspacePatches(input: {
@@ -369,12 +375,19 @@ export function previewDraftWorkspacePatches(input: {
       const currentContent = fs.readFileSync(targetPath, 'utf8');
       const patchResult = applyStructuredPatch(currentContent, patch, relativePath);
       if (patchResult.blockedReason) {
-        files.push(patchPreviewFile(relativePath, patch, 'blocked', sha256(currentContent), null, [patchResult.blockedReason]));
+        files.push(
+          patchPreviewFile(relativePath, patch, 'blocked', sha256(currentContent), null, [patchResult.blockedReason]),
+        );
         blockedReasons.push(patchResult.blockedReason);
-        ambiguous = ambiguous || patchResult.blockedReason.includes('inequivoco') || patchResult.blockedReason.includes('aparece');
+        ambiguous =
+          ambiguous ||
+          patchResult.blockedReason.includes('inequivoco') ||
+          patchResult.blockedReason.includes('aparece');
         continue;
       }
-      files.push(patchPreviewFile(relativePath, patch, 'passed', sha256(currentContent), sha256(patchResult.content), []));
+      files.push(
+        patchPreviewFile(relativePath, patch, 'passed', sha256(currentContent), sha256(patchResult.content), []),
+      );
     } catch (error: unknown) {
       const err = asErrorLike(error);
       const reason = error instanceof Error ? err.message : String(error);
@@ -385,9 +398,10 @@ export function previewDraftWorkspacePatches(input: {
   const status = blockedReasons.length > 0 ? 'blocked' : 'passed';
   return {
     status,
-    summary: status === 'passed'
-      ? `${files.length} arquivo(s) verificado(s) para patch multi-hunk sem side effect.`
-      : `${blockedReasons.length} problema(s) bloquearam o preview de patch multi-hunk.`,
+    summary:
+      status === 'passed'
+        ? `${files.length} arquivo(s) verificado(s) para patch multi-hunk sem side effect.`
+        : `${blockedReasons.length} problema(s) bloquearam o preview de patch multi-hunk.`,
     files,
     blockedReasons,
     ambiguous,
@@ -427,7 +441,7 @@ export function buildDraftWorkspaceDiffReceipt(input: {
     return {
       path: normalizedPath,
       operation: 'patch' as const,
-      status: preview?.status || 'blocked' as const,
+      status: preview?.status || ('blocked' as const),
       hunkCount: patch.hunks.length,
       beforeHash: preview?.beforeHash || null,
       afterHash: preview?.afterHash || null,
@@ -462,39 +476,31 @@ export function buildDraftWorkspaceDiffReceipt(input: {
       'workspace-diff-receipt',
       'diff-receipt-no-live-action',
       'diff-receipt-risk-3',
-      ...(input.patchPreview.status === 'blocked' ? ['diff-receipt-verifier-blocked'] : ['diff-receipt-verifier-passed']),
+      ...(input.patchPreview.status === 'blocked'
+        ? ['diff-receipt-verifier-blocked']
+        : ['diff-receipt-verifier-passed']),
     ],
   };
 }
 
-export function planDraftWorkspaceWritesFromRun(input: {
+/**
+ * Free-text never plans workspace writes. Callers must pass structured
+ * `intelligenceFabricDraftWorkspaceWrites` metadata (or tool/UI payloads).
+ */
+export function planDraftWorkspaceWritesFromRun(_input: {
   run: UniversalAgentRun;
 }): AgentRunIntelligenceFabricDraftWorkspaceWrite[] {
-  const text = String(input.run.input || '').trim();
-  if (!/\b(notas?|notes?)\b/i.test(text) || !/\b(escreva|crie|salve|write|create|save)\b/i.test(text)) {
-    return [];
-  }
-  return [
-    {
-      path: 'notes/intelligence-fabric-draft.txt',
-      content: [
-        'Rascunho preparado pelo Intelligence Fabric.',
-        '',
-        `Pedido original: ${text}`,
-        '',
-      ].join('\n'),
-      actionId: 'action-workspace-impact',
-      description: 'Nota simples planejada a partir do draft Risk 3.',
-    },
-  ];
+  return [];
 }
 
-export function planDraftWorkspacePatchesFromRun(input: {
+/**
+ * Free-text never plans workspace patches. Callers must pass structured
+ * `intelligenceFabricDraftWorkspacePatches` metadata (or tool/UI payloads).
+ */
+export function planDraftWorkspacePatchesFromRun(_input: {
   run: UniversalAgentRun;
 }): AgentRunIntelligenceFabricDraftWorkspacePatch[] {
-  const text = String(input.run.input || '').trim();
-  const patch = parseNaturalPatchRequest(text);
-  return patch ? [patch] : [];
+  return [];
 }
 
 function parseWorkspaceWrites(value: unknown): AgentRunIntelligenceFabricDraftWorkspaceWrite[] {
@@ -505,7 +511,12 @@ function parseWorkspaceWrites(value: unknown): AgentRunIntelligenceFabricDraftWo
     .map((entry) => readRecord(entry))
     .map((entry) => ({
       path: stringOrNull(entry.path) || stringOrNull(entry.target) || '',
-      content: typeof entry.content === 'string' ? entry.content : typeof entry.newContent === 'string' ? entry.newContent : '',
+      content:
+        typeof entry.content === 'string'
+          ? entry.content
+          : typeof entry.newContent === 'string'
+            ? entry.newContent
+            : '',
       actionId: stringOrNull(entry.actionId),
       description: stringOrNull(entry.description),
     }))
@@ -553,11 +564,13 @@ function parseProposedActions(value: unknown): ProposedActionRecord[] {
 }
 
 function isSafeRisk3WorkspaceWriteAction(action: ProposedActionRecord): boolean {
-  return ['write', 'edit'].includes(action.kind)
-    && action.reversible
-    && action.insideWorkspace
-    && action.riskLevel <= 3
-    && !looksLikeSecret(action.target);
+  return (
+    ['write', 'edit'].includes(action.kind) &&
+    action.reversible &&
+    action.insideWorkspace &&
+    action.riskLevel <= 3 &&
+    !looksLikeSecret(action.target)
+  );
 }
 
 function validateWrite(write: AgentRunIntelligenceFabricDraftWorkspaceWrite, relativePath: string): string | null {
@@ -590,7 +603,10 @@ function validatePatch(patch: AgentRunIntelligenceFabricDraftWorkspacePatch, rel
     if (looksLikeSecret(relativePath) || looksLikeSecret(hunk.search) || looksLikeSecret(hunk.replace)) {
       return 'Patch bloqueado porque o alvo ou conteudo parece conter segredo.';
     }
-    if (Buffer.byteLength(hunk.search, 'utf8') > MAX_WRITE_BYTES || Buffer.byteLength(hunk.replace, 'utf8') > MAX_WRITE_BYTES) {
+    if (
+      Buffer.byteLength(hunk.search, 'utf8') > MAX_WRITE_BYTES ||
+      Buffer.byteLength(hunk.replace, 'utf8') > MAX_WRITE_BYTES
+    ) {
       return 'Patch bloqueado porque excede o limite de tamanho do draft reversivel.';
     }
   }
@@ -606,18 +622,30 @@ function applyStructuredPatch(
   for (const [index, hunk] of patch.hunks.entries()) {
     const occurrenceCount = countOccurrences(content, hunk.search);
     if (occurrenceCount === 0) {
-      return { content: currentContent, blockedReason: `Patch bloqueado porque o hunk ${index + 1} nao foi encontrado em ${relativePath}.` };
+      return {
+        content: currentContent,
+        blockedReason: `Patch bloqueado porque o hunk ${index + 1} nao foi encontrado em ${relativePath}.`,
+      };
     }
     if (occurrenceCount > 1) {
-      return { content: currentContent, blockedReason: `Patch bloqueado porque o hunk ${index + 1} aparece ${occurrenceCount} vezes em ${relativePath}; o patch precisa ser inequivoco.` };
+      return {
+        content: currentContent,
+        blockedReason: `Patch bloqueado porque o hunk ${index + 1} aparece ${occurrenceCount} vezes em ${relativePath}; o patch precisa ser inequivoco.`,
+      };
     }
     content = content.replace(hunk.search, hunk.replace);
   }
   if (looksLikeSecret(content)) {
-    return { content: currentContent, blockedReason: 'Patch bloqueado porque o conteudo resultante parece conter segredo.' };
+    return {
+      content: currentContent,
+      blockedReason: 'Patch bloqueado porque o conteudo resultante parece conter segredo.',
+    };
   }
   if (Buffer.byteLength(content, 'utf8') > MAX_WRITE_BYTES) {
-    return { content: currentContent, blockedReason: 'Patch bloqueado porque o arquivo resultante excede o limite do draft reversivel.' };
+    return {
+      content: currentContent,
+      blockedReason: 'Patch bloqueado porque o arquivo resultante excede o limite do draft reversivel.',
+    };
   }
   return { content, blockedReason: null };
 }
@@ -635,25 +663,8 @@ function countOccurrences(value: string, search: string): number {
   return count;
 }
 
-function parseNaturalPatchRequest(text: string): AgentRunIntelligenceFabricDraftWorkspacePatch | null {
-  const match = /(?:substitua|troque|replace)\s+["']([^"']+)["']\s+(?:por|with)\s+["']([^"']*)["']\s+(?:em|no|na|in)\s+([^\s,;]+)/i.exec(text);
-  if (!match) {
-    return null;
-  }
-  return {
-    path: match[3],
-    search: match[1],
-    replace: match[2],
-    hunks: [{ search: match[1], replace: match[2] }],
-    actionId: 'action-workspace-impact',
-    description: 'Patch estruturado planejado a partir do draft Risk 3.',
-  };
-}
-
 function parsePatchHunks(entry: Record<string, unknown>): AgentRunIntelligenceFabricDraftWorkspacePatchHunk[] {
-  const structured = Array.isArray(entry.hunks)
-    ? entry.hunks.map((hunk) => readRecord(hunk))
-    : [];
+  const structured = Array.isArray(entry.hunks) ? entry.hunks.map((hunk) => readRecord(hunk)) : [];
   const hunks: AgentRunIntelligenceFabricDraftWorkspacePatchHunk[] = [];
   for (const hunk of structured) {
     const replace = resolveReplacement(hunk);
@@ -670,7 +681,8 @@ function parsePatchHunks(entry: Record<string, unknown>): AgentRunIntelligenceFa
     return hunks;
   }
   const replace = resolveReplacement(entry);
-  const search = typeof entry.search === 'string' ? entry.search : typeof entry.oldText === 'string' ? entry.oldText : '';
+  const search =
+    typeof entry.search === 'string' ? entry.search : typeof entry.oldText === 'string' ? entry.oldText : '';
   return typeof replace === 'string' && search
     ? [{ search, replace, description: stringOrNull(entry.description) }]
     : [];
@@ -729,7 +741,9 @@ function blocked(reason: string): AgentRunIntelligenceFabricDraftExecutionResult
 }
 
 function looksLikeSecret(value: string): boolean {
-  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12,})\b/i.test(value);
+  return /\b(?:\.env|id_rsa|credentials\.json|secrets?\.json|token|secret|password|api[_-]?key|sk-[a-z0-9_-]{12})\b/i.test(
+    value,
+  );
 }
 
 function sha256(value: string): string {
@@ -738,9 +752,7 @@ function sha256(value: string): string {
 
 function previewText(value: string): string {
   const normalized = value.replace(/\s+/g, ' ').trim();
-  return normalized.length > 140
-    ? `${normalized.slice(0, 137)}...`
-    : normalized;
+  return normalized.length > 140 ? `${normalized.slice(0, 137)}...` : normalized;
 }
 
 function actionLabel(record: RollbackRecord): string {
@@ -748,9 +760,7 @@ function actionLabel(record: RollbackRecord): string {
 }
 
 function readRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : {};
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 function stringOrNull(value: unknown): string | null {

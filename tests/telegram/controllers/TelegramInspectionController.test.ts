@@ -85,7 +85,7 @@ describe('TelegramInspectionController', () => {
     await controller.handleTasks(ctx, 'approval 5', '42');
 
     expect(ctx.reply.mock.calls[0][0]).toContain('Pending approvals');
-    expect(ctx.reply.mock.calls[0][0]).toContain('/approve wait1234-3456');
+    expect(ctx.reply.mock.calls[0][0]).toContain('/approve (or /approve 1 if several)');
   });
 
   it('filters failed tasks and suggests diff inspection', async () => {
@@ -150,7 +150,8 @@ describe('TelegramInspectionController', () => {
       reply: jest.fn().mockResolvedValue(undefined),
     } as any;
     const taskManager = {
-      getRecentTasks: jest.fn()
+      getRecentTasks: jest
+        .fn()
         .mockReturnValueOnce([
           {
             task_id: 'abc12345-9999',
@@ -269,12 +270,7 @@ describe('TelegramInspectionController', () => {
         text: 'Arquivos alterados de hoje em fora',
       }),
     } as any;
-    const controller = new TelegramInspectionController(
-      {} as any,
-      {} as any,
-      {},
-      inspectionService,
-    );
+    const controller = new TelegramInspectionController({} as any, {} as any, {}, inspectionService);
 
     const resumed = await controller.handleApprovedPermission(ctx, {
       executor: 'file_delivery',

@@ -13,14 +13,13 @@ describe('Agent tools golden path', () => {
   });
 
   it('exposes agent-brain tools and multi-step catalog for free-text work', async () => {
-    const chatDetailed = jest.fn()
+    const chatDetailed = jest
+      .fn()
       .mockResolvedValueOnce({
         providerName: 'gemini',
         response: {
           content: '',
-          toolCalls: [
-            { id: 'c1', name: 'web_search', arguments: { query: 'AI news 2026' } },
-          ],
+          toolCalls: [{ id: 'c1', name: 'web_search', arguments: { query: 'AI news 2026' } }],
         },
       })
       .mockResolvedValueOnce({
@@ -41,7 +40,8 @@ describe('Agent tools golden path', () => {
         response: { content: 'Report ready at reports/ai.md with sources.' },
       });
 
-    const executeTool = jest.fn()
+    const executeTool = jest
+      .fn()
       .mockResolvedValueOnce('QUALITY_GATE: ok\n1. Example headline — https://example.com')
       .mockResolvedValueOnce('File created.');
 
@@ -52,48 +52,70 @@ describe('Agent tools golden path', () => {
       } as any,
       toolRuntime: {
         getToolDefinitions: jest.fn().mockReturnValue([
-          { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {}, required: [] } },
-          { name: 'create_file', description: 'Create file', parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] } },
-          { name: 'zavorth_delegate', description: 'Delegate to subagents', parameters: { type: 'object', properties: {}, required: [] } },
-          { name: 'capability_discovery', description: 'Discover capabilities', parameters: { type: 'object', properties: {}, required: [] } },
-          { name: 'agent_manager', description: 'Manage agents', parameters: { type: 'object', properties: {}, required: [] } },
+          {
+            name: 'web_search',
+            description: 'Web search',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
+          {
+            name: 'create_file',
+            description: 'Create file',
+            parameters: { type: 'object', properties: {}, required: ['filepath', 'content'] },
+          },
+          {
+            name: 'zavorth_delegate',
+            description: 'Delegate to subagents',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
+          {
+            name: 'capability_discovery',
+            description: 'Discover capabilities',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
+          {
+            name: 'agent_manager',
+            description: 'Manage agents',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
         ]),
         executeTool,
       },
     } as any);
 
-    const response = await agent.chat(
-      'research the latest AI news and write a short report with sources',
-      undefined,
-      { mode: 'direct' },);
+    const response = await agent.chat('research the latest AI news and write a short report with sources', undefined, {
+      mode: 'direct',
+    });
 
     expect(chatDetailed).toHaveBeenCalled();
     const firstTools = chatDetailed.mock.calls[0][1]?.map((t: any) => t.name) || [];
-    expect(firstTools).toEqual(expect.arrayContaining([
-      'web_search',
-      'create_file',
-      'zavorth_delegate',
-      'capability_discovery',
-    ]));
+    expect(firstTools).toEqual(
+      expect.arrayContaining(['web_search', 'create_file', 'zavorth_delegate', 'capability_discovery']),
+    );
 
     const systemMsg = chatDetailed.mock.calls[0][0].find((m: any) => m.role === 'system');
-    expect(String(systemMsg?.content || '')).toMatch(/AVAILABLE TOOLS/i);
+    expect(String(systemMsg?.content || '')).toMatch(/TOOLS \(lazy\)/i);
 
     expect(executeTool).toHaveBeenCalledWith('web_search', expect.any(Object));
-    expect(executeTool).toHaveBeenCalledWith('create_file', expect.objectContaining({
-      filepath: 'reports/ai.md',
-    }));
+    expect(executeTool).toHaveBeenCalledWith(
+      'create_file',
+      expect.objectContaining({
+        filepath: 'reports/ai.md',
+      }),
+    );
     expect(response.text).toMatch(/Report ready|reports\/ai/i);
-    expect(response.toolTelemetry).toEqual(expect.objectContaining({
-      toolRounds: expect.any(Number),
-      toolsCalled: expect.arrayContaining(['web_search', 'create_file']),
-      toolReceiptCount: expect.any(Number),
-    }));
+    expect(response.toolTelemetry).toEqual(
+      expect.objectContaining({
+        toolRounds: expect.any(Number),
+        toolsCalled: expect.arrayContaining(['web_search', 'create_file']),
+        toolReceiptCount: expect.any(Number),
+      }),
+    );
     expect(response.toolTelemetry!.toolRounds).toBeGreaterThanOrEqual(2);
   });
 
   it('reports clearly when the model asks for an unavailable tool', async () => {
-    const chatDetailed = jest.fn()
+    const chatDetailed = jest
+      .fn()
       .mockResolvedValueOnce({
         providerName: 'gemini',
         response: {
@@ -115,8 +137,16 @@ describe('Agent tools golden path', () => {
       } as any,
       toolRuntime: {
         getToolDefinitions: jest.fn().mockReturnValue([
-          { name: 'web_search', description: 'Web search', parameters: { type: 'object', properties: {}, required: [] } },
-          { name: 'capability_discovery', description: 'Discover', parameters: { type: 'object', properties: {}, required: [] } },
+          {
+            name: 'web_search',
+            description: 'Web search',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
+          {
+            name: 'capability_discovery',
+            description: 'Discover',
+            parameters: { type: 'object', properties: {}, required: [] },
+          },
         ]),
         executeTool: jest.fn(),
       },

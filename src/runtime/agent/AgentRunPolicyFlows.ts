@@ -1,5 +1,10 @@
 import { AgentRunService, AgentRunExecutionOptions, normalizeText, recordOrNull } from './AgentRunService.js';
-import { UniversalAgentRun, UniversalAgentRequest, UniversalAgentRunResult, UniversalAgentExecutorResult } from './UniversalAgentRuntimeTypes.js';
+import {
+  UniversalAgentRun,
+  UniversalAgentRequest,
+  UniversalAgentRunResult,
+  UniversalAgentExecutorResult,
+} from './UniversalAgentRuntimeTypes.js';
 import { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
 import { AgentRunRiskReviewStage } from './security/AgentRunRiskHooks.js';
 import { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
@@ -12,10 +17,7 @@ import { asErrorLike } from '../../utils/errorLike.js';
 export class AgentRunPolicyFlows {
   constructor(private service: AgentRunService) {}
 
-  public applyTrustSliderReview(
-    run: UniversalAgentRun,
-    input: UniversalAgentRequest,
-  ): UniversalAgentRunResult | null {
+  public applyTrustSliderReview(run: UniversalAgentRun, input: UniversalAgentRequest): UniversalAgentRunResult | null {
     const now = this.service.now().toISOString();
     const enforcement = this.applyUniversalIntentTrustEnforcement(run, input, now);
     const decision = enforcement.trustSlider;
@@ -54,11 +56,7 @@ export class AgentRunPolicyFlows {
     const narrative = this.applySafetyNarrative(run, now);
     return this.service.replyPipeline.buildResult({
       run,
-      text: [
-        'No tools were executed.',
-        '',
-        narrative.userMessage,
-      ].join('\n'),
+      text: ['No tools were executed.', '', narrative.userMessage].join('\n'),
     });
   }
 
@@ -282,9 +280,11 @@ export class AgentRunPolicyFlows {
     if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
       return;
     }
-    const approvalId = normalizeText(existing.approvalId)
-      || normalizeText(recordOrNull(existing.proposal)?.approvalId);
-    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
+    const approvalId = normalizeText(existing.approvalId) || normalizeText(recordOrNull(existing.proposal)?.approvalId);
+    if (
+      !approvalId ||
+      !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')
+    ) {
       return;
     }
     const scope = recordOrNull(existing.scope) || {};
@@ -342,9 +342,11 @@ export class AgentRunPolicyFlows {
     if (!existing || normalizeText(existing.status) !== 'waiting-approval') {
       return;
     }
-    const approvalId = normalizeText(existing.approvalId)
-      || normalizeText(recordOrNull(existing.approval)?.approvalId);
-    if (!approvalId || !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')) {
+    const approvalId = normalizeText(existing.approvalId) || normalizeText(recordOrNull(existing.approval)?.approvalId);
+    if (
+      !approvalId ||
+      !run.approvals.some((approval) => approval.id === approvalId && approval.status === 'approved')
+    ) {
       return;
     }
     run.metadata = {
@@ -386,8 +388,7 @@ export class AgentRunPolicyFlows {
   ): UniversalAgentRunResult | null {
     const metadata = recordOrNull(request.metadata) || {};
     const planId = normalizeText(metadata.intelligenceFabricApplyDraftPlanId || metadata.intelligenceFabricDraftPlanId);
-    const requested = Boolean(planId)
-      && (metadata.intelligenceFabricApplyDraftGuidance === true || /\b(aplicar|aplique|apply|commit)\b.*\b(rascunho|draft)\b/i.test(request.text));
+    const requested = Boolean(planId) && metadata.intelligenceFabricApplyDraftGuidance === true;
     if (!requested) {
       return null;
     }
@@ -411,7 +412,14 @@ export class AgentRunPolicyFlows {
       detail: result.summary,
       status: result.applied ? 'done' : 'pending',
       createdAt: now,
-      metadata: { planId: result.planId, status: result.status, approvalRequired: result.approvalRequired, diffReceipt: result.diffReceipt, diffReceiptText: result.diffReceiptText, rollbackArtifactPath: result.execution?.rollbackArtifactPath || null },
+      metadata: {
+        planId: result.planId,
+        status: result.status,
+        approvalRequired: result.approvalRequired,
+        diffReceipt: result.diffReceipt,
+        diffReceiptText: result.diffReceiptText,
+        rollbackArtifactPath: result.execution?.rollbackArtifactPath || null,
+      },
     });
     return this.service.replyPipeline.buildResult({ run, text: result.summary });
   }
@@ -428,12 +436,14 @@ export class AgentRunPolicyFlows {
       ...lifecycleDefense,
       [this.defenseReviewMetadataKey(phase)]: review,
     };
-    run.events.push(this.service.auditHooks.buildRiskReviewEvent({
-      run,
-      review,
-      now,
-      idFactory: this.service.idFactory,
-    }));
+    run.events.push(
+      this.service.auditHooks.buildRiskReviewEvent({
+        run,
+        review,
+        now,
+        idFactory: this.service.idFactory,
+      }),
+    );
   }
 
   public defenseReviewMetadataKey(phase: AgentRunRiskReviewStage): string {
@@ -480,5 +490,4 @@ export class AgentRunPolicyFlows {
     });
     return snapshot;
   }
-
 }

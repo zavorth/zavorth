@@ -95,7 +95,7 @@ export class UniversalApprovalIntentResolver {
         sessionId: clean(input.sessionId),
         target: null,
         candidates: [],
-        reason: 'A mensagem nao parece uma aprovacao ou rejeicao.',
+        reason: 'Message does not look like an approval or rejection.',
       });
     }
 
@@ -121,12 +121,13 @@ export class UniversalApprovalIntentResolver {
         target: null,
         candidates: [],
         reason: ref
-          ? `Nenhum approval pendente encontrado para ${ref}.`
-          : 'Nenhum approval pendente inequívoco foi encontrado nesse contexto.',
+          ? `No pending approval found for ${ref}.`
+          : 'No unambiguous pending approval was found in this context.',
       });
     }
 
     if (candidates.length > 1) {
+      const listed = candidates.map(toCandidate);
       return resolution({
         status: 'ambiguous',
         decision: parsed.decision,
@@ -136,8 +137,12 @@ export class UniversalApprovalIntentResolver {
         userId: clean(input.userId),
         sessionId: clean(input.sessionId),
         target: null,
-        candidates: candidates.map(toCandidate),
-        reason: 'Ha mais de um approval pendente possivel para essa resposta.',
+        candidates: listed,
+        reason:
+          'Several approvals are waiting. Pick one by number or tap its Approve/Reject button — you should not need a long id.',
+        commandHint: listed.length
+          ? `${parsed.decision === 'rejected' ? '/reject' : '/approve'} 1  (or 2…${Math.min(listed.length, 9)})`
+          : null,
       });
     }
 
@@ -151,11 +156,11 @@ export class UniversalApprovalIntentResolver {
       channel,
     });
     if (
-      bareNaturalText
-      && parsed.decision === 'approved'
-      && target.approval.risk === 'danger'
-      && input.allowBareDangerApproval !== true
-      && !bareTextIsScopedToTarget
+      bareNaturalText &&
+      parsed.decision === 'approved' &&
+      target.approval.risk === 'danger' &&
+      input.allowBareDangerApproval !== true &&
+      !bareTextIsScopedToTarget
     ) {
       return resolution({
         status: 'confirmation_required',
@@ -167,7 +172,8 @@ export class UniversalApprovalIntentResolver {
         sessionId: clean(input.sessionId),
         target: null,
         candidates: candidates.map(toCandidate),
-        reason: 'Approval de risco danger precisa de contexto identico, referencia explicita, botao autenticado, PIN ou frase de confirmacao.',
+        reason:
+          'Danger-risk approval needs matching context, an explicit reference, authenticated button, PIN, or confirmation phrase.',
       });
     }
 
@@ -181,40 +187,52 @@ export class UniversalApprovalIntentResolver {
       sessionId: clean(input.sessionId),
       target,
       candidates: [toCandidate(target)],
-      reason: parsed.decision === 'approved'
-        ? 'Approval resolvido com contexto suficiente.'
-        : 'Rejeicao resolvida com contexto suficiente.',
+      reason:
+        parsed.decision === 'approved'
+          ? 'Approval resolved with sufficient context.'
+          : 'Rejection resolved with sufficient context.',
     });
   }
 }
 
-export function renderUniversalApprovalIntentDecisionResult(
-  result: UniversalApprovalIntentDecisionResult,
-): string {
+export function renderUniversalApprovalIntentDecisionResult(result: UniversalApprovalIntentDecisionResult): string {
   if (result.ok && result.result) {
-    const decisionLabel = result.result.decision === 'approved' ? 'Aprovado' : 'Rejeitado';
+    const decisionLabel = result.result.decision === 'approved' ? 'Approved' : 'Rejected';
     const reply = result.result.replies[0]?.text || result.result.run.summary || result.resolution.reason;
     return `${decisionLabel}. ${reply}`.trim();
   }
 
   if (result.resolution.status === 'ambiguous') {
+    const verb = result.resolution.decision === 'rejected' ? '/reject' : '/approve';
     return [
       result.resolution.reason,
-      'Use um botao especifico ou informe o ID:',
-      renderApprovalCandidates(result.resolution.candidates),
-    ].filter(Boolean).join('\n');
+      '',
+      'Pick one:',
+      renderApprovalCandidates(result.resolution.candidates, verb),
+      '',
+      'Best UX: tap the Approve/Reject button on the matching card.',
+      `Or reply ${verb} 1  ·  ${verb} 2  · … (short number, not a long id).`,
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   if (result.resolution.status === 'confirmation_required') {
     return [
       result.resolution.reason,
-      result.resolution.commandHint ? `Confirmacao explicita: ${result.resolution.commandHint}` : null,
-    ].filter(Boolean).join('\n');
+      result.resolution.commandHint ? `Explicit confirmation: ${result.resolution.commandHint}` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   return result.error || result.resolution.reason;
 }
 
+/**
+ * Agent-first: free-text phrase dictionaries do not activate approvals.
+ * Only structured decision fields, explicit slash tokens, or callback_data forms.
+ */
 function parseApprovalIntent(
   text: string | null | undefined,
   decision: UniversalApprovalIntentResolveInput['decision'],
@@ -234,16 +252,26 @@ function parseApprovalIntent(
     return { decision: null, ref: explicitRef };
   }
 
-  const slashApprove = normalized.match(/^\/?(approve|aprovar|aprova)\s+(.+)$/i);
-  if (slashApprove?.[2]) {
-    return { decision: 'approved', ref: explicitRef || firstToken(slashApprove[2]) };
+  // Explicit slash only (deterministic tokens) — not free-text NLU.
+  const slashApprove = normalized.match(/^\/(approve|aprovar|aprova)(?:\s+(.+))?$/i);
+  if (slashApprove) {
+    return {
+      decision: 'approved',
+      ref: explicitRef || firstToken(slashApprove[2] || '') || null,
+    };
   }
-  const slashReject = normalized.match(/^\/?(reject|rejeitar|rejeite|negar|nega)\s+(.+)$/i);
-  if (slashReject?.[2]) {
-    return { decision: 'rejected', ref: explicitRef || firstToken(slashReject[2]) };
+  const slashReject = normalized.match(/^\/(reject|rejeitar|rejeite|negar|nega)(?:\s+(.+))?$/i);
+  if (slashReject) {
+    return {
+      decision: 'rejected',
+      ref: explicitRef || firstToken(slashReject[2] || '') || null,
+    };
   }
 
-  const callback = normalized.match(/\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):([a-z0-9._:-]+)/i);
+  // callback_data / structured control tokens (not chat free text).
+  const callback = normalized.match(
+    /\b(?:approval|agent|run|task):?(approve|reject|aprovar|rejeitar):([a-z0-9._:-]+)/i,
+  );
   if (callback?.[1] && callback[2]) {
     return {
       decision: normalizeDecision(callback[1]),
@@ -251,26 +279,13 @@ function parseApprovalIntent(
     };
   }
 
-  const inferredRef = explicitRef || extractApprovalRef(text);
-  const approve =
-    /\b(aprovo|aprovado|aprovar|aprova|aprove|approve|autorizo|autorizar|autorize|libero|liberar|libere)\b/.test(normalized)
-    || /\b(pode continuar|pode seguir|pode prosseguir|pode fazer|pode executar|vai em frente|segue|seguir|prossiga|continue|continuar)\b/.test(normalized)
-    || isBareAffirmation(normalized);
-  if (approve) {
-    return { decision: 'approved', ref: inferredRef };
-  }
-
-  const reject =
-    /\b(rejeito|rejeitar|rejeite|reject|nego|negar|negue|nao aprovo|não aprovo|cancela|cancelar|pare|stop)\b/.test(normalized)
-    || isBareRejection(normalized);
-  if (reject) {
-    return { decision: 'rejected', ref: inferredRef };
-  }
-
-  return { decision: null, ref: inferredRef };
+  // Free text never keyword-routes into approve/reject; agent owns the turn.
+  return { decision: null, ref: explicitRef || extractApprovalRef(text) };
 }
 
-function normalizeDecision(value: UniversalApprovalIntentResolveInput['decision'] | string | null | undefined): UniversalApprovalDecision | null {
+function normalizeDecision(
+  value: UniversalApprovalIntentResolveInput['decision'] | string | null | undefined,
+): UniversalApprovalDecision | null {
   const normalized = normalizeText(value);
   if (['approved', 'approve', 'allow'].includes(normalized)) {
     return 'approved';
@@ -294,9 +309,35 @@ function inferSource(text: string | null | undefined): UniversalApprovalIntentSo
 
 function collectPendingTargets(runs: UniversalAgentRun[]): PendingTarget[] {
   return runs.flatMap((run) =>
-    run.approvals
-      .filter((approval) => approval.status === 'pending')
-      .map((approval) => ({ run, approval })),
+    run.approvals.filter((approval) => approval.status === 'pending').map((approval) => ({ run, approval })),
+  );
+}
+
+function scopedPending(input: {
+  pending: PendingTarget[];
+  userId: string | null;
+  sessionId: string | null;
+  channel: UniversalApprovalIntentChannel;
+}): PendingTarget[] {
+  const sameSession = input.sessionId ? input.pending.filter(({ run }) => run.sessionId === input.sessionId) : [];
+  if (sameSession.length > 0) return sameSession;
+
+  const sameUser = input.userId ? input.pending.filter(({ run }) => run.userId === input.userId) : [];
+  if (sameUser.length > 0) return sameUser;
+
+  const sameChannel =
+    input.channel && input.channel !== 'unknown' && input.channel !== 'zavorthControl'
+      ? input.pending.filter(({ run }) => run.channel === input.channel)
+      : [];
+  return sameChannel.length > 0 ? sameChannel : input.pending;
+}
+
+/**
+ * Sort pending approvals newest-first so /approve 1 is stable and human-friendly.
+ */
+function sortPendingNewestFirst(pending: PendingTarget[]): PendingTarget[] {
+  return [...pending].sort((a, b) =>
+    String(b.approval.createdAt || '').localeCompare(String(a.approval.createdAt || '')),
   );
 }
 
@@ -307,30 +348,24 @@ function selectCandidates(input: {
   sessionId: string | null;
   channel: UniversalApprovalIntentChannel;
 }): PendingTarget[] {
+  const scoped = sortPendingNewestFirst(scopedPending(input));
+
   if (input.ref) {
-    return input.pending.filter(({ run, approval }) =>
-      approval.id === input.ref || approval.runId === input.ref || run.id === input.ref,
+    // Short ordinal: /approve 1, /approve #2 — never force long UUID when listing is available.
+    const ordinal = input.ref.match(/^#?(\d{1,2})$/)?.[1];
+    if (ordinal) {
+      const index = Number(ordinal) - 1;
+      if (Number.isFinite(index) && index >= 0 && index < scoped.length) {
+        return [scoped[index]];
+      }
+      return [];
+    }
+    return input.pending.filter(
+      ({ run, approval }) => approval.id === input.ref || approval.runId === input.ref || run.id === input.ref,
     );
   }
 
-  const sameSession = input.sessionId
-    ? input.pending.filter(({ run }) => run.sessionId === input.sessionId)
-    : [];
-  if (sameSession.length > 0) {
-    return sameSession;
-  }
-
-  const sameUser = input.userId
-    ? input.pending.filter(({ run }) => run.userId === input.userId)
-    : [];
-  if (sameUser.length > 0) {
-    return sameUser;
-  }
-
-  const sameChannel = input.channel && input.channel !== 'unknown' && input.channel !== 'zavorthControl'
-    ? input.pending.filter(({ run }) => run.channel === input.channel)
-    : [];
-  return sameChannel;
+  return scoped;
 }
 
 function toCandidate(target: PendingTarget): UniversalApprovalIntentCandidate {
@@ -346,20 +381,24 @@ function toCandidate(target: PendingTarget): UniversalApprovalIntentCandidate {
   };
 }
 
-function renderApprovalCandidates(candidates: UniversalApprovalIntentCandidate[]): string {
+function renderApprovalCandidates(candidates: UniversalApprovalIntentCandidate[], verb = '/approve'): string {
   return candidates
-    .slice(0, 5)
-    .map((candidate) => `- ${candidate.approvalId}: ${candidate.title} (${candidate.risk})`)
+    .slice(0, 9)
+    .map((candidate, index) => {
+      const n = index + 1;
+      const title = String(candidate.title || 'Approval').slice(0, 80);
+      return `${n}. ${title}  ·  risk=${candidate.risk}  ·  ${verb} ${n}`;
+    })
     .join('\n');
 }
 
-function resolution(input: Omit<UniversalApprovalIntentResolution, 'commandHint'> & { commandHint?: string | null }): UniversalApprovalIntentResolution {
+function resolution(
+  input: Omit<UniversalApprovalIntentResolution, 'commandHint'> & { commandHint?: string | null },
+): UniversalApprovalIntentResolution {
   const candidate = input.candidates[0] || null;
-  const commandHint = candidate
-    ? `${input.decision === 'rejected' ? '/reject' : '/approve'} ${candidate.approvalId}`
-    : input.ref
-      ? `${input.decision === 'rejected' ? '/reject' : '/approve'} ${input.ref}`
-      : null;
+  const multi = input.candidates.length > 1;
+  const verb = input.decision === 'rejected' ? '/reject' : '/approve';
+  const commandHint = multi ? `${verb} 1` : candidate ? `${verb}` : input.ref ? `${verb} ${input.ref}` : null;
   return {
     ...input,
     commandHint: input.commandHint ?? commandHint,
@@ -368,7 +407,9 @@ function resolution(input: Omit<UniversalApprovalIntentResolution, 'commandHint'
 
 function extractApprovalRef(text: string | null | undefined): string | null {
   const raw = String(text || '').trim();
-  const explicit = raw.match(/\b(?:approval|approvalid|run|runid|task|tarefa|id)\s*[:=]?\s*([a-z0-9][a-z0-9._:-]{2,})\b/i)?.[1];
+  const explicit = raw.match(
+    /\b(?:approval|approvalid|run|runid|task|tarefa|id)\s*[:=]?\s*([a-z0-9][a-z0-9._:-]{2})\b/i,
+  )?.[1];
   if (explicit) {
     return explicit;
   }
@@ -382,14 +423,6 @@ function extractApprovalRef(text: string | null | undefined): string | null {
 
 function firstToken(value: string): string {
   return value.trim().split(/\s+/).filter(Boolean)[0] || '';
-}
-
-function isBareAffirmation(normalized: string): boolean {
-  return /^(sim|ok|okay|beleza|feito|pode|autorizado|aprovado|aprovo|continue|segue|prossiga)(\.|!)*$/.test(normalized);
-}
-
-function isBareRejection(normalized: string): boolean {
-  return /^(nao|não|negado|rejeito|cancela|cancelar|pare|stop)(\.|!)*$/.test(normalized);
 }
 
 function normalizeText(value: unknown): string {
@@ -414,8 +447,7 @@ function isScopedBareTextApproval(input: {
 }): boolean {
   const sameSession = Boolean(input.sessionId && input.target.run.sessionId === input.sessionId);
   const sameUser = !input.userId || input.target.run.userId === input.userId;
-  const sameChannel = input.channel === 'zavorthControl'
-    || input.channel === 'unknown'
-    || input.target.run.channel === input.channel;
+  const sameChannel =
+    input.channel === 'zavorthControl' || input.channel === 'unknown' || input.target.run.channel === input.channel;
   return sameSession && sameUser && sameChannel;
 }

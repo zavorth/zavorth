@@ -21,7 +21,15 @@ export type AiFirstRouterInventoryEntry = {
     | 'control-plane'
     | 'deleted';
   migrationDecision: AiFirstRouterMigrationDecision;
-  phaseTarget: 'checkpoint-1' | 'checkpoint-2' | 'checkpoint-3' | 'checkpoint-4' | 'checkpoint-5' | 'checkpoint-7' | 'keep' | 'done';
+  phaseTarget:
+    | 'checkpoint-1'
+    | 'checkpoint-2'
+    | 'checkpoint-3'
+    | 'checkpoint-4'
+    | 'checkpoint-5'
+    | 'checkpoint-7'
+    | 'keep'
+    | 'done';
   reason: string;
   aiFirstRole: string;
   evidence: string[];
@@ -70,7 +78,8 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     currentDecisionStyle: 'command-switch',
     migrationDecision: 'compatibility-only',
     phaseTarget: 'checkpoint-7',
-    reason: 'Comandos com barra continuam uteis como atalho, mas texto livre nao deve depender deles como cerebro principal.',
+    reason:
+      'Comandos com barra continuam uteis como atalho, mas texto livre nao deve depender deles como cerebro principal.',
     aiFirstRole: 'Compatibilidade e entrada legada para usuarios que preferem comandos explicitos.',
     evidence: ['text.startsWith("/")', 'command_type="/task"', 'references_last_task por includes'],
   },
@@ -84,7 +93,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     phaseTarget: 'checkpoint-7',
     reason: 'Pode resolver comandos explicitos e rotas conhecidas quando o AI-first router falhar.',
     aiFirstRole: 'Fallback deterministico para comandos antigos e capacidades explicitamente declaradas.',
-    evidence: ['switch(parsed.command_type)', 'findByCommand', 'matchImplicit'],
+    evidence: ['switch(parsed.command_type)', 'findByCommand', 'matchImplicit always null'],
   },
   {
     id: 'capability-os-router',
@@ -108,7 +117,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     phaseTarget: 'checkpoint-2',
     reason: 'Nao deve ser o cerebro padrao; classificacao por palavra-chave perde linguagem natural real.',
     aiFirstRole: 'Hint barato, teste de regressao e fallback quando IA estiver indisponivel.',
-    evidence: ['TRIVIAL_CHAT_PATTERNS', 'FILE_PATTERNS', 'EXECUTION_PATTERNS', 'CONFIG_PATTERNS'],
+    evidence: ['classify()', 'full_toolset', 'model-owned-free-text'],
   },
   {
     id: 'natural-language-router',
@@ -120,7 +129,7 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     phaseTarget: 'checkpoint-5',
     reason: 'O nome e natural, mas a decisao ainda nasce do classifier local; deve chamar o planner IA-first.',
     aiFirstRole: 'Adaptador fino: recebe texto, chama AI-first planner e anexa hints legados como contexto.',
-    evidence: ['CognitiveFirewall.evaluate', 'INTENT_TO_INTERNAL_COMMAND', 'TRIVIAL_CHAT_PATTERNS'],
+    evidence: ['CognitiveFirewall.evaluate', 'useFastModel: false', 'legacyFallbackCommand'],
   },
   {
     id: 'tool-gatekeeper',
@@ -154,7 +163,8 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     currentDecisionStyle: 'policy-guardrail',
     migrationDecision: 'keep-policy-guardrail',
     phaseTarget: 'checkpoint-3',
-    reason: 'Esta camada deve continuar deterministica: IA propoe, UniversalIntent decide se precisa perguntar, aprovar ou bloquear.',
+    reason:
+      'Esta camada deve continuar deterministica: IA propoe, UniversalIntent decide se precisa perguntar, aprovar ou bloquear.',
     aiFirstRole: 'Policy owner para risco, permissao, abstracao do usuario e proxima acao segura.',
     evidence: ['IntentSafetyClassifier', 'ConversationalPermissionService', 'TrustSliderPolicyService'],
   },
@@ -246,13 +256,13 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
     id: 'natural-channel-setup-turn',
     label: 'Natural channel setup turn',
     filePath: 'src/services/NaturalChannelSetupTurnService.ts',
-    currentRole: 'Extrai canal, modo, valores e acao de setup por regex e labels.',
-    currentDecisionStyle: 'regex-heuristic',
+    currentRole: 'Executor de setup com flags estruturadas; soft extraction de env key=value apenas.',
+    currentDecisionStyle: 'structured-flags + soft-extraction',
     migrationDecision: 'promote-ai-first',
     phaseTarget: 'checkpoint-5',
-    reason: 'E exatamente o tipo de arvore que deve ser rebaixada: IA entende o pedido, esta classe aplica fallback/extraction segura.',
+    reason: 'Apply/doctor/test/mode ja nao ativam por free-text; flags estruturadas e extraction segura de secrets.',
     aiFirstRole: 'Fallback de extraction e executor de setup recebido do plano IA validado.',
-    evidence: ['CHANNEL_MODE_PATTERNS', 'extractEntries', 'wantsApply', 'wantsDoctor', 'wantsTest'],
+    evidence: ['autoApply', 'autoDoctor', 'autoTest', 'input.mode', 'extractEntries'],
   },
   {
     id: 'channel-setup-assistant',
@@ -377,21 +387,81 @@ const INVENTORY_ENTRIES: AiFirstRouterInventoryEntry[] = [
 ];
 
 const CURRENT_DEFAULT_MESSAGE_PATH: AiFirstRouterMessagePathStep[] = [
-  { order: 1, id: 'surface-input', label: 'Mensagem entra por uma superficie', role: 'Web, CLI, Telegram ou outro adaptador recebe texto.' },
-  { order: 2, id: 'surface-router', label: 'Roteador da superficie interpreta sinais', role: 'Cada surface pode ter parse local, command parser ou heuristicas proprias.' },
-  { order: 3, id: 'intent-hints', label: 'Heuristicas inferem categoria/tools', role: 'Classifiers e regex geram hints de intencao e ferramentas.' },
-  { order: 4, id: 'control-plane', label: 'Control plane decide path', role: 'Response decision, capability OS ou command routing escolhem caminho.' },
-  { order: 5, id: 'policy', label: 'Policy aplica gates', role: 'Risco, approval, sandbox e tool exposure reduzem impacto.' },
-  { order: 6, id: 'executor', label: 'Executor roda ou responde', role: 'AgentRunService, controllers ou tools executam o caminho escolhido.' },
+  {
+    order: 1,
+    id: 'surface-input',
+    label: 'Mensagem entra por uma superficie',
+    role: 'Web, CLI, Telegram ou outro adaptador recebe texto.',
+  },
+  {
+    order: 2,
+    id: 'surface-router',
+    label: 'Roteador da superficie interpreta sinais',
+    role: 'Cada surface pode ter parse local, command parser ou heuristicas proprias.',
+  },
+  {
+    order: 3,
+    id: 'intent-hints',
+    label: 'Heuristicas inferem categoria/tools',
+    role: 'Classifiers e regex geram hints de intencao e ferramentas.',
+  },
+  {
+    order: 4,
+    id: 'control-plane',
+    label: 'Control plane decide path',
+    role: 'Response decision, capability OS ou command routing escolhem caminho.',
+  },
+  {
+    order: 5,
+    id: 'policy',
+    label: 'Policy aplica gates',
+    role: 'Risco, approval, sandbox e tool exposure reduzem impacto.',
+  },
+  {
+    order: 6,
+    id: 'executor',
+    label: 'Executor roda ou responde',
+    role: 'AgentRunService, controllers ou tools executam o caminho escolhido.',
+  },
 ];
 
 const TARGET_DEFAULT_MESSAGE_PATH: AiFirstRouterMessagePathStep[] = [
-  { order: 1, id: 'surface-input', label: 'Mensagem entra por qualquer superficie', role: 'Texto livre e comandos explicitos chegam no mesmo envelope.' },
-  { order: 2, id: 'ai-first-plan', label: 'AI-first router entende e planeja', role: 'IA interpreta objetivo, nivel da pessoa, informacoes faltantes, plano e riscos.' },
-  { order: 3, id: 'normalization', label: 'Contrato normaliza o plano', role: 'Plano vira schema estavel: objetivo, acoes propostas, tools, riscos e perguntas.' },
-  { order: 4, id: 'policy', label: 'Policy valida o plano', role: 'Regras duras aprovam, pedem clarificacao, exigem approval ou bloqueiam.' },
-  { order: 5, id: 'executor', label: 'Executor governado atua', role: 'Apenas ferramentas aprovadas executam em sandbox/cwd/secret policy corretos.' },
-  { order: 6, id: 'receipt', label: 'Resposta e receipt', role: 'Usuario recebe linguagem natural; auditoria recebe artifact/receipt sem secrets.' },
+  {
+    order: 1,
+    id: 'surface-input',
+    label: 'Mensagem entra por qualquer superficie',
+    role: 'Texto livre e comandos explicitos chegam no mesmo envelope.',
+  },
+  {
+    order: 2,
+    id: 'ai-first-plan',
+    label: 'AI-first router entende e planeja',
+    role: 'IA interpreta objetivo, nivel da pessoa, informacoes faltantes, plano e riscos.',
+  },
+  {
+    order: 3,
+    id: 'normalization',
+    label: 'Contrato normaliza o plano',
+    role: 'Plano vira schema estavel: objetivo, acoes propostas, tools, riscos e perguntas.',
+  },
+  {
+    order: 4,
+    id: 'policy',
+    label: 'Policy valida o plano',
+    role: 'Regras duras aprovam, pedem clarificacao, exigem approval ou bloqueiam.',
+  },
+  {
+    order: 5,
+    id: 'executor',
+    label: 'Executor governado atua',
+    role: 'Apenas ferramentas aprovadas executam em sandbox/cwd/secret policy corretos.',
+  },
+  {
+    order: 6,
+    id: 'receipt',
+    label: 'Resposta e receipt',
+    role: 'Usuario recebe linguagem natural; auditoria recebe artifact/receipt sem secrets.',
+  },
 ];
 
 export class AiFirstRouterMigrationInventoryService {
@@ -472,18 +542,20 @@ export class AiFirstRouterMigrationInventoryService {
       '',
       '## Inventario',
       '',
-      ...snapshot.entries.map((entry) => [
-        `### ${entry.label}`,
-        `- Arquivo: ${entry.filePath}`,
-        `- Papel atual: ${entry.currentRole}`,
-        `- Estilo atual: ${entry.currentDecisionStyle}`,
-        `- Decisao: ${entry.migrationDecision}`,
-        `- Target stage: ${entry.phaseTarget}`,
-        `- Papel AI-first: ${entry.aiFirstRole}`,
-        `- Motivo: ${entry.reason}`,
-        `- Evidencia: ${entry.evidence.join('; ')}`,
-        '',
-      ].join('\n')),
+      ...snapshot.entries.map((entry) =>
+        [
+          `### ${entry.label}`,
+          `- Arquivo: ${entry.filePath}`,
+          `- Papel atual: ${entry.currentRole}`,
+          `- Estilo atual: ${entry.currentDecisionStyle}`,
+          `- Decisao: ${entry.migrationDecision}`,
+          `- Target stage: ${entry.phaseTarget}`,
+          `- Papel AI-first: ${entry.aiFirstRole}`,
+          `- Motivo: ${entry.reason}`,
+          `- Evidencia: ${entry.evidence.join('; ')}`,
+          '',
+        ].join('\n'),
+      ),
       '## Gates',
       '',
       ...snapshot.gates.map((gate) => `- ${gate.label}: ${gate.status} - ${gate.detail}`),

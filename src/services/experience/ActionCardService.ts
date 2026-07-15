@@ -83,9 +83,7 @@ export class ActionCardService {
       ...this.autoHealingCards(input.autoHealing, input.activeRun, now),
     ];
 
-    return cards
-      .sort((left, right) => this.statusWeight(left.status) - this.statusWeight(right.status))
-      .slice(0, 12);
+    return cards.sort((left, right) => this.statusWeight(left.status) - this.statusWeight(right.status)).slice(0, 12);
   }
 
   private approvalCards(
@@ -100,42 +98,42 @@ export class ActionCardService {
         contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
         id: `card:approval:${approval.id}`,
         source: 'approval',
-        title: approval.title || 'Aprovacao pendente',
-        summary: approval.reason || 'Acao sensivel aguardando decisao.',
+        title: approval.title || 'Pending approval',
+        summary: approval.reason || 'Sensitive action waiting for a decision.',
         risk: approval.risk,
         status: 'pending',
-        scope: activeRun?.workspace || 'workspace atual',
+        scope: activeRun?.workspace || 'current workspace',
         sandbox: String(activeRun?.metadata?.sandboxIsolation || 'governed-local'),
         affectedFiles: this.metadataStrings(activeRun, ['affectedFiles', 'files', 'paths']),
         affectedCommands: this.metadataStrings(activeRun, ['affectedCommands', 'commands', 'validationCommands']),
         ttlSeconds: this.ttlSeconds(approval.createdAt, 24 * 60 * 60),
-        receiptHint: `Receipt de decisao para ${approval.id}.`,
+        receiptHint: `Decision receipt for ${approval.id}.`,
         createdAt: approval.createdAt || now,
         actions: [
           makeAction({
             id: `approve:${approval.id}`,
-            label: 'Aprovar',
+            label: 'Approve',
             kind: 'approval',
             command: `zavorth approve ${approval.id}`,
             risk: approval.risk,
             requiresApproval: false,
-            reason: 'Autoriza a acao governada e registra receipt.',
+            reason: 'Authorizes the governed action and records a receipt.',
           }),
           makeAction({
             id: `reject:${approval.id}`,
-            label: 'Rejeitar',
+            label: 'Reject',
             kind: 'approval',
             command: `zavorth reject ${approval.id}`,
             risk: approval.risk,
-            reason: 'Mantem o bloqueio e registra a decisao.',
+            reason: 'Keeps the block and records the decision.',
           }),
           makeAction({
             id: `view-diff:${approval.runId}`,
-            label: 'Ver diff',
+            label: 'View diff',
             kind: 'diff',
             command: `zavorth diff ${approval.runId}`,
             risk: 'safe',
-            reason: 'Mostra resumo seguro antes da aprovacao.',
+            reason: 'Shows a safe summary before approval.',
           }),
         ],
       }));
@@ -157,30 +155,33 @@ export class ActionCardService {
         summary: review.summary,
         risk: review.risk,
         status: review.status === 'approved' ? 'approved' : review.status === 'rejected' ? 'rejected' : 'pending',
-        scope: activeRun?.workspace || 'sandbox governado',
+        scope: activeRun?.workspace || 'governed sandbox',
         sandbox: String(activeRun?.metadata?.sandboxIsolation || 'governed-local'),
-        affectedFiles: safeList(review.files.map((file) => file.path), 10),
+        affectedFiles: safeList(
+          review.files.map((file) => file.path),
+          10,
+        ),
         affectedCommands: this.metadataStrings(activeRun, ['validationCommands', 'commands']),
         ttlSeconds: null,
-        receiptHint: `Receipt de diff parcial para ${review.id}.`,
+        receiptHint: `Partial diff receipt for ${review.id}.`,
         createdAt: activeRun?.updatedAt || now,
         actions: [
           makeAction({
             id: `diff:approve-plan:${review.id}`,
-            label: 'Aprovar plano',
+            label: 'Approve plan',
             kind: 'diff',
             command: `zavorth diff approve ${review.id}`,
             risk: review.risk,
             requiresApproval: true,
-            reason: 'Recompoe o mutation plan e passa por policy antes of the host.',
+            reason: 'Recomposes the mutation plan and passes policy before the host.',
           }),
           makeAction({
             id: `diff:review:${review.id}`,
-            label: 'Revisar hunks',
+            label: 'Review hunks',
             kind: 'diff',
             command: `zavorth diff ${review.id}`,
             risk: 'safe',
-            reason: 'Permite aprovar ou rejeitar partes sem aplicar direto no host.',
+            reason: 'Allows approving or rejecting parts without applying directly on the host.',
           }),
         ],
       }));
@@ -198,27 +199,27 @@ export class ActionCardService {
         summary: candidate.recommendation,
         risk: candidate.confidence >= 0.85 ? 'safe' : 'attention',
         status: 'pending',
-        scope: candidate.origin || 'learning local',
+        scope: candidate.origin || 'local learning',
         sandbox: 'not-applicable',
         affectedFiles: [],
         affectedCommands: [],
         ttlSeconds: null,
-        receiptHint: `Receipt de aprendizado para ${candidate.id}.`,
+        receiptHint: `Learning receipt for ${candidate.id}.`,
         createdAt: candidate.createdAt || now,
         actions: [
           makeAction({
             id: `learn:approve:${candidate.id}`,
-            label: 'Aprovar aprendizado',
+            label: 'Approve learning',
             kind: 'learning',
             command: `zavorth learn approve ${candidate.id}`,
-            reason: 'Promove apenas com consentimento explicito.',
+            reason: 'Promotes only with explicit consent.',
           }),
           makeAction({
             id: `learn:reject:${candidate.id}`,
-            label: 'Rejeitar',
+            label: 'Reject',
             kind: 'learning',
             command: `zavorth learn reject ${candidate.id}`,
-            reason: 'Mantem o comportamento futuro inalterado.',
+            reason: 'Keeps future behavior unchanged.',
           }),
         ],
       }));
@@ -236,7 +237,7 @@ export class ActionCardService {
         summary: item.summary,
         risk: 'safe' as const,
         status: 'ready' as const,
-        scope: 'superpoder',
+        scope: 'superpower',
         sandbox: 'not-applicable',
         affectedFiles: [],
         affectedCommands: [],
@@ -246,7 +247,7 @@ export class ActionCardService {
         actions: [
           makeAction({
             id: `superpower:ask:${item.id}`,
-            label: 'Como pedir',
+            label: 'How to ask',
             kind: 'learning',
             command: item.howToAsk,
             reason: item.howToAsk,
@@ -260,24 +261,24 @@ export class ActionCardService {
       contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
       id: `card:learned:${item.id}`,
       source: 'learning',
-      title: item.title || 'Memoria aprendida',
+      title: item.title || 'Learned memory',
       summary: item.summary,
       risk: 'safe' as const,
       status: 'ready' as const,
-      scope: item.kind || 'preferencia',
+      scope: item.kind || 'preference',
       sandbox: 'not-applicable',
       affectedFiles: [],
       affectedCommands: [],
       ttlSeconds: null,
-      receiptHint: `Aprendizado reversivel ${item.id}.`,
+      receiptHint: `Reversible learning ${item.id}.`,
       createdAt: now,
       actions: [
         makeAction({
           id: `learn:forget:${item.id}`,
-          label: 'Esquecer',
+          label: 'Forget',
           kind: 'learning',
-          command: `desfazer aprendizado ${item.id}`,
-          reason: 'Remove preferencia ou rascunho aprendido do runtime.',
+          command: `forget learning ${item.id}`,
+          reason: 'Removes a learned preference or draft from the runtime.',
         }),
       ],
     }));
@@ -285,43 +286,49 @@ export class ActionCardService {
 
   private contextCards(recovery: ExperienceContextRecovery | null | undefined, now: string): ExperienceActionCard[] {
     if (!recovery || recovery.status !== 'needs-selection') return [];
-    return [{
-      contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
-      id: `card:context:${recovery.id}`,
-      source: 'context-recovery',
-      title: 'Escolha o contexto correto',
-      summary: recovery.question,
-      risk: 'safe',
-      status: 'pending',
-      scope: 'desambiguacao',
-      sandbox: 'not-applicable',
-      affectedFiles: [],
-      affectedCommands: [],
-      ttlSeconds: 30 * 60,
-      receiptHint: `Receipt de contexto para ${recovery.id}.`,
-      createdAt: now,
-      actions: [
-        ...recovery.options.slice(0, 4).map((option) => makeAction({
-          id: `context:${recovery.id}:${option.id}`,
-          label: option.label,
-          kind: 'context',
-          command: option.command,
-          risk: 'safe',
-          reason: option.detail,
-        })),
-        ...(recovery.overflow?.hasOverflow ? [
-          makeAction({
-            id: `context:${recovery.id}:zavorthControl`,
-            label: 'Ver todos no ZavorthControl',
-            kind: 'navigation' as const,
-            command: recovery.overflow.zavorthControlCommand,
-            route: '/zavorthControl',
-            risk: 'safe' as const,
-            reason: 'Canais curtos mostram apenas os alvos mais relevantes.',
-          }),
-        ] : []),
-      ],
-    }];
+    return [
+      {
+        contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+        id: `card:context:${recovery.id}`,
+        source: 'context-recovery',
+        title: 'Choose the correct context',
+        summary: recovery.question,
+        risk: 'safe',
+        status: 'pending',
+        scope: 'disambiguation',
+        sandbox: 'not-applicable',
+        affectedFiles: [],
+        affectedCommands: [],
+        ttlSeconds: 30 * 60,
+        receiptHint: `Context receipt for ${recovery.id}.`,
+        createdAt: now,
+        actions: [
+          ...recovery.options.slice(0, 4).map((option) =>
+            makeAction({
+              id: `context:${recovery.id}:${option.id}`,
+              label: option.label,
+              kind: 'context',
+              command: option.command,
+              risk: 'safe',
+              reason: option.detail,
+            }),
+          ),
+          ...(recovery.overflow?.hasOverflow
+            ? [
+                makeAction({
+                  id: `context:${recovery.id}:zavorthControl`,
+                  label: 'See all in ZavorthControl',
+                  kind: 'navigation' as const,
+                  command: recovery.overflow.zavorthControlCommand,
+                  route: '/zavorthControl',
+                  risk: 'safe' as const,
+                  reason: 'Short channels only show the most relevant targets.',
+                }),
+              ]
+            : []),
+        ],
+      },
+    ];
   }
 
   private autoHealingCards(
@@ -330,55 +337,63 @@ export class ActionCardService {
     now: string,
   ): ExperienceActionCard[] {
     if (!healing || healing.status === 'idle') return [];
-    return [{
-      contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
-      id: `card:healing:${activeRun?.id || 'current'}`,
-      source: 'sandbox',
-      title: healing.status === 'running' ? 'Auto-healing em andamento' : 'Resultado do auto-healing',
-      summary: this.autoHealingSummary(healing),
-      risk: healing.status === 'blocked' || healing.status === 'failed' ? 'attention' : 'safe',
-      status: healing.status === 'passed' ? 'ready' : healing.status === 'failed' ? 'blocked' : 'pending',
-      scope: activeRun?.workspace || 'sandbox governado',
-      sandbox: String(activeRun?.metadata?.sandboxIsolation || 'governed-local'),
-      affectedFiles: this.metadataStrings(activeRun, ['affectedFiles', 'files', 'paths']),
-      affectedCommands: safeList([healing.validationCommand || '', ...this.metadataStrings(activeRun, ['validationCommands'])]),
-      ttlSeconds: null,
-      receiptHint: `Receipt de auto-healing para ${activeRun?.id || 'run atual'}.`,
-      createdAt: activeRun?.updatedAt || now,
-      actions: [
-        makeAction({
-          id: `healing:validate:${activeRun?.id || 'current'}`,
-          label: 'Rodar validacao',
-          kind: 'healing',
-          command: 'zavorth run "rode validacao em sandbox"',
-          risk: 'attention',
-          requiresApproval: true,
-          reason: 'Validacoes com comandos locais continuam governadas por policy.',
-        }),
-        ...(healing.budget?.cancellable ? [
+    return [
+      {
+        contractVersion: EXPERIENCE_ACTION_CARD_CONTRACT_VERSION,
+        id: `card:healing:${activeRun?.id || 'current'}`,
+        source: 'sandbox',
+        title: healing.status === 'running' ? 'Auto-healing in progress' : 'Auto-healing result',
+        summary: this.autoHealingSummary(healing),
+        risk: healing.status === 'blocked' || healing.status === 'failed' ? 'attention' : 'safe',
+        status: healing.status === 'passed' ? 'ready' : healing.status === 'failed' ? 'blocked' : 'pending',
+        scope: activeRun?.workspace || 'governed sandbox',
+        sandbox: String(activeRun?.metadata?.sandboxIsolation || 'governed-local'),
+        affectedFiles: this.metadataStrings(activeRun, ['affectedFiles', 'files', 'paths']),
+        affectedCommands: safeList([
+          healing.validationCommand || '',
+          ...this.metadataStrings(activeRun, ['validationCommands']),
+        ]),
+        ttlSeconds: null,
+        receiptHint: `Auto-healing receipt for ${activeRun?.id || 'current run'}.`,
+        createdAt: activeRun?.updatedAt || now,
+        actions: [
           makeAction({
-            id: `healing:cancel:${activeRun?.id || 'current'}`,
-            label: 'Parar e exibir erro',
-            kind: 'healing' as const,
-            command: healing.budget.cancelCommand || 'zavorth ask "parar auto-healing e mostrar erro"',
-            risk: 'safe' as const,
-            reason: 'Interrompe o loop especulativo antes de consumir mais tempo/tokens.',
+            id: `healing:validate:${activeRun?.id || 'current'}`,
+            label: 'Run validation',
+            kind: 'healing',
+            command: 'zavorth run "run validation in sandbox"',
+            risk: 'attention',
+            requiresApproval: true,
+            reason: 'Validations with local commands remain governed by policy.',
           }),
-        ] : []),
-      ],
-    }];
+          ...(healing.budget?.cancellable
+            ? [
+                makeAction({
+                  id: `healing:cancel:${activeRun?.id || 'current'}`,
+                  label: 'Stop and show error',
+                  kind: 'healing' as const,
+                  command: healing.budget.cancelCommand || 'zavorth ask "stop auto-healing and show error"',
+                  risk: 'safe' as const,
+                  reason: 'Stops the speculative loop before consuming more time/tokens.',
+                }),
+              ]
+            : []),
+        ],
+      },
+    ];
   }
 
   private autoHealingSummary(healing: ExperienceAutoHealing): string {
-    const base = healing.lastErrorSummary || healing.proposedCorrection || 'Validacao especulativa registrada.';
+    const base = healing.lastErrorSummary || healing.proposedCorrection || 'Speculative validation recorded.';
     const budget = healing.budget;
     if (!budget) return base;
     const elapsedSeconds = Math.round(budget.elapsedMs / 1000);
     const maxSeconds = Math.round(budget.maxElapsedMs / 1000);
-    const tokenText = budget.tokensUsed === null || budget.tokenBudget === null
-      ? 'tokens nao estimados'
-      : `${budget.tokensUsed}/${budget.tokenBudget} tokens`;
-    return `${base} Tempo: ${elapsedSeconds}s/${maxSeconds}s; ${tokenText}.`;
+    const tokenText =
+      budget.tokensUsed === null || budget.tokenBudget === null
+        ? 'tokens not estimated'
+        : `${budget.tokensUsed}/${budget.tokenBudget} tokens`;
+    return `${base} Time: ${elapsedSeconds}s/${maxSeconds}s; ${tokenText}.`;
   }
 
   private metadataStrings(run: UniversalAgentRun | null | undefined, keys: string[]): string[] {

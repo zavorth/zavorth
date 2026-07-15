@@ -8,9 +8,7 @@ import type {
   ZavorthMissionVerificationStatus,
 } from '../contracts/runtime/ZavorthMissionContract.js';
 
-export type ZavorthMissionValidationResult<T> =
-  | { ok: true; value: T }
-  | { ok: false; errors: string[] };
+export type ZavorthMissionValidationResult<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
 const EVIDENCE_KINDS: ZavorthMissionEvidenceKind[] = [
   'test_result',
@@ -54,8 +52,11 @@ function validateCriterion(value: unknown, path: string, errors: string[]): valu
   if (!nonEmptyString(value.id)) errors.push(`${path}.id must be a non-empty string.`);
   if (!nonEmptyString(value.description)) errors.push(`${path}.description must be a non-empty string.`);
   const kinds = value.requiredEvidence;
-  if (!Array.isArray(kinds) || kinds.length === 0 || kinds.some((kind) =>
-    !EVIDENCE_KINDS.includes(kind as ZavorthMissionEvidenceKind) || kind === 'executor_claim')) {
+  if (
+    !Array.isArray(kinds) ||
+    kinds.length === 0 ||
+    kinds.some((kind) => !EVIDENCE_KINDS.includes(kind as ZavorthMissionEvidenceKind) || kind === 'executor_claim')
+  ) {
     errors.push(`${path}.requiredEvidence must contain supported independent evidence kinds.`);
   } else if (!unique(kinds as string[])) {
     errors.push(`${path}.requiredEvidence must not contain duplicates.`);
@@ -67,7 +68,9 @@ function validateCriterion(value: unknown, path: string, errors: string[]): valu
 }
 
 /** Validates an untrusted mission definition before execution or persistence. */
-export function validateZavorthMissionDefinition(value: unknown): ZavorthMissionValidationResult<ZavorthMissionDefinition> {
+export function validateZavorthMissionDefinition(
+  value: unknown,
+): ZavorthMissionValidationResult<ZavorthMissionDefinition> {
   const errors: string[] = [];
   if (!isRecord(value)) return { ok: false, errors: ['Mission definition must be an object.'] };
   if (!nonEmptyString(value.objective)) errors.push('objective must be a non-empty string.');
@@ -75,8 +78,13 @@ export function validateZavorthMissionDefinition(value: unknown): ZavorthMission
   if (!Array.isArray(value.completionCriteria) || value.completionCriteria.length === 0) {
     errors.push('completionCriteria must contain at least one criterion.');
   } else {
-    value.completionCriteria.forEach((criterion, index) => validateCriterion(criterion, `completionCriteria[${index}]`, errors));
-    const ids = value.completionCriteria.filter(isRecord).map((criterion) => criterion.id).filter(nonEmptyString);
+    value.completionCriteria.forEach((criterion, index) =>
+      validateCriterion(criterion, `completionCriteria[${index}]`, errors),
+    );
+    const ids = value.completionCriteria
+      .filter(isRecord)
+      .map((criterion) => criterion.id)
+      .filter(nonEmptyString);
     if (!unique(ids)) errors.push('completionCriteria ids must be unique.');
   }
   if (!isRecord(value.boundaries)) {
@@ -89,13 +97,23 @@ export function validateZavorthMissionDefinition(value: unknown): ZavorthMission
     if (!['denied', 'read_only', 'approved_writes'].includes(String(boundary.networkAccess))) {
       errors.push('boundaries.networkAccess is invalid.');
     }
-    if (boundary.maximumDurationMs !== null &&
-      (!Number.isSafeInteger(boundary.maximumDurationMs) || Number(boundary.maximumDurationMs) < 1)) {
+    if (
+      boundary.maximumDurationMs !== null &&
+      (!Number.isSafeInteger(boundary.maximumDurationMs) || Number(boundary.maximumDurationMs) < 1)
+    ) {
       errors.push('boundaries.maximumDurationMs must be null or a positive integer.');
     }
   }
-  if (!Array.isArray(value.approvalRequirements) || value.approvalRequirements.some((entry) =>
-    !isRecord(entry) || !nonEmptyString(entry.id) || !nonEmptyString(entry.description) || !nonEmptyString(entry.requiredBefore))) {
+  if (
+    !Array.isArray(value.approvalRequirements) ||
+    value.approvalRequirements.some(
+      (entry) =>
+        !isRecord(entry) ||
+        !nonEmptyString(entry.id) ||
+        !nonEmptyString(entry.description) ||
+        !nonEmptyString(entry.requiredBefore),
+    )
+  ) {
     errors.push('approvalRequirements must contain valid approval requirements.');
   }
   for (const field of ['verificationRequirements', 'stopConditions'] as const) {
@@ -114,15 +132,20 @@ export function validateZavorthMissionEvidence(value: unknown): ZavorthMissionVa
   if (!nonEmptyString(value.id)) errors.push('id must be a non-empty string.');
   if (!nonEmptyString(value.criterionId)) errors.push('criterionId must be a non-empty string.');
   if (!EVIDENCE_KINDS.includes(value.kind as ZavorthMissionEvidenceKind)) errors.push('kind is invalid.');
-  if (![...INDEPENDENT_OBSERVERS, 'executor'].includes(value.observedBy as never)) errors.push('observedBy is invalid.');
+  if (![...INDEPENDENT_OBSERVERS, 'executor'].includes(value.observedBy as never))
+    errors.push('observedBy is invalid.');
   if (!validIsoDate(value.capturedAt)) errors.push('capturedAt must be an ISO-compatible date.');
   if (!STATUSES.includes(value.status as never)) errors.push('status is invalid.');
   if (!nonEmptyString(value.summary)) errors.push('summary must be a non-empty string.');
   if (value.digest !== null && (typeof value.digest !== 'string' || !SHA256.test(value.digest))) {
     errors.push('digest must be null or a lowercase SHA-256 digest.');
   }
-  if (!isRecord(value.details) || Object.values(value.details).some((detail) =>
-    detail !== null && !['string', 'number', 'boolean'].includes(typeof detail))) {
+  if (
+    !isRecord(value.details) ||
+    Object.values(value.details).some(
+      (detail) => detail !== null && !['string', 'number', 'boolean'].includes(typeof detail),
+    )
+  ) {
     errors.push('details must contain only scalar JSON values.');
   }
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: value as ZavorthMissionEvidence };
@@ -130,12 +153,18 @@ export function validateZavorthMissionEvidence(value: unknown): ZavorthMissionVa
 
 function digestEvidence(evidence: ZavorthMissionEvidence[]): string {
   const canonical = evidence
-    .map((item) => ({ ...item, details: Object.fromEntries(Object.entries(item.details).sort(([a], [b]) => a.localeCompare(b))) }))
+    .map((item) => ({
+      ...item,
+      details: Object.fromEntries(Object.entries(item.details).sort(([a], [b]) => a.localeCompare(b))),
+    }))
     .sort((a, b) => a.id.localeCompare(b.id));
   return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
 }
 
-function criterionStatus(accepted: ZavorthMissionEvidence[], criterion: ZavorthMissionCompletionCriterion): ZavorthMissionVerificationStatus {
+function criterionStatus(
+  accepted: ZavorthMissionEvidence[],
+  criterion: ZavorthMissionCompletionCriterion,
+): ZavorthMissionVerificationStatus {
   if (accepted.some((evidence) => evidence.status === 'failed')) return 'failed';
   const kinds = new Set(accepted.map((evidence) => evidence.kind));
   const hasAllKinds = criterion.requiredEvidence.every((kind) => kinds.has(kind));
@@ -151,7 +180,10 @@ export function verifyZavorthMission(input: {
 }): ZavorthMissionVerificationReceipt {
   if (!nonEmptyString(input.missionId)) throw new TypeError('missionId must be a non-empty string.');
   const definition = validateZavorthMissionDefinition(input.definition);
-  if (!definition.ok) throw new TypeError(`Invalid mission definition: ${definition.errors.join(' ')}`);
+  if (!definition.ok) {
+    const errors = 'errors' in definition ? definition.errors : ['Unknown validation error.'];
+    throw new TypeError(`Invalid mission definition: ${errors.join(' ')}`);
+  }
   const verifiedAt = input.verifiedAt ?? new Date().toISOString();
   if (!validIsoDate(verifiedAt)) throw new TypeError('verifiedAt must be an ISO-compatible date.');
 
@@ -161,15 +193,18 @@ export function verifyZavorthMission(input: {
   });
   const criteria = definition.value.completionCriteria.map((criterion) => {
     const related = validEvidence.filter((item) => item.criterionId === criterion.id);
-    const accepted = related.filter((item) =>
-      item.kind !== 'executor_claim' && (INDEPENDENT_OBSERVERS as readonly string[]).includes(item.observedBy));
+    const accepted = related.filter(
+      (item) =>
+        item.kind !== 'executor_claim' && (INDEPENDENT_OBSERVERS as readonly string[]).includes(item.observedBy),
+    );
     const rejected = related.filter((item) => !accepted.includes(item));
     const status = criterionStatus(accepted, criterion);
-    const reason = status === 'verified'
-      ? 'Required independent evidence was observed.'
-      : status === 'failed'
-        ? 'Independent evidence reported a failed check.'
-        : 'Required independent evidence is incomplete.';
+    const reason =
+      status === 'verified'
+        ? 'Required independent evidence was observed.'
+        : status === 'failed'
+          ? 'Independent evidence reported a failed check.'
+          : 'Required independent evidence is incomplete.';
     return {
       criterionId: criterion.id,
       status,

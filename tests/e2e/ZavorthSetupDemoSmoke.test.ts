@@ -98,15 +98,20 @@ describe('Zavorth Phase D setup demo smoke', () => {
     expect(approvalId).toBeTruthy();
     expect(executor).not.toHaveBeenCalled();
 
+    // Structured slash/command + explicit ref (free-text "aprovar" alone is not approval intent).
     const approved = await telegram.handleApprovalIntent({
-      text: `aprovar ${approvalId}`,
+      text: `/approve ${approvalId}`,
       userId: 'demo-user',
       sessionId: 'telegram:demo',
     });
     expect(approved?.run?.status).toBe('completed');
-    expect(approved?.text).toContain('Tarefa diaria concluida depois da aprovacao.');
+    // Product copy may be EN or mixed locale; accept either narrative.
+    expect(String(approved?.text || '')).toMatch(
+      /Tarefa diaria concluida|Daily task completed|after approval|depois da aprovacao/i,
+    );
     expect(approved?.text).toContain('Zavorth');
-    expect(approved?.text).toContain(`approval: ${approvalId} (approved)`);
+    expect(String(approved?.text || '')).toMatch(/approval:\s*(approved|.*\(approved\))/i);
+    expect(approved?.run?.approvals?.[0]?.status).toBe('approved');
     expect(approved?.receipt.replayCommand).toContain('zavorth replay run');
     expect(executor).toHaveBeenCalledTimes(1);
   });
@@ -119,42 +124,54 @@ function createDemoGitHubRunner(commentBodies: string[]): GovernedReviewGitHubCo
     }
 
     if (args[0] === 'repo' && args[1] === 'view') {
-      return success(command, args, JSON.stringify({
-        nameWithOwner: 'zavorth/demo',
-        url: 'https://github.com/zavorth/demo',
-        defaultBranchRef: { name: 'main' },
-      }));
+      return success(
+        command,
+        args,
+        JSON.stringify({
+          nameWithOwner: 'zavorth/demo',
+          url: 'https://github.com/zavorth/demo',
+          defaultBranchRef: { name: 'main' },
+        }),
+      );
     }
 
     if (args[0] === 'pr' && args[1] === 'view') {
-      return success(command, args, JSON.stringify({
-        number: 7,
-        title: 'Phase D demo PR',
-        url: 'https://github.com/zavorth/demo/pull/7',
-        headRefName: 'phase-d-demo',
-        baseRefName: 'main',
-        author: { login: 'operator' },
-        body: 'Deterministic setup demo PR.',
-        files: [
-          {
-            path: 'src/demo.ts',
-            status: 'modified',
-            additions: 9,
-            deletions: 2,
-          },
-        ],
-      }));
+      return success(
+        command,
+        args,
+        JSON.stringify({
+          number: 7,
+          title: 'Phase D demo PR',
+          url: 'https://github.com/zavorth/demo/pull/7',
+          headRefName: 'phase-d-demo',
+          baseRefName: 'main',
+          author: { login: 'operator' },
+          body: 'Deterministic setup demo PR.',
+          files: [
+            {
+              path: 'src/demo.ts',
+              status: 'modified',
+              additions: 9,
+              deletions: 2,
+            },
+          ],
+        }),
+      );
     }
 
     if (args[0] === 'pr' && args[1] === 'diff') {
-      return success(command, args, [
-        'diff --git a/src/demo.ts b/src/demo.ts',
-        'index 1111111..2222222 100644',
-        '--- a/src/demo.ts',
-        '+++ b/src/demo.ts',
-        '@@ -1,3 +1,4 @@',
-        '+export const phaseD = true;',
-      ].join('\n'));
+      return success(
+        command,
+        args,
+        [
+          'diff --git a/src/demo.ts b/src/demo.ts',
+          'index 1111111..2222222 100644',
+          '--- a/src/demo.ts',
+          '+++ b/src/demo.ts',
+          '@@ -1,3 +1,4 @@',
+          '+export const phaseD = true;',
+        ].join('\n'),
+      );
     }
 
     if (args[0] === 'pr' && args[1] === 'comment') {

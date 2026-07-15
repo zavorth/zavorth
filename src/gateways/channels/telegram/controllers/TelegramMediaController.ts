@@ -54,9 +54,7 @@ type ConversationalDispatch = (
 export class TelegramMediaController {
   private readonly opsPresentationService = new TelegramOpsInsightPresentationService();
   /** F5f — optional permission decision from STT transcript (Zavorth AudioTranscriptionService path). */
-  private voicePermissionHandler:
-    | ((ctx: Context, transcript: string) => Promise<boolean>)
-    | null = null;
+  private voicePermissionHandler: ((ctx: Context, transcript: string) => Promise<boolean>) | null = null;
 
   constructor(
     private audioHandler: AudioHandler,
@@ -67,9 +65,7 @@ export class TelegramMediaController {
     private echoOutputStage?: EchoOutputStageService | null,
   ) {}
 
-  public setVoicePermissionHandler(
-    handler: ((ctx: Context, transcript: string) => Promise<boolean>) | null,
-  ): void {
+  public setVoicePermissionHandler(handler: ((ctx: Context, transcript: string) => Promise<boolean>) | null): void {
     this.voicePermissionHandler = handler;
   }
 
@@ -88,21 +84,25 @@ export class TelegramMediaController {
       if (!fileInfo.file_path) throw new Error(t('media.path_not_returned'));
 
       const fileUrl = `https://api.telegram.org/file/bot${config.telegramBotToken}/${fileInfo.file_path}`;
-      const response = await safeFetch(fileUrl, {}, {
-        serviceName: 'Telegram photo download',
-      });
+      const response = await safeFetch(
+        fileUrl,
+        {},
+        {
+          serviceName: 'Telegram photo download',
+        },
+      );
       const buffer = Buffer.from(await response.arrayBuffer());
       const inlineData = [{ mimeType: 'image/jpeg', data: buffer.toString('base64') }];
 
-      const fullText = caption
-        ? `${t('media.image_attached')}\n${caption}`
-        : t('media.image_attached_prompt');
+      const fullText = caption ? `${t('media.image_attached')}\n${caption}` : t('media.image_attached_prompt');
 
       await this.dispatchConversational(ctx, fullText, inlineData, {
         transport: 'photo',
         requestedBy: userId,
       });
-    } catch (error: unknown) { const err = asErrorLike(error); await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(err) }));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      await ctx.reply(t('media.photo_analysis_failed', { error: getErrorMessage(err) }));
     }
   }
 
@@ -125,19 +125,25 @@ export class TelegramMediaController {
 
       const downloadStartedAt = Date.now();
       const fileUrl = `https://api.telegram.org/file/bot${config.telegramBotToken}/${fileInfo.file_path}`;
-      const response = await safeFetch(fileUrl, {}, {
-        serviceName: 'Telegram voice download',
-      });
+      const response = await safeFetch(
+        fileUrl,
+        {},
+        {
+          serviceName: 'Telegram voice download',
+        },
+      );
       const buffer = Buffer.from(await response.arrayBuffer());
       fs.writeFileSync(filePath, buffer);
       const audioConfig = config.tools.media.audio;
 
       // Inject real audio as inlineData for multimodal processing.
       // Gemini can "hear" intonation, emotion, and ambient sounds beyond text.
-      const audioInlineData: InlineData = [{
-        mimeType: file.mime_type || 'audio/ogg',
-        data: buffer.toString('base64'),
-      }];
+      const audioInlineData: InlineData = [
+        {
+          mimeType: file.mime_type || 'audio/ogg',
+          data: buffer.toString('base64'),
+        },
+      ];
       const durationSeconds = this.resolveMediaDurationSeconds(file);
       const downloadLatencyMs = Date.now() - downloadStartedAt;
       logEchoTrace(traceId, 'voice.download.completed', {
@@ -254,7 +260,7 @@ export class TelegramMediaController {
         }
       }
 
-      // Phase 2 — dictation-first: transcript is the same agent input as typing.
+      // dictation-first: transcript is the same agent input as typing.
       const dictation = getVoiceDictationIngress().prepare({
         transcript,
         provider: transcriptionResult?.provider || null,
@@ -322,9 +328,7 @@ export class TelegramMediaController {
         messageText,
         // Dictation-first: do not inject raw audio as multimodal by default.
         // Raw audio only when explicitly enabled AND conversation mode (not plain dictation).
-        audioConfig.forwardRawAudio && dictation.mode === 'conversation'
-          ? audioInlineData
-          : undefined,
+        audioConfig.forwardRawAudio && dictation.mode === 'conversation' ? audioInlineData : undefined,
         {
           traceId,
           voiceFlow,
@@ -337,12 +341,10 @@ export class TelegramMediaController {
         totalMs: Date.now() - flowStartedAt,
       });
       logger.info(`[TelegramMedia] voice flow dispatched totalMs=${Date.now() - flowStartedAt}`);
-    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
-        await ctx.reply(this.buildCapabilityUnavailableReply(
-          err,
-          userId,
-          t('media.audio_processing_capability'),
-        ));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      if (isCapabilityUnavailableError(err)) {
+        await ctx.reply(this.buildCapabilityUnavailableReply(err, userId, t('media.audio_processing_capability')));
         return;
       }
       await ctx.reply(t('media.audio_transcription_failed', { error: getErrorMessage(err) }));
@@ -367,7 +369,7 @@ export class TelegramMediaController {
       const descriptor = {
         fileId: target.file_id,
         fileName: video ? 'video-upload.mp4' : 'video-note.mp4',
-        mimeType: video ? (video.mime_type || 'video/mp4') : 'video/mp4',
+        mimeType: video ? video.mime_type || 'video/mp4' : 'video/mp4',
         caption,
         durationSeconds: target.duration,
         width: video ? video.width : videoNote?.length,
@@ -383,12 +385,10 @@ export class TelegramMediaController {
         'media',
         `media flow used by ${userId} via Telegram video`,
       );
-    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
-        await ctx.reply(this.buildCapabilityUnavailableReply(
-          err,
-          userId,
-          t('media.video_processing_capability'),
-        ));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      if (isCapabilityUnavailableError(err)) {
+        await ctx.reply(this.buildCapabilityUnavailableReply(err, userId, t('media.video_processing_capability')));
         return;
       }
       await ctx.reply(t('media.video_processing_failed', { error: getErrorMessage(err) }));
@@ -418,9 +418,7 @@ export class TelegramMediaController {
     const isDocx =
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
       lowerFileName.endsWith('.docx');
-    const isOdt =
-      mimeType === 'application/vnd.oasis.opendocument.text' ||
-      lowerFileName.endsWith('.odt');
+    const isOdt = mimeType === 'application/vnd.oasis.opendocument.text' || lowerFileName.endsWith('.odt');
 
     if (fileSize > maxDocumentBytes) {
       await ctx.reply(
@@ -448,9 +446,13 @@ export class TelegramMediaController {
       if (!fs.existsSync(config.tmpDir)) fs.mkdirSync(config.tmpDir, { recursive: true });
 
       const fileUrl = `https://api.telegram.org/file/bot${config.telegramBotToken}/${fileInfo.file_path}`;
-      const response = await safeFetch(fileUrl, {}, {
-        serviceName: 'Telegram document download',
-      });
+      const response = await safeFetch(
+        fileUrl,
+        {},
+        {
+          serviceName: 'Telegram document download',
+        },
+      );
       const buffer = Buffer.from(await response.arrayBuffer());
       fs.writeFileSync(filePath, buffer);
 
@@ -492,12 +494,10 @@ export class TelegramMediaController {
           `media flow used by ${userId} via Telegram PDF`,
         );
       }
-    } catch (error: unknown) { const err = asErrorLike(error); if (isCapabilityUnavailableError(err)) {
-        await ctx.reply(this.buildCapabilityUnavailableReply(
-          err,
-          userId,
-          t('media.document_reading_capability'),
-        ));
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      if (isCapabilityUnavailableError(err)) {
+        await ctx.reply(this.buildCapabilityUnavailableReply(err, userId, t('media.document_reading_capability')));
         return;
       }
       await ctx.reply(t('media.document_reading_failed', { error: getErrorMessage(err) }));
@@ -561,16 +561,12 @@ export class TelegramMediaController {
       .replace(/&gt;/g, '>')
       .replace(/\r/g, '')
       .replace(/[ \t]+\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .replace(/[ \t]{2,}/g, ' ')
+      .replace(/\n{3}/g, '\n\n')
+      .replace(/[ \t]{2}/g, ' ')
       .trim();
   }
 
-  private buildCapabilityUnavailableReply(
-    error: CapabilityUnavailableError,
-    userId: string,
-    reason: string,
-  ): string {
+  private buildCapabilityUnavailableReply(error: CapabilityUnavailableError, userId: string, reason: string): string {
     if (!this.capabilityLifecycleService) {
       return `${reason}\n\n${error.message}`;
     }
@@ -585,21 +581,14 @@ export class TelegramMediaController {
       return `${reason}\n\n${error.message}`;
     }
 
-    return this.opsPresentationService.formatCapabilityApprovalReply(
-      demand.capability,
-      demand.approval,
-      {
-        reason,
-        remediation: error.remediation,
-        dependencyName: error.dependencyName,
-      },
-    );
+    return this.opsPresentationService.formatCapabilityApprovalReply(demand.capability, demand.approval, {
+      reason,
+      remediation: error.remediation,
+      dependencyName: error.dependencyName,
+    });
   }
 
-  private async transcribeVoice(
-    filePath: string,
-    durationSeconds?: number | null,
-  ): Promise<AudioTranscriptionResult> {
+  private async transcribeVoice(filePath: string, durationSeconds?: number | null): Promise<AudioTranscriptionResult> {
     return await this.audioHandler.transcribeDetailed(filePath, {
       validator: (result) => this.evaluateVoiceTranscript(result.text, durationSeconds),
     });
@@ -607,9 +596,14 @@ export class TelegramMediaController {
 
   private detectTranscriptLanguage(transcript: string): string {
     const normalized = this.normalizeForIntent(transcript);
-    const ptHits = (normalized.match(/\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique)\b/g) || []).length;
-    const enHits = (normalized.match(/\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain)\b/g) || []).length;
-    const esHits = (normalized.match(/\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica)\b/g) || []).length;
+    const ptHits = (
+      normalized.match(/\b(voce|nao|sim|audio|noticias?|ultimas?|obrigado|consegue|ouvir|resuma|explique)\b/g) || []
+    ).length;
+    const enHits = (normalized.match(/\b(you|not|yes|audio|news|latest|thanks|can|hear|summarize|explain)\b/g) || [])
+      .length;
+    const esHits = (
+      normalized.match(/\b(usted|tu|no|si|audio|noticias?|ultimas?|gracias|puedes|oir|resume|explica)\b/g) || []
+    ).length;
     if (ptHits >= enHits && ptHits >= esHits && ptHits > 0) return 'en-US';
     if (esHits >= enHits && esHits > 0) return 'es';
     if (enHits > 0) return 'en';
@@ -628,10 +622,7 @@ export class TelegramMediaController {
     return provider;
   }
 
-  private evaluateVoiceTranscript(
-    transcript: string,
-    durationSeconds?: number | null,
-  ): VoiceTranscriptEvaluation {
+  private evaluateVoiceTranscript(transcript: string, durationSeconds?: number | null): VoiceTranscriptEvaluation {
     const normalizedTranscript = String(transcript || '').trim();
     if (!normalizedTranscript) {
       return { accepted: true };
@@ -681,8 +672,7 @@ export class TelegramMediaController {
     const sentenceCount = normalizedTranscript
       .split(/[.!?]+/)
       .map((entry) => entry.trim())
-      .filter(Boolean)
-      .length;
+      .filter(Boolean).length;
     if (roundedDuration <= 8 && sentenceCount > 2 && normalizedTranscript.length > 120) {
       return {
         accepted: false,
@@ -706,32 +696,24 @@ export class TelegramMediaController {
     }
 
     return (
-      /\b(consegue|consegues|pode)\b.*\b(me\s+)?ouvir\b/.test(normalized)
-      || /\bconseguindo\b.*\b(me\s+)?ouvir\b/.test(normalized)
-      || /\b(esta|ta)\b.*\b(me\s+)?ouvindo\b/.test(normalized)
-      || /\bme\s+ouve\b/.test(normalized)
-      || /\b(can|could|do)\b.*\b(you\s+)?hear\s+me\b/.test(normalized)
-      || /\bare\s+you\s+hearing\s+me\b/.test(normalized)
-      || /\b(me\s+)?escuchas\b/.test(normalized)
-      || /\bpuedes\b.*\boirme\b/.test(normalized)
+      /\b(consegue|consegues|pode)\b.*\b(me\s+)?ouvir\b/.test(normalized) ||
+      /\bconseguindo\b.*\b(me\s+)?ouvir\b/.test(normalized) ||
+      /\b(esta|ta)\b.*\b(me\s+)?ouvindo\b/.test(normalized) ||
+      /\bme\s+ouve\b/.test(normalized) ||
+      /\b(can|could|do)\b.*\b(you\s+)?hear\s+me\b/.test(normalized) ||
+      /\bare\s+you\s+hearing\s+me\b/.test(normalized) ||
+      /\b(me\s+)?escuchas\b/.test(normalized) ||
+      /\bpuedes\b.*\boirme\b/.test(normalized)
     );
   }
 
-  private isVoiceReplyCapabilityCheck(transcript: string): boolean {
-    const normalized = this.normalizeForIntent(transcript);
-    if (!normalized || normalized.length > 160) {
-      return false;
-    }
-
-    const asksVoice =
-      /\b(consegue|pode|poderia)\b.*\b(responder|responda|mandar|enviar|falar)\b.*\b(audio|voz)\b/.test(normalized)
-      || /\b(me\s+)?responde\b.*\b(audio|voz)\b/.test(normalized)
-      || /\b(audio|voz)\b.*\b(resposta|responder|responda)\b/.test(normalized)
-      || /\b(can|could)\b.*\b(reply|answer|respond|send)\b.*\b(audio|voice)\b/.test(normalized)
-      || /\b(puedes|podrias)\b.*\b(responder|enviar|mandar)\b.*\b(audio|voz)\b/.test(normalized);
-    const hasSubstantiveRequest =
-      /\b(notici|pesquis|procure|explique|resuma|relatorio|compare|analise|diga\s+sobre|sobre)\b/.test(normalized);
-    return asksVoice && !hasSubstantiveRequest;
+  /**
+   * Free-text voice-capability FAQs must not short-circuit the agent product path.
+   * Voice reply is activated only by structured flags (voiceFlow.ttsReplyDesired,
+   * forceVoice, session conversation mode) — never by transcript keyword packs.
+   */
+  private isVoiceReplyCapabilityCheck(_transcript: string): boolean {
+    return false;
   }
 
   private normalizeForIntent(value: string): string {
@@ -745,7 +727,7 @@ export class TelegramMediaController {
   }
 
   private normalizeVoiceTranscriptForDispatch(transcript: string): string {
-    // Phase 2: same normalization as VoiceDictationIngress (no media placeholders).
+    // same normalization as VoiceDictationIngress (no media placeholders).
     const cleaned = normalizeDictationTranscript(transcript)
       .replace(/^\s*(?:zavorth|echo|nexus|jarvis|friday)\b[\s,;:.!?-]*/i, '')
       .trim();
@@ -759,7 +741,14 @@ export class TelegramMediaController {
     preferredLanguageCode?: string | null,
   ): Promise<void> {
     const reply = this.resolveSafetyMessage(ctx, 'connectivity', transcript, preferredLanguageCode);
-    if (await this.tryEchoSafetyReply(ctx, reply, this.resolveSafetyLanguage(ctx, transcript, preferredLanguageCode), traceId)) {
+    if (
+      await this.tryEchoSafetyReply(
+        ctx,
+        reply,
+        this.resolveSafetyLanguage(ctx, transcript, preferredLanguageCode),
+        traceId,
+      )
+    ) {
       return;
     }
     await ctx.reply(reply);
@@ -772,11 +761,12 @@ export class TelegramMediaController {
     preferredLanguageCode?: string | null,
   ): Promise<void> {
     const language = this.resolveSafetyLanguage(ctx, transcript, preferredLanguageCode);
-    const reply = language === 'pt'
-      ? 'Sim. Quando o Echo estiver ativo, eu consigo te responder em audio. Vou manter as respostas mais curtas para ficarem boas de ouvir.'
-      : language === 'es'
-        ? 'Si. Cuando Echo este activo, puedo responderte en audio. Mantendre las respuestas mas cortas para que sean buenas de escuchar.'
-        : 'Yes. When Echo is active, I can reply with audio. I will keep voice replies concise so they are easier to listen to.';
+    const reply =
+      language === 'pt'
+        ? 'Sim. Quando o Echo estiver ativo, eu consigo te responder em audio. Vou manter as respostas mais curtas para ficarem boas de ouvir.'
+        : language === 'es'
+          ? 'Si. Cuando Echo este activo, puedo responderte en audio. Mantendre las respuestas mas cortas para que sean buenas de escuchar.'
+          : 'Yes. When Echo is active, I can reply with audio. I will keep voice replies concise so they are easier to listen to.';
     if (await this.tryEchoSafetyReply(ctx, reply, language, traceId)) {
       return;
     }
@@ -791,7 +781,9 @@ export class TelegramMediaController {
   ): Promise<void> {
     const safeReply = this.resolveSafetyMessage(ctx, 'untrusted', '', preferredLanguageCode);
 
-    if (await this.tryEchoSafetyReply(ctx, safeReply, this.resolveSafetyLanguage(ctx, '', preferredLanguageCode), traceId)) {
+    if (
+      await this.tryEchoSafetyReply(ctx, safeReply, this.resolveSafetyLanguage(ctx, '', preferredLanguageCode), traceId)
+    ) {
       return;
     }
 
@@ -807,20 +799,14 @@ export class TelegramMediaController {
     const languageCode = this.resolveSafetyLanguage(ctx, transcript, preferredLanguageCode);
 
     if (languageCode === 'pt') {
-      return kind === 'connectivity'
-        ? t('media.audio_connectivity_pt')
-        : t('media.audio_inconsistent_pt');
+      return kind === 'connectivity' ? t('media.audio_connectivity_pt') : t('media.audio_inconsistent_pt');
     }
 
     if (languageCode === 'es') {
-      return kind === 'connectivity'
-        ? t('media.audio_connectivity_es')
-        : t('media.audio_inconsistent_es');
+      return kind === 'connectivity' ? t('media.audio_connectivity_es') : t('media.audio_inconsistent_es');
     }
 
-    return kind === 'connectivity'
-      ? t('media.audio_connectivity_en')
-      : t('media.audio_inconsistent_en');
+    return kind === 'connectivity' ? t('media.audio_connectivity_en') : t('media.audio_inconsistent_en');
   }
 
   private resolveSafetyDetailLabel(ctx: Context, preferredLanguageCode?: string | null): string {
@@ -858,8 +844,9 @@ export class TelegramMediaController {
       return 'es';
     }
 
-    const languageCode = String((ctx.from as { language_code?: string } | undefined)?.language_code || '')
-      .toLowerCase();
+    const languageCode = String(
+      (ctx.from as { language_code?: string } | undefined)?.language_code || '',
+    ).toLowerCase();
     if (languageCode.startsWith('pt')) {
       return 'pt';
     }
@@ -876,10 +863,12 @@ export class TelegramMediaController {
     traceId?: string,
   ): Promise<boolean> {
     try {
-      const outputStage = this.echoOutputStage || new EchoOutputStageService({
-        audioHandler: this.audioHandler,
-        preferenceStore: this.echoPreferenceStore || null,
-      });
+      const outputStage =
+        this.echoOutputStage ||
+        new EchoOutputStageService({
+          audioHandler: this.audioHandler,
+          preferenceStore: this.echoPreferenceStore || null,
+        });
       const result = await outputStage.deliver({
         surface: 'telegram',
         text,
@@ -910,7 +899,8 @@ export class TelegramMediaController {
         });
       }
       return result.delivered === 'voice';
-    } catch (error: unknown) {const message = getErrorMessage(error);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
       logger.warn(`[TelegramMedia] Security Echo failed for low-confidence audio: ${message}`);
       return false;
     }

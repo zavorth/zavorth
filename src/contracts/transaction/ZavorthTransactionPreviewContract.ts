@@ -2,8 +2,10 @@ import type {
   ZavorthNaturalFirstTransactionRoute,
   ZavorthTransactionIntent,
   ZavorthTransactionIntentCondition,
+  ZavorthTransactionIntentKind,
   ZavorthTransactionIntentLimit,
   ZavorthTransactionIntentTarget,
+  ZavorthTransactionIntentTargetKind,
   ZavorthTransactionIntentWindow,
 } from './ZavorthTransactionIntentContract.js';
 import type {
@@ -111,6 +113,10 @@ export type ZavorthTransactionPreview = {
 
 export type ZavorthTransactionPreviewBuildInput = {
   text?: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: ZavorthTransactionIntentKind;
+  actionKind?: ZavorthTransactionActionKind;
+  targetKind?: ZavorthTransactionIntentTargetKind;
   intent?: ZavorthTransactionIntent;
   channel?: string;
   now?: Date;
@@ -129,7 +135,16 @@ export function buildZavorthTransactionPreviewContractSnapshot(): ZavorthTransac
     version: ZAVORTH_TRANSACTION_PREVIEW_CONTRACT_VERSION,
     summary: 'Human-reviewable transaction preview contract for Zavorth Transaction Plane Preview engine.',
     statuses: ['ready-for-review', 'needs-clarification', 'blocked'],
-    connectorKinds: ['market-data', 'commerce', 'payment', 'exchange', 'currency-exchange', 'subscription', 'wallet', 'unknown'],
+    connectorKinds: [
+      'market-data',
+      'commerce',
+      'payment',
+      'exchange',
+      'currency-exchange',
+      'subscription',
+      'wallet',
+      'unknown',
+    ],
     invariants: [
       'A preview never applies a live transaction effect.',
       'A preview must carry the parsed intent snapshot and Security contract policy decision.',

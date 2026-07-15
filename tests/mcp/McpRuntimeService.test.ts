@@ -8,11 +8,13 @@ import path from 'path';
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Builds a minimal mock McpToolPolicyFileService for use in tests. */
-function buildMockPolicyService(opts: {
-  tools?: Record<string, any>;
-  allowlist?: string[];
-  profile?: string;
-} = {}) {
+function buildMockPolicyService(
+  opts: {
+    tools?: Record<string, any>;
+    allowlist?: string[];
+    profile?: string;
+  } = {},
+) {
   const doc = {
     version: 1,
     updatedAt: null as string | null,
@@ -27,25 +29,23 @@ function buildMockPolicyService(opts: {
     readPolicy: jest.fn().mockReturnValue(doc),
     savePolicy: jest.fn().mockReturnValue(doc),
     getMcpToolPolicy: jest.fn().mockReturnValue(policy),
-    markToolPending: jest.fn().mockImplementation(
-      (d: any, toolId: string, fingerprint: string, reason: string, desc?: string) => {
+    markToolPending: jest
+      .fn()
+      .mockImplementation((d: any, toolId: string, fingerprint: string, reason: string, desc?: string) => {
         d.tools = d.tools || {};
         d.tools[toolId] = { status: 'pending_approval', fingerprint, pendingReason: reason, lastSeenDescription: desc };
-      },
-    ),
-    updateToolLastSeen: jest.fn().mockImplementation(
-      (d: any, toolId: string, desc?: string) => {
-        if (d.tools?.[toolId]) {
-          d.tools[toolId] = { ...d.tools[toolId], lastSeenDescription: desc, lastSeenAt: new Date().toISOString() };
-        }
-      },
-    ),
-    autoMigrateLegacyTool: jest.fn().mockImplementation(
-      (d: any, toolId: string, fingerprint: string, desc?: string) => {
+      }),
+    updateToolLastSeen: jest.fn().mockImplementation((d: any, toolId: string, desc?: string) => {
+      if (d.tools?.[toolId]) {
+        d.tools[toolId] = { ...d.tools[toolId], lastSeenDescription: desc, lastSeenAt: new Date().toISOString() };
+      }
+    }),
+    autoMigrateLegacyTool: jest
+      .fn()
+      .mockImplementation((d: any, toolId: string, fingerprint: string, desc?: string) => {
         d.tools = d.tools || {};
         d.tools[toolId] = { status: 'approved', fingerprint, description: desc };
-      },
-    ),
+      }),
   };
 
   return svc;
@@ -120,7 +120,13 @@ describe('McpRuntimeService — connectivity', () => {
       (entry) => ({
         name: entry.id,
         connect: jest.fn().mockImplementation(async (registry: ToolRegistry) => {
-          registry.register({ name: `mcp_${entry.id}`, description: '', parameters: undefined, metadata: undefined, execute: jest.fn() } as any);
+          registry.register({
+            name: `mcp_${entry.id}`,
+            description: '',
+            parameters: undefined,
+            metadata: undefined,
+            execute: jest.fn(),
+          } as any);
           connectCalls.push(entry.id);
         }),
         disconnect: jest.fn().mockImplementation(async () => {
@@ -139,28 +145,32 @@ describe('McpRuntimeService — connectivity', () => {
     expect(loader.load).toHaveBeenCalled();
     expect(connectCalls).toEqual(['filesystem', 'sequential-thinking']);
     expect(disconnectCalls).toEqual(['sequential-thinking', 'filesystem']);
-    expect(startedSnapshot.summary).toEqual(expect.objectContaining({
-      total: 3,
-      enabled: 2,
-      connected: 2,
-      disabled: 1,
-      toolCount: 2,
-    }));
-    expect(startedSnapshot.entries).toEqual(expect.arrayContaining([
+    expect(startedSnapshot.summary).toEqual(
       expect.objectContaining({
-        id: 'filesystem',
-        status: 'connected',
-        toolCount: 1,
-        toolNames: ['filesystem:mcp_filesystem'],
+        total: 3,
+        enabled: 2,
+        connected: 2,
+        disabled: 1,
+        toolCount: 2,
       }),
-      expect.objectContaining({
-        id: 'disabled-server',
-        status: 'disabled',
-      }),
-    ]));
-    expect(stoppedSnapshot.entries).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'filesystem', status: 'stopped' }),
-    ]));
+    );
+    expect(startedSnapshot.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'filesystem',
+          status: 'connected',
+          toolCount: 1,
+          toolNames: ['filesystem:mcp_filesystem'],
+        }),
+        expect.objectContaining({
+          id: 'disabled-server',
+          status: 'disabled',
+        }),
+      ]),
+    );
+    expect(stoppedSnapshot.entries).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'filesystem', status: 'stopped' })]),
+    );
   });
 });
 
@@ -180,7 +190,11 @@ describe('McpRuntimeService — drift protection', () => {
   const loader = { load: jest.fn().mockReturnValue([singleEntry]) } as any;
 
   beforeEach(() => jest.clearAllMocks());
-  afterEach(() => { try { fs.unlinkSync(stateFile); } catch {} });
+  afterEach(() => {
+    try {
+      fs.unlinkSync(stateFile);
+    } catch {}
+  });
 
   it('registers a tool that is already approved with matching fingerprint', async () => {
     const registry = new ToolRegistry();
@@ -255,7 +269,14 @@ describe('McpRuntimeService — drift protection', () => {
       registry,
       logRepo,
       loader,
-      (_entry) => makeFakeMcpManager('serverA', [{ name: 'drift_tool', description: 'new description', parameters: { type: 'object', properties: { x: { type: 'string' } } } }]),
+      (_entry) =>
+        makeFakeMcpManager('serverA', [
+          {
+            name: 'drift_tool',
+            description: 'new description',
+            parameters: { type: 'object', properties: { x: { type: 'string' } } },
+          },
+        ]),
       stateFile,
       policyService as any,
     );
@@ -295,13 +316,17 @@ describe('McpRuntimeService — drift protection', () => {
 
     let capturedFingerprint = '';
     const savedDoc: any = {
-      version: 1, updatedAt: null, profile: 'safe',
+      version: 1,
+      updatedAt: null,
+      profile: 'safe',
       allowlist: ['desc_tool'],
       tools: {},
     };
     const policyService: any = {
       readPolicy: jest.fn().mockReturnValue(savedDoc),
-      savePolicy: jest.fn().mockImplementation((doc: any) => { Object.assign(savedDoc, doc); }),
+      savePolicy: jest.fn().mockImplementation((doc: any) => {
+        Object.assign(savedDoc, doc);
+      }),
       getMcpToolPolicy: jest.fn().mockReturnValue(new McpToolPolicy({ profile: 'safe', allowlist: ['desc_tool'] })),
       markToolPending: jest.fn().mockImplementation((d: any, id: string, fp: string, reason: string, desc?: string) => {
         d.tools[id] = { status: 'pending_approval', fingerprint: fp, pendingReason: reason, lastSeenDescription: desc };
@@ -370,7 +395,10 @@ describe('McpRuntimeService — drift protection', () => {
 
     expect(registry.getTool('serverA:weather')).toBeDefined();
     expect(policyService.autoMigrateLegacyTool).toHaveBeenCalledWith(
-      expect.anything(), 'serverA:weather', expect.any(String), 'weather tool',
+      expect.anything(),
+      'serverA:weather',
+      expect.any(String),
+      'weather tool',
     );
   });
 
@@ -400,10 +428,18 @@ describe('McpRuntimeService — drift protection', () => {
     expect(registryA.getTool('serverA:search')).toBeUndefined();
     expect(registryA.getTool('serverB:search')).toBeUndefined();
     expect(policyService.markToolPending).toHaveBeenCalledWith(
-      expect.anything(), 'serverA:search', expect.any(String), 'new_tool', 'search tool',
+      expect.anything(),
+      'serverA:search',
+      expect.any(String),
+      'new_tool',
+      'search tool',
     );
     expect(policyService.markToolPending).toHaveBeenCalledWith(
-      expect.anything(), 'serverB:search', expect.any(String), 'new_tool', 'search tool',
+      expect.anything(),
+      'serverB:search',
+      expect.any(String),
+      'new_tool',
+      'search tool',
     );
     const collisionWarns = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('Colisao'));
     expect(collisionWarns.length).toBeGreaterThanOrEqual(2);
@@ -415,7 +451,11 @@ describe('McpRuntimeService — drift protection', () => {
     const staleFingerprint = 'aaaa0000000000000000000000000000000000000000000000000000000000aa';
     const policyService = buildMockPolicyService({
       tools: {
-        'serverA:mutated_tool': { status: 'pending_approval', fingerprint: staleFingerprint, pendingReason: 'new_tool' },
+        'serverA:mutated_tool': {
+          status: 'pending_approval',
+          fingerprint: staleFingerprint,
+          pendingReason: 'new_tool',
+        },
       },
       allowlist: [],
     });
@@ -424,7 +464,10 @@ describe('McpRuntimeService — drift protection', () => {
       registry,
       logRepo,
       loader,
-      (_entry) => makeFakeMcpManager('serverA', [{ name: 'mutated_tool', description: 'now with params', parameters: { type: 'object' } }]),
+      (_entry) =>
+        makeFakeMcpManager('serverA', [
+          { name: 'mutated_tool', description: 'now with params', parameters: { type: 'object' } },
+        ]),
       stateFile,
       policyService as any,
     );
@@ -434,11 +477,13 @@ describe('McpRuntimeService — drift protection', () => {
     // Still pending — not registered
     expect(registry.getTool('serverA:mutated_tool')).toBeUndefined();
     expect(policyService.markToolPending).toHaveBeenCalledWith(
-      expect.anything(), 'serverA:mutated_tool', expect.any(String), 'schema_drift', 'now with params',
+      expect.anything(),
+      'serverA:mutated_tool',
+      expect.any(String),
+      'schema_drift',
+      'now with params',
     );
-    const fpWarnCalls = (logRepo.log as jest.Mock).mock.calls.filter(
-      (c) => c[2]?.includes('fingerprint alterado'),
-    );
+    const fpWarnCalls = (logRepo.log as jest.Mock).mock.calls.filter((c) => c[2]?.includes('fingerprint changed'));
     expect(fpWarnCalls.length).toBeGreaterThan(0);
   });
 
@@ -450,10 +495,11 @@ describe('McpRuntimeService — drift protection', () => {
       registry,
       logRepo,
       loader,
-      (_entry) => makeFakeMcpManager('serverA', [
-        { name: 'tool_x', description: 'x' },
-        { name: 'tool_y', description: 'y' },
-      ]),
+      (_entry) =>
+        makeFakeMcpManager('serverA', [
+          { name: 'tool_x', description: 'x' },
+          { name: 'tool_y', description: 'y' },
+        ]),
       stateFile,
       policyService as any,
     );
@@ -485,9 +531,12 @@ describe('McpRuntimeService — drift protection', () => {
 
     // First run: auto-migration triggers save
     const run1 = new McpRuntimeService(
-      new ToolRegistry(), logRepo, loader,
+      new ToolRegistry(),
+      logRepo,
+      loader,
       (_entry) => makeFakeMcpManager('serverA', [{ name: 'stable_tool', description: 'stable' }]),
-      stateFile, policyService,
+      stateFile,
+      policyService,
     );
     await run1.start();
     expect(savedFingerprint).not.toBe('');
@@ -496,9 +545,12 @@ describe('McpRuntimeService — drift protection', () => {
     // Second run: same schema + same description → no changes, no save
     const registry2 = new ToolRegistry();
     const run2 = new McpRuntimeService(
-      registry2, logRepo, loader,
+      registry2,
+      logRepo,
+      loader,
       (_entry) => makeFakeMcpManager('serverA', [{ name: 'stable_tool', description: 'stable' }]),
-      stateFile, policyService,
+      stateFile,
+      policyService,
     );
     await run2.start();
 

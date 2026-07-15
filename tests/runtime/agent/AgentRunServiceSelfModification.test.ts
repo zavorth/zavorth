@@ -1,7 +1,4 @@
-import {
-  AgentRunService,
-  ZavorthAgentGateway,
-} from '../../../src/runtime/agent/index.js';
+import { AgentRunService, ZavorthAgentGateway } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -46,45 +43,44 @@ describe('AgentRunService selfmod escalation', () => {
     });
 
     expect(executor).not.toHaveBeenCalled();
-    expect(createGoalPreview).toHaveBeenCalledWith(
-      'proponha uma auto melhoria segura para o Zavorth',
-      'operator',
-    );
-    expect(result.run).toEqual(expect.objectContaining({
-      status: 'completed',
-      summary: 'Preview de auto melhoria preparado.',
-      approvals: [],
-      artifacts: [
-        expect.objectContaining({
-          id: 'goal-preview-1',
-          kind: 'diff',
-          status: 'ready',
-        }),
-      ],
-      toolExposure: expect.objectContaining({
-        tools: expect.arrayContaining([
+    expect(createGoalPreview).toHaveBeenCalledWith('proponha uma auto melhoria segura para o Zavorth', 'operator');
+    expect(result.run).toEqual(
+      expect.objectContaining({
+        status: 'completed',
+        summary: 'Preview de auto melhoria preparado.',
+        approvals: [],
+        artifacts: [
           expect.objectContaining({
-            id: 'selfmod.preview',
-            group: 'selfmod',
-            risk: 'attention',
-            requiresApproval: false,
-            policyTags: expect.arrayContaining(['preview-first']),
+            id: 'goal-preview-1',
+            kind: 'diff',
+            status: 'ready',
           }),
-        ]),
-      }),
-      metadata: expect.objectContaining({
-        selfModificationPreview: expect.objectContaining({
-          source: 'SelfModificationCommandService',
-          operation: 'preview',
-          success: true,
-          previewId: 'goal-preview-1',
-          changeCount: 2,
-          applyServiceCalled: false,
-          rollbackServiceCalled: false,
-          previewFirst: true,
+        ],
+        toolExposure: expect.objectContaining({
+          tools: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'selfmod.preview',
+              group: 'selfmod',
+              risk: 'attention',
+              requiresApproval: false,
+              policyTags: expect.arrayContaining(['preview-first']),
+            }),
+          ]),
+        }),
+        metadata: expect.objectContaining({
+          selfModificationPreview: expect.objectContaining({
+            source: 'SelfModificationCommandService',
+            operation: 'preview',
+            success: true,
+            previewId: 'goal-preview-1',
+            changeCount: 2,
+            applyServiceCalled: false,
+            rollbackServiceCalled: false,
+            previewFirst: true,
+          }),
         }),
       }),
-    }));
+    );
     expect(result.replies[0].text).toContain('Preview: goal-preview-1');
     expect(result.replies[0].text).toContain('Apply nao foi executado.');
   });
@@ -116,20 +112,24 @@ describe('AgentRunService selfmod escalation', () => {
       channel: 'telegram',
       sessionId: 'telegram:42',
       text: 'proponha uma auto melhoria segura para o Zavorth',
-      requestedTools: [],
+      requestedTools: ['selfmod.preview'],
     });
 
     expect(executor).not.toHaveBeenCalled();
     expect(createGoalPreview).toHaveBeenCalledTimes(1);
     expect(result.run.status).toBe('completed');
-    expect(result.run.metadata.naturalCapabilityDiscovery).toEqual(expect.objectContaining({
-      recommendedToolNames: expect.arrayContaining(['selfmod.preview']),
-    }));
+    expect(result.run.metadata.naturalCapabilityDiscovery).toEqual(
+      expect.objectContaining({
+        recommendedToolNames: expect.arrayContaining(['selfmod.preview']),
+      }),
+    );
     expect(result.run.metadata.capabilityNegotiation).toBeUndefined();
-    expect(result.run.metadata.selfModificationPreview).toEqual(expect.objectContaining({
-      previewId: 'natural-goal-preview-1',
-      previewFirst: true,
-    }));
+    expect(result.run.metadata.selfModificationPreview).toEqual(
+      expect.objectContaining({
+        previewId: 'natural-goal-preview-1',
+        previewFirst: true,
+      }),
+    );
   });
 
   it('keeps selfmod.apply behind approval instead of generating or applying a preview directly', async () => {
@@ -156,34 +156,36 @@ describe('AgentRunService selfmod escalation', () => {
     expect(createGoalPreview).not.toHaveBeenCalled();
     expect(applyPreview).not.toHaveBeenCalled();
     expect(rollbackChangeSet).not.toHaveBeenCalled();
-    expect(result.run).toEqual(expect.objectContaining({
-      status: 'waiting_approval',
-      summary: 'Proposta de selfmod.apply aguardando aprovacao.',
-      toolExposure: expect.objectContaining({
-        tools: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'selfmod.apply',
-            group: 'selfmod',
-            risk: 'danger',
-            requiresApproval: true,
-            policyTags: expect.arrayContaining(['preview-required']),
+    expect(result.run).toEqual(
+      expect.objectContaining({
+        status: 'waiting_approval',
+        summary: 'Proposta de selfmod.apply aguardando aprovacao.',
+        toolExposure: expect.objectContaining({
+          tools: expect.arrayContaining([
+            expect.objectContaining({
+              id: 'selfmod.apply',
+              group: 'selfmod',
+              risk: 'danger',
+              requiresApproval: true,
+              policyTags: expect.arrayContaining(['preview-required']),
+            }),
+          ]),
+        }),
+        metadata: expect.objectContaining({
+          selfModificationActionProposal: expect.objectContaining({
+            source: 'AgentRunService',
+            operation: 'apply',
+            toolId: 'selfmod.apply',
+            targetId: 'goal-preview-1',
+            targetField: 'previewId',
+            directExecution: false,
+            applyServiceCalled: false,
+            rollbackServiceCalled: false,
+            approvalCreated: true,
           }),
-        ]),
-      }),
-      metadata: expect.objectContaining({
-        selfModificationActionProposal: expect.objectContaining({
-          source: 'AgentRunService',
-          operation: 'apply',
-          toolId: 'selfmod.apply',
-          targetId: 'goal-preview-1',
-          targetField: 'previewId',
-          directExecution: false,
-          applyServiceCalled: false,
-          rollbackServiceCalled: false,
-          approvalCreated: true,
         }),
       }),
-    }));
+    );
     expect(result.run.approvals).toEqual([
       expect.objectContaining({
         title: 'Aprovar selfmod.apply proposto',
@@ -217,20 +219,24 @@ describe('AgentRunService selfmod escalation', () => {
     expect(applyPreview).not.toHaveBeenCalled();
     expect(rollbackChangeSet).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(result.run.metadata.selfModificationActionProposal).toEqual(expect.objectContaining({
-      operation: 'rollback',
-      toolId: 'selfmod.rollback',
-      targetId: 'change-123',
-      targetField: 'changeId',
-      directExecution: false,
-      applyServiceCalled: false,
-      rollbackServiceCalled: false,
-    }));
-    expect(result.run.approvals[0]).toEqual(expect.objectContaining({
-      title: 'Aprovar selfmod.rollback proposto',
-      risk: 'danger',
-      status: 'pending',
-    }));
+    expect(result.run.metadata.selfModificationActionProposal).toEqual(
+      expect.objectContaining({
+        operation: 'rollback',
+        toolId: 'selfmod.rollback',
+        targetId: 'change-123',
+        targetField: 'changeId',
+        directExecution: false,
+        applyServiceCalled: false,
+        rollbackServiceCalled: false,
+      }),
+    );
+    expect(result.run.approvals[0]).toEqual(
+      expect.objectContaining({
+        title: 'Aprovar selfmod.rollback proposto',
+        risk: 'danger',
+        status: 'pending',
+      }),
+    );
     expect(result.replies[0].text).toContain('Alvo: changeId change-123');
   });
 
@@ -257,14 +263,16 @@ describe('AgentRunService selfmod escalation', () => {
     expect(rollbackChangeSet).not.toHaveBeenCalled();
     expect(approved?.run.status).toBe('completed');
     expect(approved?.run.summary).toContain('execucao direta nao foi realizada');
-    expect(approved?.run.metadata.selfModificationActionProposal).toEqual(expect.objectContaining({
-      operation: 'apply',
-      targetId: 'goal-preview-2',
-      approvalOnly: true,
-      directExecution: false,
-      applyServiceCalled: false,
-      rollbackServiceCalled: false,
-    }));
+    expect(approved?.run.metadata.selfModificationActionProposal).toEqual(
+      expect.objectContaining({
+        operation: 'apply',
+        targetId: 'goal-preview-2',
+        approvalOnly: true,
+        directExecution: false,
+        applyServiceCalled: false,
+        rollbackServiceCalled: false,
+      }),
+    );
     expect(approved?.replies[0].text).toContain('Use o fluxo owner/trusted existente');
   });
 });

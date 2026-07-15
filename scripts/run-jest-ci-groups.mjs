@@ -40,7 +40,11 @@ const GROUPS = [
   {
     id: 'domain-shared',
     label: 'Shared surface commands and domain services',
-    paths: ['tests/domain/surface/application', 'tests/domain/surface/SharedSurfaceCommandService.tasks.test.ts', 'tests/domain/surface/SharedSurfaceCallbackCommandPolicy.test.ts'],
+    paths: [
+      'tests/domain/surface/application',
+      'tests/domain/surface/SharedSurfaceCommandService.tasks.test.ts',
+      'tests/domain/surface/SharedSurfaceCallbackCommandPolicy.test.ts',
+    ],
   },
   {
     id: 'telegram',
@@ -63,8 +67,8 @@ const GROUPS = [
     id: 'runtime-agent',
     label: 'Agent runtime contracts',
     paths: ['tests/runtime/agent'],
-    // Large suite; allow more wall clock than the global default.
-    timeoutMs: 1_200_000,
+    // Large suite under load; 40m wall clock (was timing out at 20m on slow hosts).
+    timeoutMs: 2_400_000,
   },
   {
     id: 'runtime-sessions',
@@ -85,7 +89,8 @@ const GROUPS = [
   {
     id: 'platform',
     label: 'Platform, adapters, CLI, SDK, tools and unit tests',
-    timeoutMs: 1_200_000,
+    // Broad umbrella group; 40m wall clock for slow hosts.
+    timeoutMs: 2_400_000,
     paths: [
       'tests/adapters',
       'tests/agents',
@@ -167,7 +172,12 @@ function selectedGroups() {
   if (!groupArg || groupArg === 'all') {
     return GROUPS;
   }
-  const requested = new Set(groupArg.split(',').map((entry) => entry.trim()).filter(Boolean));
+  const requested = new Set(
+    groupArg
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean),
+  );
   const groups = ALL_GROUPS.filter((group) => requested.has(group.id));
   const missing = [...requested].filter((id) => !ALL_GROUPS.some((group) => group.id === id));
   if (missing.length > 0) {

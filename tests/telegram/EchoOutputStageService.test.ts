@@ -87,7 +87,36 @@ describe('EchoOutputStageService', () => {
     expect(sink.sendText).not.toHaveBeenCalled();
   });
 
-  it('honors an explicit voice reply request even when Echo mode is not globally active', async () => {
+  it('honors a structured voice reply flag even when Echo mode is not globally active', async () => {
+    const deps = createDeps(false);
+    const sink = {
+      sendText: jest.fn().mockResolvedValue(undefined),
+      sendVoice: jest.fn().mockResolvedValue(undefined),
+      sendChatAction: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const result = await new EchoOutputStageService(deps).deliver({
+      surface: 'telegram',
+      text: 'Sim, posso responder por audio quando voce pedir.',
+      rawInput: 'voce pode me responder em audio?',
+      preferredLanguageCode: 'en-US',
+      preferVoiceReply: true,
+      sink,
+    });
+
+    expect(result.delivered).toBe('voice');
+    expect(deps.preferenceStore.isEchoModeActive).not.toHaveBeenCalled();
+    expect(deps.audioHandler.synthesize).toHaveBeenCalledWith(
+      'Sim, posso responder por audio quando voce pedir.',
+      expect.objectContaining({
+        preferredLanguageCode: 'en-US',
+      }),
+    );
+    expect(sink.sendVoice).toHaveBeenCalledWith('C:/tmp/echo-output.mp3');
+    expect(sink.sendText).not.toHaveBeenCalled();
+  });
+
+  it('does not enable voice replies from free-text voice phrases alone', async () => {
     const deps = createDeps(false);
     const sink = {
       sendText: jest.fn().mockResolvedValue(undefined),
@@ -103,16 +132,10 @@ describe('EchoOutputStageService', () => {
       sink,
     });
 
-    expect(result.delivered).toBe('voice');
-    expect(deps.preferenceStore.isEchoModeActive).not.toHaveBeenCalled();
-    expect(deps.audioHandler.synthesize).toHaveBeenCalledWith(
-      'Sim, posso responder por audio quando voce pedir.',
-      expect.objectContaining({
-        preferredLanguageCode: 'en-US',
-      }),
-    );
-    expect(sink.sendVoice).toHaveBeenCalledWith('C:/tmp/echo-output.mp3');
-    expect(sink.sendText).not.toHaveBeenCalled();
+    expect(result.delivered).toBe('text');
+    expect(deps.audioHandler.synthesize).not.toHaveBeenCalled();
+    expect(sink.sendVoice).not.toHaveBeenCalled();
+    expect(sink.sendText).toHaveBeenCalled();
   });
 
   it('keeps interactive replies as text', async () => {

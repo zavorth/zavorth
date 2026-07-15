@@ -1,8 +1,15 @@
 import { ActionCardService } from './ActionCardService.js';
 import { defaultZavorthSpeculativeAutonomyCancellationRegistry } from '../../autonomy/ZavorthSpeculativeAutonomyService.js';
 import { ZavorthRuntimeStateBusService } from '../ZavorthRuntimeStateBusService.js';
-import { ZavorthRuntimeCapabilitiesService, type ZavorthRuntimeCapabilitiesSnapshot } from '../ZavorthRuntimeCapabilitiesService.js';
-import { ZavorthRuntimeOperationalSpineService, type ZavorthRuntimeOperationalSpineSyncInput, type ZavorthRuntimeOperationalSpineSyncResult } from '../ZavorthRuntimeOperationalSpineService.js';
+import {
+  ZavorthRuntimeCapabilitiesService,
+  type ZavorthRuntimeCapabilitiesSnapshot,
+} from '../ZavorthRuntimeCapabilitiesService.js';
+import {
+  ZavorthRuntimeOperationalSpineService,
+  type ZavorthRuntimeOperationalSpineSyncInput,
+  type ZavorthRuntimeOperationalSpineSyncResult,
+} from '../ZavorthRuntimeOperationalSpineService.js';
 import { ZavorthRuntimeSecureIntegrationService } from '../ZavorthRuntimeSecureIntegrationService.js';
 
 import { logger } from '../../logger.js';
@@ -41,21 +48,40 @@ import { NaturalCommandRouterService } from './NaturalCommandRouterService.js';
 import { ReasoningSummaryService } from './ReasoningSummaryService.js';
 import { ResponseProfilePreferenceService } from './ResponseProfilePreferenceService.js';
 import { TrustLensService } from './TrustLensService.js';
-import type { UniversalAgentModelProfile, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
-import type { ZavorthAgentGateway, ZavorthAgentGatewaySnapshot, ZavorthAgentGatewaySnapshotOptions } from '../../runtime/agent/ZavorthAgentGateway.js';
+import type {
+  UniversalAgentModelProfile,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type {
+  ZavorthAgentGateway,
+  ZavorthAgentGatewaySnapshot,
+  ZavorthAgentGatewaySnapshotOptions,
+} from '../../runtime/agent/ZavorthAgentGateway.js';
 
 import { ZavorthProviderReadinessMatrixService } from '../ZavorthProviderReadinessMatrixService.js';
 import { ZavorthSelfHealingUxService } from '../ZavorthSelfHealingUxService.js';
-import { ZavorthSelfHealingReceiptService, type ZavorthSelfHealingReceipt } from '../ZavorthSelfHealingReceiptService.js';
+import {
+  ZavorthSelfHealingReceiptService,
+  type ZavorthSelfHealingReceipt,
+} from '../ZavorthSelfHealingReceiptService.js';
 import type { ZavorthMemoryPlaneService } from '../ZavorthMemoryPlaneService.js';
 import type { ZavorthLearningPlaneService } from '../ZavorthLearningPlaneService.js';
 import type { RuntimeAccessReadinessService } from '../../runtime/access/RuntimeAccessReadinessService.js';
-import type { ZavorthSelfHealingAction, ZavorthSelfHealingProjection } from '../../contracts/ZavorthSelfHealingUxContract.js';
+import type {
+  ZavorthSelfHealingAction,
+  ZavorthSelfHealingProjection,
+} from '../../contracts/ZavorthSelfHealingUxContract.js';
 import type { ZavorthLlmBrainSnapshot } from '../../contracts/ZavorthLlmBrainContract.js';
 import type { UniversalAgentRequest } from '../../runtime/agent/UniversalAgentRuntimeTypes.js';
 import { ZavorthAgentMaturityService, type ZavorthAgentMaturitySnapshot } from '../ZavorthAgentMaturityService.js';
 
-import type { ZavorthRuntimeStateBusActionInput, ZavorthRuntimeStateBusDispatchResult, ZavorthRuntimeStateBusSnapshot } from '../../contracts/ZavorthRuntimeStateBusContract.js';
+import type {
+  ZavorthRuntimeStateBusActionInput,
+  ZavorthRuntimeStateBusDispatchResult,
+  ZavorthRuntimeStateBusSnapshot,
+} from '../../contracts/ZavorthRuntimeStateBusContract.js';
 import { asErrorLike, errorMessage } from '../../utils/errorLike.js';
 type AgentGatewayLike = Pick<ZavorthAgentGateway, 'handle' | 'buildSnapshot' | 'approve' | 'reject'>;
 
@@ -96,8 +122,12 @@ function isSimpleDateTimeQuestion(text: string): boolean {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
-  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(normalized);
-  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(normalized);
+  const asksTime = /\b(que\s+horas|hora\s+atual|horas\s+sao|what\s+time|current\s+time|tell\s+me\s+the\s+time)\b/.test(
+    normalized,
+  );
+  const asksDate = /\b(que\s+dia|data\s+atual|dia\s+de\s+hoje|what\s+date|today'?s\s+date|current\s+date)\b/.test(
+    normalized,
+  );
   return asksTime || asksDate;
 }
 
@@ -105,7 +135,7 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
   if (!isSimpleDateTimeQuestion(text)) return null;
   const timeZone = inferRequestedTimeZone(text);
   try {
-    const formatted = new Intl.DateTimeFormat('pt-BR', {
+    const formatted = new Intl.DateTimeFormat('en-US', {
       timeZone,
       weekday: 'long',
       year: 'numeric',
@@ -116,14 +146,23 @@ function buildLocalDateTimeAnswer(text: string, now: Date): string | null {
       second: '2-digit',
       timeZoneName: 'short',
     }).format(now);
-    return `Agora in ${timeZone} é ${formatted}.`;
+    return `It is now ${formatted} in ${timeZone}.`;
   } catch (error: unknown) {
     logger.warn(`[ExperienceCore] Intl.DateTimeFormat failed for timezone ${timeZone}:`, error);
-    return `Agora são ${now.toLocaleString('pt-BR')} no fuso local do sistema.`;
+    return `It is now ${now.toLocaleString('en-US')} in the system local timezone.`;
   }
 }
 
-function action(input: { id: string; label: string; kind: ExperienceAction['kind']; reason: string; command?: string | null; route?: string | null; risk?: ExperienceAction['risk']; requiresApproval?: boolean }): ExperienceAction {
+function action(input: {
+  id: string;
+  label: string;
+  kind: ExperienceAction['kind'];
+  reason: string;
+  command?: string | null;
+  route?: string | null;
+  risk?: ExperienceAction['risk'];
+  requiresApproval?: boolean;
+}): ExperienceAction {
   return {
     id: input.id,
     label: input.label,
@@ -139,8 +178,11 @@ function action(input: { id: string; label: string; kind: ExperienceAction['kind
 export class ExperienceContinuitySupport {
   public constructor(private readonly owner: ExperienceCoreService) {}
 
-  public getFirstRunService(userId?: string | null): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
-    const { ZavorthFirstRunHumanOnboardingService } = require('../ZavorthFirstRunHumanOnboardingService.js') as typeof import('../ZavorthFirstRunHumanOnboardingService.js');
+  public getFirstRunService(
+    userId?: string | null,
+  ): import('../ZavorthFirstRunHumanOnboardingService.js').ZavorthFirstRunHumanOnboardingService {
+    const { ZavorthFirstRunHumanOnboardingService } =
+      require('../ZavorthFirstRunHumanOnboardingService.js') as typeof import('../ZavorthFirstRunHumanOnboardingService.js');
     return new ZavorthFirstRunHumanOnboardingService({
       projectRoot: process.cwd(),
       now: () => this.owner.now(),
@@ -163,7 +205,9 @@ export class ExperienceContinuitySupport {
     };
   }
 
-  public buildFirstRunActionCards(firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot): import('./ExperienceContracts.js').ExperienceActionCard[] {
+  public buildFirstRunActionCards(
+    firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
+  ): import('./ExperienceContracts.js').ExperienceActionCard[] {
     if (!firstRun.required) return [];
     const step = firstRun.steps.find((entry) => !entry.done);
     if (!step) return [];
@@ -198,7 +242,9 @@ export class ExperienceContinuitySupport {
     ];
   }
 
-  public buildFirstRunNextActions(firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot): import('./ExperienceContracts.js').ExperienceAction[] {
+  public buildFirstRunNextActions(
+    firstRun: import('./ExperienceContracts.js').ExperienceFirstRunSnapshot,
+  ): import('./ExperienceContracts.js').ExperienceAction[] {
     const step = firstRun.steps.find((entry) => !entry.done);
     if (!step) return [];
     return step.examples.slice(0, 3).map((example) => ({
@@ -217,7 +263,9 @@ export class ExperienceContinuitySupport {
     const service = this.owner.getFirstRunService(command.userId);
     const text = String(command.text || '').trim();
     const normalized = text.toLowerCase();
-    const explicitSetup = /^(?:\/)?(?:start\s+)?(?:setup|onboarding|tour|restart setup|reset setup|skip setup)$/i.test(normalized) || /^(?:\/start)\b/.test(normalized);
+    const explicitSetup =
+      /^(?:\/)?(?:start\s+)?(?:setup|onboarding|tour|restart setup|reset setup|skip setup)$/i.test(normalized) ||
+      /^(?:\/start)\b/.test(normalized);
 
     if (!explicitSetup) {
       // Free text belongs to the agent path; do not steal for wizard answers.
@@ -237,7 +285,17 @@ export class ExperienceContinuitySupport {
           nextSafeAction: 'Use buttons or /start lang=en surface=telegram learn=yes',
         } as any,
         snapshot,
-        replies: [this.owner.replyFromText([...snapshotState.welcomeLines, '', 'Use /start buttons (or structured /start args). Free text goes to the agent.'].join('\n'), command, snapshot.agent.activeRunId)],
+        replies: [
+          this.owner.replyFromText(
+            [
+              ...snapshotState.welcomeLines,
+              '',
+              'Use /start buttons (or structured /start args). Free text goes to the agent.',
+            ].join('\n'),
+            command,
+            snapshot.agent.activeRunId,
+          ),
+        ],
         receipts: snapshot.receipts,
         error: null,
       };
@@ -269,7 +327,13 @@ export class ExperienceContinuitySupport {
     // Status / open setup card only — never answer() free-text wizard steps here.
     const snap = service.buildSnapshot();
     const snapshot = this.owner.buildHome(command);
-    const lines = [...snap.welcomeLines, '', 'agent-first: finish setup with /start buttons or structured args.', 'Examples: /start setup · /start skip · /start lang=en surface=telegram learn=yes', 'Free text is handled by the agent.'];
+    const lines = [
+      ...snap.welcomeLines,
+      '',
+      'agent-first: finish setup with /start buttons or structured args.',
+      'Examples: /start setup · /start skip · /start lang=en surface=telegram learn=yes',
+      'Free text is handled by the agent.',
+    ];
     return {
       ok: true,
       handled: true,
@@ -286,9 +350,12 @@ export class ExperienceContinuitySupport {
     };
   }
 
-  public listLearnedRuntimeItems(userId?: string | null): Array<{ id: string; title: string; summary: string; kind: string }> {
+  public listLearnedRuntimeItems(
+    userId?: string | null,
+  ): Array<{ id: string; title: string; summary: string; kind: string }> {
     try {
-      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
+      const { ZavorthLearningRuntimeHubService } =
+        require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
       return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null })
         .listLearned()
         .slice(0, 8)
@@ -306,22 +373,29 @@ export class ExperienceContinuitySupport {
 
   public undoLearnedRuntimeItem(id: string, userId?: string | null): { ok: boolean; summary: string } {
     try {
-      const { ZavorthLearningRuntimeHubService } = require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
+      const { ZavorthLearningRuntimeHubService } =
+        require('../ZavorthLearningRuntimeHubService.js') as typeof import('../ZavorthLearningRuntimeHubService.js');
       return new ZavorthLearningRuntimeHubService({ projectRoot: process.cwd(), userId: userId || null }).undo(id);
     } catch (error: unknown) {
       logger.warn('[ExperienceCore] undoLearnedRuntimeItem failed:', error);
-      return { ok: false, summary: 'Could not desfazer o aprendizado now.' };
+      return { ok: false, summary: 'Could not undo learning right now.' };
     }
   }
 
-  public workboardProjectionFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): Record<string, unknown> | null {
+  public workboardProjectionFromRuntimeState(
+    runtimeState: ZavorthRuntimeStateBusSnapshot | null,
+  ): Record<string, unknown> | null {
     if (!runtimeState) return null;
     const fromProjection = runtimeState.projections?.workboard || null;
     const fromState = runtimeState.state?.workboard || null;
     const workboard = fromProjection || fromState;
     if (!workboard) return null;
     // Only surface when there is something useful to render (tasks, sessions, or boards).
-    const hasContent = Boolean((Array.isArray(workboard.tasks) && workboard.tasks.length > 0) || (Array.isArray(workboard.sessions) && workboard.sessions.length > 0) || (Array.isArray(workboard.boards) && workboard.boards.length > 0));
+    const hasContent = Boolean(
+      (Array.isArray(workboard.tasks) && workboard.tasks.length > 0) ||
+        (Array.isArray(workboard.sessions) && workboard.sessions.length > 0) ||
+        (Array.isArray(workboard.boards) && workboard.boards.length > 0),
+    );
     return hasContent ? (workboard as unknown as Record<string, unknown>) : null;
   }
 
@@ -355,7 +429,9 @@ export class ExperienceContinuitySupport {
     return null;
   }
 
-  public modelProfileFromRuntimeState(runtimeState: ZavorthRuntimeStateBusSnapshot | null): Partial<UniversalAgentModelProfile> | undefined {
+  public modelProfileFromRuntimeState(
+    runtimeState: ZavorthRuntimeStateBusSnapshot | null,
+  ): Partial<UniversalAgentModelProfile> | undefined {
     const model = runtimeState?.state.model || null;
     if (!model?.id || model.connected !== true) {
       return undefined;
@@ -446,7 +522,10 @@ export class ExperienceContinuitySupport {
     };
   }
 
-  public mergeLearningCandidates(primary: ExperienceLearningCandidate[], secondary: ExperienceLearningCandidate[]): ExperienceLearningCandidate[] {
+  public mergeLearningCandidates(
+    primary: ExperienceLearningCandidate[],
+    secondary: ExperienceLearningCandidate[],
+  ): ExperienceLearningCandidate[] {
     const seen = new Set<string>();
     return [...secondary, ...primary].filter((candidate) => {
       if (seen.has(candidate.id)) return false;
@@ -491,26 +570,28 @@ export class ExperienceContinuitySupport {
       actions: [
         action({
           id: `approve:${approval.id}`,
-          label: 'Aprovar',
+          label: 'Approve',
           kind: 'approval',
           command: `zavorth approve ${approval.id}`,
           risk: approval.risk,
-          reason: 'Permite continuar a action governada.',
+          reason: 'Allows the governed action to continue.',
         }),
         action({
           id: `reject:${approval.id}`,
-          label: 'Rejeitar',
+          label: 'Reject',
           kind: 'approval',
           command: `zavorth reject ${approval.id}`,
           risk: approval.risk,
-          reason: 'Mantem a action bloqueada.',
+          reason: 'Keeps the action blocked.',
         }),
       ],
       surfaceProjection: this.owner.buildDesktopApprovalSurfaceProjection(approval),
     };
   }
 
-  public buildDesktopApprovalSurfaceProjection(approval: UniversalApprovalRequest): ExperienceApprovalSurfaceProjection {
+  public buildDesktopApprovalSurfaceProjection(
+    approval: UniversalApprovalRequest,
+  ): ExperienceApprovalSurfaceProjection {
     try {
       const response = buildAgentPermissionApprovalResponse({
         approvalId: approval.id,
@@ -522,7 +603,10 @@ export class ExperienceContinuitySupport {
       const opts = (projected.replyOptions || {}) as Record<string, unknown>;
       const shortcuts = Array.isArray(opts.shortcuts) ? opts.shortcuts : undefined;
       const copyTargets = Array.isArray(opts.copyTargets) ? opts.copyTargets : undefined;
-      const openReceipt = opts.openReceipt && typeof opts.openReceipt === 'object' ? (opts.openReceipt as ExperienceApprovalSurfaceProjection['openReceipt']) : null;
+      const openReceipt =
+        opts.openReceipt && typeof opts.openReceipt === 'object'
+          ? (opts.openReceipt as ExperienceApprovalSurfaceProjection['openReceipt'])
+          : null;
       if (shortcuts && shortcuts.length > 0) {
         return {
           shortcuts: shortcuts as ExperienceApprovalSurfaceProjection['shortcuts'],
@@ -551,47 +635,58 @@ export class ExperienceContinuitySupport {
     };
   }
 
-  public buildHealth(agentSnapshot: ZavorthAgentGatewaySnapshot | null, pendingLearning: number, approvals: UniversalApprovalRequest[]): ExperienceSnapshot['health'] {
+  public buildHealth(
+    agentSnapshot: ZavorthAgentGatewaySnapshot | null,
+    pendingLearning: number,
+    approvals: UniversalApprovalRequest[],
+  ): ExperienceSnapshot['health'] {
     const pendingApprovals = approvals.filter((approval) => approval.status === 'pending').length;
     const warnings: string[] = [];
-    if (!agentSnapshot) warnings.push('Agent Gateway is not conectado a esta surface.');
-    if (pendingApprovals > 0) warnings.push(`${pendingApprovals} approval(oes) pending.`);
-    if (pendingLearning > 0) warnings.push(`${pendingLearning} aprendizado(s) aguardando revisao.`);
+    if (!agentSnapshot) warnings.push('Agent Gateway is not connected to this surface.');
+    if (pendingApprovals > 0) warnings.push(`${pendingApprovals} pending approval(s).`);
+    if (pendingLearning > 0) warnings.push(`${pendingLearning} learning item(s) waiting for review.`);
     const status: ExperienceHealthStatus = !agentSnapshot ? 'attention' : pendingApprovals > 0 ? 'attention' : 'ready';
     return {
       status,
-      summary: warnings.length > 0 ? warnings[0] : 'Zavorth ready to linguagem natural, approvals, receipts e learning governado.',
+      summary:
+        warnings.length > 0
+          ? warnings[0]
+          : 'Zavorth is ready for natural language, approvals, receipts, and governed learning.',
       warnings,
     };
   }
 
-  public buildNextActions(status: ExperienceHealthStatus, pendingApprovals: number, pendingLearning: number): ExperienceAction[] {
+  public buildNextActions(
+    status: ExperienceHealthStatus,
+    pendingApprovals: number,
+    pendingLearning: number,
+  ): ExperienceAction[] {
     const actions: ExperienceAction[] = [
       action({
         id: 'natural.ask',
-        label: 'Pedir algo ao Zavorth',
+        label: 'Ask Zavorth something',
         kind: 'natural',
-        command: 'zavorth ask "<pedido>"',
-        reason: 'Entrada natural-first principal.',
+        command: 'zavorth ask "<request>"',
+        reason: 'Primary natural-first entry.',
       }),
       action({
         id: 'zavorthControl.open',
-        label: 'Abrir ZavorthControl',
+        label: 'Open ZavorthControl',
         kind: 'navigation',
         command: 'zavorth open',
         route: '/zavorthControl',
-        reason: 'Superficie visual oficial.',
+        reason: 'Official visual surface.',
       }),
     ];
     if (pendingApprovals > 0 || status === 'attention') {
       actions.push(
         action({
           id: 'approvals.review',
-          label: 'Revisar aprovacoes',
+          label: 'Review approvals',
           kind: 'approval',
           command: 'zavorth approve',
           risk: 'attention',
-          reason: 'Resolve bloqueios governados.',
+          reason: 'Resolves governed blocks.',
         }),
       );
     }
@@ -599,10 +694,10 @@ export class ExperienceContinuitySupport {
       actions.push(
         action({
           id: 'learning.review',
-          label: 'Revisar aprendizados',
+          label: 'Review learning',
           kind: 'learning',
           command: 'zavorth learn',
-          reason: 'Promove only padroes aprovados.',
+          reason: 'Promotes only approved patterns.',
         }),
       );
     }

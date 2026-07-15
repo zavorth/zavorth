@@ -21,14 +21,14 @@ describe('NaturalLanguageRouter honest command contract', () => {
     expect(route.intentCategory).toBe('conversation');
     expect(route.suggestedInternalCommand).toBeNull();
     expect(route.legacyFallbackCommand).toBe('/task');
+    expect(route.useFastModel).toBe(false);
   });
 
-  it('keeps trivial chat fast without suggesting a hidden command', () => {
+  it('routes greetings as full_toolset without fast-model shortcut', () => {
     const route = router.route('hi');
 
-    expect(route.intentCategory).toBe('conversation');
-    expect(route.isTrivialChat).toBe(true);
-    expect(route.useFastModel).toBe(true);
+    expect(route.intentCategory).toBe('full_toolset');
+    expect(route.useFastModel).toBe(false);
     expect(route.suggestedInternalCommand).toBeNull();
   });
 });

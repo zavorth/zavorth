@@ -255,7 +255,8 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     handler: 'shared-service',
     fallbackVisible: false,
     discordSlashVisibility: 'none',
-    description: tService('contract.learning_description'),
+    description:
+      'Learning plane candidates: list, approve 1, reject 1, promote 1, forget 1. Not skill drafts — use /learn.',
   },
   {
     commandType: '/memory',
@@ -294,6 +295,42 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
     discordSlashVisibility: 'none',
   },
   {
+    commandType: '/knowledge',
+    surfaceCommand: '/knowledge',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'knowledge',
+    discordSlashVisibility: 'operator',
+    description:
+      'Learned knowledge hub: status, pack, recall (chat), facts (wiki), about you, workflows, consolidate preview.',
+    options: [
+      {
+        type: 'string',
+        name: 'action',
+        description: 'status | pack <q> | recall <q> | facts <q> | about | workflows | consolidate',
+        required: false,
+      },
+    ],
+  },
+  {
+    commandType: '/learn',
+    surfaceCommand: '/learn',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'learn',
+    discordSlashVisibility: 'operator',
+    description:
+      'Skill drafts (experience loop): list, show 1, run 1, promote 1, forget 1. Not candidates — use /learning.',
+    options: [
+      {
+        type: 'string',
+        name: 'action',
+        description: 'status | list | show 1 | run 1 | promote 1 [--dry-run] | promote-preview 1 | forget 1',
+        required: false,
+      },
+    ],
+  },
+  {
     commandType: '/learn-skill',
     surfaceCommand: '/learn-skill',
     handler: 'shared-service',
@@ -323,12 +360,29 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
         type: 'string',
         name: 'name',
         description: tService('contract.model_name_description'),
-        required: true,
+        required: false,
       },
       {
         type: 'string',
         name: 'provider',
         description: tService('contract.model_provider_description'),
+        required: false,
+      },
+    ],
+  },
+  {
+    commandType: '/strong',
+    surfaceCommand: '/strong',
+    handler: 'shared-service',
+    fallbackVisible: true,
+    discordSlashName: 'strong',
+    discordSlashVisibility: 'operator',
+    description: tService('contract.strong_description'),
+    options: [
+      {
+        type: 'string',
+        name: 'mode',
+        description: tService('contract.strong_mode_description'),
         required: false,
       },
     ],
@@ -772,7 +826,9 @@ const SHARED_SURFACE_COMMAND_CONTRACT: SharedSurfaceCommandContractEntry[] = [
 ];
 
 function normalizeCommandType(commandType: string): string {
-  return String(commandType || '').trim().toLowerCase();
+  return String(commandType || '')
+    .trim()
+    .toLowerCase();
 }
 
 function formatCommandList(commands: string[]): string {
@@ -817,9 +873,9 @@ export function isSharedSurfaceCommandType(commandType: string, hasSharedService
 }
 
 export function formatSharedSurfaceUnavailableReply(platform: string): string {
-  const commands = SHARED_SURFACE_COMMAND_CONTRACT
-    .filter((entry) => entry.fallbackVisible)
-    .map((entry) => entry.surfaceCommand);
+  const commands = SHARED_SURFACE_COMMAND_CONTRACT.filter((entry) => entry.fallbackVisible).map(
+    (entry) => entry.surfaceCommand,
+  );
   const commandList = formatCommandList(commands);
   const normalizedPlatform = String(platform || '').trim() || 'this surface';
   const translated = tService('contract.command_unavailable', {

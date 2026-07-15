@@ -26,9 +26,7 @@ function buildTeamSnapshot() {
         entryCommand: '/workflow ops',
         status: 'ready',
         runStats: { total: 2, resumable: 1 },
-        surfaces: [
-          { label: 'Telegram', status: 'ready', summary: 'Comando exposto.' },
-        ],
+        surfaces: [{ label: 'Telegram', status: 'ready', summary: 'Comando exposto.' }],
         operatorSummary: 'Pronto para execucao assistida.',
       },
     ],
@@ -108,7 +106,7 @@ describe('SharedSurfaceTenantGovernanceCommandPack', () => {
 
     await pack.handleTeams(ctx as any, '');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Teams e workflows compostos do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth composite teams and workflows'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Ops Team (ops)'));
   });
 
@@ -118,7 +116,7 @@ describe('SharedSurfaceTenantGovernanceCommandPack', () => {
 
     await pack.handleTenants(ctx as any, '');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Governanca de tenants do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth tenant governance'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('discord-public (publico)'));
   });
 
@@ -143,6 +141,6 @@ describe('SharedSurfaceTenantGovernanceCommandPack', () => {
       actionId: 'inspect-tenant',
       workspace: process.cwd(),
     });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acao guiada do tenant discord-public'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Guided tenant action discord-public'));
   });
 });

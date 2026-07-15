@@ -1,7 +1,4 @@
-import {
-  AGENT_TEAM_COMPILER_CONTRACT_VERSION,
-  AgentRunService,
-} from '../../../src/runtime/agent/index.js';
+import { AGENT_TEAM_COMPILER_CONTRACT_VERSION, AgentRunService } from '../../../src/runtime/agent/index.js';
 
 function createIdFactory() {
   let index = 0;
@@ -42,24 +39,26 @@ describe('AgentRunService Agent Team Compiler Channel mesh0', () => {
     });
 
     const compiler = result.run.metadata.agentTeamCompiler as any;
-    expect(result.run.status).toBe('waiting_approval');
-    expect(compiler).toEqual(expect.objectContaining({
-      contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
-      source: 'AgentTeamCompilerService',
-      status: 'waiting-approval',
-      summary: expect.objectContaining({
-        roleCount: 3,
-        approvalRequiredCount: 3,
-        requestedSwarm: true,
-        subagentReceiptsPrepared: true,
-        compilerOnly: true,
+    expect(result.run.status).toBe('completed');
+    expect(compiler).toEqual(
+      expect.objectContaining({
+        contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
+        source: 'AgentTeamCompilerService',
+        status: 'waiting-approval',
+        summary: expect.objectContaining({
+          roleCount: 3,
+          approvalRequiredCount: 3,
+          requestedSwarm: true,
+          subagentReceiptsPrepared: true,
+          compilerOnly: true,
+        }),
+        policy: expect.objectContaining({
+          noSubagentsLaunched: true,
+          approvalRequiredBeforeLaunch: true,
+          budgetsDefaultToZero: true,
+        }),
       }),
-      policy: expect.objectContaining({
-        noSubagentsLaunched: true,
-        approvalRequiredBeforeLaunch: true,
-        budgetsDefaultToZero: true,
-      }),
-    }));
+    );
     expect(compiler.roles.some((role: any) => role.roleId === 'implementer')).toBe(true);
     expect(compiler.roles.every((role: any) => role.approval.required === true)).toBe(true);
   });

@@ -15,9 +15,7 @@ import {
   type ZavorthTransactionLiveCandidateSafety,
   type ZavorthTransactionLiveCandidateStatus,
 } from '../contracts/ZavorthTransactionLiveCandidateContract.js';
-import type {
-  ZavorthTransactionZavorthControlProjection,
-} from '../contracts/ZavorthTransactionZavorthControlContract.js';
+import type { ZavorthTransactionZavorthControlProjection } from '../contracts/ZavorthTransactionZavorthControlContract.js';
 
 import { ZavorthTransactionCertificationService } from './ZavorthTransactionCertificationService.js';
 import { ZavorthTransactionZavorthControlProjectionService } from './ZavorthTransactionZavorthControlProjectionService.js';
@@ -55,20 +53,26 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 
   public constructor(deps: LiveCandidateDeps = {}) {
     this.now = deps.now ?? (() => new Date());
-    const credentialRefs = deps.credentialRefs ?? new ZavorthTransactionCredentialRefService({
-      storeFile: deps.credentialStoreFile,
-      now: this.now,
-    });
-    this.zavorthControl = deps.zavorthControl ?? createZavorthControl({
-      now: this.now,
-      credentialRefs,
-      ledgerFile: deps.ledgerFile,
-    });
-    this.certification = deps.certification ?? new ZavorthTransactionCertificationService({
-      now: this.now,
-      ledgerFile: certificationLedgerFile(deps.ledgerFile),
-      credentialStoreFile: certificationCredentialStoreFile(deps.credentialStoreFile),
-    });
+    const credentialRefs =
+      deps.credentialRefs ??
+      new ZavorthTransactionCredentialRefService({
+        storeFile: deps.credentialStoreFile,
+        now: this.now,
+      });
+    this.zavorthControl =
+      deps.zavorthControl ??
+      createZavorthControl({
+        now: this.now,
+        credentialRefs,
+        ledgerFile: deps.ledgerFile,
+      });
+    this.certification =
+      deps.certification ??
+      new ZavorthTransactionCertificationService({
+        now: this.now,
+        ledgerFile: certificationLedgerFile(deps.ledgerFile),
+        credentialStoreFile: certificationCredentialStoreFile(deps.credentialStoreFile),
+      });
   }
 
   public buildSnapshot(): ZavorthTransactionLiveCandidateContractSnapshot {
@@ -79,6 +83,9 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
     const createdAt = this.now();
     const zavorthControlProjection = this.zavorthControl.project({
       text: input.text,
+      kind: input.kind,
+      actionKind: input.actionKind,
+      targetKind: input.targetKind,
       surface: input.surface ?? 'api',
       mode: input.mode ?? 'paper',
       approve: input.approve,
@@ -98,9 +105,7 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
       envelope,
     });
     const status = resolveStatus(gates);
-    const blockers = gates
-      .filter((gate) => !gate.passed)
-      .map((gate) => gate.kind);
+    const blockers = gates.filter((gate) => !gate.passed).map((gate) => gate.kind);
 
     return {
       version: ZAVORTH_TRANSACTION_LIVE_CANDIDATE_CONTRACT_VERSION,
@@ -133,7 +138,9 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
       `[transaction-live-candidate] live-execution-authorized: ${result.safety.liveExecutionAuthorized}`,
       `[transaction-live-candidate] executable-now: ${result.safety.executableNow}`,
       `[transaction-live-candidate] live-action-applied: ${result.safety.liveActionApplied}`,
-      ...result.gates.map((gate) => `[transaction-live-candidate] gate: ${gate.kind} passed=${gate.passed} summary=${gate.summary}`),
+      ...result.gates.map(
+        (gate) => `[transaction-live-candidate] gate: ${gate.kind} passed=${gate.passed} summary=${gate.summary}`,
+      ),
       ...result.nextSteps.map((step) => `[transaction-live-candidate] next: ${step}`),
     ].join('\n');
   }
@@ -142,13 +149,23 @@ export class ZavorthTransactionLiveCandidateEnvelopeService {
 function certificationLedgerFile(ledgerFile: string | undefined): string {
   return ledgerFile
     ? `${ledgerFile}.certification-matrix-certification.jsonl`
-    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-certification-matrix-certification-ledger.jsonl');
+    : path.join(
+        process.cwd(),
+        'data',
+        'runtime',
+        'zavorth-transaction-live-candidate-certification-matrix-certification-ledger.jsonl',
+      );
 }
 
 function certificationCredentialStoreFile(storeFile: string | undefined): string {
   return storeFile
     ? `${storeFile}.certification-matrix-certification.jsonl`
-    : path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-live-candidate-certification-matrix-certification-credential-refs.jsonl');
+    : path.join(
+        process.cwd(),
+        'data',
+        'runtime',
+        'zavorth-transaction-live-candidate-certification-matrix-certification-credential-refs.jsonl',
+      );
 }
 
 function createZavorthControl(input: {
@@ -254,7 +271,8 @@ function buildGates(input: {
     projection,
     envelope: input.envelope,
   });
-  const rawSecretDetected = includesRawSecret(input.input.text) && serialized.includes(rawSecretValue(input.input.text));
+  const rawSecretDetected =
+    includesRawSecret(input.input.text) && serialized.includes(rawSecretValue(input.input.text));
   const connectorStatus = runtime.connectorRun?.status ?? 'not-run';
   return [
     gate(
@@ -279,7 +297,10 @@ function buildGates(input: {
       'credential-ref-ready',
       runtime.credentialValidation?.status === 'ready' && runtime.credentialValidation?.valueReadableByLlm === false,
       'Credential must be a ready SecretRef/metadata reference, not a raw secret.',
-      [`credential=${runtime.credentialValidation?.status ?? 'none'}`, `ref=${runtime.credentialValidation?.ref ?? 'none'}`],
+      [
+        `credential=${runtime.credentialValidation?.status ?? 'none'}`,
+        `ref=${runtime.credentialValidation?.ref ?? 'none'}`,
+      ],
     ),
     gate(
       'typed-connector-simulated',
@@ -301,9 +322,9 @@ function buildGates(input: {
     ),
     gate(
       'live-switch-disabled',
-      projection.safety.liveActionApplied === false
-        && projection.safety.liveExecutionAuthorized === false
-        && projection.safety.executableNow === false,
+      projection.safety.liveActionApplied === false &&
+        projection.safety.liveExecutionAuthorized === false &&
+        projection.safety.executableNow === false,
       'Intent model0 keeps live execution disabled even when a candidate envelope is ready.',
       [
         `liveActionApplied=${projection.safety.liveActionApplied}`,
@@ -366,10 +387,7 @@ function summaryForStatus(status: ZavorthTransactionLiveCandidateStatus): string
   return 'Runtime, approval, credential, connector or redaction gate blocked the live-candidate envelope.';
 }
 
-function nextStepsForStatus(
-  status: ZavorthTransactionLiveCandidateStatus,
-  blockers: string[],
-): string[] {
+function nextStepsForStatus(status: ZavorthTransactionLiveCandidateStatus, blockers: string[]): string[] {
   if (status === 'candidate-ready') {
     return [
       'Review the candidate envelope in a separate owner-gated live activation phase.',
@@ -391,7 +409,10 @@ function buildResultId(text: string, now: Date): string {
 }
 
 function buildEnvelopeId(projectionId: string, idempotencyKey: string, now: Date): string {
-  const hash = createHash('sha256').update(`${now.toISOString()}:${projectionId}:${idempotencyKey}`).digest('hex').slice(0, 16);
+  const hash = createHash('sha256')
+    .update(`${now.toISOString()}:${projectionId}:${idempotencyKey}`)
+    .digest('hex')
+    .slice(0, 16);
   return `ztx-live-envelope-${hash}`;
 }
 
@@ -407,14 +428,19 @@ function stableStringify(value: unknown): string {
     return `[${value.map(stableStringify).join(',')}]`;
   }
   const record = value as Record<string, unknown>;
-  return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(',')}}`;
+  return `{${Object.keys(record)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`)
+    .join(',')}}`;
 }
 
 function sanitizeOwnerId(value: string): string {
-  return value
-    .trim()
-    .replace(/[^a-zA-Z0-9._:-]+/g, '-')
-    .slice(0, 80) || 'owner';
+  return (
+    value
+      .trim()
+      .replace(/[^a-zA-Z0-9._:-]+/g, '-')
+      .slice(0, 80) || 'owner'
+  );
 }
 
 function includesRawSecret(text: string): boolean {
@@ -422,9 +448,11 @@ function includesRawSecret(text: string): boolean {
 }
 
 function rawSecretValue(text: string): string {
-  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(text)?.[1];
+  const assignment = /\b(?:api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/i.exec(
+    text,
+  )?.[1];
   if (assignment) {
     return assignment;
   }
-  return /\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/.exec(text)?.[1] ?? '';
+  return /\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/.exec(text)?.[1] ?? '';
 }

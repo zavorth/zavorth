@@ -19,10 +19,7 @@ import {
   resolveAbsorbProofAction,
 } from '../services/capability/AbsorbRiskReportService.js';
 import { WorkspaceMigrationProfileService } from '../services/migration/WorkspaceMigrationProfileService.js';
-import {
-  ProofLedgerService,
-  defaultProofLedgerJsonlPath,
-} from '../services/proof/ProofLedgerService.js';
+import { ProofLedgerService, defaultProofLedgerJsonlPath } from '../services/proof/ProofLedgerService.js';
 import type { CapabilityFabricKind } from '../contracts/UniversalCapabilityFabricContract.js';
 
 function hasFlag(args: string[], name: string): boolean {
@@ -39,8 +36,14 @@ function readOption(args: string[], name: string): string | null {
 
 // Brand-agnostic: only structural markers common to agent workspaces
 const AGENT_WORKSPACE_MARKERS = [
-  'SOUL.md', 'AGENTS.md', 'IDENTITY.md', 'USER.md',
-  'config.yaml', 'RULES.md', 'MEMORY.md', 'TOOLS.md',
+  'SOUL.md',
+  'AGENTS.md',
+  'IDENTITY.md',
+  'USER.md',
+  'config.yaml',
+  'RULES.md',
+  'MEMORY.md',
+  'TOOLS.md',
 ];
 
 function looksLikeAgentWorkspace(sourcePath: string): boolean {
@@ -55,42 +58,45 @@ function looksLikeAgentWorkspace(sourcePath: string): boolean {
 }
 
 function printHelp(): void {
-  console.log([
-    '=== Zavorth Capability Fabric ===',
-    '',
-    'Absorb capabilities or import workspaces — one command, auto-detected source type.',
-    '',
-    'Source types (auto-detected):',
-    '  Capability pack  — skill, plugin, or MCP from a directory, archive, or HTTPS URL',
-    '  Agent workspace  — another agent\'s home directory (skills, memory, config)',
-    '',
-    'Usage:',
-    '  zavorth absorb <source>                          — auto-detect and process',
-    '  zavorth absorb <source> --kind skill|plugin|mcp  — force capability pack mode',
-    '  zavorth absorb <source> --workspace              — force workspace import mode',
-    '  zavorth absorb --auto                            — scan common locations for workspaces',
-    '',
-    'Options:',
-    '  [--preview] [--apply] [--consent/--yes]         — install control',
-    '  [--json]                                        — JSON output',
-    '  [--no-proof]                                    — skip Trust Loop receipt',
-    '  [--overwrite]                                   — overwrite existing',
-    '  [--allow-executable] [--allow-all]              — elevate risk gates',
-    '  [--auto]                                        — auto-detect workspace location',
-    '',
-    'Rules:',
-    '  - preview is default (safe install preview + risk report)',
-    '  - apply requires --consent / --yes',
-    '  - workspace import is brand-agnostic (detects structure, not product names)',
-    '  - Trust Loop events are written for preview / promote / reject',
-    '',
-    'Examples:',
-    '  zavorth absorb ./my-skill                       — detect as capability pack',
-    '  zavorth absorb https://example.com/skill-page   — detect from URL',
-    '  zavorth absorb ~/.config/my-agent               — detect as agent workspace',
-    '  zavorth absorb ./old-agent-home --workspace     — force workspace mode',
-    '  zavorth absorb --auto                           — scan for agent workspaces',
-  ].join('\n'));
+  console.log(
+    [
+      '=== Zavorth Capability Fabric ===',
+      '',
+      'Absorb capabilities or import workspaces — one command, auto-detected source type.',
+      '',
+      'Source types (auto-detected):',
+      '  Capability pack  — skill, plugin, or MCP from a directory, archive, or HTTPS URL',
+      "  Agent workspace  — another agent's home directory (skills, memory, config)",
+      '',
+      'Usage:',
+      '  zavorth absorb <source>                          — auto-detect and process',
+      '  zavorth absorb <source> --kind skill|plugin|mcp  — force capability pack mode',
+      '  zavorth absorb <source> --workspace              — force workspace import mode',
+      '  zavorth absorb --auto                            — scan common locations for workspaces',
+      '',
+      'Options:',
+      '  [--preview] [--apply] [--consent/--yes]         — install control',
+      '  [--json]                                        — JSON output',
+      '  [--no-proof]                                    — skip Trust Loop receipt',
+      '  [--overwrite]                                   — overwrite existing',
+      '  [--allow-executable] [--allow-all]              — elevate risk gates',
+      '  [--auto]                                        — auto-detect workspace location',
+      '',
+      'Rules:',
+      '  - preview is default (safe install preview + risk report)',
+      '  - apply requires --consent / --yes',
+      '  - consent does NOT elevate risk flags; --allow-executable and --allow-all remain explicit',
+      '  - workspace import is brand-agnostic (detects structure, not product names)',
+      '  - Trust Loop events are written for preview / promote / reject',
+      '',
+      'Examples:',
+      '  zavorth absorb ./my-skill                       — detect as capability pack',
+      '  zavorth absorb https://example.com/skill-page   — detect from URL',
+      '  zavorth absorb ~/.config/my-agent               — detect as agent workspace',
+      '  zavorth absorb ./old-agent-home --workspace     — force workspace mode',
+      '  zavorth absorb --auto                           — scan for agent workspaces',
+    ].join('\n'),
+  );
 }
 
 function appendAbsorbProofEvent(
@@ -239,7 +245,9 @@ export async function runCapabilityFabricCli(rawArgs: string[] = []): Promise<nu
   console.log('');
   console.log('Candidates:');
   for (const c of snapshot.candidates) {
-    console.log(`  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`);
+    console.log(
+      `  - [${c.kind}/${c.risk}] ${c.name} · ${c.trustState}${c.executableCodeDetected ? ' · executable' : ''}`,
+    );
   }
   if (snapshot.issues.length) {
     console.log('');
@@ -316,7 +324,9 @@ function runWorkspaceImport(opts: {
   console.log('=== Structural import ===');
   console.log(snapshot.narrative.headline);
   console.log(snapshot.narrative.operatorSummary);
-  console.log(`Detected: ${migrationReport.detectedProfileId} (${Math.round(migrationReport.confidence * 100)}% confidence)`);
+  console.log(
+    `Detected: ${migrationReport.detectedProfileId} (${Math.round(migrationReport.confidence * 100)}% confidence)`,
+  );
   console.log(`Status: ${snapshot.status}`);
   console.log('');
   console.log('Items (first 40):');

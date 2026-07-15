@@ -2,6 +2,7 @@ import { ZavorthEchoService } from '../../src/services/ZavorthEchoService';
 import { ProviderFactory } from '../../src/providers/ProviderFactory';
 import { HomeAssistantBridge } from '../../src/echo/tools/iot/HomeAssistantBridge.js';
 import { EchoVoiceTelemetryService } from '../../src/domain/observability/infrastructure/EchoVoiceTelemetryService.js';
+import { LlmRuntimeService } from '../../src/services/llm/LlmRuntimeService.js';
 
 describe('ZavorthEchoService', () => {
   afterEach(() => {
@@ -10,13 +11,10 @@ describe('ZavorthEchoService', () => {
   });
 
   function mockProvider(toolName: string, args: Record<string, unknown>) {
-    jest.spyOn(ProviderFactory, 'create').mockReturnValue({
-      name: 'mock',
-      chat: jest.fn().mockResolvedValue({
-        content: null,
-        toolCalls: [{ id: 'call-1', name: toolName, arguments: args }],
-        finishReason: 'tool_calls',
-      }),
+    jest.spyOn(LlmRuntimeService.prototype, 'chat').mockResolvedValue({
+      content: null,
+      toolCalls: [{ id: 'call-1', name: toolName, arguments: args }],
+      finishReason: 'tool_calls',
     } as any);
   }
 
@@ -35,7 +33,7 @@ describe('ZavorthEchoService', () => {
 
   it('creates a pending permission instead of executing screenshot immediately', async () => {
     mockProvider('os_screenshot', { mode: 'fullscreen', returnBase64: false });
-    const service = new ZavorthEchoService();
+    const service = new ZavorthEchoService({ llmProvider: 'openai' });
 
     const result = await service.processIntent('tire um print');
 
@@ -48,7 +46,7 @@ describe('ZavorthEchoService', () => {
 
   it('approves a pending permission once and resumes the tool execution', async () => {
     mockProvider('os_screenshot', { mode: 'fullscreen', returnBase64: false });
-    const service = new ZavorthEchoService();
+    const service = new ZavorthEchoService({ llmProvider: 'openai' });
     await service.processIntent('tire um print');
     const permission = service.getPendingPermissions()[0];
 
@@ -68,7 +66,7 @@ describe('ZavorthEchoService', () => {
 
   it('denies a pending permission without executing the tool', async () => {
     mockProvider('os_screenshot', { mode: 'fullscreen', returnBase64: false });
-    const service = new ZavorthEchoService();
+    const service = new ZavorthEchoService({ llmProvider: 'openai' });
     await service.processIntent('tire um print');
     const permission = service.getPendingPermissions()[0];
 
@@ -93,7 +91,7 @@ describe('ZavorthEchoService', () => {
     } as any);
 
     try {
-      const service = new ZavorthEchoService();
+      const service = new ZavorthEchoService({ llmProvider: 'openai' });
       process.env.HOME_ASSISTANT_URL = 'http://localhost:8123';
       process.env.HOME_ASSISTANT_TOKEN = 'test-token';
       const pending = await service.processIntent('ligue a luz da sala');
@@ -129,7 +127,7 @@ describe('ZavorthEchoService', () => {
     } as any);
 
     try {
-      const service = new ZavorthEchoService();
+      const service = new ZavorthEchoService({ llmProvider: 'openai' });
       process.env.HOME_ASSISTANT_URL = 'http://localhost:8123';
       process.env.HOME_ASSISTANT_TOKEN = 'test-token';
       await service.processIntent('ligue a luz da sala');
@@ -138,17 +136,23 @@ describe('ZavorthEchoService', () => {
       const toolCall = result.executionEntry?.toolCalls[0];
 
       expect(toolCall?.toolName).toBe('iot_home_assistant');
-      expect(toolCall?.lifecycle).toEqual(expect.objectContaining({
-        mode: 'event-bridge',
-        status: expect.any(String),
-      }));
-      expect(toolCall?.artifact).toEqual(expect.objectContaining({
-        kind: 'iot-command',
-        source: 'iot_home_assistant',
-      }));
-      expect(toolCall?.policy).toEqual(expect.objectContaining({
-        scope: 'loopback',
-      }));
+      expect(toolCall?.lifecycle).toEqual(
+        expect.objectContaining({
+          mode: 'event-bridge',
+          status: expect.any(String),
+        }),
+      );
+      expect(toolCall?.artifact).toEqual(
+        expect.objectContaining({
+          kind: 'iot-command',
+          source: 'iot_home_assistant',
+        }),
+      );
+      expect(toolCall?.policy).toEqual(
+        expect.objectContaining({
+          scope: 'loopback',
+        }),
+      );
     } finally {
       fetchSpy.mockRestore();
       if (oldUrl === undefined) {
@@ -165,16 +169,18 @@ describe('ZavorthEchoService', () => {
   });
 
   it('embeds the canonical watch mode summary into the Echo snapshot for surfaces', async () => {
-    jest.spyOn(HomeAssistantBridge.prototype, 'getRecentPhysicalEvents').mockReturnValue([{
-      id: 'ha-event-1',
-      source: 'iot_home_assistant',
-      timestamp: '2026-04-18T10:00:10.000Z',
-      entityId: 'lock.front_door',
-      oldState: 'locked',
-      newState: 'unlocked',
-      feedback: 'Atencao: lock.front_door mudou para unlocked.',
-      severity: 'critical',
-    }] as any);
+    jest.spyOn(HomeAssistantBridge.prototype, 'getRecentPhysicalEvents').mockReturnValue([
+      {
+        id: 'ha-event-1',
+        source: 'iot_home_assistant',
+        timestamp: '2026-04-18T10:00:10.000Z',
+        entityId: 'lock.front_door',
+        oldState: 'locked',
+        newState: 'unlocked',
+        feedback: 'Atencao: lock.front_door mudou para unlocked.',
+        severity: 'critical',
+      },
+    ] as any);
     const service = new ZavorthEchoService({
       watchModeControlPlane: {
         buildSnapshot: jest.fn(() => ({
@@ -201,21 +207,25 @@ describe('ZavorthEchoService', () => {
             score: 45,
             summary: '1 approval(s) pendente(s) | latencia media 3200ms',
           },
-          cards: [{
-            id: 'status',
-            label: 'Status supervisionado',
-            posture: 'attention',
-            summary: 'Chrome | revisar dashboard.',
-            nextAction: 'Revise a proxima acao.',
-            command: 'npm run ops:watch-mode',
-          }],
-          actions: [{
-            id: 'review-approvals',
-            label: 'Decidir approvals pendentes',
-            severity: 'warn',
-            reason: '1 approval ainda bloqueia a proxima acao visual.',
-            command: '/watchmode',
-          }],
+          cards: [
+            {
+              id: 'status',
+              label: 'Status supervisionado',
+              posture: 'attention',
+              summary: 'Chrome | revisar dashboard.',
+              nextAction: 'Revise a proxima acao.',
+              command: 'npm run ops:watch-mode',
+            },
+          ],
+          actions: [
+            {
+              id: 'review-approvals',
+              label: 'Decidir approvals pendentes',
+              severity: 'warn',
+              reason: '1 approval ainda bloqueia a proxima acao visual.',
+              command: '/watchmode',
+            },
+          ],
           watchMode: {
             generatedAt: '2026-04-18T10:00:00.000Z',
             summary: {
@@ -255,36 +265,40 @@ describe('ZavorthEchoService', () => {
 
     const snapshot = await service.buildSnapshot();
 
-    expect(snapshot.watchMode).toEqual(expect.objectContaining({
-      posture: 'attention',
-      activeStatus: 'waiting_approval',
-      pendingApprovals: 1,
-      averageApprovalLatencyMs: 3200,
-      cost: expect.objectContaining({
-        level: 'moderate',
-        score: 45,
+    expect(snapshot.watchMode).toEqual(
+      expect.objectContaining({
+        posture: 'attention',
+        activeStatus: 'waiting_approval',
+        pendingApprovals: 1,
+        averageApprovalLatencyMs: 3200,
+        cost: expect.objectContaining({
+          level: 'moderate',
+          score: 45,
+        }),
+        cards: [
+          expect.objectContaining({
+            id: 'status',
+            posture: 'attention',
+          }),
+        ],
       }),
-      cards: [
+    );
+    expect(snapshot.capabilityLifecycle).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          id: 'status',
-          posture: 'attention',
+          toolName: 'iot_home_assistant',
+          lifecycle: expect.objectContaining({
+            status: expect.any(String),
+          }),
         }),
-      ],
-    }));
-    expect(snapshot.capabilityLifecycle).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        toolName: 'iot_home_assistant',
-        lifecycle: expect.objectContaining({
-          status: expect.any(String),
+        expect.objectContaining({
+          toolName: 'iot_mqtt_publish',
+          lifecycle: expect.objectContaining({
+            status: expect.any(String),
+          }),
         }),
-      }),
-      expect.objectContaining({
-        toolName: 'iot_mqtt_publish',
-        lifecycle: expect.objectContaining({
-          status: expect.any(String),
-        }),
-      }),
-    ]));
+      ]),
+    );
     expect(snapshot.signals.recentPhysicalEvents).toEqual([
       expect.objectContaining({
         entityId: 'lock.front_door',
@@ -308,6 +322,7 @@ describe('ZavorthEchoService', () => {
       filePath: `C:\\TESTES DEV\\zavorth-core\\Zavorth\\tmp\\voice-metrics-${Date.now()}.jsonl`,
     });
     const service = new ZavorthEchoService({
+      llmProvider: 'gemini',
       voiceTelemetry,
       geminiVoiceService: {
         isConfigured: () => true,
@@ -340,16 +355,18 @@ describe('ZavorthEchoService', () => {
     expect(result.model).toBe('gemini-2.5-flash');
 
     const snapshot = await service.buildSnapshot();
-    expect(snapshot.voiceMetrics).toEqual(expect.objectContaining({
-      totalRequests: 1,
-      successes: 1,
-      surfaces: [
-        expect.objectContaining({
-          surface: 'dashboard',
-          lastModel: 'gemini-2.5-flash',
-          lastVoiceName: 'Kore',
-        }),
-      ],
-    }));
+    expect(snapshot.voiceMetrics).toEqual(
+      expect.objectContaining({
+        totalRequests: 1,
+        successes: 1,
+        surfaces: [
+          expect.objectContaining({
+            surface: 'dashboard',
+            lastModel: 'gemini-2.5-flash',
+            lastVoiceName: 'Kore',
+          }),
+        ],
+      }),
+    );
   });
 });

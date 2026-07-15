@@ -41,7 +41,8 @@ export interface SearchResult {
 export class SessionSearchFts5Tool extends BaseTool {
   public readonly name = 'session_search';
   public readonly description =
-    'Full-text search across stored sessions via the local session continuum. Modes: discover (search), scroll (navigate), read (read session), browse (list sessions).';
+    'Full-text search across stored sessions via the local session continuum. Modes: discover (search), scroll (navigate), read (read session), browse (list sessions). ' +
+    'Prefer conversation_recall for product chat recall (Learned Knowledge · Conversation pillar).';
 
   public readonly parameters = {
     type: 'object' as const,
@@ -49,7 +50,8 @@ export class SessionSearchFts5Tool extends BaseTool {
       mode: {
         type: 'string',
         enum: ['discover', 'scroll', 'read', 'browse'],
-        description: 'Search mode: discover=search by text, scroll=navigate results, read=read a specific session, browse=list sessions.',
+        description:
+          'Search mode: discover=search by text, scroll=navigate results, read=read a specific session, browse=list sessions.',
       },
       query: {
         type: 'string',
@@ -121,10 +123,7 @@ export class SessionSearchFts5Tool extends BaseTool {
       .filter((w) => w.length > 2);
   }
 
-  private matchesFilters(
-    entry: SessionEntry,
-    options: SearchOptions,
-  ): boolean {
+  private matchesFilters(entry: SessionEntry, options: SearchOptions): boolean {
     if (options.role && entry.role !== options.role) return false;
     if (options.sessionId && entry.sessionId !== options.sessionId) return false;
     if (options.startDate && entry.timestamp < options.startDate) return false;
@@ -162,9 +161,7 @@ export class SessionSearchFts5Tool extends BaseTool {
     const offset = options.offset ?? 0;
 
     const filtered = this.entries.filter((e) => this.matchesFilters(e, options));
-    const sorted = filtered.sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    );
+    const sorted = filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     const page = sorted.slice(offset, offset + limit);
     return {

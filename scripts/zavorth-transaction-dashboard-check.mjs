@@ -47,7 +47,10 @@ try {
   }
 
   const contractText = readFileSync(join(root, 'src/contracts/ZavorthTransactionZavorthControlContract.ts'), 'utf8');
-  const serviceText = readFileSync(join(root, 'src/services/ZavorthTransactionZavorthControlProjectionService.ts'), 'utf8');
+  const serviceText = readFileSync(
+    join(root, 'src/services/ZavorthTransactionZavorthControlProjectionService.ts'),
+    'utf8',
+  );
   const docsText = readFileSync(join(root, 'docs/README.md'), 'utf8');
   for (const marker of [
     'zavorth-transaction-zavorthControl/checkpoint-8',
@@ -87,7 +90,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--mode',
     'paper',
   ]);
@@ -97,10 +104,18 @@ try {
   if (!approvalProjection.lanes.some((lane) => lane.kind === 'approval' && lane.status === 'pending')) {
     failures.push('approval projection lacks pending approval lane');
   }
-  if (!approvalProjection.operatorActions.some((action) => action.sourceActionId === 'request-approval' && action.enabled === true)) {
+  if (
+    !approvalProjection.operatorActions.some(
+      (action) => action.sourceActionId === 'request-approval' && action.enabled === true,
+    )
+  ) {
     failures.push('approval projection lacks enabled request-approval action');
   }
-  if (!approvalProjection.operatorActions.some((action) => action.sourceActionId === 'reject-preview' && action.placement === 'danger')) {
+  if (
+    !approvalProjection.operatorActions.some(
+      (action) => action.sourceActionId === 'reject-preview' && action.placement === 'danger',
+    )
+  ) {
     failures.push('approval projection lacks reject-preview danger action');
   }
 
@@ -113,7 +128,11 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -126,7 +145,11 @@ try {
   if (!simulated.lanes.some((lane) => lane.kind === 'connector' && lane.status === 'simulated')) {
     failures.push('simulated projection lacks simulated connector lane');
   }
-  if (simulated.safety.noLiveExecution !== true || simulated.safety.liveActionApplied !== false || simulated.safety.externalSideEffects !== false) {
+  if (
+    simulated.safety.noLiveExecution !== true ||
+    simulated.safety.liveActionApplied !== false ||
+    simulated.safety.externalSideEffects !== false
+  ) {
     failures.push('ZavorthControl safety must remain live-disabled');
   }
 
@@ -139,11 +162,18 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Monitore notebook abaixo de R$3500 e me avise.',
+    'Monitor notebook below R$3500 and notify me.',
+    '--kind',
+    'monitor-price',
+    '--action-kind',
+    'price-monitor',
     '--mode',
     'sandbox',
   ]);
-  if (monitor.status !== 'simulated' || !monitor.notifications.some((entry) => String(entry.body).includes('Simulado'))) {
+  if (
+    monitor.status !== 'simulated' ||
+    !monitor.notifications.some((entry) => String(entry.body).includes('Simulado'))
+  ) {
     failures.push('telegram monitor projection should be simulated with localized notification');
   }
   if (!monitor.timeline.some((item) => item.id === 'approval' && item.status === 'skipped')) {
@@ -159,7 +189,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -189,19 +219,23 @@ try {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runZavorthControl(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-zavorthControl.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-zavorthControl.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runZavorthControlExpectFailure(args) {

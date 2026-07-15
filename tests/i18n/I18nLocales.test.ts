@@ -2,43 +2,88 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 import * as fs from 'fs';
 import * as path from 'path';
 import { I18nManager } from '../../src/i18n/I18nManager';
-import {
-  normalizeLocale,
-  resolveFromEnv,
-  resolveLocale,
-} from '../../src/i18n/localeDetector';
+import { normalizeLocale, resolveFromEnv, resolveLocale } from '../../src/i18n/localeDetector';
 import { interpolate } from '../../src/i18n/interpolation';
 
-import {
-  DEFAULT_LOCALE,
-  KNOWN_LOCALES,
-  NAMESPACE_LIST,
-} from '../../src/i18n/types';
+import { DEFAULT_LOCALE, KNOWN_LOCALES, NAMESPACE_LIST } from '../../src/i18n/types';
 
 const LOCALES_DIR = path.resolve(__dirname, '../../src/i18n/locales');
 
 const ALL_LOCALE_CODES = ['en', 'pt-BR', 'es', 'fr', 'de', 'ja', 'ko', 'zh-CN', 'zh-TW', 'ru'];
 
-const EXPECTED_NAMESPACES: readonly string[] = [
-  'common',
-  'cli',
-  'tools',
-  'errors',
-  'auth',
-  'sessions',
-];
+const EXPECTED_NAMESPACES: readonly string[] = ['common', 'cli', 'tools', 'errors', 'auth', 'sessions'];
 
 const SPOT_CHECK_KEYS: Record<string, Record<string, string>> = {
-  en:     { 'common.yes': 'Yes',     'common.no': 'No',     'errors.not_found': 'Not found',   'auth.login': 'Login',     'sessions.created': 'Session created' },
-  'pt-BR': { 'common.yes': 'Sim',    'common.no': 'Não',    'errors.not_found': 'Não encontrado', 'auth.login': 'Entrar',  'sessions.created': 'Sessão criada' },
-  es:     { 'common.yes': 'Sí',      'common.no': 'No',     'errors.not_found': 'No encontrado', 'auth.login': 'Iniciar sesión', 'sessions.created': 'Sesión creada' },
-  fr:     { 'common.yes': 'Oui',     'common.no': 'Non',    'errors.not_found': 'Introuvable', 'auth.login': 'Connexion', 'sessions.created': 'Session créée' },
-  de:     { 'common.yes': 'Ja',      'common.no': 'Nein',   'errors.not_found': 'Nicht gefunden', 'auth.login': 'Anmelden', 'sessions.created': 'Sitzung erstellt' },
-  ja:     { 'common.yes': 'はい',     'common.no': 'いいえ',  'errors.not_found': '見つかりません', 'auth.login': 'ログイン',  'sessions.created': 'セッションが作成されました' },
-  ko:     { 'common.yes': '예',      'common.no': '아니오',  'errors.not_found': '찾을 수 없음', 'auth.login': '로그인',    'sessions.created': '세션이 생성되었습니다' },
-  'zh-CN': { 'common.yes': '是',      'common.no': '否',     'errors.not_found': '未找到',       'auth.login': '登录',      'sessions.created': '会话已创建' },
-  'zh-TW': { 'common.yes': '是',      'common.no': '否',     'errors.not_found': '找不到',       'auth.login': '登入',      'sessions.created': '工作階段已建立' },
-  ru:     { 'common.yes': 'Да',      'common.no': 'Нет',    'errors.not_found': 'Не найдено',   'auth.login': 'Вход',      'sessions.created': 'Сессия создана' },
+  en: {
+    'common.yes': 'Yes',
+    'common.no': 'No',
+    'errors.not_found': 'Not found',
+    'auth.login': 'Login',
+    'sessions.created': 'Session created',
+  },
+  'pt-BR': {
+    'common.yes': 'Sim',
+    'common.no': 'Não',
+    'errors.not_found': 'Não encontrado',
+    'auth.login': 'Entrar',
+    'sessions.created': 'Sessão criada',
+  },
+  es: {
+    'common.yes': 'Sí',
+    'common.no': 'No',
+    'errors.not_found': 'No encontrado',
+    'auth.login': 'Iniciar sesión',
+    'sessions.created': 'Sesión creada',
+  },
+  fr: {
+    'common.yes': 'Oui',
+    'common.no': 'Non',
+    'errors.not_found': 'Introuvable',
+    'auth.login': 'Connexion',
+    'sessions.created': 'Session créée',
+  },
+  de: {
+    'common.yes': 'Ja',
+    'common.no': 'Nein',
+    'errors.not_found': 'Nicht gefunden',
+    'auth.login': 'Anmelden',
+    'sessions.created': 'Sitzung erstellt',
+  },
+  ja: {
+    'common.yes': 'はい',
+    'common.no': 'いいえ',
+    'errors.not_found': '見つかりません',
+    'auth.login': 'ログイン',
+    'sessions.created': 'セッションが作成されました',
+  },
+  ko: {
+    'common.yes': '예',
+    'common.no': '아니오',
+    'errors.not_found': '찾을 수 없음',
+    'auth.login': '로그인',
+    'sessions.created': '세션이 생성되었습니다',
+  },
+  'zh-CN': {
+    'common.yes': '是',
+    'common.no': '否',
+    'errors.not_found': '未找到',
+    'auth.login': '登录',
+    'sessions.created': '会话已创建',
+  },
+  'zh-TW': {
+    'common.yes': '是',
+    'common.no': '否',
+    'errors.not_found': '找不到',
+    'auth.login': '登入',
+    'sessions.created': '工作階段已建立',
+  },
+  ru: {
+    'common.yes': 'Да',
+    'common.no': 'Нет',
+    'errors.not_found': 'Не найдено',
+    'auth.login': 'Вход',
+    'sessions.created': 'Сессия создана',
+  },
 };
 
 function loadLocaleJson(localeCode: string): Record<string, unknown> {
@@ -69,7 +114,9 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
         expect(fs.existsSync(filePath)).toBe(true);
         const raw = fs.readFileSync(filePath, 'utf-8').replace(/^\uFEFF/, '');
         let parsed: Record<string, unknown>;
-        expect(() => { parsed = JSON.parse(raw) as Record<string, unknown>; }).not.toThrow();
+        expect(() => {
+          parsed = JSON.parse(raw) as Record<string, unknown>;
+        }).not.toThrow();
         expect(typeof parsed!).toBe('object');
       });
     }
@@ -124,9 +171,13 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     });
 
     it('interpolate() replaces multiple placeholders', () => {
-      expect(interpolate('{greeting}, {name}! You have {count} items.', {
-        greeting: 'Hi', name: 'Alice', count: 5,
-      })).toBe('Hi, Alice! You have 5 items.');
+      expect(
+        interpolate('{greeting}, {name}! You have {count} items.', {
+          greeting: 'Hi',
+          name: 'Alice',
+          count: 5,
+        }),
+      ).toBe('Hi, Alice! You have 5 items.');
     });
 
     it('interpolate() handles missing vars by leaving placeholder intact', () => {
@@ -355,7 +406,8 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
     for (const localeCode of ALL_LOCALE_CODES) {
       it(`${localeCode}: formatNumber decimal returns a string`, () => {
         const result = manager.formatNumber(1234567.89, {
-          locale: localeCode, style: 'decimal',
+          locale: localeCode,
+          style: 'decimal',
         });
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
@@ -363,7 +415,9 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
 
       it(`${localeCode}: formatNumber currency returns a string`, () => {
         const result = manager.formatNumber(99.99, {
-          locale: localeCode, style: 'currency', currency: 'USD',
+          locale: localeCode,
+          style: 'currency',
+          currency: 'USD',
         });
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
@@ -371,7 +425,8 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
 
       it(`${localeCode}: formatNumber percent returns a string`, () => {
         const result = manager.formatNumber(0.75, {
-          locale: localeCode, style: 'percent',
+          locale: localeCode,
+          style: 'percent',
         });
         expect(typeof result).toBe('string');
         expect(result.length).toBeGreaterThan(0);
@@ -534,7 +589,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
       expect(NAMESPACE_LIST).toContain('cli');
       expect(NAMESPACE_LIST).toContain('errors');
       expect(NAMESPACE_LIST).toContain('services');
-      expect(NAMESPACE_LIST).toContain('dashboard');
+      expect(NAMESPACE_LIST).toContain('zavorthControl');
       expect(NAMESPACE_LIST).toContain('desktop');
       expect(NAMESPACE_LIST).toContain('telegram');
       expect(NAMESPACE_LIST).toContain('onboarding');
@@ -626,7 +681,7 @@ describe('I18n Locales — comprehensive coverage for all 10 languages', () => {
       enKeysByNs[ns] = collectKeys(enData[ns] as Record<string, unknown>).sort();
     }
 
-    for (const localeCode of ALL_LOCALE_CODES.filter(c => c !== 'en')) {
+    for (const localeCode of ALL_LOCALE_CODES.filter((c) => c !== 'en')) {
       it(`${localeCode} has no extra keys not present in en`, () => {
         const data = loadLocaleJson(localeCode);
         for (const ns of EXPECTED_NAMESPACES) {

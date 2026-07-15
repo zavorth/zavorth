@@ -11,7 +11,6 @@ import {
 } from '../../../../gateways/channels/telegram/TelegramEchoSurfaceClient.js';
 import { replyWithTelegramSurfaceResponse } from '../../../../gateways/channels/telegram/TelegramSurfaceResponseSender.js';
 
-
 export type TelegramEchoApprovalClient = Pick<
   TelegramEchoSurfaceClient,
   'getSurfaceContext' | 'readPendingPermissions' | 'resolvePermission'
@@ -44,11 +43,7 @@ export class TelegramEchoApprovalController {
       const result = await client.resolvePermission(id, parsed.action === 'approve');
       await replyWithTelegramSurfaceResponse(
         ctx,
-        this.buildResolutionSurfaceResponse(
-          result.status || parsed.action,
-          id,
-          client.getSurfaceContext(),
-        ),
+        this.buildResolutionSurfaceResponse(result.status || parsed.action, id, client.getSurfaceContext()),
       );
       return;
     }
@@ -103,13 +98,15 @@ export class TelegramEchoApprovalController {
 
   private createClient(ctx: Context): TelegramEchoApprovalClient {
     const chatId = normalizeRequired(ctx.chat?.id, 'telegram chatId');
-    const threadId = normalizeNullableText((ctx.message as any)?.message_thread_id)
-      || normalizeNullableText((ctx.callbackQuery?.message as any)?.message_thread_id);
+    const threadId =
+      normalizeNullableText((ctx.message as any)?.message_thread_id) ||
+      normalizeNullableText((ctx.callbackQuery?.message as any)?.message_thread_id);
     const userId = normalizeNullableText(ctx.from?.id);
-    const baseUrl = this.deps.baseUrl
-      || process.env.ZAVORTH_ECHO_BASE_URL
-      || process.env.ZAVORTH_API_BASE_URL
-      || 'http://localhost:3000';
+    const baseUrl =
+      this.deps.baseUrl ||
+      process.env.ZAVORTH_ECHO_BASE_URL ||
+      process.env.ZAVORTH_API_BASE_URL ||
+      'http://localhost:3000';
     const options = {
       baseUrl,
       chatId,
@@ -117,23 +114,14 @@ export class TelegramEchoApprovalController {
       userId,
       requestedBy: userId ? `telegram:${userId}` : `telegram:${chatId}`,
     };
-    return this.deps.clientFactory
-      ? this.deps.clientFactory(options)
-      : new TelegramEchoSurfaceClient(options);
+    return this.deps.clientFactory ? this.deps.clientFactory(options) : new TelegramEchoSurfaceClient(options);
   }
 
-  private async resolvePermissionReference(
-    client: TelegramEchoApprovalClient,
-    reference: string,
-  ): Promise<string> {
+  private async resolvePermissionReference(client: TelegramEchoApprovalClient, reference: string): Promise<string> {
     const normalized = normalizeRequired(reference, 'approval reference');
     const permissions = await client.readPendingPermissions();
     const matches = permissions.filter((permission) => {
-      const ids = [
-        permission.id,
-        permission.approvalId,
-        this.shortPermissionId(permission),
-      ].filter(Boolean);
+      const ids = [permission.id, permission.approvalId, this.shortPermissionId(permission)].filter(Boolean);
       return ids.some((id) => id === normalized || id.startsWith(normalized));
     });
 
@@ -152,7 +140,10 @@ export class TelegramEchoApprovalController {
     action: 'list' | 'approve' | 'reject';
     reference: string;
   } {
-    const [actionRaw = 'list', ...rest] = String(args || '').trim().split(/\s+/).filter(Boolean);
+    const [actionRaw = 'list', ...rest] = String(args || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
     const action = actionRaw.toLowerCase();
     if (['approve', 'allow'].includes(action)) {
       return { action: 'approve', reference: rest.join(' ') };
@@ -181,10 +172,7 @@ export class TelegramEchoApprovalController {
     return null;
   }
 
-  private formatPendingApprovals(
-    permissions: TelegramEchoPermission[],
-    context: TelegramEchoSurfaceContext,
-  ): string {
+  private formatPendingApprovals(permissions: TelegramEchoPermission[], context: TelegramEchoSurfaceContext): string {
     const lines = [
       `Pending Echo approvals (${permissions.length})`,
       `Surface: ${context.surface} | session: ${context.sessionId}`,
@@ -206,20 +194,12 @@ export class TelegramEchoApprovalController {
       lines.push(`+${permissions.length - MAX_LISTED_APPROVALS} additional approval(s) not shown.`);
     }
 
-    lines.push('Use the buttons below or /echoapprovals approve <id> / /echoapprovals reject <id>.');
+    lines.push('Tap the buttons below to approve or reject (preferred).');
     return lines.join('\n').trim();
   }
 
-  private formatResolutionMessage(
-    status: string,
-    id: string,
-    context: TelegramEchoSurfaceContext,
-  ): string {
-    const label = status === 'approved'
-      ? 'approved'
-      : status === 'denied'
-        ? 'denied'
-        : status;
+  private formatResolutionMessage(status: string, id: string, context: TelegramEchoSurfaceContext): string {
+    const label = status === 'approved' ? 'approved' : status === 'denied' ? 'denied' : status;
     return [
       `Approval Echo ${label}.`,
       `id: ${id}`,
@@ -320,7 +300,8 @@ export class TelegramEchoApprovalController {
     try {
       await ctx.editMessageText(rendered.text);
       return;
-    } catch (error: unknown) {await replyWithTelegramSurfaceResponse(ctx, response);
+    } catch (error: unknown) {
+      await replyWithTelegramSurfaceResponse(ctx, response);
     }
   }
 

@@ -16,14 +16,7 @@ describe('ContextEngine gateway ingest', () => {
       content: 'consegue me ouvir?',
     });
 
-    const decision = engine.prepare(
-      'consegue me ouvir?',
-      'user-1',
-      'chat-1',
-      'telegram',
-      tools,
-      'system',
-    );
+    const decision = engine.prepare('consegue me ouvir?', 'user-1', 'chat-1', 'telegram', tools, 'system');
 
     expect(decision.messages.filter((message) => message.role === 'user')).toEqual([
       expect.objectContaining({ content: 'consegue me ouvir?' }),
@@ -38,33 +31,22 @@ describe('ContextEngine gateway ingest', () => {
       { name: 'web_search', description: 'Busca web', parameters: { type: 'object', properties: {} } },
     ];
 
-    const decision = engine.prepare(
-      'check the main project README',
-      'user-1',
-      'chat-1',
-      'telegram',
-      tools,
-      'system',
-    );
+    const decision = engine.prepare('check the main project README', 'user-1', 'chat-1', 'telegram', tools, 'system');
 
     // Free text is full_toolset; firewall does not keyword-map workspace wording.
     expect(decision.intentCategory).toBe('full_toolset');
-    expect(decision.toolHintProfile).toEqual(expect.objectContaining({
-      groups: ['all'],
-      toolExposureGatedByCognitiveFirewall: false,
-      isHardGate: false,
-    }));
-    expect(decision.recommendedToolNames).toEqual(expect.arrayContaining([
-      'read_file',
-      'list_directory',
-      'web_search',
-    ]));
+    expect(decision.toolHintProfile).toEqual(
+      expect.objectContaining({
+        groups: ['all'],
+        toolExposureGatedByCognitiveFirewall: false,
+        isHardGate: false,
+      }),
+    );
+    expect(decision.recommendedToolNames).toEqual(
+      expect.arrayContaining(['read_file', 'list_directory', 'web_search']),
+    );
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(false);
-    expect(decision.tools.map((tool) => tool.name).sort()).toEqual([
-      'list_directory',
-      'read_file',
-      'web_search',
-    ]);
+    expect(decision.tools.map((tool) => tool.name).sort()).toEqual(['list_directory', 'read_file', 'web_search']);
   });
 
   it('propagates plugin quarantine as a hard Cognitive Firewall gate', () => {
@@ -89,10 +71,12 @@ describe('ContextEngine gateway ingest', () => {
     );
 
     expect(decision.toolExposureGatedByCognitiveFirewall).toBe(true);
-    expect(decision.toolHintProfile).toEqual(expect.objectContaining({
-      quarantinedToolNames: ['read_file'],
-      isHardGate: true,
-    }));
+    expect(decision.toolHintProfile).toEqual(
+      expect.objectContaining({
+        quarantinedToolNames: ['read_file'],
+        isHardGate: true,
+      }),
+    );
     expect(decision.tools.map((tool) => tool.name)).toEqual(['list_directory']);
     expect(decision.recommendedToolNames).toEqual(['list_directory']);
   });
@@ -124,23 +108,18 @@ describe('ContextEngine gateway ingest', () => {
 
   it('marks multimodal attachments as untrusted evidence for downstream tool policy', () => {
     const engine = new ContextEngine();
-    const decision = engine.prepare(
-      'describe this image',
-      'user-1',
-      'chat-media',
-      'web',
-      [],
-      'system',
-      null,
-      [{ mimeType: 'image/png', data: 'base64-image' }],
-    );
+    const decision = engine.prepare('describe this image', 'user-1', 'chat-media', 'web', [], 'system', null, [
+      { mimeType: 'image/png', data: 'base64-image' },
+    ]);
 
-    expect(decision.messages).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        role: 'system',
-        content: expect.stringContaining('<untrusted_media_content'),
-      }),
-    ]));
+    expect(decision.messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: 'system',
+          content: expect.stringContaining('<untrusted_media_content'),
+        }),
+      ]),
+    );
   });
 
   it('expires inactive sessions by TTL', () => {
@@ -217,14 +196,7 @@ describe('ContextEngine gateway ingest', () => {
       content: 'segunda mensagem',
     });
 
-    const decision = engine.prepare(
-      'terceira mensagem',
-      'user-1',
-      'chat-alternation',
-      'telegram',
-      tools,
-      'system',
-    );
+    const decision = engine.prepare('terceira mensagem', 'user-1', 'chat-alternation', 'telegram', tools, 'system');
 
     expect(decision.messages.length).toBe(2);
     expect(decision.messages[0]).toEqual(expect.objectContaining({ role: 'system' }));
@@ -234,20 +206,13 @@ describe('ContextEngine gateway ingest', () => {
       expect.objectContaining({
         role: 'user',
         content: 'primeira mensagem\n\nsegunda mensagem\n\nterceira mensagem',
-      })
+      }),
     );
   });
 
   it('uses AdaptivePersonaEngine instead of hardcoded prompt', () => {
     const engine = new ContextEngine();
-    const decision = engine.prepare(
-      'rode os testes npm',
-      'user-1',
-      'chat-1',
-      'telegram',
-      [],
-      'You are Zavorth',
-    );
+    const decision = engine.prepare('rode os testes npm', 'user-1', 'chat-1', 'telegram', [], 'You are Zavorth');
     // Should not contain the old hardcoded persona text
     expect(decision.messages[0].content).not.toContain('EXECUTOR Squad. Be highly practical');
     // Should contain the new persona-based prompt
@@ -270,31 +235,20 @@ describe('ContextEngine gateway ingest', () => {
     expect(decision.intentCategory).toBe('full_toolset');
   });
 
-  it('uses conversational persona for trivial chat without ambiguity', () => {
+  it('uses the safe conversational fallback for unclassified synchronous free text', () => {
     const engine = new ContextEngine();
-    const decision = engine.prepare(
-      'hi',
-      'user-1',
-      'chat-1',
-      'telegram',
-      [],
-      'system',
-    );
+    const decision = engine.prepare('hi', 'user-1', 'chat-1', 'telegram', [], 'system');
     expect(decision.personaType).toBe('conversational');
-    expect(decision.personaIsAmbiguous).toBe(false);
+    // The synchronous path deliberately does not recognize greeting keywords.
+    // The main model owns free-text intent, so capability ambiguity remains explicit.
+    expect(decision.personaIsAmbiguous).toBe(true);
+    expect(decision.intentCategory).toBe('full_toolset');
   });
 
   it('logs persona resolution', () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
     const engine = new ContextEngine();
-    engine.prepare(
-      'run the npm tests and report failures',
-      'user-1',
-      'chat-1',
-      'telegram',
-      [],
-      'system',
-    );
+    engine.prepare('run the npm tests and report failures', 'user-1', 'chat-1', 'telegram', [], 'system');
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining('[AdaptivePersona] Ambiguous intent (full_toolset'),
     );

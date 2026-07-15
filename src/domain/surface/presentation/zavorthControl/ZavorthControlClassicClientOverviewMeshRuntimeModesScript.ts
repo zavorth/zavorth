@@ -12,7 +12,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
     const node = document.getElementById('operations-runtime-modes');
     if (!node) return;
     if (!runtimeModes || 'error' in runtimeModes) {
-      node.innerHTML = '<div class="muted">Could not carregar os runtime modes.</div>';
+      node.innerHTML = '<div class="muted">Could not load runtime modes.</div>';
       return;
     }
 
@@ -39,10 +39,10 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
               '</span>' +
               '</div>' +
               '<small>' +
-              escapeHtml(entry.operatorSummary || 'Sem resumo adicional.') +
+              escapeHtml(entry.operatorSummary || 'No additional summary.') +
               '</small>' +
               '<small>Melhor para: ' +
-              escapeHtml(entry.recommendedFor || 'Sem recommendation adicional.') +
+              escapeHtml(entry.recommendedFor || 'No additional recommendation.') +
               '</small>' +
               (entry.actionHint ? '<div class="cockpit-command">' + escapeHtml(entry.actionHint) + '</div>' : '') +
               '<ul class="cockpit-list">' +
@@ -51,7 +51,7 @@ function zavorthControlClassicClientOverviewMeshRuntimeModes() {
                     .slice(0, 3)
                     .map((detail) => '<li>' + escapeHtml(detail) + '</li>')
                     .join('')
-                : '<li>Sem detalhes adicionais.</li>') +
+                : '<li>No additional details.</li>') +
               '</ul>' +
               '</div>',
           )

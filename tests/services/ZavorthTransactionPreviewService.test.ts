@@ -7,7 +7,9 @@ describe('ZavorthTransactionPreviewService', () => {
 
   it('builds an approval-ready exchange preview from a trade intent', () => {
     const preview = service.buildPreview({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       channel: 'web',
       now,
     });
@@ -48,7 +50,9 @@ describe('ZavorthTransactionPreviewService', () => {
 
   it('keeps monitoring previews low-risk and non-approval by default', () => {
     const preview = service.buildPreview({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       channel: 'telegram',
       now,
     });
@@ -63,7 +67,8 @@ describe('ZavorthTransactionPreviewService', () => {
 
   it('does not make underspecified purchases approval-ready', () => {
     const preview = service.buildPreview({
-      text: 'Compre isso para mim depois.',
+      text: 'Buy this for me later.',
+      kind: 'purchase-product',
       now,
     });
 
@@ -75,7 +80,7 @@ describe('ZavorthTransactionPreviewService', () => {
 
   it('blocks previews that contain raw transaction secrets', () => {
     const preview = service.buildPreview({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       now,
     });
 
@@ -87,7 +92,9 @@ describe('ZavorthTransactionPreviewService', () => {
 
   it('marks wallet value movement as critical and blocked from live planning', () => {
     const preview = service.buildPreview({
-      text: 'Saque BTC para minha wallet ate R$100.',
+      text: 'Withdraw BTC to my wallet up to R$100.',
+      kind: 'withdraw-asset',
+      actionKind: 'asset-withdrawal',
       now,
     });
 

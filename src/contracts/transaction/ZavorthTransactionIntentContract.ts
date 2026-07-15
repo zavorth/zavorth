@@ -32,12 +32,7 @@ export type ZavorthTransactionIntentTargetKind =
   | 'currency'
   | 'unknown';
 
-export type ZavorthTransactionApprovalPreference =
-  | 'explicit'
-  | 'preview-only'
-  | 'auto-requested'
-  | 'none'
-  | 'unknown';
+export type ZavorthTransactionApprovalPreference = 'explicit' | 'preview-only' | 'auto-requested' | 'none' | 'unknown';
 
 export type ZavorthTransactionIntentSimulationMode =
   | 'preview-first'
@@ -123,6 +118,12 @@ export type ZavorthTransactionIntent = {
 
 export type ZavorthTransactionIntentParseInput = {
   text: string;
+  /** Structured product kind only — free text never activates transaction kinds. */
+  kind?: ZavorthTransactionIntentKind;
+  /** Structured action kind only — free text never maps words to actions. */
+  actionKind?: ZavorthTransactionActionKind;
+  /** Structured target kind only — free text never activates target kinds. */
+  targetKind?: ZavorthTransactionIntentTargetKind;
   channel?: string;
   sessionId?: string;
   now?: Date;
@@ -193,13 +194,13 @@ export const ZAVORTH_TRANSACTION_INTENT_EXAMPLES: readonly ZavorthTransactionInt
     expectedRoute: 'tool-preview',
   },
   {
-    text: 'Pague a fatura do cartao se ficar abaixo de R$900.',
+    text: 'Pay the card bill if it stays below R$900.',
     expectedKind: 'pay-bill',
     expectedActionKind: 'payment-submit',
     expectedRoute: 'approval-proposal',
   },
   {
-    text: 'Cancele minha assinatura do servico X no fim do mes.',
+    text: 'Cancel my subscription for service X at the end of the month.',
     expectedKind: 'cancel-subscription',
     expectedActionKind: 'subscription-cancel',
     expectedRoute: 'approval-proposal',
@@ -216,6 +217,7 @@ export function buildZavorthTransactionIntentContractSnapshot(): ZavorthTransact
     examples: [...ZAVORTH_TRANSACTION_INTENT_EXAMPLES],
     invariants: [
       'Intent parsing never executes a transaction.',
+      'Free text never activates transaction kind; only structured kind/actionKind/targetKind may set product intent.',
       'Raw secrets are redacted before intent output is persisted or displayed.',
       'Real-money actions are routed to preview or approval proposal, never direct execution.',
       'Every parsed intent carries a Transaction Plane safety decision.',

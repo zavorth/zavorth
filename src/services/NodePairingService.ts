@@ -78,10 +78,12 @@ export class NodePairingService {
     const effectiveCapabilityIds = input.capabilityIds
       ? this.capabilityService.normalizeCapabilityIds(input.capabilityIds)
       : current.capabilityIds;
-    const approvedCapabilityIds = input.approvedCapabilityIds !== undefined
-      ? this.capabilityService.normalizeCapabilityIds(input.approvedCapabilityIds)
-        .filter((capabilityId) => effectiveCapabilityIds.includes(capabilityId))
-      : current.approvedCapabilityIds;
+    const approvedCapabilityIds =
+      input.approvedCapabilityIds !== undefined
+        ? this.capabilityService
+            .normalizeCapabilityIds(input.approvedCapabilityIds)
+            .filter((capabilityId) => effectiveCapabilityIds.includes(capabilityId))
+        : current.approvedCapabilityIds;
 
     const node = this.registryService.patchNode(current.id, {
       pairingStatus: 'paired',
@@ -90,23 +92,25 @@ export class NodePairingService {
       pairedAt: claimedAt,
       capabilityIds: effectiveCapabilityIds,
       approvedCapabilityIds,
-      allowlistAudit: input.approvedCapabilityIds !== undefined
-        ? {
-            approvedAt: claimedAt,
-            approvedBy: String(current.requestedBy || '').trim() || 'node-claim',
-            reason: approvedCapabilityIds && approvedCapabilityIds.length > 0
-              ? 'Allowlist confirmada durante o claim do node.'
-              : 'Allowlist limpa durante o claim do node.',
-            mode: approvedCapabilityIds && approvedCapabilityIds.length > 0 ? 'claim' : 'clear',
-          }
-        : undefined,
+      allowlistAudit:
+        input.approvedCapabilityIds !== undefined
+          ? {
+              approvedAt: claimedAt,
+              approvedBy: String(current.requestedBy || '').trim() || 'node-claim',
+              reason:
+                approvedCapabilityIds && approvedCapabilityIds.length > 0
+                  ? 'Allowlist confirmed during node claim.'
+                  : 'Allowlist cleared during node claim.',
+              mode: approvedCapabilityIds && approvedCapabilityIds.length > 0 ? 'claim' : 'clear',
+            }
+          : undefined,
       hostHints: {
         ...current.hostHints,
         ...(input.hostHints || {}),
       },
       operatorSummary: String(
-        input.operatorSummary
-        || `${profile?.label || 'Node host'} claim confirmado. Aguardando heartbeat recorrente para receber invocacoes reais.`,
+        input.operatorSummary ||
+          `${profile?.label || 'Node host'} claim confirmed. Waiting for recurring heartbeat to receive real invocations.`,
       ).trim(),
     });
 
@@ -120,9 +124,9 @@ export class NodePairingService {
       node,
       sharedSecret,
       heartbeatIntervalMs: Math.max(5000, Number(input.heartbeatIntervalMs || 15000)),
-      operatorSummary: node.operatorSummary || `${profile?.label || 'Node host'} claim confirmado.`,
+      operatorSummary: node.operatorSummary || `${profile?.label || 'Node host'} claim confirmed.`,
       assignments: [],
-      actionHint: `Guarde o shared secret no ${profile?.label || 'node host'} e publique heartbeat para receber invocacoes.`,
+      actionHint: `Store the shared secret on the ${profile?.label || 'node host'} and publish heartbeat to receive invocations.`,
     };
   }
 
@@ -136,7 +140,8 @@ export class NodePairingService {
     const capabilityIds = this.capabilityService.normalizeCapabilityIds(
       (input.capabilityIds && input.capabilityIds.length ? input.capabilityIds : profile.defaultCapabilityIds) || [],
     );
-    const approvedCapabilityIds = this.capabilityService.normalizeCapabilityIds(input.approvedCapabilityIds || [])
+    const approvedCapabilityIds = this.capabilityService
+      .normalizeCapabilityIds(input.approvedCapabilityIds || [])
       .filter((capabilityId) => capabilityIds.includes(capabilityId));
     const label = String(input.label || '').trim() || profile.label;
     const entry = this.registryService.upsertNode({
@@ -155,14 +160,15 @@ export class NodePairingService {
       requestedBy: String(input.requestedBy || '').trim() || null,
       capabilityIds,
       approvedCapabilityIds,
-      allowlistAudit: approvedCapabilityIds.length > 0
-        ? {
-            approvedAt: generatedAt,
-            approvedBy: String(input.requestedBy || '').trim() || null,
-            reason: 'Allowlist definida no pairing draft.',
-            mode: 'draft',
-          }
-        : null,
+      allowlistAudit:
+        approvedCapabilityIds.length > 0
+          ? {
+              approvedAt: generatedAt,
+              approvedBy: String(input.requestedBy || '').trim() || null,
+              reason: 'Allowlist set on the pairing draft.',
+              mode: 'draft',
+            }
+          : null,
       hostHints: {
         hostname: String(hostHints?.hostname || '').trim() || null,
         platform: String(hostHints?.platform || '').trim() || null,
@@ -174,14 +180,15 @@ export class NodePairingService {
         deviceModel: String(hostHints?.deviceModel || '').trim() || null,
         appVersion: String(hostHints?.appVersion || '').trim() || null,
         networkType: String(hostHints?.networkType || '').trim() || null,
-        batteryLevel: typeof hostHints?.batteryLevel === 'number' && Number.isFinite(hostHints.batteryLevel)
-          ? hostHints.batteryLevel
-          : null,
+        batteryLevel:
+          typeof hostHints?.batteryLevel === 'number' && Number.isFinite(hostHints.batteryLevel)
+            ? hostHints.batteryLevel
+            : null,
         batteryState: String(hostHints?.batteryState || '').trim() || null,
         locationLabel: String(hostHints?.locationLabel || '').trim() || null,
       },
       notes: (input.notes || []).map((entry) => String(entry || '').trim()).filter(Boolean),
-      operatorSummary: `Pairing criado para ${profile.label}. Falta o companion consumir o codigo e concluir o pareamento.`,
+      operatorSummary: `Pairing created for ${profile.label}. Companion still needs to consume the code and finish pairing.`,
     });
 
     this.registryService.storeSecret(entry.id, 'pairingCode', pairingCode);
@@ -192,11 +199,11 @@ export class NodePairingService {
       entry,
       profile,
       pairingCode,
-      actionHint: `Informe o codigo ${pairingCode} ao ${profile.label} para concluir o pareamento inicial.`,
+      actionHint: `Give code ${pairingCode} to ${profile.label} to complete initial pairing.`,
       instructions: [
-        `Registre o companion usando o perfil ${profile.label} e o mesmo nodeId exibido no gateway.`,
-        `Suba o node host com o pairing code e as capabilities basicas do perfil (${capabilityIds.join(', ') || 'sem capabilities padrao'}).`,
-        'Depois do primeiro heartbeat, o status muda de pairing para online/offline pareado.',
+        `Register the companion using the ${profile.label} profile and the same nodeId shown in the gateway.`,
+        `Start the node host with the pairing code and the profile base capabilities (${capabilityIds.join(', ') || 'no default capabilities'}).`,
+        'After the first heartbeat, status moves from pairing to online/offline paired.',
       ],
       bootstrap: this.buildBootstrapDraft({
         nodeId: entry.id,
@@ -255,10 +262,12 @@ export class NodePairingService {
     const effectiveCapabilityIds = input.capabilityIds
       ? this.capabilityService.normalizeCapabilityIds(input.capabilityIds)
       : current.capabilityIds;
-    const approvedCapabilityIds = input.approvedCapabilityIds !== undefined
-      ? this.capabilityService.normalizeCapabilityIds(input.approvedCapabilityIds)
-        .filter((capabilityId) => effectiveCapabilityIds.includes(capabilityId))
-      : current.approvedCapabilityIds;
+    const approvedCapabilityIds =
+      input.approvedCapabilityIds !== undefined
+        ? this.capabilityService
+            .normalizeCapabilityIds(input.approvedCapabilityIds)
+            .filter((capabilityId) => effectiveCapabilityIds.includes(capabilityId))
+        : current.approvedCapabilityIds;
 
     return this.registryService.patchNode(current.id, {
       pairingStatus: 'paired',
@@ -267,23 +276,25 @@ export class NodePairingService {
       pairedAt: this.now().toISOString(),
       capabilityIds: effectiveCapabilityIds,
       approvedCapabilityIds,
-      allowlistAudit: input.approvedCapabilityIds !== undefined
-        ? {
-            approvedAt: this.now().toISOString(),
-            approvedBy: String(current.requestedBy || '').trim() || 'pairing-approval',
-            reason: approvedCapabilityIds && approvedCapabilityIds.length > 0
-              ? 'Allowlist confirmada durante a aprovacao do pairing.'
-              : 'Allowlist limpa durante a aprovacao do pairing.',
-            mode: approvedCapabilityIds && approvedCapabilityIds.length > 0 ? 'approve' : 'clear',
-          }
-        : undefined,
+      allowlistAudit:
+        input.approvedCapabilityIds !== undefined
+          ? {
+              approvedAt: this.now().toISOString(),
+              approvedBy: String(current.requestedBy || '').trim() || 'pairing-approval',
+              reason:
+                approvedCapabilityIds && approvedCapabilityIds.length > 0
+                  ? 'Allowlist confirmed during pairing approval.'
+                  : 'Allowlist cleared during pairing approval.',
+              mode: approvedCapabilityIds && approvedCapabilityIds.length > 0 ? 'approve' : 'clear',
+            }
+          : undefined,
       hostHints: {
         ...current.hostHints,
         ...(input.hostHints || {}),
       },
       operatorSummary: String(
-        input.operatorSummary
-        || `${profile?.label || 'Node'} pareado. Falta apenas o transporte publicar heartbeat para entrar no fluxo remoto.`,
+        input.operatorSummary ||
+          `${profile?.label || 'Node'} paired. Transport still needs to publish heartbeat to join the remote flow.`,
       ).trim(),
     });
   }
@@ -318,11 +329,11 @@ export class NodePairingService {
       entry: current,
       profile,
       pairingCode,
-      actionHint: `Use o bootstrap canonico de ${profile?.label || current.label || current.id} para concluir o primeiro claim.`,
+      actionHint: `Use the canonical bootstrap for ${profile?.label || current.label || current.id} to complete the first claim.`,
       instructions: [
-        `Execute o bootstrap do perfil ${profile?.label || current.label || current.id} com o pairing token atual.`,
-        'Depois do primeiro claim o pairing code expira e o node passa a usar shared secret.',
-        'Se o pairing draft expirar, gere um novo draft antes de continuar o bootstrap.',
+        `Run the bootstrap for profile ${profile?.label || current.label || current.id} with the current pairing token.`,
+        'After the first claim the pairing code expires and the node uses the shared secret.',
+        'If the pairing draft expires, generate a new draft before continuing bootstrap.',
       ],
       bootstrap: this.buildBootstrapDraft({
         nodeId: current.id,
@@ -349,18 +360,15 @@ export class NodePairingService {
       pairingStatus: 'revoked',
       status: 'blocked',
       paired: false,
-      operatorSummary: String(reason || 'Pareamento revogado ate nova autorizacao.').trim(),
-      notes: [...current.notes, String(reason || 'Pareamento revogado.').trim()].filter(Boolean),
+      operatorSummary: String(reason || 'Pairing revoked until a new authorization.').trim(),
+      notes: [...current.notes, String(reason || 'Pairing revoked.').trim()].filter(Boolean),
     });
     this.registryService.deleteSecret(current.id, 'pairingCode');
     this.registryService.deleteSecret(current.id, 'sharedSecret');
     return revoked;
   }
 
-  public validateSharedSecret(
-    nodeId: string | null | undefined,
-    sharedSecret: string | null | undefined,
-  ): boolean {
+  public validateSharedSecret(nodeId: string | null | undefined, sharedSecret: string | null | undefined): boolean {
     const current = this.registryService.getNode(nodeId);
     if (!current || !current.paired || current.pairingStatus !== 'paired') {
       return false;
@@ -371,12 +379,18 @@ export class NodePairingService {
   }
 
   private resolveNodeId(nodeId: string | null | undefined, label: string | null | undefined): string {
-    const normalizedId = String(nodeId || '').trim().toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+    const normalizedId = String(nodeId || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '-');
     if (normalizedId) {
       return normalizedId;
     }
 
-    const labelSeed = String(label || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const labelSeed = String(label || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-');
     const prefix = labelSeed.replace(/^-+|-+$/g, '') || 'headless-node';
     return `${prefix}-${crypto.randomUUID().slice(0, 6)}`;
   }
@@ -402,7 +416,9 @@ export class NodePairingService {
     capabilityIds: NodeMeshCapabilityId[];
     workspace: string | null | undefined;
   }): NodeMeshPairingDraft['bootstrap'] {
-    const baseUrl = String(process.env.ZAVORTH_NODE_MESH_BASE_URL || process.env.ZAVORTH_WEB_BASE_URL || 'http://127.0.0.1:33333').trim();
+    const baseUrl = String(
+      process.env.ZAVORTH_NODE_MESH_BASE_URL || process.env.ZAVORTH_WEB_BASE_URL || 'http://127.0.0.1:33333',
+    ).trim();
     const workspace = String(input.workspace || process.cwd()).trim() || process.cwd();
     const escapedWorkspace = JSON.stringify(workspace);
     const escapedLabel = JSON.stringify(input.label);
@@ -419,8 +435,8 @@ export class NodePairingService {
         pairingToken,
         workspaceHint: workspace,
         notes: [
-          `Use o perfil ${input.profile.label} no host do operator e mantenha a sessao local ativa para publicar heartbeat.`,
-          'O companion persiste credenciais locais e passa a usar shared secret apos o primeiro claim.',
+          `Use the ${input.profile.label} profile on the operator host and keep the local session active to publish heartbeat.`,
+          'The companion persists local credentials and switches to the shared secret after the first claim.',
         ],
       };
     }
@@ -433,8 +449,8 @@ export class NodePairingService {
       pairingToken,
       workspaceHint: workspace,
       notes: [
-        'Use este bootstrap para hosts headless, sidecars e bridges sem UI dedicada.',
-        'Depois do primeiro heartbeat o pairing code deixa de ser necessario e o host passa a usar shared secret.',
+        'Use this bootstrap for headless hosts, sidecars, and bridges without a dedicated UI.',
+        'After the first heartbeat the pairing code is no longer needed and the host uses the shared secret.',
       ],
     };
   }

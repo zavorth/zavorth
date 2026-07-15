@@ -1,21 +1,8 @@
-import type {
-  UniversalAgentRun,
-} from '../runtime/agent/UniversalAgentRuntimeTypes.js';
+import type { UniversalAgentRun } from '../runtime/agent/UniversalAgentRuntimeTypes.js';
 
-export type ZavorthUserResponseAudience =
-  | 'normal-user'
-  | 'developer'
-  | 'operator'
-  | 'owner';
+export type ZavorthUserResponseAudience = 'normal-user' | 'developer' | 'operator' | 'owner';
 
-export type ZavorthUserResponseChannel =
-  | 'web'
-  | 'cli'
-  | 'telegram'
-  | 'discord'
-  | 'slack'
-  | 'whatsapp'
-  | string;
+export type ZavorthUserResponseChannel = 'web' | 'cli' | 'telegram' | 'discord' | 'slack' | 'whatsapp' | string;
 
 export type ZavorthUserResponseRenderInput = {
   text: string;
@@ -47,9 +34,7 @@ function normalizeSearchText(value: unknown): string {
 }
 
 function pendingApproval(run: UniversalAgentRun | null | undefined): UniversalAgentRun['approvals'][number] | null {
-  return run?.approvals.find((entry) => entry.status === 'pending')
-    || run?.approvals.at(-1)
-    || null;
+  return run?.approvals.find((entry) => entry.status === 'pending') || run?.approvals.at(-1) || null;
 }
 
 export class ZavorthUserResponseRendererService {
@@ -73,12 +58,12 @@ export class ZavorthUserResponseRendererService {
     });
     const footer = includeFooter
       ? this.renderFooter({
-        audience,
-        run,
-        approvalId,
-        approvalStatus,
-        replayCommand: input.replayCommand || null,
-      })
+          audience,
+          run,
+          approvalId,
+          approvalStatus,
+          replayCommand: input.replayCommand || null,
+        })
       : [];
     return {
       text: [simplifiedBody, ...footer].filter(Boolean).join('\n'),
@@ -92,7 +77,8 @@ export class ZavorthUserResponseRendererService {
     try {
       // Lazy require keeps renderer usable in minimal test contexts without presentation deps.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { ZavorthPresentationAdapterService } = require('./ZavorthPresentationAdapterService.js') as typeof import('./ZavorthPresentationAdapterService.js');
+      const { ZavorthPresentationAdapterService } =
+        require('./ZavorthPresentationAdapterService.js') as typeof import('./ZavorthPresentationAdapterService.js');
       return new ZavorthPresentationAdapterService().adaptMarkdownForChannel(text, String(channel || 'web'));
     } catch {
       return text;
@@ -110,17 +96,20 @@ export class ZavorthUserResponseRendererService {
     return 'normal-user';
   }
 
-  private simplifyBody(text: string, input: {
-    hasApproval: boolean;
-    run: UniversalAgentRun | null;
-  }): string {
+  private simplifyBody(
+    text: string,
+    input: {
+      hasApproval: boolean;
+      run: UniversalAgentRun | null;
+    },
+  ): string {
     const normalized = normalizeSearchText(text);
     if (input.hasApproval || input.run?.status === 'waiting_approval') {
       if (
-        normalized.includes('capability negotiation')
-        || normalized.includes('aprovar escopo de capabilities')
-        || normalized.includes('preciso negociar o escopo')
-        || normalized.includes('approval requerido')
+        normalized.includes('capability negotiation') ||
+        normalized.includes('aprovar escopo de capabilities') ||
+        normalized.includes('preciso negociar o escopo') ||
+        normalized.includes('approval requerido')
       ) {
         return [
           'I need your confirmation to continue safely.',
@@ -167,9 +156,17 @@ export class ZavorthUserResponseRendererService {
   }): string[] {
     const lines: string[] = ['', 'Zavorth'];
     if (input.approvalId) {
-      lines.push(`- approval: ${input.approvalId} (${input.approvalStatus || 'pending'})`);
-      if ((input.approvalStatus || 'pending') === 'pending') {
-        lines.push('- reply "Approve" to allow or "Cancel" to reject.');
+      const pending = (input.approvalStatus || 'pending') === 'pending';
+      // Full UUID only for operator/owner; normal-user and developer get a short pending line.
+      const showFullId = input.audience === 'operator' || input.audience === 'owner';
+      if (showFullId) {
+        lines.push(`- approval: ${input.approvalId} (${input.approvalStatus || 'pending'})`);
+      } else {
+        lines.push(pending ? '- approval: waiting for your decision' : `- approval: ${input.approvalStatus}`);
+      }
+      if (pending) {
+        // Honest contract: free-text "Approve" does NOT resolve approvals (agent-first).
+        lines.push('- Tap Approve/Reject on the card, or use /approve or /reject (or /approve 1 if several).');
       }
     } else {
       lines.push('- approval: not required');

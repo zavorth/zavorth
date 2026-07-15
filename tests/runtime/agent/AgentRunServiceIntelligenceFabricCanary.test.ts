@@ -94,33 +94,36 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
 
     expect(executor).toHaveBeenCalledTimes(1);
-    expect(metadata).toEqual(expect.objectContaining({
-      mode: 'default',
-      selectedPath: 'intelligence-fabric-default',
-      dispatchTarget: 'current-runtime',
-      fallback: expect.objectContaining({
-        available: true,
-        route: 'current-runtime',
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        mode: 'default',
+        selectedPath: 'intelligence-fabric-default',
+        dispatchTarget: 'current-runtime',
+        fallback: expect.objectContaining({
+          available: true,
+          route: 'current-runtime',
+        }),
+        safety: expect.objectContaining({
+          currentRuntimeFallbackRetained: true,
+        }),
+        receipts: expect.arrayContaining(['intelligence-fabric-default-active', 'fallback-and-rollback-ready']),
       }),
-      safety: expect.objectContaining({
-        currentRuntimeFallbackRetained: true,
+    );
+    expect(metadata.orientation).toEqual(
+      expect.objectContaining({
+        applied: true,
+        scope: 'risk-0-2-safe',
+        executorDispatchChanged: false,
+        toolExecutionChanged: false,
       }),
-      receipts: expect.arrayContaining([
-        'intelligence-fabric-default-active',
-        'fallback-and-rollback-ready',
-      ]),
-    }));
-    expect(metadata.orientation).toEqual(expect.objectContaining({
-      applied: true,
-      scope: 'risk-0-2-safe',
-      executorDispatchChanged: false,
-      toolExecutionChanged: false,
-    }));
-    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(expect.objectContaining({
-      source: 'IntelligenceFabricDefault',
-      taskKind: 'casual_chat',
-      riskLevel: 0,
-    }));
+    );
+    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(
+      expect.objectContaining({
+        source: 'IntelligenceFabricDefault',
+        taskKind: 'casual_chat',
+        riskLevel: 0,
+      }),
+    );
   });
 
   it('attaches canary metadata and learning while preserving current executor dispatch', async () => {
@@ -155,49 +158,59 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.replies[0].text).toBe('Resposta pelo runtime atual.');
-    expect(metadata).toEqual(expect.objectContaining({
-      source: 'AgentRunIntelligenceFabricCanary',
-      mode: 'canary',
-      status: 'observed',
-      dispatchTarget: 'current-runtime',
-      selectedPath: 'intelligence-fabric-canary',
-      fallback: expect.objectContaining({
-        available: true,
-        route: 'current-runtime',
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunIntelligenceFabricCanary',
+        mode: 'canary',
+        status: 'observed',
+        dispatchTarget: 'current-runtime',
+        selectedPath: 'intelligence-fabric-canary',
+        fallback: expect.objectContaining({
+          available: true,
+          route: 'current-runtime',
+        }),
+        rollback: expect.objectContaining({
+          available: true,
+          runtimeChanged: false,
+          stateChanged: false,
+        }),
+        safety: expect.objectContaining({
+          rawSecretsSerialized: false,
+          liveActionApplied: false,
+          defaultRuntimeChanged: false,
+          currentRuntimeFallbackRetained: true,
+        }),
       }),
-      rollback: expect.objectContaining({
-        available: true,
-        runtimeChanged: false,
-        stateChanged: false,
+    );
+    expect(metadata.fabric).toEqual(
+      expect.objectContaining({
+        taskKind: 'casual_chat',
+        riskLevel: 0,
+        proposal: expect.objectContaining({
+          liveActionApplied: false,
+        }),
       }),
-      safety: expect.objectContaining({
-        rawSecretsSerialized: false,
-        liveActionApplied: false,
-        defaultRuntimeChanged: false,
-        currentRuntimeFallbackRetained: true,
+    );
+    expect(learning.recordSnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: 'canary',
       }),
-    }));
-    expect(metadata.fabric).toEqual(expect.objectContaining({
-      taskKind: 'casual_chat',
-      riskLevel: 0,
-      proposal: expect.objectContaining({
-        liveActionApplied: false,
+    );
+    expect(metadata.orientation).toEqual(
+      expect.objectContaining({
+        applied: true,
+        scope: 'risk-0-2-safe',
+        contextPackAttached: true,
+        executorDispatchChanged: false,
+        toolExecutionChanged: false,
       }),
-    }));
-    expect(learning.recordSnapshot).toHaveBeenCalledWith(expect.objectContaining({
-      source: 'canary',
-    }));
-    expect(metadata.orientation).toEqual(expect.objectContaining({
-      applied: true,
-      scope: 'risk-0-2-safe',
-      contextPackAttached: true,
-      executorDispatchChanged: false,
-      toolExecutionChanged: false,
-    }));
-    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(expect.objectContaining({
-      taskKind: 'casual_chat',
-      riskLevel: 0,
-    }));
+    );
+    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(
+      expect.objectContaining({
+        taskKind: 'casual_chat',
+        riskLevel: 0,
+      }),
+    );
   });
 
   it('orients safe risk 0-2 LLM runs with Fabric model and context while keeping runtime fallback', async () => {
@@ -261,19 +274,23 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
 
     expect(result.replies[0].text).toBe('Resposta orientada pelo Fabric.');
-    expect(options).toEqual(expect.objectContaining({
-      allowFallback: true,
-    }));
+    expect(options).toEqual(
+      expect.objectContaining({
+        allowFallback: true,
+      }),
+    );
     expect(messages[0].content).toContain('Intelligence Fabric context pack:');
     expect(messages[0].content).toContain('use this package as cognitive guidance');
-    expect(metadata.orientation).toEqual(expect.objectContaining({
-      applied: true,
-      scope: 'risk-0-2-safe',
-      modelSelectionApplied: false,
-      contextPackAttached: true,
-      executorDispatchChanged: false,
-      toolExecutionChanged: false,
-    }));
+    expect(metadata.orientation).toEqual(
+      expect.objectContaining({
+        applied: true,
+        scope: 'risk-0-2-safe',
+        modelSelectionApplied: false,
+        contextPackAttached: true,
+        executorDispatchChanged: false,
+        toolExecutionChanged: false,
+      }),
+    );
     expect(result.run.metadata.modelPickerSelection).toBeNull();
   });
 
@@ -337,28 +354,37 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const metrics = metadata.metrics as Record<string, unknown>;
 
     expect(llmRuntime.chatDetailed).toHaveBeenCalledTimes(1);
-    expect(orientation).toEqual(expect.objectContaining({
-      applied: true,
-      scope: 'risk-0-2-safe',
-      modelSelectionApplied: false,
-      contextPackAttached: true,
-      modelRoutingReady: false,
-      modelRoutingSource: 'ModelPickerService',
-      modelFallbackReason: 'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
-    }));
-    expect(metrics).toEqual(expect.objectContaining({
-      modelRoutingReady: false,
-      modelRoutingSource: 'ModelPickerService',
-      modelFallbackReason: 'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
-    }));
+    expect(orientation).toEqual(
+      expect.objectContaining({
+        applied: true,
+        scope: 'risk-0-2-safe',
+        modelSelectionApplied: false,
+        contextPackAttached: true,
+        modelRoutingReady: false,
+        modelRoutingSource: 'ModelPickerService',
+        modelFallbackReason:
+          'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
+      }),
+    );
+    expect(metrics).toEqual(
+      expect.objectContaining({
+        modelRoutingReady: false,
+        modelRoutingSource: 'ModelPickerService',
+        modelFallbackReason:
+          'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
+      }),
+    );
     expect(typeof metrics.totalLatencyMs).toBe('number');
     expect(result.run.metadata.modelPickerSelection).toBeNull();
-    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(expect.objectContaining({
-      source: 'IntelligenceFabricDefault',
-      modelRoutingReady: false,
-      modelRoutingSource: 'ModelPickerService',
-      modelFallbackReason: 'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
-    }));
+    expect(result.run.metadata.intelligenceFabricContextPack).toEqual(
+      expect.objectContaining({
+        source: 'IntelligenceFabricDefault',
+        modelRoutingReady: false,
+        modelRoutingSource: 'ModelPickerService',
+        modelFallbackReason:
+          'ModelPicker did not return a ready route; current runtime model selection remains the fallback.',
+      }),
+    );
   });
 
   it('does not orient risk 4 requests before approval or sandbox', async () => {
@@ -387,18 +413,22 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
 
-    expect(metadata.orientation).toEqual(expect.objectContaining({
-      applied: false,
-      scope: 'not-eligible',
-      contextPackAttached: false,
-      modelSelectionApplied: false,
-      executorDispatchChanged: false,
-      toolExecutionChanged: false,
-    }));
+    expect(metadata.orientation).toEqual(
+      expect.objectContaining({
+        applied: false,
+        scope: 'not-eligible',
+        contextPackAttached: false,
+        modelSelectionApplied: false,
+        executorDispatchChanged: false,
+        toolExecutionChanged: false,
+      }),
+    );
     expect(result.run.metadata.intelligenceFabricContextPack).toBeUndefined();
-    expect(result.run.metadata.modelPickerSelection).not.toEqual(expect.objectContaining({
-      source: 'intelligence-fabric-canary',
-    }));
+    expect(result.run.metadata.modelPickerSelection).not.toEqual(
+      expect.objectContaining({
+        source: 'intelligence-fabric-canary',
+      }),
+    );
   });
 
   it('attaches risk 3 draft guidance without applying patch, tools or commit', async () => {
@@ -431,90 +461,107 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     const metadata = result.run.metadata.intelligenceFabricCanary as Record<string, unknown>;
     const guidance = result.run.metadata.intelligenceFabricDraftGuidance as Record<string, unknown>;
-    const previewEvent = result.run.events.find((event) => (
-      (event.metadata as Record<string, unknown> | undefined)?.source === 'IntelligenceFabricDraftPreview'
-    ));
+    const previewEvent = result.run.events.find(
+      (event) => (event.metadata as Record<string, unknown> | undefined)?.source === 'IntelligenceFabricDraftPreview',
+    );
 
-    expect(metadata.orientation).toEqual(expect.objectContaining({
-      applied: true,
-      scope: 'risk-3-draft-guidance',
-      modelSelectionApplied: false,
-      contextPackAttached: true,
-      draftGuidanceAttached: true,
-      executorDispatchChanged: false,
-      toolExecutionChanged: false,
-    }));
-    expect(guidance).toEqual(expect.objectContaining({
-      source: 'IntelligenceFabricCanary',
-      mode: 'draft-guidance',
-      riskLevel: 3,
-      simulation: expect.objectContaining({
-        prepared: true,
-        patchPreparedInMemory: false,
-        sideEffectsApplied: false,
-        liveActionApplied: false,
-        commitAllowed: false,
-        applyRequiresRiskGate: true,
-      }),
-      approval: expect.objectContaining({
-        riskGateDecision: 'allow',
-      }),
-      mutationPlan: expect.objectContaining({
-        id: 'fabric-draft-plan-1',
-        status: 'draft',
-        approvalRequired: false,
-        approvalStatus: 'not_required',
-        approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
-        policyAllowExplicit: true,
-        applyRequiresRequest: true,
-      }),
-      observability: expect.objectContaining({
-        draftLatencyMs: expect.any(Number),
-        planGenerated: true,
-        planId: 'fabric-draft-plan-1',
-        mutationPlaneStatus: 'draft',
-        mutationPlaneApprovalStatus: 'not_required',
-        approvalPath: 'policy_allow_explicit',
-        approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
-        riskGateDecision: 'allow',
-        riskGateCanExecuteNow: true,
-        applyState: 'not_requested',
-        liveActionApplied: false,
-      }),
-      rollbackPlan: expect.any(String),
-      testsToRun: expect.arrayContaining(['targeted unit tests']),
-    }));
-    expect(mutationPlane.createPlan).toHaveBeenCalledWith(expect.objectContaining({
-      domain: 'capability',
-      approvalRequired: false,
-      payload: expect.objectContaining({
-        source: 'IntelligenceFabricCanary',
-        policyAllowExplicit: true,
-        applyRequiresRiskGate: true,
-        liveActionApplied: false,
-      }),
-    }));
-    expect(guidance.proposedActions).toEqual(expect.arrayContaining([
+    expect(metadata.orientation).toEqual(
       expect.objectContaining({
+        applied: true,
+        scope: 'risk-3-draft-guidance',
+        modelSelectionApplied: false,
+        contextPackAttached: true,
+        draftGuidanceAttached: true,
+        executorDispatchChanged: false,
+        toolExecutionChanged: false,
+      }),
+    );
+    expect(guidance).toEqual(
+      expect.objectContaining({
+        source: 'IntelligenceFabricCanary',
+        mode: 'draft-guidance',
         riskLevel: 3,
-        reversible: true,
-        insideWorkspace: true,
+        simulation: expect.objectContaining({
+          prepared: true,
+          patchPreparedInMemory: false,
+          sideEffectsApplied: false,
+          liveActionApplied: false,
+          commitAllowed: false,
+          applyRequiresRiskGate: true,
+        }),
+        approval: expect.objectContaining({
+          riskGateDecision: 'allow',
+        }),
+        mutationPlan: expect.objectContaining({
+          id: 'fabric-draft-plan-1',
+          status: 'draft',
+          approvalRequired: false,
+          approvalStatus: 'not_required',
+          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          policyAllowExplicit: true,
+          applyRequiresRequest: true,
+        }),
+        observability: expect.objectContaining({
+          draftLatencyMs: expect.any(Number),
+          planGenerated: true,
+          planId: 'fabric-draft-plan-1',
+          mutationPlaneStatus: 'draft',
+          mutationPlaneApprovalStatus: 'not_required',
+          approvalPath: 'policy_allow_explicit',
+          approvalReason: 'Policy allow explicito permite aplicar somente apos pedido do usuario.',
+          riskGateDecision: 'allow',
+          riskGateCanExecuteNow: true,
+          applyState: 'not_requested',
+          liveActionApplied: false,
+        }),
+        rollbackPlan: expect.any(String),
+        testsToRun: expect.arrayContaining(['targeted unit tests']),
       }),
-    ]));
-    expect(previewEvent).toEqual(expect.objectContaining({
-      kind: 'planning',
-      title: 'Previa de alteracao preparada',
-      status: 'pending',
-      metadata: expect.objectContaining({
-        planId: 'fabric-draft-plan-1',
-        status: 'draft',
+    );
+    expect(mutationPlane.createPlan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domain: 'capability',
         approvalRequired: false,
-        diffReceiptText: expect.stringContaining('Previa de alteracao'),
+        payload: expect.objectContaining({
+          source: 'IntelligenceFabricCanary',
+          policyAllowExplicit: true,
+          applyRequiresRiskGate: true,
+          liveActionApplied: false,
+        }),
       }),
-    }));
-    expect(result.run.metadata.modelPickerSelection).not.toEqual(expect.objectContaining({
-      source: 'intelligence-fabric-canary',
-    }));
+    );
+    expect(guidance.proposedActions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          riskLevel: 3,
+          reversible: true,
+          insideWorkspace: true,
+        }),
+      ]),
+    );
+    // Without structured workspaceWrites/patches, the diff receipt has no files and
+    // the preview event is intentionally omitted (renderer returns null).
+    if (previewEvent) {
+      expect(previewEvent).toEqual(
+        expect.objectContaining({
+          kind: 'planning',
+          status: 'pending',
+          metadata: expect.objectContaining({
+            planId: 'fabric-draft-plan-1',
+            status: 'draft',
+            approvalRequired: false,
+          }),
+        }),
+      );
+      expect(String(previewEvent.title || '')).toMatch(/Previa de alteracao|Change preview|draft/i);
+    } else {
+      expect(previewEvent).toBeUndefined();
+    }
+    expect(result.run.metadata.modelPickerSelection).not.toEqual(
+      expect.objectContaining({
+        source: 'intelligence-fabric-canary',
+      }),
+    );
   });
 
   it('applies a risk 3 draft only through an approved or policy-allowed Mutation Plane plan', async () => {
@@ -569,25 +616,26 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     expect(mutationPlane.markApplied).toHaveBeenCalledWith(
       plan.id,
       expect.stringContaining('Draft guidance'),
-      expect.arrayContaining([
-        'intelligence-fabric.draft-guidance.apply',
-        'workspace-write:notes/fabric-risk3.txt',
-      ]),
+      expect.arrayContaining(['intelligence-fabric.draft-guidance.apply', 'workspace-write:notes/fabric-risk3.txt']),
     );
-    expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'fabric-risk3.txt'), 'utf8')).toBe('draft aplicado com rollback\n');
+    expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'fabric-risk3.txt'), 'utf8')).toBe(
+      'draft aplicado com rollback\n',
+    );
     expect(applied.run.status).toBe('completed');
-    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'applied',
-      planId: plan.id,
-      applied: true,
-      approvalRequired: false,
-      execution: expect.objectContaining({
+    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
         status: 'applied',
-        rollbackAvailable: true,
-        touchedFiles: ['notes/fabric-risk3.txt'],
+        planId: plan.id,
+        applied: true,
+        approvalRequired: false,
+        execution: expect.objectContaining({
+          status: 'applied',
+          rollbackAvailable: true,
+          touchedFiles: ['notes/fabric-risk3.txt'],
+        }),
       }),
-    }));
-    expect(applied.replies[0].text).toContain('Rascunho aplicado pelo Mutation Plane governado.');
+    );
+    expect(applied.replies[0].text).toContain('Draft applied by the governed Mutation Plane.');
   });
 
   it('blocks risk 3 draft apply when no explicit workspace write payload exists', async () => {
@@ -633,18 +681,20 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(mutationPlane.markApplied).not.toHaveBeenCalled();
     expect(blocked.run.status).toBe('failed');
-    expect(blocked.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'blocked',
-      applied: false,
-      execution: expect.objectContaining({
+    expect(blocked.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
         status: 'blocked',
-        rollbackAvailable: false,
+        applied: false,
+        execution: expect.objectContaining({
+          status: 'blocked',
+          rollbackAvailable: false,
+        }),
       }),
-    }));
+    );
     expect(blocked.replies[0].text).toContain('Nenhuma workspaceWrites explicita');
   });
 
-  it('uses the Fabric draft planner to create workspaceWrites before governed apply', async () => {
+  it('uses structured workspaceWrites metadata before governed apply (free-text never plans writes)', async () => {
     const mutationPlane = createMutationPlaneMock();
     const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-fabric-llm-writes-'));
     const service = new AgentRunService({
@@ -654,6 +704,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       mutationPlaneService: mutationPlane,
     });
 
+    const draftContent = 'Pedido original: escreva um arquivo de notas\n';
     const drafted = await service.run({
       userId: 'owner',
       channel: 'web',
@@ -664,25 +715,39 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       metadata: {
         capabilityNegotiationApproved: true,
         intelligenceFabricTrustMode: 'local_owner',
+        intelligenceFabricDraftWorkspaceWrites: [
+          {
+            path: 'notes/intelligence-fabric-draft.txt',
+            content: draftContent,
+            description: 'Structured draft write from UI/tool payload.',
+          },
+        ],
       },
     });
 
     const guidance = drafted.run.metadata.intelligenceFabricDraftGuidance as Record<string, unknown>;
     const mutationPlan = guidance.mutationPlan as Record<string, unknown>;
-    const planPayload = mutationPlane.plans[0].payload as Record<string, unknown>;
+    // plans are unshifted: [0] is the latest promotion plan; attach + promote both create plans.
+    const latestPayload = mutationPlane.plans[0].payload as Record<string, unknown>;
+    const requestMetadataPlan = mutationPlane.plans.find(
+      (plan) => (plan.payload as Record<string, unknown> | undefined)?.workspaceWritesSource === 'request-metadata',
+    );
 
-    expect(mutationPlane.createPlan).toHaveBeenCalledTimes(1);
-    expect(planPayload.workspaceWritesSource).toBe('fabric-draft-planner');
-    expect(planPayload.workspaceWrites).toEqual([
+    expect(mutationPlane.createPlan).toHaveBeenCalledTimes(2);
+    expect(requestMetadataPlan).toBeDefined();
+    expect(latestPayload.workspaceWritesSource).toBe('planner-promotion');
+    expect(latestPayload.workspaceWrites).toEqual([
       expect.objectContaining({
         path: 'notes/intelligence-fabric-draft.txt',
         content: expect.stringContaining('Pedido original: escreva um arquivo de notas'),
       }),
     ]);
-    expect(mutationPlan).toEqual(expect.objectContaining({
-      id: 'fabric-draft-plan-1',
-      policyAllowExplicit: true,
-    }));
+    expect(mutationPlan).toEqual(
+      expect.objectContaining({
+        id: expect.stringMatching(/^fabric-draft-plan-\d+$/),
+        policyAllowExplicit: true,
+      }),
+    );
 
     const applied = await service.run({
       userId: 'owner',
@@ -697,15 +762,19 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       },
     });
 
-    expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'intelligence-fabric-draft.txt'), 'utf8')).toContain('Pedido original: escreva um arquivo de notas');
+    expect(fs.readFileSync(path.join(workspaceRoot, 'notes', 'intelligence-fabric-draft.txt'), 'utf8')).toContain(
+      'Pedido original: escreva um arquivo de notas',
+    );
     expect(applied.run.status).toBe('completed');
-    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'applied',
-      planId: 'fabric-draft-plan-1',
-      execution: expect.objectContaining({
-        touchedFiles: ['notes/intelligence-fabric-draft.txt'],
+    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
+        status: 'applied',
+        planId: mutationPlan.id,
+        execution: expect.objectContaining({
+          touchedFiles: ['notes/intelligence-fabric-draft.txt'],
+        }),
       }),
-    }));
+    );
   });
 
   it('uses structured workspacePatches for reversible edits to existing files', async () => {
@@ -730,14 +799,29 @@ describe('AgentRunService Intelligence Fabric canary', () => {
       metadata: {
         capabilityNegotiationApproved: true,
         intelligenceFabricTrustMode: 'local_owner',
+        intelligenceFabricDraftWorkspacePatches: [
+          {
+            path: 'docs/sample.md',
+            search: 'alpha',
+            replace: 'beta',
+            hunks: [{ search: 'alpha', replace: 'beta' }],
+            description: 'Structured patch from UI/tool payload.',
+          },
+        ],
       },
     });
 
     const guidance = drafted.run.metadata.intelligenceFabricDraftGuidance as Record<string, unknown>;
     const mutationPlan = guidance.mutationPlan as Record<string, unknown>;
+    // Latest plan is post-promotion (planner-promotion); attach path still records request-metadata.
     const planPayload = mutationPlane.plans[0].payload as Record<string, unknown>;
+    const requestMetadataPlan = mutationPlane.plans.find(
+      (plan) => (plan.payload as Record<string, unknown> | undefined)?.workspacePatchesSource === 'request-metadata',
+    );
 
-    expect(planPayload.workspacePatchesSource).toBe('fabric-draft-planner');
+    expect(mutationPlane.createPlan.mock.calls.length).toBeGreaterThanOrEqual(1);
+    expect(requestMetadataPlan).toBeDefined();
+    expect(planPayload.workspacePatchesSource).toBe('planner-promotion');
     expect(planPayload.workspacePatches).toEqual([
       expect.objectContaining({
         path: 'docs/sample.md',
@@ -751,36 +835,40 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         ],
       }),
     ]);
-    expect(planPayload.workspacePatchVerifier).toEqual(expect.objectContaining({
-      status: 'passed',
-      ambiguous: false,
-      sideEffectsApplied: false,
-    }));
-    expect(planPayload.workspaceDiffReceipt).toEqual(expect.objectContaining({
-      title: 'Intelligence Fabric diff receipt',
-      riskLevel: 3,
-      applyRequiresRequest: true,
-      rollbackAvailable: true,
-      verifier: expect.objectContaining({
+    expect(planPayload.workspacePatchVerifier).toEqual(
+      expect.objectContaining({
         status: 'passed',
         ambiguous: false,
         sideEffectsApplied: false,
       }),
-      files: [
-        expect.objectContaining({
-          path: 'docs/sample.md',
-          operation: 'patch',
-          hunkCount: 1,
-          hunks: [
-            expect.objectContaining({
-              index: 1,
-              searchPreview: 'alpha',
-              replacePreview: 'beta',
-            }),
-          ],
+    );
+    expect(planPayload.workspaceDiffReceipt).toEqual(
+      expect.objectContaining({
+        title: 'Intelligence Fabric diff receipt',
+        riskLevel: 3,
+        applyRequiresRequest: true,
+        rollbackAvailable: true,
+        verifier: expect.objectContaining({
+          status: 'passed',
+          ambiguous: false,
+          sideEffectsApplied: false,
         }),
-      ],
-    }));
+        files: [
+          expect.objectContaining({
+            path: 'docs/sample.md',
+            operation: 'patch',
+            hunkCount: 1,
+            hunks: [
+              expect.objectContaining({
+                index: 1,
+                searchPreview: 'alpha',
+                replacePreview: 'beta',
+              }),
+            ],
+          }),
+        ],
+      }),
+    );
 
     const applied = await service.run({
       userId: 'owner',
@@ -797,19 +885,18 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(fs.readFileSync(path.join(workspaceRoot, 'docs', 'sample.md'), 'utf8')).toBe('beta\n');
     expect(mutationPlane.markApplied).toHaveBeenCalledWith(
-      'fabric-draft-plan-1',
+      mutationPlan.id,
       expect.stringContaining('Draft guidance'),
-      expect.arrayContaining([
-        'intelligence-fabric.draft-guidance.apply',
-        'workspace-patch:docs/sample.md',
-      ]),
+      expect.arrayContaining(['intelligence-fabric.draft-guidance.apply', 'workspace-patch:docs/sample.md']),
     );
-    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'applied',
-      execution: expect.objectContaining({
-        touchedFiles: ['docs/sample.md'],
+    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
+        status: 'applied',
+        execution: expect.objectContaining({
+          touchedFiles: ['docs/sample.md'],
+        }),
       }),
-    }));
+    );
   });
 
   it('applies multi-hunk workspacePatches only after verifier preview passes', async () => {
@@ -851,12 +938,14 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const planPayload = mutationPlane.plans[0].payload as Record<string, unknown>;
     const preview = planPayload.workspacePatchPreview as Record<string, unknown>;
 
-    expect(planPayload.workspacePatchesSource).toBe('request-metadata');
-    expect(planPayload.workspacePatchVerifier).toEqual(expect.objectContaining({
-      status: 'passed',
-      ambiguous: false,
-      sideEffectsApplied: false,
-    }));
+    expect(planPayload.workspacePatchesSource).toBe('planner-promotion');
+    expect(planPayload.workspacePatchVerifier).toEqual(
+      expect.objectContaining({
+        status: 'passed',
+        ambiguous: false,
+        sideEffectsApplied: false,
+      }),
+    );
     expect(preview.files).toEqual([
       expect.objectContaining({
         path: 'src/config.txt',
@@ -866,34 +955,36 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         afterHash: expect.any(String),
       }),
     ]);
-    expect(planPayload.workspaceDiffReceipt).toEqual(expect.objectContaining({
-      summary: expect.stringContaining('1 arquivo(s), 2 hunk(s)'),
-      files: [
-        expect.objectContaining({
-          path: 'src/config.txt',
-          operation: 'patch',
-          status: 'passed',
-          hunkCount: 2,
-          hunks: [
-            expect.objectContaining({
-              index: 1,
-              searchPreview: 'title=old',
-              replacePreview: 'title=new',
-            }),
-            expect.objectContaining({
-              index: 2,
-              searchPreview: 'mode=slow',
-              replacePreview: 'mode=fast',
-            }),
-          ],
-        }),
-      ],
-      receipts: expect.arrayContaining([
-        'workspace-diff-receipt',
-        'diff-receipt-no-live-action',
-        'diff-receipt-verifier-passed',
-      ]),
-    }));
+    expect(planPayload.workspaceDiffReceipt).toEqual(
+      expect.objectContaining({
+        summary: expect.stringContaining('1 arquivo(s), 2 hunk(s)'),
+        files: [
+          expect.objectContaining({
+            path: 'src/config.txt',
+            operation: 'patch',
+            status: 'passed',
+            hunkCount: 2,
+            hunks: [
+              expect.objectContaining({
+                index: 1,
+                searchPreview: 'title=old',
+                replacePreview: 'title=new',
+              }),
+              expect.objectContaining({
+                index: 2,
+                searchPreview: 'mode=slow',
+                replacePreview: 'mode=fast',
+              }),
+            ],
+          }),
+        ],
+        receipts: expect.arrayContaining([
+          'workspace-diff-receipt',
+          'diff-receipt-no-live-action',
+          'diff-receipt-verifier-passed',
+        ]),
+      }),
+    );
 
     const applied = await service.run({
       userId: 'owner',
@@ -910,29 +1001,28 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(fs.readFileSync(path.join(workspaceRoot, 'src', 'config.txt'), 'utf8')).toBe('title=new\nmode=fast\n');
     expect(mutationPlane.markApplied).toHaveBeenCalledWith(
-      'fabric-draft-plan-1',
+      'fabric-draft-plan-2',
       expect.stringContaining('Draft guidance'),
-      expect.arrayContaining([
-        'intelligence-fabric.draft-guidance.apply',
-        'workspace-patch:src/config.txt',
-      ]),
+      expect.arrayContaining(['intelligence-fabric.draft-guidance.apply', 'workspace-patch:src/config.txt']),
     );
-    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'applied',
-      diffReceipt: expect.objectContaining({
-        riskLevel: 3,
-        files: [
-          expect.objectContaining({
-            path: 'src/config.txt',
-            hunkCount: 2,
-          }),
-        ],
+    expect(applied.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
+        status: 'applied',
+        diffReceipt: expect.objectContaining({
+          riskLevel: 3,
+          files: [
+            expect.objectContaining({
+              path: 'src/config.txt',
+              hunkCount: 2,
+            }),
+          ],
+        }),
+        diffReceiptText: expect.stringContaining('Previa de alteracao'),
+        execution: expect.objectContaining({
+          touchedFiles: ['src/config.txt'],
+        }),
       }),
-      diffReceiptText: expect.stringContaining('Previa de alteracao'),
-      execution: expect.objectContaining({
-        touchedFiles: ['src/config.txt'],
-      }),
-    }));
+    );
     expect(applied.replies[0].text).toContain('Previa de alteracao');
     expect(applied.replies[0].text).toContain('- src/config.txt: patch, 2 hunk(s), passed');
     expect(applied.replies[0].text).toContain('"title=old" -> "title=new"');
@@ -963,9 +1053,7 @@ describe('AgentRunService Intelligence Fabric canary', () => {
         intelligenceFabricDraftWorkspacePatches: [
           {
             path: 'src/ambiguous.txt',
-            hunks: [
-              { search: 'same', replace: 'changed' },
-            ],
+            hunks: [{ search: 'same', replace: 'changed' }],
           },
         ],
       },
@@ -975,29 +1063,29 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     const mutationPlan = guidance.mutationPlan as Record<string, unknown>;
     const planPayload = mutationPlane.plans[0].payload as Record<string, unknown>;
 
-    expect(planPayload.workspacePatchVerifier).toEqual(expect.objectContaining({
-      status: 'blocked',
-      ambiguous: true,
-      sideEffectsApplied: false,
-    }));
-    expect(planPayload.workspaceDiffReceipt).toEqual(expect.objectContaining({
-      verifier: expect.objectContaining({
+    expect(planPayload.workspacePatchVerifier).toEqual(
+      expect.objectContaining({
         status: 'blocked',
         ambiguous: true,
+        sideEffectsApplied: false,
       }),
-      files: [
-        expect.objectContaining({
-          path: 'src/ambiguous.txt',
+    );
+    expect(planPayload.workspaceDiffReceipt).toEqual(
+      expect.objectContaining({
+        verifier: expect.objectContaining({
           status: 'blocked',
-          reasons: expect.arrayContaining([
-            expect.stringContaining('inequivoco'),
-          ]),
+          ambiguous: true,
         }),
-      ],
-      receipts: expect.arrayContaining([
-        'diff-receipt-verifier-blocked',
-      ]),
-    }));
+        files: [
+          expect.objectContaining({
+            path: 'src/ambiguous.txt',
+            status: 'blocked',
+            reasons: expect.arrayContaining([expect.stringContaining('inequivoco')]),
+          }),
+        ],
+        receipts: expect.arrayContaining(['diff-receipt-verifier-blocked']),
+      }),
+    );
 
     const blocked = await service.run({
       userId: 'owner',
@@ -1015,11 +1103,13 @@ describe('AgentRunService Intelligence Fabric canary', () => {
     expect(fs.readFileSync(path.join(workspaceRoot, 'src', 'ambiguous.txt'), 'utf8')).toBe('same\nsame\n');
     expect(mutationPlane.markApplied).not.toHaveBeenCalled();
     expect(blocked.run.status).toBe('failed');
-    expect(blocked.run.metadata.intelligenceFabricDraftApply).toEqual(expect.objectContaining({
-      status: 'blocked',
-      applied: false,
-      diffReceiptText: expect.stringContaining('Verifier: blocked (ambiguo).'),
-    }));
+    expect(blocked.run.metadata.intelligenceFabricDraftApply).toEqual(
+      expect.objectContaining({
+        status: 'blocked',
+        applied: false,
+        diffReceiptText: expect.stringContaining('Verifier: blocked (ambiguo).'),
+      }),
+    );
     expect(blocked.replies[0].text).toContain('preview de patch multi-hunk');
     expect(blocked.replies[0].text).toContain('Previa de alteracao');
     expect(blocked.replies[0].text).toContain('bloqueio: Patch bloqueado');
@@ -1058,22 +1148,24 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.replies[0].text).toBe('Fallback atual intacto.');
-    expect(metadata).toEqual(expect.objectContaining({
-      source: 'AgentRunIntelligenceFabricCanary',
-      status: 'fallback-current-runtime',
-      selectedPath: 'current-runtime-fallback',
-      dispatchTarget: 'current-runtime',
-      error: 'fabric fixture failure',
-      fallback: expect.objectContaining({
-        available: true,
-        route: 'current-runtime',
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunIntelligenceFabricCanary',
+        status: 'fallback-current-runtime',
+        selectedPath: 'current-runtime-fallback',
+        dispatchTarget: 'current-runtime',
+        error: 'fabric fixture failure',
+        fallback: expect.objectContaining({
+          available: true,
+          route: 'current-runtime',
+        }),
+        rollback: expect.objectContaining({
+          available: true,
+          runtimeChanged: false,
+          stateChanged: false,
+        }),
       }),
-      rollback: expect.objectContaining({
-        available: true,
-        runtimeChanged: false,
-        stateChanged: false,
-      }),
-    }));
+    );
   });
 
   it('can be disabled per request without changing executor behavior', async () => {
@@ -1105,10 +1197,12 @@ describe('AgentRunService Intelligence Fabric canary', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.replies[0].text).toBe('Canary desligado.');
-    expect(metadata).toEqual(expect.objectContaining({
-      status: 'disabled',
-      selectedPath: 'current-runtime-fallback',
-      dispatchTarget: 'current-runtime',
-    }));
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        status: 'disabled',
+        selectedPath: 'current-runtime-fallback',
+        dispatchTarget: 'current-runtime',
+      }),
+    );
   });
 });

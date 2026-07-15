@@ -1,16 +1,15 @@
-import type {
-  ZavorthTransactionApprovalLedgerEntry,
-} from './ZavorthTransactionApprovalContract.js';
+import type { ZavorthTransactionApprovalLedgerEntry } from './ZavorthTransactionApprovalContract.js';
 import type {
   ZavorthTransactionConnectorMode,
   ZavorthTransactionConnectorRunResult,
 } from './ZavorthTransactionConnectorContract.js';
+import type { ZavorthTransactionCredentialValidationResult } from './ZavorthTransactionCredentialContract.js';
 import type {
-  ZavorthTransactionCredentialValidationResult,
-} from './ZavorthTransactionCredentialContract.js';
-import type {
-  ZavorthTransactionPreview,
-} from './ZavorthTransactionPreviewContract.js';
+  ZavorthTransactionIntentKind,
+  ZavorthTransactionIntentTargetKind,
+} from './ZavorthTransactionIntentContract.js';
+import type { ZavorthTransactionActionKind } from './ZavorthTransactionPlaneContract.js';
+import type { ZavorthTransactionPreview } from './ZavorthTransactionPreviewContract.js';
 
 export const ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION = 'zavorth-transaction-runtime/checkpoint-6' as const;
 
@@ -31,6 +30,10 @@ export type ZavorthTransactionRuntimeStage =
 
 export type ZavorthTransactionRuntimeRunInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: ZavorthTransactionIntentKind;
+  actionKind?: ZavorthTransactionActionKind;
+  targetKind?: ZavorthTransactionIntentTargetKind;
   channel?: string;
   mode?: ZavorthTransactionConnectorMode;
   approve?: boolean;
@@ -80,7 +83,14 @@ export function buildZavorthTransactionRuntimeContractSnapshot(): ZavorthTransac
   return {
     version: ZAVORTH_TRANSACTION_RUNTIME_CONTRACT_VERSION,
     summary: 'End-to-end natural transaction runtime orchestrator for Zavorth Transaction Plane Runtime gateway.',
-    statuses: ['preview-ready', 'approval-required', 'credential-required', 'simulated', 'blocked', 'needs-clarification'],
+    statuses: [
+      'preview-ready',
+      'approval-required',
+      'credential-required',
+      'simulated',
+      'blocked',
+      'needs-clarification',
+    ],
     phases: ['intent', 'preview', 'approval-ledger', 'credential-validation', 'typed-connector'],
     invariants: [
       'Runtime gateway orchestrates existing transaction phases but does not introduce live execution.',

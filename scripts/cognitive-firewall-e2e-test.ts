@@ -18,18 +18,109 @@ import type { ToolDefinition } from '../src/providers/ILlmProvider';
 
 // ── Mock tool registry ──────────────────────────────────────────
 const ALL_TOOLS: ToolDefinition[] = [
-  { name: 'web_search', description: 'Search the web for information. Returns relevant results.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Search query' } }, required: ['query'] } },
-  { name: 'read_file', description: 'Read a file from the workspace. Returns file contents.', parameters: { type: 'object', properties: { path: { type: 'string', description: 'File path' } }, required: ['path'] } },
-  { name: 'create_file', description: 'Create a new file in the workspace.', parameters: { type: 'object', properties: { path: { type: 'string', description: 'File path' }, content: { type: 'string', description: 'File content' } }, required: ['path', 'content'] } },
-  { name: 'list_directory', description: 'List directory contents.', parameters: { type: 'object', properties: { path: { type: 'string', description: 'Directory path' } }, required: ['path'] } },
-  { name: 'run_sandbox_code', description: 'Execute code in a sandbox environment.', parameters: { type: 'object', properties: { code: { type: 'string', description: 'Code to execute' } }, required: ['code'] } },
-  { name: 'remote_shell', description: 'Execute commands on a remote shell.', parameters: { type: 'object', properties: { command: { type: 'string', description: 'Shell command' } }, required: ['command'] } },
-  { name: 'semantic_memory', description: 'Query semantic memory store.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Memory query' } }, required: ['query'] } },
-  { name: 'configure_llm_profile', description: 'Configure LLM provider settings.', parameters: { type: 'object', properties: { provider: { type: 'string', description: 'Provider name' } }, required: ['provider'] } },
+  {
+    name: 'web_search',
+    description: 'Search the web for information. Returns relevant results.',
+    parameters: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Search query' } },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'read_file',
+    description: 'Read a file from the workspace. Returns file contents.',
+    parameters: {
+      type: 'object',
+      properties: { path: { type: 'string', description: 'File path' } },
+      required: ['path'],
+    },
+  },
+  {
+    name: 'create_file',
+    description: 'Create a new file in the workspace.',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: { type: 'string', description: 'File path' },
+        content: { type: 'string', description: 'File content' },
+      },
+      required: ['path', 'content'],
+    },
+  },
+  {
+    name: 'list_directory',
+    description: 'List directory contents.',
+    parameters: {
+      type: 'object',
+      properties: { path: { type: 'string', description: 'Directory path' } },
+      required: ['path'],
+    },
+  },
+  {
+    name: 'run_sandbox_code',
+    description: 'Execute code in a sandbox environment.',
+    parameters: {
+      type: 'object',
+      properties: { code: { type: 'string', description: 'Code to execute' } },
+      required: ['code'],
+    },
+  },
+  {
+    name: 'remote_shell',
+    description: 'Execute commands on a remote shell.',
+    parameters: {
+      type: 'object',
+      properties: { command: { type: 'string', description: 'Shell command' } },
+      required: ['command'],
+    },
+  },
+  {
+    name: 'semantic_memory',
+    description: 'Query semantic memory store.',
+    parameters: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'Memory query' } },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'configure_llm_profile',
+    description: 'Configure LLM provider settings.',
+    parameters: {
+      type: 'object',
+      properties: { provider: { type: 'string', description: 'Provider name' } },
+      required: ['provider'],
+    },
+  },
   { name: 'get_datetime', description: 'Get current date and time.', parameters: { type: 'object', properties: {} } },
-  { name: 'desktop_automation', description: 'Automate desktop interactions.', parameters: { type: 'object', properties: { action: { type: 'string', description: 'Desktop action' } }, required: ['action'] } },
-  { name: 'query_external_ai', description: 'Query an external AI service.', parameters: { type: 'object', properties: { prompt: { type: 'string', description: 'Prompt to send' } }, required: ['prompt'] } },
-  { name: 'zavorth_action', description: 'Execute a Zavorth system action.', parameters: { type: 'object', properties: { action: { type: 'string', description: 'Action name' } }, required: ['action'] } },
+  {
+    name: 'desktop_automation',
+    description: 'Automate desktop interactions.',
+    parameters: {
+      type: 'object',
+      properties: { action: { type: 'string', description: 'Desktop action' } },
+      required: ['action'],
+    },
+  },
+  {
+    name: 'query_external_ai',
+    description: 'Query an external AI service.',
+    parameters: {
+      type: 'object',
+      properties: { prompt: { type: 'string', description: 'Prompt to send' } },
+      required: ['prompt'],
+    },
+  },
+  {
+    name: 'zavorth_action',
+    description: 'Execute a Zavorth system action.',
+    parameters: {
+      type: 'object',
+      properties: { action: { type: 'string', description: 'Action name' } },
+      required: ['action'],
+    },
+  },
 ];
 
 let passed = 0;
@@ -65,7 +156,10 @@ const predDecision = predictiveFirewall.evaluate('search for TypeScript articles
 assert(predDecision.toolHintProfile.isPredictiveMode === true, 'Predictive mode is active');
 assert(predDecision.toolHintProfile.predictedToolNames !== undefined, 'Predicted tools exist');
 assert(predDecision.toolHintProfile.predictedToolNames!.includes('read_file'), 'read_file predicted');
-assert(predDecision.toolHintProfile.tools.some(t => t.name === 'read_file'), 'read_file in tool set (predicted)');
+assert(
+  predDecision.toolHintProfile.tools.some((t) => t.name === 'read_file'),
+  'read_file in tool set (predicted)',
+);
 
 // ── Test B: Lazy Tool Definition ────────────────────────────────
 console.log('\n═══ B) Lazy Tool Definition ═══');
@@ -103,7 +197,7 @@ assert(clusterDecision.toolHintProfile.isClusterMode === true, 'Cluster mode is 
 assert(clusterDecision.toolHintProfile.activeClusters !== undefined, 'Active clusters exist');
 assert(clusterDecision.toolHintProfile.activeClusters!.includes('file_ops'), 'file_ops cluster active');
 
-const clusterTools = clusterDecision.toolHintProfile.tools.map(t => t.name);
+const clusterTools = clusterDecision.toolHintProfile.tools.map((t) => t.name);
 assert(clusterTools.includes('read_file'), 'read_file in cluster tools');
 assert(clusterTools.includes('create_file'), 'create_file in cluster tools');
 assert(clusterTools.includes('list_directory'), 'list_directory in cluster tools');
@@ -140,10 +234,18 @@ const initial = injector.getInitialTools({
   category: 'file_operation',
   confidence: 0.8,
   reason: 'test',
-  isTrivialChat: false,
   isHardDecision: false,
   downgradedBy: [],
-  secondPass: { source: 'ContextualIntentSecondPass', stage: 7, mode: 'local-contextual', verdict: 'confirmed', originalCategory: 'file_operation', finalCategory: 'file_operation', confidenceDelta: 0, signals: [] },
+  secondPass: {
+    source: 'ContextualIntentSecondPass',
+    stage: 7,
+    mode: 'local-contextual',
+    verdict: 'confirmed',
+    originalCategory: 'file_operation',
+    finalCategory: 'file_operation',
+    confidenceDelta: 0,
+    signals: [],
+  },
 });
 
 assert(initial.length <= 2, `Initial tools are minimal (${initial.length})`);

@@ -1,8 +1,4 @@
-import {
-  inferEvidenceDomainFromText,
-  normalizeEvidenceText,
-  type EvidenceSearchDomain,
-} from './EvidenceDomainProfiles.js';
+import { type EvidenceSearchDomain } from './EvidenceDomainProfiles.js';
 
 export type EvidenceSearchMode = 'verified' | 'community' | 'hybrid';
 
@@ -27,130 +23,121 @@ export type EvidenceIntentPlan = {
   reason: string;
   sourceDiversity: EvidenceSourceTrack[];
   answerStyle: 'official-first' | 'community-first' | 'balanced';
+  /** Optional free-text annotations only — never product mode/domain activation. */
+  signalHints?: string[];
 };
 
 export type EvidenceIntentPlannerInput = {
   query: string;
   domain?: EvidenceSearchDomain | 'auto' | null;
   userRequestedMode?: EvidenceSearchMode | 'auto' | null;
+  risk?: EvidenceRiskLevel | null;
 };
 
-const HIGH_STAKES_DOMAINS = new Set<EvidenceSearchDomain>([
-  'medical',
-  'legal',
-  'finance',
-  'public_policy',
-]);
+const HIGH_STAKES_DOMAINS = new Set<EvidenceSearchDomain>(['medical', 'legal', 'finance', 'public_policy']);
 
-const COMMUNITY_SOURCE_HINTS = /\b(reddit|x\.com|twitter|hacker\s*news|hn|forum|forums?|stack\s*overflow|stackoverflow|github\s+issues?|issues?|discussion|opinion|opinions|people\s+say|community|reports?|experiences?|user\s+reviews?)\b/;
-const TROUBLESHOOTING_HINTS = /\b(bug|erro|error|crash|issue|falha|quebra|quebrou|nao\s+funciona|not\s+working|como\s+resolver|resolver|fix|setup|configurar|config|instalar|install|workaround|compatibilidade|regressao|stacktrace|traceback)\b/;
-const FORMAL_EVIDENCE_HINTS = /\b(official|docs?|guideline|regulation|law|legislation|jurisprudence|pubmed|anvisa|fda|who|nih|cdc|sec|paper|doi|scientific\s+article|clinical\s+trial)\b/;
-const REVIEW_OR_DECISION_HINTS = /\b(review|evaluation|worth\s+it|cost[-\s]?benefit|comparative|compare|vs\.?|versus|benchmark|best|opinions?|experiences?)\b/;
-const CURRENT_PUBLIC_DISCUSSION_HINTS = /\b(viral|trending|trend|debate|controversia|repercussao|lancamento|novo\s+modelo|nova\s+versao|recente|latest|today|hoje|agora)\b/;
-
+/**
+ * Evidence product routing is structured-only.
+ * Free-text keywords never select domain/mode/risk; callers pass domain /
+ * userRequestedMode / risk when known. Free-text-only plans stay neutral.
+ */
 export class EvidenceIntentPlanner {
   public plan(input: EvidenceIntentPlannerInput | string): EvidenceIntentPlan {
-    const query = typeof input === 'string' ? input : input.query;
-    const requestedMode = typeof input === 'string' ? null : input.userRequestedMode;
-    const domainInput = typeof input === 'string' ? null : input.domain;
-    const normalized = normalizeEvidenceText(query);
-    const domain =
-      domainInput && domainInput !== 'auto'
-        ? domainInput
-        : inferEvidenceDomainFromText(normalized);
-    const risk = this.inferRisk(domain, normalized);
-    const signals = this.detectSignals(normalized);
+    const isStructured = typeof input !== 'string';
+    const query = isStructured ? input.query : input;
+    const requestedMode = isStructured ? input.userRequestedMode : null;
+    const domainInput = isStructured ? input.domain : null;
+    const riskInput = isStructured ? input.risk : null;
+    const hasStructuredDomain = Boolean(domainInput && domainInput !== 'auto');
+    const hasStructuredMode = Boolean(requestedMode && requestedMode !== 'auto');
+    const hasStructuredRisk = Boolean(riskInput);
 
-    if (requestedMode && requestedMode !== 'auto') {
+    // Free-text alone → general. Structured domain (including high-stakes) is caller-owned.
+    const domain: EvidenceSearchDomain = hasStructuredDomain ? (domainInput as EvidenceSearchDomain) : 'general';
+
+    // Free-text alone or unspecified mode → hybrid (neutral). Explicit mode wins.
+    // High-stakes structured domains default to verified (domain policy, not free-text).
+    const mode: EvidenceSearchMode = hasStructuredMode
+      ? (requestedMode as EvidenceSearchMode)
+      : hasStructuredDomain && HIGH_STAKES_DOMAINS.has(domain)
+        ? 'verified'
+        : 'hybrid';
+
+    const risk: EvidenceRiskLevel = hasStructuredRisk ? (riskInput as EvidenceRiskLevel) : this.riskFromDomain(domain);
+
+    // Keyword scoring is metadata-only; never changes product mode/domain/risk.
+    const signalHints = this.annotateSignalHints(String(query || ''));
+
+    if (hasStructuredMode) {
       return this.buildPlan({
-        mode: requestedMode,
+        mode,
         domain,
         risk,
         confidence: 0.92,
-        reason: `user explicitly requested ${requestedMode} evidence routing`,
-        signals,
+        reason: `user explicitly requested ${mode} evidence routing`,
+        signalHints,
       });
     }
 
-    if (risk === 'high' && !signals.explicitCommunity && !signals.troubleshooting && !signals.reviewOrDecision) {
+    if (hasStructuredDomain) {
       return this.buildPlan({
-        mode: 'verified',
+        mode,
         domain,
         risk,
-        confidence: signals.formalEvidence ? 0.9 : 0.78,
-        reason: `${domain} evidence is high-stakes and the user did not ask for lived/community reports`,
-        signals,
-      });
-    }
-
-    if (signals.explicitCommunity || (signals.troubleshooting && domain === 'technical')) {
-      return this.buildPlan({
-        mode: 'community',
-        domain,
-        risk,
-        confidence: signals.explicitCommunity ? 0.88 : 0.82,
-        reason: signals.explicitCommunity
-          ? 'user is asking for community discussion, lived experience, or forum signals'
-          : 'technical troubleshooting usually benefits from issues, forums, and real failure reports',
-        signals,
-      });
-    }
-
-    if (signals.reviewOrDecision || signals.currentPublicDiscussion || signals.troubleshooting) {
-      return this.buildPlan({
-        mode: 'hybrid',
-        domain,
-        risk,
-        confidence: signals.reviewOrDecision ? 0.8 : 0.72,
-        reason: 'the request mixes facts with practical judgment, recent discussion, or user experience',
-        signals,
-      });
-    }
-
-    if (signals.formalEvidence || risk === 'high') {
-      return this.buildPlan({
-        mode: 'verified',
-        domain,
-        risk,
-        confidence: 0.76,
-        reason: 'the request asks for formal or primary evidence',
-        signals,
+        confidence: 0.85,
+        reason: HIGH_STAKES_DOMAINS.has(domain)
+          ? `structured ${domain} domain uses verified-first evidence routing`
+          : `structured ${domain} domain with neutral hybrid evidence routing`,
+        signalHints,
       });
     }
 
     return this.buildPlan({
       mode: 'hybrid',
-      domain,
-      risk,
-      confidence: 0.62,
-      reason: 'no single source family is clearly dominant, so use balanced evidence routing',
-      signals,
+      domain: 'general',
+      risk: 'low',
+      confidence: 0.5,
+      reason:
+        'free-text-only intent stays neutral (general/hybrid); structured domain/mode required for product routing',
+      signalHints,
     });
   }
 
-  private detectSignals(normalized: string) {
-    return {
-      explicitCommunity: COMMUNITY_SOURCE_HINTS.test(normalized),
-      troubleshooting: TROUBLESHOOTING_HINTS.test(normalized),
-      formalEvidence: FORMAL_EVIDENCE_HINTS.test(normalized),
-      reviewOrDecision: REVIEW_OR_DECISION_HINTS.test(normalized),
-      currentPublicDiscussion: CURRENT_PUBLIC_DISCUSSION_HINTS.test(normalized),
-    };
+  /**
+   * Annotate free-text hints for observability only.
+   * Must not drive mode/domain/risk product activation.
+   */
+  private annotateSignalHints(query: string): string[] {
+    const normalized = String(query || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!normalized) {
+      return [];
+    }
+
+    const hints: string[] = [];
+    if (/\b(reddit|forum|community|stackoverflow|github\s+issues?)\b/.test(normalized)) {
+      hints.push('community-mention');
+    }
+    if (/\b(bug|erro|error|crash|workaround|fix)\b/.test(normalized)) {
+      hints.push('troubleshooting-mention');
+    }
+    if (/\b(official|docs?|guideline|regulation|pubmed|fda|anvisa)\b/.test(normalized)) {
+      hints.push('formal-evidence-mention');
+    }
+    return hints;
   }
 
-  private inferRisk(domain: EvidenceSearchDomain, normalized: string): EvidenceRiskLevel {
+  private riskFromDomain(domain: EvidenceSearchDomain): EvidenceRiskLevel {
     if (HIGH_STAKES_DOMAINS.has(domain)) {
       return 'high';
     }
-
-    if (/\b(seguranca|security|vulnerabilidade|vulnerability|exploit|malware|phishing|credenciais?|secrets?|privacidade|privacy|investimento|diagnostico|tratamento|processo\s+judicial)\b/.test(normalized)) {
-      return 'high';
-    }
-
     if (domain === 'scientific' || domain === 'technical' || domain === 'consumer') {
       return 'medium';
     }
-
     return 'low';
   }
 
@@ -160,7 +147,7 @@ export class EvidenceIntentPlanner {
     risk: EvidenceRiskLevel;
     confidence: number;
     reason: string;
-    signals: ReturnType<EvidenceIntentPlanner['detectSignals']>;
+    signalHints: string[];
   }): EvidenceIntentPlan {
     return {
       mode: input.mode,
@@ -168,22 +155,19 @@ export class EvidenceIntentPlanner {
       risk: input.risk,
       confidence: input.confidence,
       reason: input.reason,
-      sourceDiversity: this.sourceDiversityFor(input.mode, input.domain, input.signals),
+      sourceDiversity: this.sourceDiversityFor(input.mode, input.domain),
       answerStyle: this.answerStyleFor(input.mode, input.risk),
+      signalHints: input.signalHints.length > 0 ? input.signalHints : undefined,
     };
   }
 
-  private sourceDiversityFor(
-    mode: EvidenceSearchMode,
-    domain: EvidenceSearchDomain,
-    signals: ReturnType<EvidenceIntentPlanner['detectSignals']>,
-  ): EvidenceSourceTrack[] {
+  private sourceDiversityFor(mode: EvidenceSearchMode, domain: EvidenceSearchDomain): EvidenceSourceTrack[] {
     if (mode === 'community') {
       const tracks: EvidenceSourceTrack[] = ['community', 'issue-tracker'];
       if (domain === 'technical') {
         tracks.push('repository', 'vendor');
       }
-      if (signals.reviewOrDecision) {
+      if (domain === 'consumer') {
         tracks.push('benchmark');
       }
       return Array.from(new Set(tracks));

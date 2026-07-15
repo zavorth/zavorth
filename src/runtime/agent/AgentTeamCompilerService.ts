@@ -234,17 +234,21 @@ function normalizeText(value: unknown, fallback = ''): string {
 }
 
 function normalizeKey(value: unknown, fallback = 'agent'): string {
-  return normalizeText(value, fallback)
-    .toLowerCase()
-    .replace(/[^a-z0-9_.:-]+/g, '-')
-    .replace(/^-+|-+$/g, '') || fallback;
+  return (
+    normalizeText(value, fallback)
+      .toLowerCase()
+      .replace(/[^a-z0-9_.:-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || fallback
+  );
 }
 
 function safeSegment(value: unknown, fallback = 'agent'): string {
-  return normalizeKey(value, fallback)
-    .replace(/[:]+/g, '-')
-    .replace(/[^a-z0-9_.-]+/g, '-')
-    .replace(/^-+|-+$/g, '') || fallback;
+  return (
+    normalizeKey(value, fallback)
+      .replace(/[:]+/g, '-')
+      .replace(/[^a-z0-9_.-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || fallback
+  );
 }
 
 function addMinutesIso(value: string, minutes: number): string | null {
@@ -256,17 +260,15 @@ function addMinutesIso(value: string, minutes: number): string | null {
 }
 
 function recordOrNull(value: unknown): LooseRecord | null {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as LooseRecord
-    : null;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as LooseRecord) : null;
 }
 
 function listRecords(value: unknown): LooseRecord[] {
   return Array.isArray(value)
     ? value.flatMap((entry) => {
-      const record = recordOrNull(entry);
-      return record ? [record] : [];
-    })
+        const record = recordOrNull(entry);
+        return record ? [record] : [];
+      })
     : [];
 }
 
@@ -330,25 +332,25 @@ function labelForKind(kind: AgentTeamCompilerRoleKind, roleId: string): string {
 }
 
 function objectiveForKind(kind: AgentTeamCompilerRoleKind, run: UniversalAgentRun): string {
-  const objective = redactText(run.input, 'pedido da run');
+  const objective = redactText(run.input, 'run request');
   switch (kind) {
     case 'researcher':
       return `Gather context and risks for: ${objective}`;
     case 'implementer':
-      return `Preparar patch ou execucao governada para: ${objective}`;
+      return `Prepare a governed patch or execution for: ${objective}`;
     case 'verifier':
-      return `Validar criterios, testes e regressao para: ${objective}`;
+      return `Validate criteria, tests, and regression for: ${objective}`;
     case 'provider-specialist':
       return 'Compare provider/model using Provider Arena before running subagents.';
     case 'safety-reviewer':
-      return 'Revisar policy, approval, budget e quarantine antes de liberar lancamento.';
+      return 'Review policy, approval, budget, and quarantine before allowing launch.';
     case 'memory-curator':
-      return 'Reutilizar receipts e artifacts relevantes sem gravar memoria automaticamente.';
+      return 'Reuse relevant receipts and artifacts without writing memory automatically.';
     case 'operator-liaison':
-      return 'Preparar handoff claro para decisao do operador.';
+      return 'Prepare a clear handoff for the operator decision.';
     case 'planner':
     default:
-      return `Decompor o objetivo em plano executavel e governado: ${objective}`;
+      return `Decompose the objective into an executable governed plan: ${objective}`;
   }
 }
 
@@ -415,14 +417,12 @@ export class AgentTeamCompilerService {
       generatedAt,
     });
     const requestedSwarm = this.isTeamIntent(run);
-    const roles = requestedSwarm
-      ? this.compileRoles(run).slice(0, 8)
-      : [];
+    const roles = requestedSwarm ? this.compileRoles(run).slice(0, 8) : [];
     const receipts = this.buildReceipts(run, roles, observatory.receipts.length, requestedSwarm);
     const status = this.resolveStatus(run, roles, requestedSwarm);
     const edges = this.buildEdges(roles);
     const approvalId = `agent-team-approval:${run.id}`;
-    const cliCommand = `zavorth agent-team "${redactText(run.input, 'pedido', 80)}"`;
+    const cliCommand = `zavorth agent-team "${redactText(run.input, 'request', 80)}"`;
 
     return {
       contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
@@ -455,14 +455,14 @@ export class AgentTeamCompilerService {
         required: requestedSwarm && roles.length > 0,
         approvalId,
         reason: requestedSwarm
-          ? 'Lancar Agent Team exige approval explicito, budget e escopo revisados.'
-          : 'Sem launch de Agent Team necessario para esta run.',
+          ? 'Launching an Agent Team requires explicit approval plus reviewed budget and scope.'
+          : 'No Agent Team launch needed for this run.',
         expiresAt: addMinutesIso(generatedAt, 30),
       },
       launch: {
         mode: 'approval-gated-team-run',
         previewCommand: `${cliCommand} --json`,
-        launchCommand: `zavorth agent-team launch "${redactText(run.input, 'pedido', 80)}" --approval-id ${approvalId}`,
+        launchCommand: `zavorth agent-team launch "${redactText(run.input, 'request', 80)}" --approval-id ${approvalId}`,
         inspectCommand: `zavorth agent-team inspect ${run.id}`,
         synthesizeCommand: `zavorth agent-team synthesize ${run.id}`,
         synthesisRequired: true,
@@ -484,8 +484,8 @@ export class AgentTeamCompilerService {
       surface: {
         cliCommand,
         zavorthControlPath: '/zavorthControl?sector=agents',
-        previewHint: 'Use o plano compilado para revisar roles, scopes, provider e receipts antes de aprovar.',
-        approvalHint: 'Lancar subagentes exige approval explicito do Swarm/AgentRunService.',
+        previewHint: 'Use the compiled plan to review roles, scopes, provider, and receipts before approving.',
+        approvalHint: 'Launching subagents requires explicit approval from Swarm/AgentRunService.',
       },
       nextSafeAction: this.resolveNextSafeAction(status, roles),
     };
@@ -503,38 +503,36 @@ export class AgentTeamCompilerService {
     const providedApprovalId = normalizeText(input.approvalId) || null;
     const approvalMatched = Boolean(expectedApprovalId && providedApprovalId === expectedApprovalId);
     const initialBlockedReasons = this.resolveLaunchBlockedReasons(snapshot, approvalMatched);
-    const candidateTurns = initialBlockedReasons.length === 0
-      ? this.prepareLaunchTurns(snapshot, `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`)
-      : [];
+    const candidateTurns =
+      initialBlockedReasons.length === 0
+        ? this.prepareLaunchTurns(snapshot, `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`)
+        : [];
     const blockedReasons = unique([
       ...initialBlockedReasons,
-      ...(
-        initialBlockedReasons.length === 0
-          ? this.resolvePeerReviewBlockedReasons(snapshot, candidateTurns)
-          : []
-      ),
+      ...(initialBlockedReasons.length === 0 ? this.resolvePeerReviewBlockedReasons(snapshot, candidateTurns) : []),
     ]);
     const status: AgentTeamCompilerLaunchStatus = blockedReasons.length > 0 ? 'blocked' : 'prepared';
     const teamRunId = `agent-team-run-${safeSegment(snapshot.identifiers.runId, 'run')}`;
-    const roles = status === 'prepared'
-      ? snapshot.roles.map((role) => this.prepareLaunchRole(role))
-      : snapshot.roles.map((role) => ({
-        roleId: role.roleId,
-        kind: role.kind,
-        status: 'blocked' as const,
-        scopeMode: role.scope.mode,
-        allowedTools: [...role.scope.allowedTools],
-        budget: { ...role.budget },
-        reviewRequired: true,
-        evidenceRefs: [],
-      }));
-    const turns = status === 'prepared'
-      ? candidateTurns
-      : [];
+    const roles =
+      status === 'prepared'
+        ? snapshot.roles.map((role) => this.prepareLaunchRole(role))
+        : snapshot.roles.map((role) => ({
+            roleId: role.roleId,
+            kind: role.kind,
+            status: 'blocked' as const,
+            scopeMode: role.scope.mode,
+            allowedTools: [...role.scope.allowedTools],
+            budget: { ...role.budget },
+            reviewRequired: true,
+            evidenceRefs: [],
+          }));
+    const turns = status === 'prepared' ? candidateTurns : [];
     const requiredEvidenceRefs = turns.map((turn) => turn.id);
-    const reviewerRoleIds = unique(snapshot.roles
-      .filter((role) => role.kind === 'verifier' || role.kind === 'safety-reviewer')
-      .map((role) => role.roleId));
+    const reviewerRoleIds = unique(
+      snapshot.roles
+        .filter((role) => role.kind === 'verifier' || role.kind === 'safety-reviewer')
+        .map((role) => role.roleId),
+    );
     return {
       contractVersion: AGENT_TEAM_COMPILER_CONTRACT_VERSION,
       source: 'AgentTeamCompilerService',
@@ -555,9 +553,10 @@ export class AgentTeamCompilerService {
         command: `zavorth agent-team synthesize ${teamRunId}`,
         requiredEvidenceRefs,
         reviewerRoleIds,
-        summary: status === 'prepared'
-          ? 'Team run preparado com claims, peer review e entrada obrigatoria de sintese final.'
-          : 'Team run blocked before preparing claims/reviews.',
+        summary:
+          status === 'prepared'
+            ? 'Team run prepared with claims, peer review, and required final-synthesis input.'
+            : 'Team run blocked before preparing claims/reviews.',
       },
       receipts: [
         ...snapshot.receipts,
@@ -565,9 +564,10 @@ export class AgentTeamCompilerService {
           id: `agent-team-receipt:${snapshot.identifiers.runId}:launch-protocol`,
           kind: 'approval',
           source: 'AgentTeamCompilerService.launchApprovedTeam',
-          detail: status === 'prepared'
-            ? 'Approval conferido; team run preparado sem executar ferramentas diretamente.'
-            : 'Launch blocked by approval, roles, or compiler state.',
+          detail:
+            status === 'prepared'
+              ? 'Approval matched; team run prepared without executing tools directly.'
+              : 'Launch blocked by approval, roles, or compiler state.',
           status: status === 'prepared' ? 'ready' : 'needs-approval',
         },
       ],
@@ -580,48 +580,59 @@ export class AgentTeamCompilerService {
         receiptsRequiredBeforeCompletion: true,
         secretsSerialized: false,
       },
-      nextSafeAction: status === 'prepared'
-        ? 'Run each role through the approved subagent runtime and synthesize only after reviews.'
-        : 'Revisar approval, roles e receipts antes de tentar launch novamente.',
+      nextSafeAction:
+        status === 'prepared'
+          ? 'Run each role through the approved subagent runtime and synthesize only after reviews.'
+          : 'Review approval, roles, and receipts before trying launch again.',
     };
   }
 
+  /**
+   * Team intent is structural only — never free-text keyword detection.
+   * Free-text capability choice is model-owned (slash / tools / structured metadata).
+   * Metadata role lists and swarm tools count as structure; raw NL phrases do not.
+   */
   private isTeamIntent(run: UniversalAgentRun): boolean {
-    const text = `${run.input} ${run.summary}`.toLowerCase();
-    if (/\b(swarm|subagentes?|multiagente|multi-agente|equipe de agentes|time de agentes|agentes em paralelo|agent team|team compiler)\b/i.test(text)) {
-      return true;
-    }
     const metadata = run.metadata || {};
     const compiler = recordOrNull(metadata.agentTeamCompiler);
     const explicitCompilerIntent = Boolean(
-      compiler
-      && normalizeText(compiler.source) !== 'AgentTeamCompilerService'
-      && (
-        compiler.requested === true
-        || normalizeText(compiler.objective)
-        || listRecords(compiler.roles).length > 0
-        || listStrings(compiler.roleIds).length > 0
-      ),
+      compiler &&
+        normalizeText(compiler.source) !== 'AgentTeamCompilerService' &&
+        (compiler.requested === true ||
+          normalizeText(compiler.objective) ||
+          listRecords(compiler.roles).length > 0 ||
+          listStrings(compiler.roleIds).length > 0),
     );
     const escalation = recordOrNull(metadata.executionEscalation);
     const proposal = recordOrNull(metadata.swarmEscalationProposal);
     const discovery = recordOrNull(metadata.naturalCapabilityDiscovery);
     const toolExposureIds = (run.toolExposure.tools || []).map((tool) => tool.id);
+    const structuredRoleHints =
+      listStrings(metadata.suggestedSubagents).length > 0 ||
+      listStrings(metadata.subagents).length > 0 ||
+      listRecords(metadata.teamRoles).length > 0 ||
+      listRecords(metadata.agentTeamRoles).length > 0 ||
+      listStrings(escalation?.suggestedSubagents).length > 0 ||
+      listRecords(escalation?.subagentReceipts).length > 0;
+    // Structured signals only — no free-text regex for "swarm" / "team of agents".
     return Boolean(
-      explicitCompilerIntent
-      || proposal
-      || normalizeText(escalation?.target) === 'swarm'
-      || toolExposureIds.includes('swarm.run')
-      || listRecords(discovery?.recommendations).some((entry) => normalizeText(entry.category) === 'swarm-escalation'),
+      explicitCompilerIntent ||
+        proposal ||
+        structuredRoleHints ||
+        normalizeText(escalation?.target) === 'swarm' ||
+        toolExposureIds.includes('swarm.run') ||
+        listRecords(discovery?.recommendations).some((entry) => normalizeText(entry.category) === 'swarm-escalation'),
     );
   }
 
   private resolveObjective(run: UniversalAgentRun): string {
     const compiler = recordOrNull(run.metadata.agentTeamCompiler);
     const escalation = recordOrNull(run.metadata.executionEscalation);
-    return normalizeText(compiler?.objective)
-      || normalizeText(escalation?.taskGoal)
-      || normalizeText(run.input, 'Objetivo da run');
+    return (
+      normalizeText(compiler?.objective) ||
+      normalizeText(escalation?.taskGoal) ||
+      normalizeText(run.input, 'Run objective')
+    );
   }
 
   private compileRoles(run: UniversalAgentRun): AgentTeamCompilerRole[] {
@@ -685,12 +696,7 @@ export class AgentTeamCompilerService {
     });
   }
 
-  private buildRole(
-    run: UniversalAgentRun,
-    seed: RoleSeed,
-    index: number,
-    roleCount: number,
-  ): AgentTeamCompilerRole {
+  private buildRole(run: UniversalAgentRun, seed: RoleSeed, index: number, roleCount: number): AgentTeamCompilerRole {
     const kind = seed.kind || roleKindFromId(seed.roleId);
     const roleId = normalizeKey(seed.roleId, `agent-${index + 1}`);
     const toolIds = unique([...(seed.toolIds || []), ...toolsForKind(kind)]);
@@ -720,7 +726,7 @@ export class AgentTeamCompilerService {
       scope,
       budget,
       risk: kind === 'implementer' ? 'attention' : 'unknown',
-      approvalReason: 'Agent Team Compiler apenas compila o time; lancamento de subagente exige approval explicito.',
+      approvalReason: 'Agent Team Compiler only compiles the team; launching a subagent requires explicit approval.',
       metadata: {
         proposedBy: 'AgentTeamCompilerService',
         compilerOnly: true,
@@ -783,10 +789,7 @@ export class AgentTeamCompilerService {
     };
   }
 
-  private resolveLaunchBlockedReasons(
-    snapshot: AgentTeamCompilerSnapshot,
-    approvalMatched: boolean,
-  ): string[] {
+  private resolveLaunchBlockedReasons(snapshot: AgentTeamCompilerSnapshot, approvalMatched: boolean): string[] {
     const reasons: string[] = [];
     if (snapshot.status === 'not-needed') {
       reasons.push('agent-team-not-needed');
@@ -823,10 +826,7 @@ export class AgentTeamCompilerService {
     };
   }
 
-  private prepareLaunchTurns(
-    snapshot: AgentTeamCompilerSnapshot,
-    teamRunId: string,
-  ): AgentTeamCompilerLaunchTurn[] {
+  private prepareLaunchTurns(snapshot: AgentTeamCompilerSnapshot, teamRunId: string): AgentTeamCompilerLaunchTurn[] {
     const reviewerCandidates = [
       ...snapshot.roles.filter((role) => role.kind === 'verifier' || role.kind === 'safety-reviewer'),
       ...snapshot.roles,
@@ -840,7 +840,7 @@ export class AgentTeamCompilerService {
         roleId: role.roleId,
         targetRoleId: null,
         status: 'prepared',
-        prompt: redactText(`Declare plano, evidencia esperada e limites para ${role.objective}`, '', 360),
+        prompt: redactText(`Declare plan, expected evidence, and limits for ${role.objective}`, '', 360),
         evidenceRefs: [role.subagentReceipt.id],
       });
       const reviewer = reviewerCandidates.find((candidate) => candidate.roleId !== role.roleId);
@@ -851,7 +851,11 @@ export class AgentTeamCompilerService {
           roleId: reviewer.roleId,
           targetRoleId: role.roleId,
           status: 'prepared',
-          prompt: redactText(`Revise a contribuicao de ${role.roleId} contra escopo, budget, riscos e criterios de conclusao.`, '', 360),
+          prompt: redactText(
+            `Review ${role.roleId}'s contribution against scope, budget, risks, and completion criteria.`,
+            '',
+            360,
+          ),
           evidenceRefs: [claimId, reviewer.subagentReceipt.id],
         });
       }
@@ -885,22 +889,22 @@ export class AgentTeamCompilerService {
   private resolveRoleReason(kind: AgentTeamCompilerRoleKind): string {
     switch (kind) {
       case 'implementer':
-        return 'Implementacao fica separada para manter escopo, budget e approval claros.';
+        return 'Implementation stays separate so scope, budget, and approval stay clear.';
       case 'verifier':
-        return 'Verificacao independente reduz regressao antes de handoff.';
+        return 'Independent verification reduces regression before handoff.';
       case 'provider-specialist':
-        return 'Provider Arena deve informar custo, health e fallback antes do lancamento.';
+        return 'Provider Arena should report cost, health, and fallback before launch.';
       case 'safety-reviewer':
-        return 'Acoes de equipe precisam passar por policy, approval e quarantine.';
+        return 'Team actions must pass policy, approval, and quarantine.';
       case 'memory-curator':
-        return 'Receipts e artifacts existentes evitam repetir trabalho e preservam citacao.';
+        return 'Existing receipts and artifacts avoid rework and preserve citation.';
       case 'researcher':
-        return 'Exploracao read-only deve preceder edicoes ou execucoes mutaveis.';
+        return 'Read-only exploration should precede mutable edits or execution.';
       case 'operator-liaison':
-        return 'O operador precisa de um resumo aprovavel antes de abrir subagentes.';
+        return 'The operator needs an approvable summary before opening subagents.';
       case 'planner':
       default:
-        return 'Decomposicao inicial evita acoplar planejamento, execucao e verificacao.';
+        return 'Initial decomposition avoids coupling planning, execution, and verification.';
     }
   }
 
@@ -936,9 +940,7 @@ export class AgentTeamCompilerService {
     return roles.slice(0, -1).map((role, index) => ({
       from: role.roleId,
       to: roles[index + 1]?.roleId || 'handoff',
-      reason: index === 0
-        ? 'planner define escopo antes de execucao'
-        : 'handoff sequencial com review gate',
+      reason: index === 0 ? 'planner defines scope before execution' : 'sequential handoff with review gate',
     }));
   }
 
@@ -955,9 +957,10 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:observatory`,
         kind: 'run-observatory',
         source: 'RunObservatory',
-        detail: observatoryReceiptCount > 0
-          ? `${observatoryReceiptCount} receipt(s) de run observados.`
-          : 'Run Observatory ainda sem receipt adicional para este plano.',
+        detail:
+          observatoryReceiptCount > 0
+            ? `${observatoryReceiptCount} run receipt(s) observed.`
+            : 'Run Observatory has no additional receipt for this plan yet.',
         status: observatoryReceiptCount > 0 ? 'ready' : 'missing',
       },
       {
@@ -966,7 +969,7 @@ export class AgentTeamCompilerService {
         source: 'ProviderArenaService',
         detail: providerArenaLinked
           ? 'Provider Arena reported; provider/model selection remains advisory.'
-          : 'Sem Provider Arena; modelProfile atual usado como fallback advisory.',
+          : 'No Provider Arena; current modelProfile used as advisory fallback.',
         status: providerArenaLinked ? 'ready' : 'missing',
       },
       {
@@ -974,8 +977,8 @@ export class AgentTeamCompilerService {
         kind: 'capability-negotiation',
         source: 'CapabilityNegotiationService',
         detail: capabilityNegotiationLinked
-          ? 'Escopo de capabilities disponivel para revisar roles.'
-          : 'Capability negotiation ausente; roles continuam bloqueados.',
+          ? 'Capability scope available to review roles.'
+          : 'Capability negotiation missing; roles stay blocked.',
         status: capabilityNegotiationLinked ? 'ready' : 'missing',
       },
       {
@@ -983,15 +986,15 @@ export class AgentTeamCompilerService {
         kind: 'swarm-escalation',
         source: 'AgentRunService',
         detail: requestedSwarm
-          ? 'Request suggests team/subagents; compiler prepared the plan without launch.'
-          : 'Sem intencao de equipe detectada.',
+          ? 'Structured team/subagent signals present; compiler prepared the plan without launch.'
+          : 'No structured team intent detected (free text is not keyword-scanned).',
         status: requestedSwarm ? 'needs-approval' : 'missing',
       },
       {
         id: `agent-team-receipt:${run.id}:subagent-contracts`,
         kind: 'subagent-contract',
         source: 'subagents/contracts',
-        detail: `${roles.length} receipt(s) de subagente preparados com budget zero.`,
+        detail: `${roles.length} subagent receipt(s) prepared with zero budget.`,
         status: roles.length > 0 ? 'needs-approval' : 'missing',
       },
       {
@@ -1005,7 +1008,7 @@ export class AgentTeamCompilerService {
         id: `agent-team-receipt:${run.id}:surface`,
         kind: 'surface',
         source: 'CLI/ZavorthControl',
-        detail: 'Plano exposto por CLI read-only e ZavorthControl.',
+        detail: 'Plan exposed via read-only CLI and ZavorthControl.',
         status: 'ready',
       },
     ];
@@ -1028,21 +1031,16 @@ export class AgentTeamCompilerService {
     return 'compiled';
   }
 
-  private resolveNextSafeAction(
-    status: AgentTeamCompilerStatus,
-    roles: AgentTeamCompilerRole[],
-  ): string {
+  private resolveNextSafeAction(status: AgentTeamCompilerStatus, roles: AgentTeamCompilerRole[]): string {
     if (status === 'not-needed') {
-      return 'Nenhuma equipe de agentes precisa ser compilada para esta run.';
+      return 'No agent team needs to be compiled for this run.';
     }
     if (status === 'blocked') {
-      return 'Revisar objetivo e roles antes de propor qualquer swarm.';
+      return 'Review objective and roles before proposing any swarm launch.';
     }
     if (status === 'waiting-approval') {
-      return 'Revisar roles, providers, scopes e receipts; aprovar Swarm apenas se o operador confirmar.';
+      return 'Review roles, providers, scopes and receipts; approve swarm only if the operator confirms.';
     }
-    return roles.length > 0
-      ? 'Plano compilado pronto para preview governado.'
-      : 'Sem roles compilados.';
+    return roles.length > 0 ? 'Compiled plan ready for governed preview.' : 'No roles compiled.';
   }
 }

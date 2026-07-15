@@ -4,11 +4,10 @@ import type {
   ZavorthTransactionSurfaceProjection,
   ZavorthTransactionSurfaceSeverity,
 } from './ZavorthTransactionSurfaceContract.js';
-import type {
-  ZavorthTransactionRuntimeStatus,
-} from './ZavorthTransactionRuntimeContract.js';
+import type { ZavorthTransactionRuntimeStatus } from './ZavorthTransactionRuntimeContract.js';
 
-export const ZAVORTH_TRANSACTION_ZAVORTH_CONTROL_CONTRACT_VERSION = 'zavorth-transaction-zavorthControl/checkpoint-8' as const;
+export const ZAVORTH_TRANSACTION_ZAVORTH_CONTROL_CONTRACT_VERSION =
+  'zavorth-transaction-zavorthControl/checkpoint-8' as const;
 
 export type ZavorthTransactionZavorthControlLaneKind =
   | 'intake'
@@ -30,17 +29,9 @@ export type ZavorthTransactionZavorthControlTileKind =
   | 'connector'
   | 'safety';
 
-export type ZavorthTransactionZavorthControlTimelineStatus =
-  | 'done'
-  | 'pending'
-  | 'blocked'
-  | 'skipped';
+export type ZavorthTransactionZavorthControlTimelineStatus = 'done' | 'pending' | 'blocked' | 'skipped';
 
-export type ZavorthTransactionZavorthControlActionPlacement =
-  | 'primary'
-  | 'secondary'
-  | 'danger'
-  | 'disabled';
+export type ZavorthTransactionZavorthControlActionPlacement = 'primary' | 'secondary' | 'danger' | 'disabled';
 
 export type ZavorthTransactionZavorthControlTone = 'ready' | 'attention' | 'blocked' | 'success';
 
@@ -133,6 +124,10 @@ export type ZavorthTransactionZavorthControlProjection = {
 
 export type ZavorthTransactionZavorthControlProjectInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('./ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   surface?: ZavorthTransactionSurfaceKind;
   userId?: string | null;
   sessionId?: string | null;

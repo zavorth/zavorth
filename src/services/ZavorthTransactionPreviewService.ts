@@ -37,11 +37,16 @@ export class ZavorthTransactionPreviewService {
 
   public buildPreview(input: ZavorthTransactionPreviewBuildInput): ZavorthTransactionPreview {
     const now = input.now ?? new Date();
-    const intent = input.intent ?? this.intentService.parse({
-      text: input.text ?? '',
-      channel: input.channel,
-      now,
-    }).intent;
+    const intent =
+      input.intent ??
+      this.intentService.parse({
+        text: input.text ?? '',
+        kind: input.kind,
+        actionKind: input.actionKind,
+        targetKind: input.targetKind,
+        channel: input.channel,
+        now,
+      }).intent;
     const previewId = buildPreviewId(intent, input.channel, now);
     const status = resolvePreviewStatus(intent);
     const connector = buildConnectorRequirement(intent);
@@ -223,7 +228,9 @@ function buildQuote(intent: ZavorthTransactionIntent): ZavorthTransactionPreview
       amount: firstLimit.amount,
       currency: firstLimit.currency,
       feeStatus: requiresFeeQuote(intent.actionKind) ? 'not-quoted' : 'not-required',
-      notes: ['amount comes from natural-language limit and must be confirmed by a typed connector before live execution'],
+      notes: [
+        'amount comes from natural-language limit and must be confirmed by a typed connector before live execution',
+      ],
     };
   }
 
@@ -242,9 +249,17 @@ function buildQuote(intent: ZavorthTransactionIntent): ZavorthTransactionPreview
   };
 }
 
-function buildApprovalEnvelope(previewId: string, intent: ZavorthTransactionIntent): ZavorthTransactionApprovalEnvelope {
-  const required = intent.safetyDecision.explicitHumanApprovalRequired || intent.naturalFirstRoute === 'approval-proposal';
-  const scope = intent.limits.some((limit) => limit.scope === 'mandate') ? 'future-mandate' : required ? 'single-preview' : 'none';
+function buildApprovalEnvelope(
+  previewId: string,
+  intent: ZavorthTransactionIntent,
+): ZavorthTransactionApprovalEnvelope {
+  const required =
+    intent.safetyDecision.explicitHumanApprovalRequired || intent.naturalFirstRoute === 'approval-proposal';
+  const scope = intent.limits.some((limit) => limit.scope === 'mandate')
+    ? 'future-mandate'
+    : required
+      ? 'single-preview'
+      : 'none';
   return {
     required,
     status: required ? 'pending' : 'none',
@@ -293,7 +308,9 @@ function buildValidation(
   }
 
   return {
-    canAskApproval: status === 'ready-for-review' && (intent.safetyDecision.explicitHumanApprovalRequired || intent.naturalFirstRoute === 'approval-proposal'),
+    canAskApproval:
+      status === 'ready-for-review' &&
+      (intent.safetyDecision.explicitHumanApprovalRequired || intent.naturalFirstRoute === 'approval-proposal'),
     canCreateLiveExecutionPlan: false,
     missingFields: intent.extraction.missingFields,
     warnings,

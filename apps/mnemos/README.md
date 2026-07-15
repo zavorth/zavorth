@@ -47,7 +47,7 @@ Docker Container (mnemos-cognitive-engine)
       ChromaDB (banco vetorial persistente)
       Sentence Transformers (embeddings)
     Universal File Understanding
-      pdftotext / PyPDF2 / OCR (PDF)
+      pdftotext / pypdf / OCR (PDF)
       python-docx / openpyxl / python-pptx (Office)
       Pillow / Tesseract (imagens)
 
@@ -59,14 +59,14 @@ Volumes Docker
 
 ## Tools Expostas
 
-| Tool | Estagio | Descricao |
-| --- | --- | --- |
-| `search_memory` | 1 | Busca semantica vetorial no banco indexado |
-| `scan_local_metadata` | 2 | Varredura leve de nomes/metadados em diretorios autorizados |
-| `understand_file` | 3 | Entende arquivo autorizado sem indexar: texto, PDF, OCR, Office, imagem, tabela e recibo |
-| `index_file` | 4 | Indexa um arquivo com o mesmo Universal File Understanding quando o Zavorth aprova a chamada |
-| `vault_status` | - | Estatisticas do banco, uso de disco e volumes montados |
-| `delete_memory` | - | Remove documentos do banco vetorial, nao arquivos do disco |
+| Tool                  | Estagio | Descricao                                                                                    |
+| --------------------- | ------- | -------------------------------------------------------------------------------------------- |
+| `search_memory`       | 1       | Busca semantica vetorial no banco indexado                                                   |
+| `scan_local_metadata` | 2       | Varredura leve de nomes/metadados em diretorios autorizados                                  |
+| `understand_file`     | 3       | Entende arquivo autorizado sem indexar: texto, PDF, OCR, Office, imagem, tabela e recibo     |
+| `index_file`          | 4       | Indexa um arquivo com o mesmo Universal File Understanding quando o Zavorth aprova a chamada |
+| `vault_status`        | -       | Estatisticas do banco, uso de disco e volumes montados                                       |
+| `delete_memory`       | -       | Remove documentos do banco vetorial, nao arquivos do disco                                   |
 
 ## Universal File Understanding
 
@@ -74,7 +74,7 @@ O Mnemos entende localmente os formatos comuns antes de indexar:
 
 ```text
 Texto/codigo/HTML/CSV   -> leitura direta
-PDF com texto           -> pdftotext, fallback PyPDF2
+PDF com texto           -> pdftotext, fallback pypdf
 PDF escaneado           -> OCR via pdf2image + Tesseract
 DOCX                    -> paragrafos e tabelas
 XLSX/XLSM               -> planilhas e tabelas em TSV

@@ -1,4 +1,7 @@
-import { DynamicHierarchySwarmService, type DynamicHierarchyLaunchResult } from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
+import {
+  DynamicHierarchySwarmService,
+  type DynamicHierarchyLaunchResult,
+} from '../../domain/execution/infrastructure/DynamicHierarchySwarmService.js';
 import type {
   SwarmScaleExecutionMode,
   SwarmScalePlannerMode,
@@ -8,11 +11,28 @@ import type { ExecutionEscalationDecision } from './ExecutionEscalationPolicy.js
 import { assessSwarmWorkload, type SwarmWorkloadAssessment } from './SwarmWorkloadAssessmentService.js';
 import type { SelfModificationPreviewResult } from '../../services/SelfModificationCommandService.js';
 import type { WatchModeRunSnapshot } from '../../services/ComputerUseWatchModeService.js';
-import type { TrustSliderLevel, TrustSliderPolicyDecision, UniversalIntentUserRole } from '../uni/UniversalIntentContracts.js';
+import type {
+  TrustSliderLevel,
+  TrustSliderPolicyDecision,
+  UniversalIntentUserRole,
+} from '../uni/UniversalIntentContracts.js';
 import type { CapabilityNegotiationSnapshot } from './CapabilityNegotiationService.js';
 import type { ToolRehearsalSnapshot } from './ToolRehearsalService.js';
-import type { UniversalAgentExecutor, UniversalAgentRequest, UniversalAgentRun, UniversalAgentRunResult, UniversalApprovalRequest } from './UniversalAgentRuntimeTypes.js';
-import { type AgentRunFlowHost, hasRequestedTool, normalizeStringList, normalizeText, recordOrNull } from './AgentRunSpecializedFlowUtils.js';
+import type {
+  UniversalAgentExecutor,
+  UniversalAgentRequest,
+  UniversalAgentRun,
+  UniversalAgentRunResult,
+  UniversalApprovalRequest,
+} from './UniversalAgentRuntimeTypes.js';
+import {
+  type AgentRunFlowHost,
+  hasRequestedTool,
+  normalizeStringList,
+  normalizeText,
+  recordOrNull,
+} from './AgentRunSpecializedFlowUtils.js';
+import { decorateResultWithWaitingApprovalCard } from './UniversalApprovalPickerPresentation.js';
 
 type SwarmScalePlan = {
   enabled: boolean;
@@ -29,7 +49,8 @@ type SwarmScalePlan = {
 export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: AgentRunFlowHost }): void {
   const proto = AgentRunServiceClass.prototype;
 
-  proto.createSwarmEscalationProposalIfNeeded = function (this: AgentRunFlowHost, 
+  proto.createSwarmEscalationProposalIfNeeded = function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     input: UniversalAgentRequest,
   ): UniversalAgentRunResult | null {
@@ -117,19 +138,24 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
 
     this.applyCapabilityLoopGovernance(run, input);
     const narrative = this.applySafetyNarrative(run, now);
-    return this.replyPipeline.buildResult({
-      run,
-      text: [
-        scalePlan.enabled
-          ? this.buildSwarmScaleProposalReply(decision, approval.id, scalePlan)
-          : this.buildSwarmEscalationReply(decision, approval.id),
-        '',
-        narrative.userMessage,
-      ].join('\n'),
-    });
+    return decorateResultWithWaitingApprovalCard(
+      this.replyPipeline.buildResult({
+        run,
+        text: [
+          scalePlan.enabled
+            ? this.buildSwarmScaleProposalReply(decision, approval.id, scalePlan)
+            : this.buildSwarmEscalationReply(decision, approval.id),
+          '',
+          narrative.userMessage,
+        ].join('\n'),
+      }),
+      approval,
+      run.channel,
+    );
   };
 
-  proto.resolveSwarmScalePlan = function (this: AgentRunFlowHost,
+  proto.resolveSwarmScalePlan = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
   ): SwarmScalePlan {
@@ -152,12 +178,7 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       responseDecision?.desiredAgents,
       responseDecision?.agentCount,
     );
-    const desiredAgents = clampInteger(
-      explicitAgents || assessment.recommendedAgents,
-      1,
-      4000,
-      20,
-    );
+    const desiredAgents = clampInteger(explicitAgents || assessment.recommendedAgents, 1, 4000, 20);
     const explicitScale = this.shouldUseSwarmScalePlane(input, run, assessment);
     const maxAgents = clampInteger(firstFiniteNumber(metadata.maxAgents, metadata.swarmScaleMaxAgents), 1, 4000, 4000);
     const maxSteps = clampInteger(
@@ -173,11 +194,14 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       assessment.recommendedMaxConcurrency,
     );
     const hasLlm = Boolean(this.llmRuntimeExecutor?.isAvailable?.());
-    const requestedExecutionMode = normalizeScaleExecutionMode(metadata.executionMode || metadata.swarmScaleExecutionMode);
+    const requestedExecutionMode = normalizeScaleExecutionMode(
+      metadata.executionMode || metadata.swarmScaleExecutionMode,
+    );
     const requestedPlannerMode = normalizeScalePlannerMode(metadata.plannerMode || metadata.swarmScalePlannerMode);
-    const wantsLive = requestedExecutionMode === 'llm-live'
-      || hasRequestedTool(input, 'swarm.scale.live')
-      || metadata.swarmScaleLive === true;
+    const wantsLive =
+      requestedExecutionMode === 'llm-live' ||
+      hasRequestedTool(input, 'swarm.scale.live') ||
+      metadata.swarmScaleLive === true;
     return {
       enabled: explicitScale,
       desiredAgents,
@@ -185,7 +209,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       maxSteps,
       maxConcurrency,
       plannerMode: requestedPlannerMode || (hasLlm ? 'llm' : 'heuristic'),
-      executionMode: requestedExecutionMode || (hasLlm && (wantsLive || desiredAgents <= 8) ? 'llm-live' : 'deterministic'),
+      executionMode:
+        requestedExecutionMode || (hasLlm && (wantsLive || desiredAgents <= 8) ? 'llm-live' : 'deterministic'),
       rationale: explicitScale
         ? `Scale plane selected from Zavorth workload assessment: ${assessment.reasons.join('; ')}.`
         : 'Dynamic hierarchy swarm remains sufficient for this request.',
@@ -193,26 +218,32 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     };
   };
 
-  proto.shouldUseSwarmScalePlane = function (this: AgentRunFlowHost,
+  proto.shouldUseSwarmScalePlane = function (
+    this: AgentRunFlowHost,
     input: UniversalAgentRequest,
     run?: UniversalAgentRun | null,
     assessment?: SwarmWorkloadAssessment,
   ): boolean {
     const metadata = recordOrNull(input.metadata) || {};
-    const workload = assessment || assessSwarmWorkload({
-      text: normalizeText(input.text, run?.input),
-      requestedTools: input.requestedTools || [],
-      metadata,
-    });
-    return hasRequestedTool(input, 'swarm.scale')
-      || hasRequestedTool(input, 'swarm.massive')
-      || hasRequestedTool(input, 'swarm.scale.live')
-      || metadata.swarmScale === true
-      || metadata.massiveSwarm === true
-      || workload.shouldUseScalePlane;
+    const workload =
+      assessment ||
+      assessSwarmWorkload({
+        text: normalizeText(input.text, run?.input),
+        requestedTools: input.requestedTools || [],
+        metadata,
+      });
+    return (
+      hasRequestedTool(input, 'swarm.scale') ||
+      hasRequestedTool(input, 'swarm.massive') ||
+      hasRequestedTool(input, 'swarm.scale.live') ||
+      metadata.swarmScale === true ||
+      metadata.massiveSwarm === true ||
+      workload.shouldUseScalePlane
+    );
   };
 
-  proto.buildSwarmScaleProposalReply = function (this: AgentRunFlowHost,
+  proto.buildSwarmScaleProposalReply = function (
+    this: AgentRunFlowHost,
     decision: ExecutionEscalationDecision,
     approvalId: string,
     scalePlan: SwarmScalePlan,
@@ -228,20 +259,23 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       `Execucao: ${scalePlan.executionMode}.`,
       `Decisao: ${scalePlan.assessment.band} score=${scalePlan.assessment.score}.`,
       'Waiting for approval before starting the massive mesh.',
-      `Approval: ${approvalId}`,
+      'Approval: waiting — tap Approve/Reject or /approve / /reject',
     ].join('\n');
   };
 
   proto.resolveSuggestedSubagents = function (this: AgentRunFlowHost, metadata?: Record<string, unknown>): string[] {
     const responseDecision = recordOrNull(metadata?.responseDecision);
-    return Array.from(new Set([
-      ...normalizeStringList(metadata?.suggestedSubagents),
-      ...normalizeStringList(metadata?.subagents),
-      ...normalizeStringList(responseDecision?.suggestedSubagents),
-    ])).slice(0, 8);
+    return Array.from(
+      new Set([
+        ...normalizeStringList(metadata?.suggestedSubagents),
+        ...normalizeStringList(metadata?.subagents),
+        ...normalizeStringList(responseDecision?.suggestedSubagents),
+      ]),
+    ).slice(0, 8);
   };
 
-  proto.buildSwarmEscalationReply = function (this: AgentRunFlowHost, 
+  proto.buildSwarmEscalationReply = function (
+    this: AgentRunFlowHost,
     decision: ExecutionEscalationDecision,
     approvalId: string,
   ): string {
@@ -251,11 +285,12 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       `Objective: ${decision.taskGoal || 'objective not provided'}`,
       `Subagentes planejados: ${decision.subagentReceipts.length}.`,
       'Waiting for approval before running subagents or opening the Swarm.',
-      `Approval: ${approvalId}`,
+      'Approval: waiting — tap Approve/Reject or /approve / /reject',
     ].join('\n');
   };
 
-  proto.executeApprovedSwarmProposalIfNeeded = async function (this: AgentRunFlowHost, 
+  proto.executeApprovedSwarmProposalIfNeeded = async function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
   ): Promise<UniversalAgentRunResult | null> {
@@ -279,9 +314,11 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     };
     const launchHierarchyAndWait = swarmHierarchyService.launchHierarchyAndWait;
     const asyncCompletionReturned = typeof launchHierarchyAndWait === 'function';
-    const launchResult = await Promise.resolve(asyncCompletionReturned
-      ? launchHierarchyAndWait(launchInput)
-      : swarmHierarchyService.launchHierarchy(launchInput));
+    const launchResult = await Promise.resolve(
+      asyncCompletionReturned
+        ? launchHierarchyAndWait(launchInput)
+        : swarmHierarchyService.launchHierarchy(launchInput),
+    );
     const now = this.now().toISOString();
     const snapshot = launchResult.snapshot;
     const completed = snapshot.status === 'completed';
@@ -334,7 +371,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     });
   };
 
-  proto.executeApprovedSwarmScaleProposal = async function (this: AgentRunFlowHost,
+  proto.executeApprovedSwarmScaleProposal = async function (
+    this: AgentRunFlowHost,
     run: UniversalAgentRun,
     request: UniversalAgentRequest,
     proposal: Record<string, unknown>,
@@ -404,7 +442,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     });
   };
 
-  proto.serializeSwarmScaleSnapshot = function (this: AgentRunFlowHost,
+  proto.serializeSwarmScaleSnapshot = function (
+    this: AgentRunFlowHost,
     snapshot: SwarmScaleSnapshot,
   ): Record<string, unknown> {
     return {
@@ -431,7 +470,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     };
   };
 
-  proto.buildSwarmScaleExecutionReply = function (this: AgentRunFlowHost,
+  proto.buildSwarmScaleExecutionReply = function (
+    this: AgentRunFlowHost,
     snapshot: SwarmScaleSnapshot,
     summary: string,
   ): string {
@@ -445,10 +485,13 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       `Concorrencia real: ${snapshot.workerPool.actualMaxConcurrency}/${snapshot.workerPool.maxConcurrency}`,
       `Reducer: ${snapshot.reducer.status} (${snapshot.reducer.conflictCount} conflito(s))`,
       snapshot.reducer.synthesis ? ['', snapshot.reducer.synthesis].join('\n') : '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   };
 
-  proto.serializeSwarmLaunchResult = function (this: AgentRunFlowHost, 
+  proto.serializeSwarmLaunchResult = function (
+    this: AgentRunFlowHost,
     launchResult: DynamicHierarchyLaunchResult,
   ): Record<string, unknown> {
     return {
@@ -466,7 +509,8 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
     };
   };
 
-  proto.buildSwarmExecutionReply = function (this: AgentRunFlowHost, 
+  proto.buildSwarmExecutionReply = function (
+    this: AgentRunFlowHost,
     launchResult: DynamicHierarchyLaunchResult,
     summary: string,
   ): string {
@@ -479,7 +523,9 @@ export function installAgentRunSwarmFlows(AgentRunServiceClass: { prototype: Age
       `Status: ${snapshot.status}`,
       `Subagentes: ${snapshot.subagentReceipts?.length || launchResult.plan.subagentReceipts.length}`,
       synthesizedOutput ? ['', synthesizedOutput].join('\n') : '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   };
 }
 
@@ -519,4 +565,3 @@ function normalizeScalePlannerMode(value: unknown): SwarmScalePlannerMode | null
   }
   return null;
 }
-

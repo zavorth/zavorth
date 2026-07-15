@@ -34,11 +34,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
 
     expect(roleAwareGateway.broadcast).toHaveBeenCalledWith('ola', ['operator']);
     expect(legacyGateway.broadcast).not.toHaveBeenCalled();
-    expect(logRepo.log).toHaveBeenCalledWith(
-      'warn',
-      'CoreOrchestrator',
-      expect.stringContaining('role'),
-    );
+    expect(logRepo.log).toHaveBeenCalledWith('warn', 'CoreOrchestrator', expect.stringContaining('role'));
   });
 
   it('treats gateways with recipient resolution as role-aware for broadcasts', async () => {
@@ -86,21 +82,23 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(dispatcher.dispatchTaskMessage).toHaveBeenCalledWith(expect.objectContaining({
-      platform: 'discord',
-      chatId: 'discord:guild:1:channel:2',
-      sourceUserId: 'discord-user',
-      text: 'continue a tarefa atual',
-      identity: expect.objectContaining({
-        linkedBy: 'discord-native-gateway',
-        verificationMethod: 'discord-bot-token',
+    expect(dispatcher.dispatchTaskMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        platform: 'discord',
+        chatId: 'discord:guild:1:channel:2',
+        sourceUserId: 'discord-user',
+        text: 'continue a tarefa atual',
+        identity: expect.objectContaining({
+          linkedBy: 'discord-native-gateway',
+          verificationMethod: 'discord-bot-token',
+        }),
+        composerPayload: null,
+        surfacePolicy: expect.objectContaining({
+          publicServerMode: false,
+          forceApprovalForExecution: false,
+        }),
       }),
-      composerPayload: null,
-      surfacePolicy: expect.objectContaining({
-        publicServerMode: false,
-        forceApprovalForExecution: false,
-      }),
-    }));
+    );
   });
 
   it('routes natural multi-surface messages through ZavorthAgentGateway before legacy fallback or dispatcher', async () => {
@@ -175,21 +173,24 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(agentGateway.handle).toHaveBeenCalledWith(expect.objectContaining({
-      channel: 'discord',
-      sessionId: 'discord:dm:42',
-      text: 'olá, me explica o estado atual',
-      metadata: expect.objectContaining({
-        source: 'core-orchestrator',
-        platform: 'discord',
-        legacyUnifiedGatewayAvailable: true,
-        legacyUnifiedGatewayBypassed: true,
-        surfaceTaskDispatcherAvailable: true,
-        responseDecision: expect.objectContaining({
-          responsePath: 'fast-chat',
+    expect(agentGateway.handle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'discord',
+        sessionId: 'discord:dm:42',
+        text: 'olá, me explica o estado atual',
+        metadata: expect.objectContaining({
+          source: 'core-orchestrator',
+          platform: 'discord',
+          legacyUnifiedGatewayAvailable: true,
+          legacyUnifiedGatewayBypassed: true,
+          surfaceTaskDispatcherAvailable: true,
+          responseDecision: expect.objectContaining({
+            responsePath: 'fast-chat',
+          }),
         }),
       }),
-    }), {});
+      {},
+    );
     expect(reply).toHaveBeenCalledWith('Agent: olá, me explica o estado atual');
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
@@ -279,23 +280,28 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
     });
 
     expect(order).toEqual(['agent', 'dispatcher']);
-    expect(agentGateway.handle).toHaveBeenCalledWith(expect.objectContaining({
-      channel: 'slack',
-      text: 'liste a pasta downloads',
-      requestedTools: ['read_file'],
-      metadata: expect.objectContaining({
-        surfaceTaskDispatcherDeferred: true,
+    expect(agentGateway.handle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: 'slack',
+        text: 'liste a pasta downloads',
+        requestedTools: ['read_file'],
+        metadata: expect.objectContaining({
+          surfaceTaskDispatcherDeferred: true,
+        }),
       }),
-    }), expect.objectContaining({
-      executor: expect.any(Function),
-    }));
-    expect(dispatcher.dispatchTaskMessage).toHaveBeenCalledWith(expect.objectContaining({
-      platform: 'slack',
-      chatId: 'slack:channel:ops',
-      text: 'liste a pasta downloads',
-      sourceUserId: 'slack-user',
-      sessionId: 'slack:channel:ops',
-    }));
+      expect.objectContaining({
+        executor: expect.any(Function),
+      }),
+    );
+    expect(dispatcher.dispatchTaskMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        platform: 'slack',
+        chatId: 'slack:channel:ops',
+        text: 'liste a pasta downloads',
+        sourceUserId: 'slack-user',
+        sessionId: 'slack:channel:ops',
+      }),
+    );
     expect(reply).toHaveBeenCalledWith('Agent wrapped dispatch');
   });
 
@@ -340,16 +346,18 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'discord',
-      userId: 'discord-user',
-      chatId: 'discord:dm:42',
-      text: 'me explique o plano atual',
-      metadata: expect.objectContaining({
-        stage: 'legacy-unified-conversation-fallback-v1',
-        transport: 'text',
+    expect(legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        surface: 'discord',
+        userId: 'discord-user',
+        chatId: 'discord:dm:42',
+        text: 'me explique o plano atual',
+        metadata: expect.objectContaining({
+          stage: 'legacy-unified-conversation-fallback-v1',
+          transport: 'text',
+        }),
       }),
-    }));
+    );
     expect(legacyUnifiedGateway.recordEvent).not.toHaveBeenCalled();
     expect(reply).toHaveBeenCalledWith('Gateway: me explique o plano atual');
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
@@ -399,13 +407,15 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(outputStage.deliver).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'discord',
-      text: 'Gateway: summarize the updates',
-      rawInput: 'summarize the updates',
-      requestedBy: 'discord-user',
-      sessionId: 'discord:dm:42',
-    }));
+    expect(outputStage.deliver).toHaveBeenCalledWith(
+      expect.objectContaining({
+        surface: 'discord',
+        text: 'Gateway: summarize the updates',
+        rawInput: 'summarize the updates',
+        requestedBy: 'discord-user',
+        sessionId: 'discord:dm:42',
+      }),
+    );
     expect(reply).toHaveBeenCalledWith('stage:Gateway: summarize the updates');
   });
 
@@ -436,7 +446,7 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(reply).toHaveBeenCalledWith(expect.stringContaining('use Zavorth slash commands'));
+    expect(reply).toHaveBeenCalledWith(expect.stringContaining('slash commands do Zavorth'));
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();
   });
 
@@ -546,16 +556,18 @@ describe('CoreOrchestrator role-aware broadcasts', () => {
       editMessage: jest.fn().mockResolvedValue(undefined),
     });
 
-    expect(surfaceApi.handleCommand).toHaveBeenCalledWith(expect.objectContaining({
-      context: expect.objectContaining({
-        platform: 'discord',
-        rawText: '/status',
+    expect(surfaceApi.handleCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          platform: 'discord',
+          rawText: '/status',
+        }),
+        request: expect.objectContaining({
+          surface: 'discord',
+          requestedBy: 'discord-user',
+        }),
       }),
-      request: expect.objectContaining({
-        surface: 'discord',
-        requestedBy: 'discord-user',
-      }),
-    }));
+    );
     expect(reply).toHaveBeenCalledWith('Boundary discord: /status');
     expect(agentGateway.handle).not.toHaveBeenCalled();
     expect(dispatcher.dispatchTaskMessage).not.toHaveBeenCalled();

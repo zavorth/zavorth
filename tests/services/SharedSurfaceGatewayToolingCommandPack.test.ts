@@ -8,8 +8,7 @@ function buildCtx(rawText = '/gateway') {
     isGroup: false,
     rawText,
     reply: jest.fn(async () => undefined),
-    editMessage: jest.fn(async () => undefined),
-  };
+    editMessage: jest.fn(async () => undefined)};
 }
 
 function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToolingCommandPack {
@@ -22,9 +21,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         baseUrl: 'http://127.0.0.1:21128/v1',
         upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-        message: 'Gateway proprio do AIGateway ativo.',
-      })),
-    } as any,
+        message: 'Gateway proprio do AIGateway ativo.'}))} as any,
     AIGatewayGatewayLauncherService: {
       ensureStarted: jest.fn(async () => ({
         enabled: true,
@@ -33,9 +30,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         baseUrl: 'http://127.0.0.1:21128/v1',
         upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
         overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-        message: 'Gateway proprio do AIGateway ativo.',
-      })),
-    } as any,
+        message: 'Gateway proprio do AIGateway ativo.'}))} as any,
     GatewayCompatibilityDoctorService: {
       run: jest.fn(async () => ({
         ok: true,
@@ -44,9 +39,7 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         baseUrl: 'http://127.0.0.1:21128/v1',
         checkedTarget: '/v1/models',
         httpStatus: 200,
-        error: null,
-      })),
-    } as any,
+        error: null}))} as any,
     GatewayUpstreamSyncService: {
       sync: jest.fn(async () => ({
         action: 'sync',
@@ -54,11 +47,9 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
         status: 'applied',
         compat: { status: 'ready' },
         rollbackApplied: false,
-        error: null,
-      })),
+        error: null})),
       promote: jest.fn(),
-      rollback: jest.fn(),
-    } as any,
+      rollback: jest.fn()} as any,
     gatewayService: {
       buildHydratedSnapshot: jest.fn(async () => ({
         summary: {
@@ -70,14 +61,10 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
           sessionTargets: 2,
           toolFamilies: 8,
           plugins: 4,
-          memoryArtifacts: 2,
-        },
+          memoryArtifacts: 2},
         narrative: {
           headline: 'Gateway ready.',
-          operatorSummary: 'Snapshot canonico.',
-        },
-      })),
-    } as any,
+          operatorSummary: 'Snapshot canonico.'}}))} as any,
     toolSurfaceService: {
       buildSnapshot: jest.fn(() => ({
         summary: {
@@ -85,14 +72,11 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
           ready: 4,
           partial: 1,
           planned: 1,
-          explicitTools: 17,
-        },
+          explicitTools: 17},
         families: [
           {
             label: 'Session tools',
-            summary: 'Listagem, historico, envio e spawn de sessao.',
-          },
-        ],
+            summary: 'Listagem, historico, envio e spawn de sessao.'}],
         catalog: {
           entries: [
             {
@@ -103,25 +87,18 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
               readiness: 'ready',
               summary: 'Le um arquivo do workspace.',
               command: null,
-              details: ['1 parametro(s).'],
-            },
-          ],
-          selected: null,
-        },
+              details: ['1 parametro(s).']}],
+          selected: null},
         narrative: {
           headline: 'Plano oficial de tools.',
-          operatorSummary: '4 familias prontas.',
-        },
-      })),
-    } as any,
+          operatorSummary: '4 familias prontas.'}}))} as any,
     hookPlaneService: {
       buildSnapshot: jest.fn(() => ({
         summary: {
           supportedEvents: 12,
           coveredEvents: 3,
           registeredHooks: 3,
-          workspaces: 2,
-        },
+          workspaces: 2},
         events: [
           {
             id: 'transport.before_action',
@@ -129,37 +106,25 @@ function buildPack(overrides: Record<string, any> = {}): SharedSurfaceGatewayToo
             stage: 'transport',
             description: 'Valida transporte remoto.',
             status: 'ready',
-            registeredHooks: 2,
-          },
-        ],
+            registeredHooks: 2}],
         registrations: [
           {
             workspace: 'workspace-alpha',
             workspaceName: 'Workspace Alpha',
             event: 'transport.before_action',
-            command: 'npm run hooks:transport:before',
-          },
-        ],
+            command: 'npm run hooks:transport:before'}],
         narrative: {
           headline: 'Plano oficial de hooks.',
-          operatorSummary: '3 hooks registrados.',
-        },
-      })),
-    } as any,
+          operatorSummary: '3 hooks registrados.'}}))} as any,
     zavorthBridgePreferenceStore: {
-      getPreferredModel: jest.fn(async () => 'gemini-2.5-pro'),
-    } as any,
+      getPreferredModel: jest.fn(async () => 'gemini-2.5-pro')} as any,
     discordSurfacePolicyService: {
-      canUseOperationalCommand: jest.fn(() => true),
-    } as any,
+      canUseOperationalCommand: jest.fn(() => true)} as any,
     providerDoctorService: {
-      renderStatusReport: jest.fn(() => 'Providers ready now\nPerfil recomendado para esta etapa'),
-    } as any,
+      renderStatusReport: jest.fn(() => 'Providers ready now\nRecommended profile for this stage')} as any,
     providerControlPlaneService: {
-      getUsageTargets: jest.fn(() => ['chat', 'code']),
-    } as any,
-    ...overrides,
-  });
+      getUsageTargets: jest.fn(() => ['chat', 'code'])} as any,
+    ...overrides});
 }
 
 describe('SharedSurfaceGatewayToolingCommandPack', () => {
@@ -171,11 +136,9 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
       baseUrl: 'http://127.0.0.1:21128/v1',
       upstreamBaseUrl: 'http://127.0.0.1:20128/v1',
       overlayFile: 'C:/repo/config/AIGateway-overlay.json',
-      message: 'Gateway proprio do AIGateway ativo.',
-    }));
+      message: 'Gateway proprio do AIGateway ativo.'}));
     const pack = buildPack({
-      AIGatewayGatewayLauncherService: { ensureStarted } as any,
-    });
+      AIGatewayGatewayLauncherService: { ensureStarted } as any});
     const ctx = buildCtx('/AIGateway start');
 
     await pack.handleAIGateway(ctx as any, 'start');
@@ -195,29 +158,23 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
         sessionTargets: 2,
         toolFamilies: 8,
         plugins: 4,
-        memoryArtifacts: 2,
-      },
+        memoryArtifacts: 2},
       narrative: {
         headline: 'Gateway ready.',
-        operatorSummary: 'Snapshot canonico.',
-      },
-    }));
+        operatorSummary: 'Snapshot canonico.'}}));
     const pack = buildPack({
-      gatewayService: { buildHydratedSnapshot } as any,
-    });
+      gatewayService: { buildHydratedSnapshot } as any});
     const ctx = buildCtx('/gateway');
 
     await pack.handleGateway(ctx as any);
 
     expect(buildHydratedSnapshot).toHaveBeenCalledWith(expect.objectContaining({
       userId: 'telegram-user',
-      chatId: 'telegram:chat-1',
-    }));
-    expect(ctx.reply.mock.calls[0][0]).toContain('Gateway do Zavorth');
+      chatId: 'telegram:chat-1'}));
+    expect(ctx.reply.mock.calls[0][0]).toContain('Zavorth Gateway');
     expect(ctx.reply.mock.calls[0][0]).toContain('Gateway ready.');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
-      reply_markup: expect.any(Object),
-    }));
+      reply_markup: expect.any(Object)}));
   });
 
   it('renders focused tools with query context', async () => {
@@ -227,8 +184,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
         ready: 4,
         partial: 1,
         planned: 1,
-        explicitTools: 17,
-      },
+        explicitTools: 17},
       families: [],
       catalog: {
         entries: [
@@ -240,9 +196,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
             readiness: 'ready',
             summary: 'Le um arquivo do workspace.',
             command: null,
-            details: ['1 parametro(s).'],
-          },
-        ],
+            details: ['1 parametro(s).']}],
         selected: {
           id: 'read_file',
           label: 'read_file',
@@ -251,26 +205,20 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
           readiness: 'ready',
           summary: 'Le um arquivo do workspace.',
           command: null,
-          details: ['1 parametro(s).'],
-        },
-      },
+          details: ['1 parametro(s).']}},
       narrative: {
         headline: 'Tool surface com 1 item visivel.',
-        operatorSummary: 'Item em foco.',
-      },
-    });
+        operatorSummary: 'Item em foco.'}});
     const pack = buildPack({
-      toolSurfaceService: { buildSnapshot } as any,
-    });
+      toolSurfaceService: { buildSnapshot } as any});
     const ctx = buildCtx('/tools read_file');
 
     await pack.handleTools(ctx as any, 'read_file');
 
     expect(buildSnapshot).toHaveBeenCalledWith(expect.objectContaining({
       query: 'read_file',
-      selectedId: 'read_file',
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Em foco: read_file'));
+      selectedId: 'read_file'}));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('In focus: read_file'));
   });
 
   it('renders hook plane filters', async () => {
@@ -279,8 +227,8 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
 
     await pack.handleHooks(ctx as any, 'transport');
 
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Hook Plane do Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Filtro atual: transport'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth Hook Plane'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Current filter: transport'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Workspace Alpha: transport.before_action -> npm run hooks:transport:before'));
   });
 
@@ -291,7 +239,7 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
     const reply = await pack.buildModelsReply(ctx as any);
 
     expect(reply).toContain('Providers ready now');
-    expect(reply).toContain('Targets aceitos em /model: chat, code.');
+    expect(reply).toContain('Accepted targets in /model: chat, code.');
   });
 
   it('sends provider model summary with channel-native actions', async () => {
@@ -303,8 +251,6 @@ describe('SharedSurfaceGatewayToolingCommandPack', () => {
     expect(ctx.reply.mock.calls[0][0]).toContain('Providers ready now');
     expect(ctx.reply.mock.calls[0][1]).toEqual(expect.objectContaining({
       reply_markup: expect.objectContaining({
-        inline_keyboard: expect.any(Array),
-      }),
-    }));
+        inline_keyboard: expect.any(Array)})}));
   });
 });

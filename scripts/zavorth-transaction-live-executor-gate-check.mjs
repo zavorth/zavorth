@@ -89,10 +89,7 @@ try {
     failures.push(`micro rollout gate mismatch: ${needsMicroRollout.status}`);
   }
 
-  const needsOperator = runGateExpectFailure([
-    ...microRolloutCertifiedArgs(ref),
-    '--safe-live-adapter',
-  ]);
+  const needsOperator = runGateExpectFailure([...microRolloutCertifiedArgs(ref), '--safe-live-adapter']);
   if (needsOperator.status !== 'live-operator-confirmation-required') {
     failures.push(`live operator gate mismatch: ${needsOperator.status}`);
   }
@@ -117,7 +114,11 @@ try {
   if (ready.status !== 'live-ready-held') {
     failures.push(`live-ready-held mismatch: ${ready.status}`);
   }
-  if (!ready.readinessPacket?.liveExecutorReady || ready.readinessPacket?.liveExecutionAuthorized !== false || ready.readinessPacket?.externalSideEffects !== false) {
+  if (
+    !ready.readinessPacket?.liveExecutorReady ||
+    ready.readinessPacket?.liveExecutionAuthorized !== false ||
+    ready.readinessPacket?.externalSideEffects !== false
+  ) {
     failures.push('readiness packet must be ready-held with no live authorization or side effects');
   }
   if (!ready.gates.every((gate) => gate.passed === true)) {
@@ -156,7 +157,7 @@ try {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+    'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
     '--approve',
     '--mode',
     'paper',
@@ -200,7 +201,9 @@ try {
   console.log('- contract, service, CLI, docs and tests are present');
   console.log('- Intent model6 consumes Intent model4-15 micro-rollout-certified packets');
   console.log('- dedicated live operator phrase gates readiness');
-  console.log('- live adapter manifest, idempotency, price, balance, receipt, kill switch and rollback gates are ready');
+  console.log(
+    '- live adapter manifest, idempotency, price, balance, receipt, kill switch and rollback gates are ready',
+  );
   console.log('- execute-live, unsafe amounts and raw secrets remain blocked');
 } finally {
   rmSync(tempDir, { recursive: true, force: true });
@@ -216,7 +219,11 @@ function baseArgs(ref) {
     '--credential-store-file',
     credentialStoreFile,
     '--text',
-    'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+    'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+    '--kind',
+    'execute-trade',
+    '--action-kind',
+    'trade-order',
     '--approve',
     '--mode',
     'paper',
@@ -240,9 +247,7 @@ function baseArgs(ref) {
 }
 
 function readyBeforeMicroRolloutArgs(ref) {
-  return [
-    ...baseArgs(ref),
-  ];
+  return [...baseArgs(ref)];
 }
 
 function microRolloutCertifiedArgs(ref) {
@@ -285,19 +290,23 @@ function rollbackArgs() {
 }
 
 function runCredential(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-credential.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runGate(args) {
-  return JSON.parse(execFileSync(
-    process.execPath,
-    ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-executor-gate.ts', ...args],
-    { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
-  ));
+  return JSON.parse(
+    execFileSync(
+      process.execPath,
+      ['node_modules/tsx/dist/cli.mjs', 'scripts/zavorth-transaction-live-executor-gate.ts', ...args],
+      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env },
+    ),
+  );
 }
 
 function runGateExpectFailure(args) {

@@ -3,9 +3,9 @@ import { CapabilityDefinition } from '../../contracts/CapabilityContract.js';
 export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
   {
     id: 'command-research',
-    label: 'Pesquisa',
+    label: 'Research',
     type: 'research',
-    description: 'Enfileira uma pesquisa web estruturada com notificacao ao terminar.',
+    description: 'Queues structured web research and notifies when finished.',
     intent: 'research',
     executor_preference: null,
     dispatch_mode: 'execution',
@@ -14,8 +14,8 @@ export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
     routing_confidence: 1,
     command: {
       command: 'research',
-      description: 'Pesquisa um tema na web.',
-      usage: '<tema>',
+      description: 'Researches a topic on the web.',
+      usage: '<topic>',
       section: 'search',
       privateMenu: true,
       groupMenu: true,
@@ -30,7 +30,7 @@ export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
     id: 'command-deepresearch',
     label: 'Deep Research',
     type: 'research',
-    description: 'Enfileira uma pesquisa profunda multi-etapa.',
+    description: 'Queues multi-step deep research.',
     intent: 'deep_research',
     executor_preference: null,
     dispatch_mode: 'execution',
@@ -39,8 +39,8 @@ export const RESEARCH_CAPABILITIES: CapabilityDefinition[] = [
     routing_confidence: 1,
     command: {
       command: 'deepresearch',
-      description: 'Pesquisa profunda multi-etapa.',
-      usage: '<tema>',
+      description: 'Multi-step deep research.',
+      usage: '<topic>',
       section: 'search',
       privateMenu: false,
       groupMenu: false,

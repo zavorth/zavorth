@@ -14,7 +14,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
     const node = document.getElementById('operations-plugins');
     if (!node) return;
     if (!plugins || 'error' in (plugins as PluginPlaneErrorPayload)) {
-      node.innerHTML = '<div class="muted">Could not carregar o plugin plane.</div>';
+      node.innerHTML = '<div class="muted">Could not load plugin plane.</div>';
       return;
     }
 
@@ -36,7 +36,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
                 escapeHtml(String((action.id || '').split(':').pop() || 'inspect')) +
                 "'" +
                 ')">' +
-                escapeHtml(action.label || 'Acao') +
+                escapeHtml(action.label || 'Action') +
                 '</button>',
             )
             .join('')
@@ -59,14 +59,14 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
           .join('')
       : '<li>No plugin or extension visible right now.</li>';
     const selectedDetails = selected
-      ? '<div class="sidecar-card"><strong>Item em foco</strong>' +
+      ? '<div class="sidecar-card"><strong>Focused item</strong>' +
         '<small>' +
-        escapeHtml(selected.summary || 'Sem resumo adicional.') +
+        escapeHtml(selected.summary || 'No additional summary.') +
         '</small>' +
         '<small>Kind: ' +
         escapeHtml(selected.kind || 'item') +
         ' | Source: ' +
-        escapeHtml(selected.source || 'n/d') +
+        escapeHtml(selected.source || 'n/a') +
         '</small>' +
         '<div class="cockpit-command">' +
         escapeHtml(selected.actionHint || 'No suggested action.') +
@@ -75,7 +75,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
           ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">' + actionItems + '</div>'
           : '') +
         '</div>'
-      : '<div class="sidecar-card"><strong>Item em foco</strong><small>Use /plugins &lt;id|filtro&gt; para aprofundar um item do plane.</small></div>';
+      : '<div class="sidecar-card"><strong>Focused item</strong><small>Use /plugins &lt;id|filter&gt; to drill into a plane item.</small></div>';
 
     node.innerHTML =
       '<div class="cockpit-status">' +
@@ -113,7 +113,7 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       selectedDetails +
       '</div>' +
       '<div class="cockpit-stack">' +
-      '<div class="sidecar-card"><strong>Catalog resumido</strong><ul class="cockpit-list">' +
+      '<div class="sidecar-card"><strong>Catalog summary</strong><ul class="cockpit-list">' +
       entryItems +
       '</ul></div>' +
       '<div class="sidecar-card"><strong>Next step</strong><small>Use /plugins, /integrations and workspace packs to navigate the ecosystem without guessing where each extension lives.</small></div>' +
@@ -130,13 +130,13 @@ function zavorthControlClassicClientOverviewMeshPlugins() {
       });
       const payload = await response.json();
       if (!response.ok || payload.ok === false) {
-        throw new Error(payload.error || 'Failed to executar a acao do plugin plane.');
+        throw new Error(payload.error || 'Failed to run plugin plane action.');
       }
       renderOperationsPlugins(payload.plugins || null);
-      showToast(payload.result?.summary || 'Acao executada: ' + actionId + '.');
+      showToast(payload.result?.summary || 'Action completed: ' + actionId + '.');
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      showToast(error instanceof Error ? err.message : 'Failed to executar a acao do plugin plane.');
+      showToast(error instanceof Error ? err.message : 'Failed to run plugin plane action.');
     }
   }
 }

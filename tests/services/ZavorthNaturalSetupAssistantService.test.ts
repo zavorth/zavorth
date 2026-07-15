@@ -12,7 +12,7 @@ import { ZavorthNaturalSetupAssistantApiService } from '../../src/services/Zavor
 import { ZavorthNaturalSetupAssistantService } from '../../src/services/ZavorthNaturalSetupAssistantService';
 
 describe('ZavorthNaturalSetupAssistantService', () => {
-  it('turns plain Slack setup language into a governed preview without serializing raw secrets', () => {
+  it('keeps free text neutral: no action/kind/capability from keywords, but redacts secrets', () => {
     const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
 
     const snapshot = service.buildSnapshot({
@@ -21,8 +21,11 @@ describe('ZavorthNaturalSetupAssistantService', () => {
     });
 
     expect(snapshot.contractVersion).toBe(NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION);
-    expect(snapshot.detectedIntent.action).toBe('connect');
-    expect(snapshot.selectedCapability?.id).toBe('channel:slack');
+    expect(snapshot.detectedIntent.action).toBe('unknown');
+    expect(snapshot.detectedIntent.matchedAliases).toEqual([]);
+    expect(snapshot.selectedCapability).toBeNull();
+    expect(snapshot.governancePlan).toBeNull();
+    expect(snapshot.readiness.status).toBe('needs_manual_choice');
     expect(snapshot.request.redactedText).toContain('[SECRET_REDACTED]');
     expect(snapshot.request.redactedText).not.toContain('xoxb-redact-fixture');
     expect(snapshot.secretPlan.rawSecretValuesSerialized).toBe(false);
@@ -36,17 +39,41 @@ describe('ZavorthNaturalSetupAssistantService', () => {
       previewOnly: true,
       liveActivation: false,
       secretsSerialized: false,
+    });
+  });
+
+  it('uses structured preferredCapabilityId + action for a governed preview without serializing raw secrets', () => {
+    const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
+
+    const snapshot = service.buildSnapshot({
+      text: 'operator note with token xoxb-redact-fixture',
+      actorLabel: 'operator',
+      preferredCapabilityId: 'channel:slack',
+      action: 'connect',
+    });
+
+    expect(snapshot.detectedIntent.action).toBe('connect');
+    expect(snapshot.selectedCapability?.id).toBe('channel:slack');
+    expect(snapshot.request.redactedText).toContain('[SECRET_REDACTED]');
+    expect(snapshot.secretPlan.rawSecretValuesSerialized).toBe(false);
+    expect(snapshot.safety).toMatchObject({
+      previewOnly: true,
+      liveActivation: false,
+      secretsSerialized: false,
       approvalRequired: true,
     });
     expect(snapshot.governancePlan?.recipeId).toBe('safe-channel-activation');
     expect(snapshot.dryRunReceipt?.status).toBe('waiting_approval');
   });
 
-  it('plans provider validation as a readiness flow with no secret persistence', () => {
+  it('plans provider validation when structured fields select the capability', () => {
     const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
 
     const snapshot = service.buildSnapshot({
-      text: 'valide gemini para mim',
+      text: 'please check this later',
+      preferredCapabilityId: 'provider:gemini',
+      action: 'validate',
+      kind: 'provider',
     });
 
     expect(snapshot.detectedIntent.action).toBe('validate');
@@ -57,16 +84,31 @@ describe('ZavorthNaturalSetupAssistantService', () => {
     expect(snapshot.safety.liveActivation).toBe(false);
   });
 
-  it('renders a simple user-facing reply through the API facade', () => {
+  it('rejects preferredCapabilityId when structured kind does not match', () => {
+    const service = new ZavorthNaturalSetupAssistantService(buildRuntime());
+
+    const snapshot = service.buildSnapshot({
+      text: '',
+      preferredCapabilityId: 'channel:slack',
+      kind: 'provider',
+    });
+
+    expect(snapshot.selectedCapability).toBeNull();
+    expect(snapshot.readiness.status).toBe('needs_manual_choice');
+  });
+
+  it('renders a simple user-facing reply through the API facade with structured selection', () => {
     const api = new ZavorthNaturalSetupAssistantApiService(buildRuntime());
 
     const reply = api.renderReply({
-      text: 'configure github',
+      text: 'setup note',
+      preferredCapabilityId: 'integration:github',
+      action: 'configure',
     });
 
     expect(reply).toContain('GitHub');
-    expect(reply).toContain('Próximos passos');
-    expect(reply).toContain('ativação live=false');
+    expect(reply).toContain('Next steps');
+    expect(reply).toContain('live activation=false');
     expect(reply).not.toContain('MCP');
   });
 });
@@ -229,12 +271,14 @@ function buildPlan(target: CapabilityHubItem, approved: boolean): GovernanceReci
       runbook: recipe.rollback.runbook,
       requiresExplicitCommand: true,
     },
-    receipts: [{
-      id: `receipt:${recipe.id}:${target.id}:setup-plan`,
-      kind: 'setup-plan',
-      summary: 'Setup plan receipt.',
-      required: true,
-    }],
+    receipts: [
+      {
+        id: `receipt:${recipe.id}:${target.id}:setup-plan`,
+        kind: 'setup-plan',
+        summary: 'Setup plan receipt.',
+        required: true,
+      },
+    ],
     steps: [],
     narrative: {
       headline: 'Plan ready.',
@@ -264,8 +308,16 @@ function buildReceipt(target: CapabilityHubItem, approved: boolean): GovernanceR
 function buildRecipe(target: CapabilityHubItem): GovernanceRecipeDefinition {
   const isProvider = target.kind === 'provider';
   return {
-    id: isProvider ? 'provider-mcp-readiness' : target.kind === 'channel' ? 'safe-channel-activation' : 'governed-skill-run',
-    label: isProvider ? 'Readiness de provider e MCP' : target.kind === 'channel' ? 'Ativacao segura de canal' : 'Execucao governada',
+    id: isProvider
+      ? 'provider-mcp-readiness'
+      : target.kind === 'channel'
+        ? 'safe-channel-activation'
+        : 'governed-skill-run',
+    label: isProvider
+      ? 'Provider and MCP readiness'
+      : target.kind === 'channel'
+        ? 'Safe channel activation'
+        : 'Governed execution',
     summary: 'Fixture recipe.',
     targetKinds: [target.kind],
     tags: ['setup'],

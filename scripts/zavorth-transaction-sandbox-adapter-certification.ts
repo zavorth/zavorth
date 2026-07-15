@@ -1,15 +1,7 @@
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../src/contracts/ZavorthTransactionLiveCandidateContract.js';
-import type {
-  ZavorthTransactionConnectorKind,
-} from '../src/contracts/ZavorthTransactionPreviewContract.js';
-import type {
-  ZavorthTransactionSandboxAdapterCertificationInput,
-} from '../src/contracts/ZavorthTransactionSandboxAdapterCertificationContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import type { ZavorthTransactionConnectorKind } from '../src/contracts/ZavorthTransactionPreviewContract.js';
+import type { ZavorthTransactionSandboxAdapterCertificationInput } from '../src/contracts/ZavorthTransactionSandboxAdapterCertificationContract.js';
 import { ZavorthTransactionSandboxAdapterCertificationService } from '../src/services/ZavorthTransactionSandboxAdapterCertificationService.js';
 
 type CliOptions = ZavorthTransactionSandboxAdapterCertificationInput & {
@@ -86,6 +78,21 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
     } else if (arg?.startsWith('--text=')) {
       options.text = arg.slice('--text='.length);
+    } else if (arg === '--kind') {
+      options.kind = args[index + 1] as CliOptions['kind'];
+      index += 1;
+    } else if (arg?.startsWith('--kind=')) {
+      options.kind = arg.slice('--kind='.length) as CliOptions['kind'];
+    } else if (arg === '--action-kind') {
+      options.actionKind = args[index + 1] as CliOptions['actionKind'];
+      index += 1;
+    } else if (arg?.startsWith('--action-kind=')) {
+      options.actionKind = arg.slice('--action-kind='.length) as CliOptions['actionKind'];
+    } else if (arg === '--target-kind') {
+      options.targetKind = args[index + 1] as CliOptions['targetKind'];
+      index += 1;
+    } else if (arg?.startsWith('--target-kind=')) {
+      options.targetKind = arg.slice('--target-kind='.length) as CliOptions['targetKind'];
     } else if (arg === '--surface') {
       options.surface = normalizeSurface(args[index + 1]);
       index += 1;
@@ -129,12 +136,18 @@ function parseArgs(args: string[]): CliOptions {
       ensureLimits(options).allowedTargetLabels = pushList(ensureLimits(options).allowedTargetLabels, args[index + 1]);
       index += 1;
     } else if (arg?.startsWith('--allow-target=')) {
-      ensureLimits(options).allowedTargetLabels = pushList(ensureLimits(options).allowedTargetLabels, arg.slice('--allow-target='.length));
+      ensureLimits(options).allowedTargetLabels = pushList(
+        ensureLimits(options).allowedTargetLabels,
+        arg.slice('--allow-target='.length),
+      );
     } else if (arg === '--allow-connector') {
       ensureLimits(options).allowedConnectorIds = pushList(ensureLimits(options).allowedConnectorIds, args[index + 1]);
       index += 1;
     } else if (arg?.startsWith('--allow-connector=')) {
-      ensureLimits(options).allowedConnectorIds = pushList(ensureLimits(options).allowedConnectorIds, arg.slice('--allow-connector='.length));
+      ensureLimits(options).allowedConnectorIds = pushList(
+        ensureLimits(options).allowedConnectorIds,
+        arg.slice('--allow-connector='.length),
+      );
     } else if (arg === '--currency') {
       ensureLimits(options).currency = args[index + 1] ?? '';
       index += 1;
@@ -182,7 +195,10 @@ function parseArgs(args: string[]): CliOptions {
       ensureRollbackDrill(options).artifacts = pushList(ensureRollbackDrill(options).artifacts, args[index + 1]);
       index += 1;
     } else if (arg?.startsWith('--rollback-artifact=')) {
-      ensureRollbackDrill(options).artifacts = pushList(ensureRollbackDrill(options).artifacts, arg.slice('--rollback-artifact='.length));
+      ensureRollbackDrill(options).artifacts = pushList(
+        ensureRollbackDrill(options).artifacts,
+        arg.slice('--rollback-artifact='.length),
+      );
     } else if (arg === '--adapter-id') {
       ensureAdapter(options).id = args[index + 1] ?? '';
       index += 1;
@@ -207,7 +223,10 @@ function parseArgs(args: string[]): CliOptions {
       ensureAdapter(options).allowedHosts = pushList(ensureAdapter(options).allowedHosts, args[index + 1]);
       index += 1;
     } else if (arg?.startsWith('--adapter-allow-host=')) {
-      ensureAdapter(options).allowedHosts = pushList(ensureAdapter(options).allowedHosts, arg.slice('--adapter-allow-host='.length));
+      ensureAdapter(options).allowedHosts = pushList(
+        ensureAdapter(options).allowedHosts,
+        arg.slice('--adapter-allow-host='.length),
+      );
     } else if (arg === '--adapter-credential-ref') {
       ensureAdapter(options).credentialRef = args[index + 1] ?? '';
       index += 1;
@@ -281,7 +300,9 @@ function ensureAdapter(options: CliOptions): NonNullable<CliOptions['adapterMani
 }
 
 function normalizeSurface(value: string | undefined): CliOptions['surface'] {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (['web', 'cli', 'telegram', 'api', 'natural-first'].includes(normalized)) {
     return normalized as CliOptions['surface'];
   }
@@ -289,7 +310,9 @@ function normalizeSurface(value: string | undefined): CliOptions['surface'] {
 }
 
 function normalizeMode(value: string | undefined): CliOptions['mode'] {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'dry-run' || normalized === 'sandbox' || normalized === 'paper') {
     return normalized;
   }
@@ -297,7 +320,9 @@ function normalizeMode(value: string | undefined): CliOptions['mode'] {
 }
 
 function normalizeAdapterEnvironment(value: string | undefined): 'sandbox' | 'paper' | 'live' | 'production' {
-  const normalized = String(value ?? '').trim().toLowerCase();
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'paper' || normalized === 'live' || normalized === 'production') {
     return normalized;
   }
@@ -317,7 +342,7 @@ function normalizeConnectorKind(value: string | undefined): ZavorthTransactionCo
     'unknown',
   ];
   return allowed.includes(normalized as ZavorthTransactionConnectorKind)
-    ? normalized as ZavorthTransactionConnectorKind
+    ? (normalized as ZavorthTransactionConnectorKind)
     : 'unknown';
 }
 

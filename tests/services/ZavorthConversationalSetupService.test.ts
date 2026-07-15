@@ -5,12 +5,14 @@ import { describe, expect, it, jest } from '@jest/globals';
 import { LlmRuntimeService } from '../../src/services/llm/LlmRuntimeService.js';
 import { FirstRunPersonalizationService } from '../../src/services/FirstRunPersonalizationService.js';
 import { ZavorthConversationalSetupService } from '../../src/services/ZavorthConversationalSetupService.js';
+import { ConversationalSetupStateStore } from '../../src/services/onboarding/ConversationalSetupStateStore.js';
 
 function makeService(projectRoot?: string): ZavorthConversationalSetupService {
   return new ZavorthConversationalSetupService({
-    personalization: projectRoot
-      ? new FirstRunPersonalizationService({ projectRoot })
-      : undefined,
+    personalization: projectRoot ? new FirstRunPersonalizationService({ projectRoot }) : undefined,
+    stateStore: new ConversationalSetupStateStore({
+      projectRoot: projectRoot || fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-setup-state-')),
+    }),
   });
 }
 
@@ -21,6 +23,7 @@ describe('ZavorthConversationalSetupService', () => {
       agentName: 'Zavorth',
       userName: 'Grey',
       preferredAddress: 'Grey',
+      uiLocale: 'en-US',
       primaryUse: 'quero modo empresa com auditoria',
       approvalChannel: 'dashboard',
       firstSafeMission: 'safe audit',
@@ -90,13 +93,20 @@ describe('ZavorthConversationalSetupService', () => {
     expect(fs.readFileSync(path.join(projectRoot, 'IDENTITY.md'), 'utf8')).toContain('Vritra');
     expect(fs.readFileSync(path.join(projectRoot, 'USER.md'), 'utf8')).toContain('Grey Vritra');
     expect(fs.readFileSync(path.join(projectRoot, 'SOUL.md'), 'utf8')).toContain('User Calibration');
+
+    const rendered = service.renderText(snapshot);
+    expect(rendered).toContain('[complete]');
+    // i18n may resolve en-US or pt-BR from host locale; learning tip must always mention promote path.
+    expect(rendered).toMatch(/Setup Complete|Configuração Completa/);
+    expect(rendered).toContain('zavorth learn');
+    expect(rendered).toMatch(/skill drafts|rascunhos de skill/i);
   });
 
   describe('runFirstMessageIntake', () => {
     it('asks the next pending question when onboarding is incomplete', async () => {
       const service = makeService();
       const llmSpy = jest.spyOn(LlmRuntimeService.prototype, 'chat');
-      
+
       // First mock call (for JSON extraction)
       llmSpy.mockResolvedValueOnce({
         content: JSON.stringify({
@@ -110,7 +120,7 @@ describe('ZavorthConversationalSetupService', () => {
         toolCalls: [],
         finishReason: 'stop',
       });
-      
+
       // Second mock call (for generating the question)
       llmSpy.mockResolvedValueOnce({
         content: 'Qual é o seu nome?',
@@ -118,21 +128,38 @@ describe('ZavorthConversationalSetupService', () => {
         finishReason: 'stop',
       });
 
-      const result = await service.runFirstMessageIntake('test-session', [
-        { role: 'user', content: 'Olá' }
-      ]);
+      const result = await service.runFirstMessageIntake('test-session', [{ role: 'user', content: 'Olá' }]);
 
       expect(result.finished).toBe(false);
+      expect(result.status).toBe('collecting');
       expect(result.reply).toBe('Qual é o seu nome?');
-      
+
       llmSpy.mockRestore();
     });
 
-    it('finishes onboarding and applies config when all questions are answered', async () => {
+    it('falls back to the contract question when no LLM provider is configured', async () => {
+      const service = makeService();
+      const llmSpy = jest
+        .spyOn(LlmRuntimeService.prototype, 'chat')
+        .mockRejectedValue(new Error('No provider selected.'));
+
+      const result = await service.runFirstMessageIntake('offline-session', [{ role: 'user', content: 'Hello' }]);
+
+      expect(result).toEqual({
+        finished: false,
+        reply: expect.stringContaining('agent'),
+        status: 'collecting',
+      });
+      expect(llmSpy).toHaveBeenCalledTimes(2);
+
+      llmSpy.mockRestore();
+    });
+
+    it('persists a preview and applies only after explicit token confirmation', async () => {
       const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zavorth-intake-apply-'));
       const service = makeService(projectRoot);
       const llmSpy = jest.spyOn(LlmRuntimeService.prototype, 'chat');
-      
+
       // First mock call (for JSON extraction)
       llmSpy.mockResolvedValueOnce({
         content: JSON.stringify({
@@ -146,27 +173,47 @@ describe('ZavorthConversationalSetupService', () => {
         toolCalls: [],
         finishReason: 'stop',
       });
-      
-      // Second mock call (for greeting completion summary)
-      llmSpy.mockResolvedValueOnce({
-        content: 'Setup completed successfully!',
-        toolCalls: [],
-        finishReason: 'stop',
-      });
 
-      const result = await service.runFirstMessageIntake('test-session', [
-        { role: 'user', content: 'Use gpt-4o' }
-      ], {
-        type: 'nodejs',
-        suggestedMission: 'review code'
-      });
+      const preview = await service.runFirstMessageIntake(
+        'test-session',
+        [{ role: 'user', content: 'Use gpt-4o' }],
+        {
+          type: 'nodejs',
+          suggestedMission: 'review code',
+        },
+        { locale: 'en-US' },
+      );
 
-      expect(result.finished).toBe(true);
-      expect(result.reply).toBe('Setup completed successfully!');
-      
+      expect(preview.finished).toBe(false);
+      expect(preview.status).toBe('awaiting_confirmation');
+      expect(preview.confirmationToken).toEqual(expect.any(String));
+      expect(fs.existsSync(path.join(projectRoot, 'IDENTITY.md'))).toBe(false);
+
+      const applied = await service.runFirstMessageIntake('test-session', [], undefined, {
+        confirmPreviewToken: preview.confirmationToken,
+      });
+      expect(applied.finished).toBe(true);
+      expect(applied.status).toBe('applied');
+      expect(applied.reply).toMatch(/\/learn/);
       expect(fs.existsSync(path.join(projectRoot, 'IDENTITY.md'))).toBe(true);
       expect(fs.existsSync(path.join(projectRoot, 'USER.md'))).toBe(true);
-      
+
+      const replay = await service.runFirstMessageIntake('test-session', [], undefined, {
+        confirmPreviewToken: preview.confirmationToken,
+      });
+      expect(replay.status).toBe('confirmation_invalid');
+
+      llmSpy.mockRestore();
+    });
+
+    it('uses the requested device locale for deterministic prompts', async () => {
+      const service = makeService();
+      const llmSpy = jest.spyOn(LlmRuntimeService.prototype, 'chat').mockRejectedValue(new Error('offline'));
+
+      const result = await service.runFirstMessageIntake('pt-session', [], undefined, { locale: 'pt-BR' });
+
+      expect(result.reply).toContain('agente');
+      expect(result.status).toBe('collecting');
       llmSpy.mockRestore();
     });
   });

@@ -17,19 +17,33 @@ type RegistryCommandParams = {
   writer: CliWriter;
 };
 
+/**
+ * Explicit CLI profile tokens only — never free-text keyword feature routing.
+ * Accepts: short|dev|executive|mentor as a standalone token, or --profile <id>.
+ * Natural-language phrases ("resuma impacto…") stay model-owned.
+ */
 function parseExperienceResponseProfile(args: string): 'short' | 'dev' | 'executive' | 'mentor' | null {
-  const text = String(args || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (/\b(estilo|perfil|resposta)\s+(curto|objetivo|short)\b/.test(text) || /\b(use|usar)\s+(curto|objetivo|short)\b/.test(text)) {
-    return 'short';
+  const raw = String(args || '').trim();
+  if (!raw) return null;
+  const tokens = raw.split(/\s+/).filter(Boolean);
+  const profileFlagIdx = tokens.findIndex((t) => t === '--profile' || t === '-p' || t === '--style');
+  if (profileFlagIdx >= 0) {
+    const id = String(tokens[profileFlagIdx + 1] || '').toLowerCase();
+    if (id === 'short' || id === 'dev' || id === 'executive' || id === 'mentor') return id;
+    if (id === 'curto' || id === 'objetivo') return 'short';
+    if (id === 'developer' || id === 'technical' || id === 'tecnico') return 'dev';
+    if (id === 'executivo' || id === 'manager') return 'executive';
+    if (id === 'teacher' || id === 'didatico') return 'mentor';
+    return null;
   }
-  if (/\b(estilo|perfil|resposta)\s+(dev|developer|tecnico|technical)\b/.test(text) || /\b(include|inclua).*(arquivos|testes|evidencias)\b/.test(text)) {
-    return 'dev';
-  }
-  if (/\b(estilo|perfil|resposta)\s+(executivo|executive|manager)\b/.test(text) || /\b(resuma|resumo).*(impacto|decisao)\b/.test(text)) {
-    return 'executive';
-  }
-  if (/\b(estilo|perfil|resposta)\s+(mentor|didatico|teacher)\b/.test(text) || /\b(explique|ensine).*(enquanto|passo)\b/.test(text)) {
-    return 'mentor';
+  // Bare explicit token as first or only arg (CLI deterministic, not free-text NLU).
+  const first = String(tokens[0] || '').toLowerCase();
+  if (tokens.length === 1) {
+    if (first === 'short' || first === 'dev' || first === 'executive' || first === 'mentor') return first;
+    if (first === 'curto' || first === 'objetivo') return 'short';
+    if (first === 'developer' || first === 'technical' || first === 'tecnico') return 'dev';
+    if (first === 'executivo' || first === 'manager') return 'executive';
+    if (first === 'teacher' || first === 'didatico' || first === 'mentor') return 'mentor';
   }
   return null;
 }
@@ -39,8 +53,13 @@ function parseExperienceDiffCliArgs(args: string): {
   targetId: string;
   decision: 'approve-plan' | 'approve-file' | 'approve-hunk' | 'reject-hunk' | 'retry-without-hunk';
 } | null {
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const action = String(tokens[0] || '').trim().toLowerCase();
+  const tokens = String(args || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const action = String(tokens[0] || '')
+    .trim()
+    .toLowerCase();
   if (!action || action === 'list' || action === 'status' || action === 'review' || action === 'show') return null;
   const firstId = tokens[1] || 'current';
   const secondId = tokens[2] || firstId;
@@ -66,8 +85,13 @@ function parseExperienceLearningCliArgs(args: string): {
   candidateId?: string | null;
   decision: 'approve' | 'reject' | 'promote' | 'revoke' | 'reset' | 'export';
 } | null {
-  const tokens = String(args || '').trim().split(/\s+/).filter(Boolean);
-  const action = String(tokens[0] || '').trim().toLowerCase();
+  const tokens = String(args || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const action = String(tokens[0] || '')
+    .trim()
+    .toLowerCase();
   if (!action) return null;
   if (action === 'list' || action === 'status' || action === 'review') return null;
   if (action === 'approve' || action === 'reject' || action === 'promote' || action === 'revoke') {
@@ -85,7 +109,9 @@ function parseExperienceLearningCliArgs(args: string): {
   return null;
 }
 
-export async function handleZavorthCliRegistryExperienceCommand(params: RegistryCommandParams): Promise<CliExecutionResult | null> {
+export async function handleZavorthCliRegistryExperienceCommand(
+  params: RegistryCommandParams,
+): Promise<CliExecutionResult | null> {
   const { runtime, effectiveFlags, commandName, normalized, args, writer } = params;
 
   if (commandName === 'home' || commandName === 'experience') {
@@ -99,9 +125,14 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHome(snapshot)
-        : 'Experience Core unavailable neste runtime.';
+        : 'Experience Core unavailable in this runtime.';
     writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
+    return {
+      ok: Boolean(snapshot),
+      handled: true,
+      output: [body],
+      error: snapshot ? null : 'Experience Core unavailable.',
+    };
   }
 
   if (commandName === 'pulse') {
@@ -129,9 +160,14 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       ? JSON.stringify(snapshot?.daily?.pulse || { ok: false, error: 'Zavorth Pulse unavailable.' }, null, 2)
       : snapshot
         ? formatExperiencePulse(snapshot)
-        : 'Zavorth Pulse unavailable neste runtime.';
+        : 'Zavorth Pulse unavailable in this runtime.';
     writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Zavorth Pulse unavailable.' };
+    return {
+      ok: Boolean(snapshot),
+      handled: true,
+      output: [body],
+      error: snapshot ? null : 'Zavorth Pulse unavailable.',
+    };
   }
 
   if (commandName === 'hud') {
@@ -146,9 +182,14 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
       ? JSON.stringify(snapshot || { ok: false, error: 'Experience Core unavailable.' }, null, 2)
       : snapshot
         ? formatExperienceHud(snapshot)
-        : 'Experience Core unavailable neste runtime.';
+        : 'Experience Core unavailable in this runtime.';
     writer.line(body);
-    return { ok: Boolean(snapshot), handled: true, output: [body], error: snapshot ? null : 'Experience Core unavailable.' };
+    return {
+      ok: Boolean(snapshot),
+      handled: true,
+      output: [body],
+      error: snapshot ? null : 'Experience Core unavailable.',
+    };
   }
 
   if (commandName === 'diff') {
@@ -165,9 +206,7 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
           workspace: effectiveFlags.workspaceHint || null,
           diffDecision,
         });
-        const body = effectiveFlags.json
-          ? JSON.stringify(result, null, 2)
-          : formatExperienceCommandResult(result);
+        const body = effectiveFlags.json ? JSON.stringify(result, null, 2) : formatExperienceCommandResult(result);
         writer.line(body);
         return { ok: result.ok, handled: true, output: [body], error: result.error };
       }
@@ -207,9 +246,7 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
           responseProfile: responseProfile || undefined,
         },
       });
-      const body = effectiveFlags.json
-        ? JSON.stringify(result, null, 2)
-        : formatExperienceCommandResult(result);
+      const body = effectiveFlags.json ? JSON.stringify(result, null, 2) : formatExperienceCommandResult(result);
       writer.line(body);
       return { ok: result.ok, handled: true, output: [body], error: result.error };
     }
@@ -241,9 +278,7 @@ export async function handleZavorthCliRegistryExperienceCommand(params: Registry
         workspace: effectiveFlags.workspaceHint || null,
         learning,
       });
-      const body = effectiveFlags.json
-        ? JSON.stringify(result, null, 2)
-        : formatExperienceCommandResult(result);
+      const body = effectiveFlags.json ? JSON.stringify(result, null, 2) : formatExperienceCommandResult(result);
       writer.line(body);
       return { ok: result.ok, handled: true, output: [body], error: result.error };
     }

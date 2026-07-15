@@ -1,7 +1,4 @@
-import type {
-  PermissionRequest,
-  PermissionStatus,
-} from '@zavorth/contracts/PermissionRequest.js';
+import type { PermissionRequest, PermissionStatus } from '@zavorth/contracts/PermissionRequest.js';
 import {
   createSurfaceResponse,
   renderPlainSurfaceResponse,
@@ -10,7 +7,6 @@ import {
   type SurfaceResponseAction,
 } from '@zavorth/domain/surface/application/surface-response/index.js';
 import { TelegramPermissionDecisionPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionDecisionPresentationService.js';
-
 
 import { TelegramPermissionPromptPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionPromptPresentationService.js';
 import { TelegramPermissionReadPresentationService } from '../../../../gateways/channels/telegram/controllers/TelegramPermissionReadPresentationService.js';
@@ -27,34 +23,20 @@ export class TelegramPermissionPresentationService {
     this.readPresentation = new TelegramPermissionReadPresentationService(policy);
   }
 
-  public formatPermissionList(
-    permissions: PermissionRequest[],
-    status: PermissionStatus | 'all',
-  ): string {
-    return renderPlainSurfaceResponse(
-      this.buildPermissionListSurfaceResponse(permissions, status),
-    ).text;
+  public formatPermissionList(permissions: PermissionRequest[], status: PermissionStatus | 'all'): string {
+    return renderPlainSurfaceResponse(this.buildPermissionListSurfaceResponse(permissions, status)).text;
   }
 
   public formatPermissionDetails(permission: PermissionRequest): string {
-    return renderPlainSurfaceResponse(
-      this.buildPermissionDetailsSurfaceResponse(permission),
-    ).text;
+    return renderPlainSurfaceResponse(this.buildPermissionDetailsSurfaceResponse(permission)).text;
   }
 
-  public formatPermissionDecisionMessage(
-    permission: PermissionRequest,
-    action: 'approve' | 'reject' | 'edit',
-  ): string {
-    return renderPlainSurfaceResponse(
-      this.buildPermissionDecisionSurfaceResponse(permission, action),
-    ).text;
+  public formatPermissionDecisionMessage(permission: PermissionRequest, action: 'approve' | 'reject' | 'edit'): string {
+    return renderPlainSurfaceResponse(this.buildPermissionDecisionSurfaceResponse(permission, action)).text;
   }
 
   public formatPermissionCreatedMessage(permission: PermissionRequest): string {
-    return renderPlainSurfaceResponse(
-      this.buildPermissionCreatedSurfaceResponse(permission),
-    ).text;
+    return renderPlainSurfaceResponse(this.buildPermissionCreatedSurfaceResponse(permission)).text;
   }
 
   public buildPermissionListSurfaceResponse(
@@ -110,11 +92,7 @@ export class TelegramPermissionPresentationService {
     action: 'approve' | 'reject' | 'edit',
   ): SurfaceResponse {
     const title =
-      action === 'approve'
-        ? 'Permission approved'
-        : action === 'reject'
-          ? 'Permission rejected'
-          : 'Permission updated';
+      action === 'approve' ? 'Permission approved' : action === 'reject' ? 'Permission rejected' : 'Permission updated';
     return createSurfaceResponse({
       id: `telegram-permission-decision-${this.policy.shortPermissionId(permission)}-${action}`,
       intent: 'receipt',
@@ -128,7 +106,10 @@ export class TelegramPermissionPresentationService {
         },
       ],
       receipts: [
-        this.buildPermissionReceipt(permission, action === 'approve' ? 'allowed' : action === 'reject' ? 'denied' : 'done'),
+        this.buildPermissionReceipt(
+          permission,
+          action === 'approve' ? 'allowed' : action === 'reject' ? 'denied' : 'done',
+        ),
       ],
     });
   }
@@ -151,10 +132,7 @@ export class TelegramPermissionPresentationService {
     });
   }
 
-  private buildPermissionReceipt(
-    permission: PermissionRequest,
-    overrideStatus?: SurfaceReceiptStatus,
-  ) {
+  private buildPermissionReceipt(permission: PermissionRequest, overrideStatus?: SurfaceReceiptStatus) {
     return {
       id: permission.permission_id,
       title: this.policy.describePermissionSubject(permission),
@@ -231,10 +209,7 @@ export class TelegramPermissionPresentationService {
       ];
     }
 
-    return [
-      this.approveAction('once', 'Approve', shortId, 'success'),
-      this.rejectAction(shortId),
-    ];
+    return [this.approveAction('once', 'Approve', shortId, 'success'), this.rejectAction(shortId)];
   }
 
   private approveAction(
@@ -243,24 +218,28 @@ export class TelegramPermissionPresentationService {
     shortId: string,
     style: SurfaceResponseAction['style'],
   ): SurfaceResponseAction {
+    // confirmationRequired must stay false so Telegram/Discord renderers keep
+    // proposal-time Approve buttons on the card (they filter confirmed actions).
     return {
       id: `perm-approve-${shortId}-${scope}`,
       label,
       kind: 'callback',
       callbackData: `perm:approve:${shortId}:${scope}`,
+      command: `/perm approve 1`,
       style,
-      confirmationRequired: true,
+      confirmationRequired: false,
     };
   }
 
   private rejectAction(shortId: string): SurfaceResponseAction {
     return {
       id: `perm-reject-${shortId}`,
-      label: 'Rejeitar',
+      label: 'Reject',
       kind: 'callback',
       callbackData: `perm:reject:${shortId}`,
+      command: `/perm reject 1`,
       style: 'danger',
-      confirmationRequired: true,
+      confirmationRequired: false,
     };
   }
 }

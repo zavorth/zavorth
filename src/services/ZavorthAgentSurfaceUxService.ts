@@ -14,9 +14,7 @@ import type {
 } from '../contracts/runtime/ZavorthSubagentRuntimeContract.js';
 
 export class ZavorthAgentSurfaceUxService {
-  public buildSubagentRuntimeResponse(
-    snapshot: ZavorthSubagentRuntimeSnapshot,
-  ): SurfaceResponse {
+  public buildSubagentRuntimeResponse(snapshot: ZavorthSubagentRuntimeSnapshot): SurfaceResponse {
     const sessions = safeArray(snapshot.sessions);
     const timeline = safeArray(snapshot.timeline);
     const summary = snapshot.summary;
@@ -30,10 +28,10 @@ export class ZavorthAgentSurfaceUxService {
     return createSurfaceResponse({
       id: `zavorth-agents-${safeId(snapshot.action || 'status')}-${safeId(snapshot.generatedAt || 'now')}`,
       intent: 'status',
-      title: 'Agentes do Zavorth',
+      title: 'Zavorth agents',
       summary: [
         `Status ${snapshot.status || 'ready'}.`,
-        `Sessoes ${numberValue(summary.sessions)}.`,
+        `Sessions ${numberValue(summary.sessions)}.`,
         `Runs ${numberValue(summary.runs)}.`,
         `Workers ${numberValue(summary.workerResults)}.`,
       ].join(' '),
@@ -41,7 +39,7 @@ export class ZavorthAgentSurfaceUxService {
       blocks: [
         {
           kind: 'text',
-          title: 'Leitura operacional',
+          title: 'Operational read',
           text,
         },
         {
@@ -69,16 +67,18 @@ export class ZavorthAgentSurfaceUxService {
           items: timeline.slice(-5).map((event) => this.formatTimelineEvent(event)),
         },
         ...(autoProjection?.available
-          ? [{
-              kind: 'list' as const,
-              title: 'Auto subagents',
-              items: [
-                autoProjection.summary,
-                `selectedBy=${autoProjection.selectedBy}`,
-                `roles=${autoProjection.roles.join(', ') || 'auto'}`,
-                `next=${autoProjection.nextSafeAction}`,
-              ],
-            }]
+          ? [
+              {
+                kind: 'list' as const,
+                title: 'Auto subagents',
+                items: [
+                  autoProjection.summary,
+                  `selectedBy=${autoProjection.selectedBy}`,
+                  `roles=${autoProjection.roles.join(', ') || 'auto'}`,
+                  `next=${autoProjection.nextSafeAction}`,
+                ],
+              },
+            ]
           : []),
       ],
       actions,
@@ -94,9 +94,7 @@ export class ZavorthAgentSurfaceUxService {
     });
   }
 
-  public buildNaturalInvocationResponse(
-    plan: ZavorthNaturalInvocationPlan,
-  ): SurfaceResponse {
+  public buildNaturalInvocationResponse(plan: ZavorthNaturalInvocationPlan): SurfaceResponse {
     const actions = this.buildNaturalInvocationActions(plan);
     const execution = plan.execution?.subagentRuntime || null;
     const sandbox = plan.execution?.sandboxLifecycle || null;
@@ -140,12 +138,14 @@ export class ZavorthAgentSurfaceUxService {
               { key: 'conf', label: 'Conf.', width: 8, align: 'right' },
               { key: 'approval', label: 'Aprov.', width: 8 },
             ],
-            rows: safeArray(plan.candidates).slice(0, 5).map((candidate) => ({
-              tipo: candidate.kind,
-              nome: candidate.label,
-              conf: candidate.confidence.toFixed(2),
-              approval: candidate.requiresApproval ? 'yes' : 'no',
-            })),
+            rows: safeArray(plan.candidates)
+              .slice(0, 5)
+              .map((candidate) => ({
+                tipo: candidate.kind,
+                nome: candidate.label,
+                conf: candidate.confidence.toFixed(2),
+                approval: candidate.requiresApproval ? 'yes' : 'no',
+              })),
             emptyText: 'No additional candidate was needed.',
           },
         },
@@ -215,7 +215,12 @@ export class ZavorthAgentSurfaceUxService {
     const selected = snapshot.selectedSessionId || 'latest';
     return [
       commandAction('agents-status', 'Status', '/agents status', 'primary'),
-      commandAction('agents-spawn', 'Novo agente', '/agents spawn use subagentes para revisar em modo read-only', 'success'),
+      commandAction(
+        'agents-spawn',
+        'Novo agente',
+        '/agents spawn use subagentes para revisar em modo read-only',
+        'success',
+      ),
       commandAction('agents-read', 'Ler ultimo', `/agents read ${selected}`, 'secondary'),
       commandAction('agents-summary', 'Resumir', `/agents summarize ${selected}`, 'secondary'),
       commandAction('agents-cancel', 'Cancelar', `/agents cancel ${selected}`, 'danger'),
@@ -237,7 +242,9 @@ export class ZavorthAgentSurfaceUxService {
       actions.push(commandAction('sandbox-plan-selected', 'Sandbox', `/sandbox "${request}"`, 'success'));
     }
     if (plan.selectedSkillName) {
-      actions.push(commandAction('skills-use-selected', 'Use skill', `/skills use ${plan.selectedSkillName}`, 'success'));
+      actions.push(
+        commandAction('skills-use-selected', 'Use skill', `/skills use ${plan.selectedSkillName}`, 'success'),
+      );
     }
     if (plan.approval?.required) {
       actions.push({
@@ -324,7 +331,9 @@ function numberValue(value: unknown): number {
 }
 
 function firstLine(value: unknown, maxLength = 180): string {
-  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  const text = String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
   return text.length > maxLength ? `${text.slice(0, Math.max(1, maxLength - 3))}...` : text;
 }
 

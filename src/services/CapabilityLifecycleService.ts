@@ -12,22 +12,11 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
 import { getDefaultCapabilityRegistry } from '../capabilities/CapabilityRegistry.js';
-import {
-  type ZavorthProfile,
-  normalizeZavorthProfile,
-  RuntimeProfileService,
-} from './RuntimeProfileService.js';
-
+import { type ZavorthProfile, normalizeZavorthProfile, RuntimeProfileService } from './RuntimeProfileService.js';
 
 import { logger } from '../logger.js';
 
-export type CapabilityLifecycleState =
-  | 'declared'
-  | 'dormant'
-  | 'provisioning'
-  | 'ready'
-  | 'active'
-  | 'degraded';
+export type CapabilityLifecycleState = 'declared' | 'dormant' | 'provisioning' | 'ready' | 'active' | 'degraded';
 
 export type CapabilityActivationMode = 'builtin' | 'lazy' | 'sidecar';
 export type CapabilityApprovalScope = 'once' | 'session' | 'host';
@@ -116,9 +105,11 @@ export class CapabilityLifecycleService {
     manifests?: CapabilityManifest[];
   }) {
     this.stateFilePath = options?.stateFilePath || config.capabilityLifecycleStateFile;
-    this.runtimeProfileService = options?.runtimeProfileService || new RuntimeProfileService(undefined, {
-      stateFilePath: this.stateFilePath,
-    });
+    this.runtimeProfileService =
+      options?.runtimeProfileService ||
+      new RuntimeProfileService(undefined, {
+        stateFilePath: this.stateFilePath,
+      });
     this.manifests = options?.manifests || buildCapabilityManifests();
     this.manifestsById = new Map(this.manifests.map((manifest) => [manifest.id, manifest]));
     this.state = this.readState();
@@ -167,9 +158,7 @@ export class CapabilityLifecycleService {
         entry.notes = `profile ${normalized} preserved ${manifest.label} override`;
         continue;
       }
-      entry.state = enabledByProfile
-        ? (manifest.activationMode === 'builtin' ? 'active' : 'ready')
-        : 'dormant';
+      entry.state = enabledByProfile ? (manifest.activationMode === 'builtin' ? 'active' : 'ready') : 'dormant';
       entry.lastUpdatedAt = now;
       entry.notes = enabledByProfile
         ? `profile ${normalized} prewarms ${manifest.label}`
@@ -243,11 +232,7 @@ export class CapabilityLifecycleService {
       manifest.approvalRequired ? 'approval required' : 'provisioning required',
     ].filter(Boolean);
 
-    const capability = this.markCapabilityState(
-      capabilityId,
-      'degraded',
-      noteParts.join(' | '),
-    );
+    const capability = this.markCapabilityState(capabilityId, 'degraded', noteParts.join(' | '));
     if (!capability) {
       return null;
     }
@@ -280,10 +265,7 @@ export class CapabilityLifecycleService {
     return this.buildCapabilitySnapshot(manifest);
   }
 
-  public registerCapabilityUsage(
-    capabilityId: string,
-    note = 'capability used',
-  ): CapabilityStateSnapshot | null {
+  public registerCapabilityUsage(capabilityId: string, note = 'capability used'): CapabilityStateSnapshot | null {
     const manifest = this.manifestsById.get(capabilityId);
     if (!manifest) {
       return null;
@@ -298,7 +280,9 @@ export class CapabilityLifecycleService {
         hostEntry.lastUpdatedAt = now;
         hostEntry.notes = `${note} | one-time approval consumed`;
         hostEntry.state = manifest.enabledByDefaultProfiles.includes(this.getProfile())
-          ? (manifest.activationMode === 'builtin' ? 'active' : 'ready')
+          ? manifest.activationMode === 'builtin'
+            ? 'active'
+            : 'ready'
           : 'dormant';
         this.persistState();
         return this.buildCapabilitySnapshot(manifest);
@@ -428,9 +412,10 @@ export class CapabilityLifecycleService {
   public cleanupDormantCapabilityArtifacts(
     capabilityIds?: string[],
   ): Array<{ capabilityId: string; removedPaths: string[] }> {
-    const targetIds = Array.isArray(capabilityIds) && capabilityIds.length > 0
-      ? capabilityIds
-      : this.manifests.map((manifest) => manifest.id);
+    const targetIds =
+      Array.isArray(capabilityIds) && capabilityIds.length > 0
+        ? capabilityIds
+        : this.manifests.map((manifest) => manifest.id);
     const cleaned: Array<{ capabilityId: string; removedPaths: string[] }> = [];
 
     for (const capabilityId of targetIds) {
@@ -449,7 +434,9 @@ export class CapabilityLifecycleService {
       entry.notes = `dormant cleanup removed ${removedPaths.length} path(s)`;
       if (!entry.enabledByUser) {
         entry.state = manifest.enabledByDefaultProfiles.includes(this.getProfile())
-          ? (manifest.activationMode === 'builtin' ? 'active' : 'ready')
+          ? manifest.activationMode === 'builtin'
+            ? 'active'
+            : 'ready'
           : 'dormant';
       }
       cleaned.push({ capabilityId, removedPaths });
@@ -522,7 +509,9 @@ export class CapabilityLifecycleService {
       (manifest.id === 'core-runtime'
         ? 'active'
         : enabledByUser || enabledByProfile
-          ? manifest.activationMode === 'builtin' ? 'active' : 'ready'
+          ? manifest.activationMode === 'builtin'
+            ? 'active'
+            : 'ready'
           : 'dormant');
 
     return {
@@ -555,10 +544,7 @@ export class CapabilityLifecycleService {
     return this.state.capabilities[capabilityId];
   }
 
-  private getMutableCapabilityState(
-    capabilityId: string,
-    scope: CapabilityApprovalScope,
-  ): PersistedCapabilityState {
+  private getMutableCapabilityState(capabilityId: string, scope: CapabilityApprovalScope): PersistedCapabilityState {
     if (scope === 'host') {
       return this.ensureCapabilityState(capabilityId);
     }
@@ -592,9 +578,10 @@ export class CapabilityLifecycleService {
           fs.unlinkSync(absolutePath);
         }
         removed.push(relative.replace(/\\/g, '/'));
-      } catch (error: unknown) {// O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
-      logger.warn('[Capability Lifecycle] file cleanup failed', error);
-    }
+      } catch (error: unknown) {
+        // O Zavorth segue leve mesmo quando um artefato antigo esta travado por outro processo.
+        logger.warn('[Capability Lifecycle] file cleanup failed', error);
+      }
     }
     return removed;
   }
@@ -602,30 +589,38 @@ export class CapabilityLifecycleService {
   private readState(): PersistedCapabilityLifecycleState {
     try {
       if (fs.existsSync(this.stateFilePath)) {
-        const parsed = JSON.parse(fs.readFileSync(this.stateFilePath, 'utf8')) as PersistedCapabilityLifecycleState;
-        return {
-          version: 2,
-          profile: normalizeZavorthProfile(parsed.profile),
-          productMode: normalizeZavorthProductMode(
-            parsed.productMode,
-            normalizeZavorthProfile(parsed.profile),
-          ),
-          updatedAt: String(parsed.updatedAt || new Date().toISOString()),
-          capabilities: parsed.capabilities && typeof parsed.capabilities === 'object' ? parsed.capabilities : {},
-        };
+        const raw = fs.readFileSync(this.stateFilePath, 'utf8');
+        const trimmed = raw.trim();
+        // Empty state is treated as missing (fresh/test runtimes) — not corruption.
+        if (!trimmed) {
+          logger.debug('[Capability Lifecycle] empty state file; using defaults');
+        } else {
+          const parsed = JSON.parse(trimmed) as PersistedCapabilityLifecycleState;
+          return {
+            version: 2,
+            profile: normalizeZavorthProfile(parsed.profile),
+            productMode: normalizeZavorthProductMode(parsed.productMode, normalizeZavorthProfile(parsed.profile)),
+            updatedAt: String(parsed.updatedAt || new Date().toISOString()),
+            capabilities: parsed.capabilities && typeof parsed.capabilities === 'object' ? parsed.capabilities : {},
+          };
+        }
       }
-    } catch (error: unknown) {// Se o estado estiver corrompido, o Zavorth volta para o baseline leve.
-      logger.warn('[Capability Lifecycle] parsing failed', error);
+    } catch (error: unknown) {
+      // Corrupted non-empty state falls back to the light baseline.
+      const message = error instanceof Error ? error.message : String(error);
+      if (/Unexpected end of JSON input/i.test(message)) {
+        logger.debug('[Capability Lifecycle] empty or truncated JSON; using defaults', error);
+      } else {
+        logger.warn('[Capability Lifecycle] parsing failed', error);
+      }
     }
 
     return {
       version: 2,
       profile: this.runtimeProfileService.getProfile(),
-      productMode: resolveBootstrapProductMode(
-        null,
-        this.runtimeProfileService.getProfile(),
-        { stateFilePath: this.stateFilePath },
-      ),
+      productMode: resolveBootstrapProductMode(null, this.runtimeProfileService.getProfile(), {
+        stateFilePath: this.stateFilePath,
+      }),
       updatedAt: new Date().toISOString(),
       capabilities: {},
     };

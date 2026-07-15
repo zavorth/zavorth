@@ -14,10 +14,12 @@ function createRealtimeMock() {
       messages.push({ role: 'user', content });
       return messages[messages.length - 1];
     }),
-    recordAssistantMessage: jest.fn((_sessionId: string, content: string, _taskId?: string | null, kind?: string | null) => {
-      messages.push({ role: 'assistant', content, kind });
-      return messages[messages.length - 1];
-    }),
+    recordAssistantMessage: jest.fn(
+      (_sessionId: string, content: string, _taskId?: string | null, kind?: string | null) => {
+        messages.push({ role: 'assistant', content, kind });
+        return messages[messages.length - 1];
+      },
+    ),
     getResolvedSnapshot: jest.fn(async (sessionId: string) => ({
       sessionId,
       chatId: `web:${sessionId}`,
@@ -68,12 +70,19 @@ describe('WebAppConversationService natural-first routing', () => {
       pending: false,
       reasons: [],
       files: {
-        identity: '', soul: '', user: '', bootstrap: '', domain: '',
-        learningStyle: '', errorHandling: '', outputFormat: '', timeAutomation: ''
+        identity: '',
+        soul: '',
+        user: '',
+        bootstrap: '',
+        domain: '',
+        learningStyle: '',
+        errorHandling: '',
+        outputFormat: '',
+        timeAutomation: '',
       },
       bootstrapExists: false,
       missingUserFields: [],
-      identityName: 'Zavorth'
+      identityName: 'Zavorth',
     });
   });
 
@@ -93,7 +102,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
       getSharedSurfaceCommandService: () => sharedSurface as any,
     });
 
@@ -102,12 +111,14 @@ describe('WebAppConversationService natural-first routing', () => {
       message: 'Quero colocar voce no Discord',
     });
 
-    expect(sharedSurface.maybeHandle).toHaveBeenCalledWith(expect.objectContaining({
-      platform: 'web',
-      userId: 'web-user',
-      chatId: 'web:session-web-1',
-      rawText: 'Quero colocar voce no Discord',
-    }));
+    expect(sharedSurface.maybeHandle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        platform: 'web',
+        userId: 'web-user',
+        chatId: 'web:session-web-1',
+        rawText: 'Quero colocar voce no Discord',
+      }),
+    );
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-1',
@@ -116,9 +127,11 @@ describe('WebAppConversationService natural-first routing', () => {
       'shared-surface',
     );
     expect(result.taskId).toBeNull();
-    expect(result.snapshot.messages).toEqual(expect.arrayContaining([
-      expect.objectContaining({ role: 'assistant', content: expect.stringContaining('Discord') }),
-    ]));
+    expect(result.snapshot.messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ role: 'assistant', content: expect.stringContaining('Discord') }),
+      ]),
+    );
   });
 
   it('routes web chat through the canonical Surface API when the boundary is provided', async () => {
@@ -148,7 +161,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
       getSharedSurfaceCommandService: () => surfaceApi as any,
     });
 
@@ -157,17 +170,19 @@ describe('WebAppConversationService natural-first routing', () => {
       message: '/hub',
     });
 
-    expect(surfaceApi.handleCommand).toHaveBeenCalledWith(expect.objectContaining({
-      context: expect.objectContaining({
-        platform: 'web',
-        rawText: '/hub',
+    expect(surfaceApi.handleCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          platform: 'web',
+          rawText: '/hub',
+        }),
+        request: expect.objectContaining({
+          surface: 'web',
+          requestedBy: 'web-user',
+          threadId: 'session-web-boundary',
+        }),
       }),
-      request: expect.objectContaining({
-        surface: 'web',
-        requestedBy: 'web-user',
-        threadId: 'session-web-boundary',
-      }),
-    }));
+    );
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-boundary',
@@ -200,8 +215,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: runtime as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
     });
 
     const result = await service.processChatSend({
@@ -209,16 +224,18 @@ describe('WebAppConversationService natural-first routing', () => {
       message: 'me explique o plano atual',
     });
 
-    expect(legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'web',
-      userId: 'web-user',
-      chatId: 'web:session-web-gateway',
-      text: 'me explique o plano atual',
-      metadata: expect.objectContaining({
-        phase: 'legacy-unified-conversation-fallback-v1',
-        sessionId: 'session-web-gateway',
+    expect(legacyUnifiedGateway.handleEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        surface: 'web',
+        userId: 'web-user',
+        chatId: 'web:session-web-gateway',
+        text: 'me explique o plano atual',
+        metadata: expect.objectContaining({
+          phase: 'legacy-unified-conversation-fallback-v1',
+          sessionId: 'session-web-gateway',
+        }),
       }),
-    }));
+    );
     expect(sendToSession).not.toHaveBeenCalled();
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-gateway',
@@ -258,8 +275,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: runtime as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
     });
 
     await service.processChatSend({
@@ -267,13 +284,15 @@ describe('WebAppConversationService natural-first routing', () => {
       message: 'me responda naturalmente',
     });
 
-    expect(echoOutputStage.deliver).toHaveBeenCalledWith(expect.objectContaining({
-      surface: 'web',
-      text: 'Gateway web: me responda naturalmente',
-      rawInput: 'me responda naturalmente',
-      requestedBy: 'web-user',
-      sessionId: 'session-web-stage',
-    }));
+    expect(echoOutputStage.deliver).toHaveBeenCalledWith(
+      expect.objectContaining({
+        surface: 'web',
+        text: 'Gateway web: me responda naturalmente',
+        rawInput: 'me responda naturalmente',
+        requestedBy: 'web-user',
+        sessionId: 'session-web-stage',
+      }),
+    );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-stage',
       'stage:Gateway web: me responda naturalmente',
@@ -291,7 +310,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
       getSharedSurfaceCommandService: () => sharedSurface as any,
     });
 
@@ -301,12 +320,14 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     expect(sharedSurface.maybeHandle).toHaveBeenCalled();
-    expect(sendToSession).toHaveBeenCalledWith(expect.objectContaining({
-      platform: 'web',
-      chatId: 'web:session-web-2',
-      sessionId: 'session-web-2',
-      text: 'continue o plano anterior',
-    }));
+    expect(sendToSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        platform: 'web',
+        chatId: 'web:session-web-2',
+        sessionId: 'session-web-2',
+        text: 'continue o plano anterior',
+      }),
+    );
     expect(result.taskId).toBe('task-web-1');
   });
 
@@ -316,8 +337,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
     });
 
     await service.processChatSend({
@@ -327,14 +348,16 @@ describe('WebAppConversationService natural-first routing', () => {
       composerSettings: { effort: 'high' },
     });
 
-    expect(sendToSession).toHaveBeenCalledWith(expect.objectContaining({
-      composerPayload: expect.objectContaining({
-        experienceProfile: 'developer',
-        effortControl: expect.objectContaining({
-          requestedLevel: 'high',
+    expect(sendToSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        composerPayload: expect.objectContaining({
+          experienceProfile: 'developer',
+          effortControl: expect.objectContaining({
+            requestedLevel: 'high',
+          }),
         }),
       }),
-    }));
+    );
   });
 
   it('routes low-signal conversation through the Universal Agent Runtime without opening a task', async () => {
@@ -365,8 +388,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: { ...createRuntime(), legacyUnifiedGateway } as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -378,23 +401,27 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(sendToSession).not.toHaveBeenCalled();
     expect(result.taskId).toBeNull();
-    expect(result.responseDecision).toEqual(expect.objectContaining({
-      mode: 'conversation',
-      responsePath: 'fast-chat',
-      shouldShowArtifactInChat: false,
-    }));
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-chat-only' }).activeRun).toEqual(expect.objectContaining({
-      channel: 'web',
-      sessionId: 'session-dashboard-chat-only',
-      input: 'ol?',
-      metadata: expect.objectContaining({
-        responseDecision: expect.objectContaining({
-          responsePath: 'fast-chat',
-        }),
-        legacyUnifiedGatewayAvailable: true,
-        legacyUnifiedGatewayBypassed: true,
+    expect(result.responseDecision).toEqual(
+      expect.objectContaining({
+        mode: 'conversation',
+        responsePath: 'fast-chat',
+        shouldShowArtifactInChat: false,
       }),
-    }));
+    );
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-chat-only' }).activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'web',
+        sessionId: 'session-dashboard-chat-only',
+        input: 'ol?',
+        metadata: expect.objectContaining({
+          responseDecision: expect.objectContaining({
+            responsePath: 'fast-chat',
+          }),
+          legacyUnifiedGatewayAvailable: true,
+          legacyUnifiedGatewayBypassed: true,
+        }),
+      }),
+    );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-chat-only',
       expect.stringContaining('no model is configured yet'),
@@ -403,7 +430,7 @@ describe('WebAppConversationService natural-first routing', () => {
     );
   });
 
-  it('handles natural local folder inspection without opening an agent artifact run', async () => {
+  it('does not steal free-text folder inspection into local-inspector (agent-first)', async () => {
     const realtime = createRealtimeMock();
     const sendToSession = jest.fn(async () => ({ taskId: 'should-not-run' }));
     const agentGateway = new ZavorthAgentGateway({
@@ -413,8 +440,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -423,16 +450,10 @@ describe('WebAppConversationService natural-first routing', () => {
       message: 'analise o que tem dentro da minha pasta downloads',
     });
 
-    expect(sendToSession).not.toHaveBeenCalled();
-    expect(result.taskId).toBeNull();
-    expect(result.responseDecision).toEqual(expect.objectContaining({
-      mode: 'file-inspection',
-      responsePath: 'local-inspector',
-      shouldShowArtifactInChat: false,
-      target: expect.objectContaining({ type: 'folder' }),
-    }));
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-downloads' }).activeRun).toBeNull();
-    expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
+    // Free text never keyword-routes to file-inspection feature; agent owns the turn.
+    expect(result.responseDecision?.mode).not.toBe('file-inspection');
+    expect(result.responseDecision?.responsePath).not.toBe('local-inspector');
+    expect(realtime.recordAssistantMessage).not.toHaveBeenCalledWith(
       'session-dashboard-downloads',
       expect.any(String),
       null,
@@ -450,8 +471,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -468,32 +489,36 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     expect(result.taskId).toBeNull();
-    expect(result.responseDecision).toEqual(expect.objectContaining({
-      responsePath: 'agent-runtime',
-      requestedTools: expect.arrayContaining(['network_fetch']),
-    }));
-    expect(sendToSession).not.toHaveBeenCalled();
-    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-skill' });
-    expect(snapshot.activeRun).toEqual(expect.objectContaining({
-      status: 'waiting_approval',
-      summary: 'Capability Negotiation aguardando aprovacao de escopo.',
-      approvals: [
-        expect.objectContaining({
-          status: 'pending',
-          risk: 'attention',
-        }),
-      ],
-    }));
-    expect(snapshot.activeRun?.metadata).toEqual(expect.objectContaining({
-      responseDecision: expect.objectContaining({
+    expect(result.responseDecision).toEqual(
+      expect.objectContaining({
+        responsePath: 'agent-runtime',
         requestedTools: expect.arrayContaining(['network_fetch']),
       }),
-      composerPayload: expect.objectContaining({
-        selectedSkills: [
-          expect.objectContaining({ id: 'network_fetch' }),
+    );
+    expect(sendToSession).not.toHaveBeenCalled();
+    const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-skill' });
+    expect(snapshot.activeRun).toEqual(
+      expect.objectContaining({
+        status: 'waiting_approval',
+        summary: 'Capability Negotiation aguardando aprovacao de escopo.',
+        approvals: [
+          expect.objectContaining({
+            status: 'pending',
+            risk: 'attention',
+          }),
         ],
       }),
-    }));
+    );
+    expect(snapshot.activeRun?.metadata).toEqual(
+      expect.objectContaining({
+        responseDecision: expect.objectContaining({
+          requestedTools: expect.arrayContaining(['network_fetch']),
+        }),
+        composerPayload: expect.objectContaining({
+          selectedSkills: [expect.objectContaining({ id: 'network_fetch' })],
+        }),
+      }),
+    );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard-skill',
       expect.stringContaining('I need your confirmation'),
@@ -530,8 +555,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: { ...createRuntime(), legacyUnifiedGateway } as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -552,21 +577,23 @@ describe('WebAppConversationService natural-first routing', () => {
     expect(result.taskId).toBeNull();
     expect(result.responseDecision).toBeNull();
     expect(sendToSession).not.toHaveBeenCalled();
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-text-attachment' }).activeRun).toEqual(expect.objectContaining({
-      channel: 'web',
-      input: expect.stringContaining('O usuario enviou anexos textuais'),
-      metadata: expect.objectContaining({
-        composerPayload: expect.objectContaining({
-          originalMessage: 'me diga o que tem nesse arquivo',
-          attachmentConversation: true,
-          attachments: [
-            expect.objectContaining({ name: 'token.txt', text: expect.stringContaining('QvSxjZLRMQHD') }),
-          ],
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-text-attachment' }).activeRun).toEqual(
+      expect.objectContaining({
+        channel: 'web',
+        input: expect.stringContaining('O usuario enviou anexos textuais'),
+        metadata: expect.objectContaining({
+          composerPayload: expect.objectContaining({
+            originalMessage: 'me diga o que tem nesse arquivo',
+            attachmentConversation: true,
+            attachments: [
+              expect.objectContaining({ name: 'token.txt', text: expect.stringContaining('QvSxjZLRMQHD') }),
+            ],
+          }),
+          legacyUnifiedGatewayAvailable: true,
+          legacyUnifiedGatewayBypassed: true,
         }),
-        legacyUnifiedGatewayAvailable: true,
-        legacyUnifiedGatewayBypassed: true,
       }),
-    }));
+    );
     expect(legacyUnifiedGateway.handleEvent).not.toHaveBeenCalled();
     expect(realtime.recordUserMessage).toHaveBeenCalledWith(
       'session-dashboard-text-attachment',
@@ -588,10 +615,12 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
     });
-    const encodedText = 'QvSxjZLRMQHD%2Bo2UQfv05oFK6Ev%2BsA%2B%2BKRbIMbVDbc8T6EJfayYIqAiXvvmlMJ03q%2FLxhcFz%2F6'.repeat(4);
+    const encodedText = 'QvSxjZLRMQHD%2Bo2UQfv05oFK6Ev%2BsA%2B%2BKRbIMbVDbc8T6EJfayYIqAiXvvmlMJ03q%2FLxhcFz%2F6'.repeat(
+      4,
+    );
 
     await service.processChatSend({
       sessionId: 'session-dashboard-text-attachment-fallback',
@@ -629,8 +658,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -678,7 +707,7 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
       getSharedSurfaceCommandService: () => sharedSurface as any,
       agentGateway,
     });
@@ -690,12 +719,14 @@ describe('WebAppConversationService natural-first routing', () => {
 
     expect(sendToSession).not.toHaveBeenCalled();
     expect(result.taskId).toBeNull();
-    expect(result.responseDecision).toEqual(expect.objectContaining({
-      mode: 'operation',
-      responsePath: 'agent-runtime',
-      requestedTools: expect.arrayContaining(['network_fetch']),
-      shouldShowArtifactInChat: false,
-    }));
+    expect(result.responseDecision).toEqual(
+      expect.objectContaining({
+        mode: 'operation',
+        responsePath: 'agent-runtime',
+        requestedTools: expect.arrayContaining(['network_fetch']),
+        shouldShowArtifactInChat: false,
+      }),
+    );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-dashboard',
       expect.stringContaining('I need your confirmation'),
@@ -703,33 +734,39 @@ describe('WebAppConversationService natural-first routing', () => {
       'universal-agent-runtime',
     );
     const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard' });
-    expect(snapshot.activeRun).toEqual(expect.objectContaining({
-      sessionId: 'session-dashboard',
-      channel: 'web',
-      status: 'waiting_approval',
-      summary: 'Capability Negotiation aguardando aprovacao de escopo.',
-      approvals: [
-        expect.objectContaining({
-          status: 'pending',
-          risk: 'attention',
-        }),
-      ],
-    }));
-    expect(snapshot.activeRun?.toolExposure.tools).toEqual(expect.arrayContaining([
+    expect(snapshot.activeRun).toEqual(
       expect.objectContaining({
-        id: 'network_fetch',
-        risk: 'attention',
-        requiresApproval: false,
+        sessionId: 'session-dashboard',
+        channel: 'web',
+        status: 'waiting_approval',
+        summary: 'Capability Negotiation aguardando aprovacao de escopo.',
+        approvals: [
+          expect.objectContaining({
+            status: 'pending',
+            risk: 'attention',
+          }),
+        ],
       }),
-    ]));
-    expect(snapshot.activeRun?.metadata).toEqual(expect.objectContaining({
-      artifactPolicy: expect.objectContaining({
-        shouldShowArtifactInChat: false,
+    );
+    expect(snapshot.activeRun?.toolExposure.tools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'network_fetch',
+          risk: 'attention',
+          requiresApproval: false,
+        }),
+      ]),
+    );
+    expect(snapshot.activeRun?.metadata).toEqual(
+      expect.objectContaining({
+        artifactPolicy: expect.objectContaining({
+          shouldShowArtifactInChat: false,
+        }),
+        responseDecision: expect.objectContaining({
+          responsePath: 'agent-runtime',
+        }),
       }),
-      responseDecision: expect.objectContaining({
-        responsePath: 'agent-runtime',
-      }),
-    }));
+    );
   });
 
   it('clamps dynamic workflow fanout to the selected effort budget', async () => {
@@ -748,8 +785,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -767,20 +804,22 @@ describe('WebAppConversationService natural-first routing', () => {
     });
 
     const snapshot = agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-workflow-budget' });
-    expect(snapshot.activeRun?.metadata).toEqual(expect.objectContaining({
-      dynamicWorkflow: expect.objectContaining({
-        command: '/workflows',
-        maxFanout: 1,
-        effortLevel: 'low',
-        budgetGuardRequired: true,
-      }),
-      effortControl: expect.objectContaining({
-        effectiveLevel: 'low',
-        budget: expect.objectContaining({
-          maxSubagents: 1,
+    expect(snapshot.activeRun?.metadata).toEqual(
+      expect.objectContaining({
+        dynamicWorkflow: expect.objectContaining({
+          command: '/workflows',
+          maxFanout: 1,
+          effortLevel: 'low',
+          budgetGuardRequired: true,
+        }),
+        effortControl: expect.objectContaining({
+          effectiveLevel: 'low',
+          budget: expect.objectContaining({
+            maxSubagents: 1,
+          }),
         }),
       }),
-    }));
+    );
 
     await service.processChatSend({
       sessionId: 'session-dashboard-workflow-fractional-budget',
@@ -798,19 +837,21 @@ describe('WebAppConversationService natural-first routing', () => {
     const fractionalSnapshot = agentGateway.buildSnapshot({
       activeSessionId: 'session-dashboard-workflow-fractional-budget',
     });
-    expect(fractionalSnapshot.activeRun?.metadata).toEqual(expect.objectContaining({
-      dynamicWorkflow: expect.objectContaining({
-        command: '/workflows',
-        maxFanout: 1,
-        effortLevel: 'low',
-        budgetGuardRequired: true,
-      }),
-      effortControl: expect.objectContaining({
-        budget: expect.objectContaining({
-          maxSubagents: 1,
+    expect(fractionalSnapshot.activeRun?.metadata).toEqual(
+      expect.objectContaining({
+        dynamicWorkflow: expect.objectContaining({
+          command: '/workflows',
+          maxFanout: 1,
+          effortLevel: 'low',
+          budgetGuardRequired: true,
+        }),
+        effortControl: expect.objectContaining({
+          budget: expect.objectContaining({
+            maxSubagents: 1,
+          }),
         }),
       }),
-    }));
+    );
   });
 
   it('stops risky Dashboard requests at the Universal Agent approval gate', async () => {
@@ -829,8 +870,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       agentGateway,
     });
 
@@ -847,15 +888,17 @@ describe('WebAppConversationService natural-first routing', () => {
       null,
       'universal-agent-runtime',
     );
-    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-risk' }).activeRun).toEqual(expect.objectContaining({
-      status: 'waiting_approval',
-      approvals: [
-        expect.objectContaining({
-          status: 'pending',
-          risk: 'danger',
-        }),
-      ],
-    }));
+    expect(agentGateway.buildSnapshot({ activeSessionId: 'session-dashboard-risk' }).activeRun).toEqual(
+      expect.objectContaining({
+        status: 'waiting_approval',
+        approvals: [
+          expect.objectContaining({
+            status: 'pending',
+            risk: 'danger',
+          }),
+        ],
+      }),
+    );
   });
 
   it('records a resource preflight for heavy chat requests before dispatching the task', async () => {
@@ -864,8 +907,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       taskResourcePlanner: {
         planChatTask: jest.fn(async () => ({
           generatedAt: '2026-04-14T16:00:00.000Z',
@@ -906,10 +949,12 @@ describe('WebAppConversationService natural-first routing', () => {
       null,
       'resource-impact',
     );
-    expect(result.resourceImpact).toEqual(expect.objectContaining({
-      heavy: true,
-      approvalRequired: true,
-    }));
+    expect(result.resourceImpact).toEqual(
+      expect.objectContaining({
+        heavy: true,
+        approvalRequired: true,
+      }),
+    );
     expect(sendToSession).toHaveBeenCalled();
   });
 
@@ -919,8 +964,8 @@ describe('WebAppConversationService natural-first routing', () => {
     const service = new WebAppConversationService({
       runtime: createRuntime() as any,
       realtime: realtime as any,
-      getGatewaySessionTools: () => ({ sendToSession } as any),
-      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) } as any),
+      getGatewaySessionTools: () => ({ sendToSession }) as any,
+      getSharedSurfaceCommandService: () => ({ maybeHandle: jest.fn(async () => false) }) as any,
       taskResourcePlanner: {
         planChatTask: jest.fn(async () => createImpact()),
         renderImpactSummary: jest.fn(() => 'Impacto estimado.'),
@@ -982,9 +1027,11 @@ describe('WebAppConversationService natural-first routing', () => {
 
     expect(sendToSession).not.toHaveBeenCalled();
     expect(result.taskId).toBeNull();
-    expect(result.modeEscalation).toEqual(expect.objectContaining({
-      status: 'pending',
-    }));
+    expect(result.modeEscalation).toEqual(
+      expect.objectContaining({
+        status: 'pending',
+      }),
+    );
     expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
       'session-web-4',
       expect.stringContaining('/mode approve mode-escalation-builder-1'),
@@ -997,48 +1044,77 @@ describe('WebAppConversationService natural-first routing', () => {
     it('intercepts chat messages and runs conversational setup when personalization is pending', async () => {
       const realtime = createRealtimeMock();
       const sendToSession = jest.fn();
-      
+
       personalizationSpy.mockReturnValue({
         pending: true,
         reasons: ['USER.md has pending fields'],
         files: {
-          identity: '', soul: '', user: '', bootstrap: '', domain: '',
-          learningStyle: '', errorHandling: '', outputFormat: '', timeAutomation: ''
+          identity: '',
+          soul: '',
+          user: '',
+          bootstrap: '',
+          domain: '',
+          learningStyle: '',
+          errorHandling: '',
+          outputFormat: '',
+          timeAutomation: '',
         },
         bootstrapExists: false,
         missingUserFields: ['Name'],
-        identityName: 'Zavorth'
+        identityName: 'Zavorth',
       });
 
-      const intakeSpy = jest.spyOn(ZavorthConversationalSetupService.prototype, 'runFirstMessageIntake').mockResolvedValue({
-        reply: 'Qual é o seu nome?',
-        finished: false
-      });
+      const intakeSpy = jest
+        .spyOn(ZavorthConversationalSetupService.prototype, 'runFirstMessageIntake')
+        .mockResolvedValue({
+          reply: 'Qual é o seu nome?',
+          finished: false,
+          status: 'awaiting_confirmation',
+          confirmationToken: 'trusted-confirm-token',
+          preview: {
+            agentIntroduction: 'Zavorth',
+            userSummary: 'Local user',
+            operatingStyle: 'Safe',
+            firstMission: 'Review files',
+          },
+        });
 
       const service = new WebAppConversationService({
         runtime: {
           webUserId: 'web-user',
-          projectRoot: '/fake/root'
+          projectRoot: '/fake/root',
         } as any,
         realtime: realtime as any,
-        getGatewaySessionTools: () => ({ sendToSession } as any),
+        getGatewaySessionTools: () => ({ sendToSession }) as any,
       });
 
       const result = await service.processChatSend({
         sessionId: 'session-web-onboard-1',
-        message: 'Olá'
+        deviceLocale: 'pt-BR',
+        onboardingConfirmationToken: 'trusted-confirm-token',
+        message: 'Olá',
       });
 
       expect(personalizationSpy).toHaveBeenCalled();
       expect(intakeSpy).toHaveBeenCalled();
+      expect(intakeSpy).toHaveBeenCalledWith('session-web-onboard-1', expect.any(Array), expect.any(Object), {
+        locale: 'pt-BR',
+        confirmPreviewToken: 'trusted-confirm-token',
+      });
       expect(realtime.recordAssistantMessage).toHaveBeenCalledWith(
         'session-web-onboard-1',
         'Qual é o seu nome?',
         null,
-        'conversational-setup-reply'
+        'conversational-setup-reply',
       );
       expect(result.sessionId).toBe('session-web-onboard-1');
       expect(result.taskId).toBeNull();
+      expect(result.onboarding).toEqual(
+        expect.objectContaining({
+          status: 'awaiting_confirmation',
+          confirmationToken: 'trusted-confirm-token',
+        }),
+      );
 
       intakeSpy.mockRestore();
     });

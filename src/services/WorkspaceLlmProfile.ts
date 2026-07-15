@@ -7,12 +7,19 @@ export type WorkspaceLlmStrategy = {
   modelName?: string;
   allowFallback: boolean;
   fallbackOrder: string[];
+  role?: 'default' | 'strong' | 'background';
+  roleReason?: string;
 };
 
 type ResolveWorkspaceLlmStrategyOptions = {
   configuredProviderName?: string;
   isProviderUsable?: (name: string) => boolean;
   workspaceMemory?: Record<string, any> | null | undefined;
+  roleScopeId?: string | null;
+  forceStrong?: boolean | null;
+  effortHigh?: boolean | null;
+  role?: 'default' | 'strong' | 'background' | null;
+  defaultFailed?: boolean | null;
 };
 
 export function resolveWorkspaceLlmStrategy(
@@ -20,7 +27,7 @@ export function resolveWorkspaceLlmStrategy(
   taskSubtype: WorkspaceTaskSubtype,
   options: ResolveWorkspaceLlmStrategyOptions = {},
 ): WorkspaceLlmStrategy {
-  const configured = String(options.configuredProviderName || (config.llmProvider || ''))
+  const configured = String(options.configuredProviderName || config.llmProvider || '')
     .trim()
     .toLowerCase();
   const isProviderUsable = (name: string) => {
@@ -28,15 +35,16 @@ export function resolveWorkspaceLlmStrategy(
     if (!options.isProviderUsable) {
       return true;
     }
-    return options.isProviderUsable(canonical)
-      || (canonical === 'aigateway' && options.isProviderUsable('AIGateway'));
+    return options.isProviderUsable(canonical) || (canonical === 'aigateway' && options.isProviderUsable('AIGateway'));
   };
   const learnedRecommendation = resolveLearnedWorkspaceLlmRecommendation(
     options.workspaceMemory,
     taskKind,
     taskSubtype,
   );
-  const learnedProvider = ProviderFactory.normalizeProviderName(String(learnedRecommendation?.preferred_provider || ''));
+  const learnedProvider = ProviderFactory.normalizeProviderName(
+    String(learnedRecommendation?.preferred_provider || ''),
+  );
 
   // Only the user-configured provider plus explicit user fallback order — never invent vendors.
   const userFallbacks = Array.isArray((config as { echoLlmFallbackOrder?: string[] }).echoLlmFallbackOrder)
@@ -47,21 +55,56 @@ export function resolveWorkspaceLlmStrategy(
   const ordered = Array.from(
     new Set(candidates.map((entry) => ProviderFactory.normalizeProviderName(entry)).filter(Boolean)),
   );
-  const preferredCandidates = learnedProvider
-    && isProviderUsable(learnedProvider)
-    && (Number(learnedRecommendation?.success_count || 0) >= 2 || learnedRecommendation?.confidence === 'high')
+  const preferredCandidates =
+    learnedProvider &&
+    isProviderUsable(learnedProvider) &&
+    (Number(learnedRecommendation?.success_count || 0) >= 2 || learnedRecommendation?.confidence === 'high')
       ? [learnedProvider, ...ordered.filter((entry) => entry !== learnedProvider)]
       : ordered;
   const primaryProvider = preferredCandidates.find((entry) => isProviderUsable(entry)) || configured;
   const fallbackOrder = ordered.filter((entry) => entry !== primaryProvider && isProviderUsable(entry));
+  const baseModel =
+    (primaryProvider === learnedProvider ? String(learnedRecommendation?.preferred_model || '').trim() : '') ||
+    resolveWorkspaceModelStrategy(primaryProvider, taskKind, taskSubtype);
+
+  let providerName = primaryProvider;
+  let modelName = baseModel;
+  let role: WorkspaceLlmStrategy['role'] = 'default';
+  let roleReason = 'configured_stack';
+
+  try {
+    const { LlmRoleRoutingService, formatRoleTelemetry } =
+      require('./llm/LlmRoleRoutingService.js') as typeof import('./llm/LlmRoleRoutingService.js');
+    const roleService = new LlmRoleRoutingService();
+    const scopeId = String(options.roleScopeId || 'global').trim() || 'global';
+    const resolved = roleService.resolveRole(
+      scopeId,
+      {
+        role: options.role,
+        forceStrong: options.forceStrong === true,
+        effortHigh: options.effortHigh === true,
+        taskKind,
+        defaultFailed: options.defaultFailed === true,
+      },
+      primaryProvider,
+      baseModel,
+      isProviderUsable,
+    );
+    providerName = resolved.providerName || primaryProvider;
+    modelName = resolved.modelName || baseModel;
+    role = resolved.role;
+    roleReason = formatRoleTelemetry(resolved);
+  } catch {
+    // Roles optional if store unavailable.
+  }
 
   return {
-    providerName: primaryProvider,
-    modelName:
-      (primaryProvider === learnedProvider ? String(learnedRecommendation?.preferred_model || '').trim() : '')
-      || resolveWorkspaceModelStrategy(primaryProvider, taskKind, taskSubtype),
+    providerName,
+    modelName,
     allowFallback: fallbackOrder.length > 0,
     fallbackOrder,
+    role,
+    roleReason,
   };
 }
 
@@ -72,48 +115,33 @@ export function resolveWorkspaceModelStrategy(
 ): string | undefined {
   if (taskKind === 'research' && taskSubtype === 'summarization') {
     if (providerName === 'gemini') {
-      return pickModel(
-        config.graphResearchSummaryModel,
-        config.aiStudioModel,
-        config.geminiModel,
-      );
+      return pickModel(config.graphResearchSummaryModel, config.aiStudioModel, config.geminiModel);
     }
 
-    return pickModel(
-      config.graphResearchSummaryModel,
-      getDefaultProviderModel(providerName),
-    );
+    return pickModel(config.graphResearchSummaryModel, getDefaultProviderModel(providerName));
   }
 
   if (taskKind === 'research' && (taskSubtype === 'comparison' || taskSubtype === 'web_research')) {
-    return pickModel(
-      config.graphResearchDeepModel,
-      getDefaultProviderModel(providerName),
-    );
+    return pickModel(config.graphResearchDeepModel, getDefaultProviderModel(providerName));
   }
 
-  if (
-    taskKind === 'code'
-    && (taskSubtype === 'review' || taskSubtype === 'testing' || taskSubtype === 'debugging')
-  ) {
-    return pickModel(
-      config.graphCodeReasoningModel,
-      getDefaultProviderModel(providerName),
-    );
+  if (taskKind === 'code' && (taskSubtype === 'review' || taskSubtype === 'testing' || taskSubtype === 'debugging')) {
+    return pickModel(config.graphCodeReasoningModel, getDefaultProviderModel(providerName));
   }
 
   if (taskKind === 'automation') {
-    return pickModel(
-      config.graphAutomationModel,
-      getDefaultProviderModel(providerName),
-    );
+    return pickModel(config.graphAutomationModel, getDefaultProviderModel(providerName));
   }
 
   return undefined;
 }
 
 function getDefaultProviderModel(providerName: string): string {
-  switch (String(providerName || '').trim().toLowerCase()) {
+  switch (
+    String(providerName || '')
+      .trim()
+      .toLowerCase()
+  ) {
     case 'aigateway':
       return config.AIGatewayModel;
     case 'gemini':
@@ -167,16 +195,28 @@ function resolveLearnedWorkspaceLlmRecommendation(
     : [];
 
   const subtypeRecommendation = subtypeRecommendations.find((entry: any) => {
-    return String(entry?.kind || '').trim().toLowerCase() === taskKind
-      && String(entry?.subtype || '').trim().toLowerCase() === taskSubtype;
+    return (
+      String(entry?.kind || '')
+        .trim()
+        .toLowerCase() === taskKind &&
+      String(entry?.subtype || '')
+        .trim()
+        .toLowerCase() === taskSubtype
+    );
   });
   if (subtypeRecommendation) {
     return subtypeRecommendation;
   }
 
   const kindRecommendation = kindRecommendations.find((entry: any) => {
-    return String(entry?.kind || '').trim().toLowerCase() === taskKind
-      && String(entry?.subtype || '').trim().toLowerCase() === 'general';
+    return (
+      String(entry?.kind || '')
+        .trim()
+        .toLowerCase() === taskKind &&
+      String(entry?.subtype || '')
+        .trim()
+        .toLowerCase() === 'general'
+    );
   });
 
   return kindRecommendation || null;

@@ -1,7 +1,4 @@
-import type {
-  CapabilityHubItem,
-  CapabilityHubItemKind,
-} from '../contracts/CapabilityHubContract.js';
+import type { CapabilityHubItem, CapabilityHubItemKind } from '../contracts/CapabilityHubContract.js';
 import {
   NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION,
   type NaturalSetupAssistantInput,
@@ -22,11 +19,7 @@ import {
 import { ZavorthGovernanceRecipeApiService } from './ZavorthGovernanceRecipeApiService.js';
 import { tService } from '../i18n/services.js';
 
-import type {
-  GovernanceRecipeExecutionReceipt,
-  GovernanceRecipePlan,
-} from '../contracts/GovernanceRecipeContract.js';
-
+import type { GovernanceRecipeExecutionReceipt, GovernanceRecipePlan } from '../contracts/GovernanceRecipeContract.js';
 
 import type { GovernanceRecipePlanInput } from './ZavorthGovernanceRecipeService.js';
 import type { ZavorthCapabilityHubRuntime } from './ZavorthCapabilityHubService.js';
@@ -46,54 +39,23 @@ export type ZavorthNaturalSetupAssistantRuntime = ZavorthCapabilityHubRuntime & 
   governanceRecipeApiService?: GovernanceRecipeApiLike;
 };
 
-const ACTION_PATTERNS: Array<{ action: NaturalSetupIntentAction; patterns: RegExp[] }> = [
-  {
-    action: 'connect',
-    patterns: [
-      /\b(conectar|conecta|ligar|liga|integrar|integra|ativar|ativa|habilitar|habilita|usar)\b/i,
-      /\b(connect|enable|activate|link|integrate|use)\b/i,
-    ],
-  },
-  {
-    action: 'configure',
-    patterns: [
-      /\b(configurar|configura|ajustar|setup|preparar|prepara|instalar|instala)\b/i,
-      /\b(configure|setup|install|prepare)\b/i,
-    ],
-  },
-  {
-    action: 'validate',
-    patterns: [
-      /\b(validar|valida|valide|testar|testa|teste|verificar|verifica|verifique|checar|checa|cheque|doctor|diagnosticar)\b/i,
-      /\b(validate|test|check|verify|diagnose)\b/i,
-    ],
-  },
-  {
-    action: 'inspect',
-    patterns: [
-      /\b(mostrar|mostra|listar|lista|inspecionar|inspeciona|explicar|explica|ver)\b/i,
-      /\b(show|list|inspect|explain|view)\b/i,
-    ],
-  },
-];
-
-const KIND_ALIASES: Array<{ kind: CapabilityHubItemKind; patterns: RegExp[] }> = [
-  { kind: 'channel', patterns: [/\b(canal|chat|telegram|discord|slack|whatsapp|instagram|insta|email|matrix)\b/i] },
-  { kind: 'provider', patterns: [/\b(modelo|provider|provedor|gemini|openai|claude|anthropic|ollama|lm studio|vllm)\b/i] },
-  { kind: 'mcp', patterns: [/\b(mcp|ferramenta externa|servidor de ferramenta|filesystem)\b/i] },
-  { kind: 'integration', patterns: [/\b(integracao|integração|github|figma|vercel|linear|notion|calendar|calendario)\b/i] },
-  { kind: 'skill', patterns: [/\b(skill|habilidade|automacao|automação)\b/i] },
-  { kind: 'recipe', patterns: [/\b(receita|blueprint|governanca|governança)\b/i] },
-];
-
+/** Secret redaction only — never free-text feature activation. */
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:xox[baprs]-[A-Za-z0-9-]{8,})\b/g,
-  /\b(?:sk-[A-Za-z0-9_-]{12,})\b/g,
-  /\b(?:gh[pousr]_[A-Za-z0-9_]{12,})\b/g,
-  /\b(?:AIza[0-9A-Za-z_-]{12,})\b/g,
-  /\b(?:[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,})\b/g,
+  /\b(?:xox[baprs]-[A-Za-z0-9-]{8})\b/g,
+  /\b(?:sk-[A-Za-z0-9_-]{12})\b/g,
+  /\b(?:gh[pousr]_[A-Za-z0-9_]{12})\b/g,
+  /\b(?:AIza[0-9A-Za-z_-]{12})\b/g,
+  /\b(?:[A-Za-z0-9_-]{24}\.[A-Za-z0-9_-]{16}\.[A-Za-z0-9_-]{16})\b/g,
   /\b(?:token|api[_ -]?key|secret|senha|password|chave)\s*[:=]\s*([^\s,;]+)/gi,
 ];
+
+const STRUCTURED_ACTIONS = new Set<NaturalSetupIntentAction>([
+  'connect',
+  'configure',
+  'validate',
+  'inspect',
+  'unknown',
+]);
 
 export class ZavorthNaturalSetupAssistantService {
   private readonly now: () => Date;
@@ -110,8 +72,9 @@ export class ZavorthNaturalSetupAssistantService {
     const text = String(input.text || '').trim();
     const secretInputs = this.detectSecretInputs(text, input.providedSecrets || {});
     const redactedText = this.redactText(text, secretInputs);
-    const detectedIntent = this.detectIntent(redactedText);
-    const selectedCapability = this.resolveCapability(input, redactedText, detectedIntent);
+    // Free text never keyword-selects action/kind — only structured fields do.
+    const detectedIntent = this.detectIntent(input);
+    const selectedCapability = this.resolveCapability(input);
     const planInput = selectedCapability
       ? {
           targetItemId: selectedCapability.id,
@@ -124,7 +87,13 @@ export class ZavorthNaturalSetupAssistantService {
     const dryRunReceipt = selectedCapability ? this.governanceRecipes.dryRun(planInput) : null;
     const secretPlan = this.buildSecretPlan(selectedCapability, secretInputs, input.persistSecrets === true);
     const readiness = this.buildReadiness(selectedCapability, governancePlan, secretPlan);
-    const conversation = this.buildConversation(selectedCapability, detectedIntent, governancePlan, secretPlan, readiness);
+    const conversation = this.buildConversation(
+      selectedCapability,
+      detectedIntent,
+      governancePlan,
+      secretPlan,
+      readiness,
+    );
 
     return {
       contractVersion: NATURAL_SETUP_ASSISTANT_CONTRACT_VERSION,
@@ -154,118 +123,72 @@ export class ZavorthNaturalSetupAssistantService {
 
   public renderReply(input: NaturalSetupAssistantInput): string {
     const snapshot = this.buildSnapshot(input);
-    const lines = [
-      snapshot.conversation.headline,
-      '',
-      snapshot.conversation.explanation,
-    ];
+    const lines = [snapshot.conversation.headline, '', snapshot.conversation.explanation];
 
     if (snapshot.conversation.simpleSteps.length > 0) {
-      lines.push('', 'Próximos passos:');
+      lines.push('', 'Next steps:');
       for (const step of snapshot.conversation.simpleSteps) {
         lines.push(`- ${step}`);
       }
     }
 
     if (snapshot.conversation.questions.length > 0) {
-      lines.push('', 'Preciso confirmar:');
+      lines.push('', 'I need to confirm:');
       for (const question of snapshot.conversation.questions) {
         lines.push(`- ${question}`);
       }
     }
 
-    lines.push('', `Segurança: preview=${snapshot.safety.previewOnly}; ativação live=${snapshot.safety.liveActivation}; secrets serializados=${snapshot.safety.secretsSerialized}.`);
+    lines.push(
+      '',
+      `Safety: preview=${snapshot.safety.previewOnly}; live activation=${snapshot.safety.liveActivation}; secrets serialized=${snapshot.safety.secretsSerialized}.`,
+    );
     return lines.join('\n');
   }
 
-  private detectIntent(text: string): NaturalSetupDetectedIntent {
-    const matchedAliases: string[] = [];
-    let action: NaturalSetupIntentAction = 'unknown';
-    let confidence = 0.35;
+  /**
+   * Intent is model/UI-owned. Free-text keywords never set action or kind.
+   * Only structured input.action (and optional kind/packId metadata) apply.
+   */
+  private detectIntent(input: NaturalSetupAssistantInput): NaturalSetupDetectedIntent {
+    const structuredAction = this.normalizeStructuredAction(input.action);
+    const hasStructuredTarget = Boolean(input.preferredCapabilityId || input.kind || input.packId);
 
-    for (const candidate of ACTION_PATTERNS) {
-      const matched = candidate.patterns.some((pattern) => pattern.test(text));
-      if (matched) {
-        action = candidate.action;
-        confidence = candidate.action === 'inspect' ? 0.7 : 0.82;
-        matchedAliases.push(candidate.action);
-        break;
-      }
+    if (structuredAction && structuredAction !== 'unknown') {
+      return {
+        action: structuredAction,
+        confidence: 0.95,
+        targetText: input.preferredCapabilityId || input.packId || null,
+        matchedAliases: [structuredAction],
+      };
     }
 
-    const targetText = this.extractTargetText(text);
     return {
-      action,
-      confidence: targetText ? confidence : Math.min(confidence, 0.55),
-      targetText,
-      matchedAliases,
+      action: 'unknown',
+      confidence: hasStructuredTarget ? 0.55 : 0.2,
+      targetText: input.preferredCapabilityId || input.packId || null,
+      matchedAliases: [],
     };
   }
 
-  private resolveCapability(
-    input: NaturalSetupAssistantInput,
-    redactedText: string,
-    detectedIntent: NaturalSetupDetectedIntent,
-  ): CapabilityHubItem | null {
+  /**
+   * Capability choice is structured only (preferredCapabilityId).
+   * Free-text hub search and kind aliases were removed (agent-first).
+   */
+  private resolveCapability(input: NaturalSetupAssistantInput): CapabilityHubItem | null {
     if (input.preferredCapabilityId) {
       const inspected = this.capabilityHub.inspect(input.preferredCapabilityId);
       if (inspected.item) {
+        const kindFilter = this.normalizeStructuredKind(input.kind);
+        if (kindFilter && inspected.item.kind !== kindFilter) {
+          return null;
+        }
         return inspected.item;
       }
     }
 
-    const query = detectedIntent.targetText || redactedText;
-    const kind = this.detectKind(redactedText);
-    const exact = this.resolveBySearch(query, kind);
-    if (exact) {
-      return exact;
-    }
-    if (kind) {
-      return this.capabilityHub.list({ kind })[0] || null;
-    }
-    return this.capabilityHub.list({ search: query })[0] || null;
-  }
-
-  private resolveBySearch(query: string, kind: CapabilityHubItemKind | null): CapabilityHubItem | null {
-    const candidates = this.capabilityHub.list({
-      search: query,
-      kind,
-    });
-    if (candidates.length === 0 && kind) {
-      return this.capabilityHub.list({ search: query })[0] || null;
-    }
-    if (candidates.length === 0) {
-      return null;
-    }
-
-    const normalizedQuery = this.normalize(query);
-    const exact = candidates.find((item) =>
-      this.normalize(item.id).includes(normalizedQuery)
-      || this.normalize(item.label) === normalizedQuery
-      || item.tags.some((tag) => this.normalize(tag) === normalizedQuery));
-    return exact || candidates[0];
-  }
-
-  private detectKind(text: string): CapabilityHubItemKind | null {
-    for (const alias of KIND_ALIASES) {
-      if (alias.patterns.some((pattern) => pattern.test(text))) {
-        return alias.kind;
-      }
-    }
+    // Structured kind alone never auto-picks the first hub item (ambiguous activation).
     return null;
-  }
-
-  private extractTargetText(text: string): string | null {
-    const cleaned = text
-      .replace(/\b(quero|preciso|pode|por favor|para mim|pra mim|me ajuda|ajuda|please)\b/gi, ' ')
-      .replace(/\b(conectar|conecta|ligar|liga|integrar|integra|ativar|ativa|habilitar|habilita|configurar|configura|validar|valida|valide|testar|testa|teste|verificar|verifica|verifique|usar|use|connect|configure|validate|test|check|enable|activate)\b/gi, ' ')
-      .replace(/\b(com|meu|minha|o|a|um|uma|de|do|da|no|na|ao|as|os)\b/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (!cleaned || cleaned.length < 2) {
-      return null;
-    }
-    return cleaned.split(/[,.]/)[0]?.trim() || null;
   }
 
   private buildSecretPlan(
@@ -274,11 +197,10 @@ export class ZavorthNaturalSetupAssistantService {
     persistSecrets: boolean,
   ): NaturalSetupSecretPlan {
     const requiredRefs = selectedCapability
-      ? selectedCapability.requirements.secretRefs
-        .filter((value, index, all) => value && all.indexOf(value) === index)
+      ? selectedCapability.requirements.secretRefs.filter((value, index, all) => value && all.indexOf(value) === index)
       : [];
     const providedRefs = detectedSecretInputs
-      .map((input) => input.secretRef)
+      .map((entry) => entry.secretRef)
       .filter((value): value is string => Boolean(value));
     const missingRefs = requiredRefs.filter((ref) => !providedRefs.includes(ref));
 
@@ -300,11 +222,13 @@ export class ZavorthNaturalSetupAssistantService {
     if (!selectedCapability) {
       return {
         status: 'needs_manual_choice',
-        checks: [{
-          id: 'capability',
-          status: 'missing',
-          summary: tService('setup.cannot_identify_capability'),
-        }],
+        checks: [
+          {
+            id: 'capability',
+            status: 'missing',
+            summary: tService('setup.cannot_identify_capability'),
+          },
+        ],
         blockers: [tService('setup.choose_capability')],
         nextSafeAction: tService('setup.describe_want_to_prepare'),
       };
@@ -319,9 +243,10 @@ export class ZavorthNaturalSetupAssistantService {
       {
         id: 'secrets',
         status: secretPlan.missingRefs.length > 0 ? 'next' : 'passed',
-        summary: secretPlan.missingRefs.length > 0
-          ? tService('setup.missing_secrets', { count: String(secretPlan.missingRefs.length) })
-          : tService('setup.no_raw_secrets'),
+        summary:
+          secretPlan.missingRefs.length > 0
+            ? tService('setup.missing_secrets', { count: String(secretPlan.missingRefs.length) })
+            : tService('setup.no_raw_secrets'),
       },
       {
         id: 'governance',
@@ -341,11 +266,8 @@ export class ZavorthNaturalSetupAssistantService {
     const blockers = checks
       .filter((check) => check.status === 'blocked' || check.status === 'missing')
       .map((check) => check.summary);
-    const status = blockers.length > 0
-      ? 'blocked'
-      : secretPlan.missingRefs.length > 0
-        ? 'needs_secret_input'
-        : 'ready_for_preview';
+    const status =
+      blockers.length > 0 ? 'blocked' : secretPlan.missingRefs.length > 0 ? 'needs_secret_input' : 'ready_for_preview';
 
     return {
       status,
@@ -364,31 +286,36 @@ export class ZavorthNaturalSetupAssistantService {
   ): NaturalSetupConversation {
     if (!selectedCapability) {
       return {
-        headline: 'Consigo ajudar, mas preciso saber qual recurso voce quer preparar.',
-        explanation: 'Eu transformo pedidos normais em um plano seguro de configuracao, validacao e aprovacao.',
-        questions: ['Qual app, canal, modelo, ferramenta ou habilidade voce quer usar?'],
-        simpleSteps: ['Escolha o recurso.', 'Eu mostro o que falta.', 'Nada live e ativado sem aprovacao.'],
+        headline: 'I can help, but I need to know which resource you want to prepare.',
+        explanation:
+          'I turn normal requests into a safe plan for configuration, validation, and approval. Free text alone does not pick a capability — use a structured capability id, slash, or UI selection.',
+        questions: ['Which app, channel, model, tool, or skill do you want to use?'],
+        simpleSteps: [
+          'Choose the resource (structured id, slash, or UI).',
+          'I show what is missing.',
+          'Nothing live is activated without approval.',
+        ],
       };
     }
 
     const actionText = this.actionToHumanText(detectedIntent.action);
-    const questions = secretPlan.missingRefs.map((ref) => `Informe ${this.humanizeRef(ref)} por entrada segura.`);
+    const questions = secretPlan.missingRefs.map((ref) => `Provide ${this.humanizeRef(ref)} via a secure input.`);
     if (governancePlan?.permissions.approvalRequired) {
-      questions.push('Confirme a aprovacao quando quiser sair do preview para uso real.');
+      questions.push('Confirm approval when you want to leave preview for real use.');
     }
 
     return {
-      headline: `Preparei um plano para ${actionText} ${selectedCapability.label}.`,
-      explanation: `${selectedCapability.summary} Eu escondi detalhes tecnicos e mantive tudo em preview com receipts e politica de aprovacao.`,
+      headline: `I prepared a plan to ${actionText} ${selectedCapability.label}.`,
+      explanation: `${selectedCapability.summary} I hid technical details and kept everything in preview with receipts and an approval policy.`,
       questions,
       simpleSteps: [
-        `Validar readiness de ${selectedCapability.label}.`,
+        `Validate readiness for ${selectedCapability.label}.`,
         secretPlan.missingRefs.length > 0
-          ? 'Coletar credenciais em canal seguro, salvando apenas referencias.'
-          : 'Confirmar que nao ha segredo pendente para o preview.',
+          ? 'Collect credentials on a secure channel, storing references only.'
+          : 'Confirm no secret is pending for the preview.',
         governancePlan
-          ? `Aplicar a receita segura "${governancePlan.recipe.label}" em dry-run.`
-          : 'Escolher uma receita de governanca antes de qualquer execucao.',
+          ? `Apply the safe recipe "${governancePlan.recipe.label}" in dry-run.`
+          : 'Choose a governance recipe before any execution.',
         readiness.nextSafeAction,
       ],
     };
@@ -400,15 +327,15 @@ export class ZavorthNaturalSetupAssistantService {
     secretPlan: NaturalSetupSecretPlan,
   ): string {
     if (secretPlan.missingRefs.length > 0) {
-      return `Abrir coleta segura para ${this.humanizeRef(secretPlan.missingRefs[0])}.`;
+      return `Open secure collection for ${this.humanizeRef(secretPlan.missingRefs[0])}.`;
     }
     if (governancePlan?.permissions.approvalRequired) {
-      return 'Mostrar o plano ao dono e pedir aprovacao explicita antes da ativacao live.';
+      return 'Show the plan to the owner and request explicit approval before live activation.';
     }
     if (selectedCapability.readiness !== 'ready') {
-      return 'Rodar doctor/readiness check sem ativar live.';
+      return 'Run doctor/readiness check without live activation.';
     }
-    return 'Continuar em dry-run ou pedir aprovacao para ativacao real.';
+    return 'Continue in dry-run or request approval for real activation.';
   }
 
   private detectSecretInputs(
@@ -492,8 +419,8 @@ export class ZavorthNaturalSetupAssistantService {
 
   private uniqueSecretInputs(inputs: NaturalSetupSecretInput[]): NaturalSetupSecretInput[] {
     const seen = new Set<string>();
-    return inputs.filter((input) => {
-      const key = `${input.field}:${input.valuePreview}:${input.source}`;
+    return inputs.filter((entry) => {
+      const key = `${entry.field}:${entry.valuePreview}:${entry.source}`;
       if (seen.has(key)) {
         return false;
       }
@@ -504,18 +431,18 @@ export class ZavorthNaturalSetupAssistantService {
 
   private actionToHumanText(action: NaturalSetupIntentAction): string {
     if (action === 'connect') {
-      return 'conectar';
+      return 'connect';
     }
     if (action === 'configure') {
-      return 'configurar';
+      return 'configure';
     }
     if (action === 'validate') {
-      return 'validar';
+      return 'validate';
     }
     if (action === 'inspect') {
-      return 'entender';
+      return 'inspect';
     }
-    return 'preparar';
+    return 'prepare';
   }
 
   private humanizeRef(ref: string): string {
@@ -523,15 +450,35 @@ export class ZavorthNaturalSetupAssistantService {
       .replace(/[_-]/g, ' ')
       .replace(/\./g, ' ')
       .replace(/\btoken\b/gi, 'token')
-      .replace(/\bapi key\b/gi, 'chave de API');
+      .replace(/\bapi key\b/gi, 'API key');
   }
 
-  private normalize(value: string | null | undefined): string {
-    return String(value || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9:._-]+/g, ' ')
-      .trim();
+  private normalizeStructuredAction(value: unknown): NaturalSetupIntentAction | null {
+    const action = String(value || '')
+      .trim()
+      .toLowerCase() as NaturalSetupIntentAction;
+    if (!action || !STRUCTURED_ACTIONS.has(action)) {
+      return null;
+    }
+    return action;
+  }
+
+  private normalizeStructuredKind(value: unknown): CapabilityHubItemKind | null {
+    const kind = String(value || '')
+      .trim()
+      .toLowerCase();
+    if (!kind) {
+      return null;
+    }
+    const allowed: CapabilityHubItemKind[] = [
+      'runtime-capability',
+      'channel',
+      'provider',
+      'mcp',
+      'integration',
+      'skill',
+      'recipe',
+    ];
+    return (allowed as string[]).includes(kind) ? (kind as CapabilityHubItemKind) : null;
   }
 }

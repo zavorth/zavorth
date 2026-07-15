@@ -2,10 +2,7 @@ import { config } from '../../config/index.js';
 import type { NaturalFirstRunClassification } from './NaturalFirstRunClassifier.js';
 import type { UniversalAgentRequest } from './UniversalAgentRuntimeTypes.js';
 
-export type AgenticRouteKind =
-  | 'standard-llm'
-  | 'llm-interactions'
-  | 'remote-agent-preview';
+export type AgenticRouteKind = 'standard-llm' | 'llm-interactions' | 'remote-agent-preview';
 
 export type AgenticRouteDecision = {
   source: 'AgenticRouteClassifier';
@@ -53,11 +50,15 @@ function hasGeminiInteractionsCredential(): boolean {
 }
 
 function interactionsEnabled(): boolean {
-  return Boolean((config as any).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true');
+  return Boolean(
+    (config as any).geminiInteractionsEnabled || process.env.ZAVORTH_GEMINI_INTERACTIONS_ENABLED === 'true',
+  );
 }
 
 function managedAgentsEnabled(): boolean {
-  return Boolean((config as any).geminiManagedAgentsEnabled || process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED === 'true');
+  return Boolean(
+    (config as any).geminiManagedAgentsEnabled || process.env.ZAVORTH_GEMINI_MANAGED_AGENTS_ENABLED === 'true',
+  );
 }
 
 export class AgenticRouteClassifier {
@@ -66,7 +67,6 @@ export class AgenticRouteClassifier {
     naturalFirst: NaturalFirstRunClassification;
   }): AgenticRouteDecision {
     const mode = metadataMode(params.request);
-    const text = normalizeSearchText(params.request.text);
     const signals = new Set<string>();
     const basePolicy = {
       noToolExecutionWithoutApproval: true,
@@ -79,13 +79,16 @@ export class AgenticRouteClassifier {
       return this.standard(mode, 'Roteamento agentic desligado para este pedido.', ['agentic-off'], basePolicy);
     }
 
-    const remoteCandidate = this.isRemoteManagedAgentCandidate(text, params.naturalFirst, signals);
+    // Structured route preference only — free-text never selects product agentic surfaces.
+    const remoteCandidate = this.isRemoteManagedAgentCandidate(params.request, params.naturalFirst, signals);
     if (remoteCandidate) {
       if (!managedAgentsEnabled()) {
-        return this.standard(mode, 'A remote agent would help, but the route is disabled; keeping local governed preview.', [
-          ...signals,
-          'remote-managed-agent-disabled',
-        ], basePolicy);
+        return this.standard(
+          mode,
+          'A remote agent would help, but the route is disabled; keeping local governed preview.',
+          [...signals, 'remote-managed-agent-disabled'],
+          basePolicy,
+        );
       }
       return {
         source: 'AgenticRouteClassifier',
@@ -95,7 +98,8 @@ export class AgenticRouteClassifier {
         capability: 'remote-managed-agent',
         providerRoute: 'gemini-managed-agent',
         requiresApproval: true,
-        explanation: 'Pedido parece se beneficiar de sandbox/agente remoto; o Zavorth abre preview e pede approval antes de qualquer execucao.',
+        explanation:
+          'Pedido parece se beneficiar de sandbox/agente remoto; o Zavorth abre preview e pede approval antes de qualquer execucao.',
         userFacingLabel: 'Execucao isolada com aprovacao',
         signals: Array.from(signals).concat('approval-required', 'store:false'),
         policy: {
@@ -105,7 +109,7 @@ export class AgenticRouteClassifier {
       };
     }
 
-    const interactionsCandidate = this.isInteractionsCandidate(text, params.naturalFirst, signals);
+    const interactionsCandidate = this.isInteractionsCandidate(params.request, params.naturalFirst, signals);
     if (interactionsCandidate && interactionsEnabled() && hasGeminiInteractionsCredential()) {
       return {
         source: 'AgenticRouteClassifier',
@@ -115,7 +119,8 @@ export class AgenticRouteClassifier {
         capability: 'steps-timeline',
         providerRoute: 'gemini-interactions',
         requiresApproval: false,
-        explanation: 'Pedido complexo sem mutacao sensivel; usar resposta por etapas melhora timeline, receipts e replay.',
+        explanation:
+          'Pedido complexo sem mutacao sensivel; usar resposta por etapas melhora timeline, receipts e replay.',
         userFacingLabel: 'Analise por etapas',
         signals: Array.from(signals).concat('interactions-enabled', 'store:false'),
         policy: basePolicy,
@@ -126,7 +131,12 @@ export class AgenticRouteClassifier {
       signals.add('interactions-candidate');
       signals.add(interactionsEnabled() ? 'interactions-auth-missing' : 'interactions-disabled');
     }
-    return this.standard(mode, 'Rota padrao mantida; agentic routing nao foi necessario ou nao esta configurado.', Array.from(signals), basePolicy);
+    return this.standard(
+      mode,
+      'Rota padrao mantida; agentic routing nao foi necessario ou nao esta configurado.',
+      Array.from(signals),
+      basePolicy,
+    );
   }
 
   private standard(
@@ -151,36 +161,47 @@ export class AgenticRouteClassifier {
   }
 
   private isInteractionsCandidate(
-    text: string,
+    request: UniversalAgentRequest,
     naturalFirst: NaturalFirstRunClassification,
     signals: Set<string>,
   ): boolean {
-    const complexAnalysis = /\b(analise|analisar|investigue|debug|audite|revise|compare|diagnostique|explique|plano|arquitetura|erro|falha|vulnerabilidade)\b/.test(text);
-    const multiStep = /\b(passos|etapas|timeline|raciocinio|por que|porque|evidencias|receipts?|auditoria)\b/.test(text);
-    const eligibleRoute = naturalFirst.route === 'llm-reply'
-      || naturalFirst.route === 'governed-execution'
-      || naturalFirst.route === 'memory-recall'
-      || naturalFirst.intent.primary === 'operational-work';
-    if (complexAnalysis) signals.add('complex-analysis');
-    if (multiStep) signals.add('stepwise-answer-helpful');
+    const metadata = request.metadata || {};
+    const preferredRoute = normalizeSearchText(metadata.agenticRoute || metadata.preferredAgenticRoute);
+    const preferInteractions =
+      metadata.preferInteractions === true ||
+      preferredRoute === 'llm-interactions' ||
+      preferredRoute === 'interactions' ||
+      preferredRoute === 'steps-timeline';
+    const eligibleRoute =
+      naturalFirst.route === 'llm-reply' ||
+      naturalFirst.route === 'governed-execution' ||
+      naturalFirst.route === 'memory-recall' ||
+      naturalFirst.intent.primary === 'operational-work';
+    if (preferInteractions) signals.add('structured-prefer-interactions');
     if (eligibleRoute) signals.add(`natural-route:${naturalFirst.route}`);
+    if (naturalFirst.effort === 'heavy') signals.add('structured-heavy-effort');
     if (naturalFirst.requiresApproval) signals.add('approval-route-not-auto-interactions');
-    return eligibleRoute && !naturalFirst.requiresApproval && (complexAnalysis || multiStep || naturalFirst.effort === 'heavy');
+    // Structured prefer flag, or heavy effort from structured natural-first classification — never free-text keywords.
+    return preferInteractions || (eligibleRoute && !naturalFirst.requiresApproval && naturalFirst.effort === 'heavy');
   }
 
   private isRemoteManagedAgentCandidate(
-    text: string,
+    request: UniversalAgentRequest,
     naturalFirst: NaturalFirstRunClassification,
     signals: Set<string>,
   ): boolean {
-    const isolated = /\b(isolad|sandbox|remot|sem tocar|sem mexer|fora do meu pc|ambiente separado)\b/.test(text);
-    const suspicious = /\b(suspeit|malware|pacote desconhecido|nao confiavel|untrusted|perigoso|arquivo estranho)\b/.test(text);
-    const runUnknown = /\b(rode|execute|test(e|ar)|instale|npm install|pip install|script)\b/.test(text)
-      && /\b(pacote|repo|repositorio|script|arquivo|zip|download)\b/.test(text);
-    if (isolated) signals.add('isolation-requested');
-    if (suspicious) signals.add('untrusted-content-risk');
-    if (runUnknown) signals.add('unknown-package-execution-risk');
+    const metadata = request.metadata || {};
+    const preferredRoute = normalizeSearchText(metadata.agenticRoute || metadata.preferredAgenticRoute);
+    const preferRemote =
+      metadata.preferRemoteAgent === true ||
+      metadata.preferManagedAgent === true ||
+      metadata.managedAgent === true ||
+      preferredRoute === 'remote-agent-preview' ||
+      preferredRoute === 'remote-managed-agent' ||
+      preferredRoute === 'managed-agent';
+    if (preferRemote) signals.add('structured-prefer-remote-agent');
     if (naturalFirst.requiresApproval) signals.add('natural-approval-required');
-    return isolated || suspicious || (runUnknown && naturalFirst.risk.level !== 'safe');
+    // Structured metadata only — free-text never selects remote managed agent product surface.
+    return preferRemote;
   }
 }

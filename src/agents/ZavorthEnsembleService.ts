@@ -62,7 +62,6 @@ import {
   strongIsolationWrapper,
 } from './ZavorthEnsembleHelpers.js';
 
-
 export class ZavorthEnsembleService {
   private readonly swarms = new Map<string, ManagedSwarm>();
 
@@ -77,14 +76,14 @@ export class ZavorthEnsembleService {
 
   public launchSwarm(input: ZavorthEnsembleCreateInput): SwarmSnapshot {
     if (
-      input.official
-      || input.maxConcurrency
-      || input.batchSize
-      || input.autoSelectRoles
-      || input.benchmark
-      || input.requireStrongIsolation
-      || (input.toolSpecs?.length || 0) > 0
-      || (input.roleLibraryIds?.length || 0) > 0
+      input.official ||
+      input.maxConcurrency ||
+      input.batchSize ||
+      input.autoSelectRoles ||
+      input.benchmark ||
+      input.requireStrongIsolation ||
+      (input.toolSpecs?.length || 0) > 0 ||
+      (input.roleLibraryIds?.length || 0) > 0
     ) {
       return this.launchOfficialSwarm(input);
     }
@@ -98,20 +97,24 @@ export class ZavorthEnsembleService {
     }
 
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
-    const orchestrator = this.options.orchestratorFactory?.(objective, input.roles)
-      || new SwarmOrchestrator(objective, input.roles);
+    const orchestrator =
+      this.options.orchestratorFactory?.(objective, input.roles) || new SwarmOrchestrator(objective, input.roles);
     const subagentReceipts = this.resolveSubagentReceipts(input.roles, {
       objective,
       receiptSeeds: input.subagentReceipts,
       budgetInput: input.subagentBudget,
     });
-    const initialSnapshot = this.withLifecycle({
-      ...orchestrator.getSnapshot(),
-      swarmId,
-      status: 'running',
-    }, {
-      summary: `Swarm launched: ${objective}.`,
-    }, subagentReceipts);
+    const initialSnapshot = this.withLifecycle(
+      {
+        ...orchestrator.getSnapshot(),
+        swarmId,
+        status: 'running',
+      },
+      {
+        summary: `Swarm launched: ${objective}.`,
+      },
+      subagentReceipts,
+    );
     const entry: ManagedSwarm = {
       swarmId,
       orchestrator,
@@ -131,12 +134,16 @@ export class ZavorthEnsembleService {
         receiptSeeds: entry.subagentReceipts,
         budgetInput: entry.subagentBudget,
       });
-      entry.lastSnapshot = this.withLifecycle({
-        ...snapshot,
-        swarmId,
-      }, {
-        summary: `Swarm ${swarmId} emitted role output.`,
-      }, entry.subagentReceipts);
+      entry.lastSnapshot = this.withLifecycle(
+        {
+          ...snapshot,
+          swarmId,
+        },
+        {
+          summary: `Swarm ${swarmId} emitted role output.`,
+        },
+        entry.subagentReceipts,
+      );
     });
     orchestrator.on('role:finished', () => {
       const snapshot = orchestrator.getSnapshot();
@@ -146,12 +153,16 @@ export class ZavorthEnsembleService {
         receiptSeeds: entry.subagentReceipts,
         budgetInput: entry.subagentBudget,
       });
-      entry.lastSnapshot = this.withLifecycle({
-        ...snapshot,
-        swarmId,
-      }, {
-        summary: `Swarm ${swarmId} role finished.`,
-      }, entry.subagentReceipts);
+      entry.lastSnapshot = this.withLifecycle(
+        {
+          ...snapshot,
+          swarmId,
+        },
+        {
+          summary: `Swarm ${swarmId} role finished.`,
+        },
+        entry.subagentReceipts,
+      );
     });
     orchestrator.on('swarm:finished', (snapshot: SwarmSnapshot) => {
       entry.subagentReceipts = this.resolveSubagentReceipts(entry.roles, {
@@ -160,15 +171,20 @@ export class ZavorthEnsembleService {
         receiptSeeds: entry.subagentReceipts,
         budgetInput: entry.subagentBudget,
       });
-      entry.lastSnapshot = this.withLifecycle({
-        ...snapshot,
-        swarmId,
-      }, {
-        summary: `Swarm ${swarmId} finished with status ${snapshot.status}.`,
-      }, entry.subagentReceipts);
+      entry.lastSnapshot = this.withLifecycle(
+        {
+          ...snapshot,
+          swarmId,
+        },
+        {
+          summary: `Swarm ${swarmId} finished with status ${snapshot.status}.`,
+        },
+        entry.subagentReceipts,
+      );
     });
 
-    entry.execution = orchestrator.execute()
+    entry.execution = orchestrator
+      .execute()
       .then((snapshot) => {
         entry.subagentReceipts = this.resolveSubagentReceipts(entry.roles, {
           objective,
@@ -176,12 +192,16 @@ export class ZavorthEnsembleService {
           receiptSeeds: entry.subagentReceipts,
           budgetInput: entry.subagentBudget,
         });
-        entry.lastSnapshot = this.withLifecycle({
-          ...snapshot,
-          swarmId,
-        }, {
-          summary: `Swarm ${swarmId} completed with status ${snapshot.status}.`,
-        }, entry.subagentReceipts);
+        entry.lastSnapshot = this.withLifecycle(
+          {
+            ...snapshot,
+            swarmId,
+          },
+          {
+            summary: `Swarm ${swarmId} completed with status ${snapshot.status}.`,
+          },
+          entry.subagentReceipts,
+        );
         return entry.lastSnapshot;
       })
       .catch((error: unknown) => {
@@ -193,15 +213,19 @@ export class ZavorthEnsembleService {
           receiptSeeds: entry.subagentReceipts,
           budgetInput: entry.subagentBudget,
         });
-        entry.lastSnapshot = this.withLifecycle({
-          ...snapshot,
-          swarmId,
-          status: 'failed',
-          finishedAt: new Date().toISOString(),
-          synthesizedOutput: message || snapshot.synthesizedOutput,
-        }, {
-          summary: message || `Swarm ${swarmId} failed.`,
-        }, entry.subagentReceipts);
+        entry.lastSnapshot = this.withLifecycle(
+          {
+            ...snapshot,
+            swarmId,
+            status: 'failed',
+            finishedAt: new Date().toISOString(),
+            synthesizedOutput: message || snapshot.synthesizedOutput,
+          },
+          {
+            summary: message || `Swarm ${swarmId} failed.`,
+          },
+          entry.subagentReceipts,
+        );
         return entry.lastSnapshot;
       });
 
@@ -315,16 +339,18 @@ export class ZavorthEnsembleService {
     const swarmId = String(input.swarmId || '').trim() || randomUUID();
     const createdAt = new Date().toISOString();
     const roleLibrary = this.readRoleLibrary();
-    const autoSelection = input.roleSelectionOverride || this.resolveSyncRoleSelection({
-      objective,
-      library: roleLibrary,
-      selectedRoleIds: Array.isArray(input.roleLibraryIds)
-        ? input.roleLibraryIds.map((entry) => normalizeKey(entry, '')).filter(Boolean)
-        : [],
-      requestedRoles: Array.isArray(input.roles) ? input.roles : [],
-      autoSelectRoles: input.autoSelectRoles === true,
-      desiredRoleCount: clampNumber(input.desiredRoleCount, 1, 300, 6),
-    });
+    const autoSelection =
+      input.roleSelectionOverride ||
+      this.resolveSyncRoleSelection({
+        objective,
+        library: roleLibrary,
+        selectedRoleIds: Array.isArray(input.roleLibraryIds)
+          ? input.roleLibraryIds.map((entry) => normalizeKey(entry, '')).filter(Boolean)
+          : [],
+        requestedRoles: Array.isArray(input.roles) ? input.roles : [],
+        autoSelectRoles: input.autoSelectRoles === true,
+        desiredRoleCount: clampNumber(input.desiredRoleCount, 1, 300, 6),
+      });
     const selectedRoleIds = autoSelection.selectedRoleIds;
     const requestedRoles = Array.isArray(input.roles) ? input.roles : [];
     const libraryRoles = this.rolesFromLibrary(
@@ -361,15 +387,17 @@ export class ZavorthEnsembleService {
 
     const maxConcurrency = clampNumber(input.maxConcurrency, 1, 30, Math.min(6, roles.length));
     const batchSize = clampNumber(input.batchSize, 1, maxConcurrency, maxConcurrency);
-    const batches = chunkRoles(roles, batchSize).map((batch, index): ZavorthEnsembleBatchSnapshot => ({
-      batchId: `${swarmId}:batch-${index + 1}`,
-      index,
-      status: 'queued',
-      roleIds: batch.map((role) => role.id),
-      maxConcurrency,
-      startedAt: null,
-      finishedAt: null,
-    }));
+    const batches = chunkRoles(roles, batchSize).map(
+      (batch, index): ZavorthEnsembleBatchSnapshot => ({
+        batchId: `${swarmId}:batch-${index + 1}`,
+        index,
+        status: 'queued',
+        roleIds: batch.map((role) => role.id),
+        maxConcurrency,
+        startedAt: null,
+        finishedAt: null,
+      }),
+    );
     const state: ZavorthEnsembleOfficialState = {
       swarmId,
       objective,
@@ -434,17 +462,24 @@ export class ZavorthEnsembleService {
       });
     }
 
-    const initialSnapshot = this.withOfficialSurface(this.withLifecycle({
-      swarmId,
-      status: 'running',
-      objective,
-      roles: [],
-      startedAt: createdAt,
-      finishedAt: null,
-      synthesizedOutput: null,
-    }, {
-      summary: `Official Zavorth Ensemble queued: ${objective}.`,
-    }, []), state);
+    const initialSnapshot = this.withOfficialSurface(
+      this.withLifecycle(
+        {
+          swarmId,
+          status: 'running',
+          objective,
+          roles: [],
+          startedAt: createdAt,
+          finishedAt: null,
+          synthesizedOutput: null,
+        },
+        {
+          summary: `Official Zavorth Ensemble queued: ${objective}.`,
+        },
+        [],
+      ),
+      state,
+    );
 
     const entry: ManagedSwarm = {
       swarmId,
@@ -480,12 +515,15 @@ export class ZavorthEnsembleService {
         }
       }
       this.pushReplay(entry.officialState, 'swarm.cancelled', `Swarm ${entry.swarmId} cancelled by the operator.`);
-      entry.lastSnapshot = this.withOfficialSurface({
-        ...entry.lastSnapshot,
-        status: 'cancelled',
-        finishedAt: new Date().toISOString(),
-        synthesizedOutput: entry.officialState.synthesisSummary,
-      }, entry.officialState);
+      entry.lastSnapshot = this.withOfficialSurface(
+        {
+          ...entry.lastSnapshot,
+          status: 'cancelled',
+          finishedAt: new Date().toISOString(),
+          synthesizedOutput: entry.officialState.synthesisSummary,
+        },
+        entry.officialState,
+      );
       return {
         ...entry.lastSnapshot,
         swarmId: entry.swarmId,
@@ -503,13 +541,17 @@ export class ZavorthEnsembleService {
       receiptSeeds: entry.subagentReceipts,
       budgetInput: entry.subagentBudget,
     });
-    entry.lastSnapshot = this.withLifecycle({
-      ...snapshot,
-      swarmId: entry.swarmId,
-      status: 'failed',
-    }, {
-      summary: `Swarm ${entry.swarmId} cancelled by operator.`,
-    }, entry.subagentReceipts);
+    entry.lastSnapshot = this.withLifecycle(
+      {
+        ...snapshot,
+        swarmId: entry.swarmId,
+        status: 'failed',
+      },
+      {
+        summary: `Swarm ${entry.swarmId} cancelled by operator.`,
+      },
+      entry.subagentReceipts,
+    );
     return {
       ...entry.lastSnapshot,
       swarmId: entry.swarmId,
@@ -524,10 +566,7 @@ export class ZavorthEnsembleService {
     this.swarms.clear();
   }
 
-  private async executeOfficialBatches(
-    entry: ManagedSwarm,
-    input: ZavorthEnsembleCreateInput,
-  ): Promise<SwarmSnapshot> {
+  private async executeOfficialBatches(entry: ManagedSwarm, input: ZavorthEnsembleCreateInput): Promise<SwarmSnapshot> {
     const state = entry.officialState;
     if (!state) {
       return entry.lastSnapshot;
@@ -537,7 +576,8 @@ export class ZavorthEnsembleService {
     let finalStatus: SwarmSnapshot['status'] = 'completed';
 
     for (const batch of state.batches) {
-      const queueStatus: ZavorthEnsembleOfficialSurface['queue']['status'] = entry.officialState?.queueStatus || state.queueStatus;
+      const queueStatus: ZavorthEnsembleOfficialSurface['queue']['status'] =
+        entry.officialState?.queueStatus || state.queueStatus;
       if (queueStatus === 'cancelled') {
         finalStatus = 'cancelled';
         break;
@@ -549,8 +589,9 @@ export class ZavorthEnsembleService {
         roleIds: batch.roleIds,
       });
       const batchRoles = state.roles.filter((role) => batch.roleIds.includes(role.id));
-      const orchestrator = this.options.orchestratorFactory?.(state.objective, batchRoles)
-        || new SwarmOrchestrator(entry.lastSnapshot.objective, batchRoles, {
+      const orchestrator =
+        this.options.orchestratorFactory?.(state.objective, batchRoles) ||
+        new SwarmOrchestrator(entry.lastSnapshot.objective, batchRoles, {
           roleTimeoutMs: input.subagentBudget?.maxWallClockMs || 120000,
           traceId: entry.lastSnapshot.traceId || entry.swarmId,
           runId: entry.lastSnapshot.runId || entry.swarmId,
@@ -583,11 +624,12 @@ export class ZavorthEnsembleService {
       const batchSnapshot = await orchestrator.execute();
       allResults.push(...batchSnapshot.roles);
       batch.finishedAt = new Date().toISOString();
-      batch.status = batchSnapshot.status === 'completed'
-        ? 'completed'
-        : batchSnapshot.status === 'cancelled'
-          ? 'cancelled'
-          : 'failed';
+      batch.status =
+        batchSnapshot.status === 'completed'
+          ? 'completed'
+          : batchSnapshot.status === 'cancelled'
+            ? 'cancelled'
+            : 'failed';
       this.pushReplay(state, 'batch.finished', `Batch ${batch.index + 1} finalizado como ${batch.status}.`, {
         batchId: batch.batchId,
         status: batchSnapshot.status,
@@ -602,21 +644,27 @@ export class ZavorthEnsembleService {
 
       const intermediate = this.buildOfficialSnapshot(entry, state, allResults, finalStatus, null);
       entry.lastSnapshot = intermediate;
-      if ((entry.officialState?.queueStatus as ZavorthEnsembleOfficialSurface['queue']['status'] | undefined) === 'cancelled') {
+      if (
+        (entry.officialState?.queueStatus as ZavorthEnsembleOfficialSurface['queue']['status'] | undefined) ===
+        'cancelled'
+      ) {
         finalStatus = 'cancelled';
         break;
       }
     }
 
-    state.queueStatus = finalStatus === 'completed' ? 'completed' : finalStatus === 'cancelled' ? 'cancelled' : 'failed';
+    state.queueStatus =
+      finalStatus === 'completed' ? 'completed' : finalStatus === 'cancelled' ? 'cancelled' : 'failed';
     state.synthesisStatus = finalStatus === 'cancelled' ? 'failed' : 'completed';
     state.synthesisMode = this.options.llmRuntime && finalStatus !== 'cancelled' ? 'llm' : 'deterministic';
-    const synthesizedOutput = finalStatus === 'cancelled'
-      ? state.synthesisSummary
-      : await this.synthesizeOfficialOutput(state, allResults, finalStatus);
-    state.synthesisSummary = finalStatus === 'cancelled'
-      ? 'Swarm cancelled by the operator.'
-      : `Sintese oficial gerada com ${allResults.length}/${state.roles.length} role(s).`;
+    const synthesizedOutput =
+      finalStatus === 'cancelled'
+        ? state.synthesisSummary
+        : await this.synthesizeOfficialOutput(state, allResults, finalStatus);
+    state.synthesisSummary =
+      finalStatus === 'cancelled'
+        ? 'Swarm cancelled by the operator.'
+        : `Sintese oficial gerada com ${allResults.length}/${state.roles.length} role(s).`;
     this.pushReplay(state, 'swarm.synthesized', state.synthesisSummary, {
       outputChars: synthesizedOutput.length,
       finalStatus,
@@ -643,21 +691,31 @@ export class ZavorthEnsembleService {
     status: SwarmSnapshot['status'],
     synthesizedOutput: string | null,
   ): SwarmSnapshot {
-    return this.withOfficialSurface(this.withLifecycle({
-      ...entry.lastSnapshot,
-      swarmId: entry.swarmId,
-      status,
-      objective: state.objective,
-      roles,
-      startedAt: state.startedAt,
-      finishedAt: status === 'running' ? null : new Date().toISOString(),
-      synthesizedOutput,
-    }, {
-      summary: `Official Zavorth Ensemble ${status} with ${roles.length} role result(s).`,
-    }, entry.subagentReceipts), state);
+    return this.withOfficialSurface(
+      this.withLifecycle(
+        {
+          ...entry.lastSnapshot,
+          swarmId: entry.swarmId,
+          status,
+          objective: state.objective,
+          roles,
+          startedAt: state.startedAt,
+          finishedAt: status === 'running' ? null : new Date().toISOString(),
+          synthesizedOutput,
+        },
+        {
+          summary: `Official Zavorth Ensemble ${status} with ${roles.length} role result(s).`,
+        },
+        entry.subagentReceipts,
+      ),
+      state,
+    );
   }
 
-  private withOfficialSurface(snapshot: SwarmSnapshot, state: ZavorthEnsembleOfficialState): SwarmSnapshot & ZavorthEnsembleOfficialSurface {
+  private withOfficialSurface(
+    snapshot: SwarmSnapshot,
+    state: ZavorthEnsembleOfficialState,
+  ): SwarmSnapshot & ZavorthEnsembleOfficialSurface {
     const metrics = this.buildOfficialMetrics(snapshot, state);
     return {
       ...snapshot,
@@ -687,9 +745,10 @@ export class ZavorthEnsembleService {
         mode: state.isolationMode,
         workersIsolated: state.isolationMode !== 'direct',
         workerRoots: state.workerRoots.map((worker) => ({ ...worker })),
-        note: state.isolationMode === 'temp-worktree'
-          ? 'Cada role roda em cwd temporario separado; use docker/wsl/external-sandbox para isolamento de SO forte.'
-          : 'Isolamento declarado pelo perfil do worker e registrado nos receipts.',
+        note:
+          state.isolationMode === 'temp-worktree'
+            ? 'Cada role roda em cwd temporario separado; use docker/wsl/external-sandbox para isolamento de SO forte.'
+            : 'Isolamento declarado pelo perfil do worker e registrado nos receipts.',
       },
       synthesis: {
         mode: state.synthesisMode,
@@ -715,7 +774,10 @@ export class ZavorthEnsembleService {
     };
   }
 
-  private buildOfficialMetrics(snapshot: SwarmSnapshot, state: ZavorthEnsembleOfficialState): ZavorthEnsembleParallelMetrics {
+  private buildOfficialMetrics(
+    snapshot: SwarmSnapshot,
+    state: ZavorthEnsembleOfficialState,
+  ): ZavorthEnsembleParallelMetrics {
     const roles = snapshot.roles || [];
     const completedRoles = roles.filter((role) => role.status === 'IDLE').length;
     const timedOutRoles = roles.filter((role) => role.status === 'TIMEOUT').length;
@@ -738,11 +800,16 @@ export class ZavorthEnsembleService {
       elapsedMs,
       outputBytes,
       synthesisChars: snapshot.synthesizedOutput?.length || 0,
-      parallelismScore: Math.round((Math.min(state.maxConcurrency, state.roles.length) / Math.max(1, state.roles.length)) * 100),
+      parallelismScore: Math.round(
+        (Math.min(state.maxConcurrency, state.roles.length) / Math.max(1, state.roles.length)) * 100,
+      ),
     };
   }
 
-  private buildReplayInsights(snapshot: SwarmSnapshot, state: ZavorthEnsembleOfficialState): ZavorthEnsembleReplayInsights {
+  private buildReplayInsights(
+    snapshot: SwarmSnapshot,
+    state: ZavorthEnsembleOfficialState,
+  ): ZavorthEnsembleReplayInsights {
     const events = state.replay;
     const roles = snapshot.roles || [];
     const roleOutputs = roles.map((role) => ({
@@ -757,9 +824,7 @@ export class ZavorthEnsembleService {
     const outputBytes = roleOutputs.map((role) => role.outputBytes);
     const strongest = roleOutputs.slice().sort((left, right) => right.outputBytes - left.outputBytes)[0] || null;
     const weakest = roleOutputs.slice().sort((left, right) => left.outputBytes - right.outputBytes)[0] || null;
-    const outputSpreadBytes = outputBytes.length > 0
-      ? Math.max(...outputBytes) - Math.min(...outputBytes)
-      : 0;
+    const outputSpreadBytes = outputBytes.length > 0 ? Math.max(...outputBytes) - Math.min(...outputBytes) : 0;
     const bottlenecks: ZavorthEnsembleReplayInsights['bottlenecks'] = [];
     if (state.batches.some((batch) => batch.status === 'failed')) {
       bottlenecks.push({
@@ -782,31 +847,67 @@ export class ZavorthEnsembleService {
         summary: 'One role produced much more context than the others; review the synthesis for volume bias.',
       });
     }
-    const synthesisConfidence = Math.max(0, Math.min(100, Math.round(
-      100
-      - failedRoles * 18
-      - (state.synthesisStatus === 'completed' ? 0 : 25)
-      - (roles.length === 0 ? 20 : 0)
-      - (bottlenecks.some((item) => item.severity === 'critical') ? 25 : 0),
-    )));
+    const synthesisConfidence = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          100 -
+            failedRoles * 18 -
+            (state.synthesisStatus === 'completed' ? 0 : 25) -
+            (roles.length === 0 ? 20 : 0) -
+            (bottlenecks.some((item) => item.severity === 'critical') ? 25 : 0),
+        ),
+      ),
+    );
     return {
       status: events.length === 0 ? 'empty' : state.queueStatus === 'running' ? 'recording' : 'ready',
-      operatorSummary: events.length === 0
-        ? 'Replay ainda sem eventos.'
-        : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
+      operatorSummary:
+        events.length === 0
+          ? 'Replay ainda sem eventos.'
+          : `${events.length} event(s), ${completedRoles}/${state.roles.length} completed role(s), confidence ${synthesisConfidence}/100.`,
       timeline: [
-        this.buildReplayTimelineItem('queued', 'Queue', events, ['swarm.queued', 'batch.queued'], state.queueStatus === 'queued' ? 'active' : 'done'),
-        this.buildReplayTimelineItem('roles', 'Roles', events, ['role.started', 'role.output', 'role.finished'], state.queueStatus === 'running' ? 'active' : completedRoles > 0 ? 'done' : 'pending'),
-        this.buildReplayTimelineItem('batches', 'Batches', events, ['batch.started', 'batch.finished'], state.batches.some((batch) => batch.status === 'failed') ? 'failed' : state.batches.some((batch) => batch.status === 'running') ? 'active' : 'done'),
-        this.buildReplayTimelineItem('synthesis', 'Synthesis', events, ['swarm.synthesized', 'swarm.failed'], state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending'),
+        this.buildReplayTimelineItem(
+          'queued',
+          'Queue',
+          events,
+          ['swarm.queued', 'batch.queued'],
+          state.queueStatus === 'queued' ? 'active' : 'done',
+        ),
+        this.buildReplayTimelineItem(
+          'roles',
+          'Roles',
+          events,
+          ['role.started', 'role.output', 'role.finished'],
+          state.queueStatus === 'running' ? 'active' : completedRoles > 0 ? 'done' : 'pending',
+        ),
+        this.buildReplayTimelineItem(
+          'batches',
+          'Batches',
+          events,
+          ['batch.started', 'batch.finished'],
+          state.batches.some((batch) => batch.status === 'failed')
+            ? 'failed'
+            : state.batches.some((batch) => batch.status === 'running')
+              ? 'active'
+              : 'done',
+        ),
+        this.buildReplayTimelineItem(
+          'synthesis',
+          'Synthesis',
+          events,
+          ['swarm.synthesized', 'swarm.failed'],
+          state.synthesisStatus === 'failed' ? 'failed' : state.synthesisStatus === 'completed' ? 'done' : 'pending',
+        ),
       ],
       byRole: roleOutputs.map((role) => ({
         ...role,
-        confidence: role.status === 'IDLE'
-          ? Math.min(100, 70 + Math.min(20, Math.floor(role.outputBytes / 400)))
-          : role.status === 'PROCESSING'
-            ? 45
-            : 20,
+        confidence:
+          role.status === 'IDLE'
+            ? Math.min(100, 70 + Math.min(20, Math.floor(role.outputBytes / 400)))
+            : role.status === 'PROCESSING'
+              ? 45
+              : 20,
       })),
       bottlenecks,
       compare: {
@@ -817,11 +918,12 @@ export class ZavorthEnsembleService {
         weakestRoleId: weakest?.roleId || null,
       },
       synthesisConfidence,
-      nextReplayAction: bottlenecks.length > 0
-        ? 'Abra os eventos por role e compare a sintese antes de confiar no resultado.'
-        : state.synthesisStatus === 'completed'
-          ? 'Use a sintese final e mantenha o replay como evidencia.'
-          : 'Aguarde a sintese ou cancele se o swarm travar.',
+      nextReplayAction:
+        bottlenecks.length > 0
+          ? 'Abra os eventos por role e compare a sintese antes de confiar no resultado.'
+          : state.synthesisStatus === 'completed'
+            ? 'Use a sintese final e mantenha o replay como evidencia.'
+            : 'Aguarde a sintese ou cancele se o swarm travar.',
     };
   }
 
@@ -840,12 +942,17 @@ export class ZavorthEnsembleService {
     };
   }
 
-  private buildToolExecutionSnapshot(snapshot: SwarmSnapshot, state: ZavorthEnsembleOfficialState): ZavorthEnsembleOfficialSurface['toolExecution'] {
+  private buildToolExecutionSnapshot(
+    snapshot: SwarmSnapshot,
+    state: ZavorthEnsembleOfficialState,
+  ): ZavorthEnsembleOfficialSurface['toolExecution'] {
     const toolIds = state.roles.map((role) => String(role.toolSpecId || '')).filter(Boolean);
     const commandToolCount = state.roles.filter((role) => Boolean(role.command)).length;
     return {
       plannedToolCount: toolIds.length,
-      executedToolCount: (snapshot.roles || []).filter((role) => toolIds.includes(role.roleId) || state.roles.find((item) => item.id === role.roleId)?.toolSpecId).length,
+      executedToolCount: (snapshot.roles || []).filter(
+        (role) => toolIds.includes(role.roleId) || state.roles.find((item) => item.id === role.roleId)?.toolSpecId,
+      ).length,
       commandToolCount,
       approvalRequiredToolCount: state.toolSpecs.filter((tool) => tool.requiresApproval !== false).length,
       toolIds,
@@ -877,24 +984,27 @@ export class ZavorthEnsembleService {
     const estimatedSerialMs = roleDurations.reduce((total, value) => total + value, 0) || metrics.elapsedMs;
     const failures = metrics.failedRoles + metrics.timedOutRoles + metrics.cancelledRoles;
     const failureRate = Math.round((failures / Math.max(1, metrics.totalRoles)) * 1000) / 1000;
-    const qualityScore = Math.max(0, Math.min(100, Math.round(
-      100
-      - failureRate * 100
-      - (metrics.synthesisChars > 0 ? 0 : 20)
-      - (metrics.outputBytes > 0 ? 0 : 20),
-    )));
+    const qualityScore = Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(
+          100 - failureRate * 100 - (metrics.synthesisChars > 0 ? 0 : 20) - (metrics.outputBytes > 0 ? 0 : 20),
+        ),
+      ),
+    );
     return {
       enabled: true,
       baseline: 'estimated-serial',
       elapsedMs: metrics.elapsedMs,
       estimatedSerialMs,
       speedup: Math.round((estimatedSerialMs / Math.max(1, metrics.elapsedMs)) * 100) / 100,
-      throughputRolesPerSecond: Math.round((metrics.completedRoles / Math.max(1, metrics.elapsedMs / 1000)) * 100) / 100,
+      throughputRolesPerSecond:
+        Math.round((metrics.completedRoles / Math.max(1, metrics.elapsedMs / 1000)) * 100) / 100,
       failureRate,
       qualityScore,
     };
   }
-
 
   private async synthesizeOfficialOutput(
     state: ZavorthEnsembleOfficialState,
@@ -914,11 +1024,7 @@ export class ZavorthEnsembleService {
     ];
     for (const result of results) {
       const text = result.output.join('').trim();
-      lines.push(
-        '',
-        `### ${result.label} (${result.status})`,
-        text ? text.slice(0, 4000) : 'No output captured.',
-      );
+      lines.push('', `### ${result.label} (${result.status})`, text ? text.slice(0, 4000) : 'No output captured.');
     }
     lines.push(
       '',
@@ -934,28 +1040,34 @@ export class ZavorthEnsembleService {
     }
 
     try {
-      const response = await this.options.llmRuntime.chat([
+      const response = await this.options.llmRuntime.chat(
+        [
+          {
+            role: 'user',
+            content: [
+              'You are Zavorth Swarm v2 final synthesizer.',
+              'Create a concise, accurate final report from the role outputs below.',
+              'Preserve blockers, failed roles, metrics and next safe steps.',
+              'Do not expose chain-of-thought or raw secrets.',
+              '',
+              deterministic,
+            ].join('\n'),
+          },
+        ],
+        [],
         {
-          role: 'user',
-          content: [
-            'You are Zavorth Swarm v2 final synthesizer.',
-            'Create a concise, accurate final report from the role outputs below.',
-            'Preserve blockers, failed roles, metrics and next safe steps.',
-            'Do not expose chain-of-thought or raw secrets.',
-            '',
-            deterministic,
-          ].join('\n'),
-        },
-      ], [], {
-        allowFallback: true,
-        telemetry: {
-          surface: 'zavorth-ensemble-official',
-          runId: state.swarmId,
-          traceId: state.swarmId,
-        },
-      } satisfies LlmRuntimeChatOptions);
+          allowFallback: true,
+          telemetry: {
+            surface: 'zavorth-ensemble-official',
+            runId: state.swarmId,
+            traceId: state.swarmId,
+          },
+        } satisfies LlmRuntimeChatOptions,
+      );
       return response.content?.trim() || deterministic;
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const e = err;
       this.pushReplay(state, 'swarm.failed', 'LLM synthesis failed; deterministic synthesis was used.', {
         error: this.getErrorMessage(error).slice(0, 240),
       });
@@ -989,34 +1101,41 @@ export class ZavorthEnsembleService {
         scope: role.scope,
         tags: role.tags,
       }));
-      const response = await this.options.llmRuntime.chat([
+      const response = await this.options.llmRuntime.chat(
+        [
+          {
+            role: 'user',
+            content: [
+              'You are Zavorth Zavorth Ensemble role selector.',
+              'Select the smallest useful role set for the objective.',
+              'Return JSON only: {"selectedRoleIds":["planner"],"rationale":"short reason"}.',
+              'Use only role IDs from the available list. Prefer planner, researcher, verifier and synthesizer for broad work.',
+              `Desired role count: ${input.desiredRoleCount}`,
+              `Objective: ${input.objective}`,
+              `Available roles: ${JSON.stringify(available)}`,
+            ].join('\n'),
+          },
+        ],
+        [],
         {
-          role: 'user',
-          content: [
-            'You are Zavorth Zavorth Ensemble role selector.',
-            'Select the smallest useful role set for the objective.',
-            'Return JSON only: {"selectedRoleIds":["planner"],"rationale":"short reason"}.',
-            'Use only role IDs from the available list. Prefer planner, researcher, verifier and synthesizer for broad work.',
-            `Desired role count: ${input.desiredRoleCount}`,
-            `Objective: ${input.objective}`,
-            `Available roles: ${JSON.stringify(available)}`,
-          ].join('\n'),
-        },
-      ], [], {
-        allowFallback: true,
-        telemetry: {
-          surface: 'zavorth-ensemble-role-selection',
-          runId: 'zavorth-ensemble-role-selection',
-          traceId: 'zavorth-ensemble-role-selection',
-        },
-      } satisfies LlmRuntimeChatOptions);
+          allowFallback: true,
+          telemetry: {
+            surface: 'zavorth-ensemble-role-selection',
+            runId: 'zavorth-ensemble-role-selection',
+            traceId: 'zavorth-ensemble-role-selection',
+          },
+        } satisfies LlmRuntimeChatOptions,
+      );
       const parsed = parseJsonObject(response.content);
       const libraryIds = new Set(input.library.map((role) => role.id));
       const selected = Array.isArray(parsed?.selectedRoleIds)
         ? (parsed.selectedRoleIds as unknown[])
-          .map((value: unknown) => normalizeKey(value, ''))
-          .filter((value: string, index: number, values: string[]) => libraryIds.has(value) && values.indexOf(value) === index)
-          .slice(0, input.desiredRoleCount)
+            .map((value: unknown) => normalizeKey(value, ''))
+            .filter(
+              (value: string, index: number, values: string[]) =>
+                libraryIds.has(value) && values.indexOf(value) === index,
+            )
+            .slice(0, input.desiredRoleCount)
         : [];
       if (selected.length === 0) {
         return fallback;
@@ -1028,7 +1147,12 @@ export class ZavorthEnsembleService {
         availableRoleCount: input.library.length,
         rationale: String(parsed?.rationale || 'LLM selected roles from the persistent role library.').slice(0, 400),
       };
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err; logger.warn('[Zavorth Ensemble] parsing failed', error); return fallback; }
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const e = err;
+      logger.warn('[Zavorth Ensemble] parsing failed', error);
+      return fallback;
+    }
   }
 
   private resolveSyncRoleSelection(input: {
@@ -1056,7 +1180,9 @@ export class ZavorthEnsembleService {
       return {
         mode: 'manual',
         requestedRoleCount: input.requestedRoles.length,
-        selectedRoleIds: input.requestedRoles.map((role, index) => normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`)),
+        selectedRoleIds: input.requestedRoles.map((role, index) =>
+          normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`),
+        ),
         availableRoleCount: input.library.length,
         rationale: 'Operator provided concrete swarm roles.',
       };
@@ -1071,17 +1197,10 @@ export class ZavorthEnsembleService {
       };
     }
 
-    const objective = input.objective.toLowerCase();
-    const wanted = ['planner', 'researcher'];
-    if (/(implement|code|patch|fix|build|test|execute)/i.test(objective)) {
-      wanted.push('implementer');
-    }
-    if (/(seguranca|security|risco|approval|permiss|secret|vulnerab|auditoria)/i.test(objective)) {
-      wanted.push('safety-reviewer');
-    }
-    wanted.push('verifier', 'synthesizer');
-
-    const selected = wanted
+    // Structured auto-select: default official bundle order only.
+    // Free-text objective never keyword-routes role activation (LLM path owns free text).
+    const defaultBundle = ['planner', 'researcher', 'implementer', 'verifier', 'synthesizer', 'safety-reviewer'];
+    const selected = defaultBundle
       .filter((id, index, values) => libraryIds.has(id) && values.indexOf(id) === index)
       .slice(0, input.desiredRoleCount);
     for (const role of input.library) {
@@ -1093,10 +1212,10 @@ export class ZavorthEnsembleService {
       requestedRoleCount: input.desiredRoleCount,
       selectedRoleIds: selected,
       availableRoleCount: input.library.length,
-      rationale: 'Zavorth selected roles from objective keywords, risk hints and the persistent role library.',
+      rationale:
+        'Zavorth selected the default official role bundle (structured auto-select; free-text not keyword-scanned).',
     };
   }
-
 
   private prepareOfficialRoles(
     roles: SwarmRole[],
@@ -1113,12 +1232,9 @@ export class ZavorthEnsembleService {
     return roles.slice(0, input.maxRoles).map((role, index) => {
       const id = normalizeKey(role.id || `role-${index + 1}`, `role-${index + 1}`);
       const cwd = this.resolveRoleCwd(input.swarmId, id, input.isolationMode, role.cwd);
-      const toolSpec = !role.command && input.toolSpecs.length > 0
-        ? input.toolSpecs[index % input.toolSpecs.length]
-        : null;
-      const commandRole = toolSpec
-        ? this.applyToolSpecToRole(role, toolSpec)
-        : role;
+      const toolSpec =
+        !role.command && input.toolSpecs.length > 0 ? input.toolSpecs[index % input.toolSpecs.length] : null;
+      const commandRole = toolSpec ? this.applyToolSpecToRole(role, toolSpec) : role;
       const isolatedCommand = this.applyStrongIsolationWrapper(commandRole, {
         mode: input.isolationMode,
         cwd,
@@ -1209,14 +1325,7 @@ export class ZavorthEnsembleService {
       return {
         ...role,
         command: 'wsl.exe',
-        args: [
-          ...(distro ? ['-d', distro] : []),
-          '--cd',
-          input.cwd,
-          '--',
-          role.command,
-          ...(role.args || []),
-        ],
+        args: [...(distro ? ['-d', distro] : []), '--cd', input.cwd, '--', role.command, ...(role.args || [])],
         cwd: input.cwd,
         stdinMode: 'none',
       };
@@ -1228,11 +1337,13 @@ export class ZavorthEnsembleService {
     const wanted = new Set(ids.map((id) => normalizeKey(id, '')));
     return library
       .filter((entry) => wanted.has(entry.id))
-      .map((entry): SwarmRole => ({
-        id: entry.id,
-        label: entry.label,
-        systemPrompt: entry.systemPrompt,
-      }));
+      .map(
+        (entry): SwarmRole => ({
+          id: entry.id,
+          label: entry.label,
+          systemPrompt: entry.systemPrompt,
+        }),
+      );
   }
 
   private readRoleLibrary(): ZavorthEnsembleRoleLibraryEntry[] {
@@ -1245,9 +1356,13 @@ export class ZavorthEnsembleService {
     try {
       const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       if (Array.isArray(parsed)) {
-        return parsed.map((entry: unknown) => this.normalizeRoleLibraryEntry(entry as Record<string, unknown>)).filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
+        return parsed
+          .map((entry: unknown) => this.normalizeRoleLibraryEntry(entry as Record<string, unknown>))
+          .filter(Boolean) as ZavorthEnsembleRoleLibraryEntry[];
       }
-    } catch (error: unknown) { const err = asErrorLike(error); const e = err;
+    } catch (error: unknown) {
+      const err = asErrorLike(error);
+      const e = err;
       // fall through to defaults
       logger.warn('[Zavorth Ensemble] JSON parse failed', error);
     }
@@ -1279,16 +1394,25 @@ export class ZavorthEnsembleService {
     return {
       id,
       label: String(raw?.label || id).trim(),
-      kind: ['planner', 'researcher', 'implementer', 'verifier', 'critic', 'synthesizer', 'operator', 'custom'].includes(kind)
-        ? kind as ZavorthEnsembleRoleLibraryEntry['kind']
+      kind: [
+        'planner',
+        'researcher',
+        'implementer',
+        'verifier',
+        'critic',
+        'synthesizer',
+        'operator',
+        'custom',
+      ].includes(kind)
+        ? (kind as ZavorthEnsembleRoleLibraryEntry['kind'])
         : 'custom',
       systemPrompt,
       defaultTools: Array.isArray(raw?.defaultTools) ? raw.defaultTools.map(String) : [],
       risk: ['safe', 'attention', 'danger', 'unknown'].includes(risk)
-        ? risk as ZavorthEnsembleRoleLibraryEntry['risk']
+        ? (risk as ZavorthEnsembleRoleLibraryEntry['risk'])
         : 'unknown',
       scope: ['read_only', 'tool_limited', 'workspace_patch'].includes(scope)
-        ? scope as ZavorthEnsembleRoleLibraryEntry['scope']
+        ? (scope as ZavorthEnsembleRoleLibraryEntry['scope'])
         : 'tool_limited',
       tags: Array.isArray(raw?.tags) ? raw.tags.map(String) : [],
       createdAt: String(raw?.createdAt || now),
@@ -1301,7 +1425,6 @@ export class ZavorthEnsembleService {
     if (typeof error === 'string') return error;
     return String(error || 'unknown');
   }
-
 
   private pushReplay(
     state: ZavorthEnsembleOfficialState,
@@ -1320,7 +1443,6 @@ export class ZavorthEnsembleService {
       payload,
     });
   }
-
 
   private withLifecycle(
     snapshot: SwarmSnapshot,
@@ -1403,33 +1525,35 @@ export class ZavorthEnsembleService {
           outputBytes,
         },
       });
-      const scope = seed?.scope || createSubagentCapabilityScope({
-        roleId: role.id,
-        mode: 'tool_limited',
-        allowedTools: this.resolveRoleTools(role),
-        allowedPaths: [],
-        requiresApproval: true,
-        metadata: {
-          objective: input.objective,
-          swarmRoleLabel: role.label,
-          command: role.command || null,
-        },
-      });
-      const approvalBoundary = seed?.approvalBoundary || createSubagentApprovalBoundary({
-        scope,
-        budget,
-        risk: role.command ? 'attention' : 'unknown',
-        approvalReason: 'ZavorthEnsemble records the approval boundary before subagent execution.',
-        metadata: {
-          objective: input.objective,
-          swarmRoleLabel: role.label,
-          swarmId: input.snapshot?.swarmId || null,
-        },
-      });
+      const scope =
+        seed?.scope ||
+        createSubagentCapabilityScope({
+          roleId: role.id,
+          mode: 'tool_limited',
+          allowedTools: this.resolveRoleTools(role),
+          allowedPaths: [],
+          requiresApproval: true,
+          metadata: {
+            objective: input.objective,
+            swarmRoleLabel: role.label,
+            command: role.command || null,
+          },
+        });
+      const approvalBoundary =
+        seed?.approvalBoundary ||
+        createSubagentApprovalBoundary({
+          scope,
+          budget,
+          risk: role.command ? 'attention' : 'unknown',
+          approvalReason: 'ZavorthEnsemble records the approval boundary before subagent execution.',
+          metadata: {
+            objective: input.objective,
+            swarmRoleLabel: role.label,
+            swarmId: input.snapshot?.swarmId || null,
+          },
+        });
       const budgetDecision = evaluateSubagentBudget(budget);
-      const status = budgetDecision.ok
-        ? this.mapSubagentStatus(result, input.snapshot)
-        : 'budget_exceeded';
+      const status = budgetDecision.ok ? this.mapSubagentStatus(result, input.snapshot) : 'budget_exceeded';
 
       return createSubagentResultReceipt({
         roleId: role.id,
@@ -1488,8 +1612,6 @@ export class ZavorthEnsembleService {
   }
 }
 
-export {
-  ZavorthEnsembleService as ExperimentalZavorthEnsembleService,
-};
+export { ZavorthEnsembleService as ExperimentalZavorthEnsembleService };
 
 export type ExperimentalZavorthEnsembleCreateInput = ZavorthEnsembleCreateInput;

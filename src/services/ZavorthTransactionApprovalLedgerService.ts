@@ -14,6 +14,11 @@ import {
   type ZavorthTransactionApprovalQuoteSnapshot,
   type ZavorthTransactionApprovalSignatureSource,
 } from '../contracts/ZavorthTransactionApprovalContract.js';
+import type {
+  ZavorthTransactionIntentKind,
+  ZavorthTransactionIntentTargetKind,
+} from '../contracts/ZavorthTransactionIntentContract.js';
+import type { ZavorthTransactionActionKind } from '../contracts/ZavorthTransactionPlaneContract.js';
 import type { ZavorthTransactionPreview } from '../contracts/ZavorthTransactionPreviewContract.js';
 import { ZavorthTransactionPreviewService } from './ZavorthTransactionPreviewService.js';
 import { resolveToolApprovalSigningKeyDetails } from '../security/ApprovalSigningKeyService.js';
@@ -39,7 +44,8 @@ export class ZavorthTransactionApprovalLedgerService {
   private readonly fsImpl: Pick<typeof fs, 'existsSync' | 'mkdirSync' | 'readFileSync' | 'appendFileSync'>;
 
   public constructor(runtime: ApprovalLedgerRuntime = {}) {
-    this.ledgerFile = runtime.ledgerFile ?? path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-approval-ledger.jsonl');
+    this.ledgerFile =
+      runtime.ledgerFile ?? path.join(process.cwd(), 'data', 'runtime', 'zavorth-transaction-approval-ledger.jsonl');
     this.signingKey = runtime.signingKey ?? null;
     this.now = runtime.now ?? (() => new Date());
     this.previewService = runtime.previewService ?? new ZavorthTransactionPreviewService();
@@ -50,15 +56,27 @@ export class ZavorthTransactionApprovalLedgerService {
     return buildZavorthTransactionApprovalContractSnapshot();
   }
 
-  public buildPreviewFromText(input: { text: string; channel?: string }): ZavorthTransactionPreview {
+  public buildPreviewFromText(input: {
+    text: string;
+    kind?: ZavorthTransactionIntentKind;
+    actionKind?: ZavorthTransactionActionKind;
+    targetKind?: ZavorthTransactionIntentTargetKind;
+    channel?: string;
+  }): ZavorthTransactionPreview {
     return this.previewService.buildPreview({
       text: input.text,
+      kind: input.kind,
+      actionKind: input.actionKind,
+      targetKind: input.targetKind,
       channel: input.channel,
       now: this.now(),
     });
   }
 
-  public recordPreview(preview: ZavorthTransactionPreview, actor: ZavorthTransactionApprovalActor = 'system'): ZavorthTransactionApprovalLedgerEntry {
+  public recordPreview(
+    preview: ZavorthTransactionPreview,
+    actor: ZavorthTransactionApprovalActor = 'system',
+  ): ZavorthTransactionApprovalLedgerEntry {
     const entry = this.buildEntry({
       preview,
       kind: 'preview-recorded',
@@ -232,10 +250,12 @@ export class ZavorthTransactionApprovalLedgerService {
 
   private findLatestDecision(approvalIdOrPreviewId: string): ZavorthTransactionApprovalLedgerEntry | null {
     const entries = this.readLedger();
-    return [...entries].reverse().find((entry) => {
-      const sameApproval = entry.approvalId === approvalIdOrPreviewId || entry.previewId === approvalIdOrPreviewId;
-      return sameApproval && ['approval-granted', 'approval-rejected'].includes(entry.kind);
-    }) ?? null;
+    return (
+      [...entries].reverse().find((entry) => {
+        const sameApproval = entry.approvalId === approvalIdOrPreviewId || entry.previewId === approvalIdOrPreviewId;
+        return sameApproval && ['approval-granted', 'approval-rejected'].includes(entry.kind);
+      }) ?? null
+    );
   }
 
   private resolveSigningMaterial(): SigningMaterial {
@@ -284,7 +304,9 @@ function defaultDecisionReason(decision: 'approved' | 'rejected', preview: Zavor
     : `Operator rejected preview ${preview.id}.`;
 }
 
-function approvalStatusForKind(kind: ZavorthTransactionApprovalLedgerEntryKind): 'none' | 'pending' | 'approved' | 'rejected' {
+function approvalStatusForKind(
+  kind: ZavorthTransactionApprovalLedgerEntryKind,
+): 'none' | 'pending' | 'approved' | 'rejected' {
   if (kind === 'approval-granted') {
     return 'approved';
   }
@@ -309,10 +331,7 @@ function buildApprovalEntryId(
   createdAt: string,
   reason: string,
 ): string {
-  const hash = createHash('sha256')
-    .update(`${createdAt}:${preview.id}:${kind}:${reason}`)
-    .digest('hex')
-    .slice(0, 16);
+  const hash = createHash('sha256').update(`${createdAt}:${preview.id}:${kind}:${reason}`).digest('hex').slice(0, 16);
   return `ztx-approval-${hash}`;
 }
 
@@ -341,5 +360,5 @@ function stableStringify(value: unknown): string {
 function sanitizeLedgerText(text: string): string {
   return text
     .replace(/\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
-    .replace(/\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/g, '[REDACTED_SECRET]');
+    .replace(/\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/g, '[REDACTED_SECRET]');
 }

@@ -44,6 +44,10 @@ const CACHEABLE_TOOLS = new Set([
   'list_directory',
   'search_files',
   'get_datetime',
+  'capability_discovery',
+  'semantic_memory',
+  'session_search',
+  'zavorth_session_search',
 ]);
 
 const CACHE_FILE = 'tool-result-cache.json';
@@ -105,12 +109,7 @@ export class ToolResultCache {
    * Stores a tool result in the cache.
    * No-op for non-cacheable tools.
    */
-  set(
-    toolName: string,
-    args: Record<string, unknown>,
-    result: string,
-    ttlMs?: number,
-  ): void {
+  set(toolName: string, args: Record<string, unknown>, result: string, ttlMs?: number): void {
     if (this.isNonCacheable(toolName)) return;
 
     const key = this.buildKey(toolName, args);

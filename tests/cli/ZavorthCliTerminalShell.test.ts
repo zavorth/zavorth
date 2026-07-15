@@ -27,9 +27,7 @@ describe('Zavorth CLI terminal shell', () => {
       mode: 'daily',
       activeRun: false,
       input: 'review this workspace',
-      messages: [
-        { role: 'assistant', text: 'Ready to help.' },
-      ],
+      messages: [{ role: 'assistant', text: 'Ready to help.' }],
     });
 
     expect(shell.contractVersion).toBe('zavorth-terminal-shell/1');
@@ -55,18 +53,20 @@ describe('Zavorth CLI terminal shell', () => {
     const registry = buildTerminalShellCommandRegistry();
     const ids = registry.commands.map((command) => command.id);
 
-    expect(ids).toEqual(expect.arrayContaining([
-      'zavorth.action.lookup',
-      'zavorth.action.preview',
-      'zavorth.approvals.open',
-      'zavorth.diff.open',
-      'zavorth.tasks.list',
-      'zavorth.memory.recall',
-      'zavorth.providers.pick',
-      'zavorth.channels.status',
-      'zavorth.voice.toggle',
-      'zavorth.sandbox.status',
-    ]));
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        'zavorth.action.lookup',
+        'zavorth.action.preview',
+        'zavorth.approvals.open',
+        'zavorth.diff.open',
+        'zavorth.tasks.list',
+        'zavorth.memory.recall',
+        'zavorth.providers.pick',
+        'zavorth.channels.status',
+        'zavorth.voice.toggle',
+        'zavorth.sandbox.status',
+      ]),
+    );
     expect(registry.commands.every((command) => command.surface === 'terminal')).toBe(true);
     expect(registry.commands.some((command) => command.title.toLowerCase().includes('hidden'))).toBe(false);
   });
@@ -74,13 +74,15 @@ describe('Zavorth CLI terminal shell', () => {
   it('keeps the base terminal language in English while allowing localized command aliases', () => {
     const registry = buildTerminalShellCommandRegistry({ locale: 'pt-BR' });
     const memory = registry.commands.find((command) => command.id === 'zavorth.memory.recall');
-    const output = formatTerminalShellScreen(buildTerminalShellSnapshot({
-      providerLabel: 'not selected',
-      modelLabel: 'not selected',
-    }));
+    const output = formatTerminalShellScreen(
+      buildTerminalShellSnapshot({
+        providerLabel: 'not selected',
+        modelLabel: 'not selected',
+      }),
+    );
 
     expect(memory?.title).toBe('Recall memory');
-    expect(memory?.aliases).toEqual(expect.arrayContaining(['/memoria', '/lembrar']));
+    expect(memory?.aliases).toEqual(expect.arrayContaining(['/mnemos', '/recall']));
     expect(output).toContain('auto:auto');
     expect(output).toContain('Conversation');
     expect(output).not.toContain('Memória');
@@ -160,17 +162,13 @@ describe('Zavorth CLI terminal shell', () => {
       modelLabel: 'gpt-4o',
       activeRun: true,
       input: '',
-      messages: [
-        { role: 'assistant', text: '<think>hidden chain</think>Visible answer.' },
-      ],
+      messages: [{ role: 'assistant', text: '<think>hidden chain</think>Visible answer.' }],
       cards: [
         { kind: 'tool', title: 'Read workspace', status: 'running', body: 'Inspecting approved files.' },
         { kind: 'approval', title: 'Edit config', status: 'waiting', body: 'Requires approval before write.' },
         { kind: 'diff', title: 'src/app.ts', status: '+12 -2', body: 'Preview only.' },
       ],
-      receipts: [
-        { id: 'receipt-1', title: 'Action receipt', detail: 'Stored after approval.' },
-      ],
+      receipts: [{ id: 'receipt-1', title: 'Action receipt', detail: 'Stored after approval.' }],
     });
     const output = formatTerminalShellScreen(shell);
 
@@ -198,14 +196,17 @@ describe('Zavorth CLI terminal shell', () => {
 
       expect(reloaded.load()).toEqual(['review workspace', '/memory project goals']);
 
-      let state = reduceTerminalShellInput({
-        value: '',
-        cursor: 0,
-        paletteOpen: false,
-        voiceArmed: false,
-        history: reloaded.load(),
-        historyIndex: null,
-      }, { type: 'key', key: 'arrowup' });
+      let state = reduceTerminalShellInput(
+        {
+          value: '',
+          cursor: 0,
+          paletteOpen: false,
+          voiceArmed: false,
+          history: reloaded.load(),
+          historyIndex: null,
+        },
+        { type: 'key', key: 'arrowup' },
+      );
       expect(state.value).toBe('/memory project goals');
 
       state = reduceTerminalShellInput(state, { type: 'key', key: 'arrowup' });
@@ -313,20 +314,26 @@ describe('Zavorth CLI terminal shell', () => {
       body: 'Preview only.',
     };
 
-    expect(formatTerminalShellSelectableCardLine({
-      card: approvalCard,
-      mode: 'daily',
-      selected: true,
-    })).toBe('> Approval | Apply safe patch | waiting | a/r/d');
-    expect(formatTerminalShellSelectableCardLine({
-      card: diffCard,
-      mode: 'daily',
-      selected: false,
-    })).toBe('  Diff | src/app.ts | +4 -1');
-    expect(formatTerminalShellSelectableCardLine({
-      card: approvalCard,
-      mode: 'ops',
-      selected: true,
-    })).toContain('Plan: plan-terminal-123');
+    expect(
+      formatTerminalShellSelectableCardLine({
+        card: approvalCard,
+        mode: 'daily',
+        selected: true,
+      }),
+    ).toBe('> Approval | Apply safe patch | waiting | a/r/d');
+    expect(
+      formatTerminalShellSelectableCardLine({
+        card: diffCard,
+        mode: 'daily',
+        selected: false,
+      }),
+    ).toBe('  Diff | src/app.ts | +4 -1');
+    expect(
+      formatTerminalShellSelectableCardLine({
+        card: approvalCard,
+        mode: 'ops',
+        selected: true,
+      }),
+    ).toContain('Plan: plan-terminal-123');
   });
 });

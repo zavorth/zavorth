@@ -3,18 +3,9 @@ import {
   getEvidenceDomainProfile,
   type EvidenceSearchDomain,
 } from './EvidenceDomainProfiles.js';
-import {
-  EvidenceIntentPlanner,
-  type EvidenceIntentPlan,
-  type EvidenceSourceTrack,
-} from './EvidenceIntentPlanner.js';
+import { EvidenceIntentPlanner, type EvidenceIntentPlan, type EvidenceSourceTrack } from './EvidenceIntentPlanner.js';
 
-export type EvidenceSourceRole =
-  | 'primary'
-  | 'supporting'
-  | 'community-signal'
-  | 'context-only'
-  | 'avoid-primary';
+export type EvidenceSourceRole = 'primary' | 'supporting' | 'community-signal' | 'context-only' | 'avoid-primary';
 
 export type EvidenceSourceRequirement = {
   track: EvidenceSourceTrack;
@@ -60,6 +51,8 @@ export type EvidenceSearchPlanInput = {
   query: string;
   intent?: EvidenceIntentPlan | null;
   domain?: EvidenceSearchDomain | 'auto' | null;
+  userRequestedMode?: EvidenceIntentPlan['mode'] | 'auto' | null;
+  risk?: EvidenceIntentPlan['risk'] | null;
 };
 
 export class EvidenceSearchPlanBuilder {
@@ -70,7 +63,13 @@ export class EvidenceSearchPlanBuilder {
     const intent =
       typeof input === 'string'
         ? this.intentPlanner.plan(query)
-        : input.intent || this.intentPlanner.plan({ query, domain: input.domain });
+        : input.intent ||
+          this.intentPlanner.plan({
+            query,
+            domain: input.domain,
+            userRequestedMode: input.userRequestedMode,
+            risk: input.risk,
+          });
 
     if (intent.mode === 'verified') {
       return this.verifiedPlan(intent);
@@ -104,9 +103,7 @@ export class EvidenceSearchPlanBuilder {
 
   private communityPlan(intent: EvidenceIntentPlan): EvidenceSearchPlan {
     const highRisk = intent.risk === 'high';
-    const mustHave = highRisk
-      ? this.verifiedRequirements(intent.domain)
-      : this.communityRequirements(intent.domain);
+    const mustHave = highRisk ? this.verifiedRequirements(intent.domain) : this.communityRequirements(intent.domain);
     const useful = highRisk
       ? this.communityRequirements(intent.domain)
       : this.verifiedRequirements(intent.domain).slice(0, 2);
@@ -138,7 +135,8 @@ export class EvidenceSearchPlanBuilder {
         style: 'balanced',
         separateFactsFromReports: true,
         requireCaveat: intent.risk !== 'low',
-        guidance: 'Compare official facts with community signals. Surface disagreement instead of collapsing all sources into one certainty level.',
+        guidance:
+          'Compare official facts with community signals. Surface disagreement instead of collapsing all sources into one certainty level.',
       },
     };
   }
@@ -204,7 +202,11 @@ export class EvidenceSearchPlanBuilder {
     }
 
     return [
-      requirement('community', 'community-signal', 'community discussion can reveal sentiment, edge cases and lived experience'),
+      requirement(
+        'community',
+        'community-signal',
+        'community discussion can reveal sentiment, edge cases and lived experience',
+      ),
       requirement('news', 'supporting', 'reporting can confirm whether a community signal is broader than one post'),
     ];
   }
@@ -216,7 +218,13 @@ export class EvidenceSearchPlanBuilder {
     if (domain === 'consumer') {
       return [requirement('community', 'supporting', 'user reports can reveal lived experience after official specs')];
     }
-    return [requirement('community', 'context-only', 'community sources may provide anecdotes but should not anchor formal claims')];
+    return [
+      requirement(
+        'community',
+        'context-only',
+        'community sources may provide anecdotes but should not anchor formal claims',
+      ),
+    ];
   }
 
   private communityAvoidPrimary(domain: EvidenceSearchDomain): EvidenceSourceRequirement[] {
@@ -232,9 +240,7 @@ export class EvidenceSearchPlanBuilder {
   }
 
   private lowQualityAvoidPrimary(): EvidenceSourceRequirement[] {
-    return [
-      requirement('community', 'avoid-primary', 'single unverified posts should not override stronger evidence'),
-    ];
+    return [requirement('community', 'avoid-primary', 'single unverified posts should not override stronger evidence')];
   }
 }
 
@@ -250,10 +256,7 @@ export function buildEvidenceSearchPlan(input: EvidenceSearchPlanInput | string)
   return new EvidenceSearchPlanBuilder().build(input);
 }
 
-export function buildEvidenceTrackQueries(
-  input: EvidenceSearchPlanInput | string,
-  limit = 3,
-): EvidenceTrackQuery[] {
+export function buildEvidenceTrackQueries(input: EvidenceSearchPlanInput | string, limit = 3): EvidenceTrackQuery[] {
   const builder = new EvidenceSearchPlanBuilder();
   const plan = builder.build(input);
   const query = typeof input === 'string' ? input : input.query;
@@ -311,8 +314,9 @@ export function weighEvidenceSource(input: EvidenceWeighingInput): EvidenceWeigh
   let score = input.baseScore;
   let highSignal = input.highSignal;
 
-  const requirement = [...input.plan.mustHave, ...input.plan.useful, ...input.plan.avoidAsPrimary]
-    .find((entry) => entry.track === track);
+  const requirement = [...input.plan.mustHave, ...input.plan.useful, ...input.plan.avoidAsPrimary].find(
+    (entry) => entry.track === track,
+  );
 
   if (role === 'primary') {
     score += 22;
@@ -376,11 +380,7 @@ export function weighEvidenceSource(input: EvidenceWeighingInput): EvidenceWeigh
   };
 }
 
-function queryForTrack(
-  query: string,
-  track: EvidenceSourceTrack,
-  domain: EvidenceSearchDomain,
-): string {
+function queryForTrack(query: string, track: EvidenceSourceTrack, domain: EvidenceSearchDomain): string {
   switch (track) {
     case 'official':
       if (domain === 'medical') {

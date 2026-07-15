@@ -15,6 +15,8 @@ export type CapabilityNaturalOperatorAction =
 
 export type CapabilityNaturalOperatorInput = {
   text: string;
+  /** Structured action only — free text never keyword-selects product actions. */
+  action?: CapabilityNaturalOperatorAction | null;
   actorLabel?: string | null;
   packId?: string | null;
   targetItemId?: string | null;
@@ -60,4 +62,3 @@ export type CapabilityNaturalOperatorResult = {
     nextAction: string;
   };
 };
-

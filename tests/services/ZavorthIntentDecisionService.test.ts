@@ -7,22 +7,43 @@ describe('ZavorthIntentDecisionService', () => {
     now: () => new Date('2026-06-02T12:00:00.000Z'),
   });
 
-  it('routes natural configuration changes through the Action Harness', () => {
+  it('never keyword-routes free text into product surfaces', () => {
+    const samples = [
+      'mude o skill governance para governed',
+      'analise todo o repo e encontre gargalos arquiteturais em muitos arquivos',
+      'aprove a tarefa pendente',
+      'lembre na memoria do projeto',
+      'rode npm install no sandbox',
+      'envie no telegram',
+    ];
+    for (const text of samples) {
+      const decision = service.decide({ text, channel: 'cli' });
+      expect(decision.kind).toBe('direct_response');
+      expect(decision.nextSurface).toBe('llm');
+      expect(decision.requiresApproval).toBe(false);
+    }
+  });
+
+  it('accepts structured kind for Action Harness without free-text scanning', () => {
     const decision = service.decide({
-      text: 'mude o skill governance para governed',
+      text: 'apply governance change',
       channel: 'cli',
+      kind: 'zavorth_action',
+      metadata: { suggestedActionId: 'skills.governance.set' },
     });
 
     expect(decision.kind).toBe('zavorth_action');
     expect(decision.suggestedActionId).toBe('skills.governance.set');
     expect(decision.requiresPreview).toBe(true);
     expect(decision.requiresApproval).toBe(true);
+    expect(decision.nextSurface).toBe('action-harness');
   });
 
-  it('routes broad repository work to scale planning without magic words', () => {
+  it('accepts structured swarm kind without magic words', () => {
     const decision = service.decide({
-      text: 'analise todo o repo e encontre gargalos arquiteturais em muitos arquivos',
+      text: 'large audit request payload for tools',
       channel: 'web',
+      kind: 'swarm',
     });
 
     expect(decision.kind).toBe('swarm');

@@ -1,19 +1,11 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {
-  ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
-import {
-  ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
+import { ZAVORTH_TRANSACTION_LIVE_CANDIDATE_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveCandidateContract.js';
+import { ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionSandboxControlledExecutorContract.js';
 import { ZavorthTransactionCredentialRefService } from '../../src/services/ZavorthTransactionCredentialRefService.js';
 
-import {
-  ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE,
-} from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
-
-
+import { ZAVORTH_TRANSACTION_LIVE_ACTIVATION_REVIEW_OWNER_PHRASE } from '../../src/contracts/ZavorthTransactionLiveActivationReviewContract.js';
 
 import { ZavorthTransactionSandboxControlledExecutorService } from '../../src/services/ZavorthTransactionSandboxControlledExecutorService.js';
 
@@ -30,14 +22,15 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
       storeFile: path.join(tempDir, 'credential-refs.jsonl'),
       now: () => now,
     });
-    credentialRef = credentialRefs.register({
-      label: 'Intent model3 exchange paper ref',
-      connectorKind: 'exchange',
-      environment: 'paper',
-      allowedActions: ['trade-order'],
-      ownerApproved: true,
-      now,
-    }).record?.ref ?? null;
+    credentialRef =
+      credentialRefs.register({
+        label: 'Intent model3 exchange paper ref',
+        connectorKind: 'exchange',
+        environment: 'paper',
+        allowedActions: ['trade-order'],
+        ownerApproved: true,
+        now,
+      }).record?.ref ?? null;
     service = new ZavorthTransactionSandboxControlledExecutorService({
       now: () => now,
       ledgerFile: path.join(tempDir, 'approval-ledger.jsonl'),
@@ -51,7 +44,9 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   it('requires Intent model2 sandbox certification readiness first', () => {
     const result = service.execute({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -99,28 +94,32 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
     });
 
     expect(result.status).toBe('sandbox-executed');
-    expect(result.executionReceipt).toEqual(expect.objectContaining({
-      sandboxRunId: 'intent-model3-sandbox-run',
-      localSandboxLedgerRecorded: true,
-      localSandboxSimulationPerformed: true,
-      sandboxExecutionAuthorized: true,
-      sandboxExternalIoPerformed: false,
-      liveExecutionAuthorized: false,
-      executableNow: false,
-      liveActionApplied: false,
-      externalSideEffects: false,
-      rollbackAvailable: true,
-      redacted: true,
-      rawSecretPresent: false,
-    }));
-    expect(result.safety).toEqual(expect.objectContaining({
-      controlledSandboxOnly: true,
-      localSandboxSimulationOnly: true,
-      noExternalNetworkCall: true,
-      sandboxExternalIoPerformed: false,
-      liveExecutionAuthorized: false,
-      liveActionApplied: false,
-    }));
+    expect(result.executionReceipt).toEqual(
+      expect.objectContaining({
+        sandboxRunId: 'intent-model3-sandbox-run',
+        localSandboxLedgerRecorded: true,
+        localSandboxSimulationPerformed: true,
+        sandboxExecutionAuthorized: true,
+        sandboxExternalIoPerformed: false,
+        liveExecutionAuthorized: false,
+        executableNow: false,
+        liveActionApplied: false,
+        externalSideEffects: false,
+        rollbackAvailable: true,
+        redacted: true,
+        rawSecretPresent: false,
+      }),
+    );
+    expect(result.safety).toEqual(
+      expect.objectContaining({
+        controlledSandboxOnly: true,
+        localSandboxSimulationOnly: true,
+        noExternalNetworkCall: true,
+        sandboxExternalIoPerformed: false,
+        liveExecutionAuthorized: false,
+        liveActionApplied: false,
+      }),
+    );
     expect(result.gates.every((gate) => gate.passed)).toBe(true);
   });
 
@@ -135,9 +134,7 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
     expect(result.status).toBe('sandbox-execution-blocked');
     expect(result.executionReceipt).toBeUndefined();
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'sandbox-not-aborted', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'sandbox-not-aborted', passed: false })]),
     );
   });
 
@@ -152,16 +149,14 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
     expect(result.status).toBe('sandbox-execution-blocked');
     expect(result.executionReceipt).toBeUndefined();
     expect(result.gates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ kind: 'sandbox-simulation-succeeds', passed: false }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ kind: 'sandbox-simulation-succeeds', passed: false })]),
     );
   });
 
   it('does not leak raw secrets from blocked sandbox execution input', () => {
     const result = service.execute({
       ...intentModel2ReadyInput(),
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       sandboxExecutionConfirmed: true,
       sandboxExecutionIntent: ZAVORTH_TRANSACTION_SANDBOX_CONTROLLED_EXECUTOR_OWNER_PHRASE,
     });
@@ -173,7 +168,9 @@ describe('ZavorthTransactionSandboxControlledExecutorService', () => {
 
   function intentModel2ReadyInput() {
     return {
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api' as const,
       approve: true,
       mode: 'paper' as const,

@@ -53,7 +53,9 @@ describe('ZavorthTransactionZavorthControlProjectionService', () => {
 
   it('projects a web trade into cockpit lanes, tiles and approval actions', () => {
     const projection = service.project({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'web',
       mode: 'paper',
     });
@@ -104,11 +106,13 @@ describe('ZavorthTransactionZavorthControlProjectionService', () => {
         }),
       ]),
     );
-    expect(projection.safety).toEqual(expect.objectContaining({
-      noLiveExecution: true,
-      noHiddenLiveAction: true,
-      liveActionApplied: false,
-    }));
+    expect(projection.safety).toEqual(
+      expect.objectContaining({
+        noLiveExecution: true,
+        noHiddenLiveAction: true,
+        liveActionApplied: false,
+      }),
+    );
   });
 
   it('projects an approved credential-backed API run as a successful paper simulation', () => {
@@ -122,7 +126,9 @@ describe('ZavorthTransactionZavorthControlProjectionService', () => {
     });
 
     const projection = service.project({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       surface: 'api',
       approve: true,
       mode: 'paper',
@@ -157,7 +163,9 @@ describe('ZavorthTransactionZavorthControlProjectionService', () => {
 
   it('projects Telegram monitoring with concise notification and skipped approval', () => {
     const projection = service.project({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       surface: 'telegram',
       mode: 'sandbox',
     });
@@ -182,7 +190,7 @@ describe('ZavorthTransactionZavorthControlProjectionService', () => {
 
   it('keeps raw secrets out of cockpit projections when the runtime blocks the request', () => {
     const projection = service.project({
-      text: 'Compre ETH ate R$100 usando api_key=sk-super-secret-value-123456.',
+      text: 'Buy ETH up to R$100 using api_key=sk-super-secret-value-123456.',
       surface: 'web',
       approve: true,
       mode: 'paper',

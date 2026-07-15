@@ -1,21 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/index.js';
-import {
-  CapabilityCommand,
-  CapabilityDefinition,
-  CapabilityMatcher,
-  CapabilitySummary,
-} from '../contracts/CapabilityContract.js';
+import { CapabilityCommand, CapabilityDefinition, CapabilitySummary } from '../contracts/CapabilityContract.js';
 import { BUILTIN_CAPABILITIES } from './BuiltinCapabilities.js';
-type RegistryOptions = {
+
+type RegistryOptions = {
   pluginDir?: string;
   builtins?: CapabilityDefinition[];
-};
-
-type CapabilityMatch = {
-  capability: CapabilityDefinition;
-  score: number;
 };
 
 const LEGACY_COMPAT_COMMAND_ALIASES: Record<string, string> = {};
@@ -30,10 +21,7 @@ export class CapabilityRegistry {
     this.builtins = (options.builtins || BUILTIN_CAPABILITIES).map((capability) =>
       this.normalizeCapability(capability, 'builtin'),
     );
-    this.capabilities = [
-      ...this.builtins,
-      ...this.loadPluginCapabilities(),
-    ];
+    this.capabilities = [...this.builtins, ...this.loadPluginCapabilities()];
   }
 
   public getAll(): CapabilityDefinition[] {
@@ -43,25 +31,28 @@ export class CapabilityRegistry {
   public findByCommand(commandType: string): CapabilityDefinition | null {
     const normalized = this.normalizeCommand(commandType);
     const canonical = this.resolveCommandAlias(normalized);
-    return this.capabilities.find((capability) => {
-      if (!capability.command) {
-        return false;
-      }
-      return capability.command.command === canonical
-        || capability.command.command === normalized
-        || capability.command.aliases?.includes(normalized)
-        || capability.command.aliases?.includes(canonical);
-    }) || null;
+    return (
+      this.capabilities.find((capability) => {
+        if (!capability.command) {
+          return false;
+        }
+        return (
+          capability.command.command === canonical ||
+          capability.command.command === normalized ||
+          capability.command.aliases?.includes(normalized) ||
+          capability.command.aliases?.includes(canonical)
+        );
+      }) || null
+    );
   }
 
-  public matchImplicit(commandType: string, normalizedText: string): CapabilityDefinition | null {
-    const matches = this.capabilities
-      .filter((capability) => this.canMatchImplicit(capability, commandType))
-      .map((capability) => this.scoreCapability(capability, normalizedText))
-      .filter((match): match is CapabilityMatch => Boolean(match))
-      .sort((left, right) => right.score - left.score);
-
-    return matches[0]?.capability || null;
+  /**
+   * Free-text capability choice is model-owned (LLM full_toolset).
+   * Always returns null — never activates capabilities from natural-language keywords.
+   * Use {@link findByCommand} for explicit slash / CLI command routes only.
+   */
+  public matchImplicit(_commandType: string, _normalizedText: string): CapabilityDefinition | null {
+    return null;
   }
 
   public getAliasMap(): Record<string, string> {
@@ -127,7 +118,9 @@ export class CapabilityRegistry {
 
   public getSummary(): CapabilitySummary {
     const commandCount = this.capabilities.filter((capability) => capability.command).length;
-    const implicitCount = this.capabilities.filter((capability) => Array.isArray(capability.matchers) && capability.matchers.length > 0).length;
+    const implicitCount = this.capabilities.filter(
+      (capability) => Array.isArray(capability.matchers) && capability.matchers.length > 0,
+    ).length;
     const pluginCount = this.capabilities.filter((capability) => capability.source === 'plugin').length;
 
     return {
@@ -139,7 +132,10 @@ export class CapabilityRegistry {
     };
   }
 
-  public registerCapability(capability: CapabilityDefinition, source: 'builtin' | 'plugin' = 'builtin'): CapabilityDefinition {
+  public registerCapability(
+    capability: CapabilityDefinition,
+    source: 'builtin' | 'plugin' = 'builtin',
+  ): CapabilityDefinition {
     const normalized = this.normalizeCapability(capability, source);
     const existingIndex = this.capabilities.findIndex((entry) => entry.id === normalized.id);
     if (existingIndex >= 0) {
@@ -165,7 +161,8 @@ export class CapabilityRegistry {
     }
 
     const capabilities: CapabilityDefinition[] = [];
-    const files = fs.readdirSync(this.pluginDir)
+    const files = fs
+      .readdirSync(this.pluginDir)
       .filter((entry) => entry.toLowerCase().endsWith('.json'))
       .sort();
 
@@ -183,13 +180,15 @@ export class CapabilityRegistry {
             this.normalizeCapability(
               {
                 ...item,
-                plugin_name: String(item.plugin_name || path.basename(file, '.json')).trim() || path.basename(file, '.json'),
+                plugin_name:
+                  String(item.plugin_name || path.basename(file, '.json')).trim() || path.basename(file, '.json'),
               } as CapabilityDefinition,
               'plugin',
             ),
           );
         }
-      } catch (error: unknown) {// Ignore malformed plugin manifests to avoid breaking the runtime.
+      } catch (error: unknown) {
+        // Ignore malformed plugin manifests to avoid breaking the runtime.
       }
     }
 
@@ -204,8 +203,7 @@ export class CapabilityRegistry {
           aliases: Array.isArray(capability.command.aliases)
             ? capability.command.aliases.map((alias) => this.normalizeCommand(alias))
             : [],
-          explicit_executor:
-            capability.command.explicit_executor ?? capability.executor_preference ?? null,
+          explicit_executor: capability.command.explicit_executor ?? capability.executor_preference ?? null,
           handler_action: capability.command.handler_action || null,
           handler_config:
             capability.command.handler_config && typeof capability.command.handler_config === 'object'
@@ -231,73 +229,10 @@ export class CapabilityRegistry {
     };
   }
 
-  private canMatchImplicit(capability: CapabilityDefinition, commandType: string): boolean {
-    if (!capability.enabled || !capability.matchers?.length) {
-      return false;
-    }
-
-    return capability.allowed_command_types?.includes(this.normalizeCommand(commandType)) ?? false;
-  }
-
-  private scoreCapability(capability: CapabilityDefinition, normalizedText: string): CapabilityMatch | null {
-    let bestScore = -1;
-
-    for (const matcher of capability.matchers || []) {
-      const score = this.scoreMatcher(matcher, normalizedText);
-      if (score > bestScore) {
-        bestScore = score;
-      }
-    }
-
-    if (bestScore < 0) {
-      return null;
-    }
-
-    return {
-      capability,
-      score: Number(capability.priority || 0) + bestScore,
-    };
-  }
-
-  private scoreMatcher(matcher: CapabilityMatcher, normalizedText: string): number {
-    const patterns = Array.isArray(matcher.patterns) ? matcher.patterns : [];
-    const keywords = Array.isArray(matcher.keywords)
-      ? matcher.keywords.map((keyword) => this.normalizeText(keyword)).filter(Boolean)
-      : [];
-    let score = 0;
-
-    if (patterns.length > 0) {
-      const matchedPatterns = patterns.filter((pattern) => {
-        try {
-          return new RegExp(pattern, 'i').test(normalizedText);
-        } catch (error: unknown) {return false;
-        }
-      });
-
-      if (matchedPatterns.length === 0) {
-        return -1;
-      }
-
-      score += matchedPatterns.length * 5;
-    }
-
-    if (keywords.length > 0) {
-      const matches = keywords.filter((keyword) => normalizedText.includes(keyword));
-      const requireAll = Boolean(matcher.require_all_keywords);
-      if (requireAll && matches.length !== keywords.length) {
-        return -1;
-      }
-      if (matches.length === 0 && patterns.length === 0) {
-        return -1;
-      }
-      score += matches.length;
-    }
-
-    return score;
-  }
-
   private normalizeCommand(value: string): string {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     if (!normalized) {
       return normalized;
     }
@@ -306,14 +241,6 @@ export class CapabilityRegistry {
 
   private resolveCommandAlias(normalizedCommand: string): string {
     return LEGACY_COMPAT_COMMAND_ALIASES[normalizedCommand] || normalizedCommand;
-  }
-
-  private normalizeText(value: string): string {
-    return String(value || '')
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .trim();
   }
 }
 

@@ -41,10 +41,11 @@ describe('PluginOsSuggestService', () => {
       enable: false,
     });
 
+    // Free-text keyword ranking is disabled; exact plugin id (or LLM) owns matching.
     const result = await new PluginOsSuggestService({
       projectRoot: root,
       stateBridge: bridge,
-    }).suggest({ intent: 'search the web', root });
+    }).suggest({ intent: 'web-search', root });
 
     expect(result.ok).toBe(true);
     expect(result.autoEnable).toBe(false);

@@ -137,9 +137,11 @@ describe('SharedSurfaceAccessCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/access', '');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Manifesto de acesso do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth access manifesto'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso local pronto e remoto em preparacao.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Paridade web/Telegram: Web e Telegram estao alinhados'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Web/Telegram parity: Web e Telegram estao alinhados'),
+    );
   });
 
   it('renders local access details in /access local', async () => {
@@ -149,7 +151,7 @@ describe('SharedSurfaceAccessCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/access', 'local');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso local do Zavorth'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth local access'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('http://localhost:3000/app'));
   });
 
@@ -160,9 +162,13 @@ describe('SharedSurfaceAccessCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/bootstrap', '');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Bootstrap operacional do Zavorth'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Acesso remoto oficial: pendente | Ainda falta validar a URL publica oficial.'));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Zavorth operational bootstrap'));
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Official remote access: pending | Ainda falta validar a URL publica oficial.'),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(
+      expect.stringContaining('Autostart no sistema: npm run launcher:startup:install'),
+    );
   });
 
   it('ignores unrelated commands', async () => {

@@ -28,7 +28,7 @@ export function mapCommand(
   return {
     commandType: entry.commandType,
     surfaceCommand,
-    description: String(entry.description || '').trim() || 'Acao compartilhada entre as superficies do Zavorth.',
+    description: String(entry.description || '').trim() || 'Shared action across Zavorth surfaces.',
     handler: entry.handler,
     category: resolveCategory(entry.commandType),
     equivalents: {
@@ -49,38 +49,45 @@ export function mapCommand(
 }
 
 export function resolveCategory(commandType: string): SurfaceConsistencyCategory {
-  const normalized = String(commandType || '').trim().toLowerCase();
+  const normalized = String(commandType || '')
+    .trim()
+    .toLowerCase();
   if (normalized === '/task' || normalized === '/auto' || normalized === '/plan' || normalized === '/dryrun') {
     return 'chat';
   }
   if (normalized === '/workflow') {
     return 'workflow';
   }
-  if (normalized === '/status' || normalized === '/changes' || normalized === '/selfupdate' || normalized === '/autorepair') {
+  if (
+    normalized === '/status' ||
+    normalized === '/changes' ||
+    normalized === '/selfupdate' ||
+    normalized === '/autorepair'
+  ) {
     return 'operations';
   }
   if (
-    normalized === '/gateway'
-    || normalized === '/tools'
-    || normalized === '/hooks'
-    || normalized === '/runtime'
-    || normalized === '/access'
-    || normalized === '/bootstrap'
-    || normalized === '/transports'
-    || normalized === '/channels'
-    || normalized === '/plugins'
-    || normalized === '/platform'
-    || normalized === '/memoryplane'
-    || normalized === '/sessions'
-    || normalized === '/sessionhistory'
-    || normalized === '/sessionsend'
-    || normalized === '/sessionspawn'
-    || normalized === '/nodes'
-    || normalized === '/nodepair'
-    || normalized === '/nodeinvoke'
-    || normalized === '/capabilities'
-    || normalized === '/integrations'
-    || normalized === '/connect'
+    normalized === '/gateway' ||
+    normalized === '/tools' ||
+    normalized === '/hooks' ||
+    normalized === '/runtime' ||
+    normalized === '/access' ||
+    normalized === '/bootstrap' ||
+    normalized === '/transports' ||
+    normalized === '/channels' ||
+    normalized === '/plugins' ||
+    normalized === '/platform' ||
+    normalized === '/memoryplane' ||
+    normalized === '/sessions' ||
+    normalized === '/sessionhistory' ||
+    normalized === '/sessionsend' ||
+    normalized === '/sessionspawn' ||
+    normalized === '/nodes' ||
+    normalized === '/nodepair' ||
+    normalized === '/nodeinvoke' ||
+    normalized === '/capabilities' ||
+    normalized === '/integrations' ||
+    normalized === '/connect'
   ) {
     return 'control-plane';
   }

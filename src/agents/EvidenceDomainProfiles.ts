@@ -39,7 +39,8 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     domain: 'ai_news',
     label: 'AI news',
     querySuffix: 'latest AI news official company blog research lab source links',
-    guidance: 'Prefer current AI sources, official company/research lab posts, reputable technology outlets and reject off-topic headlines even if they mention AI incidentally.',
+    guidance:
+      'Prefer current AI sources, official company/research lab posts, reputable technology outlets and reject off-topic headlines even if they mention AI incidentally.',
     preferredHosts: [
       'openai.com',
       'anthropic.com',
@@ -67,7 +68,8 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     domain: 'medical',
     label: 'medical evidence',
     querySuffix: 'medical research clinical trials guideline PubMed WHO NIH CDC FDA ANVISA official sources links',
-    guidance: 'Prefer PubMed, clinical trials, guidelines, WHO/NIH/CDC/FDA/ANVISA and official medical sources; do not provide individual diagnosis.',
+    guidance:
+      'Prefer PubMed, clinical trials, guidelines, WHO/NIH/CDC/FDA/ANVISA and official medical sources; do not provide individual diagnosis.',
     preferredHosts: [
       'pubmed.ncbi.nlm.nih.gov',
       'ncbi.nlm.nih.gov',
@@ -95,7 +97,8 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     domain: 'legal',
     label: 'legal evidence',
     querySuffix: 'jurisprudencia acordaos decisoes judiciais tribunal case law legislation official sources links',
-    guidance: 'Prefer official courts, legislation, case law, judgments and dates; do not present this as personalized legal advice.',
+    guidance:
+      'Prefer official courts, legislation, case law, judgments and dates; do not present this as personalized legal advice.',
     preferredHosts: [
       'stf.jus.br',
       'stj.jus.br',
@@ -146,10 +149,7 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     ],
     authorityTerms: ['doi', 'arxiv', 'journal', 'paper', 'preprint', 'systematic review', 'meta-analysis'],
     topicalTerms: ['study', 'research', 'method', 'results', 'evidence', 'dataset', 'literature'],
-    primarySearches: [
-      '{query} DOI arXiv PubMed SciELO',
-      '{query} site:arxiv.org OR site:scielo.br OR site:doi.org',
-    ],
+    primarySearches: ['{query} DOI arXiv PubMed SciELO', '{query} site:arxiv.org OR site:scielo.br OR site:doi.org'],
     minHighSignalResults: 1,
   },
   finance: {
@@ -183,7 +183,8 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     domain: 'consumer',
     label: 'consumer decision sources',
     querySuffix: 'current reviews comparison buying guide official specs price warranty independent sources links',
-    guidance: 'Prefer independent reviews, benchmarks, official specifications, consumer protection data and recent price/context; separate preference from sourced facts.',
+    guidance:
+      'Prefer independent reviews, benchmarks, official specifications, consumer protection data and recent price/context; separate preference from sourced facts.',
     preferredHosts: [
       'consumerreports.org',
       'wirecutter.com',
@@ -208,16 +209,7 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
       'warranty',
       'consumer',
     ],
-    topicalTerms: [
-      'best',
-      'melhor',
-      'reviews',
-      'avaliacao',
-      'comparativo',
-      'custo beneficio',
-      'preco',
-      'comprar',
-    ],
+    topicalTerms: ['best', 'melhor', 'reviews', 'avaliacao', 'comparativo', 'custo beneficio', 'preco', 'comprar'],
     primarySearches: [
       '{query} independent reviews comparison buying guide official specs',
       '{query} benchmark price warranty consumer protection',
@@ -283,7 +275,8 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     domain: 'general',
     label: 'general research sources',
     querySuffix: 'reliable sources references official data guide links',
-    guidance: 'Prefer diverse reliable sources, official/primary references when available, and explain uncertainty instead of pretending weak results are definitive.',
+    guidance:
+      'Prefer diverse reliable sources, official/primary references when available, and explain uncertainty instead of pretending weak results are definitive.',
     preferredHosts: [
       'wikipedia.org',
       'britannica.com',
@@ -303,22 +296,25 @@ export const EVIDENCE_DOMAIN_PROFILES: Record<EvidenceSearchDomain, EvidenceDoma
     ],
     authorityTerms: ['source', 'reference', 'official', 'report', 'data', 'guide', 'explainer', 'analysis'],
     topicalTerms: ['overview', 'guide', 'comparison', 'evidence', 'dados', 'fontes', 'referencias'],
-    primarySearches: [
-      '{query} reliable sources official reference',
-      '{query} guide overview evidence links',
-    ],
+    primarySearches: ['{query} reliable sources official reference', '{query} guide overview evidence links'],
     minHighSignalResults: 0,
   },
 };
 
-export function getEvidenceDomainProfile(domain: EvidenceSearchDomain | string | null | undefined): EvidenceDomainProfile {
-  const normalized = String(domain || '').trim().toLowerCase() as EvidenceSearchDomain;
+export function getEvidenceDomainProfile(
+  domain: EvidenceSearchDomain | string | null | undefined,
+): EvidenceDomainProfile {
+  const normalized = String(domain || '')
+    .trim()
+    .toLowerCase() as EvidenceSearchDomain;
   return EVIDENCE_DOMAIN_PROFILES[normalized] || EVIDENCE_DOMAIN_PROFILES.general;
 }
 
 export function buildEvidenceProfileQueries(query: string, domain: EvidenceSearchDomain): string[] {
   const profile = getEvidenceDomainProfile(domain);
-  const base = String(query || '').replace(/\s+/g, ' ').trim();
+  const base = String(query || '')
+    .replace(/\s+/g, ' ')
+    .trim();
   const candidates = [base];
 
   for (const template of profile.primarySearches) {
@@ -328,35 +324,12 @@ export function buildEvidenceProfileQueries(query: string, domain: EvidenceSearc
   return Array.from(new Set(candidates.filter(Boolean))).slice(0, 3);
 }
 
-export function inferEvidenceDomainFromText(text: string): EvidenceSearchDomain {
-  const normalized = normalizeEvidenceText(text);
-  if (isAiNewsText(normalized)) {
-    return 'ai_news';
-  }
-  if (/\b(medicina|medic[oa]s?|saude|doencas?|tratamentos?|diagnostico|sintomas?|medicamentos?|remedios?|terapias?|vacinas?|clinical\s+trials?|ensaios?\s+clinicos?|guidelines?|pubmed|oncologia|cardiologia|psiquiatria|neurologia|fda|anvisa|who|oms|nih|cdc)\b/.test(normalized)) {
-    return 'medical';
-  }
-  if (/\b(lawyer|legal|law|legislation|jurisprudence|court|tribunal|case\s+law|court\s+cases?|legal\s+cases?|ruling|precedents?)\b/.test(normalized)) {
-    return 'legal';
-  }
-  if (/\b(articles?|papers?|paper|doi|pubmed|scielo|arxiv|google\s+scholar|scholar|scientific|academic|studies|literature|systematic\s+review|meta[-\s]?analysis|journal)\b/.test(normalized)) {
-    return 'scientific';
-  }
-  if (/\b(finance|financial|market|investments?|stocks?|exchange|dollar|euro|interest\s+rates?|bitcoin|crypto|prices?|valuation|earning|earnings)\b/.test(normalized)) {
-    return 'finance';
-  }
-  const consumerProduct = /\b(notebook|laptop|phone|smartphone|air\s*fryer|fridge|tv|monitor|headphones?|headset|camera|car|motorcycle|tablet|printer|router|mouse|keyboard|product|products)\b/.test(normalized);
-  const consumerIntent = /\b(buy|purchase|cost[-\s]?benefit|worth\s+it|review|reviews?|ratings?|comparative|compare|price|prices?|best|ranking|top)\b/.test(normalized);
-  // Consumer only when a product is present (avoid stealing technical "compare docs" queries).
-  if (consumerProduct && consumerIntent) {
-    return 'consumer';
-  }
-  if (/\b(api|sdk|library|framework|package|version|release|changelog|github|stack\s*overflow|stackoverflow|cors|next\.?js|react|node\.?js|npm|documentation|docs?|model|llm|provider|software|bug|issue|pull\s+request|pr)\b/.test(normalized)) {
-    return 'technical';
-  }
-  if (/\b(government|ministry|agency|regulator|regulation|public\s+policy|global\s+politics|international\s+politics|geopolitics|diplomacy|elections?|law|decree|public\s+consultation|court|congress|senate)\b/.test(normalized)) {
-    return 'public_policy';
-  }
+/**
+ * Free-text must not activate product evidence domains (medical/legal/etc.).
+ * Callers that already know a domain must pass it via structured args
+ * (domain / domainProfile / evidenceDomain). Free-text-only paths stay general.
+ */
+export function inferEvidenceDomainFromText(_text: string): EvidenceSearchDomain {
   return 'general';
 }
 
@@ -426,13 +399,20 @@ export function normalizeEvidenceText(value: string): string {
 export function normalizeHost(url: string): string {
   try {
     return new URL(url).hostname.toLowerCase().replace(/^www\./, '');
-  } catch (error: unknown) {logger.warn('[Evidence Domain Profiles] string operation failed', error);
-    return String(url || '').toLowerCase().replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '');
+  } catch (error: unknown) {
+    logger.warn('[Evidence Domain Profiles] string operation failed', error);
+    return String(url || '')
+      .toLowerCase()
+      .replace(/^https?:\/\//, '')
+      .split('/')[0]
+      .replace(/^www\./, '');
   }
 }
 
 function hostMatches(host: string, candidate: string): boolean {
-  const normalizedCandidate = String(candidate || '').toLowerCase().replace(/^www\./, '');
+  const normalizedCandidate = String(candidate || '')
+    .toLowerCase()
+    .replace(/^www\./, '');
   if (!normalizedCandidate) {
     return false;
   }
@@ -444,13 +424,4 @@ function hostMatches(host: string, candidate: string): boolean {
 
 function isLowAuthorityHost(host: string): boolean {
   return /\b(pinterest|tiktok|instagram|facebook|x\.com|twitter|quora|medium|reddit)\b/.test(host);
-}
-
-function isAiNewsText(normalized: string): boolean {
-  const newsMarker = /\b(news|headlines|latest|recent)\b/.test(normalized);
-  const aiMarker =
-    /\b(ai|artificial\s+intelligence|machine\s+learning|llm|openai|chatgpt|anthropic|claude|deepmind|gemini|nvidia|mistral|llama)\b/.test(normalized);
-  // Policy/regulation/law contexts are public-policy research, not AI product news.
-  const policyOverride = /\b(regulation|regulator|policy|law|legislation|government|ministry|congress|senate|court)\b/.test(normalized);
-  return newsMarker && aiMarker && !policyOverride;
 }

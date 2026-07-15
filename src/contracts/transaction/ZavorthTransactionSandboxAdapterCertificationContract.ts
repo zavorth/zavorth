@@ -1,9 +1,5 @@
-import type {
-  ZavorthTransactionConnectorKind,
-} from './ZavorthTransactionPreviewContract.js';
-import type {
-  ZavorthTransactionLiveActivationReviewResult,
-} from './ZavorthTransactionLiveActivationReviewContract.js';
+import type { ZavorthTransactionConnectorKind } from './ZavorthTransactionPreviewContract.js';
+import type { ZavorthTransactionLiveActivationReviewResult } from './ZavorthTransactionLiveActivationReviewContract.js';
 
 export const ZAVORTH_TRANSACTION_SANDBOX_ADAPTER_CERTIFICATION_CONTRACT_VERSION =
   'zavorth-transaction-sandbox-adapter-certification/checkpoint-12' as const;
@@ -14,11 +10,7 @@ export type ZavorthTransactionSandboxAdapterCertificationStatus =
   | 'sandbox-policy-blocked'
   | 'sandbox-certification-ready';
 
-export type ZavorthTransactionSandboxAdapterEnvironment =
-  | 'sandbox'
-  | 'paper'
-  | 'live'
-  | 'production';
+export type ZavorthTransactionSandboxAdapterEnvironment = 'sandbox' | 'paper' | 'live' | 'production';
 
 export type ZavorthTransactionSandboxAdapterCertificationGateKind =
   | 'intent-model1-review-ready'
@@ -118,6 +110,10 @@ export type ZavorthTransactionSandboxAdapterCertificationSafety = {
 
 export type ZavorthTransactionSandboxAdapterCertificationInput = {
   text: string;
+  /** Structured product kind — free text never activates transaction kinds. */
+  kind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentKind;
+  actionKind?: import('./ZavorthTransactionPlaneContract.js').ZavorthTransactionActionKind;
+  targetKind?: import('./ZavorthTransactionIntentContract.js').ZavorthTransactionIntentTargetKind;
   surface?: 'web' | 'cli' | 'telegram' | 'api' | 'natural-first';
   mode?: 'dry-run' | 'sandbox' | 'paper';
   approve?: boolean;

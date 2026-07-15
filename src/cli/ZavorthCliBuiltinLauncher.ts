@@ -6,12 +6,10 @@ import { resolveZavorthSimpleCommand, type ZavorthSimpleCommandPlan } from './Si
 import {
   formatZavorthCertificationHelp,
   formatZavorthConsistencyPreparedNotice,
-  isZavorthConsistencyStubCommand,
-} from './ZavorthCliCertificationCommands.js';
+  isZavorthConsistencyStubCommand} from './ZavorthCliCertificationCommands.js';
 import {
   isZavorthLiveNamespaceCommand,
-  runZavorthLiveNamespaceCommand,
-} from './ZavorthCliLiveNamespaces.js';
+  runZavorthLiveNamespaceCommand} from './ZavorthCliLiveNamespaces.js';
 import { runDiskMutationGateCommand } from './disk/ZavorthCliDiskMutationNamespace.js';
 
 
@@ -28,8 +26,7 @@ import { runProofLedgerCli } from './ProofLedgerCli.js';
 import {
   runApprovalPresentationCli,
   shouldRunApprovalPresentationCli,
-  normalizeApprovalPresentationArgs,
-} from './ApprovalPresentationCli.js';
+  normalizeApprovalPresentationArgs} from './ApprovalPresentationCli.js';
 import { runRiskBudgetCli } from './RiskBudgetCli.js';
 import { runChangePreviewCli } from './ChangePreviewCli.js';
 import { runMemoryPrivacyCli } from './MemoryPrivacyCli.js';
@@ -37,8 +34,7 @@ import { naturalizeCliArgv } from './CliNaturalConvention.js';
 import {
   formatConnectHelp,
   resolveConnectIntent,
-  resolveLearnIntent,
-} from './ZavorthCliIntentCommands.js';
+  resolveLearnIntent} from './ZavorthCliIntentCommands.js';
 
 // Shared infrastructure imports
 import {
@@ -145,8 +141,60 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
   }
 
   if (command === 'model' || command === 'session-model') {
+    const head = String(restArgs[0] || '').toLowerCase();
+    // Dual-role LLM prefs (shared store) vs session-scoped model route.
+    if (
+      !head
+      || head === 'status'
+      || head === 'setup'
+      || head === 'roles'
+      || head === 'default'
+      || head === 'strong'
+      || head === 'background'
+      || head === 'fallback'
+      || head === 'show'
+      || head === 'help'
+      || head === '-h'
+      || head === '--help'
+    ) {
+      const { runLlmRolesCli } = await import('./LlmRolesCli.js');
+      return runLlmRolesCli(restArgs);
+    }
     const { runSessionSurfaceCli } = await import('./SessionSurfaceCli.js');
     return runSessionSurfaceCli(['model', ...restArgs]);
+  }
+
+  if (command === 'roles' || command === 'llm-roles' || command === 'llmroles') {
+    const { runLlmRolesCli } = await import('./LlmRolesCli.js');
+    return runLlmRolesCli(restArgs);
+  }
+
+  if (command === 'strong') {
+    const { runStrongCli } = await import('./LlmRolesCli.js');
+    return runStrongCli(restArgs);
+  }
+
+  if (
+    command === 'learn'
+    || command === 'learning-loop'
+    || command === 'learningloop'
+    || command === 'skill-loop'
+    || command === 'experience-skills'
+  ) {
+    const { runLearningLoopCli } = await import('./LearningLoopCli.js');
+    // `zavorth learn` with no args → home; `zavorth learn list` still works.
+    if (command === 'learn' && restArgs.length === 0) {
+      return runLearningLoopCli(['home']);
+    }
+    return runLearningLoopCli(restArgs);
+  }
+
+  if (command === 'knowledge' || command === 'learned-knowledge' || command === 'lk') {
+    const { runKnowledgeCli } = await import('./KnowledgeCli.js');
+    if (restArgs.length === 0) {
+      return runKnowledgeCli(['status']);
+    }
+    return runKnowledgeCli(restArgs);
   }
 
   // Multi-model consensus (user-owned panel; same as /consensus on channels)
@@ -307,8 +355,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
         '',
         'Examples:',
         '  zavorth dev test',
-        '  zavorth dev build',
-      ], 'info');
+        '  zavorth dev build'], 'info');
     }
     return runBuiltinLauncher(restArgs);
   }
@@ -325,8 +372,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'rate-limits',
       'rate-limit',
       'ratelimits',
-      'doctor',
-    ].includes(gatewayControlSubcommand)) {
+      'doctor'].includes(gatewayControlSubcommand)) {
       const { runZavorthCli } = await import('./ZavorthCli.js');
       return runZavorthCli(['gateway', ...restArgs]);
     }
@@ -348,7 +394,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     return runZavorthMemoryEncryptionCommand(memoryArgs);
   }
 
-  // Phase 2–3 intent verbs (before live namespaces steal `connect` / `learn`).
+  // 3 intent verbs (before live namespaces steal `connect` / `learn`).
   if (command === 'connect') {
     const route = resolveConnectIntent(restArgs);
     if (route.kind === 'help-connect') {
@@ -376,8 +422,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
         stdio: 'inherit',
         env: process.env,
         windowsHide: true,
-        shell: process.platform === 'win32',
-      });
+        shell: process.platform === 'win32'});
       return typeof result.status === 'number' ? result.status : 1;
     }
   }
@@ -488,8 +533,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
         '  zavorth diff <id>',
         '    Inspect the diff before deciding.',
         '',
-        'Docs: zavorth help reference',
-      ], 'warning');
+        'Docs: zavorth help reference'], 'warning');
     }
     const firstApprovalArg = String(restArgs[0] || '').trim().toLowerCase();
     if (command === 'approvals' && ['always', 'auto', 'policy', 'break-glass'].includes(firstApprovalArg)) {
@@ -511,8 +555,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
         '  zavorth diff <id>',
         '    Inspect one pending plan before deciding.',
         '  zavorth approve <id> --yes',
-        '    Approve the plan after review.',
-      ], 'info');
+        '    Approve the plan after review.'], 'info');
     }
     return runPremiumApprovalDiff('diff', restArgs);
   }
@@ -622,8 +665,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'whatsapp-cloud',
       'yuanbao',
       'zalo',
-      'zalouser',
-    ]);
+      'zalouser']);
     const phase2Actions = new Set([
       'doctor',
       'health',
@@ -637,8 +679,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'send-test',
       'setup',
       'status',
-      'test',
-    ]);
+      'test']);
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('channels');
     }
@@ -651,7 +692,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     if (['catalog', 'list', 'all', 'inventory', 'status', 'coverage', 'deepening'].includes(channelAction)) {
       return runChannelDeepening(restArgs);
     }
-    if (phase2Channels.has(channelAction) && (channelSubAction === '' || phase2Actions.has(channelSubAction))) {
+    if && (channelSubAction === '' || phase2Actions.has(channelSubAction))) {
       return runChannelDeepening(restArgs);
     }
     if ([
@@ -663,8 +704,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'slack',
       'whatsapp',
       'signal',
-      'email',
-    ].includes(channelAction)) {
+      'email'].includes(channelAction)) {
       return runProviderChannelWizard(['channels', ...restArgs]);
     }
     return runGatewayMatrix(restArgs);
@@ -720,8 +760,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       stdio: 'inherit',
       env: process.env,
       windowsHide: true,
-      shell: process.platform === 'win32',
-    });
+      shell: process.platform === 'win32'});
     return typeof result.status === 'number' ? result.status : 1;
   }
 
@@ -733,8 +772,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       stdio: 'inherit',
       env: process.env,
       windowsHide: true,
-      shell: process.platform === 'win32',
-    });
+      shell: process.platform === 'win32'});
     return typeof result.status === 'number' ? result.status : 1;
   }
 
@@ -849,8 +887,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     'skill',
     'stop',
     'platforms',
-    'sethome',
-  ].includes(command)) {
+    'sethome'].includes(command)) {
     return runSmartCommands([`/${command}`, ...restArgs]);
   }
 

@@ -10,14 +10,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SkillLocalRegistry } from '../skills/marketplace/SkillLocalRegistry.js';
-import {
-  searchGitHubReposBroad,
-} from '../skills/marketplace/SkillGitHubSearch.js';
+import { searchGitHubReposBroad } from '../skills/marketplace/SkillGitHubSearch.js';
 import type { GitHubRepoInfo } from '../skills/marketplace/SkillPackageTypes.js';
 import { detectSource } from '../skills/marketplace/SkillSourceDetector.js';
 import { WorkerMeshService } from './WorkerMeshService.js';
 import type { WorkerProfile } from '../contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { SkillTrustScoreService } from './SkillTrustScoreService.js';
+import { SkillSearchIndexService } from './SkillSearchIndexService.js';
+import { LlmSkillRankService, type LlmSkillRankChat } from './LlmSkillRankService.js';
 
 export type SkillDiscoveryHit = {
   kind: 'skill';
@@ -64,6 +64,9 @@ export type SkillWorkerDiscoveryResult = {
     previewHint: string | null;
   };
   offline: boolean;
+  /** Whether LLM re-ranked the closed skill candidate list. */
+  usedLlmRank: boolean;
+  llmRankReason: string | null;
   formatText(): string;
 };
 
@@ -73,6 +76,9 @@ export type SkillWorkerDiscoveryRuntime = {
   registry?: SkillLocalRegistry;
   mesh?: WorkerMeshService;
   trust?: SkillTrustScoreService;
+  searchIndex?: SkillSearchIndexService;
+  llmRank?: LlmSkillRankService;
+  llmChat?: LlmSkillRankChat | null;
   /** Inject for tests; default searchGitHubReposBroad */
   remoteSearch?: (query: string) => Promise<GitHubRepoInfo[]>;
   existsSync?: typeof fs.existsSync;
@@ -81,8 +87,7 @@ export type SkillWorkerDiscoveryRuntime = {
   statSync?: typeof fs.statSync;
 };
 
-const URL_IN_TEXT =
-  /(?:https?:\/\/[^\s<>"']+|git@[^\s:]+:[^\s]+)/i;
+const URL_IN_TEXT = /(?:https?:\/\/[^\s<>"']+|git@[^\s:]+:[^\s]+)/i;
 
 export class SkillWorkerDiscoveryService {
   private readonly projectRoot: string;
@@ -91,6 +96,8 @@ export class SkillWorkerDiscoveryService {
   private readonly mesh: WorkerMeshService | null;
   private readonly trust: SkillTrustScoreService;
   private readonly remoteSearch: (query: string) => Promise<GitHubRepoInfo[]>;
+  private readonly searchIndex: SkillSearchIndexService;
+  private readonly llmRank: LlmSkillRankService;
   private readonly existsSync: typeof fs.existsSync;
   private readonly readdirSync: typeof fs.readdirSync;
   private readonly readFileSync: typeof fs.readFileSync;
@@ -101,10 +108,15 @@ export class SkillWorkerDiscoveryService {
     this.skillsDir = runtime.skillsDir || path.join(this.projectRoot, 'skills');
     this.registry = runtime.registry || new SkillLocalRegistry();
     this.mesh = runtime.mesh ?? null;
-    this.trust =
-      runtime.trust ||
-      new SkillTrustScoreService({ projectRoot: this.projectRoot });
+    this.trust = runtime.trust || new SkillTrustScoreService({ projectRoot: this.projectRoot });
     this.remoteSearch = runtime.remoteSearch || ((q) => searchGitHubReposBroad(q));
+    this.searchIndex =
+      runtime.searchIndex ||
+      new SkillSearchIndexService({
+        projectRoot: this.projectRoot,
+        skillsDir: this.skillsDir,
+      });
+    this.llmRank = runtime.llmRank || new LlmSkillRankService({ chat: runtime.llmChat ?? null });
     this.existsSync = runtime.existsSync || fs.existsSync.bind(fs);
     this.readdirSync = runtime.readdirSync || fs.readdirSync.bind(fs);
     this.readFileSync = runtime.readFileSync || fs.readFileSync.bind(fs);
@@ -113,6 +125,7 @@ export class SkillWorkerDiscoveryService {
 
   /**
    * Full discovery: skills (+ optional remote) and worker candidates.
+   * LLM rank only when useLlm=true and a chat surface is available.
    */
   public async discover(input: {
     query: string;
@@ -120,19 +133,19 @@ export class SkillWorkerDiscoveryService {
     includeWorkers?: boolean;
     scanWorkspace?: boolean;
     limit?: number;
+    useLlm?: boolean;
   }): Promise<SkillWorkerDiscoveryResult> {
     const query = String(input.query || '').trim();
     const limit = Math.max(1, Math.min(50, input.limit || 15));
     const includeWorkers = input.includeWorkers !== false;
     const scanWorkspace = input.scanWorkspace !== false;
     const wantRemote = input.remote === true;
+    const useLlm = input.useLlm === true;
 
     const urlInstall = this.detectUrlInstall(query);
-    const skillQuery = urlInstall.detected
-      ? query.replace(URL_IN_TEXT, ' ').trim() || query
-      : query;
+    const skillQuery = urlInstall.detected ? query.replace(URL_IN_TEXT, ' ').trim() || query : query;
 
-    const skills = this.searchSkillsLocal(skillQuery, limit);
+    const skills = this.searchSkillsLocal(skillQuery, Math.max(limit, 25));
     let offline = true;
 
     if (wantRemote && skillQuery) {
@@ -142,14 +155,8 @@ export class SkillWorkerDiscoveryService {
         for (const repo of remote) {
           const id = repo.fullName.replace(/\//g, '--');
           if (skills.some((s) => s.sourceUrl === repo.url || s.id === id)) continue;
-          const relevance = textScore(
-            skillQuery,
-            `${repo.fullName} ${repo.description}`,
-          );
-          const score =
-            relevance * 0.55 +
-            Math.min(0.25, Math.log10((repo.stars || 0) + 1) / 20) +
-            0.05;
+          const relevance = textScore(skillQuery, `${repo.fullName} ${repo.description}`);
+          const score = relevance * 0.55 + Math.min(0.25, Math.log10((repo.stars || 0) + 1) / 20) + 0.05;
           skills.push({
             kind: 'skill',
             id,
@@ -188,7 +195,33 @@ export class SkillWorkerDiscoveryService {
     }
 
     skills.sort((a, b) => b.score - a.score);
-    const topSkills = skills.slice(0, limit);
+    let topSkills = skills.slice(0, limit);
+    let usedLlmRank = false;
+    let llmRankReason: string | null = null;
+
+    if (useLlm && topSkills.length >= 1 && skillQuery) {
+      const rank = await this.llmRank.rank({
+        query: skillQuery,
+        useLlm: true,
+        candidates: topSkills.map((s) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          tools: s.tags,
+          tags: s.tags,
+          source: s.source,
+        })),
+      });
+      usedLlmRank = rank.usedLlm;
+      llmRankReason = rank.reason;
+      const byId = new Map(topSkills.map((s) => [s.id, s]));
+      const reordered: SkillDiscoveryHit[] = [];
+      for (const id of rank.orderedIds) {
+        const hit = byId.get(id);
+        if (hit) reordered.push(hit);
+      }
+      if (reordered.length) topSkills = reordered;
+    }
 
     let workers: WorkerDiscoveryHit[] = [];
     if (includeWorkers && scanWorkspace) {
@@ -205,9 +238,7 @@ export class SkillWorkerDiscoveryService {
     // Filter registered by query if present
     const registeredFiltered =
       query && !urlInstall.detected
-        ? registeredWorkers.filter((w) =>
-            textScore(query, `${w.id} ${w.label} ${w.adapter}`) > 0,
-          )
+        ? registeredWorkers.filter((w) => textScore(query, `${w.id} ${w.label} ${w.adapter}`) > 0)
         : registeredWorkers;
 
     const result: SkillWorkerDiscoveryResult = {
@@ -217,16 +248,49 @@ export class SkillWorkerDiscoveryService {
       registeredWorkers: registeredFiltered.slice(0, limit),
       urlInstall,
       offline: wantRemote ? offline : true,
+      usedLlmRank,
+      llmRankReason,
       formatText: () => formatDiscoveryText(result),
     };
     return result;
   }
 
-  /** Local-only sync helper for CLI/tests. */
+  /** Local-only sync helper for CLI/tests (offline). */
   public searchSkillsLocal(query: string, limit = 15): SkillDiscoveryHit[] {
-    const q = String(query || '').trim().toLowerCase();
+    const q = String(query || '')
+      .trim()
+      .toLowerCase();
     const hits: SkillDiscoveryHit[] = [];
     const seen = new Set<string>();
+
+    // FTS-style index over skills dir + skill-sources + receipts
+    for (const doc of this.searchIndex.search(query, limit * 2)) {
+      if (seen.has(doc.id)) continue;
+      seen.add(doc.id);
+      hits.push({
+        kind: 'skill',
+        id: doc.id,
+        name: doc.name,
+        description: doc.description,
+        source:
+          doc.source === 'receipt' || doc.source === 'skills-dir' || doc.source === 'skill-sources'
+            ? 'workspace'
+            : 'local-registry',
+        sourceUrl: doc.sourceUrl,
+        installed: doc.installed,
+        category: 'other',
+        tags: [...doc.tags, ...doc.tools].slice(0, 20),
+        score: doc.score + (doc.installed ? 0.1 : 0),
+        trustBand: doc.installed ? 'allow' : 'review',
+        installHint: doc.installed
+          ? `already installed: ${doc.id}`
+          : doc.sourcePath
+            ? `zavorth skill preview ${doc.sourcePath}`
+            : doc.sourceUrl
+              ? `zavorth skill preview ${doc.sourceUrl}`
+              : `zavorth skill info ${doc.id}`,
+      });
+    }
 
     // Registry (empty query → list all)
     const regEntries = this.registry.search(q || '');
@@ -250,11 +314,7 @@ export class SkillWorkerDiscoveryService {
       const relevance = q ? textScore(q, blob) : 0.3;
       if (q && relevance <= 0) continue;
       const installed = Boolean(entry.installedAt);
-      const score =
-        relevance * 0.5 +
-        (installed ? 0.25 : 0) +
-        trustLevelBoost(entry.trustLevel) +
-        0.1;
+      const score = relevance * 0.5 + (installed ? 0.25 : 0) + trustLevelBoost(entry.trustLevel) + 0.1;
       hits.push({
         kind: 'skill',
         id,
@@ -275,7 +335,7 @@ export class SkillWorkerDiscoveryService {
       });
     }
 
-    // Workspace skills/ dir
+    // Workspace skills/ dir (legacy scan — fills gaps not in index)
     for (const hit of this.scanWorkspaceSkills(q)) {
       if (seen.has(hit.id)) continue;
       seen.add(hit.id);
@@ -287,7 +347,9 @@ export class SkillWorkerDiscoveryService {
   }
 
   public scanWorkerCandidates(query: string, limit = 15): WorkerDiscoveryHit[] {
-    const q = String(query || '').trim().toLowerCase();
+    const q = String(query || '')
+      .trim()
+      .toLowerCase();
     const hits: WorkerDiscoveryHit[] = [];
     const registered = new Set((this.mesh?.listWorkers() || []).map((w) => w.id));
 
@@ -353,11 +415,7 @@ export class SkillWorkerDiscoveryService {
     }
     const source = m[0].replace(/[),.;]+$/, '');
     const detected = detectSource(source);
-    if (
-      detected.type === 'unknown' &&
-      !source.startsWith('http') &&
-      !source.startsWith('git@')
-    ) {
+    if (detected.type === 'unknown' && !source.startsWith('http') && !source.startsWith('git@')) {
       return { detected: false, source: null, previewHint: null };
     }
     return {
@@ -460,11 +518,7 @@ export class SkillWorkerDiscoveryService {
         };
         const bin = pkg.bin;
         const binEntries =
-          typeof bin === 'string'
-            ? { [pkg.name || base]: bin }
-            : bin && typeof bin === 'object'
-              ? bin
-              : {};
+          typeof bin === 'string' ? { [pkg.name || base]: bin } : bin && typeof bin === 'object' ? bin : {};
         for (const binName of Object.keys(binEntries)) {
           const id = binName.toLowerCase().replace(/[^a-z0-9-]/g, '-') || base;
           if (q && textScore(q, `${binName} ${pkg.description || ''} cli`) <= 0 && q.length > 1) {
@@ -514,14 +568,7 @@ export class SkillWorkerDiscoveryService {
     if (depth >= maxDepth) return;
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      this.walkForWorkers(
-        path.join(dir, entry.name),
-        depth + 1,
-        maxDepth,
-        hits,
-        registered,
-        q,
-      );
+      this.walkForWorkers(path.join(dir, entry.name), depth + 1, maxDepth, hits, registered, q);
     }
   }
 }
@@ -561,6 +608,11 @@ function hashId(s: string): string {
 function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
   const lines = [
     `Discovery for "${r.query || '(all)'}"${r.offline ? ' [offline/local]' : ' [remote+local]'}`,
+    r.usedLlmRank
+      ? `LLM rank: on (${r.llmRankReason || 'closed candidate list'})`
+      : r.llmRankReason
+        ? `LLM rank: off (${r.llmRankReason})`
+        : 'LLM rank: off (deterministic order)',
     '',
     `Skills (${r.skills.length}):`,
   ];
@@ -568,9 +620,7 @@ function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
     lines.push('  (none)');
   } else {
     for (const s of r.skills.slice(0, 12)) {
-      lines.push(
-        `  - [${s.source}] ${s.name} score=${s.score.toFixed(2)}${s.installed ? ' [installed]' : ''}`,
-      );
+      lines.push(`  - [${s.source}] ${s.name} score=${s.score.toFixed(2)}${s.installed ? ' [installed]' : ''}`);
       if (s.description) lines.push(`      ${s.description.slice(0, 120)}`);
       lines.push(`      ${s.installHint}`);
     }
@@ -586,9 +636,7 @@ function formatDiscoveryText(r: SkillWorkerDiscoveryResult): string {
     lines.push('  (none in workspace scan)');
   } else {
     for (const w of r.workers.slice(0, 10)) {
-      lines.push(
-        `  - ${w.id} [${w.adapter}] ${w.label}${w.alreadyRegistered ? ' [registered]' : ''}`,
-      );
+      lines.push(`  - ${w.id} [${w.adapter}] ${w.label}${w.alreadyRegistered ? ' [registered]' : ''}`);
       lines.push(`      ${w.registerPreview}`);
       lines.push(`      evidence: ${w.evidence.join('; ')}`);
     }

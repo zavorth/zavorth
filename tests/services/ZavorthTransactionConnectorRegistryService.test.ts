@@ -35,7 +35,9 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
 
   it('blocks real-money connector dry-run until Approval gate approval is granted', () => {
     const preview = previewService.buildPreview({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       now,
     });
 
@@ -53,7 +55,9 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
 
   it('simulates an approved exchange payload without external side effects', () => {
     const preview = previewService.buildPreview({
-      text: 'Compre ETH ate R$300 se cair 5%, mas peca confirmacao antes.',
+      text: 'Buy ETH up to R$300 if it drops 5%, but ask for confirmation first.',
+      kind: 'execute-trade',
+      actionKind: 'trade-order',
       now,
     });
     ledger.recordPreview(preview, 'system');
@@ -70,19 +74,23 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
     });
 
     expect(result.status).toBe('simulated');
-    expect(result.connector).toEqual(expect.objectContaining({
-      id: 'zavorth.connector.exchange.typed',
-      supportsLive: false,
-      rawSecretsAccepted: false,
-    }));
-    expect(result.payload).toEqual(expect.objectContaining({
-      method: 'SIMULATE_TRADE_ORDER',
-      operation: 'trade-order',
-      amount: 300,
-      currency: 'BRL',
-      redacted: true,
-      rawSecretPresent: false,
-    }));
+    expect(result.connector).toEqual(
+      expect.objectContaining({
+        id: 'zavorth.connector.exchange.typed',
+        supportsLive: false,
+        rawSecretsAccepted: false,
+      }),
+    );
+    expect(result.payload).toEqual(
+      expect.objectContaining({
+        method: 'SIMULATE_TRADE_ORDER',
+        operation: 'trade-order',
+        amount: 300,
+        currency: 'BRL',
+        redacted: true,
+        rawSecretPresent: false,
+      }),
+    );
     expect(result.policy.approvalStatus).toBe('approved');
     expect(result.externalSideEffects).toBe(false);
     expect(result.liveExecutionAuthorized).toBe(false);
@@ -91,7 +99,9 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
 
   it('allows read-only monitoring dry-run without approval', () => {
     const preview = previewService.buildPreview({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       now,
     });
 
@@ -108,7 +118,9 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
 
   it('blocks disabled owner-gated wallet connector', () => {
     const preview = previewService.buildPreview({
-      text: 'Saque BTC para minha wallet ate R$100.',
+      text: 'Withdraw BTC to my wallet up to R$100.',
+      kind: 'withdraw-asset',
+      actionKind: 'asset-withdrawal',
       now,
     });
     ledger.recordPreview(preview, 'system');
@@ -132,7 +144,9 @@ describe('ZavorthTransactionConnectorRegistryService', () => {
 
   it('blocks and redacts raw credential references', () => {
     const preview = previewService.buildPreview({
-      text: 'Monitore notebook abaixo de R$3500 e me avise.',
+      text: 'Monitor notebook below R$3500 and notify me.',
+      kind: 'monitor-price',
+      actionKind: 'price-monitor',
       now,
     });
 

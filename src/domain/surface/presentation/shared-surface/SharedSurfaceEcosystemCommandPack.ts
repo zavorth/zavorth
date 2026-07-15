@@ -17,10 +17,7 @@ import {
   type ZavorthSubagentInvocationGatewayInput,
 } from '../../../../services/ZavorthSubagentInvocationGatewayService.js';
 import { ZavorthAgentSurfaceUxService } from '../../../../services/ZavorthAgentSurfaceUxService.js';
-import {
-  ZavorthBrowserVisionBridgeService,
-} from '../../../../services/ZavorthBrowserVisionBridgeService.js';
-
+import { ZavorthBrowserVisionBridgeService } from '../../../../services/ZavorthBrowserVisionBridgeService.js';
 
 import type { ZavorthSubagentRuntimeCommandInput } from '../../../../agents/ZavorthSubagentRuntimeService.js';
 import {
@@ -45,12 +42,18 @@ type SharedSurfaceEcosystemCommandPackDeps = {
   skillLibraryPresentationService: Pick<SkillLibraryPresentationService, 'renderReport'>;
   skillInstallPlanPresentationService: Pick<SkillInstallPlanPresentationService, 'renderReport'>;
   skillBridgeActivationService: Pick<UniversalSkillBridgeActivationService, 'executeCommand' | 'renderReport'>;
-  subagentInvocationGatewayService?: Pick<ZavorthSubagentInvocationGatewayService, 'invoke' | 'executeCommand' | 'renderReport'> | null;
+  subagentInvocationGatewayService?: Pick<
+    ZavorthSubagentInvocationGatewayService,
+    'invoke' | 'executeCommand' | 'renderReport'
+  > | null;
   naturalInvocationRouterService?: Pick<ZavorthNaturalInvocationRouter, 'plan' | 'renderPlan'> | null;
 };
 
 export class SharedSurfaceEcosystemCommandPack {
-  private readonly subagentInvocationGateway: Pick<ZavorthSubagentInvocationGatewayService, 'invoke' | 'executeCommand' | 'renderReport'>;
+  private readonly subagentInvocationGateway: Pick<
+    ZavorthSubagentInvocationGatewayService,
+    'invoke' | 'executeCommand' | 'renderReport'
+  >;
   private readonly naturalInvocationRouter: Pick<ZavorthNaturalInvocationRouter, 'plan' | 'renderPlan'>;
   private readonly agentSurfaceUx = new ZavorthAgentSurfaceUxService();
   private readonly visionControlPlane = new ZavorthVisionControlPlaneService();
@@ -60,7 +63,8 @@ export class SharedSurfaceEcosystemCommandPack {
   private readonly perceptionInvocationRouter = new ZavorthPerceptionInvocationRouter();
 
   constructor(private readonly deps: SharedSurfaceEcosystemCommandPackDeps) {
-    this.subagentInvocationGateway = deps.subagentInvocationGatewayService || new ZavorthSubagentInvocationGatewayService();
+    this.subagentInvocationGateway =
+      deps.subagentInvocationGatewayService || new ZavorthSubagentInvocationGatewayService();
     this.naturalInvocationRouter = deps.naturalInvocationRouterService || new ZavorthNaturalInvocationRouter();
   }
 
@@ -98,7 +102,9 @@ export class SharedSurfaceEcosystemCommandPack {
   private async handlePlatform(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const tokens = normalizedArgs.split(/\s+/).filter(Boolean);
-    const actionId = String(tokens[0] || '').trim().toLowerCase();
+    const actionId = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const entryId = tokens.slice(1).join(' ').trim();
 
     if (actionId === 'sync') {
@@ -124,22 +130,21 @@ export class SharedSurfaceEcosystemCommandPack {
         authToken: process.env.ZAVORTH_PLATFORM_PUBLISH_TOKEN || '',
         signLocal: true,
       });
-      await ctx.reply([
-        'Platform publish',
-        '',
-        `${result.packageId}@${result.version}`,
-        `Release: ${result.releaseId}.`,
-        `Status: ${result.uploadStatus}.`,
-        `Arquivos: ${result.fileCount}.`,
-        `Bundle: ${result.outputFile}`,
-      ].join('\n'));
+      await ctx.reply(
+        [
+          'Platform publish',
+          '',
+          `${result.packageId}@${result.version}`,
+          `Release: ${result.releaseId}.`,
+          `Status: ${result.uploadStatus}.`,
+          `Arquivos: ${result.fileCount}.`,
+          `Bundle: ${result.outputFile}`,
+        ].join('\n'),
+      );
       return;
     }
 
-    if (
-      ['inspect', 'open', 'doctor', 'trust', 'review', 'install', 'update', 'remove'].includes(actionId)
-      && entryId
-    ) {
+    if (['inspect', 'open', 'doctor', 'trust', 'review', 'install', 'update', 'remove'].includes(actionId) && entryId) {
       const result = await this.deps.platformActionService.execute({
         entryId,
         actionId,
@@ -170,8 +175,7 @@ export class SharedSurfaceEcosystemCommandPack {
   private async handleSkills(ctx: IMessageContext, args: string): Promise<void> {
     const normalizedArgs = String(args || '').trim();
     const lower = normalizedArgs.toLowerCase();
-    const stripCommandPrefix = (value: string, command: string): string =>
-      value.slice(command.length).trim() || '';
+    const stripCommandPrefix = (value: string, command: string): string => value.slice(command.length).trim() || '';
 
     if (this.isSkillBridgeActivationCommand(lower)) {
       await this.handleSkillBridgeActivation(ctx, normalizedArgs);
@@ -190,9 +194,7 @@ export class SharedSurfaceEcosystemCommandPack {
     }
 
     if (lower === 'absorb' || lower.startsWith('absorb ') || lower === 'batches' || lower.startsWith('batches ')) {
-      const sourcePath = lower.startsWith('absorb ')
-        ? stripCommandPrefix(normalizedArgs, 'absorb') || null
-        : null;
+      const sourcePath = lower.startsWith('absorb ') ? stripCommandPrefix(normalizedArgs, 'absorb') || null : null;
       const request = sourcePath
         ? `absorva essa biblioteca de skills source ${sourcePath}`
         : 'quebre essa biblioteca grande de skills em batches seguros';
@@ -258,10 +260,12 @@ export class SharedSurfaceEcosystemCommandPack {
       return;
     }
 
-    await ctx.reply(this.deps.skillLibraryPresentationService.renderReport({
-      selectedId: normalizedArgs || null,
-      query: normalizedArgs || null,
-    }));
+    await ctx.reply(
+      this.deps.skillLibraryPresentationService.renderReport({
+        selectedId: normalizedArgs || null,
+        query: normalizedArgs || null,
+      }),
+    );
   }
 
   private async handleSkillBridgeActivation(ctx: IMessageContext, args: string): Promise<void> {
@@ -356,7 +360,9 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseBrowserVisionFromVisionCommand(ctx: IMessageContext, args: string): ZavorthBrowserVisionInput | null {
     const tokens = tokenize(args);
-    const scope = String(tokens[0] || '').trim().toLowerCase();
+    const scope = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     if (scope !== 'browser') {
       return null;
     }
@@ -365,7 +371,9 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseComputerBrowserCommand(ctx: IMessageContext, args: string): ZavorthBrowserVisionInput | null {
     const tokens = tokenize(args);
-    const scope = String(tokens[0] || '').trim().toLowerCase();
+    const scope = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     if (scope !== 'browser') {
       return null;
     }
@@ -374,7 +382,9 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseComputerCommand(ctx: IMessageContext, args: string): ZavorthComputerControlInput {
     const tokens = tokenize(args);
-    const verb = String(tokens[0] || '').trim().toLowerCase();
+    const verb = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const knownVerbs = ['status', 'observe', 'inspect', 'plan', 'approve', 'cancel', 'stop'];
     const rest = knownVerbs.includes(verb) ? tokens.slice(1) : tokens;
     const action = normalizeComputerAction(verb);
@@ -555,10 +565,32 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseDeviceCommand(ctx: IMessageContext, args: string): ZavorthAndroidAdbInput {
     const tokens = tokenize(args);
-    const maybeScope = String(tokens[0] || '').trim().toLowerCase();
+    const maybeScope = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const scopedTokens = maybeScope === 'android' || maybeScope === 'adb' ? tokens.slice(1) : tokens;
-    const verb = String(scopedTokens[0] || '').trim().toLowerCase();
-    const knownVerbs = ['status', 'list', 'devices', 'doctor', 'observe', 'inspect', 'screenshot', 'capture', 'ui_dump', 'uidump', 'dump', 'logcat', 'logs', 'plan', 'approve', 'cancel', 'stop'];
+    const verb = String(scopedTokens[0] || '')
+      .trim()
+      .toLowerCase();
+    const knownVerbs = [
+      'status',
+      'list',
+      'devices',
+      'doctor',
+      'observe',
+      'inspect',
+      'screenshot',
+      'capture',
+      'ui_dump',
+      'uidump',
+      'dump',
+      'logcat',
+      'logs',
+      'plan',
+      'approve',
+      'cancel',
+      'stop',
+    ];
     const rest = knownVerbs.includes(verb) ? scopedTokens.slice(1) : scopedTokens;
     const action = normalizeDeviceAction(verb);
     let deviceSerial: string | null = null;
@@ -735,7 +767,9 @@ export class SharedSurfaceEcosystemCommandPack {
     tokens: string[],
     defaultAction: ZavorthBrowserVisionInput['action'],
   ): ZavorthBrowserVisionInput {
-    const verb = String(tokens[0] || '').trim().toLowerCase();
+    const verb = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const action = normalizeBrowserAction(verb, defaultAction);
     const knownVerbs = ['status', 'inspect', 'plan', 'apply'];
     const rest = knownVerbs.includes(verb) ? tokens.slice(1) : tokens;
@@ -871,11 +905,15 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseVisionCommand(ctx: IMessageContext, args: string): ZavorthVisionControlPlaneCommandInput {
     const tokens = tokenize(args);
-    const verb = String(tokens[0] || '').trim().toLowerCase();
+    const verb = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const action = normalizeVisionAction(verb);
-    const rest = action === 'vision.inspect' && !['inspect', 'status', 'explain', 'capture', 'screenshot', 'ocr', 'redact', 'summarize', 'summary'].includes(verb)
-      ? tokens
-      : tokens.slice(1);
+    const rest =
+      action === 'vision.inspect' &&
+      !['inspect', 'status', 'explain', 'capture', 'screenshot', 'ocr', 'redact', 'summarize', 'summary'].includes(verb)
+        ? tokens
+        : tokens.slice(1);
     let targetKind: ZavorthVisionControlPlaneCommandInput['targetKind'] = 'unknown';
     let targetRef: string | null = null;
     let artifactPath: string | null = null;
@@ -960,7 +998,9 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private parseAgentRuntimeCommand(ctx: IMessageContext, args: string): ZavorthSubagentRuntimeCommandInput | null {
     const tokens = tokenize(args);
-    const verb = String(tokens[0] || '').trim().toLowerCase();
+    const verb = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const channel = ctx.platform || 'shared-surface';
     const actorId = String(ctx.userId || '').trim() || null;
     if (!verb || ['status', 'list', 'ls', 'history', 'timeline', 'running', 'running'].includes(verb)) {
@@ -975,19 +1015,19 @@ export class SharedSurfaceEcosystemCommandPack {
       return null;
     }
     const sessionId = this.extractOption(tokens, '--session') || tokens[1] || null;
-    const message = verb === 'send'
-      ? this.extractMessageAfterSeparator(tokens) || tokens.slice(sessionId ? 2 : 1).join(' ')
-      : null;
+    const message =
+      verb === 'send' ? this.extractMessageAfterSeparator(tokens) || tokens.slice(sessionId ? 2 : 1).join(' ') : null;
     return {
-      action: verb === 'wait'
-        ? 'subagents.wait'
-        : verb === 'cancel'
-          ? 'subagents.cancel'
-          : verb === 'read'
-            ? 'subagents.read'
-            : verb === 'send'
-              ? 'subagents.send'
-              : 'subagents.summarize',
+      action:
+        verb === 'wait'
+          ? 'subagents.wait'
+          : verb === 'cancel'
+            ? 'subagents.cancel'
+            : verb === 'read'
+              ? 'subagents.read'
+              : verb === 'send'
+                ? 'subagents.send'
+                : 'subagents.summarize',
       sessionId,
       message,
       channel,
@@ -1003,7 +1043,12 @@ export class SharedSurfaceEcosystemCommandPack {
 
   private extractMessageAfterSeparator(tokens: string[]): string | null {
     const separatorIndex = tokens.indexOf('--');
-    return separatorIndex >= 0 ? tokens.slice(separatorIndex + 1).join(' ').trim() || null : null;
+    return separatorIndex >= 0
+      ? tokens
+          .slice(separatorIndex + 1)
+          .join(' ')
+          .trim() || null
+      : null;
   }
 
   private parseAgentArgs(args: string): ZavorthSubagentInvocationGatewayInput & {
@@ -1014,11 +1059,15 @@ export class SharedSurfaceEcosystemCommandPack {
     mockLive: boolean;
   } {
     const tokens = tokenize(args);
-    const verb = String(tokens[0] || '').trim().toLowerCase();
+    const verb = String(tokens[0] || '')
+      .trim()
+      .toLowerCase();
     const rest = ['spawn', 'run', 'start'].includes(verb) ? tokens.slice(1) : tokens;
     let live = verb === 'spawn' || verb === 'run' || verb === 'start' || tokens.length > 0;
     let mockLive = false;
-    let mode: ZavorthSubagentInvocationGatewayInput['mode'] = /\b(session|persistente)\b/i.test(args) ? 'session' : 'oneshot';
+    let mode: ZavorthSubagentInvocationGatewayInput['mode'] = /\b(session|persistente)\b/i.test(args)
+      ? 'session'
+      : 'oneshot';
     let approvalId: string | null = null;
     let providerName: string | null = null;
     let modelName: string | null = null;
@@ -1085,22 +1134,24 @@ export class SharedSurfaceEcosystemCommandPack {
   }
 
   private isSkillBridgeActivationCommand(lower: string): boolean {
-    return lower === 'bridge'
-      || lower.startsWith('bridge ')
-      || lower === 'origin'
-      || lower.startsWith('origin ')
-      || lower === 'use'
-      || lower.startsWith('use ')
-      || lower === 'run'
-      || lower.startsWith('run ')
-      || lower === 'invoke'
-      || lower.startsWith('invoke ')
-      || lower === 'dry-run'
-      || lower.startsWith('dry-run ')
-      || lower === 'dryrun'
-      || lower.startsWith('dryrun ')
-      || lower === 'live'
-      || lower.startsWith('live ');
+    return (
+      lower === 'bridge' ||
+      lower.startsWith('bridge ') ||
+      lower === 'origin' ||
+      lower.startsWith('origin ') ||
+      lower === 'use' ||
+      lower.startsWith('use ') ||
+      lower === 'run' ||
+      lower.startsWith('run ') ||
+      lower === 'invoke' ||
+      lower.startsWith('invoke ') ||
+      lower === 'dry-run' ||
+      lower.startsWith('dry-run ') ||
+      lower === 'dryrun' ||
+      lower.startsWith('dryrun ') ||
+      lower === 'live' ||
+      lower.startsWith('live ')
+    );
   }
 
   private parseInvokeArgs(
@@ -1154,7 +1205,8 @@ export class SharedSurfaceEcosystemCommandPack {
     }
 
     return {
-      text: textParts.join(' ').trim() || (options.naturalText ? String(args || '').trim() : 'mostre o status dos agentes'),
+      text:
+        textParts.join(' ').trim() || (options.naturalText ? String(args || '').trim() : 'mostre o status dos agentes'),
       autoExecute,
       approvalId,
       sourcePath,
@@ -1162,68 +1214,6 @@ export class SharedSurfaceEcosystemCommandPack {
       liveSubagents,
     };
   }
-
-  private parseNaturalAgentRuntimeCommand(ctx: IMessageContext, rawText: string): ZavorthSubagentRuntimeCommandInput | null {
-    const normalized = normalizeNatural(rawText);
-    const channel = ctx.platform || 'shared-surface';
-    const actorId = String(ctx.userId || '').trim() || null;
-
-    if (
-      /\b(o que esta rodando agora|o que esta em execucao|rodando agora|em execucao agora)\b/.test(normalized)
-      || /\b(status|estado|liste|listar|mostre)\b.*\b(agentes|subagentes|subagents|agents)\b/.test(normalized)
-    ) {
-      return {
-        action: 'subagents.list',
-        channel,
-        actorId,
-        sourceSurface: 'channel',
-      };
-    }
-
-    const sessionId = extractNaturalSessionId(rawText);
-    if (/\b(cancelar|cancele|pare|parar|stop)\b.*\b(agente|subagente|subagent|agent)\b/.test(normalized)) {
-      return {
-        action: 'subagents.cancel',
-        sessionId,
-        channel,
-        actorId,
-        sourceSurface: 'channel',
-      };
-    }
-    if (/\b(resumir|resume|summary|sumarize|sumarizar)\b.*\b(agente|subagente|subagent|agent)\b/.test(normalized)) {
-      return {
-        action: 'subagents.summarize',
-        sessionId,
-        channel,
-        actorId,
-        sourceSurface: 'channel',
-      };
-    }
-    if (/\b(ler|leia|read)\b.*\b(agente|subagente|subagent|agent)\b/.test(normalized)) {
-      return {
-        action: 'subagents.read',
-        sessionId,
-        channel,
-        actorId,
-        sourceSurface: 'channel',
-      };
-    }
-
-    return null;
-  }
-
-  private looksLikeNaturalInvocation(rawText: string): boolean {
-    const normalized = normalizeNatural(rawText);
-    return /\b(subagentes?|subagents?|agentes?|agents?)\b/.test(normalized)
-      || /\b(skill|skills|biblioteca de skills|pasta de skills|melhor skill|absorv|absorber|importe|importar)\b/.test(normalized)
-      || /\b(quebre|chunk|lote|batch|biblioteca grande|large library)\b/.test(normalized)
-      || looksLikeVisionRequest(normalized)
-      || looksLikeSandboxLifecycleRequest(normalized)
-      || /\b(o que esta rodando agora|o que esta em execucao|rodando agora)\b/.test(normalized)
-      || /\bmande um agente\b/.test(normalized)
-      || /\boutro (validar|revisar|auditar|pesquisar)\b/.test(normalized);
-  }
-
 }
 
 function tokenize(value: string): string[] {
@@ -1232,29 +1222,16 @@ function tokenize(value: string): string[] {
 }
 
 function splitList(value: string): string[] {
-  return String(value || '').split(',').map((entry) => entry.trim()).filter(Boolean);
-}
-
-function normalizeNatural(value: string): string {
   return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s._:-]+/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function extractNaturalSessionId(value: string): string | null {
-  const text = String(value || '').trim();
-  const explicit =
-    text.match(/\b(?:session|sessao|agente|subagente|id)\s*[:#]?\s*([a-z0-9._:-]{4,})\b/i)
-    || text.match(/\b(subagent-[a-z0-9._:-]+|agent-[a-z0-9._:-]+|run-[a-z0-9._:-]+)\b/i);
-  return explicit?.[1] || null;
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
 function normalizeVisionAction(value: string): ZavorthVisionControlPlaneCommandInput['action'] {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'status') return 'vision.status';
   if (normalized === 'explain') return 'vision.explain';
   if (normalized === 'capture' || normalized === 'screenshot') return 'vision.capture';
@@ -1265,7 +1242,9 @@ function normalizeVisionAction(value: string): ZavorthVisionControlPlaneCommandI
 }
 
 function normalizeVisionTargetKind(value: string | undefined): ZavorthVisionControlPlaneCommandInput['targetKind'] {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (['desktop', 'pc', 'computer'].includes(normalized)) return 'desktop';
   if (['browser', 'web', 'site'].includes(normalized)) return 'browser';
   if (['android', 'adb', 'phone', 'celular', 'telefone'].includes(normalized)) return 'android';
@@ -1279,23 +1258,13 @@ function parsePositive(value: string | undefined): number | null {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-function looksLikeVisionRequest(normalizedText: string): boolean {
-  return /\b(olhe|veja|ver|confirme visualmente|visualmente|screenshot|print|tela|ocr|imagem|camera)\b/.test(normalizedText)
-    || /\b(computador|desktop|browser|navegador|celular|android|adb)\b.*\b(ver|olhar|inspecionar|confirmar)\b/.test(normalizedText)
-    || /\b(olhar|ver|inspecionar|confirmar)\b.*\b(computador|desktop|browser|navegador|celular|android|adb|tela)\b/.test(normalizedText)
-    || /\b(abra|abrir|acesse|acessar|navegue|inspecione)\b.*\b(site|url|link|pagina|web|browser|navegador|http)\b/.test(normalizedText);
-}
-
-function looksLikeSandboxLifecycleRequest(normalizedText: string): boolean {
-  return /\b(docker|dockers|container|containers|gvisor|runsc|firecracker|microvm|micro vm|sandbox|sandboxes)\b/.test(normalizedText)
-    && /\b(ligue|liga|suba|subir|start|inicie|iniciar|use|usar|rode|rodar|execute|executar|crie|criar|liste|listar|lista|mostre|mostrar|quais|todos|rodando|ligados?|ativos?|derrube|derrubar|desliga|desligue|mate|matar|limpe|cleanup|stop|pare|parar|encerre|encerrar|doctor|status|pronto|readiness|inventario|inventory)\b/.test(normalizedText);
-}
-
 function normalizeBrowserAction(
   value: string,
   fallback: ZavorthBrowserVisionInput['action'],
 ): ZavorthBrowserVisionInput['action'] {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'status') return 'browser.status';
   if (normalized === 'plan') return 'browser.plan';
   if (normalized === 'apply') return 'browser.apply';
@@ -1304,7 +1273,9 @@ function normalizeBrowserAction(
 }
 
 function normalizeComputerAction(value: string): NonNullable<ZavorthComputerControlInput['action']> {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'observe' || normalized === 'inspect') return 'computer.observe';
   if (normalized === 'plan') return 'computer.plan';
   if (normalized === 'approve') return 'computer.approve';
@@ -1312,8 +1283,12 @@ function normalizeComputerAction(value: string): NonNullable<ZavorthComputerCont
   return 'computer.status';
 }
 
-function normalizeComputerTargetKind(value: string | undefined): NonNullable<ZavorthComputerControlInput['targetKind']> {
-  const normalized = String(value || '').trim().toLowerCase();
+function normalizeComputerTargetKind(
+  value: string | undefined,
+): NonNullable<ZavorthComputerControlInput['targetKind']> {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (['browser', 'browser-tab'].includes(normalized)) return 'browser-tab';
   if (['app', 'local-app', 'aplicativo', 'programa'].includes(normalized)) return 'local-app';
   if (['desktop', 'pc', 'computer', 'window', 'janela', 'desktop-window'].includes(normalized)) return 'desktop-window';
@@ -1321,7 +1296,9 @@ function normalizeComputerTargetKind(value: string | undefined): NonNullable<Zav
 }
 
 function normalizeDeviceAction(value: string): NonNullable<ZavorthAndroidAdbInput['action']> {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   if (normalized === 'list' || normalized === 'devices') return 'device.list';
   if (normalized === 'doctor') return 'device.doctor';
   if (normalized === 'observe' || normalized === 'inspect') return 'device.observe';

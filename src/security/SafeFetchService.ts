@@ -21,6 +21,7 @@ export type SafeFetchOptions = {
 };
 
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+const CROSS_ORIGIN_SENSITIVE_HEADERS = new Set(['authorization', 'cookie', 'proxy-authorization', 'x-api-key']);
 
 export async function safeFetch(
   rawUrl: string | URL,
@@ -74,10 +75,24 @@ async function safeFetchInternal(
   }
 
   const nextUrl = new URL(location, parsed);
-  return safeFetchInternal(nextUrl.toString(), init, {
+  const redirectInit = sanitizeRedirectInit(init, parsed, nextUrl, response.status);
+  return safeFetchInternal(nextUrl.toString(), redirectInit, {
     ...context,
     maxRedirects: context.maxRedirects - 1,
   });
+}
+
+function sanitizeRedirectInit(init: RequestInit, currentUrl: URL, nextUrl: URL, status: number): RequestInit {
+  const headers = new Headers(init.headers);
+  if (currentUrl.origin !== nextUrl.origin) {
+    for (const name of CROSS_ORIGIN_SENSITIVE_HEADERS) headers.delete(name);
+  }
+  const method = String(init.method || 'GET').toUpperCase();
+  const switchToGet = status === 303 || ((status === 301 || status === 302) && method === 'POST');
+  if (!switchToGet) return { ...init, headers };
+  headers.delete('content-length');
+  headers.delete('content-type');
+  return { ...init, method: 'GET', headers, body: undefined };
 }
 
 async function assertSafeHttpTargetAllowed(
@@ -89,7 +104,8 @@ async function assertSafeHttpTargetAllowed(
     let parsed: URL;
     try {
       parsed = new URL(rawUrl);
-    } catch (error: unknown) {const decision = decideSecurityPolicy({
+    } catch (error: unknown) {
+      const decision = decideSecurityPolicy({
         surface: 'web-fetch',
         operation: 'parse_url',
         target: rawUrl,
@@ -152,13 +168,17 @@ async function assertSafeHttpTargetAllowed(
 }
 
 function isLoopbackHost(hostname: string): boolean {
-  const normalized = String(hostname || '').toLowerCase().replace(/^\[|\]$/g, '');
-  return normalized === 'localhost'
-    || normalized.endsWith('.localhost')
-    || normalized === '127.0.0.1'
-    || normalized.startsWith('127.')
-    || normalized === '::1'
-    || normalized === '0:0:0:0:0:0:0:1';
+  const normalized = String(hostname || '')
+    .toLowerCase()
+    .replace(/^\[|\]$/g, '');
+  return (
+    normalized === 'localhost' ||
+    normalized.endsWith('.localhost') ||
+    normalized === '127.0.0.1' ||
+    normalized.startsWith('127.') ||
+    normalized === '::1' ||
+    normalized === '0:0:0:0:0:0:0:1'
+  );
 }
 
 export async function readSafeJsonResponse<T>(
@@ -171,7 +191,7 @@ export async function readSafeJsonResponse<T>(
     const contentLength = safeParseInt(contentLengthHeader, 0);
     if (!isNaN(contentLength) && contentLength > maxBytes) {
       throw new Error(
-        `Egress response size limit exceeded: ${serviceLabel} returned a content-length of ${contentLength} bytes, which exceeds the max allowed limit of ${maxBytes} bytes.`
+        `Egress response size limit exceeded: ${serviceLabel} returned a content-length of ${contentLength} bytes, which exceeds the max allowed limit of ${maxBytes} bytes.`,
       );
     }
   }
@@ -181,7 +201,7 @@ export async function readSafeJsonResponse<T>(
     const bytes = new TextEncoder().encode(text).length;
     if (bytes > maxBytes) {
       throw new Error(
-        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`
+        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`,
       );
     }
     return JSON.parse(text) as T;
@@ -203,7 +223,7 @@ export async function readSafeJsonResponse<T>(
           if (totalBytes > maxBytes) {
             await reader.cancel();
             throw new Error(
-              `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`
+              `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`,
             );
           }
           chunks.push(value);
@@ -222,7 +242,7 @@ export async function readSafeJsonResponse<T>(
           stream.destroy();
         }
         throw new Error(
-          `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`
+          `Egress response size limit exceeded: ${serviceLabel} stream exceeded the max allowed limit of ${maxBytes} bytes.`,
         );
       }
       chunks.push(buf);
@@ -232,7 +252,7 @@ export async function readSafeJsonResponse<T>(
     const bytes = new TextEncoder().encode(text).length;
     if (bytes > maxBytes) {
       throw new Error(
-        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`
+        `Egress response size limit exceeded: ${serviceLabel} body size ${bytes} bytes exceeds the max allowed limit of ${maxBytes} bytes.`,
       );
     }
     return JSON.parse(text) as T;

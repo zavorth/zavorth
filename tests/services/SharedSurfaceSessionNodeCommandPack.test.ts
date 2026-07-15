@@ -44,13 +44,15 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 -- continue o plano');
 
     expect(handled).toBe(true);
-    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(expect.objectContaining({
-      platform: 'web',
-      chatId: 'web:session-2',
-      sessionId: 'session-2',
-      text: 'continue o plano',
-    }));
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Mensagem despachada para a sessao.'));
+    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        platform: 'web',
+        chatId: 'web:session-2',
+        sessionId: 'session-2',
+        text: 'continue o plano',
+      }),
+    );
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Message dispatched to the session.'));
   });
 
   it('accepts natural sessionsend without -- separator', async () => {
@@ -91,10 +93,12 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
 
     await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue o plano');
 
-    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'continue o plano',
-      chatId: 'web:session-2',
-    }));
+    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'continue o plano',
+        chatId: 'web:session-2',
+      }),
+    );
   });
 
   it('accepts free-text sessionsend without -- separator', async () => {
@@ -135,10 +139,12 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
 
     await pack.maybeHandle(ctx as any, '/sessionsend', 'web:session-2 continue o plano');
 
-    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(expect.objectContaining({
-      text: 'continue o plano',
-      chatId: 'web:session-2',
-    }));
+    expect(sessionPlaneService.sendToSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        text: 'continue o plano',
+        chatId: 'web:session-2',
+      }),
+    );
   });
 
   it('spawns a session from free platform text', async () => {
@@ -181,7 +187,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
     await pack.maybeHandle(ctx as any, '/sessionspawn', 'telegram');
 
     expect(spawnSession).toHaveBeenCalledWith({ userId: 'telegram-user', platform: 'telegram' });
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Sessao derivada aberta'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Derived session opened'));
   });
 
   it('renders /nodes queue using the extracted pack', async () => {
@@ -249,7 +255,7 @@ describe('SharedSurfaceSessionNodeCommandPack', () => {
     const handled = await pack.maybeHandle(ctx as any, '/nodes', 'queue oracle-node');
 
     expect(handled).toBe(true);
-    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Fila do Node Mesh'));
+    expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('Node Mesh queue'));
     expect(ctx.reply).toHaveBeenCalledWith(expect.stringContaining('system.run (pending) :: aguardando agente'));
   });
 });

@@ -13,8 +13,7 @@ describe('TelegramPermissionController', () => {
   beforeEach(() => {
     (config as any).telegramUserRoles = {
       ...originalTelegramUserRoles,
-      '42': ['admin'],
-    };
+      '42': ['admin']};
   });
 
   afterEach(() => {
@@ -31,8 +30,7 @@ describe('TelegramPermissionController', () => {
       overrides.createCompanionBridge ||
       (() => ({
         isOnline: jest.fn().mockResolvedValue(false),
-        readStatus: jest.fn().mockResolvedValue(null),
-      }));
+        readStatus: jest.fn().mockResolvedValue(null)}));
     return new TelegramPermissionController({
       permissionService: {
         grantPolicy: jest.fn().mockResolvedValue({
@@ -41,43 +39,36 @@ describe('TelegramPermissionController', () => {
           kind: 'command_access',
           scope: 'persistent',
           resolved_value: 'npm test',
-          decision_note: null,
-        }),
+          decision_note: null}),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-1',
           executor: 'codex',
           kind: 'command_access',
           scope: 'persistent',
           resolved_value: 'npm test',
-          metadata: {},
-        }),
+          metadata: {}}),
         rejectRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-1',
           executor: 'codex',
           kind: 'command_access',
           scope: 'persistent',
           resolved_value: 'npm test',
-          decision_note: 'revogado',
-        }),
+          decision_note: 'revogado'}),
         listRequests: jest.fn().mockResolvedValue([]),
         listApprovedRequests: jest.fn().mockResolvedValue([]),
-        getRequest: jest.fn().mockResolvedValue(null),
-      } as any,
+        getRequest: jest.fn().mockResolvedValue(null)} as any,
       taskManager: {
         getTask: jest.fn(),
-        advanceState: jest.fn(),
-      } as any,
+        advanceState: jest.fn()} as any,
       botApi: { sendMessage: jest.fn() },
       persistTask: jest.fn(),
       getZavorthBridgeController: jest.fn() as any,
       resumeTaskExecution: jest.fn(),
       resumeWorkflowExecution: jest.fn().mockResolvedValue(false),
       workflowRunService: {
-        applyStageApprovalDecision: jest.fn(),
-      },
+        applyStageApprovalDecision: jest.fn()},
       createCompanionBridge,
-      ...overrides,
-    });
+      ...overrides});
   }
 
   it('creates persistent policies via /permallow with normalized kinds', async () => {
@@ -87,17 +78,13 @@ describe('TelegramPermissionController', () => {
       kind: 'command_access',
       scope: 'persistent',
       resolved_value: 'npm test',
-      decision_note: null,
-    });
+      decision_note: null});
     const controller = createController({
       permissionService: {
-        grantPolicy,
-      },
-    });
+        grantPolicy}});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionAllowCommand(
       ctx,
@@ -112,9 +99,7 @@ describe('TelegramPermissionController', () => {
         requested_value: 'npm test',
         resolved_value: 'npm test',
         metadata: expect.objectContaining({
-          match_type: 'exact',
-        }),
-      }),
+          match_type: 'exact'})}),
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toMatch(/Aprovado|Permission approved|approved/i);
   });
@@ -126,17 +111,13 @@ describe('TelegramPermissionController', () => {
       kind: 'workspace_access',
       scope: 'workspace',
       resolved_value: 'C:/fora',
-      decision_note: null,
-    });
+      decision_note: null});
     const controller = createController({
       permissionService: {
-        grantPolicy,
-      } as any,
-    });
+        grantPolicy} as any});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionAllowCommand(
       ctx,
@@ -146,9 +127,7 @@ describe('TelegramPermissionController', () => {
     expect(grantPolicy).toHaveBeenCalledWith(
       expect.objectContaining({
         metadata: expect.objectContaining({
-          access_level: 'read_write',
-        }),
-      }),
+          access_level: 'read_write'})}),
     );
   });
 
@@ -159,8 +138,7 @@ describe('TelegramPermissionController', () => {
       kind: 'command_access',
       scope: 'persistent',
       resolved_value: 'npm test',
-      decision_note: 'revogado',
-    });
+      decision_note: 'revogado'});
     const controller = createController({
       permissionService: {
         getRequest: jest.fn().mockResolvedValue({
@@ -168,24 +146,18 @@ describe('TelegramPermissionController', () => {
           executor: 'codex',
           kind: 'command_access',
           scope: 'persistent',
-          resolved_value: 'npm test',
-        }),
+          resolved_value: 'npm test'}),
         listRequests: jest.fn().mockResolvedValue([
           {
             permission_id: 'perm-12345678',
             executor: 'codex',
             kind: 'command_access',
             scope: 'persistent',
-            resolved_value: 'npm test',
-          },
-        ]),
-        rejectRequest,
-      } as any,
-    });
+            resolved_value: 'npm test'}]),
+        rejectRequest} as any});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionRevokeCommand(ctx, 'perm-123 revogada pelo operador');
 
@@ -211,15 +183,14 @@ describe('TelegramPermissionController', () => {
       resolved_value: 'zavorth',
       metadata: {
         agent_role: 'reviewer',
-        suggested_command: 'runtime adapters bind zavorth --workspace "/mnt/c/repo" --non-interactive',
-      },
-    } as any);
+        suggested_command: 'runtime adapters bind zavorth --workspace "/mnt/c/repo" --non-interactive'}} as any);
 
     expect(text).toContain('I need your decision to unblock this ExternalExecutor workflow.');
     expect(text).toContain('Escolhas rapidas');
     expect(text).toContain('Use in this project');
     expect(text).toContain('Save for future requests');
     expect(text).toContain('Role: reviewer');
+    expect(text).toContain('/perm approve 1');
     expect(text).toContain('/perm approve perm-123 scope=workspace');
     expect(text).toContain('Technical suggestion');
   });
@@ -239,10 +210,7 @@ describe('TelegramPermissionController', () => {
           resolved_value: 'C:/fora',
           metadata: {
             permission_source: 'file_delivery',
-            access_level: 'read_only',
-          },
-        },
-      ] as any,
+            access_level: 'read_only'}}] as any,
       'pending',
     );
 
@@ -268,9 +236,7 @@ describe('TelegramPermissionController', () => {
       decided_by: null,
       decision_note: null,
       metadata: {
-        agent_role: 'reviewer',
-      },
-    };
+        agent_role: 'reviewer'}};
     const listRequests = jest.fn().mockImplementation(async (status: string) => {
       if (status === 'pending') {
         return [permission];
@@ -282,13 +248,10 @@ describe('TelegramPermissionController', () => {
     });
     const controller = createController({
       permissionService: {
-        listRequests,
-      } as any,
-    });
+        listRequests} as any});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCommand(ctx, 'show perm-external_executor');
 
@@ -316,9 +279,7 @@ describe('TelegramPermissionController', () => {
       requested_value: 'approve-visible-step-once',
       resolved_value: 'approve-visible-step-once',
       metadata: {
-        permission_prompt_summary: 'Allow command execution for npm test',
-      },
-    } as any);
+        permission_prompt_summary: 'Allow command execution for npm test'}} as any);
 
     expect(text).toContain('Recommended approval');
     expect(text).toContain('Prompt detected: Allow command execution for npm test');
@@ -332,8 +293,7 @@ describe('TelegramPermissionController', () => {
       executor: 'zavorthBridge',
       kind: 'ui_permission',
       scope: 'once',
-      status: 'pending',
-    } as any);
+      status: 'pending'} as any);
 
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-zav:session');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-zav:once');
@@ -347,8 +307,7 @@ describe('TelegramPermissionController', () => {
       executor: 'external_executor',
       kind: 'workspace_access',
       scope: 'once',
-      status: 'pending',
-    } as any);
+      status: 'pending'} as any);
 
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Allow read-only for this task only');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ext:once');
@@ -363,8 +322,7 @@ describe('TelegramPermissionController', () => {
       executor: 'file_delivery',
       kind: 'workspace_access',
       scope: 'once',
-      status: 'pending',
-    } as any);
+      status: 'pending'} as any);
 
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('Allow read-only for this task only');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-fil:once');
@@ -385,14 +343,13 @@ describe('TelegramPermissionController', () => {
       requested_value: 'C:/fora',
       resolved_value: 'C:/fora',
       metadata: {
-        original_request: 'me envie "C:/fora/index.html"',
-      },
-    } as any);
+        original_request: 'me envie "C:/fora/index.html"'}} as any);
 
     expect(text).toContain('Zavorth found the requested path');
     expect(text).toContain('Requested folder: C:/fora');
     expect(text).toContain('Access level');
     expect(text).toContain('Allow read-only for this task only');
+    expect(text).toContain('/perm approve 1');
     expect(text).toContain('/perm approve perm-fil scope=once access=read_only');
   });
 
@@ -406,9 +363,7 @@ describe('TelegramPermissionController', () => {
       scope: 'once',
       status: 'pending',
       metadata: {
-        requested_tools: ['google_search', 'code_execution'],
-      },
-    } as any);
+        requested_tools: ['google_search', 'code_execution']}} as any);
 
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ais:once');
     expect(JSON.stringify(keyboard.inline_keyboard)).toContain('perm:approve:perm-ais:workspace');
@@ -430,14 +385,13 @@ describe('TelegramPermissionController', () => {
       metadata: {
         requested_services: ['drive'],
         suggested_model: 'gemini-2.5-pro',
-        service_request_reason: 'Preciso ler um documento para concluir a tarefa.',
-      },
-    } as any);
+        service_request_reason: 'Preciso ler um documento para concluir a tarefa.'}} as any);
 
     expect(text).toContain('Google AI Studio requested extra access');
     expect(text).toContain('Requested service(s): drive');
     expect(text).toContain('Suggested model: gemini-2.5-pro');
     expect(text).toContain('Allow for this task only');
+    expect(text).toContain('/perm approve 1');
     expect(text).toContain('/perm approve perm-ais scope=once');
   });
 
@@ -448,17 +402,13 @@ describe('TelegramPermissionController', () => {
       kind: 'agent_binding',
       scope: 'persistent',
       resolved_value: 'reviewer-agent',
-      decision_note: null,
-    });
+      decision_note: null});
     const controller = createController({
       permissionService: {
-        grantPolicy,
-      } as any,
-    });
+        grantPolicy} as any});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionAllowCommand(
       ctx,
@@ -470,9 +420,7 @@ describe('TelegramPermissionController', () => {
         executor: 'external_executor',
         kind: 'agent_binding',
         metadata: expect.objectContaining({
-          agent_role: 'reviewer',
-        }),
-      }),
+          agent_role: 'reviewer'})}),
     );
   });
 
@@ -481,25 +429,19 @@ describe('TelegramPermissionController', () => {
       workspace: 'C:/repo',
       metadata: {
         extra_allowed_paths: ['C:/workspace'],
-        external_executor_agent_role: 'default',
-      },
-    };
+        external_executor_agent_role: 'default'}};
     const listApprovedRequests = jest
       .fn()
       .mockResolvedValueOnce([
         {
-          resolved_value: 'C:/repo/shared',
-        },
-      ])
+          resolved_value: 'C:/repo/shared'}])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([]);
     const persistTask = jest.fn();
     const controller = createController({
       permissionService: {
-        listApprovedRequests,
-      } as any,
-      persistTask,
-    });
+        listApprovedRequests} as any,
+      persistTask});
 
     await controller.applyPersistedPermissionPolicies(task as any, 'external_executor');
 
@@ -510,9 +452,7 @@ describe('TelegramPermissionController', () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: 'C:/repo/shared',
-          access_level: 'read_only',
-        }),
-      ]),
+          access_level: 'read_only'})]),
     );
     expect(persistTask).toHaveBeenCalledWith(task);
   });
@@ -521,9 +461,7 @@ describe('TelegramPermissionController', () => {
     const task = {
       workspace: 'C:/repo',
       metadata: {
-        extra_allowed_commands: ['npm test'],
-      },
-    };
+        extra_allowed_commands: ['npm test']}};
     const listApprovedRequests = jest
       .fn()
       .mockResolvedValueOnce([])
@@ -532,16 +470,12 @@ describe('TelegramPermissionController', () => {
           permission_id: 'perm-cmd-1',
           resolved_value: 'npm run *',
           metadata: { match_type: 'prefix' },
-          scope: 'workspace',
-        },
-      ]);
+          scope: 'workspace'}]);
     const persistTask = jest.fn();
     const controller = createController({
       permissionService: {
-        listApprovedRequests,
-      } as any,
-      persistTask,
-    });
+        listApprovedRequests} as any,
+      persistTask});
 
     await controller.applyPersistedPermissionPolicies(task as any, 'codex');
 
@@ -549,9 +483,7 @@ describe('TelegramPermissionController', () => {
       expect.arrayContaining([
         expect.objectContaining({
           command: 'npm run *',
-          match_type: 'prefix',
-        }),
-      ]),
+          match_type: 'prefix'})]),
     );
     expect(persistTask).toHaveBeenCalledWith(task);
   });
@@ -560,9 +492,7 @@ describe('TelegramPermissionController', () => {
     const task = {
       workspace: 'C:/repo',
       metadata: {
-        aistudio_allowed_tools: ['google_search'],
-      },
-    };
+        aistudio_allowed_tools: ['google_search']}};
     const listApprovedRequests = jest
       .fn()
       .mockResolvedValueOnce([])
@@ -572,26 +502,18 @@ describe('TelegramPermissionController', () => {
           permission_id: 'perm-tool-1',
           resolved_value: 'google_search, code_execution',
           metadata: {
-            requested_tools: ['google_search', 'code_execution'],
-          },
-        },
-      ])
+            requested_tools: ['google_search', 'code_execution']}}])
       .mockResolvedValueOnce([
         {
           permission_id: 'perm-service-1',
           resolved_value: 'drive',
           metadata: {
-            requested_services: ['drive'],
-          },
-        },
-      ]);
+            requested_services: ['drive']}}]);
     const persistTask = jest.fn();
     const controller = createController({
       permissionService: {
-        listApprovedRequests,
-      } as any,
-      persistTask,
-    });
+        listApprovedRequests} as any,
+      persistTask});
 
     await controller.applyPersistedPermissionPolicies(task as any, 'aistudio');
 
@@ -607,8 +529,7 @@ describe('TelegramPermissionController', () => {
       task_id: 'task-aistudio-1',
       status: 'waiting_approval',
       approval_status: 'pending',
-      metadata: {},
-    };
+      metadata: {}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       permissionService: {
@@ -624,10 +545,7 @@ describe('TelegramPermissionController', () => {
             resolved_value: 'google_search, code_execution',
             metadata: {
               requested_tools: ['google_search', 'code_execution'],
-              suggested_model: 'gemini-2.5-pro',
-            },
-          },
-        ]),
+              suggested_model: 'gemini-2.5-pro'}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-aistudio-tools-1',
           task_id: 'task-aistudio-1',
@@ -639,24 +557,18 @@ describe('TelegramPermissionController', () => {
           resolved_value: 'google_search, code_execution',
           metadata: {
             requested_tools: ['google_search', 'code_execution'],
-            suggested_model: 'gemini-2.5-pro',
-          },
-        }),
-      } as any,
+            suggested_model: 'gemini-2.5-pro'}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-ais:workspace');
 
@@ -683,9 +595,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/fora',
             resolved_value: 'C:/fora',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-file-delivery-1',
           executor: 'file_delivery',
@@ -694,25 +604,20 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'C:/fora',
           resolved_value: 'C:/fora',
-          metadata: {},
-        }),
-      } as any,
-      resumeFileDeliveryPermission,
-    });
+          metadata: {}})} as any,
+      resumeFileDeliveryPermission});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-fil:once');
 
     expect(resumeFileDeliveryPermission).toHaveBeenCalledWith(
       ctx,
       expect.objectContaining({
-        permission_id: 'perm-file-delivery-1',
-      }),
+        permission_id: 'perm-file-delivery-1'}),
     );
     expect(String(ctx.reply.mock.calls.map((c) => c?.[0]).join('\n'))).toContain('Permission approved');
   });
@@ -737,17 +642,14 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-123',
-      } as any);
+        taskId: 'task-123'} as any);
     const finishPrompt = jest.fn();
     const task = {
       task_id: 'task-123',
       status: 'waiting_approval',
       approval_status: 'pending',
       metadata: {
-        zavorthBridgeTrackingFile: 'tracking.json',
-      },
-    };
+        zavorthBridgeTrackingFile: 'tracking.json'}};
     const controller = createController({
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
@@ -759,34 +661,26 @@ describe('TelegramPermissionController', () => {
             scope: 'once',
             status: 'pending',
             requested_value: 'approve-visible-step-once',
-            resolved_value: 'approve-visible-step-once',
-          },
-        ]),
+            resolved_value: 'approve-visible-step-once'}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-12345678',
           task_id: 'task-123',
           executor: 'zavorthBridge',
           kind: 'ui_permission',
           scope: 'once',
-          status: 'approved',
-        }),
-      } as any,
+          status: 'approved'})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       getZavorthBridgeController: jest.fn().mockReturnValue({
-        finishPrompt,
-      }),
-    });
+        finishPrompt})});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-123:once');
 
@@ -819,16 +713,13 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-456',
-      } as any);
+        taskId: 'task-456'} as any);
     const task = {
       task_id: 'task-456',
       status: 'waiting_approval',
       approval_status: 'pending',
       metadata: {
-        zavorthBridgeTrackingFile: 'tracking.json',
-      },
-    };
+        zavorthBridgeTrackingFile: 'tracking.json'}};
     const controller = createController({
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
@@ -843,10 +734,7 @@ describe('TelegramPermissionController', () => {
             resolved_value: 'approve-visible-step-once',
             metadata: {
               companion_instance_id: 'bridge-9',
-              companion_process_id: 778,
-            },
-          },
-        ]),
+              companion_process_id: 778}}]),
         approveRequest: jest.fn().mockImplementation(async (_permissionId: string, _userId: string, patch: any) => ({
           permission_id: 'perm-abcdef12',
           task_id: 'task-456',
@@ -856,25 +744,19 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: patch.requested_value,
           resolved_value: patch.resolved_value,
-          metadata: patch.metadata,
-        })),
-      } as any,
+          metadata: patch.metadata}))} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       getZavorthBridgeController: jest.fn().mockReturnValue({
-        finishPrompt: jest.fn(),
-      }),
-    });
+        finishPrompt: jest.fn()})});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-abc:session');
 
@@ -903,8 +785,7 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-live-bridge',
-      } as any);
+        taskId: 'task-live-bridge'} as any);
     const task = {
       task_id: 'task-live-bridge',
       status: 'waiting_approval',
@@ -912,17 +793,13 @@ describe('TelegramPermissionController', () => {
       metadata: {
         zavorthBridgeTrackingFile: 'tracking.json',
         zavorthBridgeCompanionInstanceId: 'bridge-live',
-        zavorthBridgeCompanionProcessId: 22796,
-      },
-    };
+        zavorthBridgeCompanionProcessId: 22796}};
     const controller = createController({
       createCompanionBridge: () => ({
         isOnline: jest.fn().mockResolvedValue(true),
         readStatus: jest.fn().mockResolvedValue({
           instanceId: 'bridge-live',
-          processId: 5856,
-        }),
-      }),
+          processId: 5856})}),
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
           {
@@ -936,10 +813,7 @@ describe('TelegramPermissionController', () => {
             resolved_value: 'approve-visible-step-once',
             metadata: {
               companion_instance_id: 'bridge-live',
-              companion_process_id: 22796,
-            },
-          },
-        ]),
+              companion_process_id: 22796}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-live-1234',
           task_id: 'task-live-bridge',
@@ -949,25 +823,19 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'approve-visible-step-once',
           resolved_value: 'approve-visible-step-once',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       getZavorthBridgeController: jest.fn().mockReturnValue({
-        finishPrompt: jest.fn(),
-      }),
-    });
+        finishPrompt: jest.fn()})});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-liv:once');
 
@@ -995,8 +863,7 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-777',
-      } as any);
+        taskId: 'task-777'} as any);
 
     const listRequests = jest.fn().mockResolvedValue([
       {
@@ -1008,8 +875,7 @@ describe('TelegramPermissionController', () => {
         status: 'pending',
         requested_value: 'approve-visible-step-once',
         resolved_value: 'approve-visible-step-once',
-        metadata: {},
-      },
+        metadata: {}},
       {
         permission_id: 'perm-dup-9999',
         task_id: 'task-777',
@@ -1019,16 +885,13 @@ describe('TelegramPermissionController', () => {
         status: 'pending',
         requested_value: 'approve-visible-step-once',
         resolved_value: 'approve-visible-step-once',
-        metadata: {},
-      },
-    ]);
+        metadata: {}}]);
     const rejectRequest = jest.fn().mockResolvedValue({
       permission_id: 'perm-dup-9999',
       executor: 'zavorthBridge',
       kind: 'ui_permission',
       scope: 'once',
-      status: 'rejected',
-    });
+      status: 'rejected'});
     const task = {
       task_id: 'task-777',
       status: 'waiting_approval',
@@ -1037,9 +900,7 @@ describe('TelegramPermissionController', () => {
       metadata: {
         pendingPermissionId: 'perm-main-1234',
         pendingPermissionNotifiedAt: '2026-03-25T20:00:00.000Z',
-        zavorthBridgeTrackingFile: 'tracking.json',
-      },
-    };
+        zavorthBridgeTrackingFile: 'tracking.json'}};
     const controller = createController({
       permissionService: {
         listRequests,
@@ -1053,25 +914,19 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'approve-visible-step-once',
           resolved_value: 'approve-visible-step-once',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       getZavorthBridgeController: jest.fn().mockReturnValue({
-        finishPrompt: jest.fn(),
-      }),
-    });
+        finishPrompt: jest.fn()})});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-mai:once');
 
@@ -1106,17 +961,14 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-789',
-      } as any);
+        taskId: 'task-789'} as any);
     const approveRequest = jest.fn();
     const task = {
       task_id: 'task-789',
       status: 'waiting_approval',
       approval_status: 'pending',
       metadata: {
-        zavorthBridgeTrackingFile: 'tracking.json',
-      },
-    };
+        zavorthBridgeTrackingFile: 'tracking.json'}};
     const controller = createController({
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
@@ -1130,31 +982,23 @@ describe('TelegramPermissionController', () => {
             requested_value: 'approve-visible-step-once',
             resolved_value: 'approve-visible-step-once',
             metadata: {
-              companion_process_id: 991,
-            },
-          },
-        ]),
-        approveRequest,
-      } as any,
+              companion_process_id: 991}}]),
+        approveRequest} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
-        advanceState: jest.fn(),
-      } as any,
-    });
+        advanceState: jest.fn()} as any});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-999:session');
 
     expect(approveVisibleStep).toHaveBeenCalledWith(0, 'conversation', 991);
     expect(approveRequest).not.toHaveBeenCalled();
     expect(ctx.answerCallbackQuery).toHaveBeenCalledWith({
-      text: expect.stringMatching(/Aprovando permissao\.\.\.|Approving permission\.\.\./i),
-    });
+      text: expect.stringMatching(/Aprovando permissao\.\.\.|Approving permission\.\.\./i)});
   });
 
   it('rejects ZavorthBridge permission on the live bridge process and marks the task as rejected', async () => {
@@ -1177,8 +1021,7 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-reject-live',
-      } as any);
+        taskId: 'task-reject-live'} as any);
     const task = {
       task_id: 'task-reject-live',
       status: 'waiting_approval',
@@ -1188,9 +1031,7 @@ describe('TelegramPermissionController', () => {
         pendingPermissionId: 'perm-rej-1234',
         zavorthBridgeTrackingFile: 'tracking.json',
         zavorthBridgeCompanionInstanceId: 'bridge-live',
-        zavorthBridgeCompanionProcessId: 22796,
-      },
-    };
+        zavorthBridgeCompanionProcessId: 22796}};
     const rejectRequest = jest.fn().mockResolvedValue({
       permission_id: 'perm-rej-1234',
       task_id: 'task-reject-live',
@@ -1200,16 +1041,13 @@ describe('TelegramPermissionController', () => {
       status: 'rejected',
       requested_value: 'approve-visible-step-once',
       resolved_value: 'approve-visible-step-once',
-      metadata: {},
-    });
+      metadata: {}});
     const controller = createController({
       createCompanionBridge: () => ({
         isOnline: jest.fn().mockResolvedValue(true),
         readStatus: jest.fn().mockResolvedValue({
           instanceId: 'bridge-live',
-          processId: 5856,
-        }),
-      }),
+          processId: 5856})}),
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
           {
@@ -1223,25 +1061,18 @@ describe('TelegramPermissionController', () => {
             resolved_value: 'approve-visible-step-once',
             metadata: {
               companion_instance_id: 'bridge-live',
-              companion_process_id: 22796,
-            },
-          },
-        ]),
-        rejectRequest,
-      } as any,
+              companion_process_id: 22796}}]),
+        rejectRequest} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-    });
+        })} as any});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:reject:perm-rej');
 
@@ -1272,8 +1103,7 @@ describe('TelegramPermissionController', () => {
         rawResponse: null,
         errorCode: null,
         errorMessage: null,
-        taskId: 'task-running-reject',
-      } as any);
+        taskId: 'task-running-reject'} as any);
 
     const task = {
       task_id: 'task-running-reject',
@@ -1282,9 +1112,7 @@ describe('TelegramPermissionController', () => {
       requires_approval: true,
       metadata: {
         pendingPermissionId: 'perm-run-1234',
-        zavorthBridgeTrackingFile: 'tracking.json',
-      },
-    };
+        zavorthBridgeTrackingFile: 'tracking.json'}};
     const controller = createController({
       permissionService: {
         listRequests: jest.fn().mockResolvedValue([
@@ -1298,10 +1126,7 @@ describe('TelegramPermissionController', () => {
             requested_value: 'approve-visible-step-once',
             resolved_value: 'approve-visible-step-once',
             metadata: {
-              companion_process_id: 991,
-            },
-          },
-        ]),
+              companion_process_id: 991}}]),
         rejectRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-run-1234',
           task_id: 'task-running-reject',
@@ -1311,22 +1136,17 @@ describe('TelegramPermissionController', () => {
           status: 'rejected',
           requested_value: 'approve-visible-step-once',
           resolved_value: 'approve-visible-step-once',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-    });
+        })} as any});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:reject:perm-run');
 
@@ -1347,9 +1167,7 @@ describe('TelegramPermissionController', () => {
         pendingPermissionNotifiedAt: '2026-04-03T20:00:00.000Z',
         pendingPermissionNotificationError: 'callback timeout',
         workflow_run_id: 'wf-external_executor-reject-1',
-        workflow_stage_id: 'review',
-      },
-    };
+        workflow_stage_id: 'review'}};
     const applyStageApprovalDecision = jest.fn();
     const controller = createController({
       permissionService: {
@@ -1363,9 +1181,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/workspace',
             resolved_value: 'C:/workspace',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         rejectRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-rej-7654',
           task_id: 'task-external_executor-reject-1',
@@ -1375,25 +1191,19 @@ describe('TelegramPermissionController', () => {
           status: 'rejected',
           requested_value: 'C:/workspace',
           resolved_value: 'C:/workspace',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       workflowRunService: {
-        applyStageApprovalDecision,
-      },
-    });
+        applyStageApprovalDecision}});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:reject:perm-rej');
 
@@ -1409,8 +1219,7 @@ describe('TelegramPermissionController', () => {
         workflowRunId: 'wf-external_executor-reject-1',
         stageId: 'review',
         taskId: 'task-external_executor-reject-1',
-        action: 'reject',
-      }),
+        action: 'reject'}),
     );
   });
 
@@ -1420,9 +1229,7 @@ describe('TelegramPermissionController', () => {
       status: 'waiting_approval',
       approval_status: 'pending',
       metadata: {
-        external_executor_agent_role: 'reviewer',
-      },
-    };
+        external_executor_agent_role: 'reviewer'}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       permissionService: {
@@ -1436,10 +1243,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             metadata: {
               agent_role: 'reviewer',
-              suggested_agent_id: 'reviewer-agent',
-            },
-          },
-        ]),
+              suggested_agent_id: 'reviewer-agent'}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-76543210',
           task_id: 'task-external_executor-1',
@@ -1450,24 +1254,18 @@ describe('TelegramPermissionController', () => {
           resolved_value: 'reviewer-agent',
           metadata: {
             agent_role: 'reviewer',
-            suggested_agent_id: 'reviewer-agent',
-          },
-        }),
-      } as any,
+            suggested_agent_id: 'reviewer-agent'}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-765:workspace');
 
@@ -1476,8 +1274,7 @@ describe('TelegramPermissionController', () => {
     expect(task.metadata.external_executor_agent_role).toBe('reviewer');
     expect(task.metadata.external_executor_agent_bindings).toEqual(
       expect.objectContaining({
-        reviewer: 'reviewer-agent',
-      }),
+        reviewer: 'reviewer-agent'}),
     );
     expect(task.metadata.pendingPermissionId).toBeNull();
     expect(resumeTaskExecution).toHaveBeenCalled();
@@ -1487,9 +1284,7 @@ describe('TelegramPermissionController', () => {
     const task = {
       workspace: 'C:/repo',
       metadata: {
-        external_executor_agent_role: 'reviewer',
-      },
-    };
+        external_executor_agent_role: 'reviewer'}};
     const listApprovedRequests = jest
       .fn()
       .mockResolvedValueOnce([])
@@ -1498,28 +1293,22 @@ describe('TelegramPermissionController', () => {
         {
           permission_id: 'perm-maker',
           resolved_value: 'maker-agent',
-          metadata: { agent_role: 'maker' },
-        },
+          metadata: { agent_role: 'maker' }},
         {
           permission_id: 'perm-reviewer',
           resolved_value: 'reviewer-agent',
-          metadata: { agent_role: 'reviewer' },
-        },
-      ]);
+          metadata: { agent_role: 'reviewer' }}]);
     const persistTask = jest.fn();
     const controller = createController({
       permissionService: {
-        listApprovedRequests,
-      } as any,
-      persistTask,
-    });
+        listApprovedRequests} as any,
+      persistTask});
 
     await controller.applyPersistedPermissionPolicies(task as any, 'external_executor');
 
     expect(task.metadata.external_executor_agent_bindings).toEqual({
       maker: 'maker-agent',
-      reviewer: 'reviewer-agent',
-    });
+      reviewer: 'reviewer-agent'});
     expect(task.metadata.external_executor_agent_id).toBe('reviewer-agent');
     expect(task.metadata.external_executor_permission_id).toBe('perm-reviewer');
     expect(persistTask).toHaveBeenCalledWith(task);
@@ -1530,8 +1319,7 @@ describe('TelegramPermissionController', () => {
       task_id: 'task-external_executor-path-1',
       status: 'waiting_approval',
       approval_status: 'pending',
-      metadata: {},
-    };
+      metadata: {}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       permissionService: {
@@ -1545,9 +1333,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/workspace',
             resolved_value: 'C:/workspace',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-path-76543210',
           task_id: 'task-external_executor-path-1',
@@ -1557,23 +1343,18 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'C:/workspace',
           resolved_value: 'C:/workspace',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-pat:once');
 
@@ -1583,9 +1364,7 @@ describe('TelegramPermissionController', () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: 'C:/workspace',
-          access_level: 'read_only',
-        }),
-      ]),
+          access_level: 'read_only'})]),
     );
     expect(task.metadata.pendingPermissionId).toBeNull();
     expect(task.approval_status).toBe('approved');
@@ -1599,9 +1378,7 @@ describe('TelegramPermissionController', () => {
       approval_status: 'pending',
       requires_approval: true,
       metadata: {
-        pendingPermissionId: 'perm-audit-approve-1',
-      },
-    };
+        pendingPermissionId: 'perm-audit-approve-1'}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const logPermissionDecision = jest
       .fn()
@@ -1618,9 +1395,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/workspace',
             resolved_value: 'C:/workspace',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-audit-approve-1',
           task_id: 'task-external_executor-audit-approve-1',
@@ -1630,40 +1405,31 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'C:/workspace',
           resolved_value: 'C:/workspace',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       auditLogger: {
-        logPermissionDecision,
-      },
-      resumeTaskExecution,
-    });
+        logPermissionDecision},
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-aud:once');
 
     expect(logPermissionDecision).toHaveBeenCalledWith(
       expect.objectContaining({
-        permission_id: 'perm-audit-approve-1',
-      }),
+        permission_id: 'perm-audit-approve-1'}),
       'approve',
       '42',
       expect.objectContaining({
         patch: expect.objectContaining({
-          scope: 'once',
-        }),
-      }),
+          scope: 'once'})}),
     );
     expect(task.requires_approval).toBe(false);
     expect(task.approval_status).toBe('approved');
@@ -1679,23 +1445,18 @@ describe('TelegramPermissionController', () => {
       approval_status: 'pending',
       risk_level: 3,
       metadata: {
-        requiresHighRiskPin: true,
-      },
-    };
+        requiresHighRiskPin: true}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleApproval(ctx, 'task-high-risk-1');
 
@@ -1703,11 +1464,127 @@ describe('TelegramPermissionController', () => {
     expect(resumeTaskExecution).toHaveBeenCalled();
   });
 
+  it('resolves bare /approve when only one pending task exists for the user', async () => {
+    const task = {
+      task_id: 'task-bare-only-1',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      requires_approval: true,
+      user_id: '42',
+      chat_id: '9001',
+      updated_at: '2026-05-12T12:00:00.000Z',
+      metadata: {}};
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const getTask = jest.fn((id: string) => (id === task.task_id ? task : undefined));
+    const controller = createController({
+      taskManager: {
+        getTask,
+        getRecentTasks: jest.fn().mockReturnValue([task]),
+        getRecentTasksByChat: jest.fn().mockReturnValue([task]),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        })} as any,
+      resumeTaskExecution});
+    const ctx = {
+      from: { id: 42 },
+      chat: { id: 9001 },
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
+
+    await controller.handleApproval(ctx, '');
+
+    expect(task.approval_status).toBe('approved');
+    expect(resumeTaskExecution).toHaveBeenCalledWith(ctx, task);
+  });
+
+  it('resolves /approve 1 against a sorted pending list (newest first)', async () => {
+    const older = {
+      task_id: 'task-old-pending',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      requires_approval: true,
+      user_id: '42',
+      chat_id: '9001',
+      updated_at: '2026-05-12T10:00:00.000Z',
+      metadata: {}};
+    const newer = {
+      task_id: 'task-new-pending',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      requires_approval: true,
+      user_id: '42',
+      chat_id: '9001',
+      updated_at: '2026-05-12T11:00:00.000Z',
+      metadata: {}};
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const tasksById: Record<string, any> = {
+      [older.task_id]: older,
+      [newer.task_id]: newer};
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn((id: string) => tasksById[id]),
+        getRecentTasks: jest.fn().mockReturnValue([newer, older]),
+        getRecentTasksByChat: jest.fn().mockReturnValue([newer, older]),
+        advanceState: jest.fn((targetTask: any, nextStatus: string) => {
+          targetTask.status = nextStatus;
+        })} as any,
+      resumeTaskExecution});
+    const ctx = {
+      from: { id: 42 },
+      chat: { id: 9001 },
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
+
+    await controller.handleApproval(ctx, '1');
+
+    expect(newer.approval_status).toBe('approved');
+    expect(older.approval_status).toBe('pending');
+    expect(resumeTaskExecution).toHaveBeenCalledWith(ctx, newer);
+  });
+
+  it('explains bare /approve ambiguity without forcing a long task_id', async () => {
+    const a = {
+      task_id: 'task-a-pending',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      requires_approval: true,
+      user_id: '42',
+      chat_id: '9001',
+      updated_at: '2026-05-12T10:00:00.000Z',
+      metadata: {}};
+    const b = {
+      task_id: 'task-b-pending',
+      status: 'waiting_approval',
+      approval_status: 'pending',
+      requires_approval: true,
+      user_id: '42',
+      chat_id: '9001',
+      updated_at: '2026-05-12T11:00:00.000Z',
+      metadata: {}};
+    const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
+    const controller = createController({
+      taskManager: {
+        getTask: jest.fn(),
+        getRecentTasks: jest.fn().mockReturnValue([b, a]),
+        getRecentTasksByChat: jest.fn().mockReturnValue([b, a]),
+        advanceState: jest.fn()} as any,
+      resumeTaskExecution});
+    const ctx = {
+      from: { id: 42 },
+      chat: { id: 9001 },
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
+
+    await controller.handleApproval(ctx, '');
+
+    expect(resumeTaskExecution).not.toHaveBeenCalled();
+    expect(String(ctx.reply.mock.calls[0]?.[0] || '')).toMatch(
+      /Use \/approve 1|tap Approve|not a long id/i,
+    );
+    expect(String(ctx.reply.mock.calls[0]?.[0] || '')).not.toMatch(/Use \/approve <task_id>/i);
+  });
+
   it('rejects slash /approve for non-admin roles (same gate as callbacks)', async () => {
     (config as any).telegramUserRoles = {
       ...originalTelegramUserRoles,
-      '99': ['vice-owner'],
-    };
+      '99': ['vice-owner']};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       taskManager: {
@@ -1715,16 +1592,12 @@ describe('TelegramPermissionController', () => {
           task_id: 'task-deny-non-admin',
           status: 'waiting_approval',
           approval_status: 'pending',
-          metadata: {},
-        }),
-        advanceState: jest.fn(),
-      } as any,
-      resumeTaskExecution,
-    });
+          metadata: {}}),
+        advanceState: jest.fn()} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 99 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleApproval(ctx, 'task-deny-non-admin');
 
@@ -1741,8 +1614,7 @@ describe('TelegramPermissionController', () => {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:undo:task-undo-inline-1');
 
@@ -1757,8 +1629,7 @@ describe('TelegramPermissionController', () => {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:undo:task-undo-missing-1');
 
@@ -1773,26 +1644,21 @@ describe('TelegramPermissionController', () => {
       approval_status: 'pending',
       risk_level: 3,
       metadata: {
-        requiresHighRiskPin: true,
-      },
-    };
+        requiresHighRiskPin: true}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       chat: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:once:task-high-risk-inline-1');
 
@@ -1807,25 +1673,21 @@ describe('TelegramPermissionController', () => {
       status: 'waiting_approval',
       approval_status: 'pending',
       risk_level: 1,
-      metadata: {},
-    };
+      metadata: {}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       chat: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:approve:task-legacy-approve-1');
     expect(task.approval_status).toBe('approved');
@@ -1837,8 +1699,7 @@ describe('TelegramPermissionController', () => {
     const ctx = {
       from: { id: 42 },
       chat: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
     expect(await controller.tryConsumeHighRiskTotpReply(ctx, '123456')).toBe(false);
   });
 
@@ -1848,27 +1709,22 @@ describe('TelegramPermissionController', () => {
       status: 'waiting_approval',
       approval_status: 'pending',
       risk_level: 1,
-      metadata: {},
-    };
+      metadata: {}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       hostIdentityService: {
-        getStatus: jest.fn().mockReturnValue({ authorized: false }),
-      },
+        getStatus: jest.fn().mockReturnValue({ authorized: false })},
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:approve:task-readonly-inline-1');
 
@@ -1881,31 +1737,26 @@ describe('TelegramPermissionController', () => {
   it('blocks inline task callbacks from users without explicit admin role', async () => {
     (config as any).telegramUserRoles = {
       ...config.telegramUserRoles,
-      '42': ['vice-owner'],
-    };
+      '42': ['vice-owner']};
     const task = {
       task_id: 'task-non-admin-inline-1',
       status: 'waiting_approval',
       approval_status: 'pending',
       risk_level: 1,
-      metadata: {},
-    };
+      metadata: {}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const controller = createController({
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
-      resumeTaskExecution,
-    });
+        })} as any,
+      resumeTaskExecution});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleTaskCallback(ctx, 'task:approve:task-non-admin-inline-1');
 
@@ -1918,8 +1769,7 @@ describe('TelegramPermissionController', () => {
   it('blocks inline permission callbacks from users without explicit admin role', async () => {
     (config as any).telegramUserRoles = {
       ...config.telegramUserRoles,
-      '42': ['vice-owner'],
-    };
+      '42': ['vice-owner']};
     const listRequests = jest.fn().mockResolvedValue([
       {
         permission_id: 'perm-non-admin-1',
@@ -1927,22 +1777,17 @@ describe('TelegramPermissionController', () => {
         kind: 'command_access',
         scope: 'once',
         resolved_value: 'npm test',
-        metadata: {},
-      },
-    ]);
+        metadata: {}}]);
     const approveRequest = jest.fn();
     const controller = createController({
       permissionService: {
         listRequests,
-        approveRequest,
-      } as any,
-    });
+        approveRequest} as any});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await expect(controller.handlePermissionCallback(ctx, 'perm:approve:perm-non-admin-1:once')).rejects.toThrow(
       'Apenas administradores',
@@ -1960,9 +1805,7 @@ describe('TelegramPermissionController', () => {
       requires_approval: true,
       metadata: {
         workflow_run_id: 'wf-ship-demo-001',
-        workflow_stage_id: 'review',
-      },
-    };
+        workflow_stage_id: 'review'}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflowExecution = jest.fn().mockResolvedValue(true);
     const applyStageApprovalDecision = jest.fn();
@@ -1971,18 +1814,14 @@ describe('TelegramPermissionController', () => {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       resumeTaskExecution,
       resumeWorkflowExecution,
       workflowRunService: {
-        applyStageApprovalDecision,
-      },
-    });
+        applyStageApprovalDecision}});
     const ctx = {
       from: { id: 42 },
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handleApproval(ctx, 'task-workflow-approval-1');
 
@@ -1992,8 +1831,7 @@ describe('TelegramPermissionController', () => {
         workflowRunId: 'wf-ship-demo-001',
         stageId: 'review',
         taskId: 'task-workflow-approval-1',
-        action: 'approve',
-      }),
+        action: 'approve'}),
     );
     expect(resumeWorkflowExecution).toHaveBeenCalledWith(ctx, task);
     expect(resumeTaskExecution).not.toHaveBeenCalled();
@@ -2007,9 +1845,7 @@ describe('TelegramPermissionController', () => {
       requires_approval: true,
       metadata: {
         workflow_run_id: 'wf-review-demo-001',
-        workflow_stage_id: 'maker',
-      },
-    };
+        workflow_stage_id: 'maker'}};
     const resumeTaskExecution = jest.fn().mockResolvedValue(undefined);
     const resumeWorkflowExecution = jest.fn().mockResolvedValue(true);
     const applyStageApprovalDecision = jest.fn();
@@ -2025,9 +1861,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/workspace',
             resolved_value: 'C:/workspace',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         approveRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-path-76543210',
           task_id: 'task-external_executor-workflow-1',
@@ -2037,27 +1871,21 @@ describe('TelegramPermissionController', () => {
           status: 'approved',
           requested_value: 'C:/workspace',
           resolved_value: 'C:/workspace',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       resumeTaskExecution,
       resumeWorkflowExecution,
       workflowRunService: {
-        applyStageApprovalDecision,
-      },
-    });
+        applyStageApprovalDecision}});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:approve:perm-pat:once');
 
@@ -2067,8 +1895,7 @@ describe('TelegramPermissionController', () => {
         workflowRunId: 'wf-review-demo-001',
         stageId: 'maker',
         taskId: 'task-external_executor-workflow-1',
-        action: 'approve',
-      }),
+        action: 'approve'}),
     );
     expect(resumeWorkflowExecution).toHaveBeenCalledWith(ctx, task);
     expect(resumeTaskExecution).not.toHaveBeenCalled();
@@ -2085,9 +1912,7 @@ describe('TelegramPermissionController', () => {
         pendingPermissionNotifiedAt: '2026-04-03T20:00:00.000Z',
         pendingPermissionNotificationError: 'callback timeout',
         workflow_run_id: 'wf-external_executor-audit-reject-1',
-        workflow_stage_id: 'review',
-      },
-    };
+        workflow_stage_id: 'review'}};
     const logPermissionDecision = jest
       .fn()
       .mockRejectedValue(new Error('audit backend offline'));
@@ -2104,9 +1929,7 @@ describe('TelegramPermissionController', () => {
             status: 'pending',
             requested_value: 'C:/workspace',
             resolved_value: 'C:/workspace',
-            metadata: {},
-          },
-        ]),
+            metadata: {}}]),
         rejectRequest: jest.fn().mockResolvedValue({
           permission_id: 'perm-audit-reject-1',
           task_id: 'task-external_executor-audit-reject-1',
@@ -2116,40 +1939,31 @@ describe('TelegramPermissionController', () => {
           status: 'rejected',
           requested_value: 'C:/workspace',
           resolved_value: 'C:/workspace',
-          metadata: {},
-        }),
-      } as any,
+          metadata: {}})} as any,
       taskManager: {
         getTask: jest.fn().mockReturnValue(task),
         advanceState: jest.fn((targetTask: any, nextStatus: string) => {
           targetTask.status = nextStatus;
-        }),
-      } as any,
+        })} as any,
       workflowRunService: {
-        applyStageApprovalDecision,
-      },
+        applyStageApprovalDecision},
       auditLogger: {
-        logPermissionDecision,
-      },
-    });
+        logPermissionDecision}});
     const ctx = {
       from: { id: 42 },
       answerCallbackQuery: jest.fn().mockResolvedValue(undefined),
       editMessageReplyMarkup: jest.fn().mockResolvedValue(undefined),
-      reply: jest.fn().mockResolvedValue(undefined),
-    } as any;
+      reply: jest.fn().mockResolvedValue(undefined)} as any;
 
     await controller.handlePermissionCallback(ctx, 'perm:reject:perm-aud');
 
     expect(logPermissionDecision).toHaveBeenCalledWith(
       expect.objectContaining({
-        permission_id: 'perm-audit-reject-1',
-      }),
+        permission_id: 'perm-audit-reject-1'}),
       'reject',
       '42',
       expect.objectContaining({
-        note: expect.stringMatching(/Rejeicao inline pelo Telegram\.|Inline rejection from Telegram\./i),
-      }),
+        note: expect.stringMatching(/Rejeicao inline pelo Telegram\.|Inline rejection from Telegram\./i)}),
     );
     expect(task.status).toBe('rejected');
     expect(task.requires_approval).toBe(false);
@@ -2163,8 +1977,7 @@ describe('TelegramPermissionController', () => {
         workflowRunId: 'wf-external_executor-audit-reject-1',
         stageId: 'review',
         taskId: 'task-external_executor-audit-reject-1',
-        action: 'reject',
-      }),
+        action: 'reject'}),
     );
   });
 });

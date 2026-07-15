@@ -142,197 +142,232 @@ describe('AgentRunService', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.ok).toBe(true);
-    expect(result.run).toEqual(expect.objectContaining({
-      status: 'completed',
-      sessionId: 'session-simple',
-      summary: 'Run agent-run-2 processed.',
-      modelProfile: expect.objectContaining({
-        providerLabel: 'OpenAI',
-        modelLabel: 'gpt-4o',
-      }),
-    }));
-    expect(result.run.metadata.runBudget).toEqual(expect.objectContaining({
-      source: 'RunBudgetPolicy',
-      degraded: false,
-      toolExposureGatedByRunBudget: false,
-    }));
-    expect(result.run.metadata.policyKernel).toEqual(expect.objectContaining({
-      source: 'AgentRunPolicyKernel',
-      stage: 6,
-      lastStage: 'pre-execution',
-      receipts: expect.arrayContaining([
-        expect.objectContaining({
-          stage: 'trust',
-          decision: 'allowed',
-        }),
-        expect.objectContaining({
-          stage: 'budget',
-          decision: 'allowed',
-        }),
-        expect.objectContaining({
-          stage: 'pre-execution',
-          decision: 'allowed',
-        }),
-      ]),
-    }));
-    expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
-      source: 'AgentRunExecutorBoundary',
-      stage: 8,
-      selected: 'custom-executor',
-    }));
-    expect(result.run.metadata.naturalFirstRoute).toEqual(expect.objectContaining({
-      source: 'NaturalFirstRunClassifier',
-      contractVersion: 'natural-first-classifier/3',
-      mode: 'natural-first-agent-runtime',
-      shouldEnterGateway: true,
-      route: 'llm-reply',
-      intent: expect.objectContaining({
-        primary: 'free-text-question',
-      }),
-      cost: expect.objectContaining({
-        tier: expect.any(String),
-      }),
-      context: expect.objectContaining({
-        channel: 'web',
-        user: expect.objectContaining({
-          present: true,
-          id: 'grey',
-        }),
-        session: expect.objectContaining({
-          present: true,
-          id: 'session-simple',
-        }),
-      }),
-    }));
-    expect(result.run.metadata.naturalFirstEntrypoint).toEqual(expect.objectContaining({
-      version: 'natural-first-agent-runtime/1',
-      inputKind: 'free-text',
-      entrypoint: 'zavorth-agent-gateway',
-      gatewayRequired: true,
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run).toEqual(
       expect.objectContaining({
-        kind: 'planning',
-        title: 'Natural-first contract applied',
-        metadata: expect.objectContaining({
-          entrypoint: 'zavorth-agent-gateway',
+        status: 'completed',
+        sessionId: 'session-simple',
+        summary: 'Run agent-run-2 processed.',
+        modelProfile: expect.objectContaining({
+          providerLabel: 'OpenAI',
+          modelLabel: 'gpt-4o',
         }),
       }),
+    );
+    expect(result.run.metadata.runBudget).toEqual(
       expect.objectContaining({
-        kind: 'planning',
-        title: 'Natural-first routing',
-        metadata: expect.objectContaining({
-          route: 'llm-reply',
+        source: 'RunBudgetPolicy',
+        degraded: false,
+        toolExposureGatedByRunBudget: false,
+      }),
+    );
+    expect(result.run.metadata.policyKernel).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunPolicyKernel',
+        stage: 6,
+        lastStage: 'pre-execution',
+        receipts: expect.arrayContaining([
+          expect.objectContaining({
+            stage: 'trust',
+            decision: 'allowed',
+          }),
+          expect.objectContaining({
+            stage: 'budget',
+            decision: 'allowed',
+          }),
+          expect.objectContaining({
+            stage: 'pre-execution',
+            decision: 'allowed',
+          }),
+        ]),
+      }),
+    );
+    expect(result.run.metadata.executorBoundary).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunExecutorBoundary',
+        stage: 8,
+        selected: 'custom-executor',
+      }),
+    );
+    expect(result.run.metadata.naturalFirstRoute).toEqual(
+      expect.objectContaining({
+        source: 'NaturalFirstRunClassifier',
+        contractVersion: 'natural-first-classifier/4',
+        mode: 'natural-first-agent-runtime',
+        shouldEnterGateway: true,
+        route: 'llm-reply',
+        intent: expect.objectContaining({
+          primary: 'free-text-question',
+        }),
+        cost: expect.objectContaining({
+          tier: expect.any(String),
+        }),
+        context: expect.objectContaining({
+          channel: 'web',
+          user: expect.objectContaining({
+            present: true,
+            id: 'grey',
+          }),
+          session: expect.objectContaining({
+            present: true,
+            id: 'session-simple',
+          }),
         }),
       }),
-    ]));
-    expect(result.run.metadata.corePipeline).toEqual(expect.objectContaining({
-      source: 'AgentRunCorePipeline',
-      stage: 12,
-      lastStage: 'finalized',
-      receipts: expect.arrayContaining([
-        expect.objectContaining({ stage: 'created' }),
-        expect.objectContaining({ stage: 'prepared' }),
-        expect.objectContaining({ stage: 'finalized' }),
-      ]),
-    }));
-    expect(result.run.metadata.coreDietBaseline).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      stage: 0,
-      profile: 'default',
-      metadataBytes: expect.any(Number),
-      metadataKeyCount: expect.any(Number),
-      snapshotBuilds: expect.any(Number),
-      attachedSnapshots: expect.any(Number),
-      skippedSnapshots: expect.any(Number),
-      cacheHits: expect.any(Number),
-      overBudget: expect.any(Array),
-      stages: expect.arrayContaining([
-        expect.objectContaining({ name: 'core-pipeline-create-run' }),
-        expect.objectContaining({ name: 'core-pipeline-policy-trust' }),
-        expect.objectContaining({ name: 'core-pipeline-policy-budget' }),
-        expect.objectContaining({ name: 'policy-kernel-pre-execution' }),
-        expect.objectContaining({ name: 'core-pipeline-frontloaded-evidence' }),
-      ]),
-      snapshotEvents: expect.arrayContaining([
-        expect.objectContaining({ key: 'providerMeshConsolidation' }),
-      ]),
-    }));
-    expect(result.run.metadata.coreDietObservability).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      stage: 10,
-      profile: 'default',
-      status: expect.stringMatching(/within-budget|over-budget/),
-      violations: expect.any(Array),
-      budgets: expect.objectContaining({
-        metadataBytes: expect.any(Number),
-        stageCount: expect.any(Number),
-        maxStageMs: expect.any(Number),
-        scheduledWorkerJobs: expect.any(Number),
+    );
+    expect(result.run.metadata.naturalFirstEntrypoint).toEqual(
+      expect.objectContaining({
+        version: 'natural-first-agent-runtime/1',
+        inputKind: 'free-text',
+        entrypoint: 'zavorth-agent-gateway',
+        gatewayRequired: true,
       }),
-      metrics: expect.objectContaining({
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'planning',
+          title: 'Natural-first contract applied',
+          metadata: expect.objectContaining({
+            entrypoint: 'zavorth-agent-gateway',
+          }),
+        }),
+        expect.objectContaining({
+          kind: 'planning',
+          title: 'Natural-first routing',
+          metadata: expect.objectContaining({
+            route: 'llm-reply',
+          }),
+        }),
+      ]),
+    );
+    expect(result.run.metadata.corePipeline).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunCorePipeline',
+        stage: 12,
+        lastStage: 'finalized',
+        receipts: expect.arrayContaining([
+          expect.objectContaining({ stage: 'created' }),
+          expect.objectContaining({ stage: 'prepared' }),
+          expect.objectContaining({ stage: 'finalized' }),
+        ]),
+      }),
+    );
+    expect(result.run.metadata.coreDietBaseline).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        stage: 0,
+        profile: 'default',
         metadataBytes: expect.any(Number),
+        metadataKeyCount: expect.any(Number),
         snapshotBuilds: expect.any(Number),
-        stageCount: expect.any(Number),
-        maxStageMs: expect.any(Number),
-        scheduledWorkerJobs: expect.any(Number),
+        attachedSnapshots: expect.any(Number),
+        skippedSnapshots: expect.any(Number),
+        cacheHits: expect.any(Number),
+        overBudget: expect.any(Array),
+        stages: expect.arrayContaining([
+          expect.objectContaining({ name: 'core-pipeline-create-run' }),
+          expect.objectContaining({ name: 'core-pipeline-policy-trust' }),
+          expect.objectContaining({ name: 'core-pipeline-policy-budget' }),
+          expect.objectContaining({ name: 'policy-kernel-pre-execution' }),
+          expect.objectContaining({ name: 'core-pipeline-frontloaded-evidence' }),
+        ]),
+        snapshotEvents: expect.arrayContaining([expect.objectContaining({ key: 'providerMeshConsolidation' })]),
       }),
-    }));
-    expect(result.run.metadata.evidenceRefs).toEqual(expect.objectContaining({
-      source: 'AgentRunEvidenceStore',
-      stage: 4,
-      refs: expect.arrayContaining([
-        expect.objectContaining({
-          key: 'providerMeshConsolidation',
-          runId: result.run.id,
-          material: expect.any(Boolean),
+    );
+    expect(result.run.metadata.coreDietObservability).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        stage: 10,
+        profile: 'default',
+        status: expect.stringMatching(/within-budget|over-budget/),
+        violations: expect.any(Array),
+        budgets: expect.objectContaining({
+          metadataBytes: expect.any(Number),
+          stageCount: expect.any(Number),
+          maxStageMs: expect.any(Number),
+          scheduledWorkerJobs: expect.any(Number),
         }),
-      ]),
-    }));
-    expect(result.run.metadata.metadataDiet).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      stage: 5,
-      operationalKeys: expect.arrayContaining(['runBudget', 'providerArena', 'evidenceRefs', 'coreDietObservability']),
-      auditKeys: expect.arrayContaining(['providerMeshConsolidation']),
-      debugKeys: expect.arrayContaining(['coreDietBaseline']),
-      lazyRefCount: expect.any(Number),
-      nonMaterialRefCount: expect.any(Number),
-    }));
+        metrics: expect.objectContaining({
+          metadataBytes: expect.any(Number),
+          snapshotBuilds: expect.any(Number),
+          stageCount: expect.any(Number),
+          maxStageMs: expect.any(Number),
+          scheduledWorkerJobs: expect.any(Number),
+        }),
+      }),
+    );
+    expect(result.run.metadata.evidenceRefs).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunEvidenceStore',
+        stage: 4,
+        refs: expect.arrayContaining([
+          expect.objectContaining({
+            key: 'providerMeshConsolidation',
+            runId: result.run.id,
+            material: expect.any(Boolean),
+          }),
+        ]),
+      }),
+    );
+    expect(result.run.metadata.metadataDiet).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        stage: 5,
+        operationalKeys: expect.arrayContaining([
+          'runBudget',
+          'providerArena',
+          'evidenceRefs',
+          'coreDietObservability',
+        ]),
+        auditKeys: expect.arrayContaining(['providerMeshConsolidation']),
+        debugKeys: expect.arrayContaining(['coreDietBaseline']),
+        lazyRefCount: expect.any(Number),
+        nonMaterialRefCount: expect.any(Number),
+      }),
+    );
     const providerMeshSnapshot = service.readEvidenceSnapshot(result.run, 'providerMeshConsolidation');
-    expect(providerMeshSnapshot).toEqual(expect.objectContaining({
-      source: 'ProviderMeshConsolidationService',
-    }));
+    expect(providerMeshSnapshot).toEqual(
+      expect.objectContaining({
+        source: 'ProviderMeshConsolidationService',
+      }),
+    );
     const providerMeshRef = (result.run.metadata.evidenceRefs as any).refs.find(
       (ref: any) => ref.key === 'providerMeshConsolidation',
     );
     expect(service.readEvidenceSnapshot(result.run, providerMeshRef.id)).toEqual(providerMeshSnapshot);
-    expect(result.run.metadata.lifecycleDefense).toEqual(expect.objectContaining({
-      preExecutor: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'pre-executor',
-        blocked: false,
-        risk: 'safe',
-      }),
-      postExecutor: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'post-executor',
-        blocked: false,
-        risk: 'safe',
-      }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.lifecycleDefense).toEqual(
       expect.objectContaining({
-        title: 'Defense hook pre-executor',
-        status: 'done',
+        preExecutor: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'pre-executor',
+          blocked: false,
+          risk: 'safe',
+        }),
+        postExecutor: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'post-executor',
+          blocked: false,
+          risk: 'safe',
+        }),
       }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Defense hook pre-executor',
+          status: 'done',
+        }),
+        expect.objectContaining({
+          title: 'Defense hook post-executor',
+          status: 'done',
+        }),
+      ]),
+    );
+    expect(result.replies[0]).toEqual(
       expect.objectContaining({
-        title: 'Defense hook post-executor',
-        status: 'done',
+        text: 'Simple response ready.',
       }),
-    ]));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Simple response ready.',
-    }));
+    );
   });
 
   it('routes light chat through the governed runtime instead of a canned lightweight reply', async () => {
@@ -361,16 +396,20 @@ describe('AgentRunService', () => {
     expect(result.ok).toBe(true);
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Executor received light chat.');
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'executor-called',
-    }));
+    expect(result.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'executor-called',
+      }),
+    );
     expect(result.run.metadata.naturalFirstLightReply).toBeUndefined();
     expect(result.run.metadata.executorBoundary).toEqual(expect.any(Object));
-    expect(result.run.events).toEqual(expect.not.arrayContaining([
-      expect.objectContaining({
-      title: 'Governed lightweight reply',
-      }),
-    ]));
+    expect(result.run.events).toEqual(
+      expect.not.arrayContaining([
+        expect.objectContaining({
+          title: 'Governed lightweight reply',
+        }),
+      ]),
+    );
   });
 
   it('publishes runtime lifecycle events without changing executor behavior', async () => {
@@ -421,41 +460,47 @@ describe('AgentRunService', () => {
       'agent.execution.completed',
       'agent.run.completed',
     ]);
-    expect(emitted[0].payload).toEqual(expect.objectContaining({
-      runId: result.run.id,
-      sessionId: 'session-events',
-      channel: 'web',
-    }));
-    expect(emitted).toEqual(expect.arrayContaining([
+    expect(emitted[0].payload).toEqual(
       expect.objectContaining({
-        type: 'agent.stream.assistant',
-        payload: expect.objectContaining({
-          phase: 'delta',
-          accumulated: 'Response with events ready.',
-          done: false,
-          rawChainOfThoughtExposed: false,
-        }),
+        runId: result.run.id,
+        sessionId: 'session-events',
+        channel: 'web',
       }),
-      expect.objectContaining({
-        type: 'agent.stream.assistant',
-        payload: expect.objectContaining({
-          phase: 'done',
-          done: true,
-          accumulated: 'Response with events ready.',
-        }),
-      }),
-    ]));
-    expect(result.run.metadata.runtimeEventBus).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      stage: 2,
-      configured: true,
-      events: expect.arrayContaining([
+    );
+    expect(emitted).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          type: 'agent.run.completed',
-          delivery: 'delivered',
+          type: 'agent.stream.assistant',
+          payload: expect.objectContaining({
+            phase: 'delta',
+            accumulated: 'Response with events ready.',
+            done: false,
+            rawChainOfThoughtExposed: false,
+          }),
+        }),
+        expect.objectContaining({
+          type: 'agent.stream.assistant',
+          payload: expect.objectContaining({
+            phase: 'done',
+            done: true,
+            accumulated: 'Response with events ready.',
+          }),
         }),
       ]),
-    }));
+    );
+    expect(result.run.metadata.runtimeEventBus).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        stage: 2,
+        configured: true,
+        events: expect.arrayContaining([
+          expect.objectContaining({
+            type: 'agent.run.completed',
+            delivery: 'delivered',
+          }),
+        ]),
+      }),
+    );
   });
 
   it('can attach the native autonomy spine after a successful turn without leaking raw secrets', async () => {
@@ -485,14 +530,16 @@ describe('AgentRunService', () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.run.metadata.nativeAutonomySpine).toEqual(expect.objectContaining({
-      version: 'native-autonomy-spine/v1',
-      status: 'ready',
-      summary: expect.objectContaining({
-        organicLearningReady: true,
-        skillForgeReady: true,
+    expect(result.run.metadata.nativeAutonomySpine).toEqual(
+      expect.objectContaining({
+        version: 'native-autonomy-spine/v1',
+        status: 'ready',
+        summary: expect.objectContaining({
+          organicLearningReady: true,
+          skillForgeReady: true,
+        }),
       }),
-    }));
+    );
     expect(JSON.stringify(result.run.metadata.nativeAutonomySpine)).not.toContain('secret-token');
     expect(JSON.stringify(result.run.metadata.nativeAutonomySpine)).not.toContain('sk-test-123');
   });
@@ -533,16 +580,20 @@ describe('AgentRunService', () => {
     });
 
     expect(primary.map((event) => event.type)).toEqual(subscriber.map((event) => event.type));
-    expect(subscriber[0].payload).toEqual(expect.objectContaining({
-      runId: result.run.id,
-      channel: 'telegram',
-      sessionId: 'telegram-session',
-      surfaceChatId: '4242',
-    }));
-    expect(result.run.metadata.runtimeEventBus).toEqual(expect.objectContaining({
-      configured: true,
-      subscriberCount: 2,
-    }));
+    expect(subscriber[0].payload).toEqual(
+      expect.objectContaining({
+        runId: result.run.id,
+        channel: 'telegram',
+        sessionId: 'telegram-session',
+        surfaceChatId: '4242',
+      }),
+    );
+    expect(result.run.metadata.runtimeEventBus).toEqual(
+      expect.objectContaining({
+        configured: true,
+        subscriberCount: 2,
+      }),
+    );
   });
 
   it('uses the provider runtime when no explicit executor is configured', async () => {
@@ -599,25 +650,18 @@ describe('AgentRunService', () => {
       },
     });
 
+    const providerMessages = llmRuntime.chatDetailed.mock.calls[0][0];
+    expect(providerMessages).toEqual(
+      expect.arrayContaining([expect.objectContaining({ role: 'user', content: 'responda oi pelo runtime real' })]),
+    );
+    const providerSystemPrompt = providerMessages.find(
+      (message: { role: string }) => message.role === 'system',
+    )?.content;
+    expect(providerSystemPrompt).toContain('You are Zavorth');
+    expect(providerSystemPrompt).toContain('Reply in the same language the user used');
+    expect(providerSystemPrompt).toContain('Natural First free-text');
     expect(llmRuntime.chatDetailed).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('You are Zavorth'),
-        }),
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('Reply in the same language the user used'),
-        }),
-        expect.objectContaining({
-          role: 'system',
-          content: expect.stringContaining('Natural First route: llm-reply'),
-        }),
-        expect.objectContaining({
-          role: 'user',
-          content: 'responda oi pelo runtime real',
-        }),
-      ]),
+      providerMessages,
       [],
       expect.objectContaining({
         allowFallback: true,
@@ -636,30 +680,36 @@ describe('AgentRunService', () => {
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Answer generated by the governed model loop.');
     expect(result.replies[0].text).toBe('Resposta natural via provider runtime.');
-    expect(result.run.modelProfile).toEqual(expect.objectContaining({
-      providerLabel: 'openai',
-      modelLabel: 'gpt-4o',
-      routingPolicy: 'direct',
-    }));
-    expect(result.run.metadata.governedExecutor).toEqual(expect.objectContaining({
-      id: 'zavorth-llm-runtime',
-    }));
-    expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(expect.objectContaining({
-      contractVersion: 'natural-first-llm-runtime/5',
-      stage: 5,
-      route: 'llm-reply',
-      providerConfigured: true,
-      providerUsed: true,
-      fallbackUsed: false,
-      generatedBy: 'llm-runtime',
-      providerName: 'openai',
-      modelName: 'gpt-4o',
-      safety: expect.objectContaining({
-        noToolExecution: true,
-        noApprovalBypass: true,
-        noExternalProviderCall: false,
+    expect(result.run.modelProfile).toEqual(
+      expect.objectContaining({
+        providerLabel: 'openai',
+        modelLabel: 'gpt-4o',
+        routingPolicy: 'direct',
       }),
-    }));
+    );
+    expect(result.run.metadata.governedExecutor).toEqual(
+      expect.objectContaining({
+        id: 'zavorth-llm-runtime',
+      }),
+    );
+    expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(
+      expect.objectContaining({
+        contractVersion: 'natural-first-llm-runtime/5',
+        stage: 5,
+        route: 'llm-reply',
+        providerConfigured: true,
+        providerUsed: true,
+        fallbackUsed: false,
+        generatedBy: 'llm-runtime',
+        providerName: 'openai',
+        modelName: 'gpt-4o',
+        safety: expect.objectContaining({
+          noToolExecution: true,
+          noApprovalBypass: true,
+          noExternalProviderCall: false,
+        }),
+      }),
+    );
   });
 
   it('exposes governed safe tool runtime tools to provider execution', async () => {
@@ -728,22 +778,18 @@ describe('AgentRunService', () => {
       },
     });
 
-    const [,, options] = (llmRuntime.chatDetailed as jest.Mock).mock.calls[0];
+    const [, options] = (llmRuntime.chatDetailed as jest.Mock).mock.calls[0];
     const tools = (llmRuntime.chatDetailed as jest.Mock).mock.calls[0][1];
     const toolNames = tools.map((tool: { name: string }) => tool.name);
-    expect(toolNames).toEqual(expect.arrayContaining([
-      'get_datetime',
-      'workspace.read',
-      'zavorth_action',
-    ]));
+    expect(toolNames).toEqual(expect.arrayContaining(['get_datetime', 'workspace.read', 'zavorth_action']));
     expect(toolNames).not.toContain('remote_shell');
-    expect(options).toEqual(expect.objectContaining({
-      toolPolicy: expect.objectContaining({
-        exposedTools: expect.arrayContaining([
-          expect.objectContaining({ id: 'get_datetime' }),
-        ]),
+    expect(options).toEqual(
+      expect.objectContaining({
+        toolPolicy: expect.objectContaining({
+          exposedTools: expect.arrayContaining([expect.objectContaining({ id: 'get_datetime' })]),
+        }),
       }),
-    }));
+    );
   });
 
   it('answers open-ended free text with an honest natural fallback when no provider is configured', async () => {
@@ -767,36 +813,46 @@ describe('AgentRunService', () => {
     expect(result.run.summary).toBe('A model is not configured yet, so Zavorth answered with setup guidance only.');
     expect(result.replies[0].text).toContain('no model is configured yet');
     expect(result.replies[0].text).toContain('Next:');
-    expect(result.run.metadata.naturalFirstRoute).toEqual(expect.objectContaining({
-      route: 'llm-reply',
-    }));
-    expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(expect.objectContaining({
-      contractVersion: 'natural-first-llm-runtime/5',
-      stage: 5,
-      route: 'llm-reply',
-      providerConfigured: false,
-      providerUsed: false,
-      fallbackUsed: true,
-      generatedBy: 'honest-local-fallback',
-      safety: expect.objectContaining({
-        noToolExecution: true,
-        noApprovalBypass: true,
-        noExternalProviderCall: true,
-      }),
-    }));
-    expect(result.run.metadata.executorResolution).toEqual(expect.objectContaining({
-      status: 'missing-llm-provider',
-      gracefulFallback: true,
-    }));
-    expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
-      selected: 'missing',
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.naturalFirstRoute).toEqual(
       expect.objectContaining({
-        title: 'Model setup needed',
-        status: 'done',
+        route: 'llm-reply',
       }),
-    ]));
+    );
+    expect(result.run.metadata.naturalFirstLlmRuntime).toEqual(
+      expect.objectContaining({
+        contractVersion: 'natural-first-llm-runtime/5',
+        stage: 5,
+        route: 'llm-reply',
+        providerConfigured: false,
+        providerUsed: false,
+        fallbackUsed: true,
+        generatedBy: 'honest-local-fallback',
+        safety: expect.objectContaining({
+          noToolExecution: true,
+          noApprovalBypass: true,
+          noExternalProviderCall: true,
+        }),
+      }),
+    );
+    expect(result.run.metadata.executorResolution).toEqual(
+      expect.objectContaining({
+        status: 'missing-llm-provider',
+        gracefulFallback: true,
+      }),
+    );
+    expect(result.run.metadata.executorBoundary).toEqual(
+      expect.objectContaining({
+        selected: 'missing',
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Model setup needed',
+          status: 'done',
+        }),
+      ]),
+    );
   });
 
   it('uses the shared Model Picker selection for provider execution and route explainability', async () => {
@@ -874,43 +930,51 @@ describe('AgentRunService', () => {
         }),
       }),
     );
-    expect(result.run.modelProfile).toEqual(expect.objectContaining({
-      providerLabel: 'gemini',
-      modelLabel: 'gemini-2.5-flash',
-      routingPolicy: 'direct',
-      routeId: 'gemini',
-      familyId: 'gemini',
-      selectionSource: 'current-config',
-      readiness: 'ready',
-      ready: true,
-      fallbackOrder: ['gemini', 'openai'],
-    }));
-    expect(result.run.metadata.modelPickerSelection).toEqual(expect.objectContaining({
-      providerName: 'gemini',
-      modelName: 'gemini-2.5-flash',
-      routeId: 'gemini',
-      readiness: 'ready',
-    }));
-    expect(result.run.metadata.providerRouteBudgetCorrelation).toEqual(expect.objectContaining({
-      providerName: 'gemini',
-      modelName: 'gemini-2.5-flash',
-      modelPicker: expect.objectContaining({
-        providerName: 'gemini',
-        modelName: 'gemini-2.5-flash',
-        matchedEffectiveProvider: true,
+    expect(result.run.modelProfile).toEqual(
+      expect.objectContaining({
+        providerLabel: 'gemini',
+        modelLabel: 'gemini-2.5-flash',
+        routingPolicy: 'direct',
+        routeId: 'gemini',
+        familyId: 'gemini',
+        selectionSource: 'current-config',
+        readiness: 'ready',
+        ready: true,
         fallbackOrder: ['gemini', 'openai'],
       }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    );
+    expect(result.run.metadata.modelPickerSelection).toEqual(
       expect.objectContaining({
-        title: 'Model Picker aplicado',
-        metadata: expect.objectContaining({
-          selected: expect.objectContaining({
-            providerName: 'gemini',
-          }),
+        providerName: 'gemini',
+        modelName: 'gemini-2.5-flash',
+        routeId: 'gemini',
+        readiness: 'ready',
+      }),
+    );
+    expect(result.run.metadata.providerRouteBudgetCorrelation).toEqual(
+      expect.objectContaining({
+        providerName: 'gemini',
+        modelName: 'gemini-2.5-flash',
+        modelPicker: expect.objectContaining({
+          providerName: 'gemini',
+          modelName: 'gemini-2.5-flash',
+          matchedEffectiveProvider: true,
+          fallbackOrder: ['gemini', 'openai'],
         }),
       }),
-    ]));
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Model Picker aplicado',
+          metadata: expect.objectContaining({
+            selected: expect.objectContaining({
+              providerName: 'gemini',
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   it('assembles canonical hot/warm/cold context before policy and provider execution', async () => {
@@ -1002,27 +1066,33 @@ describe('AgentRunService', () => {
     expect(systemMessage).toContain('Memory: prefer short answers.');
     expect(systemMessage).toContain('Skill: workspace-reporter available only if trusted.');
     expect(systemMessage).toContain('MCP snapshot available');
-    expect(result.run.metadata.canonicalContextSummary).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      depth: 'cold',
-      layers: ['hot', 'warm', 'cold'],
-      hasWorkspacePrompt: true,
-      hasMemoryPrompt: true,
-      hasSkillPrompt: true,
-      hasMcpSnapshot: true,
-      toolExposureGatedByContextProfile: false,
-    }));
-    expect((result.run.metadata.canonicalContext as any).profile).toEqual(expect.objectContaining({
-      depth: 'cold',
-      gatesToolExposure: false,
-    }));
-    expect(result.run.toolExposure.tools.map((tool) => tool.id)).toEqual(expect.arrayContaining(['read_file']));
-    expect(result.run.toolExposure.blockedTools).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.canonicalContextSummary).toEqual(
       expect.objectContaining({
-        id: 'unsafe_imported_tool',
-        reason: 'blocked-by-imported-capability-trust',
+        source: 'AgentRunService',
+        depth: 'cold',
+        layers: ['hot', 'warm', 'cold'],
+        hasWorkspacePrompt: true,
+        hasMemoryPrompt: true,
+        hasSkillPrompt: true,
+        hasMcpSnapshot: true,
+        toolExposureGatedByContextProfile: false,
       }),
-    ]));
+    );
+    expect((result.run.metadata.canonicalContext as any).profile).toEqual(
+      expect.objectContaining({
+        depth: 'cold',
+        gatesToolExposure: false,
+      }),
+    );
+    expect(result.run.toolExposure.tools.map((tool) => tool.id)).toEqual(expect.arrayContaining(['read_file']));
+    expect(result.run.toolExposure.blockedTools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'unsafe_imported_tool',
+          reason: 'blocked-by-imported-capability-trust',
+        }),
+      ]),
+    );
   });
 
   it('correlates LLM route receipts with run budget and effective model profile', async () => {
@@ -1085,45 +1155,53 @@ describe('AgentRunService', () => {
       },
     });
 
-    expect(result.run.modelProfile).toEqual(expect.objectContaining({
-      providerLabel: 'openai',
-      modelLabel: 'gpt-4.1-mini',
-      routingPolicy: 'fallback',
-      fallbackModelLabel: 'gpt-4.1-mini',
-    }));
-    expect(result.run.metadata.llmRuntimeRoute).toEqual(routeReceipt);
-    expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
-      source: 'AgentRunExecutorBoundary',
-      stage: 8,
-      selected: 'custom-executor',
-    }));
-    expect(result.run.metadata.providerRouteBudgetCorrelation).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      routeSource: 'LlmRuntimeService',
-      providerName: 'openai',
-      modelName: 'gpt-4.1-mini',
-      primaryProviderName: 'openrouter',
-      routingPolicy: 'fallback',
-      fallbackUsed: true,
-      providerAttemptCount: 2,
-      unavailableProviderCount: 1,
-      budget: expect.objectContaining({
-        source: 'RunBudgetPolicy',
-        degraded: false,
-        estimatedCostUnits: 2,
-        maxEstimatedCostUnits: 5,
-      }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.modelProfile).toEqual(
       expect.objectContaining({
-        kind: 'status',
-        title: 'Rota LLM correlacionada',
-        metadata: expect.objectContaining({
-          providerName: 'openai',
-          fallbackUsed: true,
+        providerLabel: 'openai',
+        modelLabel: 'gpt-4.1-mini',
+        routingPolicy: 'fallback',
+        fallbackModelLabel: 'gpt-4.1-mini',
+      }),
+    );
+    expect(result.run.metadata.llmRuntimeRoute).toEqual(routeReceipt);
+    expect(result.run.metadata.executorBoundary).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunExecutorBoundary',
+        stage: 8,
+        selected: 'custom-executor',
+      }),
+    );
+    expect(result.run.metadata.providerRouteBudgetCorrelation).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        routeSource: 'LlmRuntimeService',
+        providerName: 'openai',
+        modelName: 'gpt-4.1-mini',
+        primaryProviderName: 'openrouter',
+        routingPolicy: 'fallback',
+        fallbackUsed: true,
+        providerAttemptCount: 2,
+        unavailableProviderCount: 1,
+        budget: expect.objectContaining({
+          source: 'RunBudgetPolicy',
+          degraded: false,
+          estimatedCostUnits: 2,
+          maxEstimatedCostUnits: 5,
         }),
       }),
-    ]));
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'status',
+          title: 'Rota LLM correlacionada',
+          metadata: expect.objectContaining({
+            providerName: 'openai',
+            fallbackUsed: true,
+          }),
+        }),
+      ]),
+    );
   });
 
   it('uses toolHintProfile as ToolExposurePolicy input without turning it into a gate', async () => {
@@ -1159,10 +1237,12 @@ describe('AgentRunService', () => {
 
     expect(executor).toHaveBeenCalledTimes(1);
     expect(result.ok).toBe(true);
-    expect(result.run.toolExposure).toEqual(expect.objectContaining({
-      mode: 'safe',
-      summary: '2 tools exposed with safe policy.',
-    }));
+    expect(result.run.toolExposure).toEqual(
+      expect.objectContaining({
+        mode: 'safe',
+        summary: '2 tools exposed with safe policy.',
+      }),
+    );
     expect(result.run.toolExposure.tools).toEqual([
       expect.objectContaining({
         id: 'read_file',
@@ -1175,19 +1255,23 @@ describe('AgentRunService', () => {
         requiresApproval: false,
       }),
     ]);
-    expect(result.run.metadata.toolExposureHint).toEqual(expect.objectContaining({
-      source: 'toolHintProfile',
-      intentCategory: 'file_operation',
-      groups: ['workspace'],
-      recommendedToolNames: ['read_file', 'list_directory'],
-      toolExposureGatedByCognitiveFirewall: false,
-      isHardGate: false,
-      usedAsPolicyInput: true,
-      reason: expect.stringContaining('workspace-reference'),
-    }));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Hints reconciliados.',
-    }));
+    expect(result.run.metadata.toolExposureHint).toEqual(
+      expect.objectContaining({
+        source: 'toolHintProfile',
+        intentCategory: 'file_operation',
+        groups: ['workspace'],
+        recommendedToolNames: ['read_file', 'list_directory'],
+        toolExposureGatedByCognitiveFirewall: false,
+        isHardGate: false,
+        usedAsPolicyInput: true,
+        reason: expect.stringContaining('workspace-reference'),
+      }),
+    );
+    expect(result.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'Hints reconciliados.',
+      }),
+    );
   });
 
   it('governs Echo Hands through tool exposure policy before any executor can run it', async () => {
@@ -1211,21 +1295,19 @@ describe('AgentRunService', () => {
 
     expect(executor).not.toHaveBeenCalled();
     expect(result.run.status).toBe('waiting_approval');
-    expect(result.run.toolExposure).toEqual(expect.objectContaining({
-      mode: 'restricted',
-      summary: '1 tool exposed with restricted policy.',
-    }));
+    expect(result.run.toolExposure).toEqual(
+      expect.objectContaining({
+        mode: 'restricted',
+        summary: '1 tool exposed with restricted policy.',
+      }),
+    );
     expect(result.run.toolExposure.tools).toEqual([
       expect.objectContaining({
         id: 'echo_hands',
         group: 'local_control',
         risk: 'danger',
         requiresApproval: true,
-        policyTags: expect.arrayContaining([
-          'capability:echo',
-          'group:local_control',
-          'approval-required',
-        ]),
+        policyTags: expect.arrayContaining(['capability:echo', 'group:local_control', 'approval-required']),
       }),
     ]);
     expect(result.run.approvals).toEqual([
@@ -1235,39 +1317,47 @@ describe('AgentRunService', () => {
         status: 'pending',
       }),
     ]);
-    expect(result.run.metadata.toolRehearsal).toEqual(expect.objectContaining({
-      status: 'waiting-approval',
-      approvalCreated: true,
-      summary: expect.objectContaining({
-        callCount: 1,
-        approvalRequired: true,
-      }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.toolRehearsal).toEqual(
       expect.objectContaining({
-        title: 'Tool Rehearsal',
-        status: 'pending',
-        metadata: expect.objectContaining({
-          source: 'ToolRehearsalService',
-          noToolExecuted: true,
+        status: 'waiting-approval',
+        approvalCreated: true,
+        summary: expect.objectContaining({
+          callCount: 1,
+          approvalRequired: true,
         }),
       }),
-    ]));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: expect.stringContaining('Tool Rehearsal - Tool Rehearsal'),
-    }));
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          title: 'Tool Rehearsal',
+          status: 'pending',
+          metadata: expect.objectContaining({
+            source: 'ToolRehearsalService',
+            noToolExecuted: true,
+          }),
+        }),
+      ]),
+    );
+    expect(result.replies[0]).toEqual(
+      expect.objectContaining({
+        text: expect.stringContaining('Tool Rehearsal - Tool Rehearsal'),
+      }),
+    );
   });
 
   it('executes approved Echo Hands through the existing tool runtime when available', async () => {
     const toolRuntime = {
       isAvailable: jest.fn(() => true),
       hasTool: jest.fn((toolName: string) => toolName === 'echo_hands'),
-      executeTool: jest.fn().mockResolvedValue(JSON.stringify({
-        ok: true,
-        action: 'browser_search',
-        message: 'Busca enviada para youtube.',
-        approvalRequired: false,
-      })),
+      executeTool: jest.fn().mockResolvedValue(
+        JSON.stringify({
+          ok: true,
+          action: 'browser_search',
+          message: 'Busca enviada para youtube.',
+          approvalRequired: false,
+        }),
+      ),
     };
     const service = new AgentRunService({
       now: () => new Date('2026-04-27T12:14:00.000Z'),
@@ -1300,63 +1390,74 @@ describe('AgentRunService', () => {
     const pending = await service.run(request);
     const result = await service.resumeApprovedRun(pending.run, request);
 
-    expect(toolRuntime.executeTool).toHaveBeenCalledWith('echo_hands', expect.objectContaining({
-      action: 'browser_search',
-      args: {
-        engine: 'youtube',
-        query: 'Zavorth runtime',
-      },
-      trusted: true,
-      metadata: expect.objectContaining({
-        runId: pending.run.id,
-        sessionId: 'session-echo-hands-approved',
-        governedBy: 'ToolExposurePolicy',
-      }),
-    }));
-    expect(result.run.status).toBe('completed');
-    expect(result.run.summary).toBe('Echo Hands executado via tool runtime governado.');
-    expect(result.run.metadata.echoHands).toEqual(expect.objectContaining({
-      source: 'AgentRunService',
-      executed: true,
-      toolRuntimeAvailable: true,
-      governedBy: 'ToolExposurePolicy',
-    }));
-    expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
-      source: 'AgentRunExecutorBoundary',
-      stage: 8,
-      selected: 'tool-runtime',
-    }));
-    expect(result.run.metadata.lifecycleDefense).toEqual(expect.objectContaining({
-      resume: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'resume',
-        risk: 'danger',
-        blocked: false,
-        approvalRequiredToolIds: ['echo_hands'],
-      }),
-      postExecutor: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'post-executor',
-        risk: 'danger',
-        blocked: false,
-        approvalRequiredToolIds: ['echo_hands'],
-      }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(toolRuntime.executeTool).toHaveBeenCalledWith(
+      'echo_hands',
       expect.objectContaining({
-        kind: 'status',
-        title: 'Defense hook resume',
-        status: 'done',
-      }),
-      expect.objectContaining({
-        kind: 'tool',
-        title: 'echo_hands',
-        status: 'done',
+        action: 'browser_search',
+        args: {
+          engine: 'youtube',
+          query: 'Zavorth runtime',
+        },
+        trusted: true,
         metadata: expect.objectContaining({
-          source: 'ToolRuntimeService',
+          runId: pending.run.id,
+          sessionId: 'session-echo-hands-approved',
+          governedBy: 'ToolExposurePolicy',
         }),
       }),
-    ]));
+    );
+    expect(result.run.status).toBe('completed');
+    expect(result.run.summary).toBe('Echo Hands executed via governed tool runtime.');
+    expect(result.run.metadata.echoHands).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunService',
+        executed: true,
+        toolRuntimeAvailable: true,
+        governedBy: 'ToolExposurePolicy',
+      }),
+    );
+    expect(result.run.metadata.executorBoundary).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunExecutorBoundary',
+        stage: 8,
+        selected: 'tool-runtime',
+      }),
+    );
+    expect(result.run.metadata.lifecycleDefense).toEqual(
+      expect.objectContaining({
+        resume: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'resume',
+          risk: 'danger',
+          blocked: false,
+          approvalRequiredToolIds: ['echo_hands'],
+        }),
+        postExecutor: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'post-executor',
+          risk: 'danger',
+          blocked: false,
+          approvalRequiredToolIds: ['echo_hands'],
+        }),
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'status',
+          title: 'Defense hook resume',
+          status: 'done',
+        }),
+        expect.objectContaining({
+          kind: 'tool',
+          title: 'echo_hands',
+          status: 'done',
+          metadata: expect.objectContaining({
+            source: 'ToolRuntimeService',
+          }),
+        }),
+      ]),
+    );
   });
 
   it('records a defense hook when execution is interrupted by an executor failure', async () => {
@@ -1386,31 +1487,35 @@ describe('AgentRunService', () => {
 
     expect(result.ok).toBe(false);
     expect(result.run.status).toBe('failed');
-    expect(result.run.metadata.lifecycleDefense).toEqual(expect.objectContaining({
-      preExecutor: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'pre-executor',
-        blocked: false,
-      }),
-      interrupted: expect.objectContaining({
-        source: 'AgentRunRiskHooks',
-        stage: 'interrupted',
-        blocked: false,
-        risk: 'safe',
-      }),
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.lifecycleDefense).toEqual(
       expect.objectContaining({
-        kind: 'error',
-        title: 'Falha estruturada do executor',
-        status: 'failed',
+        preExecutor: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'pre-executor',
+          blocked: false,
+        }),
+        interrupted: expect.objectContaining({
+          source: 'AgentRunRiskHooks',
+          stage: 'interrupted',
+          blocked: false,
+          risk: 'safe',
+        }),
       }),
-      expect.objectContaining({
-        kind: 'status',
-        title: 'Defense hook interrupted',
-        status: 'done',
-      }),
-    ]));
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'error',
+          title: 'Falha estruturada do executor',
+          status: 'failed',
+        }),
+        expect.objectContaining({
+          kind: 'status',
+          title: 'Defense hook interrupted',
+          status: 'done',
+        }),
+      ]),
+    );
   });
 
   it('degrades honestly when approved Echo Hands is not available in the tool runtime', async () => {
@@ -1442,23 +1547,29 @@ describe('AgentRunService', () => {
 
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Echo Hands unavailable in the tool runtime for this execution.');
-    expect(result.run.metadata.echoHands).toEqual(expect.objectContaining({
-      executed: false,
-      reason: 'echo-hands-unavailable',
-      governedBy: 'ToolExposurePolicy',
-    }));
-    expect(result.run.metadata.executorBoundary).toEqual(expect.objectContaining({
-      source: 'AgentRunExecutorBoundary',
-      stage: 8,
-      selected: 'tool-runtime',
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.echoHands).toEqual(
       expect.objectContaining({
-        kind: 'tool',
-        title: 'echo_hands',
-        status: 'failed',
+        executed: false,
+        reason: 'echo-hands-unavailable',
+        governedBy: 'ToolExposurePolicy',
       }),
-    ]));
+    );
+    expect(result.run.metadata.executorBoundary).toEqual(
+      expect.objectContaining({
+        source: 'AgentRunExecutorBoundary',
+        stage: 8,
+        selected: 'tool-runtime',
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'tool',
+          title: 'echo_hands',
+          status: 'failed',
+        }),
+      ]),
+    );
   });
 
   it('promotes cold context trust reports into observable run metadata', async () => {
@@ -1521,42 +1632,48 @@ describe('AgentRunService', () => {
     });
 
     expect(executor).toHaveBeenCalledTimes(1);
-    expect(executor.mock.calls[0][0].run.metadata.importedCapabilityTrust).toEqual(expect.objectContaining({
-      source: 'ColdContextResolver',
-      hasQuarantined: true,
-      blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
-      toolExposureGatedByImportedCapabilityTrust: true,
-    }));
-    expect(result.run.metadata.importedCapabilityTrust).toEqual(expect.objectContaining({
-      skill: {
-        trusted: 1,
-        safe: 0,
-        quarantined: 1,
-      },
-      mcp: {
-        trusted: 1,
-        safe: 0,
-        quarantined: 1,
-      },
-      total: {
-        trusted: 2,
-        safe: 0,
-        quarantined: 2,
-      },
-      blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
-    }));
-    expect((result.run.metadata.importedCapabilityTrust as any).riskReports).toEqual(expect.arrayContaining([
+    expect(executor.mock.calls[0][0].run.metadata.importedCapabilityTrust).toEqual(
       expect.objectContaining({
-        kind: 'skill',
-        id: 'imported-skill-draft',
-        trustState: 'quarantined',
+        source: 'ColdContextResolver',
+        hasQuarantined: true,
+        blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
+        toolExposureGatedByImportedCapabilityTrust: true,
       }),
+    );
+    expect(result.run.metadata.importedCapabilityTrust).toEqual(
       expect.objectContaining({
-        kind: 'mcp',
-        id: 'imported-draft',
-        trustState: 'quarantined',
+        skill: {
+          trusted: 1,
+          safe: 0,
+          quarantined: 1,
+        },
+        mcp: {
+          trusted: 1,
+          safe: 0,
+          quarantined: 1,
+        },
+        total: {
+          trusted: 2,
+          safe: 0,
+          quarantined: 2,
+        },
+        blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
       }),
-    ]));
+    );
+    expect((result.run.metadata.importedCapabilityTrust as any).riskReports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'skill',
+          id: 'imported-skill-draft',
+          trustState: 'quarantined',
+        }),
+        expect.objectContaining({
+          kind: 'mcp',
+          id: 'imported-draft',
+          trustState: 'quarantined',
+        }),
+      ]),
+    );
     expect(result.run.summary).toBe('Quarentena observavel: 2.');
   });
 
@@ -1612,11 +1729,13 @@ describe('AgentRunService', () => {
       'read_file',
       'list_directory',
     ]);
-    expect(result.run.toolExposure).toEqual(expect.objectContaining({
-      mode: 'safe',
-      summary: '2 tools exposed with safe policy. 2 tools blocked by quarantine.',
-      toolExposureGatedByImportedCapabilityTrust: true,
-    }));
+    expect(result.run.toolExposure).toEqual(
+      expect.objectContaining({
+        mode: 'safe',
+        summary: '2 tools exposed with safe policy. 2 tools blocked by quarantine.',
+        toolExposureGatedByImportedCapabilityTrust: true,
+      }),
+    );
     expect(result.run.toolExposure.blockedTools).toEqual([
       expect.objectContaining({
         id: 'unsafe_imported_tool',
@@ -1627,10 +1746,12 @@ describe('AgentRunService', () => {
         reason: 'blocked-by-imported-capability-trust',
       }),
     ]);
-    expect(result.run.metadata.importedCapabilityTrust).toEqual(expect.objectContaining({
-      blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
-      toolExposureGatedByImportedCapabilityTrust: true,
-    }));
+    expect(result.run.metadata.importedCapabilityTrust).toEqual(
+      expect.objectContaining({
+        blockedTools: expect.arrayContaining(['unsafe_imported_tool', 'unsafe_remote_tool']),
+        toolExposureGatedByImportedCapabilityTrust: true,
+      }),
+    );
     expect(result.run.summary).toBe('Tools permitidas: read_file, list_directory.');
   });
 
@@ -1657,27 +1778,33 @@ describe('AgentRunService', () => {
     expect(result.ok).toBe(true);
     expect(result.run.status).toBe('completed');
     expect(result.run.summary).toBe('Run degraded by minimum budget before the executor: input-too-large.');
-    expect(result.run.events).toEqual(expect.arrayContaining([
-      expect.objectContaining({
-        kind: 'status',
-        title: 'Minimum budget applied',
-        status: 'done',
-        metadata: expect.objectContaining({
-          reason: 'input-too-large',
-          degraded: true,
-          toolExposureGatedByRunBudget: false,
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'status',
+          title: 'Minimum budget applied',
+          status: 'done',
+          metadata: expect.objectContaining({
+            reason: 'input-too-large',
+            degraded: true,
+            toolExposureGatedByRunBudget: false,
+          }),
         }),
+      ]),
+    );
+    expect(result.run.metadata.runBudget).toEqual(
+      expect.objectContaining({
+        source: 'RunBudgetPolicy',
+        reason: 'input-too-large',
+        maxInputChars: 16,
+        degraded: true,
       }),
-    ]));
-    expect(result.run.metadata.runBudget).toEqual(expect.objectContaining({
-      source: 'RunBudgetPolicy',
-      reason: 'input-too-large',
-      maxInputChars: 16,
-      degraded: true,
-    }));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Run degraded by minimum budget before the executor: input-too-large.',
-    }));
+    );
+    expect(result.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'Run degraded by minimum budget before the executor: input-too-large.',
+      }),
+    );
   });
 
   it('converts executor exceptions into structured failure semantics', async () => {
@@ -1707,27 +1834,33 @@ describe('AgentRunService', () => {
     expect(result.ok).toBe(false);
     expect(result.run.status).toBe('failed');
     expect(result.run.summary).toBe('provider timeout');
-    expect(result.run.metadata.failureSemantics).toEqual(expect.objectContaining({
-      source: 'executor',
-      code: 'ETIMEDOUT',
-      message: 'provider timeout',
-      retryable: true,
-      severity: 'warning',
-    }));
-    expect(result.run.events).toEqual(expect.arrayContaining([
+    expect(result.run.metadata.failureSemantics).toEqual(
       expect.objectContaining({
-        kind: 'error',
-        title: 'Falha estruturada do executor',
-        status: 'failed',
-        metadata: expect.objectContaining({
-          failureSemantics: expect.objectContaining({
-            retryable: true,
+        source: 'executor',
+        code: 'ETIMEDOUT',
+        message: 'provider timeout',
+        retryable: true,
+        severity: 'warning',
+      }),
+    );
+    expect(result.run.events).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'error',
+          title: 'Falha estruturada do executor',
+          status: 'failed',
+          metadata: expect.objectContaining({
+            failureSemantics: expect.objectContaining({
+              retryable: true,
+            }),
           }),
         }),
+      ]),
+    );
+    expect(result.replies[0]).toEqual(
+      expect.objectContaining({
+        text: 'Falha estruturada no executor: provider timeout. Pode ser tentado novamente.',
       }),
-    ]));
-    expect(result.replies[0]).toEqual(expect.objectContaining({
-      text: 'Falha estruturada no executor: provider timeout. Pode ser tentado novamente.',
-    }));
+    );
   });
 });

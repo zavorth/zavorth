@@ -10,15 +10,9 @@ import {
   type ZavorthTransactionRuntimeStageReceipt,
   type ZavorthTransactionRuntimeStatus,
 } from '../contracts/ZavorthTransactionRuntimeContract.js';
-import type {
-  ZavorthTransactionApprovalLedgerEntry,
-} from '../contracts/ZavorthTransactionApprovalContract.js';
-import type {
-  ZavorthTransactionConnectorMode,
-} from '../contracts/ZavorthTransactionConnectorContract.js';
-import type {
-  ZavorthTransactionCredentialValidationResult,
-} from '../contracts/ZavorthTransactionCredentialContract.js';
+import type { ZavorthTransactionApprovalLedgerEntry } from '../contracts/ZavorthTransactionApprovalContract.js';
+import type { ZavorthTransactionConnectorMode } from '../contracts/ZavorthTransactionConnectorContract.js';
+import type { ZavorthTransactionCredentialValidationResult } from '../contracts/ZavorthTransactionCredentialContract.js';
 
 import { ZavorthTransactionConnectorRegistryService } from './ZavorthTransactionConnectorRegistryService.js';
 import { ZavorthTransactionCredentialRefService } from './ZavorthTransactionCredentialRefService.js';
@@ -56,6 +50,9 @@ export class ZavorthTransactionRuntimeOrchestratorService {
     const mode = input.mode ?? 'dry-run';
     const preview = this.previewService.buildPreview({
       text: input.text,
+      kind: input.kind,
+      actionKind: input.actionKind,
+      targetKind: input.targetKind,
       channel: input.channel ?? 'transaction-runtime',
       now,
     });
@@ -180,7 +177,9 @@ export class ZavorthTransactionRuntimeOrchestratorService {
       approvalEntry,
       connectorId: input.connectorId,
       mode,
-      credentialRef: credentialValidation?.canUseForConnectorRun ? credentialValidation.ref : input.credentialRef ?? null,
+      credentialRef: credentialValidation?.canUseForConnectorRun
+        ? credentialValidation.ref
+        : (input.credentialRef ?? null),
       now,
     });
     phaseReceipts.push({
@@ -309,7 +308,7 @@ function buildRuntimeId(text: string, mode: ZavorthTransactionConnectorMode, now
 function sanitizeText(text: string): string {
   return text
     .replace(/\b(api[_-]?key|token|secret|private[_-]?key|senha|password)\b\s*[:=]\s*([^\s,;]+)/gi, '$1=[REDACTED]')
-    .replace(/\b(sk-[A-Za-z0-9_-]{12,}|pk_live_[A-Za-z0-9_-]{12,}|rk_live_[A-Za-z0-9_-]{12,})\b/g, '[REDACTED_SECRET]');
+    .replace(/\b(sk-[A-Za-z0-9_-]{12}|pk_live_[A-Za-z0-9_-]{12}|rk_live_[A-Za-z0-9_-]{12})\b/g, '[REDACTED_SECRET]');
 }
 
 function unique(values: string[]): string[] {
