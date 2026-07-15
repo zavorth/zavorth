@@ -33,13 +33,30 @@ type CliOptions = {
   requireStrongIsolation: boolean;
   dryRun: boolean;
   timeoutMs: number | null;
+  consent: boolean;
+  capabilitiesFile: string | null;
+  skillId: string | null;
+  allowedCapabilities: string[];
 };
 
 function parseArgs(argv: string[]): CliOptions {
-  const action = String(argv[0] || 'list').trim().toLowerCase();
-  const args = action === 'register' || action === 'run' || action === 'list' ? argv.slice(1) : argv;
+  const action = String(argv[0] || 'list')
+    .trim()
+    .toLowerCase();
+  const knownActions = new Set([
+    'register',
+    'run',
+    'invoke',
+    'list',
+    'list-capabilities',
+    'capabilities',
+    'import-capabilities',
+    'import-caps',
+    'import',
+  ]);
+  const args = knownActions.has(action) ? argv.slice(1) : argv;
   return {
-    action,
+    action: knownActions.has(action) ? action : 'list',
     json: args.includes('--json'),
     id: readFlexibleStringFlag(args, 'id'),
     label: readFlexibleStringFlag(args, 'label'),
@@ -51,43 +68,58 @@ function parseArgs(argv: string[]): CliOptions {
     prompt: readFlexibleStringFlag(args, 'prompt') || readFlexibleStringFlag(args, 'message'),
     promptMode: normalizePromptMode(readFlexibleStringFlag(args, 'prompt-mode')),
     approvalRegistration: args.includes('--approve-registration') || args.includes('--approve'),
-    approvalExecution: args.includes('--approve-external-execution') || args.includes('--approve-run') || args.includes('--approve'),
+    approvalExecution:
+      args.includes('--approve-external-execution') || args.includes('--approve-run') || args.includes('--approve'),
     enableLive: args.includes('--enable-live'),
     allowRemoteNetwork: args.includes('--allow-remote-network'),
     isolation: normalizeIsolation(readFlexibleStringFlag(args, 'isolation') || readFlexibleStringFlag(args, 'sandbox')),
     dockerImage: readFlexibleStringFlag(args, 'docker-image') || readFlexibleStringFlag(args, 'sandbox-image'),
     wslDistro: readFlexibleStringFlag(args, 'wsl-distro'),
     workspaceMount: readFlexibleStringFlag(args, 'workspace-mount') || readFlexibleStringFlag(args, 'mount'),
-    sandboxWorkdir: readFlexibleStringFlag(args, 'sandbox-workdir') || readFlexibleStringFlag(args, 'container-workdir'),
+    sandboxWorkdir:
+      readFlexibleStringFlag(args, 'sandbox-workdir') || readFlexibleStringFlag(args, 'container-workdir'),
     network: normalizeNetwork(readFlexibleStringFlag(args, 'network')),
     readOnlyRoot: args.includes('--read-only-root'),
     requireStrongIsolation: args.includes('--require-strong-isolation'),
     dryRun: args.includes('--dry-run'),
     timeoutMs: readNumberFlag(args, 'timeout-ms'),
+    consent: args.includes('--consent') || args.includes('--yes'),
+    capabilitiesFile: readFlexibleStringFlag(args, 'capabilities-file') || readFlexibleStringFlag(args, 'caps-file'),
+    skillId: readFlexibleStringFlag(args, 'skill-id') || readFlexibleStringFlag(args, 'skill'),
+    allowedCapabilities: parseArgsArray(
+      readFlexibleStringFlag(args, 'capabilities-json'),
+      readFlexibleStringFlag(args, 'capabilities'),
+    ),
   };
 }
 
 async function main(): Promise<void> {
   const rawArgs = process.argv.slice(2);
   if (rawArgs.includes('--help') || rawArgs.includes('-h')) {
-    process.stdout.write([
-      'External Agent Gateway',
-      '',
-      'Usage:',
-      '  zavorth external-agent list',
-      '  zavorth external-agent register --id claude --adapter cli --command claude --approve-registration --enable-live',
-      '  zavorth external-agent register --id safe-agent --adapter cli --command agent --isolation docker --docker-image my-agent:latest --approve-registration --enable-live',
-      '  zavorth external-agent register --id local-acp --adapter acp --approve-registration --enable-live',
-      '  zavorth external-agent run --id claude --prompt "review this module" --approve-external-execution',
-      '',
-      'Safety:',
-      '  Registration previews unless --approve-registration is present.',
-      '  Invocation previews unless --approve-external-execution is present.',
-      '  CLI runs use spawn without shell interpolation and receive a reduced environment.',
-      '  Untrusted CLI profiles can require strong isolation via --require-strong-isolation and --isolation docker|wsl.',
-      '  HTTP/MCP remote network endpoints are blocked unless --allow-remote-network is set on registration.',
-      '',
-    ].join('\n'));
+    process.stdout.write(
+      [
+        'External Agent Gateway',
+        '',
+        'Usage:',
+        '  zavorth external-agent list',
+        '  zavorth external-agent register --id my-agent --adapter cli|http|acp|mcp --command … --approve-registration --enable-live',
+        '  zavorth external-agent register --id safe-agent --adapter cli --command agent --isolation docker --docker-image my-agent:latest --approve-registration --enable-live',
+        '  zavorth external-agent register --id local-acp --adapter acp --approve-registration --enable-live',
+        '  zavorth external-agent run --id my-agent --prompt "review this module" --approve-external-execution',
+        '  zavorth external-agent list-capabilities --id my-agent [--capabilities-file path]',
+        '  zavorth external-agent import-capabilities --id my-agent --consent [--skill-id name]',
+        '',
+        'Safety:',
+        '  Registration previews unless --approve-registration is present.',
+        '  Invocation previews unless --approve-external-execution is present.',
+        '  Capability list/import is offline (no process spawn); live invoke stays approval-gated.',
+        '  Import requires --consent and writes a SkillIR pack under skills/ (never auto-import).',
+        '  CLI runs use spawn without shell interpolation and receive a reduced environment.',
+        '  Untrusted CLI profiles can require strong isolation via --require-strong-isolation and --isolation docker|wsl.',
+        '  HTTP/MCP remote network endpoints are blocked unless --allow-remote-network is set on registration.',
+        '',
+      ].join('\n'),
+    );
     return;
   }
 
@@ -104,6 +136,7 @@ async function main(): Promise<void> {
       args: options.args,
       endpoint: options.endpoint,
       promptMode: options.promptMode,
+      allowedCapabilities: options.allowedCapabilities.length ? options.allowedCapabilities : undefined,
       enableLive: options.enableLive,
       allowRemoteNetwork: options.allowRemoteNetwork,
       isolation: options.isolation,
@@ -117,7 +150,9 @@ async function main(): Promise<void> {
       approvalGranted: options.approvalRegistration,
       requestedBy: 'cli-operator',
     });
-    process.stdout.write(options.json ? `${JSON.stringify(receipt, null, 2)}\n` : `${service.renderReceiptText(receipt)}\n`);
+    process.stdout.write(
+      options.json ? `${JSON.stringify(receipt, null, 2)}\n` : `${service.renderReceiptText(receipt)}\n`,
+    );
     return;
   }
 
@@ -130,7 +165,43 @@ async function main(): Promise<void> {
       timeoutMs: options.timeoutMs,
       requestedBy: 'cli-operator',
     });
-    process.stdout.write(options.json ? `${JSON.stringify(receipt, null, 2)}\n` : `${service.renderReceiptText(receipt)}\n`);
+    process.stdout.write(
+      options.json ? `${JSON.stringify(receipt, null, 2)}\n` : `${service.renderReceiptText(receipt)}\n`,
+    );
+    return;
+  }
+
+  if (options.action === 'list-capabilities' || options.action === 'capabilities') {
+    if (!options.id) {
+      process.stderr.write('Usage: zavorth external-agent list-capabilities --id <profile>\n');
+      process.exitCode = 1;
+      return;
+    }
+    const listed = service.listCapabilities({
+      profileId: options.id,
+      capabilitiesFile: options.capabilitiesFile,
+    });
+    process.stdout.write(options.json ? `${JSON.stringify(listed, null, 2)}\n` : `${listed.formatText()}\n`);
+    if (!listed.ok) process.exitCode = 1;
+    return;
+  }
+
+  if (options.action === 'import-capabilities' || options.action === 'import-caps' || options.action === 'import') {
+    if (!options.id) {
+      process.stderr.write('Usage: zavorth external-agent import-capabilities --id <profile> --consent\n');
+      process.exitCode = 1;
+      return;
+    }
+    const imported = service.importCapabilities({
+      profileId: options.id,
+      consent: options.consent,
+      capabilitiesFile: options.capabilitiesFile,
+      skillId: options.skillId,
+    });
+    process.stdout.write(
+      options.json ? `${JSON.stringify(imported.receipt, null, 2)}\n` : `${imported.formatText()}\n`,
+    );
+    if (!imported.ok) process.exitCode = 1;
     return;
   }
 
@@ -168,7 +239,12 @@ function parseArgsArray(jsonValue: string | null, rawValue: string | null): stri
       return [];
     }
   }
-  return rawValue ? rawValue.split(/\s+/).filter(Boolean) : [];
+  return rawValue
+    ? rawValue
+        .split(/[\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 }
 
 function readNumberFlag(argv: string[], name: string): number | null {

@@ -62,6 +62,47 @@ acp  - delegates through the ACP live session service
 mcp  - sends a generic JSON-RPC style request to a declared endpoint
 ```
 
+## Capability import
+
+List **declared** capabilities without spawning the agent, then import them into
+a local SkillIR pack under `skills/` with explicit consent.
+
+```text
+# Offline list (profile allowedCapabilities + optional JSON file)
+zavorth external-agent list-capabilities --id my-agent
+zavorth external-agent list-capabilities --id my-agent --capabilities-file ./caps.json
+
+# Preview import (no write)
+zavorth external-agent import-capabilities --id my-agent
+
+# Apply import (SkillIR pack + skill.ir.json + ORIGIN)
+zavorth external-agent import-capabilities --id my-agent --consent
+```
+
+Optional registration of declared capability ids:
+
+```text
+zavorth external-agent register \
+  --id my-agent \
+  --adapter cli \
+  --command agent \
+  --capabilities review,analyze,web_search \
+  --approve-registration \
+  --enable-live
+```
+
+Import **never** auto-runs. Live invoke is still per-call approval:
+
+```text
+zavorth external-agent run --id my-agent --prompt "…" --approve-external-execution
+```
+
+After import, packs are searchable:
+
+```text
+zavorth skill search web_search
+```
+
 Isolation modes for CLI profiles:
 
 ```text
