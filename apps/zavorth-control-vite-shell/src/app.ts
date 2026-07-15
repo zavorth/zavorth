@@ -1,5 +1,12 @@
 import { asErrorLike } from '../../../src/utils/errorLike';
-import { composerPresetSettings, composerSettingLabel, getComposePlaceholder, isComposerPresetActive, persistComposerSettings, readComposerSettings } from './composer-settings';
+import {
+  composerPresetSettings,
+  composerSettingLabel,
+  getComposePlaceholder,
+  isComposerPresetActive,
+  persistComposerSettings,
+  readComposerSettings,
+} from './composer-settings';
 import { escapeHtml, renderMarkdown, sanitizeRenderedHtml } from './html-utils';
 import {
   getSlashCommandSuggestions,
@@ -16,8 +23,16 @@ import { buildWorkflowSlashRequest } from './workflow-intent';
 
 import { initDockNavigation } from './shell-navigation';
 import { attachmentKindLabel, attachmentReadyLabel, readAttachmentFile } from './composer-attachments';
-import { buildConversationStateCard, buildEchoDividerHtml, buildEchoGroupHtml, buildThinkingStateHtml } from './chat-renderer';
-import { createChatSurfaceRenderers, removeRemoteMeshApprovalCard as removeRemoteMeshApprovalCardNode } from './chat-surface-renderers';
+import {
+  buildConversationStateCard,
+  buildEchoDividerHtml,
+  buildEchoGroupHtml,
+  buildThinkingStateHtml,
+} from './chat-renderer';
+import {
+  createChatSurfaceRenderers,
+  removeRemoteMeshApprovalCard as removeRemoteMeshApprovalCardNode,
+} from './chat-surface-renderers';
 import {
   clearDiffReview,
   hideDiffReviewRail,
@@ -28,7 +43,15 @@ import {
   getDiffReviewHunks,
 } from './diff-review-rail';
 
-import { bindAttachmentTray, bindComposeInputEvents, bindComposerContextBar, bindComposerFileDrop, bindFileInputEvents, bindToolSheetActions, createHiddenFileInput } from './composer-event-wiring';
+import {
+  bindAttachmentTray,
+  bindComposeInputEvents,
+  bindComposerContextBar,
+  bindComposerFileDrop,
+  bindFileInputEvents,
+  bindToolSheetActions,
+  createHiddenFileInput,
+} from './composer-event-wiring';
 import { exportConversation, getExportMenuHtml } from './conversation-export';
 import { createControlSheets } from './control-sheets';
 import { createDashboardLiveView } from './dashboard-live-view';
@@ -50,7 +73,14 @@ import { createSignalTransmitter } from './signal-transmitter';
 import { dashboardStatusText, formatBytes, messageFromErrorPayload } from './text-utils';
 import { initThemeToggle } from './theme';
 import { renderTraceTimelineHtml } from './trace-renderer';
-import { compactTraceText, normalizeTraceCapability, normalizeTraceEvent, traceEventClass, traceEventLabel, traceEventMatchesQuery } from './trace-utils';
+import {
+  compactTraceText,
+  normalizeTraceCapability,
+  normalizeTraceEvent,
+  traceEventClass,
+  traceEventLabel,
+  traceEventMatchesQuery,
+} from './trace-utils';
 import { buildSkillOptions, buildSkillPopoverHtml, promptForSkill, skillFromOption } from './skills-popover';
 import { bindVoiceDictation } from './voice-dictation';
 import { applyControlLocale, installControlLocale, translate, translateCount } from './locale';
@@ -64,7 +94,6 @@ import {
   serializePromptQueueItem,
   writePromptQueueForSession,
 } from './prompt-queue';
-
 
 const CHAT_EFFORT_LABELS = {
   low: 'Low',
@@ -158,17 +187,21 @@ export function initControlApp() {
       autocompleteVisible = false;
       return;
     }
-    
-    autocompletePopover.innerHTML = autocompleteFiltered.map((item, idx) => `
+
+    autocompletePopover.innerHTML = autocompleteFiltered
+      .map(
+        (item, idx) => `
       <div class="autocomplete-option ${idx === autocompleteIndex ? 'is-active' : ''}" data-cmd="/${escapeHtml(item.name)}">
         <span class="autocomplete-option__cmd">/${escapeHtml(item.name)}${item.args ? ` ${escapeHtml(item.args)}` : ''}</span>
         <span class="autocomplete-option__desc">${escapeHtml(item.description)}</span>
       </div>
-    `).join('');
-    
+    `,
+      )
+      .join('');
+
     autocompletePopover.classList.remove('hidden');
     autocompleteVisible = true;
-    
+
     autocompletePopover.querySelectorAll('.autocomplete-option').forEach((opt, idx) => {
       opt.addEventListener('click', (e) => {
         e.preventDefault();
@@ -181,7 +214,7 @@ export function initControlApp() {
   function selectAutocompleteOption(idx) {
     const option = autocompleteFiltered[idx];
     if (!option || !composeInput) return;
-    
+
     const value = (composeInput as HTMLTextAreaElement).value;
     const slashIdx = value.lastIndexOf('/');
     if (slashIdx !== -1) {
@@ -189,7 +222,7 @@ export function initControlApp() {
     } else {
       (composeInput as HTMLTextAreaElement).value = `/${option.name} `;
     }
-    
+
     composeInput.dispatchEvent(new Event('input'));
     composeInput.focus();
     hideAutocomplete();
@@ -325,13 +358,18 @@ export function initControlApp() {
 
   function getActiveRuntimeRun() {
     const bridge = window.ZavorthRuntimeBridge;
-    const run = typeof bridge?.getActiveRun === 'function'
-      ? bridge.getActiveRun()
-      : bridge?.state?.zavorthControl?.snapshot?.activeRun
-        || bridge?.state?.zavorthControl?.snapshot?.runs?.[0]
-        || null;
-    const status = String(run?.status || '').trim().toLowerCase();
-    if (['queued', 'thinking', 'running', 'waiting_approval', 'planning', 'in_progress', 'processing'].includes(status)) {
+    const run =
+      typeof bridge?.getActiveRun === 'function'
+        ? bridge.getActiveRun()
+        : bridge?.state?.zavorthControl?.snapshot?.activeRun ||
+          bridge?.state?.zavorthControl?.snapshot?.runs?.[0] ||
+          null;
+    const status = String(run?.status || '')
+      .trim()
+      .toLowerCase();
+    if (
+      ['queued', 'thinking', 'running', 'waiting_approval', 'planning', 'in_progress', 'processing'].includes(status)
+    ) {
       return run;
     }
 
@@ -384,7 +422,7 @@ export function initControlApp() {
       text,
       attachments: overrides.attachments || pendingAttachments,
       selectedSkills: overrides.selectedSkills || pendingSelectedSkills,
-      voice: 'voice' in overrides ? overrides.voice : (lastVoiceInput ? { ...lastVoiceInput } : null),
+      voice: 'voice' in overrides ? overrides.voice : lastVoiceInput ? { ...lastVoiceInput } : null,
       guidedFlow: 'guidedFlow' in overrides ? overrides.guidedFlow : pendingGuidedFlow,
       workflowIntent: 'workflowIntent' in overrides ? overrides.workflowIntent : pendingWorkflowIntent,
       workspaceSelection: 'workspaceSelection' in overrides ? overrides.workspaceSelection : pendingWorkspaceSelection,
@@ -427,11 +465,14 @@ export function initControlApp() {
   function promptQueueItemMeta(item) {
     const parts = [];
     if (item.localCommandName) parts.push(`/${item.localCommandName}`);
-    if (item.attachments?.length) parts.push(`${item.attachments.length} file${item.attachments.length === 1 ? '' : 's'}`);
-    if (item.selectedSkills?.length) parts.push(`${item.selectedSkills.length} tool${item.selectedSkills.length === 1 ? '' : 's'}`);
+    if (item.attachments?.length)
+      parts.push(`${item.attachments.length} file${item.attachments.length === 1 ? '' : 's'}`);
+    if (item.selectedSkills?.length)
+      parts.push(`${item.selectedSkills.length} tool${item.selectedSkills.length === 1 ? '' : 's'}`);
     if (item.attempts > 0 || item.maxAttempts) parts.push(`${item.attempts}/${item.maxAttempts || 3} attempts`);
     if (item.backoffMs) parts.push(`${item.backoffMs}ms backoff`);
-    if (item.nextRetryAt && item.nextRetryAt > Date.now()) parts.push(`retry ${Math.ceil((item.nextRetryAt - Date.now()) / 1000)}s`);
+    if (item.nextRetryAt && item.nextRetryAt > Date.now())
+      parts.push(`retry ${Math.ceil((item.nextRetryAt - Date.now()) / 1000)}s`);
     if (item.steeringAckId) parts.push(`ack ${item.steeringAckId}`);
     if (item.status === 'failed') parts.push('retry pending');
     return parts.join(' | ') || 'message';
@@ -453,7 +494,9 @@ export function initControlApp() {
           <button type="button" data-prompt-queue-clear>Clear</button>
         </div>
       </div>
-      ${promptQueue.map((item, index) => `
+      ${promptQueue
+        .map(
+          (item, index) => `
         <div class="compose-prompt-queue__item compose-prompt-queue__item--${escapeHtml(item.status || 'queued')}" data-prompt-queue-id="${escapeHtml(item.id)}">
           <strong>${index + 1}</strong>
           <span title="${escapeHtml(promptQueueItemMeta(item))}">${escapeHtml(compactTraceText(item.text || item.localCommandArgs || `/${item.localCommandName || 'command'}`, 76))}</span>
@@ -461,7 +504,9 @@ export function initControlApp() {
           <button type="button" data-prompt-queue-send="${escapeHtml(item.id)}">Send now</button>
           <button type="button" data-prompt-queue-remove="${escapeHtml(item.id)}" aria-label="Cancel queued prompt">Cancel</button>
         </div>
-      `).join('')}
+      `,
+        )
+        .join('')}
     `;
   }
 
@@ -497,9 +542,7 @@ export function initControlApp() {
     const attempts = Number(item.attempts || 0) + 1;
     const maxAttempts = Math.max(1, Number(item.maxAttempts || 3));
     const baseBackoffMs = Math.max(0, Number(item.backoffMs || 1200));
-    const backoffMs = attempts >= maxAttempts
-      ? 0
-      : Math.min(60_000, baseBackoffMs * (2 ** Math.max(0, attempts - 1)));
+    const backoffMs = attempts >= maxAttempts ? 0 : Math.min(60_000, baseBackoffMs * 2 ** Math.max(0, attempts - 1));
     const next = serializePromptQueueItem({
       ...item,
       attempts,
@@ -517,9 +560,10 @@ export function initControlApp() {
     recordTraceEvent({
       type: 'error',
       title: 'Prompt requeued',
-      detail: attempts >= maxAttempts
-        ? `${next.lastError || 'Send failed.'} Max attempts reached.`
-        : `${next.lastError || 'Send failed.'} Retry scheduled in ${Math.ceil(backoffMs / 1000)}s.`,
+      detail:
+        attempts >= maxAttempts
+          ? `${next.lastError || 'Send failed.'} Max attempts reached.`
+          : `${next.lastError || 'Send failed.'} Retry scheduled in ${Math.ceil(backoffMs / 1000)}s.`,
       meta: promptQueueItemMeta(next),
       status: 'retry',
     });
@@ -552,11 +596,12 @@ export function initControlApp() {
     try {
       while (promptQueue.length > 0 && !isRuntimeChatBusy()) {
         const now = Date.now();
-        const nextIndex = promptQueue.findIndex((item) => (
-          !item.pendingRunId
-          && Number(item.attempts || 0) < Number(item.maxAttempts || 3)
-          && (!item.nextRetryAt || Number(item.nextRetryAt) <= now)
-        ));
+        const nextIndex = promptQueue.findIndex(
+          (item) =>
+            !item.pendingRunId &&
+            Number(item.attempts || 0) < Number(item.maxAttempts || 3) &&
+            (!item.nextRetryAt || Number(item.nextRetryAt) <= now),
+        );
         if (nextIndex < 0) break;
         const [next] = promptQueue.splice(nextIndex, 1);
         persistPromptQueue();
@@ -574,9 +619,8 @@ export function initControlApp() {
         const retryTimes = promptQueue
           .map((item) => Number(item.nextRetryAt || 0))
           .filter((value) => value > Date.now());
-        const delay = retryTimes.length > 0
-          ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) - Date.now()))
-          : 450;
+        const delay =
+          retryTimes.length > 0 ? Math.max(450, Math.min(30_000, Math.min(...retryTimes) - Date.now())) : 450;
         schedulePromptQueueDrain(delay);
       }
     }
@@ -668,7 +712,9 @@ export function initControlApp() {
     if (!composerContextBar) return;
     const chips = [];
     if (pendingAttachments.length > 0) {
-      chips.push(`<span class="compose-context-chip compose-context-chip--files"><strong>${pendingAttachments.length}</strong> file${pendingAttachments.length === 1 ? '' : 's'} ready</span>`);
+      chips.push(
+        `<span class="compose-context-chip compose-context-chip--files"><strong>${pendingAttachments.length}</strong> file${pendingAttachments.length === 1 ? '' : 's'} ready</span>`,
+      );
     }
     pendingSelectedSkills.slice(0, 4).forEach((skill) => {
       chips.push(`
@@ -679,12 +725,17 @@ export function initControlApp() {
       `);
     });
     if (lastVoiceInput) {
-      chips.push(`<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>${escapeHtml(compactTraceText(lastVoiceInput.transcript || 'captured', 42))}</span>`);
+      chips.push(
+        `<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>${escapeHtml(compactTraceText(lastVoiceInput.transcript || 'captured', 42))}</span>`,
+      );
     } else if (isListening) {
-      chips.push('<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>listening</span>');
+      chips.push(
+        '<span class="compose-context-chip compose-context-chip--voice"><strong>Voice</strong>listening</span>',
+      );
     }
     const voiceLabel = composerSettingLabel('voice', composerSettingsState.voice);
-    if (voiceLabel) chips.push(`<span class="compose-context-chip"><strong>Voice</strong>${escapeHtml(voiceLabel)}</span>`);
+    if (voiceLabel)
+      chips.push(`<span class="compose-context-chip"><strong>Voice</strong>${escapeHtml(voiceLabel)}</span>`);
     composerContextBar.innerHTML = chips.join('');
     composerContextBar.hidden = chips.length === 0;
   }
@@ -695,10 +746,16 @@ export function initControlApp() {
     setBadge(voiceStateBadge, isListening ? 'on' : 'voice', isListening || Boolean(lastVoiceInput));
     setBadge(historyCountBadge, traceEvents.length > 99 ? '99+' : traceEvents.length, traceEvents.length > 0);
     if (skillsBtn) {
-      skillsBtn.classList.toggle('is-active', pendingSelectedSkills.length > 0 || !skillPopover.classList.contains('hidden'));
-      skillsBtn.setAttribute('aria-label', pendingSelectedSkills.length > 0
-        ? `${pendingSelectedSkills.length} selected tool${pendingSelectedSkills.length === 1 ? '' : 's'}`
-        : 'Tools');
+      skillsBtn.classList.toggle(
+        'is-active',
+        pendingSelectedSkills.length > 0 || !skillPopover.classList.contains('hidden'),
+      );
+      skillsBtn.setAttribute(
+        'aria-label',
+        pendingSelectedSkills.length > 0
+          ? `${pendingSelectedSkills.length} selected tool${pendingSelectedSkills.length === 1 ? '' : 's'}`
+          : 'Tools',
+      );
     }
     if (voiceBtn) {
       voiceBtn.classList.toggle('has-voice', Boolean(lastVoiceInput));
@@ -710,31 +767,44 @@ export function initControlApp() {
   function refreshAttachmentHint() {
     const count = pendingAttachments.length;
     const fileLabel = attachmentReadyLabel(count);
-    const mediaCount = pendingAttachments.filter((file) => file.media?.kind === 'image' || file.media?.kind === 'audio' || file.media?.kind === 'video').length;
+    const mediaCount = pendingAttachments.filter(
+      (file) => file.media?.kind === 'image' || file.media?.kind === 'audio' || file.media?.kind === 'video',
+    ).length;
     if (composeInput) {
-      composeInput.placeholder = count > 0
-        ? mediaCount > 0
-          ? `${fileLabel}. Ask Zavorth to describe, transcribe, or extract text.`
-          : `${fileLabel}. Tell Zavorth what to do.`
-        : getComposePlaceholder(composerSettingsState);
+      composeInput.placeholder =
+        count > 0
+          ? mediaCount > 0
+            ? `${fileLabel}. Ask Zavorth to describe, transcribe, or extract text.`
+            : `${fileLabel}. Tell Zavorth what to do.`
+          : getComposePlaceholder(composerSettingsState);
     }
     if (attachBtn) {
       attachBtn.classList.toggle('is-active', count > 0);
-      attachBtn.setAttribute('aria-label', count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Open tools');
+      attachBtn.setAttribute(
+        'aria-label',
+        count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Open tools',
+      );
     }
     if (attachFileTrigger) {
       attachFileTrigger.classList.toggle('is-active', count > 0);
-      attachFileTrigger.setAttribute('aria-label', count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Attach file');
+      attachFileTrigger.setAttribute(
+        'aria-label',
+        count > 0 ? (count === 1 ? '1 file attached' : `${count} files attached`) : 'Attach file',
+      );
     }
     if (attachmentTray) {
-      attachmentTray.innerHTML = pendingAttachments.map((file, index) => `
+      attachmentTray.innerHTML = pendingAttachments
+        .map(
+          (file, index) => `
         <span class="compose-attachment-chip ${file.media?.kind ? 'compose-attachment-chip--media' : ''}" title="${escapeHtml(file.extraction?.detail || file.name)}">
           <span class="compose-attachment-chip__icon">${escapeHtml(attachmentChipIcon(file))}</span>
           <span class="compose-attachment-chip__name">${escapeHtml(file.name)}</span>
           <span class="compose-attachment-chip__size">${formatBytes(file.size)} - ${escapeHtml(attachmentStatusLabel(file))}</span>
           <button type="button" class="compose-attachment-chip__remove" data-attachment-index="${index}" aria-label="Remove ${escapeHtml(file.name)}">&times;</button>
         </span>
-      `).join('');
+      `,
+        )
+        .join('');
       attachmentTray.classList.toggle('is-visible', count > 0);
     }
     updateComposerBadges();
@@ -747,12 +817,16 @@ export function initControlApp() {
     const parsed = await Promise.all(incoming.map(readAttachmentFile));
     pendingAttachments = [...pendingAttachments, ...parsed].slice(0, 5);
     refreshAttachmentHint();
-    const readyMedia = parsed.filter((file) => file.media?.kind === 'image' || file.media?.kind === 'audio' || file.media?.kind === 'video');
-    emitLocalNotice(readyMedia.length > 0
-      ? `${readyMedia.length === 1 ? 'Media file is' : `${readyMedia.length} media files are`} ready for analysis. Ask Zavorth what to extract or understand.`
-      : incoming.length === 1
-        ? `File ready: ${incoming[0].name}. Now tell Zavorth what to do with it.`
-        : `${incoming.length} files ready. Now tell Zavorth what to do with them.`);
+    const readyMedia = parsed.filter(
+      (file) => file.media?.kind === 'image' || file.media?.kind === 'audio' || file.media?.kind === 'video',
+    );
+    emitLocalNotice(
+      readyMedia.length > 0
+        ? `${readyMedia.length === 1 ? 'Media file is' : `${readyMedia.length} media files are`} ready for analysis. Ask Zavorth what to extract or understand.`
+        : incoming.length === 1
+          ? `File ready: ${incoming[0].name}. Now tell Zavorth what to do with it.`
+          : `${incoming.length} files ready. Now tell Zavorth what to do with them.`,
+    );
   }
 
   function buildSentAttachmentCards(files) {
@@ -760,16 +834,19 @@ export function initControlApp() {
     if (items.length === 0) return '';
     return `
       <div class="chat-attachment-grid" aria-label="Uploaded files">
-        ${items.map((file, fileIdx) => {
-          const isAudio = file.media?.kind === 'audio';
-          const isTextPreview = file.text && file.text.trim().length > 0;
-          
-          const quickLookBtn = isTextPreview ? `
-            <button type="button" class="chat-attachment-card__quicklook" data-quick-look-text="${escapeHtml(file.text)}" data-quick-look-name="${escapeHtml(file.name)}" title="Quick Look Preview">👁️</button>
-          ` : '';
+        ${items
+          .map((file, fileIdx) => {
+            const isAudio = file.media?.kind === 'audio';
+            const isTextPreview = file.text && file.text.trim().length > 0;
 
-          if (isAudio) {
-            return `
+            const quickLookBtn = isTextPreview
+              ? `
+            <button type="button" class="chat-attachment-card__quicklook" data-quick-look-text="${escapeHtml(file.text)}" data-quick-look-name="${escapeHtml(file.name)}" title="Quick Look Preview">👁️</button>
+          `
+              : '';
+
+            if (isAudio) {
+              return `
               <div class="chat-attachment-card chat-attachment-card--audio" title="${escapeHtml(file.name)}">
                 <div class="chat-attachment-card__icon">🎵</div>
                 <div class="chat-attachment-card__body">
@@ -777,7 +854,9 @@ export function initControlApp() {
                   <div class="audio-waveform-player" data-audio-content="${file.content || ''}" data-audio-mime="${file.media?.mimeType || 'audio/wav'}">
                     <button class="audio-waveform-play-btn" type="button">▶</button>
                     <div class="audio-waveform-bars">
-                      ${Array.from({ length: 16 }).map(() => `<span class="audio-waveform-bar"></span>`).join('')}
+                      ${Array.from({ length: 16 })
+                        .map(() => `<span class="audio-waveform-bar"></span>`)
+                        .join('')}
                     </div>
                     <span class="audio-waveform-time">0:00</span>
                   </div>
@@ -785,9 +864,9 @@ export function initControlApp() {
                 </div>
               </div>
             `;
-          }
+            }
 
-          return `
+            return `
             <div class="chat-attachment-card" title="${escapeHtml(file.name)}">
               ${quickLookBtn}
               <div class="chat-attachment-card__icon">${escapeHtml(attachmentKindLabel(file))}</div>
@@ -798,7 +877,8 @@ export function initControlApp() {
               </div>
             </div>
           `;
-        }).join('')}
+          })
+          .join('')}
       </div>
     `;
   }
@@ -831,7 +911,7 @@ export function initControlApp() {
       const cursor = (composeInput as HTMLTextAreaElement).selectionStart || 0;
       const beforeCursor = text.slice(0, cursor);
       const lastSlashIdx = beforeCursor.lastIndexOf('/');
-      
+
       if (lastSlashIdx !== -1 && !/\s/.test(beforeCursor.slice(lastSlashIdx))) {
         const query = beforeCursor.slice(lastSlashIdx).toLowerCase();
         autocompleteFiltered = getSlashCommandSuggestions(query, 9);
@@ -842,29 +922,33 @@ export function initControlApp() {
       }
     });
 
-    composeInput.addEventListener('keydown', (event) => {
-      if (!autocompleteVisible) return;
-      
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        autocompleteIndex = (autocompleteIndex + 1) % autocompleteFiltered.length;
-        renderAutocomplete();
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        autocompleteIndex = (autocompleteIndex - 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
-        renderAutocomplete();
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        selectAutocompleteOption(autocompleteIndex);
-      } else if (event.key === 'Escape') {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        hideAutocomplete();
-      }
-    }, { capture: true });
+    composeInput.addEventListener(
+      'keydown',
+      (event) => {
+        if (!autocompleteVisible) return;
+
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          autocompleteIndex = (autocompleteIndex + 1) % autocompleteFiltered.length;
+          renderAutocomplete();
+        } else if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          autocompleteIndex = (autocompleteIndex - 1 + autocompleteFiltered.length) % autocompleteFiltered.length;
+          renderAutocomplete();
+        } else if (event.key === 'Enter') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          selectAutocompleteOption(autocompleteIndex);
+        } else if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          hideAutocomplete();
+        }
+      },
+      { capture: true },
+    );
 
     document.addEventListener('click', (e) => {
       if (!autocompletePopover.contains(e.target as Node) && e.target !== composeInput) {
@@ -887,7 +971,7 @@ export function initControlApp() {
     if (playBtn) {
       event.preventDefault();
       event.stopPropagation();
-      
+
       const player = playBtn.closest('.audio-waveform-player') as HTMLElement;
       if (!player) return;
 
@@ -946,12 +1030,15 @@ export function initControlApp() {
         activeWaveformPlayer = null;
       });
 
-      audio.play().then(() => {
-        playBtn.textContent = '⏸';
-        startWaveformAnimation(player);
-      }).catch(() => {
-        window.emitSignal?.('info', 'Audio error', 'Failed to play the audio stream.');
-      });
+      audio
+        .play()
+        .then(() => {
+          playBtn.textContent = '⏸';
+          startWaveformAnimation(player);
+        })
+        .catch(() => {
+          window.emitSignal?.('info', 'Audio error', 'Failed to play the audio stream.');
+        });
       return;
     }
 
@@ -990,22 +1077,26 @@ export function initControlApp() {
     }
   });
 
-  document.addEventListener('click', (event) => {
-    const target = event.target as Element | null;
-    const memoryNode = target?.closest?.('.zavorth-mem-node') as HTMLElement | null;
-    if (!memoryNode) return;
-    const tree = memoryNode.closest('#zavorth-memory-tree');
-    const inspector = document.getElementById('zavorth-memory-inspection-body');
-    if (!tree || !inspector) return;
-    tree.querySelectorAll('.zavorth-mem-node').forEach((node) => node.classList.remove('is-inspected'));
-    memoryNode.classList.add('is-inspected');
-    renderMemoryInspectorFallback(memoryNode.id, inspector);
-  }, { capture: true });
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target as Element | null;
+      const memoryNode = target?.closest?.('.zavorth-mem-node') as HTMLElement | null;
+      if (!memoryNode) return;
+      const tree = memoryNode.closest('#zavorth-memory-tree');
+      const inspector = document.getElementById('zavorth-memory-inspection-body');
+      if (!tree || !inspector) return;
+      tree.querySelectorAll('.zavorth-mem-node').forEach((node) => node.classList.remove('is-inspected'));
+      memoryNode.classList.add('is-inspected');
+      renderMemoryInspectorFallback(memoryNode.id, inspector);
+    },
+    { capture: true },
+  );
 
   function startWaveformAnimation(player: HTMLElement) {
     const bars = player.querySelectorAll('.audio-waveform-bar');
     if (bars.length === 0) return;
-    
+
     function animate() {
       bars.forEach((bar) => {
         const height = Math.random() * 0.8 + 0.2;
@@ -1034,14 +1125,18 @@ export function initControlApp() {
     const overlay = document.createElement('div');
     overlay.className = 'zavorth-quicklook-overlay active';
     overlay.id = 'zavorth-quicklook-overlay';
-    
+
     const lines = fileContent.split('\n');
-    const linedTextHtml = lines.map((line, idx) => `
+    const linedTextHtml = lines
+      .map(
+        (line, idx) => `
       <div class="quicklook-line">
         <span class="quicklook-line-num">${idx + 1}</span>
         <span class="quicklook-line-text">${escapeHtml(line)}</span>
       </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     overlay.innerHTML = `
       <div class="quicklook-backdrop"></div>
@@ -1070,7 +1165,7 @@ export function initControlApp() {
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 200);
     });
-    
+
     overlay.querySelector('.quicklook-backdrop')?.addEventListener('click', () => {
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 200);
@@ -1095,23 +1190,33 @@ export function initControlApp() {
     const persistedFacts = Array.isArray((window as any).ZavorthRuntimeBridge?.state?.memoryFacts?.facts)
       ? (window as any).ZavorthRuntimeBridge.state.memoryFacts.facts
       : [];
-    const currentProvider = document.querySelector('[data-provider-model-catalog-summary]')?.textContent?.trim()
-      || document.querySelector('[data-live-provider]')?.textContent?.trim()
-      || 'Provider state not published yet';
+    const currentProvider =
+      document.querySelector('[data-provider-model-catalog-summary]')?.textContent?.trim() ||
+      document.querySelector('[data-live-provider]')?.textContent?.trim() ||
+      'Provider state not published yet';
     const memoryFacts = persistedFacts.length
-      ? persistedFacts.slice(0, 12).map((fact: any) => `
+      ? persistedFacts
+          .slice(0, 12)
+          .map(
+            (fact: any) => `
           <div class="fact-item" id="memory-fact-${escapeHtml(fact.id || fact.key || '')}">
             <span>${escapeHtml(fact.content || fact.key || 'Persisted memory fact')}</span>
             <button type="button" class="fact-forget-btn" data-memory-key="${escapeHtml(fact.id || fact.key || '')}">Forget</button>
           </div>
-        `).join('')
+        `,
+          )
+          .join('')
       : recentTrace.length
-        ? recentTrace.map((title, index) => `
+        ? recentTrace
+            .map(
+              (title, index) => `
           <div class="fact-item" id="dashboard-trace-fact-${index + 1}">
             <span>${escapeHtml(title)}</span>
             <button type="button" class="fact-forget-btn" data-memory-key="dashboard-trace-fact-${index + 1}">Forget</button>
           </div>
-        `).join('')
+        `,
+            )
+            .join('')
         : '<p class="no-facts-left">No persisted memory facts are published in this dashboard snapshot.</p>';
     const htmlByNode: Record<string, string> = {
       'mem-node-mind': `
@@ -1127,9 +1232,17 @@ export function initControlApp() {
           <h3>Active Workspaces</h3>
           <p>Trusted folders currently rendered from the runtime settings API.</p>
           <div class="inspection-workspace-list">
-            ${trustedFolders.length ? trustedFolders.map((folder) => `
+            ${
+              trustedFolders.length
+                ? trustedFolders
+                    .map(
+                      (folder) => `
               <div class="workspace-item"><strong>${escapeHtml(folder.label)}</strong><span>${escapeHtml(folder.path)}</span></div>
-            `).join('') : '<p class="no-facts-left">No trusted workspace registered yet.</p>'}
+            `,
+                    )
+                    .join('')
+                : '<p class="no-facts-left">No trusted workspace registered yet.</p>'
+            }
           </div>
         </div>
       `,
@@ -1176,7 +1289,11 @@ export function initControlApp() {
             button.closest('.fact-item')?.classList.add('forgetting');
             setTimeout(() => button.closest('.fact-item')?.remove(), 500);
           } else {
-            window.emitSignal?.('info', 'Memory forget unavailable', 'No runtime bridge is available for memory mutation.');
+            window.emitSignal?.(
+              'info',
+              'Memory forget unavailable',
+              'No runtime bridge is available for memory mutation.',
+            );
             button.disabled = false;
           }
         } catch (error: unknown) {
@@ -1229,12 +1346,12 @@ export function initControlApp() {
     const eventMatchesReplay = (event: any) => {
       if (!runId && !traceId) return true;
       const replay = event?.replay || {};
-      return [event?.runId, event?.agentRunId, event?.id, replay.runId].filter(Boolean).includes(runId)
-        || [event?.traceId, replay.traceId].filter(Boolean).includes(traceId);
+      return (
+        [event?.runId, event?.agentRunId, event?.id, replay.runId].filter(Boolean).includes(runId) ||
+        [event?.traceId, replay.traceId].filter(Boolean).includes(traceId)
+      );
     };
-    const replayEvents = traceEvents
-      .filter(eventMatchesReplay)
-      .slice(-80);
+    const replayEvents = traceEvents.filter(eventMatchesReplay).slice(-80);
     const logs = [
       { type: 'system', text: `>> REPLAYING ZAVORTH TRACE [${runId || traceId || 'current-session'}]` },
       ...replayEvents.map((event: any) => {
@@ -1285,21 +1402,24 @@ export function initControlApp() {
 
       let charIdx = 0;
       const text = log.text;
-      const typing = setInterval(() => {
-        if (isPaused) {
-          clearInterval(typing);
-          return;
-        }
-        if (charIdx >= text.length) {
-          clearInterval(typing);
-          replayIndex++;
-          setTimeout(printNextLine, 100);
-        } else {
-          lineDiv.textContent += text[charIdx];
-          charIdx++;
-          content.scrollTop = content.scrollHeight;
-        }
-      }, speedMs === 40 ? 5 : 10);
+      const typing = setInterval(
+        () => {
+          if (isPaused) {
+            clearInterval(typing);
+            return;
+          }
+          if (charIdx >= text.length) {
+            clearInterval(typing);
+            replayIndex++;
+            setTimeout(printNextLine, 100);
+          } else {
+            lineDiv.textContent += text[charIdx];
+            charIdx++;
+            content.scrollTop = content.scrollHeight;
+          }
+        },
+        speedMs === 40 ? 5 : 10,
+      );
     }
 
     printNextLine();
@@ -1334,10 +1454,11 @@ export function initControlApp() {
   }
 
   const sendBtn = document.getElementById('send-btn');
-  if (sendBtn) sendBtn.addEventListener('click', () => {
-    closeMobileComposerActions();
-    transmitSignal();
-  });
+  if (sendBtn)
+    sendBtn.addEventListener('click', () => {
+      closeMobileComposerActions();
+      transmitSignal();
+    });
 
   const toolSheet = document.getElementById('tool-sheet');
   const toolSheetTrigger = document.getElementById('tool-sheet-trigger');
@@ -1363,7 +1484,8 @@ export function initControlApp() {
   const historyCountBadge = document.getElementById('history-count-badge');
   const attachBtn = toolSheetTrigger || document.querySelector('.compose-dock__btn[title="Tools"]');
   const skillsBtn = document.querySelector('.compose-dock__btn[title="Tools"]');
-  const voiceBtn = document.getElementById('voice-trigger') || document.querySelector('.compose-dock__btn[title="Voice"]');
+  const voiceBtn =
+    document.getElementById('voice-trigger') || document.querySelector('.compose-dock__btn[title="Voice"]');
   const fileInput = createHiddenFileInput();
   const directoryInput = createHiddenFileInput({ directory: true });
   const mobileComposerActions = createMobileComposerActions();
@@ -1503,7 +1625,7 @@ export function initControlApp() {
     renderTraceSheet();
     updateComposerBadges();
     updateDashboardGlass();
-    
+
     if (typeof appendConsoleLog === 'function') appendConsoleLog(entry);
   }
 
@@ -1556,7 +1678,9 @@ export function initControlApp() {
   function renderTraceSheet() {
     if (!traceSheetTimeline) return;
     const visibleEvents = traceEvents.filter((event) => traceEventMatchesQuery(event));
-    const steps = visibleEvents.filter((event) => traceEventClass(event.type) === 'step' || traceEventClass(event.type) === 'message').length;
+    const steps = visibleEvents.filter(
+      (event) => traceEventClass(event.type) === 'step' || traceEventClass(event.type) === 'message',
+    ).length;
     const approvals = visibleEvents.filter((event) => traceEventClass(event.type) === 'approval').length;
     const receipts = visibleEvents.filter((event) => traceEventClass(event.type) === 'receipt').length;
     if (traceStepCount) traceStepCount.textContent = String(steps);
@@ -1603,13 +1727,7 @@ export function initControlApp() {
     traceSheet,
     traceSheetTrigger,
   });
-  const {
-    closeToolSheet,
-    closeTraceSheet,
-    openToolSheet,
-    openTraceSheet,
-    updateToolSheetState,
-  } = controlSheets;
+  const { closeToolSheet, closeTraceSheet, openToolSheet, openTraceSheet, updateToolSheetState } = controlSheets;
 
   function focusComposeWithPrompt(prompt) {
     if (!composeInput) return;
@@ -1624,7 +1742,9 @@ export function initControlApp() {
   }
 
   function normalizeChatEffort(value) {
-    const normalized = String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase();
     if (normalized === 'normal' || normalized === 'medium' || normalized === 'default') return 'balanced';
     if (normalized === 'high') return 'deep';
     if (normalized === 'max' || normalized === 'ultra-code') return 'ultra';
@@ -1683,7 +1803,8 @@ export function initControlApp() {
     for (const run of getDashboardRuns()) {
       const runApprovals = Array.isArray(run?.approvals) ? run.approvals : [];
       for (const approval of runApprovals) {
-        if (String(approval?.status || '').toLowerCase() === 'pending') approvals.push({ ...approval, runId: run?.id || run?.runId || null });
+        if (String(approval?.status || '').toLowerCase() === 'pending')
+          approvals.push({ ...approval, runId: run?.id || run?.runId || null });
       }
     }
     const snapshot = getDashboardSnapshot();
@@ -1695,7 +1816,9 @@ export function initControlApp() {
     }
     const byId = new Map();
     approvals.forEach((approval, index) => {
-      const id = String(approval?.id || approval?.approvalId || approval?.permissionId || approval?.taskId || `approval-${index}`).trim();
+      const id = String(
+        approval?.id || approval?.approvalId || approval?.permissionId || approval?.taskId || `approval-${index}`,
+      ).trim();
       byId.set(id, { ...approval, id });
     });
     return Array.from(byId.values());
@@ -1708,9 +1831,8 @@ export function initControlApp() {
 
   function renderModelStatus() {
     const bridge = window.ZavorthRuntimeBridge;
-    const profile = typeof bridge?.resolveCurrentModelProfile === 'function'
-      ? bridge.resolveCurrentModelProfile()
-      : null;
+    const profile =
+      typeof bridge?.resolveCurrentModelProfile === 'function' ? bridge.resolveCurrentModelProfile() : null;
     return [
       'Model route',
       '',
@@ -1735,21 +1857,31 @@ export function initControlApp() {
       return true;
     }
     const normalized = ['default', 'inherit', 'clear', 'reset'].includes(raw.toLowerCase()) ? 'auto' : raw;
-    const payload = await runBackendSessionCommand('model', normalized, () => [
-      `Model route set to \`${normalized}\`.`,
-      '',
-      normalized === 'auto'
-        ? 'The next turns will inherit the live runtime provider route.'
-        : 'The next turns will send this composer model route to the runtime provider resolver.',
-    ].join('\n'), { append: false });
+    const payload = await runBackendSessionCommand(
+      'model',
+      normalized,
+      () =>
+        [
+          `Model route set to \`${normalized}\`.`,
+          '',
+          normalized === 'auto'
+            ? 'The next turns will inherit the live runtime provider route.'
+            : 'The next turns will send this composer model route to the runtime provider resolver.',
+        ].join('\n'),
+      { append: false },
+    );
     writeComposerSettings({ ...composerSettingsState, model: payload?.commandResult?.modelRoute || normalized });
-    appendEcho('core', payload?.responseMarkdown || [
-      `Model route set to \`${normalized}\`.`,
-      '',
-      normalized === 'auto'
-        ? 'The next turns will inherit the live runtime provider route.'
-        : 'The next turns will send this composer model route to the runtime provider resolver.',
-    ].join('\n'));
+    appendEcho(
+      'core',
+      payload?.responseMarkdown ||
+        [
+          `Model route set to \`${normalized}\`.`,
+          '',
+          normalized === 'auto'
+            ? 'The next turns will inherit the live runtime provider route.'
+            : 'The next turns will send this composer model route to the runtime provider resolver.',
+        ].join('\n'),
+    );
     recordTraceEvent({
       type: 'step',
       title: 'Model route changed',
@@ -1763,15 +1895,9 @@ export function initControlApp() {
   function renderModelsSummary(args = '') {
     const providerHint = String(args || '').trim();
     const bridge = window.ZavorthRuntimeBridge;
-    const profile = typeof bridge?.resolveCurrentModelProfile === 'function'
-      ? bridge.resolveCurrentModelProfile()
-      : null;
-    const examples = [
-      '/model auto',
-      '/model openai/gpt-5.5',
-      '/model anthropic/claude-opus',
-      '/model local/llama',
-    ];
+    const profile =
+      typeof bridge?.resolveCurrentModelProfile === 'function' ? bridge.resolveCurrentModelProfile() : null;
+    const examples = ['/model auto', '/model openai/gpt-5.5', '/model anthropic/claude-opus', '/model local/llama'];
     return [
       'Available model routing',
       '',
@@ -1782,14 +1908,21 @@ export function initControlApp() {
       'Zavorth will only use models/providers that are configured in the local runtime.',
       'Examples:',
       ...examples.map((example) => `- \`${example}\``),
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   function setThinkingSlash(args) {
-    const raw = String(args || '').trim().toLowerCase();
+    const raw = String(args || '')
+      .trim()
+      .toLowerCase();
     clearComposerInput();
     if (!raw || raw === 'status') {
-      appendEcho('core', `Thinking: ${composerSettingsState.thinking ? 'on' : 'off'}\nEffort: ${CHAT_EFFORT_LABELS[normalizeChatEffort(composerSettingsState.effort)] || 'Normal'}`);
+      appendEcho(
+        'core',
+        `Thinking: ${composerSettingsState.thinking ? 'on' : 'off'}\nEffort: ${CHAT_EFFORT_LABELS[normalizeChatEffort(composerSettingsState.effort)] || 'Normal'}`,
+      );
       return true;
     }
     if (['off', 'none', 'false'].includes(raw)) {
@@ -1809,7 +1942,9 @@ export function initControlApp() {
   }
 
   async function setFastSlash(args) {
-    const raw = String(args || '').trim().toLowerCase();
+    const raw = String(args || '')
+      .trim()
+      .toLowerCase();
     clearComposerInput();
     const engines = window.ZavorthRuntimeEngines;
     const active = String(engines?.getActiveEngineId?.() || 'lite');
@@ -1818,9 +1953,15 @@ export function initControlApp() {
       return true;
     }
     if (['default', 'inherit', 'clear', 'reset', 'off', 'normal'].includes(raw)) {
-      writeComposerSettings({ ...composerSettingsState, fast: false, effort: normalizeChatEffort(composerSettingsState.effort) === 'low' ? 'balanced' : composerSettingsState.effort });
+      writeComposerSettings({
+        ...composerSettingsState,
+        fast: false,
+        effort: normalizeChatEffort(composerSettingsState.effort) === 'low' ? 'balanced' : composerSettingsState.effort,
+      });
       if (engines && typeof engines.selectEngine === 'function') {
-        await engines.selectEngine('lite').catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
+        await engines
+          .selectEngine('lite')
+          .catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
       }
       emitLocalNotice('Fast mode off.');
       return true;
@@ -1828,7 +1969,9 @@ export function initControlApp() {
     if (['on', 'fast', 'yes', 'true'].includes(raw)) {
       writeComposerSettings({ ...composerSettingsState, fast: true, effort: 'low' });
       if (engines && typeof engines.selectEngine === 'function') {
-        await engines.selectEngine('velocity').catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
+        await engines
+          .selectEngine('velocity')
+          .catch((error) => emitLocalNotice(`Fast engine switch skipped: ${error?.message || String(error)}`));
       }
       emitLocalNotice('Fast mode on for the next chat turns.');
       return true;
@@ -1838,7 +1981,9 @@ export function initControlApp() {
   }
 
   function setVerboseSlash(args) {
-    const raw = String(args || '').trim().toLowerCase();
+    const raw = String(args || '')
+      .trim()
+      .toLowerCase();
     clearComposerInput();
     if (!raw || raw === 'status') {
       appendEcho('core', `Verbose progress: \`${composerSettingsState.verbose || 'off'}\``);
@@ -1855,7 +2000,9 @@ export function initControlApp() {
   }
 
   function setTraceSlash(args) {
-    const raw = String(args || '').trim().toLowerCase();
+    const raw = String(args || '')
+      .trim()
+      .toLowerCase();
     clearComposerInput();
     if (raw === 'open') {
       openTraceSheet();
@@ -1866,13 +2013,16 @@ export function initControlApp() {
       emitLocalNotice(raw === 'on' ? 'Trace capture preference enabled.' : 'Trace capture preference disabled.');
       return true;
     }
-    appendEcho('core', [
-      'Trace status',
-      '',
-      `Captured events: ${traceEvents.length}`,
-      `Preference: ${composerSettingsState.trace ? 'on' : 'off'}`,
-      'Use `/trace open` to inspect the visible trace history.',
-    ].join('\n'));
+    appendEcho(
+      'core',
+      [
+        'Trace status',
+        '',
+        `Captured events: ${traceEvents.length}`,
+        `Preference: ${composerSettingsState.trace ? 'on' : 'off'}`,
+        'Use `/trace open` to inspect the visible trace history.',
+      ].join('\n'),
+    );
     return true;
   }
 
@@ -1891,12 +2041,17 @@ export function initControlApp() {
         reason: 'User sent /stop in ZavorthControl.',
         emitSignal: window.emitSignal,
       });
-      appendEcho('core', [
-        'Stop requested.',
-        '',
-        `Status: \`${payload?.status || 'sent'}\``,
-        payload?.missionId || payload?.runId ? `Run: \`${payload.missionId || payload.runId}\`` : '',
-      ].filter(Boolean).join('\n'));
+      appendEcho(
+        'core',
+        [
+          'Stop requested.',
+          '',
+          `Status: \`${payload?.status || 'sent'}\``,
+          payload?.missionId || payload?.runId ? `Run: \`${payload.missionId || payload.runId}\`` : '',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      );
       recordTraceEvent({
         type: 'step',
         title: 'Run stop requested',
@@ -1943,11 +2098,11 @@ export function initControlApp() {
     const runs = getDashboardRuns();
     const usage = snapshot.usage || snapshot.summary?.usage || {};
     const aggregateTokens = Number(
-      usage.totalTokens
-      ?? usage.tokens
-      ?? (Number.isFinite(Number(usage.inputTokens)) || Number.isFinite(Number(usage.outputTokens))
-        ? Number(usage.inputTokens || 0) + Number(usage.outputTokens || 0)
-        : NaN),
+      usage.totalTokens ??
+        usage.tokens ??
+        (Number.isFinite(Number(usage.inputTokens)) || Number.isFinite(Number(usage.outputTokens))
+          ? Number(usage.inputTokens || 0) + Number(usage.outputTokens || 0)
+          : NaN),
     );
     const aggregateCost = Number(usage.totalCost ?? usage.costUsd ?? usage.cost);
     const runTokens = runs.reduce((sum, run) => {
@@ -1976,9 +2131,14 @@ export function initControlApp() {
       `Queue: \`${promptQueue.length}\``,
       `Trace events: \`${traceEvents.length}\``,
       full && runs.length
-        ? `\nRecent runs:\n${runs.slice(0, 6).map((run) => `- ${run.id || run.runId || 'run'}: ${run.status || 'unknown'}`).join('\n')}`
+        ? `\nRecent runs:\n${runs
+            .slice(0, 6)
+            .map((run) => `- ${run.id || run.runId || 'run'}: ${run.status || 'unknown'}`)
+            .join('\n')}`
         : '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   function renderContextSummary() {
@@ -2021,8 +2181,16 @@ export function initControlApp() {
       `Workflow jobs: \`${jobs.length}\``,
       '',
       ...runs.slice(0, 6).map((run) => `- ${run.title || run.id || run.runId || 'run'}: ${run.status || 'unknown'}`),
-      jobs.length ? '\nJobs:\n' + jobs.slice(0, 6).map((job) => `- ${job.id || job.jobId || 'job'}: ${job.status || 'unknown'}`).join('\n') : '',
-    ].filter(Boolean).join('\n');
+      jobs.length
+        ? '\nJobs:\n' +
+          jobs
+            .slice(0, 6)
+            .map((job) => `- ${job.id || job.jobId || 'job'}: ${job.status || 'unknown'}`)
+            .join('\n')
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   function renderWhoamiSummary() {
@@ -2110,7 +2278,11 @@ export function initControlApp() {
       workflowIntent: pendingWorkflowIntent
         ? {
             kind: pendingWorkflowIntent.kind,
-            objective: pendingWorkflowIntent.objectivePreview || pendingWorkflowIntent.objective || pendingWorkflowIntent.prompt || '',
+            objective:
+              pendingWorkflowIntent.objectivePreview ||
+              pendingWorkflowIntent.objective ||
+              pendingWorkflowIntent.prompt ||
+              '',
           }
         : null,
     };
@@ -2121,13 +2293,15 @@ export function initControlApp() {
     clearComposerInput();
     if (!raw || raw.toLowerCase() === 'status') {
       const profile = getCurrentExperienceProfile();
-      await runBackendSessionCommand('profile', raw, () => [
-        `Current profile: \`${profile.label}\``,
-        '',
-        profile.summary,
-        '',
-        `Available: ${EXPERIENCE_PROFILE_CATALOG.map((item) => `\`${item.id}\``).join(', ')}`,
-      ].join('\n'));
+      await runBackendSessionCommand('profile', raw, () =>
+        [
+          `Current profile: \`${profile.label}\``,
+          '',
+          profile.summary,
+          '',
+          `Available: ${EXPERIENCE_PROFILE_CATALOG.map((item) => `\`${item.id}\``).join(', ')}`,
+        ].join('\n'),
+      );
       return true;
     }
     const resolved = resolveExperienceProfile(raw, selectedExperienceProfile || 'personal');
@@ -2159,14 +2333,17 @@ export function initControlApp() {
         ui: window.ZavorthControlChat,
       });
       const receipt = payload?.receipt || payload?.compaction?.receipt || {};
-      appendEcho('core', [
-        'Session compacted.',
-        '',
-        `Receipt: \`${receipt.receiptId || 'not reported'}\``,
-        `Messages read: \`${receipt.originalMessageCount ?? 'unknown'}\``,
-        `Active transcript entries now: \`${receipt.retainedMessageCount ?? 'unknown'}\``,
-        'No memory was approved or persisted by this command.',
-      ].join('\n'));
+      appendEcho(
+        'core',
+        [
+          'Session compacted.',
+          '',
+          `Receipt: \`${receipt.receiptId || 'not reported'}\``,
+          `Messages read: \`${receipt.originalMessageCount ?? 'unknown'}\``,
+          `Active transcript entries now: \`${receipt.retainedMessageCount ?? 'unknown'}\``,
+          'No memory was approved or persisted by this command.',
+        ].join('\n'),
+      );
       recordTraceEvent({
         type: 'receipt',
         title: 'Session compaction completed',
@@ -2190,12 +2367,78 @@ export function initControlApp() {
     }
   }
 
+  function inferDashboardApprovalKind(approval) {
+    const raw = String(approval?.kind || approval?.type || approval?.targetKind || '')
+      .trim()
+      .toLowerCase();
+    if (raw === 'agent-run' || raw === 'agent_run' || raw === 'agentrun') return 'agent-run';
+    if (raw === 'task') return 'task';
+    if (raw === 'permission' || raw === 'permissions') return 'permission';
+    if (approval?.taskId) return 'task';
+    if (approval?.agentRunId || approval?.runId) return 'agent-run';
+    return 'permission';
+  }
+
+  /** Bare /approve, ordinal /approve 1, short prefix, or full id (operators). Prefer buttons + ordinals in UX copy. */
+  function resolveDashboardApprovalRef(approvals, ref, decisionVerb = 'approve') {
+    const list = Array.isArray(approvals) ? approvals : [];
+    const token = String(ref || '').trim();
+    const verb = decisionVerb === 'reject' ? '/reject' : '/approve';
+    const pick = (approval) => ({
+      ok: true,
+      id: String(approval?.id || approval?.approvalId || approval?.permissionId || approval?.taskId || '').trim(),
+      kind: inferDashboardApprovalKind(approval),
+    });
+
+    if (!token) {
+      if (list.length === 1) return pick(list[0]);
+      if (list.length === 0) {
+        return {
+          ok: false,
+          message: 'No pending approval to decide. Tap Approve/Reject on the card when one is waiting.',
+        };
+      }
+      return {
+        ok: false,
+        message: `Several approvals are waiting (${list.length}). Use ${verb} 1 (or 2…), or tap Approve/Reject — not a long id.`,
+      };
+    }
+
+    if (/^\d+$/.test(token)) {
+      const index = Number(token);
+      if (index >= 1 && index <= list.length) return pick(list[index - 1]);
+      return {
+        ok: false,
+        message: list.length
+          ? `No pending approval at position ${token}. Use ${verb} 1${list.length > 1 ? `…${list.length}` : ''}, or tap Approve/Reject — not a long id.`
+          : 'No pending approval to decide. Tap Approve/Reject on the card when one is waiting.',
+      };
+    }
+
+    const matches = list.filter((approval) => {
+      const ids = [approval?.id, approval?.approvalId, approval?.permissionId, approval?.taskId]
+        .map((value) => String(value || '').trim())
+        .filter(Boolean);
+      return ids.some((id) => id === token || id.startsWith(token));
+    });
+    if (matches.length === 1) return pick(matches[0]);
+    if (matches.length > 1) {
+      return {
+        ok: false,
+        message: `That reference matches several approvals. Use ${verb} 1 (or 2…), or tap Approve/Reject — not a long id.`,
+      };
+    }
+    // Operator pass-through when not present in the dashboard snapshot.
+    return { ok: true, id: token, kind: null };
+  }
+
   async function handleApprovalsSlash(args, options = {}) {
     clearComposerInput();
     const typedName = typedSlashName(options);
     const raw = String(args || '').trim();
     const parts = raw.split(/\s+/).filter(Boolean);
-    const decisionFromAlias = typedName === 'approve' ? 'approve' : typedName === 'deny' ? 'reject' : '';
+    const decisionFromAlias =
+      typedName === 'approve' ? 'approve' : typedName === 'deny' || typedName === 'reject' ? 'reject' : '';
     const explicitDecision = ['approve', 'allow', 'yes'].includes(String(parts[0] || '').toLowerCase())
       ? 'approve'
       : ['deny', 'reject', 'no'].includes(String(parts[0] || '').toLowerCase())
@@ -2204,21 +2447,37 @@ export function initControlApp() {
     const decision = decisionFromAlias || explicitDecision;
     if (!decision) {
       const approvals = getPendingDashboardApprovals();
-      appendEcho('core', [
-        'Pending approvals',
-        '',
-        approvals.length
-          ? approvals.map((approval) => `- \`${approval.id || approval.approvalId || approval.permissionId || approval.taskId}\`: ${approval.title || approval.summary || approval.kind || 'approval'}`).join('\n')
-          : 'No pending approvals in the current dashboard snapshot.',
-        '',
-        'Use `/approve <id>` or `/deny <id>` when a pending approval is visible.',
-      ].join('\n'));
+      appendEcho(
+        'core',
+        [
+          'Pending approvals',
+          '',
+          approvals.length
+            ? approvals
+                .map(
+                  (approval, index) =>
+                    `- ${index + 1}. ${approval.title || approval.summary || approval.kind || 'approval'}`,
+                )
+                .join('\n')
+            : 'No pending approvals in the current dashboard snapshot.',
+          '',
+          'Tap Approve/Reject on the card, or use /approve or /reject (or /approve 1 if several).',
+        ].join('\n'),
+      );
       return true;
     }
-    const id = decisionFromAlias ? parts[0] : parts[1];
-    const kind = (decisionFromAlias ? parts[1] : parts[2]) || 'permission';
+    const ref = decisionFromAlias ? parts[0] : parts[1];
+    const kindHint = (decisionFromAlias ? parts[1] : parts[2]) || '';
+    const approvals = getPendingDashboardApprovals();
+    const resolved = resolveDashboardApprovalRef(approvals, ref, decision);
+    if (!resolved.ok) {
+      emitLocalNotice(resolved.message);
+      return true;
+    }
+    const id = resolved.id;
+    const kind = kindHint || resolved.kind || 'permission';
     if (!id) {
-      emitLocalNotice(`/${typedName || 'approvals'} needs an approval id.`);
+      emitLocalNotice('Tap Approve/Reject on the card, or use /approve or /reject (or /approve 1 if several).');
       return true;
     }
     const runtimeBridge = window.ZavorthRuntimeBridge;
@@ -2227,18 +2486,21 @@ export function initControlApp() {
       return true;
     }
     try {
-      await runtimeBridge.decideApproval({
-        id,
-        kind,
-        decision,
-        scope: 'once',
-        scopeNote: `Slash /${typedName || 'approvals'} decision from ZavorthControl.`,
-      }, {
-        emitSignal: window.emitSignal,
-        appendEcho,
-        renderArtifacts,
-      });
-      emitLocalNotice(`Approval ${decision === 'approve' ? 'approved' : 'rejected'}: ${id}.`);
+      await runtimeBridge.decideApproval(
+        {
+          id,
+          kind,
+          decision,
+          scope: 'once',
+          scopeNote: `Slash /${typedName || 'approvals'} decision from ZavorthControl.`,
+        },
+        {
+          emitSignal: window.emitSignal,
+          appendEcho,
+          renderArtifacts,
+        },
+      );
+      emitLocalNotice(`Approval ${decision === 'approve' ? 'approved' : 'rejected'}.`);
       return true;
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -2274,23 +2536,19 @@ export function initControlApp() {
       });
       terminalHero.appendChild(panel);
     }
-    const channelBadges = profile.suggestedChannels
-      .map((channel) => `<span>${escapeHtml(channel)}</span>`)
-      .join('');
+    const channelBadges = profile.suggestedChannels.map((channel) => `<span>${escapeHtml(channel)}</span>`).join('');
     const capabilityBadges = profile.suggestedCapabilities
       .slice(0, 5)
       .map((capability) => `<span>${escapeHtml(capability)}</span>`)
       .join('');
-    const checklist = profile.checklist
-      .map((item) => `<li>${escapeHtml(item)}</li>`)
-      .join('');
-    const buttons = EXPERIENCE_PROFILE_CATALOG
-      .map((item) => `
+    const checklist = profile.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+    const buttons = EXPERIENCE_PROFILE_CATALOG.map(
+      (item) => `
         <button type="button" data-profile="${escapeHtml(item.id)}" aria-pressed="${item.id === profile.id ? 'true' : 'false'}" class="${item.id === profile.id ? 'is-selected' : ''}">
           ${escapeHtml(item.label)}
         </button>
-      `)
-      .join('');
+      `,
+    ).join('');
     panel.innerHTML = `
       <div class="experience-profile-panel__header">
         <span>Current profile</span>
@@ -2338,7 +2596,9 @@ export function initControlApp() {
   }
 
   function applyNaturalExperienceProfileSwitch(text) {
-    const normalized = String(text || '').trim().toLowerCase();
+    const normalized = String(text || '')
+      .trim()
+      .toLowerCase();
     if (!/\b(use|switch|mode|profile|modo|perfil|troque|usar|quero)\b/.test(normalized)) return;
     const resolved = resolveExperienceProfile(normalized, selectedExperienceProfile || 'personal');
     if (resolved.id !== selectedExperienceProfile) {
@@ -2683,10 +2943,11 @@ export function initControlApp() {
   applyComposerSettingsToUi();
 
   if (toolSheetClose) toolSheetClose.addEventListener('click', () => closeToolSheet());
-  if (traceSheetTrigger) traceSheetTrigger.addEventListener('click', () => {
-    closeMobileComposerActions();
-    openTraceSheet();
-  });
+  if (traceSheetTrigger)
+    traceSheetTrigger.addEventListener('click', () => {
+      closeMobileComposerActions();
+      openTraceSheet();
+    });
   if (traceSheetClose) traceSheetClose.addEventListener('click', () => closeTraceSheet());
 
   bindToolSheetActions({
@@ -2720,15 +2981,17 @@ export function initControlApp() {
     directoryInput,
     onFiles: addAttachmentFiles,
     onDirectory: (files) => {
-    pendingWorkspaceSelection = summarizeWorkspaceSelection(files);
-    emitLocalNotice(`Workspace selected: ${pendingWorkspaceSelection.root} (${pendingWorkspaceSelection.fileCount} files).`);
-    pendingGuidedFlow = 'developer-review-workspace';
-    if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
-    if (composeInput) {
-      composeInput.value = `Review this repository safely: ${pendingWorkspaceSelection.root}. Read first, list risks, show patch preview, and do not edit without approval.`;
-      composeInput.dispatchEvent(new Event('input'));
-    }
-    window.setTimeout(transmitSignal, 60);
+      pendingWorkspaceSelection = summarizeWorkspaceSelection(files);
+      emitLocalNotice(
+        `Workspace selected: ${pendingWorkspaceSelection.root} (${pendingWorkspaceSelection.fileCount} files).`,
+      );
+      pendingGuidedFlow = 'developer-review-workspace';
+      if (!selectedExperienceProfile) setSelectedExperienceProfile('developer');
+      if (composeInput) {
+        composeInput.value = `Review this repository safely: ${pendingWorkspaceSelection.root}. Read first, list risks, show patch preview, and do not edit without approval.`;
+        composeInput.dispatchEvent(new Event('input'));
+      }
+      window.setTimeout(transmitSignal, 60);
     },
   });
 
@@ -2770,9 +3033,11 @@ export function initControlApp() {
     }
     const skillPrompt = promptForSkill(selectedSkill);
     const current = composeInput.value.trim();
-    composeInput.value = current ? `${skillPrompt}
+    composeInput.value = current
+      ? `${skillPrompt}
 
-${current}` : skillPrompt;
+${current}`
+      : skillPrompt;
     composeInput.dispatchEvent(new Event('input'));
     composeInput.focus();
     closeSkillPopover();
@@ -2849,10 +3114,16 @@ ${current}` : skillPrompt;
     const content = assistant?.content;
     if (typeof content === 'string' && content.trim()) return content.trim();
     if (Array.isArray(content)) {
-      const text = content.map((part) => part?.text || part?.content || '').filter(Boolean).join('\n').trim();
+      const text = content
+        .map((part) => part?.text || part?.content || '')
+        .filter(Boolean)
+        .join('\n')
+        .trim();
       if (text) return text;
     }
-    return String(payload?.chat?.nextAction || payload?.data?.nextAction || payload?.message || 'Detached side-channel completed.').trim();
+    return String(
+      payload?.chat?.nextAction || payload?.data?.nextAction || payload?.message || 'Detached side-channel completed.',
+    ).trim();
   }
 
   function renderSideChannelResult(kind, message, payload, status = 'done') {
@@ -2896,7 +3167,8 @@ ${current}` : skillPrompt;
     });
     const runtimeBridge = window.ZavorthRuntimeBridge;
     if (!runtimeBridge || typeof runtimeBridge.sendSideChat !== 'function') {
-      const unavailable = 'The detached side channel is not available in this runtime yet. I did not send this message into the main conversation.';
+      const unavailable =
+        'The detached side channel is not available in this runtime yet. I did not send this message into the main conversation.';
       restoreQueuedPrompt(snapshot);
       emitLocalNotice(unavailable);
       recordTraceEvent({
@@ -2931,10 +3203,15 @@ ${current}` : skillPrompt;
       const err = asErrorLike(error);
 
       restoreQueuedPrompt(snapshot);
-      renderSideChannelResult(kind, text || 'Review attached files', {
-        message: error?.message || String(error),
-        sideSessionId: 'not sent',
-      }, 'failed');
+      renderSideChannelResult(
+        kind,
+        text || 'Review attached files',
+        {
+          message: error?.message || String(error),
+          sideSessionId: 'not sent',
+        },
+        'failed',
+      );
       recordTraceEvent({
         type: 'error',
         title: 'Detached side channel failed',
@@ -3007,7 +3284,9 @@ ${current}` : skillPrompt;
         `Dashboard: ${snapshot.visual?.route || '/dashboard/reviews'}`,
         '',
         snapshot.summary || snapshot.review?.summary || '',
-      ].filter(Boolean).join('\n');
+      ]
+        .filter(Boolean)
+        .join('\n');
     }
     const plan = Array.isArray(snapshot.plannedCommands)
       ? snapshot.plannedCommands.map((entry) => `${entry.command} ${entry.args?.join?.(' ') || ''}`).join(' && ')
@@ -3019,11 +3298,15 @@ ${current}` : skillPrompt;
       `Branch: ${snapshot.branch || 'unknown'}`,
       `Dirty files: ${snapshot.dirtyFiles ?? 'unknown'}`,
       plan ? `Plan: ${plan}` : '',
-      snapshot.approval?.required ? `Approval: ${snapshot.approval.satisfied ? snapshot.approval.approvalId : 'required for apply'}` : '',
+      snapshot.approval?.required
+        ? `Approval: ${snapshot.approval.satisfied ? snapshot.approval.approvalId : 'required for apply'}`
+        : '',
       snapshot.receipt?.receiptId ? `Receipt: ${snapshot.receipt.receiptId}` : '',
       '',
       snapshot.summary || '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   async function runDeveloperWorkflowSlash(command, args) {
@@ -3048,7 +3331,11 @@ ${current}` : skillPrompt;
       recordTraceEvent({
         type: 'receipt',
         title: `/${command} workflow completed`,
-        detail: payload?.snapshot?.receipt?.receiptId || payload?.snapshot?.review?.reviewId || payload?.snapshot?.summary || 'workflow snapshot',
+        detail:
+          payload?.snapshot?.receipt?.receiptId ||
+          payload?.snapshot?.review?.reviewId ||
+          payload?.snapshot?.summary ||
+          'workflow snapshot',
         meta: payload?.snapshot?.status || 'git-workflow',
         status: payload?.snapshot?.status === 'blocked' || payload?.snapshot?.status === 'failed' ? 'failed' : 'done',
       });
@@ -3230,7 +3517,10 @@ ${current}` : skillPrompt;
     }
     if (command === 'skills') {
       clearComposerInput();
-      const open = String(args || '').trim().toLowerCase() === 'open';
+      const open =
+        String(args || '')
+          .trim()
+          .toLowerCase() === 'open';
       if (open) openSkillPopover();
       return runBackendSessionCommand('skills', args, () => renderToolsSummary(open));
     }
@@ -3253,27 +3543,29 @@ ${current}` : skillPrompt;
     }
     if (command === 'plan-review') {
       clearComposerInput();
-      return runBackendSessionCommand('plan-review', args, () => [
-        'Plan review',
-        '',
-        'I will ask one question at a time, record the decision as a receipt, and avoid changing anything directly.',
-      ].join('\n'));
+      return runBackendSessionCommand('plan-review', args, () =>
+        [
+          'Plan review',
+          '',
+          'I will ask one question at a time, record the decision as a receipt, and avoid changing anything directly.',
+        ].join('\n'),
+      );
     }
     if (command === 'brief-reply') {
       clearComposerInput();
-      return runBackendSessionCommand('brief-reply', args, () => [
-        'Brief reply mode',
-        '',
-        'I will keep the next draft short, channel-ready, and profile-aware.',
-      ].join('\n'));
+      return runBackendSessionCommand('brief-reply', args, () =>
+        ['Brief reply mode', '', 'I will keep the next draft short, channel-ready, and profile-aware.'].join('\n'),
+      );
     }
     if (command === 'test-loop') {
       clearComposerInput();
-      return runBackendSessionCommand('test-loop', args, () => [
-        'Governed test loop',
-        '',
-        'I will start with the failing test, preview commands, request approval for writes, and attach receipts.',
-      ].join('\n'));
+      return runBackendSessionCommand('test-loop', args, () =>
+        [
+          'Governed test loop',
+          '',
+          'I will start with the failing test, preview commands, request approval for writes, and attach receipts.',
+        ].join('\n'),
+      );
     }
     if (command === 'btw' || command === 'side') {
       const snapshot = snapshotQueuedPrompt(args || 'Review attached files.');
@@ -3322,7 +3614,9 @@ ${current}` : skillPrompt;
         return true;
       }
       renderPromptQueue();
-      emitLocalNotice(promptQueue.length ? `${promptQueue.length} prompt(s) queued for this session.` : 'Prompt queue is empty.');
+      emitLocalNotice(
+        promptQueue.length ? `${promptQueue.length} prompt(s) queued for this session.` : 'Prompt queue is empty.',
+      );
       return true;
     }
     if (command === 'steer') {
@@ -3376,9 +3670,10 @@ ${current}` : skillPrompt;
   bindVoiceDictation({
     voiceButton: voiceBtn,
     composeInput,
-    getLanguage: () => composerSettingsState.voice && composerSettingsState.voice !== 'default'
-      ? composerSettingsState.voice
-      : navigator.language || 'en-US',
+    getLanguage: () =>
+      composerSettingsState.voice && composerSettingsState.voice !== 'default'
+        ? composerSettingsState.voice
+        : navigator.language || 'en-US',
     isListening: () => isListening,
     onListeningChange: setVoiceState,
     onTranscript: (voiceInput) => {
@@ -3437,7 +3732,7 @@ ${current}` : skillPrompt;
     }
   }
   const suggestionChips = document.querySelectorAll('.suggestion-chip');
-  suggestionChips.forEach(chip => {
+  suggestionChips.forEach((chip) => {
     chip.addEventListener('click', () => {
       const profile = chip.getAttribute('data-profile');
       if (profile) setSelectedExperienceProfile(profile);
@@ -3532,7 +3827,12 @@ ${current}` : skillPrompt;
   }
 
   function resolveAgentStreamId(payload: any = {}) {
-    const raw = payload.streamId || (payload.runId ? `${payload.runId}:assistant` : '') || payload.traceId || payload.sessionId || 'active';
+    const raw =
+      payload.streamId ||
+      (payload.runId ? `${payload.runId}:assistant` : '') ||
+      payload.traceId ||
+      payload.sessionId ||
+      'active';
     return String(raw || 'active').replace(/[^\w:.-]/g, '-') || 'active';
   }
 
@@ -3605,11 +3905,15 @@ ${current}` : skillPrompt;
         summary: payload.summary || 'The run is active and can still receive /steer updates.',
       });
       if (!state) return false;
-      updateAgentStreamBubble(state, agentStreamStatusText({
-        ...payload,
-        title: payload.title || 'Generating response',
-        summary: payload.summary || 'The run is active and can still receive /steer updates.',
-      }), false);
+      updateAgentStreamBubble(
+        state,
+        agentStreamStatusText({
+          ...payload,
+          title: payload.title || 'Generating response',
+          summary: payload.summary || 'The run is active and can still receive /steer updates.',
+        }),
+        false,
+      );
       return true;
     }
 
@@ -3640,21 +3944,19 @@ ${current}` : skillPrompt;
 
   function finalizeAgentStream(payload: any = {}) {
     const runId = String(
-      payload.runId
-      || payload?.run?.id
-      || payload?.chat?.runId
-      || payload?.data?.runId
-      || payload?.snapshot?.activeRun?.id
-      || '',
+      payload.runId ||
+        payload?.run?.id ||
+        payload?.chat?.runId ||
+        payload?.data?.runId ||
+        payload?.snapshot?.activeRun?.id ||
+        '',
     ).trim();
     if (runId) {
       const direct = agentStreamGroups.get(`${runId}:assistant`) || agentStreamGroups.get(runId);
       if (direct?.done) return true;
     }
     const now = Date.now();
-    return Array.from(agentStreamGroups.values()).some((state) => (
-      state.done && now - state.updatedAt < 15_000
-    ));
+    return Array.from(agentStreamGroups.values()).some((state) => state.done && now - state.updatedAt < 15_000);
   }
 
   function appendEchoDivider(label) {
@@ -3684,7 +3986,9 @@ ${current}` : skillPrompt;
       .filter((message) => String(message?.content || message?.text || '').trim())
       .slice(-80)
       .forEach((message) => {
-        const role = String(message.role || message.source || '').trim().toLowerCase();
+        const role = String(message.role || message.source || '')
+          .trim()
+          .toLowerCase();
         const visualRole = ['user', 'operator', 'human'].includes(role) ? 'operator' : 'core';
         appendEcho(visualRole, String(message.content || message.text || '').trim());
       });
@@ -3712,11 +4016,17 @@ ${current}` : skillPrompt;
     indicator.innerHTML = buildThinkingStateHtml({
       timestamp: currentTimestamp(),
       modelLabel: getCurrentModelLabel(),
-      stateCardHtml: buildConversationStateCard('thinking', 'Working on your request', 'Zavorth is using the natural route first, then escalating only if tools or approvals are needed.', [
+      stateCardHtml: buildConversationStateCard(
+        'thinking',
+        'Working on your request',
+        'Zavorth is using the natural route first, then escalating only if tools or approvals are needed.',
+        [
           'Understand the request in plain language',
           'Choose the lightest safe route',
           'Keep approvals and receipts inside this conversation',
-        ], { badge: 'live', meta: 'safe route' }),
+        ],
+        { badge: 'live', meta: 'safe route' },
+      ),
     });
     neuralFeed.appendChild(indicator);
     scrollFeedToEnd();
@@ -3896,11 +4206,7 @@ ${current}` : skillPrompt;
 
     if (runId) {
       // Honest fallback: open filtered proof trail rather than a no-op toast.
-      window.emitSignal?.(
-        'info',
-        translate('Workboard'),
-        translate('Run opened in proof trail'),
-      );
+      window.emitSignal?.('info', translate('Workboard'), translate('Run opened in proof trail'));
       recordTraceEvent({
         type: 'step',
         title: translate('Workboard open'),
@@ -4047,7 +4353,7 @@ ${current}` : skillPrompt;
     updateDashboardGlass,
   });
   const signalFeed = document.getElementById('signal-feed');
-  window.emitSignal = function(type, title, msg) {
+  window.emitSignal = function (type, title, msg) {
     if (!signalFeed) return;
     recordTraceEvent({
       type: type === 'error' ? 'error' : 'signal',
@@ -4059,7 +4365,8 @@ ${current}` : skillPrompt;
     const icons = {
       info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
       success: '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
-      error: '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'
+      error:
+        '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
     };
 
     const signal = document.createElement('div');
@@ -4073,14 +4380,17 @@ ${current}` : skillPrompt;
     `;
     signalFeed.appendChild(signal);
 
-    setTimeout(() => {
-      signal.classList.add('signal-toast--fading');
-      setTimeout(() => signal.remove(), 300);
-    }, type === 'success' ? 2200 : 4000);
+    setTimeout(
+      () => {
+        signal.classList.add('signal-toast--fading');
+        setTimeout(() => signal.remove(), 300);
+      },
+      type === 'success' ? 2200 : 4000,
+    );
   };
 
   overlays.bind();
-  dockNodes.forEach(node => {
+  dockNodes.forEach((node) => {
     node.addEventListener('click', () => overlays.syncDrawerActive(node.dataset.sector));
   });
 
@@ -4108,7 +4418,9 @@ ${current}` : skillPrompt;
       `Status: \`${String(ready.status || 'unknown')}\``,
       headline ? `Headline: ${headline}` : '',
       summary.runtimeStatus ? `Runtime: \`${summary.runtimeStatus}\`` : '',
-      summary.providerReady != null ? `Providers: \`${summary.providerReady ? 'ready' : 'needs attention'}\` (${summary.providerDefaultRoutes ?? 0} routes)` : '',
+      summary.providerReady != null
+        ? `Providers: \`${summary.providerReady ? 'ready' : 'needs attention'}\` (${summary.providerDefaultRoutes ?? 0} routes)`
+        : '',
       summary.zavorthControlReady != null ? `Dashboard: \`${summary.zavorthControlReady ? 'ready' : 'blocked'}\`` : '',
       summary.approvalsReady != null ? `Approvals: \`${summary.approvalsReady ? 'ready' : 'blocked'}\`` : '',
       summary.telegramReady != null ? `Telegram: \`${summary.telegramReady ? 'ready' : 'attention'}\`` : '',
@@ -4123,9 +4435,10 @@ ${current}` : skillPrompt;
     const headers: Record<string, string> = {};
     if (json) headers['Content-Type'] = 'application/json';
     try {
-      const token = sessionStorage.getItem('zavorth.zavorthControl.webToken')
-        || localStorage.getItem('zavorth.zavorthControl.webToken')
-        || '';
+      const token =
+        sessionStorage.getItem('zavorth.zavorthControl.webToken') ||
+        localStorage.getItem('zavorth.zavorthControl.webToken') ||
+        '';
       if (token) {
         headers.Authorization = `Bearer ${token}`;
         headers['X-Zavorth-Token'] = token;
@@ -4160,11 +4473,7 @@ ${current}` : skillPrompt;
           meta: 'doctor',
           status: 'done',
         });
-        window.emitSignal?.(
-          /ready|ok|pass|green/i.test(status) ? 'success' : 'info',
-          translate('Ready check'),
-          status,
-        );
+        window.emitSignal?.(/ready|ok|pass|green/i.test(status) ? 'success' : 'info', translate('Ready check'), status);
         try {
           await window.ZavorthRuntimeBridge?.refresh?.({ skipSessionHydrate: true });
         } catch {
@@ -4189,9 +4498,8 @@ ${current}` : skillPrompt;
       window.ZavorthControlChat?.refreshDashboard?.();
     } catch (error: unknown) {
       const err = asErrorLike(error);
-      const message = (err instanceof Error ? err.message : null)
-        || (error as { message?: string } | null)?.message
-        || String(error);
+      const message =
+        (err instanceof Error ? err.message : null) || (error as { message?: string } | null)?.message || String(error);
 
       appendEcho('core', `${translate('Ready check failed')}: ${message}`);
       recordTraceEvent({
@@ -4201,11 +4509,7 @@ ${current}` : skillPrompt;
         meta: 'doctor',
         status: 'failed',
       });
-      window.emitSignal?.(
-        'error',
-        translate('Ready check failed'),
-        message || translate('Could not run readiness.'),
-      );
+      window.emitSignal?.('error', translate('Ready check failed'), message || translate('Could not run readiness.'));
     }
   }
 
@@ -4221,11 +4525,7 @@ ${current}` : skillPrompt;
     const decision = String(detail?.decision || '').trim();
     if (!decision) return null;
     const meta = detail.meta || {};
-    const apiAction = decision === 'reject'
-      ? 'reject'
-      : decision === 'approve-all'
-        ? 'approve-all'
-        : 'approve';
+    const apiAction = decision === 'reject' ? 'reject' : decision === 'approve-all' ? 'approve-all' : 'approve';
     const body = {
       action: apiAction,
       targetId: String(meta.artifactId || meta.runId || 'diff-review').trim() || 'diff-review',
@@ -4267,11 +4567,12 @@ ${current}` : skillPrompt;
       const summary = detail.summary || { pending: 0, approved: 0, rejected: 0, total: 0 };
       const meta = detail.meta || {};
       const filePath = String(detail.filePath || meta.file || 'unknown');
-      const title = decision === 'approve-all'
-        ? translate('All pending hunks approved')
-        : decision === 'approve'
-          ? translate('Hunk approved')
-          : translate('Hunk rejected');
+      const title =
+        decision === 'approve-all'
+          ? translate('All pending hunks approved')
+          : decision === 'approve'
+            ? translate('Hunk approved')
+            : translate('Hunk rejected');
       const summaryLine = [
         translateCount('1 approved', '{n} approved', Number(summary.approved || 0)),
         translateCount('1 rejected', '{n} rejected', Number(summary.rejected || 0)),
@@ -4281,9 +4582,7 @@ ${current}` : skillPrompt;
       recordTraceEvent({
         type: 'receipt',
         title,
-        detail: detail.hunkId
-          ? `${filePath} · ${detail.header || detail.hunkId}`
-          : `${filePath} · ${summaryLine}`,
+        detail: detail.hunkId ? `${filePath} · ${detail.header || detail.hunkId}` : `${filePath} · ${summaryLine}`,
         meta: String(meta.artifactId || meta.runId || 'diff-review'),
         status: decision === 'reject' ? 'denied' : 'done',
         runId: meta.runId,
@@ -4307,16 +4606,21 @@ ${current}` : skillPrompt;
             sessionId: meta.sessionId,
             artifactId: meta.artifactId,
           });
-          appendEcho('core', [
-            title,
-            '',
-            `File: \`${filePath}\``,
-            summaryLine,
-            apiSummary && apiSummary !== summaryLine ? `Runtime: ${apiSummary}` : '',
-            Number(summary.pending) === 0 && decision !== 'reject'
-              ? 'No pending hunks left. Runtime still applies only policy-allowed mutations.'
-              : '',
-          ].filter(Boolean).join('\n'));
+          appendEcho(
+            'core',
+            [
+              title,
+              '',
+              `File: \`${filePath}\``,
+              summaryLine,
+              apiSummary && apiSummary !== summaryLine ? `Runtime: ${apiSummary}` : '',
+              Number(summary.pending) === 0 && decision !== 'reject'
+                ? 'No pending hunks left. Runtime still applies only policy-allowed mutations.'
+                : '',
+            ]
+              .filter(Boolean)
+              .join('\n'),
+          );
           window.emitSignal?.('success', translate('Diff decision sent'), apiStatus);
         } else {
           const localDetail = translate('Could not reach diff review API; decision kept locally.');
@@ -4327,36 +4631,44 @@ ${current}` : skillPrompt;
             meta: 'diff-review-local',
             status: 'done',
           });
-          appendEcho('core', [
-            title,
-            '',
-            `File: \`${filePath}\``,
-            summaryLine,
-            localDetail,
-            detail.prompt ? `\nDraft for agent:\n${detail.prompt}` : '',
-          ].filter(Boolean).join('\n'));
+          appendEcho(
+            'core',
+            [
+              title,
+              '',
+              `File: \`${filePath}\``,
+              summaryLine,
+              localDetail,
+              detail.prompt ? `\nDraft for agent:\n${detail.prompt}` : '',
+            ]
+              .filter(Boolean)
+              .join('\n'),
+          );
           window.emitSignal?.('info', translate('Diff decision recorded'), localDetail);
         }
 
         // When every hunk is decided and all approved, try draft apply if the artifact is a plan.
         if (
-          Number(summary.pending) === 0
-          && Number(summary.approved) > 0
-          && Number(summary.rejected) === 0
-          && meta.artifactId
-          && typeof window.ZavorthRuntimeBridge?.applyDiffPreview === 'function'
+          Number(summary.pending) === 0 &&
+          Number(summary.approved) > 0 &&
+          Number(summary.rejected) === 0 &&
+          meta.artifactId &&
+          typeof window.ZavorthRuntimeBridge?.applyDiffPreview === 'function'
         ) {
           try {
-            await window.ZavorthRuntimeBridge.applyDiffPreview({
-              planId: meta.artifactId,
-              sessionId: meta.sessionId,
-              runId: meta.runId,
-            }, {
-              emitSignal: window.emitSignal,
-              appendEcho,
-              renderArtifacts,
-              renderApprovals,
-            });
+            await window.ZavorthRuntimeBridge.applyDiffPreview(
+              {
+                planId: meta.artifactId,
+                sessionId: meta.sessionId,
+                runId: meta.runId,
+              },
+              {
+                emitSignal: window.emitSignal,
+                appendEcho,
+                renderArtifacts,
+                renderApprovals,
+              },
+            );
           } catch {
             // Artifact may not be a draft plan — local receipt + prompt remain the path.
           }
@@ -4375,7 +4687,9 @@ ${current}` : skillPrompt;
   }
 
   function runPaletteAction(action: string) {
-    const normalized = String(action || '').trim().toLowerCase();
+    const normalized = String(action || '')
+      .trim()
+      .toLowerCase();
     if (!normalized) return;
     dismissOverlays();
     if (normalized === 'new-chat' || normalized === 'inbox') {
@@ -4411,8 +4725,9 @@ ${current}` : skillPrompt;
   }
 
   function visiblePaletteItems() {
-    return Array.from(cmdResults?.querySelectorAll<HTMLElement>('.cmd-palette__item') || [])
-      .filter((item) => item.style.display !== 'none');
+    return Array.from(cmdResults?.querySelectorAll<HTMLElement>('.cmd-palette__item') || []).filter(
+      (item) => item.style.display !== 'none',
+    );
   }
 
   function selectPaletteItem(index: number) {
@@ -4430,7 +4745,9 @@ ${current}` : skillPrompt;
   }
 
   function filterPaletteResults(query = '') {
-    const needle = String(query || '').trim().toLowerCase();
+    const needle = String(query || '')
+      .trim()
+      .toLowerCase();
     const items = Array.from(cmdResults?.querySelectorAll<HTMLElement>('.cmd-palette__item') || []);
     items.forEach((item) => {
       const label = (item.textContent || '').toLowerCase();
@@ -4545,10 +4862,11 @@ ${current}` : skillPrompt;
         'local_access_check',
         'M22 12h-4l-3 9L9 3l-3 9H2',
         'Checking local runtime access',
-        `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`
+        `Protocol: WebSocket/SSE\nEndpoint: ${location.origin}/api\nModel:    ${getCurrentModelLabel()}\nRoute:    ${getCurrentModelRouteLabel()}`,
       );
       const profile = getCurrentExperienceProfile();
-      appendEcho('core',
+      appendEcho(
+        'core',
         [
           liveUnlocked ? 'Dashboard is ready.' : 'Checking local runtime access',
           '',
@@ -4560,32 +4878,31 @@ ${current}` : skillPrompt;
           'Nothing sensitive is written to memory until you confirm it.',
         ].join('\n'),
 
-        cells
+        cells,
       );
     }, 400);
   }
 
   seedNeuralFeed();
 
-  
   function appendConsoleLog(event: any) {
     const consoleContainer = document.getElementById('zavorth-console-events');
     if (!consoleContainer) return;
-    
+
     const line = document.createElement('div');
     const typeClass = String(event.type || 'system').toLowerCase();
     line.className = `zavorth-console-line zavorth-console-line--${typeClass}`;
-    
+
     const time = event.time || currentTimestamp();
     const title = event.title || 'Event';
     const detail = event.detail || '';
-    
+
     line.innerHTML = `
       <span class="zavorth-console-time">[${escapeHtml(time)}]</span>
       <span class="zavorth-console-tag">[${escapeHtml(typeClass.toUpperCase())}]</span>
       <span class="zavorth-console-text"><strong>${escapeHtml(title)}</strong>: ${escapeHtml(detail)}</span>
     `;
-    
+
     consoleContainer.appendChild(line);
     while (consoleContainer.childNodes.length > 50) {
       consoleContainer.removeChild(consoleContainer.firstChild);
@@ -4596,7 +4913,7 @@ ${current}` : skillPrompt;
   function hydrateConsoleLogs() {
     const consoleContainer = document.getElementById('zavorth-console-events');
     if (!consoleContainer) return;
-    
+
     consoleContainer.innerHTML = '';
     const recentEvents = traceEvents.slice(-30);
     if (recentEvents.length === 0) {
@@ -4633,7 +4950,7 @@ ${current}` : skillPrompt;
   document.addEventListener('click', async (event) => {
     const otpBtn = (event.target as HTMLElement)?.closest('#zavorth-otp-generate-btn');
     if (!otpBtn) return;
-    
+
     const otpDisplay = document.getElementById('zavorth-otp-key-display');
     const otpCode = document.getElementById('zavorth-otp-code-val');
     const otpTimerVal = document.getElementById('zavorth-otp-timer-val');
@@ -4643,7 +4960,7 @@ ${current}` : skillPrompt;
     if ((window as any)._zavorthOtpInterval) {
       clearInterval((window as any)._zavorthOtpInterval);
     }
-    
+
     if (otpStatus) otpStatus.style.display = 'flex';
     if (otpStatusText) {
       otpStatusText.textContent = 'Requesting a real Node Mesh pairing draft from Zavorth...';
@@ -4729,10 +5046,10 @@ ${current}` : skillPrompt;
   document.addEventListener('input', (event) => {
     const textarea = event.target as HTMLTextAreaElement;
     if (textarea?.id !== 'zavorth-config-editor-textarea') return;
-    
+
     const configSaveBtn = document.getElementById('zavorth-config-save-btn') as HTMLButtonElement | null;
     const configStatus = document.getElementById('zavorth-config-status');
-    
+
     try {
       JSON.parse(textarea.value);
       if (configStatus) {
@@ -4754,28 +5071,27 @@ ${current}` : skillPrompt;
   document.addEventListener('click', (event) => {
     const configSaveBtn = (event.target as HTMLElement)?.closest('#zavorth-config-save-btn');
     if (!configSaveBtn) return;
-    
+
     const configTextarea = document.getElementById('zavorth-config-editor-textarea') as HTMLTextAreaElement | null;
     const configStatus = document.getElementById('zavorth-config-status');
-    
+
     if (configTextarea) {
       try {
         const parsed = JSON.parse(configTextarea.value);
-        const runtimeProjection = parsed?.zavorthControl && typeof parsed.zavorthControl === 'object'
-          ? parsed.zavorthControl
-          : parsed;
+        const runtimeProjection =
+          parsed?.zavorthControl && typeof parsed.zavorthControl === 'object' ? parsed.zavorthControl : parsed;
         if (window.ZavorthRuntimeBridge?.state) {
           window.ZavorthRuntimeBridge.state.zavorthControl = {
             ...window.ZavorthRuntimeBridge.state.zavorthControl,
-            ...runtimeProjection
+            ...runtimeProjection,
           };
         }
-        
+
         if (configStatus) {
           configStatus.textContent = 'Session projection applied locally.';
           configStatus.className = 'zavorth-config-editor-status zavorth-config-editor-status--saved';
         }
-        
+
         recordTraceEvent({
           type: 'session',
           title: 'Session projection updated',
@@ -4783,7 +5099,7 @@ ${current}` : skillPrompt;
           meta: 'settings',
           status: 'done',
         });
-        
+
         updateDashboardGlass();
       } catch (error: unknown) {
         const err = asErrorLike(error);
@@ -4801,7 +5117,6 @@ ${current}` : skillPrompt;
   (window as any).hydrateConsoleLogs = hydrateConsoleLogs;
 
   initThemeToggle();
-
 }
 
 function installRuntimeTextSanitizer() {
@@ -4821,11 +5136,22 @@ function installRuntimeTextSanitizer() {
       node.textContent = replacement();
     });
 
-    root.querySelectorAll?.('[data-dashboard-prompt], [data-skill-status], [data-skill-search-text], [title], [aria-label], [placeholder]').forEach((el) => {
-      ['data-dashboard-prompt', 'data-skill-status', 'data-skill-search-text', 'title', 'aria-label', 'placeholder'].forEach((attr) => {
-        if (isBadValue(el.getAttribute(attr))) el.setAttribute(attr, replacement());
+    root
+      .querySelectorAll?.(
+        '[data-dashboard-prompt], [data-skill-status], [data-skill-search-text], [title], [aria-label], [placeholder]',
+      )
+      .forEach((el) => {
+        [
+          'data-dashboard-prompt',
+          'data-skill-status',
+          'data-skill-search-text',
+          'title',
+          'aria-label',
+          'placeholder',
+        ].forEach((attr) => {
+          if (isBadValue(el.getAttribute(attr))) el.setAttribute(attr, replacement());
+        });
       });
-    });
   };
 
   sanitize();

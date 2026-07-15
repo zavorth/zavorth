@@ -6,3 +6,4 @@ export * from './memory';
 export * from './theme';
 export * from './composer';
 export * from './workspace';
+export * from './preview';

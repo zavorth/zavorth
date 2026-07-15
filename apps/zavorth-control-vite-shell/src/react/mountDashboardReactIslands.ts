@@ -1,13 +1,10 @@
-/**
- * Phase 8 — mount React SSR islands into empty sector hosts.
- */
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from 'react-dom/server';
 import {
   DASHBOARD_REACT_ISLANDS,
   DASHBOARD_REACT_ISLAND_VERSION,
   renderDashboardReactIsland,
   type DashboardReactIslandId,
-} from "./DashboardReactIslands";
+} from './DashboardReactIslands';
 
 export type MountDashboardReactIslandsResult = {
   version: typeof DASHBOARD_REACT_ISLAND_VERSION;
@@ -16,13 +13,17 @@ export type MountDashboardReactIslandsResult = {
 };
 
 export function mountDashboardReactIslands(
-  root: ParentNode = typeof document !== "undefined" ? document : (null as unknown as ParentNode),
+  root: ParentNode = typeof document !== 'undefined' ? document : (null as unknown as ParentNode),
 ): MountDashboardReactIslandsResult {
   const mounted: DashboardReactIslandId[] = [];
   const skipped: Array<{ id: DashboardReactIslandId; reason: string }> = [];
 
-  if (!root || typeof (root as Document).getElementById !== "function") {
-    return { version: DASHBOARD_REACT_ISLAND_VERSION, mounted, skipped: DASHBOARD_REACT_ISLANDS.map((i) => ({ id: i.id, reason: "no-document" })) };
+  if (!root || typeof (root as Document).getElementById !== 'function') {
+    return {
+      version: DASHBOARD_REACT_ISLAND_VERSION,
+      mounted,
+      skipped: DASHBOARD_REACT_ISLANDS.map((i) => ({ id: i.id, reason: 'no-document' })),
+    };
   }
 
   const doc = root as Document;
@@ -30,21 +31,21 @@ export function mountDashboardReactIslands(
   for (const island of DASHBOARD_REACT_ISLANDS) {
     const host = doc.getElementById(island.sectorElementId);
     if (!host) {
-      skipped.push({ id: island.id, reason: "host-missing" });
+      skipped.push({ id: island.id, reason: 'host-missing' });
       continue;
     }
     // Do not clobber an island already painted (e.g. double-init).
     if (host.querySelector(`[data-react-dashboard-island="${island.id}"]`)) {
-      skipped.push({ id: island.id, reason: "already-mounted" });
+      skipped.push({ id: island.id, reason: 'already-mounted' });
       continue;
     }
     const tree = renderDashboardReactIsland(island.id);
     if (!tree) {
-      skipped.push({ id: island.id, reason: "no-component" });
+      skipped.push({ id: island.id, reason: 'no-component' });
       continue;
     }
     host.innerHTML = renderToStaticMarkup(tree);
-    host.setAttribute("data-react-dashboard-host", island.id);
+    host.setAttribute('data-react-dashboard-host', island.id);
     mounted.push(island.id);
   }
 

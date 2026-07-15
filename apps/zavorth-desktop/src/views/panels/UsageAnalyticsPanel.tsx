@@ -12,9 +12,10 @@ import {
   IconRobot,
   IconChartBar,
   IconActivity,
-  IconCheck,
-  IconX,
 } from '@tabler/icons-react';
+import { t } from '../../i18n';
+import { CostSavingsPanel } from './CostSavingsPanel';
+import { SessionExportPanel } from './SessionExportPanel';
 
 export type TokenUsage = {
   inputTokens: number;
@@ -45,9 +46,12 @@ export type UsageAnalyticsPanelProps = {
   toolCalls: ToolCall[];
   sessions: SessionData[];
   costPerModel?: Record<string, { input: number; output: number }>;
+  /** Optional active session for redacted transcript export. */
+  activeSessionId?: string | null;
+  exportMessages?: Array<{ role: string; content: string }>;
 };
 
-const $selectedTab = atom<'overview' | 'tools' | 'models' | 'sessions'>('overview');
+const $selectedTab = atom<'overview' | 'tools' | 'models' | 'sessions' | 'savings' | 'export'>('overview');
 const $searchQuery = atom('');
 
 function formatNumber(n: number): string {
@@ -79,13 +83,7 @@ function formatDate(ts: number): string {
   });
 }
 
-function StatCard(props: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  sub?: string;
-  accent?: string;
-}) {
+function StatCard(props: { icon: React.ReactNode; label: string; value: string; sub?: string; accent?: string }) {
   return (
     <div className="zvd-ua-stat-card">
       <div className="zvd-ua-stat-icon" style={{ color: props.accent || 'var(--zvd-accent, #f16a21)' }}>
@@ -102,7 +100,7 @@ function StatCard(props: {
 
 function BarChart(props: { data: { label: string; value: number; color?: string }[]; maxBars?: number }) {
   const items = props.maxBars ? props.data.slice(0, props.maxBars) : props.data;
-  const max = Math.max(...items.map(d => d.value), 1);
+  const max = Math.max(...items.map((d) => d.value), 1);
 
   return (
     <div className="zvd-ua-chart">
@@ -127,11 +125,7 @@ function BarChart(props: { data: { label: string; value: number; color?: string 
 
 function SuccessBadge(props: { rate: number }) {
   const tone = props.rate >= 0.9 ? 'ready' : props.rate >= 0.7 ? 'warning' : 'danger';
-  return (
-    <span className={`zvd-ua-badge tone-${tone}`}>
-      {(props.rate * 100).toFixed(0)}%
-    </span>
-  );
+  return <span className={`zvd-ua-badge tone-${tone}`}>{(props.rate * 100).toFixed(0)}%</span>;
 }
 
 export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
@@ -166,9 +160,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
     return Array.from(byModel.entries())
       .map(([model, data]) => {
         const rates = props.costPerModel?.[model];
-        const cost = rates
-          ? (data.input / 1_000_000) * rates.input + (data.output / 1_000_000) * rates.output
-          : 0;
+        const cost = rates ? (data.input / 1_000_000) * rates.input + (data.output / 1_000_000) * rates.output : 0;
         return { model, ...data, cost };
       })
       .sort((a, b) => b.cost - a.cost);
@@ -180,10 +172,8 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   // Session statistics
   const sessionStats = useMemo(() => {
     const total = props.sessions.length;
-    const active = props.sessions.filter(s => s.status === 'active').length;
-    const durations = props.sessions
-      .filter(s => s.endedAt)
-      .map(s => (s.endedAt as number) - s.startedAt);
+    const active = props.sessions.filter((s) => s.status === 'active').length;
+    const durations = props.sessions.filter((s) => s.endedAt).map((s) => (s.endedAt as number) - s.startedAt);
     const avgDuration = durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
     return { total, active, avgDuration };
   }, [props.sessions]);
@@ -219,7 +209,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
       const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
       const dayEnd = dayStart + 86_400_000;
       const tokens = props.tokenUsages
-        .filter(u => (u.timestamp || 0) >= dayStart && (u.timestamp || 0) < dayEnd)
+        .filter((u) => (u.timestamp || 0) >= dayStart && (u.timestamp || 0) < dayEnd)
         .reduce((sum, u) => sum + u.totalTokens, 0);
       days.push({
         label: d.toLocaleDateString(undefined, { weekday: 'short' }),
@@ -258,11 +248,11 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   const filteredToolRanking = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return toolRanking;
-    return toolRanking.filter(t => t.name.toLowerCase().includes(q));
+    return toolRanking.filter((t) => t.name.toLowerCase().includes(q));
   }, [toolRanking, search]);
 
   // Tool detail rows
-  const toolRows: DetailRow[] = filteredToolRanking.map(t => ({
+  const toolRows: DetailRow[] = filteredToolRanking.map((t) => ({
     id: `tool-${t.name}`,
     title: t.name,
     description: `Avg duration: ${formatDuration(t.avgDuration)}`,
@@ -272,7 +262,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   }));
 
   // Model detail rows
-  const modelRows: DetailRow[] = modelBreakdown.map(m => ({
+  const modelRows: DetailRow[] = modelBreakdown.map((m) => ({
     id: `model-${m.model}`,
     title: m.model,
     description: `In: ${formatNumber(m.input)} / Out: ${formatNumber(m.output)}`,
@@ -284,18 +274,21 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
   const sessionRows: DetailRow[] = useMemo(() => {
     const q = search.trim().toLowerCase();
     return props.sessions
-      .filter(s => {
+      .filter((s) => {
         if (!q) return true;
         return s.id.toLowerCase().includes(q) || (s.model || '').toLowerCase().includes(q);
       })
       .sort((a, b) => b.startedAt - a.startedAt)
       .slice(0, 50)
-      .map(s => ({
+      .map((s) => ({
         id: `session-${s.id}`,
         title: s.id,
         description: s.model || 'default model',
         meta: s.endedAt ? formatDuration(s.endedAt - s.startedAt) : 'running',
-        tone: (s.status === 'active' ? 'ready' : s.status === 'failed' ? 'danger' : 'muted') as 'ready' | 'danger' | 'muted',
+        tone: (s.status === 'active' ? 'ready' : s.status === 'failed' ? 'danger' : 'muted') as
+          | 'ready'
+          | 'danger'
+          | 'muted',
       }));
   }, [props.sessions, search]);
 
@@ -527,6 +520,8 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
           { value: 'tools', label: 'Tools', count: props.toolCalls.length },
           { value: 'models', label: 'Models', count: modelBreakdown.length },
           { value: 'sessions', label: 'Sessions', count: props.sessions.length },
+          { value: 'savings', label: t('costSavings.tab') },
+          { value: 'export', label: t('sessionExport.tab') || 'Export' },
         ]}
       />
 
@@ -570,12 +565,15 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
           {/* Top tools quick view */}
           <div className="zvd-ua-section-title">Top Tools</div>
           <DetailRows
-            rows={toolRanking.slice(0, 5).map(t => ({
+            rows={toolRanking.slice(0, 5).map((t) => ({
               id: `overview-tool-${t.name}`,
               title: t.name,
               description: `${t.total} calls`,
               meta: `${(t.successRate * 100).toFixed(0)}% success`,
-              tone: (t.successRate >= 0.9 ? 'ready' : t.successRate >= 0.7 ? 'warning' : 'danger') as 'ready' | 'warning' | 'danger',
+              tone: (t.successRate >= 0.9 ? 'ready' : t.successRate >= 0.7 ? 'warning' : 'danger') as
+                | 'ready'
+                | 'warning'
+                | 'danger',
             }))}
             empty="No tool calls recorded yet."
           />
@@ -610,7 +608,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
                 </tr>
               </thead>
               <tbody>
-                {modelBreakdown.map(m => (
+                {modelBreakdown.map((m) => (
                   <tr key={m.model}>
                     <td className="zvd-ua-model-name">{m.model}</td>
                     <td>{m.calls}</td>
@@ -626,7 +624,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
           {/* Model token distribution chart */}
           <div className="zvd-ua-section-title">Token Distribution</div>
           <BarChart
-            data={modelBreakdown.map(m => ({
+            data={modelBreakdown.map((m) => ({
               label: m.model.length > 12 ? m.model.slice(0, 12) + '...' : m.model,
               value: m.input + m.output,
             }))}
@@ -641,11 +639,7 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
           </div>
 
           <div className="zvd-ua-stats-grid" style={{ marginBottom: '16px' }}>
-            <StatCard
-              icon={<IconChartBar size={18} />}
-              label="Total Sessions"
-              value={String(sessionStats.total)}
-            />
+            <StatCard icon={<IconChartBar size={18} />} label="Total Sessions" value={String(sessionStats.total)} />
             <StatCard
               icon={<IconFlask size={18} />}
               label="Active Now"
@@ -655,13 +649,22 @@ export default function UsageAnalyticsPanel(props: UsageAnalyticsPanelProps) {
             <StatCard
               icon={<IconRobot size={18} />}
               label="Unique Models"
-              value={String(new Set(props.sessions.map(s => s.model).filter(Boolean)).size)}
+              value={String(new Set(props.sessions.map((s) => s.model).filter(Boolean)).size)}
               accent="#60a5fa"
             />
           </div>
 
           <DetailRows rows={sessionRows} empty="No sessions match your search." />
         </div>
+      )}
+
+      {tab === 'savings' && <CostSavingsPanel embedded />}
+
+      {tab === 'export' && (
+        <SessionExportPanel
+          sessionId={props.activeSessionId || props.sessions.find((s) => s.status === 'active')?.id || null}
+          messages={props.exportMessages}
+        />
       )}
     </PageFrame>
   );

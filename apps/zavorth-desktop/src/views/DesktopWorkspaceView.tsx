@@ -38,6 +38,7 @@ const ProfilesPanel = lazyNamed(() => import('./panels/ProfilesPanel'), 'Profile
 const UsageAnalyticsPanel = lazyNamed(() => import('./panels/UsageAnalyticsPanel'), 'default');
 const PluginMarketplacePanel = lazyNamed(() => import('./panels/PluginMarketplaceSimple'), 'PluginMarketplacePanel');
 const WorkboardPanel = lazyNamed(() => import('./panels/WorkboardPanel'), 'default');
+const VibeCodingPanel = lazyNamed(() => import('../vibe/VibeCodingPanel'), 'VibeCodingPanel');
 
 export { PageFrame } from './panelChrome';
 export { ReviewView } from './panels/ReviewView';
@@ -72,7 +73,11 @@ type WorkspaceViewProps = {
   onEffort(value: string): void;
   onEncryptionAction(action: 'preview' | 'apply' | 'rollback'): void | Promise<void>;
   onLearningDecision(id: string, decision: 'approve' | 'reject' | 'forget'): void | Promise<void>;
-  onMemoryControlAction(input: { action: 'forget' | 'updatePreference'; id: string; content?: string }): void | Promise<void>;
+  onMemoryControlAction(input: {
+    action: 'forget' | 'updatePreference';
+    id: string;
+    content?: string;
+  }): void | Promise<void>;
   onChannelSetupAction(input: {
     action: 'applyScaffold' | 'doctor' | 'testConnection';
     channelId?: string | null;
@@ -86,7 +91,11 @@ type WorkspaceViewProps = {
     decision: 'once' | 'session' | 'always' | 'deny' | 'approve' | 'reject',
   ): void | Promise<void>;
   onRuntimeStart(): void | Promise<void>;
-  onRuntimeStateAction(input: { domain: string; operation: string; metadata?: Record<string, unknown> }): void | Promise<void>;
+  onRuntimeStateAction(input: {
+    domain: string;
+    operation: string;
+    metadata?: Record<string, unknown>;
+  }): void | Promise<void>;
   onTheme(value: 'light' | 'dark' | 'system'): void;
   scheduledTasks?: ScheduledTask[];
   onAddScheduledTask?: (name: string, project: string, prompt: string, intervalMinutes: number) => void;
@@ -176,13 +185,18 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
   if (props.activePanel === 'preview') {
     return <WebPreviewView workspaceScope={props.workspaceScope} />;
   }
-  if (props.activePanel === 'files') {
+  if (props.activePanel === 'vibe') {
     return (
-      <FilesView
-        workspaceScope={props.workspaceScope}
-        onAttachFile={props.onAttachFile}
-      />
+      <PanelSuspense>
+        <VibeCodingPanel
+          workspacePath={props.workspaceScope?.path || null}
+          workspaceLabel={props.workspaceScope?.shortLabel || props.workspaceScope?.label || null}
+        />
+      </PanelSuspense>
     );
+  }
+  if (props.activePanel === 'files') {
+    return <FilesView workspaceScope={props.workspaceScope} onAttachFile={props.onAttachFile} />;
   }
 
   if (props.activePanel === 'approvals') {
@@ -198,12 +212,7 @@ export function DesktopWorkspaceView(props: WorkspaceViewProps) {
   }
 
   if (props.activePanel === 'receipts') {
-    return (
-      <ReceiptsPanel
-        receipts={props.receipts || []}
-        onClear={props.onClearReceipts}
-      />
-    );
+    return <ReceiptsPanel receipts={props.receipts || []} onClear={props.onClearReceipts} />;
   }
 
   if (props.activePanel === 'memory') {
