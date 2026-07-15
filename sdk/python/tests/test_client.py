@@ -11,8 +11,8 @@ import json
 from unittest.mock import MagicMock, patch
 
 import pytest
-from zavorth import ZavorthApiError, ZavorthClient
 
+from zavorth import ZavorthApiError, ZavorthClient
 
 # ── Fixtures ───────────────────────────────────────────────────
 
