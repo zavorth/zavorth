@@ -185,3 +185,8 @@ tmp-*.json
 tmp-jest-artifacts/
 .testsprite/
 testsprite_tests/tmp/
+
+# local package tarballs
+*.tgz
+packages/**/*.tgz
+

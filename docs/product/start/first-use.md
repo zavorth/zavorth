@@ -1,6 +1,6 @@
 ---
-title: "First use"
-description: "A simple guide to install, chat, connect a model, and understand what Zavorth does before changing anything important."
+title: 'First use'
+description: 'A simple guide to install, chat, connect a model, and understand what Zavorth does before changing anything important.'
 ---
 
 # First use
@@ -22,6 +22,7 @@ Enough to chat usefully. Full platform setup (channels, skills, routines, evals)
     ```bash
     zavorth --version
     ```
+
   </Step>
 
   <Step title="Basic setup (prove one provider)">
@@ -30,6 +31,7 @@ Enough to chat usefully. Full platform setup (channels, skills, routines, evals)
     ```
 
     Setup asks for the bare minimum: AI model, provider key, language, usage profile, and how Zavorth should act when a task seems sensitive. Provider proven is enough for `chatReady` — you do not need the full 8-step platform checklist.
+
   </Step>
 
   <Step title="Open the daily surface">
@@ -40,6 +42,7 @@ Enough to chat usefully. Full platform setup (channels, skills, routines, evals)
     ```
 
     Both open the daily work surface (live via `ops-go`), not a guide-only help page. Chat is the center; configuration, memory, skills, receipts, and channels sit around it.
+
   </Step>
 
   <Step title="Send a real message">
@@ -54,12 +57,24 @@ Enough to chat usefully. Full platform setup (channels, skills, routines, evals)
     ```text
     Organize my tasks for today and tell me what you need me to approve.
     ```
+
   </Step>
 </Steps>
 
 ## Full platform setup
 
 Optional after chat works: experience profile, channel proof, runtime profile, learned memory review, tools/skills intake, scheduled routines, and quality evals. See [Daily use trail](/docs/daily-use-trail).
+
+## Learned knowledge (optional 10-minute proof)
+
+After chat works, prove the four memory pillars without reading the monorepo:
+
+```bash
+npm run knowledge:golden-path
+zavorth knowledge status
+```
+
+Trail: [Learned Knowledge first use](/docs/product/learned-knowledge-first-use) · [demo Script D](/docs/product/demo-scripts).
 
 ## What to expect from the first conversation
 
