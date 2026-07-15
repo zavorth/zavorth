@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-sms",
+  "label": "SMS Platform (Twilio)",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail SMS channel via Twilio-style credentials.",
+  "description": "First-party channel pack. Detects TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN presence only (never values). Soft send is permission-gated without exposing secrets.",
+  "tags": ["platform", "sms", "channel", "messaging", "twilio"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-sms",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.sms.status",
+      "intent": "platform.sms.status",
+      "label": "Status",
+      "summary": "Report Twilio SID + auth token presence (never values).",
+      "artifactKinds": [],
+      "command": { "name": "platform_sms_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.sms.send",
+      "intent": "platform.sms.send",
+      "label": "Send",
+      "summary": "Soft send an SMS via Twilio-style API (permission-gated).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_sms_send",
+        "aliases": [],
+        "usage": "{ to|phone, text|message|body, from? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Twilio REST API over HTTPS.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound SMS messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-sms.receipt"]
+}

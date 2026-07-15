@@ -1,4 +1,4 @@
-# spotify-soft (Wave 7)
+# spotify-soft
 
 Optional **Spotify Web API** lifestyle plugin for Zavorth Plugin OS.
 
@@ -7,23 +7,23 @@ Complements the core `zavorth_spotify` tool with Plugin OS capabilities.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
+| Variable                                  | Purpose                                          |
+| ----------------------------------------- | ------------------------------------------------ |
 | `SPOTIFY_ACCESS_TOKEN` or `SPOTIFY_TOKEN` | User OAuth access token (required for API calls) |
-| `SPOTIFY_CLIENT_ID` | Optional; presence reported in status |
-| `SPOTIFY_CLIENT_SECRET` | Optional; presence only (never returned) |
+| `SPOTIFY_CLIENT_ID`                       | Optional; presence reported in status            |
+| `SPOTIFY_CLIENT_SECRET`                   | Optional; presence only (never returned)         |
 
 Status reports **presence only** — never secret values.
 
 ## Capabilities
 
-| Capability | Usage | Notes |
-|------------|--------|--------|
-| `spotify.status` | `{}` | `tokenConfigured`, `clientIdConfigured`, setup tips |
-| `spotify.now_playing` | `{}` | Track name, artists, `is_playing` |
-| `spotify.pause` | `{}` | `PUT /v1/me/player/pause` |
-| `spotify.play` | `{ body?, uris?, context_uri? }` | `PUT /v1/me/player/play` (body optional) |
-| `spotify.search` | `{ query, limit? }` | Track search via `/v1/search` |
+| Capability            | Usage                            | Notes                                               |
+| --------------------- | -------------------------------- | --------------------------------------------------- |
+| `spotify.status`      | `{}`                             | `tokenConfigured`, `clientIdConfigured`, setup tips |
+| `spotify.now_playing` | `{}`                             | Track name, artists, `is_playing`                   |
+| `spotify.pause`       | `{}`                             | `PUT /v1/me/player/pause`                           |
+| `spotify.play`        | `{ body?, uris?, context_uri? }` | `PUT /v1/me/player/play` (body optional)            |
+| `spotify.search`      | `{ query, limit? }`              | Track search via `/v1/search`                       |
 
 ## Safety
 

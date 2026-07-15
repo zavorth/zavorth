@@ -1,5 +1,5 @@
 /**
- * Wave 6 — Dashboard bearer-token provider (soft simulation surface).
+ * Dashboard bearer-token provider (soft simulation surface).
  * Does NOT replace a real auth server. Never returns token values.
  */
 const crypto = require('node:crypto');
@@ -23,7 +23,6 @@ function register(ctx) {
     const altPresent = Boolean(String(process.env.ZAVORTH_DASHBOARD_TOKEN || '').trim());
     return {
       ok: true,
-      wave: 'W6',
       pack: 'trust',
       provider: 'dashboard-auth-token',
       tokenConfigured: configured,
@@ -37,18 +36,17 @@ function register(ctx) {
       setup: configured
         ? null
         : [
-          'export DASHBOARD_AUTH_TOKEN=... (preferred)',
-          'or export ZAVORTH_DASHBOARD_TOKEN=...',
-          'This plugin is a control-plane soft surface — not a production auth server.',
-        ],
+            'export DASHBOARD_AUTH_TOKEN=... (preferred)',
+            'or export ZAVORTH_DASHBOARD_TOKEN=...',
+            'This plugin is a control-plane soft surface — not a production auth server.',
+          ],
       note: 'Never returns token values.',
     };
   }
 
   function extractToken(input) {
     const raw = String(
-      (input && (input.token || input.bearer || input.authorization || input.Authorization || input.value))
-        || '',
+      (input && (input.token || input.bearer || input.authorization || input.Authorization || input.value)) || '',
     ).trim();
     if (!raw) return '';
     // Strip "Bearer " prefix (case-insensitive).
@@ -63,10 +61,7 @@ function register(ctx) {
         authenticated: false,
         status: 'not_configured',
         message: 'DASHBOARD_AUTH_TOKEN / ZAVORTH_DASHBOARD_TOKEN not set. Soft-fail.',
-        setup: [
-          'export DASHBOARD_AUTH_TOKEN=...',
-          'or export ZAVORTH_DASHBOARD_TOKEN=...',
-        ],
+        setup: ['export DASHBOARD_AUTH_TOKEN=...', 'or export ZAVORTH_DASHBOARD_TOKEN=...'],
       };
     }
 
@@ -77,9 +72,7 @@ function register(ctx) {
     return {
       ok: true,
       authenticated,
-      message: authenticated
-        ? 'Token matches env (soft simulation).'
-        : 'Token does not match env (soft simulation).',
+      message: authenticated ? 'Token matches env (soft simulation).' : 'Token does not match env (soft simulation).',
       note: 'Token is never echoed.',
     };
   }
@@ -90,7 +83,6 @@ function register(ctx) {
       header: 'Authorization',
       format: 'Bearer <token>',
       example: 'Authorization: Bearer <token>',
-      wave: 'W6',
       note: 'Hint only — never includes the actual token.',
     };
   }
@@ -128,7 +120,7 @@ function register(ctx) {
       id: 'token',
       capabilityId: 'dashboard.auth.token.verify',
       label: 'Dashboard Bearer Token Auth',
-      metadata: { wave: 'W6', pack: 'trust', scheme: 'Bearer' },
+      metadata: { pack: 'trust', scheme: 'Bearer' },
       handler: verifyHandler,
     });
   }

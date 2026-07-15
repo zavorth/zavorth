@@ -1,5 +1,5 @@
 /**
- * Wave 4 — Media image generation (soft-fail).
+ * Media image generation (soft-fail).
  * Presence-only status; never returns secret values.
  */
 const http = require('node:http');
@@ -34,7 +34,6 @@ function register(ctx) {
     const anyKey = openaiKeyPresent || xaiKeyPresent;
     return {
       ok: true,
-      wave: 'W4',
       pack: 'media',
       backends,
       openaiKeyPresent,
@@ -61,7 +60,9 @@ function register(ctx) {
       return { ok: false, message: 'prompt is required' };
     }
 
-    const preferred = String(payload.provider || '').trim().toLowerCase();
+    const preferred = String(payload.provider || '')
+      .trim()
+      .toLowerCase();
     const openaiPresent = Boolean(openaiKey());
     const xaiPresent = Boolean(xaiKey());
     const status = statusPayload();
@@ -81,17 +82,12 @@ function register(ctx) {
       return {
         ok: false,
         status: 'not_configured',
-        message: preferred
-          ? `No API key for provider "${preferred}"`
-          : 'No image generation API key configured',
+        message: preferred ? `No API key for provider "${preferred}"` : 'No image generation API key configured',
         setup: status.setup,
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      `media image generate via ${provider}`,
-    );
+    const allowed = await ctx.requestPermission('network.external', `media image generate via ${provider}`);
     if (!allowed) {
       return {
         ok: false,
@@ -103,9 +99,7 @@ function register(ctx) {
 
     const size = normalizeSize(payload.size);
     const n = Math.max(1, Math.min(4, Number(payload.n) || 1) || 1);
-    const model = String(
-      payload.model || process.env.IMAGE_GEN_MODEL || DEFAULT_MODEL,
-    ).trim();
+    const model = String(payload.model || process.env.IMAGE_GEN_MODEL || DEFAULT_MODEL).trim();
 
     try {
       if (provider === 'openai') {
@@ -131,12 +125,7 @@ function register(ctx) {
     };
     if (model) body.model = model;
 
-    const result = await postJson(
-      `${base}/images/generations`,
-      body,
-      openaiKey(),
-      'zavorth-media-image-gen/1.0',
-    );
+    const result = await postJson(`${base}/images/generations`, body, openaiKey(), 'zavorth-media-image-gen/1.0');
     return normalizeImageResult(result, 'openai', model);
   }
 
@@ -150,12 +139,7 @@ function register(ctx) {
     if (model) body.model = model;
 
     try {
-      const result = await postJson(
-        XAI_IMAGES_URL,
-        body,
-        xaiKey(),
-        'zavorth-media-image-gen/1.0',
-      );
+      const result = await postJson(XAI_IMAGES_URL, body, xaiKey(), 'zavorth-media-image-gen/1.0');
       return normalizeImageResult(result, 'xai', model);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -190,7 +174,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records image_gen binding when host supports it.
+  // Specialized registrar — records image_gen binding when host supports it.
   // May re-bind the same capabilityId; semantics stay soft-fail generate.
   if (typeof ctx.registerImageGenProvider === 'function') {
     try {
@@ -198,7 +182,7 @@ function register(ctx) {
         id: 'media-image-gen',
         capabilityId: 'media.image.generate',
         label: 'Media Image Gen',
-        metadata: { wave: 'W4', pack: 'media' },
+        metadata: { pack: 'media' },
         handler: async (input) => {
           try {
             return await generate(input || {});
@@ -229,9 +213,7 @@ function xaiKey() {
 }
 
 function openaiBaseUrl() {
-  return String(
-    process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || OPENAI_DEFAULT_BASE,
-  ).trim();
+  return String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || OPENAI_DEFAULT_BASE).trim();
 }
 
 function normalizeSize(size) {
@@ -241,21 +223,10 @@ function normalizeSize(size) {
 }
 
 function normalizeImageResult(result, provider, model) {
-  const items = Array.isArray(result?.data)
-    ? result.data
-    : Array.isArray(result)
-      ? result
-      : result
-        ? [result]
-        : [];
+  const items = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : result ? [result] : [];
   const first = items[0] || {};
   const url = first.url || result?.url || null;
-  const b64 =
-    first.b64_json ||
-    first.b64 ||
-    first.base64 ||
-    result?.b64_json ||
-    null;
+  const b64 = first.b64_json || first.b64 || first.base64 || result?.b64_json || null;
   const revisedPrompt = first.revised_prompt || null;
 
   if (!url && !b64) {
@@ -280,9 +251,8 @@ function normalizeImageResult(result, provider, model) {
     out.count = items.length;
     out.items = items.map((item) => ({
       url: item && item.url ? String(item.url) : null,
-      b64_json: item && (item.b64_json || item.b64 || item.base64)
-        ? String(item.b64_json || item.b64 || item.base64)
-        : null,
+      b64_json:
+        item && (item.b64_json || item.b64 || item.base64) ? String(item.b64_json || item.b64 || item.base64) : null,
     }));
   }
   return out;

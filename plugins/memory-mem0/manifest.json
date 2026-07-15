@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "memory",
   "summary": "Soft-fail remote mem0 memory backend (add, search, get).",
-  "description": "Wave 3 memory pack. Uses MEM0_API_KEY / MEM0_BASE_URL against the mem0 HTTP API. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. SSRF-safe base URL checks for custom hosts.",
-  "tags": ["memory", "mem0", "remote", "wave3", "soft-fail"],
+  "description": "Memory pack. Uses MEM0_API_KEY / MEM0_BASE_URL against the mem0 HTTP API. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. SSRF-safe base URL checks for custom hosts.",
+  "tags": ["memory", "mem0", "remote", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://memory-mem0",

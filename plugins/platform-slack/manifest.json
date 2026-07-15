@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-slack",
+  "label": "Slack Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail Slack Web API channel for status and outbound send.",
+  "description": "First-party channel pack. Uses SLACK_BOT_TOKEN / SLACK_TOKEN presence only (never values). Sends via chat.postMessage when network permission is granted.",
+  "tags": ["platform", "slack", "channel", "messaging"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-slack",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.slack.status",
+      "intent": "platform.slack.status",
+      "label": "Status",
+      "summary": "Report Slack bot token presence (never the value).",
+      "artifactKinds": [],
+      "command": { "name": "platform_slack_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.slack.send",
+      "intent": "platform.slack.send",
+      "label": "Send",
+      "summary": "Soft send a Slack message via chat.postMessage.",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_slack_send",
+        "aliases": [],
+        "usage": "{ channel|channelId, text|message }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Slack Web API over HTTPS.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound Slack messages.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect SLACK_BOT_TOKEN / SLACK_TOKEN presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-slack.receipt"]
+}

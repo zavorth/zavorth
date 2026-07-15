@@ -1,5 +1,5 @@
 /**
- * Wave 6 — Soft bridge to core ContextEngine (monorepo tryLoad).
+ * Soft bridge to core ContextEngine (monorepo tryLoad).
  * Pure JS, soft-fail, never leaks secrets.
  */
 const path = require('node:path');
@@ -16,7 +16,6 @@ function register(ctx) {
         ok: true,
         available: true,
         status: 'available',
-        wave: 'W6',
         pack: 'trust',
         message: 'ContextEngine loaded from monorepo path (soft bridge instance).',
         methods: listMethods(service),
@@ -27,7 +26,6 @@ function register(ctx) {
       ok: true,
       available: false,
       status: 'not_configured',
-      wave: 'W6',
       pack: 'trust',
       message: 'ContextEngine not resolvable from monorepo paths.',
       setup: setupTips(),
@@ -140,10 +138,8 @@ function register(ctx) {
     }
     try {
       const stats = typeof service.getStats === 'function' ? service.getStats() : null;
-      const improvement =
-        typeof service.getImprovementStats === 'function' ? service.getImprovementStats() : null;
-      const cache =
-        typeof service.getCacheStats === 'function' ? service.getCacheStats() : null;
+      const improvement = typeof service.getImprovementStats === 'function' ? service.getImprovementStats() : null;
+      const cache = typeof service.getCacheStats === 'function' ? service.getCacheStats() : null;
       if (!stats && !improvement && !cache) {
         return {
           ok: false,
@@ -188,7 +184,7 @@ function register(ctx) {
       id: 'core-bridge',
       capabilityId: 'context.engine.snapshot',
       label: 'Core Context Engine Bridge',
-      metadata: { wave: 'W6', pack: 'trust' },
+      metadata: { pack: 'trust' },
       handler: snapshotHandler,
     });
   } else {
@@ -241,12 +237,12 @@ function sanitizeSoft(value) {
   for (const [key, val] of Object.entries(value)) {
     const lower = String(key).toLowerCase();
     if (
-      lower.includes('password')
-      || lower.includes('secret')
-      || lower.includes('apikey')
-      || lower.includes('api_key')
-      || lower.includes('token')
-      || lower.includes('authorization')
+      lower.includes('password') ||
+      lower.includes('secret') ||
+      lower.includes('apikey') ||
+      lower.includes('api_key') ||
+      lower.includes('token') ||
+      lower.includes('authorization')
     ) {
       out[key] = '[redacted]';
       continue;

@@ -4,11 +4,11 @@
 /**
  * create-zavorth-plugin
  *
- * Standalone CLI for third-party Plugin OS authors (Wave 8).
+ * Standalone CLI for third-party Plugin OS authors.
  * Pure Node — no monorepo TypeScript imports.
  *
  * Usage:
- *   create-zavorth-plugin <id> --kind tool|provider|channel|memory|media|voice|search|diagnostics|bridge
+ *   create-zavorth-plugin <id> --kind tool|provider|channel|memory|media|voice|search|diagnostics|bridge|agent|sandbox|qa|workspace|module
  *   create-zavorth-plugin <id> --kind media --dir ./my-plugin
  *   create-zavorth-plugin <id> --kind tool --dry-run
  *   create-zavorth-plugin <id> --kind tool --yes
@@ -20,6 +20,7 @@ const path = require('node:path');
 const SCHEMA_VERSION = 'zavorth.plugin-os.v1';
 const ZAVORTH_VERSION_RANGE = '>=1.1.0';
 
+/** All ZavorthPluginModuleKind values from PluginManifestContract. */
 const KINDS = [
   'tool',
   'provider',
@@ -30,6 +31,11 @@ const KINDS = [
   'search',
   'diagnostics',
   'bridge',
+  'agent',
+  'sandbox',
+  'qa',
+  'workspace',
+  'module',
 ];
 
 const args = process.argv.slice(2);
@@ -51,11 +57,7 @@ function firstPositional() {
     const arg = args[i];
     if (arg.startsWith('-')) {
       // skip flag value when present
-      if (
-        (arg === '--kind' || arg === '--dir')
-        && args[i + 1]
-        && !args[i + 1].startsWith('-')
-      ) {
+      if ((arg === '--kind' || arg === '--dir') && args[i + 1] && !args[i + 1].startsWith('-')) {
         i += 1;
       }
       continue;
@@ -116,18 +118,21 @@ function normalizeId(value) {
 }
 
 function titleCase(id) {
-  return String(id || '')
-    .split(/[-_.]+/u)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ') || id;
+  return (
+    String(id || '')
+      .split(/[-_.]+/u)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ') || id
+  );
 }
 
 function commandName(id, suffix) {
-  const base = String(id || '')
-    .replace(/[^a-z0-9]+/giu, '_')
-    .replace(/^_+|_+$/gu, '')
-    .toLowerCase() || 'plugin';
+  const base =
+    String(id || '')
+      .replace(/[^a-z0-9]+/giu, '_')
+      .replace(/^_+|_+$/gu, '')
+      .toLowerCase() || 'plugin';
   return `${base}_${suffix}`;
 }
 
@@ -140,81 +145,31 @@ function createPermission(kind, scope, reason, required) {
   };
 }
 
-/** Permission presets for third-party authors (Wave 8 CLI contract). */
+/** Permission presets for third-party authors. */
 function permissionsForKind(kind) {
   switch (kind) {
     case 'provider':
       return [
-        createPermission(
-          'network.external',
-          'external',
-          'Call external provider HTTP APIs.',
-          true,
-        ),
-        createPermission(
-          'provider.call',
-          'external',
-          'Invoke an external model or provider API.',
-          true,
-        ),
-        createPermission(
-          'secret.read',
-          'local',
-          'Detect whether provider API keys are present (not values).',
-          false,
-        ),
+        createPermission('network.external', 'external', 'Call external provider HTTP APIs.', true),
+        createPermission('provider.call', 'external', 'Invoke an external model or provider API.', true),
+        createPermission('secret.read', 'local', 'Detect whether provider API keys are present (not values).', false),
       ];
     case 'channel':
       return [
-        createPermission(
-          'network.external',
-          'external',
-          'Reach external channel endpoints.',
-          true,
-        ),
-        createPermission(
-          'channel.send',
-          'workspace',
-          'Send messages through the channel adapter surface.',
-          true,
-        ),
+        createPermission('network.external', 'external', 'Reach external channel endpoints.', true),
+        createPermission('channel.send', 'workspace', 'Send messages through the channel adapter surface.', true),
       ];
     case 'memory':
       return [
-        createPermission(
-          'filesystem.read',
-          'workspace',
-          'Read local memory store files.',
-          true,
-        ),
-        createPermission(
-          'filesystem.write',
-          'workspace',
-          'Persist local memory store files.',
-          true,
-        ),
-        createPermission(
-          'memory.read',
-          'workspace',
-          'Expose memory read operations.',
-          true,
-        ),
-        createPermission(
-          'memory.write',
-          'workspace',
-          'Expose memory write operations.',
-          true,
-        ),
+        createPermission('filesystem.read', 'workspace', 'Read local memory store files.', true),
+        createPermission('filesystem.write', 'workspace', 'Persist local memory store files.', true),
+        createPermission('memory.read', 'workspace', 'Expose memory read operations.', true),
+        createPermission('memory.write', 'workspace', 'Expose memory write operations.', true),
       ];
     case 'media':
     case 'voice':
       return [
-        createPermission(
-          'network.external',
-          'external',
-          'Fetch or stream media and voice payloads.',
-          true,
-        ),
+        createPermission('network.external', 'external', 'Fetch or stream media and voice payloads.', true),
         createPermission(
           'secret.read',
           'local',
@@ -223,48 +178,41 @@ function permissionsForKind(kind) {
         ),
       ];
     case 'search':
-      return [
-        createPermission(
-          'network.external',
-          'external',
-          'Call external search APIs.',
-          true,
-        ),
-      ];
+      return [createPermission('network.external', 'external', 'Call external search APIs.', true)];
     case 'diagnostics':
-      return [
-        createPermission(
-          'filesystem.read',
-          'workspace',
-          'Read workspace files for diagnostics.',
-          true,
-        ),
-      ];
+      return [createPermission('filesystem.read', 'workspace', 'Read workspace files for diagnostics.', true)];
     case 'bridge':
       return [
         createPermission(
           'network.external',
           'external',
-          'Reach external bridge endpoints.',
-          true,
+          'Optional HTTPS invoke when operator supplies a public endpoint.',
+          false,
         ),
-        createPermission(
-          'filesystem.read',
-          'workspace',
-          'Read workspace files for bridge operation.',
-          true,
-        ),
+        createPermission('process.spawn', 'local', 'Optional CLI bridge when operator supplies a command.', false),
+        createPermission('filesystem.read', 'workspace', 'Read workspace files for bridge operation.', false),
       ];
-    case 'tool':
-    default:
+    case 'sandbox':
+      return [
+        createPermission('process.spawn', 'local', 'Spawn sandboxed local processes.', true),
+        createPermission('filesystem.read', 'workspace', 'Read workspace files inside the sandbox profile.', true),
+      ];
+    case 'agent':
+    case 'workspace':
       return [
         createPermission(
           'filesystem.read',
           'workspace',
-          'Read workspace files for plugin operation.',
+          'Read workspace files for agent or workspace operations.',
           true,
         ),
+        createPermission('filesystem.write', 'workspace', 'Write workspace files when explicitly approved.', false),
       ];
+    case 'qa':
+    case 'module':
+    case 'tool':
+    default:
+      return [createPermission('filesystem.read', 'workspace', 'Read workspace files for plugin operation.', true)];
   }
 }
 
@@ -364,15 +312,80 @@ function capabilityForKind(id, kind) {
       };
     case 'bridge':
       return {
-        id: 'bridge.forward',
-        intent: 'bridge.forward',
-        label: 'Bridge Forward',
-        summary: `Stub bridge forward for ${label}.`,
+        id: 'bridge.invoke',
+        intent: 'bridge.invoke',
+        label: 'Bridge Invoke',
+        summary: `Generic HTTP/CLI/MCP invoke for ${label} (soft-fail without endpoint).`,
         artifactKinds: [],
         command: {
-          name: commandName(id, 'forward'),
+          name: commandName(id, 'invoke'),
+          aliases: ['forward', 'bridge'],
+          usage: '{ mode?: http|cli|mcp, url?, command?, mcpServer?, payload? }',
+        },
+      };
+    case 'agent':
+      return {
+        id: 'agent.ping',
+        intent: 'agent.ping',
+        label: 'Agent Ping',
+        summary: `Stub agent ping for ${label}.`,
+        artifactKinds: [],
+        command: {
+          name: commandName(id, 'ping'),
           aliases: [],
-          usage: '{ payload? }',
+          usage: '{ input? }',
+        },
+      };
+    case 'sandbox':
+      return {
+        id: 'sandbox.run',
+        intent: 'sandbox.run',
+        label: 'Sandbox Run',
+        summary: `Stub sandboxed run for ${label}.`,
+        artifactKinds: [],
+        command: {
+          name: commandName(id, 'sandbox'),
+          aliases: [],
+          usage: '{ input? }',
+        },
+      };
+    case 'qa':
+      return {
+        id: 'qa.check',
+        intent: 'qa.check',
+        label: 'QA Check',
+        summary: `Stub QA check for ${label}.`,
+        artifactKinds: [],
+        command: {
+          name: commandName(id, 'check'),
+          aliases: [],
+          usage: '{ target? }',
+        },
+      };
+    case 'workspace':
+      return {
+        id: 'workspace.info',
+        intent: 'workspace.info',
+        label: 'Workspace Info',
+        summary: `Stub workspace info for ${label}.`,
+        artifactKinds: [],
+        command: {
+          name: commandName(id, 'info'),
+          aliases: [],
+          usage: '{}',
+        },
+      };
+    case 'module':
+      return {
+        id: 'module.run',
+        intent: 'module.run',
+        label: 'Module Run',
+        summary: `Generic module capability for ${label}.`,
+        artifactKinds: [],
+        command: {
+          name: commandName(id, 'run'),
+          aliases: [],
+          usage: '{ input? }',
         },
       };
     case 'tool':
@@ -449,7 +462,136 @@ function buildManifest(id, kind) {
  * Self-contained register(ctx) with soft-fail binds.
  * Always attempts bindCapability; optional specialized adapters when present.
  */
+/**
+ * Generic bridge: HTTP / CLI / MCP soft-fail (no brand hubs, no outbound by default).
+ */
+function buildBridgeIndexJs(id) {
+  const safeId = escapeJs(id);
+  return `/**
+ * ${id} — generic Plugin OS bridge (HTTP / CLI / MCP).
+ * Soft-fails without endpoint; never auto-calls private networks.
+ */
+function register(ctx) {
+  const logger = typeof ctx.getLogger === 'function'
+    ? ctx.getLogger()
+    : { debug() {}, info() {}, warn() {}, error() {} };
+
+  async function invokeBridge({ input }) {
+    const body = input && typeof input === 'object' ? input : {};
+    const mode = String(body.mode || body.transport || 'http').toLowerCase();
+    const endpoint = String(
+      body.url || body.endpoint || process.env.ZAVORTH_BRIDGE_ENDPOINT || '',
+    ).trim();
+    const command = String(
+      body.command || body.cli || process.env.ZAVORTH_BRIDGE_CLI || '',
+    ).trim();
+    const mcpServer = String(
+      body.mcpServer || body.server || process.env.ZAVORTH_BRIDGE_MCP_SERVER || '',
+    ).trim();
+    const payload = body.payload !== undefined ? body.payload : body;
+
+    if (mode === 'cli' || mode === 'shell' || mode === 'process') {
+      if (!command) {
+        return {
+          output: {
+            ok: false,
+            softFail: true,
+            reason: 'cli_missing',
+            pluginId: '${safeId}',
+            capabilityId: 'bridge.invoke',
+            mode: 'cli',
+            message: 'CLI bridge soft-fail: set command/cli or ZAVORTH_BRIDGE_CLI.'}};
+      }
+      return {
+        output: {
+          ok: true,
+          softFail: true,
+          forwarded: false,
+          pluginId: '${safeId}',
+          capabilityId: 'bridge.invoke',
+          mode: 'cli',
+          command,
+          payload,
+          message: 'CLI bridge planned only (scaffold does not spawn processes).'}};
+    }
+
+    if (mode === 'mcp') {
+      if (!mcpServer) {
+        return {
+          output: {
+            ok: false,
+            softFail: true,
+            reason: 'mcp_server_missing',
+            pluginId: '${safeId}',
+            capabilityId: 'bridge.invoke',
+            mode: 'mcp',
+            message: 'MCP bridge soft-fail: set mcpServer or ZAVORTH_BRIDGE_MCP_SERVER.'}};
+      }
+      return {
+        output: {
+          ok: true,
+          softFail: true,
+          forwarded: false,
+          pluginId: '${safeId}',
+          capabilityId: 'bridge.invoke',
+          mode: 'mcp',
+          mcpServer,
+          payload,
+          message: 'MCP bridge planned only (wire via plugins mcp materialize when ready).'}};
+    }
+
+    if (!endpoint) {
+      return {
+        output: {
+          ok: false,
+          softFail: true,
+          reason: 'endpoint_missing',
+          pluginId: '${safeId}',
+          capabilityId: 'bridge.invoke',
+          mode: 'http',
+          message: 'HTTP bridge soft-fail: set url/endpoint or ZAVORTH_BRIDGE_ENDPOINT.'}};
+    }
+    if (!/^https:\\/\\//i.test(endpoint)) {
+      return {
+        output: {
+          ok: false,
+          softFail: true,
+          reason: 'https_required',
+          pluginId: '${safeId}',
+          capabilityId: 'bridge.invoke',
+          mode: 'http',
+          endpoint,
+          message: 'HTTP bridge requires public HTTPS URL (SSRF-safe policy).'}};
+    }
+    return {
+      output: {
+        ok: true,
+        softFail: true,
+        forwarded: false,
+        pluginId: '${safeId}',
+        capabilityId: 'bridge.invoke',
+        mode: 'http',
+        endpoint,
+        payload,
+        message: 'HTTP bridge planned only (scaffold does not perform outbound fetch).'}};
+  }
+
+  if (typeof ctx.bindCapability === 'function') {
+    ctx.bindCapability('bridge.invoke', invokeBridge);
+    ctx.bindCapability('bridge.forward', invokeBridge);
+  } else {
+    logger.warn('bindCapability unavailable; ${safeId} registered without capability binding');
+  }
+}
+
+module.exports = { register };
+`;
+}
+
 function buildIndexJs(id, kind, capabilityId) {
+  if (kind === 'bridge') {
+    return buildBridgeIndexJs(id);
+  }
   const safeId = escapeJs(id);
   const safeCap = escapeJs(capabilityId);
   const lines = [
@@ -458,12 +600,12 @@ function buildIndexJs(id, kind, capabilityId) {
     ' * Soft-fails when optional registration helpers are missing.',
     ' */',
     'function register(ctx) {',
-    '  const logger = typeof ctx.getLogger === \'function\'',
+    "  const logger = typeof ctx.getLogger === 'function'",
     '    ? ctx.getLogger()',
     '    : { debug() {}, info() {}, warn() {}, error() {} };',
     '',
     '  // Primary capability (soft-fail if bindCapability is unavailable).',
-    '  if (typeof ctx.bindCapability === \'function\') {',
+    "  if (typeof ctx.bindCapability === 'function') {",
     `    ctx.bindCapability('${safeCap}', async ({ input }) => ({`,
     '      output: {',
     '        ok: true,',
@@ -483,7 +625,7 @@ function buildIndexJs(id, kind, capabilityId) {
   switch (kind) {
     case 'provider':
       lines.push(
-        '  if (typeof ctx.bindProvider === \'function\') {',
+        "  if (typeof ctx.bindProvider === 'function') {",
         '    try {',
         '      ctx.bindProvider({',
         `        id: '${safeId}',`,
@@ -492,12 +634,12 @@ function buildIndexJs(id, kind, capabilityId) {
         '        complete: async (request) => ({',
         '          ok: true,',
         `          pluginId: '${safeId}',`,
-        '          text: \'scaffold provider complete\',',
+        "          text: 'scaffold provider complete',",
         '          request: request || {},',
         '        }),',
         '      });',
         '    } catch (error) {',
-        '      logger.warn(\'bindProvider soft-fail\', {',
+        "      logger.warn('bindProvider soft-fail', {",
         '        error: error instanceof Error ? error.message : String(error),',
         '      });',
         '    }',
@@ -507,7 +649,7 @@ function buildIndexJs(id, kind, capabilityId) {
       break;
     case 'channel':
       lines.push(
-        '  if (typeof ctx.bindChannel === \'function\') {',
+        "  if (typeof ctx.bindChannel === 'function') {",
         '    try {',
         '      ctx.bindChannel({',
         `        id: '${safeId}-channel',`,
@@ -520,7 +662,7 @@ function buildIndexJs(id, kind, capabilityId) {
         '        }),',
         '      });',
         '    } catch (error) {',
-        '      logger.warn(\'bindChannel soft-fail\', {',
+        "      logger.warn('bindChannel soft-fail', {",
         '        error: error instanceof Error ? error.message : String(error),',
         '      });',
         '    }',
@@ -530,14 +672,14 @@ function buildIndexJs(id, kind, capabilityId) {
       break;
     case 'memory':
       lines.push(
-        '  if (typeof ctx.bindMemoryBackend === \'function\') {',
+        "  if (typeof ctx.bindMemoryBackend === 'function') {",
         '    try {',
         '      const store = new Map();',
         '      ctx.bindMemoryBackend({',
         `        id: '${safeId}-memory',`,
         `        capabilityId: '${safeCap}',`,
         '        read: async (input) => {',
-        '          const key = String((input && input.key) || \'\');',
+        "          const key = String((input && input.key) || '');",
         '          return {',
         '            key,',
         '            value: store.has(key) ? store.get(key) : null,',
@@ -545,14 +687,14 @@ function buildIndexJs(id, kind, capabilityId) {
         '          };',
         '        },',
         '        write: async (input) => {',
-        '          const key = String((input && input.key) || \'\');',
+        "          const key = String((input && input.key) || '');",
         '          const value = input ? input.value : null;',
         '          store.set(key, value);',
         '          return { ok: true, key, value };',
         '        },',
         '      });',
         '    } catch (error) {',
-        '      logger.warn(\'bindMemoryBackend soft-fail\', {',
+        "      logger.warn('bindMemoryBackend soft-fail', {",
         '        error: error instanceof Error ? error.message : String(error),',
         '      });',
         '    }',
@@ -560,23 +702,42 @@ function buildIndexJs(id, kind, capabilityId) {
         '',
       );
       break;
+    case 'agent':
+      lines.push(
+        "  if (typeof ctx.registerHook === 'function') {",
+        '    try {',
+        "      ctx.registerHook('tool.before_execute', async ({ context }) => {",
+        "        logger.debug('tool.before_execute', {",
+        '          tool: context && context.toolName ? context.toolName : null,',
+        '        });',
+        '      });',
+        "      ctx.registerHook('agent.after_turn', async ({ context }) => {",
+        "        logger.debug('agent.after_turn', {",
+        '          turn: context && context.turnId ? context.turnId : null,',
+        '        });',
+        '      });',
+        '    } catch (error) {',
+        "      logger.warn('registerHook soft-fail', {",
+        '        error: error instanceof Error ? error.message : String(error),',
+        '      });',
+        '    }',
+        '  }',
+        '',
+      );
+      break;
+    case 'bridge':
+      // Replace the generic stub with soft-fail HTTP/CLI/MCP invoke.
+      return buildBridgeIndexJs(id);
     default:
       break;
   }
 
-  lines.push(
-    '}',
-    '',
-    'module.exports = { register };',
-    '',
-  );
+  lines.push('}', '', 'module.exports = { register };', '');
   return lines.join('\n');
 }
 
 function buildReadme(id, kind, capabilityId, targetDir) {
-  const relativeHint = path.basename(targetDir) === id
-    ? `./${id}`
-    : targetDir;
+  const relativeHint = path.basename(targetDir) === id ? `./${id}` : targetDir;
   return [
     `# ${id}`,
     '',
@@ -613,7 +774,7 @@ function buildReadme(id, kind, capabilityId, targetDir) {
     '- Keep capability ids declared in `manifest.json` in sync with `index.js` binds.',
     '- Soft-fail: missing `bindCapability` / specialized binders must not crash load.',
     '- Do not return secret values from handlers; report presence only.',
-    '- Publish as a signed pack when using the remote marketplace (Wave 8).',
+    '- Publish as a signed pack when using the remote marketplace.',
     '',
     '## Next steps',
     '',
@@ -665,19 +826,16 @@ if (!id) {
   softFail(`invalid plugin id "${rawId}" (use letters, numbers, ., _, -)`);
 }
 
-const kindRaw = String(readFlag('--kind') || 'tool').trim().toLowerCase();
+const kindRaw = String(readFlag('--kind') || 'tool')
+  .trim()
+  .toLowerCase();
 if (!KINDS.includes(kindRaw)) {
-  softFail(
-    `unsupported kind "${kindRaw}" (expected: ${KINDS.join(', ')})`,
-  );
+  softFail(`unsupported kind "${kindRaw}" (expected: ${KINDS.join(', ')})`);
 }
 const kind = kindRaw;
 
 const dirFlag = readFlag('--dir');
-const targetDir = path.resolve(
-  process.cwd(),
-  dirFlag || id,
-);
+const targetDir = path.resolve(process.cwd(), dirFlag || id);
 
 const dryRun = hasFlag('--dry-run');
 // --yes is the explicit write gate; write is also the default when not dry-run.
@@ -712,9 +870,7 @@ try {
     fs.writeFileSync(file.path, file.content, 'utf8');
   }
 } catch (error) {
-  softFail(
-    `failed to write scaffold: ${error instanceof Error ? error.message : String(error)}`,
-  );
+  softFail(`failed to write scaffold: ${error instanceof Error ? error.message : String(error)}`);
 }
 
 console.log('create-zavorth-plugin');
@@ -736,9 +892,7 @@ if (hasFlag('--install')) {
     const monorepoPlugins = path.join(cwd, 'plugins');
     const monorepoMarker = path.join(cwd, 'config', 'plugin-marketplace-curated.json');
     const isMonorepo = fs.existsSync(monorepoPlugins) && fs.existsSync(monorepoMarker);
-    installPath = isMonorepo
-      ? path.join(monorepoPlugins, id)
-      : path.join(cwd, '.zavorth', 'plugins', id);
+    installPath = isMonorepo ? path.join(monorepoPlugins, id) : path.join(cwd, '.zavorth', 'plugins', id);
     if (typeof fs.cpSync === 'function') {
       fs.mkdirSync(path.dirname(installPath), { recursive: true });
       fs.cpSync(targetDir, installPath, { recursive: true });
@@ -751,9 +905,7 @@ if (hasFlag('--install')) {
     }
   } catch (error) {
     console.log('');
-    console.log(
-      `Warning: --install soft-failed: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    console.log(`Warning: --install soft-failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

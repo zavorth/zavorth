@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "search",
   "summary": "Dedicated Exa neural search backend (soft-fail).",
-  "description": "Wave 5 search pack. Explicit Exa package for POST https://api.exa.ai/search when EXA_API_KEY is set. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. Complements web-search which may also try Exa as one of several backends.",
-  "tags": ["search", "exa", "wave5", "soft-fail"],
+  "description": "Search pack. Explicit Exa package for POST https://api.exa.ai/search when EXA_API_KEY is set. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors. Complements web-search which may also try Exa as one of several backends.",
+  "tags": ["search", "exa", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://search-exa",

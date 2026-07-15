@@ -1,6 +1,6 @@
 # platform-webhook
 
-Wave 2 platform pack — soft-fail generic **HTTPS outbound webhook** channel (Slack-style or raw JSON).
+platform pack — soft-fail generic **HTTPS outbound webhook** channel (Slack-style or raw JSON).
 
 ## Why it exists
 
@@ -8,19 +8,19 @@ Many integrations are “just POST JSON somewhere.” This channel wraps a confi
 
 ## Capabilities
 
-| Capability | Usage |
-|------------|--------|
+| Capability                | Usage                                                 |
+| ------------------------- | ----------------------------------------------------- |
 | `platform.webhook.status` | `{}` — webhook URL **presence** (never the URL value) |
-| `platform.webhook.send` | `{ text, title?, severity?, payload?, url? }` |
+| `platform.webhook.send`   | `{ text, title?, severity?, payload?, url? }`         |
 
 Channel binding: `id: webhook` → `platform.webhook.send`.
 
 ## Env (optional)
 
-| Variable | Purpose |
-|----------|---------|
+| Variable                       | Purpose                         |
+| ------------------------------ | ------------------------------- |
 | `ZAVORTH_PLATFORM_WEBHOOK_URL` | Preferred default HTTPS webhook |
-| `PLATFORM_WEBHOOK_URL` | Alternate env name |
+| `PLATFORM_WEBHOOK_URL`         | Alternate env name              |
 
 Status reports presence only — URLs are never returned.
 

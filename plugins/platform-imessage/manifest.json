@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "platform-imessage",
+  "label": "iMessage Platform",
+  "version": "1.0.0",
+  "moduleKind": "channel",
+  "summary": "Soft-fail iMessage / mac-bridge channel status.",
+  "description": "First-party channel pack. Detects IMESSAGE_* and mac-bridge presence only (never secret values). Soft status (+ optional soft send stub) without exposing bridge tokens.",
+  "tags": ["platform", "imessage", "channel", "messaging", "apple"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://platform-imessage",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "platform.imessage.status",
+      "intent": "platform.imessage.status",
+      "label": "Status",
+      "summary": "Report IMESSAGE_* / mac-bridge presence (never values).",
+      "artifactKinds": [],
+      "command": { "name": "platform_imessage_status", "aliases": [], "usage": "{}" }
+    },
+    {
+      "id": "platform.imessage.send",
+      "intent": "platform.imessage.send",
+      "label": "Send",
+      "summary": "Soft send stub for iMessage (permission-gated).",
+      "artifactKinds": [],
+      "command": {
+        "name": "platform_imessage_send",
+        "aliases": [],
+        "usage": "{ to|recipient, text|message|body }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Reach iMessage mac-bridge endpoint when configured.",
+      "required": false
+    },
+    {
+      "kind": "channel.send",
+      "scope": "external",
+      "reason": "Deliver outbound iMessage.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect IMESSAGE_* bridge token / script presence.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["platform-imessage.receipt"]
+}

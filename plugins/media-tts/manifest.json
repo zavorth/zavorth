@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "voice",
   "summary": "Soft-fail OpenAI-compatible text-to-speech (audio/speech).",
-  "description": "Wave 4 media pack. Uses OPENAI_API_KEY / optional OPENAI_BASE_URL for OpenAI-compatible TTS. Presence-only status (never returns secret values). Soft-fail without key or network.external. Optionally writes audio under .zavorth/media-tts/.",
-  "tags": ["media", "tts", "speech", "wave4", "soft-fail"],
+  "description": "Media pack. Uses OPENAI_API_KEY / optional OPENAI_BASE_URL for OpenAI-compatible TTS. Presence-only status (never returns secret values). Soft-fail without key or network.external. Optionally writes audio under .zavorth/media-tts/.",
+  "tags": ["media", "tts", "speech", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://media-tts",

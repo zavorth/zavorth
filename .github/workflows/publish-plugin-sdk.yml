@@ -42,25 +42,13 @@ jobs:
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install --no-package-lock || true; fi
 
-      - name: Build dist
+      - name: Publish check ritual (build + test + harness + dry-run)
         working-directory: ${{ env.PLUGIN_SDK_DIR }}
-        run: npm run build
-
-      - name: Test definePlugin export
-        working-directory: ${{ env.PLUGIN_SDK_DIR }}
-        run: npm test
-
-      - name: SDK harness (definePlugin + register + inference)
-        working-directory: ${{ env.PLUGIN_SDK_DIR }}
-        run: npm run harness
+        run: npm run publish:check
 
       - name: Smoke require dist
         working-directory: ${{ env.PLUGIN_SDK_DIR }}
         run: node -e "const s=require('./dist/index.js'); if(typeof s.definePlugin!=='function') process.exit(1); console.log('dist ok')"
-
-      - name: Publish dry-run
-        working-directory: ${{ env.PLUGIN_SDK_DIR }}
-        run: npm publish --dry-run --access public
 
       - name: Verify package files
         working-directory: ${{ env.PLUGIN_SDK_DIR }}
@@ -69,7 +57,33 @@ jobs:
           test -f dist/index.d.ts
           test -f README.md
           test -f CHANGELOG.md
-          node -e "const p=require('./package.json'); if(!p.version) process.exit(1); console.log('version', p.version)"
+          test -f RELEASE.md
+          node -e "const p=require('./package.json'); if(!p.version) process.exit(1); if(p.name!=='@zavorth/plugin-sdk') process.exit(1); console.log('version', p.version)"
+
+  create-zavorth-plugin-dry-run:
+    name: create-zavorth-plugin dry-run
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: CLI help + dry-run scaffold
+        working-directory: packages/create-zavorth-plugin
+        run: |
+          node bin/create-zavorth-plugin.js --help
+          node bin/create-zavorth-plugin.js publish-check-demo --kind tool --dry-run
+
+      - name: Publish dry-run (no credentials)
+        working-directory: packages/create-zavorth-plugin
+        run: npm publish --dry-run --access public
 
   publish:
     name: Publish to npm

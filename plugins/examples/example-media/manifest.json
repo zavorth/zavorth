@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-media",
+  "label": "Example Media",
+  "version": "0.1.0",
+  "moduleKind": "media",
+  "summary": "Minimal media capability stub for Plugin OS.",
+  "description": "Bundled example media plugin. Soft-fail register; no network I/O.",
+  "tags": ["media", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-media",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "media.run",
+      "intent": "media.run",
+      "label": "Media Run",
+      "summary": "Stub media capability (no external calls).",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_media_run",
+        "aliases": [],
+        "usage": "{ input? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Media plugins may call remote media APIs when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

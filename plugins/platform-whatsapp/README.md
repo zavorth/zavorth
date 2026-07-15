@@ -1,6 +1,6 @@
 # platform-whatsapp
 
-Wave 2 platform pack — soft-fail **WhatsApp Cloud API** channel for outbound text messages.
+platform pack — soft-fail **WhatsApp Cloud API** channel for outbound text messages.
 
 ## Why it exists
 
@@ -8,20 +8,20 @@ WhatsApp is a common agent messaging surface. This plugin wraps Meta's Cloud API
 
 ## Capabilities
 
-| Capability | Usage |
-|------------|--------|
+| Capability                 | Usage                                                      |
+| -------------------------- | ---------------------------------------------------------- |
 | `platform.whatsapp.status` | `{}` — token + phone number id **presence** (never values) |
-| `platform.whatsapp.send` | `{ to\|phone, text\|message\|body, phoneNumberId? }` |
+| `platform.whatsapp.send`   | `{ to\|phone, text\|message\|body, phoneNumberId? }`       |
 
 Channel binding: `id: whatsapp` → `platform.whatsapp.send`.
 
 ## Env (optional)
 
-| Variable | Purpose |
-|----------|---------|
-| `WHATSAPP_TOKEN` | Preferred Cloud API access token |
-| `WHATSAPP_CLOUD_TOKEN` | Alternate token name |
-| `META_WHATSAPP_TOKEN` | Alternate token name |
+| Variable                   | Purpose                                 |
+| -------------------------- | --------------------------------------- |
+| `WHATSAPP_TOKEN`           | Preferred Cloud API access token        |
+| `WHATSAPP_CLOUD_TOKEN`     | Alternate token name                    |
+| `META_WHATSAPP_TOKEN`      | Alternate token name                    |
 | `WHATSAPP_PHONE_NUMBER_ID` | Default phone number id for `/messages` |
 
 Status reports presence only — tokens and ids are never returned.

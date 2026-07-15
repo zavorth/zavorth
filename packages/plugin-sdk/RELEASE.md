@@ -6,7 +6,7 @@
 2. GitHub secrets: `NPM_TOKEN` or `NODE_AUTH_TOKEN` on the `npm` environment
 3. Clean git tree on `main`
 
-## Local dry-run (Wave 8 ritual)
+## Local dry-run
 
 ```bash
 cd packages/plugin-sdk

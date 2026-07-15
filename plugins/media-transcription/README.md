@@ -1,20 +1,20 @@
-# media-transcription (Wave 4)
+# media-transcription
 
 Soft-fail OpenAI-compatible **Whisper** speech-to-text for Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
-| `OPENAI_API_KEY` | Required for transcribe (presence only in status) |
-| `OPENAI_BASE_URL` | Optional OpenAI-compatible base |
-| `TRANSCRIPTION_MODEL` | Default model (default `whisper-1`) |
+| Variable              | Purpose                                           |
+| --------------------- | ------------------------------------------------- |
+| `OPENAI_API_KEY`      | Required for transcribe (presence only in status) |
+| `OPENAI_BASE_URL`     | Optional OpenAI-compatible base                   |
+| `TRANSCRIPTION_MODEL` | Default model (default `whisper-1`)               |
 
 ## Capabilities
 
-| Capability | Usage |
-|------------|--------|
-| `media.transcription.status` | Key/base host presence — never secret values |
+| Capability                       | Usage                                         |
+| -------------------------------- | --------------------------------------------- |
+| `media.transcription.status`     | Key/base host presence — never secret values  |
 | `media.transcription.transcribe` | `{ path\|file\|filePath, model?, language? }` |
 
 Prefer a **workspace-relative** audio file. The plugin reads the file and POSTs multipart form data to `{base}/audio/transcriptions`.

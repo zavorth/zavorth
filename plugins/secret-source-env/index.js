@@ -1,5 +1,5 @@
 /**
- * Wave 6 — Trust fabric: env secret source (soft-fail).
+ * Trust fabric: env secret source (soft-fail).
  * Presence-only probes for allowlisted process.env names.
  * NEVER returns secret values.
  */
@@ -49,7 +49,6 @@ function register(ctx) {
     const presentCount = entries.filter((e) => e.present).length;
     return {
       ok: true,
-      wave: 'W6',
       pack: 'trust',
       source: 'env',
       allowlistCount: entries.length,
@@ -84,10 +83,7 @@ function register(ctx) {
     }
 
     if (typeof ctx.requestPermission === 'function') {
-      const allowed = await ctx.requestPermission(
-        'secret.read',
-        `Probe presence of env secret ${name}`,
-      );
+      const allowed = await ctx.requestPermission('secret.read', `Probe presence of env secret ${name}`);
       if (!allowed) {
         return {
           ok: false,
@@ -175,7 +171,7 @@ function register(ctx) {
         id: 'env',
         capabilityId: 'secret.env.get',
         label: 'Env Secret Source',
-        metadata: { wave: 'W6', pack: 'trust', source: 'env' },
+        metadata: { pack: 'trust', source: 'env' },
         handler: async (input) => {
           try {
             return await getPresence(input || {});

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-voice",
+  "label": "Example Voice",
+  "version": "0.1.0",
+  "moduleKind": "voice",
+  "summary": "Minimal voice capability stub for Plugin OS.",
+  "description": "Bundled example voice plugin. Soft-fail register; no network or audio I/O.",
+  "tags": ["voice", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-voice",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "voice.run",
+      "intent": "voice.run",
+      "label": "Voice Run",
+      "summary": "Stub voice capability (no external calls).",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_voice_run",
+        "aliases": [],
+        "usage": "{ input? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Voice plugins may call remote STT/TTS APIs when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}

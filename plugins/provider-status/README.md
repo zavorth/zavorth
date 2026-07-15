@@ -1,4 +1,4 @@
-# provider-status (Wave 1)
+# provider-status
 
 Aggregate credential **presence** for the provider pack.
 

@@ -1,17 +1,17 @@
 # browser-cdp
 
-Wave 5 soft-fail Chrome DevTools Protocol (CDP) attach for browser automation **without Playwright**.
+soft-fail Chrome DevTools Protocol (CDP) attach for browser automation **without Playwright**.
 
 Pure Node.js HTTP client against Chrome’s debug endpoints. Soft-fails when CDP is missing, network permission is denied, or the endpoint is unreachable.
 
 ## Capabilities
 
-| id | Purpose |
-|----|---------|
-| `browser.cdp.status` | Configured? **host only** (never full secrets), message, setup tips |
-| `browser.cdp.version` | Soft `GET {cdp}/json/version` |
-| `browser.cdp.targets` | Soft `GET {cdp}/json/list` → `{ id, title, type, url }[]` |
-| `browser.cdp.navigate` | Soft open via HTTP `{cdp}/json/new?{url}` (no WebSocket) |
+| id                     | Purpose                                                             |
+| ---------------------- | ------------------------------------------------------------------- |
+| `browser.cdp.status`   | Configured? **host only** (never full secrets), message, setup tips |
+| `browser.cdp.version`  | Soft `GET {cdp}/json/version`                                       |
+| `browser.cdp.targets`  | Soft `GET {cdp}/json/list` → `{ id, title, type, url }[]`           |
+| `browser.cdp.navigate` | Soft open via HTTP `{cdp}/json/new?{url}` (no WebSocket)            |
 
 ## Env (presence / host only in status)
 

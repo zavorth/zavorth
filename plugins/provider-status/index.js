@@ -41,7 +41,6 @@ function register(ctx) {
     return {
       output: {
         ok: true,
-        wave: 'W1',
         pack: 'providers',
         configured,
         total: providers.length,

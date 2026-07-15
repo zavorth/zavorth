@@ -1,5 +1,5 @@
 /**
- * Wave 6 — Dashboard basic-auth provider (soft simulation surface).
+ * Dashboard basic-auth provider (soft simulation surface).
  * Does NOT replace a real auth server. Never returns password values.
  */
 const crypto = require('node:crypto');
@@ -18,7 +18,6 @@ function register(ctx) {
     const ready = userConfigured && passwordConfigured;
     return {
       ok: true,
-      wave: 'W6',
       pack: 'trust',
       provider: 'dashboard-auth-basic',
       userConfigured,
@@ -30,10 +29,10 @@ function register(ctx) {
       setup: ready
         ? null
         : [
-          'export DASHBOARD_BASIC_USER=...',
-          'export DASHBOARD_BASIC_PASSWORD=...',
-          'This plugin is a control-plane soft surface — not a production auth server.',
-        ],
+            'export DASHBOARD_BASIC_USER=...',
+            'export DASHBOARD_BASIC_PASSWORD=...',
+            'This plugin is a control-plane soft surface — not a production auth server.',
+          ],
       note: 'Never returns username/password values.',
     };
   }
@@ -46,10 +45,7 @@ function register(ctx) {
         authenticated: false,
         status: 'not_configured',
         message: 'DASHBOARD_BASIC_USER and/or DASHBOARD_BASIC_PASSWORD not set. Soft-fail.',
-        setup: [
-          'export DASHBOARD_BASIC_USER=...',
-          'export DASHBOARD_BASIC_PASSWORD=...',
-        ],
+        setup: ['export DASHBOARD_BASIC_USER=...', 'export DASHBOARD_BASIC_PASSWORD=...'],
       };
     }
 
@@ -80,7 +76,6 @@ function register(ctx) {
       message: 'Basic realm="zavorth"',
       header: 'WWW-Authenticate',
       headerValue: 'Basic realm="zavorth"',
-      wave: 'W6',
       note: 'Hint only — real HTTP challenge is owned by the control plane host.',
     };
   }
@@ -118,7 +113,7 @@ function register(ctx) {
       id: 'basic',
       capabilityId: 'dashboard.auth.basic.verify',
       label: 'Dashboard Basic Auth',
-      metadata: { wave: 'W6', pack: 'trust', scheme: 'Basic' },
+      metadata: { pack: 'trust', scheme: 'Basic' },
       handler: verifyHandler,
     });
   }

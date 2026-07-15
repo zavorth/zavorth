@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "diagnostics",
   "summary": "Bearer token provider surface for control plane soft simulation.",
-  "description": "Wave 6 trust fabric plugin. Exposes dashboard.auth.token.* capabilities for soft simulation of control-plane bearer token auth. Does NOT replace a real auth server. Never returns token values.",
-  "tags": ["dashboard", "auth", "token", "bearer", "wave6", "trust"],
+  "description": "Trust fabric plugin. Exposes dashboard.auth.token.* capabilities for soft simulation of control-plane bearer token auth. Does NOT replace a real auth server. Never returns token values.",
+  "tags": ["dashboard", "auth", "token", "bearer", "trust"],
   "source": {
     "kind": "local",
     "locator": "bundled://dashboard-auth-token",

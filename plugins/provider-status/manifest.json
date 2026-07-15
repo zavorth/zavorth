@@ -1,52 +1,52 @@
 {
-  "schemaVersion": "zavorth.plugin-os.v1",
-  "id": "provider-status",
-  "label": "Provider Pack Status",
-  "version": "1.0.0",
-  "moduleKind": "diagnostics",
-  "summary": "Aggregate status for Wave 1 provider plugins (key presence only).",
-  "description": "Wave 1 diagnostics. Reports which provider plugins have credentials configured without reading secret values.",
-  "tags": ["provider", "status", "doctor", "wave1", "diagnostics"],
-  "source": {
-    "kind": "local",
-    "locator": "bundled://provider-status",
-    "digest": null,
-    "trusted": false
-  },
-  "compatibility": {
-    "zavorthVersion": ">=1.1.0",
-    "pluginApiVersion": "zavorth.plugin-os.v1"
-  },
-  "capabilities": [
-    {
-      "id": "provider.pack.status",
-      "intent": "provider.pack.status",
-      "label": "Provider Pack Status",
-      "summary": "List configured provider env keys (presence only).",
-      "artifactKinds": [],
-      "command": { "name": "provider_pack_status", "aliases": ["providers_status"], "usage": "{}" }
-    }
-  ],
-  "permissions": [
-    { "kind": "secret.read", "scope": "local", "reason": "Detect provider env key presence only.", "required": false }
-  ],
-  "entrypoint": {
-    "module": "./index.js",
-    "exportName": "register",
-    "runtime": "node"
-  },
-  "lifecycle": {
-    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
-    "defaultAction": "invoke"
-  },
-  "policy": {
-    "defaultTrust": "review",
-    "requiresApproval": false,
-    "allowNetworkByDefault": false,
-    "allowFilesystemWriteByDefault": false,
-    "allowProcessSpawnByDefault": false,
-    "sandboxProfile": "restricted"
-  },
-  "artifactKinds": [],
-  "receiptKinds": ["provider-status.receipt"]
+ "schemaVersion": "zavorth.plugin-os.v1",
+ "id": "provider-status",
+ "label": "Provider Pack Status",
+ "version": "1.0.0",
+ "moduleKind": "diagnostics",
+ "summary": "Aggregate status for Provider plugins (key presence only).",
+ "description": "Diagnostics. Reports which provider plugins have credentials configured without reading secret values.",
+ "tags": ["provider", "status", "doctor", "diagnostics"],
+ "source": {
+ "kind": "local",
+ "locator": "bundled://provider-status",
+ "digest": null,
+ "trusted": false
+ },
+ "compatibility": {
+ "zavorthVersion": ">=1.1.0",
+ "pluginApiVersion": "zavorth.plugin-os.v1"
+ },
+ "capabilities": [
+ {
+ "id": "provider.pack.status",
+ "intent": "provider.pack.status",
+ "label": "Provider Pack Status",
+ "summary": "List configured provider env keys (presence only).",
+ "artifactKinds": [],
+ "command": { "name": "provider_pack_status", "aliases": ["providers_status"], "usage": "{}" }
+ }
+ ],
+ "permissions": [
+ { "kind": "secret.read", "scope": "local", "reason": "Detect provider env key presence only.", "required": false }
+ ],
+ "entrypoint": {
+ "module": "./index.js",
+ "exportName": "register",
+ "runtime": "node"
+ },
+ "lifecycle": {
+ "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+ "defaultAction": "invoke"
+ },
+ "policy": {
+ "defaultTrust": "review",
+ "requiresApproval": false,
+ "allowNetworkByDefault": false,
+ "allowFilesystemWriteByDefault": false,
+ "allowProcessSpawnByDefault": false,
+ "sandboxProfile": "restricted"
+ },
+ "artifactKinds": [],
+ "receiptKinds": ["provider-status.receipt"]
 }

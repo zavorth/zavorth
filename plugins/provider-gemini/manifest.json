@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "provider",
   "summary": "Soft-fail Google Gemini generateContent API.",
-  "description": "Wave 1 provider pack. Uses GEMINI_API_KEY or GOOGLE_API_KEY. Soft-fail without network permission.",
-  "tags": ["provider", "gemini", "google", "llm", "wave1"],
+  "description": "Provider pack. Uses GEMINI_API_KEY or GOOGLE_API_KEY. Soft-fail without network permission.",
+  "tags": ["provider", "gemini", "google", "llm"],
   "source": {
     "kind": "local",
     "locator": "bundled://provider-gemini",

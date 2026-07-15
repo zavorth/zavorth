@@ -1,5 +1,5 @@
 /**
- * Wave 5 — Browser CDP soft attach (pure JS, no Playwright).
+ * Browser CDP soft attach (pure JS, no Playwright).
  * Presence-only status; never returns full CDP URL secrets.
  * Localhost attach is intentional for local browser debugging.
  */
@@ -11,7 +11,6 @@ function register(ctx) {
     if (!cdp.configured) {
       return {
         ok: true,
-        wave: 'W5',
         pack: 'browser',
         configured: false,
         host: null,
@@ -24,7 +23,6 @@ function register(ctx) {
     if (cdp.invalid || !cdp.base) {
       return {
         ok: true,
-        wave: 'W5',
         pack: 'browser',
         configured: true,
         host: null,
@@ -37,7 +35,6 @@ function register(ctx) {
     }
     return {
       ok: true,
-      wave: 'W5',
       pack: 'browser',
       configured: true,
       host: cdp.host,
@@ -118,9 +115,7 @@ function register(ctx) {
           'User-Agent': data['User-Agent'] || data.userAgent || null,
           'V8-Version': data['V8-Version'] || data.v8Version || null,
           'WebKit-Version': data['WebKit-Version'] || data.webKitVersion || null,
-          webSocketDebuggerUrl: data.webSocketDebuggerUrl
-            ? redactWsHost(data.webSocketDebuggerUrl)
-            : null,
+          webSocketDebuggerUrl: data.webSocketDebuggerUrl ? redactWsHost(data.webSocketDebuggerUrl) : null,
         },
         message: 'CDP /json/version ok',
       };
@@ -169,11 +164,8 @@ function register(ctx) {
   async function navigate(input) {
     const payload = input || {};
     const url = String(payload.url || payload.href || payload.target || '').trim();
-    const targetId = payload.targetId != null
-      ? String(payload.targetId).trim()
-      : payload.id != null
-        ? String(payload.id).trim()
-        : '';
+    const targetId =
+      payload.targetId != null ? String(payload.targetId).trim() : payload.id != null ? String(payload.id).trim() : '';
 
     if (!url) {
       return {
@@ -219,11 +211,11 @@ function register(ctx) {
           : 'Opened via CDP HTTP /json/new (no WebSocket / Playwright).',
         target: opened
           ? {
-            id: opened.id != null ? String(opened.id) : null,
-            title: opened.title != null ? String(opened.title) : '',
-            type: opened.type != null ? String(opened.type) : '',
-            url: opened.url != null ? String(opened.url) : url,
-          }
+              id: opened.id != null ? String(opened.id) : null,
+              title: opened.title != null ? String(opened.title) : '',
+              type: opened.type != null ? String(opened.type) : '',
+              url: opened.url != null ? String(opened.url) : url,
+            }
           : null,
         message: 'CDP navigate soft-ok via /json/new',
       };
@@ -272,7 +264,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records browser binding when host supports it.
+  // Specialized registrar — records browser binding when host supports it.
   if (typeof ctx.registerBrowserProvider === 'function') {
     try {
       ctx.registerBrowserProvider({
@@ -280,7 +272,7 @@ function register(ctx) {
         capabilityId: 'browser.cdp.navigate',
         kind: 'browser',
         label: 'Browser CDP',
-        metadata: { wave: 'W5', pack: 'browser', softFail: true, transport: 'cdp-http' },
+        metadata: { pack: 'browser', softFail: true, transport: 'cdp-http' },
         handler: async (input) => {
           try {
             return await navigate(input || {});
@@ -322,10 +314,7 @@ function resolveCdpBase() {
       return { configured: true, base: null, host: null, isLocal: false, invalid: true };
     }
     // Keep origin (+ optional path prefix) without trailing slash; never expose secrets elsewhere.
-    const base = `${parsed.origin}${parsed.pathname === '/' ? '' : parsed.pathname}`.replace(
-      /\/+$/u,
-      '',
-    );
+    const base = `${parsed.origin}${parsed.pathname === '/' ? '' : parsed.pathname}`.replace(/\/+$/u, '');
     return {
       configured: true,
       base,
@@ -339,14 +328,10 @@ function resolveCdpBase() {
 }
 
 function isLocalHost(hostname) {
-  const h = String(hostname || '').toLowerCase().replace(/^\[|\]$/gu, '');
-  return (
-    h === 'localhost'
-    || h === '127.0.0.1'
-    || h === '::1'
-    || h === '0.0.0.0'
-    || h.endsWith('.localhost')
-  );
+  const h = String(hostname || '')
+    .toLowerCase()
+    .replace(/^\[|\]$/gu, '');
+  return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' || h.endsWith('.localhost');
 }
 
 function isHttpUrl(value) {
@@ -427,9 +412,7 @@ async function cdpFetch(base, path, method) {
         Accept: 'application/json, text/plain, */*',
         'User-Agent': 'zavorth-browser-cdp/1.0',
       },
-      signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout
-        ? AbortSignal.timeout(10000)
-        : undefined,
+      signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,
     });
     const text = await response.text();
     return { status: response.status || 0, text };

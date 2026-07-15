@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "media",
   "summary": "Soft-fail image describe via OpenAI-compatible vision chat.",
-  "description": "Wave 4 media pack. Uses OPENAI_API_KEY for chat/completions with image_url content when available. Reports presence of OPENAI_API_KEY, XAI_API_KEY, and ANTHROPIC_API_KEY (never secret values). Soft-fail without key, network.external permission, or on HTTP errors. Truncates large base64 in logs.",
-  "tags": ["media", "vision", "image", "describe", "wave4"],
+  "description": "Media pack. Uses OPENAI_API_KEY for chat/completions with image_url content when available. Reports presence of OPENAI_API_KEY, XAI_API_KEY, and ANTHROPIC_API_KEY (never secret values). Soft-fail without key, network.external permission, or on HTTP errors. Truncates large base64 in logs.",
+  "tags": ["media", "vision", "image", "describe"],
   "source": {
     "kind": "local",
     "locator": "bundled://media-vision",

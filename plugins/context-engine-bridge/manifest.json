@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "bridge",
   "summary": "Soft bridge to core ContextEngine when resolvable from the monorepo.",
-  "description": "Wave 6 trust fabric plugin. Soft-loads ContextEngine from workspace/dist or src paths (browser-playwright style tryLoad). Exposes status/snapshot/recall/stats. Soft-fails with not_configured when unavailable.",
-  "tags": ["context", "engine", "bridge", "memory", "wave6", "trust"],
+  "description": "Trust fabric plugin. Soft-loads ContextEngine from workspace/dist or src paths (browser-playwright style tryLoad). Exposes status/snapshot/recall/stats. Soft-fails with not_configured when unavailable.",
+  "tags": ["context", "engine", "bridge", "memory", "trust"],
   "source": {
     "kind": "local",
     "locator": "bundled://context-engine-bridge",

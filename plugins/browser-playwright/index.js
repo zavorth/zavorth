@@ -9,23 +9,21 @@ function register(ctx) {
   ctx.bindCapability('browser.status', async () => ({
     output: service
       ? {
-        ok: true,
-        available: true,
-        wave: 'W5',
-        engine: 'playwright',
-        message: 'BrowserPlaywrightService loaded.',
-        stats: typeof service.getStats === 'function' ? service.getStats() : null,
-        tip: 'For CDP attach without Playwright, enable browser-cdp with CDP_URL.',
-      }
+          ok: true,
+          available: true,
+          engine: 'playwright',
+          message: 'BrowserPlaywrightService loaded.',
+          stats: typeof service.getStats === 'function' ? service.getStats() : null,
+          tip: 'For CDP attach without Playwright, enable browser-cdp with CDP_URL.',
+        }
       : {
-        ok: true,
-        available: false,
-        wave: 'W5',
-        engine: 'playwright',
-        message: 'BrowserPlaywrightService not available.',
-        setup: setupTips(),
-        tip: 'Alternatively enable browser-cdp and set CDP_URL for Chrome remote debugging.',
-      },
+          ok: true,
+          available: false,
+          engine: 'playwright',
+          message: 'BrowserPlaywrightService not available.',
+          setup: setupTips(),
+          tip: 'Alternatively enable browser-cdp and set CDP_URL for Chrome remote debugging.',
+        },
   }));
 
   ctx.bindCapability('browser.open', async ({ input }) => {

@@ -1,4 +1,4 @@
-# provider-gemini (Wave 1)
+# provider-gemini
 
 Soft-fail Google Gemini generateContent plugin.
 

@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "provider",
   "summary": "Soft-fail OpenAI-compatible chat completions (OpenAI, OpenRouter, local gateways).",
-  "description": "Wave 1 provider pack. Uses OPENAI_API_KEY / OPENAI_BASE_URL. Never returns secret values. Core providers remain authoritative when configured.",
-  "tags": ["provider", "openai", "openrouter", "llm", "wave1", "complete"],
+  "description": "Provider pack. Uses OPENAI_API_KEY / OPENAI_BASE_URL. Never returns secret values. Core providers remain authoritative when configured.",
+  "tags": ["provider", "openai", "openrouter", "llm", "complete"],
   "source": {
     "kind": "local",
     "locator": "bundled://provider-openai-compatible",

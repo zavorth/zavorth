@@ -1,14 +1,14 @@
-# memory-mem0 (Wave 3)
+# memory-mem0
 
 Soft-fail remote [mem0](https://mem0.ai) memory backend for Zavorth Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
-| `MEM0_API_KEY` | Required for add / search / get |
+| Variable        | Purpose                               |
+| --------------- | ------------------------------------- |
+| `MEM0_API_KEY`  | Required for add / search / get       |
 | `MEM0_BASE_URL` | Optional (default host `api.mem0.ai`) |
-| `MEM0_USER_ID` | Optional default user scope |
+| `MEM0_USER_ID`  | Optional default user scope           |
 
 Status reports **presence only** (`keyPresent`, `baseHost`) — never secret values or full URLs with credentials.
 
@@ -21,11 +21,11 @@ Status reports **presence only** (`keyPresent`, `baseHost`) — never secret val
 
 Also registers `bindMemoryBackend` (`id: memory-mem0`):
 
-| Backend op | Capability path |
-|------------|-----------------|
-| write | add |
-| search | search |
-| read | get (or search when `query` is provided) |
+| Backend op | Capability path                          |
+| ---------- | ---------------------------------------- |
+| write      | add                                      |
+| search     | search                                   |
+| read       | get (or search when `query` is provided) |
 
 ## Safety
 

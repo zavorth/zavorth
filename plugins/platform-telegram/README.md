@@ -1,4 +1,4 @@
-# platform-telegram (Wave 2)
+# platform-telegram
 
 Soft-fail Telegram Bot API channel plugin. Reports token presence only — never
 token values. Outbound send uses HTTPS `api.telegram.org` when permission is

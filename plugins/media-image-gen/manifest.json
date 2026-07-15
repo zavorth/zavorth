@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "media",
   "summary": "Soft-fail image generation via OpenAI Images API or xAI.",
-  "description": "Wave 4 media pack. Uses OPENAI_API_KEY (preferred) or XAI_API_KEY / GROK_API_KEY for image generation. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors.",
-  "tags": ["media", "image", "image-gen", "wave4", "soft-fail"],
+  "description": "Media pack. Uses OPENAI_API_KEY (preferred) or XAI_API_KEY / GROK_API_KEY for image generation. Presence-only status (never returns secret values). Soft-fail without key, network.external permission, or on HTTP errors.",
+  "tags": ["media", "image", "image-gen", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://media-image-gen",

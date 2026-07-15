@@ -7,9 +7,7 @@ function register(ctx) {
   const service = tryLoadHoncho(workspace, logger);
 
   ctx.bindCapability('memory.honcho.status', async () => {
-    const envKeyPresent = Boolean(
-      String(process.env.HONCHO_API_KEY || process.env.MEMORY_HONCHO_API_KEY || '').trim(),
-    );
+    const envKeyPresent = Boolean(String(process.env.HONCHO_API_KEY || process.env.MEMORY_HONCHO_API_KEY || '').trim());
     if (service) {
       return {
         output: {
@@ -18,7 +16,6 @@ function register(ctx) {
           status: 'available',
           serviceLoaded: true,
           envKeyPresent,
-          wave: 'W3',
           message: 'MemoryHonchoService loaded.',
           note: 'Env key presence is informational; values are never returned.',
         },
@@ -31,7 +28,6 @@ function register(ctx) {
         status: 'not_configured',
         serviceLoaded: false,
         envKeyPresent,
-        wave: 'W3',
         message: 'MemoryHonchoService is not available from monorepo paths.',
         howToEnable: [
           'Ensure src/services/plugins/MemoryHonchoService is built or resolvable.',
@@ -89,7 +85,9 @@ function register(ctx) {
         };
       }
       const userId = String((input && (input.userId || input.id)) || 'default').trim();
-      const query = String((input && (input.query || input.q || input.text)) || '').trim().toLowerCase();
+      const query = String((input && (input.query || input.q || input.text)) || '')
+        .trim()
+        .toLowerCase();
       const limit = Math.max(1, Math.min(50, Number((input && input.limit) || 10) || 10));
       const items = [];
 
@@ -106,9 +104,7 @@ function register(ctx) {
         items.push({ kind: 'profile', value: service.getProfile(userId) });
       }
 
-      const filtered = query
-        ? items.filter((item) => JSON.stringify(item).toLowerCase().includes(query))
-        : items;
+      const filtered = query ? items.filter((item) => JSON.stringify(item).toLowerCase().includes(query)) : items;
 
       return {
         output: {

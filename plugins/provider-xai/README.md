@@ -1,4 +1,4 @@
-# provider-xai (Wave 1)
+# provider-xai
 
 Soft-fail xAI/Grok provider plugin.
 

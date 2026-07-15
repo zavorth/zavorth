@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-openai",
+  "label": "OpenAI Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail OpenAI chat completions via api.openai.com.",
+  "description": "First-party provider pack. Uses OPENAI_API_KEY. Completions go to api.openai.com when permitted.",
+  "tags": ["provider", "openai", "llm", "complete"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-openai",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.openai.status",
+      "intent": "provider.openai.status",
+      "label": "Status",
+      "summary": "Report OpenAI key presence (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_openai_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "provider.openai.complete",
+      "intent": "provider.openai.complete",
+      "label": "Complete",
+      "summary": "Soft chat completion via OpenAI.",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_openai_complete",
+        "aliases": [],
+        "usage": "{ prompt, model? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call OpenAI chat completions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke LLM completion.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect OPENAI_API_KEY presence (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-openai.receipt"]
+}

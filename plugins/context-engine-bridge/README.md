@@ -1,6 +1,6 @@
 # context-engine-bridge
 
-Wave 6 trust fabric — soft bridge to core **ContextEngine** when resolvable from the monorepo.
+trust fabric — soft bridge to core **ContextEngine** when resolvable from the monorepo.
 
 Uses browser-playwright-style `tryLoad`. Soft-fails with `not_configured` when unavailable.
 

@@ -1,6 +1,6 @@
 # dashboard-auth-basic
 
-Wave 6 trust fabric — local **basic-auth** provider surface for control-plane soft simulation.
+trust fabric — local **basic-auth** provider surface for control-plane soft simulation.
 
 Does **not** replace a real auth server. Env presence only; passwords are never returned.
 

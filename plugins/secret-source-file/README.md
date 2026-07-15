@@ -1,4 +1,4 @@
-# secret-source-file (Wave 6)
+# secret-source-file
 
 Trust fabric **file** secret source for Zavorth Plugin OS.
 
@@ -24,23 +24,23 @@ Also reads a legacy `secrets.json` in the same directory if `store.json` is miss
 
 ## Capabilities
 
-| Capability | Usage | Permission | Output notes |
-|------------|--------|------------|--------------|
-| `secret.file.status` | `{}` | — | `exists`, `entryCount`, relative `path` |
-| `secret.file.set` | `{ name, value }` | `filesystem.write` | `{ ok, name, present: true }` (no value) |
-| `secret.file.has` | `{ name }` | `secret.read` (optional) | `{ ok, present, name }` |
-| `secret.file.delete` | `{ name }` | `filesystem.write` | `{ ok, name, deleted }` |
-| `secret.file.list` | `{}` | — | `names` only |
+| Capability           | Usage             | Permission               | Output notes                             |
+| -------------------- | ----------------- | ------------------------ | ---------------------------------------- |
+| `secret.file.status` | `{}`              | —                        | `exists`, `entryCount`, relative `path`  |
+| `secret.file.set`    | `{ name, value }` | `filesystem.write`       | `{ ok, name, present: true }` (no value) |
+| `secret.file.has`    | `{ name }`        | `secret.read` (optional) | `{ ok, present, name }`                  |
+| `secret.file.delete` | `{ name }`        | `filesystem.write`       | `{ ok, name, deleted }`                  |
+| `secret.file.list`   | `{}`              | —                        | `names` only                             |
 
 ## Specialized registrar
 
 When `ctx.registerSecretSource` exists:
 
-| Field | Value |
-|-------|-------|
-| id | `file` |
+| Field        | Value             |
+| ------------ | ----------------- |
+| id           | `file`            |
 | capabilityId | `secret.file.has` |
-| kind | `secret_source` |
+| kind         | `secret_source`   |
 
 ## Path confinement
 

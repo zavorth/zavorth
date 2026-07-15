@@ -1,6 +1,6 @@
 # middleware-rate-limit
 
-Wave 6 trust fabric — in-memory **sliding window** rate limit via `registerMiddleware` / `registerHook`.
+trust fabric — in-memory **sliding window** rate limit via `registerMiddleware` / `registerHook`.
 
 Soft guidance only. Emits `middleware.rate_limit.exceeded`; never hard-throws. `block: true` still log-only.
 

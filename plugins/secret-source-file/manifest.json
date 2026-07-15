@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "diagnostics",
   "summary": "Workspace file secret store under .zavorth/secrets (presence only in outputs).",
-  "description": "Wave 6 Trust fabric pack. Local plain JSON secret store at workspace/.zavorth/secrets/store.json. Capabilities never return secret values — only names and presence. Writes require filesystem.write via requestPermission. Soft-fail.",
-  "tags": ["secrets", "file", "trust", "wave6", "soft-fail"],
+  "description": "Trust fabric pack. Local plain JSON secret store at workspace/.zavorth/secrets/store.json. Capabilities never return secret values — only names and presence. Writes require filesystem.write via requestPermission. Soft-fail.",
+  "tags": ["secrets", "file", "trust", "soft-fail"],
   "source": {
     "kind": "local",
     "locator": "bundled://secret-source-file",

@@ -5,8 +5,8 @@
   "version": "1.0.0",
   "moduleKind": "search",
   "summary": "Firecrawl extract/scrape search backend (soft-fail).",
-  "description": "Wave 5 search pack. Soft Firecrawl scrape (and optional search) via FIRECRAWL_API_KEY. Presence-only status (never returns secret values). SSRF-safe scrape targets (HTTPS public hosts only). Soft-fail without key, network.external permission, or on HTTP errors.",
-  "tags": ["search", "firecrawl", "crawl", "extract", "wave5"],
+  "description": "Search pack. Soft Firecrawl scrape (and optional search) via FIRECRAWL_API_KEY. Presence-only status (never returns secret values). SSRF-safe scrape targets (HTTPS public hosts only). Soft-fail without key, network.external permission, or on HTTP errors.",
+  "tags": ["search", "firecrawl", "crawl", "extract"],
   "source": {
     "kind": "local",
     "locator": "bundled://search-firecrawl",

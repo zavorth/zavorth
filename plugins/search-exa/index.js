@@ -1,5 +1,5 @@
 /**
- * Wave 5 — Dedicated Exa search (soft-fail).
+ * Dedicated Exa search (soft-fail).
  * Presence-only status; never returns secret values.
  * Complements web-search, which may also try Exa as one of several backends.
  */
@@ -16,7 +16,6 @@ function register(ctx) {
     const keyPresent = Boolean(apiKey());
     return {
       ok: true,
-      wave: 'W5',
       pack: 'search',
       backend: 'exa',
       keyPresent,
@@ -62,10 +61,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'Exa search API query',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'Exa search API query');
     if (!allowed) {
       return {
         ok: false,
@@ -95,9 +91,7 @@ function register(ctx) {
         backend: 'exa',
         query: q,
         results,
-        message: results.length
-          ? `Exa returned ${results.length} result(s)`
-          : 'Exa returned no results',
+        message: results.length ? `Exa returned ${results.length} result(s)` : 'Exa returned no results',
       };
     } catch (error) {
       logger.warn('search.exa.query failed', {
@@ -122,7 +116,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records web_search binding when host supports it.
+  // Specialized registrar — records web_search binding when host supports it.
   if (typeof ctx.registerWebSearchProvider === 'function') {
     try {
       ctx.registerWebSearchProvider({
@@ -130,7 +124,7 @@ function register(ctx) {
         id: 'exa',
         capabilityId: 'search.exa.query',
         label: 'Exa Search',
-        metadata: { wave: 'W5', pack: 'search', backend: 'exa' },
+        metadata: { pack: 'search', backend: 'exa' },
         handler: async (input) => {
           try {
             return await query(input || {});
@@ -163,17 +157,11 @@ function normalizeLimit(value) {
 }
 
 function normalizeResults(data, limit) {
-  const list = Array.isArray(data?.results)
-    ? data.results
-    : Array.isArray(data)
-      ? data
-      : [];
+  const list = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
   return list.slice(0, limit).map((item) => ({
     title: String((item && item.title) || ''),
     url: String((item && (item.url || item.link)) || ''),
-    snippet: String(
-      (item && (item.text || item.snippet || item.summary || item.content)) || '',
-    ).slice(0, 1000),
+    snippet: String((item && (item.text || item.snippet || item.summary || item.content)) || '').slice(0, 1000),
   }));
 }
 

@@ -1,5 +1,5 @@
 /**
- * Wave 4 — Media TTS (soft-fail OpenAI-compatible audio/speech).
+ * Media TTS (soft-fail OpenAI-compatible audio/speech).
  * Secret presence only; never returns API key values.
  */
 const fs = require('node:fs');
@@ -64,10 +64,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'OpenAI-compatible TTS audio/speech',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'OpenAI-compatible TTS audio/speech');
     if (!allowed) {
       return {
         ok: false,
@@ -84,7 +81,10 @@ function register(ctx) {
     }
 
     const model = String(payload.model || process.env.TTS_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
-    const voiceRaw = String(payload.voice || DEFAULT_VOICE).trim().toLowerCase() || DEFAULT_VOICE;
+    const voiceRaw =
+      String(payload.voice || DEFAULT_VOICE)
+        .trim()
+        .toLowerCase() || DEFAULT_VOICE;
     const voice = ALLOWED_VOICES.has(voiceRaw) ? voiceRaw : DEFAULT_VOICE;
     const formatRaw = String(payload.format || payload.response_format || DEFAULT_FORMAT)
       .trim()
@@ -127,9 +127,7 @@ function register(ctx) {
         message: saved.relativePath
           ? `Synthesized speech written to ${saved.relativePath}`
           : `Binary audio received (${bytes} bytes); filesystem write skipped or failed`,
-        note: saved.ok
-          ? null
-          : saved.note || `Binary audio received with size ${bytes} bytes`,
+        note: saved.ok ? null : saved.note || `Binary audio received with size ${bytes} bytes`,
       };
     } catch (error) {
       logger.warn('media.tts.synthesize failed', {
@@ -168,7 +166,7 @@ function register(ctx) {
     }
   });
 
-  // Specialized registrar (Wave 0) — records tts binding when host supports it.
+  // Specialized registrar — records tts binding when host supports it.
   // May re-bind the same capabilityId; semantics stay soft-fail synthesize.
   if (typeof ctx.registerTtsProvider === 'function') {
     try {
@@ -177,7 +175,7 @@ function register(ctx) {
         id: 'openai-compatible-tts',
         capabilityId: 'media.tts.synthesize',
         label: 'OpenAI-Compatible TTS',
-        metadata: { wave: 'W4', pack: 'media' },
+        metadata: { pack: 'media' },
         handler: async (input) => {
           try {
             return await synthesize(input || {});
@@ -207,9 +205,7 @@ function apiKey() {
 }
 
 function resolveBaseUrl() {
-  return String(
-    process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || DEFAULT_BASE,
-  ).trim() || DEFAULT_BASE;
+  return String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || DEFAULT_BASE).trim() || DEFAULT_BASE;
 }
 
 function safeHost(url) {
@@ -244,10 +240,7 @@ function trySaveAudio(workspace, buffer, format, logger) {
       };
     }
     fs.writeFileSync(resolved, buffer);
-    const relativePath = path
-      .relative(root, resolved)
-      .split(path.sep)
-      .join('/');
+    const relativePath = path.relative(root, resolved).split(path.sep).join('/');
     return { ok: true, path: resolved, relativePath };
   } catch (error) {
     if (logger) {

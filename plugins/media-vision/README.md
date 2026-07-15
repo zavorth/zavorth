@@ -1,16 +1,16 @@
-# media-vision (Wave 4)
+# media-vision
 
 Soft-fail image describe (vision) for Zavorth Plugin OS.
 
 ## Env
 
-| Variable | Purpose |
-|----------|---------|
-| `OPENAI_API_KEY` | Required for `media.vision.describe` |
-| `OPENAI_BASE_URL` | Optional OpenAI-compatible base |
+| Variable                        | Purpose                                   |
+| ------------------------------- | ----------------------------------------- |
+| `OPENAI_API_KEY`                | Required for `media.vision.describe`      |
+| `OPENAI_BASE_URL`               | Optional OpenAI-compatible base           |
 | `VISION_MODEL` / `OPENAI_MODEL` | Default vision model (e.g. `gpt-4o-mini`) |
-| `XAI_API_KEY` | Presence only in status |
-| `ANTHROPIC_API_KEY` | Presence only in status |
+| `XAI_API_KEY`                   | Presence only in status                   |
+| `ANTHROPIC_API_KEY`             | Presence only in status                   |
 
 Status reports **presence only** — never secret values.
 

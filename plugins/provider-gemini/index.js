@@ -22,7 +22,7 @@ function register(ctx) {
     capabilityId: 'provider.gemini.complete',
     name: 'gemini',
     label: 'Google Gemini',
-    metadata: { wave: 'W1', pack: 'providers' },
+    metadata: { pack: 'providers' },
     async complete(input) {
       const status = statusPayload();
       if (!status.keyPresent) {
@@ -41,7 +41,11 @@ function register(ctx) {
         const result = await postHttps('generativelanguage.googleapis.com', path, {
           contents: [{ role: 'user', parts: [{ text: prompt.slice(0, 32000) }] }],
         });
-        const text = result?.candidates?.[0]?.content?.parts?.map((p) => p.text).filter(Boolean).join('') || null;
+        const text =
+          result?.candidates?.[0]?.content?.parts
+            ?.map((p) => p.text)
+            .filter(Boolean)
+            .join('') || null;
         return { ok: Boolean(text), provider: 'gemini', model, text };
       } catch (error) {
         logger.warn('provider-gemini complete failed', {

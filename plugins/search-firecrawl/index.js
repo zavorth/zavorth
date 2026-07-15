@@ -1,5 +1,5 @@
 /**
- * Wave 5 — Firecrawl extract/scrape (soft-fail).
+ * Firecrawl extract/scrape (soft-fail).
  * Presence-only status; never returns secret values.
  * SSRF: scrape targets must be HTTPS public URLs (no localhost/private).
  */
@@ -18,7 +18,6 @@ function register(ctx) {
     const base = resolveBaseUrl();
     return {
       ok: true,
-      wave: 'W5',
       pack: 'search',
       backend: 'firecrawl',
       keyPresent,
@@ -56,8 +55,7 @@ function register(ctx) {
         ok: false,
         backend: 'firecrawl',
         blocked: true,
-        message:
-          'Scrape target rejected (HTTPS public hosts only; no localhost/private addresses)',
+        message: 'Scrape target rejected (HTTPS public hosts only; no localhost/private addresses)',
         tip: 'Pass a public https:// URL. Local and private networks are blocked (SSRF).',
       };
     }
@@ -82,10 +80,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'Firecrawl scrape API',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'Firecrawl scrape API');
     if (!allowed) {
       return {
         ok: false,
@@ -103,11 +98,7 @@ function register(ctx) {
     };
 
     try {
-      const data = await postJson(
-        `${base.url}/v1/scrape`,
-        body,
-        apiKey(),
-      );
+      const data = await postJson(`${base.url}/v1/scrape`, body, apiKey());
       return normalizeScrapeResult(data, url);
     } catch (error) {
       logger.warn('search.firecrawl.scrape failed', {
@@ -156,10 +147,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'Firecrawl search API',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'Firecrawl search API');
     if (!allowed) {
       return {
         ok: false,
@@ -252,7 +240,7 @@ function register(ctx) {
         id: 'firecrawl',
         capabilityId: 'search.firecrawl.search',
         label: 'Firecrawl Search',
-        metadata: { wave: 'W5', pack: 'search', backend: 'firecrawl' },
+        metadata: { pack: 'search', backend: 'firecrawl' },
         handler: async (input) => {
           try {
             return await search(input || {});
@@ -316,7 +304,10 @@ function normalizeLimit(value) {
 
 function normalizeFormats(formats) {
   if (Array.isArray(formats) && formats.length > 0) {
-    return formats.map((f) => String(f).trim()).filter(Boolean).slice(0, 8);
+    return formats
+      .map((f) => String(f).trim())
+      .filter(Boolean)
+      .slice(0, 8);
   }
   if (typeof formats === 'string' && formats.trim()) {
     return [formats.trim()];
@@ -328,25 +319,17 @@ function normalizeScrapeResult(data, url) {
   const success = data && (data.success === true || data.data != null || data.markdown != null);
   const payload = data && data.data != null ? data.data : data || {};
   const markdown =
-    payload.markdown != null
-      ? String(payload.markdown)
-      : data && data.markdown != null
-        ? String(data.markdown)
-        : null;
-  const html =
-    payload.html != null
-      ? String(payload.html)
-      : data && data.html != null
-        ? String(data.html)
-        : null;
-  const title =
-    (payload.metadata && payload.metadata.title) ||
-    (data && data.metadata && data.metadata.title) ||
-    null;
+    payload.markdown != null ? String(payload.markdown) : data && data.markdown != null ? String(data.markdown) : null;
+  const html = payload.html != null ? String(payload.html) : data && data.html != null ? String(data.html) : null;
+  const title = (payload.metadata && payload.metadata.title) || (data && data.metadata && data.metadata.title) || null;
   const textSnippet = markdown
     ? markdown.slice(0, 2000)
     : html
-      ? html.replace(/<[^>]+>/gu, ' ').replace(/\s+/gu, ' ').trim().slice(0, 2000)
+      ? html
+          .replace(/<[^>]+>/gu, ' ')
+          .replace(/\s+/gu, ' ')
+          .trim()
+          .slice(0, 2000)
       : null;
 
   return {
@@ -358,9 +341,7 @@ function normalizeScrapeResult(data, url) {
     html: html ? html.slice(0, 50000) : null,
     snippet: textSnippet,
     metadata: sanitizeResult(payload.metadata || (data && data.metadata) || null),
-    message: markdown || html || textSnippet
-      ? 'Scrape complete'
-      : 'Firecrawl returned no extractable content',
+    message: markdown || html || textSnippet ? 'Scrape complete' : 'Firecrawl returned no extractable content',
   };
 }
 
@@ -376,8 +357,7 @@ function normalizeSearchResults(data, limit) {
     title: String((item && (item.title || item.name)) || ''),
     url: String((item && (item.url || item.link)) || ''),
     snippet: String(
-      (item && (item.description || item.snippet || item.markdown || item.text || item.content)) ||
-        '',
+      (item && (item.description || item.snippet || item.markdown || item.text || item.content)) || '',
     ).slice(0, 1000),
   }));
 }

@@ -1,5 +1,5 @@
 /**
- * Wave 4 — Media vision / image describe (soft-fail).
+ * Media vision / image describe (soft-fail).
  * Presence-only status; never returns secret values.
  * Truncates huge base64 strings in logs.
  */
@@ -44,15 +44,12 @@ function register(ctx) {
     ];
     return {
       ok: true,
-      wave: 'W4',
       pack: 'media',
       backends,
       openaiKeyPresent,
       xaiKeyPresent,
       anthropicKeyPresent,
-      defaultModel: String(
-        process.env.VISION_MODEL || process.env.OPENAI_MODEL || DEFAULT_VISION_MODEL,
-      ),
+      defaultModel: String(process.env.VISION_MODEL || process.env.OPENAI_MODEL || DEFAULT_VISION_MODEL),
       message: openaiKeyPresent
         ? 'OPENAI_API_KEY present; describe available when network.external is granted.'
         : 'Set OPENAI_API_KEY to enable vision describe (XAI/Anthropic presence reported only).',
@@ -88,10 +85,7 @@ function register(ctx) {
       };
     }
 
-    const allowed = await ctx.requestPermission(
-      'network.external',
-      'media vision describe via OpenAI-compatible chat',
-    );
+    const allowed = await ctx.requestPermission('network.external', 'media vision describe via OpenAI-compatible chat');
     if (!allowed) {
       return {
         ok: false,
@@ -101,14 +95,10 @@ function register(ctx) {
       };
     }
 
-    const prompt = String(
-      payload.prompt || payload.question || payload.text || DEFAULT_PROMPT,
-    ).trim() || DEFAULT_PROMPT;
+    const prompt =
+      String(payload.prompt || payload.question || payload.text || DEFAULT_PROMPT).trim() || DEFAULT_PROMPT;
     const model = String(
-      payload.model ||
-        process.env.VISION_MODEL ||
-        process.env.OPENAI_MODEL ||
-        DEFAULT_VISION_MODEL,
+      payload.model || process.env.VISION_MODEL || process.env.OPENAI_MODEL || DEFAULT_VISION_MODEL,
     ).trim();
 
     const imageUrl = imageRef.url;
@@ -138,12 +128,7 @@ function register(ctx) {
     };
 
     try {
-      const result = await postJson(
-        `${base}/chat/completions`,
-        body,
-        openaiKey(),
-        'zavorth-media-vision/1.0',
-      );
+      const result = await postJson(`${base}/chat/completions`, body, openaiKey(), 'zavorth-media-vision/1.0');
       const text = result?.choices?.[0]?.message?.content || null;
       return {
         ok: Boolean(text),
@@ -186,8 +171,7 @@ function resolveImageRef(payload) {
   if (raw == null) return null;
 
   if (typeof raw === 'object' && !Array.isArray(raw)) {
-    const nested =
-      raw.url || raw.imageUrl || raw.data || raw.b64_json || raw.base64 || raw.b64;
+    const nested = raw.url || raw.imageUrl || raw.data || raw.b64_json || raw.base64 || raw.b64;
     if (nested == null) return null;
     return resolveImageRef({ image: nested });
   }
@@ -234,9 +218,7 @@ function anthropicKey() {
 }
 
 function openaiBaseUrl() {
-  return String(
-    process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || OPENAI_DEFAULT_BASE,
-  ).trim();
+  return String(process.env.OPENAI_BASE_URL || process.env.OPENAI_API_BASE || OPENAI_DEFAULT_BASE).trim();
 }
 
 function truncateForLog(value) {

@@ -1,4 +1,4 @@
-# platform-discord (Wave 2)
+# platform-discord
 
 Soft-fail Discord Bot REST channel plugin. Reports token presence only — never
 token values. Outbound send uses HTTPS `discord.com/api/v10` when permission is

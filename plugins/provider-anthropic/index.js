@@ -22,7 +22,7 @@ function register(ctx) {
     capabilityId: 'provider.anthropic.complete',
     name: 'anthropic',
     label: 'Anthropic Claude',
-    metadata: { wave: 'W1', pack: 'providers' },
+    metadata: { pack: 'providers' },
     async complete(input) {
       const status = statusPayload();
       if (!status.keyPresent) {
@@ -37,11 +37,14 @@ function register(ctx) {
       const model = String((input && input.model) || process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514');
       const apiKey = String(process.env.ANTHROPIC_API_KEY || '');
       try {
-        const result = await postAnthropic({
-          model,
-          max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
-          messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
-        }, apiKey);
+        const result = await postAnthropic(
+          {
+            model,
+            max_tokens: Math.min(2048, Number((input && input.maxTokens) || 512) || 512),
+            messages: [{ role: 'user', content: prompt.slice(0, 32000) }],
+          },
+          apiKey,
+        );
         const text = extractAnthropicText(result);
         return { ok: Boolean(text), provider: 'anthropic', model, text, usage: result?.usage || null };
       } catch (error) {

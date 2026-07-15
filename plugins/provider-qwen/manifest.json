@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-qwen",
+  "label": "Qwen Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail Qwen/DashScope OpenAI-compatible chat completions.",
+  "description": "First-party provider pack. Uses DASHSCOPE_API_KEY or QWEN_API_KEY. Compatible-mode base URL.",
+  "tags": ["provider", "qwen", "dashscope", "llm", "complete"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-qwen",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.qwen.status",
+      "intent": "provider.qwen.status",
+      "label": "Status",
+      "summary": "Report Qwen (DashScope) key presence (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_qwen_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "provider.qwen.complete",
+      "intent": "provider.qwen.complete",
+      "label": "Complete",
+      "summary": "Soft chat completion via Qwen (DashScope).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_qwen_complete",
+        "aliases": [],
+        "usage": "{ prompt, model? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.external",
+      "scope": "external",
+      "reason": "Call Qwen (DashScope) chat completions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "external",
+      "reason": "Invoke LLM completion.",
+      "required": false
+    },
+    {
+      "kind": "secret.read",
+      "scope": "local",
+      "reason": "Detect DASHSCOPE_API_KEY presence (not the value).",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-qwen.receipt"]
+}

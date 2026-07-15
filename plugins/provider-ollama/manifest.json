@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "provider-ollama",
+  "label": "Ollama Provider",
+  "version": "1.0.0",
+  "moduleKind": "provider",
+  "summary": "Soft-fail local Ollama OpenAI-compatible completions (no API key required).",
+  "description": "First-party provider pack. Talks to local Ollama at 127.0.0.1:11434. Uses network.local permission.",
+  "tags": ["provider", "ollama", "local", "llm", "complete"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://provider-ollama",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "provider.ollama.status",
+      "intent": "provider.ollama.status",
+      "label": "Status",
+      "summary": "Report Ollama (local) readiness (no secrets).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_ollama_status",
+        "aliases": [],
+        "usage": "{}"
+      }
+    },
+    {
+      "id": "provider.ollama.complete",
+      "intent": "provider.ollama.complete",
+      "label": "Complete",
+      "summary": "Soft chat completion via Ollama (local).",
+      "artifactKinds": [],
+      "command": {
+        "name": "provider_ollama_complete",
+        "aliases": [],
+        "usage": "{ prompt, model? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "network.local",
+      "scope": "local",
+      "reason": "Call Ollama (local) chat completions endpoint.",
+      "required": false
+    },
+    {
+      "kind": "provider.call",
+      "scope": "local",
+      "reason": "Invoke LLM completion.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": true,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": ["provider-ollama.receipt"]
+}

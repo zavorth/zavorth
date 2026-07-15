@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "zavorth.plugin-os.v1",
+  "id": "example-qa",
+  "label": "Example QA",
+  "version": "0.1.0",
+  "moduleKind": "qa",
+  "summary": "Minimal QA check capability stub for Plugin OS.",
+  "description": "Bundled example QA plugin. Soft-fail register; returns a pass stub.",
+  "tags": ["qa", "example"],
+  "source": {
+    "kind": "local",
+    "locator": "bundled://examples/example-qa",
+    "digest": null,
+    "trusted": false
+  },
+  "compatibility": {
+    "zavorthVersion": ">=1.1.0",
+    "pluginApiVersion": "zavorth.plugin-os.v1"
+  },
+  "capabilities": [
+    {
+      "id": "qa.check",
+      "intent": "qa.check",
+      "label": "QA Check",
+      "summary": "Stub QA check capability.",
+      "artifactKinds": [],
+      "command": {
+        "name": "example_qa_check",
+        "aliases": [],
+        "usage": "{ target? }"
+      }
+    }
+  ],
+  "permissions": [
+    {
+      "kind": "filesystem.read",
+      "scope": "workspace",
+      "reason": "QA plugins may read workspace files for checks when approved.",
+      "required": false
+    }
+  ],
+  "entrypoint": {
+    "module": "./index.js",
+    "exportName": "register",
+    "runtime": "node"
+  },
+  "lifecycle": {
+    "actions": ["install", "enable", "disable", "uninstall", "invoke", "doctor"],
+    "defaultAction": "invoke"
+  },
+  "policy": {
+    "defaultTrust": "review",
+    "requiresApproval": false,
+    "allowNetworkByDefault": false,
+    "allowFilesystemWriteByDefault": false,
+    "allowProcessSpawnByDefault": false,
+    "sandboxProfile": "restricted"
+  },
+  "artifactKinds": [],
+  "receiptKinds": []
+}
