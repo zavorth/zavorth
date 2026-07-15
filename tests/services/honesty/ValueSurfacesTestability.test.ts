@@ -25,12 +25,18 @@ describe('Value surfaces testability', () => {
       'src/ai-gateway/public/zavorth-control-vite-shell/scripts/pages.js',
     ];
 
+    let checked = 0;
     for (const relativePath of mirrors) {
-      const source = fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8');
+      const full = path.join(process.cwd(), relativePath);
+      // Some mirror paths are build artifacts / gitignored (src/**/*.js).
+      if (!fs.existsSync(full)) continue;
+      const source = fs.readFileSync(full, 'utf8');
       expect(source).not.toContain('Auto / Gemini');
       expect(source).not.toContain('Show Gemini provider');
       expect(source).toContain('Configured route');
+      checked += 1;
     }
+    expect(checked).toBeGreaterThan(0);
   });
 
   it('keeps Desktop and Control selection bound to the canonical catalog and live form handler', () => {

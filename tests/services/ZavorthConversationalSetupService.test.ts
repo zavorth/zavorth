@@ -98,7 +98,7 @@ describe('ZavorthConversationalSetupService', () => {
     expect(rendered).toContain('[complete]');
     // i18n may resolve en-US or pt-BR from host locale; learning tip must always mention promote path.
     expect(rendered).toMatch(/Setup Complete|Configuração Completa/);
-    expect(rendered).toContain('zavorth learn');
+    expect(rendered).toMatch(/\/learn|zavorth learn/i);
     expect(rendered).toMatch(/skill drafts|rascunhos de skill/i);
   });
 

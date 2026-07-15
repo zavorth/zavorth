@@ -10,8 +10,28 @@ describe('LlmRoleRoutingService', () => {
   const store = new LlmRoleStoreService(tmp);
   const service = new LlmRoleRoutingService({ store, catalog: new LlmRoleCatalogService() });
   const usable = () => true;
+  const prevGemini = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const prevOpenAi = process.env.OPENAI_API_KEY;
+  const prevAnthropic = process.env.ANTHROPIC_API_KEY;
+
+  beforeAll(() => {
+    // Catalog filters by credential presence as well as isProviderUsable.
+    process.env.GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'test-gemini-key-for-unit';
+    process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test-openai-key-for-unit';
+    process.env.ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || 'test-anthropic-key-for-unit';
+  });
 
   afterAll(() => {
+    if (prevGemini === undefined) {
+      delete process.env.GEMINI_API_KEY;
+      delete process.env.GOOGLE_API_KEY;
+    } else {
+      process.env.GEMINI_API_KEY = prevGemini;
+    }
+    if (prevOpenAi === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = prevOpenAi;
+    if (prevAnthropic === undefined) delete process.env.ANTHROPIC_API_KEY;
+    else process.env.ANTHROPIC_API_KEY = prevAnthropic;
     fs.rmSync(tmp, { recursive: true, force: true });
   });
 
