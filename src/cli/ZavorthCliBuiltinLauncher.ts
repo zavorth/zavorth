@@ -628,7 +628,7 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     // [gateway channels] Product mirror for channel setup, proofs and readiness.
     const channelAction = String(restArgs[0] || '').trim().toLowerCase();
     const channelSubAction = String(restArgs[1] || '').trim().toLowerCase();
-    const phase2Channels = new Set([
+    const deepeningChannels = new Set([
       'api',
       'bluebubbles',
       'cli',
@@ -665,8 +665,9 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'whatsapp-cloud',
       'yuanbao',
       'zalo',
-      'zalouser']);
-    const phase2Actions = new Set([
+      'zalouser',
+    ]);
+    const deepeningActions = new Set([
       'doctor',
       'health',
       'inspect',
@@ -679,7 +680,8 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
       'send-test',
       'setup',
       'status',
-      'test']);
+      'test',
+    ]);
     if (restArgs.includes('--help') || restArgs.includes('-h')) {
       return printBuiltinHelp('channels');
     }
@@ -692,7 +694,10 @@ export async function runBuiltinLauncher(rawArgs: string[]): Promise<number | nu
     if (['catalog', 'list', 'all', 'inventory', 'status', 'coverage', 'deepening'].includes(channelAction)) {
       return runChannelDeepening(restArgs);
     }
-    if && (channelSubAction === '' || phase2Actions.has(channelSubAction))) {
+    if (
+      deepeningChannels.has(channelAction) &&
+      (channelSubAction === '' || deepeningActions.has(channelSubAction))
+    ) {
       return runChannelDeepening(restArgs);
     }
     if ([

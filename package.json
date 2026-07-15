@@ -157,8 +157,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "zavorth": "./bin/zavorth.js",
-    "create-zavorth-plugin": "./bin/create-zavorth-plugin.js"
+    "zavorth": "./bin/zavorth.js"
   },
   "files": [
     "bin/",
