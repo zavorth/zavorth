@@ -1,0 +1,16 @@
+{
+  "name": "pkg-skill-fixture",
+  "version": "0.3.0",
+  "description": "package.json skill shape",
+  "keywords": [
+    "skill",
+    "zavorth-skill"
+  ],
+  "zavorthSkill": {
+    "tools": [
+      {
+        "name": "read_file"
+      }
+    ]
+  }
+}

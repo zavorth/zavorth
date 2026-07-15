@@ -1,7 +1,4 @@
-import {
-  setDynamicIntentToolMap,
-  getDynamicIntentToolMap,
-} from '../../src/cognitive-firewall/ToolGatekeeper.js';
+import { setDynamicIntentToolMap, getDynamicIntentToolMap } from '../../src/cognitive-firewall/ToolGatekeeper.js';
 import {
   bindSkillDeclaredTools,
   resolveSkillToolName,
@@ -11,7 +8,7 @@ import {
 } from '../../src/services/SkillExecutorBindingService.js';
 import { reconcileSkillToolsWithRegistry } from '../../src/services/SkillToolRegistryBridge.js';
 
-describe('W3 SkillExecutorBindingService', () => {
+describe('SkillExecutorBindingService', () => {
   afterEach(() => {
     setDynamicIntentToolMap({});
   });
@@ -36,22 +33,18 @@ describe('W3 SkillExecutorBindingService', () => {
   });
 
   it('bindSkillDeclaredTools lists direct/aliased/gateway/unresolved buckets', () => {
-    const report = bindSkillDeclaredTools(
-      ['read_file', 'sandbox_execution', 'magic_unicorn_tool'],
-      {
-        registry: {
-          getAllTools: () => [
-            { name: 'read_file' },
-            { name: 'run_sandbox_code' },
-            { name: 'zavorth_action' },
-            { name: 'plugin_suggest' },
-          ],
-          hasTool: (n) =>
-            ['read_file', 'run_sandbox_code', 'zavorth_action', 'plugin_suggest'].includes(n),
-        },
-        useKnownCatalog: false,
+    const report = bindSkillDeclaredTools(['read_file', 'sandbox_execution', 'magic_unicorn_tool'], {
+      registry: {
+        getAllTools: () => [
+          { name: 'read_file' },
+          { name: 'run_sandbox_code' },
+          { name: 'zavorth_action' },
+          { name: 'plugin_suggest' },
+        ],
+        hasTool: (n) => ['read_file', 'run_sandbox_code', 'zavorth_action', 'plugin_suggest'].includes(n),
       },
-    );
+      useKnownCatalog: false,
+    });
     expect(report.direct).toContain('read_file');
     expect(report.aliased.some((a) => a.includes('run_sandbox_code'))).toBe(true);
     expect(report.gateway.length + report.unresolved.length).toBeGreaterThan(0);
@@ -72,8 +65,7 @@ describe('W3 SkillExecutorBindingService', () => {
         { name: 'zavorth_action' },
         { name: 'plugin_suggest' },
       ],
-      hasTool: (n) =>
-        ['web_search', 'run_sandbox_code', 'zavorth_action', 'plugin_suggest'].includes(n),
+      hasTool: (n) => ['web_search', 'run_sandbox_code', 'zavorth_action', 'plugin_suggest'].includes(n),
     });
     const map = getDynamicIntentToolMap();
     expect(map.information).toContain('web_search');
@@ -85,7 +77,7 @@ describe('W3 SkillExecutorBindingService', () => {
     expect(result.dropped.length).toBeGreaterThan(0);
   });
 
-  it('bridge reconcileSkillToolsWithRegistry uses W3 path', () => {
+  it('bridge reconcileSkillToolsWithRegistry drops phantom tools', () => {
     setDynamicIntentToolMap({
       information: ['web_search', 'ghost_tool'],
     });
@@ -95,7 +87,7 @@ describe('W3 SkillExecutorBindingService', () => {
     });
     expect(result.ok).toBe(true);
     expect(getDynamicIntentToolMap().information).not.toContain('ghost_tool');
-    expect(result.formatText()).toMatch(/W3|executor/i);
+    expect(result.formatText()).toMatch(/executor|binding|direct|gateway/i);
   });
 
   it('prompt formatter never lists pure phantoms as callable tools', () => {

@@ -14,12 +14,14 @@ import {
   type SkillInstallReceipt,
   type ZavorthDeclaredSkillTool,
   type ZavorthSkillInstallRisk,
+  type ZavorthSkillIr,
   type ZavorthSkillSourceKind,
 } from '../contracts/skill/ZavorthSkillWorkerMeshContract.js';
 import { detectSource, getSourceHint } from '../skills/marketplace/SkillSourceDetector.js';
 import { validateSkillPackage } from '../skills/marketplace/SkillPackageValidator.js';
 import { scanSkillForSecurity } from '../skills/marketplace/SkillMarketplaceSecurity.js';
 import { SkillGitRegistry } from '../skills/marketplace/SkillGitRegistry.js';
+import { SkillIrNormalizerService } from '../skills/SkillIrNormalizerService.js';
 import { asErrorLike } from '../utils/errorLike.js';
 import {
   SkillTrustScoreService,
@@ -29,6 +31,9 @@ import {
 } from './SkillTrustScoreService.js';
 import {
   bindSkillDeclaredTools,
+  formatToolBindsTable,
+  mergeAliasMaps,
+  SKILL_TOOL_ALIASES,
   type SkillExecutorBindingOptions,
 } from './SkillExecutorBindingService.js';
 import type { SkillToolRegistryLike } from './SkillToolRegistryBridge.js';
@@ -61,13 +66,12 @@ export class SkillInstallPipelineService {
   private readonly gitRegistry: SkillGitRegistry;
   private readonly trust: SkillTrustScoreService;
   private toolRegistry: SkillToolRegistryLike | null;
+  private readonly irNormalizer: SkillIrNormalizerService;
 
   constructor(runtime: SkillInstallPipelineRuntime = {}) {
     this.projectRoot = runtime.projectRoot || process.cwd();
     this.skillsDir = runtime.skillsDir || path.join(this.projectRoot, 'skills');
-    this.receiptsDir =
-      runtime.receiptsDir ||
-      path.join(this.projectRoot, 'data', 'runtime', 'skill-install-receipts');
+    this.receiptsDir = runtime.receiptsDir || path.join(this.projectRoot, 'data', 'runtime', 'skill-install-receipts');
     this.now = runtime.now || (() => new Date());
     this.gitRegistry = runtime.gitRegistry || new SkillGitRegistry();
     this.trust =
@@ -78,6 +82,7 @@ export class SkillInstallPipelineService {
         now: this.now,
       });
     this.toolRegistry = runtime.toolRegistry ?? null;
+    this.irNormalizer = new SkillIrNormalizerService();
   }
 
   public getTrustService(): SkillTrustScoreService {
@@ -93,6 +98,13 @@ export class SkillInstallPipelineService {
    * Remote sources return a conservative plan (apply will fetch).
    */
   public preview(input: SkillInstallPreviewInput): SkillInstallPlan {
+    try {
+      const { getSkillHotPathCache } =
+        require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
+      getSkillHotPathCache().recordInstallPreview();
+    } catch {
+      /* soft */
+    }
     const raw = String(input.source || '').trim();
     const generatedAt = this.now().toISOString();
     if (!raw) {
@@ -159,6 +171,13 @@ export class SkillInstallPipelineService {
     const generatedAt = this.now().toISOString();
     const raw = String(input.source || '').trim();
     const plan = this.preview({ source: raw, skillId: input.skillId });
+    try {
+      const { getSkillHotPathCache } =
+        require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
+      getSkillHotPathCache().recordInstallApply();
+    } catch {
+      /* soft */
+    }
 
     if (!raw) {
       return this.receiptFromPlan(plan, {
@@ -214,10 +233,61 @@ export class SkillInstallPipelineService {
     }
 
     try {
-      const result = await this.gitRegistry.installFromSource(
-        raw,
-        input.skillId ? String(input.skillId) : undefined,
-      );
+      // digest short-circuit — skip re-fetch when same SkillIR already installed.
+      try {
+        const { getSkillHotPathCache } =
+          require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
+        const hot = getSkillHotPathCache();
+        const digest = plan.skillIrDigest || null;
+        if (digest) {
+          const existing = hot.findByDigest(digest);
+          if (existing?.targetDir && fs.existsSync(existing.targetDir)) {
+            hot.markDigestShortCircuit();
+            const irCached = this.irNormalizer.normalizeFromDir({
+              skillDir: existing.targetDir,
+              sourceUri: raw,
+              sourceKind: plan.source.detectedType,
+              skillId: existing.skillId || plan.skillId,
+              now: this.now,
+            });
+            const skillIr = irCached.skillIr || plan.skillIr || null;
+            const skillIrDigest = irCached.skillIrDigest || digest;
+            const binding = skillIr ? this.bindFromIr(skillIr) : this.bindDeclaredToolsFromDir(existing.targetDir);
+            const receipt = this.receiptFromPlan(plan, {
+              id: this.newId(),
+              generatedAt,
+              status: 'applied',
+              materialized: true,
+              targetDir: existing.targetDir,
+              skillId: existing.skillId || plan.skillId || skillIr?.id || null,
+              approvalGranted: true,
+              reason: this.redactSecrets(
+                `Digest short-circuit: skillIrDigest matches installed ${existing.skillId} (no re-fetch)`,
+              ),
+              toolBinds: binding.bindings,
+              smoke: {
+                ran: true,
+                ok: true,
+                detail: `digest_short_circuit=true skillIrDigest=${String(skillIrDigest).slice(0, 12)}…`,
+              },
+              skillIr,
+              skillIrDigest,
+              parserId: skillIr?.parserId || plan.parserId || null,
+            });
+            this.persistReceipt(receipt);
+            hot.recordInstallDigest({
+              skillId: String(receipt.skillId || existing.skillId),
+              skillIrDigest: String(skillIrDigest),
+              targetDir: existing.targetDir,
+            });
+            return receipt;
+          }
+        }
+      } catch {
+        /* soft — continue full install */
+      }
+
+      const result = await this.gitRegistry.installFromSource(raw, input.skillId ? String(input.skillId) : undefined);
 
       if (!result.success) {
         const receipt = this.receiptFromPlan(plan, {
@@ -238,15 +308,25 @@ export class SkillInstallPipelineService {
 
       const targetDir = result.installedPath || null;
       const structureSmoke = this.runObservationSmoke(targetDir);
-      const binding = this.bindDeclaredToolsFromDir(targetDir);
-      const smokeOk =
-        structureSmoke.ok !== false && (binding.smoke.ok === null || binding.smoke.ok === true);
+      const irAfter = targetDir
+        ? this.irNormalizer.normalizeFromDir({
+            skillDir: targetDir,
+            sourceUri: raw,
+            sourceKind: plan.source.detectedType,
+            skillId: result.skillId || plan.skillId,
+            now: this.now,
+          })
+        : null;
+      const skillIr = irAfter?.skillIr || plan.skillIr || null;
+      const skillIrDigest = irAfter?.skillIrDigest || plan.skillIrDigest || null;
+      const binding = skillIr ? this.bindFromIr(skillIr) : this.bindDeclaredToolsFromDir(targetDir);
+      // Unresolved is allowed (guidance-only); partial only if structure smoke fails.
+      const smokeOk = structureSmoke.ok !== false && (binding.smoke.ok === null || binding.smoke.ok === true);
       const smokeDetail = [
         structureSmoke.detail,
         binding.smoke.ran ? binding.smoke.detail : null,
-        binding.unresolved.length
-          ? `unresolved tools: ${binding.unresolved.join(', ')}`
-          : null,
+        binding.unresolved.length ? `unresolved (guidance-only): ${binding.unresolved.join(', ')}` : null,
+        skillIrDigest ? `skillIrDigest=${skillIrDigest.slice(0, 12)}…` : null,
       ]
         .filter(Boolean)
         .join('; ');
@@ -257,7 +337,7 @@ export class SkillInstallPipelineService {
         status: smokeOk ? 'applied' : 'partial',
         materialized: true,
         targetDir,
-        skillId: result.skillId || plan.skillId,
+        skillId: result.skillId || plan.skillId || skillIr?.id || null,
         approvalGranted: true,
         reason: this.redactSecrets(
           `${result.message || 'Installed'}; binds direct=${binding.direct.length} aliased=${binding.aliased.length} gateway=${binding.gateway.length} unresolved=${binding.unresolved.length}`,
@@ -268,8 +348,25 @@ export class SkillInstallPipelineService {
           ok: smokeOk,
           detail: smokeDetail || null,
         },
+        skillIr,
+        skillIrDigest,
+        parserId: skillIr?.parserId || plan.parserId || null,
       });
       this.persistReceipt(receipt);
+      try {
+        const { getSkillHotPathCache } =
+          require('./SkillHotPathCacheService.js') as typeof import('./SkillHotPathCacheService.js');
+        if (skillIrDigest && receipt.skillId) {
+          getSkillHotPathCache().recordInstallDigest({
+            skillId: String(receipt.skillId),
+            skillIrDigest: String(skillIrDigest),
+            targetDir,
+          });
+          getSkillHotPathCache().invalidateSkillDir(targetDir || '');
+        }
+      } catch {
+        /* soft */
+      }
       return receipt;
     } catch (error: unknown) {
       const err = asErrorLike(error);
@@ -320,21 +417,30 @@ export class SkillInstallPipelineService {
 
   public formatPlanText(plan: SkillInstallPlan): string {
     const profile = this.trust.getProfile();
+    const previewBinds = plan.skillIr
+      ? this.bindFromIr(plan.skillIr)
+      : bindSkillDeclaredTools(plan.declaredTools, {
+          registry: this.toolRegistry,
+          useKnownCatalog: true,
+        });
     const lines = [
       'Skill install plan (preview only)',
       `contract: ${plan.contractVersion}`,
       `source: ${plan.source.raw} (${plan.source.detectedType})`,
       `skill: ${plan.skillId || '—'} ${plan.skillName || ''} ${plan.version ? `v${plan.version}` : ''}`.trim(),
+      plan.parserId ? `parser: ${plan.parserId}` : '',
+      plan.skillIrDigest ? `skillIrDigest: ${plan.skillIrDigest}` : '',
+      plan.skillIr?.guidanceOnly ? 'guidanceOnly: true (no executable tools declared)' : '',
       `trust: ${plan.trust.band} score=${plan.trust.score.toFixed(2)} profile=${profile}`,
       ...plan.trust.reasons.slice(0, 6).map((r) => `  · ${r}`),
       `files: ${plan.files.length}`,
       ...plan.files.slice(0, 15).map((f) => `  - ${f}`),
       plan.files.length > 15 ? `  … +${plan.files.length - 15} more` : '',
       `declared tools: ${plan.declaredTools.map((t) => t.name).join(', ') || '(none)'}`,
+      'tool binds (preview):',
+      formatToolBindsTable(previewBinds.bindings),
       'risks:',
-      ...(plan.risks.length
-        ? plan.risks.map((r) => `  [${r.severity}] ${r.title}: ${r.detail}`)
-        : ['  (none)']),
+      ...(plan.risks.length ? plan.risks.map((r) => `  [${r.severity}] ${r.title}: ${r.detail}`) : ['  (none)']),
       `next: ${plan.nextSafeAction}`,
     ].filter(Boolean);
     return lines.join('\n');
@@ -348,11 +454,16 @@ export class SkillInstallPipelineService {
       `materialized: ${receipt.materialized}`,
       `skill: ${receipt.skillId || '—'}`,
       `target: ${receipt.targetDir || '—'}`,
+      receipt.parserId ? `parser: ${receipt.parserId}` : '',
+      receipt.skillIrDigest ? `skillIrDigest: ${receipt.skillIrDigest}` : '',
       `approval: ${receipt.approvalGranted}`,
-      `smoke: ran=${receipt.smoke.ran} ok=${receipt.smoke.ok}`,
-      `tools: ${receipt.toolBinds.map((b) => `${b.declaredName}→${b.status}`).join(', ') || '(none)'}`,
+      `smoke: ran=${receipt.smoke.ran} ok=${receipt.smoke.ok} ${receipt.smoke.detail || ''}`.trim(),
+      'tool binds:',
+      formatToolBindsTable(receipt.toolBinds || []),
       `reason: ${receipt.reason}`,
-    ].join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   // ---------------------------------------------------------------------------
@@ -380,39 +491,84 @@ export class SkillInstallPipelineService {
 
     const searchRoot = fs.statSync(resolved).isFile() ? path.dirname(resolved) : resolved;
     const discovered = this.findSkills(searchRoot);
-    if (discovered.length === 0) {
-      return this.emptyPlan(
-        raw,
-        sourceKind,
-        generatedAt,
-        'No valid skills found (need SKILL.md + manifest.json).',
-        [
+
+    // Prefer classic SKILL.md+manifest packs; else normalize root as generic IR.
+    const selected =
+      (skillIdFilter
+        ? discovered.find((s) => s.name === skillIdFilter || path.basename(s.dir) === skillIdFilter)
+        : null) ||
+      discovered[0] ||
+      null;
+
+    const packDir = selected?.dir || searchRoot;
+    const irResult = this.irNormalizer.normalizeFromDir({
+      skillDir: packDir,
+      sourceUri: raw,
+      sourceKind,
+      skillId: skillIdFilter || selected?.name || null,
+      now: this.now,
+    });
+    const skillIr = irResult.skillIr;
+    const skillIrDigest = irResult.skillIrDigest;
+
+    if (discovered.length === 0 && skillIr.parserId === 'opaque-guidance-v1' && skillIr.files.length === 0) {
+      return {
+        ...this.emptyPlan(raw, sourceKind, generatedAt, 'No skill pack found (empty or unreadable path).', [
           {
             id: 'no-skills',
             severity: 'medium',
             title: 'No skills in source',
             detail: getSourceHint(sourceKind === 'local-file' ? 'local-file' : 'local-path'),
           },
-        ],
-      );
+        ]),
+        skillIr,
+        skillIrDigest,
+        parserId: skillIr.parserId,
+      };
     }
 
-    const selected =
-      (skillIdFilter
-        ? discovered.find(
-            (s) =>
-              s.name === skillIdFilter ||
-              path.basename(s.dir) === skillIdFilter,
-          )
-        : null) || discovered[0];
-
-    const validation = validateSkillPackage(selected.dir);
-    const security = scanSkillForSecurity(selected.dir);
-    const files = this.listRelativeFiles(selected.dir, 80);
-    const declaredTools = this.readDeclaredTools(selected.dir);
-    const risks = this.buildRisks(validation, security, files);
+    const validation = selected
+      ? validateSkillPackage(selected.dir)
+      : {
+          valid: skillIr.parserId !== 'opaque-guidance-v1' || skillIr.files.length > 0,
+          errors: [] as string[],
+          warnings: skillIr.warnings.slice(),
+          manifest: null as { name?: string; version?: string; author?: string; checksum?: string } | null,
+        };
+    const security = selected
+      ? scanSkillForSecurity(selected.dir)
+      : {
+          riskLevel: 'low' as const,
+          issues: [] as Array<{ code?: string; severity: string; message: string }>,
+          gpgVerified: false,
+        };
+    const files = skillIr.files.length ? skillIr.files : this.listRelativeFiles(packDir, 80);
+    const declaredTools = this.declaredToolsFromIr(skillIr);
+    const risks = this.buildRisks(
+      validation as ReturnType<typeof validateSkillPackage>,
+      security as ReturnType<typeof scanSkillForSecurity>,
+      files,
+    );
+    for (const w of skillIr.warnings) {
+      risks.push({
+        id: 'skill-ir-warning',
+        severity: 'info',
+        title: 'SkillIR',
+        detail: w,
+      });
+    }
+    if (skillIr.guidanceOnly) {
+      risks.push({
+        id: 'guidance-only',
+        severity: 'info',
+        title: 'Guidance-only pack',
+        detail: 'No declared tools (or all unresolved after bind). Procedure text still installs.',
+      });
+    }
     const secretLikePresent = risks.some((r) => r.secretLike) || files.some((f) => SECRET_NAME_RE.test(f));
-    const author = validation.manifest?.author ? String(validation.manifest.author) : selected.name;
+    const author = validation.manifest?.author
+      ? String(validation.manifest.author)
+      : skillIr.title || selected?.name || skillIr.id;
     const checksumPinned = Boolean(
       validation.manifest?.checksum && String(validation.manifest.checksum).startsWith('sha256:'),
     );
@@ -421,9 +577,9 @@ export class SkillInstallPipelineService {
       sourceRaw: raw,
       sourceKind,
       local: true,
-      validPackage: validation.valid,
-      hasSkillMd: fs.existsSync(path.join(selected.dir, 'SKILL.md')),
-      hasManifest: fs.existsSync(path.join(selected.dir, 'manifest.json')),
+      validPackage: validation.valid || Boolean(skillIr.files.length),
+      hasSkillMd: fs.existsSync(path.join(packDir, 'SKILL.md')) || skillIr.parserId === 'skill-md-v1',
+      hasManifest: fs.existsSync(path.join(packDir, 'manifest.json')),
       securityRisk: security.riskLevel,
       checksumPinned,
       signatureVerified: security.gpgVerified === true,
@@ -439,7 +595,7 @@ export class SkillInstallPipelineService {
       detail: decision.reasons.slice(0, 5).join('; '),
     });
 
-    const skillId = sanitizeSkillId(selected.name || path.basename(selected.dir));
+    const skillId = sanitizeSkillId(skillIr.id || selected?.name || path.basename(packDir));
 
     return {
       contractVersion: ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION,
@@ -451,8 +607,8 @@ export class SkillInstallPipelineService {
         resolved,
       },
       skillId,
-      skillName: validation.manifest?.name || selected.name || skillId,
-      version: validation.manifest?.version || selected.version || null,
+      skillName: skillIr.title || validation.manifest?.name || selected?.name || skillId,
+      version: skillIr.version || validation.manifest?.version || selected?.version || null,
       files,
       declaredTools,
       risks,
@@ -460,6 +616,9 @@ export class SkillInstallPipelineService {
       previewOnly: true,
       applyBlockedWithoutConsent: true,
       nextSafeAction: this.nextActionForDecision(raw, skillIdFilter ? skillId : null, decision),
+      skillIr,
+      skillIrDigest,
+      parserId: skillIr.parserId,
     };
   }
 
@@ -511,11 +670,7 @@ export class SkillInstallPipelineService {
     return this.trust.evaluate(evidence);
   }
 
-  private nextActionForDecision(
-    raw: string,
-    skillId: string | null,
-    decision: SkillTrustPolicyDecision,
-  ): string {
+  private nextActionForDecision(raw: string, skillId: string | null, decision: SkillTrustPolicyDecision): string {
     if (!decision.allowApply && decision.score.band === 'deny') {
       return 'Blocked by trust/security. Do not apply without force + explicit review.';
     }
@@ -647,8 +802,7 @@ export class SkillInstallPipelineService {
     }
     for (const issue of security.issues || []) {
       const secretLike =
-        /secret|password|token|credential|api.?key/i.test(issue.message) ||
-        issue.code === 'hardcoded-secret';
+        /secret|password|token|credential|api.?key/i.test(issue.message) || issue.code === 'hardcoded-secret';
       risks.push({
         id: issue.code || 'security',
         severity:
@@ -682,12 +836,33 @@ export class SkillInstallPipelineService {
     if (!targetDir || !fs.existsSync(targetDir)) {
       return bindSkillDeclaredTools([], { registry: this.toolRegistry, useKnownCatalog: true });
     }
-    const declared = this.readDeclaredTools(targetDir);
+    const ir = this.irNormalizer.normalizeFromDir({
+      skillDir: targetDir,
+      sourceUri: targetDir,
+      sourceKind: 'local-path',
+      now: this.now,
+    });
+    return this.bindFromIr(ir.skillIr);
+  }
+
+  private bindFromIr(skillIr: ZavorthSkillIr) {
+    const aliasMap = mergeAliasMaps(SKILL_TOOL_ALIASES, skillIr.declaredAliases);
+    const declared = this.declaredToolsFromIr(skillIr);
     const opts: SkillExecutorBindingOptions = {
       registry: this.toolRegistry,
       useKnownCatalog: true,
+      aliasMap,
+      skillId: skillIr.id,
+      useBindCache: !this.toolRegistry,
     };
     return bindSkillDeclaredTools(declared, opts);
+  }
+
+  private declaredToolsFromIr(skillIr: ZavorthSkillIr): ZavorthDeclaredSkillTool[] {
+    return (skillIr.declaredTools || []).map((t) => ({
+      name: t.name,
+      description: t.description,
+    }));
   }
 
   private runObservationSmoke(targetDir: string | null): SkillInstallReceipt['smoke'] {
@@ -696,11 +871,19 @@ export class SkillInstallPipelineService {
     }
     const hasSkill = fs.existsSync(path.join(targetDir, 'SKILL.md'));
     const hasManifest = fs.existsSync(path.join(targetDir, 'manifest.json'));
-    const ok = hasSkill && hasManifest;
+    // SKILL.md alone is enough structure; manifest preferred but not required for smoke ok.
+    const ok = hasSkill || hasManifest;
     return {
       ran: true,
       ok,
-      detail: ok ? 'SKILL.md + manifest.json present' : 'missing SKILL.md or manifest.json',
+      detail:
+        hasSkill && hasManifest
+          ? 'SKILL.md + manifest.json present'
+          : hasSkill
+            ? 'SKILL.md present (manifest optional)'
+            : hasManifest
+              ? 'manifest.json present (SKILL.md missing)'
+              : 'missing SKILL.md and manifest.json',
     };
   }
 
@@ -731,6 +914,9 @@ export class SkillInstallPipelineService {
       previewOnly: true,
       applyBlockedWithoutConsent: true,
       nextSafeAction: next,
+      skillIr: null,
+      skillIrDigest: null,
+      parserId: null,
     };
   }
 
@@ -747,10 +933,12 @@ export class SkillInstallPipelineService {
       reason: string;
       toolBinds: SkillInstallReceipt['toolBinds'];
       smoke: SkillInstallReceipt['smoke'];
+      skillIr?: ZavorthSkillIr | null;
+      skillIrDigest?: string | null;
+      parserId?: SkillInstallReceipt['parserId'];
     },
   ): SkillInstallReceipt {
-    const secretLikePresent =
-      plan.risks.some((r) => r.secretLike) || SECRET_CONTENT_HINT.test(partial.reason);
+    const secretLikePresent = plan.risks.some((r) => r.secretLike) || SECRET_CONTENT_HINT.test(partial.reason);
     return {
       contractVersion: ZAVORTH_SKILL_WORKER_MESH_CONTRACT_VERSION,
       kind: 'skill-install-receipt',
@@ -767,6 +955,9 @@ export class SkillInstallPipelineService {
       secretLikePresent,
       approvalGranted: partial.approvalGranted,
       reason: this.redactSecrets(partial.reason),
+      skillIr: partial.skillIr !== undefined ? partial.skillIr : plan.skillIr || null,
+      skillIrDigest: partial.skillIrDigest !== undefined ? partial.skillIrDigest : plan.skillIrDigest || null,
+      parserId: partial.parserId !== undefined ? partial.parserId : plan.parserId || null,
     };
   }
 
@@ -776,7 +967,7 @@ export class SkillInstallPipelineService {
       const file = path.join(this.receiptsDir, `${sanitizeFileId(receipt.id)}.json`);
       const body = JSON.stringify(receipt, null, 2);
       // Defense: never write obvious secret assignments
-      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]?[A-Za-z0-9_\-]{16,}/.test(body)) {
+      if (SECRET_CONTENT_HINT.test(body) && /=\s*['\"]?[A-Za-z0-9_\-]{16}/.test(body)) {
         const safe = { ...receipt, reason: 'redacted: secret-like content stripped from persist' };
         fs.writeFileSync(file, JSON.stringify(safe, null, 2), 'utf8');
         return;

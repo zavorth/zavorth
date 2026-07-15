@@ -1,0 +1,3 @@
+# Notes only
+
+This pack has no SKILL.md; guidance-only.

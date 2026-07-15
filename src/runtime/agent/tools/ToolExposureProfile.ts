@@ -6,8 +6,16 @@
 export type ToolExposureProfileName = 'safe' | 'daily-ops' | 'full';
 
 export const SAFE_MAX_EXPOSED_TOOLS = 12;
-export const DAILY_OPS_MAX_EXPOSED_TOOLS = 24;
+/** leaner daily-ops hot path (was 24). */
+export const DAILY_OPS_MAX_EXPOSED_TOOLS = 18;
 export const FULL_MAX_EXPOSED_TOOLS = 40;
+
+/**
+ * bulk marketplace/install tools — not always-exposed on daily-ops hot path.
+ * Reach via capability-miss (`plugin_suggest`) or full profile / explicit approve.
+ * Env ZAVORTH_TOOL_EXPOSURE_INCLUDE_MARKETPLACE=1 re-includes them in preferred set.
+ */
+export const HOT_PATH_DEFERRED_BULK_TOOLS = new Set(['zavorth_skill_marketplace', 'zavorth_mcp_marketplace']);
 
 /** Baseline always-safe set used by the default "safe" profile (legacy hard-coded 12). */
 export const SAFE_ALWAYS_EXPOSE_TOOLS = new Set([
@@ -41,8 +49,7 @@ export const DAILY_OPS_PREFERRED_TOOLS = new Set([
   'zavorth_action',
   'plugin_recommend',
   'plugin_suggest',
-  // Skill + worker product surface
-  'zavorth_skill_marketplace',
+  // Worker mesh (lean) — marketplace deferred to miss/suggest unless INCLUDE_MARKETPLACE
   'agent_manager',
   'zavorth_delegate',
   'search_query',
@@ -78,6 +85,21 @@ export const DAILY_OPS_PREFERRED_TOOLS = new Set([
   'zavorth_session_search',
   'sessions.search',
 ]);
+
+function includeMarketplaceOnHotPath(): boolean {
+  const raw = String(process.env.ZAVORTH_TOOL_EXPOSURE_INCLUDE_MARKETPLACE || '')
+    .trim()
+    .toLowerCase();
+  return raw === '1' || raw === 'true' || raw === 'yes' || raw === 'on';
+}
+
+/** True when tool is deferred from lean daily-ops always-expose. */
+export function isHotPathDeferredBulkTool(toolName: string): boolean {
+  const name = normalizeToolName(toolName);
+  if (!HOT_PATH_DEFERRED_BULK_TOOLS.has(name)) return false;
+  if (includeMarketplaceOnHotPath()) return false;
+  return true;
+}
 
 /** Product surface tools that daily-ops/full must prefer when registered. */
 export const MESH_PRODUCT_SURFACE_TOOLS = [
@@ -119,13 +141,12 @@ const DESTRUCTIVE_EXACT = new Set([
   'pr_ship_create',
 ]);
 
-const WRITE_LIKE_EXACT = new Set([
-  'memory_write',
-  'memory.write',
-]);
+const WRITE_LIKE_EXACT = new Set(['memory_write', 'memory.write']);
 
 function normalizeToolName(value: string): string {
-  return String(value || '').trim().toLowerCase();
+  return String(value || '')
+    .trim()
+    .toLowerCase();
 }
 
 function readProfileCandidate(value: unknown): string {
@@ -145,10 +166,10 @@ function profileFromRaw(raw: string): ToolExposureProfileName | null {
 function metadataProfile(metadata?: Record<string, unknown> | null): string {
   if (!metadata || typeof metadata !== 'object') return '';
   return readProfileCandidate(
-    metadata.toolExposureProfile
-    ?? metadata.exposureProfile
-    ?? metadata.tool_exposure_profile
-    ?? metadata.exposure_profile,
+    metadata.toolExposureProfile ??
+      metadata.exposureProfile ??
+      metadata.tool_exposure_profile ??
+      metadata.exposure_profile,
   );
 }
 
@@ -185,7 +206,10 @@ export function resolveExposureProfile(input: {
   return resolveExposureProfileName({
     requestMetadata: input.request?.metadata ?? null,
     runMetadata: input.run?.metadata ?? null,
-    envValue: input.envValue ?? (typeof process !== 'undefined' ? process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE : undefined) ?? null,
+    envValue:
+      input.envValue ??
+      (typeof process !== 'undefined' ? process.env.ZAVORTH_TOOL_EXPOSURE_PROFILE : undefined) ??
+      null,
   });
 }
 
@@ -207,12 +231,15 @@ export function isSafePluginObservationTool(toolName: string): boolean {
 
 export function isDailyOpsPreferredTool(toolName: string): boolean {
   const name = normalizeToolName(toolName);
+  if (isHotPathDeferredBulkTool(name)) return false;
+  if (includeMarketplaceOnHotPath() && HOT_PATH_DEFERRED_BULK_TOOLS.has(name)) return true;
   if (DAILY_OPS_PREFERRED_TOOLS.has(name)) return true;
   if (SAFE_ALWAYS_EXPOSE_TOOLS.has(name)) return true;
   if (isSafePluginObservationTool(name)) return true;
   // Dotted aliases for underscore preferred names (memory.get ↔ memory_get).
   const underscored = name.replace(/\./g, '_');
   const dotted = name.replace(/_/g, '.');
+  if (isHotPathDeferredBulkTool(underscored) || isHotPathDeferredBulkTool(dotted)) return false;
   return DAILY_OPS_PREFERRED_TOOLS.has(underscored) || DAILY_OPS_PREFERRED_TOOLS.has(dotted);
 }
 
@@ -225,7 +252,9 @@ export function isProfileAlwaysExpose(profile: ToolExposureProfileName, toolName
   if (!name) return false;
   if (SAFE_ALWAYS_EXPOSE_TOOLS.has(name)) return true;
   if (profile === 'safe') return false;
-  // daily-ops + full share the expanded daily-ops always-include set
+  // full profile may still prefer deferred bulk tools when registered
+  if (profile === 'full' && HOT_PATH_DEFERRED_BULK_TOOLS.has(name)) return true;
+  // daily-ops + full share the expanded daily-ops always-include set (minus hot-path deferred)
   if (isDailyOpsPreferredTool(name)) return true;
   return false;
 }
@@ -264,7 +293,9 @@ export function isFullProfileSecurityExposable(input: {
   const name = normalizeToolName(input.toolName);
   if (!name || isDestructiveExposureTool(name)) return false;
   if (input.requiresConfirmation === true) return false;
-  const risk = String(input.defaultRisk || '').trim().toLowerCase();
+  const risk = String(input.defaultRisk || '')
+    .trim()
+    .toLowerCase();
   if (!risk) {
     // No security definition: do not force-include in full always-path
     // (caller may still expose via approved / safe observation paths).

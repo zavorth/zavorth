@@ -44,18 +44,18 @@ describe('Skill/worker mesh + agent connectivity (dynamic)', () => {
     const rt = createBootstrapToolRuntime({ log: jest.fn() } as any);
     const names = rt.toolRuntime.getRegisteredToolNames();
 
-    expect(names).toEqual(
-      expect.arrayContaining(['zavorth_skill_marketplace', 'agent_manager']),
-    );
+    expect(names).toEqual(expect.arrayContaining(['zavorth_skill_marketplace', 'agent_manager']));
     rt.dispose?.();
   });
 
   it('daily-ops profile prefers mesh tools when registered', () => {
-    expect(DAILY_OPS_PREFERRED_TOOLS.has('zavorth_skill_marketplace')).toBe(true);
+    // marketplace deferred from lean daily-ops always-expose; plugin_suggest covers miss
+    expect(DAILY_OPS_PREFERRED_TOOLS.has('zavorth_skill_marketplace')).toBe(false);
     expect(DAILY_OPS_PREFERRED_TOOLS.has('agent_manager')).toBe(true);
-    expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(true);
+    expect(isDailyOpsPreferredTool('zavorth_skill_marketplace')).toBe(false);
+    expect(isDailyOpsPreferredTool('plugin_suggest')).toBe(true);
     expect(isDailyOpsPreferredTool('agent_manager')).toBe(true);
-    expect(isProfileAlwaysExpose('daily-ops', 'zavorth_skill_marketplace')).toBe(true);
+    expect(isProfileAlwaysExpose('daily-ops', 'zavorth_skill_marketplace')).toBe(false);
     expect(isProfileAlwaysExpose('daily-ops', 'agent_manager')).toBe(true);
     expect(
       resolveExposureProfileName({
@@ -151,9 +151,7 @@ describe('Skill/worker mesh + agent connectivity (dynamic)', () => {
         source: fixture,
         consent: false,
       } as any);
-      const status = String(
-        (blocked as any)?.status || (blocked as any)?.state || (blocked as any)?.kind || '',
-      );
+      const status = String((blocked as any)?.status || (blocked as any)?.state || (blocked as any)?.kind || '');
       expect(
         (blocked as any)?.ok === false ||
           /block|deny|consent|preview|required/i.test(status) ||
