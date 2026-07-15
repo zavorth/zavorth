@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "zavorth.ecosystem-extension-waves.v1",
+  "schemaVersion": "zavorth.ecosystem-extension-packs.v1",
   "goal": "Brand-agnostic skill/plugin/external-agent extensibility: any URI/path/user catalog, optional LLM rank only, no third-party product names in runtime.",
   "doc": "docs/product/ecosystem-extension-waves.md",
   "principles": [
@@ -9,12 +9,30 @@
     "LLM ranks closed candidate lists only when user opts in",
     "Every install/import/apply leaves a receipt"
   ],
-  "mvpConsumer": ["W0", "W1", "W2", "W3", "W4"],
-  "mvpAuthorGrowth": ["W0", "W1", "W2", "W3", "W4", "W5", "W6"],
-  "mvpExternalAttach": ["W0", "W1", "W8"],
-  "waves": [
+  "mvpConsumer": [
+    "contracts-skill-ir",
+    "install-binds",
+    "search-index",
+    "remote-catalogs",
+    "capability-miss"
+  ],
+  "mvpAuthorGrowth": [
+    "contracts-skill-ir",
+    "install-binds",
+    "search-index",
+    "remote-catalogs",
+    "capability-miss",
+    "promote",
+    "plugin-scaffold"
+  ],
+  "mvpExternalAttach": [
+    "contracts-skill-ir",
+    "install-binds",
+    "external-import"
+  ],
+  "packs": [
     {
-      "id": "W0",
+      "id": "contracts-skill-ir",
       "name": "Contracts and SkillIR",
       "status": "shipped",
       "shippedAt": "2026-07-14",
@@ -23,159 +41,122 @@
         "src/contracts/skill/ZavorthSkillIrContract.ts",
         "src/skills/SkillIrNormalizerService.ts",
         "src/services/SkillInstallPipelineService.ts"
-      ],
-      "acceptance": [
-        "SkillIR contract exported with version",
-        "Install path emits IR + digest on receipt",
-        "Fixtures for skill-md-v1 and opaque-guidance-v1"
       ]
     },
     {
-      "id": "W1",
+      "id": "install-binds",
       "name": "Deterministic resolve install binds",
       "status": "shipped",
       "shippedAt": "2026-07-14",
-      "dependsOn": ["W0"],
+      "dependsOn": [
+        "contracts-skill-ir"
+      ],
       "anchors": [
         "src/services/SkillExecutorBindingService.ts",
-        "src/services/SkillInstallPipelineService.ts",
-        "src/tools/ZavorthSkillMarketplaceTool.ts"
-      ],
-      "acceptance": [
-        "Receipt toolBinds always populated",
-        "direct|aliased|gateway|unresolved only",
-        "CLI and agent tool share pipeline"
+        "src/services/SkillInstallPipelineService.ts"
       ]
     },
     {
-      "id": "W2",
-      "name": "Search and optional LLM rank",
+      "id": "search-index",
+      "name": "Skill search index",
       "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W1"],
-      "anchors": [
-        "src/services/SkillSearchIndexService.ts",
-        "src/services/LlmSkillRankService.ts",
-        "src/skills/marketplace/SkillBrowserService.ts",
-        "config/skill-sources.json"
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "install-binds"
       ],
-      "acceptance": ["Default search offline", "LLM rank opt-in only", "No brand product enums in source"]
+      "anchors": [
+        "src/services/SkillSearchIndexService.ts"
+      ]
     },
     {
-      "id": "W3",
+      "id": "remote-catalogs",
+      "name": "Remote catalogs",
+      "status": "shipped",
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "install-binds",
+        "search-index"
+      ],
+      "anchors": [
+        "src/services/SkillRemoteCatalogService.ts"
+      ]
+    },
+    {
+      "id": "capability-miss",
       "name": "Capability miss loop",
       "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W1", "W2"],
-      "anchors": [
-        "src/services/CapabilityMissService.ts",
-        "src/services/AgentToolModelGuidance.ts",
-        "src/tools/PluginRecommendTool.ts",
-        "src/tools/PluginSuggestTool.ts"
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "install-binds"
       ],
-      "acceptance": [
-        "Structured miss yields InstallSuggestion",
-        "Preview without auto-install",
-        "Purity: free-text does not enable"
+      "anchors": [
+        "src/services/CapabilityMissService.ts"
       ]
     },
     {
-      "id": "W4",
-      "name": "Remote catalogs skills and plugins",
+      "id": "promote",
+      "name": "Skill promote",
       "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W1"],
-      "anchors": [
-        "src/services/SkillRemoteCatalogService.ts",
-        "src/services/PluginOsMarketplaceService.ts",
-        "config/skill-catalog.example.json",
-        "config/plugin-os-marketplace.json",
-        "src/cli/ZavorthCliRegistrySkills.ts"
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "contracts-skill-ir",
+        "install-binds"
       ],
-      "acceptance": [
-        "HTTPS catalog refresh with SSRF guards",
-        "Install by catalog id with consent",
-        "Works with zero remote configured"
+      "anchors": [
+        "src/services/SkillPromoteService.ts"
       ]
     },
     {
-      "id": "W5",
-      "name": "Promote draft to skill to plugin",
+      "id": "plugin-scaffold",
+      "name": "Plugin new enable smoke",
       "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W0", "W1"],
-      "anchors": [
-        "src/services/SkillPromoteService.ts",
-        "src/services/experience-skill-learning/ExperienceSkillLearningOperations.ts",
-        "src/cli/LearningLoopCli.ts",
-        "src/services/PluginScaffoldService.ts"
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "capability-miss",
+        "promote"
       ],
-      "acceptance": ["Promote writes SkillIR pack", "Optional plugin scaffold from tools", "No auto-promote"]
-    },
-    {
-      "id": "W6",
-      "name": "Plugin OS authoring and bridges",
-      "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W4", "W5"],
       "anchors": [
-        "src/services/PluginNewService.ts",
-        "src/cli/plugins/ZavorthCliPluginsNamespace.ts",
-        "packages/create-zavorth-plugin",
-        "plugins/examples/example-bridge",
-        "docs/plugin-os.md"
-      ],
-      "acceptance": ["plugins new --enable --smoke path", "Generic bridge template", "plugin-os CI green"]
-    },
-    {
-      "id": "W7",
-      "name": "Self-mod multi-file and gates",
-      "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W0"],
-      "anchors": [
-        "src/services/SelfModificationCommandService.ts",
-        "src/services/selfmod-command/SelfModificationPathPolicyService.ts",
-        "src/services/selfmod-command/SelfModificationPreviewSupport.ts",
-        "src/services/selfmod-command/SelfModificationApplySupport.ts",
-        "config/selfmod-path-policy.json",
-        "docs/self-modification.md"
-      ],
-      "acceptance": ["Multi-file preview_id", "Path policy enforced", "Optional validation gate on apply"]
-    },
-    {
-      "id": "W8",
-      "name": "External agent capability import",
-      "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W0", "W1"],
-      "anchors": [
-        "src/services/ExternalAgentCapabilityImportService.ts",
-        "src/contracts/external/ZavorthExternalAgentCapabilityImportContract.ts",
-        "src/services/ZavorthExternalAgentGatewayService.ts",
-        "scripts/zavorth-external-agent-gateway.ts",
-        "docs/external-agent-gateway.md"
-      ],
-      "acceptance": [
-        "listCapabilities via adapters cli|http|acp|mcp",
-        "Import with consent to SkillIR",
-        "Live invoke still approval-gated"
+        "src/cli/plugins"
       ]
     },
     {
-      "id": "W9",
-      "name": "Efficiency and hot-path",
+      "id": "selfmod-policy",
+      "name": "Selfmod path policy multi-file",
       "status": "shipped",
-      "shippedAt": "2026-07-15",
-      "dependsOn": ["W1", "W2", "W3"],
-      "anchors": [
-        "src/services/SkillHotPathCacheService.ts",
-        "src/skills/SkillIrNormalizerService.ts",
-        "src/services/SkillExecutorBindingService.ts",
-        "src/services/SkillInstallPipelineService.ts",
-        "src/runtime/agent/tools/ToolExposureProfile.ts"
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "contracts-skill-ir"
       ],
-      "acceptance": ["Bind cache hit on second use", "Leaner default tool surface", "Digest match skips re-fetch"]
+      "anchors": [
+        "src/services/selfmod-command/SelfModificationPathPolicyService.ts"
+      ]
+    },
+    {
+      "id": "external-import",
+      "name": "External capability import",
+      "status": "shipped",
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "contracts-skill-ir",
+        "install-binds"
+      ],
+      "anchors": [
+        "src/services/ExternalAgentCapabilityImportService.ts"
+      ]
+    },
+    {
+      "id": "hot-path",
+      "name": "Skill hot-path cache",
+      "status": "shipped",
+      "shippedAt": "2026-07-14",
+      "dependsOn": [
+        "install-binds",
+        "search-index",
+        "remote-catalogs"
+      ],
+      "anchors": [
+        "src/services/SkillHotPathCacheService.ts"
+      ]
     }
   ]
 }

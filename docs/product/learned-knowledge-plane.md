@@ -436,7 +436,7 @@ zavorth knowledge tenant
 | 7.7 | Dream cycle from Knowledge: product preview + npm scheduler entry | Done (CLI paths) |
 | 7.8 | Preference spine stays separate (note only) | Done |
 
-### Package A — UX completeness (Control / Desktop) — **DONE**
+### story timeline — UX completeness (Control / Desktop) — **DONE**
 
 | # | Work | Status |
 | --- | -------------------------------------------------------------- | --------------------------------------------------------------- |
@@ -581,4 +581,4 @@ Example: `learned-knowledge: add LearnedKnowledgePlaneService pack inject`
 
 ## Next step when implementing
 
-Phases **0–7** are done on the product plane. Follow-ups (optional): richer story event sources, live vault index metrics in Advanced, scheduler UI for dream cadence — still no free-text keyword routing and no preference-spine merge.
+Learned knowledge plane capabilities are shipped. Follow-ups (optional): richer story event sources, live vault index metrics in Advanced, scheduler UI for dream cadence — still no free-text keyword routing and no preference-spine merge.

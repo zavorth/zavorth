@@ -20,19 +20,19 @@ npx tsx scripts/learned-knowledge-golden-path.ts --json
 
 Expect `[pass]` for:
 
-| Step              | What it proves                                           |
+| Step | What it proves |
 | ----------------- | -------------------------------------------------------- |
-| workflow-draft    | Multi-tool success → skill draft (Workflows)             |
-| continuum-capture | Chat turn stored for Conversation recall                 |
-| about-you-propose | Operator fact draft (About you)                          |
-| wiki-index        | Knowledge pillar ready (wiki index)                      |
-| pack-inject       | Multi-pillar pack + untrusted inject + no keyword intent |
-| story-timeline    | Cross-pillar “this week” events                          |
-| hub-snapshot      | Control/Desktop JSON: events + advanced                  |
-| dream-preview     | Consolidate preview + last-run receipt (no promote)      |
-| forget-workflow   | Operator can forget a draft by id                        |
-| free-text-purity  | UX router does not keyword-route features                |
-| vault-metrics     | Advanced file-index counts when vault exists             |
+| workflow-draft | Multi-tool success → skill draft (Workflows) |
+| continuum-capture | Chat turn stored for Conversation recall |
+| about-you-propose | Operator fact draft (About you) |
+| wiki-index | Knowledge pillar ready (wiki index) |
+| pack-inject | Multi-pillar pack + untrusted inject + no keyword intent |
+| story-timeline | Cross-pillar “this week” events |
+| hub-snapshot | Control/Desktop JSON: events + advanced |
+| dream-preview | Consolidate preview + last-run receipt (no promote) |
+| forget-workflow | Operator can forget a draft by id |
+| free-text-purity | UX router does not keyword-route features |
+| vault-metrics | Advanced file-index counts when vault exists |
 
 `claimsLiveIntelligence` stays **false** (no live LLM).
 
@@ -79,7 +79,7 @@ Check: inject is budgeted, untrusted-tagged, and not free-text keyword gated.
 ```bash
 zavorth knowledge story
 zavorth knowledge advanced
-zavorth knowledge consolidate   # PREVIEW only
+zavorth knowledge consolidate # PREVIEW only
 ```
 
 Open **Control** or **Desktop Settings → Learned knowledge**:
@@ -114,7 +114,7 @@ You can answer without reading the monorepo:
 
 ## Related
 
-- [learned-knowledge-plane.md](./learned-knowledge-plane.md) — architecture phases 0–7 + Package A/B
+- [learned-knowledge-plane.md](./learned-knowledge-plane.md) — architecture phases 0–7 + UX completeness
 - [experience-skill-learning-loop.md](./experience-skill-learning-loop.md) — Workflows engine
 - [demo-scripts.md](./demo-scripts.md) — Script D (operator demo)
 - [HOW-TO-TEST-VALUE.md](./HOW-TO-TEST-VALUE.md) — value surface checklist
